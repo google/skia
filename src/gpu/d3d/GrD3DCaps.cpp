@@ -137,9 +137,6 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &optionsDesc,
                                                      sizeof(optionsDesc)));
 
-    D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2Desc;
-    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2Desc,
-                                                     sizeof(options2Desc)));
 
     // See https://docs.microsoft.com/en-us/windows/win32/direct3d12/hardware-support
     if (D3D12_RESOURCE_BINDING_TIER_1 == optionsDesc.ResourceBindingTier) {
@@ -156,7 +153,7 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
         fMaxPerStageShaderResourceViews = 2032;
     }
 
-    this->initGrCaps(optionsDesc, options2Desc);
+    this->initGrCaps(optionsDesc, device);
     this->initShaderCaps(adapterDesc.VendorId, optionsDesc);
 
     this->initFormatTable(adapterDesc, device);
@@ -170,15 +167,18 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
 }
 
 void GrD3DCaps::initGrCaps(const D3D12_FEATURE_DATA_D3D12_OPTIONS& optionsDesc,
-                           const D3D12_FEATURE_DATA_D3D12_OPTIONS2& options2Desc) {
+                           ID3D12Device* device) {
     // We assume a minimum of Shader Model 5.1, which allows at most 32 vertex inputs.
     fMaxVertexAttributes = 32;
 
-    // TODO: we can set locations but not sure if we can query them
-    fSampleLocationsSupport = false;
+    // Can use standard sample locations
+    fSampleLocationsSupport = true;
 
-    if (D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER_NOT_SUPPORTED !=
-            options2Desc.ProgrammableSamplePositionsTier) {
+    D3D12_FEATURE_DATA_D3D12_OPTIONS2 options2Desc;
+    if (SUCCEEDED(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS2, &options2Desc,
+                                              sizeof(options2Desc))) &&
+        options2Desc.ProgrammableSamplePositionsTier !=
+                D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER_NOT_SUPPORTED) {
         // We "disable" multisample by colocating all samples at pixel center.
         fMultisampleDisableSupport = true;
     }
@@ -729,6 +729,7 @@ static bool multisample_count_supported(ID3D12Device* device, DXGI_FORMAT format
     D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msqLevels;
     msqLevels.Format = format;
     msqLevels.SampleCount = sampleCount;
+    msqLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
     GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS,
                                                      &msqLevels, sizeof(msqLevels)));
 
