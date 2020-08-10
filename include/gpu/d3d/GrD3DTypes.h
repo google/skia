@@ -159,7 +159,7 @@ struct GrD3DTextureResourceInfo {
     D3D12_RESOURCE_STATES    fResourceState;
     DXGI_FORMAT              fFormat;
     uint32_t                 fLevelCount;
-    unsigned int             fSampleQualityLevel;
+    unsigned int             fSampleQualityPattern;
     GrProtected              fProtected;
 
     GrD3DTextureResourceInfo()
@@ -167,7 +167,7 @@ struct GrD3DTextureResourceInfo {
             , fResourceState(D3D12_RESOURCE_STATE_COMMON)
             , fFormat(DXGI_FORMAT_UNKNOWN)
             , fLevelCount(0)
-            , fSampleQualityLevel(0)
+            , fSampleQualityPattern(DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN)
             , fProtected(GrProtected::kNo) {}
 
     GrD3DTextureResourceInfo(ID3D12Resource* resource,
@@ -180,7 +180,7 @@ struct GrD3DTextureResourceInfo {
             , fResourceState(resourceState)
             , fFormat(format)
             , fLevelCount(levelCount)
-            , fSampleQualityLevel(sampleQualityLevel)
+            , fSampleQualityPattern(sampleQualityLevel)
             , fProtected(isProtected) {}
 
     GrD3DTextureResourceInfo(const GrD3DTextureResourceInfo& info,
@@ -189,14 +189,14 @@ struct GrD3DTextureResourceInfo {
             , fResourceState(static_cast<D3D12_RESOURCE_STATES>(resourceState))
             , fFormat(info.fFormat)
             , fLevelCount(info.fLevelCount)
-            , fSampleQualityLevel(info.fSampleQualityLevel)
+            , fSampleQualityPattern(info.fSampleQualityPattern)
             , fProtected(info.fProtected) {}
 
 #if GR_TEST_UTILS
     bool operator==(const GrD3DTextureResourceInfo& that) const {
         return fResource == that.fResource && fResourceState == that.fResourceState &&
                fFormat == that.fFormat && fLevelCount == that.fLevelCount &&
-               fSampleQualityLevel == that.fSampleQualityLevel && fProtected == that.fProtected;
+               fSampleQualityPattern == that.fSampleQualityPattern && fProtected == that.fProtected;
     }
 #endif
 };
