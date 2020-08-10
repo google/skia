@@ -63,6 +63,11 @@ private:
         return nullptr;
     }
 
+    GrSmallPathAtlasMgr* onGetSmallPathAtlasMgr() override {
+        SkASSERT(0);  // DDL recorders should never invoke this
+        return nullptr;
+    }
+
     // Add to the set of unique program infos required by this DDL
     void recordProgramInfo(const GrProgramInfo* programInfo) final {
         if (!programInfo) {

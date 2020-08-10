@@ -112,6 +112,11 @@ public:
         return fContext->onGetAtlasManager();
     }
 
+    // This accessor should only ever be called by the GrOpFlushState.
+    GrSmallPathAtlasMgr* getSmallPathAtlasMgr() {
+        return fContext->onGetSmallPathAtlasMgr();
+    }
+
     void copyRenderTasksFromDDL(sk_sp<const SkDeferredDisplayList>, GrRenderTargetProxy* newDest);
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&);

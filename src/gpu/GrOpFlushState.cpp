@@ -206,6 +206,10 @@ GrAtlasManager* GrOpFlushState::atlasManager() const {
     return fGpu->getContext()->priv().getAtlasManager();
 }
 
+GrSmallPathAtlasMgr* GrOpFlushState::smallPathAtlasManager() const {
+    return fGpu->getContext()->priv().getSmallPathAtlasMgr();
+}
+
 void GrOpFlushState::drawMesh(const GrSimpleMesh& mesh) {
     SkASSERT(mesh.fIsInitialized);
     if (!mesh.fIndexBuffer) {

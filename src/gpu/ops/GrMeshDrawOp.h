@@ -19,6 +19,7 @@ class GrAtlasManager;
 class GrCaps;
 class GrStrikeCache;
 class GrOpFlushState;
+class GrSmallPathAtlasMgr;
 
 /**
  * Base class for mesh-drawing GrDrawOps.
@@ -222,6 +223,7 @@ public:
 
     virtual GrStrikeCache* strikeCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;
+    virtual GrSmallPathAtlasMgr* smallPathAtlasManager() const = 0;
 
     // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
     // array it will use that it did not access during a call to visitProxies. This is usually the
