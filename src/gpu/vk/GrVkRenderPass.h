@@ -42,6 +42,7 @@ public:
             : INHERITED(gpu)
             , fRenderPass(renderPass)
             , fAttachmentFlags(kExternal_AttachmentFlag)
+            , fHasInputSelfDependency(false)
             , fClearValueCount(0)
             , fColorAttachmentIndex(colorAttachmentIndex) {}
 
