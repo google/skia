@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "a1de756c_79c35e43",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T21:24:09Z",
+      "side": 1,
+      "message": "So digging a little further it would have been fine, mostly, because we check for D3D12_PROGRAMMABLE_SAMPLE_POSITIONS_TIER when setting up the fMultisampleDisableSupport cap. If that\u0027s enabled, then the ID3D12GraphicsCommandList1 interface should be available and so these can just be asserts. However, the OPTIONS2 feature set that contains that caps information may not always be available, so I fixed that.",
+      "parentUuid": "0f425f36_65641820",
+      "range": {
+        "startLine": 285,
+        "startChar": 8,
+        "endLine": 285,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd5f224e_c15c58f5",
         "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
         "patchSetId": 7
@@ -141,6 +165,30 @@
       "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b57fe07_6b20cbeb",
+        "filename": "src/gpu/d3d/GrD3DCommandList.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T21:24:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd5f224e_c15c58f5",
+      "range": {
+        "startLine": 296,
+        "startChar": 8,
+        "endLine": 296,
+        "endChar": 83
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -167,6 +215,30 @@
     },
     {
       "key": {
+        "uuid": "7d5f7f97_4f1d9b97",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T21:24:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67f5341a_63fe9791",
+      "range": {
+        "startLine": 220,
+        "startChar": 34,
+        "endLine": 220,
+        "endChar": 35
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07c820ba_28f2650f",
         "filename": "src/gpu/d3d/GrD3DGpu.cpp",
         "patchSetId": 7
@@ -187,6 +259,30 @@
       "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7132004_6769e62f",
+        "filename": "src/gpu/d3d/GrD3DGpu.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-10T21:24:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07c820ba_28f2650f",
+      "range": {
+        "startLine": 250,
+        "startChar": 0,
+        "endLine": 252,
+        "endChar": 9
+      },
+      "revId": "ab0c58400e67e60036577dacdc1b691fe99fcea8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
