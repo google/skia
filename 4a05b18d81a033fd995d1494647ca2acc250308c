@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "e57dd7a1_392284c1",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:35:45Z",
+      "side": 1,
+      "message": "Since \"B\" is a difference op, everything inside b\u0027s inner bounds (or its contains function) has 0 coverage. Between its inner and outer bounds has undetermined coverage between 0 and 1. Everything outside of b\u0027s outer bounds has full coverage.\n\nIf the intersection element \"A\" is completely outside of \"B\"\u0027s outer bounds, then \"A\" is only intersecting the full coverage portion of B so it\u0027s no different than just being kAOnly.",
+      "parentUuid": "574adf6d_1e679edb",
+      "range": {
+        "startLine": 66,
+        "startChar": 37,
+        "endLine": 66,
+        "endChar": 43
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d41e2cb3_81cf69cf",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 8
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "f377f47d_2b69bb8d",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:35:45Z",
+      "side": 1,
+      "message": "contains() is purely geometric, and elements\u0027 shapes are never inverse filled. From that standpoint, a diff \"A\" can still contain a diff \"B\" since it\u0027s just testing if the cut-out shape of B is contained in the cut-out shape of A. When that happens, the infinitely large covered region outside of B will be clipped to A\u0027s shape still, so kAOnly is the a valid simplification.",
+      "parentUuid": "d41e2cb3_81cf69cf",
+      "range": {
+        "startLine": 94,
+        "startChar": 17,
+        "endLine": 94,
+        "endChar": 29
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9f4b6b7_02f728a0",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 8
@@ -79,6 +127,24 @@
       "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7d8f7d1_588a9079",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:35:45Z",
+      "side": 1,
+      "message": "Correct, and done.",
+      "parentUuid": "a9f4b6b7_02f728a0",
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -128,6 +194,30 @@
     },
     {
       "key": {
+        "uuid": "89cd5b24_f71301ab",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:35:45Z",
+      "side": 1,
+      "message": "Is this always the case? I suppose it means the transform collapse any clip geometry to a point or line. If so, then the simplification is just to mark the element as kEmpty since the device-space geometry has no area.",
+      "parentUuid": "ddb3b1e2_3400a376",
+      "range": {
+        "startLine": 432,
+        "startChar": 9,
+        "endLine": 432,
+        "endChar": 22
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fba7063e_e63ae04a",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 8
@@ -139,6 +229,30 @@
       "writtenOn": "2020-08-08T00:58:54Z",
       "side": 1,
       "message": "Could we promote the non-aa rect to aa and round the bounds? Or does that not matter since it will turn into scissor anyway?",
+      "range": {
+        "startLine": 637,
+        "startChar": 23,
+        "endLine": 637,
+        "endChar": 28
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "755203c3_d0ad074a",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:35:45Z",
+      "side": 1,
+      "message": "I don\u0027t think it would change the eventual application strategy; we\u0027d have once scissor that is the rounded bounds and one AA rect coverage FP. If we did the promotion here, we\u0027d determine both of these details with one Element, whereas now we see the non-AA and see it\u0027s scissor-only, and then see the AA rect and add a coverage FP.\n\nI\u0027ll let others weigh in, but I could also see adding this optimization as a second step.",
+      "parentUuid": "fba7063e_e63ae04a",
       "range": {
         "startLine": 637,
         "startChar": 23,
@@ -171,6 +285,30 @@
       "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b63b82e_3e996fc7",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:35:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "110d9d2f_5aef9eb7",
+      "range": {
+        "startLine": 1203,
+        "startChar": 27,
+        "endLine": 1203,
+        "endChar": 38
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

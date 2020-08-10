@@ -16,6 +16,24 @@
       "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16946c37_f55b757b",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-10T15:35:45Z",
+      "side": 0,
+      "message": "We were tripping up on it when running on the vkddl bot. This function and contains() already struggle with numerical precision (see the kScale comment above). I found that if I adjusted kScale to 1e-2, the vkddl bot never hit the assert.\n\nEvery time I\u0027ve inspected the assertion failures, it\u0027s always been that the corner ellipse distance check is over by a very small fraction, so it hasn\u0027t indicated a bug in the code. I removed the assert entirely instead of tweaking scale because I imagined this would just lead to pointless fuzzer bugs in the future, when it doesn\u0027t really change the visual result of a clipping operation.",
+      "parentUuid": "81786cc8_e8d8040d",
+      "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
