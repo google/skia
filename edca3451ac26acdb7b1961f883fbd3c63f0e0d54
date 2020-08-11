@@ -16,6 +16,23 @@
       "revId": "edca3451ac26acdb7b1961f883fbd3c63f0e0d54",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "215e546f_0bfe8c12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-11T15:44:29Z",
+      "side": 1,
+      "message": "... We *could* change the representation to be points instead of distances. I think this solves this fragility issue wholesale... (not proposing anything for this CL)",
+      "revId": "edca3451ac26acdb7b1961f883fbd3c63f0e0d54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
