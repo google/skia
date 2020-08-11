@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "39dd3fdd_a7434764",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-11T17:47:46Z",
+      "side": 1,
+      "message": "Ah, good point. If this is fuzzer is just to help bench testing, then that\u0027s fine. Maybe just add an explicit comment that this isn\u0027t run on oss-fuzz? Maybe move the fuzzer into a different subdirectory (not oss_fuzz, but maybe experimental)?",
+      "parentUuid": "ecb183d4_b39d4d06",
+      "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b066013b_e6014aaf",
         "filename": "site/dev/testing/fuzz.md",
         "patchSetId": 1
