@@ -148,7 +148,13 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                 ReadPixelsCallback callback,
                                                 ReadPixelsContext context) {
     auto* rtc = this->fDevice->accessRenderTargetContext();
-    rtc->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = rtc->priv().recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+    rtc->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleQuality,
+                                   callback, context);
 }
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -160,7 +166,13 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSp
                                                       ReadPixelsCallback callback,
                                                       ReadPixelsContext context) {
     auto* rtc = this->fDevice->accessRenderTargetContext();
-    rtc->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+    // Context TODO: Elevate direct context requirement to public API.
+    auto dContext = rtc->priv().recordingContext()->asDirectContext();
+    if (!dContext) {
+        return;
+    }
+    rtc->asyncRescaleAndReadPixelsYUV420(dContext,
+                                         yuvColorSpace,
                                          std::move(dstColorSpace),
                                          srcRect,
                                          dstSize,
