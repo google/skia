@@ -54,7 +54,7 @@ public:
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
-        str.appendf("Mode: %s", SkBlendMode_Name(fMode));
+        str.appendf("BlendFragmentProcessor(fMode=%s)", SkBlendMode_Name(fMode));
         return str;
     }
 #endif
