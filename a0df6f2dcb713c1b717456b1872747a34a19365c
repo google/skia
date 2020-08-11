@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aad9235d_d9e271ec",
+        "filename": "gm/crbug_1113794.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-11T23:09:52Z",
+      "side": 1,
+      "message": "nit: line wrapping",
+      "range": {
+        "startLine": 28,
+        "startChar": 101,
+        "endLine": 28,
+        "endChar": 128
+      },
+      "revId": "a0df6f2dcb713c1b717456b1872747a34a19365c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b374827_f78aef4e",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-11T23:09:52Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand what this particular change does. `calc_dash_scaling` only uses the 1/magnitude of these points. If `rotMatrix` is just a rotation and not doing other transformations, shouldn\u0027t magnitude(pts) \u003d\u003d magnitude(fPtsRot)? Is `align_to_x_axis` actually putting more things in `rotMatrix` than just a rotation?",
+      "range": {
+        "startLine": 775,
+        "startChar": 91,
+        "endLine": 775,
+        "endChar": 94
+      },
+      "revId": "a0df6f2dcb713c1b717456b1872747a34a19365c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
