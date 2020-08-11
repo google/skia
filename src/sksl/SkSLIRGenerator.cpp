@@ -826,8 +826,10 @@ private:
     T* fContainer;
 };
 
+template <typename T> AutoClear(T* c) -> AutoClear<T>;
+
 void IRGenerator::convertFunction(const ASTNode& f) {
-    AutoClear<std::set<const FunctionDeclaration*>> clear(&fReferencedIntrinsics);
+    AutoClear clear(&fReferencedIntrinsics);
     auto iter = f.begin();
     const Type* returnType = this->convertType(*(iter++));
     if (!returnType) {
@@ -1030,11 +1032,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (Program::kVertex_Kind == fKind && fd.fName == "main" && fRTAdjust) {
             body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
         }
-        std::unique_ptr<FunctionDefinition> result(new FunctionDefinition(
-                                                                 f.fOffset,
-                                                                 *decl,
-                                                                 std::move(body),
-                                                                 std::move(fReferencedIntrinsics)));
+        auto result = std::make_unique<FunctionDefinition>(f.fOffset, *decl, std::move(body),
+                                                           std::move(fReferencedIntrinsics));
         decl->fDefinition = result.get();
         result->fSource = &f;
         fProgramElements->push_back(std::move(result));

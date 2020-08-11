@@ -8,6 +8,8 @@
 #include "src/sksl/SkSLRehydrator.h"
 
 #include <memory>
+#include <unordered_set>
+
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
@@ -278,7 +280,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(
                                                                  Symbol::kFunctionDeclaration_Kind);
             std::unique_ptr<Statement> body = this->statement();
-            std::set<const FunctionDeclaration*> refs;
+            std::unordered_set<const FunctionDeclaration*> refs;
             uint8_t refCount = this->readU8();
             for (int i = 0; i < refCount; ++i) {
                 refs.insert(this->symbolRef<FunctionDeclaration>(
