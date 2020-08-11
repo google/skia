@@ -366,21 +366,25 @@ class TestFPGenerator {
         GrProcessorTestData::ViewInfo fTestViews[2];
 };
 
-// Creates a texture of premul colors used as the output of the fragment processor that precedes
-// the fragment processor under test. Color values are those provided by input_texel_color().
-GrSurfaceProxyView make_input_texture(GrRecordingContext* context, int width, int height,
-                                      SkScalar delta) {
-    GrColor* data = new GrColor[width * height];
+// Creates an array of color values from input_texel_color(), to be used as an input texture.
+std::vector<GrColor> make_input_pixels(int width, int height, SkScalar delta) {
+    std::vector<GrColor> pixel(width * height);
     for (int y = 0; y < width; ++y) {
         for (int x = 0; x < height; ++x) {
-            data[width * y + x] = input_texel_color(x, y, delta);
+            pixel[width * y + x] = input_texel_color(x, y, delta);
         }
     }
 
+    return pixel;
+}
+
+// Creates a texture of premul colors used as the output of the fragment processor that precedes
+// the fragment processor under test. An array of W*H colors are passed in as the texture data.
+GrSurfaceProxyView make_input_texture(GrRecordingContext* context,
+                                      int width, int height, GrColor* pixel) {
     SkImageInfo ii = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     SkBitmap bitmap;
-    bitmap.installPixels(ii, data, ii.minRowBytes(),
-                         [](void* addr, void* context) { delete[] (GrColor*)addr; }, nullptr);
+    bitmap.installPixels(ii, pixel, ii.minRowBytes());
     bitmap.setImmutable();
     GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
     return maker.view(GrMipmapped::kNo);
@@ -550,11 +554,17 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     // difference between the frame outputs if the FP is properly following the modulation
     // requirements of the coverage optimization.
     static constexpr SkScalar kInputDelta = 0.2f;
-    GrSurfaceProxyView inputTexture1 = make_input_texture(context, kRenderSize, kRenderSize, 0.0f);
-    GrSurfaceProxyView inputTexture2 = make_input_texture(context, kRenderSize, kRenderSize,
-                                                          kInputDelta);
-    GrSurfaceProxyView inputTexture3 = make_input_texture(context, kRenderSize, kRenderSize,
-                                                          2 * kInputDelta);
+    std::vector<GrColor> inputPixels1 = make_input_pixels(kRenderSize, kRenderSize, 0.0f);
+    std::vector<GrColor> inputPixels2 =
+            make_input_pixels(kRenderSize, kRenderSize, 1 * kInputDelta);
+    std::vector<GrColor> inputPixels3 =
+            make_input_pixels(kRenderSize, kRenderSize, 2 * kInputDelta);
+    GrSurfaceProxyView inputTexture1 =
+            make_input_texture(context, kRenderSize, kRenderSize, inputPixels1.data());
+    GrSurfaceProxyView inputTexture2 =
+            make_input_texture(context, kRenderSize, kRenderSize, inputPixels2.data());
+    GrSurfaceProxyView inputTexture3 =
+            make_input_texture(context, kRenderSize, kRenderSize, inputPixels3.data());
 
     // Encoded images are very verbose and this tests many potential images, so only export the
     // first failure (subsequent failures have a reasonable chance of being related).
@@ -666,14 +676,14 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             for (int y = 0; y < kRenderSize; ++y) {
                 for (int x = 0; x < kRenderSize; ++x) {
                     bool passing = true;
-                    GrColor input = input_texel_color(x, y, 0.0f);
+                    GrColor input = inputPixels1[y * kRenderSize + x];
                     GrColor output = readData1[y * kRenderSize + x];
 
                     if (fp->compatibleWithCoverageAsAlpha()) {
                         GrColor ins[3];
                         ins[0] = input;
-                        ins[1] = input_texel_color(x, y, kInputDelta);
-                        ins[2] = input_texel_color(x, y, 2 * kInputDelta);
+                        ins[1] = inputPixels2[y * kRenderSize + x];
+                        ins[2] = inputPixels3[y * kRenderSize + x];
 
                         GrColor outs[3];
                         outs[0] = output;
@@ -904,7 +914,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact,
             {kRenderSize, kRenderSize});
 
-    GrSurfaceProxyView inputTexture = make_input_texture(context, kRenderSize, kRenderSize, 0.0f);
+    std::vector<GrColor> inputPixels = make_input_pixels(kRenderSize, kRenderSize, 0.0f);
+    GrSurfaceProxyView inputTexture =
+            make_input_texture(context, kRenderSize, kRenderSize, inputPixels.data());
 
     // On failure we write out images, but just write the first failing set as the print is very
     // large.
