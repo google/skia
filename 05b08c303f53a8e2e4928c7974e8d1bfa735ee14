@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb30cf93_e32cd2bd",
+        "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-11T17:34:35Z",
+      "side": 1,
+      "message": "Assigning the int64_t here looks to be the problem Mike fixed previously. Making them both uint64_t builds without errors/warnings.",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 33
+      },
+      "revId": "05b08c303f53a8e2e4928c7974e8d1bfa735ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
