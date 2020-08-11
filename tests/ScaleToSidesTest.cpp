@@ -38,7 +38,10 @@ DEF_TEST(ScaleToSides, reporter) {
         333333334.0,
         FLT_MAX,
         FLT_EPSILON,
-        FLT_MIN
+        FLT_MIN,
+        340282569745034499980078846904281071616.0,
+        170141284872517249990039423452140535808.0,
+        170141244307698042686698575557637963776.0,
     };
 
     int numInterestingValues = (int)SK_ARRAY_COUNT(interestingValues);
