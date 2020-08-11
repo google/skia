@@ -38,6 +38,9 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrRGBToHSLFilterEffect(std::move(inputFP)));
     }
     GrRGBToHSLFilterEffect(const GrRGBToHSLFilterEffect& src);
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RGBToHSLFilterEffect"; }
 
