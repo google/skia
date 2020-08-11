@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86d7639d_0d5693f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-11T17:22:18Z",
+      "side": 1,
+      "message": "I think several developers still like having a single binary to run that can help reproduce fuzzing bugs that are filed. Please add a hook to fuzz/FuzzMain.cpp for this fuzzer as well, so that reproducing work flow can be maintained.\n\nOtherwise, lgtm.",
+      "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
