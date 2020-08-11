@@ -22,6 +22,30 @@
       "revId": "1ac64f261fbbac19023b0d30bd4a9915cd5a81f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8e84df4_ac2a7bb7",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1463,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-11T18:34:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03af4307_3a85b052",
+      "range": {
+        "startLine": 1463,
+        "startChar": 76,
+        "endLine": 1463,
+        "endChar": 96
+      },
+      "revId": "1ac64f261fbbac19023b0d30bd4a9915cd5a81f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
