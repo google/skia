@@ -16,11 +16,11 @@ in fragmentProcessor inputFP;
 }
 
 @class {
-    static bool TestForPreservingPMConversions(GrDirectContext* context);
+    static bool TestForPreservingPMConversions(GrDirectContext* dContext);
 }
 
 @cppEnd {
-    bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* context) {
+    bool GrConfigConversionEffect::TestForPreservingPMConversions(GrDirectContext* dContext) {
         static constexpr int kSize = 256;
         static constexpr GrColorType kColorType = GrColorType::kRGBA_8888;
         SkAutoTMalloc<uint32_t> data(kSize * kSize * 3);
@@ -47,9 +47,9 @@ in fragmentProcessor inputFP;
                                                  kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
         auto readRTC = GrRenderTargetContext::Make(
-                context, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
+                dContext, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
         auto tempRTC = GrRenderTargetContext::Make(
-                context, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
+                dContext, kColorType, nullptr, SkBackingFit::kExact, {kSize, kSize});
         if (!readRTC || !readRTC->asTextureProxy() || !tempRTC) {
             return false;
         }
@@ -64,7 +64,7 @@ in fragmentProcessor inputFP;
         bitmap.installPixels(ii, srcData, 4 * kSize);
         bitmap.setImmutable();
 
-        GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+        GrBitmapTextureMaker maker(dContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
         auto dataView = maker.view(GrMipmapped::kNo);
         if (!dataView) {
             return false;
@@ -83,7 +83,7 @@ in fragmentProcessor inputFP;
         paint1.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
         readRTC->fillRectToRect(nullptr, std::move(paint1), GrAA::kNo, SkMatrix::I(), kRect, kRect);
-        if (!readRTC->readPixels(ii, firstRead, 0, {0, 0})) {
+        if (!readRTC->readPixels(dContext, ii, firstRead, 0, {0, 0})) {
             return false;
         }
 
@@ -107,7 +107,7 @@ in fragmentProcessor inputFP;
 
         readRTC->fillRectToRect(nullptr, std::move(paint3), GrAA::kNo, SkMatrix::I(), kRect, kRect);
 
-        if (!readRTC->readPixels(ii, secondRead, 0, {0, 0})) {
+        if (!readRTC->readPixels(dContext, ii, secondRead, 0, {0, 0})) {
             return false;
         }
 
