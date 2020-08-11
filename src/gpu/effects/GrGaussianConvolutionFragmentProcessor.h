@@ -42,9 +42,8 @@ public:
 
 #ifdef SK_DEBUG
     SkString dumpInfo() const override {
-        SkString str;
-        str.appendf("dir: %s radius: %d", Direction::kX == fDirection ? "X" : "Y", fRadius);
-        return str;
+        return SkStringPrintf("GaussianConvolutionFragmentProcessor(dir=%s, radius=%d)",
+                              Direction::kX == fDirection ? "X" : "Y", fRadius);
     }
 #endif
 
