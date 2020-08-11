@@ -35,6 +35,7 @@ struct Modifiers {
         kPLSIn_Flag          = 1 << 14,
         kPLSOut_Flag         = 1 << 15,
         kVarying_Flag        = 1 << 16,
+        kForceInline_Flag    = 1 << 17,
     };
 
     Modifiers()
@@ -91,6 +92,9 @@ struct Modifiers {
         }
         if (fFlags & kVarying_Flag) {
             result += "varying ";
+        }
+        if (fFlags & kForceInline_Flag) {
+            result += "forceinline ";
         }
         if ((fFlags & kIn_Flag) && (fFlags & kOut_Flag)) {
             result += "inout ";
