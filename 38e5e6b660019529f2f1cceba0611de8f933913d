@@ -16,6 +16,29 @@
       "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c823947_107cafd1",
+        "filename": "site/dev/testing/fuzz.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T17:24:05Z",
+      "side": 1,
+      "message": "Usually a package like clang-10 installs \u0027clang-10\u0027 and \u0027clang++-10\u0027. Either these should be changed or the above instructions changed to be the non-10 packages. (Though usually one wants the latest and greatest driver.)",
+      "range": {
+        "startLine": 55,
+        "startChar": 10,
+        "endLine": 55,
+        "endChar": 15
+      },
+      "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
