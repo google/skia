@@ -97,7 +97,7 @@ static void check_565(skiatest::Reporter* reporter,
     }
 }
 
-static void run_test(skiatest::Reporter* reporter, GrDirectContext* context, int arraySize,
+static void run_test(skiatest::Reporter* reporter, GrDirectContext* dContext, int arraySize,
                      SkColorType colorType) {
     SkTDArray<uint16_t> controlPixelData;
     // We will read back into an 8888 buffer since 565/4444 read backs aren't supported
@@ -116,21 +116,21 @@ static void run_test(skiatest::Reporter* reporter, GrDirectContext* context, int
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         auto grColorType = SkColorTypeToGrColorType(colorType);
         auto proxy = sk_gpu_test::MakeTextureProxyFromData(
-                context, GrRenderable::kNo, origin,
+                dContext, GrRenderable::kNo, origin,
                 {grColorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
                 controlPixelData.begin(), 0);
         SkASSERT(proxy);
 
-        GrSwizzle readSwizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                       grColorType);
+        GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                        grColorType);
 
         GrSurfaceProxyView view(std::move(proxy), origin, readSwizzle);
-        GrSurfaceContext sContext(context, std::move(view), grColorType, kPremul_SkAlphaType,
+        GrSurfaceContext sContext(dContext, std::move(view), grColorType, kPremul_SkAlphaType,
                                   nullptr);
 
-        if (!sContext.readPixels(dstInfo, readBuffer.begin(), 0, {0, 0})) {
+        if (!sContext.readPixels(dContext, dstInfo, readBuffer.begin(), 0, {0, 0})) {
             // We only require this to succeed if the format is renderable.
-            REPORTER_ASSERT(reporter, !context->colorTypeSupportedAsSurface(colorType));
+            REPORTER_ASSERT(reporter, !dContext->colorTypeSupportedAsSurface(colorType));
             return;
         }
 

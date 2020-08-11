@@ -120,7 +120,9 @@ static bool check_no_conversion(uint32_t input, uint32_t output, float error) {
 
 typedef bool (*CheckFn) (uint32_t orig, uint32_t actual, float error);
 
-void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* context,
+void read_and_check_pixels(skiatest::Reporter* reporter,
+                           GrDirectContext* dContext,
+                           GrSurfaceContext* sContext,
                            uint32_t* origData,
                            const SkImageInfo& dstInfo, CheckFn checker, float error,
                            const char* subtestName) {
@@ -129,7 +131,7 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* conte
     SkAutoTMalloc<uint32_t> readData(w * h);
     memset(readData.get(), 0, sizeof(uint32_t) * w * h);
 
-    if (!context->readPixels(dstInfo, readData.get(), 0, {0, 0})) {
+    if (!sContext->readPixels(dContext, dstInfo, readData.get(), 0, {0, 0})) {
         ERRORF(reporter, "Could not read pixels for %s.", subtestName);
         return;
     }
@@ -201,16 +203,16 @@ static std::unique_ptr<GrSurfaceContext> make_surface_context(Encoding contextEn
 }
 
 static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, Encoding readEncoding,
-                            float error, CheckFn check, GrRecordingContext* rContext,
+                            float error, CheckFn check, GrDirectContext* dContext,
                             skiatest::Reporter* reporter) {
-    auto surfaceContext = make_surface_context(contextEncoding, rContext, reporter);
+    auto surfaceContext = make_surface_context(contextEncoding, dContext, reporter);
     if (!surfaceContext) {
         return;
     }
     auto writeII = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                      encoding_as_color_space(writeEncoding));
     auto data = make_data();
-    if (!surfaceContext->writePixels(writeII, data.get(), 0, {0, 0})) {
+    if (!surfaceContext->writePixels(dContext, writeII, data.get(), 0, {0, 0})) {
         ERRORF(reporter, "Could not write %s to %s surface context.",
                encoding_as_str(writeEncoding), encoding_as_str(contextEncoding));
         return;
@@ -221,8 +223,8 @@ static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, En
     SkString testName;
     testName.printf("write %s data to a %s context and read as %s.", encoding_as_str(writeEncoding),
                     encoding_as_str(contextEncoding), encoding_as_str(readEncoding));
-    read_and_check_pixels(reporter, surfaceContext.get(), data.get(), readII, check, error,
-                          testName.c_str());
+    read_and_check_pixels(reporter, dContext, surfaceContext.get(), data.get(), readII, check,
+                          error, testName.c_str());
 }
 
 // Test all combinations of writePixels/readPixels where the surface context/write source/read dst

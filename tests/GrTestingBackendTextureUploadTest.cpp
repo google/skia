@@ -80,9 +80,10 @@ static void testing_only_texture_test(skiatest::Reporter* reporter, GrDirectCont
                                                  kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, surfaceContext);
 
-    bool result = surfaceContext->readPixels({grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight},
+    bool result = surfaceContext->readPixels(dContext,
+                                             {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight},
                                              actualPixels.writable_addr(), actualPixels.rowBytes(),
-                                             {0, 0}, dContext);
+                                             {0, 0});
 
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter,

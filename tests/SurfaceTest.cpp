@@ -773,6 +773,7 @@ static sk_sp<SkSurface> create_gpu_surface_backend_texture_as_render_target(
 }
 
 static void test_surface_context_clear(skiatest::Reporter* reporter,
+                                       GrDirectContext* dContext,
                                        GrSurfaceContext* surfaceContext, uint32_t expectedValue) {
     int w = surfaceContext->width();
     int h = surfaceContext->height();
@@ -783,8 +784,8 @@ static void test_surface_context_clear(skiatest::Reporter* reporter,
     readback.alloc(ii);
 
     readback.erase(~expectedValue);
-    surfaceContext->readPixels(readback.info(), readback.writable_addr(), readback.rowBytes(),
-                               {0, 0});
+    surfaceContext->readPixels(dContext, readback.info(), readback.writable_addr(),
+                               readback.rowBytes(), {0, 0});
     for (int y = 0; y < h; ++y) {
         for (int x = 0; x < w; ++x) {
             uint32_t pixel = readback.addr32()[y * w + x];
@@ -805,19 +806,19 @@ static void test_surface_context_clear(skiatest::Reporter* reporter,
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
     // Snaps an image from a surface and then makes a GrSurfaceContext from the image's texture.
-    auto makeImageSurfaceContext = [context](SkSurface* surface) {
+    auto makeImageSurfaceContext = [dContext](SkSurface* surface) {
         sk_sp<SkImage> i(surface->makeImageSnapshot());
         SkImage_Gpu* gpuImage = (SkImage_Gpu*)as_IB(i);
-        return GrSurfaceContext::Make(context, *gpuImage->view(context),
+        return GrSurfaceContext::Make(dContext, *gpuImage->view(dContext),
                                       SkColorTypeToGrColorType(i->colorType()), kPremul_SkAlphaType,
                                       gpuImage->refColorSpace());
     };
 
     // Test that non-wrapped RTs are created clear.
     for (auto& surface_func : {&create_gpu_surface, &create_gpu_scratch_surface}) {
-        auto surface = surface_func(context, kPremul_SkAlphaType, nullptr);
+        auto surface = surface_func(dContext, kPremul_SkAlphaType, nullptr);
         if (!surface) {
             ERRORF(reporter, "Could not create GPU SkSurface.");
             return;
@@ -827,9 +828,9 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             ERRORF(reporter, "Could access surface context of GPU SkSurface.");
             return;
         }
-        test_surface_context_clear(reporter, rtc, 0x0);
+        test_surface_context_clear(reporter, dContext, rtc, 0x0);
         auto imageSurfaceCtx = makeImageSurfaceContext(surface.get());
-        test_surface_context_clear(reporter, imageSurfaceCtx.get(), 0x0);
+        test_surface_context_clear(reporter, dContext, imageSurfaceCtx.get(), 0x0);
     }
 
     // Wrapped RTs are *not* supposed to clear (to allow client to partially update a surface).
@@ -837,7 +838,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
     for (auto& surfaceFunc : {&create_gpu_surface_backend_texture,
                               &create_gpu_surface_backend_texture_as_render_target}) {
         GrBackendTexture backendTex;
-        auto surface = surfaceFunc(context, 1, kOrigColor, &backendTex);
+        auto surface = surfaceFunc(dContext, 1, kOrigColor, &backendTex);
         if (!surface) {
             ERRORF(reporter, "Could not create GPU SkSurface.");
             return;
@@ -847,10 +848,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
             ERRORF(reporter, "Could access surface context of GPU SkSurface.");
             return;
         }
-        test_surface_context_clear(reporter, rtc, kOrigColor.toSkColor());
+        test_surface_context_clear(reporter, dContext, rtc, kOrigColor.toSkColor());
         auto imageSurfaceCtx = makeImageSurfaceContext(surface.get());
-        test_surface_context_clear(reporter, imageSurfaceCtx.get(), kOrigColor.toSkColor());
-        context->deleteBackendTexture(backendTex);
+        test_surface_context_clear(reporter, dContext, imageSurfaceCtx.get(),
+                                   kOrigColor.toSkColor());
+        dContext->deleteBackendTexture(backendTex);
     }
 }
 
