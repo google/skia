@@ -40,16 +40,14 @@ static constexpr SkScalar kMaxDim = 73;
 static constexpr SkScalar kMinSize = SK_ScalarHalf;
 static constexpr SkScalar kMaxSize = 2*kMaxMIP;
 
-////////////////////////////////////////////////////////////////////////////////
 GrSmallPathRenderer::GrSmallPathRenderer() : fAtlasMgr(new GrSmallPathAtlasMgr) {}
 
-GrSmallPathRenderer::~GrSmallPathRenderer() { }
+GrSmallPathRenderer::~GrSmallPathRenderer() {}
 
 void GrSmallPathRenderer::addToOnFlushCallbacks(GrRecordingContext* rContext) {
     rContext->priv().addOnFlushCallbackObject(fAtlasMgr.get());
 }
 
-////////////////////////////////////////////////////////////////////////////////
 GrPathRenderer::CanDrawPath GrSmallPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
     if (!args.fCaps->shaderCaps()->shaderDerivativeSupport()) {
         return CanDrawPath::kNo;
@@ -111,8 +109,7 @@ public:
                                           bool gammaCorrect,
                                           const GrUserStencilSettings* stencilSettings) {
         return Helper::FactoryHelper<SmallPathOp>(context, std::move(paint), shape, viewMatrix,
-                                                  atlasMgr, gammaCorrect,
-                                                  stencilSettings);
+                                                  atlasMgr, gammaCorrect, stencilSettings);
     }
 
     SmallPathOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color, const GrStyledShape& shape,
@@ -391,7 +388,8 @@ private:
 
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
                           GrDrawOpAtlas* atlas, GrSmallPathShapeData* shapeData,
-                          const GrStyledShape& shape, uint32_t dimension, SkScalar scale) const {
+                          const GrStyledShape& shape,
+                          uint32_t dimension, SkScalar scale) const {
 
         const SkRect& bounds = shape.bounds();
 
@@ -438,13 +436,12 @@ private:
         shape.asPath(&path);
         // Generate signed distance field directly from SkPath
         bool succeed = GrGenerateDistanceFieldFromPath((unsigned char*)dfStorage.get(),
-                                        path, drawMatrix,
-                                        width, height, width * sizeof(unsigned char));
+                                                       path, drawMatrix, width, height,
+                                                       width * sizeof(unsigned char));
         if (!succeed) {
             // setup bitmap backing
             SkAutoPixmapStorage dst;
-            if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(),
-                                                  devPathBounds.height()))) {
+            if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(), devPathBounds.height()))) {
                 return false;
             }
             sk_bzero(dst.writable_addr(), dst.computeByteSize());
@@ -526,8 +523,7 @@ private:
         shape.asPath(&path);
         // setup bitmap backing
         SkAutoPixmapStorage dst;
-        if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(),
-                                              devPathBounds.height()))) {
+        if (!dst.tryAlloc(SkImageInfo::MakeA8(devPathBounds.width(), devPathBounds.height()))) {
             return false;
         }
         sk_bzero(dst.writable_addr(), dst.computeByteSize());
@@ -585,12 +581,10 @@ private:
     }
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
-
         int numActiveProxies;
         const GrSurfaceProxyView* views = fAtlasMgr->getViews(&numActiveProxies);
 
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor;
-
         if (gp->numTextureSamplers() != numActiveProxies) {
             for (int i = gp->numTextureSamplers(); i < numActiveProxies; ++i) {
                 flushInfo->fPrimProcProxies[i] = views[i].proxy();
@@ -734,7 +728,6 @@ std::unique_ptr<GrDrawOp> GrSmallPathRenderer::createOp_TestingOnly(
 
     return GrSmallPathRenderer::SmallPathOp::Make(context, std::move(paint), shape, viewMatrix,
                                                   atlasMgr, gammaCorrect, stencil);
-
 }
 
 GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {

@@ -46,10 +46,7 @@ public:
                            const uint32_t* opsTaskIDs, int numOpsTaskIDs) {}
 
     /**
-     * Tells the callback owner to hold onto this object when freeing GPU resources
-     *
-     * In particular, GrDrawingManager::freeGPUResources() deletes all the path renderers.
-     * Any OnFlushCallbackObject associated with a path renderer will need to be deleted.
+     * Tells the callback owner to hold onto this object when freeing GPU resources.
      */
     virtual bool retainOnFreeGpuResources() { return false; }
 };
