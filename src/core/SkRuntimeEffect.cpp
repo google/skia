@@ -132,7 +132,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     // them to change behavior based on the CTM.
     bool allowColorFilter = !usesSampleCoords && !usesFragCoords;
 
-    std::vector<const SkSL::Variable*> uniformVars;
+    size_t offset = 0;
+    std::vector<Uniform> uniforms;
     std::vector<SkString> children;
     std::vector<SkSL::SampleUsage> sampleUsages;
     std::vector<Varying> varyings;
@@ -160,7 +161,41 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                 }
                 // 'uniform' variables
                 else if (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                    uniformVars.push_back(&var);
+                    Uniform uni;
+                    uni.fName = var.fName;
+                    uni.fFlags = 0;
+                    uni.fCount = 1;
+
+                    const SkSL::Type* type = &var.fType;
+                    if (type->kind() == SkSL::Type::kArray_Kind) {
+                        uni.fFlags |= Uniform::kArray_Flag;
+                        uni.fCount = type->columns();
+                        type = &type->componentType();
+                    }
+
+                    if (!init_uniform_type(ctx, type, &uni)) {
+                        RETURN_FAILURE("Invalid uniform type: '%s'", type->displayName().c_str());
+                    }
+
+                    const SkSL::StringFragment& marker(var.fModifiers.fLayout.fMarker);
+                    if (marker.fLength) {
+                        uni.fFlags |= Uniform::kMarker_Flag;
+                        allowColorFilter = false;
+                        if (!parse_marker(marker, &uni.fMarker, &uni.fFlags)) {
+                            RETURN_FAILURE("Invalid 'marker' string: '%.*s'", (int)marker.fLength,
+                                            marker.fChars);
+                        }
+                    }
+
+                    if (var.fModifiers.fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
+                        uni.fFlags |= Uniform::kSRGBUnpremul_Flag;
+                    }
+
+                    uni.fOffset = offset;
+                    offset += uni.sizeInBytes();
+                    SkASSERT(SkIsAlign4(offset));
+
+                    uniforms.push_back(uni);
                 }
             }
         }
@@ -176,49 +211,6 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 
     if (!hasMain) {
         RETURN_FAILURE("missing 'main' function");
-    }
-
-    size_t offset = 0;
-    std::vector<Uniform> uniforms;
-    uniforms.reserve(uniformVars.size());
-
-    // We've gathered the 'uniform' variables. Now extract the metadata we want:
-    for (const SkSL::Variable* var : uniformVars) {
-        Uniform uni;
-        uni.fName = var->fName;
-        uni.fFlags = 0;
-        uni.fCount = 1;
-
-        const SkSL::Type* type = &var->fType;
-        if (type->kind() == SkSL::Type::kArray_Kind) {
-            uni.fFlags |= Uniform::kArray_Flag;
-            uni.fCount = type->columns();
-            type = &type->componentType();
-        }
-
-        if (!init_uniform_type(ctx, type, &uni)) {
-            RETURN_FAILURE("Invalid uniform type: '%s'", type->displayName().c_str());
-        }
-
-        const SkSL::StringFragment& marker(var->fModifiers.fLayout.fMarker);
-        if (marker.fLength) {
-            uni.fFlags |= Uniform::kMarker_Flag;
-            allowColorFilter = false;
-            if (!parse_marker(marker, &uni.fMarker, &uni.fFlags)) {
-                RETURN_FAILURE("Invalid 'marker' string: '%.*s'", (int)marker.fLength,
-                                marker.fChars);
-            }
-        }
-
-        if (var->fModifiers.fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
-            uni.fFlags |= Uniform::kSRGBUnpremul_Flag;
-        }
-
-        uni.fOffset = offset;
-        offset += uni.sizeInBytes();
-        SkASSERT(SkIsAlign4(offset));
-
-        uniforms.push_back(uni);
     }
 
 #undef RETURN_FAILURE
