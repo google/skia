@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<title>CanvasKit Path Rendering Performance Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  html, body {
+    max-width: 700px;
+  }
+
+  #result-container {
+    border: 1px dashed grey;
+    height: 500px;
+    width: 500px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  canvas {
+    visibility: hidden;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  object {
+    visibility: hidden;
+    position: absolute;
+    height: 500px;
+    width: 500px;
+    left: 0;
+    top: 0;
+  }
+
+  th {
+    text-align: left;
+    width: 33%;
+  }
+  td {
+    padding: 12px;
+    color: #555;
+    font-style: italic;
+    height: 80px;
+  }
+  table {
+    width: 100%;
+  }
+</style>
+
+<body>
+  <h1>CanvasKit Path Rendering Performance Demo</h1>
+  <p>NOTE: this demo currently only works in chromium-based browsers, where
+    <a href="https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas#Browser_compatibility">
+      Offscreen Canvas
+    </a>
+    is supported.
+  </p>
+
+
+  <h2>1. Choose a rendering method</h2>
+  <table>
+    <tr>
+      <th>
+        <input type="radio" id="SVG-input" name="rendermethod" checked>
+        <label for="SVG-input">SVG</label>
+      </th>
+      <th>
+        <input type="radio" id="Path2D-input" name="rendermethod">
+        <label for="Path2D-input">
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Path2D">Path2D API</a>
+        </label>
+      </th>
+      <th>
+        <input type="radio" id="CanvasKit-input" name="rendermethod">
+        <label for="CanvasKit-input">CanvasKit</label>
+      </th>
+    </tr>
+    <tr>
+      <td id="SVG-fps">Choose this rendering method to collect data on its performance...</td>
+      <td id="Path2D-fps">Choose this rendering method to collect data on its performance...</td>
+      <td id="CanvasKit-fps">Choose this rendering method to collect data on its performance...</td>
+    </tr>
+  </table>
+
+  <h2>2. View the result</h2>
+  <div id="result-container">
+    <!-- Arbitrary svg for testing. Source: https://dev.w3.org/SVG/tools/svgweb/samples/svg-files-->
+    <object type="image/svg+xml" id="svg">
+      Garbage pictograph
+    </object>
+    <canvas id="Path2D-canvas" height=500 width=500></canvas>
+    <canvas id="CanvasKit-canvas" height=500 width=500></canvas>
+  </div>
+</body>
+<script type="text/javascript" src="https://particles.skia.org/static/canvaskit.js"></script>
+<script type="text/javascript" src="shared.js"></script>
+<script type="text/javascript" src="main.js"></script>
