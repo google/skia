@@ -441,10 +441,6 @@ GrInterpretFilterQuality(SkISize imageDims,
                          bool sharpenMipmappedTextures) {
     using Filter = GrSamplerState::Filter;
     using MipmapMode = GrSamplerState::MipmapMode;
-    if (imageDims.area() <= 1) {
-        // TOOD: should know we're not in decal mode to do this transformation.
-        return {Filter::kNearest, MipmapMode::kNone, false};
-    }
     switch (paintFilterQuality) {
         case kNone_SkFilterQuality:
             return {Filter::kNearest, MipmapMode::kNone, false};
