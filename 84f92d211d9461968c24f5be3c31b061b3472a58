@@ -16,6 +16,23 @@
       "revId": "84f92d211d9461968c24f5be3c31b061b3472a58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c0b3bc4_8cdd8ecb",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-11T15:09:11Z",
+      "side": 1,
+      "message": "I guess another option would be to separate the playback controller part into a separate interface which takes AudioAssets, but since the implementer can stick anything in these (including a custom controller impl), I don\u0027t see a strong reason to go that route.",
+      "revId": "84f92d211d9461968c24f5be3c31b061b3472a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
