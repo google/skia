@@ -608,8 +608,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
 
                 if (trial >= kMaximumTrials) {
                     SkDebugf("Abandoning ProcessorOptimizationValidationTest after %d trials. "
-                             "Seed: 0x%08x, processor: %s.",
-                             kMaximumTrials, fpGenerator.initialSeed(), fp->name());
+                             "Seed: 0x%08x, processor:\n%s",
+                             kMaximumTrials, fpGenerator.initialSeed(), fp->dumpTreeInfo().c_str());
                     break;
                 }
             }
@@ -684,10 +684,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                             passing = false;
                             if (coverageMessage.isEmpty()) {
                                 coverageMessage.printf(
-                                        "\"Modulating\" processor %s did not match "
-                                        "alpha-modulation nor color-modulation rules. "
+                                        "\"Modulating\" processor did not match alpha-modulation "
+                                        "nor color-modulation rules.\n"
                                         "Input: 0x%08x, Output: 0x%08x, pixel (%d, %d).",
-                                        fp->name(), input, output, x, y);
+                                        input, output, x, y);
                             }
                         }
                     }
@@ -705,12 +705,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                             if (constMessage.isEmpty()) {
                                 passing = false;
 
-                                constMessage.printf("Processor %s claimed output for const input "
-                                        "doesn't match actual output. Error: %f, Tolerance: %f, "
-                                        "input: (%f, %f, %f, %f), actual: (%f, %f, %f, %f), "
-                                        "expected(%f, %f, %f, %f)", fp->name(),
-                                        std::max(rDiff, std::max(gDiff, std::max(bDiff, aDiff))), kTol,
-                                        input4f.fR, input4f.fG, input4f.fB, input4f.fA,
+                                constMessage.printf(
+                                        "Processor claimed output for const input doesn't match "
+                                        "actual output.\n"
+                                        "Error: %f, Tolerance: %f, input: (%f, %f, %f, %f), "
+                                        "actual: (%f, %f, %f, %f), expected(%f, %f, %f, %f).",
+                                        std::max(rDiff, std::max(gDiff, std::max(bDiff, aDiff))),
+                                        kTol, input4f.fR, input4f.fG, input4f.fB, input4f.fA,
                                         output4f.fR, output4f.fG, output4f.fB, output4f.fA,
                                         expected4f.fR, expected4f.fG, expected4f.fB, expected4f.fA);
                             }
@@ -720,9 +721,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
                         passing = false;
 
                         if (opaqueMessage.isEmpty()) {
-                            opaqueMessage.printf("Processor %s claimed opaqueness is preserved but "
+                            opaqueMessage.printf(
+                                    "Processor claimed opaqueness is preserved but "
                                     "it is not. Input: 0x%08x, Output: 0x%08x.",
-                                    fp->name(), input, output);
+                                    input, output);
                         }
                     }
 
@@ -737,10 +739,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
             // Finished analyzing the entire image, see if the number of pixel failures meets the
             // threshold for an FP violating the optimization requirements.
             if (failedPixelCount > kMaxAcceptableFailedPixels) {
-                ERRORF(reporter, "Processor violated %d of %d pixels, seed: 0x%08x, processor: %s"
-                       ", first failing pixel details are below:",
+                ERRORF(reporter,
+                       "Processor violated %d of %d pixels, seed: 0x%08x.\n"
+                       "Processor:\n%s\nFirst failing pixel details are below:",
                        failedPixelCount, kRenderSize * kRenderSize, fpGenerator.initialSeed(),
-                       fp->dumpInfo().c_str());
+                       fp->dumpTreeInfo().c_str());
 
                 // Print first failing pixel's details.
                 if (!coverageMessage.isEmpty()) {
@@ -793,46 +796,27 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, repor
     }
 }
 
-static void describe_fp_children(const GrFragmentProcessor& fp,
-                                 std::string indent,
-                                 SkString* text) {
-    for (int index = 0; index < fp.numChildProcessors(); ++index) {
-        const GrFragmentProcessor* childFP = fp.childProcessor(index);
-        text->appendf("\n%s(#%d) -> %s", indent.c_str(), index, childFP ? childFP->name() : "null");
-        if (childFP) {
-            describe_fp_children(*childFP, indent + "\t", text);
-        }
-    }
-}
-
-static SkString describe_fp(const GrFragmentProcessor& fp) {
-    SkString text;
-    text.printf("\n%s", fp.name());
-    describe_fp_children(fp, "\t", &text);
-    return text;
-}
-
 static void assert_processor_equality(skiatest::Reporter* reporter,
                                       const GrFragmentProcessor& fp,
                                       const GrFragmentProcessor& clone) {
     REPORTER_ASSERT(reporter, !strcmp(fp.name(), clone.name()),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.compatibleWithCoverageAsAlpha() ==
                               clone.compatibleWithCoverageAsAlpha(),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.isEqual(clone),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.preservesOpaqueInput() == clone.preservesOpaqueInput(),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.hasConstantOutputForConstantInput() ==
                               clone.hasConstantOutputForConstantInput(),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.numChildProcessors() == clone.numChildProcessors(),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.usesVaryingCoords() == clone.usesVaryingCoords(),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
     REPORTER_ASSERT(reporter, fp.referencesSampleCoords() == clone.referencesSampleCoords(),
-                              "%s\n", describe_fp(fp).c_str());
+                              "\n%s", fp.dumpTreeInfo().c_str());
 }
 
 static bool verify_identical_render(skiatest::Reporter* reporter, int renderSize,
@@ -942,7 +926,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                     fpGenerator.make(i, /*randomTreeDepth=*/1, /*inputFP=*/nullptr);
             std::unique_ptr<GrFragmentProcessor> clone = fp->clone();
             if (!clone) {
-                ERRORF(reporter, "Clone of processor %s failed.", fp->name());
+                ERRORF(reporter, "Clone of processor %s failed.", fp->dumpTreeInfo().c_str());
                 continue;
             }
             assert_processor_equality(reporter, *fp, *clone);
@@ -958,7 +942,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                                          readDataFP.data(), readDataClone.data())) {
                 // Dump a description from the regenerated processor (since the original FP has
                 // already been consumed).
-                ERRORF(reporter, "FP hierarchy:\n%s\n", describe_fp(*regen).c_str());
+                ERRORF(reporter, "FP hierarchy:\n%s", regen->dumpTreeInfo().c_str());
 
                 // Render and readback output from the regenerated FP. If this also mismatches, the
                 // FP itself doesn't generate consistent output. This could happen if:

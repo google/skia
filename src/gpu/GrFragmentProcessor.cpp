@@ -75,6 +75,30 @@ const GrTextureEffect* GrFragmentProcessor::asTextureEffect() const {
     return nullptr;
 }
 
+#ifdef SK_DEBUG
+static void recursive_dump_tree_info(const GrFragmentProcessor& fp,
+                                     SkString indent,
+                                     SkString* text) {
+    for (int index = 0; index < fp.numChildProcessors(); ++index) {
+        text->appendf("\n%s(#%d) -> ", indent.c_str(), index);
+        if (const GrFragmentProcessor* childFP = fp.childProcessor(index)) {
+            text->append(childFP->dumpInfo());
+            indent.append("\t");
+            recursive_dump_tree_info(*childFP, indent, text);
+        } else {
+            text->append("null");
+        }
+    }
+}
+
+SkString GrFragmentProcessor::dumpTreeInfo() const {
+    SkString text = this->dumpInfo();
+    recursive_dump_tree_info(*this, SkString("\t"), &text);
+    text.append("\n");
+    return text;
+}
+#endif
+
 GrGLSLFragmentProcessor* GrFragmentProcessor::createGLSLInstance() const {
     GrGLSLFragmentProcessor* glFragProc = this->onCreateGLSLInstance();
     glFragProc->fChildProcessors.push_back_n(fChildProcessors.count());

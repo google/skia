@@ -185,13 +185,13 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
 
 #ifdef SK_DEBUG
 SkString GrYUVtoRGBEffect::dumpInfo() const {
-    SkString str;
+    SkString str("YUVtoRGBEffect(");
     for (int i = 0; i < 4; ++i) {
-        str.appendf("yuvindex_%d: %d %d\n", i, fYUVAIndices->fIndex,
-                    static_cast<int>(fYUVAIndices->fChannel));
+        str.appendf("YUVAIndices[%d]=%d %d, ",
+                    i, fYUVAIndices[i].fIndex, static_cast<int>(fYUVAIndices[i].fChannel));
     }
-    str.appendf("cs: %d\n", static_cast<int>(fYUVColorSpace));
-    str.appendf("snap x: %d snap y: %d\n", fSnap[0], fSnap[1]);
+    str.appendf("YUVColorSpace=%d, snap=(%d, %d))",
+                static_cast<int>(fYUVColorSpace), fSnap[0], fSnap[1]);
     return str;
 }
 #endif
