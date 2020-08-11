@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dce7c9a4_bda35aef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-11T14:03:11Z",
+      "side": 1,
+      "message": "I feel like that block is big enough to be its own helper function, but that\u0027s not a big deal.",
+      "revId": "315dd3d675ac0fa4532a68ff0952ec6936ae6897",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
