@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1eb9625_e0554c9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-11T12:36:44Z",
+      "side": 1,
+      "message": "example breakage: https://logs.chromium.org/logs/skia/4df4b7abaf1b9711/+/steps/ninja/0/stdout",
+      "revId": "a246a94d9281ea01664ac4c465e125446837f1f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
