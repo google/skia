@@ -306,11 +306,10 @@ bool GrAtlasManager::initAtlas(GrMaskFormat format) {
         const GrBackendFormat format = fCaps->getDefaultBackendFormat(grColorType,
                                                                       GrRenderable::kNo);
 
-        fAtlases[index] = GrDrawOpAtlas::Make(
-                fProxyProvider, format, grColorType,
-                atlasDimensions.width(), atlasDimensions.height(),
-                plotDimensions.width(), plotDimensions.height(),
-                this, fAllowMultitexturing, nullptr);
+        fAtlases[index] = GrDrawOpAtlas::Make(fProxyProvider, format, grColorType,
+                                              atlasDimensions.width(), atlasDimensions.height(),
+                                              plotDimensions.width(), plotDimensions.height(),
+                                              this, fAllowMultitexturing, nullptr);
         if (!fAtlases[index]) {
             return false;
         }
