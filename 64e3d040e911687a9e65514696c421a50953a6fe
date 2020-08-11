@@ -16,6 +16,24 @@
       "revId": "64e3d040e911687a9e65514696c421a50953a6fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b82bd6af_01467a86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-11T21:05:11Z",
+      "side": 1,
+      "message": "Seems so. And our g3 build didn\u0027t work so I could not check ahead... Rolling back.",
+      "parentUuid": "b6f598d8_db29b0c8",
+      "revId": "64e3d040e911687a9e65514696c421a50953a6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
