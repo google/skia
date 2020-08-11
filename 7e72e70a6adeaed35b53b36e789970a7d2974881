@@ -16,6 +16,24 @@
       "revId": "7e72e70a6adeaed35b53b36e789970a7d2974881",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12656b4b_8a2a0902",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-11T13:28:14Z",
+      "side": 1,
+      "message": "So the vulkan type for the externalFormat param is a uint64_t (and has been afaik). I\u0027m not sure why all its internal skia types were changed to int64_t. Maybe there was a user/test somewhere that was incorrectly trying to pass in an int64_t and we should have updated that use case instead of our stored type? Mike do you recall what the actual issue with this field was?",
+      "parentUuid": "4567d8a8_dbde7b8f",
+      "revId": "7e72e70a6adeaed35b53b36e789970a7d2974881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
