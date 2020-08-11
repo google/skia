@@ -126,21 +126,14 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                               SkFilterQuality rescaleQuality,
                                               ReadPixelsCallback callback,
                                               ReadPixelsContext context) {
-    auto dContext = fContext->asDirectContext();
-    if (!dContext) {
-        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
-        callback(context, nullptr);
-        return;
-    }
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(dContext, fView, ct, this->alphaType(),
+    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
                                       this->refColorSpace());
     if (!ctx) {
         callback(context, nullptr);
         return;
     }
-    ctx->asyncRescaleAndReadPixels(dContext, info, srcRect, rescaleGamma, rescaleQuality,
-                                   callback, context);
+    ctx->asyncRescaleAndReadPixels(info, srcRect, rescaleGamma, rescaleQuality, callback, context);
 }
 
 void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
@@ -151,21 +144,14 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpac
                                                     SkFilterQuality rescaleQuality,
                                                     ReadPixelsCallback callback,
                                                     ReadPixelsContext context) {
-    auto dContext = fContext->asDirectContext();
-    if (!dContext) {
-        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
-        callback(context, nullptr);
-        return;
-    }
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
-    auto ctx = GrSurfaceContext::Make(dContext, fView, ct, this->alphaType(),
+    auto ctx = GrSurfaceContext::Make(fContext.get(), fView, ct, this->alphaType(),
                                       this->refColorSpace());
     if (!ctx) {
         callback(context, nullptr);
         return;
     }
-    ctx->asyncRescaleAndReadPixelsYUV420(dContext,
-                                         yuvColorSpace,
+    ctx->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
                                          std::move(dstColorSpace),
                                          srcRect,
                                          dstSize,
@@ -679,13 +665,13 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
         return nullptr;
     }
 
-    auto dContext = GrAsDirectContext(context);
-    if (!dContext) {
+    auto direct = GrAsDirectContext(context);
+    if (!direct) {
         SkDebugf("Direct context required\n");
         return nullptr;
     }
 
-    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(dContext,
+    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(direct,
                                                                              hardwareBuffer,
                                                                              bufferDesc.format,
                                                                              true);
@@ -699,7 +685,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     GrAHardwareBufferUtils::TexImageCtx deleteImageCtx = nullptr;
 
     GrBackendTexture backendTexture =
-            GrAHardwareBufferUtils::MakeBackendTexture(dContext, hardwareBuffer,
+            GrAHardwareBufferUtils::MakeBackendTexture(direct, hardwareBuffer,
                                                        bufferDesc.width, bufferDesc.height,
                                                        &deleteImageProc, &updateImageProc,
                                                        &deleteImageCtx, false, backendFormat, true);
@@ -716,7 +702,7 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
-    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+    GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     if (!proxyProvider) {
         return nullptr;
     }
@@ -731,26 +717,26 @@ sk_sp<SkImage> SkImage::MakeFromAHardwareBufferWithData(GrContext* context,
     sk_sp<SkColorSpace> cs = pixmap.refColorSpace();
     SkAlphaType at =  pixmap.alphaType();
 
-    GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(backendFormat, grColorType);
+    GrSwizzle swizzle = direct->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), surfaceOrigin, swizzle);
-    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(dContext), kNeedNewImageUniqueID, view,
+    sk_sp<SkImage> image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(direct), kNeedNewImageUniqueID, view,
                                                    colorType, at, cs);
     if (!image) {
         return nullptr;
     }
 
-    GrDrawingManager* drawingManager = dContext->priv().drawingManager();
+    GrDrawingManager* drawingManager = direct->priv().drawingManager();
     if (!drawingManager) {
         return nullptr;
     }
 
-    GrSurfaceContext surfaceContext(dContext, std::move(view),
+    GrSurfaceContext surfaceContext(direct, std::move(view),
                                     SkColorTypeToGrColorType(pixmap.colorType()),
                                     pixmap.alphaType(), cs);
 
     SkImageInfo srcInfo = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType, at,
                                             std::move(cs));
-    surfaceContext.writePixels(dContext, srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), {0, 0});
+    surfaceContext.writePixels(srcInfo, pixmap.addr(0, 0), pixmap.rowBytes(), {0, 0});
 
     GrSurfaceProxy* p[1] = {surfaceContext.asSurfaceProxy()};
     drawingManager->flush(p, 1, SkSurface::BackendSurfaceAccess::kNoAccess, {}, nullptr);

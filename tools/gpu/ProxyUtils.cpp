@@ -21,17 +21,17 @@
 
 namespace sk_gpu_test {
 
-sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrDirectContext* dContext,
+sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrDirectContext* direct,
                                                GrRenderable renderable,
                                                GrSurfaceOrigin origin,
                                                const GrImageInfo& imageInfo,
                                                const void* data,
                                                size_t rowBytes) {
-    if (dContext->abandoned()) {
+    if (direct->abandoned()) {
         return nullptr;
     }
 
-    const GrCaps* caps = dContext->priv().caps();
+    const GrCaps* caps = direct->priv().caps();
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(imageInfo.colorType(), renderable);
     if (!format.isValid()) {
@@ -40,20 +40,19 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrDirectContext* dContext,
     GrSwizzle swizzle = caps->getReadSwizzle(format, imageInfo.colorType());
 
     sk_sp<GrTextureProxy> proxy;
-    proxy = dContext->priv().proxyProvider()->createProxy(format, imageInfo.dimensions(),
-                                                          renderable, 1, GrMipmapped::kNo,
-                                                          SkBackingFit::kExact, SkBudgeted::kYes,
-                                                          GrProtected::kNo);
+    proxy = direct->priv().proxyProvider()->createProxy(format, imageInfo.dimensions(), renderable,
+                                                        1, GrMipmapped::kNo, SkBackingFit::kExact,
+                                                        SkBudgeted::kYes, GrProtected::kNo);
     if (!proxy) {
         return nullptr;
     }
     GrSurfaceProxyView view(proxy, origin, swizzle);
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(view), imageInfo.colorType(),
+    auto sContext = GrSurfaceContext::Make(direct, std::move(view), imageInfo.colorType(),
                                            imageInfo.alphaType(), imageInfo.refColorSpace());
     if (!sContext) {
         return nullptr;
     }
-    if (!sContext->writePixels(dContext, imageInfo, data, rowBytes, {0, 0})) {
+    if (!sContext->writePixels(imageInfo, data, rowBytes, {0, 0}, direct)) {
         return nullptr;
     }
     return proxy;

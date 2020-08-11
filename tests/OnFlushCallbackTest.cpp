@@ -564,17 +564,17 @@ static void test_color(skiatest::Reporter* reporter, const SkBitmap& bm, int x, 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kNumViews = 3;
 
-    auto dContext = ctxInfo.directContext();
-    auto proxyProvider = dContext->priv().proxyProvider();
+    auto context = ctxInfo.directContext();
+    auto proxyProvider = context->priv().proxyProvider();
 
     AtlasObject object(reporter);
 
-    dContext->priv().addOnFlushCallbackObject(&object);
+    context->priv().addOnFlushCallbackObject(&object);
 
     GrSurfaceProxyView views[kNumViews];
     for (int i = 0; i < kNumViews; ++i) {
-        views[i] = make_upstream_image(dContext, &object, i * 3,
-                                       object.getAtlasView(proxyProvider, dContext->priv().caps()),
+        views[i] = make_upstream_image(context, &object, i * 3,
+                                       object.getAtlasView(proxyProvider, context->priv().caps()),
                                        kPremul_SkAlphaType);
     }
 
@@ -582,7 +582,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     static const int kFinalHeight = kDrawnTileSize;
 
     auto rtc = GrRenderTargetContext::Make(
-            dContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
+            context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox,
             {kFinalWidth, kFinalHeight});
 
     rtc->clear(SK_PMColor4fWHITE);
@@ -606,10 +606,11 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(OnFlushCallbackTest, reporter, ctxInfo) {
     SkBitmap readBack;
     readBack.allocN32Pixels(kFinalWidth, kFinalHeight);
 
-    SkAssertResult(rtc->readPixels(dContext, readBack.info(), readBack.getPixels(),
-                                   readBack.rowBytes(), {0, 0}));
+    SkDEBUGCODE(bool result =) rtc->readPixels(readBack.info(), readBack.getPixels(),
+                                               readBack.rowBytes(), {0, 0});
+    SkASSERT(result);
 
-    dContext->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&object);
+    context->priv().testingOnly_flushAndRemoveOnFlushCallbackObject(&object);
 
     object.markAsDone();
 
