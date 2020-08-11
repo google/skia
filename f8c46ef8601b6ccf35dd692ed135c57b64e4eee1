@@ -53,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "45742cfa_6367e905",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-11T20:37:41Z",
+      "side": 1,
+      "message": "One last nit, but otherwise LGTM",
+      "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f358a119_2e67592f",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
         "patchSetId": 1
@@ -82,6 +99,24 @@
       "side": 1,
       "message": "I was thinking it would be a nice wrapper so it behaves similarly to a VideoView, but simplifying it would clean our library. Do we want the user to have to chain call getSkottieAnimation to access playback methods?",
       "parentUuid": "f358a119_2e67592f",
+      "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09f0f4f8_46832b5a",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieView.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-11T20:37:41Z",
+      "side": 1,
+      "message": "I find it slightly confusing that I can call getSkottieAnimation().getProgress() but can\u0027t do that here.  I would either hide getSkottieAnimation() and users always use these new functions or remove them for consistency.",
+      "parentUuid": "b99e0875_f8738e51",
       "revId": "f8c46ef8601b6ccf35dd692ed135c57b64e4eee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
