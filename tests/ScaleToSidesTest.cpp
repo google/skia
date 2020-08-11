@@ -50,6 +50,12 @@ DEF_TEST(ScaleToSides, reporter) {
         for (int i = 0; i < numInterestingValues; i++) {
             for (int j = 0; j < numInterestingValues; j++) {
                 for (int k = 0; k < numInterestingValues; k++) {
+                    // We're about to cast values i and j to float, don't bother if they won't fit.
+                    // (Is there a more robust way to test this, like SkTFitsIn but double->float?)
+                    if (interestingValues[i] > FLT_MAX ||
+                        interestingValues[j] > FLT_MAX) {
+                        continue;
+                    }
                     float radius1 = (float)interestingValues[i];
                     float radius2 = (float)interestingValues[j];
                     double width = interestingValues[k];
