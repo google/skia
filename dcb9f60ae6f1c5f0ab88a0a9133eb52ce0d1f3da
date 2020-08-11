@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db453a7f_683888c7",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T16:06:47Z",
+      "side": 1,
+      "message": "UNICODE",
+      "range": {
+        "startLine": 137,
+        "startChar": 14,
+        "endLine": 137,
+        "endChar": 29
+      },
+      "revId": "dcb9f60ae6f1c5f0ab88a0a9133eb52ce0d1f3da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2831c9f_a2ca846b",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T16:06:47Z",
+      "side": 1,
+      "message": "Here (and elsewhere) we should avoid mixing SkUnicode and the term \u0027icu\u0027. In fact outside the implementation of SkUnicode backed by ICU we should strongly avoid the term \u0027icu\u0027. This should probably just be named \u0027unicode\u0027.",
+      "range": {
+        "startLine": 139,
+        "startChar": 38,
+        "endLine": 139,
+        "endChar": 41
+      },
+      "revId": "dcb9f60ae6f1c5f0ab88a0a9133eb52ce0d1f3da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51f61d7a_9d3eda91",
+        "filename": "modules/skshaper/include/SkShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T16:06:47Z",
+      "side": 1,
+      "message": "Likewise, in addition to changing the signature to specify which SkUnicode to use (as a kind of factory function) this is now MakeSkUnicodeBidiRunIterator (it doesn\u0027t depend on ICU and isn\u0027t backed by it).",
+      "range": {
+        "startLine": 139,
+        "startChar": 8,
+        "endLine": 139,
+        "endChar": 11
+      },
+      "revId": "dcb9f60ae6f1c5f0ab88a0a9133eb52ce0d1f3da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c15fa70_df0150a9",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T16:06:47Z",
+      "side": 1,
+      "message": "In particular this name stands out as needing to be fUnicode or something like that, since the term ICU here implies that this is an ICU dependency.",
+      "range": {
+        "startLine": 671,
+        "startChar": 31,
+        "endLine": 671,
+        "endChar": 35
+      },
+      "revId": "dcb9f60ae6f1c5f0ab88a0a9133eb52ce0d1f3da",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
