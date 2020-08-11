@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0730b19a_5218b52d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-11T15:33:54Z",
+      "side": 1,
+      "message": "Yowza.  I did not anticipate that much failure or that many GMs changed.",
+      "revId": "edca3451ac26acdb7b1961f883fbd3c63f0e0d54",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
