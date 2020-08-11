@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fe175e6a_c1b3a6b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-11T18:06:01Z",
+      "side": 1,
+      "message": "Good point. It is a little bit different - one of the GrVkYcbcrConversionInfo constructors took an int64_t even before Mike\u0027s change, but I don\u0027t know whether that\u0027s the difference that matters. This CL got rid of the warning for me, but his change was in response to skbug.com/9847, which was a request from Android. So I\u0027ll run a Canary build to see if it turns up anything.",
+      "parentUuid": "bb2c1512_ce2dd295",
+      "revId": "05b08c303f53a8e2e4928c7974e8d1bfa735ee14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb30cf93_e32cd2bd",
         "filename": "src/gpu/vk/GrVkSamplerYcbcrConversion.h",
         "patchSetId": 1
