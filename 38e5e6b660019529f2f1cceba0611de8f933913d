@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "3399215b_a6689fc4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T17:47:24Z",
+      "side": 1,
+      "message": "Should it be hooked up to oss-fuzz? Also, seems a little awkward not to have this file mentioned in any Skia build files (usually there\u0027s the ifdef around the LLVMFuzzerTestOneInput which just calls out to a same-TU \u0027doIt\u0027 function which is also called from \u0027fuzz\u0027). The other part of the `fuzz` target is to ensure we\u0027re actually building and keeping track of all these things until the oss-fuzz BUILD.gn patch can get upstreamed.",
+      "parentUuid": "ecb183d4_b39d4d06",
+      "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b066013b_e6014aaf",
         "filename": "site/dev/testing/fuzz.md",
         "patchSetId": 1
