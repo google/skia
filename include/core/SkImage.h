@@ -278,33 +278,15 @@ public:
     */
     typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
 
-    /** Creates SkImage from GPU texture associated with context. Caller is responsible for
-        managing the lifetime of GPU texture.
-
-        SkImage is returned if format of backendTexture is recognized and supported.
-        Recognized formats vary by GPU back-end.
-
-        @param context         GPU context
-        @param backendTexture  texture residing on GPU
-        @param colorSpace      range of colors; may be nullptr
-        @return                created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
-                                          const GrBackendTexture& backendTexture,
-                                          GrSurfaceOrigin origin,
-                                          SkColorType colorType,
-                                          SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace) {
-        return MakeFromTexture(context, backendTexture, origin, colorType, alphaType, colorSpace,
-                               nullptr, nullptr);
-    }
-
     /** Creates SkImage from GPU texture associated with context. GPU texture must stay
         valid and unchanged until textureReleaseProc is called. textureReleaseProc is
         passed releaseContext when SkImage is deleted or no longer refers to texture.
 
         SkImage is returned if format of backendTexture is recognized and supported.
         Recognized formats vary by GPU back-end.
+
+        @note When using a DDL recording context, textureReleaseProc will be called on the
+        GPU thread after the DDL is played back on the direct context.
 
         @param context             GPU context
         @param backendTexture      texture residing on GPU
@@ -319,14 +301,14 @@ public:
         @param releaseContext      state passed to textureReleaseProc
         @return                    created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromTexture(GrContext* context,
+    static sk_sp<SkImage> MakeFromTexture(GrRecordingContext* context,
                                           const GrBackendTexture& backendTexture,
                                           GrSurfaceOrigin origin,
                                           SkColorType colorType,
                                           SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace,
-                                          TextureReleaseProc textureReleaseProc,
-                                          ReleaseContext releaseContext);
+                                          TextureReleaseProc textureReleaseProc = nullptr,
+                                          ReleaseContext releaseContext = nullptr);
 
     /** Creates an SkImage from a GPU backend texture. The backend texture must stay
         valid and unchanged until textureReleaseProc is called. The textureReleaseProc is
@@ -335,6 +317,9 @@ public:
 
         An SkImage is returned if the format of backendTexture is recognized and supported.
         Recognized formats vary by GPU back-end.
+
+        @note When using a DDL recording context, textureReleaseProc will be called on the
+        GPU thread after the DDL is played back on the direct context.
 
         @param context             the GPU context
         @param backendTexture      a texture already allocated by the GPU
@@ -352,7 +337,7 @@ public:
         @param releaseContext      state passed to textureReleaseProc
         @return                    created SkImage, or nullptr
     */
-    static sk_sp<SkImage> MakeFromCompressedTexture(GrContext* context,
+    static sk_sp<SkImage> MakeFromCompressedTexture(GrRecordingContext* context,
                                                     const GrBackendTexture& backendTexture,
                                                     GrSurfaceOrigin origin,
                                                     SkAlphaType alphaType,
