@@ -175,7 +175,12 @@ public:
                          const SkIRect& bounds, bool forSecondaryCB);
     void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
 
-    using GrGpu::setOOMed;
+    /**
+     * Returns true if VkResult indicates success and also checks for device lost or OOM. Every
+     * Vulkan call (and GrVkMemoryAllocator call that returns VkResult) made on behalf of the
+     * GrVkGpu should be processed by this function so that we respond to OOMs and lost devices.
+     */
+    bool checkVkResult(VkResult);
 
 private:
     enum SyncQueue {

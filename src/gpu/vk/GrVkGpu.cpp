@@ -2515,6 +2515,18 @@ void GrVkGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
     this->didWriteToSurface(target, origin, &bounds);
 }
 
+bool GrVkGpu::checkVkResult(VkResult result) {
+    if (result == VK_SUCCESS) {
+        return true;
+    }
+    if (result == VK_ERROR_DEVICE_LOST) {
+        this->setDeviceLost();
+    } else if (result == VK_ERROR_OUT_OF_HOST_MEMORY || result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+        this->setOOMed();
+    }
+    return false;
+}
+
 void GrVkGpu::submitSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> buffer) {
     if (!this->currentCommandBuffer()) {
         return;
