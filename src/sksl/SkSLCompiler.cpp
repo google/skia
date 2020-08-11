@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #include <memory>
+#include <unordered_set>
 
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLCFGGenerator.h"

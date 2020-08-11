@@ -10,6 +10,7 @@
 
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "src/sksl/SkSLASTFile.h"
 #include "src/sksl/SkSLASTNode.h"
@@ -179,7 +180,7 @@ private:
     // Symbols which have definitions in the include files. The bool tells us whether this
     // intrinsic has been included already.
     std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
-    std::set<const FunctionDeclaration*> fReferencedIntrinsics;
+    std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
     int fLoopLevel;
     int fSwitchLevel;
     ErrorReporter& fErrors;
