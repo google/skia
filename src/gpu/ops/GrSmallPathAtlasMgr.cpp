@@ -100,6 +100,13 @@ GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrStyledShape& sha
     return this->findOrCreate(key);
 }
 
+void GrSmallPathAtlasMgr::updateCacheInfo(GrSmallPathShapeData* shapeData,
+                                          GrDrawOpAtlas::AtlasLocator& atlasLocator,
+                                          const SkRect& bounds) {
+    shapeData->fBounds = bounds;
+    shapeData->fAtlasLocator = atlasLocator;
+}
+
 void GrSmallPathAtlasMgr::setUseToken(GrSmallPathShapeData* shapeData,
                                       GrDeferredUploadToken token) {
     fAtlas->setLastUseToken(shapeData->fAtlasLocator, token);
