@@ -159,6 +159,13 @@ GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
     return std::make_unique<GrRRectBlurEffect>(*this);
 }
+#ifdef SK_DEBUG
+SkString GrRRectBlurEffect::dumpInfo() const {
+    return SkStringPrintf("RRectBlurEffect(sigma=%f, rect=float4(%f, %f, %f, %f), cornerRadius=%f)",
+                          sigma, rect.left(), rect.top(), rect.right(), rect.bottom(),
+                          cornerRadius);
+}
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::TestCreate(GrProcessorTestData* d) {

@@ -360,6 +360,15 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
     return std::make_unique<GrCircleBlurFragmentProcessor>(*this);
 }
+#ifdef SK_DEBUG
+SkString GrCircleBlurFragmentProcessor::dumpInfo() const {
+    return SkStringPrintf(
+            "CircleBlurFragmentProcessor(circleRect=half4(%f, %f, %f, %f), solidRadius=%f, "
+            "textureRadius=%f)",
+            circleRect.left(), circleRect.top(), circleRect.right(), circleRect.bottom(),
+            solidRadius, textureRadius);
+}
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::TestCreate(

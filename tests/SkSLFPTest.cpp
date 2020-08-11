@@ -113,6 +113,9 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrTest());
     }
     GrTest(const GrTest& src);
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "Test"; }
 private:
@@ -472,6 +475,7 @@ DEF_TEST(SkSLFPSections, r) {
          R"__SkSL__(
              @fields { fields section }
              @clone { }
+             @dumpInfo { }
              void main() {
                  sk_OutColor = half4(1);
              }
@@ -526,6 +530,22 @@ DEF_TEST(SkSLFPSections, r) {
              "std::unique_ptr<GrFragmentProcessor> GrTest::TestCreate(GrProcessorTestData* testDataName) {\n"
              " testDataName section }\n"
              "#endif"
+         });
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             @dumpInfo {dump all the fields}
+             void main() {
+                 sk_OutColor = half4(1);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+R"__Cpp__(#ifdef SK_DEBUG
+SkString GrTest::dumpInfo() const {
+dump all the fields
+}
+#endif)__Cpp__"
          });
 }
 
