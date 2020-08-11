@@ -75,35 +75,30 @@ public:
 
     /**
      * Reads a rectangle of pixels from the render target context.
-     * @param dContext      The direct context to use
      * @param dstInfo       image info for the destination
      * @param dst           destination pixels for the read
      * @param rowBytes      bytes in a row of 'dst'
      * @param srcPt         offset w/in the surface context from which to read
+     * @param direct        The direct context to use. If null will use our GrRecordingContext if it
      *                      is a GrDirectContext and fail otherwise.
      */
-    bool readPixels(GrDirectContext* dContext,
-                    const GrImageInfo& dstInfo,
-                    void* dst,
-                    size_t rowBytes,
-                    SkIPoint srcPt);
+    bool readPixels(const GrImageInfo& dstInfo, void* dst, size_t rowBytes, SkIPoint srcPt,
+                    GrDirectContext* direct = nullptr);
 
     using ReadPixelsCallback = SkImage::ReadPixelsCallback;
     using ReadPixelsContext  = SkImage::ReadPixelsContext;
     using RescaleGamma       = SkImage::RescaleGamma;
 
     // GPU implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixels.
-    void asyncRescaleAndReadPixels(GrDirectContext*,
-                                   const SkImageInfo& info,
+    void asyncRescaleAndReadPixels(const SkImageInfo& info,
                                    const SkIRect& srcRect,
                                    RescaleGamma rescaleGamma,
                                    SkFilterQuality rescaleQuality,
                                    ReadPixelsCallback callback,
-                                   ReadPixelsContext callbackContext);
+                                   ReadPixelsContext context);
 
     // GPU implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixelsYUV420.
-    void asyncRescaleAndReadPixelsYUV420(GrDirectContext*,
-                                         SkYUVColorSpace yuvColorSpace,
+    void asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                          sk_sp<SkColorSpace> dstColorSpace,
                                          const SkIRect& srcRect,
                                          SkISize dstSize,
@@ -115,17 +110,15 @@ public:
     /**
      * Writes a rectangle of pixels [srcInfo, srcBuffer, srcRowbytes] into the
      * renderTargetContext at the specified position.
-     * @param dContext      The direct context to use
      * @param srcInfo       image info for the source pixels
      * @param src           source for the write
      * @param rowBytes      bytes in a row of 'src'
      * @param dstPt         offset w/in the surface context at which to write
+     * @param direct        The direct context to use. If null will use our GrRecordingContext if it
+     *                      is a GrDirectContext and fail otherwise.
      */
-    bool writePixels(GrDirectContext* dContext,
-                     const GrImageInfo& srcInfo,
-                     const void* src,
-                     size_t rowBytes,
-                     SkIPoint dstPt);
+    bool writePixels(const GrImageInfo& srcInfo, const void* src, size_t rowBytes, SkIPoint dstPt,
+                     GrDirectContext* direct = nullptr);
 
     GrSurfaceProxy* asSurfaceProxy() { return fReadView.proxy(); }
     const GrSurfaceProxy* asSurfaceProxy() const { return fReadView.proxy(); }
@@ -211,11 +204,10 @@ protected:
     PixelTransferResult transferPixels(GrColorType colorType, const SkIRect& rect);
 
     // The async read step of asyncRescaleAndReadPixels()
-    void asyncReadPixels(GrDirectContext*,
-                         const SkIRect& srcRect,
-                         SkColorType,
-                         ReadPixelsCallback,
-                         ReadPixelsContext);
+    void asyncReadPixels(const SkIRect& rect,
+                         SkColorType colorType,
+                         ReadPixelsCallback callback,
+                         ReadPixelsContext context);
 
 private:
     friend class GrSurfaceProxy; // for copy

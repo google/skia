@@ -239,13 +239,13 @@ void test_draw_op(GrRecordingContext* rContext,
 }
 
 // The output buffer must be the same size as the render-target context.
-void render_fp(GrDirectContext* dContext,
+void render_fp(GrRecordingContext* rContext,
                GrRenderTargetContext* rtc,
                std::unique_ptr<GrFragmentProcessor> fp,
                GrColor* outBuffer) {
-    test_draw_op(dContext, rtc, std::move(fp));
+    test_draw_op(rContext, rtc, std::move(fp));
     std::fill_n(outBuffer, rtc->width() * rtc->height(), 0);
-    rtc->readPixels(dContext, SkImageInfo::Make(rtc->width(), rtc->height(), kRGBA_8888_SkColorType,
+    rtc->readPixels(SkImageInfo::Make(rtc->width(), rtc->height(), kRGBA_8888_SkColorType,
                                       kPremul_SkAlphaType),
                     outBuffer, /*rowBytes=*/0, /*srcPt=*/{0, 0});
 }
@@ -401,15 +401,15 @@ bool log_pixels(GrColor* pixels, int widthHeight, SkString* dst) {
     return BipmapToBase64DataURI(bmp, dst);
 }
 
-bool log_texture_view(GrDirectContext* dContext, GrSurfaceProxyView src, SkString* dst) {
+bool log_texture_view(GrRecordingContext* rContext, GrSurfaceProxyView src, SkString* dst) {
     SkImageInfo ii = SkImageInfo::Make(src.proxy()->dimensions(), kRGBA_8888_SkColorType,
                                        kLogAlphaType);
 
-    auto sContext = GrSurfaceContext::Make(dContext, std::move(src), GrColorType::kRGBA_8888,
+    auto sContext = GrSurfaceContext::Make(rContext, std::move(src), GrColorType::kRGBA_8888,
                                            kLogAlphaType, nullptr);
     SkBitmap bm;
     SkAssertResult(bm.tryAllocPixels(ii));
-    SkAssertResult(sContext->readPixels(dContext, ii, bm.getPixels(), bm.rowBytes(), {0, 0}));
+    SkAssertResult(sContext->readPixels(ii, bm.getPixels(), bm.rowBytes(), {0, 0}));
     return BipmapToBase64DataURI(bm, dst);
 }
 
