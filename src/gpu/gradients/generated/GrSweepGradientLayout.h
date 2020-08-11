@@ -27,6 +27,9 @@ public:
     GrSweepGradientLayout(const GrSweepGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SweepGradientLayout"; }
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     float bias;
     float scale;
 

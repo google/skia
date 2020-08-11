@@ -31,6 +31,9 @@ public:
     GrMagnifierEffect(const GrMagnifierEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MagnifierEffect"; }
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     SkIRect bounds;
     SkRect srcRect;
     float xInvZoom;

@@ -35,6 +35,9 @@ public:
     GrMixerEffect(const GrMixerEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MixerEffect"; }
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     float weight;
 
 private:
