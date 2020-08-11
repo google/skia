@@ -35,3 +35,34 @@ To enumerate all supported types and names, run the following:
 If the crash does not show up, try to add the flag --loops:
 
     out/ASAN/fuzz -b /path/to/downloaded/testcase --loops <times-to-run>
+
+libfuzzer
+---------
+
+libfuzzer is an easy way to write new fuzzers, and how we run them on oss-fuzz.
+Your fuzzer entry point should implement this API:
+
+    extern "C" int LLVMFuzzerTestOneInput(const uint8_t*, size_t);
+
+First install Clang and libfuzzer, e.g.
+
+    sudo apt install clang-10 libc++-10-dev libfuzzer-10-dev
+
+You should now be able to use `-fsanitize=fuzzer` with Clang.
+
+Set up GN args to use libfuzzer:
+
+    cc = "clang"
+    cxx = "clang++"
+    sanitize = "fuzzer"
+    extra_cflags = [ "-O1" ]  # Or whatever you want.
+    ...
+
+Build Skia and your fuzzer entry point:
+
+    ninja -C out/libfuzzer skia
+    clang++ -I. -O1 -fsanitize=fuzzer fuzz/oss_fuzz/whatever.cpp out/libfuzzer/libskia.a
+
+Run your new fuzzer binary
+
+    ./a.out
