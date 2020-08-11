@@ -98,6 +98,48 @@
       "revId": "84f92d211d9461968c24f5be3c31b061b3472a58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63fd4c81_8985e9b6",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-11T15:49:20Z",
+      "side": 1,
+      "message": "Yeah, t should be in seconds (Skottie converts from frame units under the hood).",
+      "parentUuid": "33103953_61d57d97",
+      "range": {
+        "startLine": 92,
+        "startChar": 22,
+        "endLine": 92,
+        "endChar": 27
+      },
+      "revId": "84f92d211d9461968c24f5be3c31b061b3472a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ad26681_1df8bf2e",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-11T15:49:20Z",
+      "side": 1,
+      "message": "I haven\u0027t thought of that, sounds reasonable.  I think it still makes sense to specialize the load callback so that clients know what type of media they\u0027re dealing with, but the actual asset could be a generic ExternalTrack thingie.",
+      "parentUuid": "9e0951f8_10d6ed44",
+      "revId": "84f92d211d9461968c24f5be3c31b061b3472a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
