@@ -23,7 +23,7 @@ public:
 
     struct Key {
         Key() : fVkFormat(VK_FORMAT_UNDEFINED), fExternalFormat(0), fConversionKey(0) {}
-        Key(VkFormat vkFormat, int64_t externalFormat, uint8_t conversionKey) {
+        Key(VkFormat vkFormat, uint64_t externalFormat, uint8_t conversionKey) {
             memset(this, 0, sizeof(Key));
             fVkFormat = vkFormat;
             fExternalFormat = externalFormat;
@@ -31,7 +31,7 @@ public:
         }
 
         VkFormat fVkFormat;
-        int64_t  fExternalFormat;
+        uint64_t fExternalFormat;
         uint8_t  fConversionKey;
 
         bool operator==(const Key& that) const {
