@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03af4307_3a85b052",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1463,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T18:25:57Z",
+      "side": 1,
+      "message": "I don\u0027t mind the idea of a TODO to fix up the parameter, but shouldn\u0027t hardcode LTR here. Should at least\n\n    (bidiLevel % 2) ? SkBidiIterator::kLTR : SkBidiIterator::kRTL\n\nor something like that.",
+      "range": {
+        "startLine": 1463,
+        "startChar": 76,
+        "endLine": 1463,
+        "endChar": 96
+      },
+      "revId": "1ac64f261fbbac19023b0d30bd4a9915cd5a81f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
