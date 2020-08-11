@@ -369,7 +369,11 @@ void SkRRect::computeType() {
     } else {
         fType = kComplex_Type;
     }
-    SkASSERT(this->isValid());
+
+    if (!this->isValid()) {
+        this->setRect(this->rect());
+        SkASSERT(this->isValid());
+    }
 }
 
 bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
