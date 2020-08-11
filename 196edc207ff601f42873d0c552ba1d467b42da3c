@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a27957e2_e4d6e1f1",
+        "filename": "demos.skia.org/demos/path_performance/main.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-11T18:30:09Z",
+      "side": 1,
+      "message": "Please make it explicit that the SVG is not animated in a webworker (because it\u0027s impossible to do so), but the others are so as not to block the main thread.",
+      "revId": "196edc207ff601f42873d0c552ba1d467b42da3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01300c0c_23505c31",
+        "filename": "demos.skia.org/demos/path_performance/main.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-11T18:30:09Z",
+      "side": 1,
+      "message": "nit: prefer single quotes",
+      "range": {
+        "startLine": 94,
+        "startChar": 26,
+        "endLine": 94,
+        "endChar": 27
+      },
+      "revId": "196edc207ff601f42873d0c552ba1d467b42da3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b8af418_7e332a01",
+        "filename": "demos.skia.org/demos/path_performance/shared.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-11T18:30:09Z",
+      "side": 1,
+      "message": "Add some documentation for this function (returns an x,y coordinate for some point on a circle)",
+      "revId": "196edc207ff601f42873d0c552ba1d467b42da3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d6ea403_4241fc19",
+        "filename": "demos.skia.org/demos/path_performance/shared.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-11T18:30:09Z",
+      "side": 1,
+      "message": "Add a little documentation giving these constants some context.",
+      "revId": "196edc207ff601f42873d0c552ba1d467b42da3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8954abcd_cdca031b",
+        "filename": "demos.skia.org/demos/path_performance/worker.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-11T18:30:09Z",
+      "side": 1,
+      "message": "nit: exactly one space between // and comment",
+      "range": {
+        "startLine": 26,
+        "startChar": 8,
+        "endLine": 26,
+        "endChar": 11
+      },
+      "revId": "196edc207ff601f42873d0c552ba1d467b42da3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
