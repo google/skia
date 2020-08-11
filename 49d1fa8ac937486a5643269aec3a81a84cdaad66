@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0bdcf40c_616f399f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-11T15:46:58Z",
+      "side": 1,
+      "message": "I think my big diffs were from misunderstanding the return value of setRadii().\n\nPS2 should be more focused, but I want to get a regression unit test in place before landing.",
+      "revId": "49d1fa8ac937486a5643269aec3a81a84cdaad66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
