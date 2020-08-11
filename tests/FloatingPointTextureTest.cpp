@@ -28,7 +28,7 @@
 static const int DEV_W = 100, DEV_H = 100;
 
 template <typename T>
-void runFPTest(skiatest::Reporter* reporter, GrDirectContext* context,
+void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
                T min, T max, T epsilon, T maxInt,
                int arraySize, GrColorType colorType) {
     if (0 != arraySize % 4) {
@@ -50,7 +50,7 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* context,
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
         auto fpProxy = sk_gpu_test::MakeTextureProxyFromData(
-                context, GrRenderable::kYes, origin,
+                dContext, GrRenderable::kYes, origin,
                 {colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
                 controlPixelData.begin(), 0);
         // Floating point textures are NOT supported everywhere
@@ -58,15 +58,16 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* context,
             continue;
         }
 
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(fpProxy->backendFormat(),
-                                                                   colorType);
+        GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(fpProxy->backendFormat(),
+                                                                    colorType);
         GrSurfaceProxyView view(std::move(fpProxy), origin, swizzle);
-        auto sContext = GrSurfaceContext::Make(context, std::move(view), colorType,
+        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), colorType,
                                                kPremul_SkAlphaType, nullptr);
         REPORTER_ASSERT(reporter, sContext);
 
-        bool result = sContext->readPixels({colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
-                                           readBuffer.begin(), 0, {0, 0}, context);
+        bool result = sContext->readPixels(dContext,
+                                           {colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
+                                           readBuffer.begin(), 0, {0, 0});
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
                         0 == memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
