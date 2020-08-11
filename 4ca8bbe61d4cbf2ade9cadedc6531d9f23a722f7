@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a005c834_9077e12e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-11T18:30:46Z",
+      "side": 1,
+      "message": "This is code to keep rounded rectangles convex under scaling. Sometimes, the end of the rounded rect would project beyond the end of the line segment due to rounding. It\u0027s basically  a pile of floating point math hacks before I knew very much about floating point. ",
+      "revId": "4ca8bbe61d4cbf2ade9cadedc6531d9f23a722f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
