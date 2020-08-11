@@ -47,9 +47,9 @@ static bool params_valid(const GrGLTextureParameters& parameters, const GrGLCaps
 }
 
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
-    GrBackendTexture backendTex = context->createBackendTexture(
+    GrBackendTexture backendTex = dContext->createBackendTexture(
             1, 1, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
@@ -60,11 +60,11 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, backendTexCopy.isSameTexture(backendTex));
 
     sk_sp<SkImage> wrappedImage =
-            SkImage::MakeFromTexture(context, backendTex, kTopLeft_GrSurfaceOrigin,
+            SkImage::MakeFromTexture(dContext, backendTex, kTopLeft_GrSurfaceOrigin,
                                      kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
     REPORTER_ASSERT(reporter, wrappedImage);
 
-    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(context);
+    const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(dContext);
     REPORTER_ASSERT(reporter, view);
     REPORTER_ASSERT(reporter, view->proxy()->isInstantiated());
     auto texture = static_cast<GrGLTexture*>(view->proxy()->peekTexture());
@@ -80,13 +80,13 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, params_invalid(*parameters));
 
     auto surf = SkSurface::MakeRenderTarget(
-            context, SkBudgeted::kYes,
+            dContext, SkBudgeted::kYes,
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1, nullptr);
     REPORTER_ASSERT(reporter, surf);
     surf->getCanvas()->drawImage(wrappedImage, 0, 0);
     surf->flushAndSubmit();
 
-    auto caps = static_cast<const GrGLCaps*>(context->priv().caps());
+    auto caps = static_cast<const GrGLCaps*>(dContext->priv().caps());
     // Now the texture should be in a known state.
     REPORTER_ASSERT(reporter, params_valid(*parameters, caps));
 
@@ -127,8 +127,8 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
 
     wrappedImage.reset();
-    context->flush();
-    context->submit(true);
-    context->deleteBackendTexture(backendTex);
+    dContext->flush();
+    dContext->submit(true);
+    dContext->deleteBackendTexture(backendTex);
 }
 #endif
