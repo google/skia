@@ -24,6 +24,9 @@ public:
                                                      const SkPMColor4f& c3,
                                                      float threshold);
     GrDualIntervalGradientColorizer(const GrDualIntervalGradientColorizer& src);
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DualIntervalGradientColorizer"; }
     SkPMColor4f scale01;
