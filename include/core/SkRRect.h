@@ -507,7 +507,7 @@ private:
     void computeType();
     bool checkCornerContainment(SkScalar x, SkScalar y) const;
     // Returns true if the radii had to be scaled to fit rect
-    bool scaleRadii();
+    SK_WARN_UNUSED_RESULT bool scaleRadii();
 
     SkRect fRect = SkRect::MakeEmpty();
     // Radii order is UL, UR, LR, LL. Use Corner enum to index into fRadii[]

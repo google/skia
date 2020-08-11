@@ -157,7 +157,10 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
         return;
     }
 
-    this->scaleRadii();
+    if (!this->scaleRadii()) {
+        this->setRect(rect);
+        return;
+    }
 }
 
 bool SkRRect::initializeRect(const SkRect& rect) {
@@ -227,8 +230,8 @@ bool SkRRect::scaleRadii() {
     // May be simple, oval, or complex, or become a rect/empty if the radii adjustment made them 0
     this->computeType();
 
-    SkASSERT(this->isValid());
-    return scale < 1.0;
+    return scale < 1.0
+        && this->isValid();
 }
 
 // This method determines if a point known to be inside the RRect's bounds is
@@ -490,10 +493,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         return false;
     }
 
-    dst->scaleRadii();
-    dst->isValid();
-
-    return true;
+    return dst->scaleRadii();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
