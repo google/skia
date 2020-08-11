@@ -937,7 +937,7 @@ Layout Parser::layout() {
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
             READONLY | WRITEONLY | COHERENT | VOLATILE | RESTRICT | BUFFER | PLS | PLSIN |
-            PLSOUT | VARYING)* */
+            PLSOUT | VARYING | FORCEINLINE)* */
 Modifiers Parser::modifiers() {
     Layout layout = this->layout();
     int flags = 0;
@@ -1016,6 +1016,10 @@ Modifiers Parser::modifiers() {
             case Token::Kind::TK_VARYING:
                 this->nextToken();
                 flags |= Modifiers::kVarying_Flag;
+                break;
+            case Token::Kind::TK_FORCEINLINE:
+                this->nextToken();
+                flags |= Modifiers::kForceInline_Flag;
                 break;
             default:
                 return Modifiers(layout, flags);
