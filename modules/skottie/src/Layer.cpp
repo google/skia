@@ -433,7 +433,8 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     // former category (effects are subject to transformation), while the remaining types are in
     // the latter.
     enum : uint32_t {
-        kTransformEffects = 1, // The layer transform also applies to its effects.
+        kTransformEffects = 0x01, // The layer transform also applies to its effects.
+        kForceSeek        = 0x02, // Dispatch all seek() events even when the layer is inactive.
     };
 
     static constexpr struct {
@@ -446,7 +447,7 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         { &AnimationBuilder::attachNullLayer   ,                 0 },  // 'ty':  3 -> null
         { &AnimationBuilder::attachShapeLayer  ,                 0 },  // 'ty':  4 -> shape
         { &AnimationBuilder::attachTextLayer   ,                 0 },  // 'ty':  5 -> text
-        { nullptr                              ,                 0 },  // 'ty':  6 -> audio
+        { &AnimationBuilder::attachAudioLayer  ,        kForceSeek },  // 'ty':  6 -> audio
         { nullptr                              ,                 0 },  // 'ty':  7 -> pholderVideo
         { nullptr                              ,                 0 },  // 'ty':  8 -> imageSeq
         { &AnimationBuilder::attachFootageLayer, kTransformEffects },  // 'ty':  9 -> video
@@ -521,11 +522,14 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         layer = abuilder.attachOpacity(*jtransform, std::move(layer));
     }
 
-    const auto has_animators = !abuilder.fCurrentAnimatorScope->empty();
+    const auto has_animators    = !abuilder.fCurrentAnimatorScope->empty();
+    const auto force_seek_count = build_info.fFlags & kForceSeek
+            ? abuilder.fCurrentAnimatorScope->size()
+            : fTransformAnimatorCount;
 
     sk_sp<Animator> controller = sk_make_sp<LayerController>(ascope.release(),
                                                              layer,
-                                                             fTransformAnimatorCount,
+                                                             force_seek_count,
                                                              layer_info.fInPoint,
                                                              layer_info.fOutPoint);
 
