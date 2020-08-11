@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed3612ff_3c088b2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T18:42:25Z",
+      "side": 1,
+      "message": "Getting my lefts and rights confused...",
+      "revId": "ff15525ab7ccc8cefa56d69dac382c23182b1a8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e03bdb6f_b94a855b",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1462,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T18:42:25Z",
+      "side": 1,
+      "message": "Oops, I think I got this backwards. Even bidi levels mean ltr and odd rtl, so bidiLevel % 2 will be 0 for ltr which is a false value and 1 for rtl which is a true value, so the true branch should be kRTL. So\n\n    auto bidiDir \u003d (bidiLevel % 2) ? SkBidiIterator::kRTL : SkBidiIterator::kLTR;",
+      "revId": "ff15525ab7ccc8cefa56d69dac382c23182b1a8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
