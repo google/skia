@@ -1,5 +1,8 @@
-Reproducing Skia Fuzzes
-=======================
+Fuzzing
+=======
+
+Reproducing using `fuzz`
+------------------------
 
 We assume that you can [build Skia](/user/build). Many fuzzes only reproduce
 when building with ASAN or MSAN; see [those instructions for more details](./xsan).
@@ -35,3 +38,34 @@ To enumerate all supported types and names, run the following:
 If the crash does not show up, try to add the flag --loops:
 
     out/ASAN/fuzz -b /path/to/downloaded/testcase --loops <times-to-run>
+
+Writing fuzzers with libfuzzer
+------------------------------
+
+libfuzzer is an easy way to write new fuzzers, and how we run them on oss-fuzz.
+Your fuzzer entry point should implement this API:
+
+    extern "C" int LLVMFuzzerTestOneInput(const uint8_t*, size_t);
+
+First install Clang and libfuzzer, e.g.
+
+    sudo apt install clang-10 libc++-10-dev libfuzzer-10-dev
+
+You should now be able to use `-fsanitize=fuzzer` with Clang.
+
+Set up GN args to use libfuzzer:
+
+    cc = "clang-10"
+    cxx = "clang++-10"
+    sanitize = "fuzzer"
+    extra_cflags = [ "-O1" ]  # Or whatever you want.
+    ...
+
+Build Skia and your fuzzer entry point:
+
+    ninja -C out/libfuzzer skia
+    clang++-10 -I. -O1 -fsanitize=fuzzer fuzz/oss_fuzz/whatever.cpp out/libfuzzer/libskia.a
+
+Run your new fuzzer binary
+
+    ./a.out
