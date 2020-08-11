@@ -33,6 +33,24 @@
       "revId": "84f92d211d9461968c24f5be3c31b061b3472a58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e0951f8_10d6ed44",
+        "filename": "modules/skresources/include/SkResources.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-11T15:35:49Z",
+      "side": 1,
+      "message": "Yeah, this seems okay? If the API is this generic, do we need to talk about audio at all? Can\u0027t it just be something involving words like Track or Timeline? The client could use this to drive a timeline on anything, right? (Audio being the most likely, but maybe vibration, analytics, or something else?)",
+      "parentUuid": "6c0b3bc4_8cdd8ecb",
+      "revId": "84f92d211d9461968c24f5be3c31b061b3472a58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
