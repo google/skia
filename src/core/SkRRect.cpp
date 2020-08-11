@@ -158,6 +158,11 @@ void SkRRect::setRectRadii(const SkRect& rect, const SkVector radii[4]) {
     }
 
     this->scaleRadii();
+
+    if (!this->isValid()) {
+        this->setRect(rect);
+        return;
+    }
 }
 
 bool SkRRect::initializeRect(const SkRect& rect) {
@@ -227,7 +232,9 @@ bool SkRRect::scaleRadii() {
     // May be simple, oval, or complex, or become a rect/empty if the radii adjustment made them 0
     this->computeType();
 
-    SkASSERT(this->isValid());
+    // TODO:  Why can't we assert this here?
+    //SkASSERT(this->isValid());
+
     return scale < 1.0;
 }
 
@@ -369,7 +376,11 @@ void SkRRect::computeType() {
     } else {
         fType = kComplex_Type;
     }
-    SkASSERT(this->isValid());
+
+    if (!this->isValid()) {
+        this->setRect(this->rect());
+        SkASSERT(this->isValid());
+    }
 }
 
 bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
@@ -491,7 +502,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     }
 
     dst->scaleRadii();
-    dst->isValid();
+    dst->isValid();  // TODO: is this meant to be SkASSERT(dst->isValid())?
 
     return true;
 }
