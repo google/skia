@@ -198,6 +198,7 @@ private:
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;
     friend class AutoSwitchLevel;
+    friend class AutoDisableInline;
     friend class Compiler;
 };
 
