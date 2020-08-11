@@ -50,29 +50,27 @@ struct TestCase {
     SkAlphaType        fAlphaType;
     SkColorChannelFlag fChannels;
     bool               fGpuCanMakeSurfaces;
-    bool               fCpuCanMakeSurfaces;
 };
 
 static const TestCase gTests[] = {
-    { kAlpha_8_SkColorType,     kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, true,  true },
-    { kA16_unorm_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, false, false},
-    { kA16_float_SkColorType,   kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, false, false},
-    { kRGB_565_SkColorType,     kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true,  true },
-    { kARGB_4444_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
-    { kRGBA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
-    { kRGB_888x_SkColorType,    kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true,  true },
-    { kBGRA_8888_SkColorType,   kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
-    { kRGBA_1010102_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
-    { kRGB_101010x_SkColorType, kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true,  true },
-    { kGray_8_SkColorType,      kOpaque_SkAlphaType, kGray_SkColorChannelFlag,  true,  true },
-    { kRGBA_F16Norm_SkColorType,kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
-    { kRGBA_F16_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
-    { kRGBA_F32_SkColorType,    kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true,  true },
-    { kR8G8_unorm_SkColorType,  kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   true,  false},
-    { kR16G16_unorm_SkColorType,kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false, false},
-    { kR16G16_float_SkColorType,kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false, false},
-    { kR16G16B16A16_unorm_SkColorType,
-                                kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, false, true},
+    { kAlpha_8_SkColorType,            kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, true },
+    { kA16_unorm_SkColorType,          kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, false},
+    { kA16_float_SkColorType,          kPremul_SkAlphaType, kAlpha_SkColorChannelFlag, false},
+    { kRGB_565_SkColorType,            kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true },
+    { kARGB_4444_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
+    { kRGBA_8888_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
+    { kRGB_888x_SkColorType,           kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true },
+    { kBGRA_8888_SkColorType,          kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
+    { kRGBA_1010102_SkColorType,       kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
+    { kRGB_101010x_SkColorType,        kOpaque_SkAlphaType, kRGB_SkColorChannelFlags,  true },
+    { kGray_8_SkColorType,             kOpaque_SkAlphaType, kGray_SkColorChannelFlag,  true },
+    { kRGBA_F16Norm_SkColorType,       kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
+    { kRGBA_F16_SkColorType,           kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
+    { kRGBA_F32_SkColorType,           kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, true },
+    { kR8G8_unorm_SkColorType,         kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   true },
+    { kR16G16_unorm_SkColorType,       kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false},
+    { kR16G16_float_SkColorType,       kOpaque_SkAlphaType, kRG_SkColorChannelFlags,   false},
+    { kR16G16B16A16_unorm_SkColorType, kPremul_SkAlphaType, kRGBA_SkColorChannelFlags, false},
 };
 
 static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
@@ -84,10 +82,10 @@ static void raster_tests(skiatest::Reporter* reporter, const TestCase& test) {
     uint32_t actualChannels = SkColorTypeChannelFlags(test.fColorType);
     REPORTER_ASSERT(reporter, test.fChannels == actualChannels);
 
-    // Not all colorTypes can be drawn to
+    // all colorTypes can be drawn to
     {
         auto s = SkSurface::MakeRaster(nativeII);
-        REPORTER_ASSERT(reporter, SkToBool(s) == test.fCpuCanMakeSurfaces);
+        REPORTER_ASSERT(reporter, SkToBool(s));
     }
 
     // opaque formats should make transparent black become opaque
