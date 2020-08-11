@@ -75,12 +75,6 @@ public:
         return SkToBool(FormatInfo::kBlitSrc_Flag & flags);
     }
 
-    // On Adreno vulkan, they do not respect the imageOffset parameter at least in
-    // copyImageToBuffer. This flag says that we must do the copy starting from the origin always.
-    bool mustDoCopiesFromOrigin() const {
-        return fMustDoCopiesFromOrigin;
-    }
-
     // Sometimes calls to QueueWaitIdle return before actually signalling the fences
     // on the command buffers even though they have completed. This causes an assert to fire when
     // destroying the command buffers. Therefore we add a sleep to make sure the fence signals.
@@ -312,7 +306,6 @@ private:
 
     SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
 
-    bool fMustDoCopiesFromOrigin = false;
     bool fMustSleepOnTearDown = false;
     bool fShouldAlwaysUseDedicatedImageMemory = false;
 
