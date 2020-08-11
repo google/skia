@@ -28,23 +28,13 @@ class GrVkGpu;
         if (RESULT != VK_SUCCESS && !GPU->isDeviceLost()) {               \
             SkDebugf("Failed vulkan call. Error: %d," #X "\n", RESULT);   \
         }                                                                 \
-        if (RESULT == VK_ERROR_DEVICE_LOST) {                             \
-            GPU->setDeviceLost();                                         \
-        } else if (RESULT == VK_ERROR_OUT_OF_HOST_MEMORY ||               \
-                   RESULT == VK_ERROR_OUT_OF_DEVICE_MEMORY) {             \
-            GPU->setOOMed();                                              \
-        }                                                                 \
+        GPU->checkVkResult(RESULT);                                       \
     } while (false)
 
-#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)             \
-    do {                                                      \
-        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);         \
-        if (RESULT == VK_ERROR_DEVICE_LOST) {                 \
-            GPU->setDeviceLost();                             \
-        } else if (RESULT == VK_ERROR_OUT_OF_HOST_MEMORY ||   \
-                   RESULT == VK_ERROR_OUT_OF_DEVICE_MEMORY) { \
-            GPU->setOOMed();                                  \
-        }                                                     \
+#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)     \
+    do {                                              \
+        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X); \
+        GPU->checkVkResult(RESULT);                   \
     } while (false)
 
 // same as GR_VK_CALL but checks for success
