@@ -88,7 +88,7 @@ protected:
 private:
     std::unique_ptr<GrAtlasManager> fAtlasManager;
 
-    // The small path renderer atlas will be stored here
+    std::unique_ptr<GrSmallPathAtlasMgr> fSmallPathAtlasMgr;
 
     typedef GrContext INHERITED;
 };

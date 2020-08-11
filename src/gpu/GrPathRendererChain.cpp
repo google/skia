@@ -59,9 +59,7 @@ GrPathRendererChain::GrPathRendererChain(GrRecordingContext* context, const Opti
         fChain.push_back(sk_make_sp<GrAALinearizingConvexPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
-        auto spr = sk_make_sp<GrSmallPathRenderer>();
-        spr->addToOnFlushCallbacks(context);
-        fChain.push_back(std::move(spr));
+        fChain.push_back(sk_make_sp<GrSmallPathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kStencilAndCover) {
         auto direct = context->asDirectContext();

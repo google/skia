@@ -30,6 +30,7 @@ void GrSmallPathAtlasMgr::reset() {
         delete shapeData;
     }
 
+    fShapeList.reset();
     fShapeCache.reset();
 
 #ifdef DF_PATH_TRACKING
