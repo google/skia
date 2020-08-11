@@ -41,14 +41,6 @@ bool SkSurfaceValidateRasterInfo(const SkImageInfo& info, size_t rowBytes) {
         return false;
     }
 
-    if (info.colorType() == kR8G8_unorm_SkColorType ||
-        info.colorType() == kR16G16_unorm_SkColorType ||
-        info.colorType() == kR16G16_float_SkColorType ||
-        info.colorType() == kA16_unorm_SkColorType ||
-        info.colorType() == kA16_float_SkColorType) {
-        return false;
-    }
-
     if (kIgnoreRowBytesValue == rowBytes) {
         return true;
     }
