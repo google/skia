@@ -13,7 +13,7 @@
 
 class GrStyledShape;
 
-class GrSmallPathShapeDataKey  {
+class GrSmallPathShapeDataKey {
 public:
     // TODO: add a move variant
     GrSmallPathShapeDataKey(const GrSmallPathShapeDataKey& that) {

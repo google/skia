@@ -11,7 +11,6 @@
 #include "include/private/SkTHash.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDescriptor.h"
-#include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrGlyph.h"
 
 class GrAtlasManager;

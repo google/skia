@@ -22,10 +22,12 @@ class GrStyledShape;
  */
 class GrSmallPathAtlasMgr : public GrOnFlushCallbackObject,
                             public GrDrawOpAtlas::EvictionCallback,
-                            public GrDrawOpAtlas::GenerationCounter{
+                            public GrDrawOpAtlas::GenerationCounter {
 public:
     GrSmallPathAtlasMgr();
     ~GrSmallPathAtlasMgr() override;
+
+    void reset();
 
     bool initAtlas(GrProxyProvider*, const GrCaps*);
 
@@ -34,18 +36,9 @@ public:
     GrSmallPathShapeData* findOrCreate(const GrStyledShape&, int desiredDimension);
     GrSmallPathShapeData* findOrCreate(const GrStyledShape&, const SkMatrix& ctm);
 
-    const GrSurfaceProxyView* getViews(int* numActiveProxies) {
-        *numActiveProxies = fAtlas->numActivePages();
-        return fAtlas->getViews();
-    }
-
     void setUseToken(GrSmallPathShapeData*, GrDeferredUploadToken);
 
     // GrOnFlushCallbackObject overrides
-    //
-    // Note: because this class is associated with a path renderer we want it to be removed from
-    // the list of active OnFlushCallbackObjects in an freeGpuResources call (i.e., we accept the
-    // default retainOnFreeGpuResources implementation).
     void preFlush(GrOnFlushResourceProvider* onFlushRP,
                   const uint32_t* /* opsTaskIDs */,
                   int /* numOpsTaskIDs */) override {
@@ -60,6 +53,11 @@ public:
         if (fAtlas) {
             fAtlas->compact(startTokenForNextFlush);
         }
+    }
+
+    const GrSurfaceProxyView* getViews(int* numActiveProxies) {
+        *numActiveProxies = fAtlas->numActivePages();
+        return fAtlas->getViews();
     }
 
     void deleteCacheEntry(GrSmallPathShapeData*);

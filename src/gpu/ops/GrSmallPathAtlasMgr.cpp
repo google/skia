@@ -18,6 +18,10 @@ static int g_NumFreedShapes = 0;
 GrSmallPathAtlasMgr::GrSmallPathAtlasMgr() {}
 
 GrSmallPathAtlasMgr::~GrSmallPathAtlasMgr() {
+    this->reset();
+}
+
+void GrSmallPathAtlasMgr::reset() {
     ShapeDataList::Iter iter;
     iter.init(fShapeList, ShapeDataList::Iter::kHead_IterStart);
     GrSmallPathShapeData* shapeData;
@@ -26,9 +30,13 @@ GrSmallPathAtlasMgr::~GrSmallPathAtlasMgr() {
         delete shapeData;
     }
 
+    fShapeCache.reset();
+
 #ifdef DF_PATH_TRACKING
     SkDebugf("Cached shapes: %d, freed shapes: %d\n", g_NumCachedShapes, g_NumFreedShapes);
 #endif
+
+    fAtlas = nullptr;
 }
 
 bool GrSmallPathAtlasMgr::initAtlas(GrProxyProvider* proxyProvider, const GrCaps* caps) {
