@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b1d4e20_e56c9f04",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-11T18:27:34Z",
+      "side": 1,
+      "message": "Again, not for this change, but it might make sense for all this dump stuff to be guarded by GR_TEST_UTILS rather than SK_DEBUG. Then it\u0027s available in our tools but doesn\u0027t exist in client builds.",
+      "range": {
+        "startLine": 253,
+        "startChar": 7,
+        "endLine": 253,
+        "endChar": 15
+      },
+      "revId": "7d2c9dd0336e0c7e780dec677e5b3c614097a8a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8072a271_1416230d",
+        "filename": "src/gpu/effects/GrBlendFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-11T18:27:34Z",
+      "side": 1,
+      "message": "Not recommending for this change, but wondering if it\u0027d make sense to have the name inserted by the base class calling name(). E.g.\n\n SkString GrFragmentProcessor::dumpInfo() const {\n     return SkStringPrintf(\"%s(%s)\", this-\u003ename(), this-\u003eonDumpInfo());\n }",
+      "range": {
+        "startLine": 56,
+        "startChar": 31,
+        "endLine": 56,
+        "endChar": 53
+      },
+      "revId": "7d2c9dd0336e0c7e780dec677e5b3c614097a8a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
