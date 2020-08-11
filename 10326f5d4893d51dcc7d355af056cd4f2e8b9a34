@@ -16,6 +16,23 @@
       "revId": "10326f5d4893d51dcc7d355af056cd4f2e8b9a34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99cff398_0197ed75",
+        "filename": "src/core/SkGlyphBuffer.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-11T16:19:13Z",
+      "side": 1,
+      "message": "Though you might want to put a blank line between the end of the above explanation and this comment on the return value of \u0027startGPUDevice\u0027. It almost looks like this is the conclusion line to the above argument.",
+      "revId": "10326f5d4893d51dcc7d355af056cd4f2e8b9a34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
