@@ -59,16 +59,25 @@ GrDirectContext::~GrDirectContext() {
 
 void GrDirectContext::abandonContext() {
     INHERITED::abandonContext();
+    if (fSmallPathAtlasMgr) {
+        fSmallPathAtlasMgr->reset();
+    }
     fAtlasManager->freeAll();
 }
 
 void GrDirectContext::releaseResourcesAndAbandonContext() {
     INHERITED::releaseResourcesAndAbandonContext();
+    if (fSmallPathAtlasMgr) {
+        fSmallPathAtlasMgr->reset();
+    }
     fAtlasManager->freeAll();
 }
 
 void GrDirectContext::freeGpuResources() {
     this->flushAndSubmit();
+    if (fSmallPathAtlasMgr) {
+        fSmallPathAtlasMgr->reset();
+    }
     fAtlasManager->freeAll();
 
     INHERITED::freeGpuResources();
@@ -115,8 +124,18 @@ bool GrDirectContext::init() {
 }
 
 GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
-    // The small path renderer atlas will be created here
-    return nullptr;
+    if (!fSmallPathAtlasMgr) {
+        fSmallPathAtlasMgr = std::make_unique<GrSmallPathAtlasMgr>();
+
+        if (!fSmallPathAtlasMgr->initAtlas(this->proxyProvider(), this->caps())) {
+            fSmallPathAtlasMgr.reset();
+            return nullptr;
+        }
+
+        this->priv().addOnFlushCallbackObject(fSmallPathAtlasMgr.get());
+    }
+
+    return fSmallPathAtlasMgr.get();
 }
 
 #ifdef SK_GL
