@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "384ad64a_791e97ad",
+        "filename": "src/core/SkScaleToSides.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-11T19:40:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08a3ab5c_30f5fd33",
+      "range": {
+        "startLine": 47,
+        "startChar": 35,
+        "endLine": 47,
+        "endChar": 38
+      },
+      "revId": "eb2b8a04e136e929de00cb275852d3515395c6a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51fbdfea_a7aa8d74",
         "filename": "tests/RoundRectTest.cpp",
         "patchSetId": 1
@@ -62,6 +86,30 @@
       "revId": "eb2b8a04e136e929de00cb275852d3515395c6a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c9d68b6_4a28b19d",
+        "filename": "tests/RoundRectTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1281,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-11T19:40:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51fbdfea_a7aa8d74",
+      "range": {
+        "startLine": 1272,
+        "startChar": 0,
+        "endLine": 1281,
+        "endChar": 0
+      },
+      "revId": "eb2b8a04e136e929de00cb275852d3515395c6a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
