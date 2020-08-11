@@ -53,6 +53,9 @@ GrRadialGradientLayout::GrRadialGradientLayout(const GrRadialGradientLayout& src
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::clone() const {
     return std::make_unique<GrRadialGradientLayout>(*this);
 }
+#ifdef SK_DEBUG
+SkString GrRadialGradientLayout::dumpInfo() const { return SkStringPrintf("RadialGradientLayout"); }
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradientLayout);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::TestCreate(GrProcessorTestData* d) {

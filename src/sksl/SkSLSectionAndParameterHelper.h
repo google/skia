@@ -24,6 +24,7 @@ inline constexpr char kConstructorCodeSection[] =    "constructorCode";
 inline constexpr char kConstructorParamsSection[] =  "constructorParams";
 inline constexpr char kCppSection[] =                "cpp";
 inline constexpr char kCppEndSection[] =             "cppEnd";
+inline constexpr char kDumpInfoSection[] =           "dumpInfo";
 inline constexpr char kEmitCodeSection[] =           "emitCode";
 inline constexpr char kFieldsSection[] =             "fields";
 inline constexpr char kHeaderSection[] =             "header";
@@ -74,6 +75,7 @@ public:
                !strcmp(name, kConstructorParamsSection) ||
                !strcmp(name, kCppSection) ||
                !strcmp(name, kCppEndSection) ||
+               !strcmp(name, kDumpInfoSection) ||
                !strcmp(name, kEmitCodeSection) ||
                !strcmp(name, kFieldsSection) ||
                !strcmp(name, kHeaderSection) ||
