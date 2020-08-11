@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1350d47d_d8b68e89",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-11T20:16:49Z",
+      "side": 1,
+      "message": "How about:\n\nif (type-\u003ekind() \u003d\u003d Type::kMatrix_Kind) {\n\nWe don\u0027t currently have non-float/half matrices, but you could add:\n\n\u0026\u0026 (type-\u003ecomponentType() \u003d\u003d *fContext.fFloat_Type || type-\u003ecomponentType() \u003d\u003d ...)\n\n... if you\u0027re worried.",
+      "revId": "e5966b07401f93085268a244e6eff901c17695f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
