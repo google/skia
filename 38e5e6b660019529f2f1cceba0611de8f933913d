@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ecb183d4_b39d4d06",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-11T17:38:40Z",
+      "side": 1,
+      "message": "this won\u0027t be filing any bugs, will it?  or is it somehow automatically hooked up to oss-fuzz?",
+      "parentUuid": "86d7639d_0d5693f3",
+      "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b066013b_e6014aaf",
         "filename": "site/dev/testing/fuzz.md",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "5fddb306_f07b67bf",
+        "filename": "site/dev/testing/fuzz.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-11T17:38:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b066013b_e6014aaf",
+      "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26fc50f3_39c47c49",
         "filename": "site/dev/testing/fuzz.md",
         "patchSetId": 1
@@ -50,6 +86,24 @@
       "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "effcc732_1c05981a",
+        "filename": "site/dev/testing/fuzz.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-11T17:38:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26fc50f3_39c47c49",
+      "revId": "38e5e6b660019529f2f1cceba0611de8f933913d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
