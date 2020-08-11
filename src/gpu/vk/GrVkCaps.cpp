@@ -417,12 +417,6 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 }
 
 void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
-    if (kQualcomm_VkVendor == properties.vendorID) {
-        fMustDoCopiesFromOrigin = true;
-        // Transfer doesn't support this workaround.
-        fTransferFromSurfaceToBufferSupport = false;
-    }
-
 #if defined(SK_BUILD_FOR_WIN)
     if (kNvidia_VkVendor == properties.vendorID || kIntel_VkVendor == properties.vendorID) {
         fMustSleepOnTearDown = true;
