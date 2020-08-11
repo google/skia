@@ -27,7 +27,9 @@ public:
     GrLinearGradientLayout(const GrLinearGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LinearGradientLayout"; }
-
+#ifdef SK_DEBUG
+    SkString dumpInfo() const override;
+#endif
 private:
     GrLinearGradientLayout()
             : INHERITED(kGrLinearGradientLayout_ClassID,
