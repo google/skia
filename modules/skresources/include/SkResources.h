@@ -75,6 +75,24 @@ private:
 };
 
 /**
+ * Audio/playback interface.
+ *
+ * Used to wrap audio payload and playback controllers.
+ */
+class AudioAsset : public SkRefCnt {
+public:
+    /**
+     * Audio control callback, emitted for each corresponding Animation::seek().
+     *
+     * @param t  Frame time code, in seconds, relative to the audio layer timeline origin
+     *           (in-point).
+     *
+     * Negative |t| values are used to signal off state (stop playback outside layer span).
+     */
+    virtual void seek(float t) = 0;
+};
+
+/**
  * ResourceProvider is an interface that lets rich-content modules defer loading of external
  * resources (images, fonts, etc.) to embedding clients.
  */
@@ -94,6 +112,15 @@ public:
      * ImageAsset proxy.
      */
     virtual sk_sp<ImageAsset> loadImageAsset(const char[] /* resource_path */,
+                                             const char[] /* resource_name */,
+                                             const char[] /* resource_id   */) const {
+        return nullptr;
+    }
+
+    /**
+     * Load an image asset specified by |path|/|name|/|id|.
+     */
+    virtual sk_sp<AudioAsset> loadAudioAsset(const char[] /* resource_path */,
                                              const char[] /* resource_name */,
                                              const char[] /* resource_id   */) const {
         return nullptr;
