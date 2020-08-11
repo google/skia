@@ -77,7 +77,7 @@ struct GrVkYcbcrConversionInfo {
             , fForceExplicitReconstruction(false) {}
 
     GrVkYcbcrConversionInfo(VkFormat format,
-                            int64_t externalFormat,
+                            uint64_t externalFormat,
                             VkSamplerYcbcrModelConversion ycbcrModel,
                             VkSamplerYcbcrRange ycbcrRange,
                             VkChromaLocation xChromaOffset,
@@ -105,7 +105,7 @@ struct GrVkYcbcrConversionInfo {
                             VkChromaLocation yChromaOffset,
                             VkFilter chromaFilter,
                             VkBool32 forceExplicitReconstruction,
-                            int64_t externalFormat,
+                            uint64_t externalFormat,
                             VkFormatFeatureFlags externalFormatFeatures)
             : GrVkYcbcrConversionInfo(VK_FORMAT_UNDEFINED, externalFormat, ycbcrModel, ycbcrRange,
                                       xChromaOffset, yChromaOffset, chromaFilter,
@@ -135,7 +135,7 @@ struct GrVkYcbcrConversionInfo {
 
     // The external format. Must be non-zero for external images, zero otherwise.
     // Should be compatible to be used in a VkExternalFormatANDROID struct.
-    int64_t                          fExternalFormat;
+    uint64_t                         fExternalFormat;
 
     VkSamplerYcbcrModelConversion    fYcbcrModel;
     VkSamplerYcbcrRange              fYcbcrRange;
