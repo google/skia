@@ -114,7 +114,7 @@ public:
     }
     GrTest(const GrTest& src);
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override;
+    SkString onDumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "Test"; }
@@ -180,8 +180,8 @@ std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {
     return std::make_unique<GrTest>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrTest::dumpInfo() const {
-    return SkStringPrintf("Test");
+SkString GrTest::onDumpInfo() const {
+    return SkString();
 }
 #endif
 )__Cpp__"
@@ -256,8 +256,8 @@ R"__Cpp__(std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {
 }
 )__Cpp__",
 R"__Cpp__(#if GR_TEST_UTILS
-SkString GrTest::dumpInfo() const {
-    return SkStringPrintf("Test(value=%f)", value);
+SkString GrTest::onDumpInfo() const {
+    return SkStringPrintf("(value=%f)", value);
 }
 )__Cpp__",
         });
@@ -569,7 +569,7 @@ DEF_TEST(SkSLFPSections, r) {
          /*expectedH=*/{},
          /*expectedCPP=*/{
 R"__Cpp__(#if GR_TEST_UTILS
-SkString GrTest::dumpInfo() const {
+SkString GrTest::onDumpInfo() const {
 dump all the fields
 }
 #endif)__Cpp__"

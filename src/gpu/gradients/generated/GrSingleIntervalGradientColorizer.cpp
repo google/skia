@@ -89,10 +89,8 @@ std::unique_ptr<GrFragmentProcessor> GrSingleIntervalGradientColorizer::clone() 
     return std::make_unique<GrSingleIntervalGradientColorizer>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrSingleIntervalGradientColorizer::dumpInfo() const {
-    return SkStringPrintf(
-            "SingleIntervalGradientColorizer(start=half4(%f, %f, %f, %f), end=half4(%f, %f, %f, "
-            "%f))",
-            start.fR, start.fG, start.fB, start.fA, end.fR, end.fG, end.fB, end.fA);
+SkString GrSingleIntervalGradientColorizer::onDumpInfo() const {
+    return SkStringPrintf("(start=half4(%f, %f, %f, %f), end=half4(%f, %f, %f, %f))", start.fR,
+                          start.fG, start.fB, start.fA, end.fR, end.fG, end.fB, end.fA);
 }
 #endif

@@ -54,7 +54,7 @@ std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceEffect::clone() const {
     return std::make_unique<GrDeviceSpaceEffect>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrDeviceSpaceEffect::dumpInfo() const { return SkStringPrintf("DeviceSpaceEffect"); }
+SkString GrDeviceSpaceEffect::onDumpInfo() const { return SkString(); }
 #endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDeviceSpaceEffect);
 #if GR_TEST_UTILS

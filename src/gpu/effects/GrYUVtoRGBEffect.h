@@ -24,7 +24,7 @@ public:
                                                      const SkRect* subset = nullptr,
                                                      const SkRect* domain = nullptr);
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override;
+    SkString onDumpInfo() const override;
 #endif
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;

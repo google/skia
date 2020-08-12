@@ -185,8 +185,12 @@ public:
 
     /** Human-readable dump of all information */
 #if GR_TEST_UTILS
-    virtual SkString dumpInfo() const {
-        return SkString(name());
+    virtual SkString onDumpInfo() const { return SkString(); }
+
+    virtual SkString dumpInfo() const final {
+        SkString info(name());
+        info.append(this->onDumpInfo());
+        return info;
     }
 #endif
 

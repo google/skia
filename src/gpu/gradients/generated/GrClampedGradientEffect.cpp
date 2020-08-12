@@ -115,10 +115,10 @@ std::unique_ptr<GrFragmentProcessor> GrClampedGradientEffect::clone() const {
     return std::make_unique<GrClampedGradientEffect>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrClampedGradientEffect::dumpInfo() const {
+SkString GrClampedGradientEffect::onDumpInfo() const {
     return SkStringPrintf(
-            "ClampedGradientEffect(leftBorderColor=half4(%f, %f, %f, %f), "
-            "rightBorderColor=half4(%f, %f, %f, %f), makePremul=%s, colorsAreOpaque=%s)",
+            "(leftBorderColor=half4(%f, %f, %f, %f), rightBorderColor=half4(%f, %f, %f, %f), "
+            "makePremul=%s, colorsAreOpaque=%s)",
             leftBorderColor.fR, leftBorderColor.fG, leftBorderColor.fB, leftBorderColor.fA,
             rightBorderColor.fR, rightBorderColor.fG, rightBorderColor.fB, rightBorderColor.fA,
             (makePremul ? "true" : "false"), (colorsAreOpaque ? "true" : "false"));

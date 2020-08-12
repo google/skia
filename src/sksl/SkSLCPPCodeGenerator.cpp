@@ -1140,15 +1140,13 @@ void CPPCodeGenerator::writeClone() {
 
 void CPPCodeGenerator::writeDumpInfo() {
     this->writef("#if GR_TEST_UTILS\n"
-                 "SkString %s::dumpInfo() const {\n", fFullName.c_str());
+                 "SkString %s::onDumpInfo() const {\n", fFullName.c_str());
 
     if (!this->writeSection(kDumpInfoSection)) {
         if (fSectionAndParameterHelper.getSection(kFieldsSection)) {
             fErrors.error(/*offset=*/0, "fragment processors with custom @fields must also have a "
                                         "custom @dumpInfo");
         }
-
-        this->writef("    return SkStringPrintf(\"%s", fName.c_str());
 
         String formatString;
         std::vector<String> argumentList;
@@ -1169,21 +1167,23 @@ void CPPCodeGenerator::writeDumpInfo() {
                                  runtimeValue.c_str());
         }
 
-        // Append finished format string.
         if (!formatString.empty()) {
-            this->writef("(%s)", formatString.c_str());
-        }
+            // Emit the finished format string and associated arguments.
+            this->writef("    return SkStringPrintf(\"(%s)\"", formatString.c_str());
 
-        // Close-quote, then append each argument.
-        this->write("\"");
-        for (const String& argument : argumentList) {
-            this->writef(", %s", argument.c_str());
-        }
+            for (const String& argument : argumentList) {
+                this->writef(", %s", argument.c_str());
+            }
 
-        this->write(");");
+            this->write(");");
+        } else {
+            // No fields to dump at all; just return an empty string.
+            this->write("    return SkString();");
+        }
     }
 
-    this->write("\n}\n"
+    this->write("\n"
+                "}\n"
                 "#endif\n");
 }
 

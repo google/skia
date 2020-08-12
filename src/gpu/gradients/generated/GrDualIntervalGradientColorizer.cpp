@@ -138,10 +138,10 @@ std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::clone() co
     return std::make_unique<GrDualIntervalGradientColorizer>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrDualIntervalGradientColorizer::dumpInfo() const {
+SkString GrDualIntervalGradientColorizer::onDumpInfo() const {
     return SkStringPrintf(
-            "DualIntervalGradientColorizer(scale01=float4(%f, %f, %f, %f), bias01=float4(%f, %f, "
-            "%f, %f), scale23=float4(%f, %f, %f, %f), bias23=float4(%f, %f, %f, %f), threshold=%f)",
+            "(scale01=float4(%f, %f, %f, %f), bias01=float4(%f, %f, %f, %f), scale23=float4(%f, "
+            "%f, %f, %f), bias23=float4(%f, %f, %f, %f), threshold=%f)",
             scale01.fR, scale01.fG, scale01.fB, scale01.fA, bias01.fR, bias01.fG, bias01.fB,
             bias01.fA, scale23.fR, scale23.fG, scale23.fB, scale23.fA, bias23.fR, bias23.fG,
             bias23.fB, bias23.fA, threshold);
