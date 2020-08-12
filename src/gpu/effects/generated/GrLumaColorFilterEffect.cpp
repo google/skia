@@ -55,8 +55,3 @@ GrLumaColorFilterEffect::GrLumaColorFilterEffect(const GrLumaColorFilterEffect& 
 std::unique_ptr<GrFragmentProcessor> GrLumaColorFilterEffect::clone() const {
     return std::make_unique<GrLumaColorFilterEffect>(*this);
 }
-#ifdef SK_DEBUG
-SkString GrLumaColorFilterEffect::dumpInfo() const {
-    return SkStringPrintf("LumaColorFilterEffect");
-}
-#endif

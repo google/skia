@@ -23,9 +23,6 @@ public:
                 new GrSingleIntervalGradientColorizer(start, end));
     }
     GrSingleIntervalGradientColorizer(const GrSingleIntervalGradientColorizer& src);
-#ifdef SK_DEBUG
-    SkString dumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SingleIntervalGradientColorizer"; }
     SkPMColor4f start;

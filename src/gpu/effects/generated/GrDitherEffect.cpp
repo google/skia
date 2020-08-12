@@ -75,11 +75,6 @@ GrDitherEffect::GrDitherEffect(const GrDitherEffect& src)
 std::unique_ptr<GrFragmentProcessor> GrDitherEffect::clone() const {
     return std::make_unique<GrDitherEffect>(*this);
 }
-#ifdef SK_DEBUG
-SkString GrDitherEffect::dumpInfo() const {
-    return SkStringPrintf("DitherEffect(range=%f)", range);
-}
-#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDitherEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDitherEffect::TestCreate(GrProcessorTestData* d) {
