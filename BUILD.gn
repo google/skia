@@ -271,7 +271,6 @@ template("optional") {
                                "public_deps",
                                "deps",
                                "libs",
-                               "frameworks",
                                "sources",
                                "sources_when_disabled",
                                "configs_to_remove",
@@ -455,15 +454,16 @@ optional("fontmgr_mac_ct") {
   ]
 
   if (is_mac) {
-    frameworks = [
+    libs = [
       # AppKit symbols NSFontWeightXXX may be dlsym'ed.
       "AppKit.framework",
       "ApplicationServices.framework",
+      "AVFoundation.framework",
     ]
   }
 
   if (is_ios) {
-    frameworks = [
+    libs = [
       "CoreFoundation.framework",
       "CoreGraphics.framework",
       "CoreText.framework",
@@ -688,7 +688,6 @@ optional("gpu") {
   }
 
   libs = []
-  frameworks = []
 
   if (skia_use_gl) {
     public_defines += [ "SK_GL" ]
@@ -761,7 +760,7 @@ optional("gpu") {
         "d3dcompiler.lib",
       ]
     } else if (dawn_enable_metal) {
-      frameworks += [ "Metal.framework" ]
+      libs += [ "Metal.framework" ]
     }
   }
 
@@ -783,9 +782,9 @@ optional("gpu") {
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
-    frameworks += [ "Metal.framework" ]
-    frameworks += [ "MetalKit.framework" ]
-    frameworks += [ "Foundation.framework" ]
+    libs += [ "Metal.framework" ]
+    libs += [ "MetalKit.framework" ]
+    libs += [ "Foundation.framework" ]
     cflags_objcc += [ "-fobjc-arc" ]
   }
 
@@ -1196,7 +1195,7 @@ component("skia") {
       "src/ports/SkImageEncoder_CG.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
     ]
-    frameworks = [
+    libs += [
       "ApplicationServices.framework",
       "OpenGL.framework",
     ]
@@ -1208,7 +1207,7 @@ component("skia") {
       "src/ports/SkImageEncoder_CG.cpp",
       "src/ports/SkImageGeneratorCG.cpp",
     ]
-    frameworks = [
+    libs += [
       "CoreFoundation.framework",
       "ImageIO.framework",
       "MobileCoreServices.framework",
@@ -1539,14 +1538,13 @@ if (skia_enable_tools) {
     ]
 
     libs = []
-    frameworks = []
 
     if (skia_use_gl) {
       sources +=
           [ "tools/gpu/gl/command_buffer/GLTestContext_command_buffer.cpp" ]
       if (is_ios) {
         sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
-        frameworks += [ "OpenGLES.framework" ]
+        libs += [ "OpenGLES.framework" ]
       } else if (is_mac) {
         sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
       }
@@ -1696,18 +1694,17 @@ if (skia_enable_tools) {
       sources += [ "tools/CrashHandler.cpp" ]
     }
     libs = []
-    frameworks = []
     if (is_ios) {
       sources += [ "tools/ios_utils.m" ]
       sources += [ "tools/ios_utils.h" ]
       if (skia_use_metal) {
         sources += [ "tools/AutoreleasePool.mm" ]
       }
-      frameworks += [ "Foundation.framework" ]
+      libs += [ "Foundation.framework" ]
     } else if (is_mac) {
       if (skia_use_metal) {
         sources += [ "tools/AutoreleasePool.mm" ]
-        frameworks += [ "Foundation.framework" ]
+        libs += [ "Foundation.framework" ]
       }
     } else if (is_win) {
       libs += [ "DbgHelp.lib" ]
@@ -2339,7 +2336,6 @@ if (skia_enable_tools) {
       "tools/sk_app/WindowContext.h",
     ]
     libs = []
-    frameworks = []
 
     if (is_android) {
       sources += [
@@ -2382,7 +2378,7 @@ if (skia_enable_tools) {
         "tools/sk_app/mac/Window_mac.mm",
         "tools/sk_app/mac/main_mac.mm",
       ]
-      frameworks += [
+      libs += [
         "QuartzCore.framework",
         "Cocoa.framework",
         "Foundation.framework",
@@ -2395,7 +2391,7 @@ if (skia_enable_tools) {
         "tools/sk_app/ios/Window_ios.mm",
         "tools/sk_app/ios/main_ios.mm",
       ]
-      frameworks += [ "QuartzCore.framework" ]
+      libs += [ "QuartzCore.framework" ]
     }
 
     if (skia_use_gl) {
@@ -2518,6 +2514,8 @@ if (skia_enable_tools) {
         "tools/viewer/TouchGesture.h",
         "tools/viewer/Viewer.cpp",
         "tools/viewer/Viewer.h",
+
+        "src/ports/SkAudioPlayer.cpp",
       ]
       libs = []
 
@@ -2551,6 +2549,11 @@ if (skia_enable_tools) {
           #that we replicated in our third_party/spirv-tools/BUILD.gn
           "//third_party/spirv-tools:spvtools_val",
         ]
+      }
+      if (is_mac) {
+          sources += [ "src/ports/SkAudioPlayer_mac.mm" ]
+      } else {
+          sources += [ "src/ports/SkAudioPlayer_none_cpp" ]
       }
     }
   }
