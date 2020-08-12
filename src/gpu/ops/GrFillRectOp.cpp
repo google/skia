@@ -120,7 +120,7 @@ public:
         }
     }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# draws: %u\n", fQuads.count());
