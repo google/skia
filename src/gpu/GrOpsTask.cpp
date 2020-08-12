@@ -646,7 +646,7 @@ void GrOpsTask::discard() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 void GrOpsTask::dump(bool printDependencies) const {
     GrRenderTask::dump(printDependencies);
 
@@ -696,6 +696,10 @@ void GrOpsTask::dump(bool printDependencies) const {
         }
     }
 }
+
+#endif
+
+#ifdef SK_DEBUG
 
 void GrOpsTask::visitProxies_debugOnly(const GrOp::VisitProxyFunc& func) const {
     auto textureFunc = [ func ] (GrSurfaceProxy* tex, GrMipmapped mipmapped) {
