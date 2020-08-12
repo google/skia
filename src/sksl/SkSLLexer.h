@@ -53,6 +53,7 @@ struct Token {
         TK_PLSIN,
         TK_PLSOUT,
         TK_VARYING,
+        TK_FORCEINLINE,
         TK_STRUCT,
         TK_LAYOUT,
         TK_PRECISION,
