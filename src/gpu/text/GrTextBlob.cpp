@@ -142,6 +142,17 @@ SkSpan<const GrGlyph*> GrGlyphVector::glyphs() const {
     return SkMakeSpan(reinterpret_cast<const GrGlyph**>(fGlyphs.data()), fGlyphs.size());
 }
 
+void GrGlyphVector::covertToGrGlyph(GrStrikeCache* cache) {
+    if (fStrike == nullptr) {
+        fStrike = fStrikeSpec.findOrCreateGrStrike(cache);
+
+        for (auto& variant : fGlyphs) {
+            variant.grGlyph = fStrike->getGlyph(variant.packedGlyphID);
+            SkASSERT(variant.grGlyph->fAtlasLocator.pageIndex() == 0);
+        }
+    }
+}
+
 std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
                                                      GrMaskFormat maskFormat,
                                                      int srcPadding,
@@ -152,13 +163,7 @@ std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
 
     uint64_t currentAtlasGen = atlasManager->atlasGeneration(maskFormat);
 
-    if (fStrike == nullptr) {
-        fStrike = fStrikeSpec.findOrCreateGrStrike(target->strikeCache());
-
-        for (auto& variant : fGlyphs) {
-            variant.grGlyph = fStrike->getGlyph(variant.packedGlyphID);
-        }
-    }
+    this->covertToGrGlyph(target->strikeCache());
 
     if (fAtlasGeneration != currentAtlasGen) {
         // Calculate the texture coordinates for the vertexes during first use (fAtlasGeneration
@@ -366,6 +371,10 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
     return {clip, std::move(op)};
 }
 
+void GrDirectMaskSubRun::testing_convertToGrGlyph(GrStrikeCache *cache) {
+    fGlyphs.covertToGrGlyph(cache);
+}
+
 std::tuple<bool, int>
 GrDirectMaskSubRun::regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const {
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, target);
@@ -566,6 +575,10 @@ GrTransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
             geometry,
             std::move(grPaint));
     return {clip, std::move(op)};
+}
+
+void GrTransformedMaskSubRun::testing_convertToGrGlyph(GrStrikeCache *cache) {
+    fGlyphs.covertToGrGlyph(cache);
 }
 
 std::tuple<bool, int> GrTransformedMaskSubRun::regenerateAtlas(int begin, int end,
@@ -834,6 +847,10 @@ void GrSDFTSubRun::draw(const GrClip* clip,
     if (op != nullptr) {
         rtc->priv().addDrawOp(drawingClip, std::move(op));
     }
+}
+
+void GrSDFTSubRun::testing_convertToGrGlyph(GrStrikeCache *cache) {
+    fGlyphs.covertToGrGlyph(cache);
 }
 
 std::tuple<bool, int> GrSDFTSubRun::regenerateAtlas(
