@@ -16,6 +16,92 @@
       "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1015d0ce_d1b983b5",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-12T14:42:22Z",
+      "side": 1,
+      "message": "Should we not fail if width/height/stride don\u0027t fit?",
+      "range": {
+        "startLine": 20,
+        "startChar": 18,
+        "endLine": 20,
+        "endChar": 27
+      },
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "960dc89d_073ad9fc",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-12T14:42:22Z",
+      "side": 1,
+      "message": "fwiw designated initializers are technically not legal C++ until C++20, but it\u0027s part of c99, so I\u0027d expect it to work.",
+      "range": {
+        "startLine": 20,
+        "startChar": 8,
+        "endLine": 20,
+        "endChar": 17
+      },
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbce30db_731d88a8",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-12T14:42:22Z",
+      "side": 1,
+      "message": "Might be nice to remind us what 75 does when lossless.",
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b87999d_f9422c92",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-12T14:42:22Z",
+      "side": 1,
+      "message": "Might be clearer with write_to_stream as an inline lambda here?",
+      "range": {
+        "startLine": 63,
+        "startChar": 45,
+        "endLine": 63,
+        "endChar": 60
+      },
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
