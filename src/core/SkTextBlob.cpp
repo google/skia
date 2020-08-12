@@ -909,6 +909,9 @@ int get_glyph_run_intercepts(const SkGlyphRun& glyphRun,
                 (bounds[0] - pos.y()) / scale,
                 (bounds[1] - pos.y()) / scale
             };
+            scaledBounds[0] = std::ceil(scaledBounds[0]);
+            scaledBounds[1] = std::floor(scaledBounds[1]);
+
             metricsAndPaths.findIntercepts(
                     scaledBounds, scale, pos.x(), glyph, intervals, intervalCount);
         }
