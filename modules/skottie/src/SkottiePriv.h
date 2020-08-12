@@ -210,6 +210,7 @@ private:
     sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, LayerInfo*) const;
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, LayerInfo*) const;
+    sk_sp<sksg::RenderNode> attachAudioLayer  (const skjson::ObjectValue&, LayerInfo*) const;
 
     // Delay resolving the fontmgr until it is actually needed.
     struct LazyResolveFontMgr {
