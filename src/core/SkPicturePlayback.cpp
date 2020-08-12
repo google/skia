@@ -291,8 +291,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 break;
             }
             const SkPaint* paint = fPictureData->optionalPaint(reader);
+
             SkCanvas::SrcRectConstraint constraint =
-                    static_cast<SkCanvas::SrcRectConstraint>(reader->readInt());
+                    reader->checkRange(SkCanvas::kStrict_SrcRectConstraint,
+                                       SkCanvas::kFast_SrcRectConstraint);
 
             if (!reader->validate(SkSafeMath::Mul(cnt, kEntryReadSize) <= reader->available())) {
                 break;
@@ -388,7 +390,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkCanvas::SrcRectConstraint constraint = SkCanvas::kStrict_SrcRectConstraint;
             if (DRAW_IMAGE_RECT == op) {
                 // newer op-code stores the constraint explicitly
-                constraint = (SkCanvas::SrcRectConstraint)reader->readInt();
+                constraint = reader->checkRange(SkCanvas::kStrict_SrcRectConstraint,
+                                                SkCanvas::kFast_SrcRectConstraint);
             }
             BREAK_ON_READ_ERROR(reader);
 
