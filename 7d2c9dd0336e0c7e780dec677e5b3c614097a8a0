@@ -69,6 +69,30 @@
       "revId": "7d2c9dd0336e0c7e780dec677e5b3c614097a8a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a0cdc46_82ebd839",
+        "filename": "src/gpu/effects/GrBlendFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-12T19:49:10Z",
+      "side": 1,
+      "message": "PTAL http://review.skia.org/309793\n\nIf you prefer this style, we should probably make a similar change in GrOp::dumpInfo as well.",
+      "parentUuid": "8072a271_1416230d",
+      "range": {
+        "startLine": 56,
+        "startChar": 31,
+        "endLine": 56,
+        "endChar": 53
+      },
+      "revId": "7d2c9dd0336e0c7e780dec677e5b3c614097a8a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
