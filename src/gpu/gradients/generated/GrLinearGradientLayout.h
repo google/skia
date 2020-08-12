@@ -25,12 +25,13 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(const SkLinearGradient& gradient,
                                                      const GrFPArgs& args);
     GrLinearGradientLayout(const GrLinearGradientLayout& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LinearGradientLayout"; }
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrLinearGradientLayout()
             : INHERITED(kGrLinearGradientLayout_ClassID,

@@ -25,13 +25,14 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(color));
     }
     GrConstColorProcessor(const GrConstColorProcessor& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConstColorProcessor"; }
     SkPMColor4f color;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrConstColorProcessor(SkPMColor4f color)
             : INHERITED(

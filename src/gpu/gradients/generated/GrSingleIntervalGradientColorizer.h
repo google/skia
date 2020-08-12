@@ -23,14 +23,15 @@ public:
                 new GrSingleIntervalGradientColorizer(start, end));
     }
     GrSingleIntervalGradientColorizer(const GrSingleIntervalGradientColorizer& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SingleIntervalGradientColorizer"; }
     SkPMColor4f start;
     SkPMColor4f end;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrSingleIntervalGradientColorizer(SkPMColor4f start, SkPMColor4f end)
             : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
