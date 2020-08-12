@@ -345,17 +345,16 @@ std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::clone() 
     return std::make_unique<GrUnrolledBinaryGradientColorizer>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrUnrolledBinaryGradientColorizer::dumpInfo() const {
+SkString GrUnrolledBinaryGradientColorizer::onDumpInfo() const {
     return SkStringPrintf(
-            "UnrolledBinaryGradientColorizer(intervalCount=%d, scale0_1=float4(%f, %f, %f, %f), "
-            "scale2_3=float4(%f, %f, %f, %f), scale4_5=float4(%f, %f, %f, %f), scale6_7=float4(%f, "
-            "%f, %f, %f), scale8_9=float4(%f, %f, %f, %f), scale10_11=float4(%f, %f, %f, %f), "
-            "scale12_13=float4(%f, %f, %f, %f), scale14_15=float4(%f, %f, %f, %f), "
-            "bias0_1=float4(%f, %f, %f, %f), bias2_3=float4(%f, %f, %f, %f), bias4_5=float4(%f, "
-            "%f, %f, %f), bias6_7=float4(%f, %f, %f, %f), bias8_9=float4(%f, %f, %f, %f), "
-            "bias10_11=float4(%f, %f, %f, %f), bias12_13=float4(%f, %f, %f, %f), "
-            "bias14_15=float4(%f, %f, %f, %f), thresholds1_7=half4(%f, %f, %f, %f), "
-            "thresholds9_13=half4(%f, %f, %f, %f))",
+            "(intervalCount=%d, scale0_1=float4(%f, %f, %f, %f), scale2_3=float4(%f, %f, %f, %f), "
+            "scale4_5=float4(%f, %f, %f, %f), scale6_7=float4(%f, %f, %f, %f), scale8_9=float4(%f, "
+            "%f, %f, %f), scale10_11=float4(%f, %f, %f, %f), scale12_13=float4(%f, %f, %f, %f), "
+            "scale14_15=float4(%f, %f, %f, %f), bias0_1=float4(%f, %f, %f, %f), bias2_3=float4(%f, "
+            "%f, %f, %f), bias4_5=float4(%f, %f, %f, %f), bias6_7=float4(%f, %f, %f, %f), "
+            "bias8_9=float4(%f, %f, %f, %f), bias10_11=float4(%f, %f, %f, %f), "
+            "bias12_13=float4(%f, %f, %f, %f), bias14_15=float4(%f, %f, %f, %f), "
+            "thresholds1_7=half4(%f, %f, %f, %f), thresholds9_13=half4(%f, %f, %f, %f))",
             intervalCount, scale0_1.fR, scale0_1.fG, scale0_1.fB, scale0_1.fA, scale2_3.fR,
             scale2_3.fG, scale2_3.fB, scale2_3.fA, scale4_5.fR, scale4_5.fG, scale4_5.fB,
             scale4_5.fA, scale6_7.fR, scale6_7.fG, scale6_7.fB, scale6_7.fA, scale8_9.fR,

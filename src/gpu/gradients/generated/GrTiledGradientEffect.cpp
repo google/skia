@@ -94,8 +94,8 @@ std::unique_ptr<GrFragmentProcessor> GrTiledGradientEffect::clone() const {
     return std::make_unique<GrTiledGradientEffect>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrTiledGradientEffect::dumpInfo() const {
-    return SkStringPrintf("TiledGradientEffect(mirror=%s, makePremul=%s, colorsAreOpaque=%s)",
+SkString GrTiledGradientEffect::onDumpInfo() const {
+    return SkStringPrintf("(mirror=%s, makePremul=%s, colorsAreOpaque=%s)",
                           (mirror ? "true" : "false"), (makePremul ? "true" : "false"),
                           (colorsAreOpaque ? "true" : "false"));
 }
