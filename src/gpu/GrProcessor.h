@@ -188,8 +188,6 @@ public:
     virtual SkString dumpInfo() const {
         return SkString(name());
     }
-#else
-    SkString dumpInfo() const { return SkString("<Processor information unavailable>"); }
 #endif
 
     /**
