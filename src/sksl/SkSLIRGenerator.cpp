@@ -107,7 +107,7 @@ public:
     AutoDisableInline(IRGenerator* ir, bool canInline = false)
     : fIR(ir) {
         fOldCanInline = ir->fCanInline;
-        fIR->fCanInline = canInline;
+        fIR->fCanInline &= canInline;
     }
 
     ~AutoDisableInline() {
