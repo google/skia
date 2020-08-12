@@ -184,8 +184,8 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
 }
 
 #if GR_TEST_UTILS
-SkString GrYUVtoRGBEffect::dumpInfo() const {
-    SkString str("YUVtoRGBEffect(");
+SkString GrYUVtoRGBEffect::onDumpInfo() const {
+    SkString str("(");
     for (int i = 0; i < 4; ++i) {
         str.appendf("YUVAIndices[%d]=%d %d, ",
                     i, fYUVAIndices[i].fIndex, static_cast<int>(fYUVAIndices[i].fChannel));

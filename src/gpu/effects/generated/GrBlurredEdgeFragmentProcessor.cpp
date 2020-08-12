@@ -71,7 +71,7 @@ std::unique_ptr<GrFragmentProcessor> GrBlurredEdgeFragmentProcessor::clone() con
     return std::make_unique<GrBlurredEdgeFragmentProcessor>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrBlurredEdgeFragmentProcessor::dumpInfo() const {
-    return SkStringPrintf("BlurredEdgeFragmentProcessor(mode=%d)", (int)mode);
+SkString GrBlurredEdgeFragmentProcessor::onDumpInfo() const {
+    return SkStringPrintf("(mode=%d)", (int)mode);
 }
 #endif
