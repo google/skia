@@ -117,9 +117,8 @@ void GrDawnOpsRenderPass::inlineUpload(GrOpFlushState* state,
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo& programInfo) {
-    auto bindGroup = program->setUniformData(fGpu, fRenderTarget, programInfo);
     fPassEncoder.SetPipeline(program->fRenderPipeline);
-    fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
+    program->setUniformData(fGpu, fRenderTarget, fPassEncoder, programInfo);
     const GrPipeline& pipeline = programInfo.pipeline();
     if (pipeline.isStencilEnabled()) {
         fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fCCWFace.fRef);
@@ -159,10 +158,7 @@ void GrDawnOpsRenderPass::onSetScissorRect(const SkIRect& scissor) {
 bool GrDawnOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                          const GrSurfaceProxy* const primProcTextures[],
                                          const GrPipeline& pipeline) {
-    auto bindGroup = fCurrentProgram->setTextures(fGpu, primProc, pipeline, primProcTextures);
-    if (bindGroup) {
-        fPassEncoder.SetBindGroup(1, bindGroup, 0, nullptr);
-    }
+    fCurrentProgram->setTextures(fGpu, fPassEncoder, primProc, pipeline, primProcTextures);
     return true;
 }
 
