@@ -299,9 +299,11 @@ DEF_GM(return new ColorCubeRT;)
 
 class DefaultColorRT : public RuntimeShaderGM {
 public:
+    // This test also *explicitly* doesn't include coords in main's parameter list, to test that
+    // runtime shaders work without them being declared (when they're not used).
     DefaultColorRT() : RuntimeShaderGM("default_color_rt", {512, 256}, R"(
         in shader input;
-        void main(float2 xy, inout half4 color) {
+        void main(inout half4 color) {
             color = sample(input);
         }
     )") {}
