@@ -132,16 +132,12 @@ static sk_sp<SkImage> make_reference_image(GrDirectContext* context,
 
     auto origin = bottomLeftOrigin ? kBottomLeft_GrSurfaceOrigin : kTopLeft_GrSurfaceOrigin;
 
-    // TODO: make MakeTextureProxyFromData return a GrSurfaceProxyView
-    auto proxy = sk_gpu_test::MakeTextureProxyFromData(context, GrRenderable::kNo, origin,
-                                                       bm.info(), bm.getPixels(), bm.rowBytes());
-    if (!proxy) {
+    auto view = sk_gpu_test::MakeTextureProxyViewFromData(context, GrRenderable::kNo, origin,
+                                                          bm.info(), bm.getPixels(), bm.rowBytes());
+    if (!view) {
         return nullptr;
     }
 
-    GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                               GrColorType::kRGBA_8888);
-    GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID, std::move(view),
                                    ii.colorType(), kOpaque_SkAlphaType, nullptr);
 }

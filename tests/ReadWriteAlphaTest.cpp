@@ -186,16 +186,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
 
             auto origin = GrRenderable::kYes == renderable ? kBottomLeft_GrSurfaceOrigin
                                                            : kTopLeft_GrSurfaceOrigin;
-            auto proxy = sk_gpu_test::MakeTextureProxyFromData(
+            auto view = sk_gpu_test::MakeTextureProxyViewFromData(
                     direct, renderable, origin,
                     {info.fColorType, info.fAlphaType, nullptr, X_SIZE, Y_SIZE}, rgbaData, 0);
-            if (!proxy) {
+            if (!view) {
                 continue;
             }
 
-            GrSwizzle swizzle = direct->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                      info.fColorType);
-            GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
             auto sContext = GrSurfaceContext::Make(direct, std::move(view), info.fColorType,
                                                    kPremul_SkAlphaType, nullptr);
 
