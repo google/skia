@@ -115,9 +115,6 @@ public:
                                                      const SkRRect& srcRRect,
                                                      const SkRRect& devRRect);
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
-#ifdef SK_DEBUG
-    SkString dumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RRectBlurEffect"; }
     float sigma;

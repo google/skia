@@ -344,34 +344,6 @@ GrUnrolledBinaryGradientColorizer::GrUnrolledBinaryGradientColorizer(
 std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::clone() const {
     return std::make_unique<GrUnrolledBinaryGradientColorizer>(*this);
 }
-#ifdef SK_DEBUG
-SkString GrUnrolledBinaryGradientColorizer::dumpInfo() const {
-    return SkStringPrintf(
-            "UnrolledBinaryGradientColorizer(intervalCount=%d, scale0_1=float4(%f, %f, %f, %f), "
-            "scale2_3=float4(%f, %f, %f, %f), scale4_5=float4(%f, %f, %f, %f), scale6_7=float4(%f, "
-            "%f, %f, %f), scale8_9=float4(%f, %f, %f, %f), scale10_11=float4(%f, %f, %f, %f), "
-            "scale12_13=float4(%f, %f, %f, %f), scale14_15=float4(%f, %f, %f, %f), "
-            "bias0_1=float4(%f, %f, %f, %f), bias2_3=float4(%f, %f, %f, %f), bias4_5=float4(%f, "
-            "%f, %f, %f), bias6_7=float4(%f, %f, %f, %f), bias8_9=float4(%f, %f, %f, %f), "
-            "bias10_11=float4(%f, %f, %f, %f), bias12_13=float4(%f, %f, %f, %f), "
-            "bias14_15=float4(%f, %f, %f, %f), thresholds1_7=half4(%f, %f, %f, %f), "
-            "thresholds9_13=half4(%f, %f, %f, %f))",
-            intervalCount, scale0_1.fR, scale0_1.fG, scale0_1.fB, scale0_1.fA, scale2_3.fR,
-            scale2_3.fG, scale2_3.fB, scale2_3.fA, scale4_5.fR, scale4_5.fG, scale4_5.fB,
-            scale4_5.fA, scale6_7.fR, scale6_7.fG, scale6_7.fB, scale6_7.fA, scale8_9.fR,
-            scale8_9.fG, scale8_9.fB, scale8_9.fA, scale10_11.fR, scale10_11.fG, scale10_11.fB,
-            scale10_11.fA, scale12_13.fR, scale12_13.fG, scale12_13.fB, scale12_13.fA,
-            scale14_15.fR, scale14_15.fG, scale14_15.fB, scale14_15.fA, bias0_1.fR, bias0_1.fG,
-            bias0_1.fB, bias0_1.fA, bias2_3.fR, bias2_3.fG, bias2_3.fB, bias2_3.fA, bias4_5.fR,
-            bias4_5.fG, bias4_5.fB, bias4_5.fA, bias6_7.fR, bias6_7.fG, bias6_7.fB, bias6_7.fA,
-            bias8_9.fR, bias8_9.fG, bias8_9.fB, bias8_9.fA, bias10_11.fR, bias10_11.fG,
-            bias10_11.fB, bias10_11.fA, bias12_13.fR, bias12_13.fG, bias12_13.fB, bias12_13.fA,
-            bias14_15.fR, bias14_15.fG, bias14_15.fB, bias14_15.fA, thresholds1_7.left(),
-            thresholds1_7.top(), thresholds1_7.right(), thresholds1_7.bottom(),
-            thresholds9_13.left(), thresholds9_13.top(), thresholds9_13.right(),
-            thresholds9_13.bottom());
-}
-#endif
 
 static const int kMaxIntervals = 8;
 std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::Make(

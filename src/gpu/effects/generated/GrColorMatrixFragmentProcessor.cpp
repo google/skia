@@ -123,18 +123,6 @@ GrColorMatrixFragmentProcessor::GrColorMatrixFragmentProcessor(
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::clone() const {
     return std::make_unique<GrColorMatrixFragmentProcessor>(*this);
 }
-#ifdef SK_DEBUG
-SkString GrColorMatrixFragmentProcessor::dumpInfo() const {
-    return SkStringPrintf(
-            "ColorMatrixFragmentProcessor(m=half4x4(%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, "
-            "%f, %f, %f, %f, %f), v=half4(%f, %f, %f, %f), unpremulInput=%s, clampRGBOutput=%s, "
-            "premulOutput=%s)",
-            m.rc(0, 0), m.rc(1, 0), m.rc(2, 0), m.rc(3, 0), m.rc(0, 1), m.rc(1, 1), m.rc(2, 1),
-            m.rc(3, 1), m.rc(0, 2), m.rc(1, 2), m.rc(2, 2), m.rc(3, 2), m.rc(0, 3), m.rc(1, 3),
-            m.rc(2, 3), m.rc(3, 3), v.x, v.y, v.z, v.w, (unpremulInput ? "true" : "false"),
-            (clampRGBOutput ? "true" : "false"), (premulOutput ? "true" : "false"));
-}
-#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrColorMatrixFragmentProcessor);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::TestCreate(
