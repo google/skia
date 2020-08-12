@@ -115,16 +115,12 @@ static void run_test(skiatest::Reporter* reporter, GrDirectContext* dContext, in
 
     for (auto origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         auto grColorType = SkColorTypeToGrColorType(colorType);
-        auto proxy = sk_gpu_test::MakeTextureProxyFromData(
+        auto view = sk_gpu_test::MakeTextureProxyViewFromData(
                 dContext, GrRenderable::kNo, origin,
-                {grColorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
-                controlPixelData.begin(), 0);
-        SkASSERT(proxy);
+                {grColorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H}, controlPixelData.begin(),
+                0);
+        SkASSERT(view);
 
-        GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                        grColorType);
-
-        GrSurfaceProxyView view(std::move(proxy), origin, readSwizzle);
         GrSurfaceContext sContext(dContext, std::move(view), grColorType, kPremul_SkAlphaType,
                                   nullptr);
 

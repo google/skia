@@ -78,17 +78,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                     for (const SkIRect& srcRect : kSrcRects) {
                         for (const SkIPoint& dstPoint : kDstPoints) {
                             for (const SkImageInfo& ii: kImageInfos) {
-                                auto src = sk_gpu_test::MakeTextureProxyFromData(
+                                auto srcView = sk_gpu_test::MakeTextureProxyViewFromData(
                                         dContext, sRenderable, sOrigin, ii, srcPixels.get(),
                                         kRowBytes);
-                                auto dst = sk_gpu_test::MakeTextureProxyFromData(
+                                auto dstView = sk_gpu_test::MakeTextureProxyViewFromData(
                                         dContext, dRenderable, dOrigin, ii, dstPixels.get(),
                                         kRowBytes);
 
                                 // Should always work if the color type is RGBA, but may not work
                                 // for BGRA
                                 if (ii.colorType() == kRGBA_8888_SkColorType) {
-                                    if (!src || !dst) {
+                                    if (!srcView || !dstView) {
                                         ERRORF(reporter,
                                                "Could not create surfaces for copy surface test.");
                                         continue;
@@ -98,7 +98,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                             kBGRA_8888_SkColorType, GrRenderable::kNo).isValid()) {
                                         continue;
                                     }
-                                    if (!src || !dst) {
+                                    if (!srcView || !dstView) {
                                         ERRORF(reporter,
                                                "Could not create surfaces for copy surface test.");
                                         continue;
@@ -106,9 +106,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                                 }
 
                                 GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
-                                GrSwizzle dstSwizzle = dContext->priv().caps()->getReadSwizzle(
-                                        dst->backendFormat(), grColorType);
-                                GrSurfaceProxyView dstView(std::move(dst), dOrigin, dstSwizzle);
                                 auto dstContext = GrSurfaceContext::Make(dContext,
                                                                          std::move(dstView),
                                                                          grColorType,
@@ -116,14 +113,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
                                 bool result = false;
                                 if (sOrigin == dOrigin) {
-                                    result = dstContext->testCopy(src.get(), srcRect, dstPoint);
+                                    result = dstContext->testCopy(srcView.proxy(),
+                                                                  srcRect,
+                                                                  dstPoint);
                                 } else if (dRenderable == GrRenderable::kYes) {
                                     SkASSERT(dstContext->asRenderTargetContext());
-                                    GrSwizzle srcSwizzle = dContext->priv().caps()->getReadSwizzle(
-                                        src->backendFormat(), grColorType);
-                                    GrSurfaceProxyView view(std::move(src), sOrigin, srcSwizzle);
                                     result = dstContext->asRenderTargetContext()->blitTexture(
-                                            std::move(view), srcRect, dstPoint);
+                                            std::move(srcView), srcRect, dstPoint);
                                 }
 
                                 bool expectedResult = true;
