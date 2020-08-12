@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49b70e36_bc3e85f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-12T20:14:32Z",
+      "side": 1,
+      "message": "You should remerge BUILD.gn -- unless that\u0027s your intent it\u0027s effectively reverting my last CL.",
+      "revId": "548eaf84634866459b269f4627e1b00e72dbbeb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
