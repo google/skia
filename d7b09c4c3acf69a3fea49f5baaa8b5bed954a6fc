@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62a75b96_786ba754",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-12T15:37:37Z",
+      "side": 1,
+      "message": "Did you mean to land this bypassing the CQ?  I think you\u0027ve broken the tree.",
+      "revId": "d7b09c4c3acf69a3fea49f5baaa8b5bed954a6fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
