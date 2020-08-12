@@ -250,7 +250,7 @@ public:
     GrTextureEffect* asTextureEffect();
     const GrTextureEffect* asTextureEffect() const;
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     // Generates debug info for this processor tree by recursively calling dumpInfo() on this
     // processor and its children.
     SkString dumpTreeInfo() const;
