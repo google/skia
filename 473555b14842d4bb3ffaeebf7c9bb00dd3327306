@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f992939_ae0cc7e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-12T16:23:07Z",
+      "side": 1,
+      "message": "Found while looking for something else.\n\nI\u0027m not sure if this CL has the highest commit message size to actual diff size ratio of my commits, but it should be close.\n\nAlso I\u0027m pretty sure mtklein managed a new record of 36 seconds from upload of CL (which he wasn\u0027t previously aware was being uploaded) to approval. How I imagine this works https://www.youtube.com/watch?v\u003dse6vGhOt58g .",
+      "revId": "473555b14842d4bb3ffaeebf7c9bb00dd3327306",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
