@@ -33,13 +33,14 @@ public:
                 new GrMixerEffect(std::move(inputFP), std::move(fp0), std::move(fp1), weight));
     }
     GrMixerEffect(const GrMixerEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MixerEffect"; }
     float weight;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrMixerEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                   std::unique_ptr<GrFragmentProcessor> fp0,

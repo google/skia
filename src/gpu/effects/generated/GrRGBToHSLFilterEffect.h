@@ -38,12 +38,13 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrRGBToHSLFilterEffect(std::move(inputFP)));
     }
     GrRGBToHSLFilterEffect(const GrRGBToHSLFilterEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RGBToHSLFilterEffect"; }
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrRGBToHSLFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP)
             : INHERITED(kGrRGBToHSLFilterEffect_ClassID,

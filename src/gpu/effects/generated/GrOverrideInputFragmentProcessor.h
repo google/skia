@@ -42,15 +42,16 @@ public:
                 new GrOverrideInputFragmentProcessor(std::move(fp), useUniform, color, color));
     }
     GrOverrideInputFragmentProcessor(const GrOverrideInputFragmentProcessor& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "OverrideInputFragmentProcessor"; }
     bool useUniform;
     SkPMColor4f uniformColor;
     SkPMColor4f literalColor;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrOverrideInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> fp,
                                      bool useUniform,

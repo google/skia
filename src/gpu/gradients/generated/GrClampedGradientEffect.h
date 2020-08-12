@@ -30,9 +30,6 @@ public:
                 makePremul, colorsAreOpaque));
     }
     GrClampedGradientEffect(const GrClampedGradientEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ClampedGradientEffect"; }
     SkPMColor4f leftBorderColor;
@@ -40,6 +37,10 @@ public:
     bool makePremul;
     bool colorsAreOpaque;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrClampedGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
                             std::unique_ptr<GrFragmentProcessor> gradLayout,

@@ -29,9 +29,6 @@ public:
                 std::move(src), bounds, srcRect, xInvZoom, yInvZoom, xInvInset, yInvInset));
     }
     GrMagnifierEffect(const GrMagnifierEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "MagnifierEffect"; }
     SkIRect bounds;
@@ -41,6 +38,10 @@ public:
     float xInvInset;
     float yInvInset;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrMagnifierEffect(std::unique_ptr<GrFragmentProcessor> src,
                       SkIRect bounds,

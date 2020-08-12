@@ -31,13 +31,14 @@ public:
                 new GrClampFragmentProcessor(std::move(inputFP), clampToPremul));
     }
     GrClampFragmentProcessor(const GrClampFragmentProcessor& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ClampFragmentProcessor"; }
     bool clampToPremul;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrClampFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, bool clampToPremul)
             : INHERITED(kGrClampFragmentProcessor_ClassID,
