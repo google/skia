@@ -102,8 +102,33 @@ public class SkottieView extends FrameLayout {
             .createAnimation(((TextureView) mbackingView), inputStream);
     }
 
-    public SkottieAnimation getSkottieAnimation() {
+    protected SkottieAnimation getSkottieAnimation() {
         return mAnimation;
+    }
+
+    // progress: a float from 0 to 1 representing the percent into the animation
+    public void seek(float progress) {
+        mAnimation.setProgress(progress);
+    }
+
+    public void play() {
+        mAnimation.resume();
+    }
+
+    public void pause() {
+        mAnimation.pause();
+    }
+
+    public void start() {
+        mAnimation.start();
+    }
+
+    public void stop() {
+        mAnimation.stop();
+    }
+
+    public float getProgress() {
+        return mAnimation.getProgress();
     }
 
     // Builder accessed by user to generate SkottieViews

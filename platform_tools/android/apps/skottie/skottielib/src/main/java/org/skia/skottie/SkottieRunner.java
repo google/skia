@@ -392,6 +392,38 @@ class SkottieRunner {
         }
 
         @Override
+        public void pause() {
+            try {
+                runOnGLThread(() -> {
+                    mIsRunning = false;
+                });
+            }
+            catch (Throwable t) {
+                Log.e(LOG_TAG, "pause failed", t);
+                throw new RuntimeException(t);
+            }
+        }
+
+        @Override
+        public void resume() {
+            try {
+                runOnGLThread(() -> {
+                    if (!mIsRunning) {
+                        long currentTime = System.nanoTime();
+                        mAnimationStartTime = currentTime - (long)(1000000 * mDuration * mProgress);
+                        mIsRunning = true;
+                        mNewSurface = true;
+                        doFrame(currentTime);
+                    }
+                });
+            }
+            catch (Throwable t) {
+                Log.e(LOG_TAG, "resume failed", t);
+                throw new RuntimeException(t);
+            }
+        }
+
+        @Override
         public boolean isRunning() {
             return mIsRunning;
         }
