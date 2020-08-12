@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c47a5cc9_1e917fe2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-12T13:17:07Z",
+      "side": 1,
+      "message": "The other CL fixed the build error. Mike, PTAL",
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
