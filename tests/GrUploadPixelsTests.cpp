@@ -32,13 +32,11 @@ void basic_texture_test(skiatest::Reporter* reporter, GrDirectContext* context, 
     FillPixelData(kWidth, kHeight, srcBuffer.get());
 
     auto grCT = SkColorTypeToGrColorType(ct);
-    auto proxy = sk_gpu_test::MakeTextureProxyFromData(
+    auto view = sk_gpu_test::MakeTextureProxyViewFromData(
             context, renderable, kTopLeft_GrSurfaceOrigin,
             {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight}, srcBuffer, 0);
-    REPORTER_ASSERT(reporter, proxy);
-    if (proxy) {
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(), grCT);
-        GrSurfaceProxyView view(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
+    REPORTER_ASSERT(reporter, view);
+    if (view) {
         auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
                                                nullptr);
 
@@ -61,13 +59,11 @@ void basic_texture_test(skiatest::Reporter* reporter, GrDirectContext* context, 
         REPORTER_ASSERT(reporter, DoesFullBufferContainCorrectColor(srcBuffer, dstBuffer, 10, 2));
     }
 
-    proxy = sk_gpu_test::MakeTextureProxyFromData(
+    view = sk_gpu_test::MakeTextureProxyViewFromData(
             context, renderable, kBottomLeft_GrSurfaceOrigin,
             {grCT, kPremul_SkAlphaType, nullptr, kWidth, kHeight}, srcBuffer, 0);
-    REPORTER_ASSERT(reporter, proxy);
-    if (proxy) {
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(), grCT);
-        GrSurfaceProxyView view(proxy, kBottomLeft_GrSurfaceOrigin, swizzle);
+    REPORTER_ASSERT(reporter, view);
+    if (view) {
         auto sContext = GrSurfaceContext::Make(context, std::move(view), grCT, kPremul_SkAlphaType,
                                                nullptr);
 
@@ -88,7 +84,6 @@ void basic_texture_test(skiatest::Reporter* reporter, GrDirectContext* context, 
         REPORTER_ASSERT(reporter, result);
 
         REPORTER_ASSERT(reporter, DoesFullBufferContainCorrectColor(srcBuffer, dstBuffer, 4, 5));
-
     }
 }
 
