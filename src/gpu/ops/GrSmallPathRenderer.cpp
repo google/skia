@@ -327,7 +327,7 @@ private:
 
                     if (!this->addDFPathToAtlas(target,
                                                 &flushInfo,
-                                                atlasMgr->atlas(),
+                                                atlasMgr,
                                                 shapeData,
                                                 args.fShape,
                                                 ceilDesiredDimension,
@@ -342,7 +342,7 @@ private:
                 if (!shapeData->fAtlasLocator.plotLocator().isValid()) {
                     if (!this->addBMPathToAtlas(target,
                                                 &flushInfo,
-                                                atlasMgr->atlas(),
+                                                atlasMgr,
                                                 shapeData,
                                                 args.fShape,
                                                 args.fViewMatrix)) {
@@ -363,13 +363,15 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
+    bool addToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
+                    GrSmallPathAtlasMgr* atlasMgr,
                     int width, int height, const void* image,
-                    GrDrawOpAtlas::AtlasLocator* atlasLocator) const {
-        SkASSERT(atlas);
-
+                    GrDrawOpAtlas::AtlasLocator* atlasLocator,
+                    const SkRect& bounds) const {
         auto resourceProvider = target->resourceProvider();
         auto uploadTarget = target->deferredUploadTarget();
+
+        auto atlas = atlasMgr->atlas();
 
         GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, uploadTarget,
                                                           width, height, image, atlasLocator);
@@ -388,9 +390,8 @@ private:
     }
 
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, GrSmallPathShapeData* shapeData,
+                          GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
                           const GrStyledShape& shape, uint32_t dimension, SkScalar scale) const {
-        SkASSERT(atlas);
 
         const SkRect& bounds = shape.bounds();
 
@@ -469,28 +470,29 @@ private:
                                                dst.width(), dst.height(), dst.rowBytes());
         }
 
+        SkRect bounds1 = SkRect::Make(devPathBounds).makeOffset(-translateX, -translateY);
+        bounds1.fLeft /= scale;
+        bounds1.fTop /= scale;
+        bounds1.fRight /= scale;
+        bounds1.fBottom /= scale;
+
         // add to atlas
-        if (!this->addToAtlas(target, flushInfo, atlas, width, height, dfStorage.get(),
-                              &shapeData->fAtlasLocator)) {
+        GrDrawOpAtlas::AtlasLocator atlasLocator;
+        if (!this->addToAtlas(target, flushInfo, atlasMgr, width, height, dfStorage.get(),
+                              &atlasLocator, bounds1)) {
             return false;
         }
 
-        shapeData->fAtlasLocator.insetSrc(SK_DistanceFieldPad);
+        atlasLocator.insetSrc(SK_DistanceFieldPad);
 
-        shapeData->fBounds = SkRect::Make(devPathBounds);
-        shapeData->fBounds.offset(-translateX, -translateY);
-        shapeData->fBounds.fLeft /= scale;
-        shapeData->fBounds.fTop /= scale;
-        shapeData->fBounds.fRight /= scale;
-        shapeData->fBounds.fBottom /= scale;
+        atlasMgr->updateCacheInfo(shapeData, atlasLocator, bounds1);
+
         return true;
     }
 
     bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, GrSmallPathShapeData* shapeData,
+                          GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
                           const GrStyledShape& shape, const SkMatrix& ctm) const {
-        SkASSERT(atlas);
-
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -548,14 +550,16 @@ private:
 
         draw.drawPathCoverage(path, paint);
 
+        SkRect bounds1 = SkRect::Make(devPathBounds).makeOffset(-translateX, -translateY);
+
         // add to atlas
-        if (!this->addToAtlas(target, flushInfo, atlas, dst.width(), dst.height(), dst.addr(),
-                              &shapeData->fAtlasLocator)) {
+        GrDrawOpAtlas::AtlasLocator atlasLocator;
+        if (!this->addToAtlas(target, flushInfo, atlasMgr, dst.width(), dst.height(), dst.addr(),
+                              &atlasLocator, bounds1)) {
             return false;
         }
 
-        shapeData->fBounds = SkRect::Make(devPathBounds);
-        shapeData->fBounds.offset(-translateX, -translateY);
+        atlasMgr->updateCacheInfo(shapeData, atlasLocator, bounds1);
         return true;
     }
 
