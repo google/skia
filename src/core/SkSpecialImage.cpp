@@ -150,23 +150,24 @@ static bool rect_fits(const SkIRect& rect, int width, int height) {
 }
 #endif
 
-sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* context,
+sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* rContext,
                                                     const SkIRect& subset,
                                                     sk_sp<SkImage> image,
                                                     const SkSurfaceProps* props) {
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
 #if SK_SUPPORT_GPU
-    if (context) {
-        GrSurfaceProxyView view = as_IB(image)->refView(context, GrMipmapped::kNo);
-        return MakeDeferredFromGpu(context, subset, image->uniqueID(), view,
+    if (rContext) {
+        GrSurfaceProxyView view = as_IB(image)->refView(rContext, GrMipmapped::kNo);
+        return MakeDeferredFromGpu(rContext, subset, image->uniqueID(), view,
                                    SkColorTypeToGrColorType(image->colorType()),
                                    image->refColorSpace(), props);
     }
 #endif
 
+    // raster to gpu is supported here, but gpu to raster is not
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
+    if (!image->isTextureBacked() && as_IB(image)->getROPixels(&bm)) {
         return MakeFromRaster(subset, bm, props);
     }
     return nullptr;
