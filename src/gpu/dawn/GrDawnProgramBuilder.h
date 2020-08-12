@@ -63,11 +63,13 @@ struct GrDawnProgram : public SkRefCnt {
     BuiltinUniformHandles fBuiltinUniformHandles;
 
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
-    wgpu::BindGroup setUniformData(GrDawnGpu*, const GrRenderTarget*, const GrProgramInfo&);
-    wgpu::BindGroup setTextures(GrDawnGpu* gpu,
-                                const GrPrimitiveProcessor& primProc,
-                                const GrPipeline& pipeline,
-                                const GrSurfaceProxy* const primProcTextures[]);
+    void setUniformData(GrDawnGpu*, const GrRenderTarget*, wgpu::RenderPassEncoder encoder,
+                        const GrProgramInfo&);
+    void setTextures(GrDawnGpu* gpu,
+                     wgpu::RenderPassEncoder passEncoder,
+                     const GrPrimitiveProcessor& primProc,
+                     const GrPipeline& pipeline,
+                     const GrSurfaceProxy* const primProcTextures[]);
 };
 
 class GrDawnProgramBuilder : public GrGLSLProgramBuilder {

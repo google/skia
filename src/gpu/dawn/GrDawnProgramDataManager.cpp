@@ -27,8 +27,37 @@ GrDawnProgramDataManager::GrDawnProgramDataManager(const UniformInfoArray& unifo
     }
 }
 
-void GrDawnProgramDataManager::uploadUniformBuffers(void* dest) const {
+static wgpu::BindGroupEntry make_bind_group_entry(uint32_t binding, const wgpu::Buffer& buffer,
+                                                  uint32_t offset, uint32_t size) {
+    wgpu::BindGroupEntry result;
+    result.binding = binding;
+    result.buffer = buffer;
+    result.offset = offset;
+    result.size = size;
+    result.sampler = nullptr;
+    result.textureView = nullptr;
+    return result;
+}
+
+wgpu::BindGroup GrDawnProgramDataManager::uploadUniformBuffers(GrDawnGpu* gpu,
+                                                               wgpu::BindGroupLayout layout) const {
     if (fUniformsDirty) {
-        memcpy(dest, fUniformData.get(), fUniformSize);
+        std::vector<wgpu::BindGroupEntry> bindings;
+        GrDawnRingBuffer::Slice slice;
+        if (0 != fUniformSize) {
+            // FIXME: maybe don't create a BindGroup at all if no uniforms?
+            slice = gpu->allocateUniformRingBufferSlice(fUniformSize);
+            memcpy(slice.fData, fUniformData.get(), fUniformSize);
+            bindings.push_back(make_bind_group_entry(GrSPIRVUniformHandler::kUniformBinding,
+                                                     slice.fBuffer, slice.fOffset,
+                                                     fUniformSize));
+        }
+        wgpu::BindGroupDescriptor descriptor;
+        descriptor.layout = layout;
+        descriptor.entryCount = bindings.size();
+        descriptor.entries = bindings.data();
+        fBindGroup = gpu->device().CreateBindGroup(&descriptor);
+        fUniformsDirty = false;
     }
+    return fBindGroup;
 }
