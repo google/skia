@@ -2514,7 +2514,7 @@ if (skia_enable_tools) {
         "tools/viewer/Viewer.cpp",
         "tools/viewer/Viewer.h",
       ]
-      libs = []
+      libs = [ "sfml-system", "sfml-audio" ]
 
       deps = [
         ":common_flags_gpu",

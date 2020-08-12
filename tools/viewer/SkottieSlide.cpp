@@ -22,6 +22,58 @@
 
 #include "imgui.h"
 
+#include <SFML/Audio.hpp>
+
+class SFMLTrack final : public skresources::ExternalTrackAsset {
+public:
+    explicit SFMLTrack(sk_sp<SkData> data)
+        : fData(std::move(data))
+    {
+        fMusic.openFromMemory(fData->data(), fData->size());
+    }
+
+private:
+    void seek(float t) override {
+        if (fMusic.getStatus() == sf::SoundSource::Status::Stopped && t >= 0) {
+            fMusic.play();
+        }
+
+        if (fMusic.getStatus() == sf::SoundSource::Status::Playing) {
+            if (t < 0) {
+                fMusic.stop();
+            } else {
+                const auto pos = fMusic.getPlayingOffset().asSeconds();
+                // printf("[%p] - pos: %f t: %f\n", this, pos, t);
+
+                static constexpr float kTolerance = 0.075f;
+                if (std::abs(pos - t) > kTolerance) {
+                    // printf("!!!!\n");
+                    fMusic.setPlayingOffset(sf::seconds(t));
+                }
+            }
+        }
+    }
+
+    const sk_sp<SkData> fData;
+    sf::Music           fMusic;
+};
+
+class SoundProxy final : public skresources::ResourceProviderProxyBase {
+public:
+    explicit SoundProxy(sk_sp<ResourceProvider> rp) : INHERITED(std::move(rp)) {}
+
+private:
+    sk_sp<skresources::ExternalTrackAsset> loadAudioAsset(const char path[],
+                                                          const char name[],
+                                                          const char[] /* id */) {
+        auto data = this->load(path, name);
+
+        return data ? sk_make_sp<SFMLTrack>(std::move(data)) : nullptr;
+    }
+
+    using INHERITED = skresources::ResourceProviderProxyBase;
+};
+
 static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
     static constexpr SkScalar kTextSize = 20;
@@ -104,10 +156,11 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     skottie::Animation::Builder builder(flags);
 
     auto resource_provider =
+        sk_make_sp<SoundProxy>(
             skresources::DataURIResourceProviderProxy::Make(
                 skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
                                                         /*predecode=*/true),
-                /*predecode=*/true);
+                /*predecode=*/true));
 
     static constexpr char kInterceptPrefix[] = "__";
     auto precomp_interceptor =
