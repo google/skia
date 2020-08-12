@@ -31,10 +31,8 @@ public:
     const char* name() const override { return "Clear"; }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.append(INHERITED::dumpInfo());
-        string.appendf("Scissor [ ");
+    SkString onDumpInfo() const override {
+        SkString string("Scissor [ ");
         if (fScissor.enabled()) {
             const SkIRect& r = fScissor.rect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);

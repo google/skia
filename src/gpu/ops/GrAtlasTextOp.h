@@ -44,7 +44,7 @@ public:
     void visitProxies(const VisitProxyFunc& func) const override;
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override;
+    SkString onDumpInfo() const override;
 #endif
 
     FixedFunctionFlags fixedFunctionFlags() const override;

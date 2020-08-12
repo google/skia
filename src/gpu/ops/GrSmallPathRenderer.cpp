@@ -137,13 +137,12 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
             string.appendf("Color: 0x%08x\n", geo.fColor.toBytes_RGBA());
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif

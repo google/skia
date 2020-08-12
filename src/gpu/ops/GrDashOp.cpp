@@ -245,7 +245,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (const auto& geo : fLines) {
             string.appendf("Pt0: [%.2f, %.2f], Pt1: [%.2f, %.2f], Width: %.2f, Ival0: %.2f, "
@@ -258,7 +258,6 @@ public:
                            geo.fPhase);
         }
         string += fProcessorSet.dumpProcessors();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif

@@ -100,16 +100,11 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.appendf(
-                "Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                "StrokeWidth: %.2f\n",
-                fColor.toBytes_RGBA(), fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                fStrokeWidth);
-        string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
-        return string;
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                              "StrokeWidth: %.2f\n%s",
+                              fColor.toBytes_RGBA(), fRect.fLeft, fRect.fTop, fRect.fRight,
+                              fRect.fBottom, fStrokeWidth, fHelper.dumpInfo().c_str());
     }
 #endif
 
@@ -429,7 +424,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (const auto& info : fRects) {
             string.appendf(
@@ -443,7 +438,6 @@ public:
                     info.fDevInside.fRight, info.fDevInside.fBottom, info.fDegenerate);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif

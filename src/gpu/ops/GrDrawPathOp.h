@@ -81,7 +81,7 @@ public:
     const char* name() const override { return "DrawPath"; }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override;
+    SkString onDumpInfo() const override;
 #endif
 
 private:

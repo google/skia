@@ -1227,7 +1227,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fCircles.count(); ++i) {
             string.appendf(
@@ -1239,7 +1239,6 @@ public:
                     fCircles[i].fOuterRadius);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif
@@ -1589,7 +1588,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fCircles.count(); ++i) {
             string.appendf(
@@ -1603,7 +1602,6 @@ public:
                     fCircles[i].fPhaseAngle);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif
@@ -1920,9 +1918,8 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.appendf("Stroked: %d\n", fStroked);
+    SkString onDumpInfo() const override {
+        SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
         for (const auto& geo : fEllipses) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
@@ -1932,7 +1929,6 @@ public:
                     geo.fInnerXRadius, geo.fInnerYRadius);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif
@@ -2197,7 +2193,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (const auto& geo : fEllipses) {
             string.appendf(
@@ -2209,7 +2205,6 @@ public:
                     geo.fInnerXRadius, geo.fInnerYRadius, geo.fGeoDx, geo.fGeoDy);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif
@@ -2547,7 +2542,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fRRects.count(); ++i) {
             string.appendf(
@@ -2559,7 +2554,6 @@ public:
                     fRRects[i].fOuterRadius);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif
@@ -2919,9 +2913,8 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.appendf("Stroked: %d\n", fStroked);
+    SkString onDumpInfo() const override {
+        SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
         for (const auto& geo : fRRects) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
@@ -2931,7 +2924,6 @@ public:
                     geo.fInnerXRadius, geo.fInnerYRadius);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif

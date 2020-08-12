@@ -181,11 +181,11 @@ public:
 
     /** Used for spewing information about ops when debugging. */
 #if GR_TEST_UTILS
-    virtual SkString dumpInfo() const {
-        SkString string;
-        string.appendf("OpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",
-                       fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
-        return string;
+    virtual SkString onDumpInfo() const { return SkString(); }
+    virtual SkString dumpInfo() const final {
+        return SkStringPrintf("%s\nOpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
+                              this->onDumpInfo().c_str(), fBounds.fLeft, fBounds.fTop,
+                              fBounds.fRight, fBounds.fBottom);
     }
 #endif
 

@@ -191,12 +191,9 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.appendf("Color 0x%08x, aa: %d\n", fColor.toBytes_RGBA(), fAntiAlias);
-        string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
-        return string;
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Color 0x%08x, aa: %d\n%s",
+                              fColor.toBytes_RGBA(), fAntiAlias, fHelper.dumpInfo().c_str());
     }
 #endif
 
