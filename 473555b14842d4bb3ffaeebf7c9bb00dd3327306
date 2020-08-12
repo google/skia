@@ -16,6 +16,23 @@
       "revId": "473555b14842d4bb3ffaeebf7c9bb00dd3327306",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b6a9407_76b2dc11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-12T16:45:19Z",
+      "side": 1,
+      "message": "save the memory-barrier!",
+      "revId": "473555b14842d4bb3ffaeebf7c9bb00dd3327306",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
