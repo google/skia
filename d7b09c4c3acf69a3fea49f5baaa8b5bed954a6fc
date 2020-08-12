@@ -16,6 +16,24 @@
       "revId": "d7b09c4c3acf69a3fea49f5baaa8b5bed954a6fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a8565f4_f6faf4e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-12T15:39:25Z",
+      "side": 1,
+      "message": "Ugh, yes, the tree was already broken. :(",
+      "parentUuid": "62a75b96_786ba754",
+      "revId": "d7b09c4c3acf69a3fea49f5baaa8b5bed954a6fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
