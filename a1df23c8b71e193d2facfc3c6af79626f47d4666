@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29c101b9_3a1f57f3",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-12T13:18:54Z",
+      "side": 1,
+      "message": "Doh. emplace_back returned void until the c++17 library, causing issues on some bots that still have older libs.",
+      "revId": "a1df23c8b71e193d2facfc3c6af79626f47d4666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
