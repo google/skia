@@ -242,6 +242,8 @@ public:
             GrColor color, const SkMatrix& drawMatrix, SkPoint drawOrigin,
             SkIRect clip) const = 0;
 
+    virtual void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache* cache) = 0;
+
     // This call is not thread safe. It should only be called from GrDrawOp::onPrepare which
     // is single threaded.
     virtual std::tuple<bool, int> regenerateAtlas(
@@ -292,6 +294,9 @@ public:
     SkSpan<const GrGlyph*> glyphs() const;
 
     SkScalar strikeToSourceRatio() const { return fStrikeSpec.strikeToSourceRatio(); }
+
+    void packedGlyphIDToGrGlyph(GrStrikeCache* cache);
+
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end,
             GrMaskFormat maskFormat,
@@ -346,6 +351,8 @@ public:
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
                     GrRenderTargetContext* rtc) const override;
+
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
     std::tuple<bool, int>
     regenerateAtlas(int begin, int end, GrMeshDrawOp::Target* target) const override;
@@ -404,6 +411,8 @@ public:
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
                     GrRenderTargetContext* rtc) const override;
+
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end, GrMeshDrawOp::Target* target) const override;
@@ -467,6 +476,8 @@ public:
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
                     GrRenderTargetContext* rtc) const override;
+
+    void testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) override;
 
     std::tuple<bool, int> regenerateAtlas(
             int begin, int end, GrMeshDrawOp::Target* target) const override;
