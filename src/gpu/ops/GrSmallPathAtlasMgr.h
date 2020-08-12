@@ -41,6 +41,8 @@ public:
     GrSmallPathShapeData* findOrCreate(const GrStyledShape&, int desiredDimension);
     GrSmallPathShapeData* findOrCreate(const GrStyledShape&, const SkMatrix& ctm);
 
+    void updateCacheInfo(GrSmallPathShapeData*, GrDrawOpAtlas::AtlasLocator&, const SkRect& bounds);
+
     void setUseToken(GrSmallPathShapeData*, GrDeferredUploadToken);
 
     // GrOnFlushCallbackObject overrides
