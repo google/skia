@@ -26,7 +26,7 @@ public:
                 std::move(inputFP), std::move(maskFP), innerThreshold, outerThreshold));
     }
     GrAlphaThresholdFragmentProcessor(const GrAlphaThresholdFragmentProcessor& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

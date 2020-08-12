@@ -161,7 +161,7 @@ GrEllipseEffect::GrEllipseEffect(const GrEllipseEffect& src)
 std::unique_ptr<GrFragmentProcessor> GrEllipseEffect::clone() const {
     return std::make_unique<GrEllipseEffect>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrEllipseEffect::dumpInfo() const {
     return SkStringPrintf("EllipseEffect(edgeType=%d, center=float2(%f, %f), radii=float2(%f, %f))",
                           (int)edgeType, center.fX, center.fY, radii.fX, radii.fY);

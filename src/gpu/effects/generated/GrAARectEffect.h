@@ -25,7 +25,7 @@ public:
                 new GrAARectEffect(std::move(inputFP), edgeType, rect));
     }
     GrAARectEffect(const GrAARectEffect& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

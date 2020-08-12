@@ -25,7 +25,7 @@ public:
                                                      const SkRect& circle,
                                                      float sigma);
     GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

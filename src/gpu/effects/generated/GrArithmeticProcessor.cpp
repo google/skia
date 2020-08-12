@@ -81,7 +81,7 @@ GrArithmeticProcessor::GrArithmeticProcessor(const GrArithmeticProcessor& src)
 std::unique_ptr<GrFragmentProcessor> GrArithmeticProcessor::clone() const {
     return std::make_unique<GrArithmeticProcessor>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrArithmeticProcessor::dumpInfo() const {
     return SkStringPrintf("ArithmeticProcessor(k=float4(%f, %f, %f, %f), enforcePMColor=%s)", k.x,
                           k.y, k.z, k.w, (enforcePMColor ? "true" : "false"));

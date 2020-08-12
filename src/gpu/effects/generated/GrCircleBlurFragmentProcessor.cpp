@@ -360,7 +360,7 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
     return std::make_unique<GrCircleBlurFragmentProcessor>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrCircleBlurFragmentProcessor::dumpInfo() const {
     return SkStringPrintf(
             "CircleBlurFragmentProcessor(circleRect=half4(%f, %f, %f, %f), solidRadius=%f, "

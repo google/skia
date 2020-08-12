@@ -24,7 +24,7 @@ public:
                                                      const SkScalar* positions,
                                                      int count);
     GrUnrolledBinaryGradientColorizer(const GrUnrolledBinaryGradientColorizer& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

@@ -29,7 +29,7 @@ public:
                 std::move(src), bounds, srcRect, xInvZoom, yInvZoom, xInvInset, yInvInset));
     }
     GrMagnifierEffect(const GrMagnifierEffect& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

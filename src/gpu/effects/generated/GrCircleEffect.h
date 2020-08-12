@@ -31,7 +31,7 @@ public:
                 new GrCircleEffect(std::move(inputFP), edgeType, center, radius)));
     }
     GrCircleEffect(const GrCircleEffect& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

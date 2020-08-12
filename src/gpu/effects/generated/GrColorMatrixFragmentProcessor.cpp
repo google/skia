@@ -123,7 +123,7 @@ GrColorMatrixFragmentProcessor::GrColorMatrixFragmentProcessor(
 std::unique_ptr<GrFragmentProcessor> GrColorMatrixFragmentProcessor::clone() const {
     return std::make_unique<GrColorMatrixFragmentProcessor>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrColorMatrixFragmentProcessor::dumpInfo() const {
     return SkStringPrintf(
             "ColorMatrixFragmentProcessor(m=half4x4(%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, "
