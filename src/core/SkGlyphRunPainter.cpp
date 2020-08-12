@@ -156,6 +156,8 @@ void SkGlyphRunListPainter::processGlyphRunList(const SkGlyphRunList& glyphRunLi
         bool useSDFT = options.canDrawAsDistanceFields(
                 runPaint, runFont, drawMatrix, props, contextSupportsDistanceFieldText);
 
+        SkASSERT(!useSDFT);
+
         bool usePaths =
                 useSDFT ? false : SkStrikeSpec::ShouldDrawAsPath(runPaint, runFont, drawMatrix);
 
