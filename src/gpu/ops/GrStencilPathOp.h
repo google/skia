@@ -30,7 +30,7 @@ public:
 
     const char* name() const override { return "StencilPathOp"; }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         string.printf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);

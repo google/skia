@@ -43,7 +43,7 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override;
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
 

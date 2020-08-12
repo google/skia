@@ -180,7 +180,7 @@ public:
     }
 
     /** Used for spewing information about ops when debugging. */
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     virtual SkString dumpInfo() const {
         SkString string;
         string.appendf("OpBounds: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n",

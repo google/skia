@@ -244,7 +244,7 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fLines) {

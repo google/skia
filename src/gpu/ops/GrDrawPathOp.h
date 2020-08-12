@@ -80,7 +80,7 @@ public:
 
     const char* name() const override { return "DrawPath"; }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
 

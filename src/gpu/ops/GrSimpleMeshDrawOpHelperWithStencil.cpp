@@ -89,7 +89,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelperWithStencil::createProgramInfoWithStencil
                              this->stencilSettings());
 }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrSimpleMeshDrawOpHelperWithStencil::dumpInfo() const {
     SkString result = INHERITED::dumpInfo();
     result.appendf("Stencil settings: %s\n", (fStencilSettings ? "yes" : "no"));

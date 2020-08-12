@@ -455,7 +455,7 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
 
@@ -581,7 +581,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs,
                                 zeroArea);
 }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString DrawVerticesOp::dumpInfo() const {
     SkString string;
     string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n", (int)fPrimitiveType,
