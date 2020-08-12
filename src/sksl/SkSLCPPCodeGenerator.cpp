@@ -1139,7 +1139,7 @@ void CPPCodeGenerator::writeClone() {
 }
 
 void CPPCodeGenerator::writeDumpInfo() {
-    this->writef("#ifdef SK_DEBUG\n"
+    this->writef("#if GR_TEST_UTILS\n"
                  "SkString %s::dumpInfo() const {\n", fFullName.c_str());
 
     if (!this->writeSection(kDumpInfoSection)) {
