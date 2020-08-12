@@ -16,6 +16,24 @@
       "revId": "a1df23c8b71e193d2facfc3c6af79626f47d4666",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19d9918e_81f1452f",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-12T13:51:03Z",
+      "side": 1,
+      "message": "Would it be possible to make one of those bots a default tryjob bot? Seems like the sort of issue that will continue tripping us up as we get more entrenched in C++17 idioms.",
+      "parentUuid": "29c101b9_3a1f57f3",
+      "revId": "a1df23c8b71e193d2facfc3c6af79626f47d4666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
