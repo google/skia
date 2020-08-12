@@ -51,7 +51,7 @@ public:
 
     const char* name() const override { return "Blend"; }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override {
         return SkStringPrintf("BlendFragmentProcessor(fMode=%s)", SkBlendMode_Name(fMode));
     }

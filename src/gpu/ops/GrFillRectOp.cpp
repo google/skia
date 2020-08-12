@@ -29,7 +29,7 @@ namespace {
 using VertexSpec = GrQuadPerEdgeAA::VertexSpec;
 using ColorType = GrQuadPerEdgeAA::ColorType;
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 static SkString dump_quad_info(int index, const GrQuad* deviceQuad,
                                const GrQuad* localQuad, const SkPMColor4f& color,
                                GrQuadAAFlags aaFlags) {
@@ -120,7 +120,7 @@ public:
         }
     }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# draws: %u\n", fQuads.count());

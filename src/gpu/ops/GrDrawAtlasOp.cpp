@@ -44,7 +44,7 @@ public:
         }
     }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override;
 #endif
 
@@ -186,7 +186,7 @@ DrawAtlasOp::DrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& 
     this->setTransformedBounds(bounds, viewMatrix, HasAABloat::kNo, IsHairline::kNo);
 }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 SkString DrawAtlasOp::dumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {

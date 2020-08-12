@@ -183,7 +183,7 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(std::unique_ptr<GrFragmentProcessor> planeFPs
     }
 }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 SkString GrYUVtoRGBEffect::dumpInfo() const {
     SkString str("YUVtoRGBEffect(");
     for (int i = 0; i < 4; ++i) {
