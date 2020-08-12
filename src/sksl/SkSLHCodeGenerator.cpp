@@ -356,7 +356,7 @@ bool HCodeGenerator::generateCode() {
     this->writeMake();
     this->writef("    %s(const %s& src);\n"
                  "#if GR_TEST_UTILS\n"
-                 "    SkString dumpInfo() const override;\n"
+                 "    SkString onDumpInfo() const override;\n"
                  "#endif\n"
                  "    std::unique_ptr<GrFragmentProcessor> clone() const override;\n"
                  "    const char* name() const override { return \"%s\"; }\n",
