@@ -22,6 +22,30 @@
       "revId": "98100db837b672e7594c32286eb20929c238a074",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9af47a63_f0bd3736",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-12T18:45:34Z",
+      "side": 1,
+      "message": "Yeah, but they turned into that in the calling code, so this just makes it clearer (I think)?",
+      "parentUuid": "f1cf3e7e_6b6416d6",
+      "range": {
+        "startLine": 412,
+        "startChar": 16,
+        "endLine": 412,
+        "endChar": 26
+      },
+      "revId": "98100db837b672e7594c32286eb20929c238a074",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
