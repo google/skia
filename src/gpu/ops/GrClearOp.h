@@ -30,7 +30,7 @@ public:
 
     const char* name() const override { return "Clear"; }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override {
         SkString string;
         string.append(INHERITED::dumpInfo());
