@@ -456,7 +456,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override;
+    SkString onDumpInfo() const override;
 #endif
 
     FixedFunctionFlags fixedFunctionFlags() const override;
@@ -582,13 +582,10 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs,
 }
 
 #if GR_TEST_UTILS
-SkString DrawVerticesOp::dumpInfo() const {
-    SkString string;
-    string.appendf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n", (int)fPrimitiveType,
-                   fMeshes.count(), fVertexCount, fIndexCount);
-    string += fHelper.dumpInfo();
-    string += INHERITED::dumpInfo();
-    return string;
+SkString DrawVerticesOp::onDumpInfo() const {
+    return SkStringPrintf("PrimType: %d, MeshCount %d, VCount: %d, ICount: %d\n%s",
+                          (int)fPrimitiveType, fMeshes.count(), fVertexCount, fIndexCount,
+                          fHelper.dumpInfo().c_str());
 }
 #endif
 

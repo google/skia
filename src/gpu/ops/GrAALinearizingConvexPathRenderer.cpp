@@ -187,7 +187,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (const auto& path : fPaths) {
             string.appendf(
@@ -197,7 +197,6 @@ public:
                     path.fMiterLimit);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif
