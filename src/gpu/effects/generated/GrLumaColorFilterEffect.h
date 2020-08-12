@@ -31,12 +31,13 @@ public:
                 new GrLumaColorFilterEffect(std::move(inputFP)));
     }
     GrLumaColorFilterEffect(const GrLumaColorFilterEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "LumaColorFilterEffect"; }
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrLumaColorFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP)
             : INHERITED(kGrLumaColorFilterEffect_ClassID,

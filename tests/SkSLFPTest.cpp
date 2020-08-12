@@ -113,17 +113,18 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrTest());
     }
     GrTest(const GrTest& src);
+    std::unique_ptr<GrFragmentProcessor> clone() const override;
+    const char* name() const override { return "Test"; }
+protected:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override;
 #endif
-    std::unique_ptr<GrFragmentProcessor> clone() const override;
-    const char* name() const override { return "Test"; }
 private:
     GrTest()
     : INHERITED(kGrTest_ClassID, kNone_OptimizationFlags) {
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    void onGetGLSLProcessorKey(const GrShaderCaps&,GrProcessorKeyBuilder*) const override;
+    void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     typedef GrFragmentProcessor INHERITED;
@@ -509,7 +510,7 @@ DEF_TEST(SkSLFPSections, r) {
          )__SkSL__",
          /*expectedH=*/{
             "const char* name() const override { return \"Test\"; }\n"
-            " fields section private:"
+            " fields section protected:"
          },
          /*expectedCPP=*/{});
     test(r,

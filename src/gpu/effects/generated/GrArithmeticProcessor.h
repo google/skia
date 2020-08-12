@@ -29,14 +29,15 @@ public:
                 inputs.fEnforcePMColor));
     }
     GrArithmeticProcessor(const GrArithmeticProcessor& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ArithmeticProcessor"; }
     SkV4 k;
     bool enforcePMColor;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrArithmeticProcessor(std::unique_ptr<GrFragmentProcessor> srcFP,
                           std::unique_ptr<GrFragmentProcessor> dstFP,

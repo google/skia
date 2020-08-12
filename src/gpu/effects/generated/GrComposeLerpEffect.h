@@ -25,13 +25,14 @@ public:
                 new GrComposeLerpEffect(std::move(child1), std::move(child2), weight));
     }
     GrComposeLerpEffect(const GrComposeLerpEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ComposeLerpEffect"; }
     float weight;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrComposeLerpEffect(std::unique_ptr<GrFragmentProcessor> child1,
                         std::unique_ptr<GrFragmentProcessor> child2,
