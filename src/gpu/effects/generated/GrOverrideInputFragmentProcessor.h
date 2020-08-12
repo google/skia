@@ -43,7 +43,7 @@ public:
     }
     GrOverrideInputFragmentProcessor(const GrOverrideInputFragmentProcessor& src);
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override;
+    SkString onDumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "OverrideInputFragmentProcessor"; }

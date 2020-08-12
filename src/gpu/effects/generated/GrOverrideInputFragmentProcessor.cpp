@@ -104,10 +104,10 @@ std::unique_ptr<GrFragmentProcessor> GrOverrideInputFragmentProcessor::clone() c
     return std::make_unique<GrOverrideInputFragmentProcessor>(*this);
 }
 #if GR_TEST_UTILS
-SkString GrOverrideInputFragmentProcessor::dumpInfo() const {
+SkString GrOverrideInputFragmentProcessor::onDumpInfo() const {
     return SkStringPrintf(
-            "OverrideInputFragmentProcessor(useUniform=%s, uniformColor=half4(%f, %f, %f, %f), "
-            "literalColor=half4(%f, %f, %f, %f))",
+            "(useUniform=%s, uniformColor=half4(%f, %f, %f, %f), literalColor=half4(%f, %f, %f, "
+            "%f))",
             (useUniform ? "true" : "false"), uniformColor.fR, uniformColor.fG, uniformColor.fB,
             uniformColor.fA, literalColor.fR, literalColor.fG, literalColor.fB, literalColor.fA);
 }
