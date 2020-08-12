@@ -73,6 +73,10 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     test("in shader child1; in shader child2;",
          "color = sample(p.x > 10 ? child1 : child2);",
          "expression");
+
+    // Errors that aren't caught until later in the compilation process (during optimize())
+    test("", "return; color.r = color.g;", "unreachable");
+    test("half badFunc() { }", "", "without returning");
 }
 
 DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
