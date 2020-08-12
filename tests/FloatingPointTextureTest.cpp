@@ -49,19 +49,16 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
     }
 
     for (auto origin : {kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin}) {
-        auto fpProxy = sk_gpu_test::MakeTextureProxyFromData(
+        auto fpView = sk_gpu_test::MakeTextureProxyViewFromData(
                 dContext, GrRenderable::kYes, origin,
-                {colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H},
-                controlPixelData.begin(), 0);
+                {colorType, kPremul_SkAlphaType, nullptr, DEV_W, DEV_H}, controlPixelData.begin(),
+                0);
         // Floating point textures are NOT supported everywhere
-        if (!fpProxy) {
+        if (!fpView) {
             continue;
         }
 
-        GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(fpProxy->backendFormat(),
-                                                                    colorType);
-        GrSurfaceProxyView view(std::move(fpProxy), origin, swizzle);
-        auto sContext = GrSurfaceContext::Make(dContext, std::move(view), colorType,
+        auto sContext = GrSurfaceContext::Make(dContext, std::move(fpView), colorType,
                                                kPremul_SkAlphaType, nullptr);
         REPORTER_ASSERT(reporter, sContext);
 
@@ -70,7 +67,7 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                            readBuffer.begin(), 0, {0, 0});
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
-                        0 == memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
+                        !memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
     }
 }
 
