@@ -31,11 +31,8 @@ public:
     const char* name() const override { return "StencilPathOp"; }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.printf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);
-        string.append(INHERITED::dumpInfo());
-        return string;
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);
     }
 #endif
 

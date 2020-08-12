@@ -240,7 +240,7 @@ public:
     const char* name() const override { return "ShadowCircularRRectOp"; }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {
             string.appendf(
@@ -251,7 +251,6 @@ public:
                     fGeoData[i].fOuterRadius, fGeoData[i].fUmbraInset,
                     fGeoData[i].fInnerRadius, fGeoData[i].fBlurRadius);
         }
-        string.append(INHERITED::dumpInfo());
         return string;
     }
 #endif

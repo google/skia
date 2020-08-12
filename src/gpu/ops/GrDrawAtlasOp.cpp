@@ -45,7 +45,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override;
+    SkString onDumpInfo() const override;
 #endif
 
     FixedFunctionFlags fixedFunctionFlags() const override;
@@ -187,14 +187,13 @@ DrawAtlasOp::DrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& 
 }
 
 #if GR_TEST_UTILS
-SkString DrawAtlasOp::dumpInfo() const {
+SkString DrawAtlasOp::onDumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {
         string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor.toBytes_RGBA(),
                        geo.fVerts.count() / 4);
     }
     string += fHelper.dumpInfo();
-    string += INHERITED::dumpInfo();
     return string;
 }
 #endif

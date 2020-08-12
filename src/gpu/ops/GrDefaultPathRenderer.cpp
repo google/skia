@@ -370,14 +370,13 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.appendf("Color: 0x%08x Count: %d\n", fColor.toBytes_RGBA(), fPaths.count());
+    SkString onDumpInfo() const override {
+        SkString string = SkStringPrintf("Color: 0x%08x Count: %d\n",
+                                         fColor.toBytes_RGBA(), fPaths.count());
         for (const auto& path : fPaths) {
             string.appendf("Tolerance: %.2f\n", path.fTolerance);
         }
         string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
         return string;
     }
 #endif
