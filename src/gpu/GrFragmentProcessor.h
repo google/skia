@@ -250,12 +250,10 @@ public:
     GrTextureEffect* asTextureEffect();
     const GrTextureEffect* asTextureEffect() const;
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     // Generates debug info for this processor tree by recursively calling dumpInfo() on this
     // processor and its children.
     SkString dumpTreeInfo() const;
-#else
-    SkString dumpTreeInfo() const { return dumpInfo(); }
 #endif
 
     // A pre-order traversal iterator over a hierarchy of FPs. It can also iterate over all the FP
