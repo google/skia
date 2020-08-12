@@ -725,12 +725,8 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.appendf("Count: %d\n", fPaths.count());
-        string += fHelper.dumpInfo();
-        string += INHERITED::dumpInfo();
-        return string;
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Count: %d\n%s", fPaths.count(), fHelper.dumpInfo().c_str());
     }
 #endif
 

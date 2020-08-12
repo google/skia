@@ -174,7 +174,7 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
+    SkString onDumpInfo() const override {
         SkString str;
 
         for (int i = 0; i < fPatches.count(); ++i) {
@@ -184,7 +184,6 @@ public:
         }
 
         str += fHelper.dumpInfo();
-        str += INHERITED::dumpInfo();
         return str;
     }
 #endif
