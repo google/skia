@@ -284,7 +284,7 @@ void GrRenderTask::addTarget(GrDrawingManager* drawingMgr, GrSurfaceProxyView vi
     fTargets.push_back(std::move(view));
 }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 void GrRenderTask::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("%s - renderTaskID: %d\n", this->name(), fUniqueID);
