@@ -109,6 +109,7 @@ Within an '.fp' fragment processor file:
     @fields            (extra private fields, each terminated with a semicolon)
     @make              (replaces the default Make function)
     @clone             (replaces the default clone() function)
+    @dumpInfo          (replaces the default dumpInfo() function)
     @setData(<pdman>)  (extra code for the setData function, where <pdman> is
                         the name of the GrGLSLProgramDataManager)
     @test(<testData>)  (the body of the TestCreate function, where <testData> is

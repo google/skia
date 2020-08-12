@@ -70,6 +70,11 @@ GrConfigConversionEffect::GrConfigConversionEffect(const GrConfigConversionEffec
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::clone() const {
     return std::make_unique<GrConfigConversionEffect>(*this);
 }
+#ifdef SK_DEBUG
+SkString GrConfigConversionEffect::dumpInfo() const {
+    return SkStringPrintf("ConfigConversionEffect(pmConversion=%d)", (int)pmConversion);
+}
+#endif
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConfigConversionEffect);
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrConfigConversionEffect::TestCreate(

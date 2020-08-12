@@ -355,6 +355,9 @@ bool HCodeGenerator::generateCode() {
     this->writeSection(kClassSection);
     this->writeMake();
     this->writef("    %s(const %s& src);\n"
+                 "#ifdef SK_DEBUG\n"
+                 "    SkString dumpInfo() const override;\n"
+                 "#endif\n"
                  "    std::unique_ptr<GrFragmentProcessor> clone() const override;\n"
                  "    const char* name() const override { return \"%s\"; }\n",
                  fFullName.c_str(), fFullName.c_str(), fName.c_str());
