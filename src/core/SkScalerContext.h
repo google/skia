@@ -61,8 +61,11 @@ struct SkScalerContextRec {
 private:
     //These describe the parameters to create (uniquely identify) the pre-blend.
     uint32_t      fLumBits;
+
+public:
     uint8_t       fDeviceGamma; //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
     uint8_t       fPaintGamma;  //2.6, (0.0, 4.0) gamma, 0.0 for sRGB
+private:
     uint8_t       fContrast;    //0.8+1, [0.0, 1.0] artificial contrast
     const uint8_t fReservedAlign{0};
 

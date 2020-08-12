@@ -1050,18 +1050,17 @@ void SkScalerContext::MakeRecAndEffects(const SkFont& font, const SkPaint& paint
     // The math in SkMaskGamma can handle them being different,
     // but it requires superluminous masks when
     // Ex : deviceGamma(x) < paintGamma(x) and x is sufficiently large.
-    rec->setDeviceGamma(SK_GAMMA_EXPONENT);
-    rec->setPaintGamma(SK_GAMMA_EXPONENT);
 
-#ifdef SK_GAMMA_CONTRAST
-    rec->setContrast(SK_GAMMA_CONTRAST);
-#else
-    // A value of 0.5 for SK_GAMMA_CONTRAST appears to be a good compromise.
-    // With lower values small text appears washed out (though correctly so).
-    // With higher values lcd fringing is worse and the smoothing effect of
-    // partial coverage is diminished.
-    rec->setContrast(0.5f);
-#endif
+    SkASSERT(surfaceProps.textGamma() == SK_GAMMA_EXPONENT ||
+             surfaceProps.textGamma() == 1.79999995f);
+    // SkScalar gamma = 1.79999995f;              // WORKS
+    // SkScalar gamma = SK_GAMMA_EXPONENT;        // WORKS
+    SkScalar gamma = surfaceProps.textGamma();  // FAILS
+    rec->setDeviceGamma(gamma);
+    rec->setPaintGamma(gamma);
+    SkASSERT(rec->fDeviceGamma == 0 || rec->fDeviceGamma == 0x73);
+
+    rec->setContrast(surfaceProps.textContrast());
 
     if (!SkToBool(scalerContextFlags & SkScalerContextFlags::kFakeGamma)) {
         rec->ignoreGamma();

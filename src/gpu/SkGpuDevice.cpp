@@ -1050,7 +1050,8 @@ bool SkGpuDevice::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphor
 SkBaseDevice* SkGpuDevice::onCreateDevice(const CreateInfo& cinfo, const SkPaint*) {
     ASSERT_SINGLE_OWNER
 
-    SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry);
+    SkSurfaceProps props(this->surfaceProps().flags(), cinfo.fPixelGeometry,
+                         this->surfaceProps().textContrast(), this->surfaceProps().textGamma());
 
     // layers are never drawn in repeat modes, so we can request an approx
     // match and ignore any padding.
