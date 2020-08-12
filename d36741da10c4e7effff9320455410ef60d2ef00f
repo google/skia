@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac027f56_4ec107f5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-12T16:33:14Z",
+      "side": 1,
+      "message": "Original version (https://skia-review.googlesource.com/c/skia/+/308181) tripped over Chromium\u0027s static initializer checks, so this version is written to avoid that.",
+      "revId": "d36741da10c4e7effff9320455410ef60d2ef00f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
