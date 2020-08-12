@@ -58,7 +58,7 @@ SkString GrProcessorSet::dumpProcessors() const {
     } else {
         result.append("No color fragment processor.\n");
     }
-    if (this->hasColorFragmentProcessor()) {
+    if (this->hasCoverageFragmentProcessor()) {
         result.append("Coverage Fragment Processor:\n");
         result += this->coverageFragmentProcessor()->dumpTreeInfo();
     } else {
