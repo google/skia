@@ -115,15 +115,16 @@ public:
                                                      const SkRRect& srcRRect,
                                                      const SkRRect& devRRect);
     GrRRectBlurEffect(const GrRRectBlurEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RRectBlurEffect"; }
     float sigma;
     SkRect rect;
     float cornerRadius;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrRRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                       float sigma,

@@ -25,14 +25,15 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(const SkSweepGradient& gradient,
                                                      const GrFPArgs& args);
     GrSweepGradientLayout(const GrSweepGradientLayout& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "SweepGradientLayout"; }
     float bias;
     float scale;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrSweepGradientLayout(float bias, float scale)
             : INHERITED(kGrSweepGradientLayout_ClassID,

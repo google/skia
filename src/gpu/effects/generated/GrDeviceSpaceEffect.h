@@ -26,12 +26,13 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrDeviceSpaceEffect(std::move(fp)));
     }
     GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DeviceSpaceEffect"; }
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
             : INHERITED(kGrDeviceSpaceEffect_ClassID,
