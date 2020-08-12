@@ -139,7 +139,7 @@ public:
 
         SkDEBUGCODE(void validate(const GrDrawOpAtlas*) const;)
 
-        PlotLocator fPlotLocator;
+        PlotLocator fPlotLocator{0, 0, 0};
 
         // The inset padded bounds in the atlas.
         GrIRect16   fRect{0, 0, 0, 0};
