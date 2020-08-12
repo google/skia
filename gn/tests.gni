@@ -301,6 +301,7 @@ tests_sources = [
   "$_tests/TestUtils.h",
   "$_tests/TextBlobCacheTest.cpp",
   "$_tests/TextBlobTest.cpp",
+  "$_tests/TextureOpTest.cpp",
   "$_tests/TextureProxyTest.cpp",
   "$_tests/TextureStripAtlasManagerTest.cpp",
   "$_tests/Time.cpp",
