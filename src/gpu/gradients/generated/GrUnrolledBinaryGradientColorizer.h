@@ -24,9 +24,6 @@ public:
                                                      const SkScalar* positions,
                                                      int count);
     GrUnrolledBinaryGradientColorizer(const GrUnrolledBinaryGradientColorizer& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "UnrolledBinaryGradientColorizer"; }
     int32_t intervalCount;
@@ -49,6 +46,10 @@ public:
     SkRect thresholds1_7;
     SkRect thresholds9_13;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrUnrolledBinaryGradientColorizer(int32_t intervalCount,
                                       SkPMColor4f scale0_1,

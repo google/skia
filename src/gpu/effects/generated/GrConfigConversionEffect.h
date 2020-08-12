@@ -35,13 +35,14 @@ public:
                 new GrConfigConversionEffect(std::move(fp), pmConversion));
     }
     GrConfigConversionEffect(const GrConfigConversionEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "ConfigConversionEffect"; }
     PMConversion pmConversion;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrConfigConversionEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                              PMConversion pmConversion)

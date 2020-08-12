@@ -25,14 +25,15 @@ public:
                 new GrAARectEffect(std::move(inputFP), edgeType, rect));
     }
     GrAARectEffect(const GrAARectEffect& src);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "AARectEffect"; }
     GrClipEdgeType edgeType;
     SkRect rect;
 
+protected:
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 private:
     GrAARectEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                    GrClipEdgeType edgeType,
