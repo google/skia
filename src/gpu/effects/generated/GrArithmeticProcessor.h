@@ -29,7 +29,7 @@ public:
                 inputs.fEnforcePMColor));
     }
     GrArithmeticProcessor(const GrArithmeticProcessor& src);
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

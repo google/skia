@@ -69,7 +69,7 @@ GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
 std::unique_ptr<GrFragmentProcessor> GrMixerEffect::clone() const {
     return std::make_unique<GrMixerEffect>(*this);
 }
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 SkString GrMixerEffect::dumpInfo() const {
     return SkStringPrintf("MixerEffect(weight=%f)", weight);
 }

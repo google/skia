@@ -67,7 +67,7 @@ GrConstColorProcessor::GrConstColorProcessor(const GrConstColorProcessor& src)
 std::unique_ptr<GrFragmentProcessor> GrConstColorProcessor::clone() const {
     return std::make_unique<GrConstColorProcessor>(*this);
 }
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 SkString GrConstColorProcessor::dumpInfo() const {
     return SkStringPrintf("ConstColorProcessor(color=half4(%f, %f, %f, %f))", color.fR, color.fG,
                           color.fB, color.fA);

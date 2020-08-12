@@ -136,7 +136,7 @@ public:
         fHelper.visitProxies(func);
     }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override {
         SkString string;
         for (const auto& geo : fShapes) {
