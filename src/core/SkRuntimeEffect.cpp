@@ -336,14 +336,27 @@ SkRuntimeEffect::ByteCodeResult SkRuntimeEffect::toByteCode() const {
 
 using SampleChildFn = std::function<skvm::Color(int, skvm::Coord)>;
 
-static std::vector<skvm::F32> program_fn(skvm::Builder* p,
-                                         const SkSL::ByteCodeFunction& fn,
-                                         const std::vector<skvm::F32>& uniform,
-                                         std::vector<skvm::F32> stack,
-                                         SampleChildFn sampleChild,
-                                         skvm::Coord device, skvm::Coord local) {
+static skvm::Color program_fn(skvm::Builder* p,
+                              const SkSL::ByteCodeFunction& fn,
+                              const std::vector<skvm::F32>& uniform,
+                              skvm::Color inColor,
+                              SampleChildFn sampleChild,
+                              skvm::Coord device, skvm::Coord local) {
+    std::vector<skvm::F32> stack;
+
     auto push = [&](skvm::F32 x) { stack.push_back(x); };
     auto pop  = [&]{ skvm::F32 x = stack.back(); stack.pop_back(); return x; };
+
+    // main(inout half4 color) or main(float2 local, inout half4 color)
+    SkASSERT(fn.getParameterCount() == 4 || fn.getParameterCount() == 6);
+    if (fn.getParameterCount() == 6) {
+        push(local.x);
+        push(local.y);
+    }
+    push(inColor.r);
+    push(inColor.g);
+    push(inColor.b);
+    push(inColor.a);
 
     for (int i = 0; i < fn.getLocalCount(); i++) {
         push(p->splat(0.0f));
@@ -586,7 +599,12 @@ static std::vector<skvm::F32> program_fn(skvm::Builder* p,
     for (int i = 0; i < fn.getLocalCount(); i++) {
         pop();
     }
-    return stack;
+    SkASSERT(stack.size() == (size_t)fn.getParameterCount());
+    skvm::F32 a = pop(),
+              b = pop(),
+              g = pop(),
+              r = pop();
+    return { r, g, b, a };
 }
 
 static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,
@@ -752,14 +770,8 @@ public:
         // Regardless, just to be extra-safe, we pass something valid (0, 0) as both coords, so
         // the builder isn't trying to do math on invalid values.
         skvm::Coord zeroCoord = { p->splat(0.0f), p->splat(0.0f) };
-        std::vector<skvm::F32> stack =
-                program_fn(p, *fn, uniform, {c.r, c.g, c.b, c.a}, sampleChild,
-                           /*device=*/ zeroCoord, /*local=*/ zeroCoord);
-
-        if (stack.size() == 4) {
-            return {stack[0], stack[1], stack[2], stack[3]};
-        }
-        return {};
+        return program_fn(p, *fn, uniform, c, sampleChild,
+                          /*device=*/zeroCoord, /*local=*/zeroCoord);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -914,15 +926,7 @@ public:
             }
         };
 
-        std::vector<skvm::F32> stack =
-            program_fn(p, *fn, uniform,
-                       {local.x,local.y, paint.r, paint.g, paint.b, paint.a},
-                       sampleChild, device, local);
-
-        if (stack.size() == 6) {
-            return {stack[2], stack[3], stack[4], stack[5]};
-        }
-        return {};
+        return program_fn(p, *fn, uniform, paint, sampleChild, device, local);
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

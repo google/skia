@@ -20,7 +20,7 @@
 #include <stddef.h>
 #include <utility>
 
-const char* SKSL_TEST_SRC = R"(
+const char* gLumaSrc = R"(
     void main(inout half4 color) {
         color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;
         color.r = 0;
@@ -29,14 +29,24 @@ const char* SKSL_TEST_SRC = R"(
     }
 )";
 
-DEF_SIMPLE_GM(runtimecolorfilter, canvas, 512, 256) {
+const char* gLumaSrcWithCoords = R"(
+    void main(float2 p, inout half4 color) {
+        color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;
+        color.r = 0;
+        color.g = 0;
+        color.b = 0;
+    }
+)";
+
+DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256) {
     auto img = GetResourceAsImage("images/mandrill_256.png");
     canvas->drawImage(img, 0, 0, nullptr);
 
-    sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(SKSL_TEST_SRC)));
-
-    auto cf1 = effect->makeColorFilter(nullptr);
-    SkPaint p;
-    p.setColorFilter(cf1);
-    canvas->drawImage(img, 256, 0, &p);
+    for (auto src : { gLumaSrc, gLumaSrcWithCoords }) {
+        sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(src)));
+        SkPaint p;
+        p.setColorFilter(effect->makeColorFilter(nullptr));
+        canvas->translate(256, 0);
+        canvas->drawImage(img, 0, 0, &p);
+    }
 }
