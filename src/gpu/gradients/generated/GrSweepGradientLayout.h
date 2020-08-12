@@ -25,7 +25,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(const SkSweepGradient& gradient,
                                                      const GrFPArgs& args);
     GrSweepGradientLayout(const GrSweepGradientLayout& src);
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

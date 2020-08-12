@@ -28,7 +28,7 @@ public:
                 std::move(colorizer), std::move(gradLayout), mirror, makePremul, colorsAreOpaque));
     }
     GrTiledGradientEffect(const GrTiledGradientEffect& src);
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

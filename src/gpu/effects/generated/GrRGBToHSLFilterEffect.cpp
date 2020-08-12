@@ -62,6 +62,6 @@ GrRGBToHSLFilterEffect::GrRGBToHSLFilterEffect(const GrRGBToHSLFilterEffect& src
 std::unique_ptr<GrFragmentProcessor> GrRGBToHSLFilterEffect::clone() const {
     return std::make_unique<GrRGBToHSLFilterEffect>(*this);
 }
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
 SkString GrRGBToHSLFilterEffect::dumpInfo() const { return SkStringPrintf("RGBToHSLFilterEffect"); }
 #endif

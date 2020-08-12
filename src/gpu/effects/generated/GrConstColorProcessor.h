@@ -25,7 +25,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(color));
     }
     GrConstColorProcessor(const GrConstColorProcessor& src);
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
