@@ -187,8 +187,6 @@ public:
                        fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
         return string;
     }
-#else
-    SkString dumpInfo() const { return SkString("<Op information unavailable>"); }
 #endif
 
     /**

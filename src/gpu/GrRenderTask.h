@@ -75,13 +75,15 @@ public:
      */
     virtual GrOpsTask* asOpsTask() { return nullptr; }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     /*
      * Dump out the GrRenderTask dependency DAG
      */
     virtual void dump(bool printDependencies) const;
     virtual const char* name() const = 0;
+#endif
 
+#ifdef SK_DEBUG
     virtual int numClips() const { return 0; }
 
     virtual void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const = 0;

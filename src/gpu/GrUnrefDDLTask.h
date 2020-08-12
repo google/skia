@@ -43,8 +43,10 @@ private:
 
     bool onExecute(GrOpFlushState*) override { return true; }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     const char* name() const final { return "UnrefDDL"; }
+#endif
+#ifdef SK_DEBUG
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc& fn) const override {}
 #endif
 

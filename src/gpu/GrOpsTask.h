@@ -130,13 +130,13 @@ public:
     void discard();
 
 #ifdef SK_DEBUG
-    void dump(bool printDependencies) const override;
-    const char* name() const final { return "Ops"; }
     int numClips() const override { return fNumClips; }
     void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const override;
 #endif
 
 #if GR_TEST_UTILS
+    void dump(bool printDependencies) const override;
+    const char* name() const final { return "Ops"; }
     int numOpChains() const { return fOpChains.count(); }
     const GrOp* getChain(int index) const { return fOpChains[index].head(); }
 #endif
