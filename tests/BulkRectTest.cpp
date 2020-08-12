@@ -20,7 +20,7 @@ static std::unique_ptr<GrRenderTargetContext> new_RTC(GrRecordingContext* rConte
             rContext, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kExact, {128, 128});
 }
 
-sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
+static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
     static constexpr SkISize kDimensions = {128, 128};
 
     const GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(
