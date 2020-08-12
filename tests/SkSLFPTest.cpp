@@ -113,7 +113,7 @@ public:
         return std::unique_ptr<GrFragmentProcessor>(new GrTest());
     }
     GrTest(const GrTest& src);
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -179,6 +179,11 @@ GrTest::GrTest(const GrTest& src)
 std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {
     return std::make_unique<GrTest>(*this);
 }
+#if GR_TEST_UTILS
+SkString GrTest::dumpInfo() const {
+    return SkStringPrintf("Test");
+}
+#endif
 )__Cpp__"
          });
 }
@@ -218,22 +223,44 @@ DEF_TEST(SkSLFPInputHalf1, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-             "static std::unique_ptr<GrFragmentProcessor> Make(float value) {",
-             "return std::unique_ptr<GrFragmentProcessor>(new GrTest(value));",
-             "GrTest(float value)",
-             ", value(value)"
+R"__Cpp__(static std::unique_ptr<GrFragmentProcessor> Make(float value) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrTest(value));
+    }
+)__Cpp__",
+R"__Cpp__(GrTest(float value)
+    : INHERITED(kGrTest_ClassID, kNone_OptimizationFlags)
+    , value(value) {
+    }
+)__Cpp__",
          },
          /*expectedCPP=*/{
 R"__Cpp__(void GrTest::onGetGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const {
     b->add32(sk_bit_cast<uint32_t>(value));
-})__Cpp__",
-R"__Cpp__(fragBuilder->codeAppendf(
-R"SkSL(%s = half4(%f);
-)SkSL"
-, args.fOutputColor, _outer.value);
+}
 )__Cpp__",
-             "if (value != that.value) return false;"
-         });
+R"__Cpp__(bool GrTest::onIsEqual(const GrFragmentProcessor& other) const {
+    const GrTest& that = other.cast<GrTest>();
+    (void) that;
+    if (value != that.value) return false;
+    return true;
+}
+)__Cpp__",
+R"__Cpp__(GrTest::GrTest(const GrTest& src)
+: INHERITED(kGrTest_ClassID, src.optimizationFlags())
+, value(src.value) {
+        this->cloneAndRegisterAllChildProcessors(src);
+}
+)__Cpp__",
+R"__Cpp__(std::unique_ptr<GrFragmentProcessor> GrTest::clone() const {
+    return std::make_unique<GrTest>(*this);
+}
+)__Cpp__",
+R"__Cpp__(#if GR_TEST_UTILS
+SkString GrTest::dumpInfo() const {
+    return SkStringPrintf("Test(value=%f)", value);
+}
+)__Cpp__",
+        });
 }
 
 DEF_TEST(SkSLFPUniform, r) {
@@ -541,7 +568,7 @@ DEF_TEST(SkSLFPSections, r) {
          )__SkSL__",
          /*expectedH=*/{},
          /*expectedCPP=*/{
-R"__Cpp__(#ifdef SK_DEBUG
+R"__Cpp__(#if GR_TEST_UTILS
 SkString GrTest::dumpInfo() const {
 dump all the fields
 }

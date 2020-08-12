@@ -35,7 +35,7 @@ public:
                 new GrConfigConversionEffect(std::move(fp), pmConversion));
     }
     GrConfigConversionEffect(const GrConfigConversionEffect& src);
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;
