@@ -42,10 +42,14 @@ public:
     SharedCompiler() : fLock(compiler_mutex()) {
         if (!gCompiler) {
             gCompiler = new SkSL::Compiler{};
+            gInlineThreshold = SkSL::Program::Settings().fInlineThreshold;
         }
     }
 
     SkSL::Compiler* operator->() const { return gCompiler; }
+
+    int  getInlineThreshold() const { return gInlineThreshold; }
+    void setInlineThreshold(int threshold) { gInlineThreshold = threshold; }
 
 private:
     SkAutoMutexExclusive fLock;
@@ -56,9 +60,16 @@ private:
     }
 
     static SkSL::Compiler* gCompiler;
+    static int             gInlineThreshold;
 };
 SkSL::Compiler* SharedCompiler::gCompiler = nullptr;
+int             SharedCompiler::gInlineThreshold = 0;
 }  // namespace SkSL
+
+void SkRuntimeEffect_SetInlineThreshold(int threshold) {
+    SkSL::SharedCompiler compiler;
+    compiler.setInlineThreshold(threshold);
+}
 
 // Accepts a valid marker, or "normals(<marker>)"
 static bool parse_marker(const SkSL::StringFragment& marker, uint32_t* id, uint32_t* flags) {
@@ -106,9 +117,11 @@ static bool init_uniform_type(const SkSL::Context& ctx,
 
 SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     SkSL::SharedCompiler compiler;
+    SkSL::Program::Settings settings;
+    settings.fInlineThreshold = compiler.getInlineThreshold();
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(sksl.c_str(), sksl.size()),
-                                            SkSL::Program::Settings());
+                                            settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return std::make_tuple(nullptr, SkStringPrintf(__VA_ARGS__))
@@ -293,6 +306,7 @@ bool SkRuntimeEffect::toPipelineStage(const GrShaderCaps* shaderCaps,
     // If the supplied shaderCaps have any non-default values, we have baked in the wrong settings.
     SkSL::Program::Settings settings;
     settings.fCaps = shaderCaps;
+    settings.fInlineThreshold = compiler.getInlineThreshold();
 
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(fSkSL.c_str(), fSkSL.size()),
