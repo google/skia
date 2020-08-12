@@ -940,11 +940,11 @@ static void dummy_done_proc(void*) {}
 ////////////////////////////////////////////////////////////////////////////////
 // Test out the behavior of an invalid DDLRecorder
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     {
         SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
-        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, ii);
 
         SkSurfaceCharacterization characterization;
         SkAssertResult(s->characterize(&characterization));
@@ -963,8 +963,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !recorder.getCanvas());
         REPORTER_ASSERT(reporter, !recorder.detach());
 
-        GrBackendFormat format = context->defaultBackendFormat(kRGBA_8888_SkColorType,
-                                                               GrRenderable::kNo);
+        GrBackendFormat format = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                                GrRenderable::kNo);
         SkASSERT(format.isValid());
 
         sk_sp<SkImage> image = recorder.makePromiseTexture(
@@ -978,6 +978,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
                 nullptr,
                 SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         REPORTER_ASSERT(reporter, !image);
+    }
+
+    // Check the case where we can't create a render target proxy for the requested destination
+    {
+        size_t maxResourceBytes = dContext->getResourceCacheLimit();
+
+        SkImageInfo ii = SkImageInfo::Make(1048576, 1048576, kRGBA_8888_SkColorType,
+                                           kPremul_SkAlphaType, nullptr);
+
+        GrBackendFormat backendFormat = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                                       GrRenderable::kYes);
+        SkASSERT(backendFormat.isValid());
+
+        const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
+        SkSurfaceCharacterization c = dContext->threadSafeProxy()->createCharacterization(
+                                                maxResourceBytes, ii, backendFormat, 1,
+                                                kBottomLeft_GrSurfaceOrigin, surfaceProps, false);
+        // TODO: perhaps we should baulk at this point
+        REPORTER_ASSERT(reporter, c.isValid());
+
+        SkDeferredDisplayListRecorder recorder(c);
+        REPORTER_ASSERT(reporter, !recorder.getCanvas());
+        REPORTER_ASSERT(reporter, !recorder.detach());
     }
 
 }
