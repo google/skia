@@ -75,11 +75,14 @@ public:
      */
     virtual GrOpsTask* asOpsTask() { return nullptr; }
 
-#ifdef SK_DEBUG
+#if GR_TEST_UTILS
     /*
      * Dump out the GrRenderTask dependency DAG
      */
     virtual void dump(bool printDependencies) const;
+#endif
+
+#ifdef SK_DEBUG
     virtual const char* name() const = 0;
 
     virtual int numClips() const { return 0; }
