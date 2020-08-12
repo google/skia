@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1b25af4_30adce07",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-12T13:21:04Z",
+      "side": 1,
+      "message": "nice",
+      "revId": "8a63670e673000aaa38dbe6bde4cee81e1b05bcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8906b9_27d45c9c",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-12T13:21:04Z",
+      "side": 1,
+      "message": "Kinda curious if this can just be removed. I imaging all callers are inside GR_TEST_UTILS blocks.",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 89
+      },
+      "revId": "8a63670e673000aaa38dbe6bde4cee81e1b05bcc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
