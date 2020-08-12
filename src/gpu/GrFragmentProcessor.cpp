@@ -75,7 +75,7 @@ const GrTextureEffect* GrFragmentProcessor::asTextureEffect() const {
     return nullptr;
 }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 static void recursive_dump_tree_info(const GrFragmentProcessor& fp,
                                      SkString indent,
                                      SkString* text) {

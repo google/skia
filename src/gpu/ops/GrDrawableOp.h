@@ -26,7 +26,7 @@ public:
 
     const char* name() const override { return "Drawable"; }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         return INHERITED::dumpInfo();
     }

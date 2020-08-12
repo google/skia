@@ -276,7 +276,7 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString str;
         str.appendf("# draws: %d\n", fQuads.count());
@@ -308,9 +308,7 @@ public:
         str += INHERITED::dumpInfo();
         return str;
     }
-#endif
 
-#ifdef SK_DEBUG
     static void ValidateResourceLimits() {
         // The op implementation has an upper bound on the number of quads that it can represent.
         // However, the resource manager imposes its own limit on the number of quads, which should

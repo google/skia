@@ -78,7 +78,7 @@ public:
                       const SkRect& thisBounds, const SkRect& thatBounds,
                       bool ignoreAAType = false) const;
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const;
 #endif
 

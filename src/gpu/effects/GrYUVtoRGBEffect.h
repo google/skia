@@ -23,7 +23,7 @@ public:
                                                      const SkMatrix& localMatrix = SkMatrix::I(),
                                                      const SkRect* subset = nullptr,
                                                      const SkRect* domain = nullptr);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
 

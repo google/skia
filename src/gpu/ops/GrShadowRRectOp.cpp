@@ -239,7 +239,7 @@ public:
 
     const char* name() const override { return "ShadowCircularRRectOp"; }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override {
         SkString string;
         for (int i = 0; i < fGeoData.count(); ++i) {

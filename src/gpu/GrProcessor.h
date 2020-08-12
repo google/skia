@@ -184,7 +184,7 @@ public:
     virtual const char* name() const = 0;
 
     /** Human-readable dump of all information */
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     virtual SkString dumpInfo() const {
         return SkString(name());
     }

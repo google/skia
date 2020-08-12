@@ -92,7 +92,7 @@ void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
     fProcessors.visitProxies(func);
 }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrAtlasTextOp::dumpInfo() const {
     SkString str;
 
