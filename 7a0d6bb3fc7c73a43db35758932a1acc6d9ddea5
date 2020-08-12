@@ -16,6 +16,23 @@
       "revId": "7a0d6bb3fc7c73a43db35758932a1acc6d9ddea5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49a6486d_50211d03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-12T15:11:27Z",
+      "side": 1,
+      "message": "Why don\u0027t we wait for Canary-Flutter to pass before landing?  I think you can add that to Cq-Include-Trybots if you like.",
+      "revId": "7a0d6bb3fc7c73a43db35758932a1acc6d9ddea5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
