@@ -121,9 +121,8 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString str;
-        str.appendf("# draws: %u\n", fQuads.count());
+    SkString onDumpInfo() const override {
+        SkString str = SkStringPrintf("# draws: %u\n", fQuads.count());
         str.appendf("Device quad type: %u, local quad type: %u\n",
                     (uint32_t) fQuads.deviceQuadType(), (uint32_t) fQuads.localQuadType());
         str += fHelper.dumpInfo();
@@ -135,7 +134,6 @@ public:
                                   info.fColor, info.fAAFlags);
             i++;
         }
-        str += INHERITED::dumpInfo();
         return str;
     }
 #endif

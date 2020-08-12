@@ -277,9 +277,8 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString str;
-        str.appendf("# draws: %d\n", fQuads.count());
+    SkString onDumpInfo() const override {
+        SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
         auto iter = fQuads.iterator();
         for (unsigned p = 0; p < fMetadata.fProxyCount; ++p) {
             str.appendf("Proxy ID: %d, Filter: %d, MM: %d\n",
@@ -305,7 +304,6 @@ public:
                 i++;
             }
         }
-        str += INHERITED::dumpInfo();
         return str;
     }
 #endif

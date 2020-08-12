@@ -93,7 +93,7 @@ void GrAtlasTextOp::visitProxies(const VisitProxyFunc& func) const {
 }
 
 #if GR_TEST_UTILS
-SkString GrAtlasTextOp::dumpInfo() const {
+SkString GrAtlasTextOp::onDumpInfo() const {
     SkString str;
 
     for (int i = 0; i < fGeoCount; ++i) {
@@ -105,7 +105,6 @@ SkString GrAtlasTextOp::dumpInfo() const {
     }
 
     str += fProcessors.dumpProcessors();
-    str += INHERITED::dumpInfo();
     return str;
 }
 #endif
