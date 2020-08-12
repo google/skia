@@ -140,7 +140,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		keys = append(keys, "renderer", "skottie")
 	}
 	if b.matchExtraConfig("DDL") {
-		// 'DDL' style means "--skpViewportSize 2048 --pr ~small"
+		// 'DDL' style means "--skpViewportSize 2048"
 		keys = append(keys, "style", "DDL")
 	} else {
 		keys = append(keys, "style", "default")
@@ -468,7 +468,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// This bot generates comparison images for the large skps and the gms
 			configs = filter(configs, "gl", "vk", "mtl")
 			args = append(args, "--skpViewportSize", "2048")
-			args = append(args, "--pr", "~small")
 		}
 		if b.extraConfig("DDL3") {
 			// This bot generates the real ddl images for the large skps and the gms
