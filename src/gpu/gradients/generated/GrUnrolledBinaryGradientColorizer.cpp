@@ -344,7 +344,7 @@ GrUnrolledBinaryGradientColorizer::GrUnrolledBinaryGradientColorizer(
 std::unique_ptr<GrFragmentProcessor> GrUnrolledBinaryGradientColorizer::clone() const {
     return std::make_unique<GrUnrolledBinaryGradientColorizer>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrUnrolledBinaryGradientColorizer::dumpInfo() const {
     return SkStringPrintf(
             "UnrolledBinaryGradientColorizer(intervalCount=%d, scale0_1=float4(%f, %f, %f, %f), "

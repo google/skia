@@ -114,7 +114,7 @@ GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& 
 std::unique_ptr<GrFragmentProcessor> GrClampedGradientEffect::clone() const {
     return std::make_unique<GrClampedGradientEffect>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrClampedGradientEffect::dumpInfo() const {
     return SkStringPrintf(
             "ClampedGradientEffect(leftBorderColor=half4(%f, %f, %f, %f), "

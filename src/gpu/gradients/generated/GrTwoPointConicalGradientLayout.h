@@ -27,7 +27,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(const SkTwoPointConicalGradient& gradient,
                                                      const GrFPArgs& args);
     GrTwoPointConicalGradientLayout(const GrTwoPointConicalGradientLayout& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

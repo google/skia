@@ -31,7 +31,7 @@ public:
                 new GrClampFragmentProcessor(std::move(inputFP), clampToPremul));
     }
     GrClampFragmentProcessor(const GrClampFragmentProcessor& src);
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
     SkString dumpInfo() const override;
 #endif
     std::unique_ptr<GrFragmentProcessor> clone() const override;

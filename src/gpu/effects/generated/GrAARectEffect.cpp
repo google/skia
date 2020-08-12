@@ -110,7 +110,7 @@ GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
 std::unique_ptr<GrFragmentProcessor> GrAARectEffect::clone() const {
     return std::make_unique<GrAARectEffect>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrAARectEffect::dumpInfo() const {
     return SkStringPrintf("AARectEffect(edgeType=%d, rect=float4(%f, %f, %f, %f))", (int)edgeType,
                           rect.left(), rect.top(), rect.right(), rect.bottom());

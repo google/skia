@@ -163,7 +163,7 @@ GrHighContrastFilterEffect::GrHighContrastFilterEffect(const GrHighContrastFilte
 std::unique_ptr<GrFragmentProcessor> GrHighContrastFilterEffect::clone() const {
     return std::make_unique<GrHighContrastFilterEffect>(*this);
 }
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 SkString GrHighContrastFilterEffect::dumpInfo() const {
     return SkStringPrintf(
             "HighContrastFilterEffect(contrastMod=%f, hasContrast=%s, grayscale=%s, "
