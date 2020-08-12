@@ -857,13 +857,10 @@ public:
     }
 
 #if GR_TEST_UTILS
-    SkString dumpInfo() const override {
-        SkString string;
-        string.appendf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n", fColor.toBytes_RGBA(),
-                       fCoverage, fPaths.count());
-        string += INHERITED::dumpInfo();
-        string += fHelper.dumpInfo();
-        return string;
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n%s",
+                              fColor.toBytes_RGBA(), fCoverage, fPaths.count(),
+                              fHelper.dumpInfo().c_str());
     }
 #endif
 
