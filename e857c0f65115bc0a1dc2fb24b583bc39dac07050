@@ -65,6 +65,54 @@
     },
     {
       "key": {
+        "uuid": "45e3934f_5067c6b0",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-13T14:02:56Z",
+      "side": 1,
+      "message": "Ack.\n\nFor some data points, Google\u0027s style guide has pre-adopted designated initializers, and Chromium doesn\u0027t mention them, but Chromium is not planning to use this code.",
+      "parentUuid": "960dc89d_073ad9fc",
+      "range": {
+        "startLine": 20,
+        "startChar": 8,
+        "endLine": 20,
+        "endChar": 17
+      },
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a250c35_d7c4b3ab",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-13T14:02:56Z",
+      "side": 1,
+      "message": "Yes, and we do - inside AndroidBitmap_compress. I figured it was simpler not to bail here since it would be caught later. But it probably deserves a comment.\n\nI\u0027m not aware of Android devices where int is bigger than uint32_t, but the NdkEncode_badInfo test is intended to imitate this case by passing zero. (It does include a test for a stride that doesn\u0027t fit.)",
+      "parentUuid": "1015d0ce_d1b983b5",
+      "range": {
+        "startLine": 20,
+        "startChar": 18,
+        "endLine": 20,
+        "endChar": 27
+      },
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbce30db_731d88a8",
         "filename": "src/ports/SkImageEncoder_NDK.cpp",
         "patchSetId": 5
@@ -79,6 +127,24 @@
       "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6af1563c_537b5f4a",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-13T14:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbce30db_731d88a8",
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -102,6 +168,30 @@
       "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "829c6fcd_154a7639",
+        "filename": "src/ports/SkImageEncoder_NDK.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-13T14:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b87999d_f9422c92",
+      "range": {
+        "startLine": 63,
+        "startChar": 45,
+        "endLine": 63,
+        "endChar": 60
+      },
+      "revId": "e857c0f65115bc0a1dc2fb24b583bc39dac07050",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

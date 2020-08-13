@@ -16,6 +16,24 @@
       "revId": "a1df23c8b71e193d2facfc3c6af79626f47d4666",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "58537bc0_c364b2d0",
+        "filename": "tools/ToolUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-13T14:02:56Z",
+      "side": 0,
+      "message": "Moved to https://skia-review.googlesource.com/c/skia/+/309958",
+      "parentUuid": "8292f8a7_c6d5ddd5",
+      "revId": "a1df23c8b71e193d2facfc3c6af79626f47d4666",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
