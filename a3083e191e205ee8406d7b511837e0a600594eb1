@@ -16,6 +16,97 @@
       "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79f4e9af_d8b6748b",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T19:53:22Z",
+      "side": 1,
+      "message": "consider refactoring init() so that it only takes the input stream so that you don\u0027t need 2 init functions.  The constructors can then take care of setting mSurfaceHolder or mSurfaceTexture instead of deferring that to the init.",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6271389_661fce0a",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T19:53:22Z",
+      "side": 1,
+      "message": "any thoughts on how we can avoid duplicated code with the other updateSurface call?",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df2b86f6_0aa4dd3d",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T19:53:22Z",
+      "side": 1,
+      "message": "why does the other updateSurface not have the mValidSurface check?",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "952a78f8_16fcd1b8",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T19:53:22Z",
+      "side": 1,
+      "message": "if (mSurfaceTexture !\u003d null) { \n  mEglSurface \u003d ...\n} else if (mSurfaceHolder !\u003d null) {\n  mEglSurface \u003d ...\n}\n\nThen you don\u0027t need to duplicate the error message.",
+      "range": {
+        "startLine": 496,
+        "startChar": 0,
+        "endLine": 498,
+        "endChar": 55
+      },
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e09396eb_6331001f",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T19:53:22Z",
+      "side": 1,
+      "message": "so this sets it to false just to set it right back to true in onSurfaceTextureAvailable? why?",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
