@@ -10,6 +10,7 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrManagedResource.h"
+#include "src/gpu/vk/GrVkFence.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkSemaphore.h"
 #include "src/gpu/vk/GrVkUtil.h"
@@ -311,16 +312,14 @@ public:
     void recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool);
 
 private:
-    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer)
-        : INHERITED(cmdBuffer)
-        , fSubmitFence(VK_NULL_HANDLE) {}
+    explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer) : INHERITED(cmdBuffer) {}
 
     void onFreeGPUData(const GrVkGpu* gpu) const override;
 
     void onReleaseResources() override;
 
     SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
-    VkFence                                                     fSubmitFence;
+    sk_sp<GrVkFence>                                            fSubmitFence;
     SkTArray<sk_sp<GrRefCntedCallback>>                         fFinishedProcs;
 
     typedef GrVkCommandBuffer INHERITED;
