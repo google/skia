@@ -22,6 +22,30 @@
       "revId": "7205ded186f7b1c112d6d121ba4c45e8586bceb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25df5b19_6f5c063f",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-13T17:37:48Z",
+      "side": 1,
+      "message": "From what I can tell FBO0 is only limited by the size of the resources bound to it so I think we\u0027re still okay.",
+      "parentUuid": "cc881149_e81bd3dd",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 5
+      },
+      "revId": "7205ded186f7b1c112d6d121ba4c45e8586bceb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
