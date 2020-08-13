@@ -13,6 +13,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkIPoint16.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/GrDeferredUpload.h"
@@ -112,7 +113,16 @@ public:
 
     class AtlasLocator {
     public:
-        std::array<uint16_t, 4> getUVs() const;
+
+        std::array<uint16_t, 4> getUVs() const {
+
+            // We pack the 2bit page index in the low bit of the u and v texture coords
+            uint32_t pageIndex = this->pageIndex();
+            auto [left, top] = PackIndexInTexCoords(fRect.fLeft, fRect.fTop, pageIndex);
+            auto [right, bottom] = PackIndexInTexCoords(fRect.fRight, fRect.fBottom, pageIndex);
+            return { left, top, right, bottom };
+        }
+
 
         void invalidatePlotLocator() { fPlotLocator.makeInvalid(); }
 
@@ -132,7 +142,9 @@ public:
             fRect.fBottom -= padding;
         }
 
-        GrIRect16 rect() const { return fRect; }
+        skvx::Vec<4,int> rect() const {
+            return {fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom};
+        }
 
     private:
         friend class GrDrawOpAtlas;
@@ -203,8 +215,21 @@ public:
                            Must be in the range [0, 3].
      *  @return    The new u and v coordinates with the packed value
      */
+
+    // The two bits that make up the texture index are packed into the lower bits of the u and v
+    // coordinate respectively.
     static std::pair<uint16_t, uint16_t> PackIndexInTexCoords(uint16_t u, uint16_t v,
-                                                              int pageIndex);
+                                                                      int pageIndex) {
+        SkASSERT(pageIndex >= 0 && pageIndex < 4);
+        uint16_t uBit = (pageIndex >> 1u) & 0x1u;
+        uint16_t vBit = pageIndex & 0x1u;
+        u <<= 1u;
+        u |= uBit;
+        v <<= 1u;
+        v |= vBit;
+        return std::make_pair(u, v);
+    }
+
     /**
      * Unpacks a texture atlas page index from uint16 texture coordinates.
      *  @param u      Packed U texture coordinate
