@@ -13,6 +13,7 @@
 #include "src/gpu/GrSamplerState.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
+#include "src/gpu/vk/GrVkFence.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
@@ -449,6 +450,10 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
     }
     fDescriptorSetManagers.reset();
 
+    for (GrVkFence* fence : fAvaliableFences) {
+        SkASSERT(fence->unique());
+        fence->unref();
+    }
 }
 
 void GrVkResourceProvider::backgroundReset(GrVkCommandPool* pool) {
@@ -471,6 +476,25 @@ void GrVkResourceProvider::reset(GrVkCommandPool* pool) {
     pool->reset(fGpu);
     std::unique_lock<std::recursive_mutex> providerLock(fBackgroundMutex);
     fAvailableCommandPools.push_back(pool);
+}
+
+GrVkFence* GrVkResourceProvider::getOrCreateFence() {
+    GrVkFence* fence = nullptr;
+    int count = fAvaliableFences.count();
+    if (count > 0) {
+        fence = fAvaliableFences[count - 1];
+        fAvaliableFences.removeShuffle(count - 1);
+    } else {
+        fence = GrVkFence::CreateResource(fGpu);
+    }
+    return fence;
+}
+
+void GrVkResourceProvider::recycleFence(GrVkFence* fence) {
+    SkASSERT(fence->unique());
+    SkASSERT(fence->isSignaled(fGpu));
+    fence->reset(fGpu);
+    fAvaliableFences.push_back(fence);
 }
 
 void GrVkResourceProvider::storePipelineCacheData() {
