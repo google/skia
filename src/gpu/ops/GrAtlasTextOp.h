@@ -43,10 +43,6 @@ public:
 
     void visitProxies(const VisitProxyFunc& func) const override;
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
-
     FixedFunctionFlags fixedFunctionFlags() const override;
 
     GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*,
@@ -129,6 +125,10 @@ private:
 
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 
     GrMaskFormat maskFormat() const {
         switch (fMaskType) {

@@ -173,21 +173,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString str;
-
-        for (int i = 0; i < fPatches.count(); ++i) {
-            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
-                        fPatches[i].fColor.toBytes_RGBA(), fPatches[i].fDst.fLeft,
-                        fPatches[i].fDst.fTop, fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
-        }
-
-        str += fHelper.dumpInfo();
-        return str;
-    }
-#endif
-
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     GrProcessorSet::Analysis finalize(
@@ -339,6 +324,21 @@ private:
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString str;
+
+        for (int i = 0; i < fPatches.count(); ++i) {
+            str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
+                        fPatches[i].fColor.toBytes_RGBA(), fPatches[i].fDst.fLeft,
+                        fPatches[i].fDst.fTop, fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);
+        }
+
+        str += fHelper.dumpInfo();
+        return str;
+    }
+#endif
 
     struct Patch {
         SkMatrix fViewMatrix;
