@@ -46,6 +46,30 @@
       "revId": "b0673562e0dfff9840ffb71fbd07d18e3e1aa6fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d399e31_e94dbd78",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2158,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-13T18:36:40Z",
+      "side": 1,
+      "message": "I\u0027ve taken another stab at it, PTAL?",
+      "parentUuid": "d5b4b342_5a1b68ec",
+      "range": {
+        "startLine": 2158,
+        "startChar": 57,
+        "endLine": 2158,
+        "endChar": 88
+      },
+      "revId": "b0673562e0dfff9840ffb71fbd07d18e3e1aa6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
