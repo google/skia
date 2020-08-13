@@ -7,8 +7,8 @@
 
 #if SK_SUPPORT_GPU
 
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 
 #ifdef SK_GL
