@@ -99,15 +99,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        return SkStringPrintf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                              "StrokeWidth: %.2f\n%s",
-                              fColor.toBytes_RGBA(), fRect.fLeft, fRect.fTop, fRect.fRight,
-                              fRect.fBottom, fStrokeWidth, fHelper.dumpInfo().c_str());
-    }
-#endif
-
     static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
@@ -250,6 +241,15 @@ private:
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Color: 0x%08x, Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                              "StrokeWidth: %.2f\n%s",
+                              fColor.toBytes_RGBA(), fRect.fLeft, fRect.fTop, fRect.fRight,
+                              fRect.fBottom, fStrokeWidth, fHelper.dumpInfo().c_str());
+    }
+#endif
 
     // TODO: override onCombineIfPossible
 
@@ -423,25 +423,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (const auto& info : fRects) {
-            string.appendf(
-                    "Color: 0x%08x, ORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                    "AssistORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                    "IRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], Degen: %d",
-                    info.fColor.toBytes_RGBA(), info.fDevOutside.fLeft, info.fDevOutside.fTop,
-                    info.fDevOutside.fRight, info.fDevOutside.fBottom, info.fDevOutsideAssist.fLeft,
-                    info.fDevOutsideAssist.fTop, info.fDevOutsideAssist.fRight,
-                    info.fDevOutsideAssist.fBottom, info.fDevInside.fLeft, info.fDevInside.fTop,
-                    info.fDevInside.fRight, info.fDevInside.fBottom, info.fDegenerate);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     GrProcessorSet::Analysis finalize(
@@ -463,6 +444,25 @@ private:
 
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (const auto& info : fRects) {
+            string.appendf(
+                    "Color: 0x%08x, ORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                    "AssistORect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                    "IRect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], Degen: %d",
+                    info.fColor.toBytes_RGBA(), info.fDevOutside.fLeft, info.fDevOutside.fTop,
+                    info.fDevOutside.fRight, info.fDevOutside.fBottom, info.fDevOutsideAssist.fLeft,
+                    info.fDevOutsideAssist.fTop, info.fDevOutsideAssist.fRight,
+                    info.fDevOutsideAssist.fBottom, info.fDevInside.fLeft, info.fDevInside.fTop,
+                    info.fDevInside.fRight, info.fDevInside.fBottom, info.fDegenerate);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
 
     static const int kMiterIndexCnt = 3 * 24;
     static const int kMiterVertexCnt = 16;
