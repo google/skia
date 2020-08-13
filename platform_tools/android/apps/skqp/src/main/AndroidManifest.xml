@@ -11,7 +11,9 @@
       android:theme="@style/AppTheme"
       android:label="SkQP">
 
-      <activity android:name=".MainActivity">
+      <activity
+          android:name=".MainActivity"
+          android:exported="true">
           <intent-filter>
               <action android:name="android.intent.action.MAIN" />
               <category android:name="android.intent.category.LAUNCHER" />
@@ -20,7 +22,8 @@
       <activity
           android:name=".SkQPActivity"
           android:label="@string/title_activity_skqp"
-          android:theme="@style/AppTheme.NoActionBar">
+          android:theme="@style/AppTheme.NoActionBar"
+          android:exported="true">
           <intent-filter>
               <action android:name="com.google.intent.action.TEST_LOOP"/>
               <category android:name="android.intent.category.DEFAULT"/>
