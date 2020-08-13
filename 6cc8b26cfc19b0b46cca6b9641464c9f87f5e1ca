@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecdee13f_c25776d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-13T12:57:22Z",
+      "side": 1,
+      "message": "Our use of protected is often wrong. From ancient days Skia has used protected where private would be more appropriate, though newer code tries to be better. It seems like it\u0027s never appropriate for anything other than dumpInfo() to ever call onDumpInfo() so I\u0027d make these private.",
+      "revId": "6cc8b26cfc19b0b46cca6b9641464c9f87f5e1ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
