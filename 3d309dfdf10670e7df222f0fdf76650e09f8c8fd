@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cab9d014_1794d14d",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-13T13:03:03Z",
+      "side": 1,
+      "message": "yea, definitely a copy/paste bug",
+      "parentUuid": "2c210404_b9afc973",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 16
+      },
+      "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ded2d05f_c6481cca",
         "filename": "src/ports/SkAudioPlayer.cpp",
         "patchSetId": 7
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "626e90a4_5184e2e2",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-13T13:03:03Z",
+      "side": 1,
+      "message": "Not sure yet. I will remove from here for now. I am seeing wacky stuff when I scrub \"too often\"...",
+      "parentUuid": "ded2d05f_c6481cca",
+      "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e242813_0df500ef",
         "filename": "src/ports/SkAudioPlayer.cpp",
         "patchSetId": 7
@@ -53,6 +95,24 @@
       "writtenOn": "2020-08-13T01:43:36Z",
       "side": 1,
       "message": "Another option would be to clamp t?",
+      "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3be7d33_05f9cea1",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-13T13:03:03Z",
+      "side": 1,
+      "message": "Sure, possibly in setTime as well...\n\nWhat if I get NaN?",
+      "parentUuid": "9e242813_0df500ef",
       "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
