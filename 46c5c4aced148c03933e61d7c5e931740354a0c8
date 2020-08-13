@@ -16,6 +16,24 @@
       "revId": "46c5c4aced148c03933e61d7c5e931740354a0c8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1598ea63_28483985",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-13T12:54:56Z",
+      "side": 1,
+      "message": "Oh just saw the follow up! 😊",
+      "parentUuid": "477b7633_93198cab",
+      "revId": "46c5c4aced148c03933e61d7c5e931740354a0c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
