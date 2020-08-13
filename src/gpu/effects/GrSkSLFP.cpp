@@ -106,10 +106,25 @@ public:
                                       body.c_str(),
                                       &fFunctionNames.back());
         }
+#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
         fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         auto fmtArgIter = fArgs.fFormatArgs.cbegin();
         fragBuilder->codeAppend(this->expandFormatArgs(fArgs.fCode, args, fmtArgIter).c_str());
         SkASSERT(fmtArgIter == fArgs.fFormatArgs.cend());
+#else
+        fFunctionNames.emplace_back();
+        auto fmtArgIter = fArgs.fMain.fFormatArgs.cbegin();
+        SkSL::String mainBody = this->expandFormatArgs(fArgs.fMain.fBody, args, fmtArgIter);
+        SkASSERT(fmtArgIter == fArgs.fMain.fFormatArgs.cend());
+        fragBuilder->emitFunction(fArgs.fMain.fReturnType,
+                                  fArgs.fMain.fName.c_str(),
+                                  fArgs.fMain.fParameters.size(),
+                                  fArgs.fMain.fParameters.data(),
+                                  mainBody.c_str(),
+                                  &fFunctionNames.back());
+        fragBuilder->codeAppendf("%s = %s(%s);", args.fOutputColor, fFunctionNames.back().c_str(),
+                                 fArgs.fMain.fParameters.size() == 1 ? args.fSampleCoord : "");
+#endif
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,

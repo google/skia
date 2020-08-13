@@ -250,8 +250,12 @@ private:
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 struct PipelineStageArgs {
+#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
     String fCode;
     std::vector<Compiler::FormatArg>    fFormatArgs;
+#else
+    Compiler::GLSLFunction fMain;
+#endif
     std::vector<Compiler::GLSLFunction> fFunctions;
 };
 #endif

@@ -60,11 +60,11 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
         }
         SkASSERT(found);
-        size_t childCallIndex = fArgs->fFormatArgs.size();
+        size_t childCallIndex = fArgs->fMain.fFormatArgs.size();
         this->write(Compiler::kFormatArgPlaceholderStr);
         bool matrixCall =
                 c.fArguments.size() == 2 && c.fArguments[1]->fType.kind() == Type::kMatrix_Kind;
-        fArgs->fFormatArgs.push_back(Compiler::FormatArg(
+        fArgs->fMain.fFormatArgs.push_back(Compiler::FormatArg(
                 matrixCall ? Compiler::FormatArg::Kind::kChildProcessorWithMatrix
                            : Compiler::FormatArg::Kind::kChildProcessor,
                 index));
@@ -74,7 +74,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             fOut = &buffer;
             this->writeExpression(*c.fArguments[1], kSequence_Precedence);
             fOut = oldOut;
-            fArgs->fFormatArgs[childCallIndex].fCoords = buffer.str();
+            fArgs->fMain.fFormatArgs[childCallIndex].fCoords = buffer.str();
         }
         return;
     }
@@ -91,7 +91,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
         }
         this->write(Compiler::kFormatArgPlaceholderStr);
-        fArgs->fFormatArgs.push_back(
+        fArgs->fMain.fFormatArgs.push_back(
                 Compiler::FormatArg(Compiler::FormatArg::Kind::kFunctionName, index));
         this->write("(");
         const char* separator = "";
@@ -112,11 +112,13 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_OUTCOLOR_BUILTIN:
             this->write(Compiler::kFormatArgPlaceholderStr);
-            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
+            fArgs->fMain.fFormatArgs.push_back(
+                    Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
             break;
         case SK_MAIN_COORDS_BUILTIN:
             this->write(Compiler::kFormatArgPlaceholderStr);
-            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kCoords));
+            fArgs->fMain.fFormatArgs.push_back(
+                    Compiler::FormatArg(Compiler::FormatArg::Kind::kCoords));
             break;
         default: {
             auto varIndexByFlag = [this, &ref](uint32_t flag) {
@@ -146,7 +148,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
 
             if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                 this->write(Compiler::kFormatArgPlaceholderStr);
-                fArgs->fFormatArgs.push_back(
+                fArgs->fMain.fFormatArgs.push_back(
                         Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                             varIndexByFlag(Modifiers::kUniform_Flag)));
             } else if (ref.fVariable.fModifiers.fFlags & Modifiers::kVarying_Flag) {
@@ -178,7 +180,29 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
+
+    const FunctionDeclaration& decl = f.fDeclaration;
+    auto extractSignature = [&](Compiler::GLSLFunction* func) {
+        func->fName = decl.fName;
+        if (!type_to_grsltype(fContext, decl.fReturnType, &func->fReturnType)) {
+            fErrors.error(f.fOffset, "unsupported return type");
+            return false;
+        }
+        for (const Variable* v : decl.fParameters) {
+            GrSLType paramSLType;
+            if (!type_to_grsltype(fContext, v->fType, &paramSLType)) {
+                fErrors.error(v->fOffset, "unsupported parameter type");
+                return false;
+            }
+            func->fParameters.emplace_back(v->fName, paramSLType);
+        }
+        return true;
+    };
+
     if (f.fDeclaration.fName == "main") {
+        if (!extractSignature(&fArgs->fMain)) {
+            return;
+        }
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
             this->writeLine();
@@ -187,20 +211,9 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write(fFunctionHeader);
         this->write(buffer.str());
     } else {
-        const FunctionDeclaration& decl = f.fDeclaration;
         Compiler::GLSLFunction result;
-        if (!type_to_grsltype(fContext, decl.fReturnType, &result.fReturnType)) {
-            fErrors.error(f.fOffset, "unsupported return type");
+        if (!extractSignature(&result)) {
             return;
-        }
-        result.fName = decl.fName;
-        for (const Variable* v : decl.fParameters) {
-            GrSLType paramSLType;
-            if (!type_to_grsltype(fContext, v->fType, &paramSLType)) {
-                fErrors.error(v->fOffset, "unsupported parameter type");
-                return;
-            }
-            result.fParameters.emplace_back(v->fName, paramSLType);
         }
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
@@ -208,7 +221,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         fOut = oldOut;
         result.fBody = buffer.str();
-        result.fFormatArgs = std::move(fArgs->fFormatArgs);
+        result.fFormatArgs = std::move(fArgs->fMain.fFormatArgs);
         fArgs->fFunctions.push_back(result);
     }
 }

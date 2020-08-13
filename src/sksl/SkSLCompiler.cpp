@@ -1793,7 +1793,7 @@ bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
-        outArgs->fCode = buffer.str();
+        outArgs->fMain.fBody = buffer.str();
     }
     return result;
 }
