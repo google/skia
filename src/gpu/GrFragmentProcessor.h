@@ -127,6 +127,10 @@ public:
         }
     }
 
+    // Any fragment processor whose generated code only works within a function (eg, early returns)
+    // should return true. Other top-level FPs will have their code emitted directly.
+    virtual bool mustBeEnclosedInFunction() const { return false; }
+
     int numVaryingCoordsUsed() const { return this->usesVaryingCoordsDirectly() ? 1 : 0; }
 
     int numChildProcessors() const { return fChildProcessors.count(); }
