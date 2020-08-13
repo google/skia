@@ -459,6 +459,7 @@ optional("fontmgr_mac_ct") {
       # AppKit symbols NSFontWeightXXX may be dlsym'ed.
       "AppKit.framework",
       "ApplicationServices.framework",
+      "AVFoundation.framework",
     ]
   }
 
@@ -2500,6 +2501,7 @@ if (skia_enable_tools) {
     test_app("viewer") {
       is_shared_library = is_android
       sources = [
+        "src/ports/SkAudioPlayer.cpp",
         "tools/viewer/AnimTimer.h",
         "tools/viewer/BisectSlide.cpp",
         "tools/viewer/GMSlide.cpp",
@@ -2551,6 +2553,11 @@ if (skia_enable_tools) {
           #that we replicated in our third_party/spirv-tools/BUILD.gn
           "//third_party/spirv-tools:spvtools_val",
         ]
+      }
+      if (is_mac) {
+        sources += [ "src/ports/SkAudioPlayer_mac.mm" ]
+      } else {
+        sources += [ "src/ports/SkAudioPlayer_none.cpp" ]
       }
     }
   }
