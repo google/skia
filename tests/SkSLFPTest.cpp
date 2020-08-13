@@ -1118,6 +1118,39 @@ half4 _inlineArghalf4loopyhalf41_0 = %s;
          });
 }
 
+DEF_TEST(SkSLFPIfStatementWithReturnInsideCanBeInlined, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 branchy(half4 c) {
+                 if (c.z == c.w) return c.yyyy; else return c.zzzz;
+             }
+             void main() {
+                 sk_OutColor = branchy(sk_InColor);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(half4 _inlineResulthalf4branchyhalf40;
+half4 _inlineArghalf4branchyhalf41_0 = %s;
+do {
+    if (_inlineArghalf4branchyhalf41_0.z == _inlineArghalf4branchyhalf41_0.w) {
+        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.yyyy;
+        break;
+    } else {
+        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.zzzz;
+        break;
+    }
+} while (false);
+%s = _inlineResulthalf4branchyhalf40;
+
+)SkSL"
+, args.fInputColor, args.fOutputColor);
+)__Cpp__",
+         });
+}
+
 DEF_TEST(SkSLFPMatrixSampleConstant, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
