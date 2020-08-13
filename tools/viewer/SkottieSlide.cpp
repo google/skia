@@ -12,7 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTime.h"
-#include "include/ports/SkAudioPlayer.h"
+#include "modules/audioplayer/SkAudioPlayer.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"

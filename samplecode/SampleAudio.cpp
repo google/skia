@@ -7,7 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
-#include "include/ports/SkAudioPlayer.h"
+#include "modules/audioplayer/SkAudioPlayer.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkUtils.h"
 #include "tools/Resources.h"
