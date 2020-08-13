@@ -21,7 +21,7 @@
 
 DEF_TEST(SkRuntimeEffectInvalid, r) {
     auto test = [r](const char* hdr, const char* body, const char* expected) {
-        SkString src = SkStringPrintf("%s void main(float2 p, inout half4 color) { %s }",
+        SkString src = SkStringPrintf("%s half4 main(float2 p) { %s return half4(0); }",
                                       hdr, body);
         auto[effect, errorText] = SkRuntimeEffect::Make(src);
         REPORTER_ASSERT(r, !effect);
@@ -52,7 +52,7 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
     // 'marker' is only permitted on float4x4 uniforms
     test("layout(marker=local_to_world) uniform float3x3 localToWorld;", "", "float4x4");
 
-    test("half missing();", "color.r = missing();", "undefined function");
+    test("float missing();", "p.x = missing();", "undefined function");
 
     // Shouldn't be possible to create an SkRuntimeEffect without "main"
     test("//", "", "main");
@@ -62,20 +62,20 @@ DEF_TEST(SkRuntimeEffectInvalid, r) {
          "shader child;",
          "must be global");
     test("in shader child; half4 helper(shader fp) { return sample(fp); }",
-         "color = helper(child);",
+         "half4 color = helper(child);",
          "parameter");
     test("in shader child; shader get_child() { return child; }",
-         "color = sample(get_child());",
+         "half4 color = sample(get_child());",
          "return");
     test("in shader child;",
-         "color = sample(shader(child));",
+         "half4 color = sample(shader(child));",
          "construct");
     test("in shader child1; in shader child2;",
-         "color = sample(p.x > 10 ? child1 : child2);",
+         "half4 color = sample(p.x > 10 ? child1 : child2);",
          "expression");
 
     // Errors that aren't caught until later in the compilation process (during optimize())
-    test("", "return; color.r = color.g;", "unreachable");
+    test("", "return half4(1);", "unreachable");
     test("half badFunc() { }", "", "without returning");
 }
 
@@ -92,12 +92,12 @@ DEF_TEST(SkRuntimeEffectInvalidColorFilters, r) {
 
     // Runtime effects that use sample coords or sk_FragCoord are valid shaders,
     // but not valid color filters
-    test("void main(float2 p, inout half4 color) { color.rg = half2(p); }");
-    test("void main(float2 p, inout half4 color) { color.rg = half2(sk_FragCoord.xy); }");
+    test("half4 main(float2 p) { return half2(p).xy01; }");
+    test("half4 main(float2 p) { return half2(sk_FragCoord.xy).xy01; }");
 
     // We also can't use layout(marker), which would give the runtime color filter CTM information
     test("layout(marker=ctm) uniform float4x4 ctm;"
-         "void main(float2 p, inout half4 color) { color.r = half(ctm[0][0]); }");
+         "half4 main(float2 p) { return half4(half(ctm[0][0]), 0, 0, 1); }");
 }
 
 class TestEffect {
@@ -106,7 +106,7 @@ public:
             : fReporter(r), fSurface(std::move(surface)) {}
 
     void build(const char* header, const char* body) {
-        SkString src = SkStringPrintf("%s void main(float2 p, inout half4 color) { %s }",
+        SkString src = SkStringPrintf("%s half4 main(float2 p) { %s }",
                                       header, body);
         auto[effect, errorText] = SkRuntimeEffect::Make(src);
         if (!effect) {
@@ -200,12 +200,12 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     using float4 = std::array<float, 4>;
 
     // Local coords
-    effect.build("", "color = half4(half2(p - 0.5), 0, 1);");
+    effect.build("", "return half4(half2(p - 0.5), 0, 1);");
     effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
 
     // Use of a simple uniform. (Draw twice with two values to ensure it's updated).
     effect.build("uniform float4 gColor;",
-                 "color = half4(gColor);");
+                 "return half4(gColor);");
     effect.uniform("gColor") = float4{ 0.0f, 0.25f, 0.75f, 1.0f };
     effect.test(0xFFBF4000);
     effect.uniform("gColor") = float4{ 1.0f, 0.0f, 0.0f, 0.498f };
@@ -214,7 +214,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Test sk_FragCoord (device coords). Rotate the canvas to be sure we're seeing device coords.
     // Since the surface is 2x2, we should see (0,0), (1,0), (0,1), (1,1). Multiply by 0.498 to
     // make sure we're not saturating unexpectedly.
-    effect.build("", "color = half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
+    effect.build("", "return half4(0.498 * (half2(sk_FragCoord.xy) - 0.5), 0, 1);");
     effect.test(0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F,
                 [](SkCanvas* canvas, SkPaint*) { canvas->rotate(45.0f); });
 
@@ -224,7 +224,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
 
     // Sampling a null child should return the paint color
     effect.build("in shader child;",
-                 "color = sample(child);");
+                 "return sample(child);");
     effect.child("child") = nullptr;
     effect.test(0xFF00FFFF,
                 [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
@@ -233,19 +233,19 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
 
     // Sampling a simple child at our coordinates (implicitly)
     effect.build("in shader child;",
-                 "color = sample(child);");
+                 "return sample(child);");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF);
 
     // Sampling with explicit coordinates (reflecting about the diagonal)
     effect.build("in shader child;",
-                 "color = sample(child, p.yx);");
+                 "return sample(child, p.yx);");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
 
     // Sampling with a matrix (again, reflecting about the diagonal)
     effect.build("in shader child;",
-                 "color = sample(child, float3x3(0, 1, 0, 1, 0, 0, 0, 0, 1));");
+                 "return sample(child, float3x3(0, 1, 0, 1, 0, 0, 0, 0, 1));");
     effect.child("child") = rgbwShader;
     effect.test(0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF);
 
@@ -256,7 +256,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     // Test case for inlining in the pipeline-stage and fragment-shader passes (skbug.com/10526):
     effect.build("float2 helper(float2 x) { return x + 1; }",
                  "float2 v = helper(p);"
-                 "color = half4(half2(v), 0, 1);");
+                 "return half4(half2(v), 0, 1);");
     effect.test(0xFF00FFFF);
 }
 
