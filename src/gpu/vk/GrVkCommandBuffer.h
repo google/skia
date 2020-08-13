@@ -319,7 +319,7 @@ private:
     void onReleaseResources() override;
 
     SkTArray<std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fSecondaryCommandBuffers;
-    GrVkFence*                                                  fSubmitFence = nullptr;
+    GrVkFence* fSubmitFence = nullptr;
     SkTArray<sk_sp<GrRefCntedCallback>>                         fFinishedProcs;
 
     typedef GrVkCommandBuffer INHERITED;
