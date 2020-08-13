@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ff82bf6a_8fe05f18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-13T12:48:51Z",
+      "side": 1,
+      "message": "I\u0027m ok landing as is, but I think the TODO is a better fix.",
+      "revId": "b628be988d03398725eb874dfc8ed9e35e992d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ae587be_b10af524",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 998,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-13T12:48:51Z",
+      "side": 1,
+      "message": "It does seem like we should fail a characterization request larger than max RT size.",
+      "revId": "b628be988d03398725eb874dfc8ed9e35e992d48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
