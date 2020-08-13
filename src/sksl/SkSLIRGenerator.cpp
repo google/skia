@@ -1909,11 +1909,11 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
         int offset,
         std::unordered_map<const Variable*, const Variable*>* varMap,
         const Expression& expression) {
-    auto expr = [&](const std::unique_ptr<Expression>& e) {
+    auto expr = [&](const std::unique_ptr<Expression>& e) -> std::unique_ptr<Expression> {
         if (e) {
             return this->inlineExpression(offset, varMap, *e);
         }
-        return std::unique_ptr<Expression>(nullptr);
+        return nullptr;
     };
     switch (expression.fKind) {
         case Expression::kBinary_Kind: {
@@ -2018,11 +2018,11 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
         const Variable* returnVar,
         bool haveEarlyReturns,
         const Statement& statement) {
-    auto stmt = [&](const std::unique_ptr<Statement>& s) {
+    auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
             return this->inlineStatement(offset, varMap, returnVar, haveEarlyReturns, *s);
         }
-        return std::unique_ptr<Statement>(nullptr);
+        return nullptr;
     };
     auto stmts = [&](const std::vector<std::unique_ptr<Statement>>& ss) {
         std::vector<std::unique_ptr<Statement>> result;
@@ -2031,11 +2031,11 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
         }
         return result;
     };
-    auto expr = [&](const std::unique_ptr<Expression>& e) {
+    auto expr = [&](const std::unique_ptr<Expression>& e) -> std::unique_ptr<Expression> {
         if (e) {
             return this->inlineExpression(offset, varMap, *e);
         }
-        return std::unique_ptr<Expression>(nullptr);
+        return nullptr;
     };
     switch (statement.fKind) {
         case Statement::kBlock_Kind: {
