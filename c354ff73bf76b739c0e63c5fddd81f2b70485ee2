@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a76358c7_fa1ded70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-13T20:31:14Z",
+      "side": 1,
+      "message": "Hey Mike,\n\nCan I get your opinion on the approach of using SkVx operations to implement the vertex fill. I don\u0027t like the punning I do, but I don\u0027t see a way around it. Also, I can\u0027t get the output.store() to issue an xmm instruction. It breaks the output into movel instructions.\n\nThanks,\nHerb",
+      "revId": "c354ff73bf76b739c0e63c5fddd81f2b70485ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
