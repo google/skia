@@ -70,6 +70,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachAudioLayer(const skjson::ObjectV
                                                              layer_info->fInPoint,
                                                              layer_info->fOutPoint,
                                                              fFrameRate));
+            } else {
+                this->log(Logger::Level::kWarning, nullptr,
+                          "Could not load audio asset '%s'.", name->begin());
             }
         }
     }

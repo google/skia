@@ -6,7 +6,7 @@
 */
 
 #include "include/core/SkData.h"
-#include "include/ports/SkAudioPlayer.h"
+#include "modules/audioplayer/SkAudioPlayer.h"
 
 #if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
