@@ -16,6 +16,29 @@
       "revId": "1aab7ac14220ef75f72b208318ff2d51d67e770a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5edb8dec_d47b3604",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-13T23:51:51Z",
+      "side": 1,
+      "message": "we tend to just write\n\n   void ...() override\n\nwith no virtual",
+      "range": {
+        "startLine": 434,
+        "startChar": 4,
+        "endLine": 434,
+        "endChar": 39
+      },
+      "revId": "1aab7ac14220ef75f72b208318ff2d51d67e770a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
