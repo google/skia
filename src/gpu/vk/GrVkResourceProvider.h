@@ -19,6 +19,7 @@
 #include "src/gpu/GrResourceHandle.h"
 #include "src/gpu/vk/GrVkDescriptorPool.h"
 #include "src/gpu/vk/GrVkDescriptorSetManager.h"
+#include "src/gpu/vk/GrVkFence.h"
 #include "src/gpu/vk/GrVkPipelineStateBuilder.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkSampler.h"
@@ -29,6 +30,7 @@
 #include <thread>
 
 class GrVkCommandPool;
+class GrVkFence;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkPipelineState;
@@ -178,6 +180,9 @@ public:
 
     void reset(GrVkCommandPool* pool);
 
+    GrVkFence* getOrCreateFence();
+    void recycleFence(GrVkFence* fence);
+
 #if GR_TEST_UTILS
     void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
 #endif
@@ -283,6 +288,8 @@ private:
     SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
+
+    SkSTArray<4, GrVkFence*> fAvaliableFences;
 
     std::recursive_mutex fBackgroundMutex;
 };
