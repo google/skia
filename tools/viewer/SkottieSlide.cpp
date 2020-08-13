@@ -12,6 +12,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkTime.h"
+#include "include/ports/SkAudioPlayer.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skresources/include/SkResources.h"
@@ -21,6 +22,58 @@
 #include <cmath>
 
 #include "imgui.h"
+
+namespace {
+
+class Track final : public skresources::ExternalTrackAsset {
+public:
+    explicit Track(std::unique_ptr<SkAudioPlayer> player) : fPlayer(std::move(player)) {}
+
+private:
+    void seek(float t) override {
+        if (fPlayer->isStopped() && t >=0) {
+            fPlayer->play();
+        }
+
+        if (fPlayer->isPlaying()) {
+            if (t < 0) {
+                fPlayer->stop();
+            } else {
+                static constexpr float kTolerance = 0.075f;
+                const auto player_pos = fPlayer->time();
+
+                if (std::abs(player_pos - t) > kTolerance) {
+                    fPlayer->setTime(t);
+                }
+            }
+        }
+    }
+
+    const std::unique_ptr<SkAudioPlayer> fPlayer;
+};
+
+class AudioProviderProxy final : public skresources::ResourceProviderProxyBase {
+public:
+    explicit AudioProviderProxy(sk_sp<skresources::ResourceProvider> rp)
+        : INHERITED(std::move(rp)) {}
+
+private:
+    sk_sp<skresources::ExternalTrackAsset> loadAudioAsset(const char path[],
+                                                          const char name[],
+                                                          const char[] /*id*/) override {
+        if (auto data = this->load(path, name)) {
+            if (auto player = SkAudioPlayer::Make(std::move(data))) {
+                return sk_make_sp<Track>(std::move(player));
+            }
+        }
+
+        return nullptr;
+    }
+
+    using INHERITED = skresources::ResourceProviderProxyBase;
+};
+
+} // namespace
 
 static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
@@ -104,10 +157,11 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     skottie::Animation::Builder builder(flags);
 
     auto resource_provider =
+        sk_make_sp<AudioProviderProxy>(
             skresources::DataURIResourceProviderProxy::Make(
                 skresources::FileResourceProvider::Make(SkOSPath::Dirname(fPath.c_str()),
                                                         /*predecode=*/true),
-                /*predecode=*/true);
+                /*predecode=*/true));
 
     static constexpr char kInterceptPrefix[] = "__";
     auto precomp_interceptor =
