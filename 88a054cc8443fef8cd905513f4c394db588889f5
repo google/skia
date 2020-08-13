@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98494045_3b1a847e",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-13T13:35:53Z",
+      "side": 1,
+      "message": "SkTPin would handle nan, right?  It does seem more intuitive to do nothing instead of picking one of the extremes though, so I think I prefer your version.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 5
+      },
+      "revId": "88a054cc8443fef8cd905513f4c394db588889f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
