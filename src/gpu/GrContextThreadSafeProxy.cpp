@@ -50,45 +50,50 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
                                      GrProtected isProtected) {
     SkASSERT(fCaps);
     if (!backendFormat.isValid()) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
+        return {};
     }
 
     SkASSERT(isTextureable || !isMipMapped);
 
     if (GrBackendApi::kOpenGL != backendFormat.backend() && willUseGLFBO0) {
         // The willUseGLFBO0 flags can only be used for a GL backend.
-        return SkSurfaceCharacterization(); // return an invalid characterization
+        return {};
     }
 
     if (!fCaps->mipmapSupport()) {
         isMipMapped = false;
     }
 
+    if (ii.width()  < 1 || ii.width()  > fCaps->maxRenderTargetSize() ||
+        ii.height() < 1 || ii.height() > fCaps->maxRenderTargetSize()) {
+        return {};
+    }
+
     GrColorType grColorType = SkColorTypeToGrColorType(ii.colorType());
 
     if (!fCaps->areColorTypeAndFormatCompatible(grColorType, backendFormat)) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
+        return {};
     }
 
     if (!fCaps->isFormatAsColorTypeRenderable(grColorType, backendFormat, sampleCnt)) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
+        return {};
     }
 
     sampleCnt = fCaps->getRenderTargetSampleCount(sampleCnt, backendFormat);
     SkASSERT(sampleCnt);
 
     if (willUseGLFBO0 && isTextureable) {
-        return SkSurfaceCharacterization(); // return an invalid characterization
+        return {};
     }
 
     if (isTextureable && !fCaps->isFormatTexturable(backendFormat)) {
         // Skia doesn't agree that this is textureable.
-        return SkSurfaceCharacterization(); // return an invalid characterization
+        return {};
     }
 
     if (GrBackendApi::kVulkan == backendFormat.backend()) {
         if (GrBackendApi::kVulkan != fBackend) {
-            return SkSurfaceCharacterization(); // return an invalid characterization
+            return {};
         }
 
 #ifdef SK_VULKAN
@@ -96,7 +101,7 @@ SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
 
         // The protection status of the characterization and the context need to match
         if (isProtected != GrProtected(vkCaps->supportsProtectedMemory())) {
-            return SkSurfaceCharacterization(); // return an invalid characterization
+            return {};
         }
 #endif
     }

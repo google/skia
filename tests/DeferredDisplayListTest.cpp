@@ -935,11 +935,11 @@ static void dummy_done_proc(void*) {}
 ////////////////////////////////////////////////////////////////////////////////
 // Test out the behavior of an invalid DDLRecorder
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
-    auto context = ctxInfo.directContext();
+    auto dContext = ctxInfo.directContext();
 
     {
         SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
-        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, ii);
 
         SkSurfaceCharacterization characterization;
         SkAssertResult(s->characterize(&characterization));
@@ -958,8 +958,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !recorder.getCanvas());
         REPORTER_ASSERT(reporter, !recorder.detach());
 
-        GrBackendFormat format = context->defaultBackendFormat(kRGBA_8888_SkColorType,
-                                                               GrRenderable::kNo);
+        GrBackendFormat format = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                                GrRenderable::kNo);
         SkASSERT(format.isValid());
 
         sk_sp<SkImage> image = recorder.makePromiseTexture(
@@ -974,7 +974,57 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
                 SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew);
         REPORTER_ASSERT(reporter, !image);
     }
+}
 
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+    size_t maxResourceBytes = dContext->getResourceCacheLimit();
+    auto proxy = dContext->threadSafeProxy().get();
+
+    auto check = [proxy, reporter, maxResourceBytes](const GrBackendFormat& backendFormat,
+                                                     int width, int height,
+                                                     SkColorType ct, bool willUseGLFBO0,
+                                                     GrProtected prot) {
+        const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
+
+        SkImageInfo ii = SkImageInfo::Make(width, height, ct,
+                                           kPremul_SkAlphaType, nullptr);
+
+        SkSurfaceCharacterization c = proxy->createCharacterization(
+                                                maxResourceBytes, ii, backendFormat, 1,
+                                                kBottomLeft_GrSurfaceOrigin, surfaceProps, false,
+                                                willUseGLFBO0, true, prot);
+        REPORTER_ASSERT(reporter, !c.isValid());
+    };
+
+    GrBackendFormat goodBackendFormat = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                                       GrRenderable::kYes);
+    SkASSERT(goodBackendFormat.isValid());
+
+    GrBackendFormat badBackendFormat;
+    SkASSERT(!badBackendFormat.isValid());
+
+    SkColorType kGoodCT = kRGBA_8888_SkColorType;
+    SkColorType kBadCT = kUnknown_SkColorType;
+
+    static const bool kGoodUseFBO0 = false;
+    static const bool kBadUseFBO0 = true;
+
+    int goodWidth = 64;
+    int goodHeight = 64;
+    int badWidths[] = { 0, 1048576 };
+    int badHeights[] = { 0, 1048576 };
+
+    check(goodBackendFormat, goodWidth, badHeights[0], kGoodCT, kGoodUseFBO0, GrProtected::kNo);
+    check(goodBackendFormat, goodWidth, badHeights[1], kGoodCT, kGoodUseFBO0, GrProtected::kNo);
+    check(goodBackendFormat, badWidths[0], goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo);
+    check(goodBackendFormat, badWidths[1], goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo);
+    check(badBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo);
+    check(goodBackendFormat, goodWidth, goodHeight, kBadCT, kGoodUseFBO0, GrProtected::kNo);
+    check(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kBadUseFBO0, GrProtected::kNo);
+    if (dContext->backend() == GrBackendApi::kVulkan) {
+        check(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kYes);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

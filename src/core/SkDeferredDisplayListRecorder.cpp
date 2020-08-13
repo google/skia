@@ -209,7 +209,7 @@ SkCanvas* SkDeferredDisplayListRecorder::getCanvas() {
 }
 
 sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
-    if (!fContext) {
+    if (!fContext || !fTargetProxy) {
         return nullptr;
     }
 
