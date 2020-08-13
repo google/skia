@@ -128,7 +128,8 @@ private:
 };
 
 const char RuntimeNone_GPU_SRC[] = R"(
-    void main(inout half4 c) {}
+    in shader input;
+    half4 main() { return sample(input); }
 )";
 
 const char RuntimeColorMatrix_GPU_SRC[] = R"(
@@ -137,8 +138,9 @@ const char RuntimeColorMatrix_GPU_SRC[] = R"(
                  m5 , m6 , m7 , m8 , m9 ,
                  m10, m11, m12, m13, m14,
                  m15, m16, m17, m18, m19;
-    void main(inout half4 c) {
-        c = unpremul(c);
+    in shader input;
+    half4 main() {
+        half4 c = unpremul(sample(input));
 
         half4x4 m = half4x4(m0, m5, m10, m15,
                             m1, m6, m11, m16,
@@ -148,6 +150,7 @@ const char RuntimeColorMatrix_GPU_SRC[] = R"(
 
         c = saturate(c);
         c.rgb *= c.a;
+        return c;
     }
 )";
 
@@ -203,11 +206,14 @@ DEF_BENCH( return new ColorFilterBench("gaussian", []() {
 DEF_BENCH( return new ColorFilterBench("src_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
                 SkRuntimeEffect::Make(SkString(RuntimeNone_GPU_SRC)));
-        return gEffect->makeColorFilter(SkData::MakeEmpty());
+        sk_sp<SkColorFilter> input = nullptr;
+        return gEffect->makeColorFilter(SkData::MakeEmpty(), &input, 1);
     });)
 DEF_BENCH( return new ColorFilterBench("matrix_runtime", []() {
         static sk_sp<SkRuntimeEffect> gEffect = std::get<0>(
                 SkRuntimeEffect::Make(SkString(RuntimeColorMatrix_GPU_SRC)));
-        return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)));
+        sk_sp<SkColorFilter> input = nullptr;
+        return gEffect->makeColorFilter(SkData::MakeWithCopy(gColorMatrix, sizeof(gColorMatrix)),
+                                        &input, 1);
     });)
 #endif
