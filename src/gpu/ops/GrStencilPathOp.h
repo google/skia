@@ -30,12 +30,6 @@ public:
 
     const char* name() const override { return "StencilPathOp"; }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        return SkStringPrintf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);
-    }
-#endif
-
 private:
     friend class GrOpMemoryPool; // for ctor
 
@@ -61,6 +55,12 @@ private:
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Path: 0x%p, AA: %d", fPath.get(), fUseHWAA);
+    }
+#endif
 
     SkMatrix                  fViewMatrix;
     bool                      fUseHWAA;
