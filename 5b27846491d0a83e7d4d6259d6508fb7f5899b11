@@ -22,6 +22,30 @@
       "revId": "5b27846491d0a83e7d4d6259d6508fb7f5899b11",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2795565b_1d511679",
+        "filename": "src/core/SkScan_Path.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-13T21:08:24Z",
+      "side": 0,
+      "message": "Maybe, but I also wanted to preserve the idea that \u0027cond\u0027 is evaluated exactly once (even if all the uses of it here make no real difference, it\u0027s a nice property to preserve).",
+      "parentUuid": "c89822f2_eaaf3a43",
+      "range": {
+        "startLine": 216,
+        "startChar": 12,
+        "endLine": 216,
+        "endChar": 27
+      },
+      "revId": "5b27846491d0a83e7d4d6259d6508fb7f5899b11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
