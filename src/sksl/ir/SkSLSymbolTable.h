@@ -33,9 +33,15 @@ public:
 
     const Symbol* operator[](StringFragment name);
 
-    void add(StringFragment name, std::unique_ptr<const Symbol> symbol);
-
     void addWithoutOwnership(StringFragment name, const Symbol* symbol);
+
+    template <typename T>
+    const T* add(StringFragment name, std::unique_ptr<T> symbol) {
+        const T* ptr = symbol.get();
+        this->addWithoutOwnership(name, ptr);
+        this->takeOwnershipOfSymbol(std::move(symbol));
+        return ptr;
+    }
 
     template <typename T>
     const T* takeOwnershipOfSymbol(std::unique_ptr<T> symbol) {
