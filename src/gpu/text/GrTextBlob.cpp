@@ -396,16 +396,57 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
                          fVertexData.subspan(offset, count));
     };
 
-    auto direct2D = [&](auto dst, SkIRect* clip) {
+    using namespace skvx;
+
+    SkPoint originInDeviceSpace = matrix.mapXY(0, 0) + fResidual;
+    SkIPoint oi = {SkScalarRoundToInt(originInDeviceSpace.x()),
+                   SkScalarRoundToInt(originInDeviceSpace.y())};
+    Vec<4, int> o = {oi.fX, oi.fY, oi.fX, oi.fY};
+
+    auto direct2D = [&](auto dst) {
         // Rectangles in device space
-        SkPoint originInDeviceSpace = matrix.mapXY(0, 0) + fResidual;
-        SkIPoint originInDeviceSpaceI = {SkScalarRoundToInt(originInDeviceSpace.x()),
-                                         SkScalarRoundToInt(originInDeviceSpace.y())};
+        for (auto[quad, glyph, lt] : vertices(dst)) {
+            Vec<4, uint16_t> uv = glyph->fAtlasLocator.getVec();
+            Vec<8, uint16_t> allUVs = {uv[0], uv[1], uv[0], uv[3], uv[2], uv[1], uv[2], uv[3]};
+            Vec<4, uint32_t> UVs = bit_pun<Vec<4, uint32_t>>(allUVs);
+            Vec<4, int> rect = cast<int>(uv);
+            rect >>= 1;
+            Vec<4, int> wh = rect - Vec<4, int>{rect[0], rect[1], rect[0], rect[1]};
+            Vec<4, int> leftTop = {lt.fX, lt.fY, lt.fX, lt.fY};
+            Vec<4, int> dstRect = o + leftTop + wh;
+            Vec<4, SkScalar> dstRectF = cast<SkScalar>(dstRect);
+            Vec<4, uint32_t> dstRectU = bit_pun<Vec<4, uint32_t>>(dstRectF);
+            Vec<4, uint32_t> output = color;
+            output[0] = dstRectU[0];
+            output[1] = dstRectU[1];
+            output[3] = UVs[0];
+            output.store(&quad[0]);
+            output[1] = dstRectU[3];
+            output[3] = UVs[1];
+            output.store(&quad[1]);
+            output[0] = dstRectU[2];
+            output[1] = dstRectU[1];
+            output[3] = UVs[2];
+            output.store(&quad[2]);
+            output[1] = dstRectU[3];
+            output[3] = UVs[3];
+            output.store(&quad[3]);
+
+            //quad[0] = {{dstRectF[0], dstRectF[1]}, color, {uv[0], uv[1]}};  // L,T
+            //quad[1] = {{dstRectF[0], dstRectF[3]}, color, {uv[0], uv[3]}};  // L,B
+            //quad[2] = {{dstRectF[2], dstRectF[1]}, color, {uv[2], uv[1]}};  // R,T
+            //quad[3] = {{dstRectF[2], dstRectF[3]}, color, {uv[2], uv[3]}};  // R,B
+        }
+    };
+
+    auto direct2DWithClip = [&](auto dst, SkIRect* clip) {
+        // Rectangles in device space
         for (auto[quad, glyph, leftTop] : vertices(dst)) {
-            GrIRect16 rect = glyph->fAtlasLocator.rect();
-            int16_t w = rect.width(),
-                    h = rect.height();
-            auto[l, t] = leftTop + originInDeviceSpaceI;
+            Vec<4, int> rect = glyph->fAtlasLocator.rect();
+            Vec<2, int> wh = Vec<2, int>{rect[2], rect[3]} - Vec<2, int>{rect[0], rect[1]};
+            int w = wh[0],
+                h = wh[1];
+            auto[l, t] = leftTop + oi;
             auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
             if (clip == nullptr) {
                 auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
@@ -427,10 +468,10 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
                         int index = glyph->fAtlasLocator.pageIndex();
                         std::tie(tl, tt) =
                                 GrDrawOpAtlas::PackIndexInTexCoords(
-                                        rect.fLeft + lD, rect.fTop + tD, index);
+                                        rect[0] + lD, rect[1] + tD, index);
                         std::tie(tr, tb) =
                                 GrDrawOpAtlas::PackIndexInTexCoords(
-                                        rect.fRight + rD, rect.fBottom + bD, index);
+                                        rect[2] + rD, rect[3] + bD, index);
                     } else {
                         // TODO: omit generating any vertex data for fully clipped glyphs ?
                         std::tie(dl, dt, dr, db) = std::make_tuple(0, 0, 0, 0);
@@ -453,21 +494,21 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, nullptr);
+            direct2D((Quad*) vertexDst);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, nullptr);
+            direct2DWithClip((Quad*) vertexDst, nullptr);
         }
     } else {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, &clip);
+            direct2DWithClip((Quad*) vertexDst, &clip);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, &clip);
+            direct2DWithClip((Quad*) vertexDst, &clip);
         }
     }
 
