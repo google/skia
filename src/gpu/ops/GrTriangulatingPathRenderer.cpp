@@ -180,8 +180,6 @@ public:
                                                           stencilSettings);
     }
 
-    const char* name() const override { return "TriangulatingPathOp"; }
-
     void visitProxies(const VisitProxyFunc& func) const override {
         if (fProgramInfo) {
             fProgramInfo->visitFPProxies(func);
@@ -189,13 +187,6 @@ public:
             fHelper.visitProxies(func);
         }
     }
-
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        return SkStringPrintf("Color 0x%08x, aa: %d\n%s",
-                              fColor.toBytes_RGBA(), fAntiAlias, fHelper.dumpInfo().c_str());
-    }
-#endif
 
     TriangulatingPathOp(Helper::MakeArgs helperArgs,
                         const SkPMColor4f& color,
@@ -233,6 +224,8 @@ public:
         return fHelper.finalizeProcessors(
                 caps, clip, hasMixedSampledCoverage, clampType, coverage, &fColor, nullptr);
     }
+
+    const char* name() const override { return "TriangulatingPathOp"; }
 
 private:
     SkPath getPath() const {
@@ -397,6 +390,13 @@ private:
         flushState->bindTextures(fProgramInfo->primProc(), nullptr, fProgramInfo->pipeline());
         flushState->drawMesh(*fMesh);
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("Color 0x%08x, aa: %d\n%s",
+                              fColor.toBytes_RGBA(), fAntiAlias, fHelper.dumpInfo().c_str());
+    }
+#endif
 
     Helper         fHelper;
     SkPMColor4f    fColor;
