@@ -994,14 +994,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     }
     if (!decl) {
         // couldn't find an existing declaration
-        auto newDecl = std::make_unique<FunctionDeclaration>(f.fOffset,
-                                                             fd.fModifiers,
-                                                             fd.fName,
-                                                             parameters,
-                                                             *returnType,
-                                                             fIsBuiltinCode);
-        decl = newDecl.get();
-        fSymbolTable->add(decl->fName, std::move(newDecl));
+        decl = fSymbolTable->add(fd.fName,
+                                 std::make_unique<FunctionDeclaration>(f.fOffset,
+                                                                       fd.fModifiers,
+                                                                       fd.fName,
+                                                                       parameters,
+                                                                       *returnType,
+                                                                       fIsBuiltinCode));
     }
     if (iter != f.end()) {
         // compile body
@@ -1174,7 +1173,6 @@ void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
 
 void IRGenerator::convertEnum(const ASTNode& e) {
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
-    std::vector<Variable*> variables;
     int64_t currentValue = 0;
     Layout layout;
     ASTNode enumType(e.fNodes, e.fOffset, ASTNode::Kind::kType,
@@ -1197,10 +1195,9 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         }
         value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
         ++currentValue;
-        auto var = std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), *type,
-                                              Variable::kGlobal_Storage, value.get());
-        variables.push_back(var.get());
-        symbols->add(child.getString(), std::move(var));
+        symbols->add(child.getString(),
+                     std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), *type,
+                                                Variable::kGlobal_Storage, value.get()));
         symbols->takeOwnershipOfIRNode(std::move(value));
     }
     fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.getString(),
@@ -2250,25 +2247,23 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
         }
     }
 
-    Variable* resultVar;
+    const Variable* resultVar = nullptr;
     if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
         std::unique_ptr<String> name(new String());
         int varIndex = fInlineVarCounter++;
         name->appendf("_inlineResult%s%d", inlineSalt.c_str(), varIndex);
         const String* namePtr = fSymbolTable->takeOwnershipOfString(std::move(name));
-        resultVar = new Variable(/*offset=*/-1, Modifiers(), namePtr->c_str(),
-                                 function.fDeclaration.fReturnType,
-                                 Variable::kLocal_Storage,
-                                 nullptr);
-        fSymbolTable->add(resultVar->fName, std::unique_ptr<Symbol>(resultVar));
+        resultVar = fSymbolTable->add(
+                namePtr->c_str(),
+                std::make_unique<Variable>(/*offset=*/-1, Modifiers(), namePtr->c_str(),
+                                           function.fDeclaration.fReturnType,
+                                           Variable::kLocal_Storage, /*initialValue=*/nullptr));
         std::vector<std::unique_ptr<VarDeclaration>> variables;
         variables.emplace_back(new VarDeclaration(resultVar, {}, nullptr));
         fExtraStatements.emplace_back(
                 new VarDeclarationsStatement(std::make_unique<VarDeclarations>(
                         offset, &resultVar->fType, std::move(variables))));
 
-    } else {
-        resultVar = nullptr;
     }
     std::unordered_map<const Variable*, const Variable*> varMap;
     // create variables to hold the arguments and assign the arguments to them
@@ -2277,10 +2272,11 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
         std::unique_ptr<String> argName(new String());
         argName->appendf("_inlineArg%s%d_%d", inlineSalt.c_str(), argIndex, i);
         const String* argNamePtr = fSymbolTable->takeOwnershipOfString(std::move(argName));
-        Variable* argVar =
-                new Variable(/*offset=*/-1, Modifiers(), argNamePtr->c_str(), arguments[i]->fType,
-                             Variable::kLocal_Storage, arguments[i].get());
-        fSymbolTable->add(argVar->fName, std::unique_ptr<Symbol>(argVar));
+        const Variable* argVar = fSymbolTable->add(
+                argNamePtr->c_str(),
+                std::make_unique<Variable>(/*offset=*/-1, Modifiers(), argNamePtr->c_str(),
+                                           arguments[i]->fType, Variable::kLocal_Storage,
+                                           arguments[i].get()));
         varMap[function.fDeclaration.fParameters[i]] = argVar;
         std::vector<std::unique_ptr<VarDeclaration>> vars;
         if (function.fDeclaration.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
