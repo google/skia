@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "87751459_9fd01a37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-08-13T15:55:41Z",
+      "side": 1,
+      "message": "Is my understanding here incorrect about the resource leak?",
+      "revId": "c18bb51735164c8b32b30e9fc736923e60dc5f2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f6d3c067_a0060bfd",
         "filename": "src/sksl/SkSLOutputStream.cpp",
         "patchSetId": 14
@@ -19,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "15b048c7_33a6293c",
+        "filename": "src/sksl/SkSLOutputStream.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-08-13T15:55:41Z",
+      "side": 1,
+      "message": "Ping",
+      "parentUuid": "f6d3c067_a0060bfd",
+      "revId": "c18bb51735164c8b32b30e9fc736923e60dc5f2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5a30dba_2d6fe624",
         "filename": "src/sksl/SkSLOutputStream.cpp",
         "patchSetId": 14
@@ -30,6 +65,24 @@
       "writtenOn": "2020-08-03T13:49:39Z",
       "side": 1,
       "message": "...should we have:\n\n  va_end(copy);\n\nbefore we exit this function?",
+      "revId": "c18bb51735164c8b32b30e9fc736923e60dc5f2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50ce3d8a_24ad98e6",
+        "filename": "src/sksl/SkSLOutputStream.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-08-13T15:55:41Z",
+      "side": 1,
+      "message": "Ping",
+      "parentUuid": "c5a30dba_2d6fe624",
       "revId": "c18bb51735164c8b32b30e9fc736923e60dc5f2a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
