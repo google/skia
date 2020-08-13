@@ -16,6 +16,24 @@
       "revId": "3445f67c4b6643ee970c95e3ab1dae04829f23f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d25a97e_1bc17c14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-13T17:07:24Z",
+      "side": 1,
+      "message": "Oops--please disregard! I saw the va_start after writing this (in the calling function) but accidentally left the comment.",
+      "parentUuid": "be7c7d04_cad9ac48",
+      "revId": "3445f67c4b6643ee970c95e3ab1dae04829f23f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
