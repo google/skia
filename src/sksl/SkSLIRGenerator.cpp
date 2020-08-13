@@ -2008,7 +2008,7 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
     }
 }
 
-const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
+static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
     if (src->kind() == Type::kArray_Kind) {
         return symbolTable.takeOwnershipOfSymbol(std::make_unique<Type>(*src));
     }
@@ -2155,7 +2155,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
     }
 }
 
-int return_count(const Statement& statement) {
+static int return_count(const Statement& statement) {
     switch (statement.fKind) {
         case Statement::kBlock_Kind: {
             const Block& b = (const Block&) statement;
@@ -2211,7 +2211,7 @@ int return_count(const Statement& statement) {
     }
 }
 
-bool has_early_return(const FunctionDefinition& f) {
+static bool has_early_return(const FunctionDefinition& f) {
     int returnCount = return_count(*f.fBody);
     if (returnCount == 0) {
         return false;
@@ -2551,7 +2551,7 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
     return std::unique_ptr<Expression>(new Constructor(offset, type, std::move(args)));
 }
 
-int component_count(const Type& type) {
+static int component_count(const Type& type) {
     switch (type.kind()) {
         case Type::kVector_Kind:
             return type.columns();
@@ -2777,7 +2777,7 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
 }
 
 // counts the number of chunks of contiguous 'x's in a swizzle, e.g. xxx1 has one and x0xx has two
-int count_contiguous_swizzle_chunks(const std::vector<int>& components) {
+static int count_contiguous_swizzle_chunks(const std::vector<int>& components) {
     int chunkCount = 0;
     for (size_t i = 0; i < components.size(); ++i) {
         SkASSERT(components[i] <= 0);
