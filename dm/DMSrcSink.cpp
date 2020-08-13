@@ -1515,7 +1515,7 @@ bool GPUSink::readBack(SkSurface* surface, SkBitmap* dst) const {
 
 Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
                        const GrContextOptions& baseOptions,
-                       std::function<void(GrContext*)> initContext) const {
+                       std::function<void(GrDirectContext*)> initContext) const {
     GrContextOptions grOptions = baseOptions;
 
     // We don't expect the src to mess with the persistent cache or the executor.
@@ -1675,9 +1675,11 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
         return result;
     }
 
-    auto precompileShaders = [&memoryCache](GrContext* context) {
-        memoryCache.foreach([context](sk_sp<const SkData> key, sk_sp<SkData> data, int /*count*/) {
-            SkAssertResult(context->precompileShader(*key, *data));
+    auto precompileShaders = [&memoryCache](GrDirectContext* dContext) {
+        memoryCache.foreach([dContext](sk_sp<const SkData> key,
+                                       sk_sp<SkData> data,
+                                       int /*count*/) {
+            SkAssertResult(dContext->precompileShader(*key, *data));
         });
     };
 
@@ -1911,7 +1913,7 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log
     // with the main context
     ContextInfo otherCtxInfo = factory.getSharedContextInfo(mainCtx);
     sk_gpu_test::TestContext* otherTestCtx = otherCtxInfo.testContext();
-    GrContext* otherCtx = otherCtxInfo.grContext();
+    auto otherCtx = otherCtxInfo.directContext();
     if (!otherCtx) {
         return Result::Fatal("Cound not create shared context.");
     }
