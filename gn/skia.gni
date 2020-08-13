@@ -64,6 +64,7 @@ declare_args() {
   skia_use_ndk_images = is_android && defined(ndk_api) && ndk_api >= 30
   skia_use_opencl = false
   skia_use_piex = !is_win
+  skia_use_sfml = false
   skia_use_wuffs = false
   skia_use_x11 = is_linux
   skia_use_xps = true
