@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.0 when testing and deploying to npm.
  - WebGL interface creation is a little leaner in terms of code size and speed.
+ - The signature of `main` used with SkSL passed to `CanvasKit.SkRuntimeEffect.Make` has changed.
+   There is no longer an `inout half4 color` parameter, effects must return their color instead.
+   Valid signatures are now `half4 main()` or `half4 main(float2 coord)`.
 
 ## [0.17.3] - 2020-08-05
 
