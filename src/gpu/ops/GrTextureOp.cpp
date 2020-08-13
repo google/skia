@@ -276,38 +276,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
-        auto iter = fQuads.iterator();
-        for (unsigned p = 0; p < fMetadata.fProxyCount; ++p) {
-            str.appendf("Proxy ID: %d, Filter: %d, MM: %d\n",
-                        fViewCountPairs[p].fProxy->uniqueID().asUInt(),
-                        static_cast<int>(fMetadata.fFilter),
-                        static_cast<int>(fMetadata.fMipmapMode));
-            int i = 0;
-            while(i < fViewCountPairs[p].fQuadCnt && iter.next()) {
-                const GrQuad* quad = iter.deviceQuad();
-                GrQuad uv = iter.isLocalValid() ? *(iter.localQuad()) : GrQuad();
-                const ColorSubsetAndAA& info = iter.metadata();
-                str.appendf(
-                        "%d: Color: 0x%08x, Subset(%d): [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n"
-                        "  UVs  [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n"
-                        "  Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
-                        i, info.fColor.toBytes_RGBA(), fMetadata.fSubset, info.fSubsetRect.fLeft,
-                        info.fSubsetRect.fTop, info.fSubsetRect.fRight, info.fSubsetRect.fBottom,
-                        quad->point(0).fX, quad->point(0).fY, quad->point(1).fX, quad->point(1).fY,
-                        quad->point(2).fX, quad->point(2).fY, quad->point(3).fX, quad->point(3).fY,
-                        uv.point(0).fX, uv.point(0).fY, uv.point(1).fX, uv.point(1).fY,
-                        uv.point(2).fX, uv.point(2).fY, uv.point(3).fX, uv.point(3).fY);
-
-                i++;
-            }
-        }
-        return str;
-    }
-#endif
-
 #ifdef SK_DEBUG
     static void ValidateResourceLimits() {
         // The op implementation has an upper bound on the number of quads that it can represent.
@@ -1086,6 +1054,39 @@ private:
 
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString str = SkStringPrintf("# draws: %d\n", fQuads.count());
+        auto iter = fQuads.iterator();
+        for (unsigned p = 0; p < fMetadata.fProxyCount; ++p) {
+            str.appendf("Proxy ID: %d, Filter: %d, MM: %d\n",
+                        fViewCountPairs[p].fProxy->uniqueID().asUInt(),
+                        static_cast<int>(fMetadata.fFilter),
+                        static_cast<int>(fMetadata.fMipmapMode));
+            int i = 0;
+            while(i < fViewCountPairs[p].fQuadCnt && iter.next()) {
+                const GrQuad* quad = iter.deviceQuad();
+                GrQuad uv = iter.isLocalValid() ? *(iter.localQuad()) : GrQuad();
+                const ColorSubsetAndAA& info = iter.metadata();
+                str.appendf(
+                        "%d: Color: 0x%08x, Subset(%d): [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n"
+                        "  UVs  [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n"
+                        "  Quad [(%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f), (%.2f, %.2f)]\n",
+                        i, info.fColor.toBytes_RGBA(), fMetadata.fSubset, info.fSubsetRect.fLeft,
+                        info.fSubsetRect.fTop, info.fSubsetRect.fRight, info.fSubsetRect.fBottom,
+                        quad->point(0).fX, quad->point(0).fY, quad->point(1).fX, quad->point(1).fY,
+                        quad->point(2).fX, quad->point(2).fY, quad->point(3).fX, quad->point(3).fY,
+                        uv.point(0).fX, uv.point(0).fY, uv.point(1).fX, uv.point(1).fY,
+                        uv.point(2).fX, uv.point(2).fY, uv.point(3).fX, uv.point(3).fY);
+
+                i++;
+            }
+        }
+        return str;
+    }
+#endif
+
     GrQuadBuffer<ColorSubsetAndAA> fQuads;
     sk_sp<GrColorSpaceXform> fTextureColorSpaceXform;
     // Most state of TextureOp is packed into these two field to minimize the op's size.

@@ -369,18 +369,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string = SkStringPrintf("Color: 0x%08x Count: %d\n",
-                                         fColor.toBytes_RGBA(), fPaths.count());
-        for (const auto& path : fPaths) {
-            string.appendf("Tolerance: %.2f\n", path.fTolerance);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     DefaultPathOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkPath& path,
                   SkScalar tolerance, uint8_t coverage, const SkMatrix& viewMatrix, bool isHairline,
                   GrAAType aaType, const SkRect& devBounds,
@@ -507,6 +495,18 @@ private:
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string = SkStringPrintf("Color: 0x%08x Count: %d\n",
+                                         fColor.toBytes_RGBA(), fPaths.count());
+        for (const auto& path : fPaths) {
+            string.appendf("Tolerance: %.2f\n", path.fTolerance);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
 
     const SkPMColor4f& color() const { return fColor; }
     uint8_t coverage() const { return fCoverage; }

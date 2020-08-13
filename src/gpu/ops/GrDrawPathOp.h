@@ -80,10 +80,6 @@ public:
 
     const char* name() const override { return "DrawPath"; }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
-
 private:
     friend class GrOpMemoryPool; // for ctor
 
@@ -96,6 +92,9 @@ private:
     }
 
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 
     sk_sp<const GrPath> fPath;
 

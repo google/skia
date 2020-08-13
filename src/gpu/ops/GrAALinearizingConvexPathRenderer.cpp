@@ -186,21 +186,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (const auto& path : fPaths) {
-            string.appendf(
-                    "Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
-                    "MiterLimit: %.2f\n",
-                    path.fColor.toBytes_RGBA(), path.fStrokeWidth, path.fStyle, path.fJoin,
-                    path.fMiterLimit);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     GrProcessorSet::Analysis finalize(
@@ -363,6 +348,20 @@ private:
         return CombineResult::kMerged;
     }
 
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (const auto& path : fPaths) {
+            string.appendf(
+                    "Color: 0x%08x, StrokeWidth: %.2f, Style: %d, Join: %d, "
+                    "MiterLimit: %.2f\n",
+                    path.fColor.toBytes_RGBA(), path.fStrokeWidth, path.fStyle, path.fJoin,
+                    path.fMiterLimit);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
 
     struct PathData {
         SkMatrix fViewMatrix;

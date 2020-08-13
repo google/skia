@@ -120,24 +120,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString str = SkStringPrintf("# draws: %u\n", fQuads.count());
-        str.appendf("Device quad type: %u, local quad type: %u\n",
-                    (uint32_t) fQuads.deviceQuadType(), (uint32_t) fQuads.localQuadType());
-        str += fHelper.dumpInfo();
-        int i = 0;
-        auto iter = fQuads.iterator();
-        while(iter.next()) {
-            const ColorAndAA& info = iter.metadata();
-            str += dump_quad_info(i, iter.deviceQuad(), iter.localQuad(),
-                                  info.fColor, info.fAAFlags);
-            i++;
-        }
-        return str;
-    }
-#endif
-
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
@@ -382,6 +364,24 @@ private:
         fQuads.concat(that->fQuads);
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString str = SkStringPrintf("# draws: %u\n", fQuads.count());
+        str.appendf("Device quad type: %u, local quad type: %u\n",
+                    (uint32_t) fQuads.deviceQuadType(), (uint32_t) fQuads.localQuadType());
+        str += fHelper.dumpInfo();
+        int i = 0;
+        auto iter = fQuads.iterator();
+        while(iter.next()) {
+            const ColorAndAA& info = iter.metadata();
+            str += dump_quad_info(i, iter.deviceQuad(), iter.localQuad(),
+                                  info.fColor, info.fAAFlags);
+            i++;
+        }
+        return str;
+    }
+#endif
 
     bool canAddQuads(int numQuads, GrAAType aaType) {
         // The new quad's aa type should be the same as the first quad's or none, except when the

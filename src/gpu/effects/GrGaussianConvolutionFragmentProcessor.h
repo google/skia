@@ -40,13 +40,6 @@ public:
 
     const char* name() const override { return "GaussianConvolution"; }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        return SkStringPrintf("(dir=%s, radius=%d)",
-                              Direction::kX == fDirection ? "X" : "Y", fRadius);
-    }
-#endif
-
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(
                 new GrGaussianConvolutionFragmentProcessor(*this));
@@ -65,6 +58,13 @@ private:
                                            float gaussianSigma);
 
     explicit GrGaussianConvolutionFragmentProcessor(const GrGaussianConvolutionFragmentProcessor&);
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        return SkStringPrintf("(dir=%s, radius=%d)",
+                              Direction::kX == fDirection ? "X" : "Y", fRadius);
+    }
+#endif
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 

@@ -244,24 +244,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (const auto& geo : fLines) {
-            string.appendf("Pt0: [%.2f, %.2f], Pt1: [%.2f, %.2f], Width: %.2f, Ival0: %.2f, "
-                           "Ival1 : %.2f, Phase: %.2f\n",
-                           geo.fPtsRot[0].fX, geo.fPtsRot[0].fY,
-                           geo.fPtsRot[1].fX, geo.fPtsRot[1].fY,
-                           geo.fSrcStrokeWidth,
-                           geo.fIntervals[0],
-                           geo.fIntervals[1],
-                           geo.fPhase);
-        }
-        string += fProcessorSet.dumpProcessors();
-        return string;
-    }
-#endif
-
     FixedFunctionFlags fixedFunctionFlags() const override {
         FixedFunctionFlags flags = FixedFunctionFlags::kNone;
         if (AAMode::kCoverageWithMSAA == fAAMode) {
@@ -712,6 +694,24 @@ private:
         fLines.push_back_n(that->fLines.count(), that->fLines.begin());
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fLines) {
+            string.appendf("Pt0: [%.2f, %.2f], Pt1: [%.2f, %.2f], Width: %.2f, Ival0: %.2f, "
+                           "Ival1 : %.2f, Phase: %.2f\n",
+                           geo.fPtsRot[0].fX, geo.fPtsRot[0].fY,
+                           geo.fPtsRot[1].fX, geo.fPtsRot[1].fY,
+                           geo.fSrcStrokeWidth,
+                           geo.fIntervals[0],
+                           geo.fIntervals[1],
+                           geo.fPhase);
+        }
+        string += fProcessorSet.dumpProcessors();
+        return string;
+    }
+#endif
 
     const SkPMColor4f& color() const { return fColor; }
     const SkMatrix& viewMatrix() const { return fLines[0].fViewMatrix; }

@@ -23,10 +23,6 @@ public:
                                                      const SkMatrix& localMatrix = SkMatrix::I(),
                                                      const SkRect* subset = nullptr,
                                                      const SkRect* domain = nullptr);
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override;
-#endif
-
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
     const char* name() const override { return "YUVtoRGBEffect"; }
@@ -39,6 +35,10 @@ private:
                      SkYUVColorSpace yuvColorSpace);
 
     GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src);
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override;
+#endif
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
