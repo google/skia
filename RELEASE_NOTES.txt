@@ -6,6 +6,10 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 86
 ------------
+  * The signature of 'main' used with SkRuntimeEffect SkSL has changed. There is no longer an
+    'inout half4 color' parameter, effects must return their color instead.
+    Valid signatures are now 'half4 main()' or 'half4 main(float2 coord)'.
+    https://review.skia.org/310756
 
   * Remove support for 'in' variables from SkRuntimeEffect. API now exclusively refers to inputs
     as 'uniforms'.

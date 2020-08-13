@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - The signature of `main` used with SkSL passed to `CanvasKit.SkRuntimeEffect.Make` has changed.
+   There is no longer an `inout half4 color` parameter, effects must return their color instead.
+   Valid signatures are now `half4 main()` or `half4 main(float2 coord)`.
+
 ## [0.17.3] - 2020-08-05
 
 ### Added
