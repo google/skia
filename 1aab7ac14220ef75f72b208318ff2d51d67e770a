@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f88bca3_c8c54d6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-13T22:35:46Z",
+      "side": 1,
+      "message": "If there is a better way to describe this pattern, please let me know. I haven\u0027t seen it elsewhere but I wouldn\u0027t be surprised to learn that it\u0027s common and has a formal name.",
+      "revId": "1aab7ac14220ef75f72b208318ff2d51d67e770a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
