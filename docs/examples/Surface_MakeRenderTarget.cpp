@@ -7,21 +7,21 @@ void draw(SkCanvas* canvas) {
     SkFont font(nullptr, 32);
     SkPaint paint;
 
-    auto context = canvas->getGrContext();
-    if (!context) {
-         canvas->drawString("GPU only!", 20, 40, font, paint);
-         return;
+    auto dContext = GrAsDirectContext(canvas->recordingContext());
+    if (!dContext) {
+        return;
     }
+
     SkImageInfo info = SkImageInfo::MakeN32(256, 64, kOpaque_SkAlphaType);
     for (auto surfaceOrigin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin } ) {
-        auto gpuSurface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0,
-               surfaceOrigin, nullptr));
+        auto gpuSurface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info, 0,
+                                                    surfaceOrigin, nullptr));
         auto surfaceCanvas = gpuSurface->getCanvas();
         surfaceCanvas->clear(SK_ColorWHITE);
         surfaceCanvas->drawString("GPU rocks!", 20, 40, font, paint);
         sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());
         canvas->drawImage(image, 0, 0);
-       canvas->translate(0, 128);
+        canvas->translate(0, 128);
     }
 }
 }  // END FIDDLE

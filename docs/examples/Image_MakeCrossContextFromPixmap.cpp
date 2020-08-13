@@ -8,6 +8,7 @@ void draw(SkCanvas* canvas) {
     if (!dContext) {
         return;
     }
+
     SkPixmap pixmap;
     if (source.peekPixels(&pixmap)) {
         sk_sp<SkImage> image = SkImage::MakeCrossContextFromPixmap(dContext, pixmap, false);

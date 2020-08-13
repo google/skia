@@ -8,6 +8,7 @@ void draw(SkCanvas* canvas) {
     if (!dContext) {
         return;
     }
+
     auto drawImage = [=](sk_sp<SkImage> image, const char* label) -> void {
         if (nullptr == image) {
             return;
@@ -23,15 +24,15 @@ void draw(SkCanvas* canvas) {
             canvas->drawString(msg, 20, image->height() * 5 / 8, font, paint);
         }
 
-        const char* msg = image->isValid(nullptr) ? "is valid on CPU"
-                                                  : "not valid on CPU";
+        const char* msg = image->isValid(nullptr) ? "is valid on CPU" : "not valid on CPU";
 
         canvas->drawString(msg, 20, image->height() * 7 / 8, font, paint);
     };
     sk_sp<SkImage> bitmapImage(SkImage::MakeFromBitmap(source));
     sk_sp<SkImage> textureImage(SkImage::MakeFromTexture(dContext, backEndTexture,
-                                kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                                kOpaque_SkAlphaType, nullptr));
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         kRGBA_8888_SkColorType,
+                                                         kOpaque_SkAlphaType, nullptr));
     drawImage(image, "image");
     canvas->translate(image->width(), 0);
     drawImage(bitmapImage, "source");
