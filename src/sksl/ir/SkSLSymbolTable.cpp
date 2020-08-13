@@ -66,11 +66,6 @@ const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
     return result;
 }
 
-void SymbolTable::add(StringFragment name, std::unique_ptr<const Symbol> symbol) {
-    this->addWithoutOwnership(name, symbol.get());
-    this->takeOwnershipOfSymbol(std::move(symbol));
-}
-
 void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
     const auto& existing = fSymbols.find(name);
     if (existing == fSymbols.end()) {
@@ -106,6 +101,5 @@ std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::begin()
 std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
     return fSymbols.end();
 }
-
 
 }  // namespace SkSL

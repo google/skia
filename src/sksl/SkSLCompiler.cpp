@@ -231,9 +231,10 @@ Compiler::Compiler(Flags flags)
     symbols->addWithoutOwnership(fpAliasName, fContext->fFragmentProcessor_Type.get());
 
     StringFragment skCapsName("sk_Caps");
-    Variable* skCaps = new Variable(-1, Modifiers(), skCapsName,
-                                    *fContext->fSkCaps_Type, Variable::kGlobal_Storage);
-    fIRGenerator->fSymbolTable->add(skCapsName, std::unique_ptr<Symbol>(skCaps));
+    fIRGenerator->fSymbolTable->add(
+            skCapsName,
+            std::make_unique<Variable>(/*offset=*/-1, Modifiers(), skCapsName,
+                                       *fContext->fSkCaps_Type, Variable::kGlobal_Storage));
 
     fIRGenerator->fIntrinsics = &fGPUIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
