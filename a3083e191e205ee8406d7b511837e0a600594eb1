@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d16dd21a_5b488285",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-13T19:32:11Z",
+      "side": 1,
+      "message": "This is adds SurfaceView support to SkottieViews. I\u0027ve been looking at this code for too long and would appreciate any and all feedback.",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
