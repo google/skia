@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "477b7633_93198cab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-13T12:54:13Z",
+      "side": 1,
+      "message": "I should have asked the same thing on the similar FP change, but should we move onDumpInfo to private? (Pretty minor given that it\u0027s developer utility code and harmless to for anyone to call)",
+      "revId": "46c5c4aced148c03933e61d7c5e931740354a0c8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
