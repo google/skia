@@ -16,6 +16,24 @@
       "revId": "6cc8b26cfc19b0b46cca6b9641464c9f87f5e1ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ffeebadf_ecc8252b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-13T13:22:07Z",
+      "side": 1,
+      "message": "Done.  (Tangentially, outside of Google, most of the code I\u0027ve worked on was the way you describe--public/protected used everywhere, private used rarely or never. In practice either way seems to work out OK. I\u0027ll try to lean towards private in Skia now that I know that\u0027s our preference.)",
+      "parentUuid": "ecdee13f_c25776d7",
+      "revId": "6cc8b26cfc19b0b46cca6b9641464c9f87f5e1ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
