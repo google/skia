@@ -27,7 +27,10 @@ public:
 
     uint32_t uniformBufferSize() const { return fUniformSize; }
 
-    void uploadUniformBuffers(void* dest) const;
+    wgpu::BindGroup uploadUniformBuffers(GrDawnGpu* gpu, wgpu::BindGroupLayout layout);
+
+private:
+    wgpu::BindGroup fBindGroup;
 };
 
 #endif
