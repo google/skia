@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06351283_e3cb8d23",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2158,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-13T17:57:13Z",
+      "side": 1,
+      "message": "I see how this all works, but: This function now does two different (but related) things, based on a boolean parameter whose name doesn\u0027t actually relate to the different return values you get back. What about something like this?\n\nstatic std::pair\u003cint, int\u003e operator+(std::pair\u003cint, int\u003e, std::pair\u003cint, int\u003e) { return ...; }\n\nstatic std::pair\u003cint, int\u003e return_counts(const Statement\u0026 statement, bool inLoopOrSwitch \u003d false) {\n  // Most statements handled similarly to existing code...\n  case Statement::kReturn_Kind:\n    return std::make_pair(1, inLoopOrSwitch ? 1 : 0);\n}\n\nLater:\n\nauto [returnCount, returnsInBreakable] \u003d reutrn_counts(...);",
+      "range": {
+        "startLine": 2158,
+        "startChar": 57,
+        "endLine": 2158,
+        "endChar": 88
+      },
+      "revId": "b0673562e0dfff9840ffb71fbd07d18e3e1aa6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
