@@ -37,12 +37,19 @@ SkSLSlide::SkSLSlide() {
     fName = "SkSL";
 
     fSkSL =
-
+#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
         "in shader child;\n"
         "\n"
         "void main(float2 p, inout half4 color) {\n"
         "    color = sample(child, p);\n"
         "}\n";
+#else
+        "in shader child;\n"
+        "\n"
+        "half4 main(float2 p) {\n"
+        "    return sample(child, p);\n"
+        "}\n";
+#endif
 
     fCodeIsDirty = true;
 }
