@@ -21,20 +21,16 @@
 #include <utility>
 
 const char* gLumaSrc = R"(
-    void main(inout half4 color) {
-        color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;
-        color.r = 0;
-        color.g = 0;
-        color.b = 0;
+    in shader input;
+    half4 main() {
+        return dot(sample(input).rgb, half3(0.3, 0.6, 0.1)).000r;
     }
 )";
 
 const char* gLumaSrcWithCoords = R"(
-    void main(float2 p, inout half4 color) {
-        color.a = color.r*0.3 + color.g*0.6 + color.b*0.1;
-        color.r = 0;
-        color.g = 0;
-        color.b = 0;
+    in shader input;
+    half4 main(float2 p) {
+        return dot(sample(input).rgb, half3(0.3, 0.6, 0.1)).000r;
     }
 )";
 
@@ -46,7 +42,8 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256) {
         sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(src)));
         SkASSERT(effect);
         SkPaint p;
-        p.setColorFilter(effect->makeColorFilter(nullptr));
+        sk_sp<SkColorFilter> input = nullptr;
+        p.setColorFilter(effect->makeColorFilter(nullptr, &input, 1));
         canvas->translate(256, 0);
         canvas->drawImage(img, 0, 0, &p);
     }

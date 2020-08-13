@@ -147,8 +147,6 @@ void GrGLSLProgramBuilder::emitAndInstallFragProcs(SkString* color, SkString* co
     }
 }
 
-// TODO Processors cannot output zeros because an empty string is all 1s
-// the fix is to allow effects to take the SkString directly
 SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                                             GrGLSLFragmentProcessor& glslFP,
                                             int transformedCoordVarsIdx,
@@ -158,11 +156,6 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
     // Program builders have a bit of state we need to clear with each effect
     AutoStageAdvance adv(this);
     this->nameExpression(&output, "output");
-
-    // Enclose custom code in a block to avoid namespace conflicts
-    SkString openBrace;
-    openBrace.printf("{ // Stage %d, %s\n", fStageIndex, fp.name());
-    fFS.codeAppend(openBrace.c_str());
 
     int samplerIdx = 0;
     for (auto [subFP, subGLSLFP] : GrGLSLFragmentProcessor::ParallelRange(fp, glslFP)) {
@@ -188,37 +181,49 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                                            "_coords",
                                            coords);
 
-    if (fp.referencesSampleCoords()) {
-        // The fp's generated code expects a _coords variable, but we're at the root so _coords
-        // is just the local coordinates produced by the primitive processor.
-        SkASSERT(fp.usesVaryingCoordsDirectly());
+    if (fp.usesExplicitReturn()) {
+        // FPs that explicitly return their output color must be in a helper function
+        args.fInputColor = "_input";
+        args.fOutputColor = "_output";
+        auto name = fFS.writeProcessorFunction(&glslFP, args);
+        fFS.codeAppendf("%s = %s(%s);", output.c_str(), name.c_str(), input.c_str());
+    } else {
+        // Enclose custom code in a block to avoid namespace conflicts
+        fFS.codeAppendf("{ // Stage %d, %s\n", fStageIndex, fp.name());
 
-        const GrShaderVar& varying = coordVars[0];
-        switch(varying.getType()) {
-            case kFloat2_GrSLType:
-                fFS.codeAppendf("float2 %s = %s.xy;\n",
-                                args.fSampleCoord, varying.getName().c_str());
-                break;
-            case kFloat3_GrSLType:
-                fFS.codeAppendf("float2 %s = %s.xy / %s.z;\n",
-                                args.fSampleCoord,
-                                varying.getName().c_str(),
-                                varying.getName().c_str());
-                break;
-            default:
-                SkDEBUGFAILF("Unexpected type for varying: %d named %s\n",
-                             (int) varying.getType(), varying.getName().c_str());
-                break;
+        if (fp.referencesSampleCoords()) {
+            // The fp's generated code expects a _coords variable, but we're at the root so _coords
+            // is just the local coordinates produced by the primitive processor.
+            SkASSERT(fp.usesVaryingCoordsDirectly());
+
+            const GrShaderVar& varying = coordVars[0];
+            switch(varying.getType()) {
+                case kFloat2_GrSLType:
+                    fFS.codeAppendf("float2 %s = %s.xy;\n",
+                                    args.fSampleCoord, varying.getName().c_str());
+                    break;
+                case kFloat3_GrSLType:
+                    fFS.codeAppendf("float2 %s = %s.xy / %s.z;\n",
+                                    args.fSampleCoord,
+                                    varying.getName().c_str(),
+                                    varying.getName().c_str());
+                    break;
+                default:
+                    SkDEBUGFAILF("Unexpected type for varying: %d named %s\n",
+                                (int) varying.getType(), varying.getName().c_str());
+                    break;
+            }
         }
-    }
 
-    glslFP.emitCode(args);
+        glslFP.emitCode(args);
+
+        fFS.codeAppend("}");
+    }
 
     // We have to check that effects and the code they emit are consistent, ie if an effect
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
 
-    fFS.codeAppend("}");
     return output;
 }
 
