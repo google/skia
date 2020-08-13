@@ -104,6 +104,7 @@ private:
     std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
+    bool isSafeToInline(const FunctionDefinition& function);
     int callCost(const FunctionDeclaration& function,
                  const std::vector<std::unique_ptr<Expression>>& arguments);
     std::unique_ptr<Expression> call(int offset, std::unique_ptr<Expression> function,
