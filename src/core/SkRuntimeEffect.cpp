@@ -134,6 +134,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     }
 
     bool hasMain = false;
+    bool returnsColor = false;
     const bool usesSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);
     const bool usesFragCoords   = SkSL::Analysis::ReferencesFragCoords(*program);
 
@@ -218,6 +219,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             const SkSL::FunctionDeclaration& decl = func.fDeclaration;
             if (decl.fName == "main") {
                 hasMain = true;
+                returnsColor = (decl.fReturnType == *ctx.fHalf4_Type);
             }
         }
     }
@@ -235,7 +237,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                                                       std::move(sampleUsages),
                                                       std::move(varyings),
                                                       usesSampleCoords,
-                                                      allowColorFilter));
+                                                      allowColorFilter,
+                                                      returnsColor));
     return std::make_tuple(std::move(effect), SkString());
 }
 
@@ -263,7 +266,8 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
                                  std::vector<SkSL::SampleUsage>&& sampleUsages,
                                  std::vector<Varying>&& varyings,
                                  bool usesSampleCoords,
-                                 bool allowColorFilter)
+                                 bool allowColorFilter,
+                                 bool returnsColor)
         : fHash(SkGoodHash()(sksl))
         , fSkSL(std::move(sksl))
         , fBaseProgram(std::move(baseProgram))
@@ -272,7 +276,8 @@ SkRuntimeEffect::SkRuntimeEffect(SkString sksl,
         , fSampleUsages(std::move(sampleUsages))
         , fVaryings(std::move(varyings))
         , fUsesSampleCoords(usesSampleCoords)
-        , fAllowColorFilter(allowColorFilter) {
+        , fAllowColorFilter(allowColorFilter)
+        , fReturnsColor(returnsColor) {
     SkASSERT(fBaseProgram);
     SkASSERT(fChildren.size() == fSampleUsages.size());
 }

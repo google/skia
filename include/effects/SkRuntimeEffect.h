@@ -136,7 +136,8 @@ private:
                     std::vector<SkSL::SampleUsage>&& sampleUsages,
                     std::vector<Varying>&& varyings,
                     bool usesSampleCoords,
-                    bool allowColorFilter);
+                    bool allowColorFilter,
+                    bool returnsColor);
 
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;      // toPipelineStage
@@ -169,6 +170,7 @@ private:
 
     bool   fUsesSampleCoords;
     bool   fAllowColorFilter;
+    bool   fReturnsColor;
 };
 
 /**

@@ -888,29 +888,49 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         parameters.push_back(var);
     }
 
+    auto paramIsCoords = [&](int idx) {
+        return parameters[idx]->fType == *fContext.fFloat2_Type &&
+                parameters[idx]->fModifiers.fFlags == 0;
+    };
+    auto paramIsColor = [&](int idx) {
+        return parameters[idx]->fType == *fContext.fHalf4_Type &&
+               parameters[idx]->fModifiers.fFlags == (Modifiers::kIn_Flag | Modifiers::kOut_Flag);
+    };
+
     if (fd.fName == "main") {
         switch (fKind) {
             case Program::kPipelineStage_Kind: {
+                // There are (temporarily) four valid signatures:
+                // void  main(inout half4)          -- Deprecated
+                // void  main(float2, inout half4)  -- Deprecated
+                // half4 main()
+                // half4 main(float2)
+                bool returnsColor = false;
+                if (*returnType == *fContext.fHalf4_Type) {
+                    returnsColor = true;
+                } else if (*returnType != *fContext.fVoid_Type) {
+                    fErrors.error(f.fOffset, "'main' must return 'void' or 'half4'");
+                    return;
+                }
+
                 bool valid;
                 switch (parameters.size()) {
                     case 2:
-                        valid = parameters[0]->fType == *fContext.fFloat2_Type &&
-                                parameters[0]->fModifiers.fFlags == 0 &&
-                                parameters[1]->fType == *fContext.fHalf4_Type &&
-                                parameters[1]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                        valid = !returnsColor && paramIsCoords(0) && paramIsColor(1);
                         break;
                     case 1:
-                        valid = parameters[0]->fType == *fContext.fHalf4_Type &&
-                                parameters[0]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                        valid = (!returnsColor && paramIsColor(0)) ||
+                                ( returnsColor && paramIsCoords(0));
+                        break;
+                    case 0:
+                        valid = returnsColor;
                         break;
                     default:
                         valid = false;
                 }
                 if (!valid) {
-                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(float2, "
-                                             "inout half4) or main(inout half4)");
+                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared "
+                                             "half4 main(float2) or half4 main()");
                     return;
                 }
                 break;
@@ -1011,9 +1031,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             if (parameters.size() == 2) {
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
                 parameters[1]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
-            } else {
-                SkASSERT(parameters.size() == 1);
-                parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+            } else if (parameters.size() == 1) {
+                if (paramIsColor(0)) {
+                    parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
+                } else {
+                    SkASSERT(paramIsCoords(0));
+                    parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+                }
             }
         } else if (fd.fName == "main" && fKind == Program::kFragmentProcessor_Kind) {
             if (parameters.size() == 1) {
