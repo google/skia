@@ -16,6 +16,24 @@
       "revId": "b5f4fcbc9ddbfbf7fc947092025cfbb5e967e55e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8018110a_40f08f0c",
+        "filename": "tests/ColorSpaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-13T18:45:39Z",
+      "side": 1,
+      "message": "Oh, right!  In short, no.  I was going to do a second test case with two different NaNs, but dropped that idea.\n\nI realized that using two different NaNs naively would cause the hashes to go different and make SkColorSpace::Equals() return false anyway.  And I decided that trying to find a hash collision where the only changes were variations on NaNs was probably possible but a little beyond the scope of what we need to do here, and made much more complicated by using different hashes on different platforms.",
+      "parentUuid": "7eade63f_9a0dada8",
+      "revId": "b5f4fcbc9ddbfbf7fc947092025cfbb5e967e55e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
