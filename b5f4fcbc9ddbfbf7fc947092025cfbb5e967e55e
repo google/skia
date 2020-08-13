@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7eade63f_9a0dada8",
+        "filename": "tests/ColorSpaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-13T18:40:24Z",
+      "side": 1,
+      "message": "Is there a reason not to write this as: gamut.vals[1][1] \u003d SK_FloatNaN ?",
+      "revId": "b5f4fcbc9ddbfbf7fc947092025cfbb5e967e55e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
