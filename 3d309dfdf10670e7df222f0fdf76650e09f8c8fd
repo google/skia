@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c210404_b9afc973",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-13T01:43:36Z",
+      "side": 1,
+      "message": "How about foo-\u003esetTime(foo-\u003egetDuration())?  Looks like it is being ignored, which is unexpected to me.",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 16
+      },
+      "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ded2d05f_c6481cca",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-13T01:43:36Z",
+      "side": 1,
+      "message": "Interesting, is there something about the CoreAudio API which requires playback to be paused before seeking?  Should this be pushed down to the platform code if needed?",
+      "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e242813_0df500ef",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-13T01:43:36Z",
+      "side": 1,
+      "message": "Another option would be to clamp t?",
+      "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aac63426_12d6e07d",
+        "filename": "src/ports/SkAudioPlayer.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-13T01:43:36Z",
+      "side": 1,
+      "message": "Clamping is also a reasonable choice here.",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 5
+      },
+      "revId": "3d309dfdf10670e7df222f0fdf76650e09f8c8fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
