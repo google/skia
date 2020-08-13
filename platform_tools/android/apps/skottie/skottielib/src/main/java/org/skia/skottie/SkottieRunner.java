@@ -14,6 +14,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Choreographer;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.TextureView;
 
 import java.io.ByteArrayOutputStream;
@@ -79,6 +81,14 @@ class SkottieRunner {
      */
     public SkottieAnimation createAnimation(SurfaceTexture surfaceTexture, InputStream is) {
         return new SkottieAnimationImpl(surfaceTexture, is);
+    }
+
+    /**
+     * Create a new animation by feeding data from "is" and replaying in a SurfaceView.
+     * State is controlled internally by SurfaceHolder.
+     */
+    public SkottieAnimation createAnimation(SurfaceView view, InputStream is, int backgroundColor) {
+        return new SkottieAnimationImpl(view, is, backgroundColor);
     }
 
     /**
@@ -262,14 +272,17 @@ class SkottieRunner {
     }
 
     private class SkottieAnimationImpl implements SkottieAnimation, Choreographer.FrameCallback,
-            TextureView.SurfaceTextureListener {
+            TextureView.SurfaceTextureListener, SurfaceHolder.Callback {
         boolean mIsRunning = false;
         SurfaceTexture mSurfaceTexture;
         EGLSurface mEglSurface;
         boolean mNewSurface = false;
+        SurfaceHolder mSurfaceHolder;
+        boolean mValidSurface = false;
 
         private int mSurfaceWidth = 0;
         private int mSurfaceHeight = 0;
+        private int mBackgroundColor;
         private long mNativeProxy;
         private long mDuration;  // duration in ms of the animation
         private float mProgress; // animation progress in the range of 0.0f to 1.0f
@@ -282,6 +295,13 @@ class SkottieRunner {
         SkottieAnimationImpl(TextureView view, InputStream is) {
             init(view.getSurfaceTexture(), is);
             view.setSurfaceTextureListener(this);
+        }
+
+        SkottieAnimationImpl(SurfaceView view, InputStream is, int backgroundColor) {
+            init(view.getHolder(), is);
+            // mSurfaceHolder is assigned at init()
+            mSurfaceHolder.addCallback(this);
+            mBackgroundColor = backgroundColor;
         }
 
         private ByteBuffer convertToByteBuffer(InputStream is) throws IOException {
@@ -324,6 +344,23 @@ class SkottieRunner {
             mProgress = 0f;
         }
 
+        private void init(SurfaceHolder holder, InputStream is) {
+
+            ByteBuffer byteBuffer;
+            try {
+                byteBuffer = convertToByteBuffer(is);
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "failed to read input stream", e);
+                return;
+            }
+
+            long proxy = SkottieRunner.getInstance().getNativeProxy();
+            mNativeProxy = nCreateProxy(proxy, byteBuffer);
+            mSurfaceHolder = holder;
+            mDuration = nGetDuration(mNativeProxy);
+            mProgress = 0f;
+        }
+
         @Override
         protected void finalize() throws Throwable {
             try {
@@ -344,6 +381,25 @@ class SkottieRunner {
                     mNewSurface = true;
 
                     drawFrame();
+                });
+            }
+            catch (Throwable t) {
+                Log.e(LOG_TAG, "updateSurface failed", t);
+                throw new RuntimeException(t);
+            }
+        }
+
+        public void updateSurface(SurfaceHolder surfaceHolder, int width, int height) {
+            try {
+                runOnGLThread(() -> {
+                    mSurfaceHolder = surfaceHolder;
+                    mSurfaceWidth = width;
+                    mSurfaceHeight = height;
+                    mNewSurface = true;
+
+                    if (mValidSurface) {
+                        drawFrame();
+                    }
                 });
             }
             catch (Throwable t) {
@@ -436,14 +492,27 @@ class SkottieRunner {
                 }
 
                 if (mEglSurface == null) {
+                    // block for Texture Views
                     if (mSurfaceTexture != null) {
                         mEglSurface = mEgl.eglCreateWindowSurface(mEglDisplay, mEglConfig,
                                 mSurfaceTexture, null);
+                        // ensure eglSurface was created
                         if (mEglSurface == null || mEglSurface == EGL10.EGL_NO_SURFACE) {
                             // If failed to create a surface, log an error and stop the animation
                             int error = mEgl.eglGetError();
                             throw new RuntimeException("createWindowSurface failed "
-                                    + GLUtils.getEGLErrorString(error));
+                                + GLUtils.getEGLErrorString(error));
+                        }
+                    // block for Surface Views
+                    } else if (mSurfaceHolder != null) {
+                        mEglSurface = mEgl.eglCreateWindowSurface(mEglDisplay, mEglConfig,
+                            mSurfaceHolder, null);
+                        // ensure eglSurface was created
+                        if (mEglSurface == null || mEglSurface == EGL10.EGL_NO_SURFACE) {
+                            // If failed to create a surface, log an error and stop the animation
+                            int error = mEgl.eglGetError();
+                            throw new RuntimeException("createWindowSurface failed "
+                                + GLUtils.getEGLErrorString(error));
                         }
                     }
                 }
@@ -458,7 +527,7 @@ class SkottieRunner {
                     }
                     // only if nDrawFrames() returns true do we need to swap buffers
                     if(nDrawFrame(mNativeProxy, mSurfaceWidth, mSurfaceHeight, false,
-                            mProgress)) {
+                            mProgress, mBackgroundColor)) {
                         if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) {
                             int error = mEgl.eglGetError();
                             if (error == EGL10.EGL_BAD_SURFACE
@@ -511,19 +580,22 @@ class SkottieRunner {
                     mAnimationStartTime += durationNS;  // prevents overflow
                 }
             }
-
-            drawFrame();
+            if (mValidSurface) {
+                drawFrame();
+            }
         }
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             // will be called on UI thread
+            mValidSurface = true;
             updateSurface(surface, width, height);
         }
 
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
             // will be called on UI thread
+            mValidSurface = false;
             onSurfaceTextureAvailable(surface, width, height);
         }
 
@@ -539,10 +611,28 @@ class SkottieRunner {
 
         }
 
+        // Inherited from SurfaceHolder
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            mValidSurface = true;
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            updateSurface(holder, width, height);
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            mValidSurface = false;
+            surfaceChanged(null, 0, 0, 0);
+        }
+
         private native long nCreateProxy(long runner, ByteBuffer data);
         private native void nDeleteProxy(long nativeProxy);
         private native boolean nDrawFrame(long nativeProxy, int width, int height,
-                                          boolean wideColorGamut, float progress);
+                                          boolean wideColorGamut, float progress,
+                                          int backgroundColor);
         private native long nGetDuration(long nativeProxy);
     }
 
