@@ -43,7 +43,7 @@ public:
      */
     class SK_API ProgramIterator {
     public:
-        ProgramIterator(GrContext*, SkDeferredDisplayList*);
+        ProgramIterator(GrDirectContext*, SkDeferredDisplayList*);
         ~ProgramIterator();
 
         // This returns true if any work was done. Getting a cache hit does not count as work.
@@ -52,7 +52,7 @@ public:
         void next();
 
     private:
-        GrContext*                                       fContext;
+        GrDirectContext*                                 fDContext;
         const SkTArray<GrRecordingContext::ProgramData>& fProgramData;
         int                                              fIndex;
     };
