@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be7c7d04_cad9ac48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-13T17:06:40Z",
+      "side": 1,
+      "message": "If we are going to clean up our va_args, should we go all the way?\n\nhttps://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/va-arg-va-copy-va-end-va-start?view\u003dvs-2019\n\n- va_copy makes a copy of a list of arguments in its current state. ***The src parameter must already be initialized with va_start*** \n\n- ",
+      "revId": "3445f67c4b6643ee970c95e3ab1dae04829f23f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
