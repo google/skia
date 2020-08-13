@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "111946b1_3d370a3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-13T18:27:53Z",
+      "side": 1,
+      "message": "SFML might be an option for Android also (not clear what their level of support it - docs say \"soon\").",
+      "revId": "7d15f7463620abe393fc3d830e2df2a418dbe4fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
