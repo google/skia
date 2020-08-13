@@ -210,12 +210,12 @@ static bool update_edge(SkEdge* edge, int last_y) {
 }
 
 // Unexpected conditions for which we need to return
-#define ASSERT_RETURN(cond)     \
-    do {                        \
-        if (!(cond)) {          \
-            SkASSERT(false);    \
-            return;             \
-        }                       \
+#define ASSERT_RETURN(cond)                    \
+    do {                                       \
+        if (!(cond)) {                         \
+            SkDEBUGFAILF("assert(%s)", #cond); \
+            return;                            \
+        }                                      \
     } while (0)
 
 // Needs Y to only change once (looser than convex in X)
