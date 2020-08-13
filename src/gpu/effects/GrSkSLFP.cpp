@@ -109,6 +109,7 @@ public:
                                       body.c_str(),
                                       &fFunctionNames.back());
         }
+        fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
         auto fmtArgIter = fArgs.fFormatArgs.cbegin();
         fragBuilder->codeAppend(this->expandFormatArgs(fArgs.fCode, args, fmtArgIter).c_str());
         SkASSERT(fmtArgIter == fArgs.fFormatArgs.cend());
