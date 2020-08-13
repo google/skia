@@ -348,3 +348,20 @@ DEF_TEST(ColorSpace_classifyUnderflow, r) {
     sk_sp<SkColorSpace> bad = SkColorSpace::MakeRGB(fn, SkNamedGamut::kSRGB);
     REPORTER_ASSERT(r, bad == nullptr);
 }
+
+DEF_TEST(ColorSpace_equiv, r) {
+    skcms_TransferFunction tf = SkNamedTransferFn::kSRGB;
+    skcms_Matrix3x3     gamut = SkNamedGamut::kSRGB;
+
+    uint32_t NaN = 0xffff'ffff;
+    memcpy(&gamut.vals[1][1], &NaN, 4);
+    {
+        // There's a quick pointer comparison in SkColorSpace::Equals() we want to get past.
+        sk_sp<SkColorSpace> x = SkColorSpace::MakeRGB(tf, gamut),
+                            y = SkColorSpace::MakeRGB(tf, gamut);
+        REPORTER_ASSERT(r, x && y);
+        REPORTER_ASSERT(r, x.get() != y.get());
+
+        REPORTER_ASSERT(r, SkColorSpace::Equals(x.get(), y.get()));
+    }
+}
