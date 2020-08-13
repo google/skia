@@ -183,12 +183,6 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     StringStream buffer;
     fOut = &buffer;
     if (f.fDeclaration.fName == "main") {
-        this->write(Compiler::kFormatArgPlaceholderStr);
-        this->write(" = ");
-        this->write(Compiler::kFormatArgPlaceholderStr);
-        this->write(";\n");
-        fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
-        fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
             this->writeLine();
