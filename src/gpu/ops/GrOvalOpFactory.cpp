@@ -1226,23 +1226,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (int i = 0; i < fCircles.count(); ++i) {
-            string.appendf(
-                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
-                    "InnerRad: %.2f, OuterRad: %.2f\n",
-                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
-                    fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
-                    fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
-                    fCircles[i].fOuterRadius);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
@@ -1449,6 +1432,23 @@ private:
         return CombineResult::kMerged;
     }
 
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fCircles.count(); ++i) {
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                    "InnerRad: %.2f, OuterRad: %.2f\n",
+                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
+                    fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
+                    fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
+                    fCircles[i].fOuterRadius);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
+
     struct Circle {
         SkPMColor4f fColor;
         SkScalar fInnerRadius;
@@ -1586,25 +1586,6 @@ public:
             fHelper.visitProxies(func);
         }
     }
-
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (int i = 0; i < fCircles.count(); ++i) {
-            string.appendf(
-                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
-                    "InnerRad: %.2f, OuterRad: %.2f, OnAngle: %.2f, TotalAngle: %.2f, "
-                    "Phase: %.2f\n",
-                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
-                    fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
-                    fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
-                    fCircles[i].fOuterRadius, fCircles[i].fOnAngle, fCircles[i].fTotalAngle,
-                    fCircles[i].fPhaseAngle);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
 
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
@@ -1763,6 +1744,25 @@ private:
         return CombineResult::kMerged;
     }
 
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fCircles.count(); ++i) {
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                    "InnerRad: %.2f, OuterRad: %.2f, OnAngle: %.2f, TotalAngle: %.2f, "
+                    "Phase: %.2f\n",
+                    fCircles[i].fColor.toBytes_RGBA(), fCircles[i].fDevBounds.fLeft,
+                    fCircles[i].fDevBounds.fTop, fCircles[i].fDevBounds.fRight,
+                    fCircles[i].fDevBounds.fBottom, fCircles[i].fInnerRadius,
+                    fCircles[i].fOuterRadius, fCircles[i].fOnAngle, fCircles[i].fTotalAngle,
+                    fCircles[i].fPhaseAngle);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
+
     struct Circle {
         SkPMColor4f fColor;
         SkScalar fOuterRadius;
@@ -1917,22 +1917,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
-        for (const auto& geo : fEllipses) {
-            string.appendf(
-                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                    "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
-                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
-                    geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
-                    geo.fInnerXRadius, geo.fInnerYRadius);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
@@ -2045,6 +2029,22 @@ private:
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
+        for (const auto& geo : fEllipses) {
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                    "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
+                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
+                    geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
+                    geo.fInnerXRadius, geo.fInnerYRadius);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
 
     struct Ellipse {
         SkPMColor4f fColor;
@@ -2192,23 +2192,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (const auto& geo : fEllipses) {
-            string.appendf(
-                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], XRad: %.2f, "
-                    "YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f, GeoDX: %.2f, "
-                    "GeoDY: %.2f\n",
-                    geo.fColor.toBytes_RGBA(), geo.fBounds.fLeft, geo.fBounds.fTop,
-                    geo.fBounds.fRight, geo.fBounds.fBottom, geo.fXRadius, geo.fYRadius,
-                    geo.fInnerXRadius, geo.fInnerYRadius, geo.fGeoDx, geo.fGeoDy);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
@@ -2308,6 +2291,23 @@ private:
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fEllipses) {
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], XRad: %.2f, "
+                    "YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f, GeoDX: %.2f, "
+                    "GeoDY: %.2f\n",
+                    geo.fColor.toBytes_RGBA(), geo.fBounds.fLeft, geo.fBounds.fTop,
+                    geo.fBounds.fRight, geo.fBounds.fBottom, geo.fXRadius, geo.fYRadius,
+                    geo.fInnerXRadius, geo.fInnerYRadius, geo.fGeoDx, geo.fGeoDy);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
 
     const SkMatrix& viewMatrix() const { return fEllipses[0].fViewMatrix; }
     DIEllipseStyle style() const { return fEllipses[0].fStyle; }
@@ -2541,23 +2541,6 @@ public:
         }
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (int i = 0; i < fRRects.count(); ++i) {
-            string.appendf(
-                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
-                    "InnerRad: %.2f, OuterRad: %.2f\n",
-                    fRRects[i].fColor.toBytes_RGBA(), fRRects[i].fDevBounds.fLeft,
-                    fRRects[i].fDevBounds.fTop, fRRects[i].fDevBounds.fRight,
-                    fRRects[i].fDevBounds.fBottom, fRRects[i].fInnerRadius,
-                    fRRects[i].fOuterRadius);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
             GrClampType clampType) override {
@@ -2774,6 +2757,23 @@ private:
         return CombineResult::kMerged;
     }
 
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (int i = 0; i < fRRects.count(); ++i) {
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
+                    "InnerRad: %.2f, OuterRad: %.2f\n",
+                    fRRects[i].fColor.toBytes_RGBA(), fRRects[i].fDevBounds.fLeft,
+                    fRRects[i].fDevBounds.fTop, fRRects[i].fDevBounds.fRight,
+                    fRRects[i].fDevBounds.fBottom, fRRects[i].fInnerRadius,
+                    fRRects[i].fOuterRadius);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
+
     struct RRect {
         SkPMColor4f fColor;
         SkScalar fInnerRadius;
@@ -2911,22 +2911,6 @@ public:
             fHelper.visitProxies(func);
         }
     }
-
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
-        for (const auto& geo : fRRects) {
-            string.appendf(
-                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
-                    "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
-                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
-                    geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
-                    geo.fInnerXRadius, geo.fInnerYRadius);
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
 
     GrProcessorSet::Analysis finalize(
             const GrCaps& caps, const GrAppliedClip* clip, bool hasMixedSampledCoverage,
@@ -3081,6 +3065,22 @@ private:
         fWideColor = fWideColor || that->fWideColor;
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string = SkStringPrintf("Stroked: %d\n", fStroked);
+        for (const auto& geo : fRRects) {
+            string.appendf(
+                    "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f], "
+                    "XRad: %.2f, YRad: %.2f, InnerXRad: %.2f, InnerYRad: %.2f\n",
+                    geo.fColor.toBytes_RGBA(), geo.fDevBounds.fLeft, geo.fDevBounds.fTop,
+                    geo.fDevBounds.fRight, geo.fDevBounds.fBottom, geo.fXRadius, geo.fYRadius,
+                    geo.fInnerXRadius, geo.fInnerYRadius);
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
 
     struct RRect {
         SkPMColor4f fColor;

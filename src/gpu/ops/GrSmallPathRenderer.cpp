@@ -136,17 +136,6 @@ public:
         fHelper.visitProxies(func);
     }
 
-#if GR_TEST_UTILS
-    SkString onDumpInfo() const override {
-        SkString string;
-        for (const auto& geo : fShapes) {
-            string.appendf("Color: 0x%08x\n", geo.fColor.toBytes_RGBA());
-        }
-        string += fHelper.dumpInfo();
-        return string;
-    }
-#endif
-
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
     GrProcessorSet::Analysis finalize(
@@ -673,6 +662,17 @@ private:
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
+
+#if GR_TEST_UTILS
+    SkString onDumpInfo() const override {
+        SkString string;
+        for (const auto& geo : fShapes) {
+            string.appendf("Color: 0x%08x\n", geo.fColor.toBytes_RGBA());
+        }
+        string += fHelper.dumpInfo();
+        return string;
+    }
+#endif
 
     bool fUsesDistanceField;
 
