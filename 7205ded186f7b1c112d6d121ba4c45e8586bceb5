@@ -46,6 +46,30 @@
       "revId": "7205ded186f7b1c112d6d121ba4c45e8586bceb5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80f60122_d8494975",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-13T17:39:01Z",
+      "side": 1,
+      "message": "Oh - and I fixed the maxTextureSize bug.",
+      "parentUuid": "25df5b19_6f5c063f",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 5
+      },
+      "revId": "7205ded186f7b1c112d6d121ba4c45e8586bceb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
