@@ -1133,3 +1133,20 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
              "this->invokeChild(0, args, _coords232.c_str()",
          });
 }
+
+DEF_TEST(SkSLFPForceInline, r) {
+    // At present, the forceinline modifier doesn't do anything, so this only tests that it can be
+    // compiled without generating an error.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             forceinline half4 constantColor() {
+                 return half4(0.5, 0.5, 0.5, 0.5);
+             }
+             void main(float2 coord) {
+                 sk_OutColor = constantColor();
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{});
+}
