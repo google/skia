@@ -22,6 +22,30 @@
       "revId": "b0673562e0dfff9840ffb71fbd07d18e3e1aa6fe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5b4b342_5a1b68ec",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2158,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-13T18:27:08Z",
+      "side": 1,
+      "message": "I will refactor it to be more clear, but there\u0027s no point where we ever need both counts; we only ever need one or the other. (Which one we actually need depends on the caps-bit for do-while loops.)",
+      "parentUuid": "06351283_e3cb8d23",
+      "range": {
+        "startLine": 2158,
+        "startChar": 57,
+        "endLine": 2158,
+        "endChar": 88
+      },
+      "revId": "b0673562e0dfff9840ffb71fbd07d18e3e1aa6fe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
