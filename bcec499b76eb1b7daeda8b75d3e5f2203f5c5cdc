@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c5a8ff04_4f7d9b58",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-13T14:56:53Z",
+      "side": 1,
+      "message": "So, is the plan to expand this bench to the other two subrun types ?",
+      "revId": "bcec499b76eb1b7daeda8b75d3e5f2203f5c5cdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b507498_30c0beb6",
+        "filename": "bench/GlyphQuadFillBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-13T14:56:53Z",
+      "side": 1,
+      "message": "gAText ?\ngUTF8Text ?",
+      "range": {
+        "startLine": 22,
+        "startChar": 19,
+        "endLine": 22,
+        "endChar": 24
+      },
+      "revId": "bcec499b76eb1b7daeda8b75d3e5f2203f5c5cdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd41f065_790ee2a4",
+        "filename": "bench/GlyphQuadFillBench.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-13T14:56:53Z",
+      "side": 1,
+      "message": "Don\u0027t all these classes usually have a Bench suffix ?\n\n// Micro benchmark to drive improvement of fillVertexData performance ?",
+      "revId": "bcec499b76eb1b7daeda8b75d3e5f2203f5c5cdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "becf6c4e_135ccf06",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-13T14:56:53Z",
+      "side": 1,
+      "message": "convert... ?",
+      "range": {
+        "startLine": 298,
+        "startChar": 9,
+        "endLine": 298,
+        "endChar": 24
+      },
+      "revId": "bcec499b76eb1b7daeda8b75d3e5f2203f5c5cdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "66875141_e6391ec6",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-13T14:56:53Z",
+      "side": 1,
+      "message": "Wrap all these guys in #if GR_TEST_UTILS ?\nIt also looks like the \"testingOnly_\" prefix is more common",
+      "revId": "bcec499b76eb1b7daeda8b75d3e5f2203f5c5cdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
