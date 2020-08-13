@@ -32,7 +32,7 @@ SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, SkISize size, uint32_
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
-void SkImage_GpuBase::resetContext(sk_sp<GrContext> newContext) {
+void SkImage_GpuBase::resetContext1(sk_sp<GrContext> newContext) {
     SkASSERT(fContext->priv().matches(newContext.get()));
     fContext = newContext;
 }
