@@ -16,6 +16,29 @@
       "revId": "c354ff73bf76b739c0e63c5fddd81f2b70485ee2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "098b329e_ab2dec09",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-13T20:52:54Z",
+      "side": 1,
+      "message": "If this is what you\u0027re wondering about, I wouldn\u0027t be surprised if the stores were faster separately than the way your structure suggests it.\n\nThere\u0027s not usually any good reason to pack up an xmm register like this just to write it out, particularly when there isn\u0027t anything like pinsrd available to make filling out `output` fast.  Even with something like pinsrd, it\u0027s a surprisingly expensive operation and you\u0027re usually better off just writing things out as soon as you have them rather than holding the whole store up on a single xmm register data dependency.",
+      "range": {
+        "startLine": 420,
+        "startChar": 0,
+        "endLine": 435,
+        "endChar": 35
+      },
+      "revId": "c354ff73bf76b739c0e63c5fddd81f2b70485ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
