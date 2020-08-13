@@ -17,8 +17,8 @@
 #include <utility>
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
