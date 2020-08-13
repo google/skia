@@ -155,9 +155,8 @@ void GrDawnTexture::upload(GrColorType srcColorType, const GrMipLevel texels[],
                 this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(size);
         SkRectMemcpy(slice.fOffsetMapPtr, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
 
-        wgpu::BufferCopyView srcBuffer;
+        wgpu::BufferCopyView srcBuffer = {};
         srcBuffer.buffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
-        srcBuffer.bytesPerRow = 0; // TODO: remove this once the deprecated fields have been removed.
         srcBuffer.layout.offset = slice.fOffset;
         srcBuffer.layout.bytesPerRow = dstRowBytes;
         srcBuffer.layout.rowsPerImage = height;
