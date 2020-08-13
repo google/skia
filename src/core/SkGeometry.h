@@ -51,6 +51,15 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t);
 */
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]);
 
+/** Measures the angle between the tangents at p0 and p2. Returns the result in the range [0, pi].
+*/
+float SkMeasureQuadRotation(const SkPoint[4]);
+
+/** Given a src quadratic bezier, chop it at the tangent whose angle is halfway between the
+    tangents at p0 and p2. The new quads are returned in dst[0..2] and dst[2..4].
+*/
+void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]);
+
 /** Given the 3 coefficients for a quadratic bezier (either X or Y values), look
     for extrema, and return the number of t-values that are found that represent
     these extrema. If the quadratic has no extrema betwee (0..1) exclusive, the
@@ -116,6 +125,19 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar t[],
     The new cubics are returned in dst[0..3] and dst[3..6]
 */
 void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]);
+
+/** Given a cubic with no inflection points, this method measures the angle between the tangents at
+    p0 and p3. Returns the result in the range [0, 2*pi].
+
+    NOTE: The caller must either call SkChopCubicAtInflections or otherwise prove that the provided
+    cubic has no inflection points prior to calling this method.
+*/
+float SkMeasureNonInflectCubicRotation(const SkPoint[4]);
+
+/** Given a src cubic bezier, chop it at the tangent whose angle is halfway between the
+    tangents at p0 and p3. The new cubics are returned in dst[0..3] and dst[3..6].
+*/
+void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]);
 
 /** Given the 4 coefficients for a cubic bezier (either X or Y values), look
     for extrema, and return the number of t-values that are found that represent
