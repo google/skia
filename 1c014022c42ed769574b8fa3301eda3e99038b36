@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "45f570e6_17c17029",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2269,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-13T20:56:49Z",
+      "side": 1,
+      "message": "This arrangement (and the one immediately following) do incur an extra StringFragment construction, compared to the old code (which means calling strlen again). If we\u0027re only using namePtr to get the c_str(), and only using *that* to construct a StringFragment, maybe make that be the temporary thing on the stack? (And we can leverage knowing the length to avoid strlen entirely):\n\nStringFragment nameFrag(namePtr-\u003ec_str(), namePtr-\u003elength()) ?",
+      "range": {
+        "startLine": 2263,
+        "startChar": 0,
+        "endLine": 2269,
+        "endChar": 0
+      },
+      "revId": "1c014022c42ed769574b8fa3301eda3e99038b36",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
