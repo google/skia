@@ -113,8 +113,8 @@ private:
                 in shader cf0;
                 in shader cf1;
                 uniform half t;
-                void main(inout half4 color) {
-                    color = mix(sample(cf0), sample(cf1), t);
+                half4 main() {
+                    return mix(sample(cf0), sample(cf1), t);
                 }
             )";
             effect = std::get<0>(SkRuntimeEffect::Make(SkString(sksl)));

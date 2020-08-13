@@ -22,7 +22,7 @@ uniform float2 in_center;
 uniform float4 in_colors0;
 uniform float4 in_colors1;
 
-void main(float2 p, inout half4 color) {
+half4 main(float2 p) {
     float2 pp = p - in_center;
     float radius = sqrt(dot(pp, pp));
     radius = sqrt(radius);
@@ -30,7 +30,7 @@ void main(float2 p, inout half4 color) {
     float t = (angle + 3.1415926/2) / (3.1415926);
     t += radius * rad_scale;
     t = fract(t);
-    color = half4(mix(in_colors0, in_colors1, t));
+    return half4(mix(in_colors0, in_colors1, t));
 }`;
 
     // TODO(kjlubick) rewrite testRTShader and callers to use gm.
@@ -90,12 +90,12 @@ float smooth_cutoff(float x) {
     return clamp(x, 0, 1);
 }
 
-void main(float2 xy, inout half4 color) {
+half4 main(float2 xy) {
     half4 before = sample(before_map, xy);
     half4 after = sample(after_map, xy);
 
     float m = smooth_cutoff(sample(threshold_map, xy).r);
-    color = mix(before, after, half(m));
+    return mix(before, after, half(m));
 }`;
 
     // TODO(kjlubick) rewrite testChildrenShader and callers to use gm.

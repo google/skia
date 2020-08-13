@@ -932,33 +932,53 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         parameters.push_back(var);
     }
 
+    auto paramIsCoords = [&](int idx) {
+        return parameters[idx]->fType == *fContext.fFloat2_Type &&
+               parameters[idx]->fModifiers.fFlags == 0;
+    };
+#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
+    auto paramIsColor = [&](int idx) {
+        return parameters[idx]->fType == *fContext.fHalf4_Type &&
+               parameters[idx]->fModifiers.fFlags == (Modifiers::kIn_Flag | Modifiers::kOut_Flag);
+    };
+#endif
+
     if (funcData.fName == "main") {
         switch (fKind) {
             case Program::kPipelineStage_Kind: {
-                bool valid;
+#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
+                // void main(inout half4)  -or-  void main(float2, inout half4)
+                bool valid = (*returnType == *fContext.fVoid_Type);
                 switch (parameters.size()) {
                     case 2:
-                        valid = parameters[0]->fType == *fContext.fFloat2_Type &&
-                                parameters[0]->fModifiers.fFlags == 0 &&
-                                parameters[1]->fType == *fContext.fHalf4_Type &&
-                                parameters[1]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                        valid &= paramIsCoords(0) && paramIsColor(1);
                         break;
                     case 1:
-                        valid = parameters[0]->fType == *fContext.fHalf4_Type &&
-                                parameters[0]->fModifiers.fFlags == (Modifiers::kIn_Flag |
-                                                                     Modifiers::kOut_Flag);
+                        valid &= paramIsColor(0);
                         break;
                     default:
-                        valid = false;
+                        valid &= false;
                 }
                 if (!valid) {
-                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(float2, "
-                                             "inout half4) or main(inout half4)");
+                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared "
+                                             "void main(inout half4) or "
+                                             "void main(float2, inout half4)");
                     return;
                 }
                 break;
-            }
+#else
+                // half4 main()  -or-  half4 main(float2)
+                bool valid = (*returnType == *fContext.fHalf4_Type) &&
+                             ((parameters.size() == 0) ||
+                              (parameters.size() == 1 && paramIsCoords(0)));
+                if (!valid) {
+                    fErrors.error(f.fOffset, "pipeline stage 'main' must be declared "
+                                             "half4 main() or half4 main(float2)");
+                    return;
+                }
+                break;
+#endif
+           }
             case Program::kFragmentProcessor_Kind: {
                 bool valid = parameters.size() <= 1;
                 if (parameters.size() == 1) {
@@ -1056,6 +1076,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
         if (funcData.fName == "main" && fKind == Program::kPipelineStage_Kind) {
+#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
             if (parameters.size() == 2) {
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
                 parameters[1]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
@@ -1063,6 +1084,12 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 SkASSERT(parameters.size() == 1);
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
             }
+#else
+            if (parameters.size() == 1) {
+                SkASSERT(paramIsCoords(0));
+                parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+            }
+#endif
         } else if (funcData.fName == "main" && fKind == Program::kFragmentProcessor_Kind) {
             if (parameters.size() == 1) {
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;

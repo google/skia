@@ -381,7 +381,7 @@ public:
                 return n;
             }
 
-            void main(float2 p, inout half4 color) {
+            half4 main(float2 p) {
                 float3 norm = convert_normal_sample(sample(normal_map, p));
                 float3 plane_norm = normalize(localToWorldAdjInv * float4(norm, 0)).xyz;
 
@@ -392,7 +392,7 @@ public:
                 float dp = dot(plane_norm, light_dir);
                 float scale = min(ambient + max(dp, 0), 1);
 
-                color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+                return sample(color_map, p) * half4(float4(scale, scale, scale, 1));
             }
         )";
         auto [effect, error] = SkRuntimeEffect::Make(SkString(code));
@@ -466,7 +466,7 @@ public:
             layout (marker=normals(local_to_world)) uniform float4x4 localToWorldAdjInv;
             uniform float3   lightPos;
 
-            void main(float2 p, inout half4 color) {
+            half4 main(float2 p) {
                 float3 norm = normalize(vtx_normal);
                 float3 plane_norm = normalize(localToWorldAdjInv * float4(norm, 0)).xyz;
 
@@ -477,7 +477,7 @@ public:
                 float dp = dot(plane_norm, light_dir);
                 float scale = min(ambient + max(dp, 0), 1);
 
-                color = half4(0.7, 0.9, 0.3, 1) * half4(float4(scale, scale, scale, 1));
+                return half4(0.7, 0.9, 0.3, 1) * half4(float4(scale, scale, scale, 1));
             }
         )";
         auto [effect, error] = SkRuntimeEffect::Make(SkString(code));

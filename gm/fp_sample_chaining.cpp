@@ -278,18 +278,18 @@ DEF_SIMPLE_GPU_GM(fp_sample_chaining, ctx, rtCtx, canvas, 380, 306) {
 
 const char* gConstantMatrixSkSL = R"(
     in shader child;
-    void main(float2 xy, inout half4 color) {
-        color = sample(child, float3x3(0.5, 0.0, 0.0,
-                                       0.0, 1.0, 0.0,
-                                       0.0, 0.0, 1.0));
+    half4 main(float2 xy) {
+        return sample(child, float3x3(0.5, 0.0, 0.0,
+                                      0.0, 1.0, 0.0,
+                                      0.0, 0.0, 1.0));
     }
 )";
 
 const char* gUniformMatrixSkSL = R"(
     in shader child;
     uniform float3x3 matrix;
-    void main(float2 xy, inout half4 color) {
-        color = sample(child, matrix);
+    half4 main(float2 xy) {
+        return sample(child, matrix);
     }
 )";
 
@@ -299,16 +299,16 @@ const char* gUniformMatrixSkSL = R"(
 const char* gVariableMatrixSkSL = R"(
     in shader child;
     uniform float3x3 matrix;
-    void main(float2 xy, inout half4 color) {
+    half4 main(float2 xy) {
         float3x3 varMatrix = matrix * 0.5;
-        color = sample(child, varMatrix);
+        return sample(child, varMatrix);
     }
 )";
 
 const char* gExplicitCoordSkSL = R"(
     in shader child;
-    void main(float2 xy, inout half4 color) {
-        color = sample(child, xy + float2(0, 8));
+    half4 main(float2 xy) {
+        return sample(child, xy + float2(0, 8));
     }
 )";
 

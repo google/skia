@@ -63,7 +63,7 @@ Samples
   <figure>
     <canvas id=shader1 width=512 height=512></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/33ff9bed883cd5742b4770169da0b36fb0cbc18fd395ddd9563213e178362d30"
+      <a href="https://jsfiddle.skia.org/canvaskit/8ab89ac8f24840509debec604030b9abded5a73de8f6dbc376433f08ed3fba56"
           target=_blank rel=noopener>
         Shader JSFiddle</a>
     </figcaption>
@@ -71,7 +71,7 @@ Samples
   <figure>
     <canvas id=camera3d width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/4b7f2cb6683ad3254ac46e3bab62da9a09e994044b2e7512c93d166abeaa2549"
+      <a href="https://jsfiddle.skia.org/canvaskit/518a1694fed734b4533f6ffb62e47c10a45289d63aa749e6062c372076f11a12"
           target=_blank rel=noopener>
         3D Cube JSFiddle</a>
     </figcaption>
@@ -489,7 +489,7 @@ uniform float2 in_center;
 uniform float4 in_colors0;
 uniform float4 in_colors1;
 
-void main(float2 p, inout half4 color) {
+half4 main(float2 p) {
     float2 pp = p - in_center;
     float radius = sqrt(dot(pp, pp));
     radius = sqrt(radius);
@@ -497,7 +497,7 @@ void main(float2 p, inout half4 color) {
     float t = (angle + 3.1415926/2) / (3.1415926);
     t += radius * rad_scale;
     t = fract(t);
-    color = half4(mix(in_colors0, in_colors1, t));
+    return half4(mix(in_colors0, in_colors1, t));
 }
 `;
 
@@ -590,7 +590,7 @@ void main(float2 p, inout half4 color) {
         return n;
       }
 
-      void main(float2 p, inout half4 color) {
+      half4 main(float2 p) {
         float3 norm = convert_normal_sample(sample(normal_map, p));
         float3 plane_norm = normalize(localToWorldAdjInv * float4(norm, 0)).xyz;
 
@@ -601,7 +601,7 @@ void main(float2 p, inout half4 color) {
         float dp = dot(plane_norm, light_dir);
         float scale = min(ambient + max(dp, 0), 1);
 
-        color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
+        return sample(color_map, p) * half4(float4(scale, scale, scale, 1));
       }
 `;
 
