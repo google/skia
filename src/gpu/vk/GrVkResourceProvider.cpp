@@ -351,9 +351,20 @@ GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
             SkASSERT(pool != result);
         }
     )
-    fActiveCommandPools.push_back(result);
-    result->ref();
     return result;
+}
+
+void GrVkResourceProvider::recycleCommandPool(GrVkCommandPool* commandPool) {
+    SkDEBUGCODE(
+        for (const GrVkCommandPool* pool
+                : fActiveCommandPools) {
+            SkASSERT(pool != commandPool);
+        }
+        for (const GrVkCommandPool* pool : fAvailableCommandPools) {
+            SkASSERT(pool != commandPool);
+        }
+    )
+    fActiveCommandPools.push_back(commandPool);
 }
 
 void GrVkResourceProvider::checkCommandBuffers() {
