@@ -87,6 +87,7 @@ public:
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
     GrVkCommandPool* findOrCreateCommandPool();
+    void recycleCommandPool(GrVkCommandPool* pool);
 
     void checkCommandBuffers();
 
