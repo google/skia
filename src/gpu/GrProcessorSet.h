@@ -85,6 +85,7 @@ public:
         bool inputColorIsOverridden() const {
             return fInputColorType == kOverridden_InputColorType;
         }
+        bool usesNonCoherentHWBlending() const { return fUsesNonCoherentHWBlending; }
 
     private:
         constexpr Analysis(Empty)
@@ -94,6 +95,7 @@ public:
                 , fRequiresNonOverlappingDraws(false)
                 , fHasColorFragmentProcessor(false)
                 , fIsInitialized(true)
+                , fUsesNonCoherentHWBlending(false)
                 , fInputColorType(kOriginal_InputColorType) {}
         enum InputColorType : uint32_t {
             kOriginal_InputColorType,
@@ -111,6 +113,7 @@ public:
         PackedBool fRequiresNonOverlappingDraws : 1;
         PackedBool fHasColorFragmentProcessor : 1;
         PackedBool fIsInitialized : 1;
+        PackedBool fUsesNonCoherentHWBlending : 1;
         PackedInputColorType fInputColorType : 2;
 
         friend class GrProcessorSet;
