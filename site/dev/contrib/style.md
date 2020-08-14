@@ -32,7 +32,7 @@ We prefer no trailing whitespace but aren't very strict about it.
 
 We wrap lines at 100 columns unless it is excessively ugly (use your judgement).
 The soft line length limit was changed from 80 to 100 columns in June 2012. Thus,
-most files still adhere to the 80 column limit. It is not necessary or worth
+many files still adhere to the 80 column limit. It is not necessary or worth
 significant effort to promote 80 column wrapped files to 100 columns. Please
 don't willy-nilly insert longer lines in 80 column wrapped files. Either be
 consistent with the surrounding code or, if you really feel the need, promote
@@ -400,6 +400,52 @@ Method calls within method calls should be prefixed with dereference of the
 <!--?prettify?-->
 ~~~~
 this->method();
+~~~~
+
+A common pattern for virtual methods in Skia is to include a public non-virtual
+(or final) method, paired with a private virtual method named "onMethodName".
+This ensures that the base-class method is always invoked and gives it control
+over how the virtual method is used, rather than relying on each subclass to
+call `INHERITED::onMethodName`. For example:
+
+<!--?prettify?-->
+~~~~
+class SkSandwich {
+public:
+    void assemble() {
+        // All sandwiches must have bread on the top and bottom.
+        this->addIngredient(kBread_Ingredient);
+        this->onAssemble();
+        this->addIngredient(kBread_Ingredient);
+    }
+    bool cook() {
+        return this->onCook();
+    }
+
+private:
+    // All sandwiches must implement onAssemble.
+    virtual void onAssemble() = 0;
+    // Sandwiches can remain uncooked by default.
+    virtual bool onCook() { return true; }
+};
+
+class SkGrilledCheese : public SkSandwich {
+private:
+    void onAssemble() override {
+        this->addIngredient(kCheese_Ingredient);
+    }
+    bool onCook() override {
+        return this->toastOnGriddle();
+    }
+};
+
+class SkPeanutButterAndJelly : public SkSandwich {
+private:
+    void onAssemble() override {
+        this->addIngredient(kPeanutButter_Ingredient);
+        this->addIngredient(kGrapeJelly_Ingredient);
+    }
+};
 ~~~~
 
 Integer Types
