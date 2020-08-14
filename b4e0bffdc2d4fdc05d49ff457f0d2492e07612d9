@@ -34,6 +34,29 @@
       "revId": "b4e0bffdc2d4fdc05d49ff457f0d2492e07612d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e7ed7a0_1c4e17f4",
+        "filename": "src/gpu/vk/GrVkRenderPass.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-14T16:06:17Z",
+      "side": 1,
+      "message": "I suspect you can probably just set this to \u0026dependency. If dependencyCount is 0 CreateRenderPass will ignore it. In a sane world, anyway.",
+      "range": {
+        "startLine": 200,
+        "startChar": 31,
+        "endLine": 200,
+        "endChar": 70
+      },
+      "revId": "b4e0bffdc2d4fdc05d49ff457f0d2492e07612d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
