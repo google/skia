@@ -477,12 +477,36 @@ DEF_TEST(SkSLWrongSwitchTypes, r) {
     test_failure(r,
                  "void main() { switch (1) { case float2(1): break; } }",
                  "error: 1: expected 'int', but found 'float2'\n1 error\n");
+    test_failure(r,
+                 "void main() { switch (1) { case 0.5: break; } }",
+                 "error: 1: expected 'int', but found 'float'\n1 error\n");
+    test_failure(r,
+                 "void main() { switch (1) { case 1.0: break; } }",
+                 "error: 1: expected 'int', but found 'float'\n1 error\n");
+    test_failure(r,
+                 "uniform float x = 1; void main() { switch (1) { case x: break; } }",
+                 "error: 1: expected 'int', but found 'float'\n1 error\n");
+    test_failure(r,
+                 "const float x = 1; void main() { switch (1) { case x: break; } }",
+                 "error: 1: expected 'int', but found 'float'\n1 error\n");
+    test_failure(r,
+                 "const float x = 1; void main() { switch (x) { case 1: break; } }",
+                 "error: 1: expected 'int', but found 'float'\n1 error\n");
+    test_success(r,
+                 "const int x = 1; void main() { switch (x) { case 1: break; } }");
 }
 
 DEF_TEST(SkSLNonConstantCase, r) {
     test_failure(r,
+                 "uniform int x = 1; void main() { switch (1) { case x: break; } }",
+                 "error: 1: case value must be a constant integer\n1 error\n");
+    test_failure(r,
                  "void main() { int x = 1; switch (1) { case x: break; } }",
                  "error: 1: case value must be a constant integer\n1 error\n");
+    test_success(r,
+                 "uniform int x = 1; void main() { switch (x) { case 1: break; } }");
+    test_success(r,
+                 "void main() { const int x = 1; switch (1) { case x: break; } }");
 }
 
 DEF_TEST(SkSLDuplicateCase, r) {
@@ -555,4 +579,29 @@ DEF_TEST(SkSLSpuriousFloat, r) {
     test_failure(r,
                  "void main() { float x; x = 1.5 2.5; }",
                  "error: 1: expected ';', but found '2.5'\n1 error\n");
+}
+
+DEF_TEST(SkSLMustBeConstantIntegralEnum, r) {
+    test_failure(r,
+                 "enum class E { a = 0.5 }; void main() {}",
+                 "error: 1: enum value must be a constant integer\n1 error\n");
+    test_failure(r,
+                 "enum class E { a = float(1) }; void main() {}",
+                 "error: 1: enum value must be a constant integer\n1 error\n");
+    test_failure(r,
+                 "enum class E { a = 1.0 }; void main() {}",
+                 "error: 1: enum value must be a constant integer\n1 error\n");
+    test_failure(r,
+                 "uniform float f; enum class E { a = f }; void main() {}",
+                 "error: 1: enum value must be a constant integer\n1 error\n");
+    test_failure(r,
+                 "const float f = 1.0; enum class E { a = f }; void main() {}",
+                 "error: 1: enum value must be a constant integer\n1 error\n");
+    test_failure(r,
+                 "uniform int i; enum class E { a = i }; void main() {}",
+                 "error: 1: enum value must be a constant integer\n1 error\n");
+    test_success(r,
+                 "const int i = 1; enum class E { a = i }; void main() {}");
+    test_success(r,
+                 "enum class E { a = 1 }; void main() {}");
 }
