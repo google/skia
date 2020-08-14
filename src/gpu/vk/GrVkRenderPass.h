@@ -42,7 +42,7 @@ public:
             : INHERITED(gpu)
             , fRenderPass(renderPass)
             , fAttachmentFlags(kExternal_AttachmentFlag)
-            , fHasInputSelfDependency(false)
+            , fHasSelfDependency(false)
             , fClearValueCount(0)
             , fColorAttachmentIndex(colorAttachmentIndex) {}
 
@@ -87,7 +87,7 @@ public:
     static GrVkRenderPass* CreateSimple(GrVkGpu*,
                                         AttachmentsDescriptor*,
                                         AttachmentFlags,
-                                        bool needsInputSelfDependency);
+                                        bool needsSelfDependency);
     static GrVkRenderPass* Create(GrVkGpu*,
                                   const GrVkRenderPass& compatibleRenderPass,
                                   const LoadStoreOps& colorOp,
@@ -100,7 +100,7 @@ public:
     bool stencilAttachmentIndex(uint32_t* index) const;
     bool hasStencilAttachment() const { return fAttachmentFlags & kStencil_AttachmentFlag; }
 
-    bool hasInputSelfDependency() const { return fHasInputSelfDependency; }
+    bool hasSelfDependency() const { return fHasSelfDependency; }
 
     // Returns whether or not the structure of a RenderTarget matches that of the VkRenderPass in
     // this object. Specifically this compares that the number of attachments, format of
@@ -135,7 +135,7 @@ public:
     static void GenKey(GrProcessorKeyBuilder*,
                        AttachmentFlags,
                        const AttachmentsDescriptor&,
-                       bool hasInputSelfDependency,
+                       bool hasSelfDependency,
                        uint64_t externalRenderPass);
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
@@ -154,14 +154,14 @@ private:
                                   AttachmentsDescriptor*,
                                   const LoadStoreOps& colorOps,
                                   const LoadStoreOps& stencilOps,
-                                  bool needsInputSelfDependency);
+                                  bool needsSelfDependency);
 
     void freeGPUData() const override;
 
     VkRenderPass          fRenderPass;
     AttachmentFlags       fAttachmentFlags;
     AttachmentsDescriptor fAttachmentsDescriptor;
-    bool                  fHasInputSelfDependency;
+    bool                  fHasSelfDependency;
     VkExtent2D            fGranularity;
     uint32_t              fClearValueCount;
     // For internally created render passes we assume the color attachment index is always 0.

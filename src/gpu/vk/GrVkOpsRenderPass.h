@@ -36,7 +36,7 @@ public:
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
              const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-             bool willReadDst);
+             bool usesXferBarrier);
     void reset();
 
     void submit();
@@ -96,7 +96,7 @@ private:
     GrVkPipelineState*                          fCurrentPipelineState = nullptr;
     bool                                        fCurrentCBIsEmpty = true;
     SkIRect                                     fBounds;
-    bool                                        fWillReadDst = false;
+    bool                                        fUsesXferBarriers = false;
     GrVkGpu*                                    fGpu;
 
 #ifdef SK_DEBUG
