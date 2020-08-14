@@ -105,7 +105,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     }
 
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle(withStencil, fWillReadDst);
+            vkRT->compatibleRenderPassHandle(withStencil, fUsesXferBarriers);
     if (rpHandle.isValid()) {
         fCurrentRenderPass = fGpu->resourceProvider().findRenderPass(rpHandle,
                                                                      vkColorOps,
@@ -116,7 +116,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                                                      vkStencilOps,
                                                                      nullptr,
                                                                      withStencil,
-                                                                     fWillReadDst);
+                                                                     fUsesXferBarriers);
     }
     if (!fCurrentRenderPass) {
         return false;
@@ -135,7 +135,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             fCurrentRenderPass = nullptr;
             return false;
         }
-        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(withStencil, fWillReadDst),
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(withStencil, fUsesXferBarriers),
                                               fCurrentRenderPass);
     }
 
@@ -212,7 +212,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                            bool willReadDst) {
+                            bool usesXferBarrier) {
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
@@ -243,7 +243,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
     SkASSERT(bounds.isEmpty() || SkIRect::MakeWH(rt->width(), rt->height()).contains(bounds));
     fBounds = bounds;
 
-    fWillReadDst = willReadDst;
+    fUsesXferBarriers = usesXferBarrier;
 
     if (this->wrapsSecondaryCommandBuffer()) {
         return this->initWrapped();
@@ -392,7 +392,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
     bool withStencil = fCurrentRenderPass->hasStencilAttachment();
 
     const GrVkResourceProvider::CompatibleRPHandle& rpHandle =
-            vkRT->compatibleRenderPassHandle(withStencil, fWillReadDst);
+            vkRT->compatibleRenderPassHandle(withStencil, fUsesXferBarriers);
     SkASSERT(fCurrentRenderPass);
     fCurrentRenderPass->unref();
     if (rpHandle.isValid()) {
@@ -405,7 +405,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
                                                                      vkStencilOps,
                                                                      nullptr,
                                                                      withStencil,
-                                                                     fWillReadDst);
+                                                                     fUsesXferBarriers);
     }
     if (!fCurrentRenderPass) {
         return;
@@ -422,7 +422,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
             fCurrentRenderPass = nullptr;
             return;
         }
-        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(withStencil, fWillReadDst),
+        fCurrentSecondaryCommandBuffer->begin(fGpu, vkRT->getFramebuffer(withStencil, fUsesXferBarriers),
                                               fCurrentRenderPass);
     }
 
