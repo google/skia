@@ -75,7 +75,7 @@ public:
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override;
 
-    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
+    void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     bool setBackendTextureState(const GrBackendTexture&,
                                 const GrBackendSurfaceMutableState&,
@@ -110,7 +110,8 @@ public:
             GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-            const SkTArray<GrSurfaceProxy*, true>& sampledProxies) override;
+            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+            bool usesXferBarriers) override;
 
     void addBufferMemoryBarrier(const GrManagedResource*,
                                 VkPipelineStageFlags srcStageMask,

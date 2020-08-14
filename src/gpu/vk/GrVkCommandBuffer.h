@@ -145,7 +145,7 @@ protected:
 
     void addingWork(const GrVkGpu* gpu);
 
-    void submitPipelineBarriers(const GrVkGpu* gpu);
+    void submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfDependency = false);
 
     SkTDArray<const GrManagedResource*>  fTrackedResources;
     SkTDArray<const GrRecycledResource*> fTrackedRecycledResources;

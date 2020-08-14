@@ -97,18 +97,28 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
                                         void* barrier) {
     SkASSERT(!this->isWrapped());
     SkASSERT(fIsActive);
+#ifdef SK_DEBUG
     // For images we can have barriers inside of render passes but they require us to add more
     // support in subpasses which need self dependencies to have barriers inside them. Also, we can
     // never have buffer barriers inside of a render pass. For now we will just assert that we are
     // not in a render pass.
-    SkASSERT(!fActiveRenderPass);
+    bool isValidSubpassBarrier = false;
+    if (barrierType == kImageMemory_BarrierType) {
+        VkImageMemoryBarrier* imgBarrier = static_cast<VkImageMemoryBarrier*>(barrier);
+        isValidSubpassBarrier = (imgBarrier->newLayout == imgBarrier->oldLayout) &&
+                                (imgBarrier->srcQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) &&
+                                (imgBarrier->dstQueueFamilyIndex == VK_QUEUE_FAMILY_IGNORED) &&
+                                byRegion;
+    }
+    SkASSERT(!fActiveRenderPass || isValidSubpassBarrier);
+#endif
 
     if (barrierType == kBufferMemory_BarrierType) {
-        const VkBufferMemoryBarrier* barrierPtr = reinterpret_cast<VkBufferMemoryBarrier*>(barrier);
+        const VkBufferMemoryBarrier* barrierPtr = static_cast<VkBufferMemoryBarrier*>(barrier);
         fBufferBarriers.push_back(*barrierPtr);
     } else {
         SkASSERT(barrierType == kImageMemory_BarrierType);
-        const VkImageMemoryBarrier* barrierPtr = reinterpret_cast<VkImageMemoryBarrier*>(barrier);
+        const VkImageMemoryBarrier* barrierPtr = static_cast<VkImageMemoryBarrier*>(barrier);
         // We need to check if we are adding a pipeline barrier that covers part of the same
         // subresource range as a barrier that is already in current batch. If it does, then we must
         // submit the first batch because the vulkan spec does not define a specific ordering for
@@ -136,7 +146,6 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
         fImageBarriers.push_back(*barrierPtr);
     }
     fBarriersByRegion |= byRegion;
-
     fSrcStageMask = fSrcStageMask | srcStageMask;
     fDstStageMask = fDstStageMask | dstStageMask;
 
@@ -144,9 +153,12 @@ void GrVkCommandBuffer::pipelineBarrier(const GrVkGpu* gpu,
     if (resource) {
         this->addResource(resource);
     }
+    if (fActiveRenderPass) {
+        this->submitPipelineBarriers(gpu, true);
+    }
 }
 
-void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu) {
+void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfDependency) {
     SkASSERT(fIsActive);
 
     // Currently we never submit a pipeline barrier without at least one memory barrier.
@@ -155,7 +167,7 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu) {
         // support in subpasses which need self dependencies to have barriers inside them. Also, we
         // can never have buffer barriers inside of a render pass. For now we will just assert that
         // we are not in a render pass.
-        SkASSERT(!fActiveRenderPass);
+        SkASSERT(!fActiveRenderPass || forSelfDependency);
         SkASSERT(!this->isWrapped());
         SkASSERT(fSrcStageMask && fDstStageMask);
 

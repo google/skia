@@ -212,7 +212,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                            bool usesXferBarrier) {
+                            bool usesXferBarriers) {
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
 
@@ -243,7 +243,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
     SkASSERT(bounds.isEmpty() || SkIRect::MakeWH(rt->width(), rt->height()).contains(bounds));
     fBounds = bounds;
 
-    fUsesXferBarriers = usesXferBarrier;
+    fUsesXferBarriers = usesXferBarriers;
 
     if (this->wrapsSecondaryCommandBuffer()) {
         return this->initWrapped();
