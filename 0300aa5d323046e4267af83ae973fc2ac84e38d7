@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "c74ad702_f6d1ce42",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-14T14:49:06Z",
+      "side": 1,
+      "message": "\"constant integer\"?\n\nI would guess `case 3.14:` would now emit \"case value must be a constant\".",
+      "range": {
+        "startLine": 638,
+        "startChar": 72,
+        "endLine": 638,
+        "endChar": 80
+      },
+      "revId": "0300aa5d323046e4267af83ae973fc2ac84e38d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "69f2be12_cf469732",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 2
@@ -30,6 +53,47 @@
       "writtenOn": "2020-08-14T14:43:45Z",
       "side": 1,
       "message": "Adding another early return made me want to use a scoped helper... then I saw we already had one.",
+      "revId": "0300aa5d323046e4267af83ae973fc2ac84e38d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40cc4973_7470a7dc",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1179,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-14T14:49:06Z",
+      "side": 1,
+      "message": "🎉",
+      "parentUuid": "69f2be12_cf469732",
+      "revId": "0300aa5d323046e4267af83ae973fc2ac84e38d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2aec4ac_bb00059b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1190,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-14T14:49:06Z",
+      "side": 1,
+      "message": "\"constant integer\" as above",
+      "range": {
+        "startLine": 1190,
+        "startChar": 68,
+        "endLine": 1190,
+        "endChar": 76
+      },
       "revId": "0300aa5d323046e4267af83ae973fc2ac84e38d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
