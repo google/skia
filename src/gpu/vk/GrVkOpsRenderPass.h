@@ -36,7 +36,7 @@ public:
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
              const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-             bool usesXferBarrier);
+             bool usesXferBarriers);
     void reset();
 
     void submit();

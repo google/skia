@@ -115,7 +115,14 @@ public:
         if (dstProxyView.proxy()) {
             this->addSampledTexture(dstProxyView.proxy());
             addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
+            if (this->target(0).asTextureProxy() == dstProxyView.proxy()) {
+                // Since we are sampling and drawing to the same surface we will need to use
+                // texture barriers.
+                fUsesXferBarriers |= true;
+            }
         }
+
+        fUsesXferBarriers |= processorAnalysis.usesNonCoherentHWBlending();
 
         this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
                        &dstProxyView, caps);
@@ -312,6 +319,8 @@ private:
     uint32_t fLastClipStackGenID = SK_InvalidUniqueID;
     SkIRect fLastDevClipBounds;
     int fLastClipNumAnalyticElements;
+
+    bool fUsesXferBarriers = false;
 
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;
