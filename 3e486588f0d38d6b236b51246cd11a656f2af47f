@@ -16,6 +16,24 @@
       "revId": "3e486588f0d38d6b236b51246cd11a656f2af47f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc24b493_f8b49dde",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7953
+      },
+      "writtenOn": "2020-08-14T14:57:01Z",
+      "side": 1,
+      "message": "It is not about using it outside of skia. I am prototyping recording commandbuffer off main thread. It needs to record multiple command buffers and then submit them together. So all command buffers have to share one submit fence. That is why this class is added.\n\nhttps://skia-review.googlesource.com/c/skia/+/310176/6/src/gpu/vk/GrVkCommandBuffer.cpp#543",
+      "parentUuid": "46a32ca8_92ab5201",
+      "revId": "3e486588f0d38d6b236b51246cd11a656f2af47f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
