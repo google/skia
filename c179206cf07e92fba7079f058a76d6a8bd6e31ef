@@ -22,6 +22,30 @@
       "revId": "c179206cf07e92fba7079f058a76d6a8bd6e31ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "814a881a_db9f1ffb",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-14T18:56:46Z",
+      "side": 1,
+      "message": "Right, but soon it will not be color.",
+      "parentUuid": "189df348_4587349a",
+      "range": {
+        "startLine": 391,
+        "startChar": 26,
+        "endLine": 391,
+        "endChar": 40
+      },
+      "revId": "c179206cf07e92fba7079f058a76d6a8bd6e31ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
