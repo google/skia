@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6502e631_2f6abc8b",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-14T15:43:16Z",
+      "side": 1,
+      "message": "If ARC was on we could use __bridge_transfer to take ownership.",
+      "parentUuid": "6e1a3cf2_af0e49cf",
+      "revId": "468231b3507cf229f717be5723e28d6b182aa628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ef4fe505_32408f50",
         "filename": "tools/sk_app/MetalWindowContext.mm",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "468231b3507cf229f717be5723e28d6b182aa628",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18808eb5_37e50350",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-14T15:43:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef4fe505_32408f50",
+      "revId": "468231b3507cf229f717be5723e28d6b182aa628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
