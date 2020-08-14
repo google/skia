@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e1a3cf2_af0e49cf",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-14T15:26:49Z",
+      "side": 1,
+      "message": "Does it matter the status of ARC? Since fDrawableHandle is not an objective-c pointer, ARC won\u0027t manage it for us either way.",
+      "revId": "468231b3507cf229f717be5723e28d6b182aa628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef4fe505_32408f50",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-14T15:26:49Z",
+      "side": 1,
+      "message": "Should we nil it out after releasing?",
+      "revId": "468231b3507cf229f717be5723e28d6b182aa628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
