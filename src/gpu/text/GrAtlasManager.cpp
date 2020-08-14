@@ -171,13 +171,13 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
 
     get_packed_glyph_image(skGlyph, rowBytes, expectedMaskFormat, dataPtr);
 
-    auto errorCode = this->addToAtlas(resourceProvider,
-                                      uploadTarget,
-                                      expectedMaskFormat,
-                                      width,
-                                      height,
-                                      storage.get(),
-                                      &grGlyph->fAtlasLocator);
+    auto errorCode =  this->addToAtlas(resourceProvider,
+                                       uploadTarget,
+                                       expectedMaskFormat,
+                                       width,
+                                       height,
+                                       storage.get(),
+                                       &grGlyph->fAtlasLocator);
 
     grGlyph->fAtlasLocator.insetSrc(srcPadding);
 
