@@ -420,7 +420,7 @@ static skvm::Color program_fn(skvm::Builder* p,
             default:
                 #if 0
                     fn.disassemble();
-                    SkDebugf("inst %04x unimplemented\n", inst);
+                    SkDebugf("inst %02x unimplemented\n", inst);
                     __builtin_debugtrap();
                 #endif
                 return {};
