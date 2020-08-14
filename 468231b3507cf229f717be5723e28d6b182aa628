@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "cbd38ca4_802986bc",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-14T16:29:10Z",
+      "side": 1,
+      "message": "To clarify, if ARC were on we would replace the CFRelease line with just:\n\n`(__bridge_transfer id)fDrawableHandle;`\n\nin order to effectually get a release? That would be an unusual usage of __bridge_transfer but it would be valid.",
+      "parentUuid": "6502e631_2f6abc8b",
+      "revId": "468231b3507cf229f717be5723e28d6b182aa628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ef4fe505_32408f50",
         "filename": "tools/sk_app/MetalWindowContext.mm",
         "patchSetId": 1
