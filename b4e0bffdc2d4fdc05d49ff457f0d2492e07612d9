@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52ffbb15_16e5b856",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-14T15:20:20Z",
+      "side": 1,
+      "message": "The only real changes are in GrVkRenderPass.cpp and the added cap in GrVkCaps. Everything else is a rename.",
+      "revId": "b4e0bffdc2d4fdc05d49ff457f0d2492e07612d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
