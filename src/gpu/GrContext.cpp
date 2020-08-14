@@ -212,6 +212,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
         return;
     }
 
+    this->checkAsyncWorkCompletion();
     fMappedBufferManager->process();
     auto purgeTime = GrStdSteadyClock::now() - msNotUsed;
 
