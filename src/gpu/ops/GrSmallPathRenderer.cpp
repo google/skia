@@ -315,7 +315,7 @@ private:
 
                     if (!this->addDFPathToAtlas(target,
                                                 &flushInfo,
-                                                atlasMgr->atlas(),
+                                                atlasMgr,
                                                 shapeData,
                                                 args.fShape,
                                                 ceilDesiredDimension,
@@ -330,7 +330,7 @@ private:
                 if (!shapeData->fAtlasLocator.plotLocator().isValid()) {
                     if (!this->addBMPathToAtlas(target,
                                                 &flushInfo,
-                                                atlasMgr->atlas(),
+                                                atlasMgr,
                                                 shapeData,
                                                 args.fShape,
                                                 args.fViewMatrix)) {
@@ -351,34 +351,37 @@ private:
         this->flush(target, &flushInfo);
     }
 
-    bool addToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo, GrDrawOpAtlas* atlas,
-                    int width, int height, const void* image,
-                    GrDrawOpAtlas::AtlasLocator* atlasLocator) const {
-        SkASSERT(atlas);
-
+    bool addToAtlasWithRetry(GrMeshDrawOp::Target* target,
+                             FlushInfo* flushInfo,
+                             GrSmallPathAtlasMgr* atlasMgr,
+                             int width, int height, const void* image,
+                             const SkRect& bounds, int srcInset,
+                             GrSmallPathShapeData* shapeData) const {
         auto resourceProvider = target->resourceProvider();
         auto uploadTarget = target->deferredUploadTarget();
 
-        GrDrawOpAtlas::ErrorCode code = atlas->addToAtlas(resourceProvider, uploadTarget,
-                                                          width, height, image, atlasLocator);
-        if (GrDrawOpAtlas::ErrorCode::kError == code) {
+        auto errorCode = atlasMgr->addToAtlas3(resourceProvider, uploadTarget, width, height,
+                                               image, &shapeData->fAtlasLocator);
+        if (GrDrawOpAtlas::ErrorCode::kError == errorCode) {
             return false;
         }
 
-        if (GrDrawOpAtlas::ErrorCode::kTryAgain == code) {
+        if (GrDrawOpAtlas::ErrorCode::kTryAgain == errorCode) {
             this->flush(target, flushInfo);
 
-            code = atlas->addToAtlas(resourceProvider, uploadTarget, width, height,
-                                     image, atlasLocator);
+            errorCode = atlasMgr->addToAtlas3(resourceProvider, uploadTarget, width, height,
+                                              image, &shapeData->fAtlasLocator);
         }
 
-        return GrDrawOpAtlas::ErrorCode::kSucceeded == code;
+        shapeData->fAtlasLocator.insetSrc(srcInset);
+        shapeData->fBounds = bounds;
+
+        return GrDrawOpAtlas::ErrorCode::kSucceeded == errorCode;
     }
 
     bool addDFPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, GrSmallPathShapeData* shapeData,
+                          GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
                           const GrStyledShape& shape, uint32_t dimension, SkScalar scale) const {
-        SkASSERT(atlas);
 
         const SkRect& bounds = shape.bounds();
 
@@ -457,28 +460,19 @@ private:
                                                dst.width(), dst.height(), dst.rowBytes());
         }
 
-        // add to atlas
-        if (!this->addToAtlas(target, flushInfo, atlas, width, height, dfStorage.get(),
-                              &shapeData->fAtlasLocator)) {
-            return false;
-        }
+        SkRect bounds1 = SkRect::Make(devPathBounds).makeOffset(-translateX, -translateY);
+        bounds1.fLeft /= scale;
+        bounds1.fTop /= scale;
+        bounds1.fRight /= scale;
+        bounds1.fBottom /= scale;
 
-        shapeData->fAtlasLocator.insetSrc(SK_DistanceFieldPad);
-
-        shapeData->fBounds = SkRect::Make(devPathBounds);
-        shapeData->fBounds.offset(-translateX, -translateY);
-        shapeData->fBounds.fLeft /= scale;
-        shapeData->fBounds.fTop /= scale;
-        shapeData->fBounds.fRight /= scale;
-        shapeData->fBounds.fBottom /= scale;
-        return true;
+        return this->addToAtlasWithRetry(target, flushInfo, atlasMgr, width, height, dfStorage.get(),
+                                         bounds1, SK_DistanceFieldPad, shapeData);
     }
 
     bool addBMPathToAtlas(GrMeshDrawOp::Target* target, FlushInfo* flushInfo,
-                          GrDrawOpAtlas* atlas, GrSmallPathShapeData* shapeData,
+                          GrSmallPathAtlasMgr* atlasMgr, GrSmallPathShapeData* shapeData,
                           const GrStyledShape& shape, const SkMatrix& ctm) const {
-        SkASSERT(atlas);
-
         const SkRect& bounds = shape.bounds();
         if (bounds.isEmpty()) {
             return false;
@@ -536,15 +530,11 @@ private:
 
         draw.drawPathCoverage(path, paint);
 
-        // add to atlas
-        if (!this->addToAtlas(target, flushInfo, atlas, dst.width(), dst.height(), dst.addr(),
-                              &shapeData->fAtlasLocator)) {
-            return false;
-        }
+        SkRect bounds1 = SkRect::Make(devPathBounds).makeOffset(-translateX, -translateY);
 
-        shapeData->fBounds = SkRect::Make(devPathBounds);
-        shapeData->fBounds.offset(-translateX, -translateY);
-        return true;
+        return this->addToAtlasWithRetry(target, flushInfo, atlasMgr,
+                                         dst.width(), dst.height(), dst.addr(),
+                                         bounds1, 0, shapeData);
     }
 
     void writePathVertices(GrVertexWriter& vertices,
