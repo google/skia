@@ -512,7 +512,7 @@ static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
     // Enough space for 5 pixels when color type is F16, more than enough space in other cases.
     uint64_t dstPixels[kNumPixels];
     SkPixmap dstPixmap(dstInfo, dstPixels, dstInfo.minRowBytes());
-    bool success = src->readPixels(dstPixmap, 0, 0);
+    bool success = src->readPixels(nullptr, dstPixmap, 0, 0);
     REPORTER_ASSERT(r, success == SkImageInfoValidConversion(dstInfo, srcInfo));
 
     if (success) {

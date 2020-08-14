@@ -19,6 +19,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/private/SkMalloc.h"
 #include "tools/ToolUtils.h"
 
@@ -80,10 +81,10 @@ static sk_sp<SkImage> make_image(SkCanvas* root, int* xDivs, int* yDivs, int pad
     return surface->makeImageSnapshot();
 }
 
-static void image_to_bitmap(const SkImage* image, SkBitmap* bm) {
+static void image_to_bitmap(GrDirectContext* dContext, const SkImage* image, SkBitmap* bm) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height());
     bm->allocPixels(info);
-    image->readPixels(info, bm->getPixels(), bm->rowBytes(), 0, 0);
+    image->readPixels(dContext, info, bm->getPixels(), bm->rowBytes(), 0, 0);
 }
 
 /**
@@ -103,7 +104,8 @@ protected:
         return SkISize::Make(800, 800);
     }
 
-    void onDrawHelper(SkCanvas* canvas, int padLeft, int padTop, int padRight, int padBottom) {
+    void onDrawHelper(GrDirectContext* dContext, SkCanvas* canvas, int padLeft, int padTop,
+                      int padRight, int padBottom) {
         canvas->save();
 
         int xDivs[5];
@@ -114,7 +116,7 @@ protected:
         SkBitmap bitmap;
         sk_sp<SkImage> image = make_image(canvas, xDivs + 1, yDivs + 1, padLeft, padTop,
                                           padRight, padBottom);
-        image_to_bitmap(image.get(), &bitmap);
+        image_to_bitmap(dContext, image.get(), &bitmap);
 
         const SkSize size[] = {
             {  50,  50, }, // shrink in both axes
@@ -160,7 +162,7 @@ protected:
         for (int rectNum = 0; rectNum < 3; rectNum++) {
             int srcX = xDivs[fixedColorX[rectNum]-1];
             int srcY = yDivs[fixedColorY[rectNum]-1];
-            image->readPixels(info, &fixedColor[rectNum], 4, srcX, srcY);
+            image->readPixels(dContext, info, &fixedColor[rectNum], 4, srcX, srcY);
         }
 
         // Include the degenerate first div.  While normally the first patch is "scalable",
@@ -205,10 +207,17 @@ protected:
         canvas->restore();
     }
 
-    void onDraw(SkCanvas* canvas) override {
-        this->onDrawHelper(canvas, 0, 0, 0, 0);
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        auto rContext = canvas->recordingContext();
+        auto dContext = GrAsDirectContext(rContext);
+        if (rContext && !dContext) {
+            *errorMsg = "not supported in ddl";
+            return DrawResult::kSkip;
+        }
+        this->onDrawHelper(dContext, canvas, 0, 0, 0, 0);
         canvas->translate(0.0f, 400.0f);
-        this->onDrawHelper(canvas, 3, 7, 4, 11);
+        this->onDrawHelper(dContext, canvas, 3, 7, 4, 11);
+        return DrawResult::kOk;
     }
 
 private:
