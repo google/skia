@@ -87,14 +87,9 @@ public:
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
     GrVkCommandPool* findOrCreateCommandPool();
+    void recycleCommandPool(GrVkCommandPool* pool);
 
     void checkCommandBuffers();
-
-    // We must add the finishedProc to all active command buffers since we may have flushed work
-    // that the client cares about before they explicitly called flush and the GPU may reorder
-    // command execution. So we make sure all previously submitted work finishes before we call the
-    // finishedProc.
-    void addFinishedProcToActiveCommandBuffers(sk_sp<GrRefCntedCallback> finishedCallback);
 
     // Finds or creates a compatible GrVkDescriptorPool for the requested type and count.
     // The refcount is incremented and a pointer returned.

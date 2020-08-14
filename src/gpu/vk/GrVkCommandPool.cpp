@@ -41,14 +41,14 @@ GrVkCommandPool* GrVkCommandPool::Create(GrVkGpu* gpu) {
     return new GrVkCommandPool(gpu, pool, primaryCmdBuffer);
 }
 
-GrVkCommandPool::GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool,
+GrVkCommandPool::GrVkCommandPool(GrVkGpu* gpu,
+                                 VkCommandPool commandPool,
                                  GrVkPrimaryCommandBuffer* primaryCmdBuffer)
-        : GrVkManagedResource(gpu)
+        : GrVkRecycledResource(gpu)
         , fCommandPool(commandPool)
         , fPrimaryCommandBuffer(primaryCmdBuffer)
         , fMaxCachedSecondaryCommandBuffers(
-                gpu->vkCaps().maxPerPoolCachedSecondaryCommandBuffers()) {
-}
+                  gpu->vkCaps().maxPerPoolCachedSecondaryCommandBuffers()) {}
 
 std::unique_ptr<GrVkSecondaryCommandBuffer> GrVkCommandPool::findOrCreateSecondaryCommandBuffer(
         GrVkGpu* gpu) {
@@ -110,4 +110,8 @@ void GrVkCommandPool::freeGPUData() const {
         GR_VK_CALL(fGpu->vkInterface(),
                    DestroyCommandPool(fGpu->device(), fCommandPool, nullptr));
     }
+}
+
+void GrVkCommandPool::onRecycle() const {
+    fGpu->resourceProvider().recycleCommandPool(const_cast<GrVkCommandPool*>(this));
 }
