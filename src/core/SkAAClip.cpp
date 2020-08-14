@@ -1217,8 +1217,8 @@ public:
         fLastY = y + height - 1;
     }
 
-    virtual void blitAntiRect(int x, int y, int width, int height,
-                     SkAlpha leftAlpha, SkAlpha rightAlpha) override {
+    void blitAntiRect(int x, int y, int width, int height,
+                      SkAlpha leftAlpha, SkAlpha rightAlpha) override {
         this->recordMinY(y);
         this->checkForYGap(y);
         fBuilder->addAntiRectRun(x, y, width, height, leftAlpha, rightAlpha);
@@ -1238,8 +1238,8 @@ public:
         fBuilder->addRun(x, y, 0xFF, width);
     }
 
-    virtual void blitAntiH(int x, int y, const SkAlpha alpha[],
-                           const int16_t runs[]) override {
+    void blitAntiH(int x, int y, const SkAlpha alpha[],
+                   const int16_t runs[]) override {
         this->recordMinY(y);
         this->checkForYGap(y);
         for (;;) {

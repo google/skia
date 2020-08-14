@@ -129,7 +129,7 @@ public:
         path->transform(rotateMatrix);
     }
 
-    virtual void setupPaint(SkPaint* paint) override {
+    void setupPaint(SkPaint* paint) override {
         PathBench::setupPaint(paint);
         paint->setAntiAlias(fAA);
     }

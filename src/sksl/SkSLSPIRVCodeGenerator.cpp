@@ -1589,18 +1589,18 @@ public:
     , fType(type)
     , fPrecision(precision) {}
 
-    virtual SpvId getPointer() override {
+    SpvId getPointer() override {
         return fPointer;
     }
 
-    virtual SpvId load(OutputStream& out) override {
+    SpvId load(OutputStream& out) override {
         SpvId result = fGen.nextId();
         fGen.writeInstruction(SpvOpLoad, fType, result, fPointer, out);
         fGen.writePrecisionModifier(fPrecision, result);
         return result;
     }
 
-    virtual void store(SpvId value, OutputStream& out) override {
+    void store(SpvId value, OutputStream& out) override {
         fGen.writeInstruction(SpvOpStore, fPointer, value, out);
     }
 
@@ -1623,11 +1623,11 @@ public:
     , fSwizzleType(swizzleType)
     , fPrecision(precision) {}
 
-    virtual SpvId getPointer() override {
+    SpvId getPointer() override {
         return 0;
     }
 
-    virtual SpvId load(OutputStream& out) override {
+    SpvId load(OutputStream& out) override {
         SpvId base = fGen.nextId();
         fGen.writeInstruction(SpvOpLoad, fGen.getType(fBaseType), base, fVecPointer, out);
         fGen.writePrecisionModifier(fPrecision, base);
@@ -1644,7 +1644,7 @@ public:
         return result;
     }
 
-    virtual void store(SpvId value, OutputStream& out) override {
+    void store(SpvId value, OutputStream& out) override {
         // use OpVectorShuffle to mix and match the vector components. We effectively create
         // a virtual vector out of the concatenation of the left and right vectors, and then
         // select components from this virtual vector to make the result vector. For

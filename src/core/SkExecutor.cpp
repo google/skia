@@ -89,7 +89,7 @@ public:
         }
     }
 
-    virtual void add(std::function<void(void)> work) override {
+    void add(std::function<void(void)> work) override {
         // Add some work to our pile of work to do.
         {
             SkAutoMutexExclusive lock(fWorkLock);
@@ -99,7 +99,7 @@ public:
         fWorkAvailable.signal(1);
     }
 
-    virtual void borrow() override {
+    void borrow() override {
         // If there is work waiting and we're allowed to borrow work, do it.
         if (fAllowBorrowing && fWorkAvailable.try_wait()) {
             SkAssertResult(this->do_work());

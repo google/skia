@@ -35,7 +35,7 @@ constexpr SkRect kSrcImageClip{75, 75, 275, 275};
  */
 class CroppedRectsGM : public GM {
 private:
-    SkString onShortName() override final { return SkString("croppedrects"); }
+    SkString onShortName() final { return SkString("croppedrects"); }
     SkISize onISize() override { return SkISize::Make(500, 500); }
 
     void onOnceBeforeDraw() override {

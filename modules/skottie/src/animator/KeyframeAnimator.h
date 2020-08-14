@@ -55,7 +55,7 @@ struct Keyframe {
 
 class KeyframeAnimator : public Animator {
 public:
-    virtual ~KeyframeAnimator() override;
+    ~KeyframeAnimator() override;
 
     bool isConstant() const {
         SkASSERT(!fKFs.empty());

@@ -38,8 +38,7 @@ protected:
         this->INHERITED::begin(uvBounds, dst);
     }
 
-    virtual void next(const SkPoint& loc, int u, int v,
-                      SkPath* dst) const override {
+    void next(const SkPoint& loc, int u, int v, SkPath* dst) const override {
         if (fPts) {
             *fPts->append() = loc;
         }
@@ -78,8 +77,7 @@ sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
 class InverseFillPE : public SkPathEffect {
 public:
     InverseFillPE() {}
-    virtual bool onFilterPath(SkPath* dst, const SkPath& src,
-                              SkStrokeRec*, const SkRect*) const override {
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override {
         *dst = src;
         dst->setFillType(SkPathFillType::kInverseWinding);
         return true;

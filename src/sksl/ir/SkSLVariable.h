@@ -48,7 +48,7 @@ struct Variable : public Symbol {
         SkASSERT(!fReadCount && !fWriteCount);
     }
 
-    virtual String description() const override {
+    String description() const override {
         return fModifiers.description() + fType.fName + " " + fName;
     }
 

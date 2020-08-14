@@ -131,8 +131,8 @@ public:
 
 protected:
     // overrides
-    virtual void incPtr(void*) override ;
-    virtual void decPtr(void*) override ;
+    void incPtr(void*) override;
+    void decPtr(void*) override;
 };
 
 class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};

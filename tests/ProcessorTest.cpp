@@ -123,7 +123,7 @@ private:
         this->cloneAndRegisterAllChildProcessors(that);
     }
 
-    virtual GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
+    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
         class TestGLSLFP : public GrGLSLFragmentProcessor {
         public:
             TestGLSLFP() {}

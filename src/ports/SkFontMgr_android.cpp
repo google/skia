@@ -82,7 +82,7 @@ public:
         return SkStream::MakeFromFile(fPathName.c_str());
     }
 
-    virtual void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
         SkASSERT(desc);
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
@@ -134,8 +134,7 @@ public:
         , fData(std::move(data))
     { }
 
-    virtual void onGetFontDescriptor(SkFontDescriptor* desc,
-                                     bool* serialize) const override {
+    void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
         SkASSERT(desc);
         SkASSERT(serialize);
         desc->setFamilyName(fFamilyName.c_str());
@@ -353,14 +352,14 @@ protected:
         return nullptr;
     }
 
-    virtual SkTypeface* onMatchFamilyStyle(const char familyName[],
-                                           const SkFontStyle& style) const override {
+    SkTypeface* onMatchFamilyStyle(const char familyName[],
+                                   const SkFontStyle& style) const override {
         sk_sp<SkFontStyleSet> sset(this->matchFamily(familyName));
         return sset->matchStyle(style);
     }
 
-    virtual SkTypeface* onMatchFaceStyle(const SkTypeface* typeface,
-                                         const SkFontStyle& style) const override {
+    SkTypeface* onMatchFaceStyle(const SkTypeface* typeface,
+                                 const SkFontStyle& style) const override {
         for (int i = 0; i < fStyleSets.count(); ++i) {
             for (int j = 0; j < fStyleSets[i]->fStyles.count(); ++j) {
                 if (fStyleSets[i]->fStyles[j].get() == typeface) {
@@ -403,12 +402,11 @@ protected:
         return nullptr;
     }
 
-    virtual SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
-                                                    const SkFontStyle& style,
-                                                    const char* bcp47[],
-                                                    int bcp47Count,
-                                                    SkUnichar character) const override
-    {
+    SkTypeface* onMatchFamilyStyleCharacter(const char familyName[],
+                                            const SkFontStyle& style,
+                                            const char* bcp47[],
+                                            int bcp47Count,
+                                            SkUnichar character) const override {
         // The variant 'elegant' is 'not squashed', 'compact' is 'stays in ascent/descent'.
         // The variant 'default' means 'compact and elegant'.
         // As a result, it is not possible to know the variant context from the font alone.

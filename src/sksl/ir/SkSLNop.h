@@ -20,7 +20,7 @@ struct Nop : public Statement {
     Nop()
     : INHERITED(-1, kNop_Kind) {}
 
-    virtual bool isEmpty() const override {
+    bool isEmpty() const override {
         return true;
     }
 
