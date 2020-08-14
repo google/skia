@@ -60,7 +60,7 @@ public:
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     uint32_t  queueIndex() const { return fQueueIndex; }
-    GrVkCommandPool* cmdPool() const { return fMainCmdPool; }
+    GrVkCommandPool* cmdPool() const { return fMainCmdPools.back(); }
     const VkPhysicalDeviceProperties& physicalDeviceProperties() const {
         return fPhysDevProps;
     }
@@ -71,7 +71,7 @@ public:
 
     GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
 
-    GrVkPrimaryCommandBuffer* currentCommandBuffer() const { return fMainCmdBuffer; }
+    GrVkPrimaryCommandBuffer* currentCommandBuffer() const { return fMainCmdBuffers.back(); }
 
     void querySampleLocations(GrRenderTarget*, SkTArray<SkPoint>*) override;
 
@@ -168,10 +168,6 @@ public:
 
     void storeVkPipelineCacheData() override;
 
-    bool beginRenderPass(const GrVkRenderPass*,
-                         const VkClearValue* colorClear,
-                         GrVkRenderTarget*, GrSurfaceOrigin,
-                         const SkIRect& bounds, bool forSecondaryCB);
     void endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin, const SkIRect& bounds);
 
     // Returns true if VkResult indicates success and also checks for device lost or OOM. Every
@@ -321,6 +317,7 @@ private:
                                         GrMipmapped,
                                         GrVkImageInfo*,
                                         GrProtected);
+    void createCommandBufferIfNecessary();
 
     sk_sp<const GrVkInterface>                            fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;
@@ -336,9 +333,9 @@ private:
     GrVkResourceProvider                                  fResourceProvider;
     GrStagingBufferManager                                fStagingBufferManager;
 
-    GrVkCommandPool*                                      fMainCmdPool;
+    SkSTArray<1, GrVkCommandPool*> fMainCmdPools;
     // just a raw pointer; object's lifespan is managed by fCmdPool
-    GrVkPrimaryCommandBuffer*                             fMainCmdBuffer;
+    SkSTArray<1, GrVkPrimaryCommandBuffer*> fMainCmdBuffers;
 
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToWaitOn;
     SkSTArray<1, GrVkSemaphore::Resource*>                fSemaphoresToSignal;
