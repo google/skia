@@ -106,21 +106,21 @@ struct Swizzle : public Expression {
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (fBase->fKind == Expression::kConstructor_Kind && fBase->isCompileTimeConstant()) {
-            // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
-            SkASSERT(fBase->fKind == Expression::kConstructor_Kind);
-            if (fType.isInteger()) {
-                SkASSERT(fComponents.size() == 1);
-                int64_t value = ((Constructor&) *fBase).getIVecComponent(fComponents[0]);
-                return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
-                                                                  -1,
-                                                                  value));
-            } else if (fType.isFloat()) {
-                SkASSERT(fComponents.size() == 1);
-                double value = ((Constructor&) *fBase).getFVecComponent(fComponents[0]);
-                return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
-                                                                    -1,
-                                                                    value));
+        if (fBase->fKind == Expression::kConstructor_Kind) {
+            Constructor& constructor = static_cast<Constructor&>(*fBase);
+            if (constructor.isCompileTimeConstant()) {
+                // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
+                if (fType.isInteger()) {
+                    SkASSERT(fComponents.size() == 1);
+                    int64_t value = constructor.getIVecComponent(fComponents[0]);
+                    return std::make_unique<IntLiteral>(irGenerator.fContext, constructor.fOffset,
+                                                        value);
+                } else if (fType.isFloat()) {
+                    SkASSERT(fComponents.size() == 1);
+                    double value = constructor.getFVecComponent(fComponents[0]);
+                    return std::make_unique<FloatLiteral>(irGenerator.fContext, constructor.fOffset,
+                                                          value);
+                }
             }
         }
         return nullptr;

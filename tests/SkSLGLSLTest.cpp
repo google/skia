@@ -2578,6 +2578,64 @@ DEF_TEST(SkSLSwizzleScalar, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLStackingVectorCasts, r) {
+    test(r,
+         "void main() {"
+         "    if (half4(0, 0, 1, 1) == half4(int4(0, 0, 1, 1)))"
+         "        sk_FragColor = half4(0, 1, 0, 1);"
+         "    else"
+         "        sk_FragColor = half4(1, 0, 0, 1);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+         "}\n");
+    test(r,
+         "void main() {"
+         "    if (half4(int4(0, 0, 1, 1)) == half4(int4(half4(0, 0, 1, 1))))"
+         "        sk_FragColor = half4(0, 1, 0, 1);"
+         "    else"
+         "        sk_FragColor = half4(1, 0, 0, 1);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLCastsRoundTowardZero, r) {
+    test(r,
+         "void main() {"
+         "    if (half4(int4(0, 0, 1, 2)) == half4(int4(half4(0.01, 0.99, 1.49, 2.75))))"
+         "        sk_FragColor = half4(0, 1, 0, 1);"
+         "    else"
+         "        sk_FragColor = half4(1, 0, 0, 1);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+         "}\n");
+    test(r,
+         "void main() {"
+         "    if (half4(int4(0, 0, -1, -2)) == half4(int4(half4(-0.01, -0.99, -1.49, -2.75))))"
+         "        sk_FragColor = half4(0, 1, 0, 1);"
+         "    else"
+         "        sk_FragColor = half4(1, 0, 0, 1);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
+         "}\n");
+}
+
 DEF_TEST(SkSLNegatedVectorLiteral, r) {
     test(r,
          "void main() {"
