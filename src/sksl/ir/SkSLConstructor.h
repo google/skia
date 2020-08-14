@@ -136,7 +136,7 @@ struct Constructor : public Expression {
         return true;
     }
 
-    template<typename type>
+    template <typename type>
     type getVecComponent(int index) const {
         SkASSERT(fType.kind() == Type::kVector_Kind);
         if (fArguments.size() == 1 && fArguments[0]->fType.kind() == Type::kScalar_Kind) {
@@ -147,7 +147,7 @@ struct Constructor : public Expression {
             }
         }
         int current = 0;
-        for (const auto& arg : fArguments) {
+        for (const std::unique_ptr<Expression>& arg : fArguments) {
             SkASSERT(current <= index);
             if (arg->fType.kind() == Type::kScalar_Kind) {
                 if (index == current) {
@@ -159,23 +159,31 @@ struct Constructor : public Expression {
                 }
                 current++;
             } else if (arg->fKind == kConstructor_Kind) {
-                if (current + arg->fType.columns() > index) {
-                    return ((const Constructor&) *arg).getVecComponent<type>(index - current);
+                const Constructor& constructor = static_cast<const Constructor&>(*arg);
+                if (current + constructor.fType.columns() > index) {
+                    if (constructor.fType.isFloat()) {
+                        return type(constructor.getVecComponent<SKSL_FLOAT>(index - current));
+                    } else {
+                        return type(constructor.getVecComponent<SKSL_INT>(index - current));
+                    }
                 }
                 current += arg->fType.columns();
             } else {
                 if (current + arg->fType.columns() > index) {
                     SkASSERT(arg->fKind == kPrefix_Kind);
-                    const PrefixExpression& p = (PrefixExpression&) *arg;
-                    const Constructor& c = (const Constructor&) *p.fOperand;
-                    return -c.getVecComponent<type>(index - current);
+                    const PrefixExpression& prefix = static_cast<const PrefixExpression&>(*arg);
+                    const Constructor& constructor =
+                            static_cast<const Constructor&>(*prefix.fOperand);
+                    if (constructor.fType.isFloat()) {
+                        return type(constructor.getVecComponent<SKSL_FLOAT>(index - current));
+                    } else {
+                        return type(constructor.getVecComponent<SKSL_INT>(index - current));
+                    }
                 }
                 current += arg->fType.columns();
             }
         }
-#ifdef SK_DEBUG
-        ABORT("failed to find vector component %d in %s\n", index, description().c_str());
-#endif
+        SkDEBUGFAILF("failed to find vector component %d in %s\n", index, description().c_str());
         return -1;
     }
 
