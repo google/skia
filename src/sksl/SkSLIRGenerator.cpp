@@ -2853,13 +2853,16 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         return nullptr;
     }
     std::vector<int> swizzleComponents;
+    size_t numLiteralFields = 0;
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
             case '0':
                 swizzleComponents.push_back(SKSL_SWIZZLE_0);
+                numLiteralFields++;
                 break;
             case '1':
                 swizzleComponents.push_back(SKSL_SWIZZLE_1);
+                numLiteralFields++;
                 break;
             case 'x':
             case 'r':
@@ -2903,6 +2906,10 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     SkASSERT(swizzleComponents.size() > 0);
     if (swizzleComponents.size() > 4) {
         fErrors.error(base->fOffset, "too many components in swizzle mask '" + fields + "'");
+        return nullptr;
+    }
+    if (numLiteralFields == swizzleComponents.size()) {
+        fErrors.error(base->fOffset, "swizzle must refer to base expression");
         return nullptr;
     }
     if (base->fType.isNumber()) {
