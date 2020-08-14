@@ -388,90 +388,113 @@ static auto ltbr(const Rect& r) {
     return std::make_tuple(r.left(), r.top(), r.right(), r.bottom());
 }
 
+// The 99% case. No clip. Non-color only.
+template<typename Quad, typename VertexData>
+static void direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                      GrColor color,
+                      SkIPoint deviceOrigin) {
+    for (auto[quad, glyph, leftTop] : quadData) {
+        GrIRect16 rect = glyph->fAtlasLocator.rect();
+        int16_t w = rect.width(),
+                h = rect.height();
+        auto[l, t] = leftTop + deviceOrigin;
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+
+        auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
+        quad[0] = {{dl, dt}, color, {al, at}};  // L,T
+        quad[1] = {{dl, db}, color, {al, ab}};  // L,B
+        quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
+        quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
+    }
+}
+
+// Handle any combination of BW or color and clip or no clip.
+template<typename Quad, typename VertexData>
+void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                           GrColor color,
+                           SkIPoint deviceOrigin,
+                           SkIRect* clip = nullptr) {
+    for (auto[quad, glyph, leftTop] : quadData) {
+        GrIRect16 rect = glyph->fAtlasLocator.rect();
+        int16_t w = rect.width(),
+                h = rect.height();
+        auto[l, t] = leftTop + deviceOrigin;
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        if (clip == nullptr) {
+            auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
+            quad[0] = {{dl, dt}, color, {al, at}};  // L,T
+            quad[1] = {{dl, db}, color, {al, ab}};  // L,B
+            quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
+            quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
+        } else {
+            SkIRect devIRect = SkIRect::MakeLTRB(l, t, l + w, t + h);
+            SkScalar dl, dt, dr, db;
+            uint16_t tl, tt, tr, tb;
+            if (!clip->containsNoEmptyCheck(devIRect)) {
+                if (SkIRect clipped; clipped.intersect(devIRect, *clip)) {
+                    int lD = clipped.left() - devIRect.left();
+                    int tD = clipped.top() - devIRect.top();
+                    int rD = clipped.right() - devIRect.right();
+                    int bD = clipped.bottom() - devIRect.bottom();
+                    std::tie(dl, dt, dr, db) = ltbr(clipped);
+                    int index = glyph->fAtlasLocator.pageIndex();
+                    std::tie(tl, tt) =
+                            GrDrawOpAtlas::PackIndexInTexCoords(
+                                    rect.fLeft + lD, rect.fTop + tD, index);
+                    std::tie(tr, tb) =
+                            GrDrawOpAtlas::PackIndexInTexCoords(
+                                    rect.fRight + rD, rect.fBottom + bD, index);
+                } else {
+                    // TODO: omit generating any vertex data for fully clipped glyphs ?
+                    std::tie(dl, dt, dr, db) = std::make_tuple(0, 0, 0, 0);
+                    std::tie(tl, tt, tr, tb) = std::make_tuple(0, 0, 0, 0);
+                }
+
+            } else {
+                std::tie(dl, dt, dr, db) = ltbr(devIRect);
+                std::tie(tl, tt, tr, tb) = std::tie(al, at, ar, ab);
+            }
+            quad[0] = {{dl, dt}, color, {tl, tt}};  // L,T
+            quad[1] = {{dl, db}, color, {tl, tb}};  // L,B
+            quad[2] = {{dr, dt}, color, {tr, tt}};  // R,T
+            quad[3] = {{dr, db}, color, {tr, tb}};  // R,B
+        }
+    }
+}
+
 void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, GrColor color,
                                         const SkMatrix& drawMatrix, SkPoint drawOrigin,
                                         SkIRect clip) const {
-    SkMatrix matrix = drawMatrix;
-    matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-
-    auto vertices = [&](auto dst) {
+    auto quadData = [&](auto dst) {
         return SkMakeZip(dst,
                          fGlyphs.glyphs().subspan(offset, count),
                          fVertexData.subspan(offset, count));
     };
 
-    auto direct2D = [&](auto dst, SkIRect* clip) {
-        // Rectangles in device space
-        SkPoint originInDeviceSpace = matrix.mapXY(0, 0) + fResidual;
-        SkIPoint originInDeviceSpaceI = {SkScalarRoundToInt(originInDeviceSpace.x()),
-                                         SkScalarRoundToInt(originInDeviceSpace.y())};
-        for (auto[quad, glyph, leftTop] : vertices(dst)) {
-            GrIRect16 rect = glyph->fAtlasLocator.rect();
-            int16_t w = rect.width(),
-                    h = rect.height();
-            auto[l, t] = leftTop + originInDeviceSpaceI;
-            auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-            if (clip == nullptr) {
-                auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
-                quad[0] = {{dl, dt}, color, {al, at}};  // L,T
-                quad[1] = {{dl, db}, color, {al, ab}};  // L,B
-                quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
-                quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
-            } else {
-                SkIRect devIRect = SkIRect::MakeLTRB(l, t, l + w, t + h);
-                SkScalar dl, dt, dr, db;
-                uint16_t tl, tt, tr, tb;
-                if (!clip->containsNoEmptyCheck(devIRect)) {
-                    if (SkIRect clipped; clipped.intersect(devIRect, *clip)) {
-                        int lD = clipped.left() - devIRect.left();
-                        int tD = clipped.top() - devIRect.top();
-                        int rD = clipped.right() - devIRect.right();
-                        int bD = clipped.bottom() - devIRect.bottom();
-                        std::tie(dl, dt, dr, db) = ltbr(clipped);
-                        int index = glyph->fAtlasLocator.pageIndex();
-                        std::tie(tl, tt) =
-                                GrDrawOpAtlas::PackIndexInTexCoords(
-                                        rect.fLeft + lD, rect.fTop + tD, index);
-                        std::tie(tr, tb) =
-                                GrDrawOpAtlas::PackIndexInTexCoords(
-                                        rect.fRight + rD, rect.fBottom + bD, index);
-                    } else {
-                        // TODO: omit generating any vertex data for fully clipped glyphs ?
-                        std::tie(dl, dt, dr, db) = std::make_tuple(0, 0, 0, 0);
-                        std::tie(tl, tt, tr, tb) = std::make_tuple(0, 0, 0, 0);
-                    }
-
-                } else {
-                    std::tie(dl, dt, dr, db) = ltbr(devIRect);
-                    std::tie(tl, tt, tr, tb) = std::tie(al, at, ar, ab);
-                }
-                quad[0] = {{dl, dt}, color, {tl, tt}};  // L,T
-                quad[1] = {{dl, db}, color, {tl, tb}};  // L,B
-                quad[2] = {{dr, dt}, color, {tr, tt}};  // R,T
-                quad[3] = {{dr, db}, color, {tr, tb}};  // R,B
-            }
-        }
-    };
+    SkMatrix matrix = drawMatrix;
+    matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    SkPoint o = matrix.mapXY(0, 0) + fResidual;
+    SkIPoint originInDeviceSpace = {SkScalarRoundToInt(o.x()), SkScalarRoundToInt(o.y())};
 
     if (clip.isEmpty()) {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, nullptr);
+            direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, nullptr);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace);
         }
     } else {
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, &clip);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace, &clip);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct2D((Quad*) vertexDst, &clip);
+            generalized_direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace, &clip);
         }
     }
 
