@@ -661,7 +661,7 @@ struct CountingBBH : public SkBBoxHierarchy {
     }
 
     void insert(const SkRect[], int) override {}
-    virtual size_t bytesUsed() const override { return 0; }
+    size_t bytesUsed() const override { return 0; }
 };
 
 class SpoonFedBBHFactory : public SkBBHFactory {

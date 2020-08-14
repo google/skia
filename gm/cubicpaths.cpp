@@ -29,7 +29,7 @@ class ClippedCubicGM : public skiagm::GM {
 
     SkISize onISize() override { return {1240, 390}; }
 
-    virtual void onDraw(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         SkPath path;
         path.moveTo(0, 0);
         path.cubicTo(140, 150, 40, 10, 170, 150);
@@ -259,7 +259,7 @@ class CubicClosePathGM : public skiagm::GM {
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) override {
+    void onDraw(SkCanvas* canvas) override {
         struct FillAndName {
             SkPathFillType fFill;
             const char*      fName;

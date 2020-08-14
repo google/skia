@@ -71,7 +71,7 @@ protected:
         }
     }
 
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
     }

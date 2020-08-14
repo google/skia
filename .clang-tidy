@@ -1,4 +1,20 @@
-Checks: '-*,bugprone-use-after-move,bugprone-unused-raii,bugprone-undelegated-constructor,bugprone-argument-comment,bugprone-bool-pointer-implicit-conversion,performance-unnecessary-copy-initialization,performance-for-range-copy,readability-redundant-preprocessor,misc-definitions-in-headers,modernize-make-unique,llvm-namespace-comment,readability-static-accessed-through-instance,readability-const-return-type,google-build-namespaces'
+Checks: >
+    -*,
+    bugprone-argument-comment,
+    bugprone-bool-pointer-implicit-conversion,
+    bugprone-undelegated-constructor,
+    bugprone-unused-raii,
+    bugprone-use-after-move,
+    google-build-namespaces,
+    llvm-namespace-comment,
+    misc-definitions-in-headers,
+    modernize-make-unique,
+    modernize-use-override,
+    performance-for-range-copy,
+    performance-unnecessary-copy-initialization,
+    readability-const-return-type,
+    readability-redundant-preprocessor,
+    readability-static-accessed-through-instance
 CheckOptions:
   - key:             llvm-namespace-comment.SpacesBeforeComments
     value:           2

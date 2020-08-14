@@ -98,7 +98,7 @@ public:
         return fTokenTracker.nextDrawToken();
     }
 
-    virtual GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&& upload) final {
+    GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&& upload) final {
         return fTokenTracker.nextTokenToFlush();
     }
 

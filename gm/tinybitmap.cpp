@@ -21,7 +21,7 @@ class TinyBitmapGM : public skiagm::GM {
 
     SkString onShortName() override { return SkString("tinybitmap"); }
 
-    virtual SkISize onISize() override { return SkISize::Make(100, 100); }
+    SkISize onISize() override { return SkISize::Make(100, 100); }
 
     void onDraw(SkCanvas* canvas) override {
         SkBitmap bm;
