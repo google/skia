@@ -23,15 +23,6 @@
 static bool gDumpAtlasData = false;
 #endif
 
-std::array<uint16_t, 4> GrDrawOpAtlas::AtlasLocator::getUVs() const {
-
-    // We pack the 2bit page index in the low bit of the u and v texture coords
-    uint32_t pageIndex = this->pageIndex();
-    auto [left, top] = PackIndexInTexCoords(fRect.fLeft, fRect.fTop, pageIndex);
-    auto [right, bottom] = PackIndexInTexCoords(fRect.fRight, fRect.fBottom, pageIndex);
-    return { left, top, right, bottom };
-}
-
 #ifdef SK_DEBUG
 void GrDrawOpAtlas::AtlasLocator::validate(const GrDrawOpAtlas* drawOpAtlas) const {
     // Verify that the plotIndex stored in the PlotLocator is consistent with the glyph rectangle
@@ -83,20 +74,6 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
         atlas->fEvictionCallbacks.emplace_back(evictor);
     }
     return atlas;
-}
-
-// The two bits that make up the texture index are packed into the lower bits of the u and v
-// coordinate respectively.
-std::pair<uint16_t, uint16_t> GrDrawOpAtlas::PackIndexInTexCoords(uint16_t u, uint16_t v,
-                                                                  int pageIndex) {
-    SkASSERT(pageIndex >= 0 && pageIndex < 4);
-    uint16_t uBit = (pageIndex >> 1u) & 0x1u;
-    uint16_t vBit = pageIndex & 0x1u;
-    u <<= 1u;
-    u |= uBit;
-    v <<= 1u;
-    v |= vBit;
-    return std::make_pair(u, v);
 }
 
 std::tuple<uint16_t, uint16_t, int> GrDrawOpAtlas::UnpackIndexFromTexCoords(uint16_t u,
