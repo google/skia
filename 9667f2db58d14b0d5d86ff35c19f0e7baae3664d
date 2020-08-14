@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14d22eaf_035745db",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-14T14:50:48Z",
+      "side": 1,
+      "message": "Might be nice to split this over a few lines now.",
+      "revId": "9667f2db58d14b0d5d86ff35c19f0e7baae3664d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af5e0bfb_1b868955",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-14T14:50:48Z",
+      "side": 1,
+      "message": "Let\u0027s add another reviewer for this.  I\u0027m not familiar with it.",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 12
+      },
+      "revId": "9667f2db58d14b0d5d86ff35c19f0e7baae3664d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
