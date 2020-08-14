@@ -19,8 +19,8 @@
     // Free the memory that was used to hold the file, since it is now represented as an SkPicture
     this._free(fileMemPtr)
     return {
-        error: error,
-        player: player
+        'error': error,
+        'player': player
     };
   }
 
