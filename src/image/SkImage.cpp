@@ -429,11 +429,6 @@ sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
 
 #if SK_SUPPORT_GPU
     auto myContext = as_IB(this)->context();
-#ifdef SK_IMAGE_MAKE_COLOR_TYPE_AND_SPACE_USE_SOURCE_CONTEXT
-    if (!direct) {
-        direct = GrAsDirectContext(myContext);
-    }
-#endif
     // This check is also performed in the subclass, but we do it here for the short-circuit below.
     if (myContext && !myContext->priv().matches(direct)) {
         return nullptr;
