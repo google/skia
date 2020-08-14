@@ -278,7 +278,7 @@ bool GrMtlGpu::onSubmitToGpu(bool syncCpu) {
 }
 
 std::unique_ptr<GrSemaphore> GrMtlGpu::prepareTextureForCrossContextUsage(GrTexture*) {
-    submitCommandBuffer(SyncQueue::kSkip_SyncQueue);
+    this->submitToGpu(false);
     return nullptr;
 }
 

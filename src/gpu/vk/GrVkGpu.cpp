@@ -2647,7 +2647,7 @@ std::unique_ptr<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTextu
     // TODO: should we have a way to notify the caller that this has failed? Currently if the submit
     // fails (caused by DEVICE_LOST) this will just cause us to fail the next use of the gpu.
     // Eventually we will abandon the whole GPU if this fails.
-    this->submitCommandBuffer(kSkip_SyncQueue);
+    this->submitToGpu(false);
 
     // The image layout change serves as a barrier, so no semaphore is needed.
     // If we ever decide we need to return a semaphore here, we need to make sure GrVkSemaphore is
