@@ -82,7 +82,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fStrutMetrics(false)
         , fOldWidth(0)
         , fOldHeight(0) {
-    fICU = ::skia::SkUnicode::Make();
+    fICU = SkUnicode::Make();
 }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
@@ -255,15 +255,15 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     #endif
 
     // Get bidi regions
-    Direction textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr
-                              ? Direction::kLTR
-                              : Direction::kRTL;
+    auto textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr
+                              ? SkUnicode::TextDirection::kLTR
+                              : SkUnicode::TextDirection::kRTL;
     if (!fICU->getBidiRegions(fText.c_str(), fText.size(), textDirection, &fBidiRegions)) {
         return false;
     }
 
     // Get white spaces
-    std::vector<Position> whitespaces;
+    std::vector<SkUnicode::Position> whitespaces;
     if (!fICU->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
         return false;
     }
@@ -272,18 +272,18 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     }
 
     // Get line breaks
-    std::vector<LineBreakBefore> lineBreaks;
+    std::vector<SkUnicode::LineBreakBefore> lineBreaks;
     if (!fICU->getLineBreaks(fText.c_str(), fText.size(), &lineBreaks)) {
         return false;
     }
     for (auto& lineBreak : lineBreaks) {
-        fCodeUnitProperties[lineBreak.pos] |= lineBreak.breakType == LineBreakType::kHardLineBreak
+        fCodeUnitProperties[lineBreak.pos] |= lineBreak.breakType == SkUnicode::LineBreakType::kHardLineBreak
                                            ? CodeUnitFlags::kHardLineBreakBefore
                                            : CodeUnitFlags::kSoftLineBreakBefore;
     }
 
     // Get graphemes
-    std::vector<Position> graphemes;
+    std::vector<SkUnicode::Position> graphemes;
     if (!fICU->getGraphemes(fText.c_str(), fText.size(), &graphemes)) {
         return false;
     }

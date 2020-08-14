@@ -477,7 +477,7 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         if (placeholder.fTextBefore.width() > 0) {
             // Shape the text by bidi regions
             while (bidiIndex < fParagraph->fBidiRegions.size()) {
-                BidiRegion& bidiRegion = fParagraph->fBidiRegions[bidiIndex];
+                SkUnicode::BidiRegion& bidiRegion = fParagraph->fBidiRegions[bidiIndex];
                 auto start = std::max(bidiRegion.start, placeholder.fTextBefore.start);
                 auto end = std::min(bidiRegion.end, placeholder.fTextBefore.end);
 
