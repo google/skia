@@ -277,6 +277,10 @@ public:
          * texture or because we need an xfer barrier).
          */
         kRequiresNonOverlappingDraws = 0x20,
+        /**
+         * If set the draw will use fixed function non coherent advanced blends.
+         */
+        kUsesNonCoherentHWBlending = 0x40,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AnalysisProperties);
 
