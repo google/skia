@@ -155,7 +155,6 @@ enum class ByteCodeInstruction : uint16_t {
     kLoopBreak,
     kLoopContinue,
 };
-#undef VECTOR
 
 class ByteCodeFunction {
 public:
