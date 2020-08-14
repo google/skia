@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4741a15_175abef8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-14T20:40:19Z",
+      "side": 1,
+      "message": "This just removes support for sk_InColor from runtime effect (which wasn\u0027t possible to trigger anyway - the only declaration of that variable is in sksl_fp, which isn\u0027t pre-included for runtime effects). When I moved the first \"output \u003d input\" line to the FP itself, the need for this magic value went away. (And this will make it possible to fully remove SK_INCOLOR_BUILTIN once the unit tests are changed/removed).",
+      "revId": "126563b361639ef59ddd15d7dedf8059fd3b09c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
