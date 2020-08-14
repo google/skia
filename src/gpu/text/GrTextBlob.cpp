@@ -337,6 +337,10 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
             if (result.fIsRRect && result.fRRect.isRect() && result.fAA == GrAA::kNo) {
                 // Clip geometrically during onPrepare using clipRect.
                 result.fRRect.getBounds().round(&clipRect);
+                if (clipRect.contains(subRunBounds)) {
+                    // If fully within the clip, then signal no clipping using the empty rect.
+                    clipRect = SkIRect::MakeEmpty();
+                }
                 clip = nullptr;
             }
         } else if (result.fEffect == GrClip::Effect::kClippedOut) {
