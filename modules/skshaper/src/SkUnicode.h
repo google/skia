@@ -31,8 +31,6 @@
     #endif
 #endif
 
-namespace skia {
-
 enum class UtfFormat {
     kUTF8,
     kUTF16
@@ -73,12 +71,40 @@ struct Range {
     Position end;
 };
 
+class SKUNICODE_API SkBidiIterator {
+public:
+    typedef int32_t Position;
+    typedef uint8_t Level;
+    struct Region {
+        Region(Position start, Position end, Level level)
+            : start(start), end(end), level(level) { }
+        Position start;
+        Position end;
+        Level level;
+    };
+    enum Direction {
+        kLTR,
+        kRTL,
+    };
+    virtual ~SkBidiIterator() {}
+    virtual Position getLength() = 0;
+    virtual Level getLevelAt(Position) = 0;
+    static void ReorderVisual(const Level runLevels[], int levelsCount, int32_t logicalFromVisual[]);
+};
+
 class SKUNICODE_API SkUnicode {
     public:
         typedef uint32_t ScriptID;
         typedef uint32_t CombiningClass;
         typedef uint32_t GeneralCategory;
         virtual ~SkUnicode() = default;
+
+        // Iterators (used in SkShaper)
+        virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
+            (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
+        virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
+            (const char text[], int count, SkBidiIterator::Direction) = 0;
+
         // High level methods (that we actually use somewhere=SkParagraph)
         virtual bool getBidiRegions
                (const char utf8[], int utf8Units, Direction dir, std::vector<BidiRegion>* results) = 0;
@@ -95,7 +121,5 @@ class SKUNICODE_API SkUnicode {
 
         static std::unique_ptr<SkUnicode> Make();
 };
-
-}  // namespace skia
 
 #endif // SkUnicode_DEFINED
