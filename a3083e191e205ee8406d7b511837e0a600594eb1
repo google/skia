@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "07990f9f_9ee86358",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-14T17:37:27Z",
+      "side": 1,
+      "message": "We need background color to be passed into the runner so it can be passed into our nDrawFrame().\nnDrawFrame() needs it because because SurfaceViews are placed behind the application window. Using transparent will make the SkottieView have a black square as a background.",
+      "parentUuid": "4b458210_10e314c9",
+      "range": {
+        "startLine": 285,
+        "startChar": 20,
+        "endLine": 285,
+        "endChar": 37
+      },
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79f4e9af_d8b6748b",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
         "patchSetId": 1
@@ -56,6 +80,24 @@
       "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "189ed5aa_ce626016",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-14T17:37:27Z",
+      "side": 1,
+      "message": "Good idea. Done.",
+      "parentUuid": "79f4e9af_d8b6748b",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +118,24 @@
     },
     {
       "key": {
+        "uuid": "e4005192_76896a15",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-14T17:37:27Z",
+      "side": 1,
+      "message": "Similar to init() we can move the mSurfaceHolder and mSuraceTexture assignment out of the function. Had to add a setter for mSurfaceTexture, but it\u0027s much cleaner. Done.",
+      "parentUuid": "f6271389_661fce0a",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df2b86f6_0aa4dd3d",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
         "patchSetId": 1
@@ -90,6 +150,24 @@
       "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6ccae9f_389b4802",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-14T17:37:27Z",
+      "side": 1,
+      "message": "Originally it was there because only surfaceViews are prone to being accessed before they are validated. However, after some experimentation, turns out we don\u0027t need the check there at all. We only need it for doFrame on start. I got rid of the check at updateSurface so now it is only used for doFrame().\nDone.",
+      "parentUuid": "df2b86f6_0aa4dd3d",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -116,6 +194,30 @@
     },
     {
       "key": {
+        "uuid": "46914b1b_fd94dad5",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-14T17:37:27Z",
+      "side": 1,
+      "message": "I tried moving that error block out to avoid duplicate code, but that code should only be called if we enter one of these blocks. Maybe instead of moving it out, we should make a helper method that checks the eglSurface and call it in the same place.\nDone.",
+      "parentUuid": "952a78f8_16fcd1b8",
+      "range": {
+        "startLine": 496,
+        "startChar": 0,
+        "endLine": 498,
+        "endChar": 55
+      },
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e09396eb_6331001f",
         "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
         "patchSetId": 1
@@ -130,6 +232,24 @@
       "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8aace02e_c0625912",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-08-14T17:37:27Z",
+      "side": 1,
+      "message": "It was meant to be placed on onSurfaceTextureDestroyed(), weird how it still worked when I tested it. Done.",
+      "parentUuid": "e09396eb_6331001f",
+      "revId": "a3083e191e205ee8406d7b511837e0a600594eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
