@@ -637,7 +637,7 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
                 fErrors.error(caseValue->fOffset, "case value must be a constant");
                 return nullptr;
             }
-            int64_t v;
+            int64_t v = 0;
             this->getConstantInt(*caseValue, &v);
             if (caseValues.find(v) != caseValues.end()) {
                 fErrors.error(caseValue->fOffset, "duplicate case value");
