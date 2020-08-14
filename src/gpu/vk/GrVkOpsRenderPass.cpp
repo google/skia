@@ -62,8 +62,11 @@ GrVkOpsRenderPass::GrVkOpsRenderPass(GrVkGpu* gpu) : fGpu(gpu) {}
 bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                              const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                              const SkPMColor4f& clearColor,
-                             bool withStencil) {
-
+                             bool withStencil,
+                             GrVkCommandPool* commandPool) {
+    commandPool->ref();
+    fCommandPool = commandPool;
+    fCommandBuffer = commandPool->getPrimaryCommandBuffer();
     VkAttachmentLoadOp loadOp;
     VkAttachmentStoreOp storeOp;
     get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
@@ -129,8 +132,8 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     vkClearColor.color.float32[3] = clearColor[3];
 
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers()) {
-        SkASSERT(fGpu->cmdPool());
-        fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
+        SkASSERT(fCommandPool);
+        fCurrentSecondaryCommandBuffer = fCommandPool->findOrCreateSecondaryCommandBuffer(fGpu);
         if (!fCurrentSecondaryCommandBuffer) {
             fCurrentRenderPass = nullptr;
             return false;
@@ -139,15 +142,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                               fCurrentRenderPass);
     }
 
-    if (!fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
-                               SkToBool(fCurrentSecondaryCommandBuffer))) {
-        if (fCurrentSecondaryCommandBuffer) {
-            fCurrentSecondaryCommandBuffer->end(fGpu);
-        }
-        fCurrentRenderPass = nullptr;
-        return false;
-    }
-    return true;
+    return beginRenderPass(vkClearColor);
 }
 
 bool GrVkOpsRenderPass::initWrapped() {
@@ -178,8 +173,8 @@ GrVkCommandBuffer* GrVkOpsRenderPass::currentCommandBuffer() {
     }
     // We checked this when we setup the GrVkOpsRenderPass and it should not have changed while we
     // are still using this object.
-    SkASSERT(fGpu->currentCommandBuffer());
-    return fGpu->currentCommandBuffer();
+    SkASSERT(fCommandBuffer);
+    return fCommandBuffer;
 }
 
 void GrVkOpsRenderPass::submit() {
@@ -204,28 +199,26 @@ void GrVkOpsRenderPass::submit() {
     if (fCurrentSecondaryCommandBuffer) {
         fGpu->submitSecondaryCommandBuffer(std::move(fCurrentSecondaryCommandBuffer));
     }
-    fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+    endRenderPass();
 }
 
-bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
-                            GrSurfaceOrigin origin, const SkIRect& bounds,
+bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
+                            GrStencilAttachment* stencil,
+                            GrSurfaceOrigin origin,
+                            const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                            bool willReadDst) {
+                            bool willReadDst,
+                            GrVkCommandPool* commandPool) {
     SkASSERT(!fRenderTarget);
     SkASSERT(fGpu == rt->getContext()->priv().getGpu());
+    SkASSERT(!fCommandPool);
+    SkASSERT(!fCommandBuffer);
 
 #ifdef SK_DEBUG
     fIsActive = true;
 #endif
-
-    // We check to make sure the GrVkGpu has a valid current command buffer instead of each time we
-    // access it. If the command buffer is valid here should be valid throughout the use of the
-    // render pass since nothing should trigger a submit while this render pass is active.
-    if (!fGpu->currentCommandBuffer()) {
-        return false;
-    }
 
     this->INHERITED::set(rt, origin);
 
@@ -249,15 +242,21 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
         return this->initWrapped();
     }
 
-    return this->init(colorInfo, stencilInfo, colorInfo.fClearColor, SkToBool(stencil));
+    return this->init(colorInfo, stencilInfo, colorInfo.fClearColor, SkToBool(stencil),
+                      commandPool);
 }
 
 void GrVkOpsRenderPass::reset() {
     if (fCurrentSecondaryCommandBuffer) {
         // The active GrVkCommandPool on the GrVkGpu should still be the same pool we got the
         // secondary command buffer from since we haven't submitted any work yet.
-        SkASSERT(fGpu->cmdPool());
-        fCurrentSecondaryCommandBuffer.release()->recycle(fGpu->cmdPool());
+        SkASSERT(fCommandPool);
+        fCurrentSecondaryCommandBuffer.release()->recycle(fCommandPool);
+    }
+    if (fCommandPool) {
+        fCommandPool->recycle();
+        fCommandPool = nullptr;
+        fCommandBuffer = nullptr;
     }
     if (fCurrentRenderPass) {
         fCurrentRenderPass->unref();
@@ -416,8 +415,8 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
 
     if (!fGpu->vkCaps().preferPrimaryOverSecondaryCommandBuffers() ||
         mustUseSecondaryCommandBuffer) {
-        SkASSERT(fGpu->cmdPool());
-        fCurrentSecondaryCommandBuffer = fGpu->cmdPool()->findOrCreateSecondaryCommandBuffer(fGpu);
+        SkASSERT(fCommandPool);
+        fCurrentSecondaryCommandBuffer = fCommandPool->findOrCreateSecondaryCommandBuffer(fGpu);
         if (!fCurrentSecondaryCommandBuffer) {
             fCurrentRenderPass = nullptr;
             return;
@@ -426,15 +425,7 @@ void GrVkOpsRenderPass::addAdditionalRenderPass(bool mustUseSecondaryCommandBuff
                                               fCurrentRenderPass);
     }
 
-    // We use the same fBounds as the whole GrVkOpsRenderPass since we have no way of tracking the
-    // bounds in GrOpsTask for parts before and after inline uploads separately.
-    if (!fGpu->beginRenderPass(fCurrentRenderPass, &vkClearColor, vkRT, fOrigin, fBounds,
-                               SkToBool(fCurrentSecondaryCommandBuffer))) {
-        if (fCurrentSecondaryCommandBuffer) {
-            fCurrentSecondaryCommandBuffer->end(fGpu);
-        }
-        fCurrentRenderPass = nullptr;
-    }
+    beginRenderPass(vkClearColor);
 }
 
 void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) {
@@ -446,7 +437,7 @@ void GrVkOpsRenderPass::inlineUpload(GrOpFlushState* state, GrDeferredTextureUpl
         fCurrentSecondaryCommandBuffer->end(fGpu);
         fGpu->submitSecondaryCommandBuffer(std::move(fCurrentSecondaryCommandBuffer));
     }
-    fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+    endRenderPass();
 
     // We pass in true here to signal that after the upload we need to set the upload textures
     // layout back to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL.
@@ -558,7 +549,7 @@ void GrVkOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
     SkASSERT(fCurrentPipelineState);
     SkASSERT(!fGpu->caps()->usePrimitiveRestart());  // Ignore primitiveRestart parameter.
 
-    GrVkCommandBuffer* currCmdBuf = this->currentCommandBuffer();
+    GrVkCommandBuffer* currCmdBuf = fCommandBuffer;
     SkASSERT(currCmdBuf);
 
     // There is no need to put any memory barriers to make sure host writes have finished here.
@@ -658,7 +649,7 @@ void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHan
     bounds.extent = { 0, 0 };
 
     if (!fCurrentSecondaryCommandBuffer) {
-        fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
+        endRenderPass();
         this->addAdditionalRenderPass(true);
         // We may have failed to start a new render pass
         if (!fCurrentRenderPass) {
@@ -689,4 +680,101 @@ void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHan
 
     drawable->draw(info);
     fGpu->addDrawable(std::move(drawable));
+}
+
+// The RenderArea bounds we pass into BeginRenderPass must have a start x value that is a multiple
+// of the granularity. The width must also be a multiple of the granularity or eaqual to the width
+// the the entire attachment. Similar requirements for the y and height components.
+void adjust_bounds_to_granularity(SkIRect* dstBounds,
+                                  const SkIRect& srcBounds,
+                                  const VkExtent2D& granularity,
+                                  int maxWidth,
+                                  int maxHeight) {
+    // Adjust Width
+    if ((0 != granularity.width && 1 != granularity.width)) {
+        // Start with the right side of rect so we know if we end up going pass the maxWidth.
+        int rightAdj = srcBounds.fRight % granularity.width;
+        if (rightAdj != 0) {
+            rightAdj = granularity.width - rightAdj;
+        }
+        dstBounds->fRight = srcBounds.fRight + rightAdj;
+        if (dstBounds->fRight > maxWidth) {
+            dstBounds->fRight = maxWidth;
+            dstBounds->fLeft = 0;
+        } else {
+            dstBounds->fLeft = srcBounds.fLeft - srcBounds.fLeft % granularity.width;
+        }
+    } else {
+        dstBounds->fLeft = srcBounds.fLeft;
+        dstBounds->fRight = srcBounds.fRight;
+    }
+
+    // Adjust height
+    if ((0 != granularity.height && 1 != granularity.height)) {
+        // Start with the bottom side of rect so we know if we end up going pass the maxHeight.
+        int bottomAdj = srcBounds.fBottom % granularity.height;
+        if (bottomAdj != 0) {
+            bottomAdj = granularity.height - bottomAdj;
+        }
+        dstBounds->fBottom = srcBounds.fBottom + bottomAdj;
+        if (dstBounds->fBottom > maxHeight) {
+            dstBounds->fBottom = maxHeight;
+            dstBounds->fTop = 0;
+        } else {
+            dstBounds->fTop = srcBounds.fTop - srcBounds.fTop % granularity.height;
+        }
+    } else {
+        dstBounds->fTop = srcBounds.fTop;
+        dstBounds->fBottom = srcBounds.fBottom;
+    }
+}
+
+bool GrVkOpsRenderPass::beginRenderPass(const VkClearValue& clearColor) {
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
+    // We use the same fBounds as the whole GrVkOpsRenderPass since we have no way of tracking the
+    // bounds in GrOpsTask for parts before and after inline uploads separately.
+
+    SkASSERT(!vkRT->wrapsSecondaryCommandBuffer());
+    auto nativeBounds = GrNativeRect::MakeRelativeTo(fOrigin, vkRT->height(), fBounds);
+
+    // The bounds we use for the render pass should be of the granularity supported
+    // by the device.
+    const VkExtent2D& granularity = fCurrentRenderPass->granularity();
+    SkIRect adjustedBounds;
+    if ((0 != granularity.width && 1 != granularity.width) ||
+        (0 != granularity.height && 1 != granularity.height)) {
+        adjust_bounds_to_granularity(&adjustedBounds, nativeBounds.asSkIRect(), granularity,
+                                     vkRT->width(), vkRT->height());
+    } else {
+        adjustedBounds = nativeBounds.asSkIRect();
+    }
+
+#ifdef SK_DEBUG
+    uint32_t index;
+    bool result = fCurrentRenderPass->colorAttachmentIndex(&index);
+    SkASSERT(result && 0 == index);
+    result = fCurrentRenderPass->stencilAttachmentIndex(&index);
+    if (result) {
+        SkASSERT(1 == index);
+    }
+#endif
+    VkClearValue clears[2];
+    clears[0].color = clearColor.color;
+    clears[1].depthStencil.depth = 0.0f;
+    clears[1].depthStencil.stencil = 0;
+
+    if (!fCommandBuffer->beginRenderPass(fGpu, fCurrentRenderPass, clears, vkRT, adjustedBounds,
+                                         SkToBool(fCurrentSecondaryCommandBuffer))) {
+        if (fCurrentSecondaryCommandBuffer) {
+            fCurrentSecondaryCommandBuffer->end(fGpu);
+        }
+        fCurrentRenderPass = nullptr;
+        return false;
+    }
+    return true;
+}
+
+void GrVkOpsRenderPass::endRenderPass() {
+    fCommandBuffer->endRenderPass(fGpu);
+    fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }
