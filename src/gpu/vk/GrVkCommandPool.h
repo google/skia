@@ -16,7 +16,7 @@ class GrVkPrimaryCommandBuffer;
 class GrVkSecondaryCommandBuffer;
 class GrVkGpu;
 
-class GrVkCommandPool : public GrVkManagedResource {
+class GrVkCommandPool : public GrVkRecycledResource {
 public:
     static GrVkCommandPool* Create(GrVkGpu* gpu);
 
@@ -51,8 +51,10 @@ private:
     GrVkCommandPool() = delete;
 
     GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
+    ~GrVkCommandPool() { abort(); }
 
     void freeGPUData() const override;
+    void onRecycle() const override;
 
     bool fOpen = true;
 
