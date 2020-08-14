@@ -131,7 +131,7 @@ TextLine::TextLine(ParagraphImpl* owner,
 
     // This is just chosen to catch the common/fast cases. Feel free to tweak.
     constexpr int kPreallocCount = 4;
-    SkAutoSTArray<kPreallocCount, BidiLevel> runLevels(numRuns);
+    SkAutoSTArray<kPreallocCount, SkUnicode::BidiLevel> runLevels(numRuns);
     size_t runLevelsIndex = 0;
     for (auto runIndex = start.runIndex(); runIndex <= end.runIndex(); ++runIndex) {
         auto& run = fOwner->run(runIndex);
