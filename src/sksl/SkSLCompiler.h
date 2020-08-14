@@ -77,7 +77,6 @@ public:
 
     struct FormatArg {
         enum class Kind {
-            kInput,
             kOutput,
             kCoords,
             kUniform,
