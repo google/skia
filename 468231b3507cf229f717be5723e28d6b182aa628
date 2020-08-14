@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95b08994_a01dab5f",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-14T17:09:02Z",
+      "side": 1,
+      "message": "Oh duh I\u0027m blind, yeah that would do it.",
+      "parentUuid": "ff7911ea_dd79c663",
+      "range": {
+        "startLine": 91,
+        "startChar": 42,
+        "endLine": 91,
+        "endChar": 78
+      },
+      "revId": "468231b3507cf229f717be5723e28d6b182aa628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e1a3cf2_af0e49cf",
         "filename": "tools/sk_app/MetalWindowContext.mm",
         "patchSetId": 1
