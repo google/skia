@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3e5023b6_a5d052b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-14T15:18:36Z",
+      "side": 1,
+      "message": "PTAL. I don\u0027t think this addresses everything, but it at least reduces the memory use and gets the upload buffers for cross-context textures into the command buffer array.",
+      "revId": "0250dfb35f58b5f5bd9fdef47b617d8bd114f115",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
