@@ -18,7 +18,7 @@
 
 static void shader_test(skiatest::Reporter* reporter) {
     sk_imageinfo_t* info = sk_imageinfo_new(64, 64, RGBA_8888_SK_COLORTYPE, PREMUL_SK_ALPHATYPE,
-                                            NULL);
+                                            nullptr);
     sk_surface_t* surface  = sk_surface_new_raster(info, nullptr);
     sk_canvas_t* canvas = sk_surface_get_canvas(surface);
     sk_paint_t* paint = sk_paint_new();
@@ -59,7 +59,7 @@ static void shader_test(skiatest::Reporter* reporter) {
 
 static void test_c(skiatest::Reporter* reporter) {
     sk_imageinfo_t* info = sk_imageinfo_new(1, 1, RGBA_8888_SK_COLORTYPE, PREMUL_SK_ALPHATYPE,
-                                            NULL);
+                                            nullptr);
     uint32_t pixel[1] = { 0 };
     sk_surfaceprops_t surfaceProps = { UNKNOWN_SK_PIXELGEOMETRY };
 

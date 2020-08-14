@@ -9,6 +9,7 @@ Checks: >
     llvm-namespace-comment,
     misc-definitions-in-headers,
     modernize-make-unique,
+    modernize-use-nullptr,
     modernize-use-override,
     performance-for-range-copy,
     performance-unnecessary-copy-initialization,

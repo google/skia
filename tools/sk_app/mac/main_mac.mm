@@ -60,7 +60,7 @@ int main(int argc, char * argv[]) {
     NSMenuItem* item;
     NSMenu* subMenu;
 
-    item=[[NSMenuItem alloc] initWithTitle:@"Apple" action:NULL keyEquivalent:@""];
+    item=[[NSMenuItem alloc] initWithTitle:@"Apple" action:nil keyEquivalent:@""];
     [menuBar addItem:item];
     subMenu=[[NSMenu alloc] initWithTitle:@"Apple"];
     [menuBar setSubmenu:subMenu forItem:item];

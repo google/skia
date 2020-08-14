@@ -94,7 +94,7 @@ static void test_constructor(skiatest::Reporter* reporter) {
     }
 
     // Verify that kIdentity_Constructor really does initialize to an identity matrix.
-    testMatrix = 0;
+    testMatrix = nullptr;
     testMatrix = new(placeholderMatrix) SkMatrix44(SkMatrix44::kIdentity_Constructor);
     REPORTER_ASSERT(reporter, testMatrix == placeholderMatrix);
     REPORTER_ASSERT(reporter, testMatrix->isIdentity());

@@ -896,7 +896,7 @@ public:
                 } else {
                     ActiveEdge *s = parent->fChild[!last];
 
-                    if (s != NULL) {
+                    if (s != nullptr) {
                         if (!IsRed(s->fChild[!last]) && !IsRed(s->fChild[last])) {
                             // color flip
                             parent->fRed = false;

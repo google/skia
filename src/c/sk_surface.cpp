@@ -324,7 +324,7 @@ void sk_canvas_draw_image_rect(sk_canvas_t* ccanvas, const sk_image_t* cimage,
 
 void sk_canvas_draw_picture(sk_canvas_t* ccanvas, const sk_picture_t* cpicture,
                             const sk_matrix_t* cmatrix, const sk_paint_t* cpaint) {
-    const SkMatrix* matrixPtr = NULL;
+    const SkMatrix* matrixPtr = nullptr;
     SkMatrix matrix;
     if (cmatrix) {
         from_c_matrix(cmatrix, &matrix);
@@ -340,7 +340,7 @@ sk_surface_t* sk_surface_new_raster(const sk_imageinfo_t* cinfo,
     const SkImageInfo* info = reinterpret_cast<const SkImageInfo*>(cinfo);
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;
     if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
-        return NULL;
+        return nullptr;
     }
 
     SkSurfaceProps surfProps(0, geo);
@@ -353,7 +353,7 @@ sk_surface_t* sk_surface_new_raster_direct(const sk_imageinfo_t* cinfo, void* pi
     const SkImageInfo* info = reinterpret_cast<const SkImageInfo*>(cinfo);
     SkPixelGeometry geo = kUnknown_SkPixelGeometry;
     if (props && !from_c_pixelgeometry(props->pixelGeometry, &geo)) {
-        return NULL;
+        return nullptr;
     }
 
     SkSurfaceProps surfProps(0, geo);

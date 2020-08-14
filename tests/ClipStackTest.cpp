@@ -1547,7 +1547,7 @@ DEF_TEST(ClipStack, reporter) {
 
 sk_sp<GrTextureProxy> GrClipStackClip::testingOnly_createClipMask(
         GrRecordingContext* context) const {
-    const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), 0);
+    const GrReducedClip reducedClip(*fStack, SkRect::MakeWH(512, 512), nullptr);
     return this->createSoftwareClipMask(context, reducedClip, nullptr).asTextureProxyRef();
 }
 

@@ -21,7 +21,7 @@ DEF_TEST(Interpolator, reporter) {
     SkScalar        v1[3], v2[3], v[3];
     SkInterpolator::Result          result;
 
-    inter.setKeyFrame(0, 100, iset(v1, 10, 20, 30), 0);
+    inter.setKeyFrame(0, 100, iset(v1, 10, 20, 30), nullptr);
     inter.setKeyFrame(1, 200, iset(v2, 110, 220, 330));
 
     result = inter.timeToValues(0, v);
