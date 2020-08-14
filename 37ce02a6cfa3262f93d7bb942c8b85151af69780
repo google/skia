@@ -16,6 +16,24 @@
       "revId": "37ce02a6cfa3262f93d7bb942c8b85151af69780",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4535a80f_5754df40",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-14T14:22:03Z",
+      "side": 1,
+      "message": "Yeah, I started out by adding a return to getConstantInt, and then realized I didn\u0027t need it. But I agree it\u0027s worth adding to produce better diagnostics. I\u0027ll do that.",
+      "parentUuid": "5671d30e_c9e3ced6",
+      "revId": "37ce02a6cfa3262f93d7bb942c8b85151af69780",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
