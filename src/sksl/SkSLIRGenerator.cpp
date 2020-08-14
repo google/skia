@@ -2811,19 +2811,24 @@ static int count_contiguous_swizzle_chunks(const std::vector<int>& components) {
 
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
                                                         StringFragment fields) {
-    if (base->fType.kind() != Type::kVector_Kind && !base->fType.isNumber()) {
+    if ((base->fType.kind() != Type::kVector_Kind && !base->fType.isNumber()) ||
+        base->fType == *fContext.fIntLiteral_Type ||
+        base->fType == *fContext.fFloatLiteral_Type) {
         fErrors.error(base->fOffset, "cannot swizzle value of type '" + base->fType.displayName() +
                                      "'");
         return nullptr;
     }
     std::vector<int> swizzleComponents;
+    size_t numLiteralFields = 0;
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
             case '0':
                 swizzleComponents.push_back(SKSL_SWIZZLE_0);
+                numLiteralFields++;
                 break;
             case '1':
                 swizzleComponents.push_back(SKSL_SWIZZLE_1);
+                numLiteralFields++;
                 break;
             case 'x':
             case 'r':
@@ -2867,6 +2872,10 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     SkASSERT(swizzleComponents.size() > 0);
     if (swizzleComponents.size() > 4) {
         fErrors.error(base->fOffset, "too many components in swizzle mask '" + fields + "'");
+        return nullptr;
+    }
+    if (numLiteralFields == swizzleComponents.size()) {
+        fErrors.error(base->fOffset, "swizzle only has '0' or '1' components");
         return nullptr;
     }
     if (base->fType.isNumber()) {
