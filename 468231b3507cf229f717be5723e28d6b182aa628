@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ff7911ea_dd79c663",
+        "filename": "tools/sk_app/MetalWindowContext.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-14T17:07:33Z",
+      "side": 1,
+      "message": "If I understand it correctly, I think we\u0027d just do (__bridge_transfer id\u003cCAMetalDrawable)fDrawableHandle here, and then when currentDrawable went out of scope it would do the release.",
+      "range": {
+        "startLine": 91,
+        "startChar": 42,
+        "endLine": 91,
+        "endChar": 78
+      },
+      "revId": "468231b3507cf229f717be5723e28d6b182aa628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6e1a3cf2_af0e49cf",
         "filename": "tools/sk_app/MetalWindowContext.mm",
         "patchSetId": 1
