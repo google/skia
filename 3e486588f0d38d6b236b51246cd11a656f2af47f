@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46a32ca8_92ab5201",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-14T14:30:50Z",
+      "side": 1,
+      "message": "Why do we want this? We already can a callback to be called when the fence is signaled?",
+      "revId": "3e486588f0d38d6b236b51246cd11a656f2af47f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
