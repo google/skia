@@ -206,6 +206,12 @@ DEF_TEST(SkSLSwizzleConstantOutput, r) {
                  "error: 1: cannot write to a swizzle mask containing a constant\n1 error\n");
 }
 
+DEF_TEST(SkSLSwizzleOnlyLiterals, r) {
+    test_failure(r,
+                 "void main() { float x = 1.0; x = x.0; }",
+                 "error: 1: swizzle must refer to base expression\n1 error\n");
+}
+
 DEF_TEST(SkSLAssignmentTypeMismatch, r) {
     test_failure(r,
                  "void main() { int x = 1.0; }",
