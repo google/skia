@@ -15,10 +15,13 @@
     // Copy the file into it
     fileMem.set(fileContents);
     // Hand off pointer to wasm
-    player.loadSkp(fileMemPtr, size);
+    var error = player.loadSkp(fileMemPtr, size);
     // Free the memory that was used to hold the file, since it is now represented as an SkPicture
     this._free(fileMemPtr)
-    return player;
+    return {
+        'error': error,
+        'player': player
+    };
   }
 
 }(Module)); // When this file is loaded in, the high level object is "Module";
