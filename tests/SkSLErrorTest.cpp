@@ -482,7 +482,7 @@ DEF_TEST(SkSLWrongSwitchTypes, r) {
 DEF_TEST(SkSLNonConstantCase, r) {
     test_failure(r,
                  "void main() { int x = 1; switch (1) { case x: break; } }",
-                 "error: 1: case value must be a constant\n1 error\n");
+                 "error: 1: case value must be a constant integer\n1 error\n");
 }
 
 DEF_TEST(SkSLDuplicateCase, r) {

@@ -166,7 +166,7 @@ private:
 
     void checkValid(const Expression& expr);
     bool setRefKind(const Expression& expr, VariableReference::RefKind kind);
-    void getConstantInt(const Expression& value, int64_t* out);
+    bool getConstantInt(const Expression& value, int64_t* out);
     bool checkSwizzleWrite(const Swizzle& swizzle);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
 

@@ -633,12 +633,11 @@ std::unique_ptr<Statement> IRGenerator::convertSwitch(const ASTNode& s) {
             if (!caseValue) {
                 return nullptr;
             }
-            if (!caseValue->isCompileTimeConstant()) {
-                fErrors.error(caseValue->fOffset, "case value must be a constant");
+            int64_t v = 0;
+            if (!this->getConstantInt(*caseValue, &v)) {
+                fErrors.error(caseValue->fOffset, "case value must be a constant integer");
                 return nullptr;
             }
-            int64_t v;
-            this->getConstantInt(*caseValue, &v);
             if (caseValues.find(v) != caseValues.end()) {
                 fErrors.error(caseValue->fOffset, "duplicate case value");
             }
@@ -1153,21 +1152,19 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                             symbols);
 }
 
-void IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
+bool IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
     switch (value.fKind) {
         case Expression::kIntLiteral_Kind:
-            *out = ((const IntLiteral&) value).fValue;
-            break;
+            *out = static_cast<const IntLiteral&>(value).fValue;
+            return true;
         case Expression::kVariableReference_Kind: {
-            const Variable& var = ((VariableReference&) value).fVariable;
-            if ((var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
-                var.fInitialValue) {
-                this->getConstantInt(*var.fInitialValue, out);
-            }
-            break;
+            const Variable& var = static_cast<const VariableReference&>(value).fVariable;
+            return (var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
+                   var.fInitialValue &&
+                   this->getConstantInt(*var.fInitialValue, out);
         }
         default:
-            fErrors.error(value.fOffset, "expected a constant int");
+            return false;
     }
 }
 
@@ -1179,8 +1176,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                      ASTNode::TypeData(e.getString(), false, false));
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
-    std::shared_ptr<SymbolTable> symbols(new SymbolTable(fSymbolTable));
-    fSymbolTable = symbols;
+    AutoSymbolTable table(this);
     for (auto iter = e.begin(); iter != e.end(); ++iter) {
         const ASTNode& child = *iter;
         SkASSERT(child.fKind == ASTNode::Kind::kEnumCase);
@@ -1188,21 +1184,22 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         if (child.begin() != child.end()) {
             value = this->convertExpression(*child.begin());
             if (!value) {
-                fSymbolTable = symbols->fParent;
                 return;
             }
-            this->getConstantInt(*value, &currentValue);
+            if (!this->getConstantInt(*value, &currentValue)) {
+                fErrors.error(value->fOffset, "enum value must be a constant integer");
+                return;
+            }
         }
         value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
         ++currentValue;
-        symbols->add(child.getString(),
-                     std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), *type,
-                                                Variable::kGlobal_Storage, value.get()));
-        symbols->takeOwnershipOfIRNode(std::move(value));
+        fSymbolTable->add(child.getString(),
+                          std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), *type,
+                                                     Variable::kGlobal_Storage, value.get()));
+        fSymbolTable->takeOwnershipOfIRNode(std::move(value));
     }
-    fProgramElements->push_back(std::unique_ptr<ProgramElement>(new Enum(e.fOffset, e.getString(),
-                                                                         symbols, fIsBuiltinCode)));
-    fSymbolTable = symbols->fParent;
+    fProgramElements->push_back(std::unique_ptr<ProgramElement>(
+            new Enum(e.fOffset, e.getString(), fSymbolTable, fIsBuiltinCode)));
 }
 
 const Type* IRGenerator::convertType(const ASTNode& type) {
