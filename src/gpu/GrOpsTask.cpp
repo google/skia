@@ -613,12 +613,6 @@ void GrOpsTask::setColorLoadOp(GrLoadOp op, const SkPMColor4f& color) {
 }
 
 bool GrOpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
-    // If we previously recorded a wait op, we cannot delete the wait op. Until we track the wait
-    // ops separately from normal ops, we have to avoid clearing out any ops in this case as well.
-    if (fHasWaitOp) {
-        canDiscardPreviousOps = CanDiscardPreviousOps::kNo;
-    }
-
     if (CanDiscardPreviousOps::kYes == canDiscardPreviousOps || this->isEmpty()) {
         this->deleteOps();
         fDeferredProxies.reset();
