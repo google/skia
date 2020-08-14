@@ -537,13 +537,13 @@ void VulkanWindowContext::swapBuffers() {
     const VkPresentInfoKHR presentInfo =
     {
         VK_STRUCTURE_TYPE_PRESENT_INFO_KHR, // sType
-        NULL, // pNext
+        nullptr, // pNext
         1, // waitSemaphoreCount
         &backbuffer->fRenderSemaphore, // pWaitSemaphores
         1, // swapchainCount
         &fSwapchain, // pSwapchains
         &backbuffer->fImageIndex, // pImageIndices
-        NULL // pResults
+        nullptr // pResults
     };
 
     fQueuePresentKHR(fPresentQueue, &presentInfo);

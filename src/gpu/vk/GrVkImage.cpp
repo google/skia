@@ -243,7 +243,7 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
         imageDesc.fUsageFlags,                       // VkImageUsageFlags
         VK_SHARING_MODE_EXCLUSIVE,                   // VkSharingMode
         0,                                           // queueFamilyCount
-        0,                                           // pQueueFamilyIndices
+        nullptr,                                     // pQueueFamilyIndices
         initialLayout                                // initialLayout
     };
 
