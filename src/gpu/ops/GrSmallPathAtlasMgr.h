@@ -36,10 +36,13 @@ public:
 
     bool initAtlas(GrProxyProvider*, const GrCaps*);
 
-    GrDrawOpAtlas* atlas() { return fAtlas.get(); }
-
     GrSmallPathShapeData* findOrCreate(const GrStyledShape&, int desiredDimension);
     GrSmallPathShapeData* findOrCreate(const GrStyledShape&, const SkMatrix& ctm);
+
+    GrDrawOpAtlas::ErrorCode addToAtlas(GrResourceProvider*,
+                                        GrDeferredUploadTarget*,
+                                        int width, int height, const void* image,
+                                        GrDrawOpAtlas::AtlasLocator*);
 
     void setUseToken(GrSmallPathShapeData*, GrDeferredUploadToken);
 
