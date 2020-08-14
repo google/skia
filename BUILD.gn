@@ -1016,8 +1016,8 @@ optional("sksl_interpreter") {
 }
 
 optional("skvm_jit") {
-  enabled = skia_enable_skvm_jit
-  public_defines = [ "SKVM_JIT" ]
+  enabled = skia_enable_skvm_jit_when_possible
+  public_defines = [ "SKVM_JIT_WHEN_POSSIBLE" ]
   if (skia_vtune_path != "") {
     public_defines += [ "SKVM_JIT_VTUNE" ]
     public_include_dirs = [ "$skia_vtune_path/include" ]

@@ -19,6 +19,21 @@
 
 class SkWStream;
 
+#if defined(SKVM_JIT_WHEN_POSSIBLE)
+    #if defined(__x86_64__) || defined(_M_X64)
+        #if defined(_WIN32) || defined(__linux) || defined(__APPLE__)
+            #if !defined(SK_BUILD_FOR_IOS)  // Exclude iOS simulator.
+                #define SKVM_JIT
+            #endif
+        #endif
+    #endif
+    #if defined(__aarch64__)
+        #if defined(__ANDROID__)
+            #define SKVM_JIT
+        #endif
+    #endif
+#endif
+
 #if 0
     #define SKVM_LLVM
 #endif
