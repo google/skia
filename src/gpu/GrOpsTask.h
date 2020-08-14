@@ -100,12 +100,6 @@ public:
         this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
-    void addWaitOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrOp> op,
-                   GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
-        fHasWaitOp = true;
-        this->addOp(drawingMgr, std::move(op), textureResolveManager, caps);
-    }
-
     void addDrawOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrDrawOp> op,
                    const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
@@ -318,9 +312,6 @@ private:
     uint32_t fLastClipStackGenID = SK_InvalidUniqueID;
     SkIRect fLastDevClipBounds;
     int fLastClipNumAnalyticElements;
-
-    // We must track if we have a wait op so that we don't delete the op when we have a full clear.
-    bool fHasWaitOp = false;
 
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;
