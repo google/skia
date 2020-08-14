@@ -633,7 +633,7 @@ void ByteCodeGenerator::write(ByteCodeInstruction i, int count) {
         case ByteCodeInstruction::kMaskBlend: this->exitCondition();  break;
         default: /* Do nothing */ break;
     }
-    this->write16((uint16_t)i);
+    this->write8((uint8_t)i);
     fStackCount += StackUsage(i, count);
     fMaxStackCount = std::max(fMaxStackCount, fStackCount);
 
