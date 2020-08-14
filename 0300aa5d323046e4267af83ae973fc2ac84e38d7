@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5de229d9_388f885f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-14T14:43:45Z",
+      "side": 1,
+      "message": "PTAL, I also cleaned up some enum code as part of the getConstantInt fix.",
+      "revId": "0300aa5d323046e4267af83ae973fc2ac84e38d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69f2be12_cf469732",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1179,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-14T14:43:45Z",
+      "side": 1,
+      "message": "Adding another early return made me want to use a scoped helper... then I saw we already had one.",
+      "revId": "0300aa5d323046e4267af83ae973fc2ac84e38d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
