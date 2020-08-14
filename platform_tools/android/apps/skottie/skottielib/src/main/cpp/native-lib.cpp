@@ -178,7 +178,8 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
                                                                      jlong nativeProxy, jint width,
                                                                      jint height,
                                                                      jboolean wideColorGamut,
-                                                                     jfloat progress) {
+                                                                     jfloat progress,
+                                                                     jint backgroundColor) {
     ATRACE_NAME("SkottieDrawFrame");
     if (!nativeProxy) {
         return false;
@@ -220,7 +221,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
             nullptr, &props));
 
     auto canvas = renderTarget->getCanvas();
-    canvas->clear(SK_ColorTRANSPARENT);
+    canvas->clear(backgroundColor);
 
     SkAutoCanvasRestore acr(canvas, true);
     SkRect bounds = SkRect::MakeWH(width, height);

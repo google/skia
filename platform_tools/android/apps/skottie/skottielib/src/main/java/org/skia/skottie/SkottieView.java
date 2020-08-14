@@ -25,7 +25,8 @@ import org.skia.skottielib.R;
 public class SkottieView extends FrameLayout {
 
     private SkottieAnimation mAnimation;
-    private View mbackingView;
+    private View mBackingView;
+    private int mBackgroundColor;
 
     private static final int BACKING_VIEW_TEXTURE = 0;
     private static final int BACKING_VIEW_SURFACE = 1;
@@ -39,17 +40,17 @@ public class SkottieView extends FrameLayout {
         try {
             switch (a.getInteger(R.styleable.SkottieView_backing_view, -1)) {
                 case BACKING_VIEW_TEXTURE:
-                    mbackingView = new TextureView(context);
-                    ((TextureView) mbackingView).setOpaque(false);
+                    mBackingView = new TextureView(context);
+                    ((TextureView) mBackingView).setOpaque(false);
                     break;
                 case BACKING_VIEW_SURFACE:
-                    mbackingView = new SurfaceView(context);
-                    int bg = a.getColor(R.styleable.SkottieView_background_color, -1);
-                    if (bg == -1) {
+                    mBackingView = new SurfaceView(context);
+                    mBackgroundColor = a.getColor(R.styleable.SkottieView_background_color, -1);
+                    if (mBackgroundColor == -1) {
                         throw new RuntimeException("background_color attribute "
                             + "needed for SurfaceView");
                     }
-                    if (Color.alpha(bg) != 255) {
+                    if (Color.alpha(mBackgroundColor) != 255) {
                         throw new RuntimeException("background_color cannot be transparent");
                     }
                     break;
@@ -69,37 +70,44 @@ public class SkottieView extends FrameLayout {
         // create the backing view
         if (builder.advancedFeatures) {
             // backing view must be SurfaceView
-            mbackingView = new SurfaceView(context);
+            mBackingView = new SurfaceView(context);
         } else {
-            mbackingView = new TextureView(context);
-            ((TextureView) mbackingView).setOpaque(false);
+            mBackingView = new TextureView(context);
+            ((TextureView) mBackingView).setOpaque(false);
         }
         initBackingView();
     }
 
     private void initBackingView() {
-        mbackingView.setLayoutParams(new ViewGroup.LayoutParams(
+        mBackingView.setLayoutParams(new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT));
-        addView(mbackingView);
+        addView(mBackingView);
     }
 
     //TODO handle SurfaceView
     public void setSource(InputStream inputStream) {
-        mAnimation = SkottieRunner.getInstance()
-            .createAnimation(((TextureView) mbackingView), inputStream);
+        mAnimation = setSourceHelper(inputStream);
     }
 
     public void setSource(int resId) {
-        InputStream inputStream = mbackingView.getResources().openRawResource(resId);
-        mAnimation = SkottieRunner.getInstance()
-            .createAnimation(((TextureView) mbackingView), inputStream);
+        InputStream inputStream = mBackingView.getResources().openRawResource(resId);
+        mAnimation = setSourceHelper(inputStream);
     }
 
     public void setSource(Context context, Uri uri) throws FileNotFoundException {
         InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        mAnimation = SkottieRunner.getInstance()
-            .createAnimation(((TextureView) mbackingView), inputStream);
+        mAnimation = setSourceHelper(inputStream);
+    }
+
+    private SkottieAnimation setSourceHelper(InputStream inputStream) {
+        if (mBackingView instanceof TextureView) {
+            return SkottieRunner.getInstance()
+                .createAnimation(((TextureView) mBackingView), inputStream);
+        } else {
+            return SkottieRunner.getInstance()
+                .createAnimation(((SurfaceView) mBackingView), inputStream, mBackgroundColor);
+        }
     }
 
     protected SkottieAnimation getSkottieAnimation() {

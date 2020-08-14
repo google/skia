@@ -14,6 +14,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Choreographer;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.TextureView;
 
 import java.io.ByteArrayOutputStream;
@@ -82,12 +84,21 @@ class SkottieRunner {
     }
 
     /**
+     * Create a new animation by feeding data from "is" and replaying in a SurfaceView.
+     * State is controlled internally by SurfaceHolder.
+     */
+    public SkottieAnimation createAnimation(SurfaceView view, InputStream is, int backgroundColor) {
+        return new SkottieAnimationImpl(view, is, backgroundColor);
+    }
+
+    /**
      * Pass a new SurfaceTexture: use this method only if managing TextureView outside
      * SkottieRunner.
      */
     public void updateAnimationSurface(Animatable animation, SurfaceTexture surfaceTexture,
                                        int width, int height) {
-        ((SkottieAnimationImpl) animation).updateSurface(surfaceTexture, width, height);
+        ((SkottieAnimationImpl) animation).setSurfaceTexture(surfaceTexture);
+        ((SkottieAnimationImpl) animation).updateSurface(width, height);
     }
 
     private SkottieRunner()
@@ -262,26 +273,42 @@ class SkottieRunner {
     }
 
     private class SkottieAnimationImpl implements SkottieAnimation, Choreographer.FrameCallback,
-            TextureView.SurfaceTextureListener {
+            TextureView.SurfaceTextureListener, SurfaceHolder.Callback {
         boolean mIsRunning = false;
         SurfaceTexture mSurfaceTexture;
         EGLSurface mEglSurface;
         boolean mNewSurface = false;
+        SurfaceHolder mSurfaceHolder;
+        boolean mValidSurface = false;
 
         private int mSurfaceWidth = 0;
         private int mSurfaceHeight = 0;
+        private int mBackgroundColor;
         private long mNativeProxy;
         private long mDuration;  // duration in ms of the animation
         private float mProgress; // animation progress in the range of 0.0f to 1.0f
         private long mAnimationStartTime; // time in System.nanoTime units, when started
 
         SkottieAnimationImpl(SurfaceTexture surfaceTexture, InputStream is) {
-            init(surfaceTexture, is);
+            init(is);
+            mSurfaceTexture = surfaceTexture;
         }
 
         SkottieAnimationImpl(TextureView view, InputStream is) {
-            init(view.getSurfaceTexture(), is);
+            init(is);
+            mSurfaceTexture = view.getSurfaceTexture();
             view.setSurfaceTextureListener(this);
+        }
+
+        SkottieAnimationImpl(SurfaceView view, InputStream is, int backgroundColor) {
+            init(is);
+            mSurfaceHolder = view.getHolder();
+            mSurfaceHolder.addCallback(this);
+            mBackgroundColor = backgroundColor;
+        }
+
+        private void setSurfaceTexture(SurfaceTexture s) {
+            mSurfaceTexture = s;
         }
 
         private ByteBuffer convertToByteBuffer(InputStream is) throws IOException {
@@ -307,7 +334,7 @@ class SkottieRunner {
             return buffer.asReadOnlyBuffer();
         }
 
-        private void init(SurfaceTexture surfaceTexture, InputStream is) {
+        private void init(InputStream is) {
 
             ByteBuffer byteBuffer;
             try {
@@ -319,7 +346,6 @@ class SkottieRunner {
 
             long proxy = SkottieRunner.getInstance().getNativeProxy();
             mNativeProxy = nCreateProxy(proxy, byteBuffer);
-            mSurfaceTexture = surfaceTexture;
             mDuration = nGetDuration(mNativeProxy);
             mProgress = 0f;
         }
@@ -335,10 +361,9 @@ class SkottieRunner {
             }
         }
 
-        public void updateSurface(SurfaceTexture surfaceTexture, int width, int height) {
+        public void updateSurface(int width, int height) {
             try {
                 runOnGLThread(() -> {
-                    mSurfaceTexture = surfaceTexture;
                     mSurfaceWidth = width;
                     mSurfaceHeight = height;
                     mNewSurface = true;
@@ -468,15 +493,16 @@ class SkottieRunner {
                 }
 
                 if (mEglSurface == null) {
+                    // block for Texture Views
                     if (mSurfaceTexture != null) {
                         mEglSurface = mEgl.eglCreateWindowSurface(mEglDisplay, mEglConfig,
                                 mSurfaceTexture, null);
-                        if (mEglSurface == null || mEglSurface == EGL10.EGL_NO_SURFACE) {
-                            // If failed to create a surface, log an error and stop the animation
-                            int error = mEgl.eglGetError();
-                            throw new RuntimeException("createWindowSurface failed "
-                                    + GLUtils.getEGLErrorString(error));
-                        }
+                        checkSurface();
+                    // block for Surface Views
+                    } else if (mSurfaceHolder != null) {
+                        mEglSurface = mEgl.eglCreateWindowSurface(mEglDisplay, mEglConfig,
+                            mSurfaceHolder, null);
+                        checkSurface();
                     }
                 }
 
@@ -490,7 +516,7 @@ class SkottieRunner {
                     }
                     // only if nDrawFrames() returns true do we need to swap buffers
                     if(nDrawFrame(mNativeProxy, mSurfaceWidth, mSurfaceHeight, false,
-                            mProgress)) {
+                            mProgress, mBackgroundColor)) {
                         if (!mEgl.eglSwapBuffers(mEglDisplay, mEglSurface)) {
                             int error = mEgl.eglGetError();
                             if (error == EGL10.EGL_BAD_SURFACE
@@ -528,6 +554,16 @@ class SkottieRunner {
             }
         }
 
+        private void checkSurface() throws RuntimeException {
+            // ensure eglSurface was created
+            if (mEglSurface == null || mEglSurface == EGL10.EGL_NO_SURFACE) {
+                // If failed to create a surface, log an error and stop the animation
+                int error = mEgl.eglGetError();
+                throw new RuntimeException("createWindowSurface failed "
+                    + GLUtils.getEGLErrorString(error));
+            }
+        }
+
         @Override
         public void doFrame(long frameTimeNanos) {
             if (mIsRunning) {
@@ -543,14 +579,17 @@ class SkottieRunner {
                     mAnimationStartTime += durationNS;  // prevents overflow
                 }
             }
-
-            drawFrame();
+            if (mValidSurface) {
+                drawFrame();
+            }
         }
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             // will be called on UI thread
-            updateSurface(surface, width, height);
+            mValidSurface = true;
+            mSurfaceTexture = surface;
+            updateSurface(width, height);
         }
 
         @Override
@@ -563,6 +602,7 @@ class SkottieRunner {
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
             // will be called on UI thread
             onSurfaceTextureAvailable(null, 0, 0);
+            mValidSurface = false;
             return true;
         }
 
@@ -571,10 +611,29 @@ class SkottieRunner {
 
         }
 
+        // Inherited from SurfaceHolder
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            mValidSurface = true;
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            mSurfaceHolder = holder;
+            updateSurface(width, height);
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            mValidSurface = false;
+            surfaceChanged(null, 0, 0, 0);
+        }
+
         private native long nCreateProxy(long runner, ByteBuffer data);
         private native void nDeleteProxy(long nativeProxy);
         private native boolean nDrawFrame(long nativeProxy, int width, int height,
-                                          boolean wideColorGamut, float progress);
+                                          boolean wideColorGamut, float progress,
+                                          int backgroundColor);
         private native long nGetDuration(long nativeProxy);
     }
 
