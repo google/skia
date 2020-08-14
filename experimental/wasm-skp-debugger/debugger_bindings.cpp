@@ -6,8 +6,10 @@
  */
 
 #include "include/core/SkPicture.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/utils/SkBase64.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
@@ -68,8 +70,10 @@ class SkpDebugPlayer {
      * uintptr_t is used here because emscripten will not allow binding of functions with pointers
      * to primitive types. We can instead pass a number and cast it to whatever kind of
      * pointer we're expecting.
+     *
+     * Returns an error string which is populated in the case that the file cannot be read.
      */
-    void loadSkp(uintptr_t cptr, int length) {
+    std::string loadSkp(uintptr_t cptr, int length) {
       const uint8_t* data = reinterpret_cast<const uint8_t*>(cptr);
       char magic[8];
       // Both traditional and multi-frame skp files have a magic word
@@ -77,14 +81,27 @@ class SkpDebugPlayer {
       SkDebugf("make stream at %p, with %d bytes\n",data, length);
       // Why -1? I think it's got to do with using a constexpr, just a guess.
       const size_t magicsize = sizeof(kMultiMagic) - 1;
-      if (memcmp(data, kMultiMagic, magicsize) == 0) {
+      const bool isMulti = memcmp(data, kMultiMagic, magicsize) == 0;
+      if (isMulti) {
         SkDebugf("Try reading as a multi-frame skp\n");
-        loadMultiFrame(&stream);
+        const auto& error = loadMultiFrame(&stream);
+        if (!error.empty()) { return error; }
       } else {
         SkDebugf("Try reading as single-frame skp\n");
+        // The unint32 after the magic string is the SKP version
+        memcpy(&fFileVersion, data + 8, 4);
+        // TODO(nifong): Rely on SkPicture's return errors once it provides some.
+        if (fFileVersion < SkPicturePriv::kMin_Version ||
+          fFileVersion > SkPicturePriv::kCurrent_Version) {
+          return std::string(SkStringPrintf("Skp version (%d) cannot be read by this build. Version range supported = (%d, %d)",
+              fFileVersion, SkPicturePriv::kMin_Version, SkPicturePriv::kCurrent_Version).c_str());
+        }
         frames.push_back(loadSingleFrame(&stream));
       }
+      return "";
     }
+
+    uint32_t fileVersion() { return fFileVersion; }
 
     /* drawTo asks the debug canvas to draw from the beginning of the picture
      * to the given command and flush the canvas.
@@ -281,7 +298,7 @@ class SkpDebugPlayer {
         return debugCanvas;
       }
 
-      void loadMultiFrame(SkMemoryStream* stream) {
+      std::string loadMultiFrame(SkMemoryStream* stream) {
         // Attempt to deserialize with an image sharing serial proc.
         auto deserialContext = std::make_unique<SkSharingDeserialContext>();
         SkDeserialProcs procs;
@@ -290,15 +307,14 @@ class SkpDebugPlayer {
 
         int page_count = SkMultiPictureDocumentReadPageCount(stream);
         if (!page_count) {
-          SkDebugf("Not a MultiPictureDocument");
-          return;
+          // MSKP's have a version separate from the SKP subpictures they contain.
+          return "Not a MultiPictureDocument, MultiPictureDocument file version too old, or MultiPictureDocument contained 0 frames.";
         }
         SkDebugf("Expecting %d frames\n", page_count);
 
         std::vector<SkDocumentPage> pages(page_count);
         if (!SkMultiPictureDocumentRead(stream, pages.data(), page_count, &procs)) {
-          SkDebugf("Reading frames from MultiPictureDocument failed");
-          return;
+          return "Reading frames from MultiPictureDocument failed";
         }
 
         fLayerManager = std::make_unique<DebugLayerManager>();
@@ -328,6 +344,7 @@ class SkpDebugPlayer {
         fImages = deserialContext->fImages;
 
         udm.indexImages(fImages);
+        return "";
       }
 
       // constrains the draw command index to the frame's command list length.
@@ -440,6 +457,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("deleteCommand",        &SkpDebugPlayer::deleteCommand)
     .function("draw",                 &SkpDebugPlayer::draw, allow_raw_pointers())
     .function("drawTo",               &SkpDebugPlayer::drawTo, allow_raw_pointers())
+    .function("fileVersion",          &SkpDebugPlayer::fileVersion)
     .function("getBounds",            &SkpDebugPlayer::getBounds)
     .function("getFrameCount",        &SkpDebugPlayer::getFrameCount)
     .function("getImageResource",     &SkpDebugPlayer::getImageResource)
