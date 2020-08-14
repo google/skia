@@ -46,6 +46,30 @@
       "revId": "38ea3559eae478bbea306e9a54ca572cc5cf9a72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff5c28fc_e9472e21",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-14T14:20:58Z",
+      "side": 1,
+      "message": "Next time I update a section, I\u0027ll include an SkTaco class.",
+      "parentUuid": "25b10678_83e55770",
+      "range": {
+        "startLine": 416,
+        "startChar": 0,
+        "endLine": 419,
+        "endChar": 47
+      },
+      "revId": "38ea3559eae478bbea306e9a54ca572cc5cf9a72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
