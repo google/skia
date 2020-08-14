@@ -317,15 +317,14 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
             GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-            const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
+            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+            bool usesXferBarriers) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
-    bool usesXferBarrier = false;  // TODO: we should be passing this value
-
     if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds, colorInfo, stencilInfo,
-                                   sampledProxies, usesXferBarrier)) {
+                                   sampledProxies, usesXferBarriers)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
@@ -1877,6 +1876,25 @@ void GrVkGpu::querySampleLocations(GrRenderTarget* renderTarget,
     }
 }
 
+void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType barrierType) {
+    SkASSERT(barrierType == kBlend_GrXferBarrierType);
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
+    VkImageMemoryBarrier barrier;
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.pNext = nullptr;
+    barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+                            VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
+    barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
+    barrier.oldLayout = vkRT->currentLayout();
+    barrier.newLayout = vkRT->currentLayout();
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = vkRT->image();
+    barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, vkRT->mipLevels(), 0, 1};
+    this->addImageMemoryBarrier(vkRT->resource(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, true, &barrier);
+}
+
 void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {
     SkASSERT(GrBackendApi::kVulkan == tex.fBackend);
 
@@ -1894,7 +1912,10 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     GrVkRenderTarget::ReconstructAttachmentsDescriptor(this->vkCaps(), programInfo,
                                                        &attachmentsDescriptor, &attachmentFlags);
 
-    bool willReadDst = false; // TODO: get this from GrProgramInfo
+    // Currently we only support blend barriers with the advanced blend function. Thus we pass in
+    // nullptr for the texture.
+    auto barrierType = programInfo.pipeline().xferBarrierType(nullptr, *this->caps());
+    bool willReadDst =  barrierType == kBlend_GrXferBarrierType;
     sk_sp<const GrVkRenderPass> renderPass(this->resourceProvider().findCompatibleRenderPass(
                                                                          &attachmentsDescriptor,
                                                                          attachmentFlags,

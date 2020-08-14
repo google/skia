@@ -102,11 +102,12 @@ void GrD3DGpu::destroyResources() {
 }
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
-    GrRenderTarget* rt, GrStencilAttachment*,
-    GrSurfaceOrigin origin, const SkIRect& bounds,
-    const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
-    const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
-    const SkTArray<GrSurfaceProxy*, true>& sampledProxies) {
+        GrRenderTarget* rt, GrStencilAttachment*,
+        GrSurfaceOrigin origin, const SkIRect& bounds,
+        const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
+        const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
+        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        bool usesXferBarriers) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass.reset(new GrD3DOpsRenderPass(this));
     }

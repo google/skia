@@ -23,6 +23,7 @@ void setup_vk_attachment_description(VkAttachmentDescription* attachment,
     SkAssertResult(GrSampleCountToVkSampleCount(desc.fSamples, &attachment->samples));
     switch (layout) {
         case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        case VK_IMAGE_LAYOUT_GENERAL:
             attachment->loadOp = desc.fLoadStoreOps.fLoadOp;
             attachment->storeOp = desc.fLoadStoreOps.fStoreOp;
             attachment->stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -75,7 +76,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
     // need to create a self dependency for that subpass so that we can use barriers. Finally, the
     // color attachment will need to be set to the GENERAL layout since it will be used for reading
     // and writing here.
-    SkASSERT(!needsSelfDependency);
+    SkASSERT(!needsSelfDependency || gpu->caps()->advancedBlendEquationSupport());
 
     uint32_t numAttachments = attachmentsDescriptor->fAttachmentCount;
     // Attachment descriptions to be set on the render pass
