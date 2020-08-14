@@ -101,6 +101,13 @@ GrSmallPathShapeData* GrSmallPathAtlasMgr::findOrCreate(const GrStyledShape& sha
     return this->findOrCreate(key);
 }
 
+GrDrawOpAtlas::ErrorCode GrSmallPathAtlasMgr::addToAtlas(GrResourceProvider* resourceProvider,
+                                                         GrDeferredUploadTarget* target,
+                                                         int width, int height, const void* image,
+                                                         GrDrawOpAtlas::AtlasLocator* locator) {
+    return fAtlas->addToAtlas(resourceProvider, target, width, height, image, locator);
+}
+
 void GrSmallPathAtlasMgr::setUseToken(GrSmallPathShapeData* shapeData,
                                       GrDeferredUploadToken token) {
     fAtlas->setLastUseToken(shapeData->fAtlasLocator, token);
