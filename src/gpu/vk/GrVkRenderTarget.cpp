@@ -225,11 +225,12 @@ bool GrVkRenderTarget::completeStencilAttachment() {
     return true;
 }
 
-const GrVkRenderPass* GrVkRenderTarget::getSimpleRenderPass(bool withStencil, bool willReadDst) {
+const GrVkRenderPass* GrVkRenderTarget::getSimpleRenderPass(bool withStencil,
+                                                            bool needsXferBarrier) {
     if (withStencil) {
-        if (willReadDst) {
-            if (fCachedStencilDstReadRenderPass) {
-                return fCachedStencilDstReadRenderPass;
+        if (needsXferBarrier) {
+            if (fCachedStencilSelfDepRenderPass) {
+                return fCachedStencilSelfDepRenderPass;
             }
         } else {
             if (fCachedStencilRenderPass) {
@@ -237,9 +238,9 @@ const GrVkRenderPass* GrVkRenderTarget::getSimpleRenderPass(bool withStencil, bo
             }
         }
     } else {
-        if (willReadDst) {
-            if (fCachedDstReadRenderPass) {
-                return fCachedDstReadRenderPass;
+        if (needsXferBarrier) {
+            if (fCachedSelfDepRenderPass) {
+                return fCachedSelfDepRenderPass;
             }
         } else {
             if (fCachedSimpleRenderPass) {
@@ -248,45 +249,46 @@ const GrVkRenderPass* GrVkRenderTarget::getSimpleRenderPass(bool withStencil, bo
         }
     }
 
-    return this->createSimpleRenderPass(withStencil, willReadDst);
+    return this->createSimpleRenderPass(withStencil, needsXferBarrier);
 }
 
-const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass(bool withStencil, bool willReadDst) {
+const GrVkRenderPass* GrVkRenderTarget::createSimpleRenderPass(bool withStencil,
+                                                               bool needsXferBarrier) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
 
     GrVkResourceProvider& rp = this->getVkGpu()->resourceProvider();
     if (withStencil) {
-        if (willReadDst) {
-            SkASSERT(!fCachedStencilDstReadRenderPass);
-            fCachedStencilDstReadRenderPass = rp.findCompatibleRenderPass(
-                    *this, &fCompatibleStencilDstReadRPHandle, withStencil, willReadDst);
-            return fCachedStencilDstReadRenderPass;
+        if (needsXferBarrier) {
+            SkASSERT(!fCachedStencilSelfDepRenderPass);
+            fCachedStencilSelfDepRenderPass = rp.findCompatibleRenderPass(
+                    *this, &fCompatibleStencilSelfDepRPHandle, withStencil, needsXferBarrier);
+            return fCachedStencilSelfDepRenderPass;
         } else {
             SkASSERT(!fCachedStencilRenderPass);
             fCachedStencilRenderPass = rp.findCompatibleRenderPass(
-                    *this, &fCompatibleStencilRPHandle, withStencil, willReadDst);
+                    *this, &fCompatibleStencilRPHandle, withStencil, needsXferBarrier);
             return fCachedStencilRenderPass;
         }
     } else {
-        if (willReadDst) {
-            SkASSERT(!fCachedDstReadRenderPass);
-            fCachedDstReadRenderPass = rp.findCompatibleRenderPass(
-                    *this, &fCompatibleDstReadRPHandle, withStencil, willReadDst);
-            return fCachedDstReadRenderPass;
+        if (needsXferBarrier) {
+            SkASSERT(!fCachedSelfDepRenderPass);
+            fCachedSelfDepRenderPass = rp.findCompatibleRenderPass(
+                    *this, &fCompatibleSelfDepRPHandle, withStencil, needsXferBarrier);
+            return fCachedSelfDepRenderPass;
         } else {
             SkASSERT(!fCachedSimpleRenderPass);
-            fCachedSimpleRenderPass = rp.findCompatibleRenderPass(*
-                    this, &fCompatibleRPHandle, withStencil, willReadDst);
+            fCachedSimpleRenderPass = rp.findCompatibleRenderPass(
+                    *this, &fCompatibleRPHandle, withStencil, needsXferBarrier);
             return fCachedSimpleRenderPass;
         }
     }
 }
 
-const GrVkFramebuffer* GrVkRenderTarget::getFramebuffer(bool withStencil, bool willReadDst) {
+const GrVkFramebuffer* GrVkRenderTarget::getFramebuffer(bool withStencil, bool needsXferBarrier) {
     if (withStencil) {
-        if (willReadDst) {
-            if (fCachedStencilDstReadFramebuffer) {
-                return fCachedStencilDstReadFramebuffer;
+        if (needsXferBarrier) {
+            if (fCachedStencilSelfDepFramebuffer) {
+                return fCachedStencilSelfDepFramebuffer;
             }
         } else {
             if (fCachedStencilFramebuffer) {
@@ -294,9 +296,9 @@ const GrVkFramebuffer* GrVkRenderTarget::getFramebuffer(bool withStencil, bool w
             }
         }
     } else {
-        if (willReadDst) {
-            if (fCachedDstReadFramebuffer) {
-                return fCachedDstReadFramebuffer;
+        if (needsXferBarrier) {
+            if (fCachedSelfDepFramebuffer) {
+                return fCachedSelfDepFramebuffer;
             }
         } else {
             if (fCachedFramebuffer) {
@@ -304,14 +306,15 @@ const GrVkFramebuffer* GrVkRenderTarget::getFramebuffer(bool withStencil, bool w
             }
         }
     }
-    return this->createFramebuffer(withStencil, willReadDst);
+    return this->createFramebuffer(withStencil, needsXferBarrier);
 }
 
-const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withStencil, bool willReadDst) {
+const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withStencil,
+                                                           bool needsXferBarrier) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     GrVkGpu* gpu = this->getVkGpu();
 
-    const GrVkRenderPass* renderPass = this->getSimpleRenderPass(withStencil, willReadDst);
+    const GrVkRenderPass* renderPass = this->getSimpleRenderPass(withStencil, needsXferBarrier);
     if (!renderPass) {
         return nullptr;
     }
@@ -323,17 +326,17 @@ const GrVkFramebuffer* GrVkRenderTarget::createFramebuffer(bool withStencil, boo
                                                            stencilView);
 
     if (withStencil) {
-        if (willReadDst) {
-            SkASSERT(!fCachedStencilDstReadFramebuffer);
-            fCachedStencilDstReadFramebuffer = frameBuffer;
+        if (needsXferBarrier) {
+            SkASSERT(!fCachedStencilSelfDepFramebuffer);
+            fCachedStencilSelfDepFramebuffer = frameBuffer;
         } else {
             SkASSERT(!fCachedStencilFramebuffer);
             fCachedStencilFramebuffer = frameBuffer;
         }
     } else {
-        if (willReadDst) {
-            SkASSERT(!fCachedDstReadFramebuffer);
-            fCachedDstReadFramebuffer = frameBuffer;
+        if (needsXferBarrier) {
+            SkASSERT(!fCachedSelfDepFramebuffer);
+            fCachedSelfDepFramebuffer = frameBuffer;
         } else {
             SkASSERT(!fCachedFramebuffer);
             fCachedFramebuffer = frameBuffer;
@@ -408,17 +411,17 @@ GrVkRenderTarget::~GrVkRenderTarget() {
     SkASSERT(!fColorAttachmentView);
     SkASSERT(!fCachedFramebuffer);
     SkASSERT(!fCachedStencilFramebuffer);
-    SkASSERT(!fCachedDstReadFramebuffer);
-    SkASSERT(!fCachedStencilDstReadFramebuffer);
+    SkASSERT(!fCachedSelfDepFramebuffer);
+    SkASSERT(!fCachedStencilSelfDepFramebuffer);
     SkASSERT(!fCachedSimpleRenderPass);
     SkASSERT(!fCachedStencilRenderPass);
-    SkASSERT(!fCachedDstReadRenderPass);
-    SkASSERT(!fCachedStencilDstReadRenderPass);
+    SkASSERT(!fCachedSelfDepRenderPass);
+    SkASSERT(!fCachedStencilSelfDepRenderPass);
 }
 
 void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer, bool withStencil,
-                                    bool willReadDst) {
-    commandBuffer.addResource(this->getFramebuffer(withStencil, willReadDst));
+                                    bool needsXferBarrier) {
+    commandBuffer.addResource(this->getFramebuffer(withStencil, needsXferBarrier));
     commandBuffer.addResource(this->colorAttachmentView());
     commandBuffer.addResource(this->msaaImageResource() ? this->msaaImageResource()
                                                         : this->resource());
@@ -450,13 +453,13 @@ void GrVkRenderTarget::releaseInternalObjects() {
         fCachedStencilFramebuffer->unref();
         fCachedStencilFramebuffer = nullptr;
     }
-    if (fCachedDstReadFramebuffer) {
-        fCachedDstReadFramebuffer->unref();
-        fCachedDstReadFramebuffer = nullptr;
+    if (fCachedSelfDepFramebuffer) {
+        fCachedSelfDepFramebuffer->unref();
+        fCachedSelfDepFramebuffer = nullptr;
     }
-    if (fCachedStencilDstReadFramebuffer) {
-        fCachedStencilDstReadFramebuffer->unref();
-        fCachedStencilDstReadFramebuffer = nullptr;
+    if (fCachedStencilSelfDepFramebuffer) {
+        fCachedStencilSelfDepFramebuffer->unref();
+        fCachedStencilSelfDepFramebuffer = nullptr;
     }
     if (fCachedSimpleRenderPass) {
         fCachedSimpleRenderPass->unref();
@@ -466,13 +469,13 @@ void GrVkRenderTarget::releaseInternalObjects() {
         fCachedStencilRenderPass->unref();
         fCachedStencilRenderPass = nullptr;
     }
-    if (fCachedDstReadRenderPass) {
-        fCachedDstReadRenderPass->unref();
-        fCachedDstReadRenderPass = nullptr;
+    if (fCachedSelfDepRenderPass) {
+        fCachedSelfDepRenderPass->unref();
+        fCachedSelfDepRenderPass = nullptr;
     }
-    if (fCachedStencilDstReadRenderPass) {
-        fCachedStencilDstReadRenderPass->unref();
-        fCachedStencilDstReadRenderPass = nullptr;
+    if (fCachedStencilSelfDepRenderPass) {
+        fCachedStencilSelfDepRenderPass->unref();
+        fCachedStencilSelfDepRenderPass = nullptr;
     }
     for (int i = 0; i < fGrSecondaryCommandBuffers.count(); ++i) {
         SkASSERT(fGrSecondaryCommandBuffers[i]);

@@ -322,10 +322,10 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
-    bool willReadDst = false; // TODO: we should be passing this value
+    bool usesXferBarrier = false;  // TODO: we should be passing this value
 
-    if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds,
-                                   colorInfo, stencilInfo, sampledProxies, willReadDst)) {
+    if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds, colorInfo, stencilInfo,
+                                   sampledProxies, usesXferBarrier)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();

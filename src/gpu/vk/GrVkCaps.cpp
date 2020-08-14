@@ -371,6 +371,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
+    fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
+
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
 
@@ -1707,14 +1709,14 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
     // GrVkPipelineStateBuilder.cpp).
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
-    bool willReadDst = false;  // TODO: get this from GrProgramInfo
+    bool usesXferBarrier = false;  // TODO: get this from GrProgramInfo
 
     if (rt) {
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
 
         bool needsStencil = programInfo.numStencilSamples() || programInfo.isStencilEnabled();
         // TODO: support failure in getSimpleRenderPass
-        const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil, willReadDst);
+        const GrVkRenderPass* rp = vkRT->getSimpleRenderPass(needsStencil, usesXferBarrier);
         SkASSERT(rp);
         rp->genKey(&b);
 
@@ -1727,7 +1729,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
             GrVkRenderTarget::ReconstructAttachmentsDescriptor(*this, programInfo,
                                                                &attachmentsDescriptor,
                                                                &attachmentFlags);
-            SkASSERT(rp->isCompatible(attachmentsDescriptor, attachmentFlags, willReadDst));
+            SkASSERT(rp->isCompatible(attachmentsDescriptor, attachmentFlags, usesXferBarrier));
         }
 #endif
     } else {
@@ -1740,7 +1742,7 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
         // kExternal_AttachmentFlag is only set for wrapped secondary command buffers - which
         // will always go through the above 'rt' path (i.e., we can always pass 0 as the final
         // parameter to GenKey).
-        GrVkRenderPass::GenKey(&b, attachmentFlags, attachmentsDescriptor, willReadDst, 0);
+        GrVkRenderPass::GenKey(&b, attachmentFlags, attachmentsDescriptor, usesXferBarrier, 0);
     }
 
     GrStencilSettings stencil = programInfo.nonGLStencilSettings();

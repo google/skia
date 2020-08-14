@@ -160,6 +160,8 @@ public:
         return fMaxPerPoolCachedSecondaryCommandBuffers;
     }
 
+    uint32_t maxInputAttachmentDescriptors() const { return fMaxInputAttachmentDescriptors; }
+
     bool mustInvalidatePrimaryCmdBufferStateAfterClearAttachments() const {
         return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
     }
@@ -335,6 +337,8 @@ private:
     // submission in the GrDrawingManager, so we shouldn't be going over 100 secondary command
     // buffers per primary anyways.
     int fMaxPerPoolCachedSecondaryCommandBuffers = 100;
+
+    uint32_t fMaxInputAttachmentDescriptors = 0;
 
     typedef GrCaps INHERITED;
 };
