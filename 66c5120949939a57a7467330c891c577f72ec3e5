@@ -45,6 +45,54 @@
       "revId": "66c5120949939a57a7467330c891c577f72ec3e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62b24ff7_ad0e1ad7",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-14T18:04:09Z",
+      "side": 1,
+      "message": "comment removed. I was suppose to be a reminder to check for the texture barriers which I added above this. Just forgot to remove the comment or at least the whole comment.",
+      "parentUuid": "865a1f47_a5c49784",
+      "range": {
+        "startLine": 125,
+        "startChar": 52,
+        "endLine": 125,
+        "endChar": 53
+      },
+      "revId": "66c5120949939a57a7467330c891c577f72ec3e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1241851f_492353b7",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-14T18:04:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69fc0c27_a7933e48",
+      "range": {
+        "startLine": 125,
+        "startChar": 39,
+        "endLine": 125,
+        "endChar": 47
+      },
+      "revId": "66c5120949939a57a7467330c891c577f72ec3e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
