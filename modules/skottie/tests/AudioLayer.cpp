@@ -76,7 +76,7 @@ DEF_TEST(Skottie_AudioLayer, r) {
     private:
         sk_sp<ExternalTrackAsset> loadAudioAsset(const char path[],
                                                  const char name[],
-                                                 const char id[]) {
+                                                 const char id[]) override {
             REPORTER_ASSERT(fReporter, !strcmp(path, "assets/"));
             REPORTER_ASSERT(fReporter, !strcmp(name, "audio.mp3"));
             REPORTER_ASSERT(fReporter, !strcmp(id  , "audio_0"));

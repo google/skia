@@ -135,8 +135,7 @@ public:
         return fy - SK_Fixed1/2;
     }
 
-    virtual SkFixed drawLine(int x, int stopx, SkFixed fy,
-                             SkFixed slope) override {
+    SkFixed drawLine(int x, int stopx, SkFixed fy, SkFixed slope) override {
         SkASSERT(x < stopx);
         int count = stopx - x;
         fy += SK_Fixed1/2;

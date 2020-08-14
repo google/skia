@@ -104,8 +104,7 @@ public:
     }
 
 protected:
-    virtual void handlePath(SkCanvas* canvas, const SkPath& path,
-                            const SkPaint& paint, int N) override {
+    void handlePath(SkCanvas* canvas, const SkPath& path, const SkPaint& paint, int N) override {
         SkPoint pts[2];
         if (!path.isLine(pts) || pts[0].fY != pts[1].fY) {
             this->INHERITED::handlePath(canvas, path, paint, N);
