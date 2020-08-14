@@ -129,6 +129,30 @@
       "revId": "9667f2db58d14b0d5d86ff35c19f0e7baae3664d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e0be7ed0_2b7524be",
+        "filename": "include/gpu/GrBackendSemaphore.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-14T15:12:19Z",
+      "side": 1,
+      "message": "just for clarity that was meant to say \"is not just a uint\"....",
+      "parentUuid": "58b5d3fc_8a3ab888",
+      "range": {
+        "startLine": 77,
+        "startChar": 4,
+        "endLine": 77,
+        "endChar": 12
+      },
+      "revId": "9667f2db58d14b0d5d86ff35c19f0e7baae3664d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
