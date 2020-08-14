@@ -110,10 +110,6 @@ void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
-        case SK_INCOLOR_BUILTIN:
-            this->write(Compiler::kFormatArgPlaceholderStr);
-            fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
-            break;
         case SK_OUTCOLOR_BUILTIN:
             this->write(Compiler::kFormatArgPlaceholderStr);
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
