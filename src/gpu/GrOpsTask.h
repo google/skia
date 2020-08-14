@@ -121,7 +121,15 @@ public:
         if (dstProxyView.proxy()) {
             this->addSampledTexture(dstProxyView.proxy());
             addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
+            if (this->target(0).asTextureProxy() == dstProxyView.proxy()) {
+                // Since we are sampling and drawing to the same surface we will need to use
+                // texture barriers.
+                fUsesXferBarriers |= true;
+            }
         }
+
+        // TODO: Add check for texture barries when u
+        fUsesXferBarriers |= processorAnalysis.usesNonCoherentHWBlending();
 
         this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
                        &dstProxyView, caps);
@@ -317,6 +325,8 @@ private:
     uint32_t fLastClipStackGenID = SK_InvalidUniqueID;
     SkIRect fLastDevClipBounds;
     int fLastClipNumAnalyticElements;
+
+    bool fUsesXferBarriers = false;
 
     // We must track if we have a wait op so that we don't delete the op when we have a full clear.
     bool fHasWaitOp = false;

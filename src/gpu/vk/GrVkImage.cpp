@@ -194,7 +194,7 @@ void GrVkImage::setImageLayoutAndQueueIndex(const GrVkGpu* gpu,
         fInfo.fImage,                                    // image
         { aspectFlags, 0, fInfo.fLevelCount, 0, 1 }      // subresourceRange
     };
-
+    SkASSERT(srcAccessMask == imageMemoryBarrier.srcAccessMask);
     gpu->addImageMemoryBarrier(this->resource(), srcStageMask, dstStageMask, byRegion,
                                &imageMemoryBarrier);
 
