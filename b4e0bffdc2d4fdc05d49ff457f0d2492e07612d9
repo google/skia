@@ -16,6 +16,24 @@
       "revId": "b4e0bffdc2d4fdc05d49ff457f0d2492e07612d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78b0fd93_177c66c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-14T15:22:29Z",
+      "side": 1,
+      "message": "Specifically the code in GrVkRenderPass::Create is where the real changes are",
+      "parentUuid": "52ffbb15_16e5b856",
+      "revId": "b4e0bffdc2d4fdc05d49ff457f0d2492e07612d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
