@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d3c89c1_7df938fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-14T16:09:55Z",
+      "side": 1,
+      "message": "Yeah, I remember thinking this when I removed all the vector instructions. Makes sense.",
+      "revId": "f855544099cedb6973aeaecdd8d33027ce36187b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
