@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53e8fd86_220b4c4d",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-14T14:12:11Z",
+      "side": 1,
+      "message": "No open faced???",
+      "range": {
+        "startLine": 416,
+        "startChar": 0,
+        "endLine": 419,
+        "endChar": 47
+      },
+      "revId": "38ea3559eae478bbea306e9a54ca572cc5cf9a72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
