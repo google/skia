@@ -697,6 +697,8 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkDescriptorSetManager.cpp",
   "$_src/gpu/vk/GrVkDescriptorSetManager.h",
   "$_src/gpu/vk/GrVkExtensions.cpp",
+  "$_src/gpu/vk/GrVkFence.cpp",
+  "$_src/gpu/vk/GrVkFence.h",
   "$_src/gpu/vk/GrVkFramebuffer.cpp",
   "$_src/gpu/vk/GrVkFramebuffer.h",
   "$_src/gpu/vk/GrVkGpu.cpp",
