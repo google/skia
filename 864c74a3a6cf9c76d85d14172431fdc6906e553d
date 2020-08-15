@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bbe40130_fecd77ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-15T14:57:58Z",
+      "side": 1,
+      "message": "Joe, just out of curiosity, is it possible for us to build on, or at least for, any BSD?  GCE directly, or Docker, something like that?  Again, just curious, not important.",
+      "revId": "864c74a3a6cf9c76d85d14172431fdc6906e553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
