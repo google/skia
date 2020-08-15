@@ -37,8 +37,8 @@ config("common") {
     "$angle_root/src/third_party/khronos",
   ]
   cflags_cc = []
-  assert(is_linux || is_win)  # TODO: is_mac?
-  if (is_linux) {
+  assert(is_linux || is_win || is_bsd)  # TODO: is_mac?
+  if (is_linux || is_bsd) {
     defines += [
       "ANGLE_USE_X11",
       "GL_APICALL=__attribute__((visibility(\"default\")))",
@@ -112,7 +112,7 @@ shared_library("libGLESv2") {
   if (is_win) {
     sources += [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
   }
-  if (is_linux) {
+  if (is_linux || is_bsd) {
     libs += [
       "X11",
       "Xi",

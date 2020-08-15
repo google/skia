@@ -32,7 +32,7 @@ config("skia_public") {
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
   }
-  if (is_fuchsia || is_linux) {
+  if (is_fuchsia || is_linux || is_bsd) {
     defines += [ "SK_R32_SHIFT=16" ]
   }
   if (skia_enable_flutter_defines) {
@@ -702,7 +702,7 @@ optional("gpu") {
     } else if (skia_use_egl) {
       sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
       libs += [ "EGL" ]
-    } else if (is_linux && skia_use_x11) {
+    } else if ((is_linux || is_bsd) && skia_use_x11) {
       sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
       libs += [ "GL" ]
     } else if (is_mac) {
@@ -1171,6 +1171,9 @@ component("skia") {
       "src/ports/SkOSFile_posix.cpp",
       "src/ports/SkOSLibrary_posix.cpp",
     ]
+  }
+
+  if (is_linux || is_android || is_mac || is_ios) {
     libs += [ "dl" ]
   }
 
@@ -1187,7 +1190,7 @@ component("skia") {
     ]
   }
 
-  if (is_linux || target_cpu == "wasm") {
+  if (is_linux || target_cpu == "wasm" || is_bsd) {
     sources += [ "src/ports/SkDebug_stdio.cpp" ]
     if (skia_use_egl) {
       libs += [ "GLESv2" ]
@@ -1566,7 +1569,7 @@ if (skia_enable_tools) {
       if (is_android || skia_use_egl) {
         sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
         libs += [ "EGL" ]
-      } else if (is_linux) {
+      } else if (is_linux || is_bsd) {
         sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
         libs += [
           "GLU",
@@ -1715,6 +1718,8 @@ if (skia_enable_tools) {
       }
     } else if (is_win) {
       libs += [ "DbgHelp.lib" ]
+    } else if (is_freebsd || is_netbsd) {
+      libs += [ "execinfo" ]
     }
 
     defines = []
@@ -1896,7 +1901,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (is_linux || is_mac) {
+  if (is_linux || is_mac || is_bsd) {
     test_app("skottie_tool") {
       deps = [ "modules/skottie:tool" ]
     }
@@ -2356,7 +2361,7 @@ if (skia_enable_tools) {
         "tools/sk_app/android/surface_glue_android.h",
       ]
       libs += [ "android" ]
-    } else if (is_linux) {
+    } else if (is_linux || is_bsd) {
       sources += [
         "tools/sk_app/unix/RasterWindowContext_unix.cpp",
         "tools/sk_app/unix/WindowContextFactory_unix.h",
@@ -2407,7 +2412,7 @@ if (skia_enable_tools) {
       sources += [ "tools/sk_app/GLWindowContext.h" ]
       if (is_android) {
         sources += [ "tools/sk_app/android/GLWindowContext_android.cpp" ]
-      } else if (is_linux) {
+      } else if (is_linux || is_bsd) {
         sources += [ "tools/sk_app/unix/GLWindowContext_unix.cpp" ]
       } else if (is_win) {
         sources += [ "tools/sk_app/win/GLWindowContext_win.cpp" ]
@@ -2426,7 +2431,7 @@ if (skia_enable_tools) {
       sources += [ "tools/sk_app/VulkanWindowContext.h" ]
       if (is_android) {
         sources += [ "tools/sk_app/android/VulkanWindowContext_android.cpp" ]
-      } else if (is_linux) {
+      } else if (is_linux || is_bsd) {
         sources += [ "tools/sk_app/unix/VulkanWindowContext_unix.cpp" ]
         libs += [ "X11-xcb" ]
       } else if (is_win) {
@@ -2451,7 +2456,7 @@ if (skia_enable_tools) {
     if (skia_use_dawn) {
       sources += [ "tools/sk_app/DawnWindowContext.cpp" ]
       sources += [ "tools/sk_app/DawnWindowContext.h" ]
-      if (is_linux) {
+      if (is_linux || is_bsd) {
         if (dawn_enable_vulkan) {
           sources += [ "tools/sk_app/unix/DawnVulkanWindowContext_unix.cpp" ]
           defines = [ "VK_USE_PLATFORM_XCB_KHR" ]
@@ -2477,7 +2482,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
+  if (!skia_use_vulkan && (is_mac || is_linux || is_win || is_bsd)) {
     test_app("fiddle_examples") {
       sources = [
         "tools/fiddle/all_examples.cpp",
@@ -2560,7 +2565,8 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && !skia_use_angle && (is_linux || is_win || is_mac)) {
+  if (skia_use_gl && !skia_use_angle &&
+      (is_linux || is_win || is_mac || is_bsd)) {
     test_app("HelloWorld") {
       sources = [ "example/HelloWorld.cpp" ]
       libs = []
@@ -2575,7 +2581,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_use_gl && (is_linux || is_mac || is_ios)) {
+  if (skia_use_gl && (is_linux || is_mac || is_ios || is_bsd)) {
     test_app("SkiaSDLExample") {
       sources = [ "example/SkiaSDLExample.cpp" ]
       libs = []
@@ -2587,7 +2593,7 @@ if (skia_enable_tools) {
     }
   }
 
-  if (skia_qt_path != "" && (is_win || is_linux || is_mac)) {
+  if (skia_qt_path != "" && (is_win || is_linux || is_mac || is_bsd)) {
     action_foreach("generate_mocs") {
       script = "gn/call.py"
       sources = [ "tools/mdbviz/MainWindow.h" ]

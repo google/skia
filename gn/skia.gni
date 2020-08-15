@@ -46,9 +46,9 @@ declare_args() {
   skia_use_experimental_xform = false
   skia_use_ffmpeg = false
   skia_use_fixed_gamma_text = is_android
-  skia_use_fontconfig = is_linux
+  skia_use_fontconfig = is_linux || is_bsd
   skia_use_fonthost_mac = is_mac || is_ios
-  skia_use_freetype = is_android || is_fuchsia || is_linux
+  skia_use_freetype = is_android || is_fuchsia || is_linux || is_bsd
   skia_use_harfbuzz = true
   skia_use_gl = !is_fuchsia
   skia_use_icu = !is_fuchsia
@@ -65,7 +65,7 @@ declare_args() {
   skia_use_opencl = false
   skia_use_piex = !is_win
   skia_use_wuffs = false
-  skia_use_x11 = is_linux
+  skia_use_x11 = is_linux || is_bsd
   skia_use_xps = true
   skia_use_zlib = true
 

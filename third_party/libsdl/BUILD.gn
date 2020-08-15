@@ -125,7 +125,7 @@ third_party("libsdl") {
     ]
   }
 
-  if (is_linux) {
+  if (is_linux || is_bsd) {
     sources += [
       "../externals/sdl/src/filesystem/unix/SDL_sysfilesystem.c",
       "../externals/sdl/src/render/opengl/SDL_render_gl.c",
