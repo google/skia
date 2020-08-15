@@ -160,7 +160,7 @@ DEF_TEST(SkRecordingAccuracyXfermode, reporter) {
         REPORTER_ASSERT(reporter,
                         0 == memcmp(goldenBM.getPixels(), pictureBM.getPixels(), pixelsSize));
 #else
-        if (memcmp(goldenBM.getPixels(), pictureBM.getPixels(), pixelsSize)) {
+        if (memcmp(goldenBM.getPixels(), pictureBM.getPixels(), pixelsSize) != 0) {
             numErrors++;
             errors.appendf("For SkXfermode %d %s:    SkPictureRecorder bitmap is wrong\n",
                            iMode, SkBlendMode_Name(mode));

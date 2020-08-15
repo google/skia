@@ -357,7 +357,7 @@ void GrVkCommandBuffer::setViewport(const GrVkGpu* gpu,
                                     const VkViewport* viewports) {
     SkASSERT(fIsActive);
     SkASSERT(1 == viewportCount);
-    if (memcmp(viewports, &fCachedViewport, sizeof(VkViewport))) {
+    if (memcmp(viewports, &fCachedViewport, sizeof(VkViewport)) != 0) {
         GR_VK_CALL(gpu->vkInterface(), CmdSetViewport(fCmdBuffer,
                                                       firstViewport,
                                                       viewportCount,
@@ -372,7 +372,7 @@ void GrVkCommandBuffer::setScissor(const GrVkGpu* gpu,
                                    const VkRect2D* scissors) {
     SkASSERT(fIsActive);
     SkASSERT(1 == scissorCount);
-    if (memcmp(scissors, &fCachedScissor, sizeof(VkRect2D))) {
+    if (memcmp(scissors, &fCachedScissor, sizeof(VkRect2D)) != 0) {
         GR_VK_CALL(gpu->vkInterface(), CmdSetScissor(fCmdBuffer,
                                                      firstScissor,
                                                      scissorCount,
@@ -384,7 +384,7 @@ void GrVkCommandBuffer::setScissor(const GrVkGpu* gpu,
 void GrVkCommandBuffer::setBlendConstants(const GrVkGpu* gpu,
                                           const float blendConstants[4]) {
     SkASSERT(fIsActive);
-    if (memcmp(blendConstants, fCachedBlendConstant, 4 * sizeof(float))) {
+    if (memcmp(blendConstants, fCachedBlendConstant, 4 * sizeof(float)) != 0) {
         GR_VK_CALL(gpu->vkInterface(), CmdSetBlendConstants(fCmdBuffer, blendConstants));
         memcpy(fCachedBlendConstant, blendConstants, 4 * sizeof(float));
     }

@@ -98,7 +98,7 @@ private:
               auto* dst = fTarget->data();
 
         if (lerp_info.isConstant()) {
-            if (std::memcmp(dst, v0, fVecLen * sizeof(float))) {
+            if (std::memcmp(dst, v0, fVecLen * sizeof(float)) != 0) {
                 std::copy(v0, v0 + fVecLen, dst);
                 return true;
             }
