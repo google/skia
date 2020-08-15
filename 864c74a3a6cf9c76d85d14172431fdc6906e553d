@@ -16,6 +16,24 @@
       "revId": "864c74a3a6cf9c76d85d14172431fdc6906e553d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1b02186_fd8b9210",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2020-08-15T15:42:21Z",
+      "side": 1,
+      "message": "Docker is a non-starter for BSD, but there are FreeBSD images available for GCE.",
+      "parentUuid": "bbe40130_fecd77ff",
+      "revId": "864c74a3a6cf9c76d85d14172431fdc6906e553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
