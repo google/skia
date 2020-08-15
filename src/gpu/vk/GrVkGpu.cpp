@@ -317,7 +317,7 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
-    bool willReadDst = false; // TODO: we should be passing this value
+    bool willReadDst = false;  // TODO: we should be passing this value
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
     GrVkCommandPool* commandPool = nullptr;
@@ -355,8 +355,11 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
 
     SkASSERT(!fMainCmdPools.empty());
     for (auto* pool : fMainCmdPools) {
-        pool->getPrimaryCommandBuffer()->end(this);
         pool->close();
+    }
+
+    for (auto* buffer : fMainCmdBuffers) {
+        buffer->end(this);
     }
 
     bool didSubmit = GrVkPrimaryCommandBuffer::SubmitToQueue(
@@ -2585,16 +2588,27 @@ void GrVkGpu::storeVkPipelineCacheData() {
 }
 
 void GrVkGpu::createCommandBufferIfNecessary() {
-    constexpr bool kAlwaysCreate = true;
-    // If the last CommandPool is not unique, it mean it is still being used by
-    // a GrVkOpsRenderPass. In that case, we create a new one.
-    if (fMainCmdPools.empty() || !fMainCmdPools.back()->unique() || kAlwaysCreate) {
-        auto* cmdPool = fResourceProvider.findOrCreateCommandPool();
-        if (cmdPool) {
-            fMainCmdPools.push_back(cmdPool);
-            fMainCmdBuffers.push_back(cmdPool->getPrimaryCommandBuffer());
-            SkASSERT(this->currentCommandBuffer());
-            this->currentCommandBuffer()->begin(this);
+    constexpr bool kAlwaysCreateNew = true;
+
+    // If the current command buffer is not using by a flush(), then we can continue it,
+    // otherwise we have to create a new one.
+    if (!kAlwaysCreateNew && !fMainCmdPools.empty() && fMainCmdPools.back()->unique()) return;
+
+    GrVkCommandPool* commandPool = nullptr;
+    for (auto* pool : fMainCmdPools) {
+        if (pool->unique()) {
+            commandPool = pool;
+            break;
         }
     }
+
+    if (!commandPool) {
+        commandPool = fResourceProvider.findOrCreateCommandPool();
+        fMainCmdPools.push_back(commandPool);
+    }
+
+    commandPool->allocatePrimaryCommandBuffer();
+    fMainCmdBuffers.push_back(commandPool->getPrimaryCommandBuffer());
+    SkASSERT(this->currentCommandBuffer());
+    this->currentCommandBuffer()->begin(this);
 }

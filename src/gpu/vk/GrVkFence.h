@@ -39,6 +39,7 @@ private:
     GrVkFence(GrVkGpu* gpu, VkFence fence) : GrVkRecycledResource(gpu), fFence(fence) {}
 
     const VkFence fFence;
+    bool fIsSignaled = false;
 
     typedef GrVkRecycledResource INHERITED;
 };

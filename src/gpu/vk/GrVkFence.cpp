@@ -26,11 +26,13 @@ GrVkFence* GrVkFence::Create(GrVkGpu* gpu) {
 }
 
 bool GrVkFence::isSignaled(GrVkGpu* gpu) {
+    if (fIsSignaled) return true;
     VkResult err;
     GR_VK_CALL_RESULT_NOCHECK(gpu, err, GetFenceStatus(gpu->device(), fFence));
     switch (err) {
         case VK_SUCCESS:
         case VK_ERROR_DEVICE_LOST:
+            fIsSignaled = true;
             return true;
 
         case VK_NOT_READY:
@@ -45,6 +47,7 @@ bool GrVkFence::isSignaled(GrVkGpu* gpu) {
 
 void GrVkFence::wait(GrVkGpu* gpu) {
     GR_VK_CALL_ERRCHECK(gpu, WaitForFences(gpu->device(), 1, &fFence, true, UINT64_MAX));
+    fIsSignaled = true;
 }
 
 void GrVkFence::reset(GrVkGpu* gpu) {
@@ -52,6 +55,7 @@ void GrVkFence::reset(GrVkGpu* gpu) {
     // This cannot return DEVICE_LOST so we assert we succeeded.
     GR_VK_CALL_RESULT(gpu, err, ResetFences(gpu->device(), 1, &fFence));
     SkASSERT(err == VK_SUCCESS);
+    fIsSignaled = false;
 }
 
 void GrVkFence::freeGPUData() const {
