@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "498b7a92_92d11e01",
+        "filename": "gm/exoticformats.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-15T21:56:17Z",
+      "side": 0,
+      "message": "Is there a way to get the tool to ask for / rewrite these as\n\n   if (0 !\u003d memcmp(...)) \n\n?  It\u0027s easy to lose track of the test when the expression gets long,\nbut if it\u0027s on the left side it\u0027s always right in your face first.",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 14
+      },
+      "revId": "43f49b4d52a42dd6d4ecdeca676f5589a43a849f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
