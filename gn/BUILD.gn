@@ -208,7 +208,7 @@ config("default") {
     libs += [ "objc" ]
   }
 
-  if (is_linux) {
+  if (is_linux || is_bsd) {
     libs += [ "pthread" ]
   }
 
@@ -284,7 +284,7 @@ config("default") {
       ldflags += [ "-fsanitize=$sanitizers" ]
     }
 
-    if (is_linux) {
+    if (is_linux || is_bsd) {
       cflags_cc += [ "-stdlib=libc++" ]
       ldflags += [ "-stdlib=libc++" ]
     }
@@ -570,7 +570,7 @@ config("executable") {
     ]
   } else if (is_mac) {
     ldflags = [ "-Wl,-rpath,@loader_path/." ]
-  } else if (is_linux) {
+  } else if (is_linux || is_bsd) {
     ldflags = [
       "-rdynamic",
       "-Wl,-rpath,\$ORIGIN",

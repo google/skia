@@ -5,7 +5,7 @@ third_party("opencl") {
   # (Some platforms only ship the C APIs, which cl.hpp builds on.)
   public_include_dirs = [ "../externals/opencl-registry/api/2.1" ]
 
-  if (is_linux) {
+  if (is_linux || is_bsd) {
     libs = [ "OpenCL" ]
   } else if (is_mac) {
     libs = [ "OpenCL.framework" ]
