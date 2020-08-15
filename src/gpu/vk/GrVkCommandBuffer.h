@@ -311,6 +311,12 @@ public:
 
     void recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool);
 
+    static bool SubmitToQueue(GrVkGpu* gpu,
+                              VkQueue queue,
+                              SkTArray<GrVkPrimaryCommandBuffer*>& commandBuffers,
+                              SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
+                              SkTArray<GrVkSemaphore::Resource*>& waitSemaphores);
+
 private:
     explicit GrVkPrimaryCommandBuffer(VkCommandBuffer cmdBuffer) : INHERITED(cmdBuffer) {}
 

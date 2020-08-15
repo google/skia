@@ -19,6 +19,8 @@ class GrVkGpu;
 class GrVkImage;
 class GrVkRenderPass;
 class GrVkRenderTarget;
+class GrVkCommandPool;
+class GrVkPrimaryCommandBuffer;
 class GrVkSecondaryCommandBuffer;
 
 class GrVkOpsRenderPass : public GrOpsRenderPass {
@@ -31,12 +33,15 @@ public:
 
     void onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler>) override;
 
-    bool set(GrRenderTarget*, GrStencilAttachment*,
-             GrSurfaceOrigin, const SkIRect& bounds,
+    bool set(GrRenderTarget*,
+             GrStencilAttachment*,
+             GrSurfaceOrigin,
+             const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
              const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-             bool usesXferBarriers);
+             bool usesXferBarriers,
+             GrVkCommandPool* commandPool);
     void reset();
 
     void submit();
@@ -49,7 +54,8 @@ private:
     bool init(const GrOpsRenderPass::LoadAndStoreInfo&,
               const GrOpsRenderPass::StencilLoadAndStoreInfo&,
               const SkPMColor4f& clearColor,
-              bool withStencil);
+              bool withStencil,
+              GrVkCommandPool* commandPool);
 
     // Called instead of init when we are drawing to a render target that already wraps a secondary
     // command buffer.
@@ -90,6 +96,9 @@ private:
 
     void addAdditionalRenderPass(bool mustUseSecondaryCommandBuffer);
 
+    bool beginRenderPass(const VkClearValue& clearColor);
+    void endRenderPass();
+
     std::unique_ptr<GrVkSecondaryCommandBuffer> fCurrentSecondaryCommandBuffer;
     const GrVkRenderPass*                       fCurrentRenderPass;
     SkIRect                                     fCurrentPipelineBounds;
@@ -98,6 +107,8 @@ private:
     SkIRect                                     fBounds;
     bool                                        fUsesXferBarriers = false;
     GrVkGpu*                                    fGpu;
+    GrVkCommandPool* fCommandPool = nullptr;
+    GrVkPrimaryCommandBuffer* fCommandBuffer = nullptr;
 
 #ifdef SK_DEBUG
     // When we are actively recording into the GrVkOpsRenderPass we set this flag to true. This
