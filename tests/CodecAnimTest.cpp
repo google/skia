@@ -445,7 +445,7 @@ DEF_TEST(AndroidCodec_animated, r) {
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 
             for (int y = 0; y < info.height(); ++y) {
-                if (memcmp(bm.getAddr32(0, y), bm2.getAddr32(0, y), info.minRowBytes())) {
+                if (0 != memcmp(bm.getAddr32(0, y), bm2.getAddr32(0, y), info.minRowBytes())) {
                     ERRORF(r, "pixel mismatch for sample size %i, frame %i resulting in "
                               "dimensions %i x %i line %i\n",
                               sampleSize, i, info.width(), info.height(), y);

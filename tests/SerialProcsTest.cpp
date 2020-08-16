@@ -44,7 +44,7 @@ DEF_TEST(serial_procs_image, reporter) {
         },
         [](const void* data, size_t length, void* ctx) -> sk_sp<SkImage> {
             State* state = (State*)ctx;
-            if (length != strlen(state->fStr)+1 || memcmp(data, state->fStr, length)) {
+            if (length != strlen(state->fStr)+1 || 0 != memcmp(data, state->fStr, length)) {
                 return nullptr;
             }
             return sk_ref_sp(state->fImg);

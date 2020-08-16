@@ -59,7 +59,7 @@ static bool operator==(const SkMask& a, const SkMask& b) {
     const char* aptr = (const char*)a.fImage;
     const char* bptr = (const char*)b.fImage;
     for (int y = 0; y < h; ++y) {
-        if (memcmp(aptr, bptr, wbytes)) {
+        if (0 != memcmp(aptr, bptr, wbytes)) {
             return false;
         }
         aptr += wbytes;

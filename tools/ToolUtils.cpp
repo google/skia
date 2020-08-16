@@ -436,7 +436,7 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
     for (int y = 0; y < a.height(); ++y) {
         const char* aptr = (const char*)a.addr(0, y);
         const char* bptr = (const char*)b.addr(0, y);
-        if (memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
+        if (0 != memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
             return false;
         }
     }

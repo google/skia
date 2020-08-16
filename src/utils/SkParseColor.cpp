@@ -304,7 +304,7 @@ const char* SkParse::FindNamedColor(const char* name, size_t len, SkColor* color
                                           return strcmp(name, key) < 0;
                                       });
 
-    if (rec == std::end(gColorNames) || strcmp(name, *rec)) {
+    if (rec == std::end(gColorNames) || 0 != strcmp(name, *rec)) {
         return nullptr;
     }
 

@@ -46,7 +46,7 @@ static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* o
     }
 
     constexpr uint8_t kExifSig[] { 'E', 'x', 'i', 'f', '\0' };
-    if (memcmp(marker->data, kExifSig, sizeof(kExifSig))) {
+    if (0 != memcmp(marker->data, kExifSig, sizeof(kExifSig))) {
         return false;
     }
 

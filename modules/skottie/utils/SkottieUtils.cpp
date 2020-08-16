@@ -211,7 +211,7 @@ ExternalAnimationPrecompInterceptor::~ExternalAnimationPrecompInterceptor() = de
 
 sk_sp<skottie::ExternalLayer> ExternalAnimationPrecompInterceptor::onLoadPrecomp(
         const char[], const char name[], const SkSize& size) {
-    if (strncmp(name, fPrefix.c_str(), fPrefix.size())) {
+    if (0 != strncmp(name, fPrefix.c_str(), fPrefix.size())) {
         return nullptr;
     }
 

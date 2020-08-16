@@ -364,7 +364,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
 
     char header[kHeaderSize];
     if (stream->read(header, kHeaderSize) != kHeaderSize ||
-        memcmp(header, gHeaderString, kHeaderSize) != 0)
+        0 != memcmp(header, gHeaderString, kHeaderSize))
     {
         return nullptr;
     }
