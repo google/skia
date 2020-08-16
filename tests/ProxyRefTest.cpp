@@ -66,7 +66,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
         // Multiple normal refs
         {
             sk_sp<GrTextureProxy> proxy((*make)(dContext));
-            if (proxy.get()) {
+            if (proxy) {
                 proxy->ref();
                 proxy->ref();
 

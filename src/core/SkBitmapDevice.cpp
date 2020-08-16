@@ -573,7 +573,7 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
         draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();
         paint.writable()->setShader(src->fBitmap.makeShader());
-        draw.drawBitmap(*src->fCoverage.get(),
+        draw.drawBitmap(*src->fCoverage,
                         SkMatrix::Translate(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
     } else {
         BDDraw(this).drawSprite(src->fBitmap, x, y, *paint);

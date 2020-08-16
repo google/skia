@@ -726,7 +726,7 @@ static void test_fail_affects_transparent_black(skiatest::Reporter* reporter,
     SkIPoint offset;
     sk_sp<SkSpecialImage> result(as_IFB(greenFilter)->filterImage(ctx).imageAndOffset(&offset));
     REPORTER_ASSERT(reporter, nullptr != result.get());
-    if (result.get()) {
+    if (result) {
         SkBitmap resultBM;
         REPORTER_ASSERT(reporter, special_image_to_bitmap(result.get(), &resultBM));
         REPORTER_ASSERT(reporter, *resultBM.getAddr32(0, 0) == SK_ColorGREEN);

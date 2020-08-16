@@ -27,7 +27,7 @@ bool GrWaitRenderTask::onExecute(GrOpFlushState* flushState) {
         // If we don't have a semaphore here it means we failed to wrap it. That happens if the
         // client didn't give us a valid semaphore to begin with. Therefore, it is fine to not wait
         // on it.
-        if (fSemaphores[i].get()) {
+        if (fSemaphores[i]) {
             flushState->gpu()->waitSemaphore(fSemaphores[i].get());
         }
     }

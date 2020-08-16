@@ -4916,7 +4916,7 @@ DEF_TEST(SkParagraph_Fallbacks, reporter) {
         auto paragraph = builder.Build();
         paragraph->layout(TestCanvasWidth);
         paragraph->paint(canvas.get(), 0, 0);
-        canvas.get()->translate(0, paragraph.get()->getHeight() + 10);
+        canvas.get()->translate(0, paragraph->getHeight() + 10);
     }
 }
 

@@ -113,7 +113,7 @@ protected:
             SkSurfaceProps props(SkSurfaceProps::kUseDeviceIndependentFonts_Flag,
                                  SkSurfaceProps::kLegacyFontHost_InitType);
             surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
-            canvas = surface.get() ? surface->getCanvas() : inputCanvas;
+            canvas = surface ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());
         }

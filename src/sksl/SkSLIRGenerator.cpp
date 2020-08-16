@@ -1841,7 +1841,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     if (!left || !right) {
         return nullptr;
     }
-    std::unique_ptr<Expression> result = this->constantFold(*left.get(), op, *right.get());
+    std::unique_ptr<Expression> result = this->constantFold(*left, op, *right);
     if (!result) {
         result = std::make_unique<BinaryExpression>(expression.fOffset, std::move(left), op,
                                                     std::move(right), *resultType);

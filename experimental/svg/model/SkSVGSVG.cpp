@@ -18,7 +18,7 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     auto viewPort      = SkSize::Make(viewPortRect.width(), viewPortRect.height());
 
     if (fViewBox.isValid()) {
-        const SkRect& viewBox = *fViewBox.get();
+        const SkRect& viewBox = *fViewBox;
 
         // An empty viewbox disables rendering.
         if (viewBox.isEmpty()) {

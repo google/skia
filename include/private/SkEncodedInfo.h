@@ -222,7 +222,7 @@ public:
     SkEncodedInfo copy() const {
         auto copy = SkEncodedInfo::Make(fWidth, fHeight, fColor, fAlpha, fBitsPerComponent);
         if (fProfile) {
-            copy.fProfile = std::make_unique<ICCProfile>(*fProfile.get());
+            copy.fProfile = std::make_unique<ICCProfile>(*fProfile);
         }
         return copy;
     }

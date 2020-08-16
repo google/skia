@@ -80,7 +80,7 @@ void TestSVGTypeface::Glyph::withSVG(Fn&& fn) const {
             return;
         }
 
-        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream.get());
+        sk_sp<SkSVGDOM> svg = SkSVGDOM::MakeFromStream(*stream);
         if (!svg) {
             return;
         }

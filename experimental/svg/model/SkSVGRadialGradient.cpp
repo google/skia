@@ -74,9 +74,9 @@ sk_sp<SkShader> SkSVGRadialGradient::onMakeShader(const SkSVGRenderContext& ctx,
             lctx.resolve(fCx, SkSVGLengthContext::LengthType::kHorizontal),
             lctx.resolve(fCy, SkSVGLengthContext::LengthType::kVertical));
     const auto  focal = SkPoint::Make(
-        fFx.isValid() ? lctx.resolve(*fFx.get(), SkSVGLengthContext::LengthType::kHorizontal)
+        fFx.isValid() ? lctx.resolve(*fFx, SkSVGLengthContext::LengthType::kHorizontal)
                       : center.x(),
-        fFy.isValid() ? lctx.resolve(*fFy.get(), SkSVGLengthContext::LengthType::kVertical)
+        fFy.isValid() ? lctx.resolve(*fFy, SkSVGLengthContext::LengthType::kVertical)
                       : center.y());
 
     return center == focal

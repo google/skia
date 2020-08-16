@@ -104,7 +104,7 @@ public:
         //!< Call if getDeviceSpaceType() is kPath to get the path.
         const SkPath& getDeviceSpacePath() const {
             SkASSERT(DeviceSpaceType::kPath == fDeviceSpaceType);
-            return *fDeviceSpacePath.get();
+            return *fDeviceSpacePath;
         }
 
         //!< Call if getDeviceSpaceType() is kRRect to get the round-rect.
@@ -176,7 +176,7 @@ public:
          */
         bool isInverseFilled() const {
             return DeviceSpaceType::kPath == fDeviceSpaceType &&
-                   fDeviceSpacePath.get()->isInverseFillType();
+                   fDeviceSpacePath->isInverseFillType();
         }
 
 #ifdef SK_DEBUG

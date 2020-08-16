@@ -94,7 +94,7 @@ const SkRect& SkClipStack::Element::getBounds() const {
         case DeviceSpaceType::kRRect:
             return fDeviceSpaceRRect.getBounds();
         case DeviceSpaceType::kPath:
-            return fDeviceSpacePath.get()->getBounds();
+            return fDeviceSpacePath->getBounds();
         case DeviceSpaceType::kShader:
             // Shaders have infinite bounds since any pixel could have clipped or full coverage
             // (which is different from wide-open, where every pixel has 1.0 coverage, or empty
@@ -115,7 +115,7 @@ bool SkClipStack::Element::contains(const SkRect& rect) const {
         case DeviceSpaceType::kRRect:
             return fDeviceSpaceRRect.contains(rect);
         case DeviceSpaceType::kPath:
-            return fDeviceSpacePath.get()->conservativelyContainsRect(rect);
+            return fDeviceSpacePath->conservativelyContainsRect(rect);
         case DeviceSpaceType::kEmpty:
         case DeviceSpaceType::kShader:
             return false;
@@ -133,7 +133,7 @@ bool SkClipStack::Element::contains(const SkRRect& rrect) const {
             // We don't currently have a generalized rrect-rrect containment.
             return fDeviceSpaceRRect.contains(rrect.getBounds()) || rrect == fDeviceSpaceRRect;
         case DeviceSpaceType::kPath:
-            return fDeviceSpacePath.get()->conservativelyContainsRect(rrect.getBounds());
+            return fDeviceSpacePath->conservativelyContainsRect(rrect.getBounds());
         case DeviceSpaceType::kEmpty:
         case DeviceSpaceType::kShader:
             return false;
@@ -147,18 +147,18 @@ void SkClipStack::Element::invertShapeFillType() {
     switch (fDeviceSpaceType) {
         case DeviceSpaceType::kRect:
             fDeviceSpacePath.init();
-            fDeviceSpacePath.get()->addRect(this->getDeviceSpaceRect());
-            fDeviceSpacePath.get()->setFillType(SkPathFillType::kInverseEvenOdd);
+            fDeviceSpacePath->addRect(this->getDeviceSpaceRect());
+            fDeviceSpacePath->setFillType(SkPathFillType::kInverseEvenOdd);
             fDeviceSpaceType = DeviceSpaceType::kPath;
             break;
         case DeviceSpaceType::kRRect:
             fDeviceSpacePath.init();
-            fDeviceSpacePath.get()->addRRect(fDeviceSpaceRRect);
-            fDeviceSpacePath.get()->setFillType(SkPathFillType::kInverseEvenOdd);
+            fDeviceSpacePath->addRRect(fDeviceSpaceRRect);
+            fDeviceSpacePath->setFillType(SkPathFillType::kInverseEvenOdd);
             fDeviceSpaceType = DeviceSpaceType::kPath;
             break;
         case DeviceSpaceType::kPath:
-            fDeviceSpacePath.get()->toggleInverseFillType();
+            fDeviceSpacePath->toggleInverseFillType();
             break;
         case DeviceSpaceType::kShader:
             fShader = as_SB(fShader)->makeInvertAlpha();
@@ -237,7 +237,7 @@ void SkClipStack::Element::initPath(int saveCount, const SkPath& path, const SkM
 void SkClipStack::Element::initAsPath(int saveCount, const SkPath& path, const SkMatrix& m,
                                       SkClipOp op, bool doAA) {
     path.transform(m, fDeviceSpacePath.init());
-    fDeviceSpacePath.get()->setIsVolatile(true);
+    fDeviceSpacePath->setIsVolatile(true);
     fDeviceSpaceType = DeviceSpaceType::kPath;
     this->initCommon(saveCount, op, doAA);
 }
@@ -263,7 +263,7 @@ void SkClipStack::Element::asDeviceSpacePath(SkPath* path) const {
             path->addRRect(fDeviceSpaceRRect);
             break;
         case DeviceSpaceType::kPath:
-            *path = *fDeviceSpacePath.get();
+            *path = *fDeviceSpacePath;
             break;
         case DeviceSpaceType::kShader:
             path->reset();
@@ -529,9 +529,9 @@ void SkClipStack::Element::updateBoundAndGenID(const Element* prior) {
             fFiniteBoundType = kNormal_BoundsType;
             break;
         case DeviceSpaceType::kPath:
-            fFiniteBound = fDeviceSpacePath.get()->getBounds();
+            fFiniteBound = fDeviceSpacePath->getBounds();
 
-            if (fDeviceSpacePath.get()->isInverseFillType()) {
+            if (fDeviceSpacePath->isInverseFillType()) {
                 fFiniteBoundType = kInsideOut_BoundsType;
             } else {
                 fFiniteBoundType = kNormal_BoundsType;

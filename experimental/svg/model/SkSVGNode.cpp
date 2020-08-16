@@ -52,7 +52,7 @@ bool SkSVGNode::onPrepareToRender(SkSVGRenderContext* ctx) const {
                                      this->hasChildren() ? 0 : SkSVGRenderContext::kLeaf);
 
     // visibility:hidden disables rendering
-    const auto visibility = ctx->presentationContext().fInherited.fVisibility.get()->type();
+    const auto visibility = ctx->presentationContext().fInherited.fVisibility->type();
     return visibility != SkSVGVisibility::Type::kHidden;
 }
 

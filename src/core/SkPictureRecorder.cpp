@@ -81,7 +81,7 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
         drawableList ? drawableList->newDrawableSnapshot() : nullptr
     };
 
-    if (fBBH.get()) {
+    if (fBBH) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());
         SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
         SkRecordFillBounds(fCullRect, *fRecord, bounds, meta);
@@ -138,7 +138,7 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
 
     SkRecordOptimize(fRecord.get());
 
-    if (fBBH.get()) {
+    if (fBBH) {
         SkAutoTMalloc<SkRect> bounds(fRecord->count());
         SkAutoTMalloc<SkBBoxHierarchy::Metadata> meta(fRecord->count());
         SkRecordFillBounds(fCullRect, *fRecord, bounds, meta);

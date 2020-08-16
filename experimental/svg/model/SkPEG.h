@@ -31,7 +31,7 @@ struct MatchResult {
         return SkToBool(fNext);
     }
 
-    const V& operator* () const { return *fValue.get(); }
+    const V& operator* () const { return *fValue; }
     const V* operator->() const { return  fValue.get(); }
 
     const char* fNext;

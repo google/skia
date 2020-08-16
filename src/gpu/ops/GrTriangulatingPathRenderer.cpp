@@ -89,7 +89,7 @@ public:
         size_t size = eagerCount * stride;
         fVertexBuffer = fResourceProvider->createBuffer(size, GrGpuBufferType::kVertex,
                                                         kStatic_GrAccessPattern);
-        if (!fVertexBuffer.get()) {
+        if (!fVertexBuffer) {
             return nullptr;
         }
         if (fCanMapVB) {

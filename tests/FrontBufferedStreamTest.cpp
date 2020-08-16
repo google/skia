@@ -166,7 +166,7 @@ static void test_read_beyond_buffer(skiatest::Reporter* reporter, size_t bufferS
     // Create a buffer that matches the length of the stream.
     auto bufferedStream = android::skia::FrontBufferedStream::Make(
             std::unique_ptr<SkStream>(memStream), bufferSize);
-    test_hasLength(reporter, *bufferedStream.get(), *memStream);
+    test_hasLength(reporter, *bufferedStream, *memStream);
 
     // Attempt to read one more than the bufferSize
     test_read(reporter, bufferedStream.get(), gAbcs, bufferSize + 1);
@@ -214,7 +214,7 @@ static void test_length_combos(skiatest::Reporter* reporter, size_t bufferSize) 
                     new LengthOptionalStream(SkToBool(hasLen), SkToBool(hasPos));
             auto buffered = android::skia::FrontBufferedStream::Make(
                     std::unique_ptr<SkStream>(stream), bufferSize);
-            test_hasLength(reporter, *buffered.get(), *stream);
+            test_hasLength(reporter, *buffered, *stream);
         }
     }
 }

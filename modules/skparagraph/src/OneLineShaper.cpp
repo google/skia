@@ -177,7 +177,7 @@ void OneLineShaper::finish(TextRange blockText, SkScalar height, SkScalar& advan
         if (block.isFullyResolved()) {
             // Just move the entire run
             block.fRun->fIndex = this->fParagraph->fRuns.size();
-            this->fParagraph->fRuns.emplace_back(*block.fRun.get());
+            this->fParagraph->fRuns.emplace_back(*block.fRun);
             block.fRun.reset();
             continue;
         } else if (run == nullptr) {

@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
             }
 
             auto pic(load_picture(path));
-            if (pic.get()) {
+            if (pic) {
                 std::unique_ptr<SkLuaCanvas> canvas(
                                     new SkLuaCanvas(SkScalarCeilToInt(pic->cullRect().width()),
                                                     SkScalarCeilToInt(pic->cullRect().height()),

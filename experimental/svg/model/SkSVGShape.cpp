@@ -11,7 +11,7 @@
 SkSVGShape::SkSVGShape(SkSVGTag t) : INHERITED(t) {}
 
 void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
-    const auto fillType = ctx.presentationContext().fInherited.fFillRule.get()->asFillType();
+    const auto fillType = ctx.presentationContext().fInherited.fFillRule->asFillType();
 
     // TODO: this approach forces duplicate geometry resolution in onDraw(); refactor to avoid.
     if (const SkPaint* fillPaint = ctx.fillPaint()) {
