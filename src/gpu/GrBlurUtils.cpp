@@ -275,7 +275,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
         }
 
         tmpShape.init(origShape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale));
-        if (tmpShape.get()->isEmpty()) {
+        if (tmpShape->isEmpty()) {
             return;
         }
 

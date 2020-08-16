@@ -194,7 +194,7 @@ Result BRDSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     }
 
     auto brd = create_brd(fPath);
-    if (nullptr == brd.get()) {
+    if (nullptr == brd) {
         return Result::Skip("Could not create brd for %s.", fPath.c_str());
     }
 
@@ -423,7 +423,7 @@ Result CodecSrc::draw(GrDirectContext*, SkCanvas* canvas) const {
     }
 
     std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(encoded));
-    if (nullptr == codec.get()) {
+    if (nullptr == codec) {
         return Result::Fatal("Couldn't create codec for %s.", fPath.c_str());
     }
 

@@ -1098,7 +1098,7 @@ void DrawAnnotationCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlData
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_COORDS);
     MakeJsonRect(writer, fRect);
     writer.appendString("key", fKey.c_str());
-    if (fValue.get()) {
+    if (fValue) {
         // TODO: dump out the "value"
     }
 

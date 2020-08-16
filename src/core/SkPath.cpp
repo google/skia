@@ -203,7 +203,7 @@ bool operator==(const SkPath& a, const SkPath& b) {
     // note: don't need to look at isConvex or bounds, since just comparing the
     // raw data is sufficient.
     return &a == &b ||
-        (a.fFillType == b.fFillType && *a.fPathRef.get() == *b.fPathRef.get());
+        (a.fFillType == b.fFillType && *a.fPathRef == *b.fPathRef);
 }
 
 void SkPath::swap(SkPath& that) {
@@ -1005,7 +1005,7 @@ bool SkPath::isZeroLengthSincePoint(int startPtIndex) const {
     if (count < 2) {
         return true;
     }
-    const SkPoint* pts = fPathRef.get()->points() + startPtIndex;
+    const SkPoint* pts = fPathRef->points() + startPtIndex;
     const SkPoint& first = *pts;
     for (int index = 1; index < count; ++index) {
         if (first != pts[index]) {
@@ -1635,7 +1635,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
     } else {
         SkPathConvexityType convexity = this->getConvexityTypeOrUnknown();
 
-        SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef.get(), matrix);
+        SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef, matrix);
 
         if (this != dst) {
             dst->fLastMoveToIndex = fLastMoveToIndex;
@@ -2487,7 +2487,7 @@ bool SkPathPriv::CheapComputeFirstDirection(const SkPath& path, FirstDirection* 
         return false;
     }
 
-    ContourIter iter(*path.fPathRef.get());
+    ContourIter iter(*path.fPathRef);
 
     // initialize with our logical y-min
     SkScalar ymax = path.getBounds().fTop;

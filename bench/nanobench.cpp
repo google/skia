@@ -258,7 +258,7 @@ struct GPUTarget : public Target {
                 SkBudgeted::kNo, info, this->config.samples, &props);
         this->contextInfo =
                 this->factory->getContextInfo(this->config.ctxType, this->config.ctxOverrides);
-        if (!this->surface.get()) {
+        if (!this->surface) {
             return false;
         }
         if (!this->contextInfo.testContext()->fenceSyncSupport()) {
@@ -607,7 +607,7 @@ static Target* is_enabled(Benchmark* bench, const Config& config) {
 static bool valid_brd_bench(sk_sp<SkData> encoded, SkColorType colorType, uint32_t sampleSize,
         uint32_t minOutputSize, int* width, int* height) {
     auto brd = android::skia::BitmapRegionDecoder::Make(encoded);
-    if (nullptr == brd.get()) {
+    if (nullptr == brd) {
         // This is indicates that subset decoding is not supported for a particular image format.
         return false;
     }

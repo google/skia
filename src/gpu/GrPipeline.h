@@ -115,7 +115,7 @@ public:
 
     const GrXferProcessor& getXferProcessor() const {
         if (fXferProcessor) {
-            return *fXferProcessor.get();
+            return *fXferProcessor;
         } else {
             // A null xp member means the common src-over case. GrXferProcessor's ref'ing
             // mechanism is not thread safe so we do not hold a ref on this global.
@@ -149,7 +149,7 @@ public:
     }
 
     const GrFragmentProcessor& getFragmentProcessor(int idx) const {
-        return *fFragmentProcessors[idx].get();
+        return *fFragmentProcessors[idx];
     }
 
     /// @}

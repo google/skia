@@ -407,7 +407,7 @@ static const TagHandler fileHandler = {
         // 'lang' (string) [default ""]
         // 'index' (non-negative integer) [default 0]
         // The character data should be a filename.
-        FontFamily& currentFamily = *self->fCurrentFamily.get();
+        FontFamily& currentFamily = *self->fCurrentFamily;
         FontFileInfo& newFileInfo = currentFamily.fFonts.push_back();
         if (attributes) {
             for (size_t i = 0; ATTS_NON_NULL(attributes, i); i += 2) {

@@ -23,7 +23,7 @@ SKPSlide::SKPSlide(const SkString& name, std::unique_ptr<SkStream> stream)
 SKPSlide::~SKPSlide() {}
 
 void SKPSlide::draw(SkCanvas* canvas) {
-    if (fPic.get()) {
+    if (fPic) {
         bool isOffset = SkToBool(fCullRect.left() | fCullRect.top());
         if (isOffset) {
             canvas->save();
