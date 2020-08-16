@@ -216,6 +216,9 @@ private:
     int fIsAStart = -1;     // tracks direction iff fIsA is not unknown
     bool fIsACCW  = false;  // tracks direction iff fIsA is not unknown
 
+    // for testing
+    SkPathConvexityType fConvexity = SkPathConvexityType::kUnknown;
+
     int countVerbs() const { return fVerbs.count(); }
 
     // called right before we add a (non-move) verb
@@ -227,6 +230,11 @@ private:
     }
 
     SkPath make(sk_sp<SkPathRef>) const;
+
+    // For testing
+    void privateSetConvexityType(SkPathConvexityType c) { fConvexity = c; }
+
+    friend class SkPathPriv;
 };
 
 #endif

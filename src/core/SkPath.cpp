@@ -147,10 +147,10 @@ SkPath::SkPath()
     fIsVolatile = false;
 }
 
-SkPath::SkPath(sk_sp<SkPathRef> pr, SkPathFillType ft, bool isVolatile)
+SkPath::SkPath(sk_sp<SkPathRef> pr, SkPathFillType ft, bool isVolatile, SkPathConvexityType ct)
     : fPathRef(std::move(pr))
     , fLastMoveToIndex(INITIAL_LASTMOVETOINDEX_VALUE)
-    , fConvexity((uint8_t)SkPathConvexityType::kUnknown)
+    , fConvexity((uint8_t)ct)
     , fFirstDirection(SkPathPriv::kUnknown_FirstDirection)
     , fFillType((unsigned)ft)
     , fIsVolatile(isVolatile)
@@ -3402,7 +3402,7 @@ SkPath SkPath::Make(const SkPoint pts[], int pointCount,
                                                  SkTDArray<uint8_t>(vbs, verbCount),
                                                  SkTDArray<SkScalar>(ws, info.weights),
                                                  info.segmentMask)),
-                  ft, isVolatile);
+                  ft, isVolatile, SkPathConvexityType::kUnknown);
 }
 
 SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir) {

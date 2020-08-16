@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkContourMeasure.h"
+#include "include/core/SkPathBuilder.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
@@ -88,12 +89,12 @@ public:
             }
 
             // Finally, this looks like a legitimate spatial keyframe.
-            SkPath p;
+            SkPathBuilder p;
             p.moveTo (prev_val.v2.x        , prev_val.v2.y);
             p.cubicTo(prev_val.v2.x + fTo.x, prev_val.v2.y + fTo.y,
                            val.v2.x + fTi.x,      val.v2.y + fTi.y,
                            val.v2.x,              val.v2.y);
-            prev_val.cmeasure = SkContourMeasureIter(p, false).next();
+            prev_val.cmeasure = SkContourMeasureIter(p.detach(), false).next();
         }
 
         bool parseKFValue(const AnimationBuilder&,
