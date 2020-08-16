@@ -194,6 +194,10 @@ public:
         this->incReserve(extraPtCount, extraPtCount);
     }
 
+    /////// EEEEEK /////////
+
+    void setConvexityType(SkPathConvexityType) {}
+
 private:
     SkTDArray<SkPoint>  fPts;
     SkTDArray<uint8_t>  fVerbs;

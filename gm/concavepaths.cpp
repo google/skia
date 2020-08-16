@@ -334,7 +334,7 @@ void test_coincident_edges_2(SkCanvas* canvas, const SkPaint& paint) {
 }
 // Coincident edges (small ones first, coincident vert on bottom).
 void test_coincident_edges_3(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
+    SkPathBuilder path;
     canvas->save();
     canvas->translate(200, 500);
     path.moveTo(20, 80);
@@ -343,12 +343,12 @@ void test_coincident_edges_3(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo(20, 80);
     path.lineTo(20, 20);
     path.lineTo(80, 20);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
     canvas->restore();
 }
 // Coincident edges (big ones first, coincident vert on bottom).
 void test_coincident_edges_4(SkCanvas* canvas, const SkPaint& paint) {
-    SkPath path;
+    SkPathBuilder path;
     canvas->save();
     canvas->translate(300, 500);
     path.moveTo(20, 80);
@@ -357,7 +357,7 @@ void test_coincident_edges_4(SkCanvas* canvas, const SkPaint& paint) {
     path.moveTo(20, 80);
     path.lineTo(20, 50);
     path.lineTo(50, 50);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
     canvas->restore();
 }
 
