@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ef49628_efa9563a",
+        "filename": "experimental/svg/model/SkPEG.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-16T15:55:44Z",
+      "side": 0,
+      "message": "I think this one was meant to demonstrate the parallel construction.",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 36,
+        "endChar": 0
+      },
+      "revId": "c1c3c6d70d326a27b7b9fa82203ff2db28043be7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
