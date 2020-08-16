@@ -22,6 +22,30 @@
       "revId": "43f49b4d52a42dd6d4ecdeca676f5589a43a849f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5402cfe3_72b5efba",
+        "filename": "gm/exoticformats.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-16T03:25:01Z",
+      "side": 0,
+      "message": "Nothing a couple of regex search and replaces couldn\u0027t handle! Done",
+      "parentUuid": "498b7a92_92d11e01",
+      "range": {
+        "startLine": 60,
+        "startChar": 4,
+        "endLine": 60,
+        "endChar": 14
+      },
+      "revId": "43f49b4d52a42dd6d4ecdeca676f5589a43a849f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
