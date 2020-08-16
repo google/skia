@@ -12,9 +12,7 @@
 #include "include/effects/SkDashPathEffect.h"
 
 DEF_SIMPLE_GM(crbug_1113794, canvas, 600, 200) {
-    SkPath path;
-    path.moveTo(50.f, 80.f);
-    path.lineTo(50.f, 20.f);
+    SkPath path = SkPath::Line({50.f, 80.f}, {50.f, 20.f});
 
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);

@@ -8,7 +8,7 @@
 #ifndef SkPathPriv_DEFINED
 #define SkPathPriv_DEFINED
 
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/private/SkIDChangeListener.h"
 #include "src/core/SkPathView.h"
 
@@ -391,6 +391,10 @@ public:
         SkPathRef::Editor ed(&path->fPathRef);
         ed.writablePoints()[index] = pt;
         path->dirtyAfterEdit();
+    }
+
+    static void SetConvexityType(SkPathBuilder* builder, SkPathConvexityType c) {
+        builder->privateSetConvexityType(c);
     }
 };
 

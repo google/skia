@@ -1816,7 +1816,7 @@ public:
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 
 private:
-    SkPath(sk_sp<SkPathRef>, SkPathFillType, bool isVolatile);
+    SkPath(sk_sp<SkPathRef>, SkPathFillType, bool isVolatile, SkPathConvexityType);
 
     sk_sp<SkPathRef>               fPathRef;
     int                            fLastMoveToIndex;

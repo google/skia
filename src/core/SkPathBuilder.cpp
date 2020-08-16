@@ -32,6 +32,7 @@ SkPathBuilder& SkPathBuilder::reset() {
     fSegmentMask = 0;
     fLastMovePoint = {0, 0};
     fNeedsMoveVerb = true;
+    fConvexity = SkPathConvexityType::kUnknown;
 
     return *this;
 }
@@ -149,7 +150,7 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
         case kIsA_RRect: pr->setIsRRect(true, fIsACCW, fIsAStart); break;
         default: break;
     }
-    return SkPath(std::move(pr), fFillType, fIsVolatile);
+    return SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity);
 }
 
 SkPath SkPathBuilder::snapshot() {

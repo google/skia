@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 
@@ -35,11 +35,10 @@ DEF_SIMPLE_GM(bug5252, canvas, 500, 500) {
 
 			canvas->translate(i * 15.f, j * 20.f);
 			canvas->drawRect(SkRect::MakeXYWH(5, 5, 10, 15),pa);
-			SkPath path;
-			path.moveTo(6, 6);
-			path.cubicTo(14, 10, 13, 12, 10, 12);
-			path.cubicTo(7, 15, 8, 17, 14, 18);
-			canvas->drawPath(path, pa);
+            canvas->drawPath(SkPathBuilder().moveTo(6, 6)
+                                            .cubicTo(14, 10, 13, 12, 10, 12)
+                                            .cubicTo(7, 15, 8, 17, 14, 18)
+                                            .detach(), pa);
 		}
 	}
 }
