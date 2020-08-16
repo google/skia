@@ -119,7 +119,7 @@ static void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* lab
         fontFamilies[i]->fallbackFamilies.foreach(
             [](SkString, std::unique_ptr<FontFamily>* fallbackFamily) {
                 SkDebugf("  Fallback for: %s\n", (*fallbackFamily)->fFallbackFor.c_str());
-                DumpFiles(*(*fallbackFamily).get());
+                DumpFiles(**fallbackFamily);
             }
         );
     }

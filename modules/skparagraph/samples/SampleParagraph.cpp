@@ -1604,7 +1604,7 @@ protected:
 
         if (fRedraw || fRepeat) {
 
-            if (fRedraw || fParagraph.get() == nullptr) {
+            if (fRedraw || fParagraph == nullptr) {
                 ParagraphBuilderImpl builder(paragraph_style, fontCollection);
                 builder.pushStyle(text_style);
                 auto utf16text = zalgo.zalgo("SkParagraph");

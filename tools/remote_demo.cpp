@@ -258,7 +258,7 @@ static int renderer(
                 return 0;
             }
             if (gPurgeFontCaches) discardableManager.purgeAll();
-            push_font_data(*pic.get(), &server, colorSpace, writeFd);
+            push_font_data(*pic, &server, colorSpace, writeFd);
         }
     } else {
         stream = skpData;

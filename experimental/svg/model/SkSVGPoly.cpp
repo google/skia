@@ -43,7 +43,7 @@ SkPath SkSVGPoly::onAsPath(const SkSVGRenderContext& ctx) const {
     SkPath path = fPath;
 
     // clip-rule can be inherited and needs to be applied at clip time.
-    path.setFillType(ctx.presentationContext().fInherited.fClipRule.get()->asFillType());
+    path.setFillType(ctx.presentationContext().fInherited.fClipRule->asFillType());
 
     this->mapToParent(&path);
     return path;

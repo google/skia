@@ -947,7 +947,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkTexture* tex, int left, int top, int widt
 
     // If we copied the data into a temporary image first, copy that image into our main texture
     // now.
-    if (copyTexture.get()) {
+    if (copyTexture) {
         SkASSERT(dataColorType == GrColorType::kRGB_888x);
         SkAssertResult(this->copySurface(tex, copyTexture.get(), SkIRect::MakeWH(width, height),
                                          SkIPoint::Make(left, top)));

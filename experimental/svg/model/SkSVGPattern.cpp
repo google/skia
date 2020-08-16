@@ -142,10 +142,10 @@ bool SkSVGPattern::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) cons
     const auto* contentNode = this->resolveHref(ctx, &attrs);
 
     const auto tile = ctx.lengthContext().resolveRect(
-            attrs.fX.isValid()      ? *attrs.fX.get()      : SkSVGLength(0),
-            attrs.fY.isValid()      ? *attrs.fY.get()      : SkSVGLength(0),
-            attrs.fWidth.isValid()  ? *attrs.fWidth.get()  : SkSVGLength(0),
-            attrs.fHeight.isValid() ? *attrs.fHeight.get() : SkSVGLength(0));
+            attrs.fX.isValid()      ? *attrs.fX      : SkSVGLength(0),
+            attrs.fY.isValid()      ? *attrs.fY      : SkSVGLength(0),
+            attrs.fWidth.isValid()  ? *attrs.fWidth  : SkSVGLength(0),
+            attrs.fHeight.isValid() ? *attrs.fHeight : SkSVGLength(0));
 
     if (tile.isEmpty()) {
         return false;

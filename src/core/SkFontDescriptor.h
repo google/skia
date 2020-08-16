@@ -44,7 +44,7 @@ public:
             fAxis[i] = that.fAxis[i];
         }
     }
-    bool hasStream() const { return fStream.get() != nullptr; }
+    bool hasStream() const { return fStream != nullptr; }
     std::unique_ptr<SkStreamAsset> detachStream() { return std::move(fStream); }
     SkStreamAsset* getStream() { return fStream.get(); }
     SkStreamAsset const* getStream() const { return fStream.get(); }

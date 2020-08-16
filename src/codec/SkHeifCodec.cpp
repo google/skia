@@ -125,7 +125,7 @@ static void releaseProc(const void* ptr, void* context) {
 std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
         SkCodec::SelectionPolicy selectionPolicy, Result* result) {
     std::unique_ptr<HeifDecoder> heifDecoder(createHeifDecoder());
-    if (heifDecoder.get() == nullptr) {
+    if (heifDecoder == nullptr) {
         *result = kInternalError;
         return nullptr;
     }

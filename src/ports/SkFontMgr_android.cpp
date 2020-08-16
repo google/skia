@@ -449,7 +449,7 @@ protected:
 
     sk_sp<SkTypeface> onMakeFromFile(const char path[], int ttcIndex) const override {
         std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(path);
-        return stream.get() ? this->makeFromStream(std::move(stream), ttcIndex) : nullptr;
+        return stream ? this->makeFromStream(std::move(stream), ttcIndex) : nullptr;
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
@@ -550,7 +550,7 @@ private:
             addFamily(*family, isolated, familyIndex++);
             family->fallbackFamilies.foreach([this, isolated, &familyIndex]
                 (SkString, std::unique_ptr<FontFamily>* fallbackFamily) {
-                    addFamily(*(*fallbackFamily).get(), isolated, familyIndex++);
+                    addFamily(**fallbackFamily, isolated, familyIndex++);
                 }
             );
         }

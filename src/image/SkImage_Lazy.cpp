@@ -370,7 +370,7 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(
 
     void* planes[SkYUVASizeInfo::kMaxCount];
 
-    if (data.get()) {
+    if (data) {
         planes[0] = (void*)data->data();  // we should always have at least one plane
 
         for (int i = 1; i < SkYUVASizeInfo::kMaxCount; ++i) {
