@@ -73,20 +73,8 @@ public:
     : INHERITED(s.fChars, s.fLength) {}
 
     static String printf(const char* fmt, ...);
-
     void appendf(const char* fmt, ...);
-    // For API compatibility with SkString's reset (vs. std:string's clear)
-    void reset();
-    // For API compatibility with SkString's findLastOf(vs. find_last_of -> size_t)
-    int findLastOf(const char c) const;
-
     void vappendf(const char* fmt, va_list va);
-
-    bool startsWith(const char* s) const;
-    bool endsWith(const char* s) const;
-
-    int find(const char* substring, int fromPos = 0) const;
-    int find(const String& substring, int fromPos = 0) const;
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;
@@ -110,20 +98,17 @@ private:
 String operator+(const char* s1, const String& s2);
 bool operator!=(const char* s1, const String& s2);
 
+bool StringStartsWith(const String& haystack, const char needle[]);
+bool StringEndsWith(const String& haystack, const char needle[]);
+
 String to_string(double value);
-
 String to_string(int32_t value);
-
 String to_string(uint32_t value);
-
 String to_string(int64_t value);
-
 String to_string(uint64_t value);
 
 SKSL_INT stoi(const String& s);
-
 SKSL_FLOAT stod(const String& s);
-
 long stol(const String& s);
 
 } // namespace  SkSL

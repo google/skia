@@ -42,15 +42,15 @@ int main(int argc, const char** argv) {
     }
     SkSL::Program::Kind kind;
     SkSL::String input(argv[1]);
-    if (input.endsWith(".vert")) {
+    if (StringEndsWith(input, ".vert")) {
         kind = SkSL::Program::kVertex_Kind;
-    } else if (input.endsWith(".frag") || input.endsWith(".sksl")) {
+    } else if (StringEndsWith(input, ".frag") || StringEndsWith(input, ".sksl")) {
         kind = SkSL::Program::kFragment_Kind;
-    } else if (input.endsWith(".geom")) {
+    } else if (StringEndsWith(input, ".geom")) {
         kind = SkSL::Program::kGeometry_Kind;
-    } else if (input.endsWith(".fp")) {
+    } else if (StringEndsWith(input, ".fp")) {
         kind = SkSL::Program::kFragmentProcessor_Kind;
-    } else if (input.endsWith(".stage")) {
+    } else if (StringEndsWith(input, ".stage")) {
         kind = SkSL::Program::kPipelineStage_Kind;
     } else {
         printf("input filename must end in '.vert', '.frag', '.geom', '.fp', '.stage', or "
@@ -68,7 +68,7 @@ int main(int argc, const char** argv) {
     }
     SkSL::Program::Settings settings;
     SkSL::String name(argv[2]);
-    if (name.endsWith(".spirv")) {
+    if (StringEndsWith(name, ".spirv")) {
         SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler;
         if (!out.isValid()) {
@@ -84,7 +84,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-    } else if (name.endsWith(".glsl")) {
+    } else if (StringEndsWith(name, ".glsl")) {
         SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler;
         if (!out.isValid()) {
@@ -100,7 +100,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-    } else if (name.endsWith(".metal")) {
+    } else if (StringEndsWith(name, ".metal")) {
         SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler;
         if (!out.isValid()) {
@@ -116,7 +116,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-    } else if (name.endsWith(".h")) {
+    } else if (StringEndsWith(name, ".h")) {
         SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler(SkSL::Compiler::kPermitInvalidStaticTests_Flag);
         if (!out.isValid()) {
@@ -133,7 +133,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-    } else if (name.endsWith(".cpp")) {
+    } else if (StringEndsWith(name, ".cpp")) {
         SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler(SkSL::Compiler::kPermitInvalidStaticTests_Flag);
         if (!out.isValid()) {
@@ -150,7 +150,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-    } else if (name.endsWith(".dehydrated.sksl")) {
+    } else if (StringEndsWith(name, ".dehydrated.sksl")) {
         SkSL::FileOutputStream out(argv[2]);
         SkSL::Compiler compiler;
         if (!out.isValid()) {
