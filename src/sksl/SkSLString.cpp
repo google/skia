@@ -33,16 +33,6 @@ void String::appendf(const char* fmt, ...) {
     va_end(args);
 }
 
-void String::reset() {
-    this->clear();
-}
-
-int String::findLastOf(const char c) const {
-    // Rely on find_last_of and remap the output
-    size_t index = this->find_last_of(c);
-    return (index == std::string::npos ? -1 : index);
-}
-
 void String::vappendf(const char* fmt, va_list args) {
     #define BUFFER_SIZE 256
     char buffer[BUFFER_SIZE];
@@ -59,27 +49,16 @@ void String::vappendf(const char* fmt, va_list args) {
     va_end(reuse);
 }
 
-
-bool String::startsWith(const char* s) const {
-    return !strncmp(c_str(), s, strlen(s));
+bool StringStartsWith(const String& haystack, const char needle[]) {
+    return !strncmp(haystack.data(), needle, strlen(needle));
 }
 
-bool String::endsWith(const char* s) const {
-    size_t len = strlen(s);
-    if (size() < len) {
+bool StringEndsWith(const String& haystack, const char needle[]) {
+    size_t needleLength = strlen(needle);
+    if (haystack.length() < needleLength) {
         return false;
     }
-    return !strncmp(c_str() + size() - len, s, len);
-}
-
-int String::find(const String& substring, int fromPos) const {
-    return find(substring.c_str(), fromPos);
-}
-
-int String::find(const char* substring, int fromPos) const {
-    SkASSERT(fromPos >= 0);
-    size_t found = INHERITED::find(substring, (size_t) fromPos);
-    return found == std::string::npos ? -1 : found;
+    return !strncmp(&*haystack.end() - needleLength, needle, needleLength);
 }
 
 String String::operator+(const char* s) const {

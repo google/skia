@@ -860,7 +860,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->writeExpression(*b.fLeft, kAssignment_Precedence);
         this->write(" ");
         String op = Compiler::OperatorName(b.fOperator);
-        SkASSERT(op.endsWith("="));
+        SkASSERT(StringEndsWith(op, "="));
         this->write(op.substr(0, op.size() - 1).c_str());
         this->write(" ");
     } else {
