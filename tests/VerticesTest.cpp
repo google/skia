@@ -63,7 +63,7 @@ static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
     }
     size_t totalCustomDataSize = v0.vertexCount() * v0.customDataSize();
     if (totalCustomDataSize) {
-        if (memcmp(v0.customData(), v1.customData(), totalCustomDataSize) != 0) {
+        if (0 != memcmp(v0.customData(), v1.customData(), totalCustomDataSize)) {
             return false;
         }
     }

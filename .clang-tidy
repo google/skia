@@ -2,6 +2,7 @@ Checks: >
     -*,
     bugprone-argument-comment,
     bugprone-bool-pointer-implicit-conversion,
+    bugprone-suspicious-string-compare,
     bugprone-undelegated-constructor,
     bugprone-unused-raii,
     bugprone-use-after-move,

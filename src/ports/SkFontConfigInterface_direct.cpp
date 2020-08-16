@@ -509,8 +509,8 @@ bool SkFontConfigInterfaceDirect::isValidPattern(FcPattern* pattern) {
 #ifdef SK_FONT_CONFIG_INTERFACE_ONLY_ALLOW_SFNT_FONTS
     const char* font_format = get_string(pattern, FC_FONTFORMAT);
     if (font_format
-        && strcmp(font_format, kFontFormatTrueType) != 0
-        && strcmp(font_format, kFontFormatCFF) != 0)
+        && 0 != strcmp(font_format, kFontFormatTrueType)
+        && 0 != strcmp(font_format, kFontFormatCFF))
     {
         return false;
     }

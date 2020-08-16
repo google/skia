@@ -1382,7 +1382,7 @@ struct Task {
             sk_mkdir(path.c_str());
             path = SkOSPath::Join(path.c_str(), task.src.tag.c_str());
             sk_mkdir(path.c_str());
-            if (strcmp(task.src.options.c_str(), "") != 0) {
+            if (0 != strcmp(task.src.options.c_str(), "")) {
               path = SkOSPath::Join(path.c_str(), task.src.options.c_str());
               sk_mkdir(path.c_str());
             }

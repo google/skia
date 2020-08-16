@@ -154,7 +154,7 @@ public:
         }
 
         GrColor expected[4] = {TL, TR, BL, BR};
-        if (memcmp(actual, expected, sizeof(actual)) != 0) {
+        if (0 != memcmp(actual, expected, sizeof(actual))) {
             REPORT_FAILURE(fReporter, "Runtime effect didn't match expectations",
                            SkStringPrintf("\n"
                                           "Expected: [ %08x %08x %08x %08x ]\n"

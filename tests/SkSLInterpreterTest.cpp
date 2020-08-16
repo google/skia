@@ -117,7 +117,7 @@ void vec_test(skiatest::Reporter* r, const char* src) {
     // Transpose striped outputs back
     transpose(out_v);
 
-    if (memcmp(out_s, out_v, sizeof(out_s)) != 0) {
+    if (0 != memcmp(out_s, out_v, sizeof(out_s))) {
         printf("for program: %s\n", src);
         for (int i = 0; i < 4; ++i) {
             printf("(%g %g %g %g) -> (%g %g %g %g), expected (%g %g %g %g)\n",
