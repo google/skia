@@ -197,11 +197,13 @@ public:
         recorded: some calls may be recorded as more than one operation, other
         calls may be optimized away.
 
+        @param nested  if true, include the op-counts of nested pictures as well, else
+                       just return count the ops in the top-level picture.
         @return  approximate operation count
 
         example: https://fiddle.skia.org/c/@Picture_approximateOpCount
     */
-    virtual int approximateOpCount() const = 0;
+    virtual int approximateOpCount(bool nested = false) const = 0;
 
     /** Returns the approximate byte size of SkPicture. Does not include large objects
         referenced by SkPicture.
