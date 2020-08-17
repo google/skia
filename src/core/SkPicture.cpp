@@ -318,7 +318,6 @@ sk_sp<SkPicture> SkPicture::MakePlaceholder(SkRect cull) {
           // approximateOpCount() needs to be greater than kMaxPictureOpsToUnrollInsteadOfRef
           // in SkCanvas.cpp to avoid that unrolling.  SK_MaxS32 can't not be big enough!
           int    approximateOpCount()   const override { return SK_MaxS32; }
-          size_t approximateBytesUsed() const override { return sizeof(*this); }
           SkRect cullRect()             const override { return fCull; }
 
           SkRect fCull;

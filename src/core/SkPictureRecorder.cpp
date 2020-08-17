@@ -98,15 +98,10 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
         fCullRect = bbhBound;
     }
 
-    size_t subPictureBytes = fRecorder->approxBytesUsedBySubPictures();
-    for (int i = 0; pictList && i < pictList->count(); i++) {
-        subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
-    }
     return sk_make_sp<SkBigPicture>(fCullRect,
                                     std::move(fRecord),
                                     std::move(pictList),
-                                    std::move(fBBH),
-                                    subPictureBytes);
+                                    std::move(fBBH));
 }
 
 sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPictureWithCull(const SkRect& cullRect,

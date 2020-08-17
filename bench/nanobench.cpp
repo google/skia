@@ -792,7 +792,7 @@ public:
             SkString name = SkOSPath::Basename(path.c_str());
             fSourceType = "skp";
             fBenchType  = "recording";
-            fSKPBytes = static_cast<double>(pic->approximateBytesUsed());
+            fSKPBytes = 0;  // don't know pic's bytes
             fSKPOps   = pic->approximateOpCount();
             return new RecordingBench(name.c_str(), pic.get(), FLAGS_bbh);
         }

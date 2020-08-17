@@ -30,11 +30,7 @@ SkPicture* SkRecordedDrawable::onNewPictureSnapshot() {
         fDrawableList ? fDrawableList->newDrawableSnapshot() : nullptr
     };
 
-    size_t subPictureBytes = 0;
-    for (int i = 0; pictList && i < pictList->count(); i++) {
-        subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
-    }
-    return new SkBigPicture(fBounds, fRecord, std::move(pictList), fBBH, subPictureBytes);
+    return new SkBigPicture(fBounds, fRecord, std::move(pictList), fBBH);
 }
 
 void SkRecordedDrawable::flatten(SkWriteBuffer& buffer) const {
