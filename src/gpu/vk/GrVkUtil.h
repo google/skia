@@ -97,7 +97,7 @@ bool GrInstallVkShaderModule(GrVkGpu* gpu,
  */
 bool GrVkFormatIsCompressed(VkFormat);
 
-#if GR_TEST_UTILS
+#if defined(SK_DEBUG) || GR_TEST_UTILS
 static constexpr const char* GrVkFormatToStr(VkFormat vkFormat) {
     switch (vkFormat) {
         case VK_FORMAT_R8G8B8A8_UNORM:           return "R8G8B8A8_UNORM";

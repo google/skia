@@ -66,7 +66,7 @@ size_t GrDawnRoundRowBytes(size_t rowBytes) {
     return (rowBytes + 0xFF) & ~0xFF;
 }
 
-#if GR_TEST_UTILS
+#if defined(SK_DEBUG) || GR_TEST_UTILS
 const char* GrDawnFormatToStr(wgpu::TextureFormat format) {
     switch (format) {
         case wgpu::TextureFormat::RGBA8Unorm:
