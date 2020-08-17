@@ -40,8 +40,13 @@ public:
 
     virtual const SkBitmap* onPeekBitmap() const { return nullptr; }
 
-    virtual bool onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                              int srcX, int srcY, CachingHint) const = 0;
+    virtual bool onReadPixels(GrDirectContext*,
+                              const SkImageInfo& dstInfo,
+                              void* dstPixels,
+                              size_t dstRowBytes,
+                              int srcX,
+                              int srcY,
+                              CachingHint) const = 0;
 
     virtual SkMipmap* onPeekMips() const { return nullptr; }
 
@@ -99,13 +104,14 @@ public:
 
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
-    virtual bool getROPixels(SkBitmap*, CachingHint = kAllow_CachingHint) const = 0;
+    virtual bool getROPixels(GrDirectContext*, SkBitmap*,
+                             CachingHint = kAllow_CachingHint) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const = 0;
 
     virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
 
-    virtual bool onAsLegacyBitmap(SkBitmap*) const;
+    virtual bool onAsLegacyBitmap(GrDirectContext*, SkBitmap*) const;
 
     // True for picture-backed and codec-backed
     virtual bool onIsLazyGenerated() const { return false; }
