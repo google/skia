@@ -109,7 +109,7 @@ public:
 
     LineMetrics getMetrics() const;
 
-    SkRect calculateBoundaries();
+    SkRect getBoundaries() const { return fBoundaries; }
 
     SkRect extendHeight(const ClipContext& context) const;
 
@@ -123,9 +123,9 @@ private:
     std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
-    void paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
     void paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
 
     void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);
@@ -151,6 +151,7 @@ private:
 
     LineMetricStyle fAscentStyle;
     LineMetricStyle fDescentStyle;
+    SkRect fBoundaries;
 };
 }  // namespace textlayout
 }  // namespace skia
