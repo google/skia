@@ -366,8 +366,10 @@ public:
 private:
     class Defined : public Expression {
     public:
+        static constexpr Kind kExpressionKind = kDefined_Kind;
+
         Defined(const Type& type)
-        : INHERITED(-1, kDefined_Kind, type) {}
+        : INHERITED(-1, kExpressionKind, type) {}
 
         bool hasProperty(Property property) const override {
             return false;
