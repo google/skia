@@ -109,7 +109,7 @@ public:
 
     LineMetrics getMetrics() const;
 
-    SkRect calculateBoundaries();
+    SkRect getBoundaries() const { return fBoundaries; }
 
     SkRect extendHeight(const ClipContext& context) const;
 
@@ -151,6 +151,7 @@ private:
 
     LineMetricStyle fAscentStyle;
     LineMetricStyle fDescentStyle;
+    mutable SkRect fBoundaries;
 };
 }  // namespace textlayout
 }  // namespace skia
