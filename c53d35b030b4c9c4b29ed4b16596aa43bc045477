@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3efe9fc6_c4dae804",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-17T13:44:47Z",
+      "side": 1,
+      "message": "I think it takes a pretty careful read of the standard to conclude that this is safe (dereferencing an end() iterator). I think I\u0027d rather just see data() + size() ?",
+      "range": {
+        "startLine": 61,
+        "startChar": 20,
+        "endLine": 61,
+        "endChar": 33
+      },
+      "revId": "c53d35b030b4c9c4b29ed4b16596aa43bc045477",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
