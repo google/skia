@@ -51,6 +51,23 @@
       "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5910d97_b3883bf8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9224
+      },
+      "writtenOn": "2020-08-17T21:02:43Z",
+      "side": 1,
+      "message": "Note I changed CL that landed on branch to check for SK_BUILD_FOR_ANDROID:\nhttps://skia-review.googlesource.com/c/skia/+/304176\n\nSo probably a good idea to get this updated to match to avoid merge issues? I don\u0027t know if that\u0027s a big deal.",
+      "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
