@@ -404,6 +404,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fIntegerSupport = (version >= GR_GL_VER(2, 0));
     }
 
+    // DO NOT SUBMIT
+    shaderCaps->fIntegerSupport = false;
+
     if (ctxInfo.hasExtension("GL_NV_conservative_raster")) {
         fConservativeRasterSupport = true;
     }
