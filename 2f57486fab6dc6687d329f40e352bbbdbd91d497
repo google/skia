@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "a1b11549_19f5f83d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-17T17:39:12Z",
+      "side": 1,
+      "message": "Yes, a bad Slant is created by passing an out of range int to this constructor in SkFontDescriptor::Deserialize().",
+      "parentUuid": "0df40da8_77f64436",
+      "revId": "2f57486fab6dc6687d329f40e352bbbdbd91d497",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "000ada3a_70c38ff7",
         "filename": "include/core/SkFontStyle.h",
         "patchSetId": 1
