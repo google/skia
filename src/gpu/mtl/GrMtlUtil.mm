@@ -302,7 +302,7 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) 
     SkUNREACHABLE;
 }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {
     return mtlFormat == MTLPixelFormatBGRA8Unorm;
 }

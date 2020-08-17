@@ -21,7 +21,7 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat);
 
 SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format);
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat);
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat);
 #endif
