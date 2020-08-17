@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d219d9f2_b8fecd49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-17T21:04:04Z",
+      "side": 1,
+      "message": "Here is my first every GPU touching code. I know this could be tightened up in the FP case by passing the atlas-dimensions instead of the atlas-dimensions-inv. The * 32768 is not really needed. \n\nOn my mac, this has no pixel differences. \n\nIs there a way on my mac to force it to use the FP code path?",
+      "revId": "ad9169eb73c28f9e945528e1d36c97787bad5220",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
