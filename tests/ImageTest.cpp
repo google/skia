@@ -407,9 +407,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
             for (auto budgeted : {SkBudgeted::kNo, SkBudgeted::kYes}) {
                 auto texImage = image->makeTextureImage(dContext, mipMapped, budgeted);
                 if (!texImage) {
-                    GrContext* imageContext = as_IB(image)->context();
+                    auto imageContext = as_IB(image)->context();
                     // We expect to fail if image comes from a different context
-                    if (!image->isTextureBacked() || imageContext == dContext) {
+                    if (!image->isTextureBacked() || imageContext->priv().matches(dContext)) {
                         ERRORF(reporter, "makeTextureImage failed.");
                     }
                     continue;
