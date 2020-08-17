@@ -16,6 +16,23 @@
       "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48b66dfd_5d336d10",
+        "filename": "tests/PictureTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 992,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-17T21:23:00Z",
+      "side": 1,
+      "message": "If you keep shallow mode around, it might be neat to show off a case where shallow \u003e nested.",
+      "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
