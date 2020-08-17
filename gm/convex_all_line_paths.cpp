@@ -236,21 +236,22 @@ protected:
             points = data.get();
         }
 
-        SkPath path;
+        SkPathBuilder builder;
 
         if (SkPathDirection::kCW == dir) {
-            path.moveTo(points[0]);
+            builder.moveTo(points[0]);
             for (int i = 1; i < numPts; ++i) {
-                path.lineTo(points[i]);
+                builder.lineTo(points[i]);
             }
         } else {
-            path.moveTo(points[numPts-1]);
+            builder.moveTo(points[numPts-1]);
             for (int i = numPts-2; i >= 0; --i) {
-                path.lineTo(points[i]);
+                builder.lineTo(points[i]);
             }
         }
 
-        path.close();
+        builder.close();
+        SkPath path = builder.detach();
 #ifdef SK_DEBUG
         // Each path this method returns should be convex, only composed of
         // lines, wound the right direction, and short enough to fit in one
@@ -339,11 +340,12 @@ protected:
                 p.setStrokeWidth(SkIntToScalar(kStrokeWidth));
             }
 
-            SkPath p1;
-            p1.moveTo(60.8522949f, 364.671021f);
-            p1.lineTo(59.4380493f, 364.671021f);
-            p1.lineTo(385.414276f, 690.647217f);
-            p1.lineTo(386.121399f, 689.940125f);
+            SkPath p1 = SkPath::Polygon({
+                {60.8522949f, 364.671021f},
+                {59.4380493f, 364.671021f},
+                {385.414276f, 690.647217f},
+                {386.121399f, 689.940125f},
+            }, false);
             canvas->save();
             canvas->translate(356.0f, 50.0f);
             canvas->drawPath(p1, p);
@@ -351,20 +353,20 @@ protected:
 
             // Repro for crbug.com/869172 (SVG path incorrectly simplified when using GPU
             // Rasterization). This will only draw anything in the stroke-and-fill version.
-            SkPath p2;
-            p2.moveTo(10.f, 0.f);
-            p2.lineTo(38.f, 0.f);
-            p2.lineTo(66.f, 0.f);
-            p2.lineTo(94.f, 0.f);
-            p2.lineTo(122.f, 0.f);
-            p2.lineTo(150.f, 0.f);
-            p2.lineTo(150.f, 0.f);
-            p2.lineTo(122.f, 0.f);
-            p2.lineTo(94.f, 0.f);
-            p2.lineTo(66.f, 0.f);
-            p2.lineTo(38.f, 0.f);
-            p2.lineTo(10.f, 0.f);
-            p2.close();
+            SkPath p2 = SkPath::Polygon({
+                {10.f, 0.f},
+                {38.f, 0.f},
+                {66.f, 0.f},
+                {94.f, 0.f},
+                {122.f, 0.f},
+                {150.f, 0.f},
+                {150.f, 0.f},
+                {122.f, 0.f},
+                {94.f, 0.f},
+                {66.f, 0.f},
+                {38.f, 0.f},
+                {10.f, 0.f},
+            }, true);
             canvas->save();
             canvas->translate(0.0f, 500.0f);
             canvas->drawPath(p2, p);
@@ -373,20 +375,19 @@ protected:
             // Repro for crbug.com/856137. This path previously caused GrAAConvexTessellator to turn
             // inset rings into outsets when adjacent bisector angles converged outside the previous
             // ring due to accumulated error.
-            SkPath p3;
-            p3.setFillType(SkPathFillType::kEvenOdd);
-            p3.moveTo(1184.96f, 982.557f);
-            p3.lineTo(1183.71f, 982.865f);
-            p3.lineTo(1180.99f, 982.734f);
-            p3.lineTo(1178.5f, 981.541f);
-            p3.lineTo(1176.35f, 979.367f);
-            p3.lineTo(1178.94f, 938.854f);
-            p3.lineTo(1181.35f, 936.038f);
-            p3.lineTo(1183.96f, 934.117f);
-            p3.lineTo(1186.67f, 933.195f);
-            p3.lineTo(1189.36f, 933.342f);
-            p3.lineTo(1191.58f, 934.38f);
-            p3.close();
+            SkPath p3 = SkPath::Polygon({
+                {1184.96f, 982.557f},
+                {1183.71f, 982.865f},
+                {1180.99f, 982.734f},
+                {1178.5f,  981.541f},
+                {1176.35f, 979.367f},
+                {1178.94f, 938.854f},
+                {1181.35f, 936.038f},
+                {1183.96f, 934.117f},
+                {1186.67f, 933.195f},
+                {1189.36f, 933.342f},
+                {1191.58f, 934.38f},
+            }, true, SkPathFillType::kEvenOdd);
             canvas->save();
             SkMatrix m;
             m.setAll(0.0893210843f, 0, 79.1197586f, 0, 0.0893210843f, 300, 0, 0, 1);

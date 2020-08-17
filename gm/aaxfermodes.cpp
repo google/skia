@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -89,16 +89,18 @@ protected:
             {radius, 0},
             {0, 1.33f * radius}
         };
-        fOval.moveTo(pts[0]);
-        fOval.quadTo(pts[1], pts[2]);
-        fOval.quadTo(pts[3], pts[0]);
+        fOval = SkPathBuilder().moveTo(pts[0])
+                               .quadTo(pts[1], pts[2])
+                               .quadTo(pts[3], pts[0])
+                               .detach();
 
-        fConcave.moveTo(-radius, 0);
-        fConcave.quadTo(0, 0, 0, -radius);
-        fConcave.quadTo(0, 0, radius, 0);
-        fConcave.quadTo(0, 0, 0, radius);
-        fConcave.quadTo(0, 0, -radius, 0);
-        fConcave.close();
+        fConcave = SkPathBuilder().moveTo(-radius, 0)
+                                  .quadTo(0, 0, 0, -radius)
+                                  .quadTo(0, 0, radius, 0)
+                                  .quadTo(0, 0, 0, radius)
+                                  .quadTo(0, 0, -radius, 0)
+                                  .close()
+                                  .detach();
     }
 
     void draw_pass(SkCanvas* canvas, DrawingPass drawingPass) {

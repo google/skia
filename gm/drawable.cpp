@@ -11,7 +11,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
@@ -19,9 +19,9 @@ struct MyDrawable : public SkDrawable {
     SkRect onGetBounds() override { return SkRect::MakeWH(50, 100);  }
 
     void onDraw(SkCanvas* canvas) override {
-       SkPath path;
-       path.moveTo(10, 10);
-       path.conicTo(10, 90, 50, 90, 0.9f);
+        SkPath path = SkPathBuilder().moveTo(10, 10)
+                                     .conicTo(10, 90, 50, 90, 0.9f)
+                                     .detach();
 
        SkPaint paint;
        paint.setColor(SK_ColorBLUE);

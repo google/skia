@@ -10,7 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -63,7 +63,7 @@ protected:
             SkScalar arcLength = 360.f / wedge;
             canvas->save();
             for (const DashExample& dashExample : dashExamples) {
-                SkPath refPath;
+                SkPathBuilder refPath;
                 int dashUnits = 0;
                 for (int index = 0; index < dashExample.length; ++index) {
                     dashUnits += dashExample.pattern[index];
@@ -81,7 +81,7 @@ protected:
                 }
                 canvas->save();
                 canvas->rotate(fRotation);
-                canvas->drawPath(refPath, refPaint);
+                canvas->drawPath(refPath.detach(), refPaint);
                 canvas->restore();
                 SkPaint p;
                 p.setAntiAlias(true);

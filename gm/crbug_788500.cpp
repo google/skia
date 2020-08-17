@@ -8,10 +8,10 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 DEF_SIMPLE_GM(crbug_788500, canvas, 300, 300) {
-    SkPath path;
+    SkPathBuilder path;
     path.setFillType(SkPathFillType::kEvenOdd);
     path.moveTo(0, 0);
     path.moveTo(245.5f, 98.5f);
@@ -19,5 +19,5 @@ DEF_SIMPLE_GM(crbug_788500, canvas, 300, 300) {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }

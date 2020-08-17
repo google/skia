@@ -88,12 +88,12 @@ protected:
                 emulateDeviceRestriction(canvas, SkIRect::MakeLTRB(500, 100, 800, 300));
                 canvas->drawColor(SK_ColorGREEN);
 
-                SkPath pathClip;
-                pathClip.moveTo(SkIntToScalar(650),  SkIntToScalar(200));
-                pathClip.lineTo(SkIntToScalar(900), SkIntToScalar(300));
-                pathClip.lineTo(SkIntToScalar(650), SkIntToScalar(400));
-                pathClip.lineTo(SkIntToScalar(650), SkIntToScalar(300));
-                pathClip.close();
+                SkPath pathClip = SkPath::Polygon({
+                    {650, 200},
+                    {900, 300},
+                    {650, 400},
+                    {650, 300},
+                }, true);
                 emulateClipPathReplace(canvas, pathClip, fDoAAClip);
                 canvas->drawRect(SkRect::MakeLTRB(500, 200, 900, 500), p);
             canvas->restore();
