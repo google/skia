@@ -16,6 +16,23 @@
       "revId": "be8edd6ead8d8a36f113d42d94ae1a87a3080e4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e4bd4627_e4dbf407",
+        "filename": "third_party/icu/SkLoadICU.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-17T20:34:59Z",
+      "side": 1,
+      "message": "Can you extend this logic to have it first look for the icu data file next to wherever the skia code (dll) is being stored?  If that load then fails it could check the directory of the running process (current logic).  That should make it work for your use case and still continue to support the current behavior.",
+      "revId": "be8edd6ead8d8a36f113d42d94ae1a87a3080e4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
