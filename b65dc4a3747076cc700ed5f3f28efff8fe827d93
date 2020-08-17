@@ -16,6 +16,24 @@
       "revId": "b65dc4a3747076cc700ed5f3f28efff8fe827d93",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98d11e1d_8c1259d5",
+        "filename": "include/c/sk_path.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-17T21:07:42Z",
+      "side": 0,
+      "message": ".. or delete these files. These headers are marked experimental / do-not-use. I do not want to slow down for them at all.",
+      "parentUuid": "6d056864_e28da293",
+      "revId": "b65dc4a3747076cc700ed5f3f28efff8fe827d93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
