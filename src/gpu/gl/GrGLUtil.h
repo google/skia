@@ -377,7 +377,7 @@ static constexpr GrGLenum GrGLFormatToEnum(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
-#if GR_TEST_UTILS
+#if defined(SK_DEBUG) || GR_TEST_UTILS
 static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
     switch (glFormat) {
         case GR_GL_RGBA8:                return "RGBA8";

@@ -38,7 +38,7 @@ class GrGLTextureParameters;
 class GrD3DResourceState;
 #endif
 
-#if GR_TEST_UTILS
+#if defined(SK_DEBUG) || GR_TEST_UTILS
 class SkString;
 #endif
 
@@ -172,7 +172,7 @@ public:
     // Returns true if the backend format has been initialized.
     bool isValid() const { return fValid; }
 
-#if GR_TEST_UTILS
+#if defined(SK_DEBUG) || GR_TEST_UTILS
     SkString toStr() const;
 #endif
 

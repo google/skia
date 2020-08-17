@@ -420,7 +420,8 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
 
 #ifdef SK_DEBUG
 void GrSurfaceProxy::validateSurface(const GrSurface* surface) {
-    SkASSERT(surface->backendFormat() == fFormat);
+    SkASSERTF(surface->backendFormat() == fFormat, "%s != %s",
+              surface->backendFormat().toStr().c_str(), fFormat.toStr().c_str());
 
     this->onValidateSurface(surface);
 }
