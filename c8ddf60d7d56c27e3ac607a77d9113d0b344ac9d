@@ -70,6 +70,30 @@
       "revId": "c8ddf60d7d56c27e3ac607a77d9113d0b344ac9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5b0afd9_69181619",
+        "filename": "third_party/libjpeg-turbo/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-17T21:12:34Z",
+      "side": 1,
+      "message": "To start, you need to compile and link that source file.",
+      "parentUuid": "2909dfcd_42ad8b75",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 47
+      },
+      "revId": "c8ddf60d7d56c27e3ac607a77d9113d0b344ac9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
