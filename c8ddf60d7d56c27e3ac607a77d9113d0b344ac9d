@@ -46,6 +46,30 @@
       "revId": "c8ddf60d7d56c27e3ac607a77d9113d0b344ac9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2909dfcd_42ad8b75",
+        "filename": "third_party/libjpeg-turbo/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-17T21:05:41Z",
+      "side": 1,
+      "message": "Yes. That happened in https://chromium-review.googlesource.com/c/chromium/deps/libjpeg_turbo/+/1685791\n\nElliot (cc\u0027ed) ran into problems with that which were fixed by https://chromium-review.googlesource.com/c/chromium/deps/libjpeg_turbo/+/2340087\n\nThat patch special-cased GCC/Clang; perhaps we need to apply hidden visibility on MSVC, too?",
+      "parentUuid": "e82b2541_b4aa3219",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 47
+      },
+      "revId": "c8ddf60d7d56c27e3ac607a77d9113d0b344ac9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
