@@ -328,7 +328,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     return false;
 }
 
-#if GR_TEST_UTILS
+#ifdef SK_DEBUG
 #include "include/core/SkString.h"
 #include "src/gpu/GrTestUtils.h"
 
