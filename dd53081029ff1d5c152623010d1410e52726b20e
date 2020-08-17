@@ -16,6 +16,23 @@
       "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05a16f3d_2368ded3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-17T20:43:12Z",
+      "side": 1,
+      "message": "This code never landed in Skia\u0027s master branch so the issue is now reappearing in the latest versions of Android.  Can we revive this CL and get it landed in Skia?",
+      "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
