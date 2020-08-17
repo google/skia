@@ -968,29 +968,7 @@ optional("webp_encode") {
 
 optional("wuffs") {
   enabled = skia_use_wuffs
-  public_defines = [
-    "SK_HAS_WUFFS_LIBRARY",
-
-    # SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2 is temporary, used during a multiple step
-    # transition (perhaps a month or two in mid 2020), distributed across
-    # multiple repositories:
-    #
-    #  1.  Let Skia work with either Wuffs v0.3 or v0.2. The default everywhere
-    #      remains at v0.2, but users may now opt in to v0.3.
-    #  2a. Update users' Skia version (automatic if they update regularly).
-    #  2b. Update users to the latest Wuffs rev, which provides both versions.
-    #  3a. Have users opt in to v0.3.
-    #  3b. Update Skia's default configuration (and those who copy it) to v0.3.
-    #  4.  Flip Skia-uses-Wuffs-v0.3 from opt-in to opt-out.
-    #  5.  Remove the option for Skia to work wih Wuffs v0.2, which will remove
-    #      this SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2 macro as well as many #ifdef's
-    #      in SkWuffsCodec.cpp.
-    #
-    # Steps 2a and 2b can occur concurrently. Similarly for 3a and 3b.
-    #
-    # "Users" means software that uses Skia+Wuffs, such as Chromium or Flutter.
-    "SK_FAVOR_WUFFS_V_0_3_OVER_V_0_2",
-  ]
+  public_defines = [ "SK_HAS_WUFFS_LIBRARY" ]
 
   deps = [ "//third_party/wuffs" ]
   sources = [ "src/codec/SkWuffsCodec.cpp" ]
