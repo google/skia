@@ -22,6 +22,30 @@
       "revId": "c8ddf60d7d56c27e3ac607a77d9113d0b344ac9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e82b2541_b4aa3219",
+        "filename": "third_party/libjpeg-turbo/BUILD.gn",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-17T20:59:23Z",
+      "side": 1,
+      "message": "Yeah, at least on the branch we are checked out at head, when USE_CLZ_INTRINSIC is defined, it uses __builtin_clz(), which I don\u0027t think MSVC supports.\n\nOn the branch at head, jpeg_nbits_table is defined in jpeg_nbits_table.h.  I\u0027d guess it moved to a .c file on your new branch?",
+      "parentUuid": "e98f6eea_7f11109c",
+      "range": {
+        "startLine": 31,
+        "startChar": 6,
+        "endLine": 31,
+        "endChar": 47
+      },
+      "revId": "c8ddf60d7d56c27e3ac607a77d9113d0b344ac9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
