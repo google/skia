@@ -22,10 +22,6 @@
 
 #import <simd/simd.h>
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlPipelineState* GrMtlPipelineStateBuilder::CreatePipelineState(
                                                                 GrMtlGpu* gpu,
                                                                 GrRenderTarget* renderTarget,
@@ -67,7 +63,7 @@ static constexpr SkFourByteTag kSKSL_Tag = SkSetFourByteTag('S', 'K', 'S', 'L');
 
 
 bool GrMtlPipelineStateBuilder::loadShadersFromCache(SkReadBuffer* cached,
-                                                     __strong id<MTLLibrary> outLibraries[]) {
+                                                     sk_cf_obj<id<MTLLibrary>> outLibraries[]) {
     SkSL::String shaders[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
 
@@ -101,27 +97,27 @@ void GrMtlPipelineStateBuilder::storeShadersInCache(const SkSL::String shaders[]
     fGpu->getContext()->priv().getPersistentCache()->store(*key, *data);
 }
 
-id<MTLLibrary> GrMtlPipelineStateBuilder::generateMtlShaderLibrary(
+sk_cf_obj<id<MTLLibrary>> GrMtlPipelineStateBuilder::generateMtlShaderLibrary(
         const SkSL::String& shader,
         SkSL::Program::Kind kind,
         const SkSL::Program::Settings& settings,
         SkSL::String* msl,
         SkSL::Program::Inputs* inputs) {
-    id<MTLLibrary> shaderLibrary = GrGenerateMtlShaderLibrary(fGpu, shader,
+    sk_cf_obj<id<MTLLibrary>> shaderLibrary = GrGenerateMtlShaderLibrary(fGpu, shader,
                                                               kind, settings, msl, inputs);
-    if (shaderLibrary != nil && inputs->fRTHeight) {
+    if (shaderLibrary && inputs->fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
-    return shaderLibrary;
+    return std::move(shaderLibrary);
 }
 
-id<MTLLibrary> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(const SkSL::String& shader,
-                                                                  SkSL::Program::Inputs inputs) {
-    id<MTLLibrary> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader);
-    if (shaderLibrary != nil && inputs.fRTHeight) {
+sk_cf_obj<id<MTLLibrary>> GrMtlPipelineStateBuilder::compileMtlShaderLibrary(
+        const SkSL::String& shader, SkSL::Program::Inputs inputs) {
+    sk_cf_obj<id<MTLLibrary>> shaderLibrary = GrCompileMtlShaderLibrary(fGpu, shader);
+    if (shaderLibrary && inputs.fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
-    return shaderLibrary;
+    return std::move(shaderLibrary);
 }
 
 static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType type) {
@@ -383,7 +379,7 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    id<MTLLibrary> shaderLibraries[kGrShaderTypeCount];
+    sk_cf_obj<id<MTLLibrary>> shaderLibraries[kGrShaderTypeCount]; //*** really need smart ptr?
 
     fVS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
     fFS.extensions().appendf("#extension GL_ARB_separate_shader_objects : enable\n");
@@ -471,9 +467,9 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(GrRenderTarget* renderTa
     }
 
     id<MTLFunction> vertexFunction =
-            [shaderLibraries[kVertex_GrShaderType] newFunctionWithName: @"vertexMain"];
+            [*shaderLibraries[kVertex_GrShaderType] newFunctionWithName: @"vertexMain"];
     id<MTLFunction> fragmentFunction =
-            [shaderLibraries[kFragment_GrShaderType] newFunctionWithName: @"fragmentMain"];
+            [*shaderLibraries[kFragment_GrShaderType] newFunctionWithName: @"fragmentMain"];
 
     if (vertexFunction == nil) {
         SkDebugf("Couldn't find vertexMain() in library\n");

@@ -32,7 +32,7 @@ template <typename T> static inline void SkCFSafeRelease(T obj) {
 
 template <typename T> class sk_cf_obj {
 public:
-    using element_type = T;
+//    using element_type = T;
 
     constexpr sk_cf_obj() : fObject(nullptr) {}
 
@@ -87,7 +87,13 @@ public:
         return *this;
     }
 
+    explicit operator bool() const { return this->get() != nil; }
+
     T get() const { return fObject; }
+    T operator*() const {
+        SkASSERT(this->get() != nil);
+        return this->get();
+    }
 
     /**
      *  Adopt the new object, and call CFRelease() on any previously held object (if not null).

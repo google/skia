@@ -8,6 +8,7 @@
 #ifndef GrMtlPipelineState_DEFINED
 #define GrMtlPipelineState_DEFINED
 
+#include "include/ports/SkCFObject.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/glsl/GrGLSLProgramBuilder.h"
@@ -43,7 +44,7 @@ public:
             std::unique_ptr<GrGLSLXferProcessor> xferPRocessor,
             std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors);
 
-    id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
+    id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState.get(); }
 
     void setData(const GrRenderTarget*, const GrProgramInfo&);
 
@@ -114,7 +115,7 @@ private:
     };
 
     GrMtlGpu* fGpu;
-    id<MTLRenderPipelineState> fPipelineState;
+    sk_cf_obj<id<MTLRenderPipelineState>> fPipelineState;
     MTLPixelFormat             fPixelFormat;
 
     RenderTargetState fRenderTargetState;

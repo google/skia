@@ -32,12 +32,12 @@ public:
     }
 
     id<MTLBlitCommandEncoder> getBlitCommandEncoder();
-    id<MTLRenderCommandEncoder> getRenderCommandEncoder(MTLRenderPassDescriptor*,
+    id<MTLRenderCommandEncoder> getRenderCommandEncoder(sk_cf_obj<MTLRenderPassDescriptor*>&,
                                                         const GrMtlPipelineState*,
                                                         GrMtlOpsRenderPass* opsRenderPass);
 
     void addCompletedHandler(MTLCommandBufferHandler block) {
-        [fCmdBuffer addCompletedHandler:block];
+        [fCmdBuffer.get() addCompletedHandler:block];
     }
 
     void addGrBuffer(sk_sp<const GrBuffer> buffer) {
@@ -48,7 +48,7 @@ public:
     void encodeWaitForEvent(id<MTLEvent>, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
 
     void waitUntilCompleted() {
-        [fCmdBuffer waitUntilCompleted];
+        [fCmdBuffer.get() waitUntilCompleted];
     }
     void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
 
@@ -62,10 +62,10 @@ private:
 
     void endAllEncoding();
 
-    id<MTLCommandBuffer>        fCmdBuffer;
-    id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;
-    id<MTLRenderCommandEncoder> fActiveRenderCommandEncoder;
-    MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
+    sk_cf_obj<id<MTLCommandBuffer>>        fCmdBuffer;
+    sk_cf_obj<id<MTLBlitCommandEncoder>>   fActiveBlitCommandEncoder;
+    sk_cf_obj<id<MTLRenderCommandEncoder>> fActiveRenderCommandEncoder;
+    sk_cf_obj<MTLRenderPassDescriptor*>    fPreviousRenderPassDescriptor;
     bool                        fHasWork;
 
     SkTArray<sk_sp<GrRefCntedCallback>> fFinishedCallbacks;

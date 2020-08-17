@@ -26,10 +26,6 @@
 
 #import <simd/simd.h>
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 static bool get_feature_set(id<MTLDevice> device, MTLFeatureSet* featureSet) {
     // Mac OSX
 #ifdef SK_BUILD_FOR_MAC
@@ -128,9 +124,9 @@ GrMtlGpu::GrMtlGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fResourceProvider(this)
         , fStagingBufferManager(this)
         , fDisconnected(false) {
-    fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
+    fMtlCaps.reset(new GrMtlCaps(options, fDevice.get(), featureSet));
     fCaps = fMtlCaps;
-    fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
+    fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue.get());
 }
 
 GrMtlGpu::~GrMtlGpu() {
@@ -166,8 +162,8 @@ void GrMtlGpu::destroyResources() {
 
     fResourceProvider.destroyResources();
 
-    fQueue = nil;
-    fDevice = nil;
+    fQueue.reset();
+    fDevice.reset();
 }
 
 GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
@@ -218,7 +214,7 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     }
 
     // Create a new command buffer for the next submit
-    fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue);
+    fCurrentCmdBuffer = GrMtlCommandBuffer::Make(fQueue.get());
 
     // This should be done after we have a new command buffer in case the freeing of any
     // resources held by a finished command buffer causes us to send a new command to the gpu
@@ -441,8 +437,8 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     if (@available(macOS 10.11, iOS 9.0, *)) {
         options |= MTLResourceStorageModePrivate;
     }
-    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: combinedBufferSize
-                                                        options: options];
+    id<MTLBuffer> transferBuffer = [*fDevice newBufferWithLength: combinedBufferSize
+                                                         options: options];
     if (nil == transferBuffer) {
         return false;
     }
@@ -880,7 +876,8 @@ bool GrMtlGpu::createMtlTextureForBackendSurface(MTLPixelFormat mtlFormat,
         desc.usage = texturable == GrTexturable::kYes ? MTLTextureUsageShaderRead : 0;
         desc.usage |= renderable == GrRenderable::kYes ? MTLTextureUsageRenderTarget : 0;
     }
-    id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
+    id<MTLTexture> testTexture = [*fDevice newTextureWithDescriptor: desc];
+    //*** release desc?
     info->fTexture.reset(GrRetainPtrFromId(testTexture));
     return true;
 }
@@ -1229,8 +1226,8 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
 #endif
     }
 
-    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
-                                                        options: options];
+    id<MTLBuffer> transferBuffer = [*fDevice newBufferWithLength: transBufferImageBytes
+                                                         options: options];
 
     if (!this->readOrTransferPixels(surface, left, top, width, height, dstColorType, transferBuffer,
                                     0, transBufferImageBytes, transBufferRowBytes)) {
@@ -1365,7 +1362,7 @@ GrFence SK_WARN_UNUSED_RESULT GrMtlGpu::insertFence() {
         dispatch_semaphore_signal(semaphore);
     });
 
-    const void* cfFence = (__bridge_retained const void*) semaphore;
+    const void* cfFence = (const void*) semaphore;
     return (GrFence) cfFence;
 }
 
@@ -1462,22 +1459,22 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
     writer->beginObject("Metal GPU");
 
     writer->beginObject("Device");
-    writer->appendString("name", fDevice.name.UTF8String);
+    writer->appendString("name", [[*fDevice name] UTF8String]);
 #ifdef SK_BUILD_FOR_MAC
     if (@available(macOS 10.11, *)) {
-        writer->appendBool("isHeadless", fDevice.isHeadless);
-        writer->appendBool("isLowPower", fDevice.isLowPower);
+        writer->appendBool("isHeadless", [*fDevice isHeadless]);
+        writer->appendBool("isLowPower", [*fDevice isLowPower]);
     }
     if (@available(macOS 10.13, *)) {
-        writer->appendBool("isRemovable", fDevice.isRemovable);
+        writer->appendBool("isRemovable", [*fDevice isRemovable]);
     }
 #endif
     if (@available(macOS 10.13, iOS 11.0, *)) {
-        writer->appendU64("registryID", fDevice.registryID);
+        writer->appendU64("registryID", [*fDevice registryID]);
     }
 #if defined(SK_BUILD_FOR_MAC) && __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
-        switch (fDevice.location) {
+        switch ([*fDevice location]) {
             case MTLDeviceLocationBuiltIn:
                 writer->appendString("location", "builtIn");
                 break;
@@ -1494,66 +1491,66 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
                 writer->appendString("location", "unknown");
                 break;
         }
-        writer->appendU64("locationNumber", fDevice.locationNumber);
-        writer->appendU64("maxTransferRate", fDevice.maxTransferRate);
+        writer->appendU64("locationNumber", [*fDevice locationNumber]);
+        writer->appendU64("maxTransferRate", [*fDevice maxTransferRate]);
     }
 #endif  // SK_BUILD_FOR_MAC
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(macOS 10.15, iOS 13.0, *)) {
-        writer->appendBool("hasUnifiedMemory", fDevice.hasUnifiedMemory);
+        writer->appendBool("hasUnifiedMemory", [*fDevice hasUnifiedMemory]);
     }
 #endif
 #ifdef SK_BUILD_FOR_MAC
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
-        writer->appendU64("peerGroupID", fDevice.peerGroupID);
-        writer->appendU32("peerCount", fDevice.peerCount);
-        writer->appendU32("peerIndex", fDevice.peerIndex);
+        writer->appendU64("peerGroupID", [*fDevice peerGroupID]);
+        writer->appendU32("peerCount", [*fDevice peerCount]);
+        writer->appendU32("peerIndex", [*fDevice peerIndex]);
     }
 #endif
     if (@available(macOS 10.12, *)) {
-        writer->appendU64("recommendedMaxWorkingSetSize", fDevice.recommendedMaxWorkingSetSize);
+        writer->appendU64("recommendedMaxWorkingSetSize", [*fDevice recommendedMaxWorkingSetSize]);
     }
 #endif  // SK_BUILD_FOR_MAC
     if (@available(macOS 10.13, iOS 11.0, *)) {
-        writer->appendU64("currentAllocatedSize", fDevice.currentAllocatedSize);
-        writer->appendU64("maxThreadgroupMemoryLength", fDevice.maxThreadgroupMemoryLength);
+        writer->appendU64("currentAllocatedSize", [*fDevice currentAllocatedSize]);
+        writer->appendU64("maxThreadgroupMemoryLength", [*fDevice maxThreadgroupMemoryLength]);
     }
 
     if (@available(macOS 10.11, iOS 9.0, *)) {
         writer->beginObject("maxThreadsPerThreadgroup");
-        writer->appendU64("width", fDevice.maxThreadsPerThreadgroup.width);
-        writer->appendU64("height", fDevice.maxThreadsPerThreadgroup.height);
-        writer->appendU64("depth", fDevice.maxThreadsPerThreadgroup.depth);
+        writer->appendU64("width", [[*fDevice maxThreadsPerThreadgroup] width]);
+        writer->appendU64("height", [[*fDevice.maxThreadsPerThreadgroup] height]);
+        writer->appendU64("depth", [[*fDevice.maxThreadsPerThreadgroup] depth]);
         writer->endObject();
     }
 
     if (@available(macOS 10.13, iOS 11.0, *)) {
         writer->appendBool("areProgrammableSamplePositionsSupported",
-                           fDevice.areProgrammableSamplePositionsSupported);
+                           [*fDevice areProgrammableSamplePositionsSupported]);
         writer->appendBool("areRasterOrderGroupsSupported",
-                           fDevice.areRasterOrderGroupsSupported);
+                           [*fDevice areRasterOrderGroupsSupported]);
     }
 #ifdef SK_BUILD_FOR_MAC
     if (@available(macOS 10.11, *)) {
         writer->appendBool("isDepth24Stencil8PixelFormatSupported",
-                           fDevice.isDepth24Stencil8PixelFormatSupported);
+                           [*fDevice isDepth24Stencil8PixelFormatSupported]);
 
     }
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
         writer->appendBool("areBarycentricCoordsSupported",
-                           fDevice.areBarycentricCoordsSupported);
+                           [*fDevice areBarycentricCoordsSupported]);
         writer->appendBool("supportsShaderBarycentricCoordinates",
-                           fDevice.supportsShaderBarycentricCoordinates);
+                           [*fDevice supportsShaderBarycentricCoordinates]);
     }
 #endif
 #endif  // SK_BUILD_FOR_MAC
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        writer->appendU64("maxBufferLength", fDevice.maxBufferLength);
+        writer->appendU64("maxBufferLength", [*fDevice maxBufferLength]);
     }
     if (@available(macOS 10.13, iOS 11.0, *)) {
-        switch (fDevice.readWriteTextureSupport) {
+        switch ([*fDevice readWriteTextureSupport]) {
             case MTLReadWriteTextureTier1:
                 writer->appendString("readWriteTextureSupport", "tier1");
                 break;
@@ -1567,7 +1564,7 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
                 writer->appendString("readWriteTextureSupport", "unknown");
                 break;
         }
-        switch (fDevice.argumentBuffersSupport) {
+        switch ([*fDevice argumentBuffersSupport]) {
             case MTLArgumentBuffersTier1:
                 writer->appendString("argumentBuffersSupport", "tier1");
                 break;
@@ -1580,16 +1577,17 @@ void GrMtlGpu::onDumpJSON(SkJSONWriter* writer) const {
         }
     }
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        writer->appendU64("maxArgumentBufferSamplerCount", fDevice.maxArgumentBufferSamplerCount);
+        writer->appendU64("maxArgumentBufferSamplerCount",
+                          [*fDevice maxArgumentBufferSamplerCount]);
     }
 #ifdef SK_BUILD_FOR_IOS
     if (@available(iOS 13.0, *)) {
-        writer->appendU64("sparseTileSizeInBytes", fDevice.sparseTileSizeInBytes);
+        writer->appendU64("sparseTileSizeInBytes", [*fDevice sparseTileSizeInBytes]);
     }
 #endif
     writer->endObject();
 
-    writer->appendString("queue", fQueue.label.UTF8String);
+    writer->appendString("queue", [[*fQueue label] UTF8String]);
     writer->appendBool("disconnected", fDisconnected);
 
     writer->endObject();

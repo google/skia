@@ -9,10 +9,6 @@
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];

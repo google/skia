@@ -11,6 +11,7 @@
 #include "src/gpu/GrTexture.h"
 
 #import <Metal/Metal.h>
+#include "include/ports/SkCFObject.h"
 
 class GrMtlGpu;
 
@@ -30,7 +31,7 @@ public:
 
     ~GrMtlTexture() override;
 
-    id<MTLTexture> mtlTexture() const { return fTexture; }
+    id<MTLTexture> mtlTexture() const { return fTexture.get(); }
 
     GrBackendTexture getBackendTexture() const override;
 
@@ -46,11 +47,11 @@ protected:
     GrMtlGpu* getMtlGpu() const;
 
     void onAbandon() override {
-        fTexture = nil;
+        fTexture.reset();
         INHERITED::onAbandon();
     }
     void onRelease() override {
-        fTexture = nil;
+        fTexture.reset();
         INHERITED::onRelease();
     }
 
@@ -71,7 +72,7 @@ private:
                  GrWrapCacheable,
                  GrIOType);
 
-    id<MTLTexture> fTexture;
+    sk_cf_obj<id<MTLTexture>> fTexture;
 
     typedef GrTexture INHERITED;
 };

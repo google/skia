@@ -10,10 +10,6 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 // Called for wrapped non-texture render targets.
 GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
                                      SkISize dimensions,
@@ -105,18 +101,18 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
 }
 
 GrMtlRenderTarget::~GrMtlRenderTarget() {
-    SkASSERT(nil == fColorTexture);
-    SkASSERT(nil == fResolveTexture);
+    SkASSERT(!fColorTexture);
+    SkASSERT(!fResolveTexture);
 }
 
 GrBackendRenderTarget GrMtlRenderTarget::getBackendRenderTarget() const {
     GrMtlTextureInfo info;
-    info.fTexture.reset(GrRetainPtrFromId(fColorTexture));
-    return GrBackendRenderTarget(this->width(), this->height(), fColorTexture.sampleCount, info);
+    info.fTexture = fColorTexture;
+    return GrBackendRenderTarget(this->width(), this->height(), [*fColorTexture sampleCount], info);
 }
 
 GrBackendFormat GrMtlRenderTarget::backendFormat() const {
-    return GrBackendFormat::MakeMtl(fColorTexture.pixelFormat);
+    return GrBackendFormat::MakeMtl([*fColorTexture pixelFormat]);
 }
 
 GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
@@ -125,14 +121,14 @@ GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
 }
 
 void GrMtlRenderTarget::onAbandon() {
-    fColorTexture = nil;
-    fResolveTexture = nil;
+    fColorTexture.reset();
+    fResolveTexture.reset();
     INHERITED::onAbandon();
 }
 
 void GrMtlRenderTarget::onRelease() {
-    fColorTexture = nil;
-    fResolveTexture = nil;
+    fColorTexture.reset();
+    fResolveTexture.reset();
     INHERITED::onRelease();
 }
 
