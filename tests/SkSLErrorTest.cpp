@@ -360,7 +360,7 @@ DEF_TEST(SkSLTernaryMismatch, r) {
 DEF_TEST(SkSLInterfaceBlockStorageModifiers, r) {
     test_failure(r,
                  "uniform foo { out int x; };",
-                 "error: 1: interface block fields may not have storage qualifiers\n1 error\n");
+                 "error: 1: 'out' is not permitted here\n1 error\n");
 }
 
 DEF_TEST(SkSLUseWithoutInitialize, r) {
@@ -604,4 +604,56 @@ DEF_TEST(SkSLMustBeConstantIntegralEnum, r) {
                  "const int i = 1; enum class E { a = i }; void main() {}");
     test_success(r,
                  "enum class E { a = 1 }; void main() {}");
+}
+
+DEF_TEST(SkSLBadModifiers, r) {
+    test_failure(r,
+                 "const in out uniform flat noperspective readonly writeonly coherent volatile "
+                 "restrict buffer sk_has_side_effects __pixel_localEXT __pixel_local_inEXT "
+                 "__pixel_local_outEXT varying void main() {}",
+                 "error: 1: 'const' is not permitted here\n"
+                 "error: 1: 'in' is not permitted here\n"
+                 "error: 1: 'out' is not permitted here\n"
+                 "error: 1: 'uniform' is not permitted here\n"
+                 "error: 1: 'flat' is not permitted here\n"
+                 "error: 1: 'noperspective' is not permitted here\n"
+                 "error: 1: 'readonly' is not permitted here\n"
+                 "error: 1: 'writeonly' is not permitted here\n"
+                 "error: 1: 'coherent' is not permitted here\n"
+                 "error: 1: 'volatile' is not permitted here\n"
+                 "error: 1: 'restrict' is not permitted here\n"
+                 "error: 1: 'buffer' is not permitted here\n"
+                 "error: 1: '__pixel_localEXT' is not permitted here\n"
+                 "error: 1: '__pixel_local_inEXT' is not permitted here\n"
+                 "error: 1: '__pixel_local_outEXT' is not permitted here\n"
+                 "error: 1: 'varying' is not permitted here\n"
+                 "16 errors\n");
+    test_failure(r,
+                 "void test(const in out uniform flat noperspective readonly writeonly coherent "
+                 "volatile restrict buffer sk_has_side_effects __pixel_localEXT "
+                 "__pixel_local_inEXT __pixel_local_outEXT varying float test) {}",
+                 "error: 1: 'const' is not permitted here\n"
+                 "error: 1: 'uniform' is not permitted here\n"
+                 "error: 1: 'flat' is not permitted here\n"
+                 "error: 1: 'noperspective' is not permitted here\n"
+                 "error: 1: 'readonly' is not permitted here\n"
+                 "error: 1: 'writeonly' is not permitted here\n"
+                 "error: 1: 'coherent' is not permitted here\n"
+                 "error: 1: 'volatile' is not permitted here\n"
+                 "error: 1: 'restrict' is not permitted here\n"
+                 "error: 1: 'buffer' is not permitted here\n"
+                 "error: 1: 'sk_has_side_effects' is not permitted here\n"
+                 "error: 1: '__pixel_localEXT' is not permitted here\n"
+                 "error: 1: '__pixel_local_inEXT' is not permitted here\n"
+                 "error: 1: '__pixel_local_outEXT' is not permitted here\n"
+                 "error: 1: 'varying' is not permitted here\n"
+                 "15 errors\n");
+    test_failure(r,
+                 "const in out uniform flat noperspective readonly writeonly coherent volatile "
+                 "restrict buffer sk_has_side_effects __pixel_localEXT "
+                 "__pixel_local_inEXT __pixel_local_outEXT varying float test;",
+                 "error: 1: 'in uniform' variables only permitted within fragment processors\n"
+                 "error: 1: 'varying' is only permitted in runtime effects\n"
+                 "error: 1: 'sk_has_side_effects' is not permitted here\n"
+                 "3 errors\n");
 }

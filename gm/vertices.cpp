@@ -306,6 +306,9 @@ DEF_SIMPLE_GM(vertices_data, canvas, 512, 256) {
             }
         )";
         auto[effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
+        if (!effect) {
+            SK_ABORT("RuntimeEffect error: %s\n", errorText.c_str());
+        }
         paint.setShader(effect->makeShader(nullptr, nullptr, 0, nullptr, true));
         canvas->drawVertices(builder.detach(), paint);
         canvas->translate(r.width(), 0);

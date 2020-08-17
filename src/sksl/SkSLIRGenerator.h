@@ -80,6 +80,7 @@ private:
     void pushSymbolTable();
     void popSymbolTable();
 
+    void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
     std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTNode& decl,
                                                             Variable::Storage storage);
     void convertFunction(const ASTNode& f);
