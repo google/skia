@@ -26,6 +26,10 @@ class GrTextBlobCache;
 class SkArenaAlloc;
 class SkJSONWriter;
 
+#if GR_TEST_UTILS
+class SkString;
+#endif
+
 class GrRecordingContext : public GrImageContext {
 public:
     ~GrRecordingContext() override;

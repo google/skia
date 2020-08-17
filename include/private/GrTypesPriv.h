@@ -1205,7 +1205,7 @@ private:
     Context fReleaseCtx;
 };
 
-#if GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
+#if defined(SK_DEBUG) || GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
     switch (api) {
         case GrBackendApi::kOpenGL:   return "OpenGL";
