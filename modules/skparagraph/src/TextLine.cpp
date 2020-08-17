@@ -105,7 +105,8 @@ TextLine::TextLine(ParagraphImpl* owner,
         , fHasShadows(false)
         , fHasDecorations(false)
         , fAscentStyle(LineMetricStyle::CSS)
-        , fDescentStyle(LineMetricStyle::CSS) {
+        , fDescentStyle(LineMetricStyle::CSS)
+        , fBoundaries(SkRect::MakeEmpty()){
     // Reorder visual runs
     auto& start = owner->cluster(fGhostClusterRange.start);
     auto& end = owner->cluster(fGhostClusterRange.end - 1);
@@ -159,6 +160,7 @@ TextLine::TextLine(ParagraphImpl* owner,
     }
 }
 
+/*
 SkRect TextLine::calculateBoundaries() {
 
     // For flutter: height and/or width and/or baseline! can be Inf
@@ -167,25 +169,24 @@ SkRect TextLine::calculateBoundaries() {
         SkScalarIsFinite(fAdvance.fX) ? fAdvance.fX : 0,
         SkScalarIsFinite(fAdvance.fY) ? fAdvance.fY : 0);
     auto baseline = SkScalarIsFinite(this->baseline()) ? this->baseline() : 0;
-    auto clusters = fOwner->clusters(fClusterRange);
+
+    auto textShiftInRun = 0;
     Run* run = nullptr;
-    auto runShift = 0.0f;
-    auto clusterShift = 0.0f;
-    for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster) {
-        if (run == nullptr || cluster->runIndex() != run->index()) {
-            run = &fOwner->run(cluster->runIndex());
-            runShift += clusterShift;
-            clusterShift = 0;
-        }
-        clusterShift += cluster->width();
-        for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
-            auto posX = run->positionX(i);
-            auto posY = run->posY(i);
-            auto bounds = run->getBounds(i);
-            bounds.offset(posX + runShift, posY);
-            boundaries.joinPossiblyEmptyRect(bounds);
-        }
-    }
+    this->iterateThroughClustersInGlyphsOrder(false, true,
+        [&](const Cluster* cluster, bool ghost) {
+            if (run == nullptr || cluster->runIndex() != run->index()) {
+                run = &fOwner->run(cluster->runIndex());
+                textShiftInRun = run->positionX(cluster->startPos());
+            }
+            for (auto i = cluster->startPos(); i < cluster->endPos(); ++i) {
+                auto posX = run->positionX(i);
+                auto posY = run->posY(i);
+                auto bounds = run->getBounds(i);
+                bounds.offset(posX - textShiftInRun, posY);
+                boundaries.joinPossiblyEmptyRect(bounds);
+            }
+            return true;
+        });
 
     // We need to take in account all the shadows when we calculate the boundaries
     // TODO: Need to find a better solution
@@ -227,8 +228,10 @@ SkRect TextLine::calculateBoundaries() {
 
     return boundaries;
 }
+*/
 
 void TextLine::paint(SkCanvas* textCanvas) {
+    fBoundaries = SkRect::MakeEmpty();
     if (this->empty()) {
         return;
     }
@@ -380,7 +383,14 @@ void TextLine::paintText(SkCanvas* canvas, TextRange textRange, const TextStyle&
     }
 
     SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + 0.5);
-    canvas->drawTextBlob(builder.make(),
+    auto blob = builder.make();
+    if (blob != nullptr) {
+        auto boundaries = blob->bounds();
+        boundaries.offset(this->offset().fX, this->offset().fY);
+        fBoundaries.joinPossiblyEmptyRect(boundaries);
+    }
+
+    canvas->drawTextBlob(blob,
         this->offset().fX + context.fTextShift, this->offset().fY + correctedBaseline, paint);
 
     if (context.clippingNeeded) {
@@ -416,11 +426,19 @@ void TextLine::paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyl
             clip.offset(this->offset());
             canvas->clipRect(clip);
         }
-        canvas->drawTextBlob(builder.make(),
+        auto blob = builder.make();
+        if (blob != nullptr) {
+            auto boundaries = blob->bounds();
+            boundaries.offset(
+                   this->offset().fX + shadow.fOffset.x(),
+                   this->offset().fY + shadow.fOffset.y()
+                );
+            fBoundaries.joinPossiblyEmptyRect(boundaries);
+        }
+        canvas->drawTextBlob(blob,
             this->offset().fX + shadow.fOffset.x() + context.fTextShift,
             this->offset().fY + shadow.fOffset.y() + shiftDown,
             paint);
-
         if (context.clippingNeeded) {
             canvas->restore();
         }

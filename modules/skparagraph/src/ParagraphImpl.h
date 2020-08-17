@@ -179,7 +179,6 @@ public:
 
     void setState(InternalState state);
     sk_sp<SkPicture> getPicture() { return fPicture; }
-    SkRect getBoundaries() const { return fOrigin; }
 
     SkScalar widthWithTrailingSpaces() { return fMaxWidthWithTrailingSpaces; }
 
@@ -230,8 +229,6 @@ private:
     friend class TextWrapper;
     friend class OneLineShaper;
 
-    void calculateBoundaries();
-
     void computeEmptyMetrics();
 
     // Input
@@ -270,7 +267,6 @@ private:
     SkScalar fOldWidth;
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
-    SkRect fOrigin;
 
     std::unique_ptr<SkUnicode> fICU;
 };
