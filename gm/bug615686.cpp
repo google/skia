@@ -8,15 +8,14 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 DEF_SIMPLE_GM(bug615686, canvas, 250, 250) {
     SkPaint p;
     p.setAntiAlias(true);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(20);
-    SkPath path;
-    path.moveTo(0, 0);
-    path.cubicTo(200, 200, 0, 200, 200, 0);
-    canvas->drawPath(path, p);
+    canvas->drawPath(SkPathBuilder().moveTo(0, 0)
+                                    .cubicTo(200, 200, 0, 200, 200, 0)
+                                    .detach(), p);
 }

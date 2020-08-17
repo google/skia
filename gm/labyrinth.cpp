@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 /**
  * Repro case for https://bugs.chromium.org/p/chromium/issues/detail?id=913223
@@ -52,7 +52,7 @@ static void draw_labyrinth(SkCanvas* canvas, SkPaint::Cap cap) {
         {1,1,1,1,1,1,0,1,1,1},
     };
 
-    SkPath maze;
+    SkPathBuilder maze;
     for (size_t y = 0; y < SK_ARRAY_COUNT(kRows); ++y) {
         for (size_t x = 0; x < SK_ARRAY_COUNT(kRows[0]); ++x) {
             if (kRows[y][x]) {
@@ -79,7 +79,7 @@ static void draw_labyrinth(SkCanvas* canvas, SkPaint::Cap cap) {
 
     canvas->translate(10.5, 10.5);
     canvas->scale(40, 40);
-    canvas->drawPath(maze, paint);
+    canvas->drawPath(maze.detach(), paint);
 }
 
 constexpr static int kWidth = 500;
