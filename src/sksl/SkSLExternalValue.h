@@ -17,8 +17,10 @@ class Type;
 
 class ExternalValue : public Symbol {
 public:
+    static constexpr Kind kExpressionKind = kExternal_Kind;
+
     ExternalValue(const char* name, const Type& type)
-        : INHERITED(-1, kExternal_Kind, name)
+        : INHERITED(-1, kExpressionKind, name)
         , fType(type) {}
 
     virtual bool canRead() const {
