@@ -43,14 +43,12 @@ void SkDrawableList::append(SkDrawable* drawable) {
 SkRecorder::SkRecorder(SkRecord* record, int width, int height, SkMiniRecorder* mr)
     : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(width, height)
     , fDrawPictureMode(Record_DrawPictureMode)
-    , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)
     , fMiniRecorder(mr) {}
 
 SkRecorder::SkRecorder(SkRecord* record, const SkRect& bounds, SkMiniRecorder* mr)
     : SkCanvasVirtualEnforcer<SkNoDrawCanvas>(bounds.roundOut())
     , fDrawPictureMode(Record_DrawPictureMode)
-    , fApproxBytesUsedBySubPictures(0)
     , fRecord(record)
     , fMiniRecorder(mr) {}
 
@@ -65,7 +63,6 @@ void SkRecorder::reset(SkRecord* record, const SkRect& bounds,
 
 void SkRecorder::forgetRecord() {
     fDrawableList.reset(nullptr);
-    fApproxBytesUsedBySubPictures = 0;
     fRecord = nullptr;
 }
 
@@ -228,7 +225,6 @@ void SkRecorder::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
 void SkRecorder::onDrawPicture(const SkPicture* pic, const SkMatrix* matrix, const SkPaint* paint) {
     if (fDrawPictureMode == Record_DrawPictureMode) {
-        fApproxBytesUsedBySubPictures += pic->approximateBytesUsed();
         this->append<SkRecords::DrawPicture>(this->copy(paint), sk_ref_sp(pic), matrix ? *matrix : SkMatrix::I());
     } else if (fDrawPictureMode == PlaybackTop_DrawPictureMode) {
         // temporarily change the mode of this recorder to Record,

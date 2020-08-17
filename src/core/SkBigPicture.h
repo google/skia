@@ -37,15 +37,13 @@ public:
     SkBigPicture(const SkRect& cull,
                  sk_sp<SkRecord>,
                  std::unique_ptr<SnapshotArray>,
-                 sk_sp<SkBBoxHierarchy>,
-                 size_t approxBytesUsedBySubPictures);
+                 sk_sp<SkBBoxHierarchy>);
 
 
 // SkPicture overrides
     void playback(SkCanvas*, AbortCallback*) const override;
     SkRect cullRect() const override;
     int approximateOpCount() const override;
-    size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
 
 // Used by GrLayerHoister
@@ -62,7 +60,6 @@ private:
     SkPicture const* const* drawablePicts() const;
 
     const SkRect                         fCullRect;
-    const size_t                         fApproxBytesUsedBySubPictures;
     sk_sp<const SkRecord>                fRecord;
     std::unique_ptr<const SnapshotArray> fDrawablePicts;
     sk_sp<const SkBBoxHierarchy>         fBBH;

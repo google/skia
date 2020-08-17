@@ -22,9 +22,7 @@ void FuzzSKP(sk_sp<SkData> bytes) {
     sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(),
                                                               kCanvasSize.height());
     surface->getCanvas()->drawPicture(pic);
-    pic->approximateBytesUsed();
     pic->approximateOpCount();
-    return;
 }
 
 #if defined(IS_FUZZING_WITH_LIBFUZZER)

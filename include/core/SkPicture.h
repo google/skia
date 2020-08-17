@@ -203,15 +203,6 @@ public:
     */
     virtual int approximateOpCount() const = 0;
 
-    /** Returns the approximate byte size of SkPicture. Does not include large objects
-        referenced by SkPicture.
-
-        @return  approximate size
-
-        example: https://fiddle.skia.org/c/@Picture_approximateBytesUsed
-    */
-    virtual size_t approximateBytesUsed() const = 0;
-
     /** Return a new shader that will draw with this picture.
      *
      *  @param tmx  The tiling mode to use when sampling in the x-direction.
