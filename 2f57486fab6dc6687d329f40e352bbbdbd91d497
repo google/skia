@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "9aee17ad_8a141d6d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-17T17:46:42Z",
+      "side": 1,
+      "message": "It\u0027s probably be better to do it in SkFontDescriptor serialize / deserialize and just do the request serialization bits separately. I was kinda in the middle of fixing up some of that a week or so ago and need to get back to it, and this actually informs how I\u0027d like to change things there. I\u0027ll try getting to that soon. Anyone we can contact to assign the oss-fuzz bug to me?",
+      "parentUuid": "30b8b165_362cb573",
+      "revId": "2f57486fab6dc6687d329f40e352bbbdbd91d497",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "000ada3a_70c38ff7",
         "filename": "include/core/SkFontStyle.h",
         "patchSetId": 1
