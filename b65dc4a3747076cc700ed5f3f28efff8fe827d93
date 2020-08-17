@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d056864_e28da293",
+        "filename": "include/c/sk_path.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-17T21:04:39Z",
+      "side": 0,
+      "message": "Are these changes something that will surprise external clients?  Should we document/deprecate before removal?",
+      "revId": "b65dc4a3747076cc700ed5f3f28efff8fe827d93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
