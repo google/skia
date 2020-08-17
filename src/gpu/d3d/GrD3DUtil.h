@@ -50,7 +50,7 @@ static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT vkFormat) {
     }
 }
 
-#if GR_TEST_UTILS
+#if defined(SK_DEBUG) || GR_TEST_UTILS
 static constexpr const char* GrDxgiFormatToStr(DXGI_FORMAT dxgiFormat) {
     switch (dxgiFormat) {
         case DXGI_FORMAT_R8G8B8A8_UNORM:           return "R8G8B8A8_UNORM";
