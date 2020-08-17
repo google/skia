@@ -57,36 +57,16 @@ bool operator!=(const char* s1, StringFragment s2);
 
 class SK_API String : public std::string {
 public:
-    String() = default;
-    String(const String&) = default;
-    String(String&&) = default;
-    String& operator=(const String&) = default;
-    String& operator=(String&&) = default;
+    using std::string::string;
 
-    String(const char* s)
-    : INHERITED(s) {}
-
-    String(const char* s, size_t size)
-    : INHERITED(s, size) {}
-
-    String(StringFragment s)
-    : INHERITED(s.fChars, s.fLength) {}
+    String(StringFragment s) : INHERITED(s.fChars, s.fLength) {}
 
     static String printf(const char* fmt, ...);
-
     void appendf(const char* fmt, ...);
-    // For API compatibility with SkString's reset (vs. std:string's clear)
-    void reset();
-    // For API compatibility with SkString's findLastOf(vs. find_last_of -> size_t)
-    int findLastOf(const char c) const;
-
     void vappendf(const char* fmt, va_list va);
 
-    bool startsWith(const char* s) const;
-    bool endsWith(const char* s) const;
-
-    int find(const char* substring, int fromPos = 0) const;
-    int find(const String& substring, int fromPos = 0) const;
+    bool startsWith(const char* prefix) const;
+    bool endsWith(const char* suffix) const;
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;
@@ -111,19 +91,13 @@ String operator+(const char* s1, const String& s2);
 bool operator!=(const char* s1, const String& s2);
 
 String to_string(double value);
-
 String to_string(int32_t value);
-
 String to_string(uint32_t value);
-
 String to_string(int64_t value);
-
 String to_string(uint64_t value);
 
 SKSL_INT stoi(const String& s);
-
 SKSL_FLOAT stod(const String& s);
-
 long stol(const String& s);
 
 } // namespace  SkSL

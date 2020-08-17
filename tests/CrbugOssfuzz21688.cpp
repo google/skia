@@ -25,6 +25,7 @@ DEF_TEST(crbug_ossfuzz_21688_interfaceblock, reporter) {
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      kProgramText, settings);
     REPORTER_ASSERT(reporter, program == nullptr);
-    REPORTER_ASSERT(reporter, compiler.errorText().find("interface block 'testBlock' must "
-                                                        "contain at least one member") != -1);
+    REPORTER_ASSERT(reporter, compiler.errorText().find(
+                                    "interface block 'testBlock' must "
+                                    "contain at least one member") != SkSL::String::npos);
 }
