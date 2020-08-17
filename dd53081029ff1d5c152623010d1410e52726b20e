@@ -68,6 +68,24 @@
       "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16ba037c_bcbc4227",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-17T21:10:38Z",
+      "side": 1,
+      "message": "That\u0027s probably a better workaround, but there shouldn\u0027t be any merge issues, since ag/I64fe28313866b775b2ecf78b111b3fab7623a99b used RESTRICT_AUTOMERGE, so it\u0027s not in Android\u0027s main branch (and it\u0027s not in Skia\u0027s, either).",
+      "parentUuid": "f5910d97_b3883bf8",
+      "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
