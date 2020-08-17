@@ -16,6 +16,58 @@
       "revId": "2f57486fab6dc6687d329f40e352bbbdbd91d497",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0df40da8_77f64436",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-17T17:36:17Z",
+      "side": 1,
+      "message": "I can\u0027t see the exact upstack code calling, so it\u0027s difficult to figure out what should be done.",
+      "revId": "2f57486fab6dc6687d329f40e352bbbdbd91d497",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78758322_9abd4fc8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-17T17:36:17Z",
+      "side": 1,
+      "message": "Unfortunately I cannot see the bug. I\u0027m assuming that it\u0027s complaining that someone created a \u0027Slant\u0027 with an enum value out of range?",
+      "parentUuid": "24c4ad93_69ad40d1",
+      "revId": "2f57486fab6dc6687d329f40e352bbbdbd91d497",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "000ada3a_70c38ff7",
+        "filename": "include/core/SkFontStyle.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-17T17:36:17Z",
+      "side": 1,
+      "message": "I\u0027m assuming this means that someone called this incorrectly. It should probably be up to the caller? We don\u0027t have any way here to tell the caller that their data was 100% bogus (I mean weight and width should actually be floats, but when they are they are bogus in non-finite). If we want checks for serialization purposes should this class own its serialization and deserialization? I\u0027d rather do that then just un-semantic the parameter to the constructor.",
+      "revId": "2f57486fab6dc6687d329f40e352bbbdbd91d497",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
