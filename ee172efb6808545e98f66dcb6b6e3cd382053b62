@@ -39,6 +39,30 @@
       "revId": "ee172efb6808545e98f66dcb6b6e3cd382053b62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b06117a8_cf9a1efe",
+        "filename": "third_party/libjpeg-turbo/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-17T20:54:37Z",
+      "side": 1,
+      "message": "Looks like it doesn\u0027t matter with Clang, but it does when using MSVC?\n\nFixed in patch set 2.",
+      "parentUuid": "763dfeb8_8f27dfd6",
+      "range": {
+        "startLine": 29,
+        "startChar": 31,
+        "endLine": 29,
+        "endChar": 32
+      },
+      "revId": "ee172efb6808545e98f66dcb6b6e3cd382053b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
