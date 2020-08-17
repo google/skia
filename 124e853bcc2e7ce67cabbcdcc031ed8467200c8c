@@ -22,6 +22,30 @@
       "revId": "124e853bcc2e7ce67cabbcdcc031ed8467200c8c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efdf6223_3f159536",
+        "filename": "gm/bug5252.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-17T14:17:35Z",
+      "side": 1,
+      "message": "Konic?",
+      "parentUuid": "06cc65de_043b4c2f",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 59
+      },
+      "revId": "124e853bcc2e7ce67cabbcdcc031ed8467200c8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
