@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0048e8b_ce13f011",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-17T21:16:26Z",
+      "side": 1,
+      "message": "Is there anyone who doesn\u0027t want nested\u003dtrue?",
+      "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
