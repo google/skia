@@ -185,7 +185,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->formatLines(fWidth);
         // We have to calculate the paragraph boundaries only after we format the lines
-        this->calculateBoundaries();
+        //this->calculateBoundaries();
         fState = kFormatted;
     }
 
@@ -207,7 +207,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
-    if (!fParagraphStyle.isUsingRecordedPicture()) {
+    if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
         // Paint the text without recording it
         canvas->save();
         canvas->translate(x, y);
@@ -222,8 +222,13 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
         fState = kDrawn;
     }
 
-    SkMatrix matrix = SkMatrix::Translate(x + fOrigin.fLeft, y + fOrigin.fTop);
-    canvas->drawPicture(fPicture, &matrix, nullptr);
+    if (fParagraphStyle.getDrawOptions() == DrawOptions::kReplay) {
+        canvas->translate(x, y);
+        fPicture->playback(canvas);
+    } else { // draw a record
+        SkMatrix matrix = SkMatrix::Translate(x, y);
+        canvas->drawPicture(fPicture, &matrix, nullptr);
+    }
 }
 
 void ParagraphImpl::resetContext() {
@@ -427,7 +432,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
                     if (line.ellipsis() != nullptr) {
-                        if (fParagraphStyle.isUsingRecordedPicture()) {
+                        if (fParagraphStyle.getDrawOptions() != DrawOptions::kDirect) {
                             // Make sure the paragraph boundaries include its ellipsis
                             auto size = line.ellipsis()->advance();
                             auto offset = line.ellipsis()->offset();
@@ -487,14 +492,15 @@ void ParagraphImpl::formatLines(SkScalar maxWidth) {
 
 void ParagraphImpl::paintLinesIntoPicture() {
     SkPictureRecorder recorder;
-    SkCanvas* textCanvas = recorder.beginRecording(fOrigin.width(), fOrigin.height(), nullptr, 0);
-    textCanvas->translate(-fOrigin.fLeft, -fOrigin.fTop);
+    SkCanvas* textCanvas = recorder.beginRecording(this->getMaxWidth(), this->getHeight(), nullptr, 0);
 
+    fOrigin = SkRect::MakeEmpty();
     for (auto& line : fLines) {
         line.paint(textCanvas);
+        fOrigin.joinPossiblyEmptyRect(line.getBoundaries());
     }
 
-    fPicture = recorder.finishRecordingAsPicture();
+    fPicture = recorder.finishRecordingAsPictureWithCull(fOrigin);
 }
 
 void ParagraphImpl::paintLines(SkCanvas* canvas) {
@@ -555,22 +561,6 @@ BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
     }
 
     return { begin, end + 1 };
-}
-
-void ParagraphImpl::calculateBoundaries() {
-    if (fParagraphStyle.isUsingRecordedPicture() ||
-        // It's possible that the paragraph gets infinite width/height
-        // from input width/placeholder sizes; in that case we need to
-        // calculate something that makes sense and is finite
-        !SkScalarIsFinite(this->fWidth) ||
-        !SkScalarIsFinite(this->fHeight)) {
-        for (auto& line : fLines) {
-            fOrigin.joinPossiblyEmptyRect(line.calculateBoundaries());
-        }
-    } else {
-        fOrigin = SkRect::MakeWH(this->fWidth, this->fHeight);
-    }
-
 }
 
 TextLine& ParagraphImpl::addLine(SkVector offset,

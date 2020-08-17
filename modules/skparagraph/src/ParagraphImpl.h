@@ -230,8 +230,6 @@ private:
     friend class TextWrapper;
     friend class OneLineShaper;
 
-    void calculateBoundaries();
-
     void computeEmptyMetrics();
 
     // Input
