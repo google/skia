@@ -123,7 +123,7 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
                               "index into sk_TextureSamplers must be an integer literal");
                 return;
             }
-            int64_t index = ((IntLiteral&) *i.fIndex).fValue;
+            int64_t index = i.fIndex->as<IntLiteral>().fValue;
             fFormatArgs.push_back("        fragBuilder->getProgramBuilder()->samplerVariable("
                                             "args.fTexSamplers[" + to_string(index) + "])");
             return;
