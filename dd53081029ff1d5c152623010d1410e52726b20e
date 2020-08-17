@@ -33,6 +33,24 @@
       "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "903f7a94_59b9d202",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-17T20:59:24Z",
+      "side": 1,
+      "message": "As I understood it, Chris was hoping to get to the bottom of this and fix the problem, rather than working around it. But indeed - Droidfood has moved over to SC, so we probably want at least a workaround.",
+      "parentUuid": "05a16f3d_2368ded3",
+      "revId": "dd53081029ff1d5c152623010d1410e52726b20e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
