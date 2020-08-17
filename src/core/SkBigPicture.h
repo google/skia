@@ -44,7 +44,7 @@ public:
 // SkPicture overrides
     void playback(SkCanvas*, AbortCallback*) const override;
     SkRect cullRect() const override;
-    int approximateOpCount() const override;
+    int approximateOpCount(bool nested) const override;
     size_t approximateBytesUsed() const override;
     const SkBigPicture* asSkBigPicture() const override { return this; }
 
