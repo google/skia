@@ -215,11 +215,11 @@ public:
         // The two bits that make up the texture index are packed into the lower bits of the u and v
         // coordinate respectively.
         SkASSERT(pageIndex >= 0 && pageIndex < 4);
-        uint16_t uBit = (pageIndex >> 1u) & 0x1u;
-        uint16_t vBit = pageIndex & 0x1u;
-        u <<= 1u;
+        uint16_t uBit = ((pageIndex >> 1u) & 0x1u) << 15;
+        uint16_t vBit = (pageIndex & 0x1u) << 15;
+        //u <<= 1u;
         u |= uBit;
-        v <<= 1u;
+        //v <<= 1u;
         v |= vBit;
         return std::make_pair(u, v);
     }
