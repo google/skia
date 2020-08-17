@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "30b8b165_362cb573",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-17T17:41:10Z",
+      "side": 1,
+      "message": "Well I totally overlooked the static_cast\u003cSkFontStyle::Slant\u003e in SkFontDescriptor::Deserialize().  Forget all about this CL.  You want to add serialize/deserialize to SkFontStyle?",
+      "parentUuid": "a1b11549_19f5f83d",
+      "revId": "2f57486fab6dc6687d329f40e352bbbdbd91d497",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "000ada3a_70c38ff7",
         "filename": "include/core/SkFontStyle.h",
         "patchSetId": 1
