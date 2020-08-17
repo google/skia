@@ -44,6 +44,7 @@ DEF_SIMPLE_GM(runtimecolorfilter, canvas, 256 * 3, 256) {
 
     for (auto src : { gLumaSrc, gLumaSrcWithCoords }) {
         sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(src)));
+        SkASSERT(effect);
         SkPaint p;
         p.setColorFilter(effect->makeColorFilter(nullptr));
         canvas->translate(256, 0);
