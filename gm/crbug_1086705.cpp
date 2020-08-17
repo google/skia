@@ -8,7 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 // See crbug.com/1086705. The convex linearizing path renderer would collapse too many of the
 // very-near duplicate vertices and turn the path into a triangle. Since the stroke width is larger
@@ -27,12 +27,12 @@ DEF_SIMPLE_GM(crbug_1086705, canvas, 200, 200) {
                              100.f + 2.f * SkScalarSin(angleRads)};
     }
 
-    SkPath circle;
+    SkPathBuilder circle;
     circle.moveTo(circleVertices[0]);
     for (int i = 1; i < 700; ++i) {
         circle.lineTo(circleVertices[i]);
     }
     circle.close();
 
-    canvas->drawPath(circle, paint);
+    canvas->drawPath(circle.detach(), paint);
 }
