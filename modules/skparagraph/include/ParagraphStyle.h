@@ -109,8 +109,8 @@ struct ParagraphStyle {
     TextAlign effective_align() const;
     bool hintingIsOn() const { return fHintingIsOn; }
     void turnHintingOff() { fHintingIsOn = false; }
-    bool isUsingRecordedPicture() { return fUseRecordedPicture; }
-    void useRecordedPicture(bool value) { fUseRecordedPicture = value; }
+    DrawOptions getDrawOptions() { return fUseRecordedPicture; }
+    void setDrawOptions(DrawOptions value) { fUseRecordedPicture = value; }
 
 private:
     StrutStyle fStrutStyle;
@@ -122,7 +122,7 @@ private:
     SkScalar fHeight;
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
-    bool fUseRecordedPicture = false;
+    DrawOptions fUseRecordedPicture = DrawOptions::kDirect;
 };
 }  // namespace textlayout
 }  // namespace skia

@@ -207,7 +207,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
-    if (!fParagraphStyle.isUsingRecordedPicture()) {
+    if (fParagraphStyle.getDrawOptions() == DrawOptions::kDirect) {
         // Paint the text without recording it
         canvas->save();
         canvas->translate(x, y);
@@ -222,8 +222,12 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
         fState = kDrawn;
     }
 
-    SkMatrix matrix = SkMatrix::Translate(x + fOrigin.fLeft, y + fOrigin.fTop);
-    canvas->drawPicture(fPicture, &matrix, nullptr);
+    if (fParagraphStyle.getDrawOptions() == DrawOptions::kReplay) {
+        fPicture->playback(canvas);
+    } else { // draw a record
+        SkMatrix matrix = SkMatrix::Translate(x + fOrigin.fLeft, y + fOrigin.fTop);
+        canvas->drawPicture(fPicture, &matrix, nullptr);
+    }
 }
 
 void ParagraphImpl::resetContext() {
@@ -427,7 +431,7 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
                 if (addEllipsis) {
                     line.createEllipsis(maxWidth, fParagraphStyle.getEllipsis(), true);
                     if (line.ellipsis() != nullptr) {
-                        if (fParagraphStyle.isUsingRecordedPicture()) {
+                        if (fParagraphStyle.getDrawOptions() != DrawOptions::kDirect) {
                             // Make sure the paragraph boundaries include its ellipsis
                             auto size = line.ellipsis()->advance();
                             auto offset = line.ellipsis()->offset();
@@ -558,7 +562,7 @@ BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
 }
 
 void ParagraphImpl::calculateBoundaries() {
-    if (fParagraphStyle.isUsingRecordedPicture() ||
+    if (fParagraphStyle.getDrawOptions() != DrawOptions::kDirect ||
         // It's possible that the paragraph gets infinite width/height
         // from input width/placeholder sizes; in that case we need to
         // calculate something that makes sense and is finite

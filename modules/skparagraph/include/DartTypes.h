@@ -144,6 +144,12 @@ enum class LineMetricStyle : uint8_t {
     CSS
 };
 
+enum class DrawOptions {
+    kRecord,
+    kReplay,
+    kDirect
+};
+
 }  // namespace textlayout
 }  // namespace skia
 
