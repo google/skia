@@ -663,8 +663,6 @@ sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTe
 
     auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
                                             backendTex.getGLTextureParams(), cacheable, ioType);
-    // We don't know what parameters are already set on wrapped textures.
-    texture->textureParamsModified();
     return std::move(texture);
 }
 
@@ -716,8 +714,6 @@ sk_sp<GrTexture> GrGLGpu::onWrapCompressedBackendTexture(const GrBackendTexture&
     auto texture = GrGLTexture::MakeWrapped(this, mipmapStatus, desc,
                                             backendTex.getGLTextureParams(), cacheable,
                                             kRead_GrIOType);
-    // We don't know what parameters are already set on wrapped textures.
-    texture->textureParamsModified();
     return std::move(texture);
 }
 
@@ -761,8 +757,6 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
             this, sampleCnt, desc, backendTex.getGLTextureParams(), rtIDs, cacheable,
             mipmapStatus));
     texRT->baseLevelWasBoundToFBO();
-    // We don't know what parameters are already set on wrapped textures.
-    texRT->textureParamsModified();
     return std::move(texRT);
 }
 
