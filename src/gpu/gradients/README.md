@@ -3,44 +3,43 @@ Gradients on the GPU
 
 Gradients can be thought of, at a very high level, as three pieces:
 
-1. A color interpolator that is one dimensional, returning a color for an input
-   within the range [0.0, 1.0]. This obfuscates the the definition of specific
-   color stops and how to wrap, tile, or clamp out of bound inputs. A color
-   interpolator will be named GrYGradientColorizer
+1. A color interpolator ("colorizer") that is one dimensional, returning a color
+   for an interpolant value "t" within the range [0.0, 1.0]. This encapsulates
+   the definition of specific color stops and how to wrap, tile, or clamp out
+   of bound inputs. A color interpolator will be named `GrXxxxxGradientColorizer`.
 2. A layout that converts from 2D geometry/position to the one dimensional
    domain of the color interpolator. This is how a linear or radial gradient
-   distinguishes itself. When designing a new gradient, this is the component
-   that you have to implement. A layout will generally be named
-   GrXGradientLayout
+   distinguishes itself. When designing a new gradient shape, this is the
+   component that will need to be implemented. A layout will generally be
+   named `GrYyyyyGradientLayout`.
 3. A top-level effect that composes the layout and color interpolator together.
-   It is also responsible for implementing the clamping behavior that can be
-   abstracted away from both the layout and colorization.
+   This processor is also responsible for implementing the clamping behavior,
+   which is abstracted away from both the layout and colorization.
 
-
-GrClampedGradientEffect handles clamped and decal tile modes, while
-GrTiledGradientEffect implements repeat and mirror tile modes. The
-GrClampedGradientEffect requires border colors to be specified outside of its
+`GrClampedGradientEffect` handles clamped and decal tile modes, while
+`GrTiledGradientEffect` implements repeat and mirror tile modes. The
+`GrClampedGradientEffect` requires border colors to be specified outside of its
 colorizer child, but these border colors may be defined by the gradient color
-stops. Both of these top-level effects delegate calculating a t interpolant to a
-child process, perform their respective tile mode operations, and possibly
-convert the tiled t value (guaranteed to be within 0 and 1) into an output
-color using their child colorizer process.
+stops. Both of these top-level effects delegate calculating the t interpolant to
+the layout child processor, then perform their respective tile mode operations,
+and finally convert the tiled t value (guaranteed to be within 0 and 1) into an
+output color using the colorizer child processor.
 
-Because of how child processors are currently defined, where they have a single
-half4 input and a single half4 output, their is a type mismatch between the 1D
-t value and the 4D inputs/outputs of the layout and colorizer processes. For
-now, the top-level effect assumes an untiled t is output in sk_OutColor.x by the
-layout and it tiles solely off of that value.
+Child processors always return a color using a `half4` output, so the
+layout processor returns the computed "t" interpolant in `sk_OutColor.r`.
+The top-level effect assumes an untiled t is output in by the layout and it tiles
+solely off of that value.
 
-However, layouts can output a negative value in the y component to invalidate
-the gradient location (currently on the two point conical gradient does this).
-When invalidated, the top-level effect outputs transparent black and does not
-invoke the child processor. Other than this condition, any value in y, z, or w
-are passed into the colorizer unmodified. The colorizer should assume that the
-valid tiled t value is in sk_InColor.x and can safely ignore y, z, and w.
+Layouts can report an invalid gradient location by outputting a negative value
+in the `sk_OutColor.g` component. (Currently, the two-point conical gradient
+does this.) When invalidated, the top-level effect returns transparent black and
+does not invoke the colorizer. When the gradient location is valid, the top-level
+effect samples from the colorizer at the explicit coordinate (t, 0). The y coordinate
+can be safely ignored.
 
-Currently there are color interpolators (colorizers) for analytic color cases
-(evaluated directly on the GPU) and sampling a generated texture map.
+There are several color interpolators (colorizers) for analytic color cases
+(evaluated directly on the GPU). Generated texture maps can also be used to
+colorize a gradient; in this case, a `GrTextureEffect`  can be used as the colorizer.
 
 GrGradientShader provides static factory functions to create
 GrFragmentProcessor graphs that reproduce a particular SkGradientShader.
