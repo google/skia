@@ -65,9 +65,6 @@ public:
     void appendf(const char* fmt, ...);
     void vappendf(const char* fmt, va_list va);
 
-    bool startsWith(const char* prefix) const;
-    bool endsWith(const char* suffix) const;
-
     String operator+(const char* s) const;
     String operator+(const String& s) const;
     String operator+(StringFragment s) const;
@@ -89,6 +86,9 @@ private:
 
 String operator+(const char* s1, const String& s2);
 bool operator!=(const char* s1, const String& s2);
+
+bool StringStartsWith(const String& str, const char prefix[]);
+bool StringEndsWith(const String& str, const char suffix[]);
 
 String to_string(double value);
 String to_string(int32_t value);

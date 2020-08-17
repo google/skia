@@ -49,16 +49,16 @@ void String::vappendf(const char* fmt, va_list args) {
     va_end(reuse);
 }
 
-bool String::startsWith(const char prefix[]) const {
-    return !strncmp(this->data(), prefix, strlen(prefix));
+bool StringStartsWith(const String& string, const char prefix[]) {
+    return !strncmp(string.data(), prefix, strlen(prefix));
 }
 
-bool String::endsWith(const char suffix[]) const {
+bool StringEndsWith(const String& string, const char suffix[]) {
     size_t suffixLength = strlen(suffix);
-    if (this->length() < suffixLength) {
+    if (string.length() < suffixLength) {
         return false;
     }
-    return !strncmp(this->data() + this->size() - suffixLength, suffix, suffixLength);
+    return !strncmp(string.data() + string.size() - suffixLength, suffix, suffixLength);
 }
 
 String String::operator+(const char* s) const {
