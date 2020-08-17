@@ -44,7 +44,7 @@ public:
         kOblique_Slant,
     };
 
-    constexpr SkFontStyle(int weight, int width, Slant slant) : fValue(
+    constexpr SkFontStyle(int weight, int width, int slant) : fValue(
         (SkTPin<int>(weight, kInvisible_Weight, kExtraBlack_Weight)) +
         (SkTPin<int>(width, kUltraCondensed_Width, kUltraExpanded_Width) << 16) +
         (SkTPin<int>(slant, kUpright_Slant, kOblique_Slant) << 24)
