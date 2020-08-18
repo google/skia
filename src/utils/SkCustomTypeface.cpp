@@ -45,7 +45,7 @@ private:
     friend class SkCustomTypefaceBuilder;
     friend class SkUserScalerContext;
 
-    SkUserTypeface() : SkTypeface(SkFontStyle()) {}
+    explicit SkUserTypeface(SkFontStyle style) : SkTypeface(style) {}
 
     std::vector<SkPath> fPaths;
     std::vector<float>  fAdvances;
@@ -102,6 +102,10 @@ void SkCustomTypefaceBuilder::setMetrics(const SkFontMetrics& fm, float scale) {
     fMetrics = scale_fontmetrics(fm, scale, scale);
 }
 
+void SkCustomTypefaceBuilder::setFontStyle(SkFontStyle style) {
+    fStyle = style;
+}
+
 void SkCustomTypefaceBuilder::setGlyph(SkGlyphID index, float advance, const SkPath& path) {
     SkASSERT(fPaths.size() == fAdvances.size());
     if (index >= fPaths.size()) {
@@ -116,7 +120,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::detach() {
     SkASSERT(fPaths.size() == fAdvances.size());
     if (fPaths.empty()) return nullptr;
 
-    sk_sp<SkUserTypeface> tf(new SkUserTypeface());
+    sk_sp<SkUserTypeface> tf(new SkUserTypeface(fStyle));
     tf->fAdvances = std::move(fAdvances);
     tf->fPaths    = std::move(fPaths);
     tf->fMetrics  = fMetrics;
@@ -314,6 +318,9 @@ std::unique_ptr<SkStreamAsset> SkUserTypeface::onOpenStream(int* ttcIndex) const
 
     wstream.write(&fMetrics, sizeof(fMetrics));
 
+    SkFontStyle style = this->fontStyle();
+    wstream.write(&style, sizeof(style));
+
     // just hacking around -- this makes the serialized font 1/2 size
     const bool use_compression = false;
 
@@ -374,6 +381,11 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
         return nullptr;
     }
 
+    SkFontStyle style;
+    if (stream->read(&style, sizeof(style)) != sizeof(style)) {
+        return nullptr;
+    }
+
     int glyphCount;
     if (!stream->readS32(&glyphCount) || glyphCount < 0 || glyphCount > kMaxGlyphCount) {
         return nullptr;
@@ -382,6 +394,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
     SkCustomTypefaceBuilder builder;
 
     builder.setMetrics(metrics);
+    builder.setFontStyle(style);
 
     std::vector<float> advances(glyphCount);
     if (stream->read(advances.data(), glyphCount * sizeof(float)) != glyphCount * sizeof(float)) {

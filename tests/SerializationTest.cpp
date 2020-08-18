@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMallocPixelRef.h"
@@ -446,6 +447,29 @@ static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
                                             deserial_procs, reporter);
         }
     }
+}
+
+static void TestTypefaceSerialization(skiatest::Reporter* reporter, sk_sp<SkTypeface> typeface) {
+    SkDynamicMemoryWStream typefaceWStream;
+    typeface->serialize(&typefaceWStream);
+
+    std::unique_ptr<SkStream> typefaceStream = typefaceWStream.detachAsStream();
+    sk_sp<SkTypeface> cloneTypeface = SkTypeface::MakeDeserialize(typefaceStream.get());
+    SkASSERT(cloneTypeface);
+
+    SkFont font(typeface, 12);
+    SkFont clone(cloneTypeface, 12);
+    SkFontMetrics fontMetrics, cloneMetrics;
+    font.getMetrics(&fontMetrics);
+    clone.getMetrics(&cloneMetrics);
+    REPORTER_ASSERT(reporter, fontMetrics == cloneMetrics);
+    REPORTER_ASSERT(reporter, typeface->countGlyphs() == cloneTypeface->countGlyphs());
+    REPORTER_ASSERT(reporter, typeface->fontStyle() == cloneTypeface->fontStyle());
+}
+DEF_TEST(Serialization_Typeface, reporter) {
+    SkFont font;
+    TestTypefaceSerialization(reporter, font.refTypefaceOrDefault());
+    TestTypefaceSerialization(reporter, ToolUtils::sample_user_typeface());
 }
 
 static void setup_bitmap_for_canvas(SkBitmap* bitmap) {
