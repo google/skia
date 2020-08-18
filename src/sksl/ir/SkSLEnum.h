@@ -43,9 +43,8 @@ struct Enum : public ProgramElement {
                   [](const Symbol* a, const Symbol* b) { return a->fName < b->fName; });
         for (const auto& s : sortedSymbols) {
             const Expression& initialValue = *((Variable*) s)->fInitialValue;
-            SkASSERT(initialValue.fKind == Expression::kIntLiteral_Kind);
             result += separator + "    " + s->fName + " = " +
-                      to_string(((IntLiteral&) initialValue).fValue);
+                      to_string(initialValue.as<IntLiteral>().fValue);
             separator = ",\n";
         }
         result += "\n};";

@@ -97,8 +97,10 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
  * Represents a vector swizzle operation such as 'float2(1, 2, 3).zyx'.
  */
 struct Swizzle : public Expression {
+    static constexpr Kind kExpressionKind = kSwizzle_Kind;
+
     Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
-    : INHERITED(base->fOffset, kSwizzle_Kind, get_type(context, *base, components.size()))
+    : INHERITED(base->fOffset, kExpressionKind, get_type(context, *base, components.size()))
     , fBase(std::move(base))
     , fComponents(std::move(components)) {
         SkASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);

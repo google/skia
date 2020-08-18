@@ -18,8 +18,10 @@ namespace SkSL {
  * always eventually replaced by Constructors in valid programs.
  */
 struct TypeReference : public Expression {
+    static constexpr Kind kExpressionKind = kTypeReference_Kind;
+
     TypeReference(const Context& context, int offset, const Type& value)
-    : INHERITED(offset, kTypeReference_Kind, *context.fInvalid_Type)
+    : INHERITED(offset, kExpressionKind, *context.fInvalid_Type)
     , fValue(value) {}
 
     bool hasProperty(Property property) const override {
@@ -40,7 +42,7 @@ struct TypeReference : public Expression {
 
 private:
     TypeReference(int offset, const Type& value, const Type* type)
-    : INHERITED(offset, kTypeReference_Kind, *type)
+    : INHERITED(offset, kExpressionKind, *type)
     , fValue(value) {}
 };
 

@@ -20,8 +20,10 @@ namespace SkSL {
  * An expression modified by a unary operator appearing before it, such as '!flag'.
  */
 struct PrefixExpression : public Expression {
+    static constexpr Kind kExpressionKind = kPrefix_Kind;
+
     PrefixExpression(Token::Kind op, std::unique_ptr<Expression> operand)
-    : INHERITED(operand->fOffset, kPrefix_Kind, operand->fType)
+    : INHERITED(operand->fOffset, kExpressionKind, operand->fType)
     , fOperand(std::move(operand))
     , fOperator(op) {}
 
@@ -41,9 +43,9 @@ struct PrefixExpression : public Expression {
                                                   const DefinitionMap& definitions) override {
         if (fOperand->fKind == Expression::kFloatLiteral_Kind) {
             return std::unique_ptr<Expression>(new FloatLiteral(
-                                                              irGenerator.fContext,
-                                                              fOffset,
-                                                              -((FloatLiteral&) *fOperand).fValue));
+                                                             irGenerator.fContext,
+                                                             fOffset,
+                                                             -fOperand->as<FloatLiteral>().fValue));
 
         }
         return nullptr;

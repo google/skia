@@ -26,8 +26,10 @@ namespace SkSL {
  * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
 struct Constructor : public Expression {
+    static constexpr Kind kExpressionKind = kConstructor_Kind;
+
     Constructor(int offset, const Type& type, std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kConstructor_Kind, type)
+    : INHERITED(offset, kExpressionKind, type)
     , fArguments(std::move(arguments)) {}
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
@@ -35,13 +37,13 @@ struct Constructor : public Expression {
         if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kIntLiteral_Kind) {
             if (fType.isFloat()) {
                 // promote float(1) to 1.0
-                int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
+                int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
                 return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
                                                                     fOffset,
                                                                     intValue));
             } else if (fType.isInteger()) {
                 // promote uint(1) to 1u
-                int64_t intValue = ((IntLiteral&) *fArguments[0]).fValue;
+                int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
                 return std::unique_ptr<Expression>(new IntLiteral(fOffset,
                                                                   intValue,
                                                                   &fType));

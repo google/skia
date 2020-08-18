@@ -41,9 +41,9 @@ struct Expression : public IRNode {
         kPostfix_Kind,
         kSetting_Kind,
         kSwizzle_Kind,
-        kVariableReference_Kind,
         kTernary_Kind,
         kTypeReference_Kind,
+        kVariableReference_Kind,
         kDefined_Kind
     };
 
@@ -56,6 +56,21 @@ struct Expression : public IRNode {
     : INHERITED(offset)
     , fKind(kind)
     , fType(std::move(type)) {}
+
+    /**
+     *  Use as<T> to downcast expressions: e.g. replace `(IntLiteral&) i` with `i.as<IntLiteral>()`.
+     */
+    template <typename T>
+    const T& as() const {
+        SkASSERT(this->fKind == T::kExpressionKind);
+        return static_cast<const T&>(*this);
+    }
+
+    template <typename T>
+    T& as() {
+        SkASSERT(this->fKind == T::kExpressionKind);
+        return static_cast<T&>(*this);
+    }
 
     /**
      * Returns true if this expression is constant. compareConstant must be implemented for all

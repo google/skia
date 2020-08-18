@@ -42,9 +42,11 @@ static const Type& index_type(const Context& context, const Type& type) {
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
 struct IndexExpression : public Expression {
+    static constexpr Kind kExpressionKind = kIndex_Kind;
+
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-    : INHERITED(base->fOffset, kIndex_Kind, index_type(context, base->fType))
+    : INHERITED(base->fOffset, kExpressionKind, index_type(context, base->fType))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
         SkASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);

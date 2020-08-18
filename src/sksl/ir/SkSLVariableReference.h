@@ -23,6 +23,8 @@ class IRGenerator;
  * there is only one Variable 'x', but two VariableReferences to it.
  */
 struct VariableReference : public Expression {
+    static constexpr Kind kExpressionKind = kVariableReference_Kind;
+
     enum RefKind {
         kRead_RefKind,
         kWrite_RefKind,

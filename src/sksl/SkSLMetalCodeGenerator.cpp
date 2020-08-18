@@ -122,46 +122,46 @@ void MetalCodeGenerator::writeType(const Type& type) {
 void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence parentPrecedence) {
     switch (expr.fKind) {
         case Expression::kBinary_Kind:
-            this->writeBinaryExpression((BinaryExpression&) expr, parentPrecedence);
+            this->writeBinaryExpression(expr.as<BinaryExpression>(), parentPrecedence);
             break;
         case Expression::kBoolLiteral_Kind:
-            this->writeBoolLiteral((BoolLiteral&) expr);
+            this->writeBoolLiteral(expr.as<BoolLiteral>());
             break;
         case Expression::kConstructor_Kind:
-            this->writeConstructor((Constructor&) expr, parentPrecedence);
+            this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
         case Expression::kIntLiteral_Kind:
-            this->writeIntLiteral((IntLiteral&) expr);
+            this->writeIntLiteral(expr.as<IntLiteral>());
             break;
         case Expression::kFieldAccess_Kind:
-            this->writeFieldAccess(((FieldAccess&) expr));
+            this->writeFieldAccess(expr.as<FieldAccess>());
             break;
         case Expression::kFloatLiteral_Kind:
-            this->writeFloatLiteral(((FloatLiteral&) expr));
+            this->writeFloatLiteral(expr.as<FloatLiteral>());
             break;
         case Expression::kFunctionCall_Kind:
-            this->writeFunctionCall((FunctionCall&) expr);
+            this->writeFunctionCall(expr.as<FunctionCall>());
             break;
         case Expression::kPrefix_Kind:
-            this->writePrefixExpression((PrefixExpression&) expr, parentPrecedence);
+            this->writePrefixExpression(expr.as<PrefixExpression>(), parentPrecedence);
             break;
         case Expression::kPostfix_Kind:
-            this->writePostfixExpression((PostfixExpression&) expr, parentPrecedence);
+            this->writePostfixExpression(expr.as<PostfixExpression>(), parentPrecedence);
             break;
         case Expression::kSetting_Kind:
-            this->writeSetting((Setting&) expr);
+            this->writeSetting(expr.as<Setting>());
             break;
         case Expression::kSwizzle_Kind:
-            this->writeSwizzle((Swizzle&) expr);
+            this->writeSwizzle(expr.as<Swizzle>());
             break;
         case Expression::kVariableReference_Kind:
-            this->writeVariableReference((VariableReference&) expr);
+            this->writeVariableReference(expr.as<VariableReference>());
             break;
         case Expression::kTernary_Kind:
-            this->writeTernaryExpression((TernaryExpression&) expr, parentPrecedence);
+            this->writeTernaryExpression(expr.as<TernaryExpression>(), parentPrecedence);
             break;
         case Expression::kIndex_Kind:
-            this->writeIndexExpression((IndexExpression&) expr);
+            this->writeIndexExpression(expr.as<IndexExpression>());
             break;
         default:
 #ifdef SK_DEBUG

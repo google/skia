@@ -17,8 +17,10 @@ namespace SkSL {
  * Represents 'true' or 'false'.
  */
 struct BoolLiteral : public Expression {
+    static constexpr Kind kExpressionKind = kBoolLiteral_Kind;
+
     BoolLiteral(const Context& context, int offset, bool value)
-    : INHERITED(offset, kBoolLiteral_Kind, *context.fBool_Type)
+    : INHERITED(offset, kExpressionKind, *context.fBool_Type)
     , fValue(value) {}
 
     String description() const override {
@@ -52,7 +54,7 @@ struct BoolLiteral : public Expression {
 
 private:
     BoolLiteral(int offset, bool value, const Type* type)
-    : INHERITED(offset, kBoolLiteral_Kind, *type)
+    : INHERITED(offset, kExpressionKind, *type)
     , fValue(value) {}
 };
 
