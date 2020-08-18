@@ -2180,10 +2180,7 @@ if (skia_enable_tools) {
   }
 
   test_app("dump_record") {
-    sources = [
-      "tools/DumpRecord.cpp",
-      "tools/dump_record.cpp",
-    ]
+    sources = [ "tools/dump_record.cpp" ]
     deps = [
       ":flags",
       ":skia",
