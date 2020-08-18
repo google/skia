@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6c1d295d_cdf914c8",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-18T15:51:52Z",
+      "side": 1,
+      "message": "Yeah I like not having the ctors. I\u0027m not sure how much churn it will really help since before we had ctors we had clients doing {} initialization and we still end up with the same level of churn. Though I think that was before we started using default initializers and needed the default values on the ctor. So now we can go back to just a struct and at least be safe if we just continue always adding fields to the end of the struct. Trying to do something like I\u0027m doing here and putting a value in the middle will always cause churn.\n\nAnyways I\u0027ll see if I can get everyone off the ctors and use defaults.",
+      "parentUuid": "e242cea5_b0e1184e",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 218,
+        "endChar": 48
+      },
+      "revId": "a3f062eda71021e3ec22f83c2542b238abc66275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "67fe2a32_7636880c",
         "filename": "include/private/GrVkTypesPriv.h",
         "patchSetId": 3
