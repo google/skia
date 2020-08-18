@@ -76,6 +76,30 @@
     },
     {
       "key": {
+        "uuid": "3759266d_163391c1",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-18T22:36:18Z",
+      "side": 1,
+      "message": "Did you see the comment in the class header? I\u0027ll try and fix up the comment. The basic idea is: if you drive your car from P0 to P3, how many radians will your car have turned by the time you reach P3?",
+      "parentUuid": "d047081e_8ed72a61",
+      "range": {
+        "startLine": 557,
+        "startChar": 6,
+        "endLine": 557,
+        "endChar": 38
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb537150_4d56cffa",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
@@ -123,6 +147,30 @@
     },
     {
       "key": {
+        "uuid": "200d6454_87f9c588",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-18T22:36:18Z",
+      "side": 1,
+      "message": "No, it isn\u0027t a quadratic. A quadratic is when both cubic control points fall 2/3 of the way between the endpoints and the would-be quadratic control point.\n\nWhat *is* true is that the rotation of this curve is the same as the rotation of a quadratic with these same control points.\n\nI\u0027m glad you brought this up. I\u0027ll add a comment.",
+      "parentUuid": "f347e200_996a1a73",
+      "range": {
+        "startLine": 570,
+        "startChar": 3,
+        "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f09365d_18aa586f",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
@@ -134,6 +182,30 @@
       "writtenOn": "2020-08-18T21:29:31Z",
       "side": 1,
       "message": "I may take another look at this part, but I\u0027m assuming it\u0027s right.",
+      "range": {
+        "startLine": 610,
+        "startChar": 4,
+        "endLine": 623,
+        "endChar": 5
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40b0df7a_938eb2a8",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-18T22:36:18Z",
+      "side": 1,
+      "message": "The math is explained in the above comment. If you have any suggestions on how to make it more clear then I\u0027d love to hear it.\n\nThe a,b,c coefficients are the result of the matrix multiply \"C\u0027*n\".\n\nC\u0027 is the derivative matrix in power basis form. i.e., |T^2 T 1| * C\u0027 \u003d\u003d F\u0027(T) \u003d\u003d the tangent vector\n\nThe remaining part is the quadratic formula from numerical recipes in C, plus a bit of math to pick which solution is closest to .5.",
+      "parentUuid": "5f09365d_18aa586f",
       "range": {
         "startLine": 610,
         "startChar": 4,
