@@ -12,6 +12,7 @@
 
 static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src,
                  std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {
+#ifdef SK_DEBUG
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
     settings.fRemoveDeadFunctions = false;
@@ -61,6 +62,7 @@ static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* sr
             REPORTER_ASSERT(r, found);
         }
     }
+#endif // SK_DEBUG
 }
 
 static void test_failure(skiatest::Reporter* r, const char* src, const char* error) {
