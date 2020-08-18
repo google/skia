@@ -141,9 +141,11 @@ public:
 
     bool toMetal(Program& program, String* out);
 
+#if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
     bool toCPP(Program& program, String name, OutputStream& out);
 
     bool toH(Program& program, String name, OutputStream& out);
+#endif
 
     std::unique_ptr<ByteCode> toByteCode(Program& program);
 
