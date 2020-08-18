@@ -21,10 +21,12 @@ namespace SkSL {
  * instances.
  */
 struct VarDeclaration : public Statement {
+    static constexpr Kind kStatementKind = kVarDeclaration_Kind;
+
     VarDeclaration(const Variable* var,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::unique_ptr<Expression> value)
-    : INHERITED(var->fOffset, Statement::kVarDeclaration_Kind)
+    : INHERITED(var->fOffset, kStatementKind)
     , fVar(var)
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
