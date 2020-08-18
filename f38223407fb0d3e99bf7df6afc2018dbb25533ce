@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91a518eb_fa06d1fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-18T18:53:23Z",
+      "side": 1,
+      "message": "I wonder if we could key this off is_skia_dev_build instead of SK_DEBUG?\n\ndefined(GR_TEST_UTILS) might work for that purpose today.\n\nThat would let us keep full test coverage in release on the CQ bots. I would be a bit concerned to lose that.",
+      "revId": "f38223407fb0d3e99bf7df6afc2018dbb25533ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
