@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8f41846_993927d1",
+        "filename": "src/sksl/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-18T21:04:37Z",
+      "side": 1,
+      "message": "I\u0027d rephrase this because \"the way it works in C\" is pretty mysterious. :) \n\n(The `inline` keyword in today\u0027s C++ is barely useful at all for actually steering the optimizer and is mostly about controlling external linkage for symbols that appear in multiple translation units.)\n\nIt looks like our `inline` tells the optimizer to inline if possible, regardless of function size. Let\u0027s just say that directly and avoid any doubt.",
+      "range": {
+        "startLine": 66,
+        "startChar": 43,
+        "endLine": 66,
+        "endChar": 79
+      },
+      "revId": "5de92d5c4f4c6a35ebc52b02cf4053904ebcebfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "917820a2_2f1e6061",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2395,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-18T21:04:37Z",
+      "side": 1,
+      "message": "small/optional: I would usually expect !(a \u0026 b) for testing if a flag bit is off, but that\u0027s not really a big deal",
+      "range": {
+        "startLine": 2395,
+        "startChar": 77,
+        "endLine": 2395,
+        "endChar": 83
+      },
+      "revId": "5de92d5c4f4c6a35ebc52b02cf4053904ebcebfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cadce283_854fedca",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-18T21:04:37Z",
+      "side": 1,
+      "message": "Please also include a unit test to show that `inline` won\u0027t force inlining in an unsupported case (e.g. return from inside a loop? recursion?)",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 1
+      },
+      "revId": "5de92d5c4f4c6a35ebc52b02cf4053904ebcebfb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
