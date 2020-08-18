@@ -15,6 +15,8 @@
 
 #include <algorithm>
 
+#if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+
 namespace SkSL {
 
 static bool needs_uniform_var(const Variable& var) {
@@ -1393,3 +1395,5 @@ bool CPPCodeGenerator::generateCode() {
 }
 
 }  // namespace SkSL
+
+#endif // defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
