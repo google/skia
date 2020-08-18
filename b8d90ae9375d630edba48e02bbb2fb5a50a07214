@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f081fca5_a1ccf30e",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-18T13:36:38Z",
+      "side": 1,
+      "message": "Hey look: another builtin variable we can remove! (Now that all texture access goes through GrTextureEffect, sk_TextureSamplers is unused).",
+      "revId": "b8d90ae9375d630edba48e02bbb2fb5a50a07214",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
