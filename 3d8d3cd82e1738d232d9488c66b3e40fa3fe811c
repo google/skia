@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e84e318a_504baa1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8118
+      },
+      "writtenOn": "2020-08-18T17:29:11Z",
+      "side": 1,
+      "message": "this LGTM. Does your repo require tests for these changes?",
+      "revId": "3d8d3cd82e1738d232d9488c66b3e40fa3fe811c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
