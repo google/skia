@@ -32,6 +32,8 @@ const GrVkImageView* GrVkImageView::Create(GrVkGpu* gpu, VkImage image, VkFormat
         conversionInfo.conversion = ycbcrConversion->ycbcrConversion();
         pNext = &conversionInfo;
     }
+    // TODO: If we want to override the image's usage flags, can add
+    //  VkImageViewUsageCreateInfo struct to pNext chain
 
     VkImageView imageView;
     // Create the VkImageView

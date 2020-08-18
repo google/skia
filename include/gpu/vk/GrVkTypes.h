@@ -161,6 +161,7 @@ struct GrVkImageInfo {
     VkImageTiling            fImageTiling;
     VkImageLayout            fImageLayout;
     VkFormat                 fFormat;
+    VkImageUsageFlags        fImageUsageFlags;
     uint32_t                 fLevelCount;
     uint32_t                 fCurrentQueueFamily;
     GrProtected              fProtected;
@@ -173,6 +174,7 @@ struct GrVkImageInfo {
             , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
             , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
             , fFormat(VK_FORMAT_UNDEFINED)
+            , fImageUsageFlags(0)
             , fLevelCount(0)
             , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED)
             , fProtected(GrProtected::kNo)
@@ -184,6 +186,7 @@ struct GrVkImageInfo {
                   VkImageTiling imageTiling,
                   VkImageLayout layout,
                   VkFormat format,
+                  VkImageUsageFlags imageUsageFlags,
                   uint32_t levelCount,
                   uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
                   GrProtected isProtected = GrProtected::kNo,
@@ -194,6 +197,7 @@ struct GrVkImageInfo {
             , fImageTiling(imageTiling)
             , fImageLayout(layout)
             , fFormat(format)
+            , fImageUsageFlags(imageUsageFlags)
             , fLevelCount(levelCount)
             , fCurrentQueueFamily(currentQueueFamily)
             , fProtected(isProtected)
@@ -206,6 +210,7 @@ struct GrVkImageInfo {
             , fImageTiling(info.fImageTiling)
             , fImageLayout(layout)
             , fFormat(info.fFormat)
+            , fImageUsageFlags(info.fImageUsageFlags)
             , fLevelCount(info.fLevelCount)
             , fCurrentQueueFamily(familyQueueIndex)
             , fProtected(info.fProtected)
@@ -216,9 +221,9 @@ struct GrVkImageInfo {
     bool operator==(const GrVkImageInfo& that) const {
         return fImage == that.fImage && fAlloc == that.fAlloc &&
                fImageTiling == that.fImageTiling && fImageLayout == that.fImageLayout &&
-               fFormat == that.fFormat && fLevelCount == that.fLevelCount &&
-               fCurrentQueueFamily == that.fCurrentQueueFamily && fProtected == that.fProtected &&
-               fYcbcrConversionInfo == that.fYcbcrConversionInfo &&
+               fFormat == that.fFormat && fImageUsageFlags == that.fImageUsageFlags &&
+               fLevelCount == that.fLevelCount && fCurrentQueueFamily == that.fCurrentQueueFamily &&
+               fProtected == that.fProtected && fYcbcrConversionInfo == that.fYcbcrConversionInfo &&
                fSharingMode == that.fSharingMode;
     }
 #endif

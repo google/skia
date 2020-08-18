@@ -6,6 +6,8 @@ This file includes a list of high level updates for each milestone release.
 
 Milestone 86
 ------------
+ 
+  * Added VkImageUsageFlags to GrVkImageInfo struct.
 
   * Remove support for 'in' variables from SkRuntimeEffect. API now exclusively refers to inputs
     as 'uniforms'.
