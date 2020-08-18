@@ -134,6 +134,30 @@
       "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aed1c9de_c36ad6d4",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-18T14:51:22Z",
+      "side": 1,
+      "message": "We want %s \u003d \u003cnon-high-bits\u003e / atlasDims. Where \u003cnon-high-bits\u003e is on [0, atlasDims].\n\nins \u003d the inputs UVs.\nfract(ins / 32768) is on [0, 1).  So, in order to get %s. \nWe need fract(ins / 32768) * (32768 / atlasDims). So, I should pass in 32768 / atlasDims as atlasDimensionsInvName. And s% \u003d fract(ins / 32768) * atlasDimensionsInv.\n\nThe above statement was too loose.",
+      "parentUuid": "b8d09395_80c3f087",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 63
+      },
+      "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
