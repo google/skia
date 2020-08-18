@@ -941,7 +941,7 @@ public:
         return type() != *fCompiler.context().fVoid_Type;
     }
 
-    void read(int /*unusedIndex*/, float* target) override {
+    void read(int /*unusedIndex*/, float* target) const override {
         if (type() == *fCompiler.context().fInt_Type) {
             *(int*) target = *fValue.as<skjson::NumberValue>();
         } else if (type() == *fCompiler.context().fFloat_Type) {
@@ -985,11 +985,11 @@ public:
         return true;
     }
 
-    void read(int /*unusedIndex*/, float* target) override {
+    void read(int /*unusedIndex*/, float* target) const override {
         memcpy(target, fData, fSize);
     }
 
-    void write(int /*unusedIndex*/, float* src) override {
+    void write(int /*unusedIndex*/, float* src) const override {
         memcpy(fData, src, fSize);
     }
 
@@ -1092,7 +1092,7 @@ public:
         outTypes[0] = fCompiler.context().fFloat_Type.get();
     }
 
-    void call(int /*unusedIndex*/, float* arguments, float* outReturn) override {
+    void call(int /*unusedIndex*/, float* arguments, float* outReturn) const override {
         outReturn[0] = fFunction(arguments[0]);
     }
 
@@ -1156,7 +1156,7 @@ public:
         outTypes[0] = fCompiler.context().fFloat4_Type.get();
     }
 
-    void call(int /*unusedIndex*/, float* arguments, float* outReturn) override {
+    void call(int /*unusedIndex*/, float* arguments, float* outReturn) const override {
         fFunction(arguments, outReturn);
     }
 
