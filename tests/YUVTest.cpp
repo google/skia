@@ -6,6 +6,7 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/private/SkTemplates.h"
@@ -13,9 +14,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-static void codec_yuv(skiatest::Reporter* reporter,
-                      const char path[],
-                      SkISize expectedSizes[4]) {
+static void codec_yuv(skiatest::Reporter* reporter, const char path[], SkYUVASpec* expectedSpec) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
     if (!stream) {
         return;
@@ -27,95 +26,105 @@ static void codec_yuv(skiatest::Reporter* reporter,
     }
 
     // Test queryYUV8()
-    SkYUVASizeInfo info;
+    SkYUVASpec spec;
+    static_assert(SkYUVASpec::kMaxPlanes == 4);
+    SkColorType colorTypes[SkYUVASpec::kMaxPlanes] = {kUnknown_SkColorType,
+                                                      kUnknown_SkColorType,
+                                                      kUnknown_SkColorType,
+                                                      kUnknown_SkColorType};
+    size_t rowbytes[SkYUVASpec::kMaxPlanes] = {};
 
-    {
-        bool success = codec->queryYUV8(nullptr, nullptr);
-        REPORTER_ASSERT(reporter, !success);
-        success = codec->queryYUV8(&info, nullptr);
-        REPORTER_ASSERT(reporter, (expectedSizes == nullptr) == !success);
-        if (!success) {
-            return;
-        }
+    // All params are required to be non-null.
+    bool success = codec->queryYUVASpec(&spec, colorTypes, nullptr);
+    REPORTER_ASSERT(reporter, !success);
+    success = codec->queryYUVASpec(&spec, nullptr, rowbytes);
+    REPORTER_ASSERT(reporter, !success);
+    success = codec->queryYUVASpec(nullptr, colorTypes, rowbytes);
+    REPORTER_ASSERT(reporter, !success);
+    success = codec->queryYUVASpec(&spec, colorTypes, rowbytes);
+    REPORTER_ASSERT(reporter, SkToBool(expectedSpec) == success);
+    if (!success) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, expectedSpec->fPlanes == spec.fPlanes);
+    REPORTER_ASSERT(reporter, expectedSpec->fYUVColorSpace == spec.fYUVColorSpace);
+    REPORTER_ASSERT(reporter, expectedSpec->fDimensions == spec.fDimensions);
+    REPORTER_ASSERT(reporter, expectedSpec->fSitingX == spec.fSitingX);
+    REPORTER_ASSERT(reporter, expectedSpec->fSitingY == spec.fSitingY);
+    REPORTER_ASSERT(reporter, expectedSpec->fOrigin == spec.fOrigin);
 
-        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
-            REPORTER_ASSERT(reporter, info.fSizes[i] == expectedSizes[i]);
-            REPORTER_ASSERT(reporter,
-                            info.fWidthBytes[i] == (uint32_t) SkAlign8(info.fSizes[i].width()));
-        }
+    SkImageInfo ii[SkYUVASpec::kMaxPlanes];
+
+    SkISize planeDims[SkYUVASpec::kMaxPlanes] = {};
+    int numPlanes = spec.expectedPlaneDims(planeDims);
+    REPORTER_ASSERT(reporter, numPlanes <= SkYUVASpec::kMaxPlanes);
+    size_t totalBytes = 0;
+    for (int i = 0; i < numPlanes; ++i) {
+        REPORTER_ASSERT(reporter, !planeDims[i].isEmpty());
+        REPORTER_ASSERT(reporter, colorTypes[i] != kUnknown_SkColorType);
+        ii[i] = SkImageInfo::Make(planeDims[i], colorTypes[i], kPremul_SkAlphaType);
+        REPORTER_ASSERT(reporter, ii[i].validRowBytes(rowbytes[i]));
+        totalBytes += ii[i].height()*rowbytes[i];
+    }
+    for (int i = numPlanes; i < SkYUVASpec::kMaxPlanes; ++i) {
+        REPORTER_ASSERT(reporter, planeDims[i].isZero());
+        REPORTER_ASSERT(reporter, colorTypes[i] == kUnknown_SkColorType);
+        REPORTER_ASSERT(reporter, rowbytes[i] == 0);
     }
 
-    {
-        SkYUVColorSpace colorSpace;
-        bool success = codec->queryYUV8(&info, &colorSpace);
-        REPORTER_ASSERT(reporter, (expectedSizes == nullptr) == !success);
-        if (!success) {
-            return;
-        }
-
-        for (int i = 0; i < SkYUVASizeInfo::kMaxCount; ++i) {
-            REPORTER_ASSERT(reporter, info.fSizes[i] == expectedSizes[i]);
-            REPORTER_ASSERT(reporter,
-                            info.fWidthBytes[i] == (uint32_t) SkAlign8(info.fSizes[i].width()));
-        }
-        REPORTER_ASSERT(reporter, kJPEG_SkYUVColorSpace == colorSpace);
-    }
-
-    // Allocate the memory for the YUV decode
-    size_t totalBytes = info.computeTotalBytes();
-
+    // Allocate the memory for the YUV decode.
     SkAutoMalloc storage(totalBytes);
-    void* planes[SkYUVASizeInfo::kMaxCount];
+    SkPixmap planes[SkYUVASpec::kMaxPlanes];
+    char* addr = static_cast<char*>(storage.get());
+    for (int i = 0; i < numPlanes; ++i) {
+        planes[i].reset(ii[i], addr, rowbytes[i]);
+        addr += planes[i].height()*rowbytes[i];
+    }
 
-    info.computePlanes(storage.get(), planes);
-
-    // Test getYUV8Planes()
-    REPORTER_ASSERT(reporter, SkCodec::kInvalidInput == codec->getYUV8Planes(info, nullptr));
-    REPORTER_ASSERT(reporter, SkCodec::kSuccess == codec->getYUV8Planes(info, planes));
+    // Test getYUVAPlanes()
+    REPORTER_ASSERT(reporter, SkCodec::kInvalidInput == codec->getYUVAPlanes(nullptr));
+    REPORTER_ASSERT(reporter, SkCodec::kSuccess == codec->getYUVAPlanes(planes));
 }
 
 DEF_TEST(Jpeg_YUV_Codec, r) {
-    SkISize sizes[4];
+    auto setExpectations = [](SkISize dims, SkYUVASpec::Planes planes) {
+        SkYUVASpec expectedSpec;
+        expectedSpec.fOrigin = kTopLeft_SkEncodedOrigin;
+        expectedSpec.fYUVColorSpace = kJPEG_Full_SkYUVColorSpace;
+        expectedSpec.fSitingX = SkYUVASpec::Siting::kCentered;
+        expectedSpec.fSitingY = SkYUVASpec::Siting::kCentered;
 
-    sizes[0].set(128, 128);
-    sizes[1].set(64, 64);
-    sizes[2].set(64, 64);
-    sizes[3].set(0, 0);
-    codec_yuv(r, "images/color_wheel.jpg", sizes);
+        expectedSpec.fPlanes = planes;
+        expectedSpec.fDimensions = dims;
+        return expectedSpec;
+    };
+
+    SkYUVASpec expectations = setExpectations({128, 128}, SkYUVASpec::Planes::kY_U_V_420);
+    codec_yuv(r, "images/color_wheel.jpg", &expectations);
 
     // H2V2
-    sizes[0].set(512, 512);
-    sizes[1].set(256, 256);
-    sizes[2].set(256, 256);
-    codec_yuv(r, "images/mandrill_512_q075.jpg", sizes);
+    expectations = setExpectations({512, 512}, SkYUVASpec::Planes::kY_U_V_420);
+    codec_yuv(r, "images/mandrill_512_q075.jpg", &expectations);
 
     // H1V1
-    sizes[1].set(512, 512);
-    sizes[2].set(512, 512);
-    codec_yuv(r, "images/mandrill_h1v1.jpg", sizes);
+    expectations = setExpectations({512, 512}, SkYUVASpec::Planes::kY_U_V_444);
+    codec_yuv(r, "images/mandrill_h1v1.jpg", &expectations);
 
     // H2V1
-    sizes[1].set(256, 512);
-    sizes[2].set(256, 512);
-    codec_yuv(r, "images/mandrill_h2v1.jpg", sizes);
+    expectations = setExpectations({512, 512}, SkYUVASpec::Planes::kY_U_V_422);
+    codec_yuv(r, "images/mandrill_h2v1.jpg", &expectations);
 
     // Non-power of two dimensions
-    sizes[0].set(439, 154);
-    sizes[1].set(220, 77);
-    sizes[2].set(220, 77);
-    codec_yuv(r, "images/cropped_mandrill.jpg", sizes);
+    expectations = setExpectations({439, 154}, SkYUVASpec::Planes::kY_U_V_420);
+    codec_yuv(r, "images/cropped_mandrill.jpg", &expectations);
 
-    sizes[0].set(8, 8);
-    sizes[1].set(4, 4);
-    sizes[2].set(4, 4);
-    codec_yuv(r, "images/randPixels.jpg", sizes);
+    expectations = setExpectations({8, 8}, SkYUVASpec::Planes::kY_U_V_420);
+    codec_yuv(r, "images/randPixels.jpg", &expectations);
 
     // Progressive images
-    sizes[0].set(512, 512);
-    sizes[1].set(512, 512);
-    sizes[2].set(512, 512);
-    codec_yuv(r, "images/brickwork-texture.jpg", sizes);
-    codec_yuv(r, "images/brickwork_normal-map.jpg", sizes);
+    expectations = setExpectations({512, 512}, SkYUVASpec::Planes::kY_U_V_444);
+    codec_yuv(r, "images/brickwork-texture.jpg", &expectations);
+    codec_yuv(r, "images/brickwork_normal-map.jpg", &expectations);
 
     // A CMYK encoded image should fail.
     codec_yuv(r, "images/CMYK.jpg", nullptr);
