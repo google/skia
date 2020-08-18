@@ -42,7 +42,7 @@ struct Enum : public ProgramElement {
         std::sort(sortedSymbols.begin(), sortedSymbols.end(),
                   [](const Symbol* a, const Symbol* b) { return a->fName < b->fName; });
         for (const auto& s : sortedSymbols) {
-            const Expression& initialValue = *((Variable*) s)->fInitialValue;
+            const Expression& initialValue = *s->as<Variable>().fInitialValue;
             result += separator + "    " + s->fName + " = " +
                       to_string(initialValue.as<IntLiteral>().fValue);
             separator = ",\n";

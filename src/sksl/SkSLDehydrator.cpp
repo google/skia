@@ -142,7 +142,7 @@ void Dehydrator::write(const Symbol& s) {
     }
     switch (s.fKind) {
         case Symbol::kFunctionDeclaration_Kind: {
-            const FunctionDeclaration& f = (const FunctionDeclaration&) s;
+            const FunctionDeclaration& f = s.as<FunctionDeclaration>();
             this->writeU8(Rehydrator::kFunctionDeclaration_Command);
             this->writeId(&f);
             this->write(f.fModifiers);
@@ -155,7 +155,7 @@ void Dehydrator::write(const Symbol& s) {
             break;
         }
         case Symbol::kUnresolvedFunction_Kind: {
-            const UnresolvedFunction& f = (const UnresolvedFunction&) s;
+            const UnresolvedFunction& f = s.as<UnresolvedFunction>();
             this->writeU8(Rehydrator::kUnresolvedFunction_Command);
             this->writeId(&f);
             this->writeU8(f.fFunctions.size());
@@ -165,7 +165,7 @@ void Dehydrator::write(const Symbol& s) {
             break;
         }
         case Symbol::kType_Kind: {
-            const Type& t = (const Type&) s;
+            const Type& t = s.as<Type>();
             switch (t.kind()) {
                 case Type::kArray_Kind:
                     this->writeU8(Rehydrator::kArrayType_Command);
@@ -202,7 +202,7 @@ void Dehydrator::write(const Symbol& s) {
             break;
         }
         case Symbol::kVariable_Kind: {
-            Variable& v = (Variable&) s;
+            const Variable& v = s.as<Variable>();
             this->writeU8(Rehydrator::kVariable_Command);
             this->writeId(&v);
             this->write(v.fModifiers);
@@ -212,7 +212,7 @@ void Dehydrator::write(const Symbol& s) {
             break;
         }
         case Symbol::kField_Kind: {
-            Field& f = (Field&) s;
+            const Field& f = s.as<Field>();
             this->writeU8(Rehydrator::kField_Command);
             this->writeU16(this->symbolId(&f.fOwner));
             this->writeU8(f.fFieldIndex);
