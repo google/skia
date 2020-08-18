@@ -17,8 +17,10 @@ namespace SkSL {
  * A 'discard' statement.
  */
 struct DiscardStatement : public Statement {
+    static constexpr Kind kStatementKind = kDiscard_Kind;
+
     DiscardStatement(int offset)
-    : INHERITED(offset, kDiscard_Kind) {}
+    : INHERITED(offset, kStatementKind) {}
 
     int nodeCount() const override {
         return 1;

@@ -250,31 +250,31 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             // Leaf statements just return false
             return false;
         case Statement::kBlock_Kind:
-            for (const auto& s : ((const Block&) s).fStatements) {
+            for (const auto& s : s.as<Block>().fStatements) {
                 if (this->visitStatement(*s)) { return true; }
             }
             return false;
         case Statement::kDo_Kind: {
-            const DoStatement& d = (const DoStatement&) s;
+            const DoStatement& d = s.as<DoStatement>();
             return this->visitExpression(*d.fTest) || this->visitStatement(*d.fStatement); }
         case Statement::kExpression_Kind:
-            return this->visitExpression(*((const ExpressionStatement&) s).fExpression);
+            return this->visitExpression(*s.as<ExpressionStatement>().fExpression);
         case Statement::kFor_Kind: {
-            const ForStatement& f = (const ForStatement&) s;
+            const ForStatement& f = s.as<ForStatement>();
             return (f.fInitializer && this->visitStatement(*f.fInitializer)) ||
                    (f.fInitializer && this->visitExpression(*f.fTest)) ||
                    (f.fNext && this->visitExpression(*f.fNext)) ||
                    this->visitStatement(*f.fStatement); }
         case Statement::kIf_Kind: {
-            const IfStatement& i = (const IfStatement&) s;
+            const IfStatement& i = s.as<IfStatement>();
             return this->visitExpression(*i.fTest) ||
                    this->visitStatement(*i.fIfTrue) ||
                    (i.fIfFalse && this->visitStatement(*i.fIfFalse)); }
         case Statement::kReturn_Kind: {
-            const ReturnStatement& r = (const ReturnStatement&) s;
+            const ReturnStatement& r = s.as<ReturnStatement>();
             return r.fExpression && this->visitExpression(*r.fExpression); }
         case Statement::kSwitch_Kind: {
-            const SwitchStatement& sw = (const SwitchStatement&) s;
+            const SwitchStatement& sw = s.as<SwitchStatement>();
             if (this->visitExpression(*sw.fValue)) { return true; }
             for (const auto& c : sw.fCases) {
                 if (c->fValue && this->visitExpression(*c->fValue)) { return true; }
@@ -284,7 +284,7 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             }
             return false; }
         case Statement::kVarDeclaration_Kind: {
-            const VarDeclaration& v = (const VarDeclaration&) s;
+            const VarDeclaration& v = s.as<VarDeclaration>();
             for (const auto& s : v.fSizes) {
                 if (this->visitExpression(*s)) { return true; }
             }
@@ -293,14 +293,14 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             // Technically this statement points to a program element, but it's convenient
             // to have program element > statement > expression, so visit the declaration elements
             // directly without going up to visitProgramElement.
-            const VarDeclarations& vars = *((const VarDeclarationsStatement&) s).fDeclaration;
+            const VarDeclarations& vars = *s.as<VarDeclarationsStatement>().fDeclaration;
             for (const auto& v : vars.fVars) {
                 if (this->visitStatement(*v)) { return true; }
             }
             return false;
         }
         case Statement::kWhile_Kind: {
-            const WhileStatement& w = (const WhileStatement&) s;
+            const WhileStatement& w = s.as<WhileStatement>();
             return this->visitExpression(*w.fTest) || this->visitStatement(*w.fStatement); }
         default:
             SkUNREACHABLE;
