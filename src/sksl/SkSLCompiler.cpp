@@ -644,39 +644,6 @@ static bool try_replace_expression(BasicBlock* b,
 }
 
 /**
- * Returns true if the expression is a constant numeric literal with the specified value, or a
- * constant vector with all elements equal to the specified value.
- */
-static bool is_constant(const Expression& expr, double value) {
-    switch (expr.fKind) {
-        case Expression::kIntLiteral_Kind:
-            return expr.as<IntLiteral>().fValue == value;
-        case Expression::kFloatLiteral_Kind:
-            return expr.as<FloatLiteral>().fValue == value;
-        case Expression::kConstructor_Kind: {
-            const Constructor& c = expr.as<Constructor>();
-            bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
-                                                 : c.fType.isFloat();
-            if (c.fType.kind() == Type::kVector_Kind && c.isCompileTimeConstant()) {
-                for (int i = 0; i < c.fType.columns(); ++i) {
-                    if (isFloat) {
-                        if (c.getFVecComponent(i) != value) {
-                            return false;
-                        }
-                    } else if (c.getIVecComponent(i) != value) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-            return false;
-        }
-        default:
-            return false;
-    }
-}
-
-/**
  * Collapses the binary expression pointed to by iter down to just the right side (in both the IR
  * and CFG structures).
  */
@@ -891,7 +858,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             }
             switch (bin->fOperator) {
                 case Token::Kind::TK_STAR:
-                    if (is_constant(*bin->fLeft, 1)) {
+                    if (bin->fLeft->isEqualToConstant(1)) {
                         if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
                             bin->fRight->fType.kind() == Type::kScalar_Kind) {
                             // float4(1) * x -> float4(x)
@@ -903,7 +870,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
-                    else if (is_constant(*bin->fLeft, 0)) {
+                    else if (bin->fLeft->isEqualToConstant(0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind &&
                             !bin->fRight->hasSideEffects()) {
@@ -918,7 +885,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             }
                         }
                     }
-                    else if (is_constant(*bin->fRight, 1)) {
+                    else if (bin->fRight->isEqualToConstant(1)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
                             // x * float4(1) -> float4(x)
@@ -930,7 +897,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
-                    else if (is_constant(*bin->fRight, 0)) {
+                    else if (bin->fRight->isEqualToConstant(0)) {
                         if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
                             bin->fRight->fType.kind() == Type::kScalar_Kind &&
                             !bin->fLeft->hasSideEffects()) {
@@ -947,7 +914,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_PLUS:
-                    if (is_constant(*bin->fLeft, 0)) {
+                    if (bin->fLeft->isEqualToConstant(0)) {
                         if (bin->fLeft->fType.kind() == Type::kVector_Kind &&
                             bin->fRight->fType.kind() == Type::kScalar_Kind) {
                             // float4(0) + x -> float4(x)
@@ -958,7 +925,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // float4(0) + float4(x) -> float4(x)
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
-                    } else if (is_constant(*bin->fRight, 0)) {
+                    } else if (bin->fRight->isEqualToConstant(0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
                             // x + float4(0) -> float4(x)
@@ -972,7 +939,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_MINUS:
-                    if (is_constant(*bin->fRight, 0)) {
+                    if (bin->fRight->isEqualToConstant(0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
                             // x - float4(0) -> float4(x)
@@ -986,7 +953,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_SLASH:
-                    if (is_constant(*bin->fRight, 1)) {
+                    if (bin->fRight->isEqualToConstant(1)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind) {
                             // x / float4(1) -> float4(x)
@@ -997,7 +964,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // float4(x) / float4(1) -> float4(x)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
-                    } else if (is_constant(*bin->fLeft, 0)) {
+                    } else if (bin->fLeft->isEqualToConstant(0)) {
                         if (bin->fLeft->fType.kind() == Type::kScalar_Kind &&
                             bin->fRight->fType.kind() == Type::kVector_Kind &&
                             !bin->fRight->hasSideEffects()) {
@@ -1014,25 +981,25 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_PLUSEQ:
-                    if (is_constant(*bin->fRight, 0)) {
+                    if (bin->fRight->isEqualToConstant(0)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_MINUSEQ:
-                    if (is_constant(*bin->fRight, 0)) {
+                    if (bin->fRight->isEqualToConstant(0)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_STAREQ:
-                    if (is_constant(*bin->fRight, 1)) {
+                    if (bin->fRight->isEqualToConstant(1)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_SLASHEQ:
-                    if (is_constant(*bin->fRight, 1)) {
+                    if (bin->fRight->isEqualToConstant(1)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }

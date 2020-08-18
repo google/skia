@@ -37,6 +37,10 @@ struct IntLiteral : public Expression {
         return false;
     }
 
+    bool isEqualToConstant(double value) const override {
+        return fValue == value;
+    }
+
     bool isCompileTimeConstant() const override {
         return true;
     }

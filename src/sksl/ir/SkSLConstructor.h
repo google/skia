@@ -61,6 +61,31 @@ struct Constructor : public Expression {
         return false;
     }
 
+    bool isEqualToConstant(double value) const override {
+        // Check if this is a compile-time-constant vector constructor.
+        if (fType.kind() != Type::kVector_Kind || !this->isCompileTimeConstant()) {
+            return false;
+        }
+
+        // Check each field to ensure that its value matches.
+        bool isFloat = fType.columns() > 1 ? fType.componentType().isFloat()
+                                           : fType.isFloat();
+        for (int i = 0; i < fType.columns(); ++i) {
+            if (isFloat) {
+                if (this->getFVecComponent(i) != value) {
+                    return false;
+                }
+            } else {
+                if (this->getIVecComponent(i) != value) {
+                    return false;
+                }
+            }
+        }
+
+        // All fields match!
+        return true;
+    }
+
     int nodeCount() const override {
         int result = 1;
         for (const auto& a : fArguments) {
