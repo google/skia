@@ -253,7 +253,7 @@ void Dehydrator::write(const Expression* e) {
     if (e) {
         switch (e->fKind) {
             case Expression::kBinary_Kind: {
-                BinaryExpression& b = (BinaryExpression&) *e;
+                const BinaryExpression& b = e->as<BinaryExpression>();
                 this->writeU8(Rehydrator::kBinary_Command);
                 this->write(b.fLeft.get());
                 this->writeU8((int) b.fOperator);
@@ -262,13 +262,13 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::kBoolLiteral_Kind: {
-                BoolLiteral& b = (BoolLiteral&) *e;
+                const BoolLiteral& b = e->as<BoolLiteral>();
                 this->writeU8(Rehydrator::kBoolLiteral_Command);
                 this->writeU8(b.fValue);
                 break;
             }
             case Expression::kConstructor_Kind: {
-                Constructor& c = (Constructor&) *e;
+                const Constructor& c = e->as<Constructor>();
                 this->writeU8(Rehydrator::kConstructor_Command);
                 this->write(c.fType);
                 this->writeU8(c.fArguments.size());
@@ -284,7 +284,7 @@ void Dehydrator::write(const Expression* e) {
                 SkASSERT(false);
                 break;
             case Expression::kFieldAccess_Kind: {
-                FieldAccess& f = (FieldAccess&) *e;
+                const FieldAccess& f = e->as<FieldAccess>();
                 this->writeU8(Rehydrator::kFieldAccess_Command);
                 this->write(f.fBase.get());
                 this->writeU8(f.fFieldIndex);
@@ -292,7 +292,7 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::kFloatLiteral_Kind: {
-                FloatLiteral& f = (FloatLiteral&) *e;
+                const FloatLiteral& f = e->as<FloatLiteral>();
                 this->writeU8(Rehydrator::kFloatLiteral_Command);
                 FloatIntUnion u;
                 u.fFloat = f.fValue;
@@ -300,7 +300,7 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::kFunctionCall_Kind: {
-                FunctionCall& f = (FunctionCall&) *e;
+                const FunctionCall& f = e->as<FunctionCall>();
                 this->writeU8(Rehydrator::kFunctionCall_Command);
                 this->write(f.fType);
                 this->writeId(&f.fFunction);
@@ -311,14 +311,14 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::kIndex_Kind: {
-                IndexExpression& i = (IndexExpression&) *e;
+                const IndexExpression& i = e->as<IndexExpression>();
                 this->writeU8(Rehydrator::kIndex_Command);
                 this->write(i.fBase.get());
                 this->write(i.fIndex.get());
                 break;
             }
             case Expression::kIntLiteral_Kind: {
-                IntLiteral& i = (IntLiteral&) *e;
+                const IntLiteral& i = e->as<IntLiteral>();
                 this->writeU8(Rehydrator::kIntLiteral_Command);
                 this->writeS32(i.fValue);
                 break;
@@ -327,28 +327,28 @@ void Dehydrator::write(const Expression* e) {
                 this->writeU8(Rehydrator::kNullLiteral_Command);
                 break;
             case Expression::kPostfix_Kind: {
-                PostfixExpression& p = (PostfixExpression&) *e;
+                const PostfixExpression& p = e->as<PostfixExpression>();
                 this->writeU8(Rehydrator::kPostfix_Command);
                 this->writeU8((int) p.fOperator);
                 this->write(p.fOperand.get());
                 break;
             }
             case Expression::kPrefix_Kind: {
-                PrefixExpression& p = (PrefixExpression&) *e;
+                const PrefixExpression& p = e->as<PrefixExpression>();
                 this->writeU8(Rehydrator::kPrefix_Command);
                 this->writeU8((int) p.fOperator);
                 this->write(p.fOperand.get());
                 break;
             }
             case Expression::kSetting_Kind: {
-                Setting& s = (Setting&) *e;
+                const Setting& s = e->as<Setting>();
                 this->writeU8(Rehydrator::kSetting_Command);
                 this->write(s.fName);
                 this->write(s.fValue.get());
                 break;
             }
             case Expression::kSwizzle_Kind: {
-                Swizzle& s = (Swizzle&) *e;
+                const Swizzle& s = e->as<Swizzle>();
                 this->writeU8(Rehydrator::kSwizzle_Command);
                 this->write(s.fBase.get());
                 this->writeU8(s.fComponents.size());
@@ -358,7 +358,7 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::kTernary_Kind: {
-                TernaryExpression& t = (TernaryExpression&) *e;
+                const TernaryExpression& t = e->as<TernaryExpression>();
                 this->writeU8(Rehydrator::kTernary_Command);
                 this->write(t.fTest.get());
                 this->write(t.fIfTrue.get());
@@ -366,7 +366,7 @@ void Dehydrator::write(const Expression* e) {
                 break;
             }
             case Expression::kVariableReference_Kind: {
-                VariableReference& v = (VariableReference&) *e;
+                const VariableReference& v = e->as<VariableReference>();
                 this->writeU8(Rehydrator::kVariableReference_Command);
                 this->writeId(&v.fVariable);
                 this->writeU8(v.fRefKind);
@@ -503,9 +503,8 @@ void Dehydrator::write(const ProgramElement& e) {
             for (const auto& s : en.fSymbols->fOwnedSymbols) {
                 SkASSERT(s->fKind == Symbol::kVariable_Kind);
                 Variable& v = (Variable&) *s;
-                SkASSERT(v.fInitialValue &&
-                         v.fInitialValue->fKind == Expression::kIntLiteral_Kind);
-                IntLiteral& i = (IntLiteral&) *v.fInitialValue;
+                SkASSERT(v.fInitialValue);
+                const IntLiteral& i = v.fInitialValue->as<IntLiteral>();
                 this->writeS32(i.fValue);
             }
             break;
