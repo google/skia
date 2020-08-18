@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     int rowBytes = image->width() * 4;
     srcPixels.resize(image->height() * rowBytes);
     SkPixmap pixmap(info, (const void*) &srcPixels.front(), rowBytes);
-    image->readPixels(pixmap, 0, 0);
+    image->readPixels(nullptr, pixmap, 0, 0);
     for (int offset : { 32, 64, 96 } ) {
         info = SkImageInfo::MakeN32Premul(image->width() + offset, image->height());
         rowBytes = info.width() * 4;
