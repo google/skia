@@ -45,7 +45,7 @@ private:
     friend class SkCustomTypefaceBuilder;
     friend class SkUserScalerContext;
 
-    SkUserTypeface() : SkTypeface(SkFontStyle()) {}
+    SkUserTypeface(SkFontStyle style) : SkTypeface(style) {}
 
     std::vector<SkPath> fPaths;
     std::vector<float>  fAdvances;
@@ -102,6 +102,10 @@ void SkCustomTypefaceBuilder::setMetrics(const SkFontMetrics& fm, float scale) {
     fMetrics = scale_fontmetrics(fm, scale, scale);
 }
 
+void SkCustomTypefaceBuilder::setFontStyle(SkFontStyle style) {
+    fStyle = style;
+}
+
 void SkCustomTypefaceBuilder::setGlyph(SkGlyphID index, float advance, const SkPath& path) {
     SkASSERT(fPaths.size() == fAdvances.size());
     if (index >= fPaths.size()) {
@@ -116,7 +120,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::detach() {
     SkASSERT(fPaths.size() == fAdvances.size());
     if (fPaths.empty()) return nullptr;
 
-    sk_sp<SkUserTypeface> tf(new SkUserTypeface());
+    sk_sp<SkUserTypeface> tf(new SkUserTypeface(fStyle));
     tf->fAdvances = std::move(fAdvances);
     tf->fPaths    = std::move(fPaths);
     tf->fMetrics  = fMetrics;
