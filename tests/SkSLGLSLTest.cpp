@@ -126,6 +126,63 @@ DEF_TEST(SkSLFunctions, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLFunctionInlineThreshold, r) {
+    test(r,
+         "void tooBig(inout int x) {"
+         "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
+         "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
+         "}"
+         "void main() { int x = 0; tooBig(x); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "void tooBig(inout int x) {\n"
+         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
+         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
+         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
+         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
+         "    ++x;\n    ++x;\n"
+         "}\n"
+         "void main() {\n"
+         "    int x = 0;\n"
+         "    tooBig(x);\n"
+         "}\n"
+         );
+    test(r,
+         "inline void tooBig(inout int x) {"
+         "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
+         "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
+         "}"
+         "void main() { int x = 0; tooBig(x); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "void main() {\n"
+         "    int x = 0;\n"
+         "    int _inlineArgvoidtooBigint0_0 = x;\n"
+         "    {\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "        ++_inlineArgvoidtooBigint0_0;\n        ++_inlineArgvoidtooBigint0_0;\n"
+         "    }\n"
+         "    x = _inlineArgvoidtooBigint0_0;\n"
+         "\n"
+         "}\n"
+         );
+}
+
 DEF_TEST(SkSLOperators, r) {
     test(r,
          "void main() {"
