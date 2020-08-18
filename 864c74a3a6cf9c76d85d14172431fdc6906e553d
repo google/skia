@@ -34,6 +34,41 @@
       "revId": "864c74a3a6cf9c76d85d14172431fdc6906e553d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "697217db_28046bd4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-18T18:03:28Z",
+      "side": 1,
+      "message": "Oh, neat.",
+      "parentUuid": "b1b02186_fd8b9210",
+      "revId": "864c74a3a6cf9c76d85d14172431fdc6906e553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6bfc055_6491d7e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-18T18:03:28Z",
+      "side": 1,
+      "message": "Is this a burden to maintain downstream?  We don\u0027t think about BSD, and I\u0027m worried that landing this will make our users think we support it.  We\u0027ll certainly changes to these .gn files in the future without thinking about their impact on BSD.",
+      "revId": "864c74a3a6cf9c76d85d14172431fdc6906e553d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
