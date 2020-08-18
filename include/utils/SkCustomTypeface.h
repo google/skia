@@ -9,6 +9,7 @@
 #define SkCustomTypeface_DEFINED
 
 #include "include/core/SkFontMetrics.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
@@ -29,6 +30,7 @@ public:
     void setGlyph(SkGlyphID, float advance, sk_sp<SkPicture>);
 
     void setMetrics(const SkFontMetrics& fm, float scale = 1);
+    void setFontStyle(SkFontStyle);
 
     sk_sp<SkTypeface> detach();
 
@@ -36,6 +38,7 @@ private:
     std::vector<SkPath> fPaths;
     std::vector<float>  fAdvances;
     SkFontMetrics       fMetrics;
+    SkFontStyle         fStyle;
 
     static sk_sp<SkTypeface> Deserialize(SkStream*);
 

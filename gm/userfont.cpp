@@ -32,6 +32,7 @@ static sk_sp<SkTypeface> make_tf() {
         font.getMetrics(&metrics);
         builder.setMetrics(metrics, 1.0f/upem);
     }
+    builder.setFontStyle(font.getTypefaceOrDefault()->fontStyle());
 
     // Steal the first 128 chars from the default font
     for (SkGlyphID index = 0; index <= 127; ++index) {

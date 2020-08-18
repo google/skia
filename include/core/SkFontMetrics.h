@@ -15,6 +15,25 @@
     The metric values are consistent with the Skia y-down coordinate system.
  */
 struct SK_API SkFontMetrics {
+    bool operator==(const SkFontMetrics& that) {
+        return
+        this->fFlags == that.fFlags &&
+        this->fTop == that.fTop &&
+        this->fAscent == that.fAscent &&
+        this->fDescent == that.fDescent &&
+        this->fBottom == that.fBottom &&
+        this->fLeading == that.fLeading &&
+        this->fAvgCharWidth == that.fAvgCharWidth &&
+        this->fMaxCharWidth == that.fMaxCharWidth &&
+        this->fXMin == that.fXMin &&
+        this->fXMax == that.fXMax &&
+        this->fXHeight == that.fXHeight &&
+        this->fCapHeight == that.fCapHeight &&
+        this->fUnderlineThickness == that.fUnderlineThickness &&
+        this->fUnderlinePosition == that.fUnderlinePosition &&
+        this->fStrikeoutThickness == that.fStrikeoutThickness &&
+        this->fStrikeoutPosition == that.fStrikeoutPosition;
+    }
 
     /** \enum FontMetricsFlags
      FontMetricsFlags indicate when certain metrics are valid;
