@@ -125,6 +125,30 @@ struct Expression : public IRNode {
     }
 
     /**
+     * Returns true if the expression is a constant numeric literal with the specified value, or a
+     * constant vector with all elements equal to the specified value.
+     */
+    bool isEqualToConstant(double value) const {
+        return this->isEqualToConstantScalar(value) ||
+               this->isEqualToConstantVector(value);
+    }
+
+    /**
+     * Returns true if the expression is a constant numeric literal with the specified value.
+     */
+    virtual bool isEqualToConstantScalar(double value) const {
+        return false;
+    }
+
+    /**
+     * Returns true if the expression is a constant vector with all elements equal to the specified
+     * value.
+     */
+    virtual bool isEqualToConstantVector(double value) const {
+        return false;
+    }
+
+    /**
      * Given a map of known constant variable values, substitute them in for references to those
      * variables occurring in this expression and its subexpressions.  Similar simplifications, such
      * as folding a constant binary expression down to a single value, may also be performed.
