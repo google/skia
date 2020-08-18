@@ -11,6 +11,7 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkMutex.h"
+#include "include/utils/SkCustomTypeface.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
@@ -61,6 +62,47 @@ const char* emoji_sample_text() {
            " "
            "\xE2\x99\xA2";  // 😀 ♢
 }
+
+sk_sp<SkTypeface> sample_user_typeface() {
+    SkCustomTypefaceBuilder builder;
+    SkFont font;
+    const float upem = 200;
+
+    {
+        SkFontMetrics metrics;
+        metrics.fFlags = 0;
+        metrics.fTop = -200;
+        metrics.fAscent = -150;
+        metrics.fDescent = 50;
+        metrics.fBottom = -75;
+        metrics.fLeading = 10;
+        metrics.fAvgCharWidth = 150;
+        metrics.fMaxCharWidth = 300;
+        metrics.fXMin = -20;
+        metrics.fXMax = 290;
+        metrics.fXHeight = -100;
+        metrics.fCapHeight = 0;
+        metrics.fUnderlineThickness = 5;
+        metrics.fUnderlinePosition = 2;
+        metrics.fStrikeoutThickness = 5;
+        metrics.fStrikeoutPosition = -50;
+        builder.setMetrics(metrics, 1.0f/upem);
+    }
+    builder.setFontStyle(SkFontStyle(367, 3, SkFontStyle::kOblique_Slant));
+
+    const SkMatrix scale = SkMatrix::Scale(1.0f/upem, 1.0f/upem);
+    for (SkGlyphID index = 0; index <= 67; ++index) {
+        SkScalar width;
+        width = 100;
+        SkPath path;
+        path.addCircle(50, -50, 75);
+
+        builder.setGlyph(index, width/upem, path.makeTransform(scale));
+    }
+
+    return builder.detach();
+}
+
 static sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
     static sk_sp<SkFontMgr> portableFontMgr = MakePortableFontMgr();
     return portableFontMgr->legacyMakeTypeface(name, style);
