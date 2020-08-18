@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#if defined(SKSL_STANDALONE) || defined(SK_DEBUG)
+
 namespace SkSL {
 
 /////////////////////////
@@ -232,3 +234,5 @@ const UniformCTypeMapper* UniformCTypeMapper::Get(const Context& context, const 
 }
 
 }  // namespace SkSL
+
+#endif

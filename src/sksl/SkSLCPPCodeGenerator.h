@@ -13,6 +13,8 @@
 
 #include <set>
 
+#if defined(SKSL_STANDALONE) || defined(SK_DEBUG)
+
 namespace SkSL {
 
 class CPPCodeGenerator : public GLSLCodeGenerator {
@@ -145,4 +147,6 @@ private:
 
 }  // namespace SkSL
 
-#endif
+#endif // defined(SKSL_STANDALONE) || defined(SK_DEBUG)
+
+#endif // SKSL_CPPCODEGENERATOR
