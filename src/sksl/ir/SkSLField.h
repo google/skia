@@ -22,8 +22,10 @@ namespace SkSL {
  * result of declaring anonymous interface blocks.
  */
 struct Field : public Symbol {
+    static constexpr Kind kSymbolKind = kField_Kind;
+
     Field(int offset, const Variable& owner, int fieldIndex)
-    : INHERITED(offset, kField_Kind, owner.fType.fields()[fieldIndex].fName)
+    : INHERITED(offset, kSymbolKind, owner.fType.fields()[fieldIndex].fName)
     , fOwner(owner)
     , fFieldIndex(fieldIndex) {}
 
