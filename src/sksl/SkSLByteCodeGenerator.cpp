@@ -1770,42 +1770,42 @@ void ByteCodeGenerator::writeWhileStatement(const WhileStatement& w) {
 void ByteCodeGenerator::writeStatement(const Statement& s) {
     switch (s.fKind) {
         case Statement::kBlock_Kind:
-            this->writeBlock((Block&) s);
+            this->writeBlock(s.as<Block>());
             break;
         case Statement::kBreak_Kind:
-            this->writeBreakStatement((BreakStatement&) s);
+            this->writeBreakStatement(s.as<BreakStatement>());
             break;
         case Statement::kContinue_Kind:
-            this->writeContinueStatement((ContinueStatement&) s);
+            this->writeContinueStatement(s.as<ContinueStatement>());
             break;
         case Statement::kDiscard_Kind:
             // not yet implemented
             abort();
         case Statement::kDo_Kind:
-            this->writeDoStatement((DoStatement&) s);
+            this->writeDoStatement(s.as<DoStatement>());
             break;
         case Statement::kExpression_Kind:
-            this->writeExpression(*((ExpressionStatement&) s).fExpression, true);
+            this->writeExpression(*s.as<ExpressionStatement>().fExpression, true);
             break;
         case Statement::kFor_Kind:
-            this->writeForStatement((ForStatement&) s);
+            this->writeForStatement(s.as<ForStatement>());
             break;
         case Statement::kIf_Kind:
-            this->writeIfStatement((IfStatement&) s);
+            this->writeIfStatement(s.as<IfStatement>());
             break;
         case Statement::kNop_Kind:
             break;
         case Statement::kReturn_Kind:
-            this->writeReturnStatement((ReturnStatement&) s);
+            this->writeReturnStatement(s.as<ReturnStatement>());
             break;
         case Statement::kSwitch_Kind:
-            this->writeSwitchStatement((SwitchStatement&) s);
+            this->writeSwitchStatement(s.as<SwitchStatement>());
             break;
         case Statement::kVarDeclarations_Kind:
-            this->writeVarDeclarations(*((VarDeclarationsStatement&) s).fDeclaration);
+            this->writeVarDeclarations(*s.as<VarDeclarationsStatement>().fDeclaration);
             break;
         case Statement::kWhile_Kind:
-            this->writeWhileStatement((WhileStatement&) s);
+            this->writeWhileStatement(s.as<WhileStatement>());
             break;
         default:
             SkASSERT(false);

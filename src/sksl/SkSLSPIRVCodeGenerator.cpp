@@ -2864,28 +2864,28 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
             this->writeBlock((Block&) s, out);
             break;
         case Statement::kExpression_Kind:
-            this->writeExpression(*((ExpressionStatement&) s).fExpression, out);
+            this->writeExpression(*s.as<ExpressionStatement>().fExpression, out);
             break;
         case Statement::kReturn_Kind:
-            this->writeReturnStatement((ReturnStatement&) s, out);
+            this->writeReturnStatement(s.as<ReturnStatement>(), out);
             break;
         case Statement::kVarDeclarations_Kind:
-            this->writeVarDeclarations(*((VarDeclarationsStatement&) s).fDeclaration, out);
+            this->writeVarDeclarations(*s.as<VarDeclarationsStatement>().fDeclaration, out);
             break;
         case Statement::kIf_Kind:
-            this->writeIfStatement((IfStatement&) s, out);
+            this->writeIfStatement(s.as<IfStatement>(), out);
             break;
         case Statement::kFor_Kind:
-            this->writeForStatement((ForStatement&) s, out);
+            this->writeForStatement(s.as<ForStatement>(), out);
             break;
         case Statement::kWhile_Kind:
-            this->writeWhileStatement((WhileStatement&) s, out);
+            this->writeWhileStatement(s.as<WhileStatement>(), out);
             break;
         case Statement::kDo_Kind:
-            this->writeDoStatement((DoStatement&) s, out);
+            this->writeDoStatement(s.as<DoStatement>(), out);
             break;
         case Statement::kSwitch_Kind:
-            this->writeSwitchStatement((SwitchStatement&) s, out);
+            this->writeSwitchStatement(s.as<SwitchStatement>(), out);
             break;
         case Statement::kBreak_Kind:
             this->writeInstruction(SpvOpBranch, fBreakTarget.top(), out);

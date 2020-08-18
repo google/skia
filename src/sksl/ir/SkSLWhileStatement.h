@@ -17,9 +17,11 @@ namespace SkSL {
  * A 'while' loop.
  */
 struct WhileStatement : public Statement {
+    static constexpr Kind kStatementKind = kWhile_Kind;
+
     WhileStatement(int offset, std::unique_ptr<Expression> test,
                    std::unique_ptr<Statement> statement)
-    : INHERITED(offset, kWhile_Kind)
+    : INHERITED(offset, kStatementKind)
     , fTest(std::move(test))
     , fStatement(std::move(statement)) {}
 

@@ -2072,7 +2072,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
     };
     switch (statement.fKind) {
         case Statement::kBlock_Kind: {
-            const Block& b = static_cast<const Block&>(statement);
+            const Block& b = statement.as<Block>();
             return std::make_unique<Block>(offset, stmts(b.fStatements), b.fSymbols, b.fIsScope);
         }
 
@@ -2082,15 +2082,15 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
             return statement.clone();
 
         case Statement::kDo_Kind: {
-            const DoStatement& d = static_cast<const DoStatement&>(statement);
+            const DoStatement& d = statement.as<DoStatement>();
             return std::make_unique<DoStatement>(offset, stmt(d.fStatement), expr(d.fTest));
         }
         case Statement::kExpression_Kind: {
-            const ExpressionStatement& e = static_cast<const ExpressionStatement&>(statement);
+            const ExpressionStatement& e = statement.as<ExpressionStatement>();
             return std::make_unique<ExpressionStatement>(expr(e.fExpression));
         }
         case Statement::kFor_Kind: {
-            const ForStatement& f = static_cast<const ForStatement&>(statement);
+            const ForStatement& f = statement.as<ForStatement>();
             // need to ensure initializer is evaluated first so that we've already remapped its
             // declarations by the time we evaluate test & next
             std::unique_ptr<Statement> initializer = stmt(f.fInitializer);
@@ -2098,14 +2098,14 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
                                                   expr(f.fNext), stmt(f.fStatement), f.fSymbols);
         }
         case Statement::kIf_Kind: {
-            const IfStatement& i = static_cast<const IfStatement&>(statement);
+            const IfStatement& i = statement.as<IfStatement>();
             return std::make_unique<IfStatement>(offset, i.fIsStatic, expr(i.fTest),
                                                  stmt(i.fIfTrue), stmt(i.fIfFalse));
         }
         case Statement::kNop_Kind:
             return statement.clone();
         case Statement::kReturn_Kind: {
-            const ReturnStatement& r = static_cast<const ReturnStatement&>(statement);
+            const ReturnStatement& r = statement.as<ReturnStatement>();
             if (r.fExpression) {
                 auto assignment = std::make_unique<ExpressionStatement>(
                         std::make_unique<BinaryExpression>(
@@ -2133,7 +2133,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
             }
         }
         case Statement::kSwitch_Kind: {
-            const SwitchStatement& ss = static_cast<const SwitchStatement&>(statement);
+            const SwitchStatement& ss = statement.as<SwitchStatement>();
             std::vector<std::unique_ptr<SwitchCase>> cases;
             for (const auto& sc : ss.fCases) {
                 cases.emplace_back(new SwitchCase(offset, expr(sc->fValue),
@@ -2143,7 +2143,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
                                                      std::move(cases), ss.fSymbols);
         }
         case Statement::kVarDeclaration_Kind: {
-            const VarDeclaration& decl = static_cast<const VarDeclaration&>(statement);
+            const VarDeclaration& decl = statement.as<VarDeclaration>();
             std::vector<std::unique_ptr<Expression>> sizes;
             for (const auto& size : decl.fSizes) {
                 sizes.push_back(expr(size));
@@ -2167,18 +2167,17 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
                                                     std::move(initialValue));
         }
         case Statement::kVarDeclarations_Kind: {
-            const VarDeclarations& decls =
-                    *static_cast<const VarDeclarationsStatement&>(statement).fDeclaration;
+            const VarDeclarations& decls = *statement.as<VarDeclarationsStatement>().fDeclaration;
             std::vector<std::unique_ptr<VarDeclaration>> vars;
             for (const auto& var : decls.fVars) {
-                vars.emplace_back((VarDeclaration*) stmt(var).release());
+                vars.emplace_back(&stmt(var).release()->as<VarDeclaration>());
             }
             const Type* typePtr = copy_if_needed(&decls.fBaseType, *fSymbolTable);
             return std::unique_ptr<Statement>(new VarDeclarationsStatement(
                     std::make_unique<VarDeclarations>(offset, typePtr, std::move(vars))));
         }
         case Statement::kWhile_Kind: {
-            const WhileStatement& w = static_cast<const WhileStatement&>(statement);
+            const WhileStatement& w = statement.as<WhileStatement>();
             return std::make_unique<WhileStatement>(offset, expr(w.fTest), stmt(w.fStatement));
         }
         default:

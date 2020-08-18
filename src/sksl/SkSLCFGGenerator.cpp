@@ -488,12 +488,12 @@ static bool is_true(Expression& expr) {
 void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
     switch ((*s)->fKind) {
         case Statement::kBlock_Kind:
-            for (auto& child : ((Block&) **s).fStatements) {
+            for (auto& child : (*s)->as<Block>().fStatements) {
                 addStatement(cfg, &child);
             }
             break;
         case Statement::kIf_Kind: {
-            IfStatement& ifs = (IfStatement&) **s;
+            IfStatement& ifs = (*s)->as<IfStatement>();
             this->addExpression(cfg, &ifs.fTest, true);
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
                                                          nullptr, s });
@@ -513,13 +513,13 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             break;
         }
         case Statement::kExpression_Kind: {
-            this->addExpression(cfg, &((ExpressionStatement&) **s).fExpression, true);
+            this->addExpression(cfg, &(*s)->as<ExpressionStatement>().fExpression, true);
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
                                                          nullptr, s });
             break;
         }
         case Statement::kVarDeclarations_Kind: {
-            VarDeclarationsStatement& decls = ((VarDeclarationsStatement&) **s);
+            VarDeclarationsStatement& decls = (*s)->as<VarDeclarationsStatement>();
             for (auto& stmt : decls.fDeclaration->fVars) {
                 if (stmt->fKind == Statement::kNop_Kind) {
                     continue;
@@ -541,7 +541,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             cfg.fCurrent = cfg.newIsolatedBlock();
             break;
         case Statement::kReturn_Kind: {
-            ReturnStatement& r = ((ReturnStatement&) **s);
+            ReturnStatement& r = (*s)->as<ReturnStatement>();
             if (r.fExpression) {
                 this->addExpression(cfg, &r.fExpression, true);
             }
@@ -563,7 +563,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             cfg.fCurrent = cfg.newIsolatedBlock();
             break;
         case Statement::kWhile_Kind: {
-            WhileStatement& w = (WhileStatement&) **s;
+            WhileStatement& w = (*s)->as<WhileStatement>();
             BlockId loopStart = cfg.newBlock();
             fLoopContinues.push(loopStart);
             BlockId loopExit = cfg.newIsolatedBlock();
@@ -582,7 +582,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             break;
         }
         case Statement::kDo_Kind: {
-            DoStatement& d = (DoStatement&) **s;
+            DoStatement& d = (*s)->as<DoStatement>();
             BlockId loopStart = cfg.newBlock();
             fLoopContinues.push(loopStart);
             BlockId loopExit = cfg.newIsolatedBlock();
@@ -597,7 +597,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             break;
         }
         case Statement::kFor_Kind: {
-            ForStatement& f = (ForStatement&) **s;
+            ForStatement& f = (*s)->as<ForStatement>();
             if (f.fInitializer) {
                 this->addStatement(cfg, &f.fInitializer);
             }
@@ -631,7 +631,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             break;
         }
         case Statement::kSwitch_Kind: {
-            SwitchStatement& ss = (SwitchStatement&) **s;
+            SwitchStatement& ss = (*s)->as<SwitchStatement>();
             this->addExpression(cfg, &ss.fValue, true);
             cfg.fBlocks[cfg.fCurrent].fNodes.push_back({ BasicBlock::Node::kStatement_Kind, false,
                                                          nullptr, s });
