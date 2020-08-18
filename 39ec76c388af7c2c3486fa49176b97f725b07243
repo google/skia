@@ -62,6 +62,30 @@
       "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e321791_22b89957",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-18T14:30:05Z",
+      "side": 1,
+      "message": "In theory, I should never calculate unormTextCoords. This should be %s \u003d unitTextCoords * atlasDimensions since unitTextCoord is already normalized. But then we have different Uniforms for the different cases. This was a start down that road, but maybe I should back this out, and take the small win if it is there.",
+      "parentUuid": "652db1b3_e374406e",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 63
+      },
+      "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
