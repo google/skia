@@ -231,18 +231,13 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrContextOptions& options,
 
     fResourceProvider.init();
 
-    fMainCmdPool = fResourceProvider.findOrCreateCommandPool();
-    if (fMainCmdPool) {
-        fMainCmdBuffer = fMainCmdPool->getPrimaryCommandBuffer();
-        SkASSERT(this->currentCommandBuffer());
-        this->currentCommandBuffer()->begin(this);
-    }
+    createCommandBufferIfNecessary();
 }
 
 void GrVkGpu::destroyResources() {
-    if (fMainCmdPool) {
-        fMainCmdPool->getPrimaryCommandBuffer()->end(this);
-        fMainCmdPool->close();
+    for (auto* pool : fMainCmdPools) {
+        pool->getPrimaryCommandBuffer()->end(this);
+        pool->close();
     }
 
     // wait for all commands to finish
@@ -266,9 +261,8 @@ void GrVkGpu::destroyResources() {
     SkASSERT(VK_SUCCESS == res || VK_ERROR_DEVICE_LOST == res);
 #endif
 
-    if (fMainCmdPool) {
-        fMainCmdPool->unref();
-        fMainCmdPool = nullptr;
+    for (auto* pool : fMainCmdPools) {
+        pool->recycle();
     }
 
     for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
@@ -305,7 +299,7 @@ void GrVkGpu::disconnect(DisconnectType type) {
 
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();
-        fMainCmdBuffer = nullptr;
+        fMainCmdBuffers.resize(0);
         fDisconnected = true;
     }
 }
@@ -323,8 +317,18 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
+    bool willReadDst = false;  // TODO: we should be passing this value
+
+    GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
+    GrVkCommandPool* commandPool = nullptr;
+    GrVkCommandBuffer* commandBuffer = nullptr;
+    if (!vkRT->wrapsSecondaryCommandBuffer()) {
+        createCommandBufferIfNecessary();
+        commandPool = cmdPool();
+        commandBuffer = currentCommandBuffer();
+    }
     if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds, colorInfo, stencilInfo,
-                                   sampledProxies, usesXferBarriers)) {
+                                   sampledProxies, usesXferBarriers, commandPool)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
@@ -349,14 +353,20 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
         return true;
     }
 
-    fMainCmdBuffer->end(this);
-    SkASSERT(fMainCmdPool);
-    fMainCmdPool->close();
-    bool didSubmit = fMainCmdBuffer->submitToQueue(this, fQueue, fSemaphoresToSignal,
-                                                   fSemaphoresToWaitOn);
+    SkASSERT(!fMainCmdPools.empty());
+    for (auto* pool : fMainCmdPools) {
+        pool->close();
+    }
+
+    for (auto* buffer : fMainCmdBuffers) {
+        buffer->end(this);
+    }
+
+    bool didSubmit = GrVkPrimaryCommandBuffer::SubmitToQueue(
+            this, fQueue, fMainCmdBuffers, fSemaphoresToSignal, fSemaphoresToWaitOn);
 
     if (didSubmit && sync == kForce_SyncQueue) {
-        fMainCmdBuffer->forceSync(this);
+        fMainCmdBuffers.back()->forceSync(this);
     }
 
     // We must delete any drawables that had to wait until submit to destroy.
@@ -382,15 +392,11 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     fSemaphoresToSignal.reset();
 
     // Release old command pool and create a new one
-    fMainCmdPool->unref();
-    fMainCmdPool = fResourceProvider.findOrCreateCommandPool();
-    if (fMainCmdPool) {
-        fMainCmdBuffer = fMainCmdPool->getPrimaryCommandBuffer();
-        SkASSERT(fMainCmdBuffer);
-        fMainCmdBuffer->begin(this);
-    } else {
-        fMainCmdBuffer = nullptr;
-    }
+    for (auto* pool : fMainCmdPools) pool->recycle();
+    fMainCmdPools.resize(0);
+    fMainCmdBuffers.resize(0);
+    createCommandBufferIfNecessary();
+
     // We must wait to call checkCommandBuffers until after we get a new command buffer. The
     // checkCommandBuffers may trigger a releaseProc which may cause us to insert a barrier for a
     // released GrVkImage. That barrier needs to be put into a new command buffer and not the old
@@ -2077,7 +2083,8 @@ void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
 
 void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
-    fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));
+    fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedCallback);
+    currentCommandBuffer()->addFinishedProc(std::move(finishedCallback));
 }
 
 void GrVkGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
@@ -2444,95 +2451,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     return true;
 }
 
-// The RenderArea bounds we pass into BeginRenderPass must have a start x value that is a multiple
-// of the granularity. The width must also be a multiple of the granularity or eaqual to the width
-// the the entire attachment. Similar requirements for the y and height components.
-void adjust_bounds_to_granularity(SkIRect* dstBounds, const SkIRect& srcBounds,
-                                  const VkExtent2D& granularity, int maxWidth, int maxHeight) {
-    // Adjust Width
-    if ((0 != granularity.width && 1 != granularity.width)) {
-        // Start with the right side of rect so we know if we end up going pass the maxWidth.
-        int rightAdj = srcBounds.fRight % granularity.width;
-        if (rightAdj != 0) {
-            rightAdj = granularity.width - rightAdj;
-        }
-        dstBounds->fRight = srcBounds.fRight + rightAdj;
-        if (dstBounds->fRight > maxWidth) {
-            dstBounds->fRight = maxWidth;
-            dstBounds->fLeft = 0;
-        } else {
-            dstBounds->fLeft = srcBounds.fLeft - srcBounds.fLeft % granularity.width;
-        }
-    } else {
-        dstBounds->fLeft = srcBounds.fLeft;
-        dstBounds->fRight = srcBounds.fRight;
-    }
-
-    // Adjust height
-    if ((0 != granularity.height && 1 != granularity.height)) {
-        // Start with the bottom side of rect so we know if we end up going pass the maxHeight.
-        int bottomAdj = srcBounds.fBottom % granularity.height;
-        if (bottomAdj != 0) {
-            bottomAdj = granularity.height - bottomAdj;
-        }
-        dstBounds->fBottom = srcBounds.fBottom + bottomAdj;
-        if (dstBounds->fBottom > maxHeight) {
-            dstBounds->fBottom = maxHeight;
-            dstBounds->fTop = 0;
-        } else {
-            dstBounds->fTop = srcBounds.fTop - srcBounds.fTop % granularity.height;
-        }
-    } else {
-        dstBounds->fTop = srcBounds.fTop;
-        dstBounds->fBottom = srcBounds.fBottom;
-    }
-}
-
-bool GrVkGpu::beginRenderPass(const GrVkRenderPass* renderPass,
-                              const VkClearValue* colorClear,
-                              GrVkRenderTarget* target, GrSurfaceOrigin origin,
-                              const SkIRect& bounds, bool forSecondaryCB) {
-    if (!this->currentCommandBuffer()) {
-        return false;
-    }
-    SkASSERT (!target->wrapsSecondaryCommandBuffer());
-    auto nativeBounds = GrNativeRect::MakeRelativeTo(origin, target->height(), bounds);
-
-    // The bounds we use for the render pass should be of the granularity supported
-    // by the device.
-    const VkExtent2D& granularity = renderPass->granularity();
-    SkIRect adjustedBounds;
-    if ((0 != granularity.width && 1 != granularity.width) ||
-        (0 != granularity.height && 1 != granularity.height)) {
-        adjust_bounds_to_granularity(&adjustedBounds, nativeBounds.asSkIRect(), granularity,
-                                     target->width(), target->height());
-    } else {
-        adjustedBounds = nativeBounds.asSkIRect();
-    }
-
-#ifdef SK_DEBUG
-    uint32_t index;
-    bool result = renderPass->colorAttachmentIndex(&index);
-    SkASSERT(result && 0 == index);
-    result = renderPass->stencilAttachmentIndex(&index);
-    if (result) {
-        SkASSERT(1 == index);
-    }
-#endif
-    VkClearValue clears[2];
-    clears[0].color = colorClear->color;
-    clears[1].depthStencil.depth = 0.0f;
-    clears[1].depthStencil.stencil = 0;
-
-   return this->currentCommandBuffer()->beginRenderPass(this, renderPass, clears, target,
-                                                        adjustedBounds, forSecondaryCB);
-}
-
 void GrVkGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
                             const SkIRect& bounds) {
-    // We had a command buffer when we started the render pass, we should have one now as well.
-    SkASSERT(this->currentCommandBuffer());
-    this->currentCommandBuffer()->endRenderPass(this);
     this->didWriteToSurface(target, origin, &bounds);
 }
 
@@ -2665,4 +2585,30 @@ void GrVkGpu::storeVkPipelineCacheData() {
     if (this->getContext()->priv().getPersistentCache()) {
         this->resourceProvider().storePipelineCacheData();
     }
+}
+
+void GrVkGpu::createCommandBufferIfNecessary() {
+    constexpr bool kAlwaysCreateNew = true;
+
+    // If the current command buffer is not using by a flush(), then we can continue it,
+    // otherwise we have to create a new one.
+    if (!kAlwaysCreateNew && !fMainCmdPools.empty() && fMainCmdPools.back()->unique()) return;
+
+    GrVkCommandPool* commandPool = nullptr;
+    for (auto* pool : fMainCmdPools) {
+        if (pool->unique()) {
+            commandPool = pool;
+            break;
+        }
+    }
+
+    if (!commandPool) {
+        commandPool = fResourceProvider.findOrCreateCommandPool();
+        fMainCmdPools.push_back(commandPool);
+    }
+
+    commandPool->allocatePrimaryCommandBuffer();
+    fMainCmdBuffers.push_back(commandPool->getPrimaryCommandBuffer());
+    SkASSERT(this->currentCommandBuffer());
+    this->currentCommandBuffer()->begin(this);
 }

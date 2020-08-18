@@ -16,7 +16,7 @@ class GrVkPrimaryCommandBuffer;
 class GrVkSecondaryCommandBuffer;
 class GrVkGpu;
 
-class GrVkCommandPool : public GrVkManagedResource {
+class GrVkCommandPool : public GrVkRecycledResource {
 public:
     static GrVkCommandPool* Create(GrVkGpu* gpu);
 
@@ -24,11 +24,15 @@ public:
         return fCommandPool;
     }
 
+    void allocatePrimaryCommandBuffer();
+
     void reset(GrVkGpu* gpu);
 
     void releaseResources();
 
-    GrVkPrimaryCommandBuffer* getPrimaryCommandBuffer() { return fPrimaryCommandBuffer.get(); }
+    GrVkPrimaryCommandBuffer* getPrimaryCommandBuffer() {
+        return fActivePrimaryCommandBuffers.back().get();
+    }
 
     std::unique_ptr<GrVkSecondaryCommandBuffer> findOrCreateSecondaryCommandBuffer(GrVkGpu* gpu);
 
@@ -50,15 +54,17 @@ public:
 private:
     GrVkCommandPool() = delete;
 
-    GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool, GrVkPrimaryCommandBuffer*);
+    GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool);
 
     void freeGPUData() const override;
+    void onRecycle() const override;
 
     bool fOpen = true;
 
     VkCommandPool fCommandPool;
 
-    std::unique_ptr<GrVkPrimaryCommandBuffer> fPrimaryCommandBuffer;
+    SkSTArray<4, std::unique_ptr<GrVkPrimaryCommandBuffer>> fActivePrimaryCommandBuffers;
+    SkSTArray<4, std::unique_ptr<GrVkPrimaryCommandBuffer>> fAvaliablePrimaryCommandBuffers;
 
     // Array of available secondary command buffers that are not in flight
     SkSTArray<4, std::unique_ptr<GrVkSecondaryCommandBuffer>, true> fAvailableSecondaryBuffers;

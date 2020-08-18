@@ -9,13 +9,13 @@
 
 #include "include/core/SkRect.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
+#include "src/gpu/vk/GrVkFence.h"
 #include "src/gpu/vk/GrVkFramebuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkPipeline.h"
-#include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkPipelineState.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
@@ -528,6 +528,7 @@ static bool submit_to_queue(GrVkGpu* gpu,
                             uint32_t signalCount,
                             const VkSemaphore* signalSemaphores,
                             GrProtected protectedContext) {
+    TRACE_EVENT1("skia.gpu", "submit_to_queue", "commandBufferCount", commandBufferCount);
     VkProtectedSubmitInfo protectedSubmitInfo;
     if (protectedContext == GrProtected::kYes) {
         memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
@@ -552,28 +553,22 @@ static bool submit_to_queue(GrVkGpu* gpu,
     return result == VK_SUCCESS;
 }
 
-bool GrVkPrimaryCommandBuffer::submitToQueue(
-        GrVkGpu* gpu,
-        VkQueue queue,
-        SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
-        SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
-    SkASSERT(!fIsActive);
+bool GrVkPrimaryCommandBuffer::SubmitToQueue(GrVkGpu* gpu,
+                                             VkQueue queue,
+                                             SkTArray<GrVkPrimaryCommandBuffer*>& commandBuffers,
+                                             SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
+                                             SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
+    SkASSERT(!commandBuffers.empty());
 
-    VkResult err;
-    if (VK_NULL_HANDLE == fSubmitFence) {
-        VkFenceCreateInfo fenceInfo;
-        memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
-        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-        GR_VK_CALL_RESULT(gpu, err, CreateFence(gpu->device(), &fenceInfo, nullptr,
-                                                &fSubmitFence));
-        if (err) {
-            fSubmitFence = VK_NULL_HANDLE;
-            return false;
-        }
-    } else {
-        // This cannot return DEVICE_LOST so we assert we succeeded.
-        GR_VK_CALL_RESULT(gpu, err, ResetFences(gpu->device(), 1, &fSubmitFence));
-        SkASSERT(err == VK_SUCCESS);
+    GrVkFence* fence = gpu->resourceProvider().findOrCreateFence();
+
+    SkTArray<VkCommandBuffer> vkCommandBuffers(commandBuffers.count());
+    for (auto* cmdBuf : commandBuffers) {
+        SkASSERT(!cmdBuf->fIsActive);
+        SkASSERT(!cmdBuf->fSubmitFence);
+        fence->ref();
+        cmdBuf->fSubmitFence = fence;
+        vkCommandBuffers.push_back(cmdBuf->fCmdBuffer);
     }
 
     int signalCount = signalSemaphores.count();
@@ -581,17 +576,18 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
 
     bool submitted = false;
 
+    auto* lastCmdBuf = commandBuffers.back();
     if (0 == signalCount && 0 == waitCount) {
         // This command buffer has no dependent semaphores so we can simply just submit it to the
         // queue with no worries.
-        submitted = submit_to_queue(
-                gpu, queue, fSubmitFence, 0, nullptr, nullptr, 1, &fCmdBuffer, 0, nullptr,
-                gpu->protectedContext() ? GrProtected::kYes : GrProtected::kNo);
+        submitted = submit_to_queue(gpu, queue, fence->fence(), 0, nullptr, nullptr,
+                                    commandBuffers.count(), vkCommandBuffers.begin(), 0, nullptr,
+                                    gpu->protectedContext() ? GrProtected::kYes : GrProtected::kNo);
     } else {
         SkTArray<VkSemaphore> vkSignalSems(signalCount);
         for (int i = 0; i < signalCount; ++i) {
             if (signalSemaphores[i]->shouldSignal()) {
-                this->addResource(signalSemaphores[i]);
+                lastCmdBuf->addResource(signalSemaphores[i]);
                 vkSignalSems.push_back(signalSemaphores[i]->semaphore());
             }
         }
@@ -600,13 +596,14 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         SkTArray<VkPipelineStageFlags> vkWaitStages(waitCount);
         for (int i = 0; i < waitCount; ++i) {
             if (waitSemaphores[i]->shouldWait()) {
-                this->addResource(waitSemaphores[i]);
+                lastCmdBuf->addResource(waitSemaphores[i]);
                 vkWaitSems.push_back(waitSemaphores[i]->semaphore());
                 vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
             }
         }
-        submitted = submit_to_queue(gpu, queue, fSubmitFence, vkWaitSems.count(),
-                                    vkWaitSems.begin(), vkWaitStages.begin(), 1, &fCmdBuffer,
+        submitted = submit_to_queue(gpu, queue, fence->fence(), vkWaitSems.count(),
+                                    vkWaitSems.begin(), vkWaitStages.begin(),
+                                    commandBuffers.count(), vkCommandBuffers.begin(),
                                     vkSignalSems.count(), vkSignalSems.begin(),
                                     gpu->protectedContext() ? GrProtected::kYes : GrProtected::kNo);
         if (submitted) {
@@ -619,41 +616,41 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         }
     }
 
+    // Release the ref hold by this method.
+    fence->unref();
+
     if (!submitted) {
         // Destroy the fence or else we will try to wait forever for it to finish.
-        GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
-        fSubmitFence = VK_NULL_HANDLE;
+        for (auto* cmdBuf : commandBuffers) {
+            cmdBuf->fSubmitFence->unref();
+            cmdBuf->fSubmitFence = nullptr;
+        }
         return false;
     }
     return true;
 }
 
+bool GrVkPrimaryCommandBuffer::submitToQueue(GrVkGpu* gpu,
+                                             VkQueue queue,
+                                             SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
+                                             SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
+    SkTArray<GrVkPrimaryCommandBuffer*> commandBuffers(1);
+    commandBuffers.push_back(this);
+    return SubmitToQueue(gpu, queue, commandBuffers, signalSemaphores, waitSemaphores);
+}
+
 void GrVkPrimaryCommandBuffer::forceSync(GrVkGpu* gpu) {
-    SkASSERT(fSubmitFence != VK_NULL_HANDLE);
-    GR_VK_CALL_ERRCHECK(gpu, WaitForFences(gpu->device(), 1, &fSubmitFence, true, UINT64_MAX));
+    SkASSERT(fSubmitFence);
+    fSubmitFence->wait(gpu);
 }
 
 bool GrVkPrimaryCommandBuffer::finished(GrVkGpu* gpu) {
     SkASSERT(!fIsActive);
-    if (VK_NULL_HANDLE == fSubmitFence) {
-        return true;
+    if (fSubmitFence && fSubmitFence->isSignaled(gpu)) {
+        fSubmitFence->recycle();
+        fSubmitFence = nullptr;
     }
-
-    VkResult err;
-    GR_VK_CALL_RESULT_NOCHECK(gpu, err, GetFenceStatus(gpu->device(), fSubmitFence));
-    switch (err) {
-        case VK_SUCCESS:
-        case VK_ERROR_DEVICE_LOST:
-            return true;
-
-        case VK_NOT_READY:
-            return false;
-
-        default:
-            SkDebugf("Error getting fence status: %d\n", err);
-            SK_ABORT("Got an invalid fence status");
-            return false;
-    }
+    return !fSubmitFence;
 }
 
 void GrVkPrimaryCommandBuffer::addFinishedProc(sk_sp<GrRefCntedCallback> finishedProc) {
@@ -883,9 +880,7 @@ void GrVkPrimaryCommandBuffer::resolveImage(GrVkGpu* gpu,
 void GrVkPrimaryCommandBuffer::onFreeGPUData(const GrVkGpu* gpu) const {
     SkASSERT(!fActiveRenderPass);
     // Destroy the fence, if any
-    if (VK_NULL_HANDLE != fSubmitFence) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyFence(gpu->device(), fSubmitFence, nullptr));
-    }
+    if (fSubmitFence) fSubmitFence->recycle();
     SkASSERT(!fSecondaryCommandBuffers.count());
 }
 

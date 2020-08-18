@@ -29,6 +29,7 @@
 #include <thread>
 
 class GrVkCommandPool;
+class GrVkFence;
 class GrVkGpu;
 class GrVkPipeline;
 class GrVkPipelineState;
@@ -87,6 +88,7 @@ public:
                                          const GrVkRenderPass::LoadStoreOps& stencilOps);
 
     GrVkCommandPool* findOrCreateCommandPool();
+    void recycleCommandPool(GrVkCommandPool* pool);
 
     void checkCommandBuffers();
 
@@ -178,6 +180,12 @@ public:
     void backgroundReset(GrVkCommandPool* pool);
 
     void reset(GrVkCommandPool* pool);
+
+    // Finds or creates a fence which is not signaled.
+    GrVkFence* findOrCreateFence();
+
+    // Recycle a fence which has to be signaled.
+    void recycleFence(GrVkFence* fence);
 
 #if GR_TEST_UTILS
     void resetShaderCacheForTesting() const { fPipelineStateCache->release(); }
@@ -284,6 +292,8 @@ private:
     SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
+
+    SkSTArray<4, GrVkFence*> fAvaliableFences;
 
     std::recursive_mutex fBackgroundMutex;
 };

@@ -32,22 +32,26 @@ GrVkCommandPool* GrVkCommandPool::Create(GrVkGpu* gpu) {
         return nullptr;
     }
 
-    GrVkPrimaryCommandBuffer* primaryCmdBuffer = GrVkPrimaryCommandBuffer::Create(gpu, pool);
-    if (!primaryCmdBuffer) {
-        GR_VK_CALL(gpu->vkInterface(), DestroyCommandPool(gpu->device(), pool, nullptr));
-        return nullptr;
-    }
-
-    return new GrVkCommandPool(gpu, pool, primaryCmdBuffer);
+    return new GrVkCommandPool(gpu, pool);
 }
 
-GrVkCommandPool::GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool,
-                                 GrVkPrimaryCommandBuffer* primaryCmdBuffer)
-        : GrVkManagedResource(gpu)
+GrVkCommandPool::GrVkCommandPool(GrVkGpu* gpu, VkCommandPool commandPool)
+        : GrVkRecycledResource(gpu)
         , fCommandPool(commandPool)
-        , fPrimaryCommandBuffer(primaryCmdBuffer)
         , fMaxCachedSecondaryCommandBuffers(
-                gpu->vkCaps().maxPerPoolCachedSecondaryCommandBuffers()) {
+                  gpu->vkCaps().maxPerPoolCachedSecondaryCommandBuffers()) {
+    allocatePrimaryCommandBuffer();
+}
+
+void GrVkCommandPool::allocatePrimaryCommandBuffer() {
+    GrVkPrimaryCommandBuffer* primaryCmdBuffer = nullptr;
+    if (!fAvaliablePrimaryCommandBuffers.empty()) {
+        primaryCmdBuffer = fAvaliablePrimaryCommandBuffers.back().release();
+        fAvaliablePrimaryCommandBuffers.pop_back();
+    } else {
+        primaryCmdBuffer = GrVkPrimaryCommandBuffer::Create(fGpu, fCommandPool);
+    }
+    fActivePrimaryCommandBuffers.emplace_back(primaryCmdBuffer);
 }
 
 std::unique_ptr<GrVkSecondaryCommandBuffer> GrVkCommandPool::findOrCreateSecondaryCommandBuffer(
@@ -80,19 +84,34 @@ void GrVkCommandPool::close() {
 void GrVkCommandPool::reset(GrVkGpu* gpu) {
     SkASSERT(!fOpen);
     fOpen = true;
-    // We can't use the normal result macro calls here because we may call reset on a different
-    // thread and we can't be modifying the lost state on the GrVkGpu. We just call
-    // vkResetCommandPool and assume the "next" vulkan call will catch the lost device.
-    SkDEBUGCODE(VkResult result = )GR_VK_CALL(gpu->vkInterface(),
-                                              ResetCommandPool(gpu->device(), fCommandPool, 0));
-    SkASSERT(result == VK_SUCCESS || result == VK_ERROR_DEVICE_LOST);
+
+    {
+        TRACE_EVENT0("skia.gpu", "GrVkCommandPool::reset");
+
+        // We can't use the normal result macro calls here because we may call reset on a different
+        // thread and we can't be modifying the lost state on the GrVkGpu. We just call
+        // vkResetCommandPool and assume the "next" vulkan call will catch the lost device.
+        SkDEBUGCODE(VkResult result =)
+                GR_VK_CALL(gpu->vkInterface(), ResetCommandPool(gpu->device(), fCommandPool, 0));
+        SkASSERT(result == VK_SUCCESS || result == VK_ERROR_DEVICE_LOST);
+    }
+
+    auto constexpr kMaxAvaliableBuffers = 64;
+    for (auto& buffer : fActivePrimaryCommandBuffers) {
+        buffer->finished(fGpu);
+        if (fAvaliablePrimaryCommandBuffers.count() >= kMaxAvaliableBuffers) continue;
+        fAvaliablePrimaryCommandBuffers.push_back(std::move(buffer));
+    }
+    fActivePrimaryCommandBuffers.reset();
 }
 
 void GrVkCommandPool::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fOpen);
-    fPrimaryCommandBuffer->releaseResources();
-    fPrimaryCommandBuffer->recycleSecondaryCommandBuffers(this);
+    for (const auto& buffer : fActivePrimaryCommandBuffers) {
+        buffer->releaseResources();
+        buffer->recycleSecondaryCommandBuffers(this);
+    }
 }
 
 void GrVkCommandPool::freeGPUData() const {
@@ -102,7 +121,9 @@ void GrVkCommandPool::freeGPUData() const {
     GrVkCommandPool* nonConstThis = const_cast<GrVkCommandPool*>(this);
     nonConstThis->close();
     nonConstThis->releaseResources();
-    fPrimaryCommandBuffer->freeGPUData(fGpu, fCommandPool);
+    for (const auto& buffer : fActivePrimaryCommandBuffers) {
+        buffer->freeGPUData(fGpu, fCommandPool);
+    }
     for (const auto& buffer : fAvailableSecondaryBuffers) {
         buffer->freeGPUData(fGpu, fCommandPool);
     }
@@ -110,4 +131,8 @@ void GrVkCommandPool::freeGPUData() const {
         GR_VK_CALL(fGpu->vkInterface(),
                    DestroyCommandPool(fGpu->device(), fCommandPool, nullptr));
     }
+}
+
+void GrVkCommandPool::onRecycle() const {
+    fGpu->resourceProvider().recycleCommandPool(const_cast<GrVkCommandPool*>(this));
 }
