@@ -631,9 +631,9 @@ void Compiler::computeDataFlow(CFG* cfg) {
  * the newly-inserted element. Otherwise updates only the IR and returns false (and the CFG will
  * need to be regenerated).
  */
-bool try_replace_expression(BasicBlock* b,
-                            std::vector<BasicBlock::Node>::iterator* iter,
-                            std::unique_ptr<Expression>* newExpression) {
+static bool try_replace_expression(BasicBlock* b,
+                                   std::vector<BasicBlock::Node>::iterator* iter,
+                                   std::unique_ptr<Expression>* newExpression) {
     std::unique_ptr<Expression>* target = (*iter)->expression();
     if (!b->tryRemoveExpression(iter)) {
         *target = std::move(*newExpression);
@@ -647,7 +647,7 @@ bool try_replace_expression(BasicBlock* b,
  * Returns true if the expression is a constant numeric literal with the specified value, or a
  * constant vector with all elements equal to the specified value.
  */
-bool is_constant(const Expression& expr, double value) {
+static bool is_constant(const Expression& expr, double value) {
     switch (expr.fKind) {
         case Expression::kIntLiteral_Kind:
             return expr.as<IntLiteral>().fValue == value;
@@ -680,10 +680,10 @@ bool is_constant(const Expression& expr, double value) {
  * Collapses the binary expression pointed to by iter down to just the right side (in both the IR
  * and CFG structures).
  */
-void delete_left(BasicBlock* b,
-                 std::vector<BasicBlock::Node>::iterator* iter,
-                 bool* outUpdated,
-                 bool* outNeedsRescan) {
+static void delete_left(BasicBlock* b,
+                        std::vector<BasicBlock::Node>::iterator* iter,
+                        bool* outUpdated,
+                        bool* outNeedsRescan) {
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     SkASSERT((*target)->fKind == Expression::kBinary_Kind);
@@ -718,10 +718,10 @@ void delete_left(BasicBlock* b,
  * Collapses the binary expression pointed to by iter down to just the left side (in both the IR and
  * CFG structures).
  */
-void delete_right(BasicBlock* b,
-                  std::vector<BasicBlock::Node>::iterator* iter,
-                  bool* outUpdated,
-                  bool* outNeedsRescan) {
+static void delete_right(BasicBlock* b,
+                         std::vector<BasicBlock::Node>::iterator* iter,
+                         bool* outUpdated,
+                         bool* outNeedsRescan) {
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     SkASSERT((*target)->fKind == Expression::kBinary_Kind);
@@ -808,7 +808,7 @@ static void vectorize_right(BasicBlock* b,
 }
 
 // Mark that an expression which we were writing to is no longer being written to
-void clear_write(const Expression& expr) {
+static void clear_write(const Expression& expr) {
     switch (expr.fKind) {
         case Expression::kVariableReference_Kind: {
             ((VariableReference&) expr).setRefKind(VariableReference::kRead_RefKind);
