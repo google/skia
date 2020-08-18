@@ -16,6 +16,24 @@
       "revId": "b8d90ae9375d630edba48e02bbb2fb5a50a07214",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6bbff75_43bea945",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-18T13:38:35Z",
+      "side": 1,
+      "message": "SGTM: http://skbug.com/10629",
+      "parentUuid": "f081fca5_a1ccf30e",
+      "revId": "b8d90ae9375d630edba48e02bbb2fb5a50a07214",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
