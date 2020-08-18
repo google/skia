@@ -180,6 +180,11 @@ class SkpDebugPlayer {
       }
       // doesn't matter in layers
     }
+    void setOriginVisible(bool on) {
+      for (int i=0; i < frames.size(); i++) {
+        frames[i]->setOriginVisible(on);
+      }
+    }
     // The two operations below only apply to the current frame, because they concern the command
     // list, which is unique to each frame.
     void deleteCommand(int index) {
@@ -472,6 +477,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("setCommandVisibility", &SkpDebugPlayer::setCommandVisibility)
     .function("setGpuOpBounds",       &SkpDebugPlayer::setGpuOpBounds)
     .function("setInspectedLayer",    &SkpDebugPlayer::setInspectedLayer)
+    .function("setOriginVisible",     &SkpDebugPlayer::setOriginVisible)
     .function("setOverdrawVis",       &SkpDebugPlayer::setOverdrawVis)
     .function("setAndroidClipViz",    &SkpDebugPlayer::setAndroidClipViz);
 

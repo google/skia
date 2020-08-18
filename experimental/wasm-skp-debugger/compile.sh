@@ -70,6 +70,7 @@ echo "Compiling bitcode"
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
+    \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
@@ -143,7 +144,7 @@ ${EMCXX} \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
-    -s INITIAL_MEMORY=128MB \
+    -s INITIAL_MEMORY=256MB \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -s USE_WEBGL2=1 \
