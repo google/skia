@@ -18,10 +18,6 @@
 
 #import <Metal/Metal.h>
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 #define PRINT_MSL 0 // print out the MSL code generated
 
 NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode) {
@@ -60,12 +56,12 @@ void print_msl(const char* source) {
 }
 #endif
 
-id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
-                                          const SkSL::String& shaderString,
-                                          SkSL::Program::Kind kind,
-                                          const SkSL::Program::Settings& settings,
-                                          SkSL::String* mslShader,
-                                          SkSL::Program::Inputs* outInputs) {
+sk_cf_obj<id<MTLLibrary>> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
+                                                     const SkSL::String& shaderString,
+                                                     SkSL::Program::Kind kind,
+                                                     const SkSL::Program::Settings& settings,
+                                                     SkSL::String* mslShader,
+                                                     SkSL::Program::Inputs* outInputs) {
     std::unique_ptr<SkSL::Program> program =
             gpu->shaderCompiler()->convertProgram(kind,
                                                   shaderString,
@@ -81,14 +77,14 @@ id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
     if (!gpu->shaderCompiler()->toMetal(*program, mslShader)) {
         SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
         SkASSERT(false);
-        return nil;
+        return nullptr;
     }
 
     return GrCompileMtlShaderLibrary(gpu, *mslShader);
 }
 
-id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                         const SkSL::String& shaderString) {
+sk_cf_obj<id<MTLLibrary>> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                                                    const SkSL::String& shaderString) {
     NSString* mtlCode = [[NSString alloc] initWithCString: shaderString.c_str()
                                                  encoding: NSASCIIStringEncoding];
 #if PRINT_MSL
@@ -109,10 +105,10 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
         SkDebugf("Error compiling MSL shader: %s\n%s\n",
                  shaderString.c_str(),
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-        return nil;
+        return nullptr;
     }
 
-    return compiledLibrary;
+    return sk_cf_obj<id<MTLLibrary>>(compiledLibrary);
 }
 
 // Wrapper to get atomic assignment for compiles and pipeline creation

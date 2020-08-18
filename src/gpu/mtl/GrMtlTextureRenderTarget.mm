@@ -9,10 +9,6 @@
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    SkBudgeted budgeted,
                                                    SkISize dimensions,

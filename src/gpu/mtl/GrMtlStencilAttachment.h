@@ -12,6 +12,8 @@
 
 #import <Metal/Metal.h>
 
+#include "include/ports/SkCFObject.h"
+
 class GrMtlImageView;
 class GrMtlGpu;
 
@@ -31,7 +33,7 @@ public:
 
     MTLPixelFormat mtlFormat() const { return fFormat.fInternalFormat; }
 
-    id<MTLTexture> stencilView() const { return fStencilView; }
+    id<MTLTexture> stencilView() const { return fStencilView.get(); }
 
 protected:
     void onRelease() override;
@@ -48,7 +50,7 @@ private:
 
     Format fFormat;
 
-    id<MTLTexture> fStencilView;
+    sk_cf_obj<id<MTLTexture>> fStencilView;
 };
 
 #endif

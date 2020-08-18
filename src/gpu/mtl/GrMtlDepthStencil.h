@@ -11,6 +11,7 @@
 #import <Metal/Metal.h>
 
 #include "include/gpu/GrTypes.h"
+#include "include/ports/SkCFObject.h"
 #include "src/core/SkOpts.h"
 #include <atomic>
 
@@ -22,9 +23,9 @@ class GrMtlDepthStencil : public SkRefCnt {
 public:
     static GrMtlDepthStencil* Create(const GrMtlGpu*, const GrStencilSettings&, GrSurfaceOrigin);
 
-    ~GrMtlDepthStencil() override { fMtlDepthStencilState = nil; }
+    ~GrMtlDepthStencil() override {}
 
-    id<MTLDepthStencilState> mtlDepthStencil() const { return fMtlDepthStencilState; }
+    id<MTLDepthStencilState> mtlDepthStencil() const { return fMtlDepthStencilState.get(); }
 
     struct Key {
         struct Face {
@@ -58,7 +59,7 @@ private:
         : fMtlDepthStencilState(mtlDepthStencilState)
         , fKey(key) {}
 
-    id<MTLDepthStencilState> fMtlDepthStencilState;
+    sk_cf_obj<id<MTLDepthStencilState>> fMtlDepthStencilState;
     Key                      fKey;
 };
 

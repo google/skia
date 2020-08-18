@@ -11,10 +11,6 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
                            SkISize dimensions,
@@ -100,7 +96,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
 }
 
 GrMtlTexture::~GrMtlTexture() {
-    SkASSERT(nil == fTexture);
+    SkASSERT(!fTexture);
 }
 
 GrMtlGpu* GrMtlTexture::getMtlGpu() const {
@@ -109,14 +105,14 @@ GrMtlGpu* GrMtlTexture::getMtlGpu() const {
 }
 
 GrBackendTexture GrMtlTexture::getBackendTexture() const {
-    GrMipmapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipmapped::kYes
-                                                          : GrMipmapped::kNo;
+    GrMipmapped mipMapped = [*fTexture mipmapLevelCount] > 1 ? GrMipmapped::kYes
+                                                            : GrMipmapped::kNo;
     GrMtlTextureInfo info;
-    info.fTexture.reset(GrRetainPtrFromId(fTexture));
+    info.fTexture.retain((void*)fTexture.get());
     return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }
 
 GrBackendFormat GrMtlTexture::backendFormat() const {
-    return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
+    return GrBackendFormat::MakeMtl([*fTexture pixelFormat]);
 }
 

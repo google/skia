@@ -32,9 +32,10 @@ template <typename T> static inline void SkCFSafeRelease(T obj) {
 
 template <typename T> class sk_cf_obj {
 public:
-    using element_type = T;
+//    using element_type = T;
 
-    constexpr sk_cf_obj() : fObject(nullptr) {}
+    constexpr sk_cf_obj() : fObject(nil) {}
+    constexpr sk_cf_obj(std::nullptr_t) : fObject(nil) {}
 
     /**
      *  Shares the underlying object by calling CFRetain(), so that both the argument and the newly
@@ -76,6 +77,12 @@ public:
         }
         return *this;
     }
+    template <typename U,
+              typename = typename std::enable_if<std::is_convertible<U*, T*>::value>::type>
+    sk_cf_obj<T>& operator=(const sk_cf_obj<U>& that) {
+        this->reset(SkCFSafeRetain(that.get()));
+        return *this;
+    }
 
     /**
      *  Move the underlying object from the argument to the sk_cf_obj. If the sk_cf_obj
@@ -87,7 +94,13 @@ public:
         return *this;
     }
 
+    explicit operator bool() const { return this->get() != nil; }
+
     T get() const { return fObject; }
+    T operator*() const {
+        SkASSERT(this->get() != nil);
+        return this->get();
+    }
 
     /**
      *  Adopt the new object, and call CFRelease() on any previously held object (if not null).

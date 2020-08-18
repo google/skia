@@ -8,10 +8,6 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
                                                const Format& format,
                                                const id<MTLTexture> stencilView)
@@ -57,12 +53,12 @@ size_t GrMtlStencilAttachment::onGpuMemorySize() const {
 }
 
 void GrMtlStencilAttachment::onRelease() {
-    fStencilView = nullptr;
+    fStencilView.reset();
     GrStencilAttachment::onRelease();
 }
 
 void GrMtlStencilAttachment::onAbandon() {
-    fStencilView = nullptr;
+    fStencilView.reset();
     GrStencilAttachment::onAbandon();
 }
 
