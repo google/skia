@@ -647,27 +647,43 @@ static bool try_replace_expression(BasicBlock* b,
  * Returns true if the expression is a constant numeric literal with the specified value, or a
  * constant vector with all elements equal to the specified value.
  */
-static bool is_constant(const Expression& expr, double value) {
+template <typename T = double>
+static bool is_constant(const Expression& expr, T value) {
     switch (expr.fKind) {
         case Expression::kIntLiteral_Kind:
             return expr.as<IntLiteral>().fValue == value;
+
         case Expression::kFloatLiteral_Kind:
             return expr.as<FloatLiteral>().fValue == value;
+
         case Expression::kConstructor_Kind: {
-            const Constructor& c = expr.as<Constructor>();
-            bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
-                                                 : c.fType.isFloat();
-            if (c.fType.kind() == Type::kVector_Kind && c.isCompileTimeConstant()) {
-                for (int i = 0; i < c.fType.columns(); ++i) {
-                    if (isFloat) {
-                        if (c.getFVecComponent(i) != value) {
-                            return false;
+            const Constructor& constructor = expr.as<Constructor>();
+            if (constructor.isCompileTimeConstant()) {
+                bool isFloat = constructor.fType.columns() > 1
+                                       ? constructor.fType.componentType().isFloat()
+                                       : constructor.fType.isFloat();
+                switch (constructor.fType.kind()) {
+                    case Type::kVector_Kind:
+                        for (int i = 0; i < constructor.fType.columns(); ++i) {
+                            if (isFloat) {
+                                if (constructor.getFVecComponent(i) != value) {
+                                    return false;
+                                }
+                            } else {
+                                if (constructor.getIVecComponent(i) != value) {
+                                    return false;
+                                }
+                            }
                         }
-                    } else if (c.getIVecComponent(i) != value) {
+                        return true;
+
+                    case Type::kScalar_Kind:
+                        SkASSERT(constructor.fArguments.size() == 1);
+                        return is_constant<T>(*constructor.fArguments[0], value);
+
+                    default:
                         return false;
-                    }
                 }
-                return true;
             }
             return false;
         }
@@ -1315,17 +1331,16 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
-                for (const auto& c : s.fCases) {
+                for (const std::unique_ptr<SwitchCase>& c : s.fCases) {
                     if (!c->fValue) {
                         defaultCase = c.get();
                         continue;
                     }
-                    SkASSERT(c->fValue->fKind == s.fValue->fKind);
-                    found = c->fValue->compareConstant(*fContext, *s.fValue);
-                    if (found) {
+                    if (is_constant<int64_t>(*s.fValue, c->fValue->getConstantInt())) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock));
+                            found = true;
                             break;
                         } else {
                             if (s.fIsStatic && !(fFlags & kPermitInvalidStaticTests_Flag)) {
