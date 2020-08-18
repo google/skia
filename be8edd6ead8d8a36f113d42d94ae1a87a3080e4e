@@ -33,6 +33,24 @@
       "revId": "be8edd6ead8d8a36f113d42d94ae1a87a3080e4e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c8b1791_e1fc9619",
+        "filename": "third_party/icu/SkLoadICU.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 13579
+      },
+      "writtenOn": "2020-08-18T07:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4bd4627_e4dbf407",
+      "revId": "be8edd6ead8d8a36f113d42d94ae1a87a3080e4e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
