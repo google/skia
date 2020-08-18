@@ -125,6 +125,61 @@ struct Expression : public IRNode {
     }
 
     /**
+     * Returns true if the expression is a constant numeric literal with the specified value, or a
+     * constant vector with all elements equal to the specified value.
+     */
+    bool isEqualToConstant(double value) const {
+        return this->isEqualToConstantScalar(value) ||
+               this->isEqualToConstantVector(value);
+    }
+
+    /**
+     * Returns true if the expression is a constant numeric literal with the specified value
+     */
+    bool isEqualToConstantScalar(double value) const {
+        switch (fKind) {
+            case kIntLiteral_Kind:
+                return this->as<IntLiteral>().fValue == value;
+            case Expression::kFloatLiteral_Kind:
+                return this->as<FloatLiteral>().fValue == value;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the expression is a constant vector with all elements equal to the specified
+     * value.
+     */
+    bool isEqualToConstantVector(double value) const {
+        if (fKind == kConstructor_Kind) {
+            const Constructor& c = this->as<Constructor>();
+            if (c.fType.kind() == Type::kVector_Kind && c.isCompileTimeConstant()) {
+                bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
+                                                     : c.fType.isFloat();
+
+                // We've got a compile-time-constant vector constructor. Check each field to ensure
+                // that its value is a match.
+                for (int i = 0; i < c.fType.columns(); ++i) {
+                    if (isFloat) {
+                        if (c.getFVecComponent(i) != value) {
+                            return false;
+                        }
+                    } else {
+                        if (c.getIVecComponent(i) != value) {
+                            return false;
+                        }
+                    }
+                }
+
+                // All fields match!
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Given a map of known constant variable values, substitute them in for references to those
      * variables occurring in this expression and its subexpressions.  Similar simplifications, such
      * as folding a constant binary expression down to a single value, may also be performed.
