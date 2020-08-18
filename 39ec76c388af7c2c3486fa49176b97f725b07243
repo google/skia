@@ -16,6 +16,52 @@
       "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d72ca21_4b1af786",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-18T14:08:36Z",
+      "side": 1,
+      "message": "constexpr?",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 13
+      },
+      "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "652db1b3_e374406e",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-18T14:08:36Z",
+      "side": 1,
+      "message": "It\u0027s not clear to me why you separated this from the TextureCoords definition. IMO, it\u0027s harder to follow this way and we end up with duplicated code.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 63
+      },
+      "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

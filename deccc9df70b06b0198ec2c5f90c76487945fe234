@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "43dc0c80_182748d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-18T14:08:36Z",
+      "side": 1,
+      "message": "I\u0027m guessing due to your latest change you saw that the iPhone6 bots are failing in the fontcache-mt gm. In principle, though, it seems like this should work. As a side note, if you can get it working only in floating point, then it may be faster even with the extra computation. The reason is that to use the integer values we have to force rasterization into a slower mode. Another reason why I believe I was trying to get the sign bit approach working.",
+      "revId": "deccc9df70b06b0198ec2c5f90c76487945fe234",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
