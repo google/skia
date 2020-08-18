@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e5a8ccf_4ae1ad17",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-18T13:20:23Z",
+      "side": 1,
+      "message": "You can force the non-integer path by editing GrGLCaps.cpp here: https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/gl/GrGLCaps.cpp;l\u003d406?q\u003dfIntegerSupport\u0026ss\u003dchromium%2Fchromium%2Fsrc:third_party%2Fskia%2F, to set shaderCaps-\u003efIntegerSupport to false.",
+      "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
