@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4500b22f_c478007d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-18T14:54:43Z",
+      "side": 1,
+      "message": "It appears you already have the Google CLA since it didn\u0027t trigger an error, but you\u0027ll need to add a line to the top-level authors file to get around the following presubmit error.\n\n** Presubmit ERRORS **\nThe email nikolay.igotti@jetbrains.com is not in Skia\u0027s AUTHORS file.\nIssue owner, this CL must include an addition to the Skia AUTHORS file.\n\nI suggest you add something like the following line...\n\nJetbrains \u003c*@jetbrains.com\u003e",
+      "revId": "71f4f4749f742cc4d69381f2e268a7382713fe45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
