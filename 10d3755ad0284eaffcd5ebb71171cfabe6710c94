@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac3acc2_0f1e496c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-18T23:01:31Z",
+      "side": 1,
+      "message": "Ethan, I\u0027m particularly interested in your take on this, since the code seems to imply that constant propagation ought to have flattened this for us.",
+      "revId": "10d3755ad0284eaffcd5ebb71171cfabe6710c94",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
