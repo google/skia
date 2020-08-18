@@ -25,10 +25,12 @@ struct FunctionDefinition;
  * A function declaration (not a definition -- does not contain a body).
  */
 struct FunctionDeclaration : public Symbol {
+    static constexpr Kind kSymbolKind = kFunctionDeclaration_Kind;
+
     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
                         std::vector<const Variable*> parameters, const Type& returnType,
                         bool builtin)
-    : INHERITED(offset, kFunctionDeclaration_Kind, std::move(name))
+    : INHERITED(offset, kSymbolKind, std::move(name))
     , fDefinition(nullptr)
     , fBuiltin(builtin)
     , fModifiers(modifiers)

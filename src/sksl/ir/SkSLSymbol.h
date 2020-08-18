@@ -32,6 +32,21 @@ struct Symbol : public IRNode {
 
     ~Symbol() override {}
 
+    /**
+     *  Use as<T> to downcast symbols. e.g. replace `(Variable&) sym` with `sym.as<Variable>()`.
+     */
+    template <typename T>
+    const T& as() const {
+        SkASSERT(this->fKind == T::kSymbolKind);
+        return static_cast<const T&>(*this);
+    }
+
+    template <typename T>
+    T& as() {
+        SkASSERT(this->fKind == T::kSymbolKind);
+        return static_cast<T&>(*this);
+    }
+
     Kind fKind;
     StringFragment fName;
 

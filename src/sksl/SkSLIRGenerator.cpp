@@ -988,10 +988,10 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         std::vector<const FunctionDeclaration*> functions;
         switch (entry->fKind) {
             case Symbol::kUnresolvedFunction_Kind:
-                functions = ((UnresolvedFunction*) entry)->fFunctions;
+                functions = entry->as<UnresolvedFunction>().fFunctions;
                 break;
             case Symbol::kFunctionDeclaration_Kind:
-                functions.push_back((FunctionDeclaration*) entry);
+                functions.push_back(&entry->as<FunctionDeclaration>());
                 break;
             default:
                 fErrors.error(f.fOffset, "symbol '" + fd.fName + "' was already defined");
@@ -1243,13 +1243,13 @@ const Type* IRGenerator::convertType(const ASTNode& type) {
     const Symbol* result = (*fSymbolTable)[td.fName];
     if (result && result->fKind == Symbol::kType_Kind) {
         if (td.fIsNullable) {
-            if (((Type&) *result) == *fContext.fFragmentProcessor_Type) {
+            if (result->as<Type>() == *fContext.fFragmentProcessor_Type) {
                 if (type.begin() != type.end()) {
                     fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in "
                                                 "an array");
                 }
                 result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                        String(result->fName) + "?", Type::kNullable_Kind, (const Type&)*result));
+                        String(result->fName) + "?", Type::kNullable_Kind, result->as<Type>()));
             } else {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
             }
@@ -1262,9 +1262,9 @@ const Type* IRGenerator::convertType(const ASTNode& type) {
             }
             name += "]";
             result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                    name, Type::kArray_Kind, (const Type&)*result, size ? size.getInt() : 0));
+                    name, Type::kArray_Kind, result->as<Type>(), size ? size.getInt() : 0));
         }
-        return (const Type*) result;
+        return &result->as<Type>();
     }
     fErrors.error(type.fOffset, "unknown type '" + td.fName + "'");
     return nullptr;
@@ -1317,16 +1317,16 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
     switch (result->fKind) {
         case Symbol::kFunctionDeclaration_Kind: {
             std::vector<const FunctionDeclaration*> f = {
-                (const FunctionDeclaration*) result
+                &result->as<FunctionDeclaration>()
             };
             return std::make_unique<FunctionReference>(fContext, identifier.fOffset, f);
         }
         case Symbol::kUnresolvedFunction_Kind: {
-            const UnresolvedFunction* f = (const UnresolvedFunction*) result;
+            const UnresolvedFunction* f = &result->as<UnresolvedFunction>();
             return std::make_unique<FunctionReference>(fContext, identifier.fOffset, f->fFunctions);
         }
         case Symbol::kVariable_Kind: {
-            const Variable* var = (const Variable*) result;
+            const Variable* var = &result->as<Variable>();
             switch (var->fModifiers.fLayout.fBuiltin) {
                 case SK_WIDTH_BUILTIN:
                     fInputs.fRTWidth = true;
@@ -1373,7 +1373,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                                                        VariableReference::kRead_RefKind);
         }
         case Symbol::kField_Kind: {
-            const Field* field = (const Field*) result;
+            const Field* field = &result->as<Field>();
             VariableReference* base = new VariableReference(identifier.fOffset, field->fOwner,
                                                             VariableReference::kRead_RefKind);
             return std::unique_ptr<Expression>(new FieldAccess(
@@ -1382,11 +1382,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                                                   FieldAccess::kAnonymousInterfaceBlock_OwnerKind));
         }
         case Symbol::kType_Kind: {
-            const Type* t = (const Type*) result;
+            const Type* t = &result->as<Type>();
             return std::make_unique<TypeReference>(fContext, identifier.fOffset, *t);
         }
         case Symbol::kExternal_Kind: {
-            const ExternalValue* r = (const ExternalValue*) result;
+            const ExternalValue* r = &result->as<ExternalValue>();
             return std::make_unique<ExternalValueReference>(identifier.fOffset, r);
         }
         default:
@@ -2500,7 +2500,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                             ((TypeReference&) *functionValue).fValue,
                                             std::move(arguments));
         case Expression::kExternalValue_Kind: {
-            const ExternalValue* v = ((ExternalValueReference&) *functionValue).fValue;
+            const ExternalValue* v = functionValue->as<ExternalValueReference>().fValue;
             if (!v->canCall()) {
                 fErrors.error(offset, "this external value is not a function");
                 return nullptr;
@@ -2809,7 +2809,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
                                                       StringFragment field) {
     if (base->fKind == Expression::kExternalValue_Kind) {
-        const ExternalValue& ev = *((ExternalValueReference&) *base).fValue;
+        const ExternalValue& ev = *base->as<ExternalValueReference>().fValue;
         ExternalValue* result = ev.getChild(String(field).c_str());
         if (!result) {
             fErrors.error(base->fOffset, "external value does not have a child named '" + field +

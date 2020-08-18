@@ -23,6 +23,8 @@ struct Expression;
  * read or write that storage location.
  */
 struct Variable : public Symbol {
+    static constexpr Kind kSymbolKind = kVariable_Kind;
+
     enum Storage {
         kGlobal_Storage,
         kInterfaceBlock_Storage,
@@ -32,7 +34,7 @@ struct Variable : public Symbol {
 
     Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
              Storage storage, Expression* initialValue = nullptr)
-    : INHERITED(offset, kVariable_Kind, name)
+    : INHERITED(offset, kSymbolKind, name)
     , fModifiers(modifiers)
     , fType(type)
     , fStorage(storage)

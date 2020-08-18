@@ -13,9 +13,9 @@ namespace SkSL {
 std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& s) {
     switch (s.fKind) {
         case Symbol::kFunctionDeclaration_Kind:
-            return { &((FunctionDeclaration&) s) };
+            return { &s.as<FunctionDeclaration>() };
         case Symbol::kUnresolvedFunction_Kind:
-            return ((UnresolvedFunction&) s).fFunctions;
+            return s.as<UnresolvedFunction>().fFunctions;
         default:
             return std::vector<const FunctionDeclaration*>();
     }
@@ -74,17 +74,17 @@ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol)
         const Symbol* oldSymbol = existing->second;
         if (oldSymbol->fKind == Symbol::kFunctionDeclaration_Kind) {
             std::vector<const FunctionDeclaration*> functions;
-            functions.push_back((const FunctionDeclaration*) oldSymbol);
-            functions.push_back((const FunctionDeclaration*) symbol);
+            functions.push_back(&oldSymbol->as<FunctionDeclaration>());
+            functions.push_back(&symbol->as<FunctionDeclaration>());
             std::unique_ptr<const Symbol> u = std::unique_ptr<const Symbol>(
                                                       new UnresolvedFunction(std::move(functions)));
             fSymbols[name] = this->takeOwnershipOfSymbol(std::move(u));
         } else if (oldSymbol->fKind == Symbol::kUnresolvedFunction_Kind) {
             std::vector<const FunctionDeclaration*> functions;
-            for (const auto* f : ((UnresolvedFunction&) *oldSymbol).fFunctions) {
+            for (const auto* f : oldSymbol->as<UnresolvedFunction>().fFunctions) {
                 functions.push_back(f);
             }
-            functions.push_back((const FunctionDeclaration*) symbol);
+            functions.push_back(&symbol->as<FunctionDeclaration>());
             std::unique_ptr<const Symbol> u = std::unique_ptr<const Symbol>(
                                                       new UnresolvedFunction(std::move(functions)));
             fSymbols[name] = this->takeOwnershipOfSymbol(std::move(u));
