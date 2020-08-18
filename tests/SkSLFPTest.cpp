@@ -10,6 +10,8 @@
 
 #include "tests/Test.h"
 
+#ifdef SK_DEBUG
+
 static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* src,
                  std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {
     SkSL::Program::Settings settings;
@@ -1301,3 +1303,5 @@ DEF_TEST(SkSLFPMatrixSampleVariableAndExplicitly, r) {
              "this->invokeChild(0, args, _coords232.c_str()",
          });
 }
+
+#endif // SK_DEBUG
