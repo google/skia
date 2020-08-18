@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "d2cc0ea9_4212021f",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "I don\u0027t think anyone\u0027s using this. Same for queryYUV8. (I\u0027ve checked Chromium, Android, and Google3. I git grep\u0027ed flutter/engine, which I think is the only place where they could have been using it?)\n\nIf we want to leave in the old methods, perhaps they should be behind a flag, e.g. SK_LEGACY_YUV8? That said, where you\u0027ve had to almost-duplicate code in SkJpegCodec, I suggested just removing the old methods entirely.",
+      "range": {
+        "startLine": 432,
+        "startChar": 8,
+        "endLine": 432,
+        "endChar": 18
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "045e23d5_e923ede9",
         "filename": "include/codec/SkEncodedOrigin.h",
         "patchSetId": 13
@@ -41,6 +64,145 @@
         "startChar": 23,
         "endLine": 32,
         "endChar": 46
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e423f23_b67444ae",
+        "filename": "include/codec/SkEncodedOrigin.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "I don\u0027t have a strong preference.",
+      "parentUuid": "045e23d5_e923ede9",
+      "range": {
+        "startLine": 32,
+        "startChar": 23,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d46fc10_99f75772",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "As with SkCodec, I think you can outright remove these, or at least put them behind a flag.",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 18
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4695a9f_d75d42f8",
+        "filename": "include/core/SkYUVASpec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "Add some documentation? It looks like this returns the number of planes, and planeDims an out parameter?)",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 32
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "847a8fcd_30fd925c",
+        "filename": "include/core/SkYUVASpec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "Is this pre/post applying the origin? (I\u0027m guessing pre, since you also have the origin here?",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 47
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df582bfd_42b588e1",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "I think you only meant to have one of these loops?",
+      "range": {
+        "startLine": 824,
+        "startChar": 0,
+        "endLine": 825,
+        "endChar": 41
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "551674a1_07674a12",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "In case it wasn\u0027t obvious, this-\u003edimensions() does not take the Origin into account. I wasn\u0027t sure whether that was the case for the spec. (I\u0027m guessing it\u0027s the same, since you also have an Origin?)",
+      "range": {
+        "startLine": 841,
+        "startChar": 4,
+        "endLine": 841,
+        "endChar": 43
       },
       "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
@@ -68,6 +230,53 @@
       "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "003b8134_30e30986",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "Thanks for the note! Unless you have a strong reason not to, I\u0027d recommend replacing the old one (bc no one is using it, to my knowledge) and then Gerrit will be able to show the difference more easily.",
+      "parentUuid": "28503602_8fb95993",
+      "range": {
+        "startLine": 849,
+        "startChar": 29,
+        "endLine": 849,
+        "endChar": 44
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50882564_8be00639",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-18T19:32:00Z",
+      "side": 1,
+      "message": "Maybe put this block inside {}, since it introduces variables that cannot be used outside of it (in release)?",
+      "range": {
+        "startLine": 866,
+        "startChar": 7,
+        "endLine": 866,
+        "endChar": 15
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
