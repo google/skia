@@ -65,7 +65,7 @@ public:
      * in this external value.
      * 'index' is the element index ([0 .. N-1]) within a call to ByteCode::run()
      */
-    virtual void read(int index, float* target) {
+    virtual void read(int index, float* target) const {
         SkASSERT(false);
     }
 
@@ -74,7 +74,7 @@ public:
      * pointer to the type of data expected by this external value.
      * 'index' is the element index ([0 .. N-1]) within a call to ByteCode::run()
      */
-    virtual void write(int index, float* src) {
+    virtual void write(int index, float* src) const {
         SkASSERT(false);
     }
 
@@ -85,7 +85,7 @@ public:
      * value.
      * 'index' is the element index ([0 .. N-1]) within a call to ByteCode::run()
      */
-    virtual void call(int index, float* arguments, float* outResult) {
+    virtual void call(int index, float* arguments, float* outResult) const {
         SkASSERT(false);
     }
 

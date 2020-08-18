@@ -1491,7 +1491,7 @@ void ByteCodeGenerator::writeExpression(const Expression& e, bool discard) {
 
 class ByteCodeExternalValueLValue : public ByteCodeGenerator::LValue {
 public:
-    ByteCodeExternalValueLValue(ByteCodeGenerator* generator, ExternalValue& value, int index)
+    ByteCodeExternalValueLValue(ByteCodeGenerator* generator, const ExternalValue& value, int index)
         : INHERITED(*generator)
         , fCount(ByteCodeGenerator::SlotCount(value.type()))
         , fIndex(index) {}
@@ -1602,7 +1602,7 @@ private:
 std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Expression& e) {
     switch (e.fKind) {
         case Expression::kExternalValue_Kind: {
-            ExternalValue* value = ((ExternalValueReference&) e).fValue;
+            const ExternalValue* value = ((ExternalValueReference&) e).fValue;
             int index = fOutput->fExternalValues.size();
             fOutput->fExternalValues.push_back(value);
             SkASSERT(index <= 255);

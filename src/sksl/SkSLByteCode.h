@@ -287,7 +287,7 @@ private:
     std::vector<Uniform> fUniforms;
 
     std::vector<std::unique_ptr<ByteCodeFunction>> fFunctions;
-    std::vector<ExternalValue*> fExternalValues;
+    std::vector<const ExternalValue*> fExternalValues;
 };
 
 }  // namespace SkSL

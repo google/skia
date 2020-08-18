@@ -18,7 +18,7 @@ namespace SkSL {
  * An external function invocation.
  */
 struct ExternalFunctionCall : public Expression {
-    ExternalFunctionCall(int offset, const Type& type, ExternalValue* function,
+    ExternalFunctionCall(int offset, const Type& type, const ExternalValue* function,
                          std::vector<std::unique_ptr<Expression>> arguments)
     : INHERITED(offset, kExternalFunctionCall_Kind, type)
     , fFunction(function)
@@ -67,7 +67,7 @@ struct ExternalFunctionCall : public Expression {
         return result;
     }
 
-    ExternalValue* fFunction;
+    const ExternalValue* fFunction;
     std::vector<std::unique_ptr<Expression>> fArguments;
 
     typedef Expression INHERITED;

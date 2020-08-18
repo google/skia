@@ -1386,7 +1386,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
             return std::make_unique<TypeReference>(fContext, identifier.fOffset, *t);
         }
         case Symbol::kExternal_Kind: {
-            ExternalValue* r = (ExternalValue*) result;
+            const ExternalValue* r = (const ExternalValue*) result;
             return std::make_unique<ExternalValueReference>(identifier.fOffset, r);
         }
         default:
@@ -2501,7 +2501,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                             ((TypeReference&) *functionValue).fValue,
                                             std::move(arguments));
         case Expression::kExternalValue_Kind: {
-            ExternalValue* v = ((ExternalValueReference&) *functionValue).fValue;
+            const ExternalValue* v = ((ExternalValueReference&) *functionValue).fValue;
             if (!v->canCall()) {
                 fErrors.error(offset, "this external value is not a function");
                 return nullptr;
@@ -2810,7 +2810,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
                                                       StringFragment field) {
     if (base->fKind == Expression::kExternalValue_Kind) {
-        ExternalValue& ev = *((ExternalValueReference&) *base).fValue;
+        const ExternalValue& ev = *((ExternalValueReference&) *base).fValue;
         ExternalValue* result = ev.getChild(String(field).c_str());
         if (!result) {
             fErrors.error(base->fOffset, "external value does not have a child named '" + field +

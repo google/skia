@@ -265,7 +265,7 @@ static void CallExternal(const ByteCode* byteCode, const uint8_t*& ip, VValue*& 
     int argumentCount = READ8();
     int returnCount = READ8();
     int target = READ8();
-    ExternalValue* v = byteCode->fExternalValues[target];
+    const ExternalValue* v = byteCode->fExternalValues[target];
     sp -= argumentCount - 1;
 
     float tmpArgs[4];
