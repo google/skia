@@ -70,6 +70,7 @@ echo "Compiling bitcode"
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
+    \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
   ] \
@@ -79,7 +80,7 @@ echo "Compiling bitcode"
   werror=true \
   target_cpu=\"wasm\" \
   \
-  skia_use_angle = false \
+  skia_use_angle=false \
   skia_use_dng_sdk=false \
   skia_use_egl=true \
   skia_use_expat=false \

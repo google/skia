@@ -217,6 +217,7 @@ const char* DrawCommand::GetCommandString(OpType type) {
         case kClipRect_OpType: return "ClipRect";
         case kClipRRect_OpType: return "ClipRRect";
         case kConcat_OpType: return "Concat";
+        case kConcat44_OpType: return "Concat44";
         case kDrawAnnotation_OpType: return "DrawAnnotation";
         case kDrawBitmap_OpType: return "DrawBitmap";
         case kDrawBitmapRect_OpType: return "DrawBitmapRect";
@@ -471,6 +472,18 @@ void DrawCommand::MakeJsonMatrix(SkJSONWriter& writer, const SkMatrix& matrix) {
     writer.endArray();
 }
 
+void DrawCommand::MakeJsonMatrix44(SkJSONWriter& writer, const SkM44& matrix) {
+    writer.beginArray();
+    for (int r = 0; r < 4; ++r) {
+        writer.beginArray(nullptr, false);
+        for (int c = 0; c < 4; ++c) {
+            writer.appendFloat(matrix.rc(r, c));
+        }
+        writer.endArray();
+    }
+    writer.endArray();
+}
+
 void DrawCommand::MakeJsonPath(SkJSONWriter& writer, const SkPath& path) {
     writer.beginObject();
     switch (path.getFillType()) {
@@ -633,7 +646,7 @@ bool DrawCommand::flatten(const SkImage&  image,
     SkImageInfo  dstInfo =
             SkImageInfo::Make(image.dimensions(), kN32_SkColorType, kPremul_SkAlphaType);
     if (!image.readPixels(dstInfo, buffer.get(), rowBytes, 0, 0)) {
-        SkDebugf("readPixels failed\n");
+        SkDebugf("DrawCommand::flatten SkImage: readPixels failed\n");
         return false;
     }
 
@@ -643,6 +656,10 @@ bool DrawCommand::flatten(const SkImage&  image,
     SkDynamicMemoryWStream out;
     DrawCommand::WritePNG(bm, out);
     sk_sp<SkData> encoded = out.detachAsData();
+    if (encoded == nullptr) {
+        SkDebugf("DrawCommand::flatten SkImage: could not encode image as PNG\n");
+        return false;
+    }
     SkString      url = encode_data(encoded->data(), encoded->size(), "image/png", urlDataManager);
     writer.appendString(DEBUGCANVAS_ATTRIBUTE_DATA, url.c_str());
     return true;
@@ -1079,6 +1096,18 @@ void ConcatCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager)
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_MATRIX);
     MakeJsonMatrix(writer, fMatrix);
+}
+
+Concat44Command::Concat44Command(const SkM44& matrix) : INHERITED(kConcat44_OpType) {
+    fMatrix = matrix;
+}
+
+void Concat44Command::execute(SkCanvas* canvas) const { canvas->concat(fMatrix); }
+
+void Concat44Command::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
+    INHERITED::toJSON(writer, urlDataManager);
+    writer.appendName(DEBUGCANVAS_ATTRIBUTE_MATRIX);
+    MakeJsonMatrix44(writer, fMatrix);
 }
 
 ////
