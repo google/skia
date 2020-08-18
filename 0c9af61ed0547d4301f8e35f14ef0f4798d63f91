@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "142acc50_9890b67f",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "Done. I had thought Chrome was using this but they just use SkImageGenerator directly.",
+      "parentUuid": "d2cc0ea9_4212021f",
+      "range": {
+        "startLine": 432,
+        "startChar": 8,
+        "endLine": 432,
+        "endChar": 18
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "045e23d5_e923ede9",
         "filename": "include/codec/SkEncodedOrigin.h",
         "patchSetId": 13
@@ -118,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "cb9b100f_af0a8baf",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "Chrome does override this so it can\u0027t simply be removed. The idea was to update Chrome after branch and then remove.",
+      "parentUuid": "2d46fc10_99f75772",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 18
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4695a9f_d75d42f8",
         "filename": "include/core/SkYUVASpec.h",
         "patchSetId": 13
@@ -138,6 +186,30 @@
       "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "854c1501_28f42689",
+        "filename": "include/core/SkYUVASpec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4695a9f_d75d42f8",
+      "range": {
+        "startLine": 62,
+        "startChar": 15,
+        "endLine": 62,
+        "endChar": 32
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "7a2e1b8f_a603d8d7",
+        "filename": "include/core/SkYUVASpec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "Done. Though, I think you and I may have different notions of what \"pre\" and \"post\" mean in this context. I tried to make the comment very explicit.",
+      "parentUuid": "847a8fcd_30fd925c",
+      "range": {
+        "startLine": 77,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 47
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df582bfd_42b588e1",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 13
@@ -187,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "dc95260d_4c0cb8b1",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "D\u0027oh!",
+      "parentUuid": "df582bfd_42b588e1",
+      "range": {
+        "startLine": 824,
+        "startChar": 0,
+        "endLine": 825,
+        "endChar": 41
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "551674a1_07674a12",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 13
@@ -198,6 +318,30 @@
       "writtenOn": "2020-08-18T19:32:00Z",
       "side": 1,
       "message": "In case it wasn\u0027t obvious, this-\u003edimensions() does not take the Origin into account. I wasn\u0027t sure whether that was the case for the spec. (I\u0027m guessing it\u0027s the same, since you also have an Origin?)",
+      "range": {
+        "startLine": 841,
+        "startChar": 4,
+        "endLine": 841,
+        "endChar": 43
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ffdd80e_bd3bbc0b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "Put a comment in SkYUVASpec. These have the same understanding of the dimensions.",
+      "parentUuid": "551674a1_07674a12",
       "range": {
         "startLine": 841,
         "startChar": 4,
@@ -257,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "1410e6f2_bbac61e1",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "003b8134_30e30986",
+      "range": {
+        "startLine": 849,
+        "startChar": 29,
+        "endLine": 849,
+        "endChar": 44
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "50882564_8be00639",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 13
@@ -277,6 +445,30 @@
       "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01d8186d_db7a2d36",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T22:04:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50882564_8be00639",
+      "range": {
+        "startLine": 866,
+        "startChar": 7,
+        "endLine": 866,
+        "endChar": 15
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
