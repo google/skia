@@ -112,15 +112,6 @@ static void gpu_to_gpu(skiatest::Reporter* reporter, GrRecordingContext* rContex
     run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
 
-static void gpu_to_raster(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
-
-    auto sourceSurface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info));
-    auto destinationSurface(SkSurface::MakeRaster(info));
-
-    run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
-}
-
 static void raster_to_gpu(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
@@ -136,8 +127,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageNewShader_GPU, reporter, ctxInfo) {
     //  GPU -> GPU
     gpu_to_gpu(reporter, dContext);
 
-    //  GPU -> RASTER
-    gpu_to_raster(reporter, dContext);
+    //  GPU -> RASTER not currently supported
 
     //  RASTER -> GPU
     raster_to_gpu(reporter, dContext);
