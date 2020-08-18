@@ -900,15 +900,21 @@ public:
         If cachingHint is kAllow_CachingHint, pixels may be retained locally.
         If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
 
+        @param context      the GrDirectContext in play, if it exists
         @param dstInfo      destination width, height, SkColorType, SkAlphaType, SkColorSpace
         @param dstPixels    destination pixel storage
         @param dstRowBytes  destination row length
         @param srcX         column index whose absolute value is less than width()
         @param srcY         row index whose absolute value is less than height()
+        @param cachingHint  whether the pixels should be cached locally
         @return             true if pixels are copied to dstPixels
     */
-    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const;
+    bool readPixels(GrDirectContext* context,
+                    const SkImageInfo& dstInfo,
+                    void* dstPixels,
+                    size_t dstRowBytes,
+                    int srcX, int srcY,
+                    CachingHint cachingHint = kAllow_CachingHint) const;
 
     /** Copies a SkRect of pixels from SkImage to dst. Copy starts at (srcX, srcY), and
         does not exceed SkImage (width(), height()).
@@ -934,13 +940,26 @@ public:
         If cachingHint is kAllow_CachingHint, pixels may be retained locally.
         If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
 
+        @param context      the GrDirectContext in play, if it exists
         @param dst          destination SkPixmap: SkImageInfo, pixels, row bytes
         @param srcX         column index whose absolute value is less than width()
         @param srcY         row index whose absolute value is less than height()
+        @param cachingHint  whether the pixels should be cached locallyZ
         @return             true if pixels are copied to dst
     */
+    bool readPixels(GrDirectContext* context,
+                    const SkPixmap& dst,
+                    int srcX,
+                    int srcY,
+                    CachingHint cachingHint = kAllow_CachingHint) const;
+
+#ifndef SK_IMAGE_READ_PIXELS_DISABLE_LEGACY_API
+    /** Deprecated. Use the variants that accept a GrDirectContext. */
+    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
+                    int srcX, int srcY, CachingHint cachingHint = kAllow_CachingHint) const;
     bool readPixels(const SkPixmap& dst, int srcX, int srcY,
                     CachingHint cachingHint = kAllow_CachingHint) const;
+#endif
 
     /** The result from asyncRescaleAndReadPixels() or asyncRescaleAndReadPixelsYUV420(). */
     class AsyncReadResult {
