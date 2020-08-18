@@ -13,6 +13,8 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+
 namespace SkSL {
 
 // This uses templates to define dirtyExpression(), saveState() and setUniform(). Each template can
@@ -129,5 +131,7 @@ private:
 };
 
 }  // namespace SkSL
+
+#endif // defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
 
 #endif // SkSLUniformCTypes_DEFINED
