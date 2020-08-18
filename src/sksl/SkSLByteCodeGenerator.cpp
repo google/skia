@@ -1602,7 +1602,7 @@ private:
 std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Expression& e) {
     switch (e.fKind) {
         case Expression::kExternalValue_Kind: {
-            const ExternalValue* value = ((ExternalValueReference&) e).fValue;
+            const ExternalValue* value = e.as<ExternalValueReference>().fValue;
             int index = fOutput->fExternalValues.size();
             fOutput->fExternalValues.push_back(value);
             SkASSERT(index <= 255);
@@ -1613,7 +1613,7 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
         case Expression::kVariableReference_Kind:
             return std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e));
         case Expression::kSwizzle_Kind: {
-            const Swizzle& s = (const Swizzle&) e;
+            const Swizzle& s = e.as<Swizzle>();
             return swizzle_is_simple(s)
                     ? std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e))
                     : std::unique_ptr<LValue>(new ByteCodeSwizzleLValue(this, s));
