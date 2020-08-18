@@ -20,7 +20,12 @@ class GrBackendSurfaceMutableStateImpl;
 // current VkImageLayout which can be shared with an internal GrVkImage so that layout updates can
 // be seen by all users of the image.
 struct GrVkBackendSurfaceInfo {
-    GrVkBackendSurfaceInfo(GrVkImageInfo info) : fImageInfo(info) {}
+    GrVkBackendSurfaceInfo(GrVkImageInfo info, VkImageUsageFlags defaultUsageFlags)
+            : fImageInfo(info) {
+        if (fImageInfo.fImageUsageFlags == 0) {
+            fImageInfo.fImageUsageFlags = defaultUsageFlags;
+        }
+    }
 
     void cleanup();
 
