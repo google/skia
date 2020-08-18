@@ -650,11 +650,11 @@ bool try_replace_expression(BasicBlock* b,
 bool is_constant(const Expression& expr, double value) {
     switch (expr.fKind) {
         case Expression::kIntLiteral_Kind:
-            return ((IntLiteral&) expr).fValue == value;
+            return expr.as<IntLiteral>().fValue == value;
         case Expression::kFloatLiteral_Kind:
-            return ((FloatLiteral&) expr).fValue == value;
+            return expr.as<FloatLiteral>().fValue == value;
         case Expression::kConstructor_Kind: {
-            Constructor& c = (Constructor&) expr;
+            const Constructor& c = expr.as<Constructor>();
             bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
                                                  : c.fType.isFloat();
             if (c.fType.kind() == Type::kVector_Kind && c.isCompileTimeConstant()) {
