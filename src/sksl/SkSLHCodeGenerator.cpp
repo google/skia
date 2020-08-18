@@ -19,6 +19,8 @@
 
 #include <set>
 
+#if defined(SKSL_STANDALONE) || defined(SK_DEBUG)
+
 namespace SkSL {
 
 HCodeGenerator::HCodeGenerator(const Context* context, const Program* program,
@@ -383,3 +385,5 @@ bool HCodeGenerator::generateCode() {
 }
 
 }  // namespace SkSL
+
+#endif // defined(SKSL_STANDALONE) || defined(SK_DEBUG)

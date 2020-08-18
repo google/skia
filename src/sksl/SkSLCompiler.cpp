@@ -1756,6 +1756,7 @@ bool Compiler::toMetal(Program& program, String* out) {
     return result;
 }
 
+#if defined(SKSL_STANDALONE) || defined(SK_DEBUG)
 bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
     if (!this->optimize(program)) {
         return false;
@@ -1777,8 +1778,9 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
     fSource = nullptr;
     return result;
 }
+#endif // SKSL_STANDALONE
 
-#endif
+#endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
