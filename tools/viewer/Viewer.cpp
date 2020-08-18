@@ -2320,12 +2320,14 @@ void Viewer::drawImGui() {
                         doSave = true;
                     }
                     if (inTreeNode) {
-                        // Full width, and a reasonable amount of space for each shader.
-                        ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * 20.0f);
-                        ImGui::InputTextMultiline("##VP", &entry.fShader[kVertex_GrShaderType],
-                                                  boxSize);
-                        ImGui::InputTextMultiline("##FP", &entry.fShader[kFragment_GrShaderType],
-                                                  boxSize);
+                        auto stringBox = [](const char* label, std::string* str) {
+                            // Full width, and not too much space for each shader
+                            int lines = std::count(str->begin(), str->end(), '\n') + 2;
+                            ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * std::min(lines, 30));
+                            ImGui::InputTextMultiline(label, str, boxSize);
+                        };
+                        stringBox("##VP", &entry.fShader[kVertex_GrShaderType]);
+                        stringBox("##FP", &entry.fShader[kFragment_GrShaderType]);
                         ImGui::TreePop();
                     }
                 }
