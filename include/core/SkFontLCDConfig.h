@@ -8,6 +8,7 @@
 #ifndef SkFontLCDConfig_DEFINED
 #define SkFontLCDConfig_DEFINED
 
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 
 class SK_API SkFontLCDConfig {
@@ -53,6 +54,16 @@ public:
     static void SetSubpixelOrder(LCDOrder order);
     /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
+
+    /** @deprecated set on Device creation. */
+    static void SetTextContrast(SkScalar contrast);
+    /** @deprecated get from Device. */
+    static SkScalar GetTextContrast();
+
+    /** @deprecated set on Device creation. */
+    static void SetTextGamma(SkScalar gamma);
+    /** @deprecated get from Device. */
+    static SkScalar GetTextGamma();
 };
 
 #endif

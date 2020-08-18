@@ -54,7 +54,7 @@
 
 class SurfaceParameters {
 public:
-    static const int kNumParams      = 12;
+    static const int kNumParams      = 14;
     static const int kSampleCount    = 5;
     static const int kMipMipCount    = 8;
     static const int kFBO0Count      = 9;
@@ -139,6 +139,13 @@ public:
         case 11:
             fIsProtected = GrProtected::kYes == fIsProtected ? GrProtected::kNo
                                                              : GrProtected::kYes;
+            break;
+        case 12:
+            fSurfaceProps = SkSurfaceProps(0x0, kUnknown_SkPixelGeometry, SK_GAMMA_CONTRAST, 1.8f);
+            break;
+        case 13:
+            fSurfaceProps = SkSurfaceProps(0x0, kUnknown_SkPixelGeometry, 0.75f,
+                                           SK_GAMMA_EXPONENT);
             break;
         }
     }
