@@ -33,6 +33,46 @@
       "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9b3dbb1_fdf4764f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-18T19:20:17Z",
+      "side": 1,
+      "message": "Can\u0027t confirm the assumed math is the right math to do (well some I know is right), but it does seem like the code is doing the steps you claim it should be doing. Someone else should take a look at this as well, especially someone use to looking at Sk2f code since I was having to learn it while reviewing (but seems right).",
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb537150_4d56cffa",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-18T19:20:17Z",
+      "side": 1,
+      "message": "Is this true that if one of the control points is at an end point it defines a bezier quad?",
+      "range": {
+        "startLine": 570,
+        "startChar": 3,
+        "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
