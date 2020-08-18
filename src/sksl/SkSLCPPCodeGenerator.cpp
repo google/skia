@@ -527,26 +527,58 @@ static const char* glsltype_string(const Context& context, const Type& type) {
         return "kFloat_GrSLType";
     } else if (type == *context.fHalf_Type) {
         return "kHalf_GrSLType";
+    } else if (type == *context.fInt_Type) {
+        return "kInt_GrSLType";
     } else if (type == *context.fFloat2_Type) {
         return "kFloat2_GrSLType";
     } else if (type == *context.fHalf2_Type) {
         return "kHalf2_GrSLType";
+    } else if (type == *context.fInt2_Type) {
+        return "kInt2_GrSLType";
     } else if (type == *context.fFloat3_Type) {
         return "kFloat3_GrSLType";
     } else if (type == *context.fHalf3_Type) {
         return "kHalf3_GrSLType";
+    } else if (type == *context.fInt3_Type) {
+        return "kInt3_GrSLType";
     } else if (type == *context.fFloat4_Type) {
         return "kFloat4_GrSLType";
     } else if (type == *context.fHalf4_Type) {
         return "kHalf4_GrSLType";
+    } else if (type == *context.fInt4_Type) {
+        return "kInt4_GrSLType";
     } else if (type == *context.fFloat2x2_Type) {
         return "kFloat2x2_GrSLType";
     } else if (type == *context.fHalf2x2_Type) {
         return "kHalf2x2_GrSLType";
+    } else if (type == *context.fFloat2x3_Type) {
+        return "kFloat2x3_GrSLType";
+    } else if (type == *context.fHalf2x3_Type) {
+        return "kHalf2x3_GrSLType";
+    } else if (type == *context.fFloat2x4_Type) {
+        return "kFloat2x4_GrSLType";
+    } else if (type == *context.fHalf2x4_Type) {
+        return "kHalf2x4_GrSLType";
+    } else if (type == *context.fFloat3x2_Type) {
+        return "kFloat3x2_GrSLType";
+    } else if (type == *context.fHalf3x2_Type) {
+        return "kHalf3x2_GrSLType";
     } else if (type == *context.fFloat3x3_Type) {
         return "kFloat3x3_GrSLType";
     } else if (type == *context.fHalf3x3_Type) {
         return "kHalf3x3_GrSLType";
+    } else if (type == *context.fFloat3x4_Type) {
+        return "kFloat3x4_GrSLType";
+    } else if (type == *context.fHalf3x4_Type) {
+        return "kHalf3x4_GrSLType";
+    } else if (type == *context.fFloat4x2_Type) {
+        return "kFloat4x2_GrSLType";
+    } else if (type == *context.fHalf4x2_Type) {
+        return "kHalf4x2_GrSLType";
+    } else if (type == *context.fFloat4x3_Type) {
+        return "kFloat4x3_GrSLType";
+    } else if (type == *context.fHalf4x3_Type) {
+        return "kHalf4x3_GrSLType";
     } else if (type == *context.fFloat4x4_Type) {
         return "kFloat4x4_GrSLType";
     } else if (type == *context.fHalf4x4_Type) {

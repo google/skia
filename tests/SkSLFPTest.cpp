@@ -1151,6 +1151,65 @@ do {
          });
 }
 
+DEF_TEST(SkSLFPGrSLTypesAreSupported, r) {
+    // We thwart the optimizer by wrapping our return statement in a loop, which prevents inlining.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             int test(int a) { for (;;) { return a; } }
+             void main() { sk_OutColor = test(1).xxxx; }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+            R"__Cpp__(const GrShaderVar test_args[] = { GrShaderVar("a", kInt_GrSLType)};)__Cpp__",
+            R"__Cpp__(fragBuilder->emitFunction(kInt_GrSLType, "test", 1, test_args,)__Cpp__",
+         });
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             int2 test(int2 a) { for (;;) { return a; } }
+             void main() { sk_OutColor = test(int2(1)).xyxy; }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+            R"__Cpp__(const GrShaderVar test_args[] = { GrShaderVar("a", kInt2_GrSLType)};)__Cpp__",
+            R"__Cpp__(fragBuilder->emitFunction(kInt2_GrSLType, "test", 1, test_args,)__Cpp__",
+         });
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             int3 test(int3 a) { for (;;) { return a; } }
+             void main() { sk_OutColor = test(int3(1)).xyzx; }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+            R"__Cpp__(const GrShaderVar test_args[] = { GrShaderVar("a", kInt3_GrSLType)};)__Cpp__",
+            R"__Cpp__(fragBuilder->emitFunction(kInt3_GrSLType, "test", 1, test_args,)__Cpp__",
+         });
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             int4 test(int4 a) { for (;;) { return a; } }
+             void main() { sk_OutColor = test(int4(1)); }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+            R"__Cpp__(const GrShaderVar test_args[] = { GrShaderVar("a", kInt4_GrSLType)};)__Cpp__",
+            R"__Cpp__(fragBuilder->emitFunction(kInt4_GrSLType, "test", 1, test_args,)__Cpp__",
+         });
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half3x4 test(float3x4 a) { for (;;) { return half3x4(a); } }
+             void main() { sk_OutColor = test(float3x4(0))[0]; }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+            R"__Cpp__(const GrShaderVar test_args[] = { GrShaderVar("a", kFloat3x4_GrSLType)};)__Cpp__",
+            R"__Cpp__(fragBuilder->emitFunction(kHalf3x4_GrSLType, "test", 1, test_args,)__Cpp__",
+         });
+}
+
 DEF_TEST(SkSLFPMatrixSampleConstant, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
