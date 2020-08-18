@@ -53,6 +53,29 @@
     },
     {
       "key": {
+        "uuid": "d047081e_8ed72a61",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-18T21:29:31Z",
+      "side": 1,
+      "message": "What does this rotation mean? You define it, but I\u0027m not quite grasping it conceptually.",
+      "range": {
+        "startLine": 557,
+        "startChar": 6,
+        "endLine": 557,
+        "endChar": 38
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb537150_4d56cffa",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
@@ -68,6 +91,53 @@
         "startLine": 570,
         "startChar": 3,
         "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f347e200_996a1a73",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-18T21:29:31Z",
+      "side": 1,
+      "message": "I believe that\u0027s correct, but Chris can verify.",
+      "parentUuid": "bb537150_4d56cffa",
+      "range": {
+        "startLine": 570,
+        "startChar": 3,
+        "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f09365d_18aa586f",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-18T21:29:31Z",
+      "side": 1,
+      "message": "I may take another look at this part, but I\u0027m assuming it\u0027s right.",
+      "range": {
+        "startLine": 610,
+        "startChar": 4,
+        "endLine": 623,
         "endChar": 5
       },
       "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
