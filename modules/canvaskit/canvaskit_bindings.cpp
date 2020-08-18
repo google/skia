@@ -63,7 +63,7 @@
 
 #ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -136,21 +136,19 @@ struct ColorSettings {
     GrGLenum pixFormat;
 };
 
-sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
+sk_sp<GrDirectContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
 {
     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
     if (r < 0) {
         printf("failed to make webgl context current %d\n", r);
         return nullptr;
     }
-    // setup GrContext
     auto interface = GrGLMakeNativeInterface();
-    // setup contexts
-    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
-    return grContext;
+    // setup GrDirectContext
+    return GrDirectContext::MakeGL(interface);
 }
 
-sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, int height,
+sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrDirectContext> dContext, int width, int height,
                                        sk_sp<SkColorSpace> colorSpace) {
     // WebGL should already be clearing the color and stencil buffers, but do it again here to
     // ensure Skia receives them in the expected state.
@@ -158,7 +156,7 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, in
     glClearColor(0, 0, 0, 0);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    grContext->resetContext(kRenderTarget_GrGLBackendState | kMisc_GrGLBackendState);
+    dContext->resetContext(kRenderTarget_GrGLBackendState | kMisc_GrGLBackendState);
 
     // The on-screen canvas is FBO 0. Wrap it in a Skia render target so Skia can render to it.
     GrGLFramebufferInfo info;
@@ -173,15 +171,15 @@ sk_sp<SkSurface> MakeOnScreenGLSurface(sk_sp<GrContext> grContext, int width, in
     const auto colorSettings = ColorSettings(colorSpace);
     info.fFormat = colorSettings.pixFormat;
     GrBackendRenderTarget target(width, height, sampleCnt, stencil, info);
-    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(dContext.get(), target,
         kBottomLeft_GrSurfaceOrigin, colorSettings.colorType, colorSpace, nullptr));
     return surface;
 }
 
-sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, int width, int height) {
+sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrRecordingContext> rContext, int width, int height) {
     SkImageInfo info = SkImageInfo::MakeN32(width, height, SkAlphaType::kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(grContext.get(),
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(rContext.get(),
                              SkBudgeted::kYes,
                              info, 0,
                              kBottomLeft_GrSurfaceOrigin,
@@ -189,8 +187,8 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, int width, int hei
     return surface;
 }
 
-sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrContext> grContext, SimpleImageInfo sii) {
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(grContext.get(),
+sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrRecordingContext> rContext, SimpleImageInfo sii) {
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(rContext.get(),
                              SkBudgeted::kYes,
                              toSkImageInfo(sii), 0,
                              kBottomLeft_GrSurfaceOrigin,
@@ -781,8 +779,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
     function("setCurrentContext", &emscripten_webgl_make_context_current);
     function("MakeGrContext", &MakeGrContext);
     function("MakeOnScreenGLSurface", &MakeOnScreenGLSurface);
-    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, int, int)>(&MakeRenderTarget));
-    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrContext>, SimpleImageInfo)>(&MakeRenderTarget));
+    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrRecordingContext>, int, int)>(&MakeRenderTarget));
+    function("MakeRenderTarget", select_overload<sk_sp<SkSurface>(sk_sp<GrRecordingContext>, SimpleImageInfo)>(&MakeRenderTarget));
 
     constant("gpu", true);
 #endif
@@ -1348,8 +1346,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                     // See comment above for uintptr_t explanation
             uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
             SkImageInfo ii = toSkImageInfo(sii);
-
-            return self->readPixels(ii, pixels, dstRowBytes, srcX, srcY);
+            // TODO: Migrate CanvasKit API to require DirectContext arg here.
+            GrDirectContext* dContext = nullptr;
+#ifdef SK_GL
+            dContext = GrAsDirectContext(as_IB(self.get())->context());
+#endif
+            return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
         }), allow_raw_pointers());
 
     class_<SkImageFilter>("SkImageFilter")
