@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d884358_f1f355f0",
+        "filename": "gm/orientation.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T18:38:38Z",
+      "side": 1,
+      "message": "I wrote this to produce something close to the previous 1.jpg .. 8.jpg.",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 23
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "045e23d5_e923ede9",
+        "filename": "include/codec/SkEncodedOrigin.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T18:38:38Z",
+      "side": 1,
+      "message": "I found this more convenient to use when w,h refer to the image rather than the plane. But it\u0027s not important and can go back to how it was if this isn\u0027t desirable. I checked and no clients we maintain are using this function.",
+      "range": {
+        "startLine": 32,
+        "startChar": 23,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28503602_8fb95993",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T18:38:38Z",
+      "side": 1,
+      "message": "This implementation is almost entirely lifted from onGetYUVA8Planes, with minor edits for var names and types.",
+      "range": {
+        "startLine": 849,
+        "startChar": 29,
+        "endLine": 849,
+        "endChar": 44
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
