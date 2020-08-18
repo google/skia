@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e242cea5_b0e1184e",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T14:50:58Z",
+      "side": 1,
+      "message": "Kinda wonder how useful all these constructors are given the churn they add when making changes. Might be simpler to use default initializers, have a default op\u003d, and have client code initialize each field directly (or use designated initializers if supported by their compilers).",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 218,
+        "endChar": 48
+      },
+      "revId": "a3f062eda71021e3ec22f83c2542b238abc66275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67fe2a32_7636880c",
+        "filename": "include/private/GrVkTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-18T14:50:58Z",
+      "side": 1,
+      "message": "Would it be cleaner to force the caller to make their mind about usage flags before calling this?\n\nIf calling from another cons init list you could have a helper:\n\n  static GrVkImageInfo apply_default_usage_flags(const GrVkImageInfo\u0026 info, VkImageUsageFlags defaultFlags)\n\ncalled from the init list.",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 5
+      },
+      "revId": "a3f062eda71021e3ec22f83c2542b238abc66275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
