@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56d432fd_59c7c5f7",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-19T12:11:06Z",
+      "side": 1,
+      "message": "wrap comments to 100 cols. \n\nprotip: most editors can give you a thin guideline at 100 cols so it\u0027s more clear when this wrapping needs to be done.",
+      "range": {
+        "startLine": 179,
+        "startChar": 92,
+        "endLine": 179,
+        "endChar": 99
+      },
+      "revId": "eb32f74084970af0771d13296cf3132919fd4a35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
