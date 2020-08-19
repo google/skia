@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1db3ee11_e94bb3b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-19T13:33:33Z",
+      "side": 1,
+      "message": "SkCodec related code lgtm",
+      "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af46e417_a665ec25",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 851,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-19T13:33:33Z",
+      "side": 1,
+      "message": "nit: onGetYUVA*Planes",
+      "range": {
+        "startLine": 851,
+        "startChar": 51,
+        "endLine": 851,
+        "endChar": 52
+      },
+      "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "760fa01d_b09213ce",
+        "filename": "tests/YUVTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-19T13:33:33Z",
+      "side": 1,
+      "message": "I\u0027m curious, could you not have used SkImageInfo::computeByteSize here? (I guess that would return a different result if rowbytes is bigger than minRowBytes? Would that happen?)",
+      "range": {
+        "startLine": 81,
+        "startChar": 16,
+        "endLine": 81,
+        "endChar": 46
+      },
+      "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

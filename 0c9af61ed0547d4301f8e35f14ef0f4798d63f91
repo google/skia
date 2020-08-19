@@ -166,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "8392e6d3_3ecdbc3a",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-19T13:33:33Z",
+      "side": 1,
+      "message": "Sgtm",
+      "parentUuid": "cb9b100f_af0a8baf",
+      "range": {
+        "startLine": 121,
+        "startChar": 8,
+        "endLine": 121,
+        "endChar": 18
+      },
+      "revId": "0c9af61ed0547d4301f8e35f14ef0f4798d63f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4695a9f_d75d42f8",
         "filename": "include/core/SkYUVASpec.h",
         "patchSetId": 13
