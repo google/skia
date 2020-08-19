@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "e18cf992_134b9a0b",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 851,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-19T14:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af46e417_a665ec25",
+      "range": {
+        "startLine": 851,
+        "startChar": 51,
+        "endLine": 851,
+        "endChar": 52
+      },
+      "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "760fa01d_b09213ce",
         "filename": "tests/YUVTest.cpp",
         "patchSetId": 16
