@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e634461_eecccf21",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-19T18:52:03Z",
+      "side": 1,
+      "message": "I think we do need libGLESv2 functions. Can you remove lGL instead?",
+      "range": {
+        "startLine": 69,
+        "startChar": 11,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "b7d9bf1c93e79b3859e618d22c07c9237aa68845",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
