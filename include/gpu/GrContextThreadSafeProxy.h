@@ -18,6 +18,7 @@
 class GrBackendFormat;
 class GrCaps;
 class GrContextThreadSafeProxyPriv;
+class GrMagicCache;
 class GrTextBlobCache;
 class SkSurfaceCharacterization;
 class SkSurfaceProps;
@@ -115,7 +116,8 @@ private:
     const GrContextOptions           fOptions;
     const uint32_t                   fContextID;
     sk_sp<const GrCaps>              fCaps;
-    std::unique_ptr<GrTextBlobCache> fTextBlobCache;
+    std::unique_ptr<GrTextBlobCache> fTextBlobCache1;
+    std::unique_ptr<GrMagicCache>    fMagicCache;
     std::atomic<bool>                fAbandoned{false};
 };
 

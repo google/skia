@@ -72,7 +72,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
         setup_always_evict_atlas(dContext);
-        GrTextBlobTestingPeer::SetBudget(dContext->priv().getTextBlobCache(), 0);
+        GrTextBlobTestingPeer::SetBudget(dContext->priv().getTextBlobCache1(), 0);
     }
 
     SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,

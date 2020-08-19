@@ -36,8 +36,11 @@ public:
     const GrCaps* caps() const { return fProxy->fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fProxy->fCaps; }
 
-    GrTextBlobCache* getTextBlobCache() { return fProxy->fTextBlobCache.get(); }
-    const GrTextBlobCache* getTextBlobCache() const { return fProxy->fTextBlobCache.get(); }
+    GrTextBlobCache* getTextBlobCache1() { return fProxy->fTextBlobCache1.get(); }
+    const GrTextBlobCache* getTextBlobCache1() const { return fProxy->fTextBlobCache1.get(); }
+
+    GrMagicCache* magicCache() { return fProxy->fMagicCache.get(); }
+    const GrMagicCache* magicCache() const { return fProxy->fMagicCache.get(); }
 
     void abandonContext() { fProxy->abandonContext(); }
     bool abandoned() const { return fProxy->abandoned(); }
