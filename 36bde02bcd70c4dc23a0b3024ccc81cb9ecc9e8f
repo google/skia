@@ -51,6 +51,24 @@
       "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da5659ae_d5d1e727",
+        "filename": "tests/PictureTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 992,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T12:06:44Z",
+      "side": 1,
+      "message": "When a nested picture is empty.",
+      "parentUuid": "5bae96c7_64c6920d",
+      "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
