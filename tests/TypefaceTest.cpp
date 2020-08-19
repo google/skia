@@ -163,6 +163,9 @@ DEF_TEST(TypefaceAxes, reporter) {
     }
     REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
 
+    // Variable font conservative bounds don't vary, so ensure they aren't reported.
+    REPORTER_ASSERT(reporter, typeface->getBounds().isEmpty());
+
     SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
     count = typeface->getVariationDesignPosition(positionRead, SK_ARRAY_COUNT(positionRead));
     if (count == -1) {
