@@ -11,7 +11,7 @@
         return defaultValue;
       }
 
-      CanvasKit.makeWebGLContextAsCurrent = function(canvas, attrs) {
+      CanvasKit.GetWebGLContext = function(canvas, attrs) {
         if (!canvas) {
           throw 'null canvas passed into makeWebGLContext';
         }
@@ -31,6 +31,9 @@
 
         if (attrs && attrs['majorVersion']) {
           contextAttributes['majorVersion'] = attrs['majorVersion']
+        } else {
+          // Default to WebGL 2 if available and not specified.
+          contextAttributes['majorVersion'] = (typeof WebGL2RenderingContext !== 'undefined') ? 2 : 1;
         }
 
         // This check is from the emscripten version
@@ -38,13 +41,14 @@
           throw 'explicitSwapControl is not supported';
         }
         // Creates a WebGL context and sets it to be the current context.
-        this.createContext(canvas, true, true, contextAttributes);
+        // These functions are defined in emscripten's library_webgl.js
+        var handle = GL.createContext(canvas, contextAttributes);
+        if (!handle) {
+          return 0;
+        }
+        GL.makeContextCurrent(handle);
+        return handle;
       }
-
-      CanvasKit.GetWebGLContext = function(canvas, attrs) {
-        this.makeWebGLContextAsCurrent(canvas, attrs);
-        return CanvasKit.currentContext() || 0;
-      };
 
       // idOrElement can be of types:
       //  - String - in which case it is interpreted as an id of a
