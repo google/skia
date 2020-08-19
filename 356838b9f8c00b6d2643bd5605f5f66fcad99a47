@@ -22,6 +22,30 @@
       "revId": "356838b9f8c00b6d2643bd5605f5f66fcad99a47",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abbd06cf_eda2689b",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-19T17:22:34Z",
+      "side": 0,
+      "message": "This was doing nothing (as a compiler warning told me) because it only had an effect on the old compiler/toolchain, which we hadn\u0027t been using since 1.38, IIRC",
+      "parentUuid": "d53cc690_71ca3c93",
+      "range": {
+        "startLine": 28,
+        "startChar": 32,
+        "endLine": 28,
+        "endChar": 42
+      },
+      "revId": "356838b9f8c00b6d2643bd5605f5f66fcad99a47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
