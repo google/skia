@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "6138ddf8_d54b66d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T14:29:34Z",
+      "side": 1,
+      "message": "Oh right, Android uses it only as an \"empty?\" check, which wouldn\u0027t be affected by unrolling the drawables.",
+      "parentUuid": "f3a9a01e_039bb63d",
+      "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be2bfad6_6db2bea6",
         "filename": "src/core/SkBigPicture.cpp",
         "patchSetId": 2
