@@ -393,6 +393,8 @@ skia_gpu_sources = [
   "$_src/gpu/ops/GrFillRectOp.h",
   "$_src/gpu/ops/GrLatticeOp.cpp",
   "$_src/gpu/ops/GrLatticeOp.h",
+  "$_src/gpu/ops/GrMagicCache.cpp",
+  "$_src/gpu/ops/GrMagicCache.h",
   "$_src/gpu/ops/GrMeshDrawOp.cpp",
   "$_src/gpu/ops/GrMeshDrawOp.h",
   "$_src/gpu/ops/GrOp.cpp",
