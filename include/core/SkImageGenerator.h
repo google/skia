@@ -60,10 +60,6 @@ public:
         return this->onIsValid(context);
     }
 
-    /** Deprecated.
-     */
-    bool isValid(GrContext* context) const;
-
     /**
      *  Decode into the given pixels, a block of memory of size at
      *  least (info.fHeight - 1) * rowBytes + (info.fWidth *
@@ -138,7 +134,7 @@ public:
      *          return false;
      *      }
      *
-     *  Regarding the GrContext parameter:
+     *  Regarding the GrRecordingContext parameter:
      *
      *  It must be non-NULL. The generator should only succeed if:
      *  - its internal context is the same
