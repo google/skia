@@ -110,6 +110,30 @@
       "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72c04504_c400f05b",
+        "filename": "tests/YUVTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-19T15:54:11Z",
+      "side": 1,
+      "message": "\u003e I\u0027m not sure if this is a bug in our SkJPEGCodec or if by design we should just always give codecs a full row_bytes*h allocation because they do things in blocks and it\u0027s not worth the memory savings to complicate the implementation. Do you happen to know?\n\nI do not, but I suspect it is by design. Thanks!",
+      "parentUuid": "f24b2e6c_50555f1e",
+      "range": {
+        "startLine": 81,
+        "startChar": 16,
+        "endLine": 81,
+        "endChar": 46
+      },
+      "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
