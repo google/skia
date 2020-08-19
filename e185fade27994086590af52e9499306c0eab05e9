@@ -16,6 +16,24 @@
       "revId": "e185fade27994086590af52e9499306c0eab05e9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92617a87_8845a253",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T13:58:41Z",
+      "side": 1,
+      "message": "Just now at head,\n\n\"libflutter.so\": {\n      \"skia_in_flutter\": {\n        \"total_size_bytes\": 1326819\n      }\n    }",
+      "parentUuid": "d6920671_5bdfc6ed",
+      "revId": "e185fade27994086590af52e9499306c0eab05e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
