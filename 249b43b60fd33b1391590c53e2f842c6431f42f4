@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "ee19c8f1_0160a18e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T17:43:57Z",
+      "side": 1,
+      "message": "I think it\u0027s actually kind of surprising that color filters aren\u0027t `half4 main(half4)`, though I\u0027m totally on board with shaders being `half4 main(float2)`.  Is the deal that color filters are easier to support if we make users plumb their one legal input through rather than we do it for them?",
+      "parentUuid": "4d8b7dc6_b82fa666",
+      "range": {
+        "startLine": 10,
+        "startChar": 37,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35198b5_03d0c74b",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
