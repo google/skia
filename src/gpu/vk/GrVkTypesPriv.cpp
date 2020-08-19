@@ -19,8 +19,10 @@ void GrVkBackendSurfaceInfo::assign(const GrVkBackendSurfaceInfo& that, bool isT
 GrVkImageInfo GrVkBackendSurfaceInfo::snapImageInfo(
         const GrBackendSurfaceMutableStateImpl* mutableState) const {
     SkASSERT(mutableState);
-    return GrVkImageInfo(fImageInfo, mutableState->getImageLayout(),
-                         mutableState->getQueueFamilyIndex());
+    GrVkImageInfo newInfo = fImageInfo;
+    newInfo.fImageLayout = mutableState->getImageLayout();
+    newInfo.fCurrentQueueFamily = mutableState->getQueueFamilyIndex();
+    return newInfo;
 }
 
 #if GR_TEST_UTILS
