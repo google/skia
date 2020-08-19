@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e54dc54e_253c1fc0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-19T19:47:22Z",
+      "side": 1,
+      "message": "YUVASpec \u0026 image_lazy parts lgtm",
+      "revId": "3f1e2e2b39ac22cc1d5e857301b8aa5e12ff4844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "115ffe6e_32f3c1ea",
         "filename": "include/core/SkYUVASpec.h",
         "patchSetId": 19
