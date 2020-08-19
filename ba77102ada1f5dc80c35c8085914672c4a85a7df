@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9889e6a8_e55d74df",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-19T22:22:19Z",
+      "side": 1,
+      "message": "should probably change these to sk_float_nextlog2. next_log2?",
+      "range": {
+        "startLine": 221,
+        "startChar": 7,
+        "endLine": 221,
+        "endChar": 15
+      },
+      "revId": "ba77102ada1f5dc80c35c8085914672c4a85a7df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
