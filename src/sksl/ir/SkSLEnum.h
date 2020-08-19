@@ -21,9 +21,11 @@ namespace SkSL {
 struct Symbol;
 
 struct Enum : public ProgramElement {
+    static constexpr Kind kProgramElementKind = kEnum_Kind;
+
     Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
          bool isBuiltin = true)
-    : INHERITED(offset, kEnum_Kind)
+    : INHERITED(offset, kProgramElementKind)
     , fTypeName(typeName)
     , fSymbols(std::move(symbols))
     , fBuiltin(isBuiltin) {}

@@ -496,7 +496,7 @@ void Dehydrator::write(const Statement* s) {
 void Dehydrator::write(const ProgramElement& e) {
     switch (e.fKind) {
         case ProgramElement::kEnum_Kind: {
-            Enum& en = (Enum&) e;
+            const Enum& en = e.as<Enum>();
             this->writeU8(Rehydrator::kEnum_Command);
             this->write(en.fTypeName);
             AutoDehydratorSymbolTable symbols(this, en.fSymbols);
@@ -513,7 +513,7 @@ void Dehydrator::write(const ProgramElement& e) {
             SkASSERT(false);
             break;
         case ProgramElement::kFunction_Kind: {
-            FunctionDefinition& f = (FunctionDefinition&) e;
+            const FunctionDefinition& f = e.as<FunctionDefinition>();
             this->writeU8(Rehydrator::kFunctionDefinition_Command);
             this->writeU16(this->symbolId(&f.fDeclaration));
             this->write(f.fBody.get());
@@ -528,7 +528,7 @@ void Dehydrator::write(const ProgramElement& e) {
             break;
         }
         case ProgramElement::kInterfaceBlock_Kind: {
-            InterfaceBlock& i = (InterfaceBlock&) e;
+            const InterfaceBlock& i = e.as<InterfaceBlock>();
             this->writeU8(Rehydrator::kInterfaceBlock_Command);
             this->write(i.fVariable);
             this->write(i.fTypeName);
@@ -546,7 +546,7 @@ void Dehydrator::write(const ProgramElement& e) {
             SkASSERT(false);
             break;
         case ProgramElement::kVar_Kind: {
-            VarDeclarations& v = (VarDeclarations&) e;
+            const VarDeclarations& v = e.as<VarDeclarations>();
             this->writeU8(Rehydrator::kVarDeclarations_Command);
             this->write(v.fBaseType);
             this->writeU8(v.fVars.size());

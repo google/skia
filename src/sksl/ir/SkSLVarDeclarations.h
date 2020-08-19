@@ -83,9 +83,11 @@ struct VarDeclaration : public Statement {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct VarDeclarations : public ProgramElement {
+    static constexpr Kind kProgramElementKind = kVar_Kind;
+
     VarDeclarations(int offset, const Type* baseType,
                     std::vector<std::unique_ptr<VarDeclaration>> vars)
-    : INHERITED(offset, kVar_Kind)
+    : INHERITED(offset, kProgramElementKind)
     , fBaseType(*baseType) {
         for (auto& var : vars) {
             fVars.push_back(std::unique_ptr<Statement>(var.release()));

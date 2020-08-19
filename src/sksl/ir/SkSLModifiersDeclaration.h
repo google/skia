@@ -19,8 +19,10 @@ namespace SkSL {
  * layout(blend_support_all_equations) out;
  */
 struct ModifiersDeclaration : public ProgramElement {
+    static constexpr Kind kProgramElementKind = kModifiers_Kind;
+
     ModifiersDeclaration(Modifiers modifiers)
-    : INHERITED(-1, kModifiers_Kind)
+    : INHERITED(-1, kProgramElementKind)
     , fModifiers(modifiers) {}
 
     std::unique_ptr<ProgramElement> clone() const override {

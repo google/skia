@@ -75,7 +75,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
         std::unique_ptr<ProgramElement>& element = *iter;
         switch (element->fKind) {
             case ProgramElement::kFunction_Kind: {
-                FunctionDefinition& f = (FunctionDefinition&) *element;
+                FunctionDefinition& f = element->as<FunctionDefinition>();
                 SkASSERT(f.fDeclaration.fBuiltin);
                 String key = f.fDeclaration.description();
                 SkASSERT(target->find(key) == target->end());
@@ -84,7 +84,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 break;
             }
             case ProgramElement::kEnum_Kind: {
-                Enum& e = (Enum&) *element;
+                Enum& e = element->as<Enum>();
                 StringFragment name = e.fTypeName;
                 SkASSERT(target->find(name) == target->end());
                 (*target)[name] = std::make_pair(std::move(element), false);
@@ -1637,7 +1637,7 @@ bool Compiler::optimize(Program& program) {
         fIRGenerator->fSettings = &program.fSettings;
         for (auto& element : program) {
             if (element.fKind == ProgramElement::kFunction_Kind) {
-                this->scanCFG((FunctionDefinition&) element);
+                this->scanCFG(element.as<FunctionDefinition>());
             }
         }
         // we wait until after analysis to remove dead functions so that we still report errors
@@ -1645,7 +1645,7 @@ bool Compiler::optimize(Program& program) {
         if (program.fSettings.fRemoveDeadFunctions) {
             for (auto iter = program.fElements.begin(); iter != program.fElements.end(); ) {
                 if ((*iter)->fKind == ProgramElement::kFunction_Kind) {
-                    const FunctionDefinition& f = (const FunctionDefinition&) **iter;
+                    const FunctionDefinition& f = (*iter)->as<FunctionDefinition>();
                     if (!f.fDeclaration.fCallCount && f.fDeclaration.fName != "main") {
                         iter = program.fElements.erase(iter);
                         continue;
@@ -1657,7 +1657,7 @@ bool Compiler::optimize(Program& program) {
         if (program.fKind != Program::kFragmentProcessor_Kind) {
             for (auto iter = program.fElements.begin(); iter != program.fElements.end();) {
                 if ((*iter)->fKind == ProgramElement::kVar_Kind) {
-                    VarDeclarations& vars = (VarDeclarations&) **iter;
+                    VarDeclarations& vars = (*iter)->as<VarDeclarations>();
                     for (auto varIter = vars.fVars.begin(); varIter != vars.fVars.end();) {
                         const Variable& var = *((VarDeclaration&) **varIter).fVar;
                         if (var.dead()) {
