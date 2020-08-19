@@ -1,3 +1,14 @@
+// *****************
+// *** IMPORTANT ***
+// *****************
+//
+// 1. This file is only used when gn arg sksl_lex is set to true. It is used to regenerate the
+//    SkSLLexer.h and SkSLLexer.cpp files.
+// 2. Since token IDs are used to identify operators and baked into the .dehydrated.sksl files,
+//    after modifying this file it is likely everything will break until you update the dehydrated
+//    binaries. If things break after updating the lexer, set REHYDRATE in SkSLCompiler.cpp to 0,
+//    rebuild, and then set it back to 1.
+
 FLOAT_LITERAL  = [0-9]*\.[0-9]+([eE][+-]?[0-9]+)?|[0-9]+\.[0-9]*([eE][+-]?[0-9]+)?|[0-9]+([eE][+-]?[0-9]+)
 INT_LITERAL    = [0-9]+|0x[0-9a-fA-F]+
 TRUE_LITERAL   = "true"
@@ -30,6 +41,7 @@ COHERENT       = "coherent"
 VOLATILE       = "volatile"
 RESTRICT       = "restrict"
 BUFFER         = "buffer"
+INLINE         = "inline"
 HASSIDEEFFECTS = "sk_has_side_effects"
 PLS            = "__pixel_localEXT"
 PLSIN          = "__pixel_local_inEXT"
