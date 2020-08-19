@@ -124,6 +124,30 @@
     },
     {
       "key": {
+        "uuid": "c2977f63_c4972e8e",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-19T12:10:10Z",
+      "side": 1,
+      "message": "For how you are using this in practice, I do think this generally gives you the value you\u0027re looking for. But theoretically the derivative at t\u003d0 for the P0\u003d\u003dP1 case (and similar for t\u003d1 with P2\u003d\u003dP3) is 0. So we don\u0027t really have a tangent and start angle there. But I suppose you can argue as t-\u003e0+, that the (1-t)*t term of the derivative will dominate the t^2 term. So once you take a micro step off of t\u003d0, you\u0027ll be facing close enough along P2-P1",
+      "parentUuid": "a215c966_7ffd4f74",
+      "range": {
+        "startLine": 557,
+        "startChar": 6,
+        "endLine": 557,
+        "endChar": 38
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb537150_4d56cffa",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
