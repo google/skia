@@ -10,9 +10,6 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCompiler.h"
 
-// Without this build flag, this bench isn't runnable.
-#if defined(SK_ENABLE_SKSL_INTERPRETER)
-
 // Benchmarks the interpreter with a function that has a color-filter style signature
 class SkSLInterpreterCFBench : public Benchmark {
 public:
@@ -144,4 +141,3 @@ const char* kHighContrastFilterSrc = R"(
 
 DEF_BENCH(return new SkSLInterpreterCFBench("lumaToAlpha", 256, kLumaToAlphaSrc));
 DEF_BENCH(return new SkSLInterpreterCFBench("hcf", 256, kHighContrastFilterSrc));
-#endif // SK_ENABLE_SKSL_INTERPRETER
