@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "d37ee11d_2f4fe449",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T17:55:07Z",
+      "side": 1,
+      "message": "... not to mention its ordinary special wiring as the output of the shader modulated by paint alpha.",
+      "parentUuid": "f7c5dec0_967ff72a",
+      "range": {
+        "startLine": 10,
+        "startChar": 37,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35198b5_03d0c74b",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
