@@ -848,6 +848,11 @@ DEF_TEST(Placeholder, r) {
         canvas->drawPicture(p2);
     sk_sp<SkPicture> pic = recorder.finishRecordingAsPicture();
     REPORTER_ASSERT(r, pic->approximateOpCount() == 2);
+
+    // Any upper limit when recursing into nested placeholders is fine as long
+    // as it doesn't overflow an int.
+    REPORTER_ASSERT(r, pic->approximateOpCount(/*nested?*/true) >=  2);
+    REPORTER_ASSERT(r, pic->approximateOpCount(/*nested?*/true) <= 10);
 }
 
 DEF_TEST(Picture_empty_serial, reporter) {

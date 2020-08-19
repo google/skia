@@ -64,4 +64,13 @@ public:
     static bool ValidateMarker(const char*);
 };
 
+/**
+ *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
+ *  against the playback cost of recursing into the subpicture to get at its actual ops.
+ *
+ *  For now we pick a conservatively small value, though measurement (and other heuristics like
+ *  the type of ops contained) may justify changing this value.
+ */
+constexpr int kMaxPictureOpsToUnrollInsteadOfRef = 1;
+
 #endif

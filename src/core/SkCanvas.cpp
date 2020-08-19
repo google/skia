@@ -2891,14 +2891,6 @@ void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, con
 void SkCanvas::onDrawPicture(const SkPicture* picture, const SkMatrix* matrix,
                              const SkPaint* paint) {}
 #else
-/**
- *  This constant is trying to balance the speed of ref'ing a subpicture into a parent picture,
- *  against the playback cost of recursing into the subpicture to get at its actual ops.
- *
- *  For now we pick a conservatively small value, though measurement (and other heuristics like
- *  the type of ops contained) may justify changing this value.
- */
-#define kMaxPictureOpsToUnrollInsteadOfRef  1
 
 void SkCanvas::drawPicture(const SkPicture* picture, const SkMatrix* matrix, const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
