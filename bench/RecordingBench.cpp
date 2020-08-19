@@ -12,8 +12,8 @@
 PictureCentricBench::PictureCentricBench(const char* name, const SkPicture* pic) : fName(name) {
     // Flatten the source picture in case it's trivially nested (useless for timing).
     SkPictureRecorder rec;
-    pic->playback(rec.beginRecording(pic->cullRect(), nullptr,
-                                     SkPictureRecorder::kPlaybackDrawPicture_RecordFlag));
+    pic->playback(rec.beginRecording(pic->cullRect(), nullptr /*,
+                                     SkPictureRecorder::kPlaybackDrawPicture_RecordFlag*/));
     fSrc = rec.finishRecordingAsPicture();
 }
 
