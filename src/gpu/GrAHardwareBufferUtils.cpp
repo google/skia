@@ -487,10 +487,15 @@ static GrBackendTexture make_vk_backend_texture(
         return GrBackendTexture();
     }
 
-    GrVkImageInfo imageInfo;
+    GrVkAlloc alloc;
+    alloc.fMemory = memory;
+    alloc.fOffset = 0;
+    alloc.fSize = hwbProps.allocationSize;
+    alloc.fFlags = 0;
 
+    GrVkImageInfo imageInfo;
     imageInfo.fImage = image;
-    imageInfo.fAlloc = GrVkAlloc(memory, 0, hwbProps.allocationSize, 0);
+    imageInfo.fAlloc = alloc;
     imageInfo.fImageTiling = tiling;
     imageInfo.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.fFormat = format;
