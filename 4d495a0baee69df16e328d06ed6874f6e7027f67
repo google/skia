@@ -42,6 +42,23 @@
     },
     {
       "key": {
+        "uuid": "054cd521_3cd3b8af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-19T15:52:27Z",
+      "side": 1,
+      "message": "Another reason this isn\u0027t in the public API is because it isn\u0027t clear what the right hack is in the end. For example there\u0027s yet another thing that macOS does (described at https://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/ports/SkTypeface_mac_ct.cpp;l\u003d1063;drc\u003d72aa50fa724be49fb2c59872b20bce365ab44c12;bpv\u003d1;bpt\u003d0 ) where it doesn\u0027t actually use a consistent gamma across the range.\n\nAlso, the current mask gamma isn\u0027t taking the color space into account at all. It may be a good idea to try out creating the tables from the skcms_TransferFunction on the color space in use.",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
