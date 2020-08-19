@@ -988,11 +988,6 @@ optional("xml") {
   ]
 }
 
-optional("sksl_interpreter") {
-  enabled = skia_enable_sksl_interpreter
-  public_defines = [ "SK_ENABLE_SKSL_INTERPRETER" ]
-}
-
 optional("skvm_jit") {
   enabled = skia_enable_skvm_jit_when_possible
   public_defines = [ "SKVM_JIT_WHEN_POSSIBLE" ]
@@ -1065,7 +1060,6 @@ component("skia") {
     ":png_decode",
     ":png_encode",
     ":raw",
-    ":sksl_interpreter",
     ":skvm_jit",
     ":skx",
     ":sse2",
