@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1eaa6187_c37ee1de",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-19T17:17:20Z",
+      "side": 1,
+      "message": "Can you phrase this more clearly? maybe \"Canvaskit now must be compiled with emsdk 2.0.0\"?",
+      "revId": "92ba53c53486da6c1657d21fbb5f5e35f3af6b2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
