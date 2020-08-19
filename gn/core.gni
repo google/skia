@@ -95,6 +95,7 @@ skia_core_public = [
   "$_include/core/SkVertices.h",
   "$_include/core/SkYUVAIndex.h",
   "$_include/core/SkYUVASizeInfo.h",
+  "$_include/core/SkYUVASpec.h",
 ]
 
 skia_core_sources = [
@@ -412,6 +413,9 @@ skia_core_sources = [
   "$_src/core/SkXfermodeInterpretation.cpp",
   "$_src/core/SkXfermodeInterpretation.h",
   "$_src/core/SkYUVASizeInfo.cpp",
+  "$_src/core/SkYUVASpec.cpp",
+  "$_src/core/SkYUVASpecPriv.cpp",
+  "$_src/core/SkYUVASpecPriv.h",
   "$_src/core/SkYUVMath.cpp",
   "$_src/core/SkYUVPlanesCache.cpp",
   "$_src/core/SkYUVPlanesCache.h",

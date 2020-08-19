@@ -11,12 +11,44 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/core/SkYUVASizeInfo.h"
+#include "include/core/SkYUVASpec.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/core/SkAutoMalloc.h"
 
 class SkData;
 
 namespace sk_gpu_test {
+
+/**
+ * Helper to allocate SkPixmaps for a SkYUVASpec. Pixmaps are valid so long as YUVAPixmaps is
+ * alive.
+ */
+class YUVAPixmaps {
+public:
+    YUVAPixmaps() = default;
+
+    YUVAPixmaps(YUVAPixmaps&& that) = default;
+    YUVAPixmaps& operator=(YUVAPixmaps&& that) = default;
+
+    YUVAPixmaps(const YUVAPixmaps&) = delete;
+    YUVAPixmaps& operator=(const YUVAPixmaps& that) = delete;
+
+    YUVAPixmaps(const SkYUVASpec& spec,
+                SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                size_t rowBytes[SkYUVASpec::kMaxPlanes]);
+
+    bool isValid() const { return fIsValid; }
+    const SkYUVASpec& spec() const { return fSpec; }
+    const SkPixmap* planes() const { return fPlanes; }
+
+    bool toLegacy(SkYUVASizeInfo*, SkYUVAIndex[4]);
+
+private:
+    SkYUVASpec fSpec;
+    SkPixmap fPlanes[SkYUVASpec::kMaxPlanes];
+    std::unique_ptr<char[]> fStorage;
+    bool fIsValid = false;
+};
 
 // Utility that decodes a JPEG but preserves the YUVA8 planes in the image, and uses
 // MakeFromYUVAPixmaps to create a GPU multiplane YUVA image for a context. It extracts the planar
@@ -33,11 +65,12 @@ public:
 
 private:
     // Decoded YUV data
+    YUVAPixmaps fPixmaps;
+
+    // Legacy representation used to import to SkImage.
     SkYUVASizeInfo fSizeInfo;
-    SkYUVColorSpace fColorSpace;
     SkYUVAIndex fComponents[SkYUVAIndex::kIndexCount];
-    SkAutoMalloc fPlaneData;
-    SkPixmap fPlanes[SkYUVASizeInfo::kMaxCount];
+
     GrMipmapped fMipmapped;
 
     // Memoized SkImage formed with planes
