@@ -134,6 +134,30 @@
       "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a1292b6_d0fd07d1",
+        "filename": "tests/YUVTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-19T20:38:54Z",
+      "side": 1,
+      "message": "Having looked more at Chrome code I can see that it also assumes rowBytes*h.",
+      "parentUuid": "72c04504_c400f05b",
+      "range": {
+        "startLine": 81,
+        "startChar": 16,
+        "endLine": 81,
+        "endChar": 46
+      },
+      "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
