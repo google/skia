@@ -22,6 +22,30 @@
       "revId": "b7d9bf1c93e79b3859e618d22c07c9237aa68845",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "193b7060_5abe7182",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-19T19:03:18Z",
+      "side": 1,
+      "message": "lGLESv2 is a no-op if GL is set, but the opposite is not true.\n\nAs far as I can tell, the \"libraries\" are full of JS functions that will be available during linking time. The following linking shows which JS files are brought in for a given \"library\"\n\nhttps://github.com/emscripten-core/emscripten/blob/a83ba99d60a0bedaa5cfaecf22e2ce8c750e0147/tools/building.py#L1556\n\nNote that \u0027GL\u0027 brings in [\u0027library_webgl.js\u0027, \u0027library_html5_webgl.js\u0027] and \u0027GLESv2\u0027 just brings in \u0027library_webgl.js\u0027.",
+      "parentUuid": "4e634461_eecccf21",
+      "range": {
+        "startLine": 69,
+        "startChar": 11,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "b7d9bf1c93e79b3859e618d22c07c9237aa68845",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
