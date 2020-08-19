@@ -46,6 +46,30 @@
       "revId": "18305c3d36bbb23079bae265a23349ae6d3a222b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2dca0d9_dbaca058",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T18:45:11Z",
+      "side": 1,
+      "message": "No, John\u0027s right, they are used, and are recorded as sub-pictures of other pictures, so this may be a problem.  It\u0027s probably better to switch this over to `return 2`.",
+      "parentUuid": "e25a55d9_db526e47",
+      "range": {
+        "startLine": 320,
+        "startChar": 10,
+        "endLine": 320,
+        "endChar": 78
+      },
+      "revId": "18305c3d36bbb23079bae265a23349ae6d3a222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
