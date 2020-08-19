@@ -440,7 +440,7 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
     }
 
     GrSDFTOptions options = fContext->priv().SDFTOptions();
-    GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache();
+    GrTextBlobCache* textBlobCache = fContext->priv().getTextBlobCache1();
 
     // Get the first paint to use as the key paint.
     const SkPaint& blobPaint = glyphRunList.paint();

@@ -123,13 +123,22 @@ GrRecordingContext::OwnedArenas&& GrRecordingContext::detachArenas() {
     return std::move(fArenas);
 }
 
-GrTextBlobCache* GrRecordingContext::getTextBlobCache() {
-    return fThreadSafeProxy->priv().getTextBlobCache();
+GrTextBlobCache* GrRecordingContext::getTextBlobCache1() {
+    return fThreadSafeProxy->priv().getTextBlobCache1();
 }
 
-const GrTextBlobCache* GrRecordingContext::getTextBlobCache() const {
-    return fThreadSafeProxy->priv().getTextBlobCache();
+const GrTextBlobCache* GrRecordingContext::getTextBlobCache1() const {
+    return fThreadSafeProxy->priv().getTextBlobCache1();
 }
+
+GrMagicCache* GrRecordingContext::magicCache() {
+    return fThreadSafeProxy->priv().magicCache();
+}
+
+const GrMagicCache* GrRecordingContext::magicCache() const {
+    return fThreadSafeProxy->priv().magicCache();
+}
+
 
 void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     this->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
