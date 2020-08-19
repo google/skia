@@ -148,6 +148,30 @@
     },
     {
       "key": {
+        "uuid": "31de5d12_c7f8b74d",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-19T12:18:02Z",
+      "side": 1,
+      "message": "I did miss the header comment, but I\u0027m still confused. If there\u0027s no inflection, isn\u0027t that the same as the angle between P1P0 and P3P2?",
+      "parentUuid": "a215c966_7ffd4f74",
+      "range": {
+        "startLine": 557,
+        "startChar": 6,
+        "endLine": 557,
+        "endChar": 38
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb537150_4d56cffa",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
