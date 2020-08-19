@@ -310,6 +310,48 @@ static void test_rsqrt(skiatest::Reporter* reporter, RSqrtFn rsqrt) {
     }
 }
 
+static void test_nextlog2(skiatest::Reporter* r) {
+    REPORTER_ASSERT(r, sk_float_nextlog2(-std::numeric_limits<float>::infinity()) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(-std::numeric_limits<float>::max()) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(-1000.0f) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(-0.1f) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(-std::numeric_limits<float>::min()) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(-std::numeric_limits<float>::denorm_min()) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(0.0f) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(std::numeric_limits<float>::denorm_min()) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(std::numeric_limits<float>::min()) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(0.1f) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(1.0f) == 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(1.1f) == 1);
+    REPORTER_ASSERT(r, sk_float_nextlog2(2.0f) == 1);
+    REPORTER_ASSERT(r, sk_float_nextlog2(2.1f) == 2);
+    REPORTER_ASSERT(r, sk_float_nextlog2(3.0f) == 2);
+    REPORTER_ASSERT(r, sk_float_nextlog2(3.1f) == 2);
+    REPORTER_ASSERT(r, sk_float_nextlog2(4.0f) == 2);
+    REPORTER_ASSERT(r, sk_float_nextlog2(4.1f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(5.0f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(5.1f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(6.0f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(6.1f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(7.0f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(7.1f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(8.0f) == 3);
+    REPORTER_ASSERT(r, sk_float_nextlog2(8.1f) == 4);
+    REPORTER_ASSERT(r, sk_float_nextlog2(9.0f) == 4);
+    REPORTER_ASSERT(r, sk_float_nextlog2(9.1f) == 4);
+    REPORTER_ASSERT(r, sk_float_nextlog2(std::numeric_limits<float>::max()) == 128);
+    REPORTER_ASSERT(r, sk_float_nextlog2(std::numeric_limits<float>::infinity()) > 0);
+    REPORTER_ASSERT(r, sk_float_nextlog2(std::numeric_limits<float>::quiet_NaN()) >= 0);
+
+    for (int i = 0; i < 100; ++i) {
+        float pow2 = std::ldexp(1, i);
+        float epsilon = std::ldexp(SK_ScalarNearlyZero, i);
+        REPORTER_ASSERT(r, sk_float_nextlog2(pow2) == i);
+        REPORTER_ASSERT(r, sk_float_nextlog2(pow2 + epsilon) == i + 1);
+        REPORTER_ASSERT(r, sk_float_nextlog2(pow2 - epsilon) == i);
+    }
+}
+
 static void test_muldiv255(skiatest::Reporter* reporter) {
     for (int a = 0; a <= 255; a++) {
         for (int b = 0; b <= 255; b++) {
@@ -465,6 +507,7 @@ DEF_TEST(Math, reporter) {
     unittest_half(reporter);
     test_rsqrt(reporter, sk_float_rsqrt);
     test_rsqrt(reporter, sk_float_rsqrt_portable);
+    test_nextlog2(reporter);
 
     for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
