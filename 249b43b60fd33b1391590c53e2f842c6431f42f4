@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "f7c5dec0_967ff72a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T17:52:59Z",
+      "side": 1,
+      "message": "There is a special distinction though right?  Calls like filterColor() take that special input, where all the others are effect-specific.",
+      "parentUuid": "9300a58f_f705ccf6",
+      "range": {
+        "startLine": 10,
+        "startChar": 37,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35198b5_03d0c74b",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
