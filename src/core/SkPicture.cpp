@@ -11,6 +11,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkPictureCommon.h"
 #include "src/core/SkPictureData.h"
@@ -316,10 +317,12 @@ sk_sp<SkPicture> SkPicture::MakePlaceholder(SkRect cull) {
           void playback(SkCanvas*, AbortCallback*) const override { }
 
           // approximateOpCount() needs to be greater than kMaxPictureOpsToUnrollInsteadOfRef
-          // in SkCanvas.cpp to avoid that unrolling.  SK_MaxS32 can't not be big enough!
-          int    approximateOpCount(bool) const override { return SK_MaxS32; }
-          size_t approximateBytesUsed()   const override { return sizeof(*this); }
-          SkRect cullRect()               const override { return fCull; }
+          // (SkCanvasPriv.h) to avoid unrolling this into a parent picture.
+          int approximateOpCount(bool) const override {
+              return kMaxPictureOpsToUnrollInsteadOfRef+1;
+          }
+          size_t approximateBytesUsed() const override { return sizeof(*this); }
+          SkRect cullRect()             const override { return fCull; }
 
           SkRect fCull;
     };
