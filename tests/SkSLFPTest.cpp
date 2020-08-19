@@ -1081,6 +1081,40 @@ R"SkSL(%s = %s(%s);
          });
 }
 
+DEF_TEST(SkSLFPSwitchWithCastCanBeInlined, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 switchy(half4 c) {
+                 half4 result;
+                 switch (int(c.x)) {
+                     case 1: result = c.yyyy; break;
+                     default: result = c.zzzz; break;
+                 }
+                 return result;
+             }
+             void main() {
+                 sk_OutColor = switchy(half4(1, 2, 3, 4));
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{R"__Cpp__(
+        fragBuilder->codeAppendf(
+R"SkSL(half4 _inlineResulthalf4switchyhalf40;
+{
+    half4 result;
+    {
+        result = half4(1.0, 2.0, 3.0, 4.0).yyyy;
+    }
+    _inlineResulthalf4switchyhalf40 = result;
+}
+%s = _inlineResulthalf4switchyhalf40;
+
+)SkSL"
+, args.fOutputColor);
+)__Cpp__"});
+}
+
 DEF_TEST(SkSLFPForLoopWithoutReturnInsideCanBeInlined, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
