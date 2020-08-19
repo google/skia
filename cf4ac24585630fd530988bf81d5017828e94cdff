@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e031ed0e_aed457f9",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T19:51:08Z",
+      "side": 1,
+      "message": "It should be, yes.",
+      "parentUuid": "ebef9c59_ecccd7b5",
+      "range": {
+        "startLine": 176,
+        "startChar": 65,
+        "endLine": 176,
+        "endChar": 72
+      },
+      "revId": "cf4ac24585630fd530988bf81d5017828e94cdff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2d7ba46b_3e92115a",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "cf4ac24585630fd530988bf81d5017828e94cdff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67be3c96_96c5a754",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T19:51:08Z",
+      "side": 1,
+      "message": "Oops, fixed.",
+      "parentUuid": "2d7ba46b_3e92115a",
+      "range": {
+        "startLine": 698,
+        "startChar": 47,
+        "endLine": 698,
+        "endChar": 84
+      },
+      "revId": "cf4ac24585630fd530988bf81d5017828e94cdff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
