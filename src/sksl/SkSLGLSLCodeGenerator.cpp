@@ -1245,7 +1245,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
-    this->writeStatements(((Block&) *f.fBody).fStatements);
+    this->writeStatements(f.fBody->as<Block>().fStatements);
     if (fProgramKind != Program::kPipelineStage_Kind) {
         fIndentation--;
         this->writeLine("}");
@@ -1416,7 +1416,7 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
     }
     bool wroteType = false;
     for (const auto& stmt : decl.fVars) {
-        VarDeclaration& var = (VarDeclaration&) *stmt;
+        const VarDeclaration& var = stmt->as<VarDeclaration>();
         if (wroteType) {
             this->write(", ");
         } else {
@@ -1460,7 +1460,7 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
 void GLSLCodeGenerator::writeStatement(const Statement& s) {
     switch (s.fKind) {
         case Statement::kBlock_Kind:
-            this->writeBlock((Block&) s);
+            this->writeBlock(s.as<Block>());
             break;
         case Statement::kExpression_Kind:
             this->writeExpression(*s.as<ExpressionStatement>().fExpression, kTopLevel_Precedence);
@@ -1666,19 +1666,19 @@ void GLSLCodeGenerator::writeHeader() {
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.fKind) {
         case ProgramElement::kExtension_Kind:
-            this->writeExtension(((Extension&) e).fName);
+            this->writeExtension(e.as<Extension>().fName);
             break;
         case ProgramElement::kVar_Kind: {
-            VarDeclarations& decl = (VarDeclarations&) e;
+            const VarDeclarations& decl = e.as<VarDeclarations>();
             if (decl.fVars.size() > 0) {
-                int builtin = ((VarDeclaration&) *decl.fVars[0]).fVar->fModifiers.fLayout.fBuiltin;
+                int builtin = decl.fVars[0]->as<VarDeclaration>().fVar->fModifiers.fLayout.fBuiltin;
                 if (builtin == -1) {
                     // normal var
                     this->writeVarDeclarations(decl, true);
                     this->writeLine();
                 } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                            fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput() &&
-                           ((VarDeclaration&) *decl.fVars[0]).fVar->fWriteCount) {
+                           decl.fVars[0]->as<VarDeclaration>().fVar->fWriteCount) {
                     if (fProgram.fSettings.fFragColorIsInOut) {
                         this->write("inout ");
                     } else {
@@ -1693,13 +1693,13 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             break;
         }
         case ProgramElement::kInterfaceBlock_Kind:
-            this->writeInterfaceBlock((InterfaceBlock&) e);
+            this->writeInterfaceBlock(e.as<InterfaceBlock>());
             break;
         case ProgramElement::kFunction_Kind:
-            this->writeFunction((FunctionDefinition&) e);
+            this->writeFunction(e.as<FunctionDefinition>());
             break;
         case ProgramElement::kModifiers_Kind: {
-            const Modifiers& modifiers = ((ModifiersDeclaration&) e).fModifiers;
+            const Modifiers& modifiers = e.as<ModifiersDeclaration>().fModifiers;
             if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
                 if (fProgram.fSettings.fCaps->gsInvocationsExtensionString()) {
                     this->writeExtension(fProgram.fSettings.fCaps->gsInvocationsExtensionString());
