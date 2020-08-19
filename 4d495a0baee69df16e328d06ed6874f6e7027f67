@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "36d97702_555fe6b6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-19T13:58:11Z",
+      "side": 1,
+      "message": "The space here prevents this from being recognized by most tooling.",
+      "range": {
+        "startLine": 24,
+        "startChar": 14,
+        "endLine": 24,
+        "endChar": 15
+      },
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6bc5a34_e2f0a821",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-19T13:58:11Z",
+      "side": 1,
+      "message": "Note that all of this GAMMA stuff is a hack and so exposing it at all is less than ideal. When it was originally added the idea was that eventually the blitters would correctly blend the masks and we wouldn\u0027t need to be aware of this. The idea that the text would be in a different destination color space from everything else is an unfortunate one, mostly kept alive by it being set too low for the optical sizing effect (black on white text with a lower gamma looks much heavier at small pixel sizes due to over covered pixels) and it is hoped that variable fonts and automatic optical sizing will reduce the need for that.\n\nNote that comments like https://bugs.chromium.org/p/chromium/issues/detail?id\u003d534732#c42 aren\u0027t about this, the difference there is the difference between using the v35 vs v40 (or newer) hinting engine. On the other hand we should probably investigate https://fontgammatest.netlify.app/ independently since it isn\u0027t immediately obvious what\u0027s happening there.",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8ccc899_d8034f36",
+        "filename": "src/core/SkFontLCDConfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-19T13:58:11Z",
+      "side": 1,
+      "message": "We need to remove this file and move the globals in it into Chromium. This has been a long term issue. Skia should not be getting new globals, especially here.",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
