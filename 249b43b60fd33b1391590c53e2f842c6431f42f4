@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "d809e516_fe2006ba",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T16:29:15Z",
+      "side": 1,
+      "message": "Think it\u0027d be too cute to make `sample()` do this without declaring an input shader?",
+      "range": {
+        "startLine": 10,
+        "startChar": 37,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35198b5_03d0c74b",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -16,6 +39,46 @@
       "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6cf25cb_b913e2c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T16:29:15Z",
+      "side": 1,
+      "message": "The bit I am familiar with lgtm.",
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ac34855_bad4f388",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T16:29:15Z",
+      "side": 1,
+      "message": "Is this the fabled swizzle-a-scalar?",
+      "range": {
+        "startLine": 26,
+        "startChar": 15,
+        "endLine": 26,
+        "endChar": 64
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
