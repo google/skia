@@ -140,6 +140,24 @@
       "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09e0dc39_11c6ed23",
+        "filename": "tests/PictureTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 992,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T13:14:53Z",
+      "side": 1,
+      "message": "Oh right, that happens in SkCanvas!  I was only looking at the enum option about how to handle subpictures in SkRecorder.",
+      "parentUuid": "83d21058_4218481f",
+      "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
