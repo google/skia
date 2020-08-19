@@ -36,6 +36,7 @@ public:
         kClipRRect_OpType,
         kClipShader_OpType,
         kConcat_OpType,
+        kConcat44_OpType,
         kDrawAnnotation_OpType,
         kDrawBitmap_OpType,
         kDrawBitmapRect_OpType,
@@ -99,6 +100,7 @@ public:
     static void MakeJsonRect(SkJSONWriter&, const SkRect& rect);
     static void MakeJsonIRect(SkJSONWriter&, const SkIRect&);
     static void MakeJsonMatrix(SkJSONWriter&, const SkMatrix&);
+    static void MakeJsonMatrix44(SkJSONWriter&, const SkM44&);
     static void MakeJsonPath(SkJSONWriter&, const SkPath& path);
     static void MakeJsonRegion(SkJSONWriter&, const SkRegion& region);
     static void MakeJsonPaint(SkJSONWriter&, const SkPaint& paint, UrlDataManager& urlDataManager);
@@ -217,6 +219,18 @@ public:
 
 private:
     SkMatrix fMatrix;
+
+    typedef DrawCommand INHERITED;
+};
+
+class Concat44Command : public DrawCommand {
+public:
+    Concat44Command(const SkM44& matrix);
+    void execute(SkCanvas* canvas) const override;
+    void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+
+private:
+    SkM44 fMatrix;
 
     typedef DrawCommand INHERITED;
 };
