@@ -66,7 +66,7 @@ rm -f $BUILD_DIR/*.a
 
 GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
-WASM_GPU="-lEGL -lGL -lGLESv2 -DSK_SUPPORT_GPU=1 -DSK_GL \
+WASM_GPU="-lGL -DSK_SUPPORT_GPU=1 -DSK_GL \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js\
           -s USE_WEBGL2=1"
 if [[ $@ == *cpu* ]]; then
@@ -283,7 +283,7 @@ echo "Compiling bitcode"
   \
   skia_use_angle=false \
   skia_use_dng_sdk=false \
-  skia_use_egl=true \
+  skia_use_webgl=true \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
   skia_use_libheif=false \
