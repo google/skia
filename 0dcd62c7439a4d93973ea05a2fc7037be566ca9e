@@ -62,6 +62,30 @@
       "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f24b2e6c_50555f1e",
+        "filename": "tests/YUVTest.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-19T13:58:32Z",
+      "side": 1,
+      "message": "I noticed that the JPEG SkCodec code (before and after this change) will overwrite the trailing bytes in the last row (i.e. the range (h-1)*row_bytes + w*bpp to h*row_bytes). In a earlier version of this I was using allocations with the last row trimmed to w*bpp here and elsewhere. The decoder would overwrite part the end of one plane with the contents of another if the pixmaps had pts into one shared allocation. Presumably if run in ASAN it\u0027d find the third plane overruns the buffer. The code in SkYUVASizeInfo::computeTotalBytes() also uses row_bytes*h.\n\nI\u0027m not sure if this is a bug in our SkJPEGCodec or if by design we should just always give codecs a full row_bytes*h allocation because they do things in blocks and it\u0027s not worth the memory savings to complicate the implementation. Do you happen to know?",
+      "parentUuid": "760fa01d_b09213ce",
+      "range": {
+        "startLine": 81,
+        "startChar": 16,
+        "endLine": 81,
+        "endChar": 46
+      },
+      "revId": "0dcd62c7439a4d93973ea05a2fc7037be566ca9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
