@@ -190,40 +190,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         is_opaque = is_opaque && as_CFB(colorFilter)->isAlphaUnchanged();
     }
 
-#if defined(SK_LATE_DITHER)
-    // Not all formats make sense to dither (think, F16).  We set their dither rate
-    // to zero.  We need to decide if we're going to dither now to keep is_constant accurate.
-    if (paint.isDither()) {
-        switch (dst.info().colorType()) {
-            case kARGB_4444_SkColorType:    blitter->fDitherRate =   1/15.0f; break;
-            case   kRGB_565_SkColorType:    blitter->fDitherRate =   1/63.0f; break;
-            case    kGray_8_SkColorType:
-            case  kRGB_888x_SkColorType:
-            case kRGBA_8888_SkColorType:
-            case kBGRA_8888_SkColorType:    blitter->fDitherRate =  1/255.0f; break;
-            case kRGB_101010x_SkColorType:
-            case kRGBA_1010102_SkColorType:
-            case kBGR_101010x_SkColorType:
-            case kBGRA_1010102_SkColorType: blitter->fDitherRate = 1/1023.0f; break;
-
-            case kUnknown_SkColorType:
-            case kAlpha_8_SkColorType:
-            case kRGBA_F16_SkColorType:
-            case kRGBA_F16Norm_SkColorType:
-            case kRGBA_F32_SkColorType:
-            case kR8G8_unorm_SkColorType:
-            case kA16_float_SkColorType:
-            case kA16_unorm_SkColorType:
-            case kR16G16_float_SkColorType:
-            case kR16G16_unorm_SkColorType:
-            case kR16G16B16A16_unorm_SkColorType: blitter->fDitherRate = 0.0f; break;
-        }
-        // TODO: for constant colors, we could try to measure the effect of dithering, and if
-        //       it has no value (i.e. all variations result in the same 32bit color, then we
-        //       could disable it (for speed, by not adding the stage).
-    }
-    is_constant = is_constant && (blitter->fDitherRate == 0.0f);
-#else
     // Not all formats make sense to dither (think, F16).  We set their dither rate
     // to zero.  We only dither non-constant shaders, so is_constant won't change here.
     if (paint.isDither() && !is_constant) {
@@ -255,7 +221,6 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
             colorPipeline->append(SkRasterPipeline::dither, &blitter->fDitherRate);
         }
     }
-#endif
 
     // We're logically done here.  The code between here and return blitter is all optimization.
 
@@ -333,12 +298,6 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
     if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::unpremul);
     }
-#if defined(SK_LATE_DITHER)
-    if (fDitherRate > 0.0f) {
-        p->append(SkRasterPipeline::dither, &fDitherRate);
-    }
-#endif
-
     p->append_store(fDst.info().colorType(), &fDstPtr);
 }
 
