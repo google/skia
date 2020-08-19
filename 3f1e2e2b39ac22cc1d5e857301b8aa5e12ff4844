@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "115ffe6e_32f3c1ea",
+        "filename": "include/core/SkYUVASpec.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-19T18:06:55Z",
+      "side": 1,
+      "message": "* Returns SIZE_MAX upon overflow.\n\n ?",
+      "revId": "3f1e2e2b39ac22cc1d5e857301b8aa5e12ff4844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b34fc14_f75e5307",
+        "filename": "include/core/SkYUVASpec.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-19T18:06:55Z",
+      "side": 1,
+      "message": "rowBytes ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 42,
+        "endLine": 86,
+        "endChar": 50
+      },
+      "revId": "3f1e2e2b39ac22cc1d5e857301b8aa5e12ff4844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edf28116_ae4c9d1d",
+        "filename": "src/core/SkYUVASpec.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-19T18:06:55Z",
+      "side": 1,
+      "message": "here too ?",
+      "range": {
+        "startLine": 64,
+        "startChar": 50,
+        "endLine": 64,
+        "endChar": 58
+      },
+      "revId": "3f1e2e2b39ac22cc1d5e857301b8aa5e12ff4844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
