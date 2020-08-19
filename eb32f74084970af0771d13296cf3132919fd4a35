@@ -22,6 +22,30 @@
       "revId": "eb32f74084970af0771d13296cf3132919fd4a35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "340f0e83_546b73b6",
+        "filename": "tools/debugger/DebugCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-19T13:26:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56d432fd_59c7c5f7",
+      "range": {
+        "startLine": 179,
+        "startChar": 92,
+        "endLine": 179,
+        "endChar": 99
+      },
+      "revId": "eb32f74084970af0771d13296cf3132919fd4a35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
