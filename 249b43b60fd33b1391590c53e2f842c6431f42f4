@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "9300a58f_f705ccf6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-19T17:50:23Z",
+      "side": 1,
+      "message": "It\u0027s really about reuse and being composable. As soon as you want more than one input in your color filter (for a blending filter, or whatever), you have the special distinction of the \"main\" input vs. the secondary one, and you can\u0027t easily reverse them, etc... If all inputs are always bind-able, you can always mix-n-match things. (It\u0027s also nice that we have a single process for dealing with null children as input color across shaders and color filters, but a special case for color filters wouldn\u0027t be that hard).",
+      "parentUuid": "ee19c8f1_0160a18e",
+      "range": {
+        "startLine": 10,
+        "startChar": 37,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35198b5_03d0c74b",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
