@@ -138,7 +138,7 @@ public:
      *          return false;
      *      }
      *
-     *  Regarding the GrContext parameter:
+     *  Regarding the GrRecordingContext parameter:
      *
      *  It must be non-NULL. The generator should only succeed if:
      *  - its internal context is the same

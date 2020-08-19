@@ -286,7 +286,7 @@ static SkResourceCache::DiscardableFactory get_fact(SkResourceCache* localCache)
 
 const SkMipmap* SkMipmapCache::AddAndRef(const SkImage_Base* image, SkResourceCache* localCache) {
     SkBitmap src;
-    if (!image->getROPixels(&src)) {
+    if (!image->getROPixels(nullptr, &src)) {
         return nullptr;
     }
 
