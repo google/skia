@@ -153,8 +153,8 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsa
             break;
         case BufferUsage::kCpuWritesGpuReads:
             // First attempt to try memory is also cached
-            info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT/* |
+                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT*/;
             info.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
             break;
         case BufferUsage::kGpuWritesCpuReads:
