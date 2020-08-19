@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7d4cd09_98ac6213",
+        "filename": "src/core/SkPicture.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-19T18:09:34Z",
+      "side": 1,
+      "message": "I\u0027m not sure how placeholder pictures work--can a placeholder picture exist as a nested sub-picture? If so, this would overflow the int.",
+      "range": {
+        "startLine": 320,
+        "startChar": 10,
+        "endLine": 320,
+        "endChar": 78
+      },
+      "revId": "18305c3d36bbb23079bae265a23349ae6d3a222b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
