@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3aa4d3b3_6caabd29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "Added the testcase. And no, a dynamic array size will not work currently; it\u0027s a compile-time error.",
+      "parentUuid": "e787efbd_5dd3bfb1",
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f7b5f414_7eb96c11",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 3
@@ -63,6 +81,30 @@
       "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c92503c5_55eb1f65",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dacc690_b3f9f892",
+      "range": {
+        "startLine": 617,
+        "startChar": 70,
+        "endLine": 617,
+        "endChar": 71
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -113,6 +155,30 @@
     },
     {
       "key": {
+        "uuid": "035774b0_134fad55",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "I think I\u0027ll just go with the simple approach here - just leak an object, since it won\u0027t actually happen outside of the build process.",
+      "parentUuid": "cca36b75_8adc6536",
+      "range": {
+        "startLine": 145,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 93
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a5f938c_a33dfc23",
         "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
         "patchSetId": 3
@@ -136,6 +202,30 @@
     },
     {
       "key": {
+        "uuid": "7463b04a_6107a056",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "I didn\u0027t write the code and was just following the existing convention, but... yeah, we should.",
+      "parentUuid": "6a5f938c_a33dfc23",
+      "range": {
+        "startLine": 158,
+        "startChar": 9,
+        "endLine": 158,
+        "endChar": 30
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2b020e54_39490eeb",
         "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
         "patchSetId": 3
@@ -147,6 +237,30 @@
       "writtenOn": "2020-08-07T15:58:01Z",
       "side": 1,
       "message": "Is the null case expected or have we gone off the rails here?",
+      "range": {
+        "startLine": 254,
+        "startChar": 58,
+        "endLine": 254,
+        "endChar": 65
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de17dbc1_0fb78e2d",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "It ends up resulting in a compiler error.",
+      "parentUuid": "2b020e54_39490eeb",
       "range": {
         "startLine": 254,
         "startChar": 58,
@@ -182,6 +296,30 @@
     },
     {
       "key": {
+        "uuid": "49bfda31_9c20553f",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f89f2d9a_95323bde",
+      "range": {
+        "startLine": 39,
+        "startChar": 29,
+        "endLine": 39,
+        "endChar": 40
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28a744b9_d303e97f",
         "filename": "src/sksl/SkSLHCodeGenerator.cpp",
         "patchSetId": 3
@@ -205,6 +343,30 @@
     },
     {
       "key": {
+        "uuid": "5a55b2ec_bf77c8c0",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28a744b9_d303e97f",
+      "range": {
+        "startLine": 35,
+        "startChar": 31,
+        "endLine": 35,
+        "endChar": 46
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5bc08e18_d8fafd48",
         "filename": "src/sksl/SkSLHCodeGenerator.cpp",
         "patchSetId": 3
@@ -225,6 +387,30 @@
       "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cda5ecb7_73ccbf54",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-19T16:26:26Z",
+      "side": 1,
+      "message": "I added some debug output in there for a while, then took it out but failed to restore the code to its original state. My bad, fixed.",
+      "parentUuid": "5bc08e18_d8fafd48",
+      "range": {
+        "startLine": 323,
+        "startChar": 12,
+        "endLine": 323,
+        "endChar": 32
+      },
+      "revId": "2e8c5bd3362b726cec9c15446981fac2321c6538",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
