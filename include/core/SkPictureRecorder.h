@@ -27,6 +27,9 @@ class SkRecord;
 class SkRecorder;
 
 class SK_API SkPictureRecorder {
+    enum {
+        kPlaybackDrawPicture_RecordFlag     = 1 << 0,
+    };
 public:
     SkPictureRecorder();
     ~SkPictureRecorder();
@@ -34,7 +37,7 @@ public:
     enum RecordFlags {
         // If you call drawPicture() or drawDrawable() on the recording canvas, this flag forces
         // that object to playback its contents immediately rather than reffing the object.
-        kPlaybackDrawPicture_RecordFlag     = 1 << 0,
+        kPlaybackDrawPicture_RecordFlag_hidden     = 1 << 0,
     };
 
     enum FinishFlags {
