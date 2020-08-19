@@ -100,6 +100,30 @@
     },
     {
       "key": {
+        "uuid": "a215c966_7ffd4f74",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-19T08:25:34Z",
+      "side": 1,
+      "message": "Updated the header comment",
+      "parentUuid": "3759266d_163391c1",
+      "range": {
+        "startLine": 557,
+        "startChar": 6,
+        "endLine": 557,
+        "endChar": 38
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bb537150_4d56cffa",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 4
@@ -168,6 +192,30 @@
       "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2b5329b_b222f02a",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-19T08:25:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "200d6454_87f9c588",
+      "range": {
+        "startLine": 570,
+        "startChar": 3,
+        "endLine": 572,
+        "endChar": 5
+      },
+      "revId": "654d7f0fb2e0af405ac906f51c61491016c1c35a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
