@@ -9,7 +9,6 @@
 #define GrMtlTypes_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "include/ports/SkCFObject.h"
 
 /**
  * Declares typedefs for Metal types used in Ganesh cpp code
@@ -20,6 +19,8 @@ typedef const void*  GrMTLHandle;
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_METAL
+
+#include "include/ports/SkCFObject.h"
 
 #include <TargetConditionals.h>
 

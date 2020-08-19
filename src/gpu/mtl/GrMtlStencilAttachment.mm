@@ -8,10 +8,6 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
                                                const Format& format,
                                                const id<MTLTexture> stencilView)
@@ -27,20 +23,20 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
                                                        int height,
                                                        int sampleCnt,
                                                        const Format& format) {
-    MTLTextureDescriptor* desc =
-        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format.fInternalFormat
-                                                           width:width
-                                                          height:height
-                                                       mipmapped:NO];
+    sk_cf_obj<MTLTextureDescriptor*> desc(
+            [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format.fInternalFormat
+                                                               width:width
+                                                              height:height
+                                                           mipmapped:NO]);
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        desc.storageMode = MTLStorageModePrivate;
-        desc.usage = MTLTextureUsageRenderTarget;
+        (*desc).storageMode = MTLStorageModePrivate;
+        (*desc).usage = MTLTextureUsageRenderTarget;
     }
-    desc.sampleCount = sampleCnt;
+    [*desc setSampleCount: sampleCnt];
     if (sampleCnt > 1) {
-        desc.textureType = MTLTextureType2DMultisample;
+        (*desc).textureType = MTLTextureType2DMultisample;
     }
-    return new GrMtlStencilAttachment(gpu, format, [gpu->device() newTextureWithDescriptor:desc]);
+    return new GrMtlStencilAttachment(gpu, format, [gpu->device() newTextureWithDescriptor:*desc]);
 }
 
 GrMtlStencilAttachment::~GrMtlStencilAttachment() {
@@ -57,12 +53,12 @@ size_t GrMtlStencilAttachment::onGpuMemorySize() const {
 }
 
 void GrMtlStencilAttachment::onRelease() {
-    fStencilView = nullptr;
+    fStencilView.reset();
     GrStencilAttachment::onRelease();
 }
 
 void GrMtlStencilAttachment::onAbandon() {
-    fStencilView = nullptr;
+    fStencilView.reset();
     GrStencilAttachment::onAbandon();
 }
 

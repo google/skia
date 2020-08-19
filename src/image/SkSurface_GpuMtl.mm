@@ -56,19 +56,20 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
+                sk_cf_obj<id<MTLTexture>> drawableTexture(currentDrawable.texture);
                 if (metalLayer.framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture,
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
                 }
-
-                *drawable = (__bridge_retained GrMTLHandle) currentDrawable;
+                // TODO: do the retain here?
+                *drawable = [currentDrawable retain];
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
             },
             backendFormat,
@@ -127,12 +128,13 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
+                sk_cf_obj<id<MTLTexture>> drawableTexture(currentDrawable.texture);
                 if (mtkView.framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture,
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {

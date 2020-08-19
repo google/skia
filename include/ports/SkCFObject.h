@@ -34,7 +34,8 @@ template <typename T> class sk_cf_obj {
 public:
     using element_type = T;
 
-    constexpr sk_cf_obj() : fObject(nullptr) {}
+    constexpr sk_cf_obj() : fObject(nil) {}
+    constexpr sk_cf_obj(std::nullptr_t) : fObject(nil) {}
 
     /**
      *  Shares the underlying object by calling CFRetain(), so that both the argument and the newly
@@ -65,6 +66,8 @@ public:
         SkDEBUGCODE(fObject = nullptr);
     }
 
+    sk_cf_obj<T>& operator=(std::nullptr_t) { this->reset(); return *this; }
+
     /**
      *  Shares the underlying object referenced by the argument by calling CFRetain() on it. If this
      *  sk_cf_obj previously had a reference to an object (i.e. not null) it will call CFRelease()
@@ -87,7 +90,13 @@ public:
         return *this;
     }
 
+    explicit operator bool() const { return this->get() != nil; }
+
     T get() const { return fObject; }
+    T operator*() const {
+        SkASSERT(this->get() != nil);
+        return this->get();
+    }
 
     /**
      *  Adopt the new object, and call CFRelease() on any previously held object (if not null).

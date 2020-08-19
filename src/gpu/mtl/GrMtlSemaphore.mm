@@ -9,10 +9,6 @@
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::Make(GrMtlGpu* gpu) {
     if (@available(macOS 10.14, iOS 12.0, *)) {
         id<MTLEvent> event = [gpu->device() newEvent];
@@ -28,7 +24,7 @@ std::unique_ptr<GrMtlSemaphore> GrMtlSemaphore::MakeWrapped(GrMTLHandle event,
     // The GrMtlSemaphore will have strong ownership at this point.
     // The GrMTLHandle will subsequently only have weak ownership.
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        id<MTLEvent> mtlEvent = (__bridge_transfer id<MTLEvent>)event;
+        id<MTLEvent> mtlEvent = (id<MTLEvent>)event;
         return std::unique_ptr<GrMtlSemaphore>(new GrMtlSemaphore(mtlEvent, value));
     } else {
         return nullptr;
@@ -44,7 +40,8 @@ GrBackendSemaphore GrMtlSemaphore::backendSemaphore() const {
     // The GrMtlSemaphore and the GrBackendSemaphore will have strong ownership at this point.
     // Whoever uses the GrBackendSemaphore will subsquently steal this ref (see MakeWrapped, above).
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        GrMTLHandle handle = (__bridge_retained GrMTLHandle)(fEvent);
+        //*** is this right? Maybe GrBackendSemaphore should have a sk_cf_obj<> wrapper?
+        GrMTLHandle handle = (GrMTLHandle)(fEvent.get());
         backendSemaphore.initMetal(handle, fValue);
     }
     return backendSemaphore;
