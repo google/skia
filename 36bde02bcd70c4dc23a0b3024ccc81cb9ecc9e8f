@@ -104,6 +104,24 @@
       "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83d21058_4218481f",
+        "filename": "tests/PictureTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 992,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-19T13:10:24Z",
+      "side": 1,
+      "message": "Ah. We unroll pictures whose op-count is \u003c\u003d 1, so you can\u0027t make a picture containing empty-pictures...",
+      "parentUuid": "da5659ae_d5d1e727",
+      "revId": "36bde02bcd70c4dc23a0b3024ccc81cb9ecc9e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
