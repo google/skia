@@ -9,11 +9,8 @@ emsdk-base
 This image has an Emscripten SDK environment that can be used for
 compiling projects (e.g. Skia's PathKit) to WASM/asm.js.
 
-This image is standalone and does not have any extra dependencies that make
-it Skia-exclusive.
-
-It gets manually pushed anytime there's an update to the Dockerfile or relevant
-installed libraries.
+This image tracks the official emscripten Docker image and installs
+python 2 (which some of our scripts still use).
 
     make publish_emsdk_base
 
