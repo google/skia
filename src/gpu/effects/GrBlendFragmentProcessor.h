@@ -23,17 +23,17 @@ enum class BlendBehavior {
     // half(1) is passed as the input color to child FPs. No alpha channel trickery.
     kComposeOneBehavior,
 
-    // sk_InColor.rgb1 is passed as the input color to child FPs. Alpha is manually blended.
+    // fInputColor.rgb1 is passed as the input color to child FPs. Alpha is manually blended.
     kComposeTwoBehavior,
 
-    // half(1) is passed to src; sk_InColor.rgba is passed to dst. No alpha channel trickery.
+    // half(1) is passed to src; fInputColor is passed to dst. No alpha channel trickery.
     kSkModeBehavior,
 
     kLastBlendBehavior = kSkModeBehavior,
 };
 
 /** Blends src and dst inputs according to the blend mode.
- *  If either input is null, the input color (sk_InColor) is used instead.
+ *  If either input is null, fInputColor is used instead.
  */
 std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> src,
                                           std::unique_ptr<GrFragmentProcessor> dst,

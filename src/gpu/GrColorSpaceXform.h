@@ -61,7 +61,7 @@ class GrColorSpaceXformEffect : public GrFragmentProcessor {
 public:
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then converts
-     *  the color space of the output from src to dst. If the child is null, sk_InColor is used.
+     *  the color space of the output from src to dst. If the child is null, fInputColor is used.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
                                                      SkColorSpace* src, SkAlphaType srcAT,
@@ -69,7 +69,7 @@ public:
 
     /**
      * Returns a fragment processor that calls the passed in FP and then converts it with the given
-     * color xform. If the child is null, sk_InColor is used. Returns child as-is if the xform is
+     * color xform. If the child is null, fInputColor is used. Returns child as-is if the xform is
      * null (i.e. a no-op).
      */
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
