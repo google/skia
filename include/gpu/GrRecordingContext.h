@@ -15,6 +15,7 @@
 class GrAuditTrail;
 class GrBackendFormat;
 class GrDrawingManager;
+class GrMagicCache;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrProgramDesc;
@@ -155,8 +156,11 @@ protected:
     // same lifetime at the DDL itself.
     virtual void detachProgramData(SkTArray<ProgramData>*) {}
 
-    GrTextBlobCache* getTextBlobCache();
-    const GrTextBlobCache* getTextBlobCache() const;
+    GrTextBlobCache* getTextBlobCache1();
+    const GrTextBlobCache* getTextBlobCache1() const;
+
+    GrMagicCache* magicCache();
+    const GrMagicCache* magicCache() const;
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
