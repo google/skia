@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6920671_5bdfc6ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-19T13:57:26Z",
+      "side": 1,
+      "message": "I\u0027m not pushing to land this per se, just want to feel it out and try the Flutter size bot.",
+      "revId": "e185fade27994086590af52e9499306c0eab05e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
