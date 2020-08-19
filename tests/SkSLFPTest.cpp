@@ -642,8 +642,8 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
              in fragmentProcessor child1;
              in fragmentProcessor child2;
              void main() {
-                 half4 childIn = sk_InColor;
-                 half4 childOut1 = sample(child1, childIn);
+                 half4 value = half4(1, 3, 5, 7);
+                 half4 childOut1 = sample(child1, value);
                  half4 childOut2 = sample(child2, childOut1);
                  sk_OutColor = childOut2;
              }
@@ -653,39 +653,54 @@ DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
             "this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "SkString _input198(\"childIn\");",
-            "SkString _sample198 = this->invokeChild(0, _input198.c_str(), args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(\n"
-            "half4 childOut1 = %s;)SkSL\"\n"
-            ", _sample198.c_str());",
-            "SkString _input258(\"childOut1\");",
-            "SkString _sample258 = this->invokeChild(1, _input258.c_str(), args);",
             "this->cloneAndRegisterAllChildProcessors(src);",
-         });
+            R"__Cpp__(
+        SkString _input203("half4(1.0, 3.0, 5.0, 7.0)");
+        SkString _sample203 = this->invokeChild(0, _input203.c_str(), args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+half4 childOut1 = %s;)SkSL"
+, _sample203.c_str());
+        SkString _input261("childOut1");
+        SkString _sample261 = this->invokeChild(1, _input261.c_str(), args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+half4 childOut2 = %s;
+%s = childOut2;
+)SkSL"
+, _sample261.c_str(), args.fOutputColor);
+)__Cpp__"});
 }
 
 DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             in fragmentProcessor child;
+             in fragmentProcessor child1;
+             in fragmentProcessor child2;
              void main() {
-                 sk_OutColor = sample(child, sk_InColor * half4(0.5));
+                 half4 value = half4(1, 3, 5, 7);
+                 half4 childOut1 = sample(child1, value);
+                 half4 childOut2 = sample(child2, childOut1 * value);
+                 sk_OutColor = childOut2;
              }
          )__SkSL__",
          /*expectedH=*/{
-            "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());",
+            "this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());",
+            "this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());",
          },
          /*expectedCPP=*/{
-            "SkString _input106 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "SkString _sample106 = this->invokeChild(0, _input106.c_str(), args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(%s = %s;\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample106.c_str());",
             "this->cloneAndRegisterAllChildProcessors(src);",
-         });
+            R"__Cpp__(
+        SkString _input261("childOut1 * half4(1.0, 3.0, 5.0, 7.0)");
+        SkString _sample261 = this->invokeChild(1, _input261.c_str(), args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+half4 childOut2 = %s;
+%s = childOut2;
+)SkSL"
+, _sample261.c_str(), args.fOutputColor);
+)__Cpp__"});
 }
 
 DEF_TEST(SkSLFPNestedChildProcessors, r) {
@@ -695,7 +710,8 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
              in fragmentProcessor child1;
              in fragmentProcessor child2;
              void main() {
-                 sk_OutColor = sample(child2, sk_InColor * sample(child1, sk_InColor * half4(0.5)));
+                 half4 value = half4(1, 3, 5, 7);
+                 sk_OutColor = sample(child2, value * sample(child1, value * half4(0.5)));
              }
          )__SkSL__",
          /*expectedH=*/{
@@ -703,15 +719,18 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
             "this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "SkString _input177 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
-            "SkString _sample177 = this->invokeChild(0, _input177.c_str(), args);",
-            "SkString _input149 = SkStringPrintf(\"%s * %s\", args.fInputColor, _sample177.c_str());",
-            "SkString _sample149 = this->invokeChild(1, _input149.c_str(), args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(%s = %s;\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample149.c_str());",
             "this->cloneAndRegisterAllChildProcessors(src);",
+            R"__Cpp__(
+        SkString _input222("half4(0.5, 1.5, 2.5, 3.5)");
+        SkString _sample222 = this->invokeChild(0, _input222.c_str(), args);
+        SkString _input199 = SkStringPrintf("half4(1.0, 3.0, 5.0, 7.0) * %s", _sample222.c_str());
+        SkString _sample199 = this->invokeChild(1, _input199.c_str(), args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+%s = %s;
+)SkSL"
+, args.fOutputColor, _sample199.c_str());
+)__Cpp__",
             });
 }
 
@@ -723,7 +742,7 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
              bool hasCap = sk_Caps.externalTextureSupport;
              void main() {
                  if (hasCap) {
-                     sk_OutColor = sample(child, sk_InColor);
+                     sk_OutColor = sample(child);
                  } else {
                      sk_OutColor = half4(1);
                  }
@@ -733,23 +752,23 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
             "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "hasCap = sk_Caps.externalTextureSupport;",
-
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(bool hasCap = %s;\n"
-            "if (hasCap) {)SkSL\"\n"
-            ", (hasCap ? \"true\" : \"false\"));",
-            "SkString _input200(args.fInputColor);",
-            "SkString _sample200 = this->invokeChild(0, _input200.c_str(), args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(\n"
-            "    %s = %s;\n"
-            "} else {\n"
-            "    %s = half4(1.0);\n"
-            "}\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample200.c_str(), args.fOutputColor);",
             "this->cloneAndRegisterAllChildProcessors(src);",
+            R"__Cpp__(
+hasCap = sk_Caps.externalTextureSupport;
+        fragBuilder->codeAppendf(
+R"SkSL(bool hasCap = %s;
+if (hasCap) {)SkSL"
+, (hasCap ? "true" : "false"));
+        SkString _sample200 = this->invokeChild(0, args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+    %s = %s;
+} else {
+    %s = half4(1.0);
+}
+)SkSL"
+, args.fOutputColor, _sample200.c_str(), args.fOutputColor);
+)__Cpp__",
          });
 }
 
@@ -760,7 +779,7 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
              in fragmentProcessor child;
              void main() {
                  if (child.preservesOpaqueInput) {
-                     sk_OutColor = sample(child, sk_InColor);
+                     sk_OutColor = sample(child);
                  } else {
                      sk_OutColor = half4(1);
                  }
@@ -770,20 +789,21 @@ DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
             "this->registerChild(std::move(child), SkSL::SampleUsage::PassThrough());"
          },
          /*expectedCPP=*/{
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(if (%s) {)SkSL\"\n"
-            ", (_outer.childProcessor(0)->preservesOpaqueInput() ? \"true\" : \"false\"));",
-            "SkString _input161(args.fInputColor);",
-            "SkString _sample161 = this->invokeChild(0, _input161.c_str(), args);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(\n"
-            "    %s = %s;\n"
-            "} else {\n"
-            "    %s = half4(1.0);\n"
-            "}\n"
-            ")SkSL\"\n"
-            ", args.fOutputColor, _sample161.c_str(), args.fOutputColor);",
             "this->cloneAndRegisterAllChildProcessors(src);",
+            R"__Cpp__(
+        fragBuilder->codeAppendf(
+R"SkSL(if (%s) {)SkSL"
+, (_outer.childProcessor(0)->preservesOpaqueInput() ? "true" : "false"));
+        SkString _sample161 = this->invokeChild(0, args);
+        fragBuilder->codeAppendf(
+R"SkSL(
+    %s = %s;
+} else {
+    %s = half4(1.0);
+}
+)SkSL"
+, args.fOutputColor, _sample161.c_str(), args.fOutputColor);
+)__Cpp__",
          });
 }
 
@@ -957,29 +977,34 @@ DEF_TEST(SkSLFPFunction, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
+             in fragmentProcessor child;
              half4 flip(half4 c) { return c.abgr; }
              void main() {
-                 sk_OutColor = flip(sk_InColor);
+                 half4 color = sample(child);
+                 sk_OutColor = flip(color);
              }
          )__SkSL__",
          /*expectedH=*/{},
          /*expectedCPP=*/{
-            "SkString flip_name;",
-            "const GrShaderVar flip_args[] = { GrShaderVar(\"c\", kHalf4_GrSLType)};",
-            "fragBuilder->emitFunction(kHalf4_GrSLType, \"flip\", 1, flip_args,\n"
-            "R\"SkSL(return c.wzyx;\n"
-            ")SkSL\", &flip_name);",
-            "fragBuilder->codeAppendf(\n"
-            "R\"SkSL(half4 _inlineResulthalf4fliphalf40;\n"
-            "half4 _inlineArghalf4fliphalf41_0 = %s;\n"
-            "{\n"
-            "    _inlineResulthalf4fliphalf40 = _inlineArghalf4fliphalf41_0.wzyx;\n"
-            "}\n"
-            "%s = _inlineResulthalf4fliphalf40;\n"
-            "\n"
-            ")SkSL\"\n"
-            ", args.fInputColor, args.fOutputColor);"
-         });
+            R"__Cpp__(
+        SkString flip_name;
+        const GrShaderVar flip_args[] = { GrShaderVar("c", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "flip", 1, flip_args,
+R"SkSL(return c.wzyx;
+)SkSL", &flip_name);
+        SkString _sample158 = this->invokeChild(0, args);
+        fragBuilder->codeAppendf(
+R"SkSL(half4 color = %s;
+half4 _inlineResulthalf4fliphalf40;
+half4 _inlineArghalf4fliphalf41_0 = color;
+{
+    _inlineResulthalf4fliphalf40 = _inlineArghalf4fliphalf41_0.wzyx;
+}
+%s = _inlineResulthalf4fliphalf40;
+
+)SkSL"
+, _sample158.c_str(), args.fOutputColor);
+)__Cpp__"});
 }
 
 DEF_TEST(SkSLFPSwitchWithReturnInsideCannotBeInlined, r) {
@@ -993,12 +1018,15 @@ DEF_TEST(SkSLFPSwitchWithReturnInsideCannotBeInlined, r) {
                  return c.zzzz;
              }
              void main() {
-                 sk_OutColor = switchy(sk_InColor);
+                 sk_OutColor = switchy(half4(0, 1, 2, 3));
              }
          )__SkSL__",
          /*expectedH=*/{},
          /*expectedCPP=*/{
-         R"__Cpp__(fragBuilder->emitFunction(kHalf4_GrSLType, "switchy", 1, switchy_args,
+         R"__Cpp__(
+        SkString switchy_name;
+        const GrShaderVar switchy_args[] = { GrShaderVar("c", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "switchy", 1, switchy_args,
 R"SkSL(switch (int(c.x)) {
     case 0:
         return c.yyyy;
@@ -1006,9 +1034,9 @@ R"SkSL(switch (int(c.x)) {
 return c.zzzz;
 )SkSL", &switchy_name);
         fragBuilder->codeAppendf(
-R"SkSL(%s = %s(%s);
+R"SkSL(%s = %s(half4(0.0, 1.0, 2.0, 3.0));
 )SkSL"
-, args.fOutputColor, switchy_name.c_str(), args.fInputColor);
+, args.fOutputColor, switchy_name.c_str());
 )__Cpp__",
          });
 }
@@ -1026,27 +1054,25 @@ DEF_TEST(SkSLFPSwitchWithoutReturnInsideCanBeInlined, r) {
                  return result;
              }
              void main() {
-                 sk_OutColor = switchy(sk_InColor);
+                 sk_OutColor = switchy(half4(0, 1, 2, 3));
              }
          )__SkSL__",
          /*expectedH=*/{},
          /*expectedCPP=*/{
          R"__Cpp__(fragBuilder->codeAppendf(
 R"SkSL(half4 _inlineResulthalf4switchyhalf40;
-half4 _inlineArghalf4switchyhalf41_0 = %s;
 {
     half4 result;
-    switch (int(_inlineArghalf4switchyhalf41_0.x)) {
-        case 0:
-            result = _inlineArghalf4switchyhalf41_0.yyyy;
+    {
+        result = half4(0.0, 1.0, 2.0, 3.0).yyyy;
     }
-    result = _inlineArghalf4switchyhalf41_0.zzzz;
+    result = half4(0.0, 1.0, 2.0, 3.0).zzzz;
     _inlineResulthalf4switchyhalf40 = result;
 }
 %s = _inlineResulthalf4switchyhalf40;
 
 )SkSL"
-, args.fInputColor, args.fOutputColor);
+, args.fOutputColor);
 )__Cpp__",
          });
 }
