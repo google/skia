@@ -26,6 +26,7 @@ public:
         : fGpu(gpu)
         , fTotalSize(size)
         , fAlignment(alignment)
+        , fMaxBufferSize(0)
         , fType(intendedType)
         , fHead(0)
         , fTail(0)
@@ -34,6 +35,8 @@ public:
         // Because of this, size needs to be a power of two.
         SkASSERT(SkIsPow2(size));
     }
+
+    void reset();
 
     struct Slice {
         GrGpuBuffer* fBuffer;
@@ -45,6 +48,9 @@ public:
     void startSubmit(GrGpu*);
 
     size_t size() const { return fTotalSize; }
+
+    void setRequiredAlignent(size_t alignment) { fAlignment = alignment; }
+    void setMaxSize(size_t maxSize) { fMaxBufferSize = maxSize; }
 
 private:
     size_t getAllocationOffset(size_t size);
@@ -60,6 +66,7 @@ private:
     std::vector<sk_sp<GrGpuBuffer>> fTrackedBuffers;  // all buffers we've used in this submit
     size_t fTotalSize;
     size_t fAlignment;
+    size_t fMaxBufferSize;
     GrGpuBufferType fType;
     size_t fHead;     // where we start allocating
     size_t fTail;     // where we start deallocating
