@@ -316,14 +316,14 @@ bool ProgramVisitor::visitProgramElement(const ProgramElement& pe) {
             // Leaf program elements just return false by default
             return false;
         case ProgramElement::kFunction_Kind:
-            return this->visitStatement(*((const FunctionDefinition&) pe).fBody);
+            return this->visitStatement(*pe.as<FunctionDefinition>().fBody);
         case ProgramElement::kInterfaceBlock_Kind:
-            for (const auto& e : ((const InterfaceBlock&) pe).fSizes) {
+            for (const auto& e : pe.as<InterfaceBlock>().fSizes) {
                 if (this->visitExpression(*e)) { return true; }
             }
             return false;
         case ProgramElement::kVar_Kind:
-            for (const auto& v : ((const VarDeclarations&) pe).fVars) {
+            for (const auto& v : pe.as<VarDeclarations>().fVars) {
                 if (this->visitStatement(*v)) { return true; }
             }
             return false;

@@ -142,18 +142,19 @@ bool ByteCodeGenerator::generateCode() {
     for (const auto& e : fProgram) {
         switch (e.fKind) {
             case ProgramElement::kFunction_Kind: {
-                std::unique_ptr<ByteCodeFunction> f = this->writeFunction((FunctionDefinition&) e);
+                std::unique_ptr<ByteCodeFunction> f =
+                        this->writeFunction(e.as<FunctionDefinition>());
                 if (!f) {
                     return false;
                 }
                 fOutput->fFunctions.push_back(std::move(f));
-                fFunctions.push_back(&(FunctionDefinition&)e);
+                fFunctions.push_back(&e.as<FunctionDefinition>());
                 break;
             }
             case ProgramElement::kVar_Kind: {
-                VarDeclarations& decl = (VarDeclarations&) e;
+                const VarDeclarations& decl = e.as<VarDeclarations>();
                 for (const auto& v : decl.fVars) {
-                    const Variable* declVar = ((VarDeclaration&) *v).fVar;
+                    const Variable* declVar = v->as<VarDeclaration>().fVar;
                     if (declVar->fType == *fContext.fFragmentProcessor_Type) {
                         fOutput->fChildFPCount++;
                     }
