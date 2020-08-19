@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0061d683_4e7315b4",
+        "filename": "include/private/SkFloatingPoint.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-19T20:41:18Z",
+      "side": 1,
+      "message": "Should we use SkFloat2Bits here?",
+      "range": {
+        "startLine": 227,
+        "startChar": 0,
+        "endLine": 228,
+        "endChar": 25
+      },
+      "revId": "b3a97b10e092de518ccc32a1a160a8472e836c09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
