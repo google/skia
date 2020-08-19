@@ -45,6 +45,22 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
 
+bool SkImageGenerator::queryYUVASpec(SkYUVASpec* spec,
+                                     SkColorType colorTypes[SkYUVASpec::kMaxPlanes],
+                                     size_t rowbytes[SkYUVASpec::kMaxPlanes]) const {
+    SkASSERT(spec);
+    SkASSERT(colorTypes);
+    SkASSERT(rowbytes);
+
+    return this->onQueryYUVASpec(spec, colorTypes, rowbytes);
+}
+
+bool SkImageGenerator::getYUVAPlanes(const SkPixmap planes[SkYUVASpec::kMaxPlanes]) {
+    SkASSERT(planes);
+
+    return this->onGetYUVAPlanes(planes);
+}
+
 bool SkImageGenerator::queryYUVA8(SkYUVASizeInfo* sizeInfo,
                                   SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                                   SkYUVColorSpace* colorSpace) const {
