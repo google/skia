@@ -68,6 +68,16 @@ static bool init_icu(void* addr) {
     return true;
 }
 
+static std::string library_directory() {
+    HMODULE hModule = NULL;
+    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+        reinterpret_cast<LPCSTR>(&library_directory), &hModule);
+    char path[MAX_PATH];
+    GetModuleFileNameA(hModule, path, MAX_PATH);
+    const char* end = strrchr(path, '\\');
+    return end ? std::string(path, end - path) : std::string();
+}
+
 static std::string executable_directory() {
     HMODULE hModule = GetModuleHandleA(NULL);
     char path[MAX_PATH];
@@ -76,17 +86,21 @@ static std::string executable_directory() {
     return end ? std::string(path, end - path) : std::string();
 }
 
+static bool load_from(const std::string& dir) {
+    auto sPath = dir + "\\icudtl.dat";
+    if (void* addr = win_mmap(sPath.c_str())) {
+        if (init_icu(addr)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool SkLoadICU() {
     static bool good = false;
     static std::once_flag flag;
     std::call_once(flag, []() {
-        std::string sPath = executable_directory();
-        sPath += "\\icudtl.dat";
-        if (void* addr = win_mmap(sPath.c_str())) {
-            if (init_icu(addr)) {
-                good = true;
-            }
-        }
+        good = load_from(executable_directory()) || load_from(library_directory());
     });
     return good;
 }
