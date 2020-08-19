@@ -11,6 +11,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 
+#include <tuple>
 #include <utility>
 
 static SkVector to_vector(const Sk2s& x) {
@@ -169,6 +170,88 @@ void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
 
 void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
     SkChopQuadAt(src, dst, 0.5f);
+}
+
+static std::tuple<Sk2f, Sk2f> transpose(const Sk2f& a, const Sk2f& b) {
+    float transposed[4];
+    a.store(transposed);
+    b.store(transposed + 2);
+    Sk2f xx, yy;
+    Sk2f::Load2(transposed, &xx, &yy);
+    return {xx, yy};
+}
+
+float dot(const Sk2f& a, const Sk2f& b) {
+    Sk2f ab = a*b;
+    return ab[0] + ab[1];
+}
+
+static float measure_angle_inside_vectors(const Sk2f& a, const Sk2f& b) {
+    auto [xx, yy] = transpose(a, b);
+    Sk2f lengthsSqd = xx*xx + yy*yy;
+    if ((lengthsSqd == 0).anyTrue()) {
+        return 0;  // If these vectors came from tangents on a curve, then the curve is a flat line.
+    }
+    // The dot product is equivalent to |a||b|cos(theta). Use sqrt instead of rsqrt for better
+    // precision. The "Geometry" unit test fails otherwise.
+    float cosTheta = dot(a, b) / std::sqrt(lengthsSqd[0] * lengthsSqd[1]);
+    return std::acos(SkTPin(cosTheta, -1.f, 1.f));
+}
+
+float SkMeasureQuadRotation(const SkPoint pts[3]) {
+    Sk2f p0 = from_point(pts[0]);
+    Sk2f p1 = from_point(pts[1]);
+    Sk2f p2 = from_point(pts[2]);
+    return measure_angle_inside_vectors(p1 - p0, p2 - p1);
+}
+
+static Sk2f find_bisector(Sk2f a, Sk2f b) {
+    if (dot(a, b) <  0) {
+        // The two vectors are >90 degrees apart. Find the bisector of their normals instead. (After
+        // 90 degrees, the normals start cancelling each other out. And when they reach 180 degrees
+        // they cancel out to zero.)
+        a = {-a[1], +a[0]};
+        b = {+b[1], -b[0]};
+    }
+    // Return "normalize(a) + normalize(b)".
+    auto [xx, yy] = transpose(a, b);
+    // Use sqrt instead of rsqrt for better precision. The "Geometry" unit test fails otherwise.
+    Sk2f length = (xx*xx + yy*yy).sqrt();
+    return a/length[0] + b/length[1];
+}
+
+void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
+    Sk2f p0 = from_point(src[0]);
+    Sk2f p1 = from_point(src[1]);
+    Sk2f p2 = from_point(src[2]);
+
+    Sk2f tan0 = p1 - p0;
+    Sk2f tan1 = p2 - p1;
+
+    // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
+    // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
+    //
+    //     n dot midtangent = 0
+    //
+    Sk2f n = find_bisector(tan0, -tan1);
+
+    // The midtangent can be found where (F' dot n) = 0:
+    //
+    //   0 = (F'(T) dot n) = |2*T 1| * |p0 - 2*p1 + p2| * |nx|
+    //                                 |-2*p0 + 2*p1  |   |ny|
+    //
+    //                     = |2*T 1| * |tan1 - tan0| * |nx|
+    //                                 |2*tan0     |   |ny|
+    //
+    //                     = 2*T * ((tan1 - tan0) dot n) + (2*tan0 dot n)
+    //
+    //   T = (tan0 dot n) / ((tan0 - tan1) dot n)
+    float T = dot(tan0, n) / dot(tan0 - tan1, n);
+    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=nan will take this branch.
+        T = .5;  // The quadratic was a line or near-line. Just chop at .5.
+    }
+
+    SkChopQuadAt(src, dst, T);
 }
 
 /** Quad'(t) = At + B, where
@@ -468,6 +551,80 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
 
 void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]) {
     SkChopCubicAt(src, dst, 0.5f);
+}
+
+float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
+    Sk2f p0 = from_point(pts[0]);
+    Sk2f p1 = from_point(pts[1]);
+    Sk2f p2 = from_point(pts[2]);
+    Sk2f p3 = from_point(pts[3]);
+
+    // If any points are colocated, then this reduces to a simple angle between vectors.
+    if ((p0 == p1).allTrue()) {
+        return measure_angle_inside_vectors(p2 - p1, p3 - p2);
+    }
+    if ((p1 == p2).allTrue()) {
+        return measure_angle_inside_vectors(p1 - p0, p3 - p2);
+    }
+    if ((p2 == p3).allTrue()) {
+        return measure_angle_inside_vectors(p1 - p0, p2 - p1);
+    }
+
+    // Postulate: When no points are colocated and there are no inflection points in T=0..1, the
+    // rotation is: 360 degrees, minus the angle [p0,p1,p2], minus the angle [p1,p2,p3].
+    auto [xx0, yy0] = transpose(p0 - p1, p1 - p2);
+    auto [xx1, yy1] = transpose(p2 - p1, p3 - p2);
+    // The dot product is equivalent to |a||b|cos(theta). Use sqrt here instead of rsqrt for better
+    // precision. The "Geometry" unit test fails otherwise.
+    Sk2f cosines = (xx0*xx1 + yy0*yy1) / ((xx0*xx0 + yy0*yy0) * (xx1*xx1 + yy1*yy1)).sqrt();
+    cosines = Sk2f::Min(Sk2f::Max(cosines, -1), 1);
+    return 2*SK_ScalarPI - std::acos(cosines[0]) - std::acos(cosines[1]);
+}
+
+void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
+    Sk2f p0 = from_point(src[0]);
+    Sk2f p1 = from_point(src[1]);
+    Sk2f p2 = from_point(src[2]);
+    Sk2f p3 = from_point(src[3]);
+
+    Sk2f tan0 = (p0 == p1).allTrue() ? p2 - p0 : p1 - p0;
+    Sk2f tan1 = (p2 == p3).allTrue() ? p3 - p1 : p3 - p2;
+
+    // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
+    // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
+    //
+    //     n dot midtangent = 0
+    //
+    Sk2f n = find_bisector(tan0, -tan1);
+
+    // Find the T value at the midtangent. This is a simple quadratic equation:
+    //
+    //     midtangent dot n = 0, or:
+    //
+    //                   |C'x  C'y|
+    //     |T^2  T  1| * |.    .  | * |nx| = 0
+    //                   |.    .  |   |ny|
+    //
+    // The coeffs for the quadratic equation we need to solve are therefore C' * n.
+    float a = dot(p3 + (p1 - p2)*3 - p0, n);
+    float b = dot(p0 - p1*2 + p2, n) * 2;
+    float c = dot(p1 - p0, n);
+
+    // Now solve the quadratic for T.
+    float T = 0;
+    float discr = b*b - 4*a*c;
+    if (discr > 0) {  // This will only be false if the curve is a line.
+        // Quadratic formula from Numerical Recipes in C:
+        float q = -.5f * (b + copysignf(std::sqrt(discr), b));
+        // The roots are q/a and c/q. Pick the one closer to T=.5.
+        float r = .5f*q*a;
+        T = std::abs(q*q - r) < std::abs(a*c - r) ? q/a : c/q;
+    }
+    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=nan will take this branch.
+        T = .5;  // The cubic was a line or near-line. Just chop at .5.
+    }
+
+    SkChopCubicAt(src, dst, T);
 }
 
 static void flatten_double_cubic_extrema(SkScalar coords[14]) {
