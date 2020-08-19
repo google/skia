@@ -1437,3 +1437,46 @@ R"SkSL(
 )__Cpp__"
          });
 }
+
+DEF_TEST(SkSLUniformArrays, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half scalarArray[4];
+             uniform half2 pointArray[2];
+             void main() {
+                sk_OutColor = half4(scalarArray[0] * pointArray[0].x +
+                                    scalarArray[1] * pointArray[0].y +
+                                    scalarArray[2] * pointArray[1].x +
+                                    scalarArray[3] * pointArray[1].y);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             "Make()",
+         },
+         /*expectedCPP=*/{
+             "void onSetData(const GrGLSLProgramDataManager& pdman, "
+             "const GrFragmentProcessor& _proc) override {\n    }"
+         });
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             in uniform half scalarArray[4];
+             in uniform half2 pointArray[2];
+             void main() {
+                sk_OutColor = half4(scalarArray[0] * pointArray[0].x +
+                                    scalarArray[1] * pointArray[0].y +
+                                    scalarArray[2] * pointArray[1].x +
+                                    scalarArray[3] * pointArray[1].y);
+             }
+         )__SkSL__",
+         /*expectedH=*/{
+             "Make(std::array<float> scalarArray, std::array<SkPoint> pointArray)",
+             "std::array<float> scalarArray;",
+             "std::array<SkPoint> pointArray;",
+         },
+         /*expectedCPP=*/{
+             "pdman.set1fv(scalarArrayVar, 4, &(_outer.scalarArray)[0]);",
+             "pdman.set2fv(pointArrayVar, 2, &pointArrayValue[0].fX);",
+         });
+}
