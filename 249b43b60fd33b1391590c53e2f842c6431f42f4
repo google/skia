@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4d8b7dc6_b82fa666",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-19T17:15:09Z",
+      "side": 1,
+      "message": "I wondered about some shortcut. I was mostly thinking along the lines of makeColorFilter allowing no inputs when one is expected (and inserting null), but handling it at the SkSL level like you\u0027re suggesting might be nicer (and less surprising).",
+      "parentUuid": "d809e516_fe2006ba",
+      "range": {
+        "startLine": 10,
+        "startChar": 37,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b35198b5_03d0c74b",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "582f8902_55e2f4c8",
+        "filename": "gm/runtimecolorfilter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-19T17:15:09Z",
+      "side": 1,
+      "message": "Yup, equivalent to half4(0, 0, 0, dot(...))",
+      "parentUuid": "8ac34855_bad4f388",
+      "range": {
+        "startLine": 26,
+        "startChar": 15,
+        "endLine": 26,
+        "endChar": 64
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae1e3455_5b82d7ce",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 5
@@ -105,6 +153,30 @@
     },
     {
       "key": {
+        "uuid": "a3a97029_42362fab",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-19T17:15:09Z",
+      "side": 1,
+      "message": "Yeah, the idea is that I\u0027ll land the chromium CL shortly after this one (probably waiting to land this until I have the other one ready to go). Hoping to get everything transitioned (with the define removed entirely) within a week or so.",
+      "parentUuid": "ae1e3455_5b82d7ce",
+      "range": {
+        "startLine": 24,
+        "startChar": 8,
+        "endLine": 24,
+        "endChar": 88
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7a3d5057_951f8072",
         "filename": "tools/viewer/SkSLSlide.cpp",
         "patchSetId": 5
@@ -116,6 +188,30 @@
       "writtenOn": "2020-08-19T16:31:25Z",
       "side": 1,
       "message": "How do we know which code in Skia needs to be guarded by this?  E.g. why here but not overdraw colorfilter?",
+      "range": {
+        "startLine": 40,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 45
+      },
+      "revId": "249b43b60fd33b1391590c53e2f842c6431f42f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d9f8f4f_04309941",
+        "filename": "tools/viewer/SkSLSlide.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-19T17:15:09Z",
+      "side": 1,
+      "message": "Ah, whoops. This really doesn\u0027t need to be guarded, will fix. My general assumption, once I started, was that we only had to guard things that clients (with the define) will be using. The overdraw color filter is only used by Android, AFAIK.",
+      "parentUuid": "7a3d5057_951f8072",
       "range": {
         "startLine": 40,
         "startChar": 7,
