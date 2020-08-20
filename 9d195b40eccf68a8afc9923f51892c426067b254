@@ -53,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "f758ec39_1cd65137",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "I have fixed the issues, please take another look.\nFor the cifuzz_test, should we check the flags of skia checkout? as it can be varied depends on the flag itself.",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4824d9f9_1bd06b79",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 3
@@ -67,6 +84,24 @@
       "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ac53aca_3366454c",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4824d9f9_1bd06b79",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -93,6 +128,30 @@
     },
     {
       "key": {
+        "uuid": "6326b788_cfcd8f9b",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "938045e9_2b03f0e3",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 23,
+        "endChar": 85
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "656f54a2_c4b812b7",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 3
@@ -113,6 +172,30 @@
       "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f141e58_bcffb618",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "656f54a2_c4b812b7",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 26,
+        "endChar": 323
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -162,6 +245,54 @@
     },
     {
       "key": {
+        "uuid": "6ba7fc54_597291bb",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "824ffe8b_8bdc63f4",
+      "range": {
+        "startLine": 28,
+        "startChar": 2,
+        "endLine": 28,
+        "endChar": 9
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2170425e_414793ee",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99f4e494_7f97c302",
+      "range": {
+        "startLine": 28,
+        "startChar": 38,
+        "endLine": 28,
+        "endChar": 91
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f93d5de3_89a5785d",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 3
@@ -176,6 +307,24 @@
       "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e319654a_9a081c10",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f93d5de3_89a5785d",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -216,6 +365,48 @@
       "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c35de5dc_9ccc84f6",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf247f72_717551ac",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f78202e4_732e6d77",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c43454e_eeac0d0f",
+      "range": {
+        "startLine": 41,
+        "startChar": 47,
+        "endLine": 41,
+        "endChar": 51
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -263,6 +454,30 @@
       "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cfa7aab2_6e9e99ee",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-20T20:27:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8f663d7_afd1cab9",
+      "range": {
+        "startLine": 43,
+        "startChar": 43,
+        "endLine": 43,
+        "endChar": 54
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
