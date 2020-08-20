@@ -16,6 +16,24 @@
       "revId": "147b26b53723321d4d4c7da1d5d2090b2e5749af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "629ba5bd_f7053f46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-20T18:01:49Z",
+      "side": 1,
+      "message": "How about std::mutex \u0026 std::lock_guard, then no need for the #ifdef",
+      "parentUuid": "252023e2_0e5e4d61",
+      "revId": "147b26b53723321d4d4c7da1d5d2090b2e5749af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
