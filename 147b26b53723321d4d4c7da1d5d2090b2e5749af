@@ -34,6 +34,52 @@
       "revId": "147b26b53723321d4d4c7da1d5d2090b2e5749af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48dfa987_77d7833f",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T18:10:29Z",
+      "side": 1,
+      "message": "This is a pretty beefy type; I feel like we could break it up a bit to help make it a little more self-documenting? e.g. probably not the right names but:\n\nusing BaseAndCount \u003d std::pair\u003cconst UniformCTypeMapper*, int\u003e;\nstatic std::map\u003cBaseAndCount, UniformCTypeMapper\u003e baseToArrayMap;",
+      "range": {
+        "startLine": 149,
+        "startChar": 20,
+        "endLine": 149,
+        "endChar": 61
+      },
+      "revId": "147b26b53723321d4d4c7da1d5d2090b2e5749af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7dfe3fdf_8b100319",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T18:10:29Z",
+      "side": 1,
+      "message": "`insert` returns the iterator in the map back to you; use `auto [iter, didInsert] \u003d registered.insert(...)`.",
+      "range": {
+        "startLine": 153,
+        "startChar": 5,
+        "endLine": 154,
+        "endChar": 67
+      },
+      "revId": "147b26b53723321d4d4c7da1d5d2090b2e5749af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
