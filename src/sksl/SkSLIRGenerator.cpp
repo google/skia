@@ -736,19 +736,19 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
 std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main) {
     Layout invokeLayout;
     Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
-    FunctionDeclaration* invokeDecl = new FunctionDeclaration(-1,
-                                                              invokeModifiers,
-                                                              "_invoke",
-                                                              std::vector<const Variable*>(),
-                                                              *fContext.fVoid_Type,
-                                                              false);
-    fProgramElements->push_back(std::unique_ptr<ProgramElement>(
-                                         new FunctionDefinition(-1, *invokeDecl, std::move(main))));
-    fSymbolTable->add(invokeDecl->fName, std::unique_ptr<FunctionDeclaration>(invokeDecl));
+    const FunctionDeclaration* invokeDecl = fSymbolTable->add(
+            "_invoke", std::make_unique<FunctionDeclaration>(/*offset=*/-1,
+                                                             invokeModifiers,
+                                                             "_invoke",
+                                                             std::vector<const Variable*>(),
+                                                             *fContext.fVoid_Type,
+                                                             /*builtin=*/false));
+    fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
+                                                                     *invokeDecl,
+                                                                     std::move(main)));
 
     std::vector<std::unique_ptr<VarDeclaration>> variables;
-    Variable* loopIdx = (Variable*) (*fSymbolTable)["sk_InvocationID"];
-    SkASSERT(loopIdx);
+    const Variable* loopIdx = &(*fSymbolTable)["sk_InvocationID"]->as<Variable>();
     std::unique_ptr<Expression> test(new BinaryExpression(-1,
                     std::unique_ptr<Expression>(new VariableReference(-1, *loopIdx)),
                     Token::Kind::TK_LT,
@@ -880,7 +880,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
     AutoClear clear(&fReferencedIntrinsics);
     auto iter = f.begin();
     const Type* returnType = this->convertType(*(iter++));
-    if (!returnType) {
+    if (returnType == nullptr) {
         return;
     }
     auto type_is_allowed = [&](const Type* t) {
@@ -898,11 +898,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                       "functions may not return type '" + returnType->displayName() + "'");
         return;
     }
-    const ASTNode::FunctionData& fd = f.getFunctionData();
-    this->checkModifiers(f.fOffset, fd.fModifiers, Modifiers::kHasSideEffects_Flag |
-                                                   Modifiers::kInline_Flag);
+    const ASTNode::FunctionData& funcData = f.getFunctionData();
+    this->checkModifiers(f.fOffset, funcData.fModifiers, Modifiers::kHasSideEffects_Flag |
+                                                         Modifiers::kInline_Flag);
     std::vector<const Variable*> parameters;
-    for (size_t i = 0; i < fd.fParameterCount; ++i) {
+    for (size_t i = 0; i < funcData.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
         SkASSERT(param.fKind == ASTNode::Kind::kParameter);
         ASTNode::ParameterData pd = param.getParameterData();
@@ -932,7 +932,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         parameters.push_back(var);
     }
 
-    if (fd.fName == "main") {
+    if (funcData.fName == "main") {
         switch (fKind) {
             case Program::kPipelineStage_Kind: {
                 bool valid;
@@ -983,7 +983,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 
     // find existing declaration
     const FunctionDeclaration* decl = nullptr;
-    auto entry = (*fSymbolTable)[fd.fName];
+    const Symbol* entry = (*fSymbolTable)[funcData.fName];
     if (entry) {
         std::vector<const FunctionDeclaration*> functions;
         switch (entry->fKind) {
@@ -994,11 +994,11 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 functions.push_back(&entry->as<FunctionDeclaration>());
                 break;
             default:
-                fErrors.error(f.fOffset, "symbol '" + fd.fName + "' was already defined");
+                fErrors.error(f.fOffset, "symbol '" + funcData.fName + "' was already defined");
                 return;
         }
-        for (const auto& other : functions) {
-            SkASSERT(other->fName == fd.fName);
+        for (const FunctionDeclaration* other : functions) {
+            SkASSERT(other->fName == funcData.fName);
             if (parameters.size() == other->fParameters.size()) {
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
@@ -1009,8 +1009,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 }
                 if (match) {
                     if (*returnType != other->fReturnType) {
-                        FunctionDeclaration newDecl(f.fOffset, fd.fModifiers, fd.fName, parameters,
-                                                    *returnType, fIsBuiltinCode);
+                        FunctionDeclaration newDecl(f.fOffset, funcData.fModifiers, funcData.fName,
+                                                    parameters, *returnType, fIsBuiltinCode);
                         fErrors.error(f.fOffset, "functions '" + newDecl.description() +
                                                  "' and '" + other->description() +
                                                  "' differ only in return type");
@@ -1021,14 +1021,12 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                         if (parameters[i]->fModifiers != other->fParameters[i]->fModifiers) {
                             fErrors.error(f.fOffset, "modifiers on parameter " +
                                                      to_string((uint64_t) i + 1) +
-                                                     " differ between declaration and "
-                                                     "definition");
+                                                     " differ between declaration and definition");
                             return;
                         }
                     }
                     if (other->fDefinition && !other->fBuiltin) {
-                        fErrors.error(f.fOffset, "duplicate definition of " +
-                                                 other->description());
+                        fErrors.error(f.fOffset, "duplicate definition of " + other->description());
                     }
                     break;
                 }
@@ -1036,11 +1034,17 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
     }
     if (!decl) {
-        // couldn't find an existing declaration
-        decl = fSymbolTable->add(fd.fName,
+        // Conservatively assume all user-defined functions have side effects.
+        Modifiers declModifiers = funcData.fModifiers;
+        if (!fIsBuiltinCode) {
+            declModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
+        }
+
+        // Create a new declaration.
+        decl = fSymbolTable->add(funcData.fName,
                                  std::make_unique<FunctionDeclaration>(f.fOffset,
-                                                                       fd.fModifiers,
-                                                                       fd.fName,
+                                                                       declModifiers,
+                                                                       funcData.fName,
                                                                        parameters,
                                                                        *returnType,
                                                                        fIsBuiltinCode));
@@ -1051,7 +1055,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         fCurrentFunction = decl;
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
-        if (fd.fName == "main" && fKind == Program::kPipelineStage_Kind) {
+        if (funcData.fName == "main" && fKind == Program::kPipelineStage_Kind) {
             if (parameters.size() == 2) {
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
                 parameters[1]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
@@ -1059,7 +1063,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 SkASSERT(parameters.size() == 1);
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_OUTCOLOR_BUILTIN;
             }
-        } else if (fd.fName == "main" && fKind == Program::kFragmentProcessor_Kind) {
+        } else if (funcData.fName == "main" && fKind == Program::kFragmentProcessor_Kind) {
             if (parameters.size() == 1) {
                 parameters[0]->fModifiers.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
             }
@@ -1067,7 +1071,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
         }
-        bool needInvocationIDWorkaround = fInvocations != -1 && fd.fName == "main" &&
+        bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
                                           fSettings->fCaps &&
                                           !fSettings->fCaps->gsInvocationsSupport();
         std::unique_ptr<Block> body = this->convertBlock(*iter);
@@ -1078,10 +1082,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         if (needInvocationIDWorkaround) {
             body = this->applyInvocationIDWorkaround(std::move(body));
         }
-        // conservatively assume all user-defined functions have side effects
-        // TODO(skbug.com/10589): thread-unsafe mutation of object in symbol table
-        const_cast<Modifiers&>(decl->fModifiers).fFlags |= Modifiers::kHasSideEffects_Flag;
-        if (Program::kVertex_Kind == fKind && fd.fName == "main" && fRTAdjust) {
+        if (Program::kVertex_Kind == fKind && funcData.fName == "main" && fRTAdjust) {
             body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
         }
         auto result = std::make_unique<FunctionDefinition>(f.fOffset, *decl, std::move(body),
