@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004546594",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/309636?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "1b5b82f3_43f34a8f",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 13155
+      },
+      "writtenOn": "2020-08-20T19:45:28Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 24,
+        "startChar": 76,
+        "endLine": 24,
+        "endChar": 82
+      },
+      "revId": "82e68ede1d4b33f2fca94dd06c214c69780b0d5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004546594",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/309636?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "95088e84_9af4bc36",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 13155
+      },
+      "writtenOn": "2020-08-20T19:45:28Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details.",
+      "range": {
+        "startLine": 25,
+        "startChar": 80,
+        "endLine": 25,
+        "endChar": 86
+      },
+      "revId": "82e68ede1d4b33f2fca94dd06c214c69780b0d5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
