@@ -4,12 +4,18 @@
 // assets is a dictionary of named blobs: { key: ArrayBuffer, ... }
 // The keys should be well-behaved strings - they're turned into null-terminated
 // strings for the native side.
-CanvasKit.MakeManagedAnimation = function(json, assets) {
+
+// prop_filter_prefix is an optional string acting as a name filter for selecting
+// "interesting" Lottie properties (surfaced in the embedded player controls)
+CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix) {
   if (!CanvasKit._MakeManagedAnimation) {
     throw 'Not compiled with MakeManagedAnimation';
   }
+  if (!prop_filter_prefix) {
+    prop_filter_prefix = '';
+  }
   if (!assets) {
-    return CanvasKit._MakeManagedAnimation(json, 0, nullptr, nullptr, nullptr);
+    return CanvasKit._MakeManagedAnimation(json, 0, nullptr, nullptr, nullptr, prop_filter_prefix);
   }
   var assetNamePtrs = [];
   var assetDataPtrs = [];
@@ -43,7 +49,7 @@ CanvasKit.MakeManagedAnimation = function(json, assets) {
   var assetSizesPtr = copy1dArray(assetSizes,    "HEAPU32");
 
   var anim = CanvasKit._MakeManagedAnimation(json, assetKeys.length, namesPtr,
-                                             assetsPtr, assetSizesPtr);
+                                             assetsPtr, assetSizesPtr, prop_filter_prefix);
 
   // The C++ code has made copies of the asset and string data, so free our copies.
   CanvasKit._free(namesPtr);
