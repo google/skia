@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d005dfd8_619243d3",
+        "filename": "include/gpu/vk/GrVkTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-20T19:32:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c1d295d_cdf914c8",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 218,
+        "endChar": 48
+      },
+      "revId": "a3f062eda71021e3ec22f83c2542b238abc66275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67fe2a32_7636880c",
         "filename": "include/private/GrVkTypesPriv.h",
         "patchSetId": 3
@@ -69,6 +93,30 @@
       "revId": "a3f062eda71021e3ec22f83c2542b238abc66275",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef92a7ae_1a415adb",
+        "filename": "include/private/GrVkTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-20T19:32:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67fe2a32_7636880c",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 5
+      },
+      "revId": "a3f062eda71021e3ec22f83c2542b238abc66275",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
