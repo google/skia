@@ -37,8 +37,6 @@ private:
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
 
-    void writeIndexExpression(const IndexExpression& i) override;
-
     void writeIntLiteral(const IntLiteral& i) override;
 
     void writeSwizzle(const Swizzle& swizzle) override;

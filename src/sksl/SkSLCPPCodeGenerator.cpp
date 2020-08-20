@@ -110,26 +110,6 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     }
 }
 
-void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
-    const Expression& base = *i.fBase;
-    if (base.fKind == Expression::kVariableReference_Kind) {
-        int builtin = base.as<VariableReference>().fVariable.fModifiers.fLayout.fBuiltin;
-        if (SK_TEXTURESAMPLERS_BUILTIN == builtin) {
-            this->write("%s");
-            if (i.fIndex->fKind != Expression::kIntLiteral_Kind) {
-                fErrors.error(i.fIndex->fOffset,
-                              "index into sk_TextureSamplers must be an integer literal");
-                return;
-            }
-            int64_t index = i.fIndex->as<IntLiteral>().fValue;
-            fFormatArgs.push_back("        fragBuilder->getProgramBuilder()->samplerVariable("
-                                            "args.fTexSamplers[" + to_string(index) + "])");
-            return;
-        }
-    }
-    INHERITED::writeIndexExpression(i);
-}
-
 static String default_value(const Type& type) {
     if (type.fName == "bool") {
         return "false";
