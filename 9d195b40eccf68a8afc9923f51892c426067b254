@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6fcb13a_c8c316ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:10:47Z",
+      "side": 1,
+      "message": "You\u0027ll also need a cifuzz_test.go",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "938045e9_2b03f0e3",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:10:47Z",
+      "side": 1,
+      "message": "remove - not needed",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 23,
+        "endChar": 85
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "656f54a2_c4b812b7",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:10:47Z",
+      "side": 1,
+      "message": "remove, not needed",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 26,
+        "endChar": 323
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "824ffe8b_8bdc63f4",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:10:47Z",
+      "side": 1,
+      "message": "rename this to skiaCheckout and the flag value to be skia_checkout",
+      "range": {
+        "startLine": 28,
+        "startChar": 2,
+        "endLine": 28,
+        "endChar": 9
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99f4e494_7f97c302",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:10:47Z",
+      "side": 1,
+      "message": "don\u0027t have your path be the default - just pass this in when you run the command",
+      "range": {
+        "startLine": 28,
+        "startChar": 38,
+        "endLine": 28,
+        "endChar": 91
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c43454e_eeac0d0f",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:10:47Z",
+      "side": 1,
+      "message": "this should be the skiaCheckoutPath",
+      "range": {
+        "startLine": 41,
+        "startChar": 47,
+        "endLine": 41,
+        "endChar": 51
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46a0d7f8_f3ea36d8",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:10:47Z",
+      "side": 1,
+      "message": "This file should be checked in, right? It should probably be in infra/bots/task_drivers/test_cifuzz and then referenced here.",
+      "range": {
+        "startLine": 43,
+        "startChar": 43,
+        "endLine": 43,
+        "endChar": 54
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
