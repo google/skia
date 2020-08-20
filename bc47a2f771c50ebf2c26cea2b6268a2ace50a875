@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e35a490e_dbd62923",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T15:37:02Z",
+      "side": 1,
+      "message": "This is mutating a const object inside the symbol table.\n\nOn the surface it doesn\u0027t seem unsafe. It makes me wonder--if mutating symbol-table objects can sometimes be safe and reasonable, why are we giving back const pointers from the symbol table at all? Is there any reason we shouldn\u0027t just give back mutable pointers? If we expect that it\u0027s a rare use case, we could always hide it behind a separate API.",
+      "range": {
+        "startLine": 1084,
+        "startChar": 8,
+        "endLine": 1084,
+        "endChar": 49
+      },
+      "revId": "bc47a2f771c50ebf2c26cea2b6268a2ace50a875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64a27cdf_b0c8ff49",
+        "filename": "src/sksl/SkSLIRGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T15:37:02Z",
+      "side": 1,
+      "message": "This method always mutated `expr` by design; violating constness was not caught due to the prevalence of C-style cases.",
+      "range": {
+        "startLine": 169,
+        "startChar": 20,
+        "endLine": 169,
+        "endChar": 36
+      },
+      "revId": "bc47a2f771c50ebf2c26cea2b6268a2ace50a875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
