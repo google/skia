@@ -178,6 +178,12 @@ void process(const char* inPath, const char* lexer, const char* token, const cha
     std::string line;
     std::ifstream in(inPath);
     while (std::getline(in, line)) {
+        if (line.length() == 0) {
+            continue;
+        }
+        if (line.length() >= 2 && line[0] == '/' && line[1] == '/') {
+            continue;
+        }
         std::istringstream split(line);
         std::string name, delimiter, pattern;
         if (split >> name >> delimiter >> pattern) {

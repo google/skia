@@ -874,6 +874,7 @@ void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int per
     CHECK(Modifiers::kPLSIn_Flag,          "__pixel_local_inEXT")
     CHECK(Modifiers::kPLSOut_Flag,         "__pixel_local_outEXT")
     CHECK(Modifiers::kVarying_Flag,        "varying")
+    CHECK(Modifiers::kInline_Flag,         "inline")
     SkASSERT(flags == 0);
 }
 
@@ -900,7 +901,8 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         return;
     }
     const ASTNode::FunctionData& fd = f.getFunctionData();
-    this->checkModifiers(f.fOffset, fd.fModifiers, Modifiers::kHasSideEffects_Flag);
+    this->checkModifiers(f.fOffset, fd.fModifiers, Modifiers::kHasSideEffects_Flag |
+                                                   Modifiers::kInline_Flag);
     std::vector<const Variable*> parameters;
     for (size_t i = 0; i < fd.fParameterCount; ++i) {
         const ASTNode& param = *(iter++);
@@ -2390,8 +2392,9 @@ bool IRGenerator::isSafeToInline(const FunctionDefinition& functionDef) {
         // Inlining has been explicitly disabled by the IR generator.
         return false;
     }
-    if (functionDef.inlinedFunctionSize() >= fSettings->fInlineThreshold) {
-        // The function exceeds our maximum inline size.
+    if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
+        functionDef.inlinedFunctionSize() >= fSettings->fInlineThreshold) {
+        // The function exceeds our maximum inline size and is not flagged 'inline'.
         return false;
     }
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
