@@ -19,6 +19,8 @@
 
 namespace SkSL {
 
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
+
 constexpr int VecWidth = ByteCode::kVecWidth;
 
 struct Interpreter {
@@ -890,21 +892,26 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
 
 }; // class Interpreter
 
+#endif // SK_ENABLE_SKSL_INTERPRETER
+
 #undef spf
 
 void ByteCodeFunction::disassemble() const {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
     const uint8_t* ip = fCode.data();
     while (ip < fCode.data() + fCode.size()) {
         printf("%d: ", (int)(ip - fCode.data()));
         ip = Interpreter::DisassembleInstruction(ip);
         printf("\n");
     }
+#endif
 }
 
 bool ByteCode::run(const ByteCodeFunction* f,
                    float* args, int argCount,
                    float* outReturn, int returnCount,
                    const float* uniforms, int uniformCount) const {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
     Interpreter::VValue stack[128];
     int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
     if (stackNeeded > (int)SK_ARRAY_COUNT(stack)) {
@@ -956,12 +963,17 @@ bool ByteCode::run(const ByteCodeFunction* f,
     }
 
     return true;
+#else
+    SkDEBUGFAIL("ByteCode interpreter not enabled");
+    return false;
+#endif
 }
 
 bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
                           float* args[], int argCount,
                           float* outReturn[], int returnCount,
                           const float* uniforms, int uniformCount) const {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
     Interpreter::VValue stack[192];
     int stackNeeded = f->fParameterCount + f->fLocalCount + f->fStackCount;
     if (stackNeeded > (int)SK_ARRAY_COUNT(stack)) {
@@ -1029,6 +1041,10 @@ bool ByteCode::runStriped(const ByteCodeFunction* f, int N,
     }
 
     return true;
+#else
+    SkDEBUGFAIL("ByteCode interpreter not enabled");
+    return false;
+#endif
 }
 
 } // namespace SkSL
