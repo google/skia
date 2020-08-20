@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81d0a2cb_9452368f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-20T14:34:24Z",
+      "side": 1,
+      "message": "Kevin, just want to make sure I didn\u0027t miss anything. The CL changes the requirement of SkSL passed to SkRuntimeEffect.Make. PS7 (vs. 6) is *just* the diffs related to our CK examples. I updated everything in our repo. Is there anything in the buildbot repo, like there is for particles?",
+      "revId": "a92d83a90ab5f4f43c8ed53f68bc2f03a77d9f9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
