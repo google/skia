@@ -26,27 +26,12 @@ typedef intptr_t GrVkBackendMemory;
  * Vulkan textures are really const GrVkImageInfo*
  */
 struct GrVkAlloc {
-    GrVkAlloc()
-            : fMemory(VK_NULL_HANDLE)
-            , fOffset(0)
-            , fSize(0)
-            , fFlags(0)
-            , fBackendMemory(0)
-            , fUsesSystemHeap(false) {}
-
-    GrVkAlloc(VkDeviceMemory memory, VkDeviceSize offset, VkDeviceSize size, uint32_t flags)
-            : fMemory(memory)
-            , fOffset(offset)
-            , fSize(size)
-            , fFlags(flags)
-            , fBackendMemory(0)
-            , fUsesSystemHeap(false) {}
-
-    VkDeviceMemory    fMemory;  // can be VK_NULL_HANDLE iff is an RT and is borrowed
-    VkDeviceSize      fOffset;
-    VkDeviceSize      fSize;    // this can be indeterminate iff Tex uses borrow semantics
-    uint32_t          fFlags;
-    GrVkBackendMemory fBackendMemory; // handle to memory allocated via GrVkMemoryAllocator.
+    // can be VK_NULL_HANDLE iff is an RT and is borrowed
+    VkDeviceMemory    fMemory = VK_NULL_HANDLE;
+    VkDeviceSize      fOffset = 0;
+    VkDeviceSize      fSize = 0;  // this can be indeterminate iff Tex uses borrow semantics
+    uint32_t          fFlags = 0;
+    GrVkBackendMemory fBackendMemory = 0; // handle to memory allocated via GrVkMemoryAllocator.
 
     enum Flag {
         kNoncoherent_Flag = 0x1,   // memory must be flushed to device after mapping
@@ -60,57 +45,12 @@ struct GrVkAlloc {
 
 private:
     friend class GrVkHeap; // For access to usesSystemHeap
-    bool fUsesSystemHeap;
+    bool fUsesSystemHeap = false;
 };
 
 // This struct is used to pass in the necessary information to create a VkSamplerYcbcrConversion
 // object for an VkExternalFormatANDROID.
 struct GrVkYcbcrConversionInfo {
-    GrVkYcbcrConversionInfo()
-            : fFormat(VK_FORMAT_UNDEFINED)
-            , fExternalFormat(0)
-            , fYcbcrModel(VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY)
-            , fYcbcrRange(VK_SAMPLER_YCBCR_RANGE_ITU_FULL)
-            , fXChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
-            , fYChromaOffset(VK_CHROMA_LOCATION_COSITED_EVEN)
-            , fChromaFilter(VK_FILTER_NEAREST)
-            , fForceExplicitReconstruction(false) {}
-
-    GrVkYcbcrConversionInfo(VkFormat format,
-                            uint64_t externalFormat,
-                            VkSamplerYcbcrModelConversion ycbcrModel,
-                            VkSamplerYcbcrRange ycbcrRange,
-                            VkChromaLocation xChromaOffset,
-                            VkChromaLocation yChromaOffset,
-                            VkFilter chromaFilter,
-                            VkBool32 forceExplicitReconstruction,
-                            VkFormatFeatureFlags formatFeatures)
-            : fFormat(format)
-            , fExternalFormat(externalFormat)
-            , fYcbcrModel(ycbcrModel)
-            , fYcbcrRange(ycbcrRange)
-            , fXChromaOffset(xChromaOffset)
-            , fYChromaOffset(yChromaOffset)
-            , fChromaFilter(chromaFilter)
-            , fForceExplicitReconstruction(forceExplicitReconstruction)
-            , fFormatFeatures(formatFeatures) {
-        SkASSERT(fYcbcrModel != VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY);
-        // Either format or externalFormat must be specified.
-        SkASSERT((fFormat != VK_FORMAT_UNDEFINED) ^ (externalFormat != 0));
-    }
-
-    GrVkYcbcrConversionInfo(VkSamplerYcbcrModelConversion ycbcrModel,
-                            VkSamplerYcbcrRange ycbcrRange,
-                            VkChromaLocation xChromaOffset,
-                            VkChromaLocation yChromaOffset,
-                            VkFilter chromaFilter,
-                            VkBool32 forceExplicitReconstruction,
-                            uint64_t externalFormat,
-                            VkFormatFeatureFlags externalFormatFeatures)
-            : GrVkYcbcrConversionInfo(VK_FORMAT_UNDEFINED, externalFormat, ycbcrModel, ycbcrRange,
-                                      xChromaOffset, yChromaOffset, chromaFilter,
-                                      forceExplicitReconstruction, externalFormatFeatures) {}
-
     bool operator==(const GrVkYcbcrConversionInfo& that) const {
         // Invalid objects are not required to have all other fields initialized or matching.
         if (!this->isValid() && !that.isValid()) {
@@ -131,22 +71,22 @@ struct GrVkYcbcrConversionInfo {
 
     // Format of the source image. Must be set to VK_FORMAT_UNDEFINED for external images or
     // a valid image format otherwise.
-    VkFormat                         fFormat;
+    VkFormat fFormat = VK_FORMAT_UNDEFINED;
 
     // The external format. Must be non-zero for external images, zero otherwise.
     // Should be compatible to be used in a VkExternalFormatANDROID struct.
-    uint64_t                         fExternalFormat;
+    uint64_t fExternalFormat = 0;
 
-    VkSamplerYcbcrModelConversion    fYcbcrModel;
-    VkSamplerYcbcrRange              fYcbcrRange;
-    VkChromaLocation                 fXChromaOffset;
-    VkChromaLocation                 fYChromaOffset;
-    VkFilter                         fChromaFilter;
-    VkBool32                         fForceExplicitReconstruction;
+    VkSamplerYcbcrModelConversion fYcbcrModel = VK_SAMPLER_YCBCR_MODEL_CONVERSION_RGB_IDENTITY;
+    VkSamplerYcbcrRange fYcbcrRange = VK_SAMPLER_YCBCR_RANGE_ITU_FULL;
+    VkChromaLocation fXChromaOffset = VK_CHROMA_LOCATION_COSITED_EVEN;
+    VkChromaLocation fYChromaOffset = VK_CHROMA_LOCATION_COSITED_EVEN;
+    VkFilter fChromaFilter = VK_FILTER_NEAREST;
+    VkBool32 fForceExplicitReconstruction = false;
 
     // For external images format features here should be those returned by a call to
     // vkAndroidHardwareBufferFormatPropertiesANDROID
-    VkFormatFeatureFlags             fFormatFeatures;
+    VkFormatFeatureFlags fFormatFeatures = 0;
 };
 
 /*
@@ -156,61 +96,16 @@ struct GrVkYcbcrConversionInfo {
  * queue index passed into Skia.
  */
 struct GrVkImageInfo {
-    VkImage                  fImage;
+    VkImage                  fImage = VK_NULL_HANDLE;
     GrVkAlloc                fAlloc;
-    VkImageTiling            fImageTiling;
-    VkImageLayout            fImageLayout;
-    VkFormat                 fFormat;
-    uint32_t                 fLevelCount;
-    uint32_t                 fCurrentQueueFamily;
-    GrProtected              fProtected;
+    VkImageTiling            fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    VkImageLayout            fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkFormat                 fFormat = VK_FORMAT_UNDEFINED;
+    uint32_t                 fLevelCount = 0;
+    uint32_t                 fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
+    GrProtected              fProtected = GrProtected::kNo;
     GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
-    VkSharingMode            fSharingMode;
-
-    GrVkImageInfo()
-            : fImage(VK_NULL_HANDLE)
-            , fAlloc()
-            , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
-            , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
-            , fFormat(VK_FORMAT_UNDEFINED)
-            , fLevelCount(0)
-            , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED)
-            , fProtected(GrProtected::kNo)
-            , fYcbcrConversionInfo()
-            , fSharingMode(VK_SHARING_MODE_EXCLUSIVE) {}
-
-    GrVkImageInfo(VkImage image,
-                  GrVkAlloc alloc,
-                  VkImageTiling imageTiling,
-                  VkImageLayout layout,
-                  VkFormat format,
-                  uint32_t levelCount,
-                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED,
-                  GrProtected isProtected = GrProtected::kNo,
-                  GrVkYcbcrConversionInfo ycbcrConversionInfo = GrVkYcbcrConversionInfo(),
-                  VkSharingMode sharingMode = VK_SHARING_MODE_EXCLUSIVE)
-            : fImage(image)
-            , fAlloc(alloc)
-            , fImageTiling(imageTiling)
-            , fImageLayout(layout)
-            , fFormat(format)
-            , fLevelCount(levelCount)
-            , fCurrentQueueFamily(currentQueueFamily)
-            , fProtected(isProtected)
-            , fYcbcrConversionInfo(ycbcrConversionInfo)
-            , fSharingMode(sharingMode) {}
-
-    GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout, uint32_t familyQueueIndex)
-            : fImage(info.fImage)
-            , fAlloc(info.fAlloc)
-            , fImageTiling(info.fImageTiling)
-            , fImageLayout(layout)
-            , fFormat(info.fFormat)
-            , fLevelCount(info.fLevelCount)
-            , fCurrentQueueFamily(familyQueueIndex)
-            , fProtected(info.fProtected)
-            , fYcbcrConversionInfo(info.fYcbcrConversionInfo)
-            , fSharingMode(info.fSharingMode) {}
+    VkSharingMode            fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 #if GR_TEST_UTILS
     bool operator==(const GrVkImageInfo& that) const {
