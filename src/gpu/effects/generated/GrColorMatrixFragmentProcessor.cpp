@@ -77,7 +77,6 @@ private:
             const SkM44& mValue = _outer.m;
             if (mPrev != (mValue)) {
                 mPrev = mValue;
-                static_assert(1 == 1);
                 pdman.setSkM44(mVar, mValue);
             }
             const SkV4& vValue = _outer.v;
