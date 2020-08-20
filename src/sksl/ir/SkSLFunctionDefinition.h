@@ -33,10 +33,6 @@ struct FunctionDefinition : public ProgramElement {
         , fBody(std::move(body))
         , fReferencedIntrinsics(std::move(referencedIntrinsics)) {}
 
-    int inlinedFunctionSize() const {
-        return fBody->nodeCount();
-    }
-
     std::unique_ptr<ProgramElement> clone() const override {
         return std::make_unique<FunctionDefinition>(fOffset, fDeclaration,
                                                     fBody->clone(), fReferencedIntrinsics);

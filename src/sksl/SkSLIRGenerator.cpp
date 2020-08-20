@@ -11,6 +11,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLUtil.h"
@@ -2393,7 +2394,7 @@ bool IRGenerator::isSafeToInline(const FunctionDefinition& functionDef) {
         return false;
     }
     if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
-        functionDef.inlinedFunctionSize() >= fSettings->fInlineThreshold) {
+        Analysis::NodeCount(functionDef) >= fSettings->fInlineThreshold) {
         // The function exceeds our maximum inline size and is not flagged 'inline'.
         return false;
     }

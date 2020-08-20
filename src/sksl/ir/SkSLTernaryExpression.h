@@ -38,10 +38,6 @@ struct TernaryExpression : public Expression {
                fIfFalse->isConstantOrUniform();
     }
 
-    int nodeCount() const override {
-        return 1 + fTest->nodeCount() + fIfTrue->nodeCount() + fIfFalse->nodeCount();
-    }
-
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new TernaryExpression(fOffset, fTest->clone(),
                                                                  fIfTrue->clone(),

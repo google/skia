@@ -14,6 +14,7 @@
 namespace SkSL {
 
 struct Expression;
+struct FunctionDefinition;
 struct Program;
 struct ProgramElement;
 struct Statement;
@@ -29,6 +30,8 @@ struct Analysis {
 
     static bool ReferencesSampleCoords(const Program& program);
     static bool ReferencesFragCoords(const Program& program);
+
+    static int NodeCount(const FunctionDefinition& function);
 };
 
 /**

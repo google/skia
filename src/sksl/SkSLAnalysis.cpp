@@ -147,6 +147,36 @@ public:
     typedef ProgramVisitor INHERITED;
 };
 
+// Visitor that counts the number of nodes visited
+class NodeCountVisitor : public ProgramVisitor {
+public:
+    int visit(const Statement& s) {
+        fCount = 0;
+        this->visitStatement(s);
+        return fCount;
+    }
+
+    bool visitExpression(const Expression& e) override {
+        ++fCount;
+        return this->INHERITED::visitExpression(e);
+    }
+
+    bool visitProgramElement(const ProgramElement& p) override {
+        ++fCount;
+        return this->INHERITED::visitProgramElement(p);
+    }
+
+    bool visitStatement(const Statement& s) override {
+        ++fCount;
+        return this->INHERITED::visitStatement(s);
+    }
+
+private:
+    int fCount;
+
+    typedef ProgramVisitor INHERITED;
+};
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,6 +198,10 @@ bool Analysis::ReferencesSampleCoords(const Program& program) {
 
 bool Analysis::ReferencesFragCoords(const Program& program) {
     return Analysis::ReferencesBuiltin(program, SK_FRAGCOORD_BUILTIN);
+}
+
+int Analysis::NodeCount(const FunctionDefinition& function) {
+    return NodeCountVisitor().visit(*function.fBody);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
