@@ -4,6 +4,13 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 87
+------------
+
+  * <insert new release notes here>
+
+* * *
+
 Milestone 86
 ------------
 

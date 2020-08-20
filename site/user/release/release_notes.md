@@ -5,6 +5,62 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 86
+------------
+
+  * Remove support for 'in' variables from SkRuntimeEffect. API now exclusively refers to inputs
+    as 'uniforms'.
+    https://review.skia.org/309050
+
+  * Add SkImageGeneratorNDK and SkEncodeImageWithNDK for using Android's NDK APIs to decode and
+    encode.
+    https://review.skia.org/308185
+    https://review.skia.org/308800
+
+  * SkImage:remove DecodeToRaster, DecodeToTexture
+    https://review.skia.org/306331
+
+  * Add GrContext api to update compressed backend textures.
+    https://review.skia.org/302265
+
+  * Rename GrMipMapped to GrMipmapped for consistency with new APIs.
+    Also rename GrBackendTexture::hasMipMaps() to GrBackendTexture::hasMipmaps()
+    https://review.skia.org/304576
+    https://review.skia.org/304598
+
+  * Add option for clients to own semaphores after wait calls.
+    https://review.skia.org/301216
+
+  * Remove obsolete GrFlushFlags.
+    https://review.skia.org/298818
+
+  * Adds default flush() calls to SkSurface, SkImage, and GrContext. These calls do
+    a basic flush without a submit. If you haven't updated Skia in a couple releases
+    and still have flush() calls in your code that you expect to do a flush and
+    submit, you should update all those to the previously added flushAndSubmit() calls
+    instead.
+    https://review.skia.org/299141
+
+  * Enable BackendSemaphores for the Direct3D backend.
+    https://review.skia.org/298752
+
+  * Added SkImage:asyncRescaleAndReadPixels and SkImage::asyncRescaleAndReadPixelsYUV420
+    https://review.skia.org/299281
+
+  * Ganesh is moving towards replacing GrContext with the GrDirectContext/GrRecordingContext
+    pair. GrDirectContexts have _direct_ access to the GPU and are very similar to the old
+    GrContext. GrRecordingContexts are less powerful contexts that lack GPU access but provided
+    context-like utilities during DDL recording. SkSurfaces and SkCanvas will now only return
+    GrRecordingContexts. Clients requiring context features that need GPU access can then
+    check (via GrRecordingContext::asDirectContext) if the available recording context is actually
+    a direct context.
+
+  * Replace #defined values in SkString with equivalent constexprs.
+    http://review.skia.org/306160
+
+
+* * *
+
 Milestone 85
 ------------
 
