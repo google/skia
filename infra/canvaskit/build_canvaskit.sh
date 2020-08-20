@@ -8,9 +8,6 @@
 # and a Skia checkout has been mounted at /SRC and the output directory
 # is mounted at /OUT
 
-# For example:
-# docker run -v $SKIA_ROOT:/SRC -v $SKIA_ROOT/out/canvaskit:/OUT gcr.io/skia-public/emsdk-base:1.39.16_v1 /SRC/infra/canvaskit/build_canvaskit.sh
-
 set +e
 set -x
 # Clean out previous builds (ignoring any errors for things like folders)

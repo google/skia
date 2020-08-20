@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Now compile with emsdk 2.0.0
+
 ## [0.7.0] 2019-07-20
 
 ### Changed

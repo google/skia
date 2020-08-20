@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - We now compile CanvasKit with emsdk 2.0.0 when testing and deploying to npm.
+
 ## [0.17.3] - 2020-08-05
 
 ### Added
@@ -29,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Compile option to deserialize effects in skps `include_effects_deserialization`.
 
 ### Changed
-- Pathops and SKP deserialization/serialization enabled on the npm build.
+ - Pathops and SKP deserialization/serialization enabled on the npm build.
 
 ## [0.17.0] - 2020-07-20
 
