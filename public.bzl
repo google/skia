@@ -239,6 +239,9 @@ BASE_SRCS_ALL = struct(
         "src/gpu/gl/*",
         "src/gpu/gl/builders/*",
 
+        # Exclude all WebGL specific files
+        "src/gpu/gl/webgl/*",
+
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",
 
