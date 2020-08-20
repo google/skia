@@ -41,10 +41,6 @@ struct NullLiteral : public Expression {
         return true;
     }
 
-    int nodeCount() const override {
-        return 1;
-    }
-
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new NullLiteral(fOffset, fType));
     }

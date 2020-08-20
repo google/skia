@@ -379,11 +379,6 @@ private:
             return "<defined>";
         }
 
-        int nodeCount() const override {
-            SkASSERT(false);
-            return 1;
-        }
-
         std::unique_ptr<Expression> clone() const override {
             return std::unique_ptr<Expression>(new Defined(fType));
         }
