@@ -66,7 +66,7 @@ private:
     id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
     GrMtlPipelineState*         fActivePipelineState = nullptr;
     MTLPrimitiveType            fActivePrimitiveType;
-    MTLRenderPassDescriptor*    fRenderPassDesc;
+    sk_cf_obj<MTLRenderPassDescriptor*> fRenderPassDesc;
     SkRect                      fBounds;
     size_t                      fCurrentVertexStride;
 
