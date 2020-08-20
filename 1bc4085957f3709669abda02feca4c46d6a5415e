@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fa81457_2f52ea6d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-20T17:21:35Z",
+      "side": 1,
+      "message": "Go ahead. Unfortunately the wasm build in G3 already appears to be broken",
+      "revId": "1bc4085957f3709669abda02feca4c46d6a5415e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
