@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86beeb24_117b4b24",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T17:25:51Z",
+      "side": 1,
+      "message": "Wasn\u0027t the memory leak causing issues?",
+      "range": {
+        "startLine": 150,
+        "startChar": 33,
+        "endLine": 150,
+        "endChar": 63
+      },
+      "revId": "36e163433c1ca2e11eaed999ce89930c21a682bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
