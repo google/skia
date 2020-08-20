@@ -878,11 +878,11 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             break;
         }
         case Expression::kTernary_Kind: {
-            TernaryExpression* t = (TernaryExpression*) expr;
+            TernaryExpression* t = &expr->as<TernaryExpression>();
             if (t->fTest->fKind == Expression::kBoolLiteral_Kind) {
                 // ternary has a constant test, replace it with either the true or
                 // false branch
-                if (((BoolLiteral&) *t->fTest).fValue) {
+                if (t->fTest->as<BoolLiteral>().fValue) {
                     (*iter)->setExpression(std::move(t->fIfTrue));
                 } else {
                     (*iter)->setExpression(std::move(t->fIfFalse));
@@ -893,7 +893,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             break;
         }
         case Expression::kBinary_Kind: {
-            BinaryExpression* bin = (BinaryExpression*) expr;
+            BinaryExpression* bin = &expr->as<BinaryExpression>();
             if (dead_assignment(*bin)) {
                 delete_left(&b, iter, outUpdated, outNeedsRescan);
                 break;
@@ -1059,7 +1059,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             break;
         }
         case Expression::kSwizzle_Kind: {
-            Swizzle& s = (Swizzle&) *expr;
+            Swizzle& s = expr->as<Swizzle>();
             // detect identity swizzles like foo.rgba
             if ((int) s.fComponents.size() == s.fBase->fType.columns()) {
                 bool identity = true;
@@ -1659,7 +1659,7 @@ bool Compiler::optimize(Program& program) {
                 if ((*iter)->fKind == ProgramElement::kVar_Kind) {
                     VarDeclarations& vars = (*iter)->as<VarDeclarations>();
                     for (auto varIter = vars.fVars.begin(); varIter != vars.fVars.end();) {
-                        const Variable& var = *((VarDeclaration&) **varIter).fVar;
+                        const Variable& var = *(*varIter)->as<VarDeclaration>().fVar;
                         if (var.dead()) {
                             varIter = vars.fVars.erase(varIter);
                         } else {

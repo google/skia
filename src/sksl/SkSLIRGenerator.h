@@ -166,7 +166,7 @@ private:
     std::unique_ptr<Statement> getNormalizeSkPositionCode();
 
     void checkValid(const Expression& expr);
-    bool setRefKind(const Expression& expr, VariableReference::RefKind kind);
+    bool setRefKind(Expression& expr, VariableReference::RefKind kind);
     bool getConstantInt(const Expression& value, int64_t* out);
     bool checkSwizzleWrite(const Swizzle& swizzle);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);

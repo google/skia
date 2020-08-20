@@ -211,7 +211,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
 // Otherwise, return -1.
 static int expression_as_builtin(const Expression& e) {
     if (e.fKind == Expression::kVariableReference_Kind) {
-        const Variable& var(((VariableReference&)e).fVariable);
+        const Variable& var(e.as<VariableReference>().fVariable);
         if (var.fStorage == Variable::kGlobal_Storage) {
             return var.fModifiers.fLayout.fBuiltin;
         }
@@ -450,9 +450,9 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
                 int offset = 0;
                 for (const auto& e : fProgram) {
                     if (e.fKind == ProgramElement::kVar_Kind) {
-                        VarDeclarations& decl = (VarDeclarations&) e;
+                        const VarDeclarations& decl = e.as<VarDeclarations>();
                         for (const auto& v : decl.fVars) {
-                            const Variable* declVar = ((VarDeclaration&) *v).fVar;
+                            const Variable* declVar = v->as<VarDeclaration>().fVar;
                             if (declVar->fType != *fContext.fFragmentProcessor_Type) {
                                 continue;
                             }
@@ -480,9 +480,9 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             bool isUniform = is_uniform(var);
             for (const auto& e : fProgram) {
                 if (e.fKind == ProgramElement::kVar_Kind) {
-                    VarDeclarations& decl = (VarDeclarations&) e;
+                    const VarDeclarations& decl = e.as<VarDeclarations>();
                     for (const auto& v : decl.fVars) {
-                        const Variable* declVar = ((VarDeclaration&) *v).fVar;
+                        const Variable* declVar = v->as<VarDeclaration>().fVar;
                         if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
                             continue;
                         }
@@ -509,7 +509,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
 ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& expr) {
     switch (expr.fKind) {
         case Expression::kFieldAccess_Kind: {
-            const FieldAccess& f = (const FieldAccess&)expr;
+            const FieldAccess& f = expr.as<FieldAccess>();
             Location baseLoc = this->getLocation(*f.fBase);
             int offset = 0;
             for (int i = 0; i < f.fFieldIndex; ++i) {
@@ -527,7 +527,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
             }
         }
         case Expression::kIndex_Kind: {
-            const IndexExpression& i = (const IndexExpression&)expr;
+            const IndexExpression& i = expr.as<IndexExpression>();
             int stride = SlotCount(i.fType);
             int length = i.fBase->fType.columns();
             SkASSERT(length <= 255);
@@ -583,7 +583,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
             return baseLoc.makeOnStack();
         }
         case Expression::kSwizzle_Kind: {
-            const Swizzle& s = (const Swizzle&)expr;
+            const Swizzle& s = expr.as<Swizzle>();
             SkASSERT(swizzle_is_simple(s));
             Location baseLoc = this->getLocation(*s.fBase);
             int offset = s.fComponents[0];
@@ -599,7 +599,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
             }
         }
         case Expression::kVariableReference_Kind: {
-            const Variable& var = ((const VariableReference&)expr).fVariable;
+            const Variable& var = expr.as<VariableReference>().fVariable;
             return this->getLocation(var);
         }
         default:
@@ -1741,7 +1741,7 @@ void ByteCodeGenerator::writeSwitchStatement(const SwitchStatement& r) {
 
 void ByteCodeGenerator::writeVarDeclarations(const VarDeclarations& v) {
     for (const auto& declStatement : v.fVars) {
-        const VarDeclaration& decl = (VarDeclaration&) *declStatement;
+        const VarDeclaration& decl = declStatement->as<VarDeclaration>();
         // we need to grab the location even if we don't use it, to ensure it has been allocated
         Location location = this->getLocation(*decl.fVar);
         if (decl.fValue) {
