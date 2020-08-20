@@ -783,8 +783,14 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
         return false;
     }
 
+    GrVkAlloc alloc;
+    alloc.fMemory = fMemory;
+    alloc.fOffset = 0;
+    alloc.fSize = hwbProps.allocationSize;
+    alloc.fFlags = 0;
+
     outImageInfo->fImage = fImage;
-    outImageInfo->fAlloc = GrVkAlloc(fMemory, 0, hwbProps.allocationSize, 0);
+    outImageInfo->fAlloc = alloc;
     outImageInfo->fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     outImageInfo->fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     outImageInfo->fFormat = VK_FORMAT_R8G8B8A8_UNORM;
