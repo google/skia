@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9dda323_8366826c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-20T14:34:44Z",
+      "side": 1,
+      "message": "This flag propagates up through SkFontMetrics::hasBounds() -\u003e SkTypeface::onComputeBounds() -\u003e SkTypeface::getBounds(), right?",
+      "revId": "6db9df329c86be0343dd13a3efa403510a7b130a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
