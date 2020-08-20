@@ -13,17 +13,22 @@
 #include "include/gpu/gl/GrGLAssembleInterface.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
-#define GET_PROC(F) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F)
-#define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*)get(ctx, "gl" #F #S)
-#define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*)get(ctx, "gl" #F)
-
-#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL##F = (GrEGL##F##Fn*)get(ctx, "egl" #F #S)
-
-#if SK_DISABLE_WEBGL_INTERFACE
+#if SK_DISABLE_WEBGL_INTERFACE || !defined(SK_USE_WEBGL)
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
     return nullptr;
 }
 #else
+
+// Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/webgl
+#include "webgl/webgl1.h"
+#include "webgl/webgl1_ext.h"
+#include "webgl/webgl2.h"
+#include "webgl/webgl2_ext.h"
+
+#define GET_PROC(F) functions->f##F = (GrGL##F##Fn*) &emscripten_gl##F
+#define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*) &emscripten_gl##F##S
+#define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*) &emscripten_gl##F
+
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
     if (nullptr == GetString) {
@@ -39,12 +44,8 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 
     GET_PROC_LOCAL(GetIntegerv);
     GET_PROC_LOCAL(GetStringi);
-    GrEGLQueryStringFn* queryString;
-    GrEGLDisplay display;
-    GrGetEGLQueryAndDisplay(&queryString, &display, ctx, get);
     GrGLExtensions extensions;
-    if (!extensions.init(kWebGL_GrGLStandard, GetString, GetStringi, GetIntegerv, queryString,
-                         display)) {
+    if (!extensions.init(kWebGL_GrGLStandard, GetString, GetStringi, GetIntegerv)) {
         return nullptr;
     }
 
