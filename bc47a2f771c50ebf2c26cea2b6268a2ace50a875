@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "7f23cc23_72b9c918",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T16:01:31Z",
+      "side": 1,
+      "message": "Relying on a race-condition write to do the right thing across all architectures is super risky. It\u0027s possible we\u0027ll get away with it if this is the only place in the codebase that does it, but remember that such a write is not necessarily atomic--on Intel it might OR directly against the memory address, but any RISC architecture is going to load, OR, and store as separate instructions that can race against each other.\n \nRight now the field isn\u0027t mutable: http://osscs/skia/skia/+/master:src/sksl/ir/SkSLFunctionDeclaration.h;l\u003d115;drc\u003d17c5b70242978313ca642cb7a35bfd359d13ef14\n\nIf I make it mutable, it compiles great. Without mutable, removing const_cast gives the expected:\n\n../../src/sksl/SkSLIRGenerator.cpp:1084:33: error: cannot assign to variable \u0027decl\u0027 with const-qualified type \u0027const SkSL::FunctionDeclaration *\u0027\n        decl-\u003efModifiers.fFlags |\u003d Modifiers::kHasSideEffects_Flag;\n        ~~~~~~~~~~~~~~~~~~~~~~~ ^\n../../src/sksl/SkSLIRGenerator.cpp:987:32: note: variable \u0027decl\u0027 declared const here\n    const FunctionDeclaration* decl \u003d nullptr;\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~",
+      "parentUuid": "a36b956f_7b6598f4",
+      "range": {
+        "startLine": 1084,
+        "startChar": 8,
+        "endLine": 1084,
+        "endChar": 49
+      },
+      "revId": "bc47a2f771c50ebf2c26cea2b6268a2ace50a875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64a27cdf_b0c8ff49",
         "filename": "src/sksl/SkSLIRGenerator.h",
         "patchSetId": 2
