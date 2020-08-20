@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a36b956f_7b6598f4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-20T15:46:11Z",
+      "side": 1,
+      "message": "This is part of https://bugs.chromium.org/p/skia/issues/detail?id\u003d10589\u0026q\u003dArea%3DSkSL\u0026can\u003d2, which I think we really need to address soon (though my analysis is that this particular mutation is safe). Also, that field is mutable, so this is this const_cast necessary?",
+      "parentUuid": "e35a490e_dbd62923",
+      "range": {
+        "startLine": 1084,
+        "startChar": 8,
+        "endLine": 1084,
+        "endChar": 49
+      },
+      "revId": "bc47a2f771c50ebf2c26cea2b6268a2ace50a875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64a27cdf_b0c8ff49",
         "filename": "src/sksl/SkSLIRGenerator.h",
         "patchSetId": 2
