@@ -59,7 +59,9 @@ public:
      */
     void setClipVizColor(SkColor clipVizColor) { this->fClipVizColor = clipVizColor; }
 
-    void setAndroidClipViz(bool enable) {this->fShowAndroidClip = enable; }
+    void setAndroidClipViz(bool enable) { this->fShowAndroidClip = enable; }
+
+    void setOriginVisible(bool enable) { this->fShowOrigin = enable; }
 
     void setDrawGpuOpBounds(bool drawGpuOpBounds) { fDrawGpuOpBounds = drawGpuOpBounds; }
 
@@ -213,6 +215,7 @@ private:
     SkColor fClipVizColor;
     bool    fDrawGpuOpBounds = false;
     bool    fShowAndroidClip = false;
+    bool    fShowOrigin = false;
 
     // When not negative, indicates the render node id of the layer represented by the next
     // drawPicture call.

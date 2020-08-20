@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkTextBlob.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkCanvasPriv.h"
@@ -32,6 +35,24 @@ namespace {
     static constexpr char kOffscreenLayerDraw[] = "OffscreenLayerDraw";
     static constexpr char kSurfaceID[] = "SurfaceID";
     static constexpr char kAndroidClip[] = "AndroidDeviceClipRestriction";
+
+    static SkPath arrowHead = SkPath::Polygon({
+        { 0,   0},
+        { 6, -15},
+        { 0,  -12},
+        {-6, -15},
+    }, true);
+
+    void drawArrow(SkCanvas* canvas, const SkPoint& a, const SkPoint& b, const SkPaint& paint) {
+        canvas->drawLine(a, b, paint);
+        canvas->save();
+        canvas->translate(b.fX, b.fY);
+        SkScalar angle = SkScalarATan2((b.fY - a.fY), b.fX - a.fX);
+        canvas->rotate(angle * 180 / SK_ScalarPI - 90);
+        // arrow head
+        canvas->drawPath(arrowHead, paint);
+        canvas->restore();
+    }
 } // namespace
 
 class DebugPaintFilterCanvas : public SkPaintFilterCanvas {
@@ -64,6 +85,7 @@ DebugCanvas::DebugCanvas(int width, int height)
         , fClipVizColor(SK_ColorTRANSPARENT)
         , fDrawGpuOpBounds(false)
         , fShowAndroidClip(false)
+        , fShowOrigin(false)
         , fnextDrawPictureLayerId(-1)
         , fnextDrawImageRectLayerId(-1)
         , fAndroidClip(SkRect::MakeEmpty()) {
@@ -150,6 +172,14 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
 
     fMatrix = finalCanvas->getTotalMatrix();
     fClip   = finalCanvas->getDeviceClipBounds();
+    if (fShowOrigin) {
+        const SkPaint originXPaint = SkPaint({1.0, 0, 0, 1.0});
+        const SkPaint originYPaint = SkPaint({0, 1.0, 0, 1.0});
+        // Draw an origin cross at the origin before restoring to assist in visualizing the
+        // current matrix.
+        drawArrow(finalCanvas, {-50, 0}, {50, 0}, originXPaint);
+        drawArrow(finalCanvas, {0, -50}, {0, 50}, originYPaint);
+    }
     finalCanvas->restoreToCount(saveCount);
 
     if (fShowAndroidClip) {
@@ -321,7 +351,7 @@ void DebugCanvas::onClipShader(sk_sp<SkShader> cs, SkClipOp op) {
 }
 
 void DebugCanvas::didConcat44(const SkM44& m) {
-    // TODO
+    this->addDrawCommand(new Concat44Command(m));
     this->INHERITED::didConcat44(m);
 }
 
@@ -345,8 +375,8 @@ void DebugCanvas::onDrawAnnotation(const SkRect& rect, const char key[], SkData*
     SkStrSplit(key, "|", kStrict_SkStrSplitMode, &tokens);
     if (tokens.size() == 2) {
         if (tokens[0].equals(kOffscreenLayerDraw)) {
-            // Indicates that the next drawPicture command contains the SkPicture to render the node
-            // at this id in an offscreen buffer.
+            // Indicates that the next drawPicture command contains the SkPicture to render the
+            // node at this id in an offscreen buffer.
             fnextDrawPictureLayerId = std::stoi(tokens[1].c_str());
             fnextDrawPictureDirtyRect = rect.roundOut();
             return; // don't record it
