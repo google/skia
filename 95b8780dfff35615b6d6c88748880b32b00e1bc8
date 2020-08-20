@@ -16,6 +16,24 @@
       "revId": "95b8780dfff35615b6d6c88748880b32b00e1bc8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ccfe57e_b9419a04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T20:43:19Z",
+      "side": 1,
+      "message": "Right, I think the new code actually matches the intent better.",
+      "parentUuid": "96fe0727_6bfe2756",
+      "revId": "95b8780dfff35615b6d6c88748880b32b00e1bc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
