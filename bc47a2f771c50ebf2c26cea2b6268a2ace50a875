@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "406d0f71_e9637e8e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T16:12:40Z",
+      "side": 1,
+      "message": "Added\n        // TODO(skbug.com/10589): thread-unsafe mutation of object in symbol table\nI\u0027ll see if I can reorder the code to avoid the problem.",
+      "parentUuid": "7f23cc23_72b9c918",
+      "range": {
+        "startLine": 1084,
+        "startChar": 8,
+        "endLine": 1084,
+        "endChar": 49
+      },
+      "revId": "bc47a2f771c50ebf2c26cea2b6268a2ace50a875",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64a27cdf_b0c8ff49",
         "filename": "src/sksl/SkSLIRGenerator.h",
         "patchSetId": 2
