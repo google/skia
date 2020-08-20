@@ -40,7 +40,7 @@ static void fill_rect_filtered(SkCanvas* canvas,
 
 static sk_sp<SkPicture> make_picture() {
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
     SkPaint paint;
     paint.setColor(0xFFFFFFFF);
     SkFont font(ToolUtils::create_portable_typeface(), 96.0f);
@@ -51,7 +51,7 @@ static sk_sp<SkPicture> make_picture() {
 // Create a picture that will draw LCD text
 static sk_sp<SkPicture> make_LCD_picture() {
     SkPictureRecorder recorder;
-    SkCanvas* canvas = recorder.beginRecording(100, 100, nullptr, 0);
+    SkCanvas* canvas = recorder.beginRecording(100, 100);
     canvas->clear(SK_ColorTRANSPARENT);
     SkPaint paint;
     paint.setColor(0xFFFFFFFF);
