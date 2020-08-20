@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "f1d3d8ff_2d34afc4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7936
+      },
+      "writtenOn": "2020-08-20T15:08:25Z",
+      "side": 1,
+      "message": "I\u0027m curious, did you try invoking cifuzz.bash with the env variables you set here? What happened?",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "938045e9_2b03f0e3",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 3
@@ -134,6 +151,23 @@
     },
     {
       "key": {
+        "uuid": "cf247f72_717551ac",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7936
+      },
+      "writtenOn": "2020-08-20T15:08:25Z",
+      "side": 1,
+      "message": "OSS_FUZZ_PROJECT_NAME and REPO_NAME should be \"skia\". And TRAVIS_PULL_REQUEST_SHA won\u0027t exist in LUCI.\nI\u0027m not 100% if we need a real value for this. Maybe set it to some fake value.",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "46a0d7f8_f3ea36d8",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 3
@@ -145,6 +179,30 @@
       "writtenOn": "2020-08-20T14:10:47Z",
       "side": 1,
       "message": "This file should be checked in, right? It should probably be in infra/bots/task_drivers/test_cifuzz and then referenced here.",
+      "range": {
+        "startLine": 43,
+        "startChar": 43,
+        "endLine": 43,
+        "endChar": 54
+      },
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8f663d7_afd1cab9",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7936
+      },
+      "writtenOn": "2020-08-20T15:08:25Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "46a0d7f8_f3ea36d8",
       "range": {
         "startLine": 43,
         "startChar": 43,
