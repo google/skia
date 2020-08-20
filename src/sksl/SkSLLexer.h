@@ -48,7 +48,6 @@ struct Token {
         TK_VOLATILE,
         TK_RESTRICT,
         TK_BUFFER,
-        TK_INLINE,
         TK_HASSIDEEFFECTS,
         TK_PLS,
         TK_PLSIN,
