@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "691ef920_472b3a24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-20T15:54:44Z",
+      "side": 1,
+      "message": "So it seems the idea is that we only need the bounds for culling for painting, so just delay calculating the bounds until we actually go to do that.",
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5784e0d2_b8874d1e",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-20T15:54:44Z",
+      "side": 1,
+      "message": "Should probably be named \u0027bounds\u0027? You\u0027re calculating this to pass to a parameter named \u0027cullRect\u0027 so that would also be an ok name.",
+      "range": {
+        "startLine": 489,
+        "startChar": 9,
+        "endLine": 489,
+        "endChar": 15
+      },
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c342dce_9497ca8e",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-20T15:54:44Z",
+      "side": 1,
+      "message": "Just something like\n\n    bounds.joinPossiblyEmptyRect(line.paint(textCanvas))",
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19a8eab8_95b8ccac",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-20T15:54:44Z",
+      "side": 1,
+      "message": "nit: don\u0027t really need an extra newline here.",
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcfcc2c8_ce227398",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-20T15:54:44Z",
+      "side": 1,
+      "message": "Here (and below) I think Skia generally uses the term \u0027bounds\u0027 since it\u0027s shorter and generally means the accumulated bounds of an operation. (\u0027boundaries\u0027 isn\u0027t wrong or anything, it just something that made me notice it was a different term for \u0027bounds\u0027.)",
+      "range": {
+        "startLine": 163,
+        "startChar": 9,
+        "endLine": 163,
+        "endChar": 19
+      },
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
