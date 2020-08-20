@@ -433,3 +433,6 @@ bool GrCaps::isFormatCompressed(const GrBackendFormat& format) const {
     return GrBackendFormatToCompressionType(format) != SkImage::CompressionType::kNone;
 }
 
+size_t GrCaps::roundToOptimalRowBytes(size_t rowBytes) const {
+    return rowBytes;
+}

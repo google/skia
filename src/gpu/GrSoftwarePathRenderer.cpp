@@ -220,6 +220,10 @@ private:
 
 }  // namespace
 
+static void round_mask_bounds_to_optimal_row_bytes(const GrCaps* caps, SkIRect* rect) {
+    rect->fRight = rect->fLeft + caps->roundToOptimalRowBytes(rect->width());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // return true on success; false on failure
 bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
@@ -254,6 +258,10 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         }
         return true;
     }
+
+    const GrCaps* caps = args.fRenderTargetContext->caps();
+    round_mask_bounds_to_optimal_row_bytes(caps, &clippedDevShapeBounds);
+    round_mask_bounds_to_optimal_row_bytes(caps, &unclippedDevShapeBounds);
 
     const SkIRect* boundsForMask = &clippedDevShapeBounds;
     if (useCache) {

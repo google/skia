@@ -243,6 +243,15 @@ public:
     bool surfaceSupportsWritePixels(const GrSurface*) const;
 
     /**
+      * Function to adjust row bytes to an optimal value for texture uploads.
+      * The default implementation returns its argument.
+      *
+      * Backends should not rely on this function always being called in all
+      * cases, and should support all buffer sizes (albeit at reduced speed).
+      */
+    virtual size_t roundToOptimalRowBytes(size_t width) const;
+
+    /**
      * Indicates whether surface supports GrGpu::readPixels, must be copied, or cannot be read.
      */
     enum class SurfaceReadPixelsSupport {

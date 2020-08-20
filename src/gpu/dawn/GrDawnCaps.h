@@ -73,6 +73,7 @@ private:
     }
 
     GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
+    size_t roundToOptimalRowBytes(size_t rowBytes) const override;
 
     typedef GrCaps INHERITED;
 };

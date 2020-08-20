@@ -201,6 +201,10 @@ GrProgramDesc GrDawnCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& prog
     return desc;
 }
 
+size_t GrDawnCaps::roundToOptimalRowBytes(size_t rowBytes) const {
+    return GrDawnRoundRowBytes(rowBytes);
+}
+
 #if GR_TEST_UTILS
 std::vector<GrCaps::TestFormatColorTypeCombination> GrDawnCaps::getTestingCombinations() const {
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
