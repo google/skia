@@ -27,7 +27,6 @@
 #define SK_FRAGCOLOR_BUILTIN           10001
 #define SK_IN_BUILTIN                  10002
 #define SK_OUTCOLOR_BUILTIN            10004
-#define SK_TEXTURESAMPLERS_BUILTIN     10006
 #define SK_OUT_BUILTIN                 10007
 #define SK_LASTFRAGCOLOR_BUILTIN       10008
 #define SK_MAIN_COORDS_BUILTIN         10009
