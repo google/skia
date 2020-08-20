@@ -8,6 +8,8 @@
 #ifndef GrMtlSampler_DEFINED
 #define GrMtlSampler_DEFINED
 
+#include "include/gpu/mtl/GrMtlTypes.h"
+
 #import <Metal/Metal.h>
 
 #include "src/core/SkOpts.h"
@@ -20,9 +22,9 @@ class GrMtlGpu;
 class GrMtlSampler : public SkRefCnt {
 public:
     static GrMtlSampler* Create(const GrMtlGpu* gpu, GrSamplerState);
-    ~GrMtlSampler() override { fMtlSamplerState = nil; }
+    ~GrMtlSampler() override {}
 
-    id<MTLSamplerState> mtlSampler() const { return fMtlSamplerState; }
+    id<MTLSamplerState> mtlSampler() const { return fMtlSamplerState.get(); }
 
     typedef uint32_t Key;
 
@@ -35,12 +37,12 @@ public:
     }
 
 private:
-    GrMtlSampler(id<MTLSamplerState> mtlSamplerState, Key key)
-        : fMtlSamplerState(mtlSamplerState)
+    GrMtlSampler(sk_cf_obj<id<MTLSamplerState>> mtlSamplerState, Key key)
+        : fMtlSamplerState(std::move(mtlSamplerState))
         , fKey(key) {}
 
-    id<MTLSamplerState> fMtlSamplerState;
-    Key                 fKey;
+    sk_cf_obj<id<MTLSamplerState>> fMtlSamplerState;
+    Key fKey;
 };
 
 #endif
