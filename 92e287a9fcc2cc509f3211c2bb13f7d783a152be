@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eb93936c_f8cafd1f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 904,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T20:09:45Z",
+      "side": 1,
+      "message": "`fd` was just too confusing when between \"FunctionDeclaration\", \"FunctionDefinition\" and \"FunctionData.\"",
+      "range": {
+        "startLine": 904,
+        "startChar": 33,
+        "endLine": 904,
+        "endChar": 41
+      },
+      "revId": "92e287a9fcc2cc509f3211c2bb13f7d783a152be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
