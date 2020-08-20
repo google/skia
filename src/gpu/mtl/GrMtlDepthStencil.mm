@@ -9,10 +9,6 @@
 #include "src/gpu/mtl/GrMtlDepthStencil.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 MTLStencilOperation skia_stencil_op_to_mtl(GrStencilOp op) {
     switch (op) {
         case GrStencilOp::kKeep:
@@ -34,7 +30,7 @@ MTLStencilOperation skia_stencil_op_to_mtl(GrStencilOp op) {
     }
 }
 
-MTLStencilDescriptor* skia_stencil_to_mtl(GrStencilSettings::Face face) {
+sk_cf_obj<MTLStencilDescriptor*> skia_stencil_to_mtl(GrStencilSettings::Face face) {
     MTLStencilDescriptor* result = [[MTLStencilDescriptor alloc] init];
     switch (face.fTest) {
         case GrStencilTest::kAlways:
@@ -66,25 +62,27 @@ MTLStencilDescriptor* skia_stencil_to_mtl(GrStencilSettings::Face face) {
     result.writeMask = face.fWriteMask;
     result.depthStencilPassOperation = skia_stencil_op_to_mtl(face.fPassOp);
     result.stencilFailureOperation = skia_stencil_op_to_mtl(face.fFailOp);
-    return result;
+    return sk_cf_obj<MTLStencilDescriptor*>(result);
 }
 
 GrMtlDepthStencil* GrMtlDepthStencil::Create(const GrMtlGpu* gpu,
                                              const GrStencilSettings& stencil,
                                              GrSurfaceOrigin origin) {
-    MTLDepthStencilDescriptor* desc = [[MTLDepthStencilDescriptor alloc] init];
+    sk_cf_obj<MTLDepthStencilDescriptor*> desc([[MTLDepthStencilDescriptor alloc] init]);
     if (!stencil.isDisabled()) {
         if (stencil.isTwoSided()) {
-            desc.frontFaceStencil = skia_stencil_to_mtl(stencil.postOriginCCWFace(origin));
-            desc.backFaceStencil = skia_stencil_to_mtl(stencil.postOriginCWFace(origin));
+            (*desc).frontFaceStencil = skia_stencil_to_mtl(stencil.postOriginCCWFace(origin)).get();
+            (*desc).backFaceStencil = skia_stencil_to_mtl(stencil.postOriginCWFace(origin)).get();
         }
         else {
-            desc.frontFaceStencil = skia_stencil_to_mtl(stencil.singleSidedFace());
-            desc.backFaceStencil = desc.frontFaceStencil;
+            (*desc).frontFaceStencil = skia_stencil_to_mtl(stencil.singleSidedFace()).get();
+            (*desc).backFaceStencil = (*desc).frontFaceStencil;
         }
     }
 
-    return new GrMtlDepthStencil([gpu->device() newDepthStencilStateWithDescriptor: desc],
+    sk_cf_obj<id<MTLDepthStencilState>> stencilState(
+            [gpu->device() newDepthStencilStateWithDescriptor:desc.get()]);
+    return new GrMtlDepthStencil(std::move(stencilState),
                                  GenerateKey(stencil, origin));
 }
 

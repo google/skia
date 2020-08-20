@@ -9,17 +9,15 @@
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrDirectContext* direct,
                                       const GrContextOptions& options,
                                       void* device,
                                       void* queue) {
-    return GrMtlGpu::Make(direct,
-                          options,
-                          (__bridge id<MTLDevice>)device,
-                          (__bridge id<MTLCommandQueue>)queue);
+    GrMtlBackendContext context;
+    // For now we retain these to make sure we don't remove the client's ref when we go out of
+    // scope. In the future the client will set this struct up.
+    context.fDevice.retain((id<MTLDevice>)device);
+    context.fQueue.retain((id<MTLCommandQueue>)queue);
+    return GrMtlGpu::Make(direct, options, context);
 }
 

@@ -24,27 +24,33 @@
 
 #import <Metal/Metal.h>
 
+#include "include/ports/SkCFObject.h"
+
 class GrMtlOpsRenderPass;
 class GrMtlTexture;
 class GrSemaphore;
-struct GrMtlBackendContext;
 class GrMtlCommandBuffer;
 
 namespace SkSL {
     class Compiler;
 }
 
+// TODO: move this to a public interface
+struct GrMtlBackendContext {
+    sk_cf_obj<id<MTLDevice>> fDevice;
+    sk_cf_obj<id<MTLCommandQueue>> fQueue;
+};
+
 class GrMtlGpu : public GrGpu {
 public:
-    static sk_sp<GrGpu> Make(GrDirectContext*, const GrContextOptions&,
-                             id<MTLDevice>, id<MTLCommandQueue>);
+    static sk_sp<GrGpu> Make(GrDirectContext*, const GrContextOptions&, const GrMtlBackendContext&);
     ~GrMtlGpu() override;
 
     void disconnect(DisconnectType) override;
 
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
-    id<MTLDevice> device() const { return fDevice; }
+    id<MTLDevice> device() const { return fDevice.get(); }
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
 
@@ -119,8 +125,7 @@ public:
     }
 
 private:
-    GrMtlGpu(GrDirectContext*, const GrContextOptions&, id<MTLDevice>,
-             id<MTLCommandQueue>, MTLFeatureSet);
+    GrMtlGpu(GrDirectContext*, const GrContextOptions&, const GrMtlBackendContext&, MTLFeatureSet);
 
     void destroyResources();
 
@@ -257,8 +262,8 @@ private:
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
-    id<MTLDevice> fDevice;
-    id<MTLCommandQueue> fQueue;
+    sk_cf_obj<id<MTLDevice>> fDevice;
+    sk_cf_obj<id<MTLCommandQueue>> fQueue;
 
     sk_sp<GrMtlCommandBuffer> fCurrentCmdBuffer;
 
