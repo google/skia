@@ -794,6 +794,7 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
     outImageInfo->fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     outImageInfo->fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     outImageInfo->fFormat = VK_FORMAT_R8G8B8A8_UNORM;
+    outImageInfo->fImageUsageFlags = usageFlags;
     outImageInfo->fLevelCount = 1;
     outImageInfo->fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
     return true;

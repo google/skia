@@ -40,6 +40,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fResolveAttachmentView(resolveAttachmentView) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -65,6 +66,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fResolveAttachmentView(resolveAttachmentView) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
 }
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
@@ -80,6 +82,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fColorAttachmentView(colorAttachmentView)
         , fMSAAImage(nullptr)
         , fResolveAttachmentView(nullptr) {
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -96,7 +99,9 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
         , fColorAttachmentView(colorAttachmentView)
         , fMSAAImage(nullptr)
-        , fResolveAttachmentView(nullptr) {}
+        , fResolveAttachmentView(nullptr) {
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+}
 
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
                                    SkISize dimensions,
@@ -113,6 +118,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fCachedSimpleRenderPass(renderPass)
         , fSecondaryCommandBuffer(secondaryCommandBuffer) {
     SkASSERT(fSecondaryCommandBuffer != VK_NULL_HANDLE);
+    SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -210,6 +216,8 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeSecondaryCBRenderTarget(
     GrVkImageInfo info;
     info.fImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     info.fFormat = vkInfo.fFormat;
+    info.fImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 
     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
             VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_QUEUE_FAMILY_IGNORED));
