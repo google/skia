@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.0 when testing and deploying to npm.
+ - WebGL interface creation is a little leaner in terms of code size and speed.
 
 ## [0.17.3] - 2020-08-05
 
