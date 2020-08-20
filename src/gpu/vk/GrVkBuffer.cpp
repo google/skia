@@ -122,7 +122,7 @@ void GrVkBuffer::vkRelease(GrVkGpu* gpu) {
         // destroying resources if we are at our budget limit. Also there really isn't a need to
         // upload the CPU data if we are deleting this buffer.
         if (fDesc.fDynamic) {
-            this->vkUnmap(gpu);
+            this->vkUnmap(gpu, true, true);
         }
     }
     fResource->recycle();
@@ -150,9 +150,9 @@ VkAccessFlags buffer_type_to_access_flags(GrVkBuffer::Type type) {
 
 void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) {
     VALIDATE();
-    SkASSERT(!this->vkIsMapped());
+    SkASSERT(!this->vkIsMapped() || fIsPersistentlyMapped);
 
-    if (!fResource->unique()) {
+    if (!fIsPersistentlyMapped && !fResource->unique()) {
         if (fDesc.fDynamic) {
             // in use by the command buffer, so we need to create a new one
             fResource->recycle();
@@ -176,9 +176,11 @@ void GrVkBuffer::internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer) 
         SkASSERT(alloc.fSize > 0);
         SkASSERT(alloc.fSize >= size);
         SkASSERT(0 == fOffset);
-
-        fMapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+        if (!fIsPersistentlyMapped) {
+            fMapPtr = GrVkMemory::MapAlloc(gpu, alloc);
+        }
     } else {
+        SkASSERT(!fIsPersistentlyMapped);
         if (!fMapPtr) {
             fMapPtr = new unsigned char[this->size()];
         }
@@ -216,7 +218,8 @@ void GrVkBuffer::copyCpuDataToGpuBuffer(GrVkGpu* gpu, const void* src, size_t si
                            false);
 }
 
-void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
+void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size, size_t offset, bool forceFlush,
+                               bool forceUnmap) {
     VALIDATE();
     SkASSERT(this->vkIsMapped());
 
@@ -227,9 +230,14 @@ void GrVkBuffer::internalUnmap(GrVkGpu* gpu, size_t size) {
         // We currently don't use fOffset
         SkASSERT(0 == fOffset);
 
-        GrVkMemory::FlushMappedAlloc(gpu, alloc, 0, size);
-        GrVkMemory::UnmapAlloc(gpu, alloc);
-        fMapPtr = nullptr;
+        SkASSERT(!forceUnmap || forceFlush);
+        if (!fIsPersistentlyMapped || forceFlush) {
+            GrVkMemory::FlushMappedAlloc(gpu, alloc, offset, size);
+        }
+        if (!fIsPersistentlyMapped || forceUnmap) {
+            GrVkMemory::UnmapAlloc(gpu, alloc);
+            fMapPtr = nullptr;
+        }
     } else {
         SkASSERT(fMapPtr);
         this->copyCpuDataToGpuBuffer(gpu, fMapPtr, size);

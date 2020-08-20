@@ -24,7 +24,7 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu
     }
     visibilities.push_back(stages);
     SkTArray<const GrVkSampler*> samplers;
-    return Create(gpu, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, visibilities, samplers);
+    return Create(gpu, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, visibilities, samplers);
 }
 
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
@@ -117,14 +117,14 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
 
         *descCountPerSet = visibilities.count();
     } else {
-        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
+        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC == type);
         static constexpr int kUniformDescPerSet = 1;
         SkASSERT(kUniformDescPerSet == visibilities.count());
         // Create Uniform Buffer Descriptor
         VkDescriptorSetLayoutBinding dsUniBinding;
         memset(&dsUniBinding, 0, sizeof(dsUniBinding));
         dsUniBinding.binding = GrVkUniformHandler::kUniformBinding;
-        dsUniBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        dsUniBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
         dsUniBinding.descriptorCount = 1;
         dsUniBinding.stageFlags = visibility_to_vk_stage_flags(visibilities[0]);
         dsUniBinding.pImmutableSamplers = nullptr;

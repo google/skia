@@ -11,6 +11,7 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrRingBuffer.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/vk/GrVkCaps.h"
 #include "src/gpu/vk/GrVkMemory.h"
@@ -67,6 +68,9 @@ public:
     const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties() const {
         return fPhysDevMemProps;
     }
+
+    GrRingBuffer* uniformsRingBuffer() override { return &fUniformRingBuffer; }
+
     bool protectedContext() const { return fProtectedContext == GrProtected::kYes; }
 
     GrVkResourceProvider& resourceProvider() { return fResourceProvider; }
@@ -336,6 +340,7 @@ private:
     // Created by GrVkGpu
     GrVkResourceProvider                                  fResourceProvider;
     GrStagingBufferManager                                fStagingBufferManager;
+    GrRingBuffer                                          fUniformRingBuffer;
 
     GrVkCommandPool*                                      fMainCmdPool;
     // just a raw pointer; object's lifespan is managed by fCmdPool

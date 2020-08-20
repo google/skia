@@ -30,14 +30,6 @@ GrVkPipelineStateDataManager::GrVkPipelineStateDataManager(const UniformInfoArra
     }
 }
 
-bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
-                                                        GrVkUniformBuffer* buffer) const {
-    bool updatedBuffer = false;
-    if (buffer && fUniformsDirty) {
-        SkAssertResult(buffer->updateData(gpu, fUniformData.get(),
-                                          fUniformSize, &updatedBuffer));
-        fUniformsDirty = false;
-    }
-
-    return updatedBuffer;
+void GrVkPipelineStateDataManager::uploadUniformBuffers(void* dst) const {
+    memcpy(dst, fUniformData.get(), fUniformSize);
 }

@@ -749,6 +749,8 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkTypesPriv.cpp",
   "$_src/gpu/vk/GrVkUniformBuffer.cpp",
   "$_src/gpu/vk/GrVkUniformBuffer.h",
+  "$_src/gpu/vk/GrVkUniformBuffer2.cpp",
+  "$_src/gpu/vk/GrVkUniformBuffer2.h",
   "$_src/gpu/vk/GrVkUniformHandler.cpp",
   "$_src/gpu/vk/GrVkUniformHandler.h",
   "$_src/gpu/vk/GrVkUtil.cpp",

@@ -82,15 +82,23 @@ protected:
     static const Resource* Create(GrVkGpu* gpu,
                                   const Desc& descriptor);
 
-    GrVkBuffer(const Desc& desc, const GrVkBuffer::Resource* resource)
-        : fDesc(desc), fResource(resource), fOffset(0), fMapPtr(nullptr) {
+    GrVkBuffer(const Desc& desc, const GrVkBuffer::Resource* resource,
+               void* persistentMapPtr = nullptr)
+            : fDesc(desc)
+            , fResource(resource)
+            , fOffset(0)
+            , fMapPtr(persistentMapPtr)
+            , fIsPersistentlyMapped(SkToBool(persistentMapPtr)) {
+        SkASSERT(!fMapPtr || fIsPersistentlyMapped);
     }
 
     void* vkMap(GrVkGpu* gpu) {
         this->internalMap(gpu, fDesc.fSizeInBytes);
         return fMapPtr;
     }
-    void vkUnmap(GrVkGpu* gpu) { this->internalUnmap(gpu, this->size()); }
+    void vkUnmap(GrVkGpu* gpu, bool forceFlush = false, bool forceUnmap = false) {
+        this->internalUnmap(gpu, this->size(), 0, forceFlush, forceUnmap);
+    }
 
     // If the caller passes in a non null createdNewBuffer, this function will set the bool to true
     // if it creates a new VkBuffer to upload the data to.
@@ -106,16 +114,20 @@ private:
     }
 
     void internalMap(GrVkGpu* gpu, size_t size, bool* createdNewBuffer = nullptr);
-    void internalUnmap(GrVkGpu* gpu, size_t size);
+    void internalUnmap(GrVkGpu* gpu, size_t size, size_t offset = 0, bool forceFlush = false,
+                       bool forceUnmap = false);
     void copyCpuDataToGpuBuffer(GrVkGpu* gpu, const void* srcData, size_t size);
 
     void validate() const;
     bool vkIsMapped() const;
 
+    friend class GrVkUniformBuffer2;
+
     Desc                    fDesc;
     const Resource*         fResource;
     VkDeviceSize            fOffset;
     void*                   fMapPtr;
+    bool                    fIsPersistentlyMapped;
 
     typedef SkNoncopyable INHERITED;
 };

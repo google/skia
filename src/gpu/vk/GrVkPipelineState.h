@@ -114,8 +114,6 @@ private:
 
     SkSTArray<4, const GrVkSampler*> fImmutableSamplers;
 
-    std::unique_ptr<GrVkUniformBuffer> fUniformBuffer;
-
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;
