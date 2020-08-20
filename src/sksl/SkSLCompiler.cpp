@@ -1813,6 +1813,7 @@ bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
 #endif
 
 std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
+#if defined(SK_ENABLE_SKSL_INTERPRETER)
     if (!this->optimize(program)) {
         return nullptr;
     }
@@ -1824,6 +1825,9 @@ std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
     if (success) {
         return result;
     }
+#else
+    ABORT("ByteCode interpreter not enabled");
+#endif
     return nullptr;
 }
 
