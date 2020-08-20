@@ -89,8 +89,11 @@ private:
 class ManagedAnimation final : public SkRefCnt {
 public:
     static sk_sp<ManagedAnimation> Make(const std::string& json,
-                                        sk_sp<skottie::ResourceProvider> rp) {
-        auto mgr = std::make_unique<skottie_utils::CustomPropertyManager>();
+                                        sk_sp<skottie::ResourceProvider> rp,
+                                        std::string prop_prefix) {
+        auto mgr = std::make_unique<skottie_utils::CustomPropertyManager>(
+                        skottie_utils::CustomPropertyManager::Mode::kCollapseProperties,
+                        prop_prefix.empty() ? nullptr : prop_prefix.c_str());
         static constexpr char kInterceptPrefix[] = "__";
         auto pinterceptor =
             sk_make_sp<skottie_utils::ExternalAnimationPrecompInterceptor>(rp, kInterceptPrefix);
@@ -243,7 +246,8 @@ EMSCRIPTEN_BINDINGS(Skottie) {
                                                            size_t assetCount,
                                                            uintptr_t /* char**     */ nptr,
                                                            uintptr_t /* uint8_t**  */ dptr,
-                                                           uintptr_t /* size_t*    */ sptr)
+                                                           uintptr_t /* size_t*    */ sptr,
+                                                           std::string prop_prefix)
                                                         ->sk_sp<ManagedAnimation> {
         // See the comment in canvaskit_bindings.cpp about the use of uintptr_t
         const auto assetNames = reinterpret_cast<char**   >(nptr);
@@ -260,8 +264,9 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         }
 
         return ManagedAnimation::Make(json,
-                 skresources::DataURIResourceProviderProxy::Make(
-                    SkottieAssetProvider::Make(std::move(assets))));
+                                      skresources::DataURIResourceProviderProxy::Make(
+                                          SkottieAssetProvider::Make(std::move(assets))),
+                                      prop_prefix);
     }));
     constant("managed_skottie", true);
 #endif // SK_INCLUDE_MANAGED_SKOTTIE
