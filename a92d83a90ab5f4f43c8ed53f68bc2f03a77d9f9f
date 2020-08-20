@@ -16,6 +16,24 @@
       "revId": "a92d83a90ab5f4f43c8ed53f68bc2f03a77d9f9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7ba558a_d069e687",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-20T14:39:27Z",
+      "side": 1,
+      "message": "I don\u0027t think there\u0027s anything in the infra repo that calls skruntime effect. I appreciate you changed the jsfiddles. Would you mind adding an entry to CanvasKit\u0027s Changelog as well?",
+      "parentUuid": "81d0a2cb_9452368f",
+      "revId": "a92d83a90ab5f4f43c8ed53f68bc2f03a77d9f9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
