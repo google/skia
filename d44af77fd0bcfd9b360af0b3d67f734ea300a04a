@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d0976d2_fa66968e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2020-08-20T12:21:59Z",
+      "side": 1,
+      "message": "TBR reed, no API change, only milestone++",
+      "revId": "d44af77fd0bcfd9b360af0b3d67f734ea300a04a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
