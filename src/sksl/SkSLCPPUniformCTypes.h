@@ -34,11 +34,17 @@ namespace SkSL {
 // semicolons or newlines, which will be handled by the code generation itself.
 class UniformCTypeMapper {
 public:
+    // Create a templated mapper that does not support state tracking
     UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
-            const String& setUniformSingleFormat, const String& setUniformArrayFormat,
-            const String& defaultValue = "", const String& dirtyExpressionFormat = "",
-            const String& saveStateFormat = "")
-        : UniformCTypeMapper(ctype, skslTypes, setUniformSingleFormat, setUniformArrayFormat,
+            const char* setUniformFormat)
+        : UniformCTypeMapper(ctype, skslTypes, setUniformFormat, false, "", "", "") { }
+
+    // Create a templated mapper that provides extra patterns for the state
+    // tracking expressions.
+    UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
+            const String& setUniformFormat, const String& defaultValue,
+            const String& dirtyExpressionFormat, const String& saveStateFormat)
+        : UniformCTypeMapper(ctype, skslTypes, setUniformFormat,
                 true, defaultValue, dirtyExpressionFormat, saveStateFormat) { }
 
     // Returns nullptr if the type and layout are not supported; the returned pointer's ownership
@@ -110,17 +116,12 @@ public:
 
 private:
     UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
-            const String& setUniformSingleFormat, const String& setUniformArrayFormat,
-            bool enableTracking, const String& defaultValue, const String& dirtyExpressionFormat,
-            const String& saveStateFormat);
-
-    const UniformCTypeMapper* arrayMapper(int arrayCount) const;
+            const String& setUniformFormat, bool enableTracking, const String& defaultValue,
+            const String& dirtyExpressionFormat, const String& saveStateFormat);
 
     Layout::CType fCType;
-    int fArrayCount = -1;
     std::vector<String> fSKSLTypes;
-    String fUniformSingleTemplate;
-    String fUniformArrayTemplate;
+    String fUniformTemplate;
     bool fInlineValue; // Cached value calculated from fUniformTemplate
 
     bool fSupportsTracking;
