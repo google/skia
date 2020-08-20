@@ -24,6 +24,8 @@
 
 #import <Metal/Metal.h>
 
+#include "include/ports/SkCFObject.h"
+
 class GrMtlOpsRenderPass;
 class GrMtlTexture;
 class GrSemaphore;
@@ -44,7 +46,7 @@ public:
 
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
-    id<MTLDevice> device() const { return fDevice; }
+    id<MTLDevice> device() const { return fDevice.get(); }
 
     GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
 
@@ -257,8 +259,8 @@ private:
 
     sk_sp<GrMtlCaps> fMtlCaps;
 
-    id<MTLDevice> fDevice;
-    id<MTLCommandQueue> fQueue;
+    sk_cf_obj<id<MTLDevice>> fDevice;
+    sk_cf_obj<id<MTLCommandQueue>> fQueue;
 
     sk_sp<GrMtlCommandBuffer> fCurrentCmdBuffer;
 
