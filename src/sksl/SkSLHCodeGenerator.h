@@ -15,8 +15,6 @@
 
 #include <cctype>
 
-#if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
-
 constexpr const char* kFragmentProcessorHeader =
 R"(
 /**************************************************************************************************
@@ -85,6 +83,4 @@ private:
 
 } // namespace SkSL
 
-#endif // defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
-
-#endif // SKSL_HCODEGENERATOR
+#endif
