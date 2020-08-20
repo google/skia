@@ -177,18 +177,43 @@ describe('Canvas Behavior', () => {
 
         canvas.clear(CanvasKit.WHITE);
 
-        canvas.drawRRect({
-          rect: CanvasKit.LTRBRect(10, 10, 210, 210),
-          rx1: 10, // top left corner, going clockwise
-          ry1: 30,
-          rx2: 30,
-          ry2: 10,
-          rx3: 50,
-          ry3: 75,
-          rx4: 120,
-          ry4: 120,
-        }, paint);
+        canvas.drawRRect([10, 10, 210, 210,
+          // top left corner, going clockwise
+          10, 30,
+          30, 10,
+          50, 75,
+          120, 120,
+        ], paint);
 
+        path.delete();
+        paint.delete();
+    });
+
+    // As above, except with the array passed in via malloc'd memory.
+    gm('rrect_8corners_malloc_canvas', (canvas) => {
+        const path = starPath(CanvasKit);
+
+        const paint = new CanvasKit.SkPaint();
+
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setStrokeWidth(3.0);
+        paint.setAntiAlias(true);
+        paint.setColor(CanvasKit.BLACK);
+
+        canvas.clear(CanvasKit.WHITE);
+
+        const rrect = CanvasKit.Malloc(Float32Array, 12);
+        rrect.toTypedArray().set([10, 10, 210, 210,
+          // top left corner, going clockwise
+          10, 30,
+          30, 10,
+          50, 75,
+          120, 120,
+        ]);
+
+        canvas.drawRRect(rrect, paint);
+
+        CanvasKit.Free(rrect);
         path.delete();
         paint.delete();
     });
