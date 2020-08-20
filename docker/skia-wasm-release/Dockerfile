@@ -1,7 +1,16 @@
 # Dockerfile for building the WASM libraries used by jsfiddle.skia.org and debugger.skia.org
 FROM gcr.io/skia-public/emsdk-base:prod as builder
 
-# Checkout Skia.
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+  git \
+  libfreetype6-dev
+
+RUN cd /tmp \
+  && git clone --depth 1 'https://chromium.googlesource.com/chromium/tools/depot_tools.git'
+
+ENV PATH=${PATH}:/tmp/depot_tools
+
+# Checkout Skia using fetch from depot_tools
 RUN mkdir -p /tmp/skia \
   && cd /tmp/skia \
   && fetch skia
