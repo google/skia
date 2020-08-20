@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "252023e2_0e5e4d61",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-20T17:57:54Z",
+      "side": 1,
+      "message": "Ready for re-review. I figured no real point in trying to be clever here, just use a mutex and call it a day. I also can\u0027t easily switch from map to unordered_map as John suggested in the previous CL, because the key supports the right methods to work in a map but not an unordered_map.",
+      "revId": "147b26b53723321d4d4c7da1d5d2090b2e5749af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
