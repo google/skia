@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a4c1253_df2741b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-20T18:03:57Z",
+      "side": 1,
+      "message": "Yes. Derek pointed out that I don\u0027t have to calculate it myself - and since I did it wrong anyway...",
+      "parentUuid": "691ef920_472b3a24",
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5784e0d2_b8874d1e",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 9
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "06d3b785_3a4195b8",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-20T18:03:57Z",
+      "side": 1,
+      "message": "Yes, and it\u0027s bounds everywhere else.",
+      "parentUuid": "5784e0d2_b8874d1e",
+      "range": {
+        "startLine": 489,
+        "startChar": 9,
+        "endLine": 489,
+        "endChar": 15
+      },
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7c342dce_9497ca8e",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 9
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "a8bc92c7_456e1bcb",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-20T18:03:57Z",
+      "side": 1,
+      "message": "line.paint is a heavy method. I don\u0027t like hiding heavy calls as  a part of assignment or parameters.\nPrefer to make it a statement. Also, helpful when debugging...",
+      "parentUuid": "7c342dce_9497ca8e",
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19a8eab8_95b8ccac",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 9
@@ -73,6 +133,24 @@
       "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5b5e5a6_2b319a4e",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-20T18:03:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19a8eab8_95b8ccac",
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -96,6 +174,30 @@
       "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f14b889_18fbbddb",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-20T18:03:57Z",
+      "side": 1,
+      "message": "Renamed.",
+      "parentUuid": "fcfcc2c8_ce227398",
+      "range": {
+        "startLine": 163,
+        "startChar": 9,
+        "endLine": 163,
+        "endChar": 19
+      },
+      "revId": "2797a33a55bd5b359fca35d3e12220aa46090430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
