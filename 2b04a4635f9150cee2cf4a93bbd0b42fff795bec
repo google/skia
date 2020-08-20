@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b9ef8a6_f118e6b7",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-20T19:54:52Z",
+      "side": 1,
+      "message": "Name `result` shadowing outer-scope variable `result` of a different type",
+      "range": {
+        "startLine": 157,
+        "startChar": 28,
+        "endLine": 157,
+        "endChar": 34
+      },
+      "revId": "2b04a4635f9150cee2cf4a93bbd0b42fff795bec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
