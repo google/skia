@@ -22,6 +22,10 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
+const (
+	MIN_WAIT_DURATION = 4 * time.Minute
+)
+
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -87,6 +91,7 @@ func main() {
 func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId string) error {
 	ctx := td.StartStep(parentCtx, td.Props("Wait for canary roll"))
 	defer td.EndStep(ctx)
+	startTime := time.Now()
 
 	// For writing to the step's log stream.
 	stdout := td.NewLogStream(ctx, "stdout", td.Info)
@@ -114,8 +119,23 @@ func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId
 			return td.FailStep(ctx, fmt.Errorf("Could not write to stdout: %s", err))
 		}
 
+		fmt.Println("TIME TIME")
+		fmt.Println(time.Now())
+		fmt.Println(startTime.Add(MIN_WAIT_DURATION))
+		fmt.Println(time.Now().Before(startTime.Add(MIN_WAIT_DURATION)))
+		if time.Now().Before(startTime.Add(MIN_WAIT_DURATION)) {
+			return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] returned success in less than %s. Failing canary due to skbug.com/10563", cl, MIN_WAIT_DURATION))
+		}
+
 		if roll.Status == manual.STATUS_COMPLETE {
 			if roll.Result == manual.RESULT_SUCCESS {
+				// This is a hopefully temperory workaround for skbug.com/10563. Sometimes
+				// Canary-Chromium returns success immediately after creating a change and
+				// before the tryjobs have a chance to run. If we have waited
+				// for < MIN_WAIT_DURATION then be cautious and assume failure.
+				if time.Now().Before(startTime.Add(MIN_WAIT_DURATION)) {
+					return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] returned success in less than %s. Failing canary due to skbug.com/10563", cl, MIN_WAIT_DURATION))
+				}
 				return nil
 			} else if roll.Result == manual.RESULT_FAILURE {
 				if cl == "" {
