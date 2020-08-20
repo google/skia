@@ -26,10 +26,6 @@ struct ReturnStatement : public Statement {
     : INHERITED(expression->fOffset, kStatementKind)
     , fExpression(std::move(expression)) {}
 
-    int nodeCount() const override {
-        return 1 + fExpression->nodeCount();
-    }
-
     std::unique_ptr<Statement> clone() const override {
         if (fExpression) {
             return std::unique_ptr<Statement>(new ReturnStatement(fExpression->clone()));

@@ -56,10 +56,6 @@ struct IndexExpression : public Expression {
         return fBase->hasProperty(property) || fIndex->hasProperty(property);
     }
 
-    int nodeCount() const override {
-        return 1 + fBase->nodeCount() + fIndex->nodeCount();
-    }
-
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
                                                                &fType));

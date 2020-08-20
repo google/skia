@@ -61,10 +61,6 @@ struct VariableReference : public Expression {
         return (fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) != 0;
     }
 
-    int nodeCount() const override {
-        return 1;
-    }
-
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
     }

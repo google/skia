@@ -35,14 +35,6 @@ struct Block : public Statement {
         return true;
     }
 
-    int nodeCount() const override {
-        int result = 1;
-        for (const auto& s : fStatements) {
-            result += s->nodeCount();
-        }
-        return result;
-    }
-
     std::unique_ptr<Statement> clone() const override {
         std::vector<std::unique_ptr<Statement>> cloned;
         for (const auto& s : fStatements) {
