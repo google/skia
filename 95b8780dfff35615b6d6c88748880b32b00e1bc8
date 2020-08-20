@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96fe0727_6bfe2756",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-20T20:32:20Z",
+      "side": 1,
+      "message": "I was going to ask how the dehydrated sksl got smaller, but then I realized - despite what the comment used to say, it was also adding the side-effects flag to builtin functions that were defined in those two pre-includes. (None of those functions have side effects, so I think this is an improvement, too).",
+      "revId": "95b8780dfff35615b6d6c88748880b32b00e1bc8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
