@@ -829,8 +829,7 @@ public:
                         SkPictureRecorder recorder;
                         pic->playback(recorder.beginRecording(pic->cullRect().width(),
                                                               pic->cullRect().height(),
-                                                              &factory,
-                                                              0));
+                                                              &factory));
                         pic = recorder.finishRecordingAsPicture();
                     }
                     SkString name = SkOSPath::Basename(path.c_str());
