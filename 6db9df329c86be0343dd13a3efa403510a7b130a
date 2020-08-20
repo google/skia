@@ -16,6 +16,24 @@
       "revId": "6db9df329c86be0343dd13a3efa403510a7b130a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10e0654d_412c8c6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-20T15:21:37Z",
+      "side": 1,
+      "message": "Yes, this is the same way the existing FreeType code works. I just hadn\u0027t gotten around to doing this for the others.",
+      "parentUuid": "b9dda323_8366826c",
+      "revId": "6db9df329c86be0343dd13a3efa403510a7b130a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
