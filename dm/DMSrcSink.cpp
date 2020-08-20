@@ -80,6 +80,7 @@
 #endif
 #include "tests/TestUtils.h"
 
+#include <chrono>
 #include <cmath>
 #include <functional>
 
@@ -1675,12 +1676,17 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
         return result;
     }
 
-    auto precompileShaders = [&memoryCache](GrDirectContext* dContext) {
+    double precompileDur = 0;
+
+    auto precompileShaders = [&memoryCache, &precompileDur](GrDirectContext* dContext) {
+        uint64_t begin = std::chrono::steady_clock::now().time_since_epoch().count();
         memoryCache.foreach([dContext](sk_sp<const SkData> key,
                                        sk_sp<SkData> data,
                                        int /*count*/) {
             SkAssertResult(dContext->precompileShader(*key, *data));
         });
+        uint64_t end = std::chrono::steady_clock::now().time_since_epoch().count();
+        precompileDur = static_cast<double>(end - begin) * 1E-6;
     };
 
     sk_gpu_test::MemoryCache replayCache;
@@ -1698,6 +1704,8 @@ Result GPUPrecompileTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* 
         return refResult;
     }
     SkASSERT(!replayCache.numCacheMisses());
+
+    SkDebugf("  %4d : %g ms\n", replayOptions.fRuntimeProgramCacheSize, precompileDur);
 
     return compare_bitmaps(reference, *dst);
 }
