@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "d437e6ef_0553e274",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T14:33:04Z",
+      "side": 1,
+      "message": "Landing since the remaining canary failures look to be flakes/failures unrelated to this CL.",
+      "revId": "96f7eeea45adcaf1f40538241427fef147e70773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6ffa13b_2257b5f2",
         "filename": "tools/gpu/vk/VkYcbcrSamplerHelper.cpp",
         "patchSetId": 6
@@ -13,6 +30,30 @@
       "writtenOn": "2020-08-21T14:12:59Z",
       "side": 1,
       "message": "When we update client code probably good to do field-by-field init since init\u0027ing like this will still break if we add fields.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 80
+      },
+      "revId": "96f7eeea45adcaf1f40538241427fef147e70773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e71ba5a_483f4548",
+        "filename": "tools/gpu/vk/VkYcbcrSamplerHelper.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T14:33:04Z",
+      "side": 1,
+      "message": "Yeah all clients were updated to list out the fields. I left this like this specifically to help force us to updates our internal tests when making changes and not miss it.",
+      "parentUuid": "b6ffa13b_2257b5f2",
       "range": {
         "startLine": 178,
         "startChar": 0,
