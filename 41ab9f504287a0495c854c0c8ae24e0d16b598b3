@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6f8e840_95b9c6fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T22:47:15Z",
+      "side": 1,
+      "message": "LGTM--can you set your SDK version locally to iterate on the trybot issues?",
+      "revId": "41ab9f504287a0495c854c0c8ae24e0d16b598b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae2bf1e6_85300e20",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T22:47:15Z",
+      "side": 1,
+      "message": "fObject(nil) is redundant now that it\u0027s initialized on line 136",
+      "range": {
+        "startLine": 37,
+        "startChar": 26,
+        "endLine": 38,
+        "endChar": 54
+      },
+      "revId": "41ab9f504287a0495c854c0c8ae24e0d16b598b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2c9121d_65a15695",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T22:47:15Z",
+      "side": 1,
+      "message": "Totally fine as-is, but I would have expected `(*fMtlBuffer).contents` to match the other accessors which seem to prefer dot syntax (e.g. see L137)",
+      "range": {
+        "startLine": 123,
+        "startChar": 37,
+        "endLine": 123,
+        "endChar": 59
+      },
+      "revId": "41ab9f504287a0495c854c0c8ae24e0d16b598b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0272f87_0e925b50",
+        "filename": "src/gpu/mtl/GrMtlSemaphore.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T22:47:15Z",
+      "side": 1,
+      "message": "Linewrapping",
+      "range": {
+        "startLine": 34,
+        "startChar": 97,
+        "endLine": 34,
+        "endChar": 108
+      },
+      "revId": "41ab9f504287a0495c854c0c8ae24e0d16b598b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5771350_a1c69d8c",
+        "filename": "src/gpu/mtl/GrMtlTrampoline.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T22:47:15Z",
+      "side": 1,
+      "message": "Is this a TODO item for us, meant to signal an API break on the horizon, or something else...?",
+      "range": {
+        "startLine": 18,
+        "startChar": 14,
+        "endLine": 18,
+        "endChar": 63
+      },
+      "revId": "41ab9f504287a0495c854c0c8ae24e0d16b598b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d57cf714_73bbc5e4",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T22:47:15Z",
+      "side": 1,
+      "message": "optional: comment could be removed, seems to be redundant with the code itself",
+      "range": {
+        "startLine": 120,
+        "startChar": 51,
+        "endLine": 120,
+        "endChar": 83
+      },
+      "revId": "41ab9f504287a0495c854c0c8ae24e0d16b598b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
