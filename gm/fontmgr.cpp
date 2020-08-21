@@ -268,25 +268,28 @@ private:
         if ((fm.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag) &&
             (fm.fFlags & SkFontMetrics::kUnderlineThicknessIsValid_Flag))
         {
-            SkRect underline{ fontBounds.fLeft,  fm.fUnderlinePosition,
-                              fontBounds.fRight, fm.fUnderlinePosition + fm.fUnderlineThickness };
+            SkRect underline{ min.fLeft,  fm.fUnderlinePosition,
+                              min.fRight, fm.fUnderlinePosition + fm.fUnderlineThickness };
             canvas->drawRect(underline, metricsPaint);
         }
 
         if ((fm.fFlags & SkFontMetrics::kStrikeoutPositionIsValid_Flag) &&
             (fm.fFlags & SkFontMetrics::kStrikeoutThicknessIsValid_Flag))
         {
-            SkRect strikeout{ fontBounds.fLeft,  fm.fStrikeoutPosition - fm.fStrikeoutThickness,
-                              fontBounds.fRight, fm.fStrikeoutPosition };
+            SkRect strikeout{ min.fLeft,  fm.fStrikeoutPosition - fm.fStrikeoutThickness,
+                              min.fRight, fm.fStrikeoutPosition };
             canvas->drawRect(strikeout, metricsPaint);
         }
 
-        SkGlyphID str[] = { left, right, top, bottom };
-        SkPoint location[] = {
-            {fontBounds.left(), fontBounds.centerY()},
-            {fontBounds.right(), fontBounds.centerY()},
-            {fontBounds.centerX(), fontBounds.top()},
-            {fontBounds.centerX(), fontBounds.bottom()}
+        struct GlyphToDraw {
+            SkGlyphID id;
+            SkPoint location;
+            SkScalar rotation;
+        } glyphsToDraw [] = {
+            {left,   {min.left(),    min.centerY()}, 270},
+            {right,  {min.right(),   min.centerY()},  90},
+            {top,    {min.centerX(), min.top()    },   0},
+            {bottom, {min.centerX(), min.bottom() }, 180},
         };
 
         SkFont labelFont;
@@ -296,20 +299,24 @@ private:
         if (labelBounds) {
             SkString name;
             font.getTypefaceOrDefault()->getFamilyName(&name);
-            canvas->drawString(name, fontBounds.fLeft, fontBounds.fBottom, labelFont, SkPaint());
+            canvas->drawString(name, min.fLeft, min.fBottom, labelFont, SkPaint());
         }
-        for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
+        for (const GlyphToDraw& glyphToDraw : glyphsToDraw) {
             SkPath path;
-            font.getPath(str[i], &path);
+            font.getPath(glyphToDraw.id, &path);
             SkPaint::Style style = path.isEmpty() ? SkPaint::kFill_Style : SkPaint::kStroke_Style;
             SkPaint glyphPaint;
             glyphPaint.setStyle(style);
-            canvas->drawSimpleText(&str[i], sizeof(str[0]), SkTextEncoding::kGlyphID, 0, 0, font, glyphPaint);
+            canvas->drawSimpleText(&glyphToDraw.id, sizeof(glyphToDraw.id),
+                                   SkTextEncoding::kGlyphID, 0, 0, font, glyphPaint);
 
             if (labelBounds) {
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->translate(glyphToDraw.location.fX, glyphToDraw.location.fY);
+                canvas->rotate(glyphToDraw.rotation);
                 SkString glyphStr;
-                glyphStr.appendS32(str[i]);
-                canvas->drawString(glyphStr, location[i].fX, location[i].fY, labelFont, SkPaint());
+                glyphStr.appendS32(glyphToDraw.id);
+                canvas->drawString(glyphStr, 0, 0, labelFont, SkPaint());
             }
         }
 
@@ -344,7 +351,8 @@ private:
                 // the glyphs which make up the maximum extent.
                 SkTypeface* typeface = font.getTypefaceOrDefault();
                 if (typeface && 0 < typeface->countGlyphs() && typeface->countGlyphs() < 1000) {
-                    SkRect drawBounds = show_bounds(canvas, font, x, y, boundsColors[index & 1], fLabelBounds);
+                    SkColor color = boundsColors[index & 1];
+                    SkRect drawBounds = show_bounds(canvas, font, x, y, color, fLabelBounds);
                     x += drawBounds.width() + 20;
                     index += 1;
                     if (x > 900) {
