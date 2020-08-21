@@ -249,6 +249,30 @@
     },
     {
       "key": {
+        "uuid": "68de7dda_51d7eb26",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:34:50Z",
+      "side": 1,
+      "message": "Let\u0027s delete that part of the style guide.  I don\u0027t think we really have any preference about any of this.  We couched it with \"slightly\" but if that leads you to worry about this minor crap, please just forget about it.",
+      "parentUuid": "a3dae1e3_f5173839",
+      "range": {
+        "startLine": 60,
+        "startChar": 13,
+        "endLine": 60,
+        "endChar": 14
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb1232be_06d804c9",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
         "patchSetId": 9
