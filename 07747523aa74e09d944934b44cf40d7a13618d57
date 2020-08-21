@@ -16,6 +16,24 @@
       "revId": "07747523aa74e09d944934b44cf40d7a13618d57",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5d28522_527cb446",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-21T18:56:36Z",
+      "side": 1,
+      "message": "It turns out Windows has a variable font as a system font, so it started getting zero bounds, which this gm thought of as a zero sized drawing so stuff got all overlap-y. This makes things nicer.",
+      "parentUuid": "76cd433b_8e39ba54",
+      "revId": "07747523aa74e09d944934b44cf40d7a13618d57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
