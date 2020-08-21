@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6ffa13b_2257b5f2",
+        "filename": "tools/gpu/vk/VkYcbcrSamplerHelper.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-21T14:12:59Z",
+      "side": 1,
+      "message": "When we update client code probably good to do field-by-field init since init\u0027ing like this will still break if we add fields.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 80
+      },
+      "revId": "96f7eeea45adcaf1f40538241427fef147e70773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
