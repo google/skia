@@ -19,7 +19,8 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
                                                         VkDevice device,
                                                         uint32_t physicalDeviceVersion,
                                                         const GrVkExtensions* extensions,
-                                                        sk_sp<const GrVkInterface> interface) {
+                                                        sk_sp<const GrVkInterface> interface,
+                                                        const GrVkCaps* caps) {
     return nullptr;
 }
 #else
@@ -29,7 +30,8 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
                                                         VkDevice device,
                                                         uint32_t physicalDeviceVersion,
                                                         const GrVkExtensions* extensions,
-                                                        sk_sp<const GrVkInterface> interface) {
+                                                        sk_sp<const GrVkInterface> interface,
+                                                        const GrVkCaps* caps) {
 #define GR_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME
 #define GR_COPY_FUNCTION_KHR(NAME) functions.vk##NAME##KHR = interface->fFunctions.f##NAME
 
@@ -84,14 +86,16 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
     VmaAllocator allocator;
     vmaCreateAllocator(&info, &allocator);
 
-    return sk_sp<GrVkAMDMemoryAllocator>(new GrVkAMDMemoryAllocator(allocator,
-                                                                    std::move(interface)));
+    return sk_sp<GrVkAMDMemoryAllocator>(new GrVkAMDMemoryAllocator(
+            allocator, std::move(interface), caps->preferCachedCpuMemory()));
 }
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VmaAllocator allocator,
-                                               sk_sp<const GrVkInterface> interface)
+                                               sk_sp<const GrVkInterface> interface,
+                                               bool preferCachedCpuMemory)
         : fAllocator(allocator)
-        , fInterface(std::move(interface)) {}
+        , fInterface(std::move(interface))
+        , fPreferCachedCpuMemory(preferCachedCpuMemory) {}
 
 GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
     vmaDestroyAllocator(fAllocator);
@@ -152,9 +156,12 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsa
             info.preferredFlags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
             break;
         case BufferUsage::kCpuWritesGpuReads:
-            // First attempt to try memory is also cached
-            info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                 VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            info.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+            if (fPreferCachedCpuMemory) {
+                // First we will attempt to use memory that is also cached. If there is no cached
+                // version we will fall back to non cached.
+                info.requiredFlags |= VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+            }
             info.preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
             break;
         case BufferUsage::kGpuWritesCpuReads:
