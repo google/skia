@@ -608,3 +608,25 @@ tests.push({
     },
     perfKey: 'canvas_blur_mask_filter',
 });
+
+tests.push({
+    description: 'Draw a single rrect 100 times',
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+        ctx.rrect = CanvasKit.RRectXY(
+                CanvasKit.LTRBRect(10, 10, 50, 50), 5, 10);
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint.setStrokeWidth(3.0);
+        ctx.paint.setAntiAlias(true);
+        ctx.paint.setColor(CanvasKit.BLACK);
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i=0; i<100; i++) {
+            ctx.canvas.drawRRect(ctx.rrect, ctx.paint);
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.paint.delete();
+    },
+    perfKey: 'canvas_drawRRect',
+});
