@@ -267,7 +267,7 @@ void GrVkGpu::destroyResources() {
 #endif
 
     if (fMainCmdPool) {
-        fMainCmdPool->unref();
+        fMainCmdPool->recycle();
         fMainCmdPool = nullptr;
     }
 
@@ -382,7 +382,7 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     fSemaphoresToSignal.reset();
 
     // Release old command pool and create a new one
-    fMainCmdPool->unref();
+    fMainCmdPool->recycle();
     fMainCmdPool = fResourceProvider.findOrCreateCommandPool();
     if (fMainCmdPool) {
         fMainCmdBuffer = fMainCmdPool->getPrimaryCommandBuffer();
@@ -2077,7 +2077,8 @@ void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
 
 void GrVkGpu::addFinishedCallback(sk_sp<GrRefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
-    fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));
+    fResourceProvider.addFinishedProcToActiveCommandBuffers(finishedCallback);
+    currentCommandBuffer()->addFinishedProc(std::move(finishedCallback));
 }
 
 void GrVkGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
