@@ -15,33 +15,33 @@
 class GrGLSLUniformHandler;
 
 // Tessellates a batch of stroke patches directly to the canvas. A patch is either a "cubic"
-// (single stroked bezier curve with butt caps) or a "join". A patch is defined by 5 points as
-// follows:
+// (single stroked bezier curve with butt caps) or a "join". For now, all cubics sent to this shader
+// must not have inflections inside 0..1, and must not rotate more than 180 degrees. A patch is
+// defined by 5 points as follows:
 //
-//   P0..P3      : Represent the cubic control points.
-//   (P4.x == 0) : The patch is a cubic and the shader decides how many linear segments to produce.
-//   (P4.x < 0)  : The patch is still a cubic, but will be linearized into exactly |P4.x| segments.
-//   (P4.x == 1) : The patch is an outer bevel join.
-//   (P4.x == 2) : The patch is an outer miter join.
-//                 (NOTE: If miterLimitOrZero == 0, then miter join patches are illegal.)
-//   (P4.x == 3) : The patch is an outer round join.
-//   (P4.x == 4) : The patch is an inner and outer round join.
-//   P4.y        : Represents the stroke radius.
+//   P0..P3           : Represent the cubic control points.
+//   (P4.x == 0)      : The patch is a normal cubic.
+//   (abs(P4.x) == 1) : The patch is a bevel join.
+//   (abs(P4.x) == 2) : The patch is a miter join.
+//                      (NOTE: If miterLimitOrZero == 0, then miter join patches are illegal.)
+//   (abs(P4.x) >= 3) : The patch is a round join.
+//   (P4.x < 0)       : The patch join is double sided. (Positive value joins only draw on the
+//                      outer side of their junction.)
+//   P4.y             : Represents the stroke radius.
 //
 // If a patch is a join, P0 must equal P3, P1 must equal the control point coming into the junction,
 // and P2 must equal the control point going out. It's imperative that a junction's control points
-// match the control points of their neighbor cubics exactly, or the rasterization might not be
-// water tight. (Also note that if P1==P0 or P2==P3, the junction needs to be given its neighbor's
+// match the control points of their neighbor cubics exactly, or the seaming might not be water
+// tight. (Also note that if P1==P0 or P2==P3, the junction needs to be given its neighbor's
 // opposite cubic control point.)
 //
 // To use this shader, construct a GrProgramInfo with a primitiveType of "kPatches" and a
 // tessellationPatchVertexCount of 5.
 class GrStrokeTessellateShader : public GrPathShader {
 public:
-    constexpr static float kBevelJoinType = -1;
-    constexpr static float kMiterJoinType = -2;
-    constexpr static float kRoundJoinType = -3;
-    constexpr static float kInternalRoundJoinType = -4;
+    constexpr static float kBevelJoinType = 1;
+    constexpr static float kMiterJoinType = 2;
+    constexpr static float kRoundJoinType = 3;
 
     constexpr static int kNumVerticesPerPatch = 5;
 
