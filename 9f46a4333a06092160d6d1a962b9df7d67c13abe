@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "62662f3b_4bf7fa95",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.bash",
+        "patchSetId": 5
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 7936
+      },
+      "writtenOn": "2020-08-21T17:36:43Z",
+      "side": 1,
+      "message": "Probably worth getting rid of this debug code before landign.",
+      "revId": "9f46a4333a06092160d6d1a962b9df7d67c13abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a4ce2bb_f19e6c52",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 5
