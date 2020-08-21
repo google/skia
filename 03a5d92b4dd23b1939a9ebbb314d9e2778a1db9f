@@ -230,6 +230,30 @@
     },
     {
       "key": {
+        "uuid": "cd8bfe52_95a650a6",
+        "filename": "src/core/SkContourMeasure.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T20:57:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0afbb839_6d946e52",
+      "range": {
+        "startLine": 401,
+        "startChar": 0,
+        "endLine": 428,
+        "endChar": 6
+      },
+      "revId": "03a5d92b4dd23b1939a9ebbb314d9e2778a1db9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d208a225_38df9b43",
         "filename": "src/core/SkPictureData.cpp",
         "patchSetId": 9
@@ -438,6 +462,30 @@
       "revId": "03a5d92b4dd23b1939a9ebbb314d9e2778a1db9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a514d1e6_9a6dcf97",
+        "filename": "src/opts/SkVM_opts.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T20:57:07Z",
+      "side": 1,
+      "message": "Sounds like a good idea to be tackled in a followup CL. Backed out changes from this CL.",
+      "parentUuid": "6e1f311c_8f52e8a1",
+      "range": {
+        "startLine": 184,
+        "startChar": 28,
+        "endLine": 184,
+        "endChar": 57
+      },
+      "revId": "03a5d92b4dd23b1939a9ebbb314d9e2778a1db9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
