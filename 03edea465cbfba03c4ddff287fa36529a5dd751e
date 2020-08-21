@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "940744f9_2ef81f54",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-21T18:33:41Z",
+      "side": 1,
+      "message": "I was so confused how this used to work before I expanded the diff to see this.",
+      "revId": "03edea465cbfba03c4ddff287fa36529a5dd751e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
