@@ -466,6 +466,23 @@ function copyColorFromWasm(colorPtr) {
 }
 
 // These will be initialized after loading.
+var _scratchRect;
+var _scratchRectPtr = nullptr;
+
+var _scratchRect2;
+var _scratchRect2Ptr = nullptr;
+
+function copyRectToWasm(fourFloats, ptr) {
+  return copy1dArray(fourFloats, "HEAPF32", ptr || _scratchRectPtr);
+}
+
+var _scratchIRect;
+var _scratchIRectPtr = nullptr;
+function copyIRectToWasm(fourInts, ptr) {
+  return copy1dArray(fourInts, "HEAP32", ptr || _scratchIRectPtr);
+}
+
+// These will be initialized after loading.
 var _scratchRRect;
 var _scratchRRectPtr = nullptr;
 

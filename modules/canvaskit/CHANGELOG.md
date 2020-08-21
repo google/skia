@@ -13,10 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    are the left, top, right, bottom numbers of the rectangle and then 4 sets of points
    starting in the upper left corner and going clockwise. This change allows for faster
    transfer between JS and WASM code.
+ - `SkPath.addRoundRect` has been replaced with `SkPath.addRRect`. The same functionality
+   can be had with the `CanvasKit.RRectXY` helper.
+ - `SkPath.addRect` no longer accepts 4 floats as separate arguments. It only accepts
+   a rectangle (an array/Float32Array of 4 floats) and an optional boolean for
+   determining clockwise or counter-clockwise directionality.
 
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.0 when testing and deploying to npm.
  - WebGL interface creation is a little leaner in terms of code size and speed.
+ - The order of `SkCanvas.saveLayer` arguments is slightly different. It is now
+   `paint, bounds, backdrop, flags`
+
+### Removed
+ - `SkCanvas.drawRoundRect` has been removed in favor of `SkCanvas.drawRRect`
+   The same functionality can be had with the `CanvasKit.RRectXY` helper.
 
 ## [0.17.3] - 2020-08-05
 

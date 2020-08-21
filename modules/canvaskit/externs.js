@@ -168,8 +168,11 @@ var CanvasKit = {
   SkRectBuilder: function() {},
 
   ShapedText: {
-    // public API (from C++ bindings)
-    getBounds: function() {},
+    prototype: {
+      getBounds: function() {},
+    }
+    // private API (from C++ bindings)
+    _getBounds: function() {},
   },
 
   SkAnimatedImage: {
@@ -185,22 +188,15 @@ var CanvasKit = {
   SkCanvas: {
     // public API (from C++ bindings)
     clipPath: function() {},
-    clipRect: function() {},
     drawAnimatedImage: function() {},
-    drawArc: function() {},
     drawCircle: function() {},
     drawColorInt: function() {},
     drawImage: function() {},
-    drawImageNine: function() {},
-    drawImageRect: function() {},
     drawLine: function() {},
-    drawOval: function() {},
     drawPaint: function() {},
     drawParagraph: function() {},
     drawPath: function() {},
     drawPicture: function() {},
-    drawRect: function() {},
-    drawRoundRect: function() {},
     drawText: function() {},
     drawTextBlob: function() {},
     drawVertices: function() {},
@@ -213,7 +209,6 @@ var CanvasKit = {
     restoreToCount: function() {},
     rotate: function() {},
     save: function() {},
-    saveLayer: function() {},
     scale: function() {},
     skew: function() {},
     translate: function() {},
@@ -221,13 +216,19 @@ var CanvasKit = {
     prototype: {
       clear: function() {},
       clipRRect: function() {},
+      clipRect: function() {},
       concat44: function() {}, // deprecated
       concat: function() {},
+      drawArc: function() {},
       drawAtlas: function() {},
       drawColor: function() {},
       drawColorComponents: function() {},
       drawDRRect:  function() {},
+      drawImageNine: function() {},
+      drawImageRect: function() {},
+      drawOval: function() {},
       drawPoints: function() {},
+      drawRect: function() {},
       drawRRect:  function() {},
       drawShadow: function() {},
       drawText: function() {},
@@ -235,17 +236,24 @@ var CanvasKit = {
       getLocalToDevice: function() {},
       getTotalMatrix: function() {},
       readPixels: function() {},
+      saveLayer: function() {},
       writePixels : function() {},
     },
 
     // private API
     _clear: function() {},
     _clipRRect: function() {},
+    _clipRect: function() {},
     _concat: function() {},
+    _drawArc: function() {},
     _drawAtlas: function() {},
     _drawColor: function() {},
     _drawDRRect:  function() {},
+    _drawImageNine: function() {},
+    _drawImageRect: function() {},
+    _drawOval: function() {},
     _drawPoints: function() {},
+    _drawRect: function() {},
     _drawRRect:  function() {},
     _drawShadow: function() {},
     _drawSimpleText: function() {},
@@ -253,6 +261,7 @@ var CanvasKit = {
     _getLocalToDevice: function() {},
     _getTotalMatrix: function() {},
     _readPixels: function() {},
+    _saveLayer: function() {},
     _writePixels: function() {},
     delete: function() {},
   },
@@ -613,10 +622,14 @@ var CanvasKit = {
 
   SkVertices: {
     // public API (from C++ bindings)
-    bounds: function() {},
-    mode: function() {},
     uniqueID: function() {},
-    vertexCount: function() {},
+
+    prototype: {
+      bounds: function() {},
+    },
+    // private API (from C++ bindings)
+
+    _bounds: function() {},
   },
 
   _SkVerticesBuilder: {
