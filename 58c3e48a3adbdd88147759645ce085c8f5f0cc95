@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a662e57f_b730b316",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-21T20:33:50Z",
+      "side": 1,
+      "message": "Thank you for your work this summer! I\u0027ll take this CL from here.",
+      "revId": "58c3e48a3adbdd88147759645ce085c8f5f0cc95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
