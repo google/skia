@@ -136,6 +136,7 @@ DEF_CLASS_MAP(SkSurface, sk_surface_t, Surface)
 DEF_CLASS_MAP(SkSurfaceProps, sk_surfaceprops_t, SurfaceProps)
 DEF_CLASS_MAP(SkTextBlob, sk_textblob_t, TextBlob)
 DEF_CLASS_MAP(SkTextBlobBuilder, sk_textblob_builder_t, TextBlobBuilder)
+DEF_CLASS_MAP(SkTraceMemoryDump, sk_tracememorydump_t, TraceMemoryDump)
 DEF_CLASS_MAP(SkTypeface, sk_typeface_t, Typeface)
 DEF_CLASS_MAP(SkVertices, sk_vertices_t, Vertices)
 DEF_CLASS_MAP(SkWStream, sk_wstream_t, WStream)
@@ -335,7 +336,7 @@ DEF_MAP(VkPhysicalDeviceFeatures, vk_physical_device_features_t, VkPhysicalDevic
 DEF_MAP(VkPhysicalDeviceFeatures2, vk_physical_device_features_2_t, VkPhysicalDeviceFeatures2);
 DEF_MAP(GrVkMemoryAllocator, gr_vk_memory_allocator_t, GrVkMemoryAllocator);
 
-static GrVkBackendContext AsGrVkBackendContext(const gr_vk_backendcontext_t* context) {
+static inline GrVkBackendContext AsGrVkBackendContext(const gr_vk_backendcontext_t* context) {
     GrVkBackendContext ctx;
     ctx.fInstance = AsVkInstance(context->fInstance);
     ctx.fPhysicalDevice = AsVkPhysicalDevice(context->fPhysicalDevice);

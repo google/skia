@@ -61,6 +61,10 @@ gr_backend_t gr_context_get_backend(gr_context_t* context) {
     return SK_ONLY_GPU((gr_backend_t)AsGrContext(context)->backend(), (gr_backend_t)0);
 }
 
+void gr_context_dump_memory_statistics(const gr_context_t* context, sk_tracememorydump_t* dump) {
+    SK_ONLY_GPU(AsGrContext(context)->dumpMemoryStatistics(AsTraceMemoryDump(dump)));
+}
+
 
 // GrGLInterface
 

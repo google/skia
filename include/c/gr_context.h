@@ -33,6 +33,7 @@ SK_C_API int gr_context_get_max_surface_sample_count_for_color_type(gr_context_t
 SK_C_API void gr_context_flush(gr_context_t* context);
 SK_C_API void gr_context_reset_context(gr_context_t* context, uint32_t state);
 SK_C_API gr_backend_t gr_context_get_backend(gr_context_t* context);
+SK_C_API void gr_context_dump_memory_statistics(const gr_context_t* context, sk_tracememorydump_t* dump);
 
 
 // GrGLInterface

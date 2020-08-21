@@ -21,6 +21,7 @@
 #include "include/c/sk_drawable.h"
 #include "include/c/sk_font.h"
 #include "include/c/sk_general.h"
+#include "include/c/sk_graphics.h"
 #include "include/c/sk_image.h"
 #include "include/c/sk_imagefilter.h"
 #include "include/c/sk_mask.h"
@@ -46,6 +47,7 @@
 // Xamarin
 #include "include/xamarin/sk_managedstream.h"
 #include "include/xamarin/sk_manageddrawable.h"
+#include "include/xamarin/sk_managedtracememorydump.h"
 #include "include/xamarin/sk_compatpaint.h"
 
 SK_X_API void** KeepSkiaCSymbols (void);
@@ -88,11 +90,13 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_xmlstreamwriter_new,
         (void*)sk_textblob_ref,
         (void*)sk_vertices_unref,
+        (void*)sk_graphics_init,
 
         // Xamarin
         (void*)sk_compatpaint_new,
         (void*)sk_managedstream_new,
         (void*)sk_manageddrawable_new,
+        (void*)sk_managedtracememorydump_new,
     };
     return ret;
 }
