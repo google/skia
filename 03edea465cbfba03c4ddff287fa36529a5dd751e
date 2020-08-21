@@ -16,6 +16,24 @@
       "revId": "03edea465cbfba03c4ddff287fa36529a5dd751e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76d2db39_cb47f147",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-08-21T18:44:38Z",
+      "side": 1,
+      "message": "You found my secret visual debugger 😊",
+      "parentUuid": "940744f9_2ef81f54",
+      "revId": "03edea465cbfba03c4ddff287fa36529a5dd751e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
