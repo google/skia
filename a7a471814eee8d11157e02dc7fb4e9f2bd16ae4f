@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65d527ce_3e07c3f0",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-21T19:26:52Z",
+      "side": 1,
+      "message": "Unlikely scenario, but I think you need to check for kPointer_RefKind as well? eg:\n\nvoid foo(out float x) { x \u003d 42; }\n\nvoid bar(float x) {\n  foo(x);  // Arg passed to an \u0027out\u0027 param gets a kPointer variable reference, right?\n}\n\nvoid main() {\n  float x \u003d 0;\n  bar(x);\n}\n\nIf we inline bar into main (but hadn\u0027t inlined foo into bar, for whatever reason), I think this would happen.",
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
