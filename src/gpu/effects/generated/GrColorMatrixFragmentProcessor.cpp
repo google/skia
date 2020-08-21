@@ -44,9 +44,8 @@ public:
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {
     half4 _inlineResulthalf4unpremulhalf40;
-    half4 _inlineArghalf4unpremulhalf41_0 = inputColor;
     {
-        _inlineResulthalf4unpremulhalf40 = half4(_inlineArghalf4unpremulhalf41_0.xyz / max(_inlineArghalf4unpremulhalf41_0.w, 9.9999997473787516e-05), _inlineArghalf4unpremulhalf41_0.w);
+        _inlineResulthalf4unpremulhalf40 = half4(inputColor.xyz / max(inputColor.w, 9.9999997473787516e-05), inputColor.w);
     }
     inputColor = _inlineResulthalf4unpremulhalf40;
 
