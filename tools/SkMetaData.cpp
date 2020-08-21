@@ -54,24 +54,42 @@ void* SkMetaData::set(const char name[], const void* data, size_t dataSize, Type
     SkASSERT(dataSize);
     SkASSERT(count > 0);
 
-    (void)this->remove(name, type);
+    FindResult result = this->findWithPrev(name, type);
 
-    size_t  len = strlen(name);
-    Rec*    rec = Rec::Alloc(sizeof(Rec) + dataSize * count + len + 1);
+    Rec* rec;
+    bool reuseRec = result.rec &&
+                    result.rec->fDataLen == dataSize &&
+                    result.rec->fDataCount == count;
+    if (reuseRec) {
+        rec = result.rec;
+    } else {
+        size_t len = strlen(name);
+        rec = Rec::Alloc(sizeof(Rec) + dataSize * count + len + 1);
+        rec->fType = SkToU8(type);
+        rec->fDataLen = SkToU8(dataSize);
+        rec->fDataCount = SkToU16(count);
 
-#ifndef SK_DEBUG
-    rec->fType = SkToU8(type);
-#else
-    rec->fType = type;
-#endif
-    rec->fDataLen = SkToU8(dataSize);
-    rec->fDataCount = SkToU16(count);
-    if (data)
+        memcpy(rec->name(), name, len + 1);
+    }
+    if (data) {
         memcpy(rec->data(), data, dataSize * count);
-    memcpy(rec->name(), name, len + 1);
+    }
 
-    rec->fNext = fRec;
-    fRec = rec;
+    if (reuseRec) {
+        // Do nothing, reused
+    } else if (result.rec) {
+        // Had one, but had to create a new one. Invalidates iterators.
+        // Delayed removal since name or data may have been in the result.rec.
+        this->remove(result);
+        if (result.prev) {
+            rec->fNext = result.prev->fNext;
+            result.prev->fNext = rec;
+        }
+    } else {
+        // Adding a new one, stick it at head.
+        rec->fNext = fRec;
+        fRec = rec;
+    }
     return rec->data();
 }
 
@@ -141,36 +159,39 @@ bool SkMetaData::findBool(const char name[], bool* value) const
     return false;
 }
 
-const SkMetaData::Rec* SkMetaData::find(const char name[], Type type) const
-{
-    const Rec* rec = fRec;
-    while (rec)
-    {
-        if (rec->fType == type && !strcmp(rec->name(), name))
-            return rec;
-        rec = rec->fNext;
+SkMetaData::FindResult SkMetaData::findWithPrev(const char name[], Type type) const {
+    FindResult current { fRec, nullptr };
+    while (current.rec) {
+        if (current.rec->fType == type && !strcmp(current.rec->name(), name))
+            return current;
+        current.prev = current.rec;
+        current.rec = current.rec->fNext;
     }
-    return nullptr;
+    return current;
+}
+
+
+const SkMetaData::Rec* SkMetaData::find(const char name[], Type type) const {
+    return this->findWithPrev(name, type).rec;
+}
+
+void SkMetaData::remove(FindResult result) {
+    SkASSERT(result.rec);
+    if (result.prev) {
+        result.prev->fNext = result.rec->fNext;
+    } else {
+        fRec = result.rec->fNext;
+    }
+    Rec::Free(result.rec);
 }
 
 bool SkMetaData::remove(const char name[], Type type) {
-    Rec* rec = fRec;
-    Rec* prev = nullptr;
-    while (rec) {
-        Rec* next = rec->fNext;
-        if (rec->fType == type && !strcmp(rec->name(), name)) {
-            if (prev) {
-                prev->fNext = next;
-            } else {
-                fRec = next;
-            }
-            Rec::Free(rec);
-            return true;
-        }
-        prev = rec;
-        rec = next;
+    FindResult result = this->findWithPrev(name, type);
+    if (!result.rec) {
+        return false;
     }
-    return false;
+    this->remove(result);
+    return true;
 }
 
 bool SkMetaData::removeS32(const char name[])
