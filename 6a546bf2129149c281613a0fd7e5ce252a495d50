@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "81e1f790_927c6c31",
+        "filename": "RELEASE_NOTES.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T15:29:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "626b988c_2e384b4d",
+      "range": {
+        "startLine": 10,
+        "startChar": 4,
+        "endLine": 10,
+        "endChar": 52
+      },
+      "revId": "6a546bf2129149c281613a0fd7e5ce252a495d50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "251c375a_3d90aa36",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 4
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "ee913643_1f1d42c5",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T15:29:34Z",
+      "side": 1,
+      "message": "Oh no, it was actually the other one that should be SRC :)",
+      "parentUuid": "251c375a_3d90aa36",
+      "range": {
+        "startLine": 1231,
+        "startChar": 42,
+        "endLine": 1231,
+        "endChar": 73
+      },
+      "revId": "6a546bf2129149c281613a0fd7e5ce252a495d50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62edd406_7bbc29f6",
         "filename": "tools/sk_app/VulkanWindowContext.cpp",
         "patchSetId": 4
@@ -76,6 +124,30 @@
       "writtenOn": "2020-08-21T13:42:41Z",
       "side": 1,
       "message": "\u003d {}?",
+      "range": {
+        "startLine": 341,
+        "startChar": 0,
+        "endLine": 341,
+        "endChar": 27
+      },
+      "revId": "6a546bf2129149c281613a0fd7e5ce252a495d50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06830738_08f3d5c4",
+        "filename": "tools/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T15:29:34Z",
+      "side": 1,
+      "message": "Personally I like the current look better, and at least to me I would be surprised that it did default initialize things. Leaving this as is unless anyone has a strong opinion the other way.",
+      "parentUuid": "62edd406_7bbc29f6",
       "range": {
         "startLine": 341,
         "startChar": 0,

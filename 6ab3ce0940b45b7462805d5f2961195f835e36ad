@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54ac2fe0_2ef3d390",
+        "filename": "tests/VkProtectedContextTest.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T15:29:34Z",
+      "side": 1,
+      "message": "I can\u0027t believe we never got any sort of error on this bug before. I guess we never really used the surface after wrapping it...",
+      "range": {
+        "startLine": 67,
+        "startChar": 79,
+        "endLine": 67,
+        "endChar": 83
+      },
+      "revId": "6ab3ce0940b45b7462805d5f2961195f835e36ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
