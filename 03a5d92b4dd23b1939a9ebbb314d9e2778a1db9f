@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "61d3530b_cbd0ed92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:10:47Z",
+      "side": 1,
+      "message": "I\u0027d like Ethan to sign off on all the sksl stuff.",
+      "revId": "03a5d92b4dd23b1939a9ebbb314d9e2778a1db9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be78efa7_2ea58ac4",
         "filename": "gm/vertices.cpp",
         "patchSetId": 9
