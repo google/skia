@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc7d6ab5_9a93d652",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-21T12:43:12Z",
+      "side": 1,
+      "message": "can you improve these variable names, I don\u0027t know what i and o stand for",
+      "range": {
+        "startLine": 1035,
+        "startChar": 92,
+        "endLine": 1035,
+        "endChar": 96
+      },
+      "revId": "5af908cae3ce4519b300cbbecc4aac61bab3246f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "704c9d7e_8c247922",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 1457,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-21T12:43:12Z",
+      "side": 1,
+      "message": "a TypedArray representing an RRect",
+      "range": {
+        "startLine": 1457,
+        "startChar": 22,
+        "endLine": 1457,
+        "endChar": 27
+      },
+      "revId": "5af908cae3ce4519b300cbbecc4aac61bab3246f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52227a3b_d5871da9",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-21T12:43:12Z",
+      "side": 1,
+      "message": "also test the helper method CanvasKit.RRectXY",
+      "revId": "5af908cae3ce4519b300cbbecc4aac61bab3246f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
