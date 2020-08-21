@@ -16,6 +16,24 @@
       "revId": "284f2c4bea613db169897f44ca16d2f483ac34bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e16d75de_237ba0c6",
+        "filename": "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-21T15:47:27Z",
+      "side": 1,
+      "message": "This is generated code, so the assert looks silly, but it\u0027s actually a compile time check being injected by the conversion of a shader .fp source file to .cpp form. The left-hand 1 is \"dynamic\" in the sense that it\u0027s the number of matrix elements being uploaded (if it were an array).",
+      "parentUuid": "7c929dcf_5bbb417a",
+      "revId": "284f2c4bea613db169897f44ca16d2f483ac34bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
