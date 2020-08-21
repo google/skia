@@ -491,9 +491,10 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
 
 bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples) {
     SkASSERT(rt);
-    GrStencilAttachment* stencil = rt->getStencilAttachment();
-    if (stencil && stencil->numSamples() == numStencilSamples) {
-        return true;
+    if (GrStencilAttachment* stencil = rt->getStencilAttachment()) {
+        if (stencil->numSamples() == numStencilSamples) {
+            return true;
+        }
     }
 
     if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment()) {

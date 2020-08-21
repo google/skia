@@ -294,9 +294,9 @@ std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(const AST
 std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNode& decls,
                                                                      Variable::Storage storage) {
     SkASSERT(decls.fKind == ASTNode::Kind::kVarDeclarations);
-    auto iter = decls.begin();
-    const Modifiers& modifiers = iter++->getModifiers();
-    const ASTNode& rawType = *(iter++);
+    auto declarationsIter = decls.begin();
+    const Modifiers& modifiers = declarationsIter++->getModifiers();
+    const ASTNode& rawType = *(declarationsIter++);
     std::vector<std::unique_ptr<VarDeclaration>> variables;
     const Type* baseType = this->convertType(rawType);
     if (!baseType) {
@@ -389,8 +389,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                      Modifiers::kCoherent_Flag | Modifiers::kBuffer_Flag;
     }
     this->checkModifiers(decls.fOffset, modifiers, permitted);
-    for (; iter != decls.end(); ++iter) {
-        const ASTNode& varDecl = *iter;
+    for (; declarationsIter != decls.end(); ++declarationsIter) {
+        const ASTNode& varDecl = *declarationsIter;
         if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
             (modifiers.fFlags & Modifiers::kOut_Flag) && fKind == Program::kFragment_Kind &&
             varDecl.getVarData().fName != "sk_FragColor") {

@@ -1862,7 +1862,7 @@ STAGE(PQish, const skcms_TransferFunction* ctx) {
 
         F r = approx_powf(max(mad(ctx->b, approx_powf(v, ctx->c), ctx->a), 0)
                            / (mad(ctx->e, approx_powf(v, ctx->c), ctx->d)),
-                        ctx->f);
+                             ctx->f);
 
         return apply_sign(r, sign);
     };

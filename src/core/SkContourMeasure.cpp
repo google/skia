@@ -81,21 +81,21 @@ void SkContourMeasure_segTo(const SkPoint pts[], unsigned segType,
                 if (SK_Scalar1 == stopT) {
                     dst->conicTo(conic.fPts[1], conic.fPts[2], conic.fW);
                 } else {
-                    SkConic tmp[2];
-                    if (conic.chopAt(stopT, tmp)) {
-                        dst->conicTo(tmp[0].fPts[1], tmp[0].fPts[2], tmp[0].fW);
+                    SkConic tmpC[2];
+                    if (conic.chopAt(stopT, tmpC)) {
+                        dst->conicTo(tmpC[0].fPts[1], tmpC[0].fPts[2], tmpC[0].fW);
                     }
                 }
             } else {
                 if (SK_Scalar1 == stopT) {
-                    SkConic tmp1[2];
-                    if (conic.chopAt(startT, tmp1)) {
-                        dst->conicTo(tmp1[1].fPts[1], tmp1[1].fPts[2], tmp1[1].fW);
+                    SkConic tmpC[2];
+                    if (conic.chopAt(startT, tmpC)) {
+                        dst->conicTo(tmpC[1].fPts[1], tmpC[1].fPts[2], tmpC[1].fW);
                     }
                 } else {
-                    SkConic tmp;
-                    conic.chopAt(startT, stopT, &tmp);
-                    dst->conicTo(tmp.fPts[1], tmp.fPts[2], tmp.fW);
+                    SkConic tmpC;
+                    conic.chopAt(startT, stopT, &tmpC);
+                    dst->conicTo(tmpC.fPts[1], tmpC.fPts[2], tmpC.fW);
                 }
             }
         } break;
@@ -403,13 +403,13 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
     {
         const SkContourMeasure::Segment* seg = fSegments.begin();
         const SkContourMeasure::Segment* stop = fSegments.end();
-        unsigned        ptIndex = 0;
-        SkScalar        distance = 0;
+        unsigned        segPtIndex = 0;
+        SkScalar        segDistance = 0;
         // limit the loop to a reasonable number; pathological cases can run for minutes
         int             maxChecks = 10000000;  // set to INT_MAX to defeat the check
         while (seg < stop) {
-            SkASSERT(seg->fDistance > distance);
-            SkASSERT(seg->fPtIndex >= ptIndex);
+            SkASSERT(seg->fDistance > segDistance);
+            SkASSERT(seg->fPtIndex >= segPtIndex);
             SkASSERT(seg->fTValue > 0);
 
             const SkContourMeasure::Segment* s = seg;
@@ -419,8 +419,8 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
                 s += 1;
             }
 
-            distance = seg->fDistance;
-            ptIndex = seg->fPtIndex;
+            segDistance = seg->fDistance;
+            segPtIndex = seg->fPtIndex;
             seg += 1;
         }
     //  SkDebugf("\n");

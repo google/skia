@@ -369,6 +369,8 @@ config("warnings") {
       "-Weverything",
       "-Wno-unknown-warning-option",  # Let older Clangs ignore newer Clangs'
                                       # warnings.
+      "-Wno-shadow-uncaptured-local",  # Shadowing an uncaptured local in a
+                                       # lambda is allowed
     ]
 
     if (target_cpu == "arm" && is_ios) {
