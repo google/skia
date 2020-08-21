@@ -129,11 +129,11 @@ bool BisectSlide::onChar(SkUnichar c) {
 }
 
 void BisectSlide::draw(SkCanvas* canvas) {
-    SkAutoCanvasRestore acr(canvas, true);
+    SkAutoCanvasRestore acr1(canvas, true);
     canvas->translate(-fDrawBounds.left(), -fDrawBounds.top());
 
     for (const FoundPath& path : fFoundPaths) {
-        SkAutoCanvasRestore acr(canvas, true);
+        SkAutoCanvasRestore acr2(canvas, true);
         canvas->concat(path.fViewMatrix);
         canvas->drawPath(path.fPath, path.fPaint);
     }

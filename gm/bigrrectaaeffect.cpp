@@ -68,8 +68,6 @@ protected:
 
     void onDraw(GrRecordingContext* context, GrRenderTargetContext* renderTargetContext,
                 SkCanvas* canvas) override {
-        SkPaint paint;
-
         int y = kPad;
         int x = kPad;
         constexpr GrClipEdgeType kEdgeTypes[] = {
