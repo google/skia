@@ -225,6 +225,30 @@
     },
     {
       "key": {
+        "uuid": "a3dae1e3_f5173839",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T19:28:15Z",
+      "side": 1,
+      "message": "Hmmm never saw that in our style guide before. If you asked me off the top of my head I would say I see us (as in gpu code) use if (!x) probably 80% of the time compared to the \u003d\u003d\n\nI also find it weird to have us slightly prefer the if(x) version. Seems like we should picked a style.",
+      "parentUuid": "a5807aac_11cc03af",
+      "range": {
+        "startLine": 60,
+        "startChar": 13,
+        "endLine": 60,
+        "endChar": 14
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb1232be_06d804c9",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
         "patchSetId": 9
