@@ -269,6 +269,7 @@ void TextAdapter::reshape() {
         fText->fTypeface,
         fText->fTextSize,
         fText->fLineHeight,
+        fText->fLineShift,
         fText->fAscent,
         fText->fHAlign,
         fText->fVAlign,
@@ -315,9 +316,9 @@ void TextAdapter::reshape() {
     bounds_color->setStrokeWidth(1);
     bounds_color->setAntiAlias(true);
 
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(fText.fBox),
+    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(fText->fBox),
                                      std::move(box_color)));
-    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeBounds()),
+    fRoot->addChild(sksg::Draw::Make(sksg::Rect::Make(shape_result.computeVisualBounds()),
                                      std::move(bounds_color)));
 #endif
 }

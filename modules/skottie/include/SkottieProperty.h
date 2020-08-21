@@ -42,6 +42,7 @@ struct TextPropertyValue {
     float                fTextSize    = 0,
                          fStrokeWidth = 0,
                          fLineHeight  = 0,
+                         fLineShift   = 0,
                          fAscent      = 0;
     SkTextUtils::Align   fHAlign      = SkTextUtils::kLeft_Align;
     Shaper::VAlign       fVAlign      = Shaper::VAlign::kTop;

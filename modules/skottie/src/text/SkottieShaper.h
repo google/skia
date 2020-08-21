@@ -91,6 +91,7 @@ public:
         const sk_sp<SkTypeface>&  fTypeface;
         SkScalar                  fTextSize,
                                   fLineHeight,
+                                  fLineShift,
                                   fAscent;
         SkTextUtils::Align        fHAlign;
         VAlign                    fVAlign;

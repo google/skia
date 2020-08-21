@@ -118,7 +118,8 @@ DEF_TEST(Skottie_Properties, reporter) {
                                                     "f": "test_font",
                                                     "s": 100,
                                                     "t": "inline_text",
-                                                    "lh": 120
+                                                    "lh": 120,
+                                                    "ls": 12
                                                   }
                                                 }
                                              ]
@@ -317,6 +318,7 @@ DEF_TEST(Skottie_Properties, reporter) {
       100,
       0,
       120,
+      12,
       0,
       SkTextUtils::kLeft_Align,
       Shaper::VAlign::kTopBaseline,
@@ -468,6 +470,7 @@ DEF_TEST(Skottie_Shaper_HAlign, reporter) {
                 tsize.text_size,
                 tsize.text_size,
                 0,
+                0,
                 talign.align,
                 skottie::Shaper::VAlign::kTopBaseline,
                 skottie::Shaper::ResizePolicy::kNone,
@@ -534,6 +537,7 @@ DEF_TEST(Skottie_Shaper_VAlign, reporter) {
                 tsize.text_size,
                 tsize.text_size,
                 0,
+                0,
                 SkTextUtils::Align::kCenter_Align,
                 talign.align,
                 skottie::Shaper::ResizePolicy::kNone,
@@ -570,6 +574,7 @@ DEF_TEST(Skottie_Shaper_FragmentGlyphs, reporter) {
         SkTypeface::MakeDefault(),
         18,
         18,
+         0,
          0,
         SkTextUtils::Align::kCenter_Align,
         Shaper::VAlign::kTop,
@@ -665,6 +670,7 @@ DEF_TEST(Skottie_Shaper_ExplicitFontMgr, reporter) {
         ToolUtils::create_portable_typeface(),
         18,
         18,
+         0,
          0,
         SkTextUtils::Align::kCenter_Align,
         Shaper::VAlign::kTop,
