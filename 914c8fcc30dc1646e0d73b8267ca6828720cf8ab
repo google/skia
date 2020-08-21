@@ -36,6 +36,184 @@
     },
     {
       "key": {
+        "uuid": "34ae82ae_478cba56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "Mid-review, looking pretty good so far",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d626947a_190fd26e",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "This is fine, but I\u0027m curious--why not just fObject directly?",
+      "range": {
+        "startLine": 97,
+        "startChar": 17,
+        "endLine": 97,
+        "endChar": 28
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5e07847_128082e6",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "I\u0027m honestly not sure what this comment is trying to tell me.",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 73
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c53cb83b_0ece5dd6",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "optional nit: `this-\u003e` on a member access seems unnecessary",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 119,
+        "endChar": 18
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cef04835_f4f93bb5",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "let\u0027s put `\u003d nil` here to avoid repeating it across constructors.",
+      "range": {
+        "startLine": 136,
+        "startChar": 5,
+        "endLine": 136,
+        "endChar": 14
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0614b674_0e453c80",
+        "filename": "src/gpu/mtl/GrMtlBuffer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "Please fix indentation",
+      "range": {
+        "startLine": 52,
+        "startChar": 18,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5807aac_11cc03af",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "The style guide would call these changes a regression--does the \u003d\u003d form no longer work? It looks like the operators were added...\n\nhttp://go/skiastyle:\n```\nif (nullptr \u003d\u003d x) {  // slightly preferred over if (!x)\n```",
+      "range": {
+        "startLine": 60,
+        "startChar": 13,
+        "endLine": 60,
+        "endChar": 14
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b114d5dd_b8863e9e",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1365,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:16:38Z",
+      "side": 1,
+      "message": "Should all these `const void*`s be `CFTypeRef`? I think it\u0027s just an implementation detail that they actually go all the way to void*.",
+      "range": {
+        "startLine": 1365,
+        "startChar": 4,
+        "endLine": 1365,
+        "endChar": 16
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e460b0f_fc344727",
         "filename": "src/gpu/mtl/GrMtlSemaphore.h",
         "patchSetId": 9
