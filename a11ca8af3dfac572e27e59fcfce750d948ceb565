@@ -163,6 +163,138 @@
       "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ede34075_00e338f8",
+        "filename": "src/core/SkArenaAlloc.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:10:02Z",
+      "side": 0,
+      "message": "Unrelated?",
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "325805d7_e25c7ea6",
+        "filename": "src/gpu/gl/GrGLVertexArray.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:10:02Z",
+      "side": 0,
+      "message": "Isn\u0027t this whole line a no-op?",
+      "range": {
+        "startLine": 205,
+        "startChar": 11,
+        "endLine": 205,
+        "endChar": 79
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84cdcba8_09710dcd",
+        "filename": "src/pathops/SkPathOpsCubic.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:10:02Z",
+      "side": 0,
+      "message": "This also feels like we\u0027ve made things worse.",
+      "range": {
+        "startLine": 476,
+        "startChar": 8,
+        "endLine": 476,
+        "endChar": 14
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73e34613_8273904a",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:10:02Z",
+      "side": 0,
+      "message": "Also feels bad.",
+      "range": {
+        "startLine": 264,
+        "startChar": 8,
+        "endLine": 264,
+        "endChar": 21
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5b98125_c702b2a2",
+        "filename": "src/pdf/SkPDFGradientShader.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:10:02Z",
+      "side": 0,
+      "message": "These feel bad.  Let\u0027s scope away the code above instead?",
+      "range": {
+        "startLine": 259,
+        "startChar": 9,
+        "endLine": 259,
+        "endChar": 12
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07369896_dde21add",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T19:10:02Z",
+      "side": 0,
+      "message": "bad",
+      "range": {
+        "startLine": 173,
+        "startChar": 8,
+        "endLine": 173,
+        "endChar": 20
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
