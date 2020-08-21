@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "279956f3_86803cda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-21T22:15:26Z",
+      "side": 1,
+      "message": "I have so far managed to remove 95% of SkMetaData and what used to use it. Should probably replace the entire implementation with a hash table or something like that at this point. Just enough change here to make viewer not crash under asan.",
+      "revId": "27fb941e33ad1d3fed039c65c6523983d481587b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
