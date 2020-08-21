@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e21cb1b5_4534c72a",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-21T23:05:15Z",
+      "side": 1,
+      "message": "Not possible, right?",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 5
+      },
+      "revId": "e0e887ff1e7cbf16ded1684c39f9656cd97700b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "590cc24e_fb41a88d",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-21T23:05:15Z",
+      "side": 1,
+      "message": "I think you can just assert this.",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 200,
+        "endChar": 5
+      },
+      "revId": "e0e887ff1e7cbf16ded1684c39f9656cd97700b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
