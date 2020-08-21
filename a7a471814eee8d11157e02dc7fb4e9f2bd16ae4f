@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "25353a28_58d1571a",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:30:37Z",
+      "side": 1,
+      "message": "I think it would be awesome if ProgramVisitor just had public `visit`s in it for all of the base types.",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 188,
+        "endChar": 0
+      },
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65d527ce_3e07c3f0",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
@@ -13,6 +36,75 @@
       "writtenOn": "2020-08-21T19:26:52Z",
       "side": 1,
       "message": "Unlikely scenario, but I think you need to check for kPointer_RefKind as well? eg:\n\nvoid foo(out float x) { x \u003d 42; }\n\nvoid bar(float x) {\n  foo(x);  // Arg passed to an \u0027out\u0027 param gets a kPointer variable reference, right?\n}\n\nvoid main() {\n  float x \u003d 0;\n  bar(x);\n}\n\nIf we inline bar into main (but hadn\u0027t inlined foo into bar, for whatever reason), I think this would happen.",
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43a21249_e8998335",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2321,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:30:37Z",
+      "side": 1,
+      "message": "We use this expression twice, consider hoisting it to its own name. Might improve readability:\n\nconst Variable* param \u003d function.fDeclaration.fParameters[i];",
+      "range": {
+        "startLine": 2321,
+        "startChar": 17,
+        "endLine": 2321,
+        "endChar": 53
+      },
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0705ded0_2663ca48",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2370,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:30:37Z",
+      "side": 1,
+      "message": "If varMap[p] misses, it\u0027ll add extra nullptrs into varMap. Not sure if that matters much here.",
+      "range": {
+        "startLine": 2370,
+        "startChar": 68,
+        "endLine": 2370,
+        "endChar": 77
+      },
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1921ec92_dd53a0ab",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:30:37Z",
+      "side": 1,
+      "message": "Look at that constant propagation! \u003c3",
+      "range": {
+        "startLine": 111,
+        "startChar": 18,
+        "endLine": 112,
+        "endChar": 33
+      },
       "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
