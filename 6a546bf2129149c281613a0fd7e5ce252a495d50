@@ -157,6 +157,30 @@
       "revId": "6a546bf2129149c281613a0fd7e5ce252a495d50",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61e33a48_66d457ae",
+        "filename": "tools/sk_app/VulkanWindowContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T15:32:52Z",
+      "side": 1,
+      "message": "Nm, I misread it as VkImageInfo.",
+      "parentUuid": "06830738_08f3d5c4",
+      "range": {
+        "startLine": 341,
+        "startChar": 0,
+        "endLine": 341,
+        "endChar": 27
+      },
+      "revId": "6a546bf2129149c281613a0fd7e5ce252a495d50",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
