@@ -170,7 +170,7 @@ int main(int argc, const char** argv) {
         }
         dehydrator.write(*symbols);
         dehydrator.write(elements);
-        SkSL::String name = base_name(argv[1], "", ".sksl");
+        name = base_name(argv[1], "", ".sksl");
         SkSL::StringStream buffer;
         dehydrator.finish(buffer);
         const SkSL::String& data = buffer.str();

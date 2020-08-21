@@ -1835,9 +1835,9 @@ STAGE(parametric, const skcms_TransferFunction* ctx) {
         U32 sign;
         v = strip_sign(v, &sign);
 
-        F r = if_then_else(v <= ctx->d, mad(ctx->c, v, ctx->f)
-                                      , approx_powf(mad(ctx->a, v, ctx->b), ctx->g) + ctx->e);
-        return apply_sign(r, sign);
+        F result = if_then_else(v <= ctx->d, mad(ctx->c, v, ctx->f)
+                                           , approx_powf(mad(ctx->a, v, ctx->b), ctx->g) + ctx->e);
+        return apply_sign(result, sign);
     };
     r = fn(r);
     g = fn(g);
@@ -1860,11 +1860,11 @@ STAGE(PQish, const skcms_TransferFunction* ctx) {
         U32 sign;
         v = strip_sign(v, &sign);
 
-        F r = approx_powf(max(mad(ctx->b, approx_powf(v, ctx->c), ctx->a), 0)
-                           / (mad(ctx->e, approx_powf(v, ctx->c), ctx->d)),
-                        ctx->f);
+        F result = approx_powf(max(mad(ctx->b, approx_powf(v, ctx->c), ctx->a), 0)
+                                / (mad(ctx->e, approx_powf(v, ctx->c), ctx->d)),
+                             ctx->f);
 
-        return apply_sign(r, sign);
+        return apply_sign(result, sign);
     };
     r = fn(r);
     g = fn(g);
@@ -1879,10 +1879,10 @@ STAGE(HLGish, const skcms_TransferFunction* ctx) {
         const float R = ctx->a, G = ctx->b,
                     a = ctx->c, b = ctx->d, c = ctx->e;
 
-        F r = if_then_else(v*R <= 1, approx_powf(v*R, G)
-                                   , approx_exp((v-c)*a) + b);
+        F result = if_then_else(v*R <= 1, approx_powf(v*R, G)
+                                        , approx_exp((v-c)*a) + b);
 
-        return apply_sign(r, sign);
+        return apply_sign(result, sign);
     };
     r = fn(r);
     g = fn(g);
@@ -1897,10 +1897,10 @@ STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
         const float R = ctx->a, G = ctx->b,
                     a = ctx->c, b = ctx->d, c = ctx->e;
 
-        F r = if_then_else(v <= 1, R * approx_powf(v, G)
-                                 , a * approx_log(v - b) + c);
+        F result = if_then_else(v <= 1, R * approx_powf(v, G)
+                                      , a * approx_log(v - b) + c);
 
-        return apply_sign(r, sign);
+        return apply_sign(result, sign);
     };
     r = fn(r);
     g = fn(g);
