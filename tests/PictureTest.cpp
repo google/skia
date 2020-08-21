@@ -239,7 +239,7 @@ DEF_TEST(PictureRecorder_replay, reporter) {
     {
         SkPictureRecorder recorder;
 
-        SkCanvas* canvas = recorder.beginRecording(4, 3, nullptr, 0);
+        SkCanvas* canvas = recorder.beginRecording(4, 3);
         create_imbalance(canvas);
 
         int expectedSaveCount = canvas->getSaveCount();

@@ -52,7 +52,7 @@ public:
 
     void onOnceBeforeDraw() override {
         SkPictureRecorder recorder;
-        SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize, nullptr, 0);
+        SkCanvas* pictureCanvas = recorder.beginRecording(fTileSize, fTileSize);
         this->drawTile(pictureCanvas);
         fPicture = recorder.finishRecordingAsPicture();
     }

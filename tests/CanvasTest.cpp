@@ -315,8 +315,8 @@ static CanvasTest kCanvasTests[] = {
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         SkPictureRecorder recorder;
-        SkCanvas* testCanvas = recorder.beginRecording(
-                SkIntToScalar(kWidth), SkIntToScalar(kHeight), nullptr, 0);
+        SkCanvas* testCanvas = recorder.beginRecording(SkIntToScalar(kWidth),
+                                                       SkIntToScalar(kHeight));
         testCanvas->scale(SkIntToScalar(2), SkIntToScalar(1));
         testCanvas->clipRect(kRect);
         testCanvas->drawRect(kRect, SkPaint());
