@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd75bdad_0411bbf0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-21T15:03:04Z",
+      "side": 1,
+      "message": "This version works on the iPhone6. I limit the number of bits I use in the UVs to 15-bits (bits 14 down to 0). I don\u0027t use bit 15. I put the index bits in bit 14 of U and V. I don\u0027t know if we use the full dynamic range of the full 15 bits, but I suspect not because iPhone6 would exhibit problems. The interesting part, is that mtl does not seem to have a problem with the full 15 bits. I consider this a prototype at this point, but would like any feedback you can give.",
+      "revId": "93d2861c728d82d9369fa1428306acca2e081e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
