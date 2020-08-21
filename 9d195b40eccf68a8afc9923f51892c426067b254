@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "2b9e6b6e_bbf62e92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-21T12:14:19Z",
+      "side": 1,
+      "message": "I don\u0027t know what you mean by \"check the flags of skia checkout\" - a checkout is a directory of files; there are not any flags.",
+      "parentUuid": "f758ec39_1cd65137",
+      "revId": "9d195b40eccf68a8afc9923f51892c426067b254",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4824d9f9_1bd06b79",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 3
