@@ -16,6 +16,23 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "738e59fa_f3832903",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T18:32:14Z",
+      "side": 1,
+      "message": "Oh right -- my thinking in using * vs .get() was that * replaces what we\u0027d normally do with -\u003e, so accessing the invoking object, as opposed to .get() which is used for a method argument or return value.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
