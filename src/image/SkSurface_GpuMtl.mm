@@ -37,12 +37,12 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
 
-    CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
-    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(metalLayer.pixelFormat);
+    sk_cf_obj<CAMetalLayer*> metalLayer(sk_ref_cf_obj((CAMetalLayer*)layer));
+    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl((*metalLayer).pixelFormat);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
-    SkISize dims = {(int)metalLayer.drawableSize.width, (int)metalLayer.drawableSize.height};
+    SkISize dims = {(int)(*metalLayer).drawableSize.width, (int)(*metalLayer).drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
     texInfo.fMipmapped = GrMipmapped::kNo;
@@ -51,24 +51,24 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [layer, drawable](GrResourceProvider* resourceProvider,
                               const GrSurfaceProxy::LazySurfaceDesc& desc) {
-                CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
-                id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
+                sk_cf_obj<CAMetalLayer*> metalLayer(sk_ref_cf_obj((CAMetalLayer*)layer));
+                id<CAMetalDrawable> currentDrawable = [*metalLayer nextDrawable];
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
-                if (metalLayer.framebufferOnly) {
+                sk_cf_obj<id<MTLTexture>> drawableTexture(sk_ref_cf_obj(currentDrawable.texture));
+                if ((*metalLayer).framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture,
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
                 }
-
-                *drawable = (__bridge_retained GrMTLHandle) currentDrawable;
+                *drawable = [currentDrawable retain];
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
             },
             backendFormat,
@@ -76,7 +76,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
             sampleCnt,
             sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
                           : GrInternalSurfaceFlags::kNone,
-            metalLayer.framebufferOnly ? nullptr : &texInfo,
+            (*metalLayer).framebufferOnly ? nullptr : &texInfo,
             GrMipmapStatus::kNotAllocated,
             SkBackingFit::kExact,
             SkBudgeted::kYes,
@@ -108,12 +108,12 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
 
-    MTKView* mtkView = (__bridge MTKView*)view;
-    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(mtkView.colorPixelFormat);
+    sk_cf_obj<MTKView*> mtkView(sk_ref_cf_obj((MTKView*)view));
+    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl((*mtkView).colorPixelFormat);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
 
-    SkISize dims = {(int)mtkView.drawableSize.width, (int)mtkView.drawableSize.height};
+    SkISize dims = {(int)(*mtkView).drawableSize.width, (int)(*mtkView).drawableSize.height};
 
     GrProxyProvider::TextureInfo texInfo;
     texInfo.fMipmapped = GrMipmapped::kNo;
@@ -122,17 +122,18 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [view](GrResourceProvider* resourceProvider,
                    const GrSurfaceProxy::LazySurfaceDesc& desc) {
-                MTKView* mtkView = (__bridge MTKView*)view;
-                id<CAMetalDrawable> currentDrawable = [mtkView currentDrawable];
+                sk_cf_obj<MTKView*> mtkView(sk_ref_cf_obj((MTKView*)view));
+                id<CAMetalDrawable> currentDrawable = [*mtkView currentDrawable];
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
-                if (mtkView.framebufferOnly) {
+                sk_cf_obj<id<MTLTexture>> drawableTexture(sk_ref_cf_obj(currentDrawable.texture));
+                if ((*mtkView).framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture);
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, drawableTexture,
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {
@@ -146,7 +147,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
             sampleCnt,
             sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
                           : GrInternalSurfaceFlags::kNone,
-            mtkView.framebufferOnly ? nullptr : &texInfo,
+            (*mtkView).framebufferOnly ? nullptr : &texInfo,
             GrMipmapStatus::kNotAllocated,
             SkBackingFit::kExact,
             SkBudgeted::kYes,

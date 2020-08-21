@@ -9,16 +9,12 @@
 #include "src/gpu/mtl/GrMtlTextureRenderTarget.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    SkBudgeted budgeted,
                                                    SkISize dimensions,
                                                    int sampleCnt,
-                                                   id<MTLTexture> colorTexture,
-                                                   id<MTLTexture> resolveTexture,
+                                                   sk_cf_obj<id<MTLTexture>> colorTexture,
+                                                   sk_cf_obj<id<MTLTexture>> resolveTexture,
                                                    GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
         , GrMtlTexture(gpu, dimensions, resolveTexture, mipmapStatus)
@@ -29,7 +25,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
 GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    SkBudgeted budgeted,
                                                    SkISize dimensions,
-                                                   id<MTLTexture> colorTexture,
+                                                   sk_cf_obj<id<MTLTexture>> colorTexture,
                                                    GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
         , GrMtlTexture(gpu, dimensions, colorTexture, mipmapStatus)
@@ -40,8 +36,8 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
 GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    SkISize dimensions,
                                                    int sampleCnt,
-                                                   id<MTLTexture> colorTexture,
-                                                   id<MTLTexture> resolveTexture,
+                                                   sk_cf_obj<id<MTLTexture>> colorTexture,
+                                                   sk_cf_obj<id<MTLTexture>> resolveTexture,
                                                    GrMipmapStatus mipmapStatus,
                                                    GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
@@ -52,7 +48,7 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
 
 GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                                                    SkISize dimensions,
-                                                   id<MTLTexture> colorTexture,
+                                                   sk_cf_obj<id<MTLTexture>> colorTexture,
                                                    GrMipmapStatus mipmapStatus,
                                                    GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
@@ -61,26 +57,26 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
     this->registerWithCacheWrapped(cacheable);
 }
 
-id<MTLTexture> create_msaa_texture(GrMtlGpu* gpu, SkISize dimensions, MTLPixelFormat format,
-                                   int sampleCnt) {
+sk_cf_obj<id<MTLTexture>> create_msaa_texture(GrMtlGpu* gpu, SkISize dimensions,
+                                              MTLPixelFormat format, int sampleCnt) {
     if (!gpu->mtlCaps().isFormatRenderable(format, sampleCnt)) {
         return nullptr;
     }
-    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
-    texDesc.textureType = MTLTextureType2DMultisample;
-    texDesc.pixelFormat = format;
-    texDesc.width = dimensions.fWidth;
-    texDesc.height = dimensions.fHeight;
-    texDesc.depth = 1;
-    texDesc.mipmapLevelCount = 1;
-    texDesc.sampleCount = sampleCnt;
-    texDesc.arrayLength = 1;
+    sk_cf_obj<MTLTextureDescriptor*> texDesc([[MTLTextureDescriptor alloc] init]);
+    (*texDesc).textureType = MTLTextureType2DMultisample;
+    (*texDesc).pixelFormat = format;
+    (*texDesc).width = dimensions.fWidth;
+    (*texDesc).height = dimensions.fHeight;
+    (*texDesc).depth = 1;
+    (*texDesc).mipmapLevelCount = 1;
+    (*texDesc).sampleCount = sampleCnt;
+    (*texDesc).arrayLength = 1;
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        texDesc.storageMode = MTLStorageModePrivate;
-        texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+        (*texDesc).storageMode = MTLStorageModePrivate;
+        (*texDesc).usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
     }
 
-    return [gpu->device() newTextureWithDescriptor:texDesc];
+    return sk_cf_obj<id<MTLTexture>>([gpu->device() newTextureWithDescriptor:texDesc.get()]);
 }
 
 sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(
@@ -88,30 +84,33 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTa
         SkBudgeted budgeted,
         SkISize dimensions,
         int sampleCnt,
-        MTLTextureDescriptor* texDesc,
+        const sk_cf_obj<MTLTextureDescriptor*>& texDesc,
         GrMipmapStatus mipmapStatus) {
-    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:texDesc];
+    sk_cf_obj<id<MTLTexture>> texture([gpu->device() newTextureWithDescriptor:texDesc.get()]);
     if (!texture) {
         return nullptr;
     }
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
+        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & (*texture).usage);
     }
 
     if (sampleCnt > 1) {
-        id<MTLTexture> colorTexture =
-                create_msaa_texture(gpu, dimensions, texture.pixelFormat, sampleCnt);
+        sk_cf_obj<id<MTLTexture>> colorTexture =
+                create_msaa_texture(gpu, dimensions, (*texture).pixelFormat, sampleCnt);
         if (!colorTexture) {
             return nullptr;
         }
         if (@available(macOS 10.11, iOS 9.0, *)) {
-            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & colorTexture.usage);
+            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) &
+                             (*colorTexture).usage);
         }
         return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
-                gpu, budgeted, dimensions, sampleCnt, colorTexture, texture, mipmapStatus));
+                gpu, budgeted, dimensions, sampleCnt, std::move(colorTexture), std::move(texture),
+                mipmapStatus));
     } else {
         return sk_sp<GrMtlTextureRenderTarget>(
-                new GrMtlTextureRenderTarget(gpu, budgeted, dimensions, texture, mipmapStatus));
+                new GrMtlTextureRenderTarget(gpu, budgeted, dimensions, std::move(texture),
+                                             mipmapStatus));
     }
 }
 
@@ -119,28 +118,31 @@ sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeWrappedTextureRend
         GrMtlGpu* gpu,
         SkISize dimensions,
         int sampleCnt,
-        id<MTLTexture> texture,
+        sk_cf_obj<id<MTLTexture>> texture,
         GrWrapCacheable cacheable) {
-    SkASSERT(nil != texture);
+    SkASSERT(texture);
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
+        SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & (*texture).usage);
     }
-    GrMipmapStatus mipmapStatus = texture.mipmapLevelCount > 1
+    GrMipmapStatus mipmapStatus = (*texture).mipmapLevelCount > 1
                                             ? GrMipmapStatus::kDirty
                                             : GrMipmapStatus::kNotAllocated;
     if (sampleCnt > 1) {
-        id<MTLTexture> colorTexture =
-                create_msaa_texture(gpu, dimensions, texture.pixelFormat, sampleCnt);
+        sk_cf_obj<id<MTLTexture>> colorTexture =
+                create_msaa_texture(gpu, dimensions, (*texture).pixelFormat, sampleCnt);
         if (!colorTexture) {
             return nullptr;
         }
         if (@available(macOS 10.11, iOS 9.0, *)) {
-            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & colorTexture.usage);
+            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) &
+                             (*colorTexture).usage);
         }
         return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(
-                gpu, dimensions, sampleCnt, colorTexture, texture, mipmapStatus, cacheable));
+                gpu, dimensions, sampleCnt, std::move(colorTexture), std::move(texture),
+                mipmapStatus, cacheable));
     } else {
         return sk_sp<GrMtlTextureRenderTarget>(
-                new GrMtlTextureRenderTarget(gpu, dimensions, texture, mipmapStatus, cacheable));
+                new GrMtlTextureRenderTarget(gpu, dimensions, std::move(texture), mipmapStatus,
+                                             cacheable));
     }
 }
