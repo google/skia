@@ -171,9 +171,9 @@ protected:
         SkScalar dy = 0;
         SkTDArray<SkMatrix> matrices;
         matrices.push()->reset();
-        SkMatrix* m = matrices.push();
-        m->setRotate(33.f, 25.f, 25.f);
-        m->postScale(1.2f, 0.8f, 25.f, 25.f);
+        SkMatrix* mtx = matrices.push();
+        mtx->setRotate(33.f, 25.f, 25.f);
+        mtx->postScale(1.2f, 0.8f, 25.f, 25.f);
         SkPaint paint;
         paint.setColor(SK_ColorGREEN);
         paint.setAntiAlias(true);

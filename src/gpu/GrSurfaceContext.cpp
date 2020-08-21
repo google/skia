@@ -932,19 +932,19 @@ void GrSurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext
         GrImageInfo uvInfo = yInfo.makeWH(halfW, halfH);
         size_t yRB  = yInfo.minRowBytes();
         size_t uvRB = uvInfo.minRowBytes();
-        std::unique_ptr<char[]> y(new char[yRB * yInfo.height()]);
-        std::unique_ptr<char[]> u(new char[uvRB*uvInfo.height()]);
-        std::unique_ptr<char[]> v(new char[uvRB*uvInfo.height()]);
-        if (!yRTC->readPixels(dContext, yInfo,  y.get(), yRB,  {0, 0}) ||
-            !uRTC->readPixels(dContext, uvInfo, u.get(), uvRB, {0, 0}) ||
-            !vRTC->readPixels(dContext, uvInfo, v.get(), uvRB, {0, 0})) {
+        std::unique_ptr<char[]> yPlane(new char[yRB * yInfo.height()]);
+        std::unique_ptr<char[]> uPlane(new char[uvRB*uvInfo.height()]);
+        std::unique_ptr<char[]> vPlane(new char[uvRB*uvInfo.height()]);
+        if (!yRTC->readPixels(dContext, yInfo,  yPlane.get(), yRB,  {0, 0}) ||
+            !uRTC->readPixels(dContext, uvInfo, uPlane.get(), uvRB, {0, 0}) ||
+            !vRTC->readPixels(dContext, uvInfo, vPlane.get(), uvRB, {0, 0})) {
             callback(callbackContext, nullptr);
             return;
         }
         auto result = std::make_unique<AsyncReadResult>(dContext->priv().contextID());
-        result->addCpuPlane(std::move(y), yRB );
-        result->addCpuPlane(std::move(u), uvRB);
-        result->addCpuPlane(std::move(v), uvRB);
+        result->addCpuPlane(std::move(yPlane), yRB );
+        result->addCpuPlane(std::move(uPlane), uvRB);
+        result->addCpuPlane(std::move(vPlane), uvRB);
         callback(callbackContext, std::move(result));
         return;
     }

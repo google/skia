@@ -233,8 +233,8 @@ void HCodeGenerator::writeConstructor() {
     this->writef("    %s(", fFullName.c_str());
     const char* separator = "";
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        this->writef("%s%s %s", separator, ParameterType(fContext, param->fType,
-                                                         param->fModifiers.fLayout).c_str(),
+        this->writef("%s%s %s", separator,
+                     ParameterType(fContext, param->fType, param->fModifiers.fLayout).c_str(),
                      String(param->fName).c_str());
         separator = ", ";
     }
@@ -247,13 +247,12 @@ void HCodeGenerator::writeConstructor() {
     this->writef(")");
     this->writeSection(kInitializersSection, "\n    , ");
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        String nameString(param->fName);
+        String nameString = param->fName;
         const char* name = nameString.c_str();
         const Type& type = param->fType.nonnullable();
         if (type.kind() == Type::kSampler_Kind) {
             this->writef("\n    , %s(std::move(%s)", FieldName(name).c_str(), name);
-            for (const Section* s : fSectionAndParameterHelper.getSections(
-                                                                          kSamplerParamsSection)) {
+            for (const Section* s : fSectionAndParameterHelper.getSections(kSamplerParamsSection)) {
                 if (s->fArgument == name) {
                     this->writef(", %s", s->fText.c_str());
                 }
