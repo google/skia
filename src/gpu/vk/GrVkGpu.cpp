@@ -141,63 +141,19 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
             return nullptr;
         }
     }
-    sk_sp<GrVkMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
-    if (!memoryAllocator) {
-        // We were not given a memory allocator at creation
-        memoryAllocator = GrVkAMDMemoryAllocator::Make(backendContext.fInstance,
-                                                       backendContext.fPhysicalDevice,
-                                                       backendContext.fDevice, physDevVersion,
-                                                       backendContext.fVkExtensions, interface);
-    }
-    if (!memoryAllocator) {
-        SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
-        return nullptr;
-    }
 
-     sk_sp<GrVkGpu> vkGpu(new GrVkGpu(direct, options, backendContext, interface,
-                                      instanceVersion, physDevVersion,
-                                      std::move(memoryAllocator)));
-     if (backendContext.fProtectedContext == GrProtected::kYes &&
-         !vkGpu->vkCaps().supportsProtectedMemory()) {
-         return nullptr;
-     }
-     return std::move(vkGpu);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrContextOptions& options,
-                 const GrVkBackendContext& backendContext, sk_sp<const GrVkInterface> interface,
-                 uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-                 sk_sp<GrVkMemoryAllocator> memoryAllocator)
-        : INHERITED(direct)
-        , fInterface(std::move(interface))
-        , fMemoryAllocator(std::move(memoryAllocator))
-        , fPhysicalDevice(backendContext.fPhysicalDevice)
-        , fDevice(backendContext.fDevice)
-        , fQueue(backendContext.fQueue)
-        , fQueueIndex(backendContext.fGraphicsQueueIndex)
-        , fResourceProvider(this)
-        , fStagingBufferManager(this)
-        , fDisconnected(false)
-        , fProtectedContext(backendContext.fProtectedContext) {
-    SkASSERT(!backendContext.fOwnsInstanceAndDevice);
-    SkASSERT(fMemoryAllocator);
-
-    fCompiler = new SkSL::Compiler();
-
+    sk_sp<GrVkCaps> caps;
     if (backendContext.fDeviceFeatures2) {
-        fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   *backendContext.fDeviceFeatures2, instanceVersion,
-                                   physicalDeviceVersion,
-                                   *backendContext.fVkExtensions, fProtectedContext));
+        caps.reset(new GrVkCaps(options, interface.get(), backendContext.fPhysicalDevice,
+                                *backendContext.fDeviceFeatures2, instanceVersion, physDevVersion,
+                                *backendContext.fVkExtensions, backendContext.fProtectedContext));
     } else if (backendContext.fDeviceFeatures) {
         VkPhysicalDeviceFeatures2 features2;
         features2.pNext = nullptr;
         features2.features = *backendContext.fDeviceFeatures;
-        fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features2, instanceVersion, physicalDeviceVersion,
-                                   *backendContext.fVkExtensions, fProtectedContext));
+        caps.reset(new GrVkCaps(options, interface.get(), backendContext.fPhysicalDevice,
+                                features2, instanceVersion, physDevVersion,
+                                *backendContext.fVkExtensions, backendContext.fProtectedContext));
     } else {
         VkPhysicalDeviceFeatures2 features;
         memset(&features, 0, sizeof(VkPhysicalDeviceFeatures2));
@@ -220,10 +176,62 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrContextOptions& options,
             extensions.init(backendContext.fGetProc, backendContext.fInstance,
                             backendContext.fPhysicalDevice, 0, nullptr, 1, &swapChainExtName);
         }
-        fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features, instanceVersion, physicalDeviceVersion, extensions,
-                                   fProtectedContext));
+        caps.reset(new GrVkCaps(options, interface.get(), backendContext.fPhysicalDevice,
+                                features, instanceVersion, physDevVersion, extensions,
+                                backendContext.fProtectedContext));
     }
+
+    if (!caps) {
+        return nullptr;
+    }
+
+    sk_sp<GrVkMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
+    if (!memoryAllocator) {
+        // We were not given a memory allocator at creation
+        memoryAllocator = GrVkAMDMemoryAllocator::Make(backendContext.fInstance,
+                                                       backendContext.fPhysicalDevice,
+                                                       backendContext.fDevice, physDevVersion,
+                                                       backendContext.fVkExtensions, interface,
+                                                       caps.get());
+    }
+    if (!memoryAllocator) {
+        SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
+        return nullptr;
+    }
+
+     sk_sp<GrVkGpu> vkGpu(new GrVkGpu(direct, backendContext, std::move(caps), interface,
+                                      instanceVersion, physDevVersion,
+                                      std::move(memoryAllocator)));
+     if (backendContext.fProtectedContext == GrProtected::kYes &&
+         !vkGpu->vkCaps().supportsProtectedMemory()) {
+         return nullptr;
+     }
+     return std::move(vkGpu);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrVkBackendContext& backendContext,
+                 sk_sp<GrVkCaps> caps, sk_sp<const GrVkInterface> interface,
+                 uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+                 sk_sp<GrVkMemoryAllocator> memoryAllocator)
+        : INHERITED(direct)
+        , fInterface(std::move(interface))
+        , fMemoryAllocator(std::move(memoryAllocator))
+        , fVkCaps(std::move(caps))
+        , fPhysicalDevice(backendContext.fPhysicalDevice)
+        , fDevice(backendContext.fDevice)
+        , fQueue(backendContext.fQueue)
+        , fQueueIndex(backendContext.fGraphicsQueueIndex)
+        , fResourceProvider(this)
+        , fStagingBufferManager(this)
+        , fDisconnected(false)
+        , fProtectedContext(backendContext.fProtectedContext) {
+    SkASSERT(!backendContext.fOwnsInstanceAndDevice);
+    SkASSERT(fMemoryAllocator);
+
+    fCompiler = new SkSL::Compiler();
+
     fCaps.reset(SkRef(fVkCaps.get()));
 
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
