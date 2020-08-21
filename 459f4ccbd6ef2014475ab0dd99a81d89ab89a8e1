@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0aa9e25_344ca906",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-21T19:00:56Z",
+      "side": 1,
+      "message": "I think this change is worth landing and we can see how if affects our various measurements. Also if chrome wants to do a similar thing, chrome will have to update its wrapper around vk_mem_alloc library.",
+      "revId": "459f4ccbd6ef2014475ab0dd99a81d89ab89a8e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
