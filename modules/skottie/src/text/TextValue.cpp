@@ -38,6 +38,7 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
     v->fLineHeight = **line_height;
     v->fTypeface   = font->fTypeface;
     v->fAscent     = font->fAscentPct * -0.01f * v->fTextSize; // negative ascent per SkFontMetrics
+    v->fLineShift  = ParseDefault((*jtxt)["ls"], 0.0f);
 
     static constexpr SkTextUtils::Align gAlignMap[] = {
         SkTextUtils::kLeft_Align,  // 'j': 0
