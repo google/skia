@@ -63,7 +63,7 @@
         colorSpace = colorSpace || null;
         var canvas = idOrElement;
         var isHTMLCanvas = typeof HTMLCanvasElement !== 'undefined' && canvas instanceof HTMLCanvasElement;
-        var isOffscreenCanvas = canvas instanceof OffscreenCanvas;
+        var isOffscreenCanvas = typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas;
         if (!isHTMLCanvas && !isOffscreenCanvas) {
           canvas = document.getElementById(idOrElement);
           if (!canvas) {
