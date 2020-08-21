@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "53a001aa_e9a52575",
+        "filename": "gm/typeface.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T18:08:03Z",
+      "side": 0,
+      "message": "I don\u0027t think so, unfortunately. I don\u0027t see anything like that here: https://clang.llvm.org/docs/DiagnosticsReference.html#wshadow",
+      "parentUuid": "e85f2030_9126a473",
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7be2e8e_a562aed7",
         "filename": "gm/vertices.cpp",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bb0ae46_6be85abc",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T18:08:03Z",
+      "side": 0,
+      "message": "That seems to be gcc-only.",
+      "parentUuid": "a7be2e8e_a562aed7",
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "bbf9675f_1285bd9c",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T18:08:03Z",
+      "side": 0,
+      "message": "Yeah, you\u0027re right. Fixed.",
+      "parentUuid": "d44b4cc1_08986f26",
+      "range": {
+        "startLine": 1305,
+        "startChar": 12,
+        "endLine": 1305,
+        "endChar": 16
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c5fc7e4e_7660ddcd",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 8
@@ -79,6 +139,30 @@
       "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e10fc76_b5735009",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T18:08:03Z",
+      "side": 0,
+      "message": "After taking a good look at the docs, it looks like -Wno-shadow-field-in-constructor is meant to squelch the warnings here. Reverted change.",
+      "parentUuid": "c5fc7e4e_7660ddcd",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 48
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
