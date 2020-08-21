@@ -270,7 +270,7 @@ static void test_codec(skiatest::Reporter* r, const char* path, Codec* codec, Sk
 
 static bool supports_partial_scanlines(const char path[]) {
     static const char* const exts[] = {
-        "jpg", "jpeg", "png", "webp"
+        "jpg", "jpeg", "png", "webp",
         "JPG", "JPEG", "PNG", "WEBP"
     };
 
