@@ -35,6 +35,13 @@ public:
     bool enforcePMColor;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrArithmeticProcessor(std::unique_ptr<GrFragmentProcessor> srcFP,
                           std::unique_ptr<GrFragmentProcessor> dstFP,
                           SkV4 k,
@@ -46,6 +53,11 @@ private:
         SkASSERT(dstFP);
         this->registerChild(std::move(dstFP), SkSL::SampleUsage::PassThrough());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

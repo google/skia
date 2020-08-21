@@ -35,6 +35,13 @@ public:
     bool colorsAreOpaque;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrTiledGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
                           std::unique_ptr<GrFragmentProcessor> gradLayout,
                           bool mirror,
@@ -53,6 +60,11 @@ private:
         SkASSERT(gradLayout);
         this->registerChild(std::move(gradLayout), SkSL::SampleUsage::PassThrough());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

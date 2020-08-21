@@ -30,12 +30,24 @@ public:
     const char* name() const override { return "DeviceSpaceEffect"; }
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
             : INHERITED(kGrDeviceSpaceEffect_ClassID,
                         (OptimizationFlags)ProcessorOptimizationFlags(fp.get())) {
         SkASSERT(fp);
         this->registerChild(std::move(fp), SkSL::SampleUsage::Explicit());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

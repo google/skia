@@ -30,11 +30,23 @@ public:
     Mode mode;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrBlurredEdgeFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP, Mode mode)
             : INHERITED(kGrBlurredEdgeFragmentProcessor_ClassID, kNone_OptimizationFlags)
             , mode(mode) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

@@ -29,11 +29,23 @@ public:
     const char* name() const override { return "LinearGradientLayout"; }
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrLinearGradientLayout()
             : INHERITED(kGrLinearGradientLayout_ClassID,
                         (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag) {
         this->setUsesSampleCoordsDirectly();
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

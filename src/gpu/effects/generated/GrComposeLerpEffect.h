@@ -30,6 +30,13 @@ public:
     float weight;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrComposeLerpEffect(std::unique_ptr<GrFragmentProcessor> child1,
                         std::unique_ptr<GrFragmentProcessor> child2,
                         float weight)
@@ -37,6 +44,11 @@ private:
         this->registerChild(std::move(child1), SkSL::SampleUsage::PassThrough());
         this->registerChild(std::move(child2), SkSL::SampleUsage::PassThrough());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

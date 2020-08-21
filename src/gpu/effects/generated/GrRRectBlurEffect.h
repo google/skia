@@ -122,6 +122,13 @@ public:
     float cornerRadius;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrRRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                       float sigma,
                       SkRect rect,
@@ -138,6 +145,11 @@ private:
         SkASSERT(ninePatchFP);
         this->registerChild(std::move(ninePatchFP), SkSL::SampleUsage::Explicit());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

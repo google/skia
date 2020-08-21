@@ -39,6 +39,13 @@ public:
     float yInvInset;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrMagnifierEffect(std::unique_ptr<GrFragmentProcessor> src,
                       SkIRect bounds,
                       SkRect srcRect,
@@ -57,6 +64,11 @@ private:
         SkASSERT(src);
         this->registerChild(std::move(src), SkSL::SampleUsage::Explicit());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

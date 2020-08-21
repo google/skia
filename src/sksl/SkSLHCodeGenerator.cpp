@@ -230,6 +230,20 @@ void HCodeGenerator::writeConstructor() {
         this->failOnSection(kOptimizationFlagsSection, msg);
         return;
     }
+
+    // Codegenned constructors use the same name for input values and class members. This
+    // is by design; this allows .fp files to use the variable names, unadorned, in places like
+    // @optimizationFlags and constantOutputForConstantInput. However, it triggers -Wshadow, so we
+    // disable this warning in the constructor.
+    this->writef(R"(
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
+)");
     this->writef("    %s(", fFullName.c_str());
     const char* separator = "";
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
@@ -303,7 +317,14 @@ void HCodeGenerator::writeConstructor() {
     if (samplerCount) {
         this->writef("        this->setTextureSamplerCnt(%d);", samplerCount);
     }
-    this->writef("    }\n");
+    this->writef(
+R"(    }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
+)");
 }
 
 void HCodeGenerator::writeFields() {

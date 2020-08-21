@@ -38,6 +38,13 @@ public:
     float weight;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrMixerEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                   std::unique_ptr<GrFragmentProcessor> fp0,
                   std::unique_ptr<GrFragmentProcessor> fp1,
@@ -52,6 +59,11 @@ private:
         this->registerChild(std::move(fp0), SkSL::SampleUsage::PassThrough());
         this->registerChild(std::move(fp1), SkSL::SampleUsage::PassThrough());
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

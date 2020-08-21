@@ -33,6 +33,13 @@ public:
     float threshold;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrDualIntervalGradientColorizer(SkPMColor4f scale01,
                                     SkPMColor4f bias01,
                                     SkPMColor4f scale23,
@@ -46,6 +53,11 @@ private:
             , threshold(threshold) {
         this->setUsesSampleCoordsDirectly();
     }
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;

@@ -30,6 +30,13 @@ public:
     SkPMColor4f color;
 
 private:
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+#endif
     GrConstColorProcessor(SkPMColor4f color)
             : INHERITED(
                       kGrConstColorProcessor_ClassID,
@@ -37,6 +44,11 @@ private:
                                           (color.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag
                                                             : kNone_OptimizationFlags)))
             , color(color) {}
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
