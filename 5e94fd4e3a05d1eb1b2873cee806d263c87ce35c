@@ -33,6 +33,24 @@
       "revId": "5e94fd4e3a05d1eb1b2873cee806d263c87ce35c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7182ffb_e79cc027",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T15:49:55Z",
+      "side": 1,
+      "message": "This isn\u0027t legal in many/most contexts; presumably that\u0027s checked somewhere else?",
+      "parentUuid": "a285ff45_c75fd4f3",
+      "revId": "5e94fd4e3a05d1eb1b2873cee806d263c87ce35c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
