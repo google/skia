@@ -460,29 +460,6 @@ Summary: Use `int` unless you have need a guarantee on the bit count, then use
 of using unsigned. Bitfields use `uint32_t` unless they have to be made shorter
 for packing or performance reasons.
 
-`nullptr`, 0
-------------
-
-Use `nullptr` for pointers, 0 for ints. We suggest explicit `nullptr` comparisons when
-checking for `nullptr` pointers, as documentation:
-
-<!--?prettify?-->
-~~~~
-if (nullptr == x) {  // slightly preferred over if (!x)
-   ...
-}
-~~~~
-
-When checking non-`nullptr` pointers we think implicit comparisons read better than
-an explicit comparison's double negative:
-
-<!--?prettify?-->
-~~~~
-if (x) {  // slightly preferred over if (nullptr != x)
-   ...
-}
-~~~~
-
 Function Parameters
 -------------------
 
