@@ -45,8 +45,8 @@ enum class Direction {
     kRTL,
 };
 struct BidiRegion {
-    BidiRegion(Position start, Position end, BidiLevel level)
-      : start(start), end(end), level(level) { }
+    BidiRegion(Position s, Position e, BidiLevel l)
+      : start(s), end(e), level(l) { }
     Position start;
     Position end;
     BidiLevel level;
@@ -57,8 +57,8 @@ enum class LineBreakType {
     kHardLineBreak
 };
 struct LineBreakBefore {
-    LineBreakBefore(Position pos, LineBreakType breakType)
-      : pos(pos), breakType(breakType) { }
+    LineBreakBefore(Position p, LineBreakType bt)
+      : pos(p), breakType(bt) { }
     Position pos;
     LineBreakType breakType;
 };

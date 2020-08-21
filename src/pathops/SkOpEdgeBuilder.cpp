@@ -215,13 +215,13 @@ bool SkOpEdgeBuilder::walk() {
                             pair[index] = force_small_to_zero(pair[index]);
                         }
                         SkPoint cStorage[2][2];
-                        SkPath::Verb v1 = SkReduceOrder::Quad(&pair[0], cStorage[0]);
-                        SkPath::Verb v2 = SkReduceOrder::Quad(&pair[2], cStorage[1]);
-                        SkPoint* curve1 = v1 != SkPath::kLine_Verb ? &pair[0] : cStorage[0];
-                        SkPoint* curve2 = v2 != SkPath::kLine_Verb ? &pair[2] : cStorage[1];
-                        if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
-                            fContourBuilder.addCurve(v1, curve1);
-                            fContourBuilder.addCurve(v2, curve2);
+                        SkPath::Verb verb1 = SkReduceOrder::Quad(&pair[0], cStorage[0]);
+                        SkPath::Verb verb2 = SkReduceOrder::Quad(&pair[2], cStorage[1]);
+                        SkPoint* curve1 = verb1 != SkPath::kLine_Verb ? &pair[0] : cStorage[0];
+                        SkPoint* curve2 = verb2 != SkPath::kLine_Verb ? &pair[2] : cStorage[1];
+                        if (can_add_curve(verb1, curve1) && can_add_curve(verb2, curve2)) {
+                            fContourBuilder.addCurve(verb1, curve1);
+                            fContourBuilder.addCurve(verb2, curve2);
                             break;
                         }
                     }
@@ -245,13 +245,13 @@ bool SkOpEdgeBuilder::walk() {
                             break;
                         }
                         SkPoint cStorage[2][3];
-                        SkPath::Verb v1 = SkReduceOrder::Conic(pair[0], cStorage[0]);
-                        SkPath::Verb v2 = SkReduceOrder::Conic(pair[1], cStorage[1]);
-                        SkPoint* curve1 = v1 != SkPath::kLine_Verb ? pair[0].fPts : cStorage[0];
-                        SkPoint* curve2 = v2 != SkPath::kLine_Verb ? pair[1].fPts : cStorage[1];
-                        if (can_add_curve(v1, curve1) && can_add_curve(v2, curve2)) {
-                            fContourBuilder.addCurve(v1, curve1, pair[0].fW);
-                            fContourBuilder.addCurve(v2, curve2, pair[1].fW);
+                        SkPath::Verb verb1 = SkReduceOrder::Conic(pair[0], cStorage[0]);
+                        SkPath::Verb verb2 = SkReduceOrder::Conic(pair[1], cStorage[1]);
+                        SkPoint* curve1 = verb1 != SkPath::kLine_Verb ? pair[0].fPts : cStorage[0];
+                        SkPoint* curve2 = verb2 != SkPath::kLine_Verb ? pair[1].fPts : cStorage[1];
+                        if (can_add_curve(verb1, curve1) && can_add_curve(verb2, curve2)) {
+                            fContourBuilder.addCurve(verb1, curve1, pair[0].fW);
+                            fContourBuilder.addCurve(verb2, curve2, pair[1].fW);
                             break;
                         }
                     }

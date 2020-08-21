@@ -1302,7 +1302,7 @@ protected:
         }
 
         for (auto& query : hit1) {
-            auto rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
             if (rects.size() >= 1 && rects[0].rect.width() > 0) {
             } else {
                 if (this->isVerbose()) {
@@ -1312,8 +1312,8 @@ protected:
         }
 
         for (auto& query : miss) {
-            auto miss = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
-            if (miss.empty()) {
+            rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            if (rects.empty()) {
             } else {
                 if (this->isVerbose()) {
                     SkDebugf("-[%d:%d): Bad\n", query.fX, query.fY);
@@ -2180,14 +2180,14 @@ protected:
         auto width = paragraph->getLongestLine();
         auto height = paragraph->getHeight();
 
-        auto f1 = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
-        auto f2 = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
+        auto pos1 = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
+        auto pos2 = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
         auto i = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
 
         if (this->isVerbose()) {
             SkDebugf("%d(%s) %d(%s) %d(%s)\n",
-                     f1.position, f1.affinity == Affinity::kUpstream ? "up" : "down",
-                     f2.position, f2.affinity == Affinity::kUpstream ? "up" : "down",
+                     pos1.position, pos1.affinity == Affinity::kUpstream ? "up" : "down",
+                     pos2.position, pos2.affinity == Affinity::kUpstream ? "up" : "down",
                      i.position, i.affinity == Affinity::kUpstream ? "up" : "down");
 
             auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
