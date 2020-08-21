@@ -17,8 +17,7 @@ include/private if they need to be used by public headers.
 We prefer to minimize includes. If forward declaring a name in a header is
 sufficient then that is preferred to an include.
 
-Forward declarations and file includes should be in alphabetical order (but we
-aren't very strict about it).
+Forward declarations and file includes should be in alphabetical order.
 
 <span id="no-define-before-sktypes"></span>
 Do not use #if/#ifdef before including "SkTypes.h" (directly or indirectly).
@@ -31,18 +30,12 @@ We use Unix style endlines (LF).
 We prefer no trailing whitespace but aren't very strict about it.
 
 We wrap lines at 100 columns unless it is excessively ugly (use your judgement).
-The soft line length limit was changed from 80 to 100 columns in June 2012. Thus,
-many files still adhere to the 80 column limit. It is not necessary or worth
-significant effort to promote 80 column wrapped files to 100 columns. Please
-don't willy-nilly insert longer lines in 80 column wrapped files. Either be
-consistent with the surrounding code or, if you really feel the need, promote
-the surrounding code to 100 column wrapping.
 
 Naming
 ------
 
-Both projects use a prefix to designate that they are Skia prefix for classes,
-enums, structs, typedefs etc is Sk. Ganesh's is Gr. Nested types should not be
+Most externally visibile types and functions use an Sk- prefix to designate
+they're part of Skia, but code in Ganesh uses Gr-.  Nested types need not be
 prefixed.
 
 <!--?prettify?-->
@@ -71,7 +64,7 @@ Global variables are similar but prefixed with g and camel-capped.
 
 <!--?prettify?-->
 ~~~~
-bool gLoggingEnabled
+bool gLoggingEnabled;
 ~~~~
 
 Local variables and arguments are camel-capped with no initial cap.
@@ -191,7 +184,7 @@ Ganesh prefers that macros are always defined and the use of `#if MACRO` rather 
 #endif
 ~~~~
 
-Skia tends to use `#ifdef SK_MACRO` for boolean flags.
+The rest of Skia tends to use `#ifdef SK_MACRO` for boolean flags.
 
 Braces
 ------
@@ -239,7 +232,7 @@ else {
 Flow Control
 ------------
 
-There is a space between flow control words and parentheses and between
+There is a space between flow control words and parentheses, and between
 parentheses and braces:
 
 <!--?prettify?-->
@@ -248,7 +241,7 @@ while (...) {
 }
 
 do {
-} while(...);
+} while (...);
 
 switch (...) {
 ...
@@ -304,8 +297,7 @@ switch (filter) {
     case kGaussian_Filter: {
         Bitmap srcCopy = src->makeCopy();
         ...
-        break;
-    }
+    } break;
     ...
 };
 ~~~~
@@ -370,8 +362,7 @@ void myVirtual() override {
 ~~~~
 
 Constructor initializers should be one per line, indented, with punctuation
-placed before the initializer. This is a fairly new rule so much of the existing
-code is non-conforming. Please fix as you go!
+placed before the initializer.
 
 <!--?prettify?-->
 ~~~~
@@ -496,8 +487,7 @@ or all parameters placed on the next line and indented eight spaces
 <!--?prettify?-->
 ~~~~
 void drawBitmapRect(
-        const SkBitmap& bitmap, const SkRect& dst,
-        const SkPaint* paint = nullptr) {
+        const SkBitmap& bitmap, const SkRect& dst, const SkPaint* paint = nullptr) {
     this->drawBitmapRectToRect(
             bitmap, nullptr, dst, paint, kNone_DrawBitmapRectFlag);
 }
