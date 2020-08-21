@@ -74,7 +74,8 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
     vkImageInfo.arrayLayers = 1;
     vkImageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     vkImageInfo.tiling = VK_IMAGE_TILING_LINEAR;
-    vkImageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+    vkImageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                        VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     vkImageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     vkImageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
@@ -194,6 +195,7 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
                                VK_IMAGE_TILING_LINEAR,
                                VK_IMAGE_LAYOUT_UNDEFINED,
                                vkImageInfo.format,
+                               vkImageInfo.usage,
                                1 /* levelCount */,
                                VK_QUEUE_FAMILY_IGNORED,
                                GrProtected::kNo,
