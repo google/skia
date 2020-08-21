@@ -148,7 +148,7 @@
   "Canary-Flutter",
   "Canary-G3",
   "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
-  "Housekeeper-Nightly-RecreateSKPs_Canary",
+  "Housekeeper-Nightly-RecreateSKPs_DryRun",
   "Housekeeper-Nightly-UpdateGoDeps",
   "Housekeeper-OnDemand-Presubmit",
   "Housekeeper-PerCommit",
