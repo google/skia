@@ -248,7 +248,10 @@ void GrGLMatrixConvolutionEffect::emitCode(EmitArgs& args) {
         fragBuilder->codeAppendf("%s.rgb = saturate(sum.rgb * %s + %s);", args.fOutputColor, gain, bias);
         fragBuilder->codeAppendf("%s.rgb *= %s.a;", args.fOutputColor, args.fOutputColor);
     }
-    fragBuilder->codeAppendf("%s *= %s;\n", args.fOutputColor, args.fInputColor);
+    fragBuilder->codeAppendf(
+            "%s *= %s;"
+            "return %s;",
+            args.fOutputColor, args.fInputColor, args.fOutputColor);
 }
 
 void GrGLMatrixConvolutionEffect::GenKey(const GrProcessor& processor,

@@ -17,7 +17,7 @@ layout(key) in bool premulOutput;
     kConstantOutputForConstantInput_OptimizationFlag
 }
 
-void main() {
+half4 main() {
     half4 inputColor = sample(inputFP);
     @if (unpremulInput) {
         inputColor = unpremul(inputColor);
@@ -31,6 +31,7 @@ void main() {
     @if (premulOutput) {
         sk_OutColor.rgb *= sk_OutColor.a;
     }
+    return sk_OutColor;
 }
 
 @class {

@@ -68,7 +68,9 @@ public:
 
         SkString xformedColor;
         fragBuilder->appendColorGamutXform(&xformedColor, childColor.c_str(), &fColorSpaceHelper);
-        fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
+        fragBuilder->codeAppendf("%s = %s;\n"
+                                 "return %s;\n",
+                                 args.fOutputColor, xformedColor.c_str(), args.fOutputColor);
     }
 
 private:

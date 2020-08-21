@@ -133,7 +133,12 @@ private:
 
     // if true, we are writing a C++ expression instead of a GLSL expression
     bool fCPPMode = false;
+
+    // If true, we are compiling the main() function of a fragment processor.
     bool fInMain = false;
+
+    // If true, we are compiling the main() function of a fragment processor.
+    bool fEncounteredReturn = false;
 
     // if not null, we are accumulating SkSL for emitCode into fOut, which
     // replaced the original buffer with a StringStream. The original buffer is

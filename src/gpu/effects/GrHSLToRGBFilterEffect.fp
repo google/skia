@@ -15,7 +15,7 @@
 
 in fragmentProcessor? inputFP;
 
-void main() {
+half4 main() {
     half4   inputColor = sample(inputFP);
     half3   hsl = inputColor.rgb;
 
@@ -26,6 +26,7 @@ void main() {
 
     sk_OutColor = saturate(half4(rgb, inputColor.a));
     sk_OutColor.rgb *= sk_OutColor.a;
+    return sk_OutColor;
 }
 
 @optimizationFlags {

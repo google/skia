@@ -46,9 +46,13 @@ public:
         // pass through
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         if (args.fInputColor) {
-            fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, args.fInputColor);
+            fragBuilder->codeAppendf("%s = %s;\n"
+                                     "return %s;\n",
+                                     args.fOutputColor, args.fInputColor, args.fOutputColor);
         } else {
-            fragBuilder->codeAppendf("%s = vec4(1.0);\n", args.fOutputColor);
+            fragBuilder->codeAppendf("%s = vec4(1.0);\n"
+                                     "return %s;\n",
+                                     args.fOutputColor, args.fOutputColor);
         }
     }
 
@@ -117,7 +121,9 @@ private:
     public:
         void emitCode(EmitArgs& args) override {
             SkString temp = this->invokeChild(0, args);
-            args.fFragBuilder->codeAppendf("%s = %s;", args.fOutputColor, temp.c_str());
+            args.fFragBuilder->codeAppendf("%s = %s;"
+                                           "return %s;",
+                                           args.fOutputColor, temp.c_str(), args.fOutputColor);
         }
 
     private:

@@ -15,7 +15,7 @@ layout(key) in bool makePremul;
 // Trust the creator that this matches the color spec of the gradient
 in bool colorsAreOpaque;
 
-void main() {
+half4 main() {
     half4 t = sample(gradLayout);
 
     if (!gradLayout.preservesOpaqueInput && t.y < 0) {
@@ -45,6 +45,8 @@ void main() {
     @if (makePremul) {
         sk_OutColor.xyz *= sk_OutColor.w;
     }
+
+    return sk_OutColor;
 }
 
 //////////////////////////////////////////////////////////////////////////////

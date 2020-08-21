@@ -77,7 +77,9 @@ public:
 
     void emitCode(EmitArgs& args) override {
         const GrSkSLFP& fp = args.fFp.cast<GrSkSLFP>();
-        for (const auto& v : fp.fEffect->uniforms()) {
+        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
+
+        for (const SkRuntimeEffect::Uniform& v : fp.fEffect->uniforms()) {
             auto handle = args.fUniformHandler->addUniformArray(&fp,
                                                                 kFragment_GrShaderFlag,
                                                                 v.fGPUType,
@@ -85,8 +87,6 @@ public:
                                                                 v.isArray() ? v.fCount : 0);
             fUniformHandles.push_back(handle);
         }
-        GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
-        std::vector<SkString> childNames;
         // We need to ensure that we emit each child's helper function at least once.
         // Any child FP that isn't sampled won't trigger a call otherwise, leading to asserts later.
         for (int i = 0; i < this->numChildProcessors(); ++i) {

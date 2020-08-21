@@ -13,7 +13,7 @@ enum class Mode {
 in fragmentProcessor? inputFP;
 layout(key) in Mode mode;
 
-void main() {
+half4 main() {
     half inputAlpha = sample(inputFP).a;
     half factor = 1.0 - inputAlpha;
     @switch (mode) {
@@ -25,4 +25,5 @@ void main() {
             break;
     }
     sk_OutColor = half4(factor);
+    return sk_OutColor;
 }

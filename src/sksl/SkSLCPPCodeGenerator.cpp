@@ -357,9 +357,19 @@ void CPPCodeGenerator::writeIfStatement(const IfStatement& s) {
 
 void CPPCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
     if (fInMain) {
-        fErrors.error(s.fOffset, "fragmentProcessor main() may not contain return statements");
+        if (fEncounteredReturn) {
+            fErrors.error(s.fOffset, "Early exits from main() are not supported.\n");
+        }
+        fEncounteredReturn = true;
+
+        // Assign the result to the output color.
+        this->write("%s = ");
+        fFormatArgs.push_back(String("args.fOutputColor"));
+        this->writeExpression(*s.fExpression, kTopLevel_Precedence);
+        this->write(";\n");
+    } else {
+        INHERITED::writeReturnStatement(s);
     }
-    INHERITED::writeReturnStatement(s);
 }
 
 void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {

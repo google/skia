@@ -47,7 +47,10 @@ class GLSLSampleMatrixConstantEffect : public GrGLSLFragmentProcessor {
     void emitCode(EmitArgs& args) override {
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         SkString sample = this->invokeChildWithMatrix(0, args);
-        fragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, sample.c_str());
+        fragBuilder->codeAppendf(
+                "%s = %s;\n"
+                "return %s;\n",
+                args.fOutputColor, sample.c_str(), args.fOutputColor);
     }
 };
 

@@ -1021,9 +1021,11 @@ void GrGLPerlinNoise::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s = saturate(%s);", args.fOutputColor, args.fOutputColor);
 
     // Pre-multiply the result
-    fragBuilder->codeAppendf("%s = half4(%s.rgb * %s.aaa, %s.a);\n",
-                             args.fOutputColor, args.fOutputColor,
-                             args.fOutputColor, args.fOutputColor);
+    fragBuilder->codeAppendf(
+            "%s = half4(%s.rgb * %s.aaa, %s.a);\n"
+            "return %s;\n",
+            args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
+            args.fOutputColor);
 }
 
 void GrGLPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,
@@ -1319,9 +1321,11 @@ void GrGLImprovedPerlinNoise::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("%s = saturate(%s);", args.fOutputColor, args.fOutputColor);
 
     // Pre-multiply the result
-    fragBuilder->codeAppendf("\n\t\t%s = half4(%s.rgb * %s.aaa, %s.a);\n",
-                             args.fOutputColor, args.fOutputColor,
-                             args.fOutputColor, args.fOutputColor);
+    fragBuilder->codeAppendf(
+            "\n\t\t%s = half4(%s.rgb * %s.aaa, %s.a);\n"
+            "return %s;\n",
+            args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor,
+            args.fOutputColor);
 }
 
 void GrGLImprovedPerlinNoise::GenKey(const GrProcessor& processor, const GrShaderCaps&,

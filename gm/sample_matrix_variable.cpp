@@ -58,8 +58,10 @@ class GLSLSampleMatrixVariableEffect : public GrGLSLFragmentProcessor {
                                                                       "%g, %g, 1)",
                                                                       smve.fXOffset,
                                                                       smve.fYOffset).c_str());
-        fragBuilder->codeAppendf("%s = (%s + %s) / 2;\n", args.fOutputColor, sample1.c_str(),
-                                 sample2.c_str());
+        fragBuilder->codeAppendf(
+                "%s = (%s + %s) / 2;\n"
+                "return %s;\n",
+                args.fOutputColor, sample1.c_str(), sample2.c_str(), args.fOutputColor);
     }
 };
 

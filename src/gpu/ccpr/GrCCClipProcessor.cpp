@@ -116,7 +116,10 @@ public:
         constexpr int kInputFPIndex = 1;
         SkString inputColor = this->invokeChild(kInputFPIndex, args);
 
-        f->codeAppendf("%s = %s * coverage;", args.fOutputColor, inputColor.c_str());
+        f->codeAppendf(
+                "%s = %s * coverage;\n"
+                "return %s;\n",
+                args.fOutputColor, inputColor.c_str(), args.fOutputColor);
     }
 
     void onSetData(const GrGLSLProgramDataManager& pdman,

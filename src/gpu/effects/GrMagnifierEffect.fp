@@ -16,7 +16,7 @@ in uniform float yInvInset;
 
 uniform half2 offset;
 
-void main(float2 coord) {
+half4 main(float2 coord) {
     float2 zoom_coord = offset + coord * float2(xInvZoom, yInvZoom);
     float2 delta = (coord - boundsUniform.xy) * boundsUniform.zw;
     delta = min(delta, half2(1.0, 1.0) - delta);
@@ -34,6 +34,7 @@ void main(float2 coord) {
     }
 
     sk_OutColor = sample(src, mix(coord, zoom_coord, weight));
+    return sk_OutColor;
 }
 
 @setData(pdman) {

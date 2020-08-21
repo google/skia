@@ -168,6 +168,8 @@ if (%d <= 4 || t < %s.w) {
     }
 }
 %s = half4(float(t) * scale + bias);
+%s = %s;
+
 )SkSL",
                 args.fSampleCoord, _outer.intervalCount,
                 args.fUniformHandler->getUniformCStr(thresholds1_7Var), _outer.intervalCount,
@@ -207,7 +209,7 @@ if (%d <= 4 || t < %s.w) {
                                         : "float4(0)",
                 bias14_15Var.isValid() ? args.fUniformHandler->getUniformCStr(bias14_15Var)
                                        : "float4(0)",
-                args.fOutputColor);
+                args.fOutputColor, args.fOutputColor, args.fOutputColor);
     }
 
 private:

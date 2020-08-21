@@ -14,7 +14,7 @@ layout(key) in bool clampToPremul;
      kPreservesOpaqueInput_OptimizationFlag)
 }
 
-void main() {
+half4 main() {
     half4 inputColor = sample(inputFP);
     @if (clampToPremul) {
         half alpha = saturate(inputColor.a);
@@ -22,6 +22,7 @@ void main() {
     } else {
         sk_OutColor = saturate(inputColor);
     }
+    return sk_OutColor;
 }
 
 @class {
