@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "c08f7c10_ab37ebf8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T16:50:07Z",
+      "side": 1,
+      "message": "You know, I was looking at these the other day, and I think they\u0027re both false positives.\n\nbool + bool should already promote to int, as should uint8_t + uint8_t, right?\n\nBen, can you take a look?",
+      "revId": "9282cd2ca6543b2def8b957a6f1c299bdbfbb708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3758ec63_56b6c19c",
         "filename": "src/core/SkStroke.cpp",
         "patchSetId": 2
