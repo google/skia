@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e85f2030_9126a473",
+        "filename": "gm/typeface.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T17:10:10Z",
+      "side": 0,
+      "message": "This shadowing seems fine.  Is there a way to restrict the checks to values which are later referred to by name?",
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7be2e8e_a562aed7",
+        "filename": "gm/vertices.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T17:10:10Z",
+      "side": 0,
+      "message": "This sort of thing seems pretty harmless, given that the two `m` can\u0027t be used interchangeably.  Is it possible to only warn about compatible shadows, e.g Wshadow-compatible-local?",
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d44b4cc1_08986f26",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T17:10:10Z",
+      "side": 0,
+      "message": "ooh, no, this feels real bad.  it\u0027s artificially extending the amount of code you have to think about when looking at this field",
+      "range": {
+        "startLine": 1305,
+        "startChar": 12,
+        "endLine": 1305,
+        "endChar": 16
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5fc7e4e_7660ddcd",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T17:10:10Z",
+      "side": 0,
+      "message": "This seems pretty harmless.  Any way to allow this sort of idiom?\n\n(Beyond removing the constructor, of course.)",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 48
+      },
+      "revId": "a11ca8af3dfac572e27e59fcfce750d948ceb565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
