@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "d7aeaedb_37a0fb1b",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-21T20:50:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a4ce2bb_f19e6c52",
+      "range": {
+        "startLine": 24,
+        "startChar": 14,
+        "endLine": 24,
+        "endChar": 17
+      },
+      "revId": "9f46a4333a06092160d6d1a962b9df7d67c13abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ab187bf_a325d2dc",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 5
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "b2dd3ab0_a0672ac9",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-21T20:50:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ab187bf_a325d2dc",
+      "range": {
+        "startLine": 35,
+        "startChar": 6,
+        "endLine": 35,
+        "endChar": 21
+      },
+      "revId": "9f46a4333a06092160d6d1a962b9df7d67c13abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d839a20_8cf0e3b0",
         "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
         "patchSetId": 5
@@ -102,6 +150,30 @@
       "revId": "9f46a4333a06092160d6d1a962b9df7d67c13abe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9341d57f_b15fe6a7",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-21T20:50:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d839a20_8cf0e3b0",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 28
+      },
+      "revId": "9f46a4333a06092160d6d1a962b9df7d67c13abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -148,6 +220,30 @@
       "revId": "9f46a4333a06092160d6d1a962b9df7d67c13abe",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a46d1ac7_f2a1fb6b",
+        "filename": "infra/bots/task_drivers/test_cifuzz/cifuzz_test.go",
+        "patchSetId": 5
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-21T20:50:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af297103_b233c957",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 2
+      },
+      "revId": "9f46a4333a06092160d6d1a962b9df7d67c13abe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {

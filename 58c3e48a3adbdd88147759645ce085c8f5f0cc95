@@ -16,6 +16,23 @@
       "revId": "58c3e48a3adbdd88147759645ce085c8f5f0cc95",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7252c632_01d98b36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12255
+      },
+      "writtenOn": "2020-08-21T20:50:37Z",
+      "side": 1,
+      "message": "I have fixed the issues in cifuzz.go but there are still some remain in cifuzz_test.go",
+      "revId": "58c3e48a3adbdd88147759645ce085c8f5f0cc95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
