@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "175da27b_128a512c",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-21T16:41:13Z",
+      "side": 1,
+      "message": "../../tests/CodecTest.cpp:274:9: warning: suspicious concatenation of string literals in an array initialization; did you mean to separate the elements with a comma? [-Wstring-concatenation]\n        \"JPG\", \"JPEG\", \"PNG\", \"WEBP\"\n        ^\n../../tests/CodecTest.cpp:273:31: note: place parentheses around the string literal to silence warning\n        \"jpg\", \"jpeg\", \"png\", \"webp\"",
+      "range": {
+        "startLine": 273,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 36
+      },
+      "revId": "32222a214fbe8d24dbad6c806e5743c08f5413b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
