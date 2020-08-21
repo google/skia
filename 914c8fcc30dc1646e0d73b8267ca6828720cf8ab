@@ -93,6 +93,30 @@
     },
     {
       "key": {
+        "uuid": "948be9d2_c63ae0d8",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d626947a_190fd26e",
+      "range": {
+        "startLine": 97,
+        "startChar": 17,
+        "endLine": 97,
+        "endChar": 28
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5e07847_128082e6",
         "filename": "include/ports/SkCFObject.h",
         "patchSetId": 9
@@ -113,6 +137,30 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e712fcf_1a296541",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5e07847_128082e6",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 73
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -139,6 +187,30 @@
     },
     {
       "key": {
+        "uuid": "5ce7f294_fc1c359a",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c53cb83b_0ece5dd6",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 119,
+        "endChar": 18
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cef04835_f4f93bb5",
         "filename": "include/ports/SkCFObject.h",
         "patchSetId": 9
@@ -159,6 +231,30 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "454eb7a5_b079500c",
+        "filename": "include/ports/SkCFObject.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cef04835_f4f93bb5",
+      "range": {
+        "startLine": 136,
+        "startChar": 5,
+        "endLine": 136,
+        "endChar": 14
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -199,6 +295,48 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc558991_01292555",
+        "filename": "src/gpu/mtl/GrMtlBuffer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab9f7aa5_5ce1bb0f",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df42638b_ef14001f",
+        "filename": "src/gpu/mtl/GrMtlBuffer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0614b674_0e453c80",
+      "range": {
+        "startLine": 52,
+        "startChar": 18,
+        "endLine": 52,
+        "endChar": 25
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -321,6 +459,30 @@
     },
     {
       "key": {
+        "uuid": "6fd2bd6b_ffc9a9a9",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1e344157_4703d599",
+      "range": {
+        "startLine": 60,
+        "startChar": 13,
+        "endLine": 60,
+        "endChar": 14
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fb1232be_06d804c9",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
         "patchSetId": 9
@@ -338,6 +500,24 @@
     },
     {
       "key": {
+        "uuid": "f932748f_a0ca58d4",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb1232be_06d804c9",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c66a2bc_f6738f00",
         "filename": "src/gpu/mtl/GrMtlDepthStencil.h",
         "patchSetId": 9
@@ -349,6 +529,24 @@
       "writtenOn": "2020-08-21T19:16:59Z",
       "side": 1,
       "message": "Align?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "043731d5_0fbf87d9",
+        "filename": "src/gpu/mtl/GrMtlDepthStencil.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Seems a little odd to have that big of an indent, so moved it back.",
+      "parentUuid": "9c66a2bc_f6738f00",
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -372,6 +570,24 @@
     },
     {
       "key": {
+        "uuid": "741652ce_eb2db550",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a20b419_e3ffa368",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a9579143_61a6ed13",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 9
@@ -389,6 +605,24 @@
     },
     {
       "key": {
+        "uuid": "f32c9b9a_47c0527b",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 703,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9579143_61a6ed13",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9465fe31_7098b37b",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 9
@@ -403,6 +637,24 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb75de31_2a035b21",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "*headsmack* Yes...",
+      "parentUuid": "9465fe31_7098b37b",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -446,6 +698,48 @@
     },
     {
       "key": {
+        "uuid": "3aab4774_b2b66e85",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1365,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b114d5dd_b8863e9e",
+      "range": {
+        "startLine": 1365,
+        "startChar": 4,
+        "endLine": 1365,
+        "endChar": 16
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b19d09a_8b9d082b",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1365,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "This was my thinking: There\u0027s a +1 on create, that gets an additional +1 when the sk_cf_obj is copied into the  block. But when the original sk_cf_obj leaves scope it\u0027ll do -1. So it seems like the new owner needs another +1? Otherwise when the block is called the copied sk_cf_obj will go out of scope, do -1, and delete. And if the new owner calls waitFence at that point bad things will happen.",
+      "parentUuid": "04fa2087_94a80392",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "223cdd6b_985e247c",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 9
@@ -460,6 +754,24 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "037e71ba_c289c49f",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1373,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "223cdd6b_985e247c",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -480,6 +792,24 @@
     },
     {
       "key": {
+        "uuid": "8f4a24a6_d3591328",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1422,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05e6dcb9_cdd9d3b5",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21c63efc_e81ba8e2",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 9
@@ -494,6 +824,24 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c5e361f_544977af",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1428,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21c63efc_e81ba8e2",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -520,6 +868,30 @@
     },
     {
       "key": {
+        "uuid": "50eb1ae8_297446da",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Leftovers from a previous change. Done.",
+      "parentUuid": "733dfd57_193e04e0",
+      "range": {
+        "startLine": 1461,
+        "startChar": 45,
+        "endLine": 1461,
+        "endChar": 60
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5623dab4_3032b718",
         "filename": "src/gpu/mtl/GrMtlOpsRenderPass.h",
         "patchSetId": 9
@@ -537,6 +909,24 @@
     },
     {
       "key": {
+        "uuid": "360cf989_4818ce41",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5623dab4_3032b718",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0337d4fc_6f9da0a4",
         "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
         "patchSetId": 9
@@ -551,6 +941,24 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f381d149_6ede9c76",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0337d4fc_6f9da0a4",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -577,6 +985,30 @@
     },
     {
       "key": {
+        "uuid": "65bedbe2_53e5808c",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "948ea6ea_8cacef78",
+      "range": {
+        "startLine": 385,
+        "startChar": 67,
+        "endLine": 385,
+        "endChar": 95
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de25d71b_74b0a7b8",
         "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
         "patchSetId": 9
@@ -588,6 +1020,24 @@
       "writtenOn": "2020-08-21T19:16:59Z",
       "side": 1,
       "message": "Since these are +1s, we should probably wrap in sk_cf_obj so they don\u0027t leak.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e3b16a1_8a5f0e2a",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "They\u0027re assigned to members in the pipelineDescriptor, below. My understanding is that it will take ownership of them.",
+      "parentUuid": "de25d71b_74b0a7b8",
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -611,6 +1061,24 @@
     },
     {
       "key": {
+        "uuid": "a4e7e9ae_629b7d4f",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b6310fd_8719217f",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ddf1d06_4073dcd1",
         "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
         "patchSetId": 9
@@ -628,6 +1096,24 @@
     },
     {
       "key": {
+        "uuid": "a3562b20_5b410f14",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ddf1d06_4073dcd1",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9efe6ac3_e0d85ba4",
         "filename": "src/gpu/mtl/GrMtlSampler.mm",
         "patchSetId": 9
@@ -642,6 +1128,24 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed3196ae_4e0f8c18",
+        "filename": "src/gpu/mtl/GrMtlSampler.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9efe6ac3_e0d85ba4",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -702,6 +1206,24 @@
     },
     {
       "key": {
+        "uuid": "d75e9b36_afceb3b8",
+        "filename": "src/gpu/mtl/GrMtlStencilAttachment.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d78ace52_15a862f7",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ff87636_926133ae",
         "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
         "patchSetId": 9
@@ -713,6 +1235,24 @@
       "writtenOn": "2020-08-21T19:16:59Z",
       "side": 1,
       "message": "Can we std::move the textures in this family of functions?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e2971e2_8e88a075",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "We can\u0027t std::move() all of them because they\u0027ll be set to nil after the first move (e.g., resolveTexture is used in two places). I was unsure that the constructors would be invoked in the order I expected so I left them.",
+      "parentUuid": "0ff87636_926133ae",
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -736,6 +1276,24 @@
     },
     {
       "key": {
+        "uuid": "c39b8961_43121555",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ecfd3f7_8af04e40",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ded1e19_14dde0c5",
         "filename": "src/gpu/mtl/GrMtlUtil.mm",
         "patchSetId": 9
@@ -753,6 +1311,24 @@
     },
     {
       "key": {
+        "uuid": "daf30215_b571cce5",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8ded1e19_14dde0c5",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74f25e3c_0fcb6b34",
         "filename": "src/gpu/mtl/GrMtlUtil.mm",
         "patchSetId": 9
@@ -764,6 +1340,24 @@
       "writtenOn": "2020-08-21T19:16:59Z",
       "side": 1,
       "message": "Can we make this a smart pointer? Need to make sure it gets released.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "406a0605_98cc0efb",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "It\u0027s going end to up being returned from GetMtlNewLibraryWithSource or GetMtlNewRenderPipelineWithDescriptor, and ownership will be grabbed after that.",
+      "parentUuid": "74f25e3c_0fcb6b34",
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -787,6 +1381,24 @@
     },
     {
       "key": {
+        "uuid": "a43fa7b8_a08ece85",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "I think that should be safe. I was blindly mirroring the __bridge. The only thing I might be concerned about is that the layer could away before the lazyProxy callback gets called. But that would mean the layer is lost in the middle of a draw, which seems unlikely.",
+      "parentUuid": "0e3daa43_d310a8a5",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d1edb90_674e7ac1",
         "filename": "src/image/SkSurface_GpuMtl.mm",
         "patchSetId": 9
@@ -804,6 +1416,24 @@
     },
     {
       "key": {
+        "uuid": "e1474a32_c052b8b7",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d1edb90_674e7ac1",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b075d56_f8d5ffbc",
         "filename": "src/image/SkSurface_GpuMtl.mm",
         "patchSetId": 9
@@ -818,6 +1448,24 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c4a8c28_b3b33a1e",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T22:21:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b075d56_f8d5ffbc",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
