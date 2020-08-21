@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a6cfe3d_7db6b447",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:43:12Z",
+      "side": 1,
+      "message": "Yes--we have ClangTidy modernize-use-nullptr enabled now, so robots already enforce nullptr usage. It doesn\u0027t need to be spelled out here. The !x vs nullptr thing is irrelevant.",
+      "revId": "308468649de8ad0d839b3d95a350163f2ce731d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
