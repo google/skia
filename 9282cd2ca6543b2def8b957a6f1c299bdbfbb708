@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d34174e0_d5244cc8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-21T16:56:15Z",
+      "side": 1,
+      "message": "I was wondering the same. Maybe this clang doesn\u0027t have the fix mentioned in the last comment here:\nhttps://reviews.llvm.org/D85256",
+      "parentUuid": "c08f7c10_ab37ebf8",
+      "revId": "9282cd2ca6543b2def8b957a6f1c299bdbfbb708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3758ec63_56b6c19c",
         "filename": "src/core/SkStroke.cpp",
         "patchSetId": 2
