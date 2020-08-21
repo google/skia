@@ -373,6 +373,16 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 
     fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
 
+    // On mobile GPUs we avoid using cached cpu memory. The memory is shared between the gpu and cpu
+    // and there probably isn't any win keeping a cached copy local on the CPU. We have seen
+    // examples on ARM where coherent non-cached memory writes are faster on the cpu than using
+    // cached non-coherent memory. Additionally we don't do a lot of read and writes to cpu memory
+    // in between GPU usues. Our uses are mostly write on CPU then read on GPU.
+    if (kQualcomm_VkVendor == properties.vendorID || kARM_VkVendor == properties.vendorID ||
+        kImagination_VkVendor == properties.vendorID) {
+        fPreferCachedCpuMemory = false;
+    }
+
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
 
