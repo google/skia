@@ -294,16 +294,37 @@ static void check_cubic_around_rect(skiatest::Reporter* reporter,
     }
 }
 
+static std::array<SkPoint, 4> kSerpentines[] = {
+    {{{149.325f, 107.705f}, {149.325f, 103.783f}, {151.638f, 100.127f}, {156.263f, 96.736f}}},
+    {{{225.694f, 223.15f}, {209.831f, 224.837f}, {195.994f, 230.237f}, {184.181f, 239.35f}}},
+    {{{4.873f, 5.581f}, {5.083f, 5.2783f}, {5.182f, 4.8593f}, {5.177f, 4.3242f}}},
+    {{{285.625f, 499.687f}, {411.625f, 808.188f}, {1064.62f, 135.688f}, {1042.63f, 585.187f}}}
+};
+
+static std::array<SkPoint, 4> kLoops[] = {
+    {{{635.625f, 614.687f}, {171.625f, 236.188f}, {1064.62f, 135.688f}, {516.625f, 570.187f}}},
+    {{{653.050f, 725.049f}, {663.000f, 176.000f}, {1189.000f, 508.000f}, {288.050f, 564.950f}}},
+    {{{631.050f, 478.049f}, {730.000f, 302.000f}, {870.000f, 350.000f}, {905.050f, 528.950f}}},
+    {{{631.050f, 478.0499f}, {221.000f, 230.000f}, {1265.000f, 451.000f}, {905.050f, 528.950f}}}
+};
+
+static std::array<SkPoint, 4> kLinearCubics[] = {
+    {{{0, 0}, {0, 1}, {0, 2}, {0, 3}}},  // 0-degree flat line.
+    {{{0, 0}, {1, 0}, {1, 0}, {0, 0}}},  // 180-degree flat line
+    {{{0, 1}, {0, 0}, {0, 2}, {0, 3}}},  // 180-degree flat line
+    {{{0, 1}, {0, 0}, {0, 3}, {0, 2}}}  // 360-degree flat line
+};
+
 static void test_classify_cubic(skiatest::Reporter* reporter) {
-    check_cubic_type(reporter, {{{149.325f, 107.705f}, {149.325f, 103.783f},
-                                 {151.638f, 100.127f}, {156.263f, 96.736f}}},
-                     SkCubicType::kSerpentine);
-    check_cubic_type(reporter, {{{225.694f, 223.15f}, {209.831f, 224.837f},
-                                 {195.994f, 230.237f}, {184.181f, 239.35f}}},
-                     SkCubicType::kSerpentine);
-    check_cubic_type(reporter, {{{4.873f, 5.581f}, {5.083f, 5.2783f},
-                                 {5.182f, 4.8593f}, {5.177f, 4.3242f}}},
-                     SkCubicType::kSerpentine);
+    for (const auto& serp : kSerpentines) {
+        check_cubic_type(reporter, serp, SkCubicType::kSerpentine);
+    }
+    for (const auto& loop : kLoops) {
+        check_cubic_type(reporter, loop, SkCubicType::kLoop);
+    }
+    for (const auto& loop : kLinearCubics) {
+        check_cubic_type(reporter, loop, SkCubicType::kLineOrPoint);
+    }
     check_cubic_around_rect(reporter, 0, 0, 1, 1);
     check_cubic_around_rect(reporter,
                             -std::numeric_limits<float>::max(),
@@ -335,6 +356,13 @@ static void test_classify_cubic(skiatest::Reporter* reporter) {
     check_cubic_around_rect(reporter, 0, 0, 1, +std::numeric_limits<float>::quiet_NaN(), true);
 }
 
+static std::array<SkPoint, 4> kCusps[] = {
+    {{{0, 0}, {1, 1}, {1, 0}, {0, 1}}},
+    {{{0, 0}, {1, 1}, {0, 1}, {1, 0}}},
+    {{{0, 1}, {1, 0}, {0, 0}, {1, 1}}},
+    {{{0, 1}, {1, 0}, {1, 1}, {0, 0}}},
+};
+
 static void test_cubic_cusps(skiatest::Reporter* reporter) {
     std::array<SkPoint, 4> noCusps[] = {
         {{{0, 0}, {1, 1}, {2, 2}, {3, 3}}},
@@ -345,14 +373,147 @@ static void test_cubic_cusps(skiatest::Reporter* reporter) {
     for (auto noCusp : noCusps) {
         REPORTER_ASSERT(reporter, SkFindCubicCusp(noCusp.data()) < 0);
     }
-    std::array<SkPoint, 4> cusps[] = {
-        {{{0, 0}, {1, 1}, {1, 0}, {0, 1}}},
-        {{{0, 0}, {1, 1}, {0, 1}, {1, 0}}},
-        {{{0, 1}, {1, 0}, {0, 0}, {1, 1}}},
-        {{{0, 1}, {1, 0}, {1, 1}, {0, 0}}},
-    };
-    for (auto cusp : cusps) {
+    for (auto cusp : kCusps) {
         REPORTER_ASSERT(reporter, SkFindCubicCusp(cusp.data()) > 0);
+    }
+}
+
+static SkMatrix kSkewMatrices[] = {
+    SkMatrix::MakeAll(1,0,0, 0,1,0, 0,0,1),
+    SkMatrix::MakeAll(1,-1,0, 1,1,0, 0,0,1),
+    SkMatrix::MakeAll(.889f,.553f,0, -.443f,.123f,0, 0,0,1),
+};
+
+static void test_chop_quad_at_midtangent(skiatest::Reporter* reporter, const SkPoint pts[3]) {
+    constexpr float kTolerance = 1e-3f;
+    for (const SkMatrix& m : kSkewMatrices) {
+        SkPoint mapped[3];
+        m.mapPoints(mapped, pts, 3);
+        float fullRotation = SkMeasureQuadRotation(pts);
+        SkPoint chopped[5];
+        SkChopQuadAtMidTangent(pts, chopped);
+        float leftRotation = SkMeasureQuadRotation(chopped);
+        float rightRotation = SkMeasureQuadRotation(chopped+2);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, fullRotation/2, kTolerance));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rightRotation, fullRotation/2, kTolerance));
+    }
+}
+
+static void test_chop_cubic_at_midtangent(skiatest::Reporter* reporter, const SkPoint pts[4],
+                                          SkCubicType cubicType) {
+    constexpr float kTolerance = 1e-3f;
+    int n = SK_ARRAY_COUNT(kSkewMatrices);
+    if (cubicType == SkCubicType::kLocalCusp || cubicType == SkCubicType::kLineOrPoint) {
+        // FP precision isn't always enough to get the exact correct T value of the mid-tangent on
+        // cusps and lines. Only test the identity matrix and the matrix with all 1's.
+        n = 2;
+    }
+    for (int i = 0; i < n; ++i) {
+        SkPoint mapped[4];
+        kSkewMatrices[i].mapPoints(mapped, pts, 4);
+        float fullRotation = SkMeasureNonInflectCubicRotation(mapped);
+        SkPoint chopped[7];
+        SkChopCubicAtMidTangent(mapped, chopped);
+        float leftRotation = SkMeasureNonInflectCubicRotation(chopped);
+        float rightRotation = SkMeasureNonInflectCubicRotation(chopped+3);
+        float expectedChoppedRotation = fullRotation/2;
+        if (cubicType == SkCubicType::kLocalCusp ||
+            (cubicType == SkCubicType::kLineOrPoint &&
+             SkScalarNearlyEqual(fullRotation, SK_ScalarPI, kTolerance))) {
+            // If we chop a cubic at an exact cusp, we lose 180 degrees of rotation.
+            expectedChoppedRotation = (fullRotation - SK_ScalarPI)/2;
+        }
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, expectedChoppedRotation,
+                                                      kTolerance));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rightRotation, expectedChoppedRotation,
+                                                      kTolerance));
+    }
+}
+
+static std::array<SkPoint, 3> kQuads[] = {
+    {{{10, 20}, {15, 35}, {30, 40}}},
+    {{{176.324f, 392.705f}, {719.325f, 205.782f}, {297.263f, 347.735f}}},
+    {{{652.050f, 602.049f}, {481.000f, 533.000f}, {288.050f, 564.950f}}},
+    {{{460.625f, 557.187f}, {707.121f, 209.688f}, {779.628f, 577.687f}}},
+    {{{359.050f, 578.049f}, {759.000f, 274.000f}, {288.050f, 564.950f}}}
+};
+
+SkPoint lerp(const SkPoint& a, const SkPoint& b, float t) {
+    return a * (1 - t) + b * t;
+}
+
+static void test_measure_rotation(skiatest::Reporter* reporter) {
+    static SkPoint kFlatCubic[4] = {{0, 0}, {0, 1}, {0, 2}, {0, 3}};
+    REPORTER_ASSERT(reporter, SkScalarNearlyZero(SkMeasureNonInflectCubicRotation(kFlatCubic)));
+
+    static SkPoint kFlatCubic180_1[4] = {{0, 0}, {1, 0}, {3, 0}, {2, 0}};
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kFlatCubic180_1),
+                                                  SK_ScalarPI));
+
+    static SkPoint kFlatCubic180_2[4] = {{0, 1}, {0, 0}, {0, 2}, {0, 3}};
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kFlatCubic180_2),
+                                                  SK_ScalarPI));
+
+    static SkPoint kFlatCubic360[4] = {{0, 1}, {0, 0}, {0, 3}, {0, 2}};
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kFlatCubic360),
+                                                  2*SK_ScalarPI));
+
+    static SkPoint kSquare180[4] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}};
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(kSquare180),
+                                                  SK_ScalarPI));
+
+    auto checkQuadRotation = [=](const SkPoint pts[3], float expectedRotation) {
+        float r = SkMeasureQuadRotation(pts);
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(r, expectedRotation));
+
+        SkPoint cubic1[4] = {pts[0], pts[0], pts[1], pts[2]};
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(cubic1),
+                                                      expectedRotation));
+
+        SkPoint cubic2[4] = {pts[0], pts[1], pts[1], pts[2]};
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(cubic2),
+                                                      expectedRotation));
+
+        SkPoint cubic3[4] = {pts[0], pts[1], pts[2], pts[2]};
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(SkMeasureNonInflectCubicRotation(cubic3),
+                                                      expectedRotation));
+    };
+
+    static SkPoint kFlatQuad[4] = {{0, 0}, {0, 1}, {0, 2}};
+    checkQuadRotation(kFlatQuad, 0);
+
+    static SkPoint kFlatQuad180_1[4] = {{1, 0}, {0, 0}, {2, 0}};
+    checkQuadRotation(kFlatQuad180_1, SK_ScalarPI);
+
+    static SkPoint kFlatQuad180_2[4] = {{0, 0}, {0, 2}, {0, 1}};
+    checkQuadRotation(kFlatQuad180_2, SK_ScalarPI);
+
+    static SkPoint kTri120[3] = {{0, 0}, {.5f, std::sqrt(3.f)/2}, {1, 0}};
+    checkQuadRotation(kTri120, 2*SK_ScalarPI/3);
+}
+
+static void test_chop_at_midtangent(skiatest::Reporter* reporter) {
+    for (const auto& serp : kSerpentines) {
+        SkPoint nonInflect[10];
+        int n = SkChopCubicAtInflections(serp.data(), nonInflect);
+        for (int i = 0; i < n; ++i) {
+            test_chop_cubic_at_midtangent(reporter, nonInflect + i*3, SkCubicType::kSerpentine);
+        }
+    }
+    for (const auto& loop : kLoops) {
+        test_chop_cubic_at_midtangent(reporter, loop.data(), SkCubicType::kLoop);
+    }
+    for (const auto& line : kLinearCubics) {
+        test_chop_cubic_at_midtangent(reporter, line.data(), SkCubicType::kLineOrPoint);
+    }
+    for (const auto& cusp : kCusps) {
+        test_chop_cubic_at_midtangent(reporter, cusp.data(), SkCubicType::kLocalCusp);
+    }
+    for (const auto& quad : kQuads) {
+        test_chop_quad_at_midtangent(reporter, quad.data());
+        SkPoint cubic[4] = {
+                quad[0], lerp(quad[0], quad[1], 2/3.f), lerp(quad[1], quad[2], 1/3.f), quad[2]};
+        test_chop_cubic_at_midtangent(reporter, cubic, SkCubicType::kQuadratic);
     }
 }
 
@@ -386,4 +547,6 @@ DEF_TEST(Geometry, reporter) {
     test_conic_to_quads(reporter);
     test_classify_cubic(reporter);
     test_cubic_cusps(reporter);
+    test_measure_rotation(reporter);
+    test_chop_at_midtangent(reporter);
 }
