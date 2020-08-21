@@ -90,7 +90,7 @@ number of scan lines in our algorithm is only about 3 + H while the
 */
 
 static void add_alpha(SkAlpha* alpha, SkAlpha delta) {
-    SkASSERT(*alpha + delta <= 256);
+    SkASSERT(static_cast<int>(*alpha) + delta <= 256);
     *alpha = SkAlphaRuns::CatchOverflow(*alpha + delta);
 }
 
