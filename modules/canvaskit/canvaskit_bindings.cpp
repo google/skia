@@ -1548,11 +1548,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .constructor<>()
         .function("beginRecording", optional_override([](SkPictureRecorder& self,
                                                          const SkRect& bounds) -> SkCanvas* {
-            return self.beginRecording(bounds, nullptr, 0);
+            return self.beginRecording(bounds);
         }), allow_raw_pointers())
         .function("finishRecordingAsPicture", optional_override([](SkPictureRecorder& self)
                                                                    -> sk_sp<SkPicture> {
-            return self.finishRecordingAsPicture(0);
+            return self.finishRecordingAsPicture();
         }), allow_raw_pointers());
 
     class_<SkPicture>("SkPicture")

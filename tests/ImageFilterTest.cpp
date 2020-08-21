@@ -822,7 +822,7 @@ static void draw_saveLayer_picture(int width, int height, int tileSize,
     SkRect bounds = SkRect::Make(SkIRect::MakeXYWH(0, 0, 50, 50));
     SkCanvas* recordingCanvas = recorder.beginRecording(SkIntToScalar(width),
                                                         SkIntToScalar(height),
-                                                        factory, 0);
+                                                        factory);
     recordingCanvas->translate(-55, 0);
     recordingCanvas->saveLayer(&bounds, &paint);
     recordingCanvas->restore();
@@ -1061,8 +1061,8 @@ DEF_TEST(ImageFilterDrawTiledBlurRTree, reporter) {
 
     SkPictureRecorder recorder1, recorder2;
     // The only difference between these two pictures is that one has RTree aceleration.
-    SkCanvas* recordingCanvas1 = recorder1.beginRecording(width, height, nullptr, 0);
-    SkCanvas* recordingCanvas2 = recorder2.beginRecording(width, height, &factory, 0);
+    SkCanvas* recordingCanvas1 = recorder1.beginRecording(width, height);
+    SkCanvas* recordingCanvas2 = recorder2.beginRecording(width, height, &factory);
 
     draw_blurred_rect(recordingCanvas1);
     draw_blurred_rect(recordingCanvas2);
@@ -1197,7 +1197,7 @@ DEF_TEST(ImageFilterMatrix, reporter) {
 
     SkRTreeFactory factory;
     SkPictureRecorder recorder;
-    SkCanvas* recordingCanvas = recorder.beginRecording(100, 100, &factory, 0);
+    SkCanvas* recordingCanvas = recorder.beginRecording(100, 100, &factory);
 
     SkPaint paint;
     paint.setImageFilter(MatrixTestImageFilter::Make(reporter, expectedMatrix));
@@ -1220,7 +1220,7 @@ static void test_clipped_picture_imagefilter(skiatest::Reporter* reporter,
     {
         SkRTreeFactory factory;
         SkPictureRecorder recorder;
-        SkCanvas* recordingCanvas = recorder.beginRecording(1, 1, &factory, 0);
+        SkCanvas* recordingCanvas = recorder.beginRecording(1, 1, &factory);
 
         // Create an SkPicture which simply draws a green 1x1 rectangle.
         SkPaint greenPaint;
@@ -1270,7 +1270,7 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
 
     SkRect bounds = SkRect::MakeIWH(10, 10);
 
-    SkCanvas* recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
+    SkCanvas* recordingCanvas = recorder.beginRecording(10, 10, &factory);
     recordingCanvas->saveLayer(&bounds, &imageFilterPaint);
     recordingCanvas->restore();
     sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
@@ -1280,7 +1280,7 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     uint32_t pixel = *bitmap.getAddr32(0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
-    recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
+    recordingCanvas = recorder.beginRecording(10, 10, &factory);
     recordingCanvas->saveLayer(nullptr, &imageFilterPaint);
     recordingCanvas->restore();
     sk_sp<SkPicture> picture2(recorder.finishRecordingAsPicture());
@@ -1290,7 +1290,7 @@ DEF_TEST(ImageFilterEmptySaveLayer, reporter) {
     pixel = *bitmap.getAddr32(0, 0);
     REPORTER_ASSERT(reporter, pixel == SK_ColorGREEN);
 
-    recordingCanvas = recorder.beginRecording(10, 10, &factory, 0);
+    recordingCanvas = recorder.beginRecording(10, 10, &factory);
     recordingCanvas->saveLayer(&bounds, &colorFilterPaint);
     recordingCanvas->restore();
     sk_sp<SkPicture> picture3(recorder.finishRecordingAsPicture());
