@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9375b301_8b893a25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T17:20:29Z",
+      "side": 1,
+      "message": "Sounds likely.  Why don\u0027t we sit on this with local extra_cflags \u003d [ \"-Wno-tautological-value-range\" ] until we get a clang build with that patch?  I do like the idea of this warning in general.",
+      "parentUuid": "d34174e0_d5244cc8",
+      "revId": "9282cd2ca6543b2def8b957a6f1c299bdbfbb708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3758ec63_56b6c19c",
         "filename": "src/core/SkStroke.cpp",
         "patchSetId": 2
