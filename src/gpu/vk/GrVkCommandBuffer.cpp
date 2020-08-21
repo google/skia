@@ -552,32 +552,41 @@ static bool submit_to_queue(GrVkGpu* gpu,
     return result == VK_SUCCESS;
 }
 
-bool GrVkPrimaryCommandBuffer::submitToQueue(
-        GrVkGpu* gpu,
-        VkQueue queue,
-        SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
-        SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
-    SkASSERT(!fIsActive);
-    SkASSERT(!fSubmitFence);
+bool GrVkPrimaryCommandBuffer::SubmitToQueue(GrVkGpu* gpu,
+                                             VkQueue queue,
+                                             SkTArray<GrVkPrimaryCommandBuffer*>& commandBuffers,
+                                             SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
+                                             SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
+    SkASSERT(!commandBuffers.empty());
 
-    fSubmitFence = gpu->resourceProvider().findOrCreateFence();
+    GrVkFence* fence = gpu->resourceProvider().findOrCreateFence();
+
+    SkTArray<VkCommandBuffer> vkCommandBuffers(commandBuffers.count());
+    for (auto* cmdBuf : commandBuffers) {
+        SkASSERT(!cmdBuf->fIsActive);
+        SkASSERT(!cmdBuf->fSubmitFence);
+        fence->ref();
+        cmdBuf->fSubmitFence = fence;
+        vkCommandBuffers.push_back(cmdBuf->fCmdBuffer);
+    }
 
     int signalCount = signalSemaphores.count();
     int waitCount = waitSemaphores.count();
 
     bool submitted = false;
 
+    auto* lastCmdBuf = commandBuffers.back();
     if (0 == signalCount && 0 == waitCount) {
         // This command buffer has no dependent semaphores so we can simply just submit it to the
         // queue with no worries.
-        submitted = submit_to_queue(gpu, queue, fSubmitFence->fence(), 0, nullptr, nullptr, 1,
-                                    &fCmdBuffer, 0, nullptr,
+        submitted = submit_to_queue(gpu, queue, fence->fence(), 0, nullptr, nullptr,
+                                    commandBuffers.count(), vkCommandBuffers.begin(), 0, nullptr,
                                     gpu->protectedContext() ? GrProtected::kYes : GrProtected::kNo);
     } else {
         SkTArray<VkSemaphore> vkSignalSems(signalCount);
         for (int i = 0; i < signalCount; ++i) {
             if (signalSemaphores[i]->shouldSignal()) {
-                this->addResource(signalSemaphores[i]);
+                lastCmdBuf->addResource(signalSemaphores[i]);
                 vkSignalSems.push_back(signalSemaphores[i]->semaphore());
             }
         }
@@ -586,13 +595,14 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         SkTArray<VkPipelineStageFlags> vkWaitStages(waitCount);
         for (int i = 0; i < waitCount; ++i) {
             if (waitSemaphores[i]->shouldWait()) {
-                this->addResource(waitSemaphores[i]);
+                lastCmdBuf->addResource(waitSemaphores[i]);
                 vkWaitSems.push_back(waitSemaphores[i]->semaphore());
                 vkWaitStages.push_back(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
             }
         }
-        submitted = submit_to_queue(gpu, queue, fSubmitFence->fence(), vkWaitSems.count(),
-                                    vkWaitSems.begin(), vkWaitStages.begin(), 1, &fCmdBuffer,
+        submitted = submit_to_queue(gpu, queue, fence->fence(), vkWaitSems.count(),
+                                    vkWaitSems.begin(), vkWaitStages.begin(),
+                                    commandBuffers.count(), vkCommandBuffers.begin(),
                                     vkSignalSems.count(), vkSignalSems.begin(),
                                     gpu->protectedContext() ? GrProtected::kYes : GrProtected::kNo);
         if (submitted) {
@@ -605,13 +615,27 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         }
     }
 
+    // Release the ref hold by this method.
+    fence->unref();
+
     if (!submitted) {
         // Destroy the fence or else we will try to wait forever for it to finish.
-        fSubmitFence->unref();
-        fSubmitFence = nullptr;
+        for (auto* cmdBuf : commandBuffers) {
+            cmdBuf->fSubmitFence->unref();
+            cmdBuf->fSubmitFence = nullptr;
+        }
         return false;
     }
     return true;
+}
+
+bool GrVkPrimaryCommandBuffer::submitToQueue(GrVkGpu* gpu,
+                                             VkQueue queue,
+                                             SkTArray<GrVkSemaphore::Resource*>& signalSemaphores,
+                                             SkTArray<GrVkSemaphore::Resource*>& waitSemaphores) {
+    SkTArray<GrVkPrimaryCommandBuffer*> commandBuffers(1);
+    commandBuffers.push_back(this);
+    return SubmitToQueue(gpu, queue, commandBuffers, signalSemaphores, waitSemaphores);
 }
 
 void GrVkPrimaryCommandBuffer::forceSync(GrVkGpu* gpu) {
