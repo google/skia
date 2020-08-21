@@ -22,6 +22,10 @@ import (
 	"go.skia.org/infra/task_driver/go/td"
 )
 
+const (
+	MinWaitDuration = 4 * time.Minute
+)
+
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -87,6 +91,7 @@ func main() {
 func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId string) error {
 	ctx := td.StartStep(parentCtx, td.Props("Wait for canary roll"))
 	defer td.EndStep(ctx)
+	startTime := time.Now()
 
 	// For writing to the step's log stream.
 	stdout := td.NewLogStream(ctx, "stdout", td.Info)
@@ -116,10 +121,17 @@ func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId
 
 		if roll.Status == manual.STATUS_COMPLETE {
 			if roll.Result == manual.RESULT_SUCCESS {
+				// This is a hopefully temperory workaround for skbug.com/10563. Sometimes
+				// Canary-Chromium returns success immediately after creating a change and
+				// before the tryjobs have a chance to run. If we have waited
+				// for < MinWaitDuration then be cautious and assume failure.
+				if time.Now().Before(startTime.Add(MinWaitDuration)) {
+					return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] returned success in less than %s. Failing canary due to skbug.com/10563. Please retry the Canary.", cl, MinWaitDuration))
+				}
 				return nil
 			} else if roll.Result == manual.RESULT_FAILURE {
 				if cl == "" {
-					return td.FailStep(ctx, errors.New("Canary roll could not be created. Ask the trooper to investigate (or directly ping rmistry@)."))
+					return td.FailStep(ctx, errors.New("Canary roll could not be created. Please retry the Canary. Ask the trooper to investigate (or directly ping rmistry@) if this happens consistently."))
 				}
 				return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] failed", cl))
 			} else if roll.Result == manual.RESULT_UNKNOWN {
