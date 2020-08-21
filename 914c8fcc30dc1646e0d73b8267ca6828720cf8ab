@@ -53,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "e1a8be23_52e3e680",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Nice! I would be surprised if we DONT see perf wins on iOS",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d626947a_190fd26e",
         "filename": "include/ports/SkCFObject.h",
         "patchSetId": 9
@@ -168,6 +185,23 @@
     },
     {
       "key": {
+        "uuid": "ab9f7aa5_5ce1bb0f",
+        "filename": "src/gpu/mtl/GrMtlBuffer.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Align?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5807aac_11cc03af",
         "filename": "src/gpu/mtl/GrMtlBuffer.mm",
         "patchSetId": 9
@@ -185,6 +219,91 @@
         "endLine": 60,
         "endChar": 14
       },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb1232be_06d804c9",
+        "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Why this change? Passing plain `MTLRenderPassDescriptor* descriptor` seems like what we want.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c66a2bc_f6738f00",
+        "filename": "src/gpu/mtl/GrMtlDepthStencil.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Align?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a20b419_e3ffa368",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Can we move texDesc here?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9579143_61a6ed13",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 703,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Can we move mtlTexture?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9465fe31_7098b37b",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Should we avoid the retain \u0026 release here, and just use MTLTextureDescriptor* instead of sk_cf_obj?",
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -214,6 +333,176 @@
     },
     {
       "key": {
+        "uuid": "04fa2087_94a80392",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1365,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "It\u0027s an OPTION to use CFBridgingRetain here to get the retain \u0026 the cast \u0026 a null check. The docs say only to use it during migration to ARC, so maybe not. Up to you.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "223cdd6b_985e247c",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1373,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "No need to retain \u0026 release here. I think we should just cast \u0026 wait.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05e6dcb9_cdd9d3b5",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1422,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "This returns an autoreleased object, not a +1. So we should either sk_ref_cf_obj or use it raw without sk_cf_obj at all.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21c63efc_e81ba8e2",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1428,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "An optimization option is to grab the colorAttachments[0] once and call the setters on it. Cut out 12 objc_msgSends per resolve :) You could go further and remove the slice and level since they are 0 by default.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5623dab4_3032b718",
+        "filename": "src/gpu/mtl/GrMtlOpsRenderPass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Align?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0337d4fc_6f9da0a4",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Indentation",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de25d71b_74b0a7b8",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Since these are +1s, we should probably wrap in sk_cf_obj so they don\u0027t leak.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b6310fd_8719217f",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 513,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "What are the memory management semantics here? Function name implies it returns a +1 but we don\u0027t wrap in sk_cf_obj.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ddf1d06_4073dcd1",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "This is a +1. Wrap in sk_cf_obj?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9efe6ac3_e0d85ba4",
+        "filename": "src/gpu/mtl/GrMtlSampler.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "I\u0027d advocate for removing the setters that set default values. ObjC runtime is painfully slow! Not necessary for this CL.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0e460b0f_fc344727",
         "filename": "src/gpu/mtl/GrMtlSemaphore.h",
         "patchSetId": 9
@@ -231,6 +520,159 @@
         "endLine": 34,
         "endChar": 83
       },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7a74659_57e7f731",
+        "filename": "src/gpu/mtl/GrMtlSemaphore.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Yeah this seems strange on ownership, but it is indeed the same as it was before so I guess it\u0027s OK.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d78ace52_15a862f7",
+        "filename": "src/gpu/mtl/GrMtlStencilAttachment.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "don\u0027t think we need a retain \u0026 release here. let\u0027s just use the autoreleased MTLTextureDescriptor directly.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ff87636_926133ae",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Can we std::move the textures in this family of functions?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ecfd3f7_8af04e40",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Why not stick with MTLTextureDescriptor* here?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ded1e19_14dde0c5",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Optimization opportunity, not necessary for this CL. We should not copy the source string – probably consider using initWithBytesNoCopy:.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74f25e3c_0fcb6b34",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Can we make this a smart pointer? Need to make sure it gets released.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e3daa43_d310a8a5",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Do we need to retain \u0026 release this layer? Hard to imagine it would die on us.",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d1edb90_674e7ac1",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Can we std::move this into MakeWrappedRenderTarget?",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b075d56_f8d5ffbc",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-21T19:16:59Z",
+      "side": 1,
+      "message": "Do we need to retain \u0026 release this view?",
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
