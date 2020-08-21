@@ -158,6 +158,30 @@
       "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdb58b5a_f71381ed",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T15:40:16Z",
+      "side": 1,
+      "message": "Brian, yeah, that would mean we\u0027d end up wrapping I guess.",
+      "parentUuid": "a98ec562_d7d77a5e",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 63
+      },
+      "revId": "39ec76c388af7c2c3486fa49176b97f725b07243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

@@ -16,6 +16,23 @@
       "revId": "93d2861c728d82d9369fa1428306acca2e081e7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26aa5524_b2b1dd1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-21T15:40:16Z",
+      "side": 1,
+      "message": "It looks reasonable to me. Have you tried running it as float-only on Metal? Similar to GL the flag would be in GrMtlCaps.mm.",
+      "revId": "93d2861c728d82d9369fa1428306acca2e081e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
