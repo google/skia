@@ -256,7 +256,7 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShader::GradientInf
 
     SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(colorCount);
     ColorTuple *colorData = colorDataAlloc.get();
-    for (int i = 0; i < colorCount; i++) {
+    for (i = 0; i < colorCount; i++) {
         colorData[i][0] = SkColorGetR(colors[i]);
         colorData[i][1] = SkColorGetG(colors[i]);
         colorData[i][2] = SkColorGetB(colors[i]);
@@ -273,7 +273,7 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShader::GradientInf
     retval->insertObject("Domain", SkPDFMakeArray(0, 1));
     retval->insertInt("FunctionType", 3);
 
-    for (int i = 1; i < colorCount; i++) {
+    for (i = 1; i < colorCount; i++) {
         if (i > 1) {
             bounds->appendScalar(colorOffsets[i-1]);
         }

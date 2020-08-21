@@ -264,7 +264,6 @@ void HCodeGenerator::writeConstructor() {
         } else {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);
         }
-    }
     this->writef(" {\n");
     this->writeSection(kConstructorCodeSection);
 
