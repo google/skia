@@ -33,6 +33,24 @@
       "revId": "93d2861c728d82d9369fa1428306acca2e081e7b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c57a948_ee75472a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-21T16:19:19Z",
+      "side": 1,
+      "message": "So, I ran float only on iPhone6 using mtl, and it renders correctly.",
+      "parentUuid": "26aa5524_b2b1dd1c",
+      "revId": "93d2861c728d82d9369fa1428306acca2e081e7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
