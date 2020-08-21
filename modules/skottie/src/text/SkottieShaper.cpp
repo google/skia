@@ -174,26 +174,27 @@ public:
         // Only compute the extent box when needed.
         SkTLazy<SkRect> ebox;
 
-        // Perform additional adjustments based on VAlign.
-        float v_offset = 0;
+        // Vertical adjustments.
+        float v_offset = -fDesc.fLineShift;
+
         switch (fDesc.fVAlign) {
         case Shaper::VAlign::kTop:
-            v_offset = -ascent;
+            v_offset -= ascent;
             break;
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
         case Shaper::VAlign::kVisualTop:
             ebox.init(extent_box());
-            v_offset = fBox.fTop - ebox->fTop;
+            v_offset += fBox.fTop - ebox->fTop;
             break;
         case Shaper::VAlign::kVisualCenter:
             ebox.init(extent_box());
-            v_offset = fBox.centerY() - ebox->centerY();
+            v_offset += fBox.centerY() - ebox->centerY();
             break;
         case Shaper::VAlign::kVisualBottom:
             ebox.init(extent_box());
-            v_offset = fBox.fBottom - ebox->fBottom;
+            v_offset += fBox.fBottom - ebox->fBottom;
             break;
         }
 
@@ -408,6 +409,7 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
         SkASSERT(try_scale >= in_scale && try_scale <= out_scale);
         desc.fTextSize   = try_scale * orig_desc.fTextSize;
         desc.fLineHeight = try_scale * orig_desc.fLineHeight;
+        desc.fLineShift  = try_scale * orig_desc.fLineShift;
         desc.fAscent     = try_scale * orig_desc.fAscent;
 
         SkSize res_size = {0, 0};
