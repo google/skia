@@ -34,6 +34,24 @@
       "revId": "284f2c4bea613db169897f44ca16d2f483ac34bd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6301cc0_e70e461b",
+        "filename": "src/gpu/effects/generated/GrColorMatrixFragmentProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T15:48:01Z",
+      "side": 1,
+      "message": "Actually, where is this coming from? I don\u0027t see `static_assert` in the CPPCodeGenerator anywhere. I assumed it was just harmless codegen shenanigans but now I want to know too.",
+      "parentUuid": "7c929dcf_5bbb417a",
+      "revId": "284f2c4bea613db169897f44ca16d2f483ac34bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
