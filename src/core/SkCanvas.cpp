@@ -296,17 +296,24 @@ private:
     const SkPaint*  fPaint;     // May be null.
 };
 
-#define FOR_EACH_TOP_DEVICE( code )                       \
-    do {                                                  \
-        DeviceCM* layer = fMCRec->fTopLayer;              \
-        while (layer) {                                   \
-            SkBaseDevice* device = layer->fDevice.get();  \
-            if (device) {                                 \
-                code;                                     \
-            }                                             \
-            layer = layer->fNext;                         \
-        }                                                 \
-    } while (0)
+class SkTopDeviceIter {
+public:
+    SkTopDeviceIter(const SkCanvas* canvas) : fLayer(canvas->fMCRec->fTopLayer) {}
+
+    bool done() { return fLayer == nullptr; }
+    void advance() {
+        SkASSERT(fLayer);
+        do {
+            fLayer = fLayer->fNext;
+        } while (fLayer != nullptr && fLayer->fDevice.get() == nullptr);
+    }
+
+    SkBaseDevice *operator->() const { return fLayer->fDevice.get(); }
+    operator SkBaseDevice*() const { return operator->(); }
+
+private:
+    const DeviceCM* fLayer;
+};
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -768,7 +775,9 @@ void SkCanvas::internalSave() {
     new (newTop) MCRec(*fMCRec);    // balanced in restore()
     fMCRec = newTop;
 
-    FOR_EACH_TOP_DEVICE(device->save());
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->save();
+    }
 }
 
 bool SkCanvas::BoundsAffectsClip(SaveLayerFlags saveLayerFlags) {
@@ -1269,7 +1278,9 @@ void SkCanvas::internalRestore() {
     fMCRec = (MCRec*)fMCStack.back();
 
     if (fMCRec) {
-        FOR_EACH_TOP_DEVICE(device->restore(fMCRec->fMatrix));
+        for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+            device->restore(fMCRec->fMatrix);
+        }
     }
 
     if (backImage) {
@@ -1444,7 +1455,9 @@ void SkCanvas::translate(SkScalar dx, SkScalar dy) {
         // so we still have to compute this.
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+        for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+            device->setGlobalCTM(fMCRec->fMatrix);
+        }
 
         this->didTranslate(dx,dy);
     }
@@ -1459,7 +1472,9 @@ void SkCanvas::scale(SkScalar sx, SkScalar sy) {
         // but pre-scaling by a non-finite does change it, so we have to recompute.
         fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-        FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+        for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+            device->setGlobalCTM(fMCRec->fMatrix);
+        }
 
         this->didScale(sx, sy);
     }
@@ -1493,7 +1508,9 @@ void SkCanvas::concat(const SkMatrix& matrix) {
 
     fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->setGlobalCTM(fMCRec->fMatrix);
+    }
 
     this->didConcat(matrix);
 }
@@ -1505,7 +1522,9 @@ void SkCanvas::internalConcat44(const SkM44& m) {
 
     fIsScaleTranslate = SkMatrixPriv::IsScaleTranslateAsM33(fMCRec->fMatrix);
 
-    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->setGlobalCTM(fMCRec->fMatrix);
+    }
 }
 
 void SkCanvas::concat(const SkM44& m) {
@@ -1518,7 +1537,9 @@ void SkCanvas::internalSetMatrix(const SkMatrix& matrix) {
     fMCRec->fMatrix = SkM44(matrix);
     fIsScaleTranslate = matrix.isScaleTranslate();
 
-    FOR_EACH_TOP_DEVICE(device->setGlobalCTM(fMCRec->fMatrix));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->setGlobalCTM(fMCRec->fMatrix);
+    }
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
@@ -1558,7 +1579,9 @@ void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
 void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
-    FOR_EACH_TOP_DEVICE(device->clipRect(rect, op, isAA));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->clipRect(rect, op, isAA);
+    }
 
     AutoValidateClip avc(this);
     fMCRec->fRasterClip.opRect(rect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
@@ -1571,10 +1594,14 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     if (fClipRestrictionRect.isEmpty()) {
         // we notify the device, but we *dont* resolve deferred saves (since we're just
         // removing the restriction if the rect is empty. how I hate this api.
-        FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
+        for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+            device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+        }
     } else {
         this->checkForDeferredSave();
-        FOR_EACH_TOP_DEVICE(device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect));
+        for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+            device->androidFramework_setDeviceClipRestriction(&fClipRestrictionRect);
+        }
         AutoValidateClip avc(this);
         fMCRec->fRasterClip.opIRect(fClipRestrictionRect, SkRegion::kIntersect_Op);
         fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
@@ -1583,7 +1610,9 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
 
 void SkCanvas::androidFramework_replaceClip(const SkIRect& rect) {
     this->checkForDeferredSave();
-    FOR_EACH_TOP_DEVICE(device->replaceClip(rect));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->replaceClip(rect);
+    }
     AutoValidateClip avc(this);
     fMCRec->fRasterClip.setRect(rect);
     fDeviceClipBounds = qr_clip_bounds(fMCRec->fRasterClip.getBounds());
@@ -1604,7 +1633,9 @@ void SkCanvas::onClipRRect(const SkRRect& rrect, SkClipOp op, ClipEdgeStyle edge
 
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
-    FOR_EACH_TOP_DEVICE(device->clipRRect(rrect, op, isAA));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->clipRRect(rrect, op, isAA);
+    }
 
     fMCRec->fRasterClip.opRRect(rrect, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
                                 (SkRegion::Op)op, isAA);
@@ -1641,7 +1672,9 @@ void SkCanvas::onClipPath(const SkPath& path, SkClipOp op, ClipEdgeStyle edgeSty
 
     bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
-    FOR_EACH_TOP_DEVICE(device->clipPath(path, op, isAA));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->clipPath(path, op, isAA);
+    }
 
     const SkPath* rasterClipPath = &path;
     fMCRec->fRasterClip.opPath(*rasterClipPath, fMCRec->fMatrix.asM33(), this->getTopLayerBounds(),
@@ -1669,7 +1702,9 @@ void SkCanvas::clipShader(sk_sp<SkShader> sh, SkClipOp op) {
 void SkCanvas::onClipShader(sk_sp<SkShader> sh, SkClipOp op) {
     AutoValidateClip avc(this);
 
-    FOR_EACH_TOP_DEVICE(device->clipShader(sh, op));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->clipShader(sh, op);
+    }
 
     // we don't know how to mutate our conservative bounds, so we don't
 }
@@ -1680,7 +1715,9 @@ void SkCanvas::clipRegion(const SkRegion& rgn, SkClipOp op) {
 }
 
 void SkCanvas::onClipRegion(const SkRegion& rgn, SkClipOp op) {
-    FOR_EACH_TOP_DEVICE(device->clipRegion(rgn, op));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->clipRegion(rgn, op);
+    }
 
     AutoValidateClip avc(this);
 
@@ -1700,11 +1737,13 @@ void SkCanvas::validateClip() const {
 #endif
 
 bool SkCanvas::androidFramework_isClipAA() const {
-    bool containsAA = false;
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        if (device->onClipIsAA()) {
+            return true;
+        }
+    }
 
-    FOR_EACH_TOP_DEVICE(containsAA |= device->onClipIsAA());
-
-    return containsAA;
+    return false;
 }
 
 class RgnAccumulator {
@@ -1725,7 +1764,10 @@ void SkCanvas::temporary_internal_getRgnClip(SkRegion* rgn) {
     SkRegion tmp;
 
     rgn->setEmpty();
-    FOR_EACH_TOP_DEVICE(device->onAsRgnClip(&tmp); accum.accumulate(device, &tmp));
+    for (SkTopDeviceIter device(this); !device.done(); device.advance()) {
+        device->onAsRgnClip(&tmp);
+        accum.accumulate(device, &tmp);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
