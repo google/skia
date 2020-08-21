@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a914b9b_0b35d47c",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-21T15:33:55Z",
+      "side": 1,
+      "message": "e.g.\n  for (int x \u003d 0;;) { break; }",
+      "revId": "5e94fd4e3a05d1eb1b2873cee806d263c87ce35c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a285ff45_c75fd4f3",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-21T15:33:55Z",
+      "side": 1,
+      "message": "e.g.\n  float x[];",
+      "revId": "5e94fd4e3a05d1eb1b2873cee806d263c87ce35c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
