@@ -24,6 +24,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkDashPathEffect.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/SkMetaData.h"
 #include "tools/ToolUtils.h"
@@ -222,42 +223,14 @@ private:
         controls.findBool("Label Bounds", &fLabelBounds);
     }
 
-    static void show_bounds(SkCanvas* canvas, const SkFont& font, SkScalar x, SkScalar y,
-                            SkColor boundsColor, bool labelBounds)
+    static SkRect show_bounds(SkCanvas* canvas, const SkFont& font, SkScalar x, SkScalar y,
+                              SkColor boundsColor, bool labelBounds)
     {
-        SkRect fontBounds = SkFontPriv::GetFontBounds(font).makeOffset(x, y);
-
-        SkPaint boundsPaint;
-        boundsPaint.setAntiAlias(true);
-        boundsPaint.setColor(boundsColor);
-        boundsPaint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawRect(fontBounds, boundsPaint);
-
-        SkFontMetrics fm;
-        font.getMetrics(&fm);
-        SkPaint metricsPaint(boundsPaint);
-        metricsPaint.setStyle(SkPaint::kFill_Style);
-        metricsPaint.setAlphaf(0.25f);
-        if ((fm.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag) &&
-            (fm.fFlags & SkFontMetrics::kUnderlineThicknessIsValid_Flag))
-        {
-            SkRect underline{ fontBounds.fLeft,  fm.fUnderlinePosition+y,
-                              fontBounds.fRight, fm.fUnderlinePosition+y + fm.fUnderlineThickness };
-            canvas->drawRect(underline, metricsPaint);
-        }
-
-        if ((fm.fFlags & SkFontMetrics::kStrikeoutPositionIsValid_Flag) &&
-            (fm.fFlags & SkFontMetrics::kStrikeoutThicknessIsValid_Flag))
-        {
-            SkRect strikeout{ fontBounds.fLeft,  fm.fStrikeoutPosition+y - fm.fStrikeoutThickness,
-                              fontBounds.fRight, fm.fStrikeoutPosition+y };
-            canvas->drawRect(strikeout, metricsPaint);
-        }
-
         SkGlyphID left = 0, right = 0, top = 0, bottom = 0;
+        SkRect min = SkRect::MakeLTRB(SK_ScalarInfinity, SK_ScalarInfinity,
+                                      SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity);
         {
             int numGlyphs = font.getTypefaceOrDefault()->countGlyphs();
-            SkRect min = {0, 0, 0, 0};
             for (int i = 0; i < numGlyphs; ++i) {
                 SkGlyphID glyphId = i;
                 SkRect cur;
@@ -268,6 +241,46 @@ private:
                 if (min.fBottom < cur.fBottom) { min.fBottom = cur.fBottom; bottom = i; }
             }
         }
+
+        SkRect fontBounds = SkFontPriv::GetFontBounds(font);
+
+        SkRect drawBounds = min;
+        drawBounds.join(fontBounds);
+
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->translate(x - drawBounds.left(), y);
+
+        SkPaint boundsPaint;
+        boundsPaint.setAntiAlias(true);
+        boundsPaint.setColor(boundsColor);
+        boundsPaint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect(fontBounds, boundsPaint);
+
+        const SkScalar intervals[] = { 10.f, 10.f };
+        boundsPaint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0.f));
+        canvas->drawRect(min, boundsPaint);
+
+        SkFontMetrics fm;
+        font.getMetrics(&fm);
+        SkPaint metricsPaint(boundsPaint);
+        metricsPaint.setStyle(SkPaint::kFill_Style);
+        metricsPaint.setAlphaf(0.25f);
+        if ((fm.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag) &&
+            (fm.fFlags & SkFontMetrics::kUnderlineThicknessIsValid_Flag))
+        {
+            SkRect underline{ fontBounds.fLeft,  fm.fUnderlinePosition,
+                              fontBounds.fRight, fm.fUnderlinePosition + fm.fUnderlineThickness };
+            canvas->drawRect(underline, metricsPaint);
+        }
+
+        if ((fm.fFlags & SkFontMetrics::kStrikeoutPositionIsValid_Flag) &&
+            (fm.fFlags & SkFontMetrics::kStrikeoutThicknessIsValid_Flag))
+        {
+            SkRect strikeout{ fontBounds.fLeft,  fm.fStrikeoutPosition - fm.fStrikeoutThickness,
+                              fontBounds.fRight, fm.fStrikeoutPosition };
+            canvas->drawRect(strikeout, metricsPaint);
+        }
+
         SkGlyphID str[] = { left, right, top, bottom };
         SkPoint location[] = {
             {fontBounds.left(), fontBounds.centerY()},
@@ -288,19 +301,19 @@ private:
         for (size_t i = 0; i < SK_ARRAY_COUNT(str); ++i) {
             SkPath path;
             font.getPath(str[i], &path);
-            path.offset(x, y);
             SkPaint::Style style = path.isEmpty() ? SkPaint::kFill_Style : SkPaint::kStroke_Style;
             SkPaint glyphPaint;
             glyphPaint.setStyle(style);
-            canvas->drawSimpleText(&str[i], sizeof(str[0]), SkTextEncoding::kGlyphID, x, y, font, glyphPaint);
+            canvas->drawSimpleText(&str[i], sizeof(str[0]), SkTextEncoding::kGlyphID, 0, 0, font, glyphPaint);
 
             if (labelBounds) {
                 SkString glyphStr;
                 glyphStr.appendS32(str[i]);
                 canvas->drawString(glyphStr, location[i].fX, location[i].fY, labelFont, SkPaint());
             }
-
         }
+
+        return drawBounds;
     }
 
     SkISize onISize() override { return {1024, 850}; }
@@ -329,11 +342,10 @@ private:
                 font.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 // Fonts with lots of glyphs are interesting, but can take a long time to find
                 // the glyphs which make up the maximum extent.
-                if (font.getTypefaceOrDefault() && font.getTypefaceOrDefault()->countGlyphs() < 1000) {
-                    SkRect fontBounds = SkFontPriv::GetFontBounds(font);
-                    x -= fontBounds.fLeft;
-                    show_bounds(canvas, font, x, y, boundsColors[index & 1], fLabelBounds);
-                    x += fontBounds.fRight + 20;
+                SkTypeface* typeface = font.getTypefaceOrDefault();
+                if (typeface && 0 < typeface->countGlyphs() && typeface->countGlyphs() < 1000) {
+                    SkRect drawBounds = show_bounds(canvas, font, x, y, boundsColors[index & 1], fLabelBounds);
+                    x += drawBounds.width() + 20;
                     index += 1;
                     if (x > 900) {
                         x = 0;
