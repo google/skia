@@ -158,8 +158,7 @@ DEF_SIMPLE_GM(parsedpaths, canvas, kParsePathTestDimension, kParsePathTestDimens
                 uint32_t y = rand.nextRangeU(30, 70);
                 uint32_t x = rand.nextRangeU(30, 70);
                 spec.printf("M %d,%d\n", x, y);
-                uint32_t count = rand.nextRangeU(0, 10);
-                for (uint32_t i = 0; i < count; ++i) {
+                for (uint32_t i = rand.nextRangeU(0, 10); i--; ) {
                     spec.append(MakeRandomParsePathPiece(&rand));
                 }
                 SkAssertResult(SkParsePath::FromSVGString(spec.c_str(), &path));

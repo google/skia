@@ -754,13 +754,13 @@ static bool contains(const SkRect& r, SkPoint p) {
 void SkPDFDevice::drawGlyphRunAsPath(
         const SkGlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
     const SkFont& font = glyphRun.font();
-    SkPath path;
+    SkPath glyphPath;
 
     struct Rec {
         SkPath* fPath;
         SkPoint fOffset;
         const SkPoint* fPos;
-    } rec = {&path, offset, glyphRun.positions().data()};
+    } rec = {&glyphPath, offset, glyphRun.positions().data()};
 
     font.getPaths(glyphRun.glyphsIDs().data(), glyphRun.glyphsIDs().size(),
                   [](const SkPath* path, const SkMatrix& mx, void* ctx) {
@@ -773,7 +773,7 @@ void SkPDFDevice::drawGlyphRunAsPath(
                       }
                       rec->fPos += 1; // move to the next glyph's position
                   }, &rec);
-    this->internalDrawPath(this->cs(), this->localToDevice(), path, runPaint, true);
+    this->internalDrawPath(this->cs(), this->localToDevice(), glyphPath, runPaint, true);
 
     SkFont transparentFont = glyphRun.font();
     transparentFont.setEmbolden(false); // Stop Recursion
@@ -1615,7 +1615,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
         // TODO(edisonn): perf - use current clip too.
         // Retrieve the bounds of the new shape.
-        SkRect bounds = perspectiveOutline.getBounds();
+        SkRect outlineBounds = perspectiveOutline.getBounds();
 
         // Transform the bitmap in the new space, taking into
         // account the initial transform.
@@ -1627,8 +1627,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
         SkRect physicalPerspectiveBounds =
                 physicalPerspectiveOutline.getBounds();
-        SkScalar scaleX = physicalPerspectiveBounds.width() / bounds.width();
-        SkScalar scaleY = physicalPerspectiveBounds.height() / bounds.height();
+        SkScalar scaleX = physicalPerspectiveBounds.width() / outlineBounds.width();
+        SkScalar scaleY = physicalPerspectiveBounds.height() / outlineBounds.height();
 
         // TODO(edisonn): A better approach would be to use a bitmap shader
         // (in clamp mode) and draw a rect over the entire bounding box. Then
@@ -1646,8 +1646,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(SK_ColorTRANSPARENT);
 
-        SkScalar deltaX = bounds.left();
-        SkScalar deltaY = bounds.top();
+        SkScalar deltaX = outlineBounds.left();
+        SkScalar deltaY = outlineBounds.top();
 
         SkMatrix offsetMatrix = transform;
         offsetMatrix.postTranslate(-deltaX, -deltaY);
