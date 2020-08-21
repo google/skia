@@ -296,7 +296,7 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
         case Statement::kFor_Kind: {
             const ForStatement& f = s.as<ForStatement>();
             return (f.fInitializer && this->visitStatement(*f.fInitializer)) ||
-                   (f.fInitializer && this->visitExpression(*f.fTest)) ||
+                   (f.fTest && this->visitExpression(*f.fTest)) ||
                    (f.fNext && this->visitExpression(*f.fNext)) ||
                    this->visitStatement(*f.fStatement); }
         case Statement::kIf_Kind: {
@@ -320,7 +320,7 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
         case Statement::kVarDeclaration_Kind: {
             const VarDeclaration& v = s.as<VarDeclaration>();
             for (const auto& s : v.fSizes) {
-                if (this->visitExpression(*s)) { return true; }
+                if (s && this->visitExpression(*s)) { return true; }
             }
             return v.fValue && this->visitExpression(*v.fValue); }
         case Statement::kVarDeclarations_Kind: {
