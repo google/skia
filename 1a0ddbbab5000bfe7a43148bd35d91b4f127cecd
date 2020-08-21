@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dcdd1073_4d69c6a3",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-21T22:41:52Z",
+      "side": 1,
+      "message": "This is marked as new code, but it\u0027s actually all pre-existing code with a bit of formatting changes. See the part marked as deleted from before.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 209,
+        "endChar": 5
+      },
+      "revId": "1a0ddbbab5000bfe7a43148bd35d91b4f127cecd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
