@@ -39,6 +39,30 @@
       "revId": "c354ff73bf76b739c0e63c5fddd81f2b70485ee2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7541440_a8411535",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T17:25:22Z",
+      "side": 1,
+      "message": "You know, reading the latest thread on g/simd-practitioners has got me thinking maybe I\u0027m wrong here.  If this is a tight loop it might be rate limited by store port throughput.  Seems worthwhile to try minimizing the number of stores if only to prove it one way or the other, huh?",
+      "parentUuid": "098b329e_ab2dec09",
+      "range": {
+        "startLine": 420,
+        "startChar": 0,
+        "endLine": 435,
+        "endChar": 35
+      },
+      "revId": "c354ff73bf76b739c0e63c5fddd81f2b70485ee2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
