@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3758ec63_56b6c19c",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-21T16:44:51Z",
+      "side": 1,
+      "message": "../../src/core/SkStroke.cpp:645:52: warning: result of comparison of 1-bit unsigned value \u003d\u003d 2 is always false [-Wtautological-value-range-compare]\n    if (degenerateAB + degenerateBC + degenerateCD \u003d\u003d 2) {\n        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^  ~",
+      "revId": "9282cd2ca6543b2def8b957a6f1c299bdbfbb708",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
