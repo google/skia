@@ -270,7 +270,6 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
     info->fImageLayout = initialLayout;
     info->fFormat = imageDesc.fFormat;
     info->fImageUsageFlags = imageDesc.fUsageFlags;
-    info->fImageUsageFlags = imageDesc.fUsageFlags;
     info->fLevelCount = imageDesc.fLevels;
     info->fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
     info->fProtected =

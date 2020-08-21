@@ -61,6 +61,9 @@ public:
         SkASSERT(fResource);
         return fInfo.fYcbcrConversionInfo;
     }
+    bool supportsInputAttachmentUsage() const {
+        return fInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    }
     const Resource* resource() const {
         SkASSERT(fResource);
         return fResource;
