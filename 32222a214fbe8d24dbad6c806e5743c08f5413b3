@@ -22,6 +22,30 @@
       "revId": "32222a214fbe8d24dbad6c806e5743c08f5413b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dca76413_5b17014b",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-21T16:47:57Z",
+      "side": 1,
+      "message": "Oh, hey, nice catch.",
+      "parentUuid": "175da27b_128a512c",
+      "range": {
+        "startLine": 273,
+        "startChar": 0,
+        "endLine": 274,
+        "endChar": 36
+      },
+      "revId": "32222a214fbe8d24dbad6c806e5743c08f5413b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
