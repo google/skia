@@ -1226,6 +1226,12 @@ static bool check_image_info(const GrVkCaps& caps,
         }
     }
 
+    // We currently require everything to be made with transfer bits set
+    if (!SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) ||
+        !SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -1243,11 +1249,21 @@ static bool check_tex_image_info(const GrVkCaps& caps, const GrVkImageInfo& info
             return false;
         }
     }
+
+    // We currently require all textures to be made with sample support
+    if (!SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT)) {
+        return false;
+    }
+
     return true;
 }
 
 static bool check_rt_image_info(const GrVkCaps& caps, const GrVkImageInfo& info, int sampleCnt) {
     if (!caps.isFormatRenderable(info.fFormat, sampleCnt)) {
+        return false;
+    }
+    // We currently require all render targets to be made with color attachment support
+    if (!SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)) {
         return false;
     }
     return true;
@@ -1587,9 +1603,8 @@ bool GrVkGpu::createVkImageForBackendSurface(VkFormat vkFormat,
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
-    VkImageUsageFlags usageFlags = 0;
-    usageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    usageFlags |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     if (texturable == GrTexturable::kYes) {
         usageFlags |= VK_IMAGE_USAGE_SAMPLED_BIT;
     }

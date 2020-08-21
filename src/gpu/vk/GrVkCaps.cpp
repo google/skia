@@ -1232,6 +1232,9 @@ void GrVkCaps::FormatInfo::InitFormatFlags(VkFormatFeatureFlags vkFlags, uint16_
             *flags = *flags | kRenderable_Flag;
         }
     }
+    // TODO: For Vk w/ VK_KHR_maintenance1 extension support, check
+    //  VK_FORMAT_FEATURE_TRANSFER_[SRC|DST]_BIT_KHR explicitly to set copy flags
+    //  Can do similar check for VK_KHR_sampler_ycbcr_conversion added bits
 
     if (SkToBool(VK_FORMAT_FEATURE_BLIT_SRC_BIT & vkFlags)) {
         *flags = *flags | kBlitSrc_Flag;

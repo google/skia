@@ -407,6 +407,24 @@ GrBackendTexture::GrBackendTexture(int width, int height, const GrVkImageInfo& v
                                    new GrBackendSurfaceMutableStateImpl(
                                         vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily))) {}
 
+static const VkImageUsageFlags kDefaultUsageFlags =
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+
+// We don't know if the backend texture is made renderable or not, so we default the usage flags
+// to include color attachment as well.
+static const VkImageUsageFlags kDefaultTexRTUsageFlags =
+        kDefaultUsageFlags | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+static GrVkImageInfo apply_default_usage_flags(const GrVkImageInfo& info,
+                                               VkImageUsageFlags defaultFlags) {
+    if (info.fImageUsageFlags == 0) {
+        GrVkImageInfo newInfo = info;
+        newInfo.fImageUsageFlags = defaultFlags;
+        return newInfo;
+    }
+    return info;
+}
+
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo,
@@ -416,7 +434,7 @@ GrBackendTexture::GrBackendTexture(int width,
         , fHeight(height)
         , fMipmapped(GrMipmapped(vkInfo.fLevelCount > 1))
         , fBackend(GrBackendApi::kVulkan)
-        , fVkInfo(vkInfo)
+        , fVkInfo(apply_default_usage_flags(vkInfo, kDefaultTexRTUsageFlags))
         , fMutableState(std::move(mutableState)) {}
 #endif
 
@@ -840,6 +858,11 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int stencilBits,
                                              const GrVkImageInfo& vkInfo)
         : GrBackendRenderTarget(width, height, sampleCnt, vkInfo) {
+    // TODO: Do we want to set fFramebufferOnly here based on vkInfo usage flags? Some thing like
+    // this:
+    //  fFramebufferOnly =
+    //      ((VK_IMAGE_USAGE_TRANSFER_SRC_BIT|VK_IMAGE_USAGE_SAMPLED_BIT) & vkInfo.fImageUsageFlags)
+    //      ? false : true;
     // This is a deprecated constructor that takes a bogus stencil bits.
     SkASSERT(0 == stencilBits);
 }
@@ -853,6 +876,9 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                         new GrBackendSurfaceMutableStateImpl(
                                                vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily))) {}
 
+static const VkImageUsageFlags kDefaultRTUsageFlags =
+        kDefaultUsageFlags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -864,8 +890,9 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fSampleCnt(std::max(1, sampleCnt))
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
         , fBackend(GrBackendApi::kVulkan)
-        , fVkInfo(vkInfo)
-        , fMutableState(mutableState) {}
+        , fVkInfo(apply_default_usage_flags(vkInfo, kDefaultRTUsageFlags))
+        , fMutableState(mutableState) {
+}
 #endif
 
 #ifdef SK_METAL

@@ -318,13 +318,14 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
         fDestroySwapchainKHR(fDevice, swapchainCreateInfo.oldSwapchain, nullptr);
     }
 
-    this->createBuffers(swapchainCreateInfo.imageFormat, colorType,
+    this->createBuffers(swapchainCreateInfo.imageFormat, usageFlags, colorType,
                         swapchainCreateInfo.imageSharingMode);
 
     return true;
 }
 
-void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType,
+void VulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFlags usageFlags,
+                                        SkColorType colorType,
                                         VkSharingMode sharingMode) {
     fGetSwapchainImagesKHR(fDevice, fSwapchain, &fImageCount, nullptr);
     SkASSERT(fImageCount);
@@ -343,6 +344,7 @@ void VulkanWindowContext::createBuffers(VkFormat format, SkColorType colorType,
         info.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;
+        info.fImageUsageFlags = usageFlags;
         info.fLevelCount = 1;
         info.fCurrentQueueFamily = fPresentQueueIndex;
         info.fSharingMode = sharingMode;

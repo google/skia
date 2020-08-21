@@ -25,6 +25,12 @@ GrVkImage::GrVkImage(const GrVkGpu* gpu,
     SkASSERT(fMutableState->getImageLayout() == fInfo.fImageLayout);
     SkASSERT(fMutableState->getQueueFamilyIndex() == fInfo.fCurrentQueueFamily);
 #ifdef SK_DEBUG
+    if (info.fImageUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+        SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT));
+    } else {
+        SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
+                 SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
+    }
     // We can't transfer from the non graphics queue to the graphics queue since we can't
     // release the image from the original queue without having that queue. This limits us in terms
     // of the types of queue indices we can handle.
@@ -263,6 +269,8 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
     info->fImageTiling = imageDesc.fImageTiling;
     info->fImageLayout = initialLayout;
     info->fFormat = imageDesc.fFormat;
+    info->fImageUsageFlags = imageDesc.fUsageFlags;
+    info->fImageUsageFlags = imageDesc.fUsageFlags;
     info->fLevelCount = imageDesc.fLevels;
     info->fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
     info->fProtected =
