@@ -297,6 +297,30 @@
     },
     {
       "key": {
+        "uuid": "1e344157_4703d599",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:48:02Z",
+      "side": 1,
+      "message": "http://review.skia.org/312472 from Mike eliminates that section.",
+      "parentUuid": "e078ff7c_2db9d1d6",
+      "range": {
+        "startLine": 60,
+        "startChar": 13,
+        "endLine": 60,
+        "endChar": 14
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb1232be_06d804c9",
         "filename": "src/gpu/mtl/GrMtlCommandBuffer.mm",
         "patchSetId": 9
@@ -473,6 +497,29 @@
     },
     {
       "key": {
+        "uuid": "733dfd57_193e04e0",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:48:02Z",
+      "side": 1,
+      "message": "Weird, (*fDevice).name.UTF8String doesn\u0027t work here (and below)?\n\nNBD just surprising",
+      "range": {
+        "startLine": 1461,
+        "startChar": 45,
+        "endLine": 1461,
+        "endChar": 60
+      },
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5623dab4_3032b718",
         "filename": "src/gpu/mtl/GrMtlOpsRenderPass.h",
         "patchSetId": 9
@@ -501,6 +548,29 @@
       "writtenOn": "2020-08-21T19:16:59Z",
       "side": 1,
       "message": "Indentation",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "948ea6ea_8cacef78",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-21T19:48:02Z",
+      "side": 1,
+      "message": "Looks like a hidden TODO here?",
+      "range": {
+        "startLine": 385,
+        "startChar": 67,
+        "endLine": 385,
+        "endChar": 95
+      },
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
