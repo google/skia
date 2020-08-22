@@ -16,135 +16,155 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 
-typedef SkScalar (*MakePathProc)(SkPath*);
+namespace {
+struct PathDY {
+    SkPath   path;
+    SkScalar dy;
+};
+} // namespace
 
-static SkScalar make_frame(SkPath* path) {
+typedef PathDY (*MakePathProc)();
+
+static PathDY make_frame() {
     SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
                  SkIntToScalar(630), SkIntToScalar(470) };
-    path->addRoundRect(r, SkIntToScalar(15), SkIntToScalar(15));
-
+    SkPath path = SkPath::RRect(SkRRect::MakeRectXY(r, 15, 15));
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(5));
-    paint.getFillPath(*path, path);
-    return SkIntToScalar(15);
+    paint.getFillPath(path, &path);
+    return {path, 15};
 }
 
-static SkScalar make_triangle(SkPath* path) {
+static PathDY make_triangle() {
     constexpr int gCoord[] = {
         10, 20, 15, 5, 30, 30
     };
-    path->moveTo(SkIntToScalar(gCoord[0]), SkIntToScalar(gCoord[1]));
-    path->lineTo(SkIntToScalar(gCoord[2]), SkIntToScalar(gCoord[3]));
-    path->lineTo(SkIntToScalar(gCoord[4]), SkIntToScalar(gCoord[5]));
-    path->close();
-    path->offset(SkIntToScalar(10), SkIntToScalar(0));
-    return SkIntToScalar(30);
+    return {
+        SkPathBuilder().moveTo(SkIntToScalar(gCoord[0]), SkIntToScalar(gCoord[1]))
+                       .lineTo(SkIntToScalar(gCoord[2]), SkIntToScalar(gCoord[3]))
+                       .lineTo(SkIntToScalar(gCoord[4]), SkIntToScalar(gCoord[5]))
+                       .close()
+                       .offset(10, 0)
+                       .detach(),
+        30
+    };
 }
 
-static SkScalar make_rect(SkPath* path) {
+static PathDY make_rect() {
     SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
                  SkIntToScalar(30), SkIntToScalar(30) };
-    path->addRect(r);
-    path->offset(SkIntToScalar(10), SkIntToScalar(0));
-    return SkIntToScalar(30);
+    return {
+        SkPathBuilder().addRect(r).offset(10, 0).detach(),
+        30
+    };
 }
 
-static SkScalar make_oval(SkPath* path) {
+static PathDY make_oval() {
     SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
                  SkIntToScalar(30), SkIntToScalar(30) };
-    path->addOval(r);
-    path->offset(SkIntToScalar(10), SkIntToScalar(0));
-    return SkIntToScalar(30);
+    return {
+        SkPathBuilder().addOval(r).offset(10, 0).detach(),
+        30
+    };
 }
 
-static SkScalar make_sawtooth(SkPath* path, int teeth) {
+static PathDY make_sawtooth(int teeth) {
     SkScalar x = SkIntToScalar(20);
     SkScalar y = SkIntToScalar(20);
     const SkScalar x0 = x;
     const SkScalar dx = SkIntToScalar(5);
     const SkScalar dy = SkIntToScalar(10);
 
-    path->moveTo(x, y);
+    SkPathBuilder builder;
+    builder.moveTo(x, y);
     for (int i = 0; i < teeth; i++) {
         x += dx;
-        path->lineTo(x, y - dy);
+        builder.lineTo(x, y - dy);
         x += dx;
-        path->lineTo(x, y + dy);
+        builder.lineTo(x, y + dy);
     }
-    path->lineTo(x, y + (2 * dy));
-    path->lineTo(x0, y + (2 * dy));
-    path->close();
-    return SkIntToScalar(30);
+    builder.lineTo(x, y + (2 * dy));
+    builder.lineTo(x0, y + (2 * dy));
+    builder.close();
+
+    return {builder.detach(), 30};
 }
 
-static SkScalar make_sawtooth_3(SkPath* path) { return make_sawtooth(path, 3); }
-static SkScalar make_sawtooth_32(SkPath* path) { return make_sawtooth(path, 32); }
+static PathDY make_sawtooth_3() { return make_sawtooth(3); }
+static PathDY make_sawtooth_32() { return make_sawtooth(32); }
 
-static SkScalar make_house(SkPath* path) {
-    path->moveTo(21, 23);
-    path->lineTo(21, 11.534f);
-    path->lineTo(22.327f, 12.741f);
-    path->lineTo(23.673f, 11.261f);
-    path->lineTo(12, 0.648f);
-    path->lineTo(8, 4.285f);
-    path->lineTo(8, 2);
-    path->lineTo(4, 2);
-    path->lineTo(4, 7.921f);
-    path->lineTo(0.327f, 11.26f);
-    path->lineTo(1.673f, 12.74f);
-    path->lineTo(3, 11.534f);
-    path->lineTo(3, 23);
-    path->lineTo(11, 23);
-    path->lineTo(11, 18);
-    path->lineTo(13, 18);
-    path->lineTo(13, 23);
-    path->lineTo(21, 23);
-    path->close();
-    path->lineTo(9, 16);
-    path->lineTo(9, 21);
-    path->lineTo(5, 21);
-    path->lineTo(5, 9.715f);
-    path->lineTo(12, 3.351f);
-    path->lineTo(19, 9.715f);
-    path->lineTo(19, 21);
-    path->lineTo(15, 21);
-    path->lineTo(15, 16);
-    path->lineTo(9, 16);
-    path->close();
-    path->offset(20, 0);
-    return SkIntToScalar(30);
+static PathDY make_house() {
+    SkPathBuilder builder;
+    builder.addPolygon({
+            {21, 23},
+            {21, 11.534f},
+            {22.327f, 12.741f},
+            {23.673f, 11.261f},
+            {12, 0.648f},
+            {8, 4.285f},
+            {8, 2},
+            {4, 2},
+            {4, 7.921f},
+            {0.327f, 11.26f},
+            {1.673f, 12.74f},
+            {3, 11.534f},
+            {3, 23},
+            {11, 23},
+            {11, 18},
+            {13, 18},
+            {13, 23},
+            {21, 23}}, true)
+        .polylineTo({
+            {9, 16},
+            {9, 21},
+            {5, 21},
+            {5, 9.715f},
+            {12, 3.351f},
+            {19, 9.715f},
+            {19, 21},
+            {15, 21},
+            {15, 16},
+            {9, 16}})
+        .close()
+        .offset(20, 0);
+    return {builder.detach(), 30};
 }
 
-static SkScalar make_star(SkPath* path, int n) {
+static PathDY make_star(int n) {
     const SkScalar c = SkIntToScalar(45);
     const SkScalar r = SkIntToScalar(20);
 
     SkScalar rad = -SK_ScalarPI / 2;
     const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
 
-    path->moveTo(c, c - r);
+    SkPathBuilder builder;
+    builder.moveTo(c, c - r);
     for (int i = 1; i < n; i++) {
         rad += drad;
-        path->lineTo(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
+        builder.lineTo(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
     }
-    path->close();
-    return r * 2 * 6 / 5;
+    builder.close();
+
+    return {builder.detach(), r * 2 * 6 / 5};
 }
 
-static SkScalar make_star_5(SkPath* path) { return make_star(path, 5); }
-static SkScalar make_star_13(SkPath* path) { return make_star(path, 13); }
+static PathDY make_star_5()  { return make_star(5); }
+static PathDY make_star_13() { return make_star(13); }
 
 // We don't expect any output from this path.
-static SkScalar make_line(SkPath* path) {
-    path->moveTo(SkIntToScalar(30), SkIntToScalar(30));
-    path->lineTo(SkIntToScalar(120), SkIntToScalar(40));
-    path->close();
-    path->moveTo(SkIntToScalar(150), SkIntToScalar(30));
-    path->lineTo(SkIntToScalar(150), SkIntToScalar(30));
-    path->lineTo(SkIntToScalar(300), SkIntToScalar(40));
-    path->close();
-    return SkIntToScalar(40);
+static PathDY make_line() {
+    return {
+        SkPathBuilder().moveTo(30, 30)
+                       .lineTo(120, 40)
+                       .close()
+                       .moveTo(150, 30)
+                       .lineTo(150, 30)
+                       .lineTo(300, 40)
+                       .close()
+                       .detach(),
+        40
+    };
 }
 
 static void make_info(SkPath* path) {
@@ -303,7 +323,9 @@ class PathFillGM : public skiagm::GM {
 protected:
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < N; i++) {
-            fDY[i] = gProcs[i](&fPath[i]);
+            auto [path, dy] = gProcs[i]();
+            fPath[i] = path;
+            fDY[i] = dy;
         }
 
         make_info(&fInfoPath);
@@ -355,7 +377,9 @@ class PathInverseFillGM : public skiagm::GM {
 protected:
     void onOnceBeforeDraw() override {
         for (size_t i = 0; i < N; i++) {
-            fDY[i] = gProcs[i](&fPath[i]);
+            auto [path, dy] = gProcs[i]();
+            fPath[i] = path;
+            fDY[i] = dy;
         }
     }
 
