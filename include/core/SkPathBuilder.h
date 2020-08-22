@@ -56,6 +56,12 @@ public:
 
     SkPathBuilder& close();
 
+    // Append a series of lineTo(...)
+    SkPathBuilder& polylineTo(const SkPoint pts[], int count);
+    SkPathBuilder& polylineTo(const std::initializer_list<SkPoint>& list) {
+        return this->polylineTo(list.begin(), SkToInt(list.size()));
+    }
+
     // Relative versions of segments, relative to the previous position.
 
     SkPathBuilder& rLineTo(SkPoint pt);
@@ -193,6 +199,8 @@ public:
     void incReserve(int extraPtCount) {
         this->incReserve(extraPtCount, extraPtCount);
     }
+
+    SkPathBuilder& offset(SkScalar dx, SkScalar dy);
 
 private:
     SkTDArray<SkPoint>  fPts;

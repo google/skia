@@ -691,17 +691,31 @@ SkPathBuilder& SkPathBuilder::addPolygon(const SkPoint pts[], int count, bool is
         return *this;
     }
 
-    this->incReserve(count, count + isClosed);
-
     this->moveTo(pts[0]);
-    if (count > 1) {
-        count -= 1;
-        memcpy(fPts.append(count), &pts[1], count * sizeof(SkPoint));
+    this->polylineTo(&pts[1], count - 1);
+    if (isClosed) {
+        this->close();
+    }
+    return *this;
+}
+
+SkPathBuilder& SkPathBuilder::polylineTo(const SkPoint pts[], int count) {
+    if (count > 0) {
+        this->ensureMove();
+
+        this->incReserve(count, count);
+        memcpy(fPts.append(count), pts, count * sizeof(SkPoint));
         memset(fVerbs.append(count), (uint8_t)SkPathVerb::kLine, count);
         fSegmentMask |= kLine_SkPathSegmentMask;
     }
-    if (isClosed) {
-        this->close();
+    return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkPathBuilder& SkPathBuilder::offset(SkScalar dx, SkScalar dy) {
+    for (auto& p : fPts) {
+        p += {dx, dy};
     }
     return *this;
 }
