@@ -151,15 +151,10 @@ void GrDawnTexture::upload(GrColorType srcColorType, const GrMipLevel texels[],
         size_t trimRowBytes = width * SkColorTypeBytesPerPixel(colorType);
         size_t dstRowBytes = GrDawnRoundRowBytes(trimRowBytes);
         size_t size = dstRowBytes * height;
-        GrStagingBufferManager::Slice slice =
-                this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(size);
-        SkRectMemcpy(slice.fOffsetMapPtr, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
 
-        wgpu::BufferCopyView srcBuffer = {};
-        srcBuffer.buffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
-        srcBuffer.layout.offset = slice.fOffset;
-        srcBuffer.layout.bytesPerRow = dstRowBytes;
-        srcBuffer.layout.rowsPerImage = height;
+        wgpu::TextureDataLayout layout;
+        layout.bytesPerRow = dstRowBytes;
+        layout.rowsPerImage = height;
 
         wgpu::TextureCopyView dstTexture;
         dstTexture.texture = fInfo.fTexture;
@@ -167,7 +162,19 @@ void GrDawnTexture::upload(GrColorType srcColorType, const GrMipLevel texels[],
         dstTexture.origin = {x, y, 0};
 
         wgpu::Extent3D copySize = {width, height, 1};
-        copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
+	if (srcRowBytes == dstRowBytes) {
+	    getDawnGpu()->queue().WriteTexture(&dstTexture, src, size, &layout, &copySize);
+	} else {
+	    GrStagingBufferManager::Slice slice =
+		    this->getDawnGpu()->stagingBufferManager()->allocateStagingBufferSlice(size);
+	    SkRectMemcpy(slice.fOffsetMapPtr, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
+
+	    wgpu::BufferCopyView srcBuffer = {};
+	    srcBuffer.buffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
+	    layout.offset = slice.fOffset;
+	    srcBuffer.layout = layout;
+	    copyEncoder.CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
+	}
         x /= 2;
         y /= 2;
         width = std::max(1u, width / 2);
