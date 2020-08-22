@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66d87520_714a87fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-22T01:52:27Z",
+      "side": 1,
+      "message": "SkRecorder::PlaybackTop_DrawPictureMode\n\nThis mode seems to have been added just to help test Serialize_and_deserialize_multi_skp ...?",
+      "revId": "a21a396633810a1f850ab5bc7668327b4450223e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
