@@ -50,18 +50,6 @@ public:
         return this->beginRecording(SkRect::MakeWH(width, height), bbhFactory);
     }
 
-#ifdef SK_SUPPORT_LEGACY_PICTURERECORDING_FLAGS
-    SkCanvas* beginRecording(const SkRect& bounds, sk_sp<SkBBoxHierarchy> bbh, uint32_t) {
-        return this->beginRecording(bounds, std::move(bbh));
-    }
-    SkCanvas* beginRecording(const SkRect& bounds, SkBBHFactory* bbhFactory, uint32_t) {
-        return this->beginRecording(bounds, bbhFactory);
-    }
-    SkCanvas* beginRecording(SkScalar width, SkScalar height, SkBBHFactory* bbhFactory, uint32_t) {
-        return this->beginRecording(width, height, bbhFactory);
-    }
-#endif
-
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
     */
