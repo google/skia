@@ -21,7 +21,7 @@ struct PathDY {
     SkPath   path;
     SkScalar dy;
 };
-} // namespace
+}
 
 typedef PathDY (*MakePathProc)();
 
