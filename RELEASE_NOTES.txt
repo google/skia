@@ -7,7 +7,9 @@ This file includes a list of high level updates for each milestone release.
 Milestone 87
 ------------
 
-  * <insert new release notes here>
+  * Remove use of ARC from Metal backend. Updates sk_cf_obj to add more
+    functionality matching other internal smart pointer types.
+    https://review.skia.org/311113
 
   * New YUVA planar interface in SkCodec. Chroma subsampling is specified in more structured way.
     Doesn't assume 8bit planar values.

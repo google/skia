@@ -17,10 +17,6 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlTexture.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 GrMtlPipelineState::SamplerBindings::SamplerBindings(GrSamplerState state,
                                                      GrTexture* texture,
                                                      GrMtlGpu* gpu)
@@ -30,7 +26,7 @@ GrMtlPipelineState::SamplerBindings::SamplerBindings(GrSamplerState state,
 
 GrMtlPipelineState::GrMtlPipelineState(
         GrMtlGpu* gpu,
-        id<MTLRenderPipelineState> pipelineState,
+        sk_cf_obj<id<MTLRenderPipelineState>> pipelineState,
         MTLPixelFormat pixelFormat,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms,
@@ -40,7 +36,7 @@ GrMtlPipelineState::GrMtlPipelineState(
         std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
         std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors)
         : fGpu(gpu)
-        , fPipelineState(pipelineState)
+        , fPipelineState(std::move(pipelineState))
         , fPixelFormat(pixelFormat)
         , fBuiltinUniformHandles(builtinUniformHandles)
         , fNumSamplers(numSamplers)

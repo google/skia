@@ -13,17 +13,14 @@
 
 class GrMtlTextureRenderTarget: public GrMtlTexture, public GrMtlRenderTarget {
 public:
-    static sk_sp<GrMtlTextureRenderTarget> MakeNewTextureRenderTarget(GrMtlGpu*,
-                                                                      SkBudgeted,
-                                                                      SkISize,
-                                                                      int sampleCnt,
-                                                                      MTLTextureDescriptor*,
-                                                                      GrMipmapStatus);
+    static sk_sp<GrMtlTextureRenderTarget> MakeNewTextureRenderTarget(
+            GrMtlGpu*, SkBudgeted, SkISize, int sampleCnt, MTLTextureDescriptor*,
+            GrMipmapStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           SkISize,
                                                                           int sampleCnt,
-                                                                          id<MTLTexture>,
+                                                                          sk_cf_obj<id<MTLTexture>>,
                                                                           GrWrapCacheable);
     GrBackendFormat backendFormat() const override {
         return GrMtlTexture::backendFormat();
@@ -45,27 +42,27 @@ private:
                              SkBudgeted budgeted,
                              SkISize,
                              int sampleCnt,
-                             id<MTLTexture> colorTexture,
-                             id<MTLTexture> resolveTexture,
+                             sk_cf_obj<id<MTLTexture>> colorTexture,
+                             sk_cf_obj<id<MTLTexture>> resolveTexture,
                              GrMipmapStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkBudgeted budgeted,
                              SkISize,
-                             id<MTLTexture> colorTexture,
+                             sk_cf_obj<id<MTLTexture>> colorTexture,
                              GrMipmapStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkISize,
                              int sampleCnt,
-                             id<MTLTexture> colorTexture,
-                             id<MTLTexture> resolveTexture,
+                             sk_cf_obj<id<MTLTexture>> colorTexture,
+                             sk_cf_obj<id<MTLTexture>> resolveTexture,
                              GrMipmapStatus,
                              GrWrapCacheable cacheable);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkISize,
-                             id<MTLTexture> colorTexture,
+                             sk_cf_obj<id<MTLTexture>> colorTexture,
                              GrMipmapStatus,
                              GrWrapCacheable cacheable);
 

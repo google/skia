@@ -9,10 +9,6 @@
 
 #include "src/gpu/mtl/GrMtlGpu.h"
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 static inline MTLSamplerAddressMode wrap_mode_to_mtl_sampler_address(
         GrSamplerState::WrapMode wrapMode, const GrCaps& caps) {
     switch (wrapMode) {
@@ -58,25 +54,25 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, GrSamplerState samplerSt
       SkUNREACHABLE;
     }();
 
-    auto samplerDesc = [[MTLSamplerDescriptor alloc] init];
-    samplerDesc.rAddressMode = MTLSamplerAddressModeClampToEdge;
-    samplerDesc.sAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeX(),
-                                                                gpu->mtlCaps());
-    samplerDesc.tAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeY(),
-                                                                gpu->mtlCaps());
-    samplerDesc.magFilter = minMagFilter;
-    samplerDesc.minFilter = minMagFilter;
-    samplerDesc.mipFilter = mipFilter;
-    samplerDesc.lodMinClamp = 0.0f;
-    samplerDesc.lodMaxClamp = FLT_MAX;  // default value according to docs.
-    samplerDesc.maxAnisotropy = 1.0f;
-    samplerDesc.normalizedCoordinates = true;
+    sk_cf_obj<MTLSamplerDescriptor*> samplerDesc([[MTLSamplerDescriptor alloc] init]);
+    (*samplerDesc).rAddressMode = MTLSamplerAddressModeClampToEdge;
+    (*samplerDesc).sAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeX(),
+                                                                    gpu->mtlCaps());
+    (*samplerDesc).tAddressMode = wrap_mode_to_mtl_sampler_address(samplerState.wrapModeY(),
+                                                                    gpu->mtlCaps());
+    (*samplerDesc).magFilter = minMagFilter;
+    (*samplerDesc).minFilter = minMagFilter;
+    (*samplerDesc).mipFilter = mipFilter;
+    (*samplerDesc).lodMinClamp = 0.0f;
+    (*samplerDesc).maxAnisotropy = 1.0f;
+    (*samplerDesc).normalizedCoordinates = true;
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        samplerDesc.compareFunction = MTLCompareFunctionNever;
+        (*samplerDesc).compareFunction = MTLCompareFunctionNever;
     }
 
-    return new GrMtlSampler([gpu->device() newSamplerStateWithDescriptor: samplerDesc],
-                            GenerateKey(samplerState));
+    sk_cf_obj<id<MTLSamplerState>> sampler(
+            [gpu->device() newSamplerStateWithDescriptor:samplerDesc.get()]);
+    return new GrMtlSampler(std::move(sampler), GenerateKey(samplerState));
 }
 
 GrMtlSampler::Key GrMtlSampler::GenerateKey(GrSamplerState samplerState) {
