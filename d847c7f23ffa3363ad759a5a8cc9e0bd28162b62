@@ -16,6 +16,24 @@
       "revId": "d847c7f23ffa3363ad759a5a8cc9e0bd28162b62",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73512f09_357d4281",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-24T19:18:18Z",
+      "side": 1,
+      "message": "I have checked the dm image diffs with my iPhone SE, and everything looks good.",
+      "parentUuid": "de0dd68e_1cafea12",
+      "revId": "d847c7f23ffa3363ad759a5a8cc9e0bd28162b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
