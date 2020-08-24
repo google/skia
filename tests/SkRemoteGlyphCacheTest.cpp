@@ -198,6 +198,7 @@ DEF_TEST(SkRemoteGlyphCache_TypefaceSerialization, reporter) {
     discardableManager->unlockAndDeleteAll();
 }
 
+#if 0
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
@@ -245,6 +246,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
+#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace, reporter, ctxInfo) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
@@ -647,6 +649,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsSDFTWithAllARGBF
 }
 #endif
 
+#if 0
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxInfo) {
     auto direct = ctxInfo.directContext();
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
@@ -683,6 +686,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxI
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
 }
+#endif
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, ctxInfo) {
     auto direct = ctxInfo.directContext();
