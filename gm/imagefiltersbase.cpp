@@ -27,6 +27,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/utils/SkPatchUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -154,6 +155,32 @@ static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> 
     canvas->drawBitmap(bm, 0, 0, &paint);
 }
 
+static void draw_patch(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
+    SkPaint paint;
+    paint.setImageFilter(std::move(imf));
+
+    // The order of the colors and points is clockwise starting at upper-left corner.
+    static constexpr SkPoint gCubics[SkPatchUtils::kNumCtrlPts] = {
+        //top points
+        {100,100},{150,50},{250,150},{300,100},
+        //right points
+        {250,150},{350,250},
+        //bottom points
+        {300,300},{250,250},{150,350},{100,300},
+        //left points
+        {50,250},{150,150}
+    };
+
+    static constexpr SkColor colors[SkPatchUtils::kNumCorners] = {
+        SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
+    };
+
+    SkAutoCanvasRestore acr(canvas, /*doSave=*/true);
+    canvas->translate(-r.fLeft, -r.fTop);
+    canvas->scale(r.width() / 400.0, r.height() / 400.0);
+    canvas->drawPatch(gCubics, colors, /*texCoords=*/nullptr, SkBlendMode::kSrc, paint);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class ImageFiltersBaseGM : public skiagm::GM {
@@ -179,6 +206,7 @@ protected:
             draw_paint,
             draw_line, draw_rect, draw_path, draw_text,
             draw_bitmap,
+            draw_patch
         };
 
         auto cf = SkColorFilters::Blend(SK_ColorRED, SkBlendMode::kSrcIn);
