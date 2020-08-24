@@ -323,16 +323,8 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
                 if (s && this->visitExpression(*s)) { return true; }
             }
             return v.fValue && this->visitExpression(*v.fValue); }
-        case Statement::kVarDeclarations_Kind: {
-            // Technically this statement points to a program element, but it's convenient
-            // to have program element > statement > expression, so visit the declaration elements
-            // directly without going up to visitProgramElement.
-            const VarDeclarations& vars = *s.as<VarDeclarationsStatement>().fDeclaration;
-            for (const auto& v : vars.fVars) {
-                if (this->visitStatement(*v)) { return true; }
-            }
-            return false;
-        }
+        case Statement::kVarDeclarations_Kind:
+            return this->visitProgramElement(*s.as<VarDeclarationsStatement>().fDeclaration);
         case Statement::kWhile_Kind: {
             const WhileStatement& w = s.as<WhileStatement>();
             return this->visitExpression(*w.fTest) || this->visitStatement(*w.fStatement); }
