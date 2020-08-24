@@ -9,6 +9,10 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * New YUVA planar interface in SkCodec. Chroma subsampling is specified in more structured way.
+    Doesn't assume 8bit planar values.
+    https://review.skia.org/309658
+
   * Added VkImageUsageFlags to GrVkImageInfo struct.
 
 * * *
