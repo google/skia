@@ -167,15 +167,13 @@ static uint32_t insert_into_arrays(SkScalar* array1, SkScalar* array2,
 }
 
 bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
-                                 const SkRect& occluder,
                                  SkScalar sigma, SkScalar xformedSigma,
                                  SkRRect* rrectToDraw,
                                  SkISize* widthHeight,
                                  SkScalar rectXs[kSkBlurRRectMaxDivisions],
                                  SkScalar rectYs[kSkBlurRRectMaxDivisions],
                                  SkScalar texXs[kSkBlurRRectMaxDivisions],
-                                 SkScalar texYs[kSkBlurRRectMaxDivisions],
-                                 int* numXs, int* numYs, uint32_t* skipMask) {
+                                 SkScalar texYs[kSkBlurRRectMaxDivisions]) {
     unsigned int devBlurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
     SkScalar srcBlurRadius = 3.0f * sigma;
 
@@ -232,17 +230,6 @@ bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRec
     texYs[1] = 2.0f*devBlurRadius + devTop;
     texYs[2] = 2.0f*devBlurRadius + devTop + 1;
     texYs[3] = SkIntToScalar(widthHeight->fHeight);
-
-    SkRect temp = occluder;
-
-    *numXs = 4;
-    *numYs = 4;
-    *skipMask = 0;
-    if (!temp.isEmpty() && (srcProxyRect.contains(temp) || temp.intersect(srcProxyRect))) {
-        *skipMask = insert_into_arrays(rectXs, texXs, temp.fLeft, temp.fRight, numXs, 0x1, 1);
-        *skipMask = insert_into_arrays(rectYs, texYs, temp.fTop, temp.fBottom,
-                                       numYs, *skipMask, *numXs-1);
-    }
 
     const SkRect newRect = SkRect::MakeXYWH(SkIntToScalar(devBlurRadius),
                                             SkIntToScalar(devBlurRadius),
