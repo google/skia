@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c533b394_af59dca0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-24T15:48:33Z",
+      "side": 1,
+      "message": "Seems right to do this. Might be good to add a gm that shows a difference.",
+      "revId": "c6e22f8c5a2a07b8d9250b9044ae9120a4878af7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
