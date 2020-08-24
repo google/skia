@@ -510,9 +510,9 @@ ASTNode::ID Parser::structDeclaration() {
                     return ASTNode::ID::Invalid();
                 }
                 uint64_t columns = size.getInt();
-                String name = type->name() + "[" + to_string(columns) + "]";
+                String typeName = type->name() + "[" + to_string(columns) + "]";
                 type = fSymbols.takeOwnershipOfSymbol(
-                        std::make_unique<Type>(name, Type::kArray_Kind, *type, (int)columns));
+                        std::make_unique<Type>(typeName, Type::kArray_Kind, *type, (int)columns));
             }
             fields.push_back(Type::Field(declsNode.begin()->getModifiers(), vd.fName, type));
             if (vd.fSizeCount ? (var.begin() + (vd.fSizeCount - 1))->fNext : var.fFirstChild) {
@@ -575,12 +575,12 @@ ASTNode::ID Parser::varDeclarationEnd(Modifiers mods, ASTNode::ID type, StringFr
         getNode(currentVar).addChild(value);
     }
     while (this->checkNext(Token::Kind::TK_COMMA)) {
-        Token name;
-        if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &name)) {
+        Token identifierName;
+        if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", &identifierName)) {
             return ASTNode::ID::Invalid();
         }
         currentVar = ASTNode::ID(fFile->fNodes.size());
-        vd = ASTNode::VarData(this->text(name), 0);
+        vd = ASTNode::VarData(this->text(identifierName), 0);
         fFile->fNodes.emplace_back(&fFile->fNodes, -1, ASTNode::Kind::kVarDeclaration);
         getNode(result).addChild(currentVar);
         while (this->checkNext(Token::Kind::TK_LBRACKET)) {

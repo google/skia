@@ -228,10 +228,10 @@ static void draw_batching(SkCanvas* canvas) {
     SkTDArray<SkMatrix> matrices;
     matrices.push()->reset();
     matrices.push()->setTranslate(0, 40);
-    SkMatrix* m = matrices.push();
-    m->setRotate(45, kMeshSize / 2, kMeshSize / 2);
-    m->postScale(1.2f, .8f, kMeshSize / 2, kMeshSize / 2);
-    m->postTranslate(0, 80);
+    matrices.push()
+            ->setRotate(45, kMeshSize / 2, kMeshSize / 2)
+            .postScale(1.2f, .8f, kMeshSize / 2, kMeshSize / 2)
+            .postTranslate(0, 80);
 
     auto shader = make_shader1(1);
 
