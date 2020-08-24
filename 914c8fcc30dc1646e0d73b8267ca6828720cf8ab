@@ -553,6 +553,24 @@
     },
     {
       "key": {
+        "uuid": "a5e28a1b_a170e181",
+        "filename": "src/gpu/mtl/GrMtlDepthStencil.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T14:33:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "043731d5_0fbf87d9",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a20b419_e3ffa368",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 9
@@ -734,6 +752,24 @@
       "side": 1,
       "message": "This was my thinking: There\u0027s a +1 on create, that gets an additional +1 when the sk_cf_obj is copied into the  block. But when the original sk_cf_obj leaves scope it\u0027ll do -1. So it seems like the new owner needs another +1? Otherwise when the block is called the copied sk_cf_obj will go out of scope, do -1, and delete. And if the new owner calls waitFence at that point bad things will happen.",
       "parentUuid": "04fa2087_94a80392",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b1e8c4c_b5be48f4",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 1365,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T14:33:06Z",
+      "side": 1,
+      "message": "There\u0027s still extra an extra retain/release pair here. Let\u0027s do this, to eliminate it:\n\nCFTypeRef cfFence \u003d (CFTypeRef)semaphore.release();",
+      "parentUuid": "8b19d09a_8b9d082b",
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -1044,6 +1080,24 @@
     },
     {
       "key": {
+        "uuid": "0c94d1e9_44cc7dc8",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T14:33:06Z",
+      "side": 1,
+      "message": "No, it will retain them, not transfer ownership. We still need a release of our +1.",
+      "parentUuid": "1e3b16a1_8a5f0e2a",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b6310fd_8719217f",
         "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
         "patchSetId": 9
@@ -1259,6 +1313,24 @@
     },
     {
       "key": {
+        "uuid": "1f6a3422_c1cb5fc9",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T14:33:06Z",
+      "side": 1,
+      "message": "Hmm, if C++ standard guarantees constructor order it would be great to save the extra R/R pair, but not exactly mission-critical. For this CL it\u0027s fine.",
+      "parentUuid": "9e2971e2_8e88a075",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ecfd3f7_8af04e40",
         "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
         "patchSetId": 9
@@ -1364,6 +1436,24 @@
     },
     {
       "key": {
+        "uuid": "83921e90_f2d29d4e",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T14:33:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "406a0605_98cc0efb",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e3daa43_d310a8a5",
         "filename": "src/image/SkSurface_GpuMtl.mm",
         "patchSetId": 9
@@ -1396,6 +1486,24 @@
       "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c261d5b2_90bfd3bc",
+        "filename": "src/image/SkSurface_GpuMtl.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T14:33:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a43fa7b8_a08ece85",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
