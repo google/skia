@@ -22,6 +22,8 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
+int numFoo = 0;
+
 static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
         GrRecordingContext* context,
         const SkRRect& rrectToDraw,
@@ -55,6 +57,8 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
                                                                         GrColorType::kAlpha_8, 1)) {
         return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m);
     }
+
+    ++numFoo;
 
     auto rtc = GrRenderTargetContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
