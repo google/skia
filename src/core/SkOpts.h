@@ -69,7 +69,7 @@ namespace SkOpts {
 #define M(st) +1
     // We can't necessarily express the type of SkJumper stage functions here,
     // so we just use this void(*)(void) as a stand-in.
-    using StageFn = void(*)(void);
+    using StageFn = void(*)();
     extern StageFn stages_highp[SK_RASTER_PIPELINE_STAGES(M)], just_return_highp;
     extern StageFn stages_lowp [SK_RASTER_PIPELINE_STAGES(M)], just_return_lowp;
 

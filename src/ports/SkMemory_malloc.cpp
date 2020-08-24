@@ -52,7 +52,7 @@ void sk_abort_no_print() {
 #endif
 }
 
-void sk_out_of_memory(void) {
+void sk_out_of_memory() {
     SkDEBUGFAIL("sk_out_of_memory");
 #if defined(IS_FUZZING_WITH_AFL)
     exit(1);

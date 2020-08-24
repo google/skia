@@ -268,7 +268,7 @@ CGRGBPixel* SkScalerContext_Mac::Offscreen::getCG(const SkScalerContext_Mac& con
     return image;
 }
 
-unsigned SkScalerContext_Mac::generateGlyphCount(void) {
+unsigned SkScalerContext_Mac::generateGlyphCount() {
     return fGlyphCount;
 }
 

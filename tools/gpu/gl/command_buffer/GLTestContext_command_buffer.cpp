@@ -25,7 +25,7 @@ typedef void *EGLContext;
 typedef int32_t EGLint;
 typedef void* EGLNativeDisplayType;
 typedef void* EGLNativeWindowType;
-typedef void (*__eglMustCastToProperFunctionPointerType)(void);
+typedef void (*__eglMustCastToProperFunctionPointerType)();
 #define EGL_FALSE 0
 #define EGL_TRUE 1
 #define EGL_OPENGL_ES2_BIT 0x0004
