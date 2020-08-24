@@ -16,6 +16,24 @@
       "revId": "0baaa2372201e29d68dcb83b7454e2dedf6d4b5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec81ffab_8096d1ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-24T21:07:48Z",
+      "side": 1,
+      "message": "Thanks for letting me know! I hadn\u0027t seen the status yet. It\u0027s definitely related to this change somehow. I\u0027ll sort it out.",
+      "parentUuid": "d53ee04c_6b3a871e",
+      "revId": "0baaa2372201e29d68dcb83b7454e2dedf6d4b5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
