@@ -34,6 +34,10 @@ SK_C_API void gr_context_flush(gr_context_t* context);
 SK_C_API void gr_context_reset_context(gr_context_t* context, uint32_t state);
 SK_C_API gr_backend_t gr_context_get_backend(gr_context_t* context);
 SK_C_API void gr_context_dump_memory_statistics(const gr_context_t* context, sk_tracememorydump_t* dump);
+SK_C_API void gr_context_free_gpu_resources(gr_context_t* context);
+SK_C_API void gr_context_perform_deferred_cleanup(gr_context_t* context, long long ms);
+SK_C_API void gr_context_purge_unlocked_resources_bytes(gr_context_t* context, size_t bytesToPurge, bool preferScratchResources);
+SK_C_API void gr_context_purge_unlocked_resources(gr_context_t* context, bool scratchResourcesOnly);
 
 
 // GrGLInterface

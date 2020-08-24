@@ -65,6 +65,22 @@ void gr_context_dump_memory_statistics(const gr_context_t* context, sk_tracememo
     SK_ONLY_GPU(AsGrContext(context)->dumpMemoryStatistics(AsTraceMemoryDump(dump)));
 }
 
+void gr_context_free_gpu_resources(gr_context_t* context) {
+    SK_ONLY_GPU(AsGrContext(context)->freeGpuResources());
+}
+
+void gr_context_perform_deferred_cleanup(gr_context_t* context, long long ms) {
+    SK_ONLY_GPU(AsGrContext(context)->performDeferredCleanup(std::chrono::milliseconds(ms)));
+}
+
+void gr_context_purge_unlocked_resources_bytes(gr_context_t* context, size_t bytesToPurge, bool preferScratchResources) {
+    SK_ONLY_GPU(AsGrContext(context)->purgeUnlockedResources(bytesToPurge, preferScratchResources));
+}
+
+void gr_context_purge_unlocked_resources(gr_context_t* context, bool scratchResourcesOnly) {
+    SK_ONLY_GPU(AsGrContext(context)->purgeUnlockedResources(scratchResourcesOnly));
+}
+
 
 // GrGLInterface
 
