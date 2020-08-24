@@ -56,7 +56,10 @@ public:
     GrRecordingContext::Arenas arenas() { return fContext->arenas(); }
 
     GrStrikeCache* getGrStrikeCache() { return fContext->fStrikeCache.get(); }
-    GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
+    GrTextBlobCache* getTextBlobCache1() { return fContext->getTextBlobCache1(); }
+
+    GrMagicCache* magicCache() { return fContext->magicCache(); }
+
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
