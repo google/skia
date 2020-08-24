@@ -16,6 +16,29 @@
       "revId": "ed3d7dffd202740348f01601d6c6e5af9a2ba313",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46b28544_2b789c5b",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-24T15:29:12Z",
+      "side": 1,
+      "message": "Very unsure about this one, but do we really want ASCII encoding here? \n\nI was under the impression that requesting an ASCII-encoded NSString would fail if non-ASCII characters were present in the data (although Googling it seems to indicate that this varies based on the exact choice of API). I can\u0027t think of any good reason why non-ASCII would be in the shader, but I can think of hypotheticals that could happen one day (e.g. a runtime shader with comments in Japanese or something, in a future world where comments passed through SkSL without being stripped). I wouldn\u0027t want to fail an otherwise-valid compile over it. No other backend enforces ASCII-only at this level so I don\u0027t see why we should enforce it in Metal.\n\nIf we used NSMacOSRomanStringEncoding, it would be functionally the same as ASCII for our purposes, but wouldn\u0027t choke on 0x80~0xFF.\n\nNot taking a strong position on it, just food for thought. Doesn\u0027t have to be in this CL either.",
+      "range": {
+        "startLine": 95,
+        "startChar": 46,
+        "endLine": 95,
+        "endChar": 67
+      },
+      "revId": "ed3d7dffd202740348f01601d6c6e5af9a2ba313",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
