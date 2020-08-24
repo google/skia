@@ -11,7 +11,6 @@
 #include "src/gpu/GrTexture.h"
 
 #import <Metal/Metal.h>
-#include "include/ports/SkCFObject.h"
 
 class GrMtlGpu;
 
@@ -25,13 +24,13 @@ public:
 
     static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*,
                                                   SkISize,
-                                                  sk_cf_obj<id<MTLTexture>>,
+                                                  id<MTLTexture>,
                                                   GrWrapCacheable,
                                                   GrIOType);
 
     ~GrMtlTexture() override;
 
-    id<MTLTexture> mtlTexture() const { return fTexture.get(); }
+    id<MTLTexture> mtlTexture() const { return fTexture; }
 
     GrBackendTexture getBackendTexture() const override;
 
@@ -42,7 +41,7 @@ public:
     bool reallocForMipmap(GrMtlGpu* gpu, uint32_t mipLevels);
 
 protected:
-    GrMtlTexture(GrMtlGpu*, SkISize, sk_cf_obj<id<MTLTexture>>, GrMipmapStatus);
+    GrMtlTexture(GrMtlGpu*, SkISize, id<MTLTexture>, GrMipmapStatus);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -62,17 +61,17 @@ protected:
 private:
     enum Wrapped { kWrapped };
 
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, SkISize, sk_cf_obj<id<MTLTexture>>, GrMipmapStatus);
+    GrMtlTexture(GrMtlGpu*, SkBudgeted, SkISize, id<MTLTexture>, GrMipmapStatus);
 
     GrMtlTexture(GrMtlGpu*,
                  Wrapped,
                  SkISize,
-                 sk_cf_obj<id<MTLTexture>>,
+                 id<MTLTexture>,
                  GrMipmapStatus,
                  GrWrapCacheable,
                  GrIOType);
 
-    sk_cf_obj<id<MTLTexture>> fTexture;
+    id<MTLTexture> fTexture;
 
     typedef GrTexture INHERITED;
 };

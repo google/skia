@@ -791,6 +791,7 @@ optional("gpu") {
     frameworks += [ "Metal.framework" ]
     frameworks += [ "MetalKit.framework" ]
     frameworks += [ "Foundation.framework" ]
+    cflags_objcc += [ "-fobjc-arc" ]
   }
 
   if (is_debug) {
@@ -1593,6 +1594,8 @@ if (skia_enable_tools) {
       libs +=
           [ "${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/lib/libzircon.so" ]
     }
+
+    cflags_objcc = [ "-fobjc-arc" ]
   }  # test_lib("gpu_tool_utils")
 
   test_lib("flags") {
@@ -1753,6 +1756,7 @@ if (skia_enable_tools) {
     sources = tests_sources + pathops_tests_sources
     if (skia_use_metal) {
       sources += metal_tests_sources
+      cflags_objcc = [ "-fobjc-arc" ]
     }
     if (skia_use_gl) {
       sources += gl_tests_sources

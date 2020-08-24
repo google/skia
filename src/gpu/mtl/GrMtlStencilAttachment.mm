@@ -8,6 +8,10 @@
 #include "src/gpu/mtl/GrMtlGpu.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
                                                const Format& format,
                                                const id<MTLTexture> stencilView)
@@ -24,10 +28,10 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
                                                        int sampleCnt,
                                                        const Format& format) {
     MTLTextureDescriptor* desc =
-            [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format.fInternalFormat
-                                                               width:width
-                                                              height:height
-                                                           mipmapped:NO];
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format.fInternalFormat
+                                                           width:width
+                                                          height:height
+                                                       mipmapped:NO];
     if (@available(macOS 10.11, iOS 9.0, *)) {
         desc.storageMode = MTLStorageModePrivate;
         desc.usage = MTLTextureUsageRenderTarget;
@@ -36,8 +40,7 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;
     }
-    return new GrMtlStencilAttachment(gpu, format,
-                                      [gpu->device() newTextureWithDescriptor:desc]);
+    return new GrMtlStencilAttachment(gpu, format, [gpu->device() newTextureWithDescriptor:desc]);
 }
 
 GrMtlStencilAttachment::~GrMtlStencilAttachment() {
@@ -54,12 +57,12 @@ size_t GrMtlStencilAttachment::onGpuMemorySize() const {
 }
 
 void GrMtlStencilAttachment::onRelease() {
-    fStencilView.reset();
+    fStencilView = nullptr;
     GrStencilAttachment::onRelease();
 }
 
 void GrMtlStencilAttachment::onAbandon() {
-    fStencilView.reset();
+    fStencilView = nullptr;
     GrStencilAttachment::onAbandon();
 }
 

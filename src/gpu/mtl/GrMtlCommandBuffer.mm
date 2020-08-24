@@ -11,13 +11,18 @@
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 #include "src/gpu/mtl/GrMtlPipelineState.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 sk_sp<GrMtlCommandBuffer> GrMtlCommandBuffer::Make(id<MTLCommandQueue> queue) {
-    sk_cf_obj<id<MTLCommandBuffer>> mtlCommandBuffer(sk_ref_cf_obj([queue commandBuffer]));
+    id<MTLCommandBuffer> mtlCommandBuffer;
+    mtlCommandBuffer = [queue commandBuffer];
     if (nil == mtlCommandBuffer) {
         return nullptr;
     }
 
-    [*mtlCommandBuffer setLabel: @"GrMtlCommandBuffer::Create"];
+    mtlCommandBuffer.label = @"GrMtlCommandBuffer::Create";
 
     return sk_sp<GrMtlCommandBuffer>(new GrMtlCommandBuffer(mtlCommandBuffer));
 }
@@ -26,21 +31,23 @@ GrMtlCommandBuffer::~GrMtlCommandBuffer() {
     this->endAllEncoding();
     fTrackedGrBuffers.reset();
     this->callFinishedCallbacks();
+
+    fCmdBuffer = nil;
 }
 
 id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {
-    if (fActiveRenderCommandEncoder) {
-        [*fActiveRenderCommandEncoder endEncoding];
+    if (nil != fActiveRenderCommandEncoder) {
+        [fActiveRenderCommandEncoder endEncoding];
         fActiveRenderCommandEncoder = nil;
     }
 
-    if (!fActiveBlitCommandEncoder) {
-        fActiveBlitCommandEncoder.retain([*fCmdBuffer blitCommandEncoder]);
+    if (nil == fActiveBlitCommandEncoder) {
+        fActiveBlitCommandEncoder = [fCmdBuffer blitCommandEncoder];
     }
     fPreviousRenderPassDescriptor = nil;
     fHasWork = true;
 
-    return fActiveBlitCommandEncoder.get();
+    return fActiveBlitCommandEncoder;
 }
 
 static bool compatible(const MTLRenderPassAttachmentDescriptor* first,
@@ -70,51 +77,50 @@ id<MTLRenderCommandEncoder> GrMtlCommandBuffer::getRenderCommandEncoder(
         MTLRenderPassDescriptor* descriptor, const GrMtlPipelineState* pipelineState,
         GrMtlOpsRenderPass* opsRenderPass) {
     if (nil != fPreviousRenderPassDescriptor) {
-        if (compatible((*fPreviousRenderPassDescriptor).colorAttachments[0],
+        if (compatible(fPreviousRenderPassDescriptor.colorAttachments[0],
                        descriptor.colorAttachments[0], pipelineState) &&
-            compatible((*fPreviousRenderPassDescriptor).stencilAttachment,
+            compatible(fPreviousRenderPassDescriptor.stencilAttachment,
                        descriptor.stencilAttachment, pipelineState)) {
-            return fActiveRenderCommandEncoder.get();
+            return fActiveRenderCommandEncoder;
         }
     }
 
     this->endAllEncoding();
-    fActiveRenderCommandEncoder.retain(
-            [*fCmdBuffer renderCommandEncoderWithDescriptor:descriptor]);
+    fActiveRenderCommandEncoder = [fCmdBuffer renderCommandEncoderWithDescriptor:descriptor];
     if (opsRenderPass) {
-        opsRenderPass->initRenderState(*fActiveRenderCommandEncoder);
+        opsRenderPass->initRenderState(fActiveRenderCommandEncoder);
     }
-    fPreviousRenderPassDescriptor.retain(descriptor);
+    fPreviousRenderPassDescriptor = descriptor;
     fHasWork = true;
 
-    return fActiveRenderCommandEncoder.get();
+    return fActiveRenderCommandEncoder;
 }
 
 bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     this->endAllEncoding();
-    [*fCmdBuffer commit];
+    [fCmdBuffer commit];
     if (waitUntilCompleted) {
         this->waitUntilCompleted();
     }
 
-    if ((*fCmdBuffer).status == MTLCommandBufferStatusError) {
-        NSString* description = (*fCmdBuffer).error.localizedDescription;
+    if (fCmdBuffer.status == MTLCommandBufferStatusError) {
+        NSString* description = fCmdBuffer.error.localizedDescription;
         const char* errorString = [description UTF8String];
         SkDebugf("Error submitting command buffer: %s\n", errorString);
     }
 
-    return ((*fCmdBuffer).status != MTLCommandBufferStatusError);
+    return (fCmdBuffer.status != MTLCommandBufferStatusError);
 }
 
 void GrMtlCommandBuffer::endAllEncoding() {
     if (fActiveRenderCommandEncoder) {
-        [*fActiveRenderCommandEncoder endEncoding];
-        fActiveRenderCommandEncoder.reset();
-        fPreviousRenderPassDescriptor.reset();
+        [fActiveRenderCommandEncoder endEncoding];
+        fActiveRenderCommandEncoder = nil;
+        fPreviousRenderPassDescriptor = nil;
     }
     if (fActiveBlitCommandEncoder) {
-        [*fActiveBlitCommandEncoder endEncoding];
-        fActiveBlitCommandEncoder.reset();
+        [fActiveBlitCommandEncoder endEncoding];
+        fActiveBlitCommandEncoder = nil;
     }
 }
 
@@ -122,7 +128,7 @@ void GrMtlCommandBuffer::encodeSignalEvent(id<MTLEvent> event, uint64_t eventVal
     SkASSERT(fCmdBuffer);
     this->endAllEncoding(); // ensure we don't have any active command encoders
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        [*fCmdBuffer encodeSignalEvent:event value:eventValue];
+        [fCmdBuffer encodeSignalEvent:event value:eventValue];
     }
     fHasWork = true;
 }
@@ -132,7 +138,7 @@ void GrMtlCommandBuffer::encodeWaitForEvent(id<MTLEvent> event, uint64_t eventVa
     this->endAllEncoding(); // ensure we don't have any active command encoders
                             // TODO: not sure if needed but probably
     if (@available(macOS 10.14, iOS 12.0, *)) {
-        [*fCmdBuffer encodeWaitForEvent:event value:eventValue];
+        [fCmdBuffer encodeWaitForEvent:event value:eventValue];
     }
     fHasWork = true;
 }

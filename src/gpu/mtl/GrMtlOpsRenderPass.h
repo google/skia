@@ -64,11 +64,11 @@ private:
     GrMtlGpu*                   fGpu;
 
     id<MTLRenderCommandEncoder> fActiveRenderCmdEncoder;
-    GrMtlPipelineState* fActivePipelineState = nullptr;
-    MTLPrimitiveType fActivePrimitiveType;
-    sk_cf_obj<MTLRenderPassDescriptor*> fRenderPassDesc;
-    SkRect fBounds;
-    size_t fCurrentVertexStride;
+    GrMtlPipelineState*         fActivePipelineState = nullptr;
+    MTLPrimitiveType            fActivePrimitiveType;
+    MTLRenderPassDescriptor*    fRenderPassDesc;
+    SkRect                      fBounds;
+    size_t                      fCurrentVertexStride;
 
     static constexpr size_t kNumBindings = GrMtlUniformHandler::kLastUniformBinding + 3;
     struct {
