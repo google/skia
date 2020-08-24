@@ -120,12 +120,10 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
     SkRRect rrectToDraw;
     SkISize dimensions;
     SkScalar ignored[kSkBlurRRectMaxDivisions];
-    int ignoredSize;
-    uint32_t ignored32;
 
-    bool ninePatchable = SkComputeBlurredRRectParams(
-            srcRRect, devRRect, SkRect::MakeEmpty(), sigma, xformedSigma, &rrectToDraw, &dimensions,
-            ignored, ignored, ignored, ignored, &ignoredSize, &ignoredSize, &ignored32);
+    bool ninePatchable =
+            SkComputeBlurredRRectParams(srcRRect, devRRect, sigma, xformedSigma, &rrectToDraw,
+                                        &dimensions, ignored, ignored, ignored, ignored);
     if (!ninePatchable) {
         return nullptr;
     }
@@ -184,18 +182,18 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _sample9630 = this->invokeChild(0, args);
+        SkString _sample9345 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample9630.c_str());
-        SkString _coords9678("float2(texCoord)");
-        SkString _sample9678 = this->invokeChild(1, args, _coords9678.c_str());
+                _sample9345.c_str());
+        SkString _coords9393("float2(texCoord)");
+        SkString _sample9393 = this->invokeChild(1, args, _coords9393.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample9678.c_str());
+                args.fOutputColor, _sample9393.c_str());
     }
 
 private:
