@@ -10,7 +10,6 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 
-#include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 #ifdef SK_METAL
@@ -21,36 +20,36 @@ namespace {
 class MtlTestContextImpl : public sk_gpu_test::MtlTestContext {
 public:
     static MtlTestContext* Create(MtlTestContext* sharedContext) {
-        sk_cf_obj<id<MTLDevice>> device;
-        sk_cf_obj<id<MTLCommandQueue>> queue;
+        id<MTLDevice> device;
+        id<MTLCommandQueue> queue;
         if (sharedContext) {
             MtlTestContextImpl* sharedContextImpl = (MtlTestContextImpl*) sharedContext;
-            device.retain(sharedContextImpl->device());
-            queue.retain(sharedContextImpl->queue());
+            device = sharedContextImpl->device();
+            queue = sharedContextImpl->queue();
         } else {
 #ifdef SK_BUILD_FOR_MAC
-            sk_cf_obj<NSArray<id <MTLDevice>>*> availableDevices(MTLCopyAllDevices());
+            NSArray<id <MTLDevice>>* availableDevices = MTLCopyAllDevices();
             // Choose the non-integrated CPU if available
-            for (id<MTLDevice> dev in availableDevices.get()) {
+            for (id<MTLDevice> dev in availableDevices) {
                 if (!dev.isLowPower) {
-                    device.retain(dev);
+                    device = dev;
                     break;
                 }
                 if (dev.isRemovable) {
-                    device.retain(dev);
+                    device = dev;
                     break;
                 }
             }
             if (!device) {
-                device.reset(MTLCreateSystemDefaultDevice());
+                device = MTLCreateSystemDefaultDevice();
             }
 #else
-            device.reset(MTLCreateSystemDefaultDevice());
+            device = MTLCreateSystemDefaultDevice();
 #endif
-            queue.reset([*device newCommandQueue]);
+            queue = [device newCommandQueue];
         }
 
-        return new MtlTestContextImpl(std::move(device), std::move(queue));
+        return new MtlTestContextImpl(device, queue);
     }
 
     ~MtlTestContextImpl() override { this->teardown(); }
@@ -60,17 +59,17 @@ public:
     void finish() override {}
 
     sk_sp<GrDirectContext> makeContext(const GrContextOptions& options) override {
-        return GrDirectContext::MakeMetal((void*)fDevice.get(),
-                                          (void*)fQueue.get(),
+        return GrDirectContext::MakeMetal((__bridge void*)fDevice,
+                                          (__bridge void*)fQueue,
                                           options);
     }
 
-    id<MTLDevice> device() { return fDevice.get(); }
-    id<MTLCommandQueue> queue() { return fQueue.get(); }
+    id<MTLDevice> device() { return fDevice; }
+    id<MTLCommandQueue> queue() { return fQueue; }
 
 private:
-    MtlTestContextImpl(sk_cf_obj<id<MTLDevice>> device, sk_cf_obj<id<MTLCommandQueue>> queue)
-            : INHERITED(), fDevice(std::move(device)), fQueue(std::move(queue)) {
+    MtlTestContextImpl(id<MTLDevice> device, id<MTLCommandQueue> queue)
+            : INHERITED(), fDevice(device), fQueue(queue) {
         fFenceSupport = true;
     }
 
@@ -78,8 +77,8 @@ private:
     void onPlatformMakeCurrent() const override {}
     std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
 
-    sk_cf_obj<id<MTLDevice>>        fDevice;
-    sk_cf_obj<id<MTLCommandQueue>>  fQueue;
+    id<MTLDevice>        fDevice;
+    id<MTLCommandQueue>  fQueue;
 
     typedef sk_gpu_test::MtlTestContext INHERITED;
 };

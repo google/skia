@@ -11,6 +11,10 @@
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlGpu.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #ifdef SK_DEBUG
 #define VALIDATE() this->validate()
 #else
@@ -48,26 +52,25 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     // to ensure we have space for the extra data
     size = SkAlign4(size);
 #endif
-    if (size != 0) {
-        fMtlBuffer.reset([gpu->device() newBufferWithLength: size
-                                                    options: options]);
-    }
+    fMtlBuffer = size == 0 ? nil :
+            [gpu->device() newBufferWithLength: size
+                                       options: options];
     this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
 }
 
 GrMtlBuffer::~GrMtlBuffer() {
-    SkASSERT(!fMtlBuffer);
-    SkASSERT(!fMappedBuffer);
+    SkASSERT(fMtlBuffer == nil);
+    SkASSERT(fMappedBuffer == nil);
     SkASSERT(fMapPtr == nullptr);
 }
 
 bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
     if (!fIsDynamic) {
-        if (!fMtlBuffer) {
+        if (fMtlBuffer == nil) {
             return false;
         }
-        if (srcInBytes > (*fMtlBuffer).length) {
+        if (srcInBytes > fMtlBuffer.length) {
             return false;
         }
     }
@@ -79,7 +82,7 @@ bool GrMtlBuffer::onUpdateData(const void* src, size_t srcInBytes) {
     }
     SkASSERT(fMappedBuffer);
     if (!fIsDynamic) {
-        SkASSERT(SkAlign4(srcInBytes) == (*fMappedBuffer).length);
+        SkASSERT(SkAlign4(srcInBytes) == fMappedBuffer.length);
     }
     memcpy(fMapPtr, src, srcInBytes);
     this->internalUnmap(srcInBytes);
@@ -120,7 +123,7 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
     SkASSERT(!this->isMapped());
     if (fIsDynamic) {
         fMappedBuffer = fMtlBuffer;
-        fMapPtr = static_cast<char*>((*fMtlBuffer).contents) + fOffset;
+        fMapPtr = static_cast<char*>(fMtlBuffer.contents) + fOffset;
     } else {
         SkASSERT(fMtlBuffer);
         SkASSERT(fMappedBuffer == nil);
@@ -132,9 +135,10 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
         // Mac requires 4-byte alignment for copies so we pad this out
         sizeInBytes = SkAlign4(sizeInBytes);
 #endif
-        fMappedBuffer.reset([this->mtlGpu()->device() newBufferWithLength: sizeInBytes
-                                                                  options: options]);
-        fMapPtr = (*fMappedBuffer).contents;
+        fMappedBuffer =
+                [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
+                                                      options: options];
+        fMapPtr = fMappedBuffer.contents;
     }
     VALIDATE();
 }
@@ -158,14 +162,14 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
     if (fIsDynamic) {
 #ifdef SK_BUILD_FOR_MAC
         SkASSERT(0 == (fOffset & 0x3));  // should be 4-byte aligned
-        [*fMtlBuffer didModifyRange:NSMakeRange(fOffset, sizeInBytes)];
+        [fMtlBuffer didModifyRange: NSMakeRange(fOffset, sizeInBytes)];
 #endif
     } else {
         GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
         id<MTLBlitCommandEncoder> blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
-        [blitCmdEncoder copyFromBuffer: fMappedBuffer.get()
+        [blitCmdEncoder copyFromBuffer: fMappedBuffer
                           sourceOffset: 0
-                              toBuffer: fMtlBuffer.get()
+                              toBuffer: fMtlBuffer
                      destinationOffset: 0
                                   size: sizeInBytes];
     }
@@ -189,6 +193,6 @@ void GrMtlBuffer::validate() const {
              this->intendedType() == GrGpuBufferType::kXferCpuToGpu ||
              this->intendedType() == GrGpuBufferType::kXferGpuToCpu);
     SkASSERT(fMappedBuffer == nil || fMtlBuffer == nil ||
-             (*fMappedBuffer).length <= (*fMtlBuffer).length);
+             fMappedBuffer.length <= fMtlBuffer.length);
 }
 #endif

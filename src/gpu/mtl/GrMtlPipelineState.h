@@ -33,7 +33,7 @@ public:
 
     GrMtlPipelineState(
             GrMtlGpu* gpu,
-            sk_cf_obj<id<MTLRenderPipelineState>> pipelineState,
+            id<MTLRenderPipelineState> pipelineState,
             MTLPixelFormat pixelFormat,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
@@ -43,7 +43,7 @@ public:
             std::unique_ptr<GrGLSLXferProcessor> xferPRocessor,
             std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors);
 
-    id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState.get(); }
+    id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
 
     void setData(const GrRenderTarget*, const GrProgramInfo&);
 
@@ -114,8 +114,8 @@ private:
     };
 
     GrMtlGpu* fGpu;
-    sk_cf_obj<id<MTLRenderPipelineState>> fPipelineState;
-    MTLPixelFormat fPixelFormat;
+    id<MTLRenderPipelineState> fPipelineState;
+    MTLPixelFormat             fPixelFormat;
 
     RenderTargetState fRenderTargetState;
     GrGLSLBuiltinUniformHandles fBuiltinUniformHandles;

@@ -37,7 +37,7 @@ public:
                                                         GrMtlOpsRenderPass* opsRenderPass);
 
     void addCompletedHandler(MTLCommandBufferHandler block) {
-        [*fCmdBuffer addCompletedHandler:block];
+        [fCmdBuffer addCompletedHandler:block];
     }
 
     void addGrBuffer(sk_sp<const GrBuffer> buffer) {
@@ -48,24 +48,25 @@ public:
     void encodeWaitForEvent(id<MTLEvent>, uint64_t value) SK_API_AVAILABLE(macos(10.14), ios(12.0));
 
     void waitUntilCompleted() {
-        [*fCmdBuffer waitUntilCompleted];
+        [fCmdBuffer waitUntilCompleted];
     }
     void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
 
 private:
     static const int kInitialTrackedResourcesCount = 32;
 
-    GrMtlCommandBuffer(sk_cf_obj<id<MTLCommandBuffer>> cmdBuffer)
-        : fCmdBuffer(std::move(cmdBuffer))
+    GrMtlCommandBuffer(id<MTLCommandBuffer> cmdBuffer)
+        : fCmdBuffer(cmdBuffer)
+        , fPreviousRenderPassDescriptor(nil)
         , fHasWork(false) {}
 
     void endAllEncoding();
 
-    sk_cf_obj<id<MTLCommandBuffer>>        fCmdBuffer;
-    sk_cf_obj<id<MTLBlitCommandEncoder>>   fActiveBlitCommandEncoder;
-    sk_cf_obj<id<MTLRenderCommandEncoder>> fActiveRenderCommandEncoder;
-    sk_cf_obj<MTLRenderPassDescriptor*>    fPreviousRenderPassDescriptor;
-    bool fHasWork;
+    id<MTLCommandBuffer>        fCmdBuffer;
+    id<MTLBlitCommandEncoder>   fActiveBlitCommandEncoder;
+    id<MTLRenderCommandEncoder> fActiveRenderCommandEncoder;
+    MTLRenderPassDescriptor*    fPreviousRenderPassDescriptor;
+    bool                        fHasWork;
 
     SkTArray<sk_sp<GrRefCntedCallback>> fFinishedCallbacks;
 

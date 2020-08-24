@@ -38,7 +38,7 @@ DEF_GPUTEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
 
     // TODO: check multisampled RT as well
     GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain(drawable.texture);
+    fbInfo.fTexture.retain((__bridge const void*)(drawable.texture));
     GrBackendRenderTarget backendRT(kWidth, kHeight, 1, fbInfo);
 
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();

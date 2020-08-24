@@ -18,6 +18,10 @@
 
 #import <Metal/Metal.h>
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #define PRINT_MSL 0 // print out the MSL code generated
 
 NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode) {
@@ -28,18 +32,18 @@ NSError* GrCreateMtlError(NSString* description, GrMtlErrorCode errorCode) {
                            userInfo:userInfo];
 }
 
-sk_cf_obj<MTLTextureDescriptor*> GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
-    sk_cf_obj<MTLTextureDescriptor*> texDesc([[MTLTextureDescriptor alloc] init]);
-    (*texDesc).textureType = mtlTexture.textureType;
-    (*texDesc).pixelFormat =mtlTexture.pixelFormat;
-    (*texDesc).width = mtlTexture.width;
-    (*texDesc).height = mtlTexture.height;
-    (*texDesc).depth = mtlTexture.depth;
-    (*texDesc).mipmapLevelCount = mtlTexture.mipmapLevelCount;
-    (*texDesc).arrayLength = mtlTexture.arrayLength;
-    (*texDesc).sampleCount = mtlTexture.sampleCount;
+MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
+    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+    texDesc.textureType = mtlTexture.textureType;
+    texDesc.pixelFormat = mtlTexture.pixelFormat;
+    texDesc.width = mtlTexture.width;
+    texDesc.height = mtlTexture.height;
+    texDesc.depth = mtlTexture.depth;
+    texDesc.mipmapLevelCount = mtlTexture.mipmapLevelCount;
+    texDesc.arrayLength = mtlTexture.arrayLength;
+    texDesc.sampleCount = mtlTexture.sampleCount;
     if (@available(macOS 10.11, iOS 9.0, *)) {
-        (*texDesc).usage = mtlTexture.usage;
+        texDesc.usage = mtlTexture.usage;
     }
     return texDesc;
 }
@@ -56,12 +60,12 @@ void print_msl(const char* source) {
 }
 #endif
 
-sk_cf_obj<id<MTLLibrary>> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
-                                                     const SkSL::String& shaderString,
-                                                     SkSL::Program::Kind kind,
-                                                     const SkSL::Program::Settings& settings,
-                                                     SkSL::String* mslShader,
-                                                     SkSL::Program::Inputs* outInputs) {
+id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
+                                          const SkSL::String& shaderString,
+                                          SkSL::Program::Kind kind,
+                                          const SkSL::Program::Settings& settings,
+                                          SkSL::String* mslShader,
+                                          SkSL::Program::Inputs* outInputs) {
     std::unique_ptr<SkSL::Program> program =
             gpu->shaderCompiler()->convertProgram(kind,
                                                   shaderString,
@@ -83,22 +87,22 @@ sk_cf_obj<id<MTLLibrary>> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
     return GrCompileMtlShaderLibrary(gpu, *mslShader);
 }
 
-sk_cf_obj<id<MTLLibrary>> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                                    const SkSL::String& shaderString) {
-    sk_cf_obj<NSString*> mtlCode([[NSString alloc] initWithCString: shaderString.c_str()
-                                                          encoding: NSASCIIStringEncoding]);
+id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                                         const SkSL::String& shaderString) {
+    NSString* mtlCode = [[NSString alloc] initWithCString: shaderString.c_str()
+                                                 encoding: NSASCIIStringEncoding];
 #if PRINT_MSL
     print_msl([mtlCode cStringUsingEncoding: NSASCIIStringEncoding]);
 #endif
 
-    sk_cf_obj<MTLCompileOptions*> defaultOptions([[MTLCompileOptions alloc] init]);
+    MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
     NSError* error = nil;
 #if defined(SK_BUILD_FOR_MAC)
-    id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), *mtlCode,
-                                                               *defaultOptions, &error);
+    id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
+                                                               defaultOptions, &error);
 #else
-    id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode.get()
-                                                                 options: defaultOptions.get()
+    id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
+                                                                 options: defaultOptions
                                                                    error: &error];
 #endif
     if (!compiledLibrary) {
@@ -108,7 +112,7 @@ sk_cf_obj<id<MTLLibrary>> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
         return nil;
     }
 
-    return sk_cf_obj<id<MTLLibrary>>(compiledLibrary);
+    return compiledLibrary;
 }
 
 // Wrapper to get atomic assignment for compiles and pipeline creation
@@ -117,12 +121,7 @@ public:
     MtlCompileResult() : fCompiledObject(nil), fError(nil) {}
     void set(id compiledObject, NSError* error) {
         SkAutoMutexExclusive automutex(fMutex);
-        // we need to retain ownership here -- otherwise when we leave the
-        // scope of the block it will be deleted.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-messaging-id"
-        fCompiledObject = [compiledObject retain];
-#pragma clang diagnostic pop
+        fCompiledObject = compiledObject;
         fError = error;
     }
     std::pair<id, NSError*> get() {
@@ -232,7 +231,7 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
 // CPP Utils
 
 GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo& info) {
-    id<MTLTexture> mtlTexture = (id<MTLTexture>)(info.fTexture.get());
+    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture.get());
     return static_cast<GrMTLPixelFormat>(mtlTexture.pixelFormat);
 }
 

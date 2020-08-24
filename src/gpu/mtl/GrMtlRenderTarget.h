@@ -11,7 +11,6 @@
 #include "src/gpu/GrRenderTarget.h"
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/ports/SkCFObject.h"
 #include "src/gpu/GrGpu.h"
 
 #import <Metal/Metal.h>
@@ -23,7 +22,7 @@ public:
     static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
                                                             SkISize,
                                                             int sampleCnt,
-                                                            sk_cf_obj<id<MTLTexture>>);
+                                                            id<MTLTexture>);
 
     ~GrMtlRenderTarget() override;
 
@@ -31,8 +30,8 @@ public:
         return true;
     }
 
-    id<MTLTexture> mtlColorTexture() const { return fColorTexture.get(); }
-    id<MTLTexture> mtlResolveTexture() const { return fResolveTexture.get(); }
+    id<MTLTexture> mtlColorTexture() const { return fColorTexture; }
+    id<MTLTexture> mtlResolveTexture() const { return fResolveTexture; }
 
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
@@ -42,10 +41,10 @@ protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       SkISize,
                       int sampleCnt,
-                      sk_cf_obj<id<MTLTexture>> colorTexture,
-                      sk_cf_obj<id<MTLTexture>> resolveTexture);
+                      id<MTLTexture> colorTexture,
+                      id<MTLTexture> resolveTexture);
 
-    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, sk_cf_obj<id<MTLTexture>> colorTexture);
+    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, id<MTLTexture> colorTexture);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -66,8 +65,8 @@ protected:
                                       numColorSamples, GrMipmapped::kNo);
     }
 
-    sk_cf_obj<id<MTLTexture>> fColorTexture;
-    sk_cf_obj<id<MTLTexture>> fResolveTexture;
+    id<MTLTexture> fColorTexture;
+    id<MTLTexture> fResolveTexture;
 
 private:
     // Extra param to disambiguate from constructor used by subclasses.
@@ -75,10 +74,10 @@ private:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       SkISize,
                       int sampleCnt,
-                      sk_cf_obj<id<MTLTexture>> colorTexture,
-                      sk_cf_obj<id<MTLTexture>> resolveTexture,
+                      id<MTLTexture> colorTexture,
+                      id<MTLTexture> resolveTexture,
                       Wrapped);
-    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, sk_cf_obj<id<MTLTexture>> colorTexture, Wrapped);
+    GrMtlRenderTarget(GrMtlGpu* gpu, SkISize, id<MTLTexture> colorTexture, Wrapped);
 
     bool completeStencilAttachment() override;
 
