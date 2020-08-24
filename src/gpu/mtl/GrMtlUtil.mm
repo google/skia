@@ -89,26 +89,27 @@ id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
 
 id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                          const SkSL::String& shaderString) {
-    NSString* mtlCode = [[NSString alloc] initWithCString: shaderString.c_str()
-                                                 encoding: NSASCIIStringEncoding];
+    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(shaderString.c_str())
+                                                   length:shaderString.size()
+                                                 encoding:NSUTF8StringEncoding
+                                             freeWhenDone:NO];
 #if PRINT_MSL
-    print_msl([mtlCode cStringUsingEncoding: NSASCIIStringEncoding]);
+    print_msl(nsSource.UTF8String);
 #endif
 
-    MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
     NSError* error = nil;
 #if defined(SK_BUILD_FOR_MAC)
-    id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), mtlCode,
-                                                               defaultOptions, &error);
+    id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), nsSource,
+                                                               nil, &error);
 #else
-    id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
-                                                                 options: defaultOptions
-                                                                   error: &error];
+    id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource:nsSource
+                                                                 options:nil
+                                                                   error:&error];
 #endif
     if (!compiledLibrary) {
         SkDebugf("Error compiling MSL shader: %s\n%s\n",
                  shaderString.c_str(),
-                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+                 error.debugDescription.UTF8String);
         return nil;
     }
 
