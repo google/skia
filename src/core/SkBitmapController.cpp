@@ -48,7 +48,7 @@ bool SkBitmapController::State::processHighRequest(const SkImage_Base* image) {
         return false;
     }
 
-    (void)image->getROPixels(&fResultBitmap);
+    (void)image->getROPixels(nullptr, &fResultBitmap);
     return true;
 }
 
@@ -106,7 +106,7 @@ SkBitmapController::State::State(const SkImage_Base* image,
     if (this->processHighRequest(image) || this->processMediumRequest(image)) {
         SkASSERT(fResultBitmap.getPixels());
     } else {
-        (void)image->getROPixels(&fResultBitmap);
+        (void)image->getROPixels(nullptr, &fResultBitmap);
     }
 
     // fResultBitmap.getPixels() may be null, but our caller knows to check fPixmap.addr()
@@ -124,12 +124,12 @@ SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& in
     auto load_upper_from_base = [&]() {
         // only do this once
         if (fBaseStorage.getPixels() == nullptr) {
-            (void)image->getROPixels(&fBaseStorage);
+            (void)image->getROPixels(nullptr, &fBaseStorage);
             fUpper.reset(fBaseStorage.info(), fBaseStorage.getPixels(), fBaseStorage.rowBytes());
         }
     };
 
-    float  level = 0;
+    float level = 0;
     if (requestedMode != SkMipmapMode::kNone) {
         SkSize scale;
         if (!inv.decomposeScale(&scale, nullptr)) {
