@@ -21,3 +21,7 @@ std::unique_ptr<GrFragmentProcessor> GrCoverageCountingPathRenderer::makeClipPro
         const GrCaps& caps) {
     return nullptr;
 }
+
+void GrCoverageCountingPathRenderer::purgeCacheEntriesOlderThan(
+        GrProxyProvider* proxyProvider, const GrStdSteadyClock::time_point& purgeTime) {
+}
