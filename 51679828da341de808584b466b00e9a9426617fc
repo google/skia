@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a4378c5_eca3e060",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T16:18:38Z",
+      "side": 1,
+      "message": "I\u0027m gonna keep fiddling with this a little more, no rush on a review.",
+      "revId": "51679828da341de808584b466b00e9a9426617fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
