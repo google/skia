@@ -73,6 +73,8 @@ public:
     static SkPath Circle(SkScalar center_x, SkScalar center_y, SkScalar radius,
                          SkPathDirection dir = SkPathDirection::kCW);
     static SkPath RRect(const SkRRect&, SkPathDirection dir = SkPathDirection::kCW);
+    static SkPath RRect(const SkRect& bounds, SkScalar rx, SkScalar ry,
+                        SkPathDirection dir = SkPathDirection::kCW);
 
     static SkPath Polygon(const SkPoint pts[], int count, bool isClosed,
                           SkPathFillType = SkPathFillType::kWinding,
@@ -1071,6 +1073,10 @@ public:
     */
     bool isRect(SkRect* rect, bool* isClosed = nullptr, SkPathDirection* direction = nullptr) const;
 
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+private:
+#endif
+
     /** Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
         starting with top-left corner of SkRect; followed by top-right, bottom-right,
         and bottom-left if dir is kCW_Direction; or followed by bottom-left,
@@ -1265,6 +1271,10 @@ public:
     SkPath& addPoly(const std::initializer_list<SkPoint>& list, bool close) {
         return this->addPoly(list.begin(), SkToInt(list.size()), close);
     }
+
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+public:
+#endif
 
     /** \enum SkPath::AddPathMode
         AddPathMode chooses how addPath() appends. Adding one SkPath to another can extend

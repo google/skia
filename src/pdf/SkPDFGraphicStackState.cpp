@@ -8,12 +8,6 @@
 #include "src/pdf/SkPDFUtils.h"
 #include "src/utils/SkClipStackUtils.h"
 
-static SkPath to_path(const SkRect& r) {
-    SkPath p;
-    p.addRect(r);
-    return p;
-}
-
 static void emit_pdf_color(SkColor4f color, SkWStream* result) {
     SkASSERT(color.fA == 1);  // We handle alpha elsewhere.
     SkPDFUtils::AppendColorComponentF(color.fR, result);
@@ -93,7 +87,7 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
             operand.isInverseFillType() ||
             !kHuge.contains(operand.getBounds()))
         {
-            Op(to_path(bounds), operand, op, &operand);
+            Op(SkPath::Rect(bounds), operand, op, &operand);
         }
         SkASSERT(!operand.isInverseFillType());
         fn(operand);
@@ -133,7 +127,7 @@ static void append_clip(const SkClipStack& clipStack,
     if (is_complex_clip(clipStack)) {
         SkPath clipPath;
         SkClipStack_AsPath(clipStack, &clipPath);
-        if (Op(clipPath, to_path(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
+        if (Op(clipPath, SkPath::Rect(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
             append_clip_path(clipPath, wStream);
         }
         // If Op() fails (pathological case; e.g. input values are

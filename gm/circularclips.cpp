@@ -28,8 +28,8 @@ protected:
         fY = 50;
         fR = 40;
 
-        fCircle1.addCircle(fX1, fY, fR, SkPathDirection::kCW);
-        fCircle2.addCircle(fX2, fY, fR, SkPathDirection::kCW);
+        fCircle1 = SkPath::Circle(fX1, fY, fR, SkPathDirection::kCW);
+        fCircle2 = SkPath::Circle(fX2, fY, fR, SkPathDirection::kCW);
     }
 
 
