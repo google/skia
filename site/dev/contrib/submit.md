@@ -74,8 +74,12 @@ on GitHub, might lead to issues with `git cl` usage.
 ### Find a reviewer
 
 Ideally, the reviewer is someone who is familiar with the area of code you are
-touching. If you have doubts, look at the git blame for the file to see who else
-has been editing it.
+touching. Look at the git blame for the file to see who else has been editing
+it. Another option is to click on the 'Suggested Reviewers' button to add one
+of the listed contacts for different areas in Skia, they should be able to add
+appropriate reviewers for your change. The button is located here:
+<img src="/dev/contrib/SuggestedReviewers.png" style="display: inline-block;" />
+
 
 ### Uploading changes for review
 
