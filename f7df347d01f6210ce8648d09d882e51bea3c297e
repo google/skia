@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e9af6e8_373a4b5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-24T22:34:43Z",
+      "side": 1,
+      "message": "SkRSXform::fTy was not filled out in the original CL, and the constructor does not initialize it.\n(Now uses SkRSXform::Make to remove all doubt.)",
+      "revId": "f7df347d01f6210ce8648d09d882e51bea3c297e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
