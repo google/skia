@@ -6,6 +6,7 @@
 
 set -e
 
+skia_dir=$(dirname $(dirname "$0"))
 args=""
 src=""
 
@@ -24,7 +25,8 @@ while [ "$1" ]; do
 done
 
 if [ "$src" ] && [[ "$src" != *"third_party"* ]]; then
-    clang-tidy -quiet -header-filter='.*' -warnings-as-errors='*' $src -- $args
+    clang-tidy -quiet -header-filter='.*' -warnings-as-errors='*' $src -- \
+        -isystem $skia_dir/include/third_party/vulkan \
+        $args
 fi
 exec clang++ $args
-
