@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7001b1ea_754895d6",
+        "filename": "src/core/SkContourMeasure.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T13:16:49Z",
+      "side": 1,
+      "message": "A lot of types call this validate().  Might be a nice signal to mark it const?",
+      "range": {
+        "startLine": 196,
+        "startChar": 3,
+        "endLine": 196,
+        "endChar": 26
+      },
+      "revId": "bda3c8768f5273b54ae14bb0397594e5e7d71956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4543567_030d587f",
+        "filename": "src/core/SkContourMeasure.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T13:16:49Z",
+      "side": 1,
+      "message": "Probably don\u0027t need this?",
+      "range": {
+        "startLine": 430,
+        "startChar": 4,
+        "endLine": 430,
+        "endChar": 16
+      },
+      "revId": "bda3c8768f5273b54ae14bb0397594e5e7d71956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
