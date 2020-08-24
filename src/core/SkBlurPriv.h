@@ -19,19 +19,15 @@ static const int kSkBlurRRectMaxDivisions = 6;
 //   widthHeight - how large to make the mask (rrectToDraw will be centered in this coord sys)
 //   rectXs, rectYs - the x & y coordinates of the covering geometry lattice
 //   texXs, texYs - the texture coordinate at each point in rectXs & rectYs
-//   numXs, numYs - number of coordinates in the x & y directions
-//   skipMask - bit mask that contains a 1-bit whenever one of the cells is occluded
 // It returns true if 'devRRect' is nine-patchable
 bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
-                                 const SkRect& occluder,
                                  SkScalar sigma, SkScalar xformedSigma,
                                  SkRRect* rrectToDraw,
                                  SkISize* widthHeight,
                                  SkScalar rectXs[kSkBlurRRectMaxDivisions],
                                  SkScalar rectYs[kSkBlurRRectMaxDivisions],
                                  SkScalar texXs[kSkBlurRRectMaxDivisions],
-                                 SkScalar texYs[kSkBlurRRectMaxDivisions],
-                                 int* numXs, int* numYs, uint32_t* skipMask);
+                                 SkScalar texYs[kSkBlurRRectMaxDivisions]);
 
 extern void sk_register_blur_maskfilter_createproc();
 
