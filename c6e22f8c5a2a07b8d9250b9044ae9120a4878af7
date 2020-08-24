@@ -34,6 +34,24 @@
       "revId": "c6e22f8c5a2a07b8d9250b9044ae9120a4878af7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "832f38af_ad1967b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-24T16:19:54Z",
+      "side": 1,
+      "message": "Somewhat surprising outcome for me! I added a patch to GM_imagefiltersbase. Results:\n\nSkImageFilters::ColorFilter -- did not work before, fixed by this CL :) \nSkImageFilters::Blur -- image filter worked before and after this CL\nSkImageFilters::DropShadow -- image filter worked before and after this CL\n\nNot sure why it\u0027s hit and miss like this!",
+      "parentUuid": "6575787b_81a72e3d",
+      "revId": "c6e22f8c5a2a07b8d9250b9044ae9120a4878af7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
