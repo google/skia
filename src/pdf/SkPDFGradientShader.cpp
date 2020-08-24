@@ -227,31 +227,33 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShader::GradientInf
     std::vector<SkColor>  colors(info.fColors, info.fColors + colorCount);
     std::vector<SkScalar> colorOffsets(info.fColorOffsets, info.fColorOffsets + colorCount);
 
-    int i = 1;
-    while (i < colorCount - 1) {
-        // ensure stops are in order
-        if (colorOffsets[i - 1] > colorOffsets[i]) {
-            colorOffsets[i] = colorOffsets[i - 1];
-        }
+    {
+        int i = 1;
+        while (i < colorCount - 1) {
+            // ensure stops are in order
+            if (colorOffsets[i - 1] > colorOffsets[i]) {
+                colorOffsets[i] = colorOffsets[i - 1];
+            }
 
-        // remove points that are between 2 coincident points
-        if ((colorOffsets[i - 1] == colorOffsets[i]) && (colorOffsets[i] == colorOffsets[i + 1])) {
-            colorCount -= 1;
-            colors.erase(colors.begin() + i);
-            colorOffsets.erase(colorOffsets.begin() + i);
-        } else {
-            i++;
+            // remove points that are between 2 coincident points
+            if ((colorOffsets[i - 1] == colorOffsets[i]) && (colorOffsets[i] == colorOffsets[i + 1])) {
+                colorCount -= 1;
+                colors.erase(colors.begin() + i);
+                colorOffsets.erase(colorOffsets.begin() + i);
+            } else {
+                i++;
+            }
         }
-    }
-    // find coincident points and slightly move them over
-    for (i = 1; i < colorCount - 1; i++) {
+        // find coincident points and slightly move them over
+        for (i = 1; i < colorCount - 1; i++) {
+            if (colorOffsets[i - 1] == colorOffsets[i]) {
+                colorOffsets[i] += 0.00001f;
+            }
+        }
+        // check if last 2 stops coincide
         if (colorOffsets[i - 1] == colorOffsets[i]) {
-            colorOffsets[i] += 0.00001f;
+            colorOffsets[i - 1] -= 0.00001f;
         }
-    }
-    // check if last 2 stops coincide
-    if (colorOffsets[i - 1] == colorOffsets[i]) {
-        colorOffsets[i - 1] -= 0.00001f;
     }
 
     SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(colorCount);
