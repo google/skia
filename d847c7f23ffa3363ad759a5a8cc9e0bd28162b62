@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de0dd68e_1cafea12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-24T15:23:54Z",
+      "side": 1,
+      "message": "The iphone6s seem to be offline on the tree. I\u0027m checking images locally now.",
+      "revId": "d847c7f23ffa3363ad759a5a8cc9e0bd28162b62",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
