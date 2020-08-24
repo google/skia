@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41274e89_23f8326e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T20:15:29Z",
+      "side": 1,
+      "message": "Don\u0027t know why it says Flutter canary failed – if you dig in, it was all green. Re-running.",
+      "revId": "1f5bdd6f16dd6d7ae11de1235df7a1f774b4ff2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
