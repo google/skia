@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c591efe3_cd8f3506",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-24T20:37:07Z",
+      "side": 1,
+      "message": "This is like the poster-child CL for showing the value of Ravi\u0027s \"Detected ... digeests\" feature -- I can *see* the new GM in action!",
+      "revId": "cc0bbc46cbf85b15d65174b78d20e144f9aefc7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
