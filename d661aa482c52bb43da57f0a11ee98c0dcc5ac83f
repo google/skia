@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "960f61d1_55635a7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-24T17:05:11Z",
+      "side": 1,
+      "message": "One more nit:",
+      "revId": "d661aa482c52bb43da57f0a11ee98c0dcc5ac83f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ffed68a_63867ea8",
         "filename": "src/gpu/mtl/GrMtlUtil.mm",
         "patchSetId": 2
@@ -52,6 +69,29 @@
         "startChar": 14,
         "endLine": 94,
         "endChar": 22
+      },
+      "revId": "d661aa482c52bb43da57f0a11ee98c0dcc5ac83f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f53d545_d83a79c2",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-24T17:05:11Z",
+      "side": 1,
+      "message": "mtlCode.get()",
+      "range": {
+        "startLine": 99,
+        "startChar": 78,
+        "endLine": 99,
+        "endChar": 86
       },
       "revId": "d661aa482c52bb43da57f0a11ee98c0dcc5ac83f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
