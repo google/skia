@@ -44,10 +44,11 @@ protected:
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             int*) override;
 
-    bool onQueryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override;
+    bool onQueryYUVAInfo(SkYUVAInfo* yuvaInfo,
+                         SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
+                         size_t rowBytes[SkYUVAInfo::kMaxPlanes]) const override;
 
-    Result onGetYUV8Planes(const SkYUVASizeInfo& sizeInfo,
-                           void* planes[SkYUVASizeInfo::kMaxCount]) override;
+    Result onGetYUVAPlanes(const SkPixmap planes[SkYUVAInfo::kMaxPlanes]) override;
 
     SkEncodedImageFormat onGetEncodedFormat() const override {
         return SkEncodedImageFormat::kJPEG;
