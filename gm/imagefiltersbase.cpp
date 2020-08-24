@@ -16,7 +16,6 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
-#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -28,7 +27,6 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
-#include "src/utils/SkPatchUtils.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>
@@ -96,7 +94,7 @@ sk_sp<SkFlattenable> IdentityImageFilter::CreateProc(SkReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void draw_paint(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImageFilter> imf) {
+static void draw_paint(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setImageFilter(std::move(imf));
     paint.setColor(SK_ColorGREEN);
@@ -106,7 +104,7 @@ static void draw_paint(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImag
     canvas->restore();
 }
 
-static void draw_line(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImageFilter> imf) {
+static void draw_line(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setColor(SK_ColorBLUE);
     paint.setImageFilter(imf);
@@ -114,7 +112,7 @@ static void draw_line(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImage
     canvas->drawLine(r.fLeft, r.fTop, r.fRight, r.fBottom, paint);
 }
 
-static void draw_rect(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImageFilter> imf) {
+static void draw_rect(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setColor(SK_ColorYELLOW);
     paint.setImageFilter(imf);
@@ -123,7 +121,7 @@ static void draw_rect(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImage
     canvas->drawRect(rr, paint);
 }
 
-static void draw_path(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImageFilter> imf) {
+static void draw_path(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setColor(SK_ColorMAGENTA);
     paint.setImageFilter(imf);
@@ -131,7 +129,7 @@ static void draw_path(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImage
     canvas->drawCircle(r.centerX(), r.centerY(), r.width()*2/5, paint);
 }
 
-static void draw_text(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImageFilter> imf) {
+static void draw_text(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setImageFilter(imf);
     paint.setColor(SK_ColorCYAN);
@@ -140,7 +138,7 @@ static void draw_text(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImage
                             SkTextUtils::kCenter_Align);
 }
 
-static void draw_bitmap(SkCanvas* canvas, SkImage* i, const SkRect& r, sk_sp<SkImageFilter> imf) {
+static void draw_bitmap(SkCanvas* canvas, const SkRect& r, sk_sp<SkImageFilter> imf) {
     SkPaint paint;
     paint.setImageFilter(std::move(imf));
 
@@ -151,51 +149,9 @@ static void draw_bitmap(SkCanvas* canvas, SkImage* i, const SkRect& r, sk_sp<SkI
     bm.allocN32Pixels(bounds.width(), bounds.height());
     bm.eraseColor(SK_ColorTRANSPARENT);
     SkCanvas c(bm);
-    draw_path(&c, i, r, nullptr);
+    draw_path(&c, r, nullptr);
 
     canvas->drawBitmap(bm, 0, 0, &paint);
-}
-
-static void draw_patch(SkCanvas* canvas, SkImage*, const SkRect& r, sk_sp<SkImageFilter> imf) {
-    SkPaint paint;
-    paint.setImageFilter(std::move(imf));
-
-    // The order of the colors and points is clockwise starting at upper-left corner.
-    static constexpr SkPoint gCubics[SkPatchUtils::kNumCtrlPts] = {
-        //top points
-        {100,100},{150,50},{250,150},{300,100},
-        //right points
-        {250,150},{350,250},
-        //bottom points
-        {300,300},{250,250},{150,350},{100,300},
-        //left points
-        {50,250},{150,150}
-    };
-
-    static constexpr SkColor colors[SkPatchUtils::kNumCorners] = {
-        SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorCYAN
-    };
-
-    SkAutoCanvasRestore acr(canvas, /*doSave=*/true);
-    canvas->translate(-r.fLeft, -r.fTop);
-    canvas->scale(r.width() / 400.0, r.height() / 400.0);
-    canvas->drawPatch(gCubics, colors, /*texCoords=*/nullptr, SkBlendMode::kSrc, paint);
-}
-
-static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRect& r,
-                       sk_sp<SkImageFilter> imf) {
-    SkRSXform xform;
-    const SkScalar rad = SkDegreesToRadians(15.0f);
-    xform.fSCos = SkScalarCos(rad);
-    xform.fSSin = SkScalarSin(rad);
-    xform.fTx = r.width() * 0.15f;
-
-    SkPaint paint;
-    paint.setImageFilter(std::move(imf));
-    paint.setFilterQuality(kHigh_SkFilterQuality);
-    paint.setAntiAlias(true);
-    canvas->drawAtlas(atlas, &xform, &r, /*colors=*/nullptr, /*count=*/1, SkBlendMode::kSrc,
-                      /*cullRect=*/nullptr, &paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -219,14 +175,10 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (fAtlas == nullptr) {
-            fAtlas = create_atlas_image(canvas);
-        }
-
-        void (*drawProc[])(SkCanvas*, SkImage*, const SkRect&, sk_sp<SkImageFilter>) = {
+        void (*drawProc[])(SkCanvas*, const SkRect&, sk_sp<SkImageFilter>) = {
             draw_paint,
             draw_line, draw_rect, draw_path, draw_text,
-            draw_bitmap, draw_patch, draw_atlas
+            draw_bitmap,
         };
 
         auto cf = SkColorFilters::Blend(SK_ColorRED, SkBlendMode::kSrcIn);
@@ -251,7 +203,7 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(drawProc); ++i) {
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(filters); ++j) {
-                drawProc[i](canvas, fAtlas.get(), r, filters[j]);
+                drawProc[i](canvas, r, filters[j]);
 
                 draw_frame(canvas, r);
                 canvas->translate(0, DY);
@@ -262,22 +214,6 @@ protected:
     }
 
 private:
-    static sk_sp<SkImage> create_atlas_image(SkCanvas* canvas) {
-        static constexpr SkSize kSize = {64, 64};
-        SkImageInfo atlasInfo = SkImageInfo::MakeN32Premul(kSize.fWidth, kSize.fHeight);
-        sk_sp<SkSurface> atlasSurface(ToolUtils::makeSurface(canvas, atlasInfo));
-        SkCanvas* atlasCanvas = atlasSurface->getCanvas();
-
-        SkPaint atlasPaint;
-        atlasPaint.setColor(SK_ColorGRAY);
-        SkFont font(ToolUtils::create_portable_typeface(), kSize.fHeight * 0.4f);
-        SkTextUtils::DrawString(atlasCanvas, "Atlas", kSize.fWidth * 0.5f, kSize.fHeight * 0.5f,
-                                font, atlasPaint, SkTextUtils::kCenter_Align);
-        return atlasSurface->makeImageSnapshot();
-    }
-
-    sk_sp<SkImage> fAtlas;
-
     typedef GM INHERITED;
 };
 DEF_GM( return new ImageFiltersBaseGM; )
