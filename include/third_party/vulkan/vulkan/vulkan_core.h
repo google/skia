@@ -1905,7 +1905,7 @@ typedef struct VkPhysicalDeviceMemoryProperties {
     VkMemoryHeap    memoryHeaps[VK_MAX_MEMORY_HEAPS];
 } VkPhysicalDeviceMemoryProperties;
 
-typedef void (VKAPI_PTR *PFN_vkVoidFunction)(void);
+typedef void (VKAPI_PTR *PFN_vkVoidFunction)();
 typedef struct VkDeviceQueueCreateInfo {
     VkStructureType             sType;
     const void*                 pNext;

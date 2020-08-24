@@ -25,7 +25,7 @@ SK_API extern void sk_free(void*);
  *  Called internally if we run out of memory. The platform implementation must
  *  not return, but should either throw an exception or otherwise exit.
  */
-SK_API extern void sk_out_of_memory(void);
+SK_API extern void sk_out_of_memory();
 
 enum {
     /**
