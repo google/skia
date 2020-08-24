@@ -27,42 +27,24 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
     // Packing structure: texel coordinates have the 2-bit texture page encoded in bits 13 & 14 of
     // the x coordinate. It would be nice to use bits 14 and 15, but iphone6 has problem with those
     // bits when in gles. Iphone6 works fine with bits 14 and 15 in metal.
-    if (args.fShaderCaps->integerSupport()) {
-        if (numTextureSamplers <= 1) {
-            args.fVertBuilder->codeAppendf(R"code(
-                int texIdx = 0;
-                float2 unormTexCoords = float2(%s.x, %s.y);
-           )code", inTexCoordsName, inTexCoordsName);
-        } else {
-            args.fVertBuilder->codeAppendf(R"code(
-                int2 coords = int2(%s.x, %s.y);
-                int texIdx = coords.x >> 13;
-                float2 unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
-            )code", inTexCoordsName, inTexCoordsName);
-        }
-    } else {
-        if (numTextureSamplers <= 1) {
-            args.fVertBuilder->codeAppendf(R"code(
+    if (numTextureSamplers <= 1) {
+        args.fVertBuilder->codeAppendf(R"code(
                 float texIdx = 0;
                 float2 unormTexCoords = float2(%s.x, %s.y);
             )code", inTexCoordsName, inTexCoordsName);
-        } else {
-            args.fVertBuilder->codeAppendf(R"code(
+    } else {
+        args.fVertBuilder->codeAppendf(R"code(
                 float2 coord = float2(%s.x, %s.y);
                 float texIdx = floor(coord.x * exp2(-13));
                 float2 unormTexCoords = float2(coord.x - texIdx * exp2(13), coord.y);
             )code", inTexCoordsName, inTexCoordsName);
-        }
     }
 
     // Multiply by 1/atlasDimensions to get normalized texture coordinates
     args.fVaryingHandler->addVarying("TextureCoords", uv);
-    args.fVertBuilder->codeAppendf(
-            "%s = unormTexCoords * %s;", uv->vsOut(), atlasDimensionsInvName);
+    args.fVertBuilder->codeAppendf("%s = unormTexCoords * %s;", uv->vsOut(),atlasDimensionsInvName);
 
-    args.fVaryingHandler->addVarying("TexIndex", texIdx, args.fShaderCaps->integerSupport()
-                                                                 ? Interpolation::kMustBeFlat
-                                                                 : Interpolation::kCanBeFlat);
+    args.fVaryingHandler->addVarying("TexIndex", texIdx, Interpolation::kCanBeFlat);
     args.fVertBuilder->codeAppendf("%s = texIdx;", texIdx->vsOut());
 
     if (st) {
