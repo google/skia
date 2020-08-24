@@ -401,7 +401,7 @@ static void test_chop_quad_at_midtangent(skiatest::Reporter* reporter, const SkP
 
 static void test_chop_cubic_at_midtangent(skiatest::Reporter* reporter, const SkPoint pts[4],
                                           SkCubicType cubicType) {
-    constexpr float kTolerance = 1e-3f;
+    constexpr float kTolerance = 1e-2f;
     int n = SK_ARRAY_COUNT(kSkewMatrices);
     if (cubicType == SkCubicType::kLocalCusp || cubicType == SkCubicType::kLineOrPoint) {
         // FP precision isn't always enough to get the exact correct T value of the mid-tangent on
