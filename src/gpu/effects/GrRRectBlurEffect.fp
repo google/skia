@@ -144,17 +144,12 @@ uniform half blurRadius;
         SkRRect rrectToDraw;
         SkISize dimensions;
         SkScalar ignored[kSkBlurRRectMaxDivisions];
-        int ignoredSize;
-        uint32_t ignored32;
 
         bool ninePatchable = SkComputeBlurredRRectParams(srcRRect, devRRect,
-                                                         SkRect::MakeEmpty(),
                                                          sigma, xformedSigma,
                                                          &rrectToDraw, &dimensions,
                                                          ignored, ignored,
-                                                         ignored, ignored,
-                                                         &ignoredSize, &ignoredSize,
-                                                         &ignored32);
+                                                         ignored, ignored);
         if (!ninePatchable) {
             return nullptr;
         }
