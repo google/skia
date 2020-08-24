@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d53ee04c_6b3a871e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T21:05:17Z",
+      "side": 1,
+      "message": "Please investigate the use of uninitialized memory indicated by the MSAN bots.",
+      "revId": "0baaa2372201e29d68dcb83b7454e2dedf6d4b5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
