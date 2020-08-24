@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc4cff1b_c7ad5ca3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-24T13:13:45Z",
+      "side": 1,
+      "message": "I still have no idea what\u0027s causing the AVAILABLE_API declaration to fail. It\u0027s even failing on the iPhone 11, which should be running iOS 13 at the very least. I\u0027ll try a few things.",
+      "revId": "84223ad5c05f5230d68c57f9f369a5fab4668de9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
