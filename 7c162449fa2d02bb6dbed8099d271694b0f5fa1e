@@ -39,6 +39,30 @@
       "revId": "7c162449fa2d02bb6dbed8099d271694b0f5fa1e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb40d4d8_5b4a98f6",
+        "filename": "src/core/SkYUVAInfo.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-24T13:45:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09718aaa_70c1ddc6",
+      "range": {
+        "startLine": 111,
+        "startChar": 46,
+        "endLine": 111,
+        "endChar": 47
+      },
+      "revId": "7c162449fa2d02bb6dbed8099d271694b0f5fa1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
