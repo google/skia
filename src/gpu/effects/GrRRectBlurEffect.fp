@@ -14,6 +14,26 @@ layout(ctype=SkRect) uniform float4 proxyRect;
 uniform half blurRadius;
 
 @header {
+    #include "include/core/SkRect.h"
+    class GrRecordingContext;
+    class SkRRect;
+}
+
+@optimizationFlags {
+    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
+            kCompatibleWithCoverageAsAlpha_OptimizationFlag
+}
+
+@make {
+    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
+                                                     GrRecordingContext* context,
+                                                     float sigma,
+                                                     float xformedSigma,
+                                                     const SkRRect& srcRRect,
+                                                     const SkRRect& devRRect);
+}
+
+@cpp {
     #include "include/gpu/GrRecordingContext.h"
     #include "src/core/SkBlurPriv.h"
     #include "src/core/SkGpuBlurUtils.h"
@@ -25,9 +45,7 @@ uniform half blurRadius;
     #include "src/gpu/GrRenderTargetContext.h"
     #include "src/gpu/GrStyle.h"
     #include "src/gpu/effects/GrTextureEffect.h"
-}
 
-@class {
     static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
             GrRecordingContext* context,
             const SkRRect& rrectToDraw,
@@ -105,23 +123,7 @@ uniform half blurRadius;
         proxyProvider->assignUniqueKeyToProxy(key, mask.asTextureProxy());
         return GrTextureEffect::Make(std::move(mask), kPremul_SkAlphaType, m);
     }
-}
 
-@optimizationFlags {
-    (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
-            kCompatibleWithCoverageAsAlpha_OptimizationFlag
-}
-
-@make {
-    static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
-                                                     GrRecordingContext* context,
-                                                     float sigma,
-                                                     float xformedSigma,
-                                                     const SkRRect& srcRRect,
-                                                     const SkRRect& devRRect);
-}
-
-@cpp {
     std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
             std::unique_ptr<GrFragmentProcessor> inputFP,
             GrRecordingContext* context,
