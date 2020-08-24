@@ -23,7 +23,7 @@
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkSampler.h"
 #include "src/gpu/vk/GrVkTexture.h"
-#include "src/gpu/vk/GrVkUniformBuffer.h"
+#include "src/gpu/vk/GrVkUniformBuffer2.h"
 
 GrVkPipelineState::GrVkPipelineState(
         GrVkGpu* gpu,
@@ -43,7 +43,6 @@ GrVkPipelineState::GrVkPipelineState(
         , fXferProcessor(std::move(xferProcessor))
         , fFragmentProcessors(std::move(fragmentProcessors))
         , fDataManager(uniforms, uniformSize) {
-    fUniformBuffer.reset(GrVkUniformBuffer::Create(gpu, uniformSize));
 
     fNumSamplers = samplers.count();
     for (const auto& sampler : samplers.items()) {
@@ -62,11 +61,6 @@ void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
     if (fPipeline) {
         fPipeline->unref();
         fPipeline = nullptr;
-    }
-
-    if (fUniformBuffer) {
-        fUniformBuffer->release(gpu);
-        fUniformBuffer.reset();
     }
 }
 
@@ -94,13 +88,33 @@ bool GrVkPipelineState::setAndBindUniforms(GrVkGpu* gpu,
     }
 
     // Get new descriptor set
-    if (fUniformBuffer) {
-        fDataManager.uploadUniformBuffers(gpu, fUniformBuffer.get());
-        static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
-        commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kUniformDSIdx, 1,
-                                          fUniformBuffer->descriptorSet(), 0, nullptr);
-        commandBuffer->addRecycledResource(fUniformBuffer->resource());
+    uint32_t uniformSize = fDataManager.uniformsSize();
+    sk_sp<GrGpuBuffer> bigBuffer;
+    GrVkUniformBuffer2* vkBuffer = nullptr;
+    void* mapPtr = nullptr;
+    uint32_t dynamicOffset = 0;
+    if (uniformSize > 256) {
+        bigBuffer = GrVkUniformBuffer2::Make(gpu, uniformSize, false);
+        if (!bigBuffer) {
+            return false;
+        }
+        vkBuffer = static_cast<GrVkUniformBuffer2*>(bigBuffer.get());
+        mapPtr = bigBuffer->map();
+
+    } else {
+        SkASSERT(uniformSize <= 256);
+        GrRingBuffer::Slice slice = gpu->uniformsRingBuffer()->suballocate(128);
+        vkBuffer = static_cast<GrVkUniformBuffer2*>(slice.fBuffer);
+        mapPtr = static_cast<char*>(slice.fBuffer->map()) + slice.fOffset;
+        dynamicOffset = slice.fOffset;
     }
+    SkASSERT(vkBuffer);
+    SkASSERT(mapPtr);
+    fDataManager.uploadUniformBuffers(mapPtr);
+    static const int kUniformDSIdx = GrVkUniformHandler::kUniformBufferDescSet;
+    commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(), kUniformDSIdx, 1,
+                                      vkBuffer->descriptorSet(), 1, &dynamicOffset);
+    commandBuffer->addRecycledResource(vkBuffer->resource());
     return true;
 }
 

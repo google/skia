@@ -57,6 +57,8 @@ public:
     // For the uniform data to be dirty so that we will reupload on the next use.
     void markDirty() { fUniformsDirty = true; }
 
+    uint32_t uniformsSize() const { return fUniformSize; }
+
 protected:
     struct Uniform {
         uint32_t fOffset;

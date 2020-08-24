@@ -64,7 +64,9 @@ private:
 
     GrVkUniformBuffer(GrVkGpu* gpu, const GrVkBuffer::Desc& desc,
                       const GrVkUniformBuffer::Resource* resource)
-        : INHERITED(desc, resource) {}
+        : INHERITED(desc, resource) {
+        SkDebugf("THIS IS BAD TO BE HERE\n");
+    }
 
     typedef GrVkBuffer INHERITED;
 };

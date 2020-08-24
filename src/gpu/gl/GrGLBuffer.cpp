@@ -93,6 +93,8 @@ inline static GrGLenum gr_to_gl_access_pattern(GrGpuBufferType bufferType,
                 return drawUsage(pattern);
             case GrGpuBufferType::kXferGpuToCpu:
                 return readUsage(pattern);
+            case GrGpuBufferType::kUniform:
+                break;
         }
         SkUNREACHABLE;
     };

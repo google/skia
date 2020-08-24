@@ -66,6 +66,9 @@ GrRingBuffer::Slice GrRingBuffer::suballocate(size_t size) {
     }
 
     GrResourceProvider* resourceProvider = fGpu->getContext()->priv().resourceProvider();
+    if (fMaxBufferSize != 0) {
+        fTotalSize = std::min(fTotalSize, fMaxBufferSize);
+    }
     fCurrentBuffer = resourceProvider->createBuffer(fTotalSize, fType, kDynamic_GrAccessPattern);
 
     SkASSERT(fCurrentBuffer);
@@ -81,6 +84,9 @@ GrRingBuffer::Slice GrRingBuffer::suballocate(size_t size) {
 // used when current command buffer/command list is submitted
 void GrRingBuffer::startSubmit(GrGpu* gpu) {
     for (unsigned int i = 0; i < fTrackedBuffers.size(); ++i) {
+        if (fTrackedBuffers[i]) {
+            fTrackedBuffers[i]->flushBufferWrites();
+        }
         gpu->takeOwnershipOfBuffer(std::move(fTrackedBuffers[i]));
     }
     fTrackedBuffers.clear();
@@ -102,4 +108,9 @@ void GrRingBuffer::FinishSubmit(void* finishedContext) {
         submitData->fOwner = nullptr;
     }
     delete submitData;
+}
+
+void GrRingBuffer::reset() {
+    fCurrentBuffer.reset();
+    fTrackedBuffers.clear();
 }

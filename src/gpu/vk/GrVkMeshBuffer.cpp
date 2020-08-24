@@ -27,6 +27,7 @@ static GrVkBuffer::Type vk_mesh_buffer_type_from_gr_bufer_type(GrGpuBufferType b
             return GrVkBuffer::kIndirect_Type;
         case GrGpuBufferType::kXferCpuToGpu:
         case GrGpuBufferType::kXferGpuToCpu:
+        case GrGpuBufferType::kUniform:
             SK_ABORT("Invalid mesh buffer type.");
     }
     SkUNREACHABLE;

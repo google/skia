@@ -372,6 +372,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
+    fRequiredUniformBufferOffsetAlignment = properties.limits.minUniformBufferOffsetAlignment;
+    fMaxUniformBufferSize = properties.limits.maxUniformBufferRange;
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);

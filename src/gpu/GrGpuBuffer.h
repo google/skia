@@ -80,6 +80,8 @@ public:
      */
     bool updateData(const void* src, size_t srcSizeInBytes);
 
+    virtual void flushBufferWrites() {}
+
 protected:
     GrGpuBuffer(GrGpu*, size_t sizeInBytes, GrGpuBufferType, GrAccessPattern);
     GrGpuBufferType intendedType() const { return fIntendedType; }

@@ -43,6 +43,7 @@
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/gpu/vk/GrVkTextureRenderTarget.h"
 #include "src/gpu/vk/GrVkTransferBuffer.h"
+#include "src/gpu/vk/GrVkUniformBuffer2.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -179,6 +180,8 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrContextOptions& options,
         , fQueueIndex(backendContext.fGraphicsQueueIndex)
         , fResourceProvider(this)
         , fStagingBufferManager(this)
+        , fUniformRingBuffer(
+                  this, 128 * 1024, 0, GrGpuBufferType::kUniform)
         , fDisconnected(false)
         , fProtectedContext(backendContext.fProtectedContext) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
@@ -225,6 +228,9 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrContextOptions& options,
                                    fProtectedContext));
     }
     fCaps.reset(SkRef(fVkCaps.get()));
+
+    fUniformRingBuffer.setRequiredAlignent(fVkCaps->requiredUniformBufferOffsetAlignment());
+   // fUniformRingBuffer.setMaxSize(fVkCaps->maxUniformBufferSize());
 
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
     VK_CALL(GetPhysicalDeviceMemoryProperties(backendContext.fPhysicalDevice, &fPhysDevMemProps));
@@ -282,6 +288,7 @@ void GrVkGpu::destroyResources() {
     fSemaphoresToSignal.reset();
 
     fStagingBufferManager.reset();
+    fUniformRingBuffer.reset();
 
     // must call this just before we destroy the command pool and VkDevice
     fResourceProvider.destroyResources(VK_ERROR_DEVICE_LOST == res);
@@ -421,6 +428,10 @@ sk_sp<GrGpuBuffer> GrVkGpu::onCreateBuffer(size_t size, GrGpuBufferType type,
             SkASSERT(kDynamic_GrAccessPattern == accessPattern ||
                      kStream_GrAccessPattern == accessPattern);
             buff = GrVkTransferBuffer::Make(this, size, GrVkBuffer::kCopyWrite_Type);
+            break;
+        case GrGpuBufferType::kUniform:
+            SkASSERT(kDynamic_GrAccessPattern == accessPattern);
+            buff = GrVkUniformBuffer2::Make(this, size);
             break;
         default:
             SK_ABORT("Unknown buffer type.");

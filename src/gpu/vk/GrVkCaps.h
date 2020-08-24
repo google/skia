@@ -162,6 +162,12 @@ public:
 
     uint32_t maxInputAttachmentDescriptors() const { return fMaxInputAttachmentDescriptors; }
 
+    uint32_t requiredUniformBufferOffsetAlignment() const {
+        return fRequiredUniformBufferOffsetAlignment;
+    }
+    
+    uint32_t maxUniformBufferSize() const { return fMaxUniformBufferSize; }
+
     bool mustInvalidatePrimaryCmdBufferStateAfterClearAttachments() const {
         return fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments;
     }
@@ -339,6 +345,9 @@ private:
     int fMaxPerPoolCachedSecondaryCommandBuffers = 100;
 
     uint32_t fMaxInputAttachmentDescriptors = 0;
+
+    uint32_t fRequiredUniformBufferOffsetAlignment = 0;
+    uint32_t fMaxUniformBufferSize = 0;
 
     typedef GrCaps INHERITED;
 };
