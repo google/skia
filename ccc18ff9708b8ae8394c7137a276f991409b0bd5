@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ee328637_c9bf10be",
+        "filename": "src/core/SkBitmap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T15:39:40Z",
+      "side": 1,
+      "message": "I think this can go now?",
+      "range": {
+        "startLine": 33,
+        "startChar": 10,
+        "endLine": 33,
+        "endChar": 19
+      },
+      "revId": "ccc18ff9708b8ae8394c7137a276f991409b0bd5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
