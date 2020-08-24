@@ -16,6 +16,24 @@
       "revId": "c6e22f8c5a2a07b8d9250b9044ae9120a4878af7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6575787b_81a72e3d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-24T15:49:18Z",
+      "side": 1,
+      "message": "SGTM, I\u0027ll work on that now.",
+      "parentUuid": "c533b394_af59dca0",
+      "revId": "c6e22f8c5a2a07b8d9250b9044ae9120a4878af7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
