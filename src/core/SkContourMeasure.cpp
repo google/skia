@@ -193,6 +193,7 @@ private:
     SkTDArray<SkContourMeasure::Segment>  fSegments;
     SkTDArray<SkPoint>  fPts; // Points used to define the segments
 
+    SkDEBUGCODE(void validate() const;)
     SkScalar compute_line_seg(SkPoint p0, SkPoint p1, SkScalar distance, unsigned ptIndex);
     SkScalar compute_quad_segs(const SkPoint pts[3], SkScalar distance,
                                int mint, int maxt, unsigned ptIndex);
@@ -299,6 +300,33 @@ SkScalar SkContourMeasureIter::Impl::compute_line_seg(SkPoint p0, SkPoint p1, Sk
     return distance;
 }
 
+#ifdef SK_DEBUG
+void SkContourMeasureIter::Impl::validate() const {
+    const SkContourMeasure::Segment* seg = fSegments.begin();
+    const SkContourMeasure::Segment* stop = fSegments.end();
+    unsigned ptIndex = 0;
+    SkScalar distance = 0;
+    // limit the loop to a reasonable number; pathological cases can run for minutes
+    int maxChecks = 10000000;  // set to INT_MAX to defeat the check
+    while (seg < stop) {
+        SkASSERT(seg->fDistance > distance);
+        SkASSERT(seg->fPtIndex >= ptIndex);
+        SkASSERT(seg->fTValue > 0);
+
+        const SkContourMeasure::Segment* s = seg;
+        while (s < stop - 1 && s[0].fPtIndex == s[1].fPtIndex && --maxChecks > 0) {
+            SkASSERT(s[0].fType == s[1].fType);
+            SkASSERT(s[0].fTValue < s[1].fTValue);
+            s += 1;
+        }
+
+        distance = seg->fDistance;
+        ptIndex = seg->fPtIndex;
+        seg += 1;
+    }
+}
+#endif
+
 SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
     int         ptIndex = -1;
     SkScalar    distance = 0;
@@ -399,33 +427,7 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
         }
     }
 
-#ifdef SK_DEBUG
-    {
-        const SkContourMeasure::Segment* seg = fSegments.begin();
-        const SkContourMeasure::Segment* stop = fSegments.end();
-        unsigned        ptIndex = 0;
-        SkScalar        distance = 0;
-        // limit the loop to a reasonable number; pathological cases can run for minutes
-        int             maxChecks = 10000000;  // set to INT_MAX to defeat the check
-        while (seg < stop) {
-            SkASSERT(seg->fDistance > distance);
-            SkASSERT(seg->fPtIndex >= ptIndex);
-            SkASSERT(seg->fTValue > 0);
-
-            const SkContourMeasure::Segment* s = seg;
-            while (s < stop - 1 && s[0].fPtIndex == s[1].fPtIndex && --maxChecks > 0) {
-                SkASSERT(s[0].fType == s[1].fType);
-                SkASSERT(s[0].fTValue < s[1].fTValue);
-                s += 1;
-            }
-
-            distance = seg->fDistance;
-            ptIndex = seg->fPtIndex;
-            seg += 1;
-        }
-    //  SkDebugf("\n");
-    }
-#endif
+    SkDEBUGCODE(this->validate();)
 
     return new SkContourMeasure(std::move(fSegments), std::move(fPts), distance, haveSeenClose);
 }
