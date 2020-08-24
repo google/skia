@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "076f9664_4f8f0e74",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-24T13:25:29Z",
+      "side": 1,
+      "message": "sgtm",
+      "range": {
+        "startLine": 10,
+        "startChar": 8,
+        "endLine": 25,
+        "endChar": 52
+      },
+      "revId": "b712e25711c8ac8efa0b13654f65b171b9bd0be3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6db9bfa6_076d77bb",
+        "filename": "site/dev/contrib/style.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-24T13:25:29Z",
+      "side": 1,
+      "message": "This seems to contradict the above statement and looking at the code it appears we do typically put a space here.",
+      "range": {
+        "startLine": 244,
+        "startChar": 6,
+        "endLine": 244,
+        "endChar": 8
+      },
+      "revId": "b712e25711c8ac8efa0b13654f65b171b9bd0be3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
