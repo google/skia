@@ -16,6 +16,41 @@
       "revId": "27fb941e33ad1d3fed039c65c6523983d481587b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc240737_81bc5c0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T13:14:03Z",
+      "side": 1,
+      "message": "Yeah, this looks like its design predates the tools we have now.  Something like,\n\nstruct TaggedArray {\n   enum { S32, Scalar, Ptr, Bool } tag;\n   void* array;\n   int   count;\n};\nusing MetaData \u003d std::some_map\u003csome_string, TaggedArray\u003e;\n\n?",
+      "parentUuid": "279956f3_86803cda",
+      "revId": "27fb941e33ad1d3fed039c65c6523983d481587b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1743355_fd10f2e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T13:14:03Z",
+      "side": 1,
+      "message": "as usual, however you like this GM is ok with me.",
+      "revId": "27fb941e33ad1d3fed039c65c6523983d481587b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
