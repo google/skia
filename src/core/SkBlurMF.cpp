@@ -115,67 +115,14 @@ private:
 
 const SkScalar SkBlurMaskFilterImpl::kMAX_BLUR_SIGMA = SkIntToScalar(128);
 
-// linearly interpolate between y1 & y3 to match x2's position between x1 & x3
-static SkScalar interp(SkScalar x1, SkScalar x2, SkScalar x3, SkScalar y1, SkScalar y3) {
-    SkASSERT(x1 <= x2 && x2 <= x3);
-    SkASSERT(y1 <= y3);
-
-    SkScalar t = (x2 - x1) / (x3 - x1);
-    return y1 + t * (y3 - y1);
-}
-
-// Insert 'lower' and 'higher' into 'array1' and insert a new value at each matching insertion
-// point in 'array2' that linearly interpolates between the existing values.
-// Return a bit mask which contains a copy of 'inputMask' for all the cells between the two
-// insertion points.
-static uint32_t insert_into_arrays(SkScalar* array1, SkScalar* array2,
-                                   SkScalar lower, SkScalar higher,
-                                   int* num, uint32_t inputMask, int maskSize) {
-    SkASSERT(lower < higher);
-    SkASSERT(lower >= array1[0] && higher <= array1[*num-1]);
-
-    int32_t skipMask = 0x0;
-    int i;
-    for (i = 0; i < *num; ++i) {
-        if (lower >= array1[i] && lower < array1[i+1]) {
-            if (!SkScalarNearlyEqual(lower, array1[i])) {
-                memmove(&array1[i+2], &array1[i+1], (*num-i-1)*sizeof(SkScalar));
-                array1[i+1] = lower;
-                memmove(&array2[i+2], &array2[i+1], (*num-i-1)*sizeof(SkScalar));
-                array2[i+1] = interp(array1[i], lower, array1[i+2], array2[i], array2[i+2]);
-                i++;
-                (*num)++;
-            }
-            break;
-        }
-    }
-    for ( ; i < *num; ++i) {
-        skipMask |= inputMask << (i*maskSize);
-        if (higher > array1[i] && higher <= array1[i+1]) {
-            if (!SkScalarNearlyEqual(higher, array1[i+1])) {
-                memmove(&array1[i+2], &array1[i+1], (*num-i-1)*sizeof(SkScalar));
-                array1[i+1] = higher;
-                memmove(&array2[i+2], &array2[i+1], (*num-i-1)*sizeof(SkScalar));
-                array2[i+1] = interp(array1[i], higher, array1[i+2], array2[i], array2[i+2]);
-                (*num)++;
-            }
-            break;
-        }
-    }
-
-    return skipMask;
-}
-
 bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRect,
-                                 const SkRect& occluder,
                                  SkScalar sigma, SkScalar xformedSigma,
                                  SkRRect* rrectToDraw,
                                  SkISize* widthHeight,
                                  SkScalar rectXs[kSkBlurRRectMaxDivisions],
                                  SkScalar rectYs[kSkBlurRRectMaxDivisions],
                                  SkScalar texXs[kSkBlurRRectMaxDivisions],
-                                 SkScalar texYs[kSkBlurRRectMaxDivisions],
-                                 int* numXs, int* numYs, uint32_t* skipMask) {
+                                 SkScalar texYs[kSkBlurRRectMaxDivisions]) {
     unsigned int devBlurRadius = 3*SkScalarCeilToInt(xformedSigma-1/6.0f);
     SkScalar srcBlurRadius = 3.0f * sigma;
 
@@ -232,17 +179,6 @@ bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRec
     texYs[1] = 2.0f*devBlurRadius + devTop;
     texYs[2] = 2.0f*devBlurRadius + devTop + 1;
     texYs[3] = SkIntToScalar(widthHeight->fHeight);
-
-    SkRect temp = occluder;
-
-    *numXs = 4;
-    *numYs = 4;
-    *skipMask = 0;
-    if (!temp.isEmpty() && (srcProxyRect.contains(temp) || temp.intersect(srcProxyRect))) {
-        *skipMask = insert_into_arrays(rectXs, texXs, temp.fLeft, temp.fRight, numXs, 0x1, 1);
-        *skipMask = insert_into_arrays(rectYs, texYs, temp.fTop, temp.fBottom,
-                                       numYs, *skipMask, *numXs-1);
-    }
 
     const SkRect newRect = SkRect::MakeXYWH(SkIntToScalar(devBlurRadius),
                                             SkIntToScalar(devBlurRadius),
