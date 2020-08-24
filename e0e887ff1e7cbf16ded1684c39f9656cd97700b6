@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f00dd042_ea2cf5c6",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-24T14:11:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e21cb1b5_4534c72a",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 186,
+        "endChar": 5
+      },
+      "revId": "e0e887ff1e7cbf16ded1684c39f9656cd97700b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "590cc24e_fb41a88d",
         "filename": "src/gpu/vk/GrVkGpu.cpp",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "e0e887ff1e7cbf16ded1684c39f9656cd97700b6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3d1247f_79a635f8",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-24T14:11:46Z",
+      "side": 1,
+      "message": "Yeah looks like the factory there doesn\u0027t currently have any failure modes in it. Moved to assert.",
+      "parentUuid": "590cc24e_fb41a88d",
+      "range": {
+        "startLine": 197,
+        "startChar": 0,
+        "endLine": 200,
+        "endChar": 5
+      },
+      "revId": "e0e887ff1e7cbf16ded1684c39f9656cd97700b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
