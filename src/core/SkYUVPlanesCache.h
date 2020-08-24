@@ -23,11 +23,14 @@ public:
      *
      * fSizeInfo: fWidth, fHeight, and fWidthBytes of each of the Y, U, V, and A planes.
      * fColorSpace: color space that will be used for the YUV -> RGB conversion.
+     *
+     * TODO: Replace first three fields with SkYUVAInfo.
      */
     struct Info {
         SkYUVASizeInfo  fSizeInfo;
         SkYUVAIndex     fYUVAIndices[SkYUVAIndex::kIndexCount];
         SkYUVColorSpace fColorSpace;
+        SkPixmap        fPlanes[SkYUVASizeInfo::kMaxCount];
     };
     /**
      * On success, return a ref to the SkCachedData that holds the pixels.

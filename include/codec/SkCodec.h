@@ -17,7 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkYUVASizeInfo.h"
+#include "include/core/SkYUVAInfo.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
@@ -381,56 +381,20 @@ public:
     }
 
     /**
-     *  If decoding to YUV is supported, this returns true.  Otherwise, this
-     *  returns false and does not modify any of the parameters.
-     *
-     *  @param sizeInfo   Output parameter indicating the sizes and required
-     *                    allocation widths of the Y, U, V, and A planes. Given current codec
-     *                    limitations the size of the A plane will always be 0 and the Y, U, V
-     *                    channels will always be planar.
-     *  @param colorSpace Output parameter.  If non-NULL this is set to kJPEG,
-     *                    otherwise this is ignored.
+     * If decoding to YUVA is supported, this returns true and updates yuvaInfo to be a
+     * specification of the planar layout and YUVA->RGBA transformation. If YUVA decoding is not
+     * supported then returns false.
      */
-    bool queryYUV8(SkYUVASizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const {
-        if (nullptr == sizeInfo) {
-            return false;
-        }
-
-        bool result = this->onQueryYUV8(sizeInfo, colorSpace);
-        if (result) {
-            for (int i = 0; i <= 2; ++i) {
-                SkASSERT(sizeInfo->fSizes[i].fWidth > 0 && sizeInfo->fSizes[i].fHeight > 0 &&
-                         sizeInfo->fWidthBytes[i] > 0);
-            }
-            SkASSERT(!sizeInfo->fSizes[3].fWidth &&
-                     !sizeInfo->fSizes[3].fHeight &&
-                     !sizeInfo->fWidthBytes[3]);
-        }
-        return result;
-    }
+    bool queryYUVAInfo(SkYUVAInfo* yuvaInfo,
+                       SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
+                       size_t rowBytes[SkYUVAInfo::kMaxPlanes]) const;
 
     /**
-     *  Returns kSuccess, or another value explaining the type of failure.
-     *  This always attempts to perform a full decode.  If the client only
-     *  wants size, it should call queryYUV8().
-     *
-     *  @param sizeInfo   Needs to exactly match the values returned by the
-     *                    query, except the WidthBytes may be larger than the
-     *                    recommendation (but not smaller).
-     *  @param planes     Memory for each of the Y, U, and V planes.
+     *  Returns kSuccess, or another value explaining the type of failure. The passed in pixmaps
+     *  are allocated using the color types, row bytes, implied plane sizes, and origin indicated
+     *  by queryYUVAInfo(). This function fills in the pixmap data.
      */
-    Result getYUV8Planes(const SkYUVASizeInfo& sizeInfo, void* planes[SkYUVASizeInfo::kMaxCount]) {
-        if (!planes || !planes[0] || !planes[1] || !planes[2]) {
-            return kInvalidInput;
-        }
-        SkASSERT(!planes[3]); // TODO: is this a fair assumption?
-
-        if (!this->rewindIfNeeded()) {
-            return kCouldNotRewind;
-        }
-
-        return this->onGetYUV8Planes(sizeInfo, planes);
-    }
+    Result getYUVAPlanes(const SkPixmap planes[SkYUVAInfo::kMaxPlanes]);
 
     /**
      *  Prepare for an incremental decode with the specified options.
@@ -767,12 +731,13 @@ protected:
                                void* pixels, size_t rowBytes, const Options&,
                                int* rowsDecoded) = 0;
 
-    virtual bool onQueryYUV8(SkYUVASizeInfo*, SkYUVColorSpace*) const {
+    virtual bool onQueryYUVAInfo(SkYUVAInfo*,
+                               SkColorType[SkYUVAInfo::kMaxPlanes],
+                               size_t /*rowBytes*/[SkYUVAInfo::kMaxPlanes]) const {
         return false;
     }
 
-    virtual Result onGetYUV8Planes(const SkYUVASizeInfo&,
-                                   void*[SkYUVASizeInfo::kMaxCount] /*planes*/) {
+    virtual Result onGetYUVAPlanes(const SkPixmap[SkYUVAInfo::kMaxPlanes]) {
         return kUnimplemented;
     }
 

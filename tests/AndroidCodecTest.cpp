@@ -208,9 +208,10 @@ DEF_TEST(AndroidCodec_orientation, r) {
         return;
     }
 
-    for (const char* ext : { "jpg", "webp" })
+    for (const char* filePathFormatStr : {"images/orientation/%c_420.jpg",
+                                          "images/orientation/%c.webp"})
     for (char i = '1'; i <= '8'; ++i) {
-        SkString path = SkStringPrintf("images/orientation/%c.%s", i, ext);
+        SkString path = SkStringPrintf(filePathFormatStr, i);
         auto data = GetResourceAsData(path.c_str());
         auto gen = SkCodecImageGenerator::MakeFromEncodedCodec(data);
         if (!gen) {
@@ -275,7 +276,7 @@ DEF_TEST(AndroidCodec_sampledOrientation, r) {
     }
 
     // kRightTop_SkEncodedOrigin    = 6, // Rotated 90 CW
-    auto path = "images/orientation/6.jpg";
+    auto path = "images/orientation/6_420.jpg";
     auto data = GetResourceAsData(path);
     if (!data) {
         ERRORF(r, "Failed to get resource %s", path);
