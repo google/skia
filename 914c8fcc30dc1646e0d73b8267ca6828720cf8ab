@@ -1349,6 +1349,24 @@
     },
     {
       "key": {
+        "uuid": "090325ed_0e4e1d45",
+        "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
+        "patchSetId": 9
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T14:35:32Z",
+      "side": 1,
+      "message": "(They\u0027re always constructed in the order they\u0027re inherited, much like fields are initialized in the order they\u0027re declared.)",
+      "parentUuid": "1f6a3422_c1cb5fc9",
+      "revId": "914c8fcc30dc1646e0d73b8267ca6828720cf8ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ecfd3f7_8af04e40",
         "filename": "src/gpu/mtl/GrMtlTextureRenderTarget.mm",
         "patchSetId": 9
