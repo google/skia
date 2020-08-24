@@ -85,26 +85,28 @@ sk_cf_obj<id<MTLLibrary>> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
 
 sk_cf_obj<id<MTLLibrary>> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
                                                     const SkSL::String& shaderString) {
-    sk_cf_obj<NSString*> mtlCode([[NSString alloc] initWithCString: shaderString.c_str()
-                                                          encoding: NSASCIIStringEncoding]);
+    sk_cf_obj<NSString*> mtlCode(
+         [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(shaderString.c_str())
+                                        length:shaderString.size()
+                                      encoding:NSUTF8StringEncoding
+                                  freeWhenDone:NO]);
 #if PRINT_MSL
-    print_msl([mtlCode cStringUsingEncoding: NSASCIIStringEncoding]);
+    print_msl(mtlCode.UTF8String);
 #endif
 
-    sk_cf_obj<MTLCompileOptions*> defaultOptions([[MTLCompileOptions alloc] init]);
     NSError* error = nil;
 #if defined(SK_BUILD_FOR_MAC)
     id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), *mtlCode,
-                                                               *defaultOptions, &error);
+                                                               nil, &error);
 #else
     id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode.get()
-                                                                 options: defaultOptions.get()
+                                                                 options: nil
                                                                    error: &error];
 #endif
     if (!compiledLibrary) {
         SkDebugf("Error compiling MSL shader: %s\n%s\n",
                  shaderString.c_str(),
-                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+                 error.debugDescription.UTF8String);
         return nil;
     }
 
