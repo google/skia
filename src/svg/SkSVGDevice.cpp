@@ -870,11 +870,8 @@ void SkSVGDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
 }
 
 void SkSVGDevice::drawRRect(const SkRRect& rr, const SkPaint& paint) {
-    SkPath path;
-    path.addRRect(rr);
-
     AutoElement elem("path", this, fResourceBucket.get(), MxCp(this), paint);
-    elem.addPathAttributes(path);
+    elem.addPathAttributes(SkPath::RRect(rr));
 }
 
 void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
