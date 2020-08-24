@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     sk_sp<SkData> data = SkData::MakeUninitialized(rowBytes * image->height());
     SkImageInfo dstInfo = SkImageInfo::MakeN32(image->width(), image->height(),
                                                kPremul_SkAlphaType);
-    image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, SkImage::kAllow_CachingHint);
+    image->readPixels(nullptr, dstInfo, data->writable_data(), rowBytes, 0, 0, SkImage::kAllow_CachingHint);
     sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorType(kRGBA_8888_SkColorType),
                                                  data, rowBytes);
     canvas->drawImage(image, 0, 0);
