@@ -63,6 +63,30 @@
       "revId": "ed3d7dffd202740348f01601d6c6e5af9a2ba313",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fd1b62b_0989973e",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-24T15:55:20Z",
+      "side": 1,
+      "message": "Well, now we\u0027re enforcing UTF8 encoding, which admits more text than ASCII encoding, so that\u0027s definitely an easy step in the right direction. It does still reject some shader text which other backends would admit, but only weirdly-encoded shader text which we are much less likely to encounter and is more likely to be invalid.",
+      "parentUuid": "d9415344_3ae3df78",
+      "range": {
+        "startLine": 95,
+        "startChar": 46,
+        "endLine": 95,
+        "endChar": 67
+      },
+      "revId": "ed3d7dffd202740348f01601d6c6e5af9a2ba313",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
