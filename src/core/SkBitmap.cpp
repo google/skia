@@ -231,10 +231,9 @@ void SkBitmap::allocPixels() {
 void SkBitmap::allocPixels(Allocator* allocator) {
     if (!this->tryAllocPixels(allocator)) {
         const SkImageInfo& info = this->info();
-        const SkIRect bounds = info.bounds();
         SK_ABORT("SkBitmap::tryAllocPixels failed "
-                 "ColorType:%d AlphaType:%d w:%" PRId32 " h:%" PRId32 " rb:%zu",
-                 info.colorType(), info.alphaType(), bounds.x(), bounds.y(), this->rowBytes());
+                 "ColorType:%d AlphaType:%d [w:%d h:%d] rb:%zu",
+                 info.colorType(), info.alphaType(), info.width(), info.height(), this->rowBytes());
     }
 }
 
