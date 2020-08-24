@@ -39,6 +39,30 @@
       "revId": "ed3d7dffd202740348f01601d6c6e5af9a2ba313",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9415344_3ae3df78",
+        "filename": "src/gpu/mtl/GrMtlUtil.mm",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-24T15:36:28Z",
+      "side": 1,
+      "message": "How about NSUTF8StringEncoding?",
+      "parentUuid": "46b28544_2b789c5b",
+      "range": {
+        "startLine": 95,
+        "startChar": 46,
+        "endLine": 95,
+        "endChar": 67
+      },
+      "revId": "ed3d7dffd202740348f01601d6c6e5af9a2ba313",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
