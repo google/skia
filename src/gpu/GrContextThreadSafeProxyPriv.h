@@ -39,6 +39,9 @@ public:
     GrTextBlobCache* getTextBlobCache() { return fProxy->fTextBlobCache.get(); }
     const GrTextBlobCache* getTextBlobCache() const { return fProxy->fTextBlobCache.get(); }
 
+    GrMagicCache* magicCache() { return fProxy->fMagicCache.get(); }
+    const GrMagicCache* magicCache() const { return fProxy->fMagicCache.get(); }
+
     void abandonContext() { fProxy->abandonContext(); }
     bool abandoned() const { return fProxy->abandoned(); }
 
