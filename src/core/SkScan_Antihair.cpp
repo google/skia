@@ -774,7 +774,7 @@ static void antifillrect(const SkRect& r, SkBlitter* blitter) {
 }
 
 /*  We repeat the clipping logic of AntiFillXRect because the float rect might
-    overflow if we blindly converted it to an XRect. This sucks that we have to
+    overflow if we blindly converted it to an XRect. It is not so great to
     repeat the clipping logic, but I don't see how to share the code/logic.
 
     We clip r (as needed) into one or more (smaller) float rects, and then pass
