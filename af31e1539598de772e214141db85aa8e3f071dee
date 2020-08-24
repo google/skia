@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3ca8cd4_6a4b4fbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-24T17:22:56Z",
+      "side": 1,
+      "message": "updated multipicture test to not know about SkRecords, and not assume that the \"exact\" ops appear before and after -- only that we draw the same (pixels).",
+      "revId": "af31e1539598de772e214141db85aa8e3f071dee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
