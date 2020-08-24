@@ -15,6 +15,7 @@
 class GrAuditTrail;
 class GrBackendFormat;
 class GrDrawingManager;
+class GrMagicCache;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrProgramDesc;
@@ -157,6 +158,9 @@ protected:
 
     GrTextBlobCache* getTextBlobCache();
     const GrTextBlobCache* getTextBlobCache() const;
+
+    GrMagicCache* magicCache();
+    const GrMagicCache* magicCache() const;
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
