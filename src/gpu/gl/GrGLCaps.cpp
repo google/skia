@@ -404,6 +404,15 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fIntegerSupport = (version >= GR_GL_VER(2, 0));
     }
 
+    // DO NOT SUBMIT
+    //shaderCaps->fIntegerSupport = false;
+
+    if (shaderCaps->fIntegerSupport) {
+        printf("Handling integer.\n");
+    } else {
+        printf("Handling floating point.\n");
+    }
+
     if (ctxInfo.hasExtension("GL_NV_conservative_raster")) {
         fConservativeRasterSupport = true;
     }
@@ -553,6 +562,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
 
     GR_GL_GetIntegerv(gli, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
+    printf("Max texture size: %d\n", fMaxTextureSize);
 
     if (fDriverBugWorkarounds.max_texture_size_limit_4096) {
         fMaxTextureSize = std::min(fMaxTextureSize, 4096);

@@ -107,9 +107,12 @@ bool GrDirectContext::init() {
     if (GrContextOptions::Enable::kNo == this->options().fAllowMultipleGlyphCacheTextures ||
         // multitexturing supported only if range can represent the index + texcoords fully
         !(this->caps()->shaderCaps()->floatIs32Bits() ||
-        this->caps()->shaderCaps()->integerSupport())) {
+        this->caps()->shaderCaps()->integerSupport()))
+    {
+        printf("No multitexturing.\n");
         allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kNo;
     } else {
+        printf("Has multitexturing.\n");
         allowMultitexturing = GrDrawOpAtlas::AllowMultitexturing::kYes;
     }
 
