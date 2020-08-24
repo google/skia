@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5c1f213_1a2cf486",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-24T13:35:41Z",
+      "side": 1,
+      "message": "Post-review changes lgtm",
+      "revId": "7c162449fa2d02bb6dbed8099d271694b0f5fa1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09718aaa_70c1ddc6",
+        "filename": "src/core/SkYUVAInfo.cpp",
+        "patchSetId": 30
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-24T13:35:41Z",
+      "side": 1,
+      "message": "super small nit: line up ?",
+      "range": {
+        "startLine": 111,
+        "startChar": 46,
+        "endLine": 111,
+        "endChar": 47
+      },
+      "revId": "7c162449fa2d02bb6dbed8099d271694b0f5fa1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
