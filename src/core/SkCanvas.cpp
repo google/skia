@@ -215,6 +215,7 @@ struct BackImage {
 };
 }  // namespace
 
+
 /*  This is the record we keep for each save/restore level in the stack.
     Since a level optionally copies the matrix and/or stack, we have pointers
     for these fields. If the value is copied for this level, the copy is
@@ -2687,7 +2688,7 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
     DRAW_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        iter.fDevice->drawPatch(cubics, colors, texCoords, bmode, paint);
+        iter.fDevice->drawPatch(cubics, colors, texCoords, bmode, draw.paint());
     }
 
     DRAW_END
@@ -2737,7 +2738,7 @@ void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const 
 
     DRAW_BEGIN(pnt, nullptr)
     while (iter.next()) {
-        iter.fDevice->drawAtlas(atlas, xform, tex, colors, count, bmode, pnt);
+        iter.fDevice->drawAtlas(atlas, xform, tex, colors, count, bmode, draw.paint());
     }
     DRAW_END
 }
