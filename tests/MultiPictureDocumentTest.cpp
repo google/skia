@@ -8,6 +8,7 @@
  * And that the pictures within it are re-created accurately
  */
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPicture.h"
@@ -15,58 +16,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
-#include "src/core/SkRecord.h"
-#include "src/core/SkRecorder.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tests/Test.h"
 #include "tools/SkSharingProc.h"
-
-namespace {
-
-class RecordVisitor {
-// An SkRecord visitor that remembers the name of the last visited command.
-public:
-    SkString name;
-
-    explicit RecordVisitor() {}
-
-    template <typename T>
-    void operator()(const T& command) {
-        name = SkString(NameOf(command));
-    }
-
-    SkString lastCommandName() {
-        return name;
-    }
-private:
-    template <typename T>
-    static const char* NameOf(const T&) {
-        #define CASE(U) case SkRecords::U##_Type: return #U;
-        switch (T::kType) { SK_RECORD_TYPES(CASE) }
-        #undef CASE
-        return "Unknown T";
-    }
-};
-} // namespace
-
-// Compare record tested with record expected. Assert op sequence is the same (comparing types)
-// frame_num is only used for error message.
-static void compareRecords(const SkRecord& tested, const SkRecord& expected,
-    int frame_num, skiatest::Reporter* reporter) {
-    REPORTER_ASSERT(reporter, tested.count() == expected.count(),
-        "Found %d commands in frame %d, expected %d", tested.count(), frame_num, expected.count());
-
-    RecordVisitor rv;
-    for (int i = 0; i < tested.count(); i++) {
-        tested.visit(i, rv);
-        const SkString testCommandName = rv.lastCommandName();
-        expected.visit(i, rv);
-        const SkString expectedCommandName = rv.lastCommandName();
-        REPORTER_ASSERT(reporter, testCommandName == expectedCommandName,
-            "Unexpected command type '%s' in frame %d, op %d. Expected '%s'",
-            testCommandName.c_str(), frame_num, i, expectedCommandName.c_str());
-    }
-}
+#include "tools/ToolUtils.h"
 
 // Covers rects, ovals, paths, images, text
 static void draw_basic(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
@@ -153,15 +106,17 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
     draw_basic(subCanvas, 42, image);
     sk_sp<SkPicture> sub = pr.finishRecordingAsPicture();
 
-    // Create frames, recording them to multipic.
-    SkRecord expectedRecords[NUM_FRAMES];
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(WIDTH, HEIGHT);
+    std::vector<sk_sp<SkImage>> pages;
+
     for (int i=0; i<NUM_FRAMES; i++) {
         SkCanvas* pictureCanvas = multipic->beginPage(WIDTH, HEIGHT);
         draw_advanced(pictureCanvas, i, image, sub);
         multipic->endPage();
         // Also record the same commands to separate SkRecords for later comparison
-        SkRecorder canvas(&expectedRecords[i], WIDTH, HEIGHT);
-        draw_advanced(&canvas, i, image, sub);
+        auto surf = SkSurface::MakeRaster(info);
+        draw_advanced(surf->getCanvas(), i, image, sub);
+        pages.push_back(surf->makeImageSnapshot());
     }
     // Finalize
     multipic->close();
@@ -191,7 +146,6 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
         "Failed while reading MultiPictureDocument");
 
     // Examine each frame.
-    SkRecorder resultRecorder(nullptr, 1, 1);
     int i=0;
     for (const auto& frame : frames) {
         SkRect bounds = frame.fPicture->cullRect();
@@ -199,23 +153,12 @@ DEF_TEST(Serialize_and_deserialize_multi_skp, reporter) {
             "Page width: expected (%d) got (%d)", WIDTH, (int)bounds.width());
         REPORTER_ASSERT(reporter, bounds.height() == HEIGHT,
             "Page height: expected (%d) got (%d)", HEIGHT, (int)bounds.height());
-        // confirm contents of picture match what we drew.
-        // There are several ways of doing this, an ideal comparison would not break in the same
-        // way at the same time as the code under test (no serialization), and would involve only
-        // minimal transformation of frame.fPicture, minimizing the chance that a detected fault lies
-        // in the test itself. The comparions also would not be an overly sensitive change detector,
-        // so that it doesn't break every time someone submits code (no golden file)
 
-        // Extract the SkRecord from the deserialized picture using playback (instead of a mess of
-        // friend classes to grab the private record inside frame.fPicture
-        SkRecord record;
-        // This picture mode is necessary so that we record the command contents of frame.fPicture
-        // not just a 'DrawPicture' command, but don't record pictures within it. We want to assert
-        // that the code under test reffed them like it should have.
-        resultRecorder.reset(&record, bounds, SkRecorder::PlaybackTop_DrawPictureMode, nullptr);
-        frame.fPicture->playback(&resultRecorder);
-        // Compare the record to the expected one
-        compareRecords(record, expectedRecords[i], i, reporter);
+        auto surf = SkSurface::MakeRaster(info);
+        surf->getCanvas()->drawPicture(frame.fPicture);
+        auto img = surf->makeImageSnapshot();
+        REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), pages[i].get()));
+
         i++;
     }
 }

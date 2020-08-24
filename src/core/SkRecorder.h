@@ -43,13 +43,7 @@ public:
     SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // TODO: remove
     SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
-    enum DrawPictureMode {
-        Record_DrawPictureMode,
-        Playback_DrawPictureMode,
-        // Plays back top level drawPicture calls only, but records pictures within those.
-        PlaybackTop_DrawPictureMode,
-    };
-    void reset(SkRecord*, const SkRect& bounds, DrawPictureMode, SkMiniRecorder* = nullptr);
+    void reset(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
     size_t approxBytesUsedBySubPictures() const { return fApproxBytesUsedBySubPictures; }
 
@@ -134,7 +128,6 @@ private:
     template<typename T, typename... Args>
     void append(Args&&...);
 
-    DrawPictureMode fDrawPictureMode;
     size_t fApproxBytesUsedBySubPictures;
     SkRecord* fRecord;
     std::unique_ptr<SkDrawableList> fDrawableList;
