@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe953b30_65b0bcf6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-24T21:41:23Z",
+      "side": 1,
+      "message": "Check out the Nexus 7 bots please?  (Test-Android-Clang-Nexus7-GPU-Tegra3-arm-Release-All-Android)\n\nLots of this,\n\n\t../../../../../../skia/tests/SkRemoteGlyphCacheTest.cpp:149\t [SkRemoteGlyphCache_DrawTextXY, OpenGLES]: expectedColor \u003d\u003d actualColor\n\t../../../../../../skia/tests/SkRemoteGlyphCacheTest.cpp:149\t [SkRemoteGlyphCache_StrikeSerialization, OpenGLES]: expectedColor \u003d\u003d actualColor\n",
+      "revId": "cace33fc31c8f4c122a935cae0df279afa32c43e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
