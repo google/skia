@@ -46,8 +46,8 @@ public:
 
 private:
     void (*fBeginSection)(const char*);
-    void (*fEndSection)(void);
-    bool (*fIsEnabled)(void);
+    void (*fEndSection)();
+    bool (*fIsEnabled)();
 };
 
 #endif

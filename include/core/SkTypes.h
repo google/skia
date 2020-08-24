@@ -426,7 +426,7 @@
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.
 */
-[[noreturn]] SK_API extern void sk_abort_no_print(void);
+[[noreturn]] SK_API extern void sk_abort_no_print();
 
 #ifndef SkDebugf
     SK_API void SkDebugf(const char format[], ...);
