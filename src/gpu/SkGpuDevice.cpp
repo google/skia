@@ -969,24 +969,42 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawAtlas", fContext.get());
 
-    SkPaint p(paint);
-    p.setShader(atlas->makeShader());
+    // Convert atlas to an image shader.
+    sk_sp<SkShader> shader = atlas->makeShader();
+    if (!shader) {
+        SkDEBUGFAIL("unable to convert atlas to image shader");
+        return;
+    }
+
+    // Create a fragment processor for atlas image. Filter-quality reduction is disabled because the
+    // SkRSXform matrices might include scale or non-trivial rotation.
+    GrFPArgs fpArgs(fContext.get(), this->asMatrixProvider(), paint.getFilterQuality(),
+                    &fRenderTargetContext->colorInfo());
+    fpArgs.fAllowFilterQualityReduction = false;
+
+    std::unique_ptr<GrFragmentProcessor> shaderFP = as_SB(shader)->asFragmentProcessor(fpArgs);
+    if (shaderFP == nullptr) {
+        SkDEBUGFAIL("unable to convert image shader to fragment processor");
+        return;
+    }
 
     GrPaint grPaint;
     if (colors) {
-        if (!SkPaintToGrPaintWithBlend(this->recordingContext(), fRenderTargetContext->colorInfo(),
-                                       p, this->asMatrixProvider(), (SkBlendMode)mode, &grPaint)) {
+        if (!SkPaintToGrPaintWithBlendReplaceShader(
+                    this->recordingContext(), fRenderTargetContext->colorInfo(), paint,
+                    this->asMatrixProvider(), std::move(shaderFP), mode, &grPaint)) {
             return;
         }
     } else {
-        if (!SkPaintToGrPaint(this->recordingContext(), fRenderTargetContext->colorInfo(), p,
-                              this->asMatrixProvider(), &grPaint)) {
+        if (!SkPaintToGrPaintReplaceShader(
+                    this->recordingContext(), fRenderTargetContext->colorInfo(), paint,
+                    this->asMatrixProvider(), std::move(shaderFP), &grPaint)) {
             return;
         }
     }
 
-    fRenderTargetContext->drawAtlas(
-            this->clip(), std::move(grPaint), this->localToDevice(), count, xform, texRect, colors);
+    fRenderTargetContext->drawAtlas(this->clip(), std::move(grPaint), this->localToDevice(), count,
+                                    xform, texRect, colors);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
