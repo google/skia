@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6357148_a5cc528f",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-25T17:07:03Z",
+      "side": 1,
+      "message": "I think a comment here explaining why this works out would be good. The number of segments is the number of edges + 1, the first and last edges are both radial and parametric, ...",
+      "range": {
+        "startLine": 218,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 79
+      },
+      "revId": "e469ce70286235c4b4357de02f348b476aa544b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
