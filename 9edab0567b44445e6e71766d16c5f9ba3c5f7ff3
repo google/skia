@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab12402e_59907d56",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-25T19:38:54Z",
+      "side": 1,
+      "message": "I think skparagraph requires this, so you\u0027d also need to know if this is included before building skparagraph. In other words, skparagraph may need to be enabled when sk_enable_skshaper \u0026\u0026 skia_use_icu \u0026\u0026 skia_use_harfbuzz. Mostly this is a result of not having a non-ICU \u0027primitive\u0027 SkUnicode implementation available for when ICU shouldn\u0027t be used (although in that case you may not want skparagraph to build anyway).",
+      "revId": "9edab0567b44445e6e71766d16c5f9ba3c5f7ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
