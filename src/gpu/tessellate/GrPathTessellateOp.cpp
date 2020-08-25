@@ -666,9 +666,10 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
             // remaining samples and reset the stencil buffer.
             pipeline.setUserStencil(&kTestAndResetStencil);
             GrFillCubicHullShader fillCubicHullShader(fViewMatrix, fColor);
-            GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
-                                                  &fillCubicHullShader);
-            flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
+            flushState->bindPipelineAndScissorClip(
+                    GrPathShader::ProgramInfo{flushState->writeView(), &pipeline,
+                                              &fillCubicHullShader},
+                    this->bounds());
             flushState->bindTextures(fillCubicHullShader, nullptr, pipeline);
 
             // Here we treat fCubicBuffer as an instance buffer. It should have been prepared with

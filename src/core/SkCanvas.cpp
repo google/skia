@@ -296,16 +296,16 @@ private:
     const SkPaint*  fPaint;     // May be null.
 };
 
-#define FOR_EACH_TOP_DEVICE( code )                       \
-    do {                                                  \
-        DeviceCM* layer = fMCRec->fTopLayer;              \
-        while (layer) {                                   \
-            SkBaseDevice* device = layer->fDevice.get();  \
-            if (device) {                                 \
-                code;                                     \
-            }                                             \
-            layer = layer->fNext;                         \
-        }                                                 \
+#define FOR_EACH_TOP_DEVICE( code )                                       \
+    do {                                                                  \
+        DeviceCM* layer_ForEachTopDevice = fMCRec->fTopLayer;             \
+        while (layer_ForEachTopDevice) {                                  \
+            SkBaseDevice* device = layer_ForEachTopDevice->fDevice.get(); \
+            if (device) {                                                 \
+                code;                                                     \
+            }                                                             \
+            layer_ForEachTopDevice = layer_ForEachTopDevice->fNext;       \
+        }                                                                 \
     } while (0)
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2293,8 +2293,7 @@ void SkCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
 
 void SkCanvas::onDrawBehind(const SkPaint& paint) {
     SkIRect bounds;
-    SkDeque::Iter iter(fMCStack, SkDeque::Iter::kBack_IterStart);
-    for (;;) {
+    for (SkDeque::Iter iter(fMCStack, SkDeque::Iter::kBack_IterStart);;) {
         const MCRec* rec = (const MCRec*)iter.prev();
         if (!rec) {
             return; // no backimages, so nothing to draw

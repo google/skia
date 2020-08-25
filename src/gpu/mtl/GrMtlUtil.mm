@@ -142,8 +142,8 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
     // We have to increment the ref for the Obj-C block manually because it won't do it for us
     compileResult->ref();
     MTLNewLibraryCompletionHandler completionHandler =
-            ^(id<MTLLibrary> library, NSError* error) {
-                compileResult->set(library, error);
+            ^(id<MTLLibrary> library, NSError* completionError) {
+                compileResult->set(library, completionError);
                 dispatch_semaphore_signal(semaphore);
                 compileResult->unref();
             };
@@ -178,8 +178,8 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
     // We have to increment the ref for the Obj-C block manually because it won't do it for us
     compileResult->ref();
     MTLNewRenderPipelineStateCompletionHandler completionHandler =
-            ^(id<MTLRenderPipelineState> state, NSError* error) {
-                compileResult->set(state, error);
+            ^(id<MTLRenderPipelineState> state, NSError* completionError) {
+                compileResult->set(state, completionError);
                 dispatch_semaphore_signal(semaphore);
                 compileResult->unref();
             };

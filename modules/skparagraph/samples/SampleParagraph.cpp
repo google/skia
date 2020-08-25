@@ -1291,18 +1291,22 @@ protected:
                { 15, 19}, {16, 20}, {17, 19}, { 18, 20},
                { 20, 22}, };
 
-        auto rects = paragraph->getRectsForRange(7, 9, RectHeightStyle::kTight, RectWidthStyle::kTight);
-        SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(1);
-        if (!rects.empty()) {
-            canvas->drawRect(rects[0].rect, paint);
+        {
+            auto rects = paragraph->getRectsForRange(7, 9, RectHeightStyle::kTight,
+                                                     RectWidthStyle::kTight);
+            SkPaint paint;
+            paint.setColor(SK_ColorRED);
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setAntiAlias(true);
+            paint.setStrokeWidth(1);
+            if (!rects.empty()) {
+                canvas->drawRect(rects[0].rect, paint);
+            }
         }
 
         for (auto& query : hit1) {
-            auto rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto rects = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight,
+                                                     RectWidthStyle::kTight);
             if (rects.size() >= 1 && rects[0].rect.width() > 0) {
             } else {
                 if (this->isVerbose()) {
@@ -1312,7 +1316,8 @@ protected:
         }
 
         for (auto& query : miss) {
-            auto miss = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight, RectWidthStyle::kTight);
+            auto miss = paragraph->getRectsForRange(query.fX, query.fY, RectHeightStyle::kTight,
+                                                    RectWidthStyle::kTight);
             if (miss.empty()) {
             } else {
                 if (this->isVerbose()) {
@@ -2180,14 +2185,14 @@ protected:
         auto width = paragraph->getLongestLine();
         auto height = paragraph->getHeight();
 
-        auto f1 = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
-        auto f2 = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
+        auto pos1 = paragraph->getGlyphPositionAtCoordinate(width/6, height/2);
+        auto pos2 = paragraph->getGlyphPositionAtCoordinate(width/2, height/2);
         auto i = paragraph->getGlyphPositionAtCoordinate(width*5/6, height/2);
 
         if (this->isVerbose()) {
             SkDebugf("%d(%s) %d(%s) %d(%s)\n",
-                     f1.position, f1.affinity == Affinity::kUpstream ? "up" : "down",
-                     f2.position, f2.affinity == Affinity::kUpstream ? "up" : "down",
+                     pos1.position, pos1.affinity == Affinity::kUpstream ? "up" : "down",
+                     pos2.position, pos2.affinity == Affinity::kUpstream ? "up" : "down",
                      i.position, i.affinity == Affinity::kUpstream ? "up" : "down");
 
             auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
