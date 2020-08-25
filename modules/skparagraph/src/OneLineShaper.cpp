@@ -302,8 +302,8 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
 
         const char* cluster = text.begin() + clusterIndex(i);
         SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
-        bool isControl8 = fParagraph->getUnicode()->isControl(codepoint);
-        bool isWhitespace8 = fParagraph->getUnicode()->isWhitespace(codepoint);
+        bool isControl8 = SkUnicode::getInstance()->isControl(codepoint);
+        bool isWhitespace8 = SkUnicode::getInstance()->isWhitespace(codepoint);
 
         // Inspect the glyph
         auto glyph = fCurrentRun->fGlyphs[i];
@@ -603,7 +603,7 @@ bool OneLineShaper::shape() {
                     LangIterator langIter(unresolvedText, blockSpan,
                                       fParagraph->paragraphStyle().getTextStyle());
                     SkShaper::TrivialBiDiRunIterator bidiIter(defaultBidiLevel, unresolvedText.size());
-                    auto scriptIter = SkShaper::MakeHbIcuScriptRunIterator
+                    auto scriptIter = SkShaper::MakeSkUnicodeHbScriptRunIterator
                                      (unresolvedText.begin(), unresolvedText.size());
                     fCurrentText = unresolvedRange;
                     shaper->shape(unresolvedText.begin(), unresolvedText.size(),
