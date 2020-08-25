@@ -228,7 +228,7 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     auto align = parent->paragraphStyle().effective_align();
     auto unlimitedLines = maxLines == std::numeric_limits<size_t>::max();
     auto endlessLine = !SkScalarIsFinite(maxWidth);
-    auto hasEllipsis = !ellipsisStr.isEmpty();
+    auto hasEllipsis = !ellipsisStr.empty();
 
     SkScalar softLineMaxIntrinsicWidth = 0;
     fEndLine = TextStretch(span.begin(), span.begin(), parent->strutForceHeight());

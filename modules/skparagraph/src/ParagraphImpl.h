@@ -100,13 +100,15 @@ public:
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
-                  sk_sp<FontCollection> fonts);
+                  sk_sp<FontCollection> fonts,
+                  std::unique_ptr<SkUnicode> icu);
 
     ParagraphImpl(const std::u16string& utf16text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
-                  sk_sp<FontCollection> fonts);
+                  sk_sp<FontCollection> fonts,
+                  std::unique_ptr<SkUnicode> icu);
     ~ParagraphImpl() override;
 
     void layout(SkScalar width) override;

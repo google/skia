@@ -6,6 +6,7 @@
 #include <stack>
 #include <string>
 #include <tuple>
+#include "modules/skshaper/src/SkUnicode.h"
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphBuilder.h"
@@ -65,6 +66,7 @@ private:
     SkTArray<Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
+    std::unique_ptr<SkUnicode> fICU;
 };
 }  // namespace textlayout
 }  // namespace skia

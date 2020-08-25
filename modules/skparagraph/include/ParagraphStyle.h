@@ -92,9 +92,8 @@ struct ParagraphStyle {
     size_t getMaxLines() const { return fLinesLimit; }
     void setMaxLines(size_t maxLines) { fLinesLimit = maxLines; }
 
-    const SkString& getEllipsis() const { return fEllipsis; }
-    void setEllipsis(const std::u16string& ellipsis);
-    void setEllipsis(const SkString& ellipsis) { fEllipsis = ellipsis; }
+    const std::u16string& getEllipsis() const { return fEllipsis; }
+    void setEllipsis(const std::u16string& ellipsis) { fEllipsis = ellipsis; }
 
     SkScalar getHeight() const { return fHeight; }
     void setHeight(SkScalar height) { fHeight = height; }
@@ -118,7 +117,7 @@ private:
     TextAlign fTextAlign;
     TextDirection fTextDirection;
     size_t fLinesLimit;
-    SkString fEllipsis;
+    std::u16string fEllipsis;
     SkScalar fHeight;
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
