@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ec95186_d38f5b23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-25T16:58:39Z",
+      "side": 1,
+      "message": "I think this looks okay. bsalomon@, does this make sense to you, too (as we generally move towards honoring client requests and being less clever)?",
+      "revId": "7009b5538332b2d8ef4a581d0c8c352d177bbf28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83a8cbbc_727da883",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-25T16:58:39Z",
+      "side": 1,
+      "message": "nit: line length",
+      "revId": "7009b5538332b2d8ef4a581d0c8c352d177bbf28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
