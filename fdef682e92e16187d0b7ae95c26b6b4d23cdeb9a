@@ -16,6 +16,24 @@
       "revId": "fdef682e92e16187d0b7ae95c26b6b4d23cdeb9a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d5419b8_4802b538",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-25T14:49:11Z",
+      "side": 1,
+      "message": "IIRC at some point we used it for Android drop shadows but it doesn\u0027t appear to be used anymore.",
+      "parentUuid": "ff849c3a_6f9cc927",
+      "revId": "fdef682e92e16187d0b7ae95c26b6b4d23cdeb9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
