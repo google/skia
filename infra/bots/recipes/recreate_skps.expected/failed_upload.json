@@ -177,20 +177,6 @@
   },
   {
     "cmd": [
-      "ninja",
-      "-C",
-      "[START_DIR]/cache/work/src/out/Release",
-      "chrome"
-    ],
-    "cwd": "[START_DIR]/cache/work/src",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "name": "Build Chrome"
-  },
-  {
-    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -218,51 +204,6 @@
     "name": "makedirs skp_output"
   },
   {
-    "cmd": [
-      "python",
-      "[START_DIR]/cache/work/skia/infra/bots/assets/skp/create.py",
-      "--chrome_src_path",
-      "[START_DIR]/cache/work/src",
-      "--browser_executable",
-      "[START_DIR]/cache/work/src/out/Release/chrome",
-      "--target_dir",
-      "[START_DIR]/skp_output",
-      "--upload_to_partner_bucket"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "name": "Recreate SKPs"
-  },
-  {
-    "cmd": [
-      "python",
-      "[START_DIR]/cache/work/skia/infra/bots/upload_skps.py",
-      "--target_dir",
-      "[START_DIR]/skp_output",
-      "--chromium_path",
-      "[START_DIR]/cache/work/src"
-    ],
-    "cwd": "[START_DIR]/cache/work/skia",
-    "env": {
-      "CHROME_HEADLESS": "1",
-      "GOCACHE": "[START_DIR]/cache/go_cache",
-      "GOPATH": "[START_DIR]/cache/gopath",
-      "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/cache/gopath/bin:<PATH>:RECIPE_REPO[depot_tools]"
-    },
-    "name": "Upload SKPs",
-    "~followup_annotations": [
-      "@@@STEP_FAILURE@@@"
-    ]
-  },
-  {
-    "failure": {
-      "failure": {},
-      "humanReason": "Step('Upload SKPs') (retcode: 1)"
-    },
     "name": "$result"
   }
 ]
