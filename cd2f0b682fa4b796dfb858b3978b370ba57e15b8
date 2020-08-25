@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89c746e2_da43b524",
+        "filename": "modules/skparagraph/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-25T18:28:08Z",
+      "side": 0,
+      "message": "For multi line I\u0027d keep the comma at the end.",
+      "range": {
+        "startLine": 16,
+        "startChar": 13,
+        "endLine": 16,
+        "endChar": 14
+      },
+      "revId": "cd2f0b682fa4b796dfb858b3978b370ba57e15b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2875d62_aa9163f6",
+        "filename": "modules/skshaper/args.gni",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-25T18:28:08Z",
+      "side": 0,
+      "message": "This file should be named skshaper.gni . It\u0027s a bit redundant with directory name, but it\u0027s consistent with how this is done elsewhere.",
+      "revId": "cd2f0b682fa4b796dfb858b3978b370ba57e15b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
