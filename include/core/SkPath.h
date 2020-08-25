@@ -71,6 +71,7 @@ public:
     static SkPath Rect(const SkRect&, SkPathDirection = SkPathDirection::kCW,
                        unsigned startIndex = 0);
     static SkPath Oval(const SkRect&, SkPathDirection = SkPathDirection::kCW);
+    static SkPath Oval(const SkRect&, SkPathDirection, unsigned startIndex);
     static SkPath Circle(SkScalar center_x, SkScalar center_y, SkScalar radius,
                          SkPathDirection dir = SkPathDirection::kCW);
     static SkPath RRect(const SkRRect&, SkPathDirection dir = SkPathDirection::kCW);

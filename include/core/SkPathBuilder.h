@@ -244,6 +244,8 @@ private:
 
     SkPath make(sk_sp<SkPathRef>) const;
 
+    SkPathBuilder& privateReverseAddPath(const SkPath&);
+
     // For testing
     void privateSetConvexityType(SkPathConvexityType c) { fConvexity = c; }
 

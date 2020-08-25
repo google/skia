@@ -321,13 +321,16 @@ public:
         return reversed;
     }
 
-    void reverseMarkedContours(vector<Contour>& contours, SkPath* result) {
+    SkPath reverseMarkedContours(vector<Contour>& contours, SkPathFillType fillType) {
         SkPathPriv::Iterate iterate(fPath);
         auto iter = iterate.begin();
         int verbCount = 0;
+
+        SkPathBuilder result;
+        result.setFillType(fillType);
         for (const Contour& contour : contours) {
-            SkPath reverse;
-            SkPath* temp = contour.fReverse ? &reverse : result;
+            SkPathBuilder reverse;
+            SkPathBuilder* temp = contour.fReverse ? &reverse : &result;
             for (; iter != iterate.end() && verbCount < contour.fVerbEnd; ++iter, ++verbCount) {
                 auto [verb, pts, w] = *iter;
                 switch (verb) {
@@ -352,9 +355,11 @@ public:
                 }
             }
             if (contour.fReverse) {
-                result->reverseAddPath(reverse);
+                SkASSERT(temp == &reverse);
+                SkPathPriv::ReverseAddPath(&result, reverse.detach());
             }
         }
+        return result.detach();
     }
 
 private:
@@ -413,9 +418,6 @@ bool AsWinding(const SkPath& path, SkPath* result) {
     if (!reversed) {
         return set_result_path(result, path, fillType);
     }
-    SkPath temp;
-    temp.setFillType(fillType);
-    winder.reverseMarkedContours(contours, &temp);
-    result->swap(temp);
+    *result = winder.reverseMarkedContours(contours, fillType);
     return true;
 }

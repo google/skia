@@ -10,6 +10,7 @@
 #include "include/private/SkPathRef.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkGeometry.h"
+#include "src/core/SkPathPriv.h"
 // need SkDVector
 #include "src/pathops/SkPathOpsPoint.h"
 
@@ -108,12 +109,14 @@ SkPathBuilder& SkPathBuilder::cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3) {
 }
 
 SkPathBuilder& SkPathBuilder::close() {
-    this->ensureMove();
+    if (fVerbs.count() > 0) {
+        this->ensureMove();
 
-    fVerbs.push_back((uint8_t)SkPathVerb::kClose);
+        fVerbs.push_back((uint8_t)SkPathVerb::kClose);
 
-    // fLastMovePoint stays where it is -- the previous moveTo
-    fNeedsMoveVerb = true;
+        // fLastMovePoint stays where it is -- the previous moveTo
+        fNeedsMoveVerb = true;
+    }
     return *this;
 }
 
@@ -716,6 +719,56 @@ SkPathBuilder& SkPathBuilder::polylineTo(const SkPoint pts[], int count) {
 SkPathBuilder& SkPathBuilder::offset(SkScalar dx, SkScalar dy) {
     for (auto& p : fPts) {
         p += {dx, dy};
+    }
+    return *this;
+}
+
+SkPathBuilder& SkPathBuilder::privateReverseAddPath(const SkPath& src) {
+
+    const uint8_t* verbsBegin = src.fPathRef->verbsBegin();
+    const uint8_t* verbs = src.fPathRef->verbsEnd();
+    const SkPoint* pts = src.fPathRef->pointsEnd();
+    const SkScalar* conicWeights = src.fPathRef->conicWeightsEnd();
+
+    bool needMove = true;
+    bool needClose = false;
+    while (verbs > verbsBegin) {
+        uint8_t v = *--verbs;
+        int n = SkPathPriv::PtsInVerb(v);
+
+        if (needMove) {
+            --pts;
+            this->moveTo(pts->fX, pts->fY);
+            needMove = false;
+        }
+        pts -= n;
+        switch ((SkPathVerb)v) {
+            case SkPathVerb::kMove:
+                if (needClose) {
+                    this->close();
+                    needClose = false;
+                }
+                needMove = true;
+                pts += 1;   // so we see the point in "if (needMove)" above
+                break;
+            case SkPathVerb::kLine:
+                this->lineTo(pts[0]);
+                break;
+            case SkPathVerb::kQuad:
+                this->quadTo(pts[1], pts[0]);
+                break;
+            case SkPathVerb::kConic:
+                this->conicTo(pts[1], pts[0], *--conicWeights);
+                break;
+            case SkPathVerb::kCubic:
+                this->cubicTo(pts[2], pts[1], pts[0]);
+                break;
+            case SkPathVerb::kClose:
+                needClose = true;
+                break;
+            default:
+                SkDEBUGFAIL("unexpected verb");
+        }
     }
     return *this;
 }
