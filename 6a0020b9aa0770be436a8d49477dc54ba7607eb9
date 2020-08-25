@@ -16,6 +16,24 @@
       "revId": "6a0020b9aa0770be436a8d49477dc54ba7607eb9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dfdc937_628cffbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-25T17:13:51Z",
+      "side": 1,
+      "message": "I don\u0027t think it\u0027s totally necessary. The performance impact should be pretty small. The old way of drawing was a bug behavior should be more predictable now. But if you want you could add something about no longer incorrectly ignoring the filter request on drawAtlas().",
+      "parentUuid": "d2edb3ed_f40e0e08",
+      "revId": "6a0020b9aa0770be436a8d49477dc54ba7607eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

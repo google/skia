@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "462ddac0_a36c86d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-25T17:13:51Z",
+      "side": 1,
+      "message": "Yes, I like this direction and is consistent with other trends around filtering.",
+      "parentUuid": "2ec95186_d38f5b23",
+      "revId": "7009b5538332b2d8ef4a581d0c8c352d177bbf28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83a8cbbc_727da883",
         "filename": "src/gpu/SkGr.cpp",
         "patchSetId": 2
