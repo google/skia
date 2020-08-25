@@ -165,9 +165,7 @@
     #define SK_ARM_HAS_NEON
 #endif
 
-// Really this __APPLE__ check shouldn't be necessary, but it seems that Apple's Clang defines
-// __ARM_FEATURE_CRC32 for -arch arm64, even though their chips don't support those instructions!
-#if defined(__ARM_FEATURE_CRC32) && !defined(__APPLE__)
+#if defined(__ARM_FEATURE_CRC32)
     #define SK_ARM_HAS_CRC32
 #endif
 
