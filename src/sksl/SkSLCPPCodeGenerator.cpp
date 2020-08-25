@@ -1425,7 +1425,6 @@ bool CPPCodeGenerator::generateCode() {
     this->writeOnTextureSampler();
     this->writeTest();
     this->writeSection(kCppEndSection);
-
     result &= 0 == fErrors.errorCount();
     return result;
 }
