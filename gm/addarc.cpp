@@ -9,7 +9,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPoint.h"
@@ -54,9 +53,9 @@ protected:
             SkScalar speed = SkScalarSqrt(16 / r.width()) * 0.5f;
             startAngle += fRotate * 360 * speed * sign;
 
-            SkPath path;
+            SkPathBuilder path;
             path.addArc(r, startAngle, sweepAngle);
-            canvas->drawPath(path, paint);
+            canvas->drawPath(path.detach(), paint);
 
             r.inset(inset, inset);
             sign = -sign;
@@ -99,9 +98,7 @@ DEF_SIMPLE_GM(addarc_meas, canvas, 2*R + 40, 2*R + 40) {
 
             canvas->drawLine(0, 0, rx, ry, paint);
 
-            SkPath path;
-            path.addArc(oval, 0, deg);
-            SkPathMeasure meas(path, false);
+            SkPathMeasure meas(SkPathBuilder().addArc(oval, 0, deg).detach(), false);
             SkScalar arcLen = rad * R;
             SkPoint pos;
             if (meas.getPosTan(arcLen, &pos, nullptr)) {

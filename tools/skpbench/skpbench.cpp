@@ -679,8 +679,7 @@ static sk_sp<SkPicture> create_warmup_skp() {
     stroke.setStrokeWidth(2);
 
     // Use a big path to (theoretically) warmup the CPU.
-    SkPath bigPath;
-    ToolUtils::make_big_path(bigPath);
+    SkPath bigPath = ToolUtils::make_big_path();
     recording->drawPath(bigPath, stroke);
 
     // Use a perlin shader to warmup the GPU.
