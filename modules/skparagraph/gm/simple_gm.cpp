@@ -58,6 +58,10 @@ public:
         auto collection = sk_make_sp<skia::textlayout::FontCollection>();
         collection->setDefaultFontManager(SkFontMgr::RefDefault());
         auto builder = skia::textlayout::ParagraphBuilder::make(paraStyle, collection);
+        if (nullptr == builder) {
+            fPara = nullptr;
+            return;
+        }
 
         builder->addText(gSpeach, strlen(gSpeach));
 
@@ -81,6 +85,9 @@ protected:
     SkISize onISize() override { return SkISize::Make(412, 420); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (nullptr == fPara) {
+            return DrawResult::kSkip;
+        }
         const int loop = (this->getMode() == kGM_Mode) ? 1 : 50;
 
         int parity = 0;
