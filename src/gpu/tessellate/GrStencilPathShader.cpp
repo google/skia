@@ -298,16 +298,9 @@ class GrMiddleOutCubicShader::Impl : public GrStencilPathShader::Impl {
                 if (sk_VertexID > (1 << kMaxResolveLevel)) {
                     // This is a special index value that wants us to emit a specific point.
                     point = P[sk_VertexID & 3];
-                } else {)");
-        // Evaluate the cubic at T=(sk_VertexID / 2^kMaxResolveLevel).
-        if (args.fShaderCaps->fpManipulationSupport()) {
-            args.fVertBuilder->codeAppend(R"(
-                    float T = ldexp(sk_VertexID, -kMaxResolveLevel);)");
-        } else {
-            args.fVertBuilder->codeAppend(R"(
-                    float T = sk_VertexID / float(1 << kMaxResolveLevel);)");
-        }
-        args.fVertBuilder->codeAppend(R"(
+                } else {
+                    // Evaluate the cubic at T=(sk_VertexID / 2^kMaxResolveLevel).
+                    float T = sk_VertexID * exp2(-kMaxResolveLevel);
                     float2 ab = mix(P[0], P[1], T);
                     float2 bc = mix(P[1], P[2], T);
                     float2 cd = mix(P[2], P[3], T);
