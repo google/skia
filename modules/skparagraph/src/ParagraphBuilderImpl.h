@@ -11,12 +11,18 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skshaper/src/SkUnicode.h"
 
 namespace skia {
 namespace textlayout {
 
 class ParagraphBuilderImpl : public ParagraphBuilder {
 public:
+    ParagraphBuilderImpl(const ParagraphStyle& style,
+        sk_sp<FontCollection> fontCollection,
+        std::unique_ptr<SkUnicode> unicode);
+
+    // Just until we fix all the code; calls icu::make inside
     ParagraphBuilderImpl(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection);
 
     ~ParagraphBuilderImpl() override;
@@ -55,6 +61,13 @@ public:
     // Constructs a SkParagraph object that can be used to layout and paint the text to a SkCanvas.
     std::unique_ptr<Paragraph> Build() override;
 
+    static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
+                                                  sk_sp<FontCollection> fontCollection,
+                                                  std::unique_ptr<SkUnicode> unicode);
+
+    // Just until we fix all the code; calls icu::make inside
+    static std::unique_ptr<ParagraphBuilder> make(const ParagraphStyle& style,
+                                                  sk_sp<FontCollection> fontCollection);
 private:
     void endRunIfNeeded();
     void addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne);
@@ -65,6 +78,8 @@ private:
     SkTArray<Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
+
+    std::unique_ptr<SkUnicode> fUnicode;
 };
 }  // namespace textlayout
 }  // namespace skia
