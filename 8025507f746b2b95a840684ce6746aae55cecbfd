@@ -16,6 +16,24 @@
       "revId": "8025507f746b2b95a840684ce6746aae55cecbfd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d5b08fa_514ddc6d",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-25T16:05:39Z",
+      "side": 0,
+      "message": "I hid all the names in SkUnicode (and made them less generic).",
+      "parentUuid": "fb39cee5_4b8a466a",
+      "revId": "8025507f746b2b95a840684ce6746aae55cecbfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
