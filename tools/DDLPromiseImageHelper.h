@@ -17,6 +17,7 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkTLazy.h"
+#include "tools/gpu/YUVUtils.h"
 
 class GrContext;
 class SkImage;
@@ -150,11 +151,14 @@ private:
     public:
         PromiseImageInfo(int index, uint32_t originalUniqueID, const SkImageInfo& ii);
         PromiseImageInfo(PromiseImageInfo&& other);
+        PromiseImageInfo(const PromiseImageInfo&) = delete;
         ~PromiseImageInfo();
+
+        PromiseImageInfo& operator=(const PromiseImageInfo&) = delete;
 
         int index() const { return fIndex; }
         uint32_t originalUniqueID() const { return fOriginalUniqueID; }
-        bool isYUV() const { return !fYUVPlanes[0].isNull(); }
+        bool isYUV() const { return !fYUVAPimaps.planes()[0].info().isEmpty(); }
 
         int overallWidth() const { return fImageInfo.width(); }
         int overallHeight() const { return fImageInfo.height(); }
@@ -164,16 +168,19 @@ private:
 
         SkYUVColorSpace yuvColorSpace() const {
             SkASSERT(this->isYUV());
-            return fYUVColorSpace;
+            return fYUVAPimaps.yuvaInfo().yuvColorSpace();
         }
         const SkYUVAIndex* yuvaIndices() const {
             SkASSERT(this->isYUV());
             return fYUVAIndices;
         }
+        SkYUVAIndex* yuvaIndices() {
+            SkASSERT(this->isYUV());
+            return fYUVAIndices;
+        }
         const SkPixmap& yuvPixmap(int index) const {
             SkASSERT(this->isYUV());
-            SkASSERT(index >= 0 && index < SkYUVASizeInfo::kMaxCount);
-            return fYUVPlanes[index].pixmap();
+            return fYUVAPimaps.planes()[index];
         }
 
         const SkBitmap& baseLevel() const {
@@ -216,10 +223,7 @@ private:
         void setMipLevels(const SkBitmap& baseLevel, std::unique_ptr<SkMipmap> mipLevels);
 
         /** Takes ownership of the plane data. */
-        void setYUVPlanes(const SkYUVASizeInfo& yuvaSizeInfo,
-                          const SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-                          SkYUVColorSpace cs,
-                          std::unique_ptr<char[]> planes[SkYUVAIndex::kIndexCount]);
+        void setYUVPlanes(sk_gpu_test::YUVAPixmaps yuvaPixmaps);
 
     private:
         const int                          fIndex;                // index in the 'fImageInfo' array
@@ -232,9 +236,8 @@ private:
         std::unique_ptr<SkMipmap>          fMipLevels;
 
         // CPU-side cache of a YUV SkImage's contents
-        SkYUVColorSpace                    fYUVColorSpace = kJPEG_SkYUVColorSpace;
+        sk_gpu_test::YUVAPixmaps           fYUVAPimaps;
         SkYUVAIndex                        fYUVAIndices[SkYUVAIndex::kIndexCount];
-        SkBitmap                           fYUVPlanes[SkYUVASizeInfo::kMaxCount];
 
         // Up to SkYUVASizeInfo::kMaxCount for a YUVA image. Only one for a normal image.
         sk_sp<PromiseImageCallbackContext> fCallbackContexts[SkYUVASizeInfo::kMaxCount];
