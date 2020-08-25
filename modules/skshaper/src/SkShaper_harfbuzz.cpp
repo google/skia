@@ -71,10 +71,11 @@ using HBBlob   = resource<hb_blob_t     , decltype(hb_blob_destroy)  , hb_blob_d
 using HBFace   = resource<hb_face_t     , decltype(hb_face_destroy)  , hb_face_destroy  >;
 using HBFont   = resource<hb_font_t     , decltype(hb_font_destroy)  , hb_font_destroy  >;
 using HBBuffer = resource<hb_buffer_t   , decltype(hb_buffer_destroy), hb_buffer_destroy>;
-using ICUBrk   = resource<UBreakIterator, decltype(ubrk_close)       , ubrk_close       >;
-using ICUUText = resource<UText         , decltype(utext_close)      , utext_close      >;
+//using ICUBrk   = resource<UBreakIterator, decltype(ubrk_close)       , ubrk_close       >;
+//using ICUUText = resource<UText         , decltype(utext_close)      , utext_close      >;
 
 using SkUnicodeBidi = std::unique_ptr<SkBidiIterator>;
+using SkUnicodeBreak = std::unique_ptr<SkBreakIterator>;
 
 hb_position_t skhb_position(SkScalar value) {
     // Treat HarfBuzz hb_position_t as 16.16 fixed-point.
