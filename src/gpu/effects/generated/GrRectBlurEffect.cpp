@@ -143,6 +143,7 @@ bool GrRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (isFast != that.isFast) return false;
     return true;
 }
+bool GrRectBlurEffect::usesExplicitReturn() const { return false; }
 GrRectBlurEffect::GrRectBlurEffect(const GrRectBlurEffect& src)
         : INHERITED(kGrRectBlurEffect_ClassID, src.optimizationFlags())
         , rect(src.rect)
