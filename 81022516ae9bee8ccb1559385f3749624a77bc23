@@ -34,6 +34,23 @@
       "revId": "81022516ae9bee8ccb1559385f3749624a77bc23",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c021f102_c74f63b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-25T19:44:05Z",
+      "side": 1,
+      "message": "So this just says not to use POSIX extensions to the C library. Which seems fine since in addition to Mac we also have Android which isn\u0027t entirely good about that.",
+      "revId": "81022516ae9bee8ccb1559385f3749624a77bc23",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
