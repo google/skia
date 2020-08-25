@@ -253,9 +253,11 @@ void serialize_image(const SkImage* img,
     SkASSERT(doc);
     SkASSERT(encodingQuality >= 0);
     SkISize dimensions = img->dimensions();
-    sk_sp<SkData> data = img->refEncodedData();
-    if (data && do_jpeg(std::move(data), doc, dimensions, ref)) {
-        return;
+    {
+        sk_sp<SkData> data = img->refEncodedData();
+        if (data && do_jpeg(std::move(data), doc, dimensions, ref)) {
+            return;
+        }
     }
     SkBitmap bm = to_pixels(img);
     const SkPixmap& pm = bm.pixmap();

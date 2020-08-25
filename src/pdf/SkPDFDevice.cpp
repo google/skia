@@ -1603,7 +1603,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
         // TODO(edisonn): perf - use current clip too.
         // Retrieve the bounds of the new shape.
-        SkRect bounds = perspectiveOutline.getBounds();
+        SkRect outlineBounds = perspectiveOutline.getBounds();
 
         // Transform the bitmap in the new space, taking into
         // account the initial transform.
@@ -1614,8 +1614,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
 
         SkRect physicalPerspectiveBounds =
                 physicalPerspectiveOutline.getBounds();
-        SkScalar scaleX = physicalPerspectiveBounds.width() / bounds.width();
-        SkScalar scaleY = physicalPerspectiveBounds.height() / bounds.height();
+        SkScalar scaleX = physicalPerspectiveBounds.width() / outlineBounds.width();
+        SkScalar scaleY = physicalPerspectiveBounds.height() / outlineBounds.height();
 
         // TODO(edisonn): A better approach would be to use a bitmap shader
         // (in clamp mode) and draw a rect over the entire bounding box. Then
@@ -1633,8 +1633,8 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkCanvas* canvas = surface->getCanvas();
         canvas->clear(SK_ColorTRANSPARENT);
 
-        SkScalar deltaX = bounds.left();
-        SkScalar deltaY = bounds.top();
+        SkScalar deltaX = outlineBounds.left();
+        SkScalar deltaY = outlineBounds.top();
 
         SkMatrix offsetMatrix = transform;
         offsetMatrix.postTranslate(-deltaX, -deltaY);
