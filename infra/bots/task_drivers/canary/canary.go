@@ -26,6 +26,14 @@ const (
 	MinWaitDuration = 4 * time.Minute
 )
 
+var (
+	CanaryRollNotCreatedErr        = errors.New("Canary roll could not be created. Please retry the Canary. Ask the trooper to investigate (or directly ping rmistry@) if this happens consistently.")
+	CanaryRollSuccessTooQuicklyErr = fmt.Errorf("Canary roll returned success in less than %s. Failing canary due to skbug.com/10563. Please retry the Canary.", MinWaitDuration)
+
+	// Lets add the roll link only once to step data.
+	AddedRollLinkStepData = false
+)
+
 func main() {
 	var (
 		projectId = flag.String("project_id", "", "ID of the Google Cloud project.")
@@ -58,11 +66,13 @@ func main() {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
 
+	// Add documentation link for canary rolls.
+	td.StepText(ctx, "Canary roll doc", "https://goto.google.com/autoroller-canary-bots")
+
 	manualRollDB, err := manual.NewDBWithParams(ctx, firestore.FIRESTORE_PROJECT, "production", ts)
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
-
 	req := manual.ManualRollRequest{
 		Requester:  *rollerName,
 		RollerName: *rollerName,
@@ -74,29 +84,54 @@ func main() {
 		NoEmail:           true,
 		NoResolveRevision: true,
 	}
-	if err := td.Do(ctx, td.Props("Trigger canary roll").Infra(), func(ctx context.Context) error {
-		return manualRollDB.Put(&req)
-	}); err != nil {
-		td.Fatal(ctx, skerr.Wrap(err))
-	}
 
-	// Add documentation link for canary rolls.
-	td.StepText(ctx, "Canary roll doc", "https://goto.google.com/autoroller-canary-bots")
+	// Retry if canary roll could not be created or if canary roll returned
+	// success too quickly (skbug.com/10563).
+	retryAttempts := 3
+	for retry := 0; ; retry++ {
+		retryText := ""
+		if retry > 0 {
+			retryText = fmt.Sprintf(" (Retry #%d)", retry)
+		}
 
-	if err := waitForCanaryRoll(ctx, manualRollDB, req.Id); err != nil {
-		td.Fatal(ctx, skerr.Wrap(err))
+		if err := td.Do(ctx, td.Props(fmt.Sprintf("Trigger canary roll%s", retryText)).Infra(), func(ctx context.Context) error {
+			// TESTING TESTING TESTING
+			if retry == 2 {
+				td.Fatal(ctx, skerr.Wrap(err))
+			}
+			// return manualRollDB.Put(&req)
+			return nil
+		}); err != nil {
+			// Immediately fail for errors in triggering.
+			td.Fatal(ctx, skerr.Wrap(err))
+		}
+
+		if err := waitForCanaryRoll(ctx, manualRollDB, req.Id, fmt.Sprintf("Wait for canary roll%s", retryText)); err != nil {
+			// Retry these errors.
+			if err == CanaryRollNotCreatedErr || err == CanaryRollSuccessTooQuicklyErr {
+				if retry >= (retryAttempts - 1) {
+					td.Fatal(ctx, skerr.Wrapf(err, "failed inspite of 3 retries"))
+				}
+				time.Sleep(time.Minute)
+				continue
+			}
+			// Immediately fail for all other errors.
+			td.Fatal(ctx, skerr.Wrap(err))
+		}
 	}
 }
 
-func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId string) error {
-	ctx := td.StartStep(parentCtx, td.Props("Wait for canary roll"))
+func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId, stepName string) error {
+	ctx := td.StartStep(parentCtx, td.Props(stepName))
 	defer td.EndStep(ctx)
 	startTime := time.Now()
 
+	// TESTING TESTING
+	return td.FailStep(ctx, CanaryRollSuccessTooQuicklyErr)
+	// TESTING TESTING
+
 	// For writing to the step's log stream.
 	stdout := td.NewLogStream(ctx, "stdout", td.Info)
-	// Lets add the roll link only once to step data.
-	addedRollLinkStepData := false
 	for {
 		roll, err := manualRollDB.Get(ctx, rollId)
 		if err != nil {
@@ -107,11 +142,11 @@ func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId
 		if cl == "" {
 			rollStatus = fmt.Sprintf("Canary roll has status %s", roll.Status)
 		} else {
-			if !addedRollLinkStepData {
+			if !AddedRollLinkStepData {
 				// Add the roll link to both the current step and it's parent.
 				td.StepText(ctx, "Canary roll CL", cl)
 				td.StepText(parentCtx, "Canary roll CL", cl)
-				addedRollLinkStepData = true
+				AddedRollLinkStepData = true
 			}
 			rollStatus = fmt.Sprintf("Canary roll [ %s ] has status %s", roll.Url, roll.Status)
 		}
@@ -126,12 +161,12 @@ func waitForCanaryRoll(parentCtx context.Context, manualRollDB manual.DB, rollId
 				// before the tryjobs have a chance to run. If we have waited
 				// for < MinWaitDuration then be cautious and assume failure.
 				if time.Now().Before(startTime.Add(MinWaitDuration)) {
-					return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] returned success in less than %s. Failing canary due to skbug.com/10563. Please retry the Canary.", cl, MinWaitDuration))
+					return td.FailStep(ctx, CanaryRollSuccessTooQuicklyErr)
 				}
 				return nil
 			} else if roll.Result == manual.RESULT_FAILURE {
 				if cl == "" {
-					return td.FailStep(ctx, errors.New("Canary roll could not be created. Please retry the Canary. Ask the trooper to investigate (or directly ping rmistry@) if this happens consistently."))
+					return td.FailStep(ctx, CanaryRollNotCreatedErr)
 				}
 				return td.FailStep(ctx, fmt.Errorf("Canary roll [ %s ] failed", cl))
 			} else if roll.Result == manual.RESULT_UNKNOWN {
