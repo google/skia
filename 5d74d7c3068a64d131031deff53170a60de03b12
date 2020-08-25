@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e52b4242_308a4147",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-25T16:07:48Z",
+      "side": 1,
+      "message": "I\u0027m a bit surprised this isn\u0027t just: fYUVAPixmaps.yuvaInfo().numPlanes() ?\n\nand then the assert in \u0027numYUVAPlanes\u0027 would become tautological.",
+      "range": {
+        "startLine": 158,
+        "startChar": 36,
+        "endLine": 158,
+        "endChar": 77
+      },
+      "revId": "5d74d7c3068a64d131031deff53170a60de03b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d351d567_3df4d66b",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-25T16:07:48Z",
+      "side": 1,
+      "message": "more ?",
+      "range": {
+        "startLine": 228,
+        "startChar": 68,
+        "endLine": 228,
+        "endChar": 70
+      },
+      "revId": "5d74d7c3068a64d131031deff53170a60de03b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0db3bdd0_e4316a56",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-25T16:07:48Z",
+      "side": 1,
+      "message": "fYUVAPixmaps ?",
+      "range": {
+        "startLine": 242,
+        "startChar": 43,
+        "endLine": 242,
+        "endChar": 54
+      },
+      "revId": "5d74d7c3068a64d131031deff53170a60de03b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
