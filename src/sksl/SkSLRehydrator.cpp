@@ -187,9 +187,9 @@ const Symbol* Rehydrator::symbol() {
             fields.reserve(fieldCount);
             for (int i = 0; i < fieldCount; ++i) {
                 Modifiers m = this->modifiers();
-                StringFragment name = this->readString();
+                StringFragment fieldName = this->readString();
                 const Type* type = this->type();
-                fields.emplace_back(m, name, type);
+                fields.emplace_back(m, fieldName, type);
             }
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Type>(/*offset=*/-1, name, std::move(fields)));

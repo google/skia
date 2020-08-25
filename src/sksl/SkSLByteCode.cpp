@@ -432,14 +432,14 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 // the stack. Update our bottom of stack to point at the first parameter, and our
                 // sp to point past those parameters (plus space for locals).
                 int target = READ8();
-                const ByteCodeFunction* f = byteCode->fFunctions[target].get();
+                const ByteCodeFunction* fn = byteCode->fFunctions[target].get();
                 if (skvx::any(mask())) {
-                    frames.push_back({ code, ip, stack, f->fParameterCount });
-                    ip = code = f->fCode.data();
-                    stack = sp - f->fParameterCount + 1;
-                    sp = stack + f->fParameterCount + f->fLocalCount - 1;
+                    frames.push_back({ code, ip, stack, fn->fParameterCount });
+                    ip = code = fn->fCode.data();
+                    stack = sp - fn->fParameterCount + 1;
+                    sp = stack + fn->fParameterCount + fn->fLocalCount - 1;
                     // As we did in runStriped(), zero locals so they're safe to mask-store into.
-                    for (int i = f->fParameterCount; i < f->fParameterCount + f->fLocalCount; i++) {
+                    for (int i = fn->fParameterCount; i < fn->fParameterCount + fn->fLocalCount; i++) {
                         stack[i].fFloat = 0.0f;
                     }
                 }

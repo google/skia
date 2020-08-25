@@ -1172,8 +1172,8 @@ void SPIRVCodeGenerator::writeUniformScaleMatrix(SpvId id, SpvId diagonal, const
                       out);
     this->writeWord(this->getType(type), out);
     this->writeWord(id, out);
-    for (SpvId id : columnIds) {
-        this->writeWord(id, out);
+    for (SpvId columnId : columnIds) {
+        this->writeWord(columnId, out);
     }
     this->writePrecisionModifier(type, id);
 }
@@ -1220,7 +1220,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                 this->writeWord(dstColumnType, out);
                 this->writeWord(dstColumn, out);
                 this->writeWord(srcColumn, out);
-                for (int i = 0; i < delta; ++i) {
+                for (int j = 0; j < delta; ++j) {
                     this->writeWord(zeroId, out);
                 }
                 this->writePrecisionModifier(dstType, dstColumn);
@@ -1234,8 +1234,8 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                 this->writeWord(dstColumn, out);
                 this->writeWord(srcColumn, out);
                 this->writeWord(srcColumn, out);
-                for (int i = 0; i < count; i++) {
-                    this->writeWord(i, out);
+                for (int j = 0; j < count; j++) {
+                    this->writeWord(j, out);
                 }
                 this->writePrecisionModifier(dstType, dstColumn);
             }
@@ -1247,7 +1247,7 @@ void SPIRVCodeGenerator::writeMatrixCopy(SpvId id, SpvId src, const Type& srcTyp
                 this->writeOpCode(SpvOpCompositeConstruct, 3 + dstType.rows(), out);
                 this->writeWord(dstColumnType, out);
                 this->writeWord(zeroColumn, out);
-                for (int i = 0; i < dstType.rows(); ++i) {
+                for (int j = 0; j < dstType.rows(); ++j) {
                     this->writeWord(zeroId, out);
                 }
                 this->writePrecisionModifier(dstType, zeroColumn);

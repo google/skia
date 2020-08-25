@@ -170,13 +170,13 @@ int main(int argc, const char** argv) {
         }
         dehydrator.write(*symbols);
         dehydrator.write(elements);
-        SkSL::String name = base_name(argv[1], "", ".sksl");
+        SkSL::String baseName = base_name(argv[1], "", ".sksl");
         SkSL::StringStream buffer;
         dehydrator.finish(buffer);
         const SkSL::String& data = buffer.str();
-        out.printf("static constexpr size_t SKSL_INCLUDE_%s_LENGTH = %d;\n", name.c_str(),
+        out.printf("static constexpr size_t SKSL_INCLUDE_%s_LENGTH = %d;\n", baseName.c_str(),
                    (int) data.length());
-        out.printf("static uint8_t SKSL_INCLUDE_%s[%d] = {", name.c_str(), (int) data.length());
+        out.printf("static uint8_t SKSL_INCLUDE_%s[%d] = {", baseName.c_str(), (int) data.length());
         for (size_t i = 0; i < data.length(); ++i) {
             out.printf("%d,", (uint8_t) data[i]);
         }

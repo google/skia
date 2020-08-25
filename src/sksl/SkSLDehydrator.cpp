@@ -159,8 +159,8 @@ void Dehydrator::write(const Symbol& s) {
             this->writeU8(Rehydrator::kUnresolvedFunction_Command);
             this->writeId(&f);
             this->writeU8(f.fFunctions.size());
-            for (const FunctionDeclaration* f : f.fFunctions) {
-                this->write(*f);
+            for (const FunctionDeclaration* funcDecl : f.fFunctions) {
+                this->write(*funcDecl);
             }
             break;
         }
@@ -392,8 +392,8 @@ void Dehydrator::write(const Statement* s) {
                 this->writeU8(Rehydrator::kBlock_Command);
                 AutoDehydratorSymbolTable symbols(this, b.fSymbols);
                 this->writeU8(b.fStatements.size());
-                for (const auto& s : b.fStatements) {
-                    this->write(s.get());
+                for (const std::unique_ptr<Statement>& blockStmt : b.fStatements) {
+                    this->write(blockStmt.get());
                 }
                 this->writeU8(b.fIsScope);
                 break;
@@ -455,10 +455,10 @@ void Dehydrator::write(const Statement* s) {
                 AutoDehydratorSymbolTable symbols(this, ss.fSymbols);
                 this->write(ss.fValue.get());
                 this->writeU8(ss.fCases.size());
-                for (const auto& sc : ss.fCases) {
+                for (const std::unique_ptr<SwitchCase>& sc : ss.fCases) {
                     this->write(sc->fValue.get());
                     this->writeU8(sc->fStatements.size());
-                    for (const auto& stmt : sc->fStatements) {
+                    for (const std::unique_ptr<Statement>& stmt : sc->fStatements) {
                         this->write(stmt.get());
                     }
                 }
@@ -469,8 +469,8 @@ void Dehydrator::write(const Statement* s) {
                 this->writeU8(Rehydrator::kVarDeclaration_Command);
                 this->writeU16(this->symbolId(v.fVar));
                 this->writeU8(v.fSizes.size());
-                for (const auto& s : v.fSizes) {
-                    this->write(s.get());
+                for (const std::unique_ptr<Expression>& sizeExpr : v.fSizes) {
+                    this->write(sizeExpr.get());
                 }
                 this->write(v.fValue.get());
                 break;
@@ -500,7 +500,7 @@ void Dehydrator::write(const ProgramElement& e) {
             this->writeU8(Rehydrator::kEnum_Command);
             this->write(en.fTypeName);
             AutoDehydratorSymbolTable symbols(this, en.fSymbols);
-            for (const auto& s : en.fSymbols->fOwnedSymbols) {
+            for (const std::unique_ptr<const Symbol>& s : en.fSymbols->fOwnedSymbols) {
                 SkASSERT(s->fKind == Symbol::kVariable_Kind);
                 Variable& v = (Variable&) *s;
                 SkASSERT(v.fInitialValue);
@@ -550,8 +550,8 @@ void Dehydrator::write(const ProgramElement& e) {
             this->writeU8(Rehydrator::kVarDeclarations_Command);
             this->write(v.fBaseType);
             this->writeU8(v.fVars.size());
-            for (const auto& v : v.fVars) {
-                this->write(v.get());
+            for (const auto& var : v.fVars) {
+                this->write(var.get());
             }
             break;
         }
