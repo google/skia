@@ -13,7 +13,6 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
@@ -90,7 +89,7 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              SkTArray<Block, true> blocks,
                              SkTArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts)
-        : ParagraphImpl(SkStringFromU16String(utf16text),
+        : ParagraphImpl(SkUnicode::SkStringFromU16String(utf16text),
                         std::move(style),
                         std::move(blocks),
                         std::move(placeholders),
