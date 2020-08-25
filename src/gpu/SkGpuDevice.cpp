@@ -972,7 +972,6 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     // Convert atlas to an image shader.
     sk_sp<SkShader> shader = atlas->makeShader();
     if (!shader) {
-        SkDEBUGFAIL("unable to convert atlas to image shader");
         return;
     }
 
@@ -984,7 +983,6 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
     std::unique_ptr<GrFragmentProcessor> shaderFP = as_SB(shader)->asFragmentProcessor(fpArgs);
     if (shaderFP == nullptr) {
-        SkDEBUGFAIL("unable to convert image shader to fragment processor");
         return;
     }
 
