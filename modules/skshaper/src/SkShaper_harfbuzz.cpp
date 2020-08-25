@@ -63,6 +63,7 @@ using HBBuffer = resource<hb_buffer_t   , decltype(hb_buffer_destroy), hb_buffer
 
 using SkUnicodeBidi = std::unique_ptr<SkBidiIterator>;
 using SkUnicodeBreak = std::unique_ptr<SkBreakIterator>;
+using SkUnicodeScript = std::unique_ptr<SkScriptIterator>;
 
 hb_position_t skhb_position(SkScalar value) {
     // Treat HarfBuzz hb_position_t as 16.16 fixed-point.
@@ -378,21 +379,19 @@ private:
     SkBidiIterator::Level fLevel;
 };
 
-class HbIcuScriptRunIterator final : public SkShaper::ScriptRunIterator {
+class SkUnicodeHbScriptRunIterator final: public SkShaper::ScriptRunIterator {
 public:
-    HbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes)
-        : fCurrent(utf8), fBegin(utf8), fEnd(fCurrent + utf8Bytes)
+    SkUnicodeHbScriptRunIterator(SkUnicodeScript script, const char* utf8, size_t utf8Bytes)
+        : fScript(std::move(script))
+        , fCurrent(utf8), fBegin(utf8), fEnd(fCurrent + utf8Bytes)
         , fCurrentScript(HB_SCRIPT_UNKNOWN)
     {}
-    static hb_script_t hb_script_from_icu(SkUnichar u) {
-        UErrorCode status = U_ZERO_ERROR;
-        UScriptCode scriptCode = uscript_getScript(u, &status);
-
-        if (U_FAILURE (status)) {
+    hb_script_t hb_script_from_icu(SkUnichar u) {
+        SkScriptIterator::ScriptID scriptId;
+        if (!fScript->getScript(u, &scriptId)) {
             return HB_SCRIPT_UNKNOWN;
         }
-
-        return hb_icu_script_to_script(scriptCode);
+        return hb_icu_script_to_script((UScriptCode)scriptId);
     }
     void consume() override {
         SkASSERT(fCurrent < fEnd);
@@ -428,6 +427,7 @@ public:
         return SkSetFourByteTag(HB_UNTAG(fCurrentScript));
     }
 private:
+    SkUnicodeScript fScript;
     char const * fCurrent;
     char const * const fBegin;
     char const * const fEnd;
@@ -804,7 +804,9 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
         return;
     }
 
-    std::unique_ptr<ScriptRunIterator> script(MakeHbIcuScriptRunIterator(utf8, utf8Bytes));
+    std::unique_ptr<ScriptRunIterator> script(MakeSkUnicodeHbScriptRunIterator(fUnicode.get(),
+                                                                                       utf8,
+                                                                                       utf8Bytes));
     if (!script) {
         return;
     }
@@ -1400,12 +1402,13 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
     auto unicode = SkUnicode::Make();
-    std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-        SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
-                                               utf8,
-                                               utf8Bytes,
-                                               bidiLevel);
-    return bidi;
+    if (!unicode) {
+        return nullptr;
+    }
+    return SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
+                                                  utf8,
+                                                  utf8Bytes,
+                                                  bidiLevel);
 }
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
@@ -1438,7 +1441,20 @@ SkShaper::MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, siz
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
 SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
-    return std::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
+    auto unicode = SkUnicode::Make();
+    if (!unicode) {
+        return nullptr;
+    }
+    return SkShaper::MakeSkUnicodeHbScriptRunIterator(unicode.get(), utf8, utf8Bytes);
+}
+
+std::unique_ptr<SkShaper::ScriptRunIterator>
+SkShaper::MakeSkUnicodeHbScriptRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes) {
+    auto script = unicode->makeScriptIterator();
+    if (!script) {
+        return nullptr;
+    }
+    return std::make_unique<SkUnicodeHbScriptRunIterator>(std::move(script), utf8, utf8Bytes);
 }
 
 std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fontmgr) {

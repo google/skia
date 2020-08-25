@@ -603,8 +603,8 @@ bool OneLineShaper::shape() {
                     LangIterator langIter(unresolvedText, blockSpan,
                                       fParagraph->paragraphStyle().getTextStyle());
                     SkShaper::TrivialBiDiRunIterator bidiIter(defaultBidiLevel, unresolvedText.size());
-                    auto scriptIter = SkShaper::MakeHbIcuScriptRunIterator
-                                     (unresolvedText.begin(), unresolvedText.size());
+                    auto scriptIter = SkShaper::MakeSkUnicodeHbScriptRunIterator
+                                     (fParagraph->getUnicode(), unresolvedText.begin(), unresolvedText.size());
                     fCurrentText = unresolvedRange;
                     shaper->shape(unresolvedText.begin(), unresolvedText.size(),
                             fontIter, bidiIter,*scriptIter, langIter,

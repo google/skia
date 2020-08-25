@@ -11,6 +11,7 @@
 #include "src/utils/SkUTF.h"
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
+#include <unicode/uscript.h>
 #include <unicode/ustring.h>
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
@@ -177,6 +178,25 @@ class SkBreakIterator_icu : public SkBreakIterator {
         }
         return std::unique_ptr<SkBreakIterator>(new SkBreakIterator_icu(std::move(iterator)));
     }
+};
+
+class SkScriptIterator_icu : public SkScriptIterator {
+ public:
+   bool getScript(SkUnichar u, ScriptID* script) override {
+        UErrorCode status = U_ZERO_ERROR;
+        UScriptCode scriptCode = uscript_getScript(u, &status);
+        if (U_FAILURE (status)) {
+            return false;
+        }
+        if (script) {
+            *script = (ScriptID)scriptCode;
+        }
+        return true;
+   }
+
+   static std::unique_ptr<SkScriptIterator> makeScriptIterator() {
+        return std::unique_ptr<SkScriptIterator>(new SkScriptIterator_icu());
+   }
 };
 
 class SkUnicode_icu : public SkUnicode {
@@ -375,6 +395,9 @@ public:
     std::unique_ptr<SkBreakIterator> makeBreakIterator(const char locale[],
                                                        BreakType breakType) override {
         return SkBreakIterator_icu::makeUtf8BreakIterator(locale, breakType);
+    }
+    std::unique_ptr<SkScriptIterator> makeScriptIterator() override {
+        return SkScriptIterator_icu::makeScriptIterator();
     }
 
     // TODO: Use ICU data file to detect controls and whitespaces

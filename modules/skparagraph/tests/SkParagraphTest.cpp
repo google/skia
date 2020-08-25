@@ -3678,7 +3678,9 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(1);
-    paragraph_style.setEllipsis(u"\u2026");
+    std::u16string ellipsis = u"\u2026";
+    paragraph_style.setEllipsis(ellipsis);
+    std::u16string e = paragraph_style.getEllipsisUtf16();
     paragraph_style.turnHintingOff();
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
 
