@@ -32,6 +32,8 @@ struct Analysis {
     static bool ReferencesFragCoords(const Program& program);
 
     static int NodeCount(const FunctionDefinition& function);
+
+    static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
 };
 
 /**
@@ -66,7 +68,7 @@ protected:
     virtual bool visitProgramElement(const ProgramElement&);
 
 private:
-    const Program* fProgram;
+    const Program* fProgram = nullptr;
 };
 
 }  // namespace SkSL
