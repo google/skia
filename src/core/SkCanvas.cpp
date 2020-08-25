@@ -2687,7 +2687,7 @@ void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
     DRAW_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        iter.fDevice->drawPatch(cubics, colors, texCoords, bmode, paint);
+        iter.fDevice->drawPatch(cubics, colors, texCoords, bmode, draw.paint());
     }
 
     DRAW_END
@@ -2737,7 +2737,7 @@ void SkCanvas::onDrawAtlas(const SkImage* atlas, const SkRSXform xform[], const 
 
     DRAW_BEGIN(pnt, nullptr)
     while (iter.next()) {
-        iter.fDevice->drawAtlas(atlas, xform, tex, colors, count, bmode, pnt);
+        iter.fDevice->drawAtlas(atlas, xform, tex, colors, count, bmode, draw.paint());
     }
     DRAW_END
 }
