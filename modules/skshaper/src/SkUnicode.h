@@ -53,6 +53,23 @@ public:
     static void ReorderVisual(const Level runLevels[], int levelsCount, int32_t logicalFromVisual[]);
 };
 
+class SKUNICODE_API SkBreakIterator {
+public:
+    typedef int32_t Position;
+    typedef int32_t Status;
+    virtual ~SkBreakIterator() = default;
+    virtual Position first() = 0;
+    virtual Position current() = 0;
+    virtual Position next() = 0;
+    virtual Position preceding(Position offset) = 0;
+    virtual Position following(Position offset) = 0;
+    virtual Status status() = 0;
+    virtual bool isDone() = 0;
+    virtual bool setUtf8Text(const char* utf8,
+                             size_t utf8Units,
+                             std::vector<SkBreakIterator*> iterators = {}) = 0;
+};
+
 class SKUNICODE_API SkUnicode {
     public:
         typedef uint32_t ScriptID;
@@ -99,6 +116,8 @@ class SKUNICODE_API SkUnicode {
             (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
             (const char text[], int count, SkBidiIterator::Direction) = 0;
+        virtual std::unique_ptr<SkBreakIterator> makeBreakIterator
+            (const char locale[], const char text[], int count, UBreakType breakType) = 0;
 
         // High level methods (that we actually use somewhere=SkParagraph)
         virtual bool getBidiRegions
