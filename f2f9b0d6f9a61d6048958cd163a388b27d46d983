@@ -34,6 +34,24 @@
       "revId": "f2f9b0d6f9a61d6048958cd163a388b27d46d983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f99da7a_0aa7ce49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-25T19:08:24Z",
+      "side": 1,
+      "message": "Yes, that bot simulates the situation where the GPU device is abandoned (eg, due to loss-of-device or whatever at the OS level), but the client continues to use Skia for some time before noticing.",
+      "parentUuid": "0b9af8be_3dd8a60e",
+      "revId": "f2f9b0d6f9a61d6048958cd163a388b27d46d983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
