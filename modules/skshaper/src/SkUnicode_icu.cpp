@@ -4,16 +4,22 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
+#include "include/core/SkString.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/src/SkUnicode.h"
 #include "src/utils/SkUTF.h"
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
+#include <unicode/ustring.h>
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
 #include <vector>
 #include <functional>
+
+#if defined(SK_USING_THIRD_PARTY_ICU)
+#include "SkLoadICU.h"
+#endif
 
 using SkUnicodeBidi = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
@@ -287,6 +293,15 @@ public:
         return SkBidiIterator_icu::makeBidiIterator(text, count, dir);
     }
 
+    // TODO: Use ICU data file to detect controls and whitespaces
+    bool isControl(SkUnichar utf8) override {
+        return u_iscntrl(utf8);
+    }
+
+    bool isWhitespace(SkUnichar utf8) override {
+        return u_isWhitespace(utf8);
+    }
+
     bool getBidiRegions(const char utf8[], int utf8Units, TextDirection dir, std::vector<BidiRegion>* results) override {
         return extractBidi(utf8, utf8Units, dir, results);
     }
@@ -330,4 +345,29 @@ public:
     }
 };
 
-std::unique_ptr<SkUnicode> SkUnicode::Make() { return std::make_unique<SkUnicode_icu>(); }
+SkString SkUnicode::SkStringFromU16String(const std::u16string& utf16text) {
+        SkString dst;
+        UErrorCode status = U_ZERO_ERROR;
+        int32_t dstSize;
+        // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+        u_strToUTF8(nullptr, 0, &dstSize, (UChar*)utf16text.data(), SkToS32(utf16text.size()), &status);
+        dst.resize(dstSize);
+        status = U_ZERO_ERROR;
+        u_strToUTF8(dst.writable_str(), dst.size(), nullptr,
+                    (UChar*)utf16text.data(), SkToS32(utf16text.size()), &status);
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Invalid UTF-16 input: %s", u_errorName(status));
+            return dst;
+        }
+        return dst;
+    }
+
+std::unique_ptr<SkUnicode> SkUnicode::Make() {
+    #if defined(SK_USING_THIRD_PARTY_ICU)
+    if (!SkLoadICU()) {
+        SkDEBUGF("SkLoadICU() failed!\n");
+        return nullptr;
+    }
+    #endif
+    return std::make_unique<SkUnicode_icu>();
+}
