@@ -6,10 +6,12 @@
 */
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTemplates.h"
+#include "include/core/SkString.h"
 #include "modules/skshaper/src/SkUnicode.h"
 #include "src/utils/SkUTF.h"
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
+#include <unicode/ustring.h>
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
 #include <vector>
@@ -329,5 +331,30 @@ public:
         ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
     }
 };
+
+bool SkUnicode::isControl(SkUnichar utf8) {
+    return u_iscntrl(utf8);
+}
+
+bool SkUnicode::isWhitespace(SkUnichar utf8) {
+    return u_isWhitespace(utf8);
+}
+
+SkString SkUnicode::SkStringFromU16String(const std::u16string& utf16text) {
+    SkString dst;
+    UErrorCode status = U_ZERO_ERROR;
+    int32_t dstSize;
+    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
+    u_strToUTF8(nullptr, 0, &dstSize, (UChar*)utf16text.data(), SkToS32(utf16text.size()), &status);
+    dst.resize(dstSize);
+    status = U_ZERO_ERROR;
+    u_strToUTF8(dst.writable_str(), dst.size(), nullptr,
+                (UChar*)utf16text.data(), SkToS32(utf16text.size()), &status);
+    if (U_FAILURE(status)) {
+        SkDEBUGF("Invalid UTF-16 input: %s", u_errorName(status));
+        return dst;
+    }
+    return dst;
+}
 
 std::unique_ptr<SkUnicode> SkUnicode::Make() { return std::make_unique<SkUnicode_icu>(); }
