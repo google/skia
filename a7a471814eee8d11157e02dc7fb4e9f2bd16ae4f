@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8346ac96_84d8a951",
+        "filename": "src/sksl/SkSLAnalysis.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-25T20:39:41Z",
+      "side": 1,
+      "message": "You mean promote visitStatement, visitExpression, and visitProgramElement to public? Only subclasses are calling them right now, so they seem ok to leave protected. Maybe I\u0027m not understanding your point here?",
+      "parentUuid": "25353a28_58d1571a",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 188,
+        "endChar": 0
+      },
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "65d527ce_3e07c3f0",
         "filename": "src/sksl/SkSLAnalysis.cpp",
         "patchSetId": 2
@@ -83,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "2c91e8f7_f90af4ce",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2321,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-25T20:39:41Z",
+      "side": 1,
+      "message": "Three times, now! Done.",
+      "parentUuid": "43a21249_e8998335",
+      "range": {
+        "startLine": 2321,
+        "startChar": 17,
+        "endLine": 2321,
+        "endChar": 53
+      },
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0705ded0_2663ca48",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 2
@@ -103,6 +151,30 @@
       "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef2cf369_84bf2dde",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2370,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-25T20:39:41Z",
+      "side": 1,
+      "message": "It can\u0027t miss, because we add a mapping for all parameters. I\u0027ve added an assert to make this more clear.",
+      "parentUuid": "0705ded0_2663ca48",
+      "range": {
+        "startLine": 2370,
+        "startChar": 68,
+        "endLine": 2370,
+        "endChar": 77
+      },
+      "revId": "a7a471814eee8d11157e02dc7fb4e9f2bd16ae4f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
