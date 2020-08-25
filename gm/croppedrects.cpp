@@ -89,9 +89,9 @@ private:
         {
             // GrRenderTargetContext::fillRectWithLocalMatrix.
             SkAutoCanvasRestore acr(canvas, true);
-            SkPath path;
-            path.moveTo(kSrcImageClip.fLeft - kSrcImageClip.width(), kSrcImageClip.centerY());
-            path.lineTo(kSrcImageClip.fRight + 3 * kSrcImageClip.width(), kSrcImageClip.centerY());
+            SkPath path = SkPath::Line(
+                   {kSrcImageClip.fLeft - kSrcImageClip.width(), kSrcImageClip.centerY()},
+                   {kSrcImageClip.fRight + 3 * kSrcImageClip.width(), kSrcImageClip.centerY()});
             SkPaint paint;
             paint.setStyle(SkPaint::kStroke_Style);
             paint.setStrokeWidth(2 * kSrcImageClip.height());

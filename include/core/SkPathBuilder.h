@@ -202,6 +202,11 @@ public:
 
     SkPathBuilder& offset(SkScalar dx, SkScalar dy);
 
+    SkPathBuilder& toggleInverseFillType() {
+        fFillType = (SkPathFillType)((unsigned)fFillType ^ 2);
+        return *this;
+    }
+
 private:
     SkTDArray<SkPoint>  fPts;
     SkTDArray<uint8_t>  fVerbs;
