@@ -8,7 +8,6 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
 
 #include <algorithm>
 #include <utility>
@@ -74,7 +73,7 @@ TextStyle ParagraphBuilderImpl::peekStyle() {
 }
 
 void ParagraphBuilderImpl::addText(const std::u16string& text) {
-    fUtf8.append(SkStringFromU16String(text));
+    fUtf8.append(SkUnicode::SkStringFromU16String(text));
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {

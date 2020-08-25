@@ -4,10 +4,7 @@
 # found in the LICENSE file.
 
 import("../../gn/skia.gni")
-
-declare_args() {
-  skia_enable_skshaper = true
-}
+import("args.gni")
 
 if (skia_enable_skshaper) {
   config("public_config") {
