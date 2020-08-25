@@ -8,7 +8,6 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
 
 #include <algorithm>
 #include <utility>
@@ -23,7 +22,10 @@ std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilder(style, fontCollection), fUtf8(), fFontCollection(std::move(fontCollection)) {
+        : ParagraphBuilder(style, fontCollection)
+        , fUtf8()
+        , fFontCollection(std::move(fontCollection))
+        , fICU(SkUnicode::Make()){
     this->setParagraphStyle(style);
 }
 
@@ -74,7 +76,9 @@ TextStyle ParagraphBuilderImpl::peekStyle() {
 }
 
 void ParagraphBuilderImpl::addText(const std::u16string& text) {
-    fUtf8.append(SkStringFromU16String(text));
+    if (nullptr != fICU) {
+        fUtf8.append(fICU->SkStringFromU16String(text));
+    }
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
@@ -128,7 +132,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
     // Add one fake placeholder with the rest of the text
     addPlaceholder(PlaceholderStyle(), true);
     return std::make_unique<ParagraphImpl>(
-            fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection);
+            fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, std::move(fICU));
 }
 
 }  // namespace textlayout

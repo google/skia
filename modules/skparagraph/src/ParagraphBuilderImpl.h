@@ -11,6 +11,7 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skshaper/src/SkUnicode.h"
 
 namespace skia {
 namespace textlayout {
@@ -65,6 +66,7 @@ private:
     SkTArray<Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
+    std::unique_ptr<SkUnicode> fICU;
 };
 }  // namespace textlayout
 }  // namespace skia
