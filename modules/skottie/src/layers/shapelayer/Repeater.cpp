@@ -10,8 +10,7 @@
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
-#include "modules/sksg/include/SkSGGroup.h"
-#include "modules/sksg/include/SkSGTransform.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 
 #include <vector>
 
@@ -20,15 +19,108 @@ namespace internal {
 
 namespace  {
 
-class RepeaterAdapter final : public DiscardableAdapterBase<RepeaterAdapter, sksg::Group> {
+class RepeaterRenderNode final : public sksg::CustomRenderNode {
+public:
+    enum class CompositeMode { kBelow, kAbove };
+
+    RepeaterRenderNode(std::vector<sk_sp<RenderNode>>&& children, CompositeMode mode)
+        : INHERITED(std::move(children))
+        , fMode(mode) {}
+
+    SG_ATTRIBUTE(Count       , size_t, fCount       )
+    SG_ATTRIBUTE(Offset      , float , fOffset      )
+    SG_ATTRIBUTE(AnchorPoint , SkV2  , fAnchorPoint )
+    SG_ATTRIBUTE(Position    , SkV2  , fPosition    )
+    SG_ATTRIBUTE(Scale       , SkV2  , fScale       )
+    SG_ATTRIBUTE(Rotation    , float , fRotation    )
+    SG_ATTRIBUTE(StartOpacity, float , fStartOpacity)
+    SG_ATTRIBUTE(EndOpacity  , float , fEndOpacity  )
+
+private:
+    const RenderNode* onNodeAt(const SkPoint&) const override { return nullptr; } // no hit-testing
+
+    SkMatrix instanceTransform(size_t i) const {
+        const auto t = fOffset + i;
+
+        // Position, scale & rotation are "scaled" by index/offset.
+        return SkMatrix::Translate(t * fPosition.x + fAnchorPoint.x,
+                                   t * fPosition.y + fAnchorPoint.y)
+             * SkMatrix::RotateDeg(t * fRotation)
+             * SkMatrix::Scale(std::pow(fScale.x, t),
+                               std::pow(fScale.y, t))
+             * SkMatrix::Translate(-fAnchorPoint.x,
+                                   -fAnchorPoint.y);
+    }
+
+    SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
+        fChildrenBounds = SkRect::MakeEmpty();
+        for (const auto& child : this->children()) {
+            fChildrenBounds.join(child->revalidate(ic, ctm));
+        }
+
+        auto bounds = SkRect::MakeEmpty();
+        for (size_t i = 0; i < fCount; ++i) {
+            bounds.join(this->instanceTransform(i).mapRect(fChildrenBounds));
+        }
+
+        return bounds;
+    }
+
+    void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
+        // To cover the full opacity range, the denominator below should be (fCount - 1).
+        // Interstingly, that's not what AE does.  Off-by-one bug?
+        const auto dOpacity = fCount > 1 ? (fEndOpacity - fStartOpacity) / fCount : 0.0f;
+
+        for (size_t i = 0; i < fCount; ++i) {
+            const auto render_index = fMode == CompositeMode::kAbove ? i : fCount - i - 1;
+            const auto opacity      = fStartOpacity + dOpacity * render_index;
+
+            if (opacity <= 0) {
+                continue;
+            }
+
+            SkAutoCanvasRestore acr(canvas, true);
+            canvas->concat(this->instanceTransform(render_index));
+
+            const auto& children = this->children();
+            const auto local_ctx = ScopedRenderContext(canvas, ctx)
+                                        .modulateOpacity(opacity)
+                                        .setIsolation(fChildrenBounds,
+                                                      canvas->getTotalMatrix(),
+                                                      children.size() > 1);
+            for (const auto& child : children) {
+                child->render(canvas, local_ctx);
+            }
+        }
+    }
+
+    const CompositeMode           fMode;
+
+    SkRect fChildrenBounds = SkRect::MakeEmpty(); // cached
+
+    size_t fCount          = 0;
+    float  fOffset         = 0,
+           fRotation       = 0,
+           fStartOpacity   = 1,
+           fEndOpacity     = 1;
+    SkV2   fAnchorPoint    = {0,0},
+           fPosition       = {0,0},
+           fScale          = {1,1};
+
+    using INHERITED = sksg::CustomRenderNode;
+};
+
+class RepeaterAdapter final : public DiscardableAdapterBase<RepeaterAdapter, RepeaterRenderNode> {
 public:
     RepeaterAdapter(const skjson::ObjectValue& jrepeater,
                     const skjson::ObjectValue& jtransform,
                     const AnimationBuilder& abuilder,
-                    sk_sp<sksg::RenderNode> repeater_node)
-        : fRepeaterNode(std::move(repeater_node))
-        , fComposite((ParseDefault(jrepeater["m"], 1) == 1) ? Composite::kAbove
-                                                            : Composite::kBelow) {
+                    std::vector<sk_sp<sksg::RenderNode>>&& draws)
+        : INHERITED(sk_make_sp<RepeaterRenderNode>(std::move(draws),
+                                                   (ParseDefault(jrepeater["m"], 1) == 1)
+                                                       ? RepeaterRenderNode::CompositeMode::kBelow
+                                                       : RepeaterRenderNode::CompositeMode::kAbove))
+    {
         this->bind(abuilder, jrepeater["c"], fCount);
         this->bind(abuilder, jrepeater["o"], fOffset);
 
@@ -42,39 +134,16 @@ public:
 
 private:
     void onSync() override {
-        static constexpr SkScalar kMaxCount = 512;
-        const auto count = static_cast<size_t>(SkTPin(fCount, 0.0f, kMaxCount) + 0.5f);
-
-        const auto& compute_transform = [&] (size_t index) {
-            const auto t = fOffset + index;
-
-            // Position, scale & rotation are "scaled" by index/offset.
-            SkMatrix m = SkMatrix::Translate(-fAnchorPoint.x,
-                                             -fAnchorPoint.y);
-            m.postScale(std::pow(fScale.x * .01f, fOffset),
-                        std::pow(fScale.y * .01f, fOffset));
-            m.postRotate(t * fRotation);
-            m.postTranslate(t * fPosition.x + fAnchorPoint.x,
-                            t * fPosition.y + fAnchorPoint.y);
-
-            return m;
-        };
-
-        // TODO: start/end opacity support.
-
-        // TODO: we can avoid rebuilding all the fragments in most cases.
-        this->node()->clear();
-        for (size_t i = 0; i < count; ++i) {
-            const auto insert_index = (fComposite == Composite::kAbove) ? i : count - i - 1;
-            this->node()->addChild(sksg::TransformEffect::Make(fRepeaterNode,
-                                                               compute_transform(insert_index)));
-        }
+        static constexpr SkScalar kMaxCount = 1024;
+        this->node()->setCount(static_cast<size_t>(SkTPin(fCount, 0.0f, kMaxCount) + 0.5f));
+        this->node()->setOffset(fOffset);
+        this->node()->setAnchorPoint(fAnchorPoint);
+        this->node()->setPosition(fPosition);
+        this->node()->setScale(fScale * 0.01f);
+        this->node()->setRotation(fRotation);
+        this->node()->setStartOpacity(SkTPin(fStartOpacity * 0.01f, 0.0f, 1.0f));
+        this->node()->setEndOpacity  (SkTPin(fEndOpacity   * 0.01f, 0.0f, 1.0f));
     }
-
-    enum class Composite { kAbove, kBelow };
-
-    const sk_sp<sksg::RenderNode> fRepeaterNode;
-    const Composite               fComposite;
 
     // Repeater props
     ScalarValue fCount  = 0,
@@ -87,6 +156,8 @@ private:
     ScalarValue fRotation     = 0,
                 fStartOpacity = 100,
                 fEndOpacity   = 100;
+
+    using INHERITED = DiscardableAdapterBase<RepeaterAdapter, RepeaterRenderNode>;
 };
 
 } // namespace
@@ -98,17 +169,15 @@ std::vector<sk_sp<sksg::RenderNode>> ShapeBuilder::AttachRepeaterDrawEffect(
     std::vector<sk_sp<sksg::RenderNode>> repeater_draws;
 
     if (const skjson::ObjectValue* jtransform = jrepeater["tr"]) {
-        // We can skip the group if only one draw.
-        auto repeater_node = (draws.size() > 1) ? sksg::Group::Make(std::move(draws))
-                                                : std::move(draws[0]);
+        // input draws are in top->bottom order - reverse for paint order
+        std::reverse(draws.begin(), draws.end());
 
-        auto repeater_root =
-                abuilder->attachDiscardableAdapter<RepeaterAdapter>(jrepeater,
-                                                                    *jtransform,
-                                                                    *abuilder,
-                                                                    std::move(repeater_node));
         repeater_draws.reserve(1);
-        repeater_draws.push_back(std::move(repeater_root));
+        repeater_draws.push_back(
+                    abuilder->attachDiscardableAdapter<RepeaterAdapter>(jrepeater,
+                                                                        *jtransform,
+                                                                        *abuilder,
+                                                                        std::move(draws)));
     } else {
         repeater_draws = std::move(draws);
     }
