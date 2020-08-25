@@ -17,6 +17,7 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"
+#include "src/core/SkYUVAInfoPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
@@ -464,22 +465,29 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                                                              image->uniqueID(),
                                                              overallII);
 
-    SkYUVASizeInfo yuvaSizeInfo;
-    SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
-    SkYUVColorSpace yuvColorSpace;
     auto codec = SkCodecImageGenerator::MakeFromEncodedCodec(ib->refEncodedData());
     std::unique_ptr<char[]> planes[SkYUVASizeInfo::kMaxCount];
-    if (codec && codec->queryYUVA8(&yuvaSizeInfo, yuvaIndices, &yuvColorSpace)) {
-        void* data[4];
-        for (int i = 0; i < 4; ++i) {
-            size_t size = yuvaSizeInfo.fSizes[i].height() * yuvaSizeInfo.fWidthBytes[i];
-            if (size) {
-                planes[i].reset(new char[size]);
-            }
-            data[i] = planes[i].get();
+    SkYUVAInfo yuvaInfo;
+    SkColorType colorTypes[SkYUVAInfo::kMaxPlanes];
+    size_t rowBytes[SkYUVAInfo::kMaxPlanes];
+    if (codec && codec->queryYUVAInfo(&yuvaInfo, colorTypes, rowBytes)) {
+        SkPixmap pixmaps[SkYUVAInfo::kMaxPlanes];
+        size_t planeSizes[SkYUVAInfo::kMaxPlanes];
+        SkISize planeDims[SkYUVAInfo::kMaxPlanes];
+        int numPlanes = yuvaInfo.expectedPlaneDims(planeDims);
+        yuvaInfo.computeTotalBytes(rowBytes, planeSizes);
+        for (int i = 0; i < numPlanes; ++i) {
+            SkASSERT(planeSizes[i]);
+            planes[i].reset(new char[planeSizes[i]]);
+            pixmaps[i].reset(SkImageInfo::Make(planeDims[i], colorTypes[i], kPremul_SkAlphaType),
+                             planes[i].get(),
+                             rowBytes[i]);
         }
-        SkAssertResult(codec->getYUVA8Planes(yuvaSizeInfo, yuvaIndices, data));
-        newImageInfo.setYUVPlanes(yuvaSizeInfo, yuvaIndices, yuvColorSpace, planes);
+        SkAssertResult(codec->getYUVAPlanes(pixmaps));
+        SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount];
+        SkYUVASizeInfo yuvaSizeInfo;
+        SkYUVAInfoPriv::InitLegacyInfo(yuvaInfo, pixmaps, &yuvaSizeInfo, yuvaIndices);
+        newImageInfo.setYUVPlanes(yuvaSizeInfo, yuvaIndices, yuvaInfo.yuvColorSpace(), planes);
     } else {
         sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
         if (!rasterImage) {
