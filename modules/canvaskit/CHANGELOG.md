@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+ - Added the following to `TextStyle`:
+   - `decorationStyle`
+   - `textBaseline`
+   - `letterSpacing`
+   - `wordSpacing`
+   - `heightMultiplier`
+   - `locale`
+   - `shadows`
+   - `fontFeatures`
+ - Added `strutStyle` to `ParagraphStyle`.
+ - Added `addPlaceholder` to `ParagraphBuilder`.
+ - Added `getRectsForPlaceholders` to `Paragraph`.
+
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.0 when testing and deploying to npm.
  - WebGL interface creation is a little leaner in terms of code size and speed.

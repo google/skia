@@ -132,6 +132,7 @@ var CanvasKit = {
     // private API
     /** @return {Float32Array} */
     _getRectsForRange: function() {},
+    _getRectsForPlaceholders: function() {},
   },
 
   ParagraphBuilder: {
@@ -144,6 +145,7 @@ var CanvasKit = {
     prototype: {
       pushStyle: function() {},
       pushPaintStyle: function() {},
+      addPlaceholder: function() {},
     },
 
     // private API
@@ -830,6 +832,28 @@ var CanvasKit = {
     RTL: {},
   },
 
+  DecorationStyle: {
+    Solid: {},
+    Double: {},
+    Dotted: {},
+    Dashed: {},
+    Wavy: {},
+  },
+
+  PlaceholderAlignment: {
+    Baseline: {},
+    AboveBaseline: {},
+    BelowBaseline: {},
+    Top: {},
+    Bottom: {},
+    Middle: {},
+  },
+
+  TextBaseline: {
+    Alphabetic: {},
+    Ideographic: {},
+  },
+
   TileMode: {
     Clamp: {},
     Repeat: {},
@@ -887,6 +911,7 @@ var CanvasKit = {
 // It's not enough to declare them above, because closure can still erase them
 // unless they go on the prototype.
 CanvasKit.Paragraph.prototype.getRectsForRange = function() {};
+CanvasKit.Paragraph.prototype.getRectsForPlaceholders = function() {};
 
 CanvasKit.SkPath.prototype.addArc = function() {};
 CanvasKit.SkPath.prototype.addOval = function() {};

@@ -180,6 +180,66 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
+    gm('paragraph_letter_word_spacing', (canvas) => {
+        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
+
+        const wrapTo = 200;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                // color should default to black
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                letterSpacing: 5,
+                wordSpacing: 10,
+            },
+
+            textAlign: CanvasKit.TextAlign.Center,
+        });
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText(
+            'This text should have a lot of space between the letters and words.');
+        const paragraph = builder.build();
+        paragraph.layout(300);
+
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        fontMgr.delete();
+        paragraph.delete();
+        builder.delete();
+    });
+
+    gm('paragraph_shadows', (canvas) => {
+        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
+
+        const wrapTo = 200;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                color: CanvasKit.WHITE,
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                shadows: [{color: CanvasKit.BLACK, blurRadius: 15}],
+            },
+
+            textAlign: CanvasKit.TextAlign.Center,
+        });
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('This text should have a shadow behind it.');
+        const paragraph = builder.build();
+        paragraph.layout(300);
+
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        fontMgr.delete();
+        paragraph.delete();
+        builder.delete();
+    });
+
     // loosely based on SkParagraph_GetRectsForRangeParagraph test in c++ code.
     gm('paragraph_rects', (canvas) => {
         const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
@@ -485,6 +545,74 @@ describe('Paragraph Behavior', function() {
         paragraph.delete();
         builder.delete();
         fontMgr.delete();
+    });
+
+    gm('paragraph_text_styles', (canvas) => {
+        const paint = new CanvasKit.SkPaint();
+
+        paint.setColor(CanvasKit.GREEN);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
+
+        const wrapTo = 200;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                color: CanvasKit.BLACK,
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+                decoration: CanvasKit.UnderlineDecoration,
+                decorationThickness: 1.5, // multiplier based on font size
+                decorationStyle: CanvasKit.DecorationStyle.Wavy,
+            },
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('VAVAVAVAVAVAVA\nVAVA\n');
+
+        const blueText = new CanvasKit.TextStyle({
+            backgroundColor: CanvasKit.Color(234, 208, 232), // light pink
+            color: CanvasKit.Color(48, 37, 199),
+            fontFamilies: ['Noto Serif'],
+            textBaseline: CanvasKit.TextBaseline.Ideographic,
+            decoration: CanvasKit.LineThroughDecoration,
+            decorationThickness: 1.5, // multiplier based on font size
+        });
+        builder.pushStyle(blueText);
+        builder.addText(`Gosh I hope this wraps at some point, it is such a long line.`);
+        builder.pop();
+        builder.addText(` I'm done with the blue now. `);
+        builder.addText(`Now I hope we should stop before we get 8 lines tall. `);
+        const paragraph = builder.build();
+
+        paragraph.layout(wrapTo);
+
+        expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(21.377, 3);
+        expect(paragraph.getHeight()).toEqual(227);
+        expect(paragraph.getIdeographicBaseline()).toBeCloseTo(27.236, 3);
+        expect(paragraph.getLongestLine()).toBeCloseTo(195.664, 3);
+        expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(1167.140, 3);
+        expect(paragraph.getMaxWidth()).toEqual(200);
+        expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(172.360, 3);
+        expect(paragraph.getWordBoundary(8)).toEqual({
+            start: 0,
+            end: 14,
+        });
+        expect(paragraph.getWordBoundary(25)).toEqual({
+            start: 25,
+            end: 26,
+        });
+
+        canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        paint.delete();
+        fontMgr.delete();
+        paragraph.delete();
+        builder.delete();
     });
 
     it('should not crash if we omit font family on pushed textStyle', () => {
