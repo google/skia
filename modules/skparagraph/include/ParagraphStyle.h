@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "modules/skshaper/src/SkUnicode.h"
 
 namespace skia {
 namespace textlayout {
@@ -72,7 +73,9 @@ struct ParagraphStyle {
     ParagraphStyle();
 
     bool operator==(const ParagraphStyle& rhs) const {
-        return this->fHeight == rhs.fHeight && this->fEllipsis == rhs.fEllipsis &&
+        return this->fHeight == rhs.fHeight &&
+               this->fEllipsis == rhs.fEllipsis &&
+               this->fEllipsisUtf16 == rhs.fEllipsisUtf16 &&
                this->fTextDirection == rhs.fTextDirection && this->fTextAlign == rhs.fTextAlign &&
                this->fDefaultTextStyle == rhs.fDefaultTextStyle;
     }
@@ -92,8 +95,9 @@ struct ParagraphStyle {
     size_t getMaxLines() const { return fLinesLimit; }
     void setMaxLines(size_t maxLines) { fLinesLimit = maxLines; }
 
-    const SkString& getEllipsis() const { return fEllipsis; }
-    void setEllipsis(const std::u16string& ellipsis);
+    SkString getEllipsis() const { return fEllipsis; }
+    std::u16string getEllipsisUtf16() const { return fEllipsisUtf16; }
+    void setEllipsis(const std::u16string& ellipsis) {  fEllipsisUtf16 = ellipsis; }
     void setEllipsis(const SkString& ellipsis) { fEllipsis = ellipsis; }
 
     SkScalar getHeight() const { return fHeight; }
@@ -105,7 +109,7 @@ struct ParagraphStyle {
     bool unlimited_lines() const {
         return fLinesLimit == std::numeric_limits<size_t>::max();
     }
-    bool ellipsized() const { return fEllipsis.size() != 0; }
+    bool ellipsized() const { return !fEllipsis.isEmpty() || !fEllipsisUtf16.empty(); }
     TextAlign effective_align() const;
     bool hintingIsOn() const { return fHintingIsOn; }
     void turnHintingOff() { fHintingIsOn = false; }
@@ -118,6 +122,7 @@ private:
     TextAlign fTextAlign;
     TextDirection fTextDirection;
     size_t fLinesLimit;
+    std::u16string fEllipsisUtf16;
     SkString fEllipsis;
     SkScalar fHeight;
     TextHeightBehavior fTextHeightBehavior;
