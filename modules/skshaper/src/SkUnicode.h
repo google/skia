@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "src/core/SkSpan.h"
+#include "src/utils/SkUTF.h"
 #include <vector>
 
 #if !defined(SKUNICODE_IMPLEMENTATION)
@@ -88,6 +89,33 @@ class SKUNICODE_API SkUnicode {
         };
 
         virtual ~SkUnicode() = default;
+
+        virtual bool isControl(SkUnichar utf8) = 0;
+        virtual bool isWhitespace(SkUnichar utf8) = 0;
+
+        static int convertUtf8ToUtf16(const char* utf8, size_t utf8Units, std::unique_ptr<uint16_t[]>* utf16) {
+            int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Units);
+            if (utf16Units < 0) {
+                SkDEBUGF("Convert error: Invalid utf8 input");
+                return utf16Units;
+            }
+            *utf16 = std::unique_ptr<uint16_t[]>(new uint16_t[utf16Units]);
+            SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16->get(), utf16Units, utf8, utf8Units);
+            SkASSERT(dstLen == utf16Units);
+            return utf16Units;
+        }
+
+        static int convertUtf16ToUtf8(const uint16_t* utf16, size_t utf16Units, std::unique_ptr<char[]>* utf8) {
+            int utf8Units = SkUTF::UTF16ToUTF8(nullptr, 0, utf16, utf16Units);
+            if (utf8Units < 0) {
+                SkDEBUGF("Convert error: Invalid utf16 input");
+                return utf8Units;
+            }
+            *utf8 = std::unique_ptr<char[]>(new char[utf8Units]);
+            SkDEBUGCODE(int dstLen =) SkUTF::UTF16ToUTF8(utf8->get(), utf8Units, utf16, utf16Units);
+            SkASSERT(dstLen == utf8Units);
+            return utf8Units;
+        }
 
         // Iterators (used in SkShaper)
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator

@@ -11,6 +11,7 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skshaper/src/SkUnicode.h"
 
 namespace skia {
 namespace textlayout {
@@ -42,7 +43,7 @@ public:
 
     // Adds text to the builder. Forms the proper runs to use the upper-most style
     // on the style_stack.
-    void addText(const std::u16string& text) override;
+    bool addText(const std::u16string& text) override;
 
     // Adds text to the builder, using the top-most style on on the style_stack.
     void addText(const char* text) override; // Don't use this one - going away soon

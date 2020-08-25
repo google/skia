@@ -41,7 +41,7 @@ public:
 
     // Adds text to the builder. Forms the proper runs to use the upper-most style
     // on the style_stack
-    virtual void addText(const std::u16string& text) = 0;
+    virtual bool addText(const std::u16string& text) = 0;
 
     // Adds text to the builder, using the top-most style on on the style_stack.
     virtual void addText(const char* text) = 0; // Don't use this one - going away soon
