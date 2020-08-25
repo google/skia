@@ -85,7 +85,9 @@ def RunSteps(api):
            skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir,
            '--chromium_path', src_dir]
-    with api.context(cwd=skia_dir, env=api.infra.go_env):
+    upload_env = api.infra.go_env
+    upload_env['GCLIENT_PY3'] = 0
+    with api.context(cwd=skia_dir, env=upload_env):
       api.run(api.step, 'Upload SKPs', cmd=cmd)
 
 

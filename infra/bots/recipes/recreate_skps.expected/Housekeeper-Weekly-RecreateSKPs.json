@@ -248,6 +248,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
+      "GCLIENT_PY3": "0",
       "GOCACHE": "[START_DIR]/cache/go_cache",
       "GOPATH": "[START_DIR]/cache/gopath",
       "GOROOT": "[START_DIR]/go/go",
