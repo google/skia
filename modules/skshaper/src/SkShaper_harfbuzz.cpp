@@ -63,6 +63,7 @@ using HBBuffer = resource<hb_buffer_t   , decltype(hb_buffer_destroy), hb_buffer
 
 using SkUnicodeBidi = std::unique_ptr<SkBidiIterator>;
 using SkUnicodeBreak = std::unique_ptr<SkBreakIterator>;
+using SkUnicodeScript = std::unique_ptr<SkScriptIterator>;
 
 hb_position_t skhb_position(SkScalar value) {
     // Treat HarfBuzz hb_position_t as 16.16 fixed-point.
@@ -378,21 +379,19 @@ private:
     SkBidiIterator::Level fLevel;
 };
 
-class HbIcuScriptRunIterator final : public SkShaper::ScriptRunIterator {
+class SkUnicodeHbScriptRunIterator final: public SkShaper::ScriptRunIterator {
 public:
-    HbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes)
-        : fCurrent(utf8), fBegin(utf8), fEnd(fCurrent + utf8Bytes)
+    SkUnicodeHbScriptRunIterator(SkUnicodeScript script, const char* utf8, size_t utf8Bytes)
+        : fScript(std::move(script))
+        , fCurrent(utf8), fBegin(utf8), fEnd(fCurrent + utf8Bytes)
         , fCurrentScript(HB_SCRIPT_UNKNOWN)
     {}
-    static hb_script_t hb_script_from_icu(SkUnichar u) {
-        UErrorCode status = U_ZERO_ERROR;
-        UScriptCode scriptCode = uscript_getScript(u, &status);
-
-        if (U_FAILURE (status)) {
+    hb_script_t hb_script_from_icu(SkUnichar u) {
+        SkScriptIterator::ScriptID scriptId;
+        if (!fScript->getScript(u, &scriptId)) {
             return HB_SCRIPT_UNKNOWN;
         }
-
-        return hb_icu_script_to_script(scriptCode);
+        return hb_icu_script_to_script((UScriptCode)scriptId);
     }
     void consume() override {
         SkASSERT(fCurrent < fEnd);
@@ -428,6 +427,7 @@ public:
         return SkSetFourByteTag(HB_UNTAG(fCurrentScript));
     }
 private:
+    SkUnicodeScript fScript;
     char const * fCurrent;
     char const * const fBegin;
     char const * const fEnd;
@@ -641,8 +641,7 @@ struct ShapedRunGlyphIterator {
 
 class ShaperHarfBuzz : public SkShaper {
 public:
-    ShaperHarfBuzz(std::unique_ptr<SkUnicode>,
-                   SkUnicodeBreak line,
+    ShaperHarfBuzz(SkUnicodeBreak line,
                    SkUnicodeBreak grapheme,
                    HBBuffer,
                    sk_sp<SkFontMgr>);
@@ -751,32 +750,32 @@ static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fontmgr, bool cor
         return nullptr;
     }
 
-    auto unicode = SkUnicode::Make();
-    if (!unicode) {
+    SkUnicode* unicode = SkUnicode::getInstance();
+    if (!SkUnicode::getInstance()) {
         return nullptr;
     }
-    auto lineIter = unicode->makeBreakIterator("th", SkUnicode::BreakType::kLines);
+    std::unique_ptr<SkBreakIterator> lineIter =
+        unicode->makeBreakIterator("th", SkUnicode::BreakType::kLines);
     if (!lineIter) {
         return nullptr;
     }
-    auto graphIter = unicode->makeBreakIterator("th", SkUnicode::BreakType::kGraphemes);
+    std::unique_ptr<SkBreakIterator> graphIter =
+        unicode->makeBreakIterator("th", SkUnicode::BreakType::kGraphemes);
     if (!graphIter) {
         return nullptr;
     }
 
     if (correct) {
-        return std::make_unique<ShaperDrivenWrapper>(std::move(unicode),
+        return std::make_unique<ShaperDrivenWrapper>(
             std::move(lineIter), std::move(graphIter), std::move(buffer), std::move(fontmgr));
     } else {
-        return std::make_unique<ShapeThenWrap>(std::move(unicode),
+        return std::make_unique<ShapeThenWrap>(
             std::move(lineIter), std::move(graphIter), std::move(buffer), std::move(fontmgr));
     }
 }
 
-ShaperHarfBuzz::ShaperHarfBuzz(std::unique_ptr<SkUnicode> unicode,
-    SkUnicodeBreak lineIter, SkUnicodeBreak graphIter, HBBuffer buffer, sk_sp<SkFontMgr> fontmgr)
-    : fUnicode(std::move(unicode))
-    , fLineBreakIterator(std::move(lineIter))
+ShaperHarfBuzz::ShaperHarfBuzz(SkUnicodeBreak lineIter, SkUnicodeBreak graphIter, HBBuffer buffer, sk_sp<SkFontMgr> fontmgr)
+    : fLineBreakIterator(std::move(lineIter))
     , fGraphemeBreakIterator(std::move(graphIter))
     , fFontMgr(std::move(fontmgr))
     , fBuffer(std::move(buffer))
@@ -790,10 +789,8 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
                            RunHandler* handler) const
 {
     SkBidiIterator::Level defaultLevel = leftToRight ? SkBidiIterator::kLTR : SkBidiIterator::kRTL;
-    std::unique_ptr<BiDiRunIterator> bidi(MakeSkUnicodeBidiRunIterator(fUnicode.get(),
-                                                                       utf8,
-                                                                       utf8Bytes,
-                                                                       defaultLevel));
+    std::unique_ptr<BiDiRunIterator> bidi(
+          MakeSkUnicodeBidiRunIterator(utf8, utf8Bytes, defaultLevel));
 
     if (!bidi) {
         return;
@@ -804,7 +801,8 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
         return;
     }
 
-    std::unique_ptr<ScriptRunIterator> script(MakeHbIcuScriptRunIterator(utf8, utf8Bytes));
+    std::unique_ptr<ScriptRunIterator> script(
+        MakeSkUnicodeHbScriptRunIterator(utf8, utf8Bytes));
     if (!script) {
         return;
     }
@@ -1399,17 +1397,15 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
-    auto unicode = SkUnicode::Make();
-    std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-        SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
-                                               utf8,
-                                               utf8Bytes,
-                                               bidiLevel);
-    return bidi;
+    SkUnicode* unicode = SkUnicode::getInstance();
+    if (!unicode) {
+        return nullptr;
+    }
+    return SkShaper::MakeSkUnicodeBidiRunIterator(utf8, utf8Bytes, bidiLevel);
 }
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
-SkShaper::MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
+SkShaper::MakeSkUnicodeBidiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
     // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
     // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
     if (!SkTFitsIn<int32_t>(utf8Bytes)) {
@@ -1427,6 +1423,7 @@ SkShaper::MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, siz
     (void)SkUTF::UTF8ToUTF16(utf16.get(), utf16Units, utf8, utf8Bytes);
 
     auto bidiDir = (bidiLevel % 2 == 0) ? SkBidiIterator::kLTR : SkBidiIterator::kRTL;
+    auto unicode = SkUnicode::getInstance();
     SkUnicodeBidi bidi = unicode->makeBidiIterator(utf16.get(), utf16Units, bidiDir);
     if (!bidi) {
         SkDEBUGF("Bidi error\n");
@@ -1438,7 +1435,17 @@ SkShaper::MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, siz
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
 SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
-    return std::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
+    return SkShaper::MakeSkUnicodeHbScriptRunIterator(utf8, utf8Bytes);
+}
+
+std::unique_ptr<SkShaper::ScriptRunIterator>
+SkShaper::MakeSkUnicodeHbScriptRunIterator(const char* utf8, size_t utf8Bytes) {
+    auto unicode = SkUnicode::getInstance();
+    std::unique_ptr<SkScriptIterator> script = unicode->makeScriptIterator();
+    if (!script) {
+        return nullptr;
+    }
+    return std::make_unique<SkUnicodeHbScriptRunIterator>(std::move(script), utf8, utf8Bytes);
 }
 
 std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fontmgr) {
@@ -1454,11 +1461,11 @@ std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> 
         return nullptr;
     }
 
-    auto unicode = SkUnicode::Make();
+    SkUnicode* unicode = SkUnicode::getInstance();
     if (!unicode) {
         return nullptr;
     }
 
     return std::make_unique<ShapeDontWrapOrReorder>
-        (std::move(unicode), nullptr, nullptr, std::move(buffer), std::move(fontmgr));
+        (nullptr, nullptr, std::move(buffer), std::move(fontmgr));
 }

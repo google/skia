@@ -100,15 +100,13 @@ public:
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
-                  sk_sp<FontCollection> fonts,
-                  std::unique_ptr<SkUnicode> unicode);
+                  sk_sp<FontCollection> fonts);
 
     ParagraphImpl(const std::u16string& utf16text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
-                  sk_sp<FontCollection> fonts,
-                  std::unique_ptr<SkUnicode> unicode);
+                  sk_sp<FontCollection> fonts);
     ~ParagraphImpl() override;
 
     void layout(SkScalar width) override;
@@ -222,8 +220,6 @@ public:
 
     bool codeUnitHasProperty(size_t index, CodeUnitFlags property) const { return (fCodeUnitProperties[index] & property) == property; }
 
-    SkUnicode* getUnicode() { return fUnicode.get(); }
-
 private:
     friend class ParagraphBuilder;
     friend class ParagraphCacheKey;
@@ -271,8 +267,6 @@ private:
     SkScalar fOldWidth;
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
-
-    std::unique_ptr<SkUnicode> fUnicode;
 };
 }  // namespace textlayout
 }  // namespace skia

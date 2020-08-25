@@ -18,11 +18,6 @@ namespace textlayout {
 
 class ParagraphBuilderImpl : public ParagraphBuilder {
 public:
-    ParagraphBuilderImpl(const ParagraphStyle& style,
-        sk_sp<FontCollection> fontCollection,
-        std::unique_ptr<SkUnicode> unicode);
-
-    // Just until we fix all the code; calls icu::make inside
     ParagraphBuilderImpl(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection);
 
     ~ParagraphBuilderImpl() override;
@@ -78,8 +73,6 @@ private:
     SkTArray<Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
-
-    std::unique_ptr<SkUnicode> fUnicode;
 };
 }  // namespace textlayout
 }  // namespace skia

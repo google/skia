@@ -65,8 +65,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
                              SkTArray<Placeholder, true> placeholders,
-                             sk_sp<FontCollection> fonts,
-                             std::unique_ptr<SkUnicode> unicode)
+                             sk_sp<FontCollection> fonts)
         : Paragraph(std::move(style), std::move(fonts))
         , fTextStyles(std::move(blocks))
         , fPlaceholders(std::move(placeholders))
@@ -77,26 +76,20 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fStrutMetrics(false)
         , fOldWidth(0)
         , fOldHeight(0)
-        , fUnicode(std::move(unicode))
-{
-    SkASSERT(fUnicode);
-}
+{ }
 
 ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              ParagraphStyle style,
                              SkTArray<Block, true> blocks,
                              SkTArray<Placeholder, true> placeholders,
-                             sk_sp<FontCollection> fonts,
-                             std::unique_ptr<SkUnicode> unicode)
+                             sk_sp<FontCollection> fonts)
         : ParagraphImpl(SkString(),
                         std::move(style),
                         std::move(blocks),
                         std::move(placeholders),
-                        std::move(fonts),
-                        std::move(unicode))
+                        std::move(fonts))
 {
-    SkASSERT(fUnicode);
-    fText =  fUnicode->convertUtf16ToUtf8(utf16text);
+    fText =  SkUnicode::getInstance()->convertUtf16ToUtf8(utf16text);
 }
 
 ParagraphImpl::~ParagraphImpl() = default;
@@ -247,21 +240,17 @@ void ParagraphImpl::resetContext() {
 // shapeTextIntoEndlessLine is the thing that calls this method
 bool ParagraphImpl::computeCodeUnitProperties() {
 
-    if (nullptr == fUnicode) {
-        return false;
-    }
-
     // Get bidi regions
     auto textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr
                               ? SkUnicode::TextDirection::kLTR
                               : SkUnicode::TextDirection::kRTL;
-    if (!fUnicode->getBidiRegions(fText.c_str(), fText.size(), textDirection, &fBidiRegions)) {
+    if (!SkUnicode::getInstance()->getBidiRegions(fText.c_str(), fText.size(), textDirection, &fBidiRegions)) {
         return false;
     }
 
     // Get white spaces
     std::vector<SkUnicode::Position> whitespaces;
-    if (!fUnicode->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
+    if (!SkUnicode::getInstance()->getWhitespaces(fText.c_str(), fText.size(), &whitespaces)) {
         return false;
     }
     for (auto whitespace : whitespaces) {
@@ -270,7 +259,7 @@ bool ParagraphImpl::computeCodeUnitProperties() {
 
     // Get line breaks
     std::vector<SkUnicode::LineBreakBefore> lineBreaks;
-    if (!fUnicode->getLineBreaks(fText.c_str(), fText.size(), &lineBreaks)) {
+    if (!SkUnicode::getInstance()->getLineBreaks(fText.c_str(), fText.size(), &lineBreaks)) {
         return false;
     }
     for (auto& lineBreak : lineBreaks) {
@@ -281,7 +270,7 @@ bool ParagraphImpl::computeCodeUnitProperties() {
 
     // Get graphemes
     std::vector<SkUnicode::Position> graphemes;
-    if (!fUnicode->getGraphemes(fText.c_str(), fText.size(), &graphemes)) {
+    if (!SkUnicode::getInstance()->getGraphemes(fText.c_str(), fText.size(), &graphemes)) {
         return false;
     }
     for (auto pos : graphemes) {
@@ -685,7 +674,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
     if (fWords.empty()) {
-        if (!fUnicode->getWords(fText.c_str(), fText.size(), &fWords)) {
+        if (!SkUnicode::getInstance()->getWords(fText.c_str(), fText.size(), &fWords)) {
             return {0, 0 };
         }
     }
@@ -843,7 +832,7 @@ SkString ParagraphImpl::getEllipsis() const {
     if (!ellipsis8.isEmpty()) {
         return ellipsis8;
     } else {
-        return fUnicode->convertUtf16ToUtf8(fParagraphStyle.getEllipsisUtf16());
+        return SkUnicode::getInstance()->convertUtf16ToUtf8(fParagraphStyle.getEllipsisUtf16());
     }
 }
 
