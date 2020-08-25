@@ -155,6 +155,9 @@
 uint32_t SkCpu::gCachedFeatures = 0;
 
 void SkCpu::CacheRuntimeFeatures() {
+#if defined(__arm64e__)
+    SkDebugf("__arm64e__\n");
+#endif
     static SkOnce once;
     once([] { gCachedFeatures = read_cpu_features(); });
 }
