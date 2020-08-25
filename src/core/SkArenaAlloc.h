@@ -142,16 +142,22 @@ private:
         return (uint32_t)v;
     }
 
-    using Footer = int64_t;
     using FooterAction = char* (char*);
+    struct Footer {
+        uint8_t unaligned_action[sizeof(FooterAction*)];
+        uint8_t padding;
+    };
 
     static char* SkipPod(char* footerEnd);
     static void RunDtorsOnBlock(char* footerEnd);
     static char* NextBlock(char* footerEnd);
 
+    template <typename T>
+    void installRaw(const T& val) {
+        memcpy(fCursor, &val, sizeof(val));
+        fCursor += sizeof(val);
+    }
     void installFooter(FooterAction* releaser, uint32_t padding);
-    void installUint32Footer(FooterAction* action, uint32_t value, uint32_t padding);
-    void installPtrFooter(FooterAction* action, char* ptr, uint32_t padding);
 
     void ensureSpace(uint32_t size, uint32_t alignment);
 
@@ -193,7 +199,8 @@ private:
 
             // Advance to end of array to install footer.?
             fCursor = objStart + arraySize;
-            this->installUint32Footer(
+            this->installRaw(ToU32(count));
+            this->installFooter(
                 [](char* footerEnd) {
                     char* objEnd = footerEnd - (sizeof(Footer) + sizeof(uint32_t));
                     uint32_t count;
@@ -205,7 +212,6 @@ private:
                     }
                     return objStart;
                 },
-                ToU32(count),
                 padding);
         }
 
