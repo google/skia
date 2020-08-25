@@ -154,6 +154,24 @@
     },
     {
       "key": {
+        "uuid": "8818b085_df01f763",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2186,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-25T17:25:01Z",
+      "side": 1,
+      "message": "I\u0027ve restored the original names and wrapped the separate \u0027f1\u0027/\u0027f2\u0027 vars in separate scopes.",
+      "parentUuid": "e6dee905_1ed2062a",
+      "revId": "03a5d92b4dd23b1939a9ebbb314d9e2778a1db9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "002f62e3_b10db13c",
         "filename": "src/core/SkContourMeasure.cpp",
         "patchSetId": 9
