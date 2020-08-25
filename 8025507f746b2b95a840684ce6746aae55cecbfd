@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb39cee5_4b8a466a",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-25T15:31:39Z",
+      "side": 0,
+      "message": "I know that this is an internal header at the moment, but this puts some very generic names into the global namespace like \u0027Direction\u0027 and \u0027Range\u0027.",
+      "revId": "8025507f746b2b95a840684ce6746aae55cecbfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
