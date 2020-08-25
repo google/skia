@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6a28b76_5656defc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-25T16:20:59Z",
+      "side": 1,
+      "message": "Not much interesting to review here... just wanted your eyes on this.  This adds an \"arm64e\", i.e. ARMv8.3-a slice to arm64 iOS binaries.  Chips after the A12 can run them.",
+      "revId": "a13b051f22192805f07a5213215680546c3a52cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
