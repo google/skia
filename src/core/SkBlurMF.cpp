@@ -194,6 +194,32 @@ bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRec
     return true;
 }
 
+SkBitmap booyah(float sixSigma) {
+    // The texture we're producing represents the integral of a normal distribution over a
+    // six-sigma range centered at zero. We want enough resolution so that the linear
+    // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
+    // conservatively choose to have 2 texels for each dst pixel.
+    int minWidth = 2 * sk_float_ceil2int(sixSigma);
+    // Bin by powers of 2 with a minimum so we get good profile reuse.
+    int width = std::max(SkNextPow2(minWidth), 32);
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocPixels(SkImageInfo::MakeA8(width, 1))) {
+        return {};
+    }
+    *bitmap.getAddr8(0, 0) = 255;
+    const float invWidth = 1.f / width;
+    for (int i = 1; i < width - 1; ++i) {
+        float x = (i + 0.5f) * invWidth;
+        x = (-6 * x + 3) * SK_ScalarRoot2Over2;
+        float integral = 0.5f * (std::erf(x) + 1.f);
+        *bitmap.getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
+    }
+    *bitmap.getAddr8(width - 1, 0) = 0;
+    bitmap.setImmutable();
+    return bitmap;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle style, bool respectCTM)

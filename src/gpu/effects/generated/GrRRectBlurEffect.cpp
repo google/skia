@@ -11,9 +11,11 @@
 #include "GrRRectBlurEffect.h"
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkBlurMask.h"
 #include "src/core/SkBlurPriv.h"
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/core/SkRRectPriv.h"
+#include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -22,17 +24,21 @@
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
-static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
-        GrRecordingContext* context,
-        const SkRRect& rrectToDraw,
-        const SkISize& dimensions,
-        float xformedSigma) {
+int numHWMask = 0;
+int numSWMask = 0;
+
+static constexpr auto kBlurredRRectMaskOrigin = kBottomLeft_GrSurfaceOrigin;
+
+static void make_blurred_rrect_key(GrUniqueKey* key,
+                                   const SkRRect& rrectToDraw,
+                                   float xformedSigma) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-    GrUniqueKey key;
-    GrUniqueKey::Builder builder(&key, kDomain, 9, "RoundRect Blur Mask");
+
+    GrUniqueKey::Builder builder(key, kDomain, 9, "RoundRect Blur Mask");
     builder[0] = SkScalarCeilToInt(xformedSigma - 1 / 6.0f);
 
     int index = 1;
+    // TODO: this is overkill for _simple_ circular rrects
     for (auto c : {SkRRect::kUpperLeft_Corner, SkRRect::kUpperRight_Corner,
                    SkRRect::kLowerRight_Corner, SkRRect::kLowerLeft_Corner}) {
         SkASSERT(SkScalarIsInt(rrectToDraw.radii(c).fX) && SkScalarIsInt(rrectToDraw.radii(c).fY));
@@ -40,27 +46,18 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
         builder[index++] = SkScalarCeilToInt(rrectToDraw.radii(c).fY);
     }
     builder.finish();
+}
 
-    // It seems like we could omit this matrix and modify the shader code to not normalize
-    // the coords used to sample the texture effect. However, the "proxyDims" value in the
-    // shader is not always the actual the proxy dimensions. This is because 'dimensions' here
-    // was computed using integer corner radii as determined in
-    // SkComputeBlurredRRectParams whereas the shader code uses the float radius to compute
-    // 'proxyDims'. Why it draws correctly with these unequal values is a mystery for the ages.
-    auto m = SkMatrix::Scale(dimensions.width(), dimensions.height());
-    static constexpr auto kMaskOrigin = kBottomLeft_GrSurfaceOrigin;
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-
-    if (auto view = proxyProvider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin,
-                                                                        GrColorType::kAlpha_8, 1)) {
-        return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m);
-    }
+static GrSurfaceProxyView create_mask_on_gpu(GrRecordingContext* context,
+                                             const SkRRect& rrectToDraw,
+                                             const SkISize& dimensions,
+                                             float xformedSigma) {
 
     auto rtc = GrRenderTargetContext::MakeWithFallback(
             context, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
-            GrMipmapped::kNo, GrProtected::kNo, kMaskOrigin);
+            GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
     if (!rtc) {
-        return nullptr;
+        return {};
     }
 
     GrPaint paint;
@@ -71,7 +68,7 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
 
     GrSurfaceProxyView srcView = rtc->readSurfaceView();
     if (!srcView) {
-        return nullptr;
+        return {};
     }
     SkASSERT(srcView.asTextureProxy());
     auto rtc2 = SkGpuBlurUtils::GaussianBlur(context,
@@ -86,15 +83,134 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
                                              SkTileMode::kClamp,
                                              SkBackingFit::kExact);
     if (!rtc2) {
-        return nullptr;
+        return {};
     }
 
-    GrSurfaceProxyView mask = rtc2->readSurfaceView();
+    ++numHWMask;
+    return rtc2->readSurfaceView();
+}
+
+static bool prepare_to_draw_into_mask(const SkRect& bounds, SkMask* mask) {
+    SkASSERT(mask != nullptr);
+
+    mask->fBounds = bounds.roundOut();
+    mask->fRowBytes = SkAlign4(mask->fBounds.width());
+    mask->fFormat = SkMask::kA8_Format;
+    const size_t size = mask->computeImageSize();
+    mask->fImage = SkMask::AllocImage(size, SkMask::kZeroInit_Alloc);
+    if (nullptr == mask->fImage) {
+        return false;
+    }
+    return true;
+}
+
+static bool draw_rrect_into_mask(const SkRRect& rrect, SkMask* mask) {
+    if (!prepare_to_draw_into_mask(rrect.rect(), mask)) {
+        return false;
+    }
+
+    // FIXME: This code duplicates code in draw_rects_into_mask, below. Is there a
+    // clean way to share more code?
+    SkBitmap bitmap;
+    bitmap.installMaskPixels(*mask);
+
+    SkCanvas canvas(bitmap);
+    canvas.translate(-SkIntToScalar(mask->fBounds.left()),
+                     -SkIntToScalar(mask->fBounds.top()));
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    canvas.drawRRect(rrect, paint);
+    return true;
+}
+
+static GrSurfaceProxyView create_mask_on_cpu(GrRecordingContext* context,
+                                             const SkRRect& rrectToDraw,
+                                             const SkISize& dimensions,
+                                             float xformedSigma) {
+    SkIPoint margin;
+    SkMask  srcM, dstM;
+    srcM.fBounds = rrectToDraw.rect().roundOut();
+    srcM.fFormat = SkMask::kA8_Format;
+    srcM.fRowBytes = 0;
+
+    bool filterResult = SkBlurMask::BoxBlur(&dstM, srcM, xformedSigma, kNormal_SkBlurStyle,
+                                            &margin);
+    if (!filterResult) {
+        return {};
+    }
+
+    if (!draw_rrect_into_mask(rrectToDraw, &srcM)) {
+        return {};
+    }
+
+    SkAutoMaskFreeImage amf(srcM.fImage);
+
+    filterResult = SkBlurMask::BoxBlur(&dstM, srcM, xformedSigma, kNormal_SkBlurStyle, nullptr);
+    if (!filterResult) {
+        return {};
+    }
+
+    SkImageInfo ii = SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height());
+
+    SkBitmap bitmap;
+    SkAssertResult(bitmap.installPixels(ii, dstM.fImage, dstM.fRowBytes,
+                                        [](void* addr, void* context) { SkMask::FreeImage(addr); },
+                                        nullptr));
+    bitmap.setImmutable();
+
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+    GrSwizzle swizzle;
+
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(bitmap,
+                                                                       GrMipmapped::kNo,
+                                                                       SkBackingFit::kExact,
+                                                                       SkBudgeted::kYes);
+    if (!proxy) {
+        return {};
+    }
+
+    swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(), GrColorType::kAlpha_8);
+    ++numSWMask;
+    return {std::move(proxy), kBlurredRRectMaskOrigin, swizzle};
+}
+
+
+static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
+        GrRecordingContext* context,
+        const SkRRect& rrectToDraw,
+        const SkISize& dimensions,
+        float xformedSigma) {
+    GrUniqueKey key;
+
+    make_blurred_rrect_key(&key, rrectToDraw, xformedSigma);
+
+    // It seems like we could omit this matrix and modify the shader code to not normalize
+    // the coords used to sample the texture effect. However, the "proxyDims" value in the
+    // shader is not always the actual the proxy dimensions. This is because 'dimensions' here
+    // was computed using integer corner radii as determined in
+    // SkComputeBlurredRRectParams whereas the shader code uses the float radius to compute
+    // 'proxyDims'. Why it draws correctly with these unequal values is a mystery for the ages.
+    auto m = SkMatrix::Scale(dimensions.width(), dimensions.height());
+    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+
+    if (auto view = proxyProvider->findCachedProxyWithColorTypeFallback(key, kBlurredRRectMaskOrigin,
+                                                                        GrColorType::kAlpha_8, 1)) {
+        return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m);
+    }
+
+    GrSurfaceProxyView mask;
+    if (proxyProvider->isDDLProvider() == GrDDLProvider::kYes) {
+        mask = create_mask_on_cpu(context, rrectToDraw, dimensions, xformedSigma);
+    } else {
+        mask = create_mask_on_gpu(context, rrectToDraw, dimensions, xformedSigma);
+    }
     if (!mask) {
         return nullptr;
     }
+
     SkASSERT(mask.asTextureProxy());
-    SkASSERT(mask.origin() == kMaskOrigin);
+    SkASSERT(mask.origin() == kBlurredRRectMaskOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, mask.asTextureProxy());
     return GrTextureEffect::Make(std::move(mask), kPremul_SkAlphaType, m);
 }
