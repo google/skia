@@ -10,7 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -34,37 +34,37 @@ class DegenerateSegmentsGM : public GM {
 
     SkISize onISize() override { return {896, 930}; }
 
-    typedef SkPoint (*AddSegmentFunc)(SkPath&, SkPoint&);
+    typedef SkPoint (*AddSegmentFunc)(SkPathBuilder&, SkPoint&);
 
     // We need to use explicit commands here, instead of addPath, because we
     // do not want the moveTo that is added at the beginning of a path to
     // appear in the appended path.
-    static SkPoint AddMove(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMove(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         return moveToPt;
     }
 
-    static SkPoint AddMoveClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveClose(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         path.close();
         return moveToPt;
     }
 
-    static SkPoint AddDegenLine(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddDegenLine(SkPathBuilder& path, SkPoint& startPt) {
         path.lineTo(startPt);
         return startPt;
     }
 
-    static SkPoint AddMoveDegenLine(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveDegenLine(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         path.lineTo(moveToPt);
         return moveToPt;
     }
 
-    static SkPoint AddMoveDegenLineClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveDegenLineClose(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         path.lineTo(moveToPt);
@@ -72,19 +72,19 @@ class DegenerateSegmentsGM : public GM {
         return moveToPt;
     }
 
-    static SkPoint AddDegenQuad(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddDegenQuad(SkPathBuilder& path, SkPoint& startPt) {
         path.quadTo(startPt, startPt);
         return startPt;
     }
 
-    static SkPoint AddMoveDegenQuad(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveDegenQuad(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         path.quadTo(moveToPt, moveToPt);
         return moveToPt;
     }
 
-    static SkPoint AddMoveDegenQuadClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveDegenQuadClose(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         path.quadTo(moveToPt, moveToPt);
@@ -92,19 +92,19 @@ class DegenerateSegmentsGM : public GM {
         return moveToPt;
     }
 
-    static SkPoint AddDegenCubic(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddDegenCubic(SkPathBuilder& path, SkPoint& startPt) {
         path.cubicTo(startPt, startPt, startPt);
         return startPt;
     }
 
-    static SkPoint AddMoveDegenCubic(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveDegenCubic(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         path.cubicTo(moveToPt, moveToPt, moveToPt);
         return moveToPt;
     }
 
-    static SkPoint AddMoveDegenCubicClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveDegenCubicClose(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         path.moveTo(moveToPt);
         path.cubicTo(moveToPt, moveToPt, moveToPt);
@@ -112,18 +112,18 @@ class DegenerateSegmentsGM : public GM {
         return moveToPt;
     }
 
-    static SkPoint AddClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddClose(SkPathBuilder& path, SkPoint& startPt) {
         path.close();
         return startPt;
     }
 
-    static SkPoint AddLine(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddLine(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint endPt = startPt + SkPoint::Make(40*SK_Scalar1, 0);
         path.lineTo(endPt);
         return endPt;
     }
 
-    static SkPoint AddMoveLine(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveLine(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         SkPoint endPt = moveToPt + SkPoint::Make(40*SK_Scalar1, 0);
         path.moveTo(moveToPt);
@@ -131,7 +131,7 @@ class DegenerateSegmentsGM : public GM {
         return endPt;
     }
 
-    static SkPoint AddMoveLineClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveLineClose(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         SkPoint endPt = moveToPt + SkPoint::Make(40*SK_Scalar1, 0);
         path.moveTo(moveToPt);
@@ -140,14 +140,14 @@ class DegenerateSegmentsGM : public GM {
         return endPt;
     }
 
-    static SkPoint AddQuad(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddQuad(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint midPt = startPt + SkPoint::Make(20*SK_Scalar1, 5*SK_Scalar1);
         SkPoint endPt = startPt + SkPoint::Make(40*SK_Scalar1, 0);
         path.quadTo(midPt, endPt);
         return endPt;
     }
 
-    static SkPoint AddMoveQuad(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveQuad(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         SkPoint midPt = moveToPt + SkPoint::Make(20*SK_Scalar1, 5*SK_Scalar1);
         SkPoint endPt = moveToPt + SkPoint::Make(40*SK_Scalar1, 0);
@@ -156,7 +156,7 @@ class DegenerateSegmentsGM : public GM {
         return endPt;
     }
 
-    static SkPoint AddMoveQuadClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveQuadClose(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         SkPoint midPt = moveToPt + SkPoint::Make(20*SK_Scalar1, 5*SK_Scalar1);
         SkPoint endPt = moveToPt + SkPoint::Make(40*SK_Scalar1, 0);
@@ -166,7 +166,7 @@ class DegenerateSegmentsGM : public GM {
         return endPt;
     }
 
-    static SkPoint AddCubic(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddCubic(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint t1Pt = startPt + SkPoint::Make(15*SK_Scalar1, 5*SK_Scalar1);
         SkPoint t2Pt = startPt + SkPoint::Make(25*SK_Scalar1, 5*SK_Scalar1);
         SkPoint endPt = startPt + SkPoint::Make(40*SK_Scalar1, 0);
@@ -174,7 +174,7 @@ class DegenerateSegmentsGM : public GM {
         return endPt;
     }
 
-    static SkPoint AddMoveCubic(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveCubic(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         SkPoint t1Pt = moveToPt + SkPoint::Make(15*SK_Scalar1, 5*SK_Scalar1);
         SkPoint t2Pt = moveToPt + SkPoint::Make(25*SK_Scalar1, 5*SK_Scalar1);
@@ -184,7 +184,7 @@ class DegenerateSegmentsGM : public GM {
         return endPt;
     }
 
-    static SkPoint AddMoveCubicClose(SkPath& path, SkPoint& startPt) {
+    static SkPoint AddMoveCubicClose(SkPathBuilder& path, SkPoint& startPt) {
         SkPoint moveToPt = startPt + SkPoint::Make(0, 10*SK_Scalar1);
         SkPoint t1Pt = moveToPt + SkPoint::Make(15*SK_Scalar1, 5*SK_Scalar1);
         SkPoint t2Pt = moveToPt + SkPoint::Make(25*SK_Scalar1, 5*SK_Scalar1);
@@ -195,7 +195,7 @@ class DegenerateSegmentsGM : public GM {
         return endPt;
     }
 
-    void drawPath(SkPath& path, SkCanvas* canvas, SkColor color,
+    void drawPath(SkPath path, SkCanvas* canvas, SkColor color,
                   const SkRect& clip, SkPaint::Cap cap, SkPaint::Join join,
                   SkPaint::Style style, SkPathFillType fill,
                   SkScalar strokeWidth) {
@@ -322,20 +322,20 @@ class DegenerateSegmentsGM : public GM {
                 StyleAndName style = gStyles[(rand.nextU() >> 16) % numStyles];
                 CapAndName cap = gCaps[(rand.nextU() >> 16) % numCaps];
                 FillAndName fill = gFills[(rand.nextU() >> 16) % numFills];
-                SkPath path;
                 unsigned s1 = (rand.nextU() >> 16) % numSegments;
                 unsigned s2 = (rand.nextU() >> 16) % numSegments;
                 unsigned s3 = (rand.nextU() >> 16) % numSegments;
                 unsigned s4 = (rand.nextU() >> 16) % numSegments;
                 unsigned s5 = (rand.nextU() >> 16) % numSegments;
                 SkPoint pt = SkPoint::Make(10*SK_Scalar1, 0);
+                SkPathBuilder path;
                 pt = gSegmentFunctions[s1](path, pt);
                 pt = gSegmentFunctions[s2](path, pt);
                 pt = gSegmentFunctions[s3](path, pt);
                 pt = gSegmentFunctions[s4](path, pt);
                 pt = gSegmentFunctions[s5](path, pt);
 
-                this->drawPath(path, canvas, color, rect,
+                this->drawPath(path.detach(), canvas, color, rect,
                                cap.fCap, cap.fJoin, style.fStyle,
                                fill.fFill, SK_Scalar1*6);
 

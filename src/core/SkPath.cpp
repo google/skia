@@ -3405,8 +3405,8 @@ SkPath SkPath::Make(const SkPoint pts[], int pointCount,
                   ft, isVolatile, SkPathConvexityType::kUnknown);
 }
 
-SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir) {
-    return SkPathBuilder().addRect(r, dir).detach();
+SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir, unsigned startIndex) {
+    return SkPathBuilder().addRect(r, dir, startIndex).detach();
 }
 
 SkPath SkPath::Oval(const SkRect& r, SkPathDirection dir) {
