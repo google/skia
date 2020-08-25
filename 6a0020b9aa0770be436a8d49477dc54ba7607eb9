@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2edb3ed_f40e0e08",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-25T17:07:35Z",
+      "side": 1,
+      "message": "One thought--this will be a pretty visible change for clients who rely on drawAtlas. There are visual  and performance implications if they\u0027ve been setting a filter mode on drawAtlas calls--there is a performance impact, and SkRSXformed draws will look different. Should we put a release note?",
+      "revId": "6a0020b9aa0770be436a8d49477dc54ba7607eb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
