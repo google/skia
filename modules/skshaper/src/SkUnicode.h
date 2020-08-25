@@ -47,10 +47,30 @@ public:
         kLTR,
         kRTL,
     };
-    virtual ~SkBidiIterator() {}
+    virtual ~SkBidiIterator() = default;
     virtual Position getLength() = 0;
     virtual Level getLevelAt(Position) = 0;
     static void ReorderVisual(const Level runLevels[], int levelsCount, int32_t logicalFromVisual[]);
+};
+
+class SKUNICODE_API SkText {
+ public:
+    virtual ~SkText() = default;
+};
+
+class SKUNICODE_API SkBreakIterator {
+public:
+    typedef int32_t Position;
+    typedef int32_t Status;
+    virtual ~SkBreakIterator() = default;
+    virtual Position first() = 0;
+    virtual Position current() = 0;
+    virtual Position next() = 0;
+    virtual Position preceding(Position offset) = 0;
+    virtual Position following(Position offset) = 0;
+    virtual Status status() = 0;
+    virtual bool isDone() = 0;
+    virtual bool setText(SkText* text) = 0;
 };
 
 class SKUNICODE_API SkUnicode {
@@ -76,7 +96,7 @@ class SKUNICODE_API SkUnicode {
             kHardLineBreak
         };
 
-        enum class UBreakType {
+        enum class BreakType {
             kWords,
             kGraphemes,
             kLines
@@ -94,11 +114,14 @@ class SKUNICODE_API SkUnicode {
         virtual bool isWhitespace(SkUnichar utf8) = 0;
         virtual SkString convertUtf16ToUtf8(const std::u16string& utf16) = 0;
 
-        // Iterators (used in SkShaper)
+        // Methods used in SkShaper
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
             (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
             (const char text[], int count, SkBidiIterator::Direction) = 0;
+        virtual std::unique_ptr<SkBreakIterator> makeBreakIterator
+            (const char locale[], const char text[], int count, BreakType breakType) = 0;
+        virtual std::unique_ptr<SkText> makeText(const char text[], int count) = 0;
 
         // High level methods (that we actually use somewhere=SkParagraph)
         virtual bool getBidiRegions
