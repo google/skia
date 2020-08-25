@@ -224,7 +224,7 @@ class ConvexPathsGM : public skiagm::GM {
 
         // small circle. This is listed last so that it has device coords far
         // from the origin (small area relative to x,y values).
-        fPaths.push_back().addCircle(0, 0, 1.2f);
+        fPaths.push_back(SkPath::Circle(0, 0, 1.2f));
     }
 
     void onDraw(SkCanvas* canvas) override {

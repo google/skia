@@ -7,7 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
@@ -29,7 +29,7 @@ static SK_UNUSED void path_measure_explosion(SkCanvas* canvas) {
     };
     int next_quadratic_at = 0;
 
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
 
     int i = 1;
@@ -51,7 +51,7 @@ static SK_UNUSED void path_measure_explosion(SkCanvas* canvas) {
             i = 1;
         }
     }
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }
 
 #if 0

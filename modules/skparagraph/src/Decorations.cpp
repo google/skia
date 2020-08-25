@@ -1,4 +1,5 @@
 // Copyright 2020 Google LLC.
+#include "include/core/SkPathBuilder.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
 #include "modules/skparagraph/src/Decorations.h"
@@ -91,39 +92,39 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
     }
 }
 
-void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRect& rect, SkScalar baseline, SkScalar halo) {
+void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRect& rect,
+                                SkScalar baseline, SkScalar halo) {
+    // Create a special textblob for decorations
+    SkTextBlobBuilder builder;
+    context.run->copyTo(builder,
+                      SkToU32(context.pos),
+                      context.size);
+    auto blob = builder.make();
 
-      fPath.reset();
+    // Since we do not shift down the text by {baseline}
+    // (it now happens on drawTextBlob but we do not draw text here)
+    // we have to shift up the bounds to compensate
+    // This baseline thing ends with getIntercepts
+    const SkScalar bounds[2] = {rect.fTop - baseline, rect.fBottom - baseline};
+    auto count = blob->getIntercepts(bounds, nullptr, &fPaint);
+    SkTArray<SkScalar> intersections(count);
+    intersections.resize(count);
+    blob->getIntercepts(bounds, intersections.data(), &fPaint);
 
-      // Create a special textblob for decorations
-      SkTextBlobBuilder builder;
-      context.run->copyTo(builder,
-                          SkToU32(context.pos),
-                          context.size);
-      auto blob = builder.make();
-
-      // Since we do not shift down the text by {baseline}
-      // (it now happens on drawTextBlob but we do not draw text here)
-      // we have to shift up the bounds to compensate
-      // This baseline thing ends with getIntercepts
-      const SkScalar bounds[2] = {rect.fTop - baseline, rect.fBottom - baseline};
-      auto count = blob->getIntercepts(bounds, nullptr, &fPaint);
-      SkTArray<SkScalar> intersections(count);
-      intersections.resize(count);
-      blob->getIntercepts(bounds, intersections.data(), &fPaint);
-
-      auto start = rect.fLeft;
-      fPath.moveTo(rect.fLeft, rect.fTop);
-      for (int i = 0; i < intersections.count(); i += 2) {
-          auto end = intersections[i] - halo;
-          if (end - start >= halo) {
-              start = intersections[i + 1] + halo;
-              fPath.lineTo(end, rect.fTop).moveTo(start, rect.fTop);
-          }
-      }
-      if (!intersections.empty() && (rect.fRight - start > halo)) {
-          fPath.lineTo(rect.fRight, rect.fTop);
-      }
+    SkPathBuilder path;
+    auto start = rect.fLeft;
+    path.moveTo(rect.fLeft, rect.fTop);
+    for (int i = 0; i < intersections.count(); i += 2) {
+        auto end = intersections[i] - halo;
+        if (end - start >= halo) {
+            start = intersections[i + 1] + halo;
+            path.lineTo(end, rect.fTop).moveTo(start, rect.fTop);
+        }
+    }
+    if (!intersections.empty() && (rect.fRight - start > halo)) {
+        path.lineTo(rect.fRight, rect.fTop);
+    }
+    fPath = path.detach();
 }
 
 // This is how flutter calculates the thickness

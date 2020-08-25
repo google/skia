@@ -94,10 +94,8 @@ sk_sp<SkTypeface> sample_user_typeface() {
     for (SkGlyphID index = 0; index <= 67; ++index) {
         SkScalar width;
         width = 100;
-        SkPath path;
-        path.addCircle(50, -50, 75);
 
-        builder.setGlyph(index, width/upem, path.makeTransform(scale));
+        builder.setGlyph(index, width/upem, SkPath::Circle(50, -50, 75).makeTransform(scale));
     }
 
     return builder.detach();

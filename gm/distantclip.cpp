@@ -37,9 +37,7 @@ class DistantClipGM : public GM {
         rec->drawColor(SK_ColorRED);
         rec->save();
         SkRect r = SkRect::MakeXYWH(-kExtents, kOffset - kExtents, 2 * kExtents, 2 * kExtents);
-        SkPath p;
-        p.addRoundRect(r, 5, 5);
-        rec->clipPath(p, true);
+        rec->clipPath(SkPath::RRect(r, 5, 5), true);
         rec->drawColor(SK_ColorGREEN);
         rec->restore();
         sk_sp<SkPicture> pict(recorder.finishRecordingAsPicture());

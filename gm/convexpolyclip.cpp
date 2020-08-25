@@ -14,7 +14,7 @@
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -114,14 +114,13 @@ protected:
     }
 
     void onOnceBeforeDraw() override {
-        SkPath tri;
-        tri.moveTo(5.f, 5.f);
-        tri.lineTo(100.f, 20.f);
-        tri.lineTo(15.f, 100.f);
+        fClips.addToTail()->setPath(SkPath::Polygon({
+            {  5.f,   5.f},
+            {100.f,  20.f},
+            { 15.f, 100.f},
+        }, false));
 
-        fClips.addToTail()->setPath(tri);
-
-        SkPath hexagon;
+        SkPathBuilder hexagon;
         constexpr SkScalar kRadius = 45.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < 6; ++i) {
@@ -135,22 +134,18 @@ protected:
                 hexagon.lineTo(point);
             }
         }
-        fClips.addToTail()->setPath(hexagon);
+        fClips.addToTail()->setPath(hexagon.snapshot());
 
         SkMatrix scaleM;
         scaleM.setScale(1.1f, 0.4f, kRadius, kRadius);
-        hexagon.transform(scaleM);
-        fClips.addToTail()->setPath(hexagon);
+        fClips.addToTail()->setPath(hexagon.detach().makeTransform(scaleM));
 
         fClips.addToTail()->setRect(SkRect::MakeXYWH(8.3f, 11.6f, 78.2f, 72.6f));
 
-        SkPath rotRect;
         SkRect rect = SkRect::MakeLTRB(10.f, 12.f, 80.f, 86.f);
-        rotRect.addRect(rect);
         SkMatrix rotM;
         rotM.setRotate(23.f, rect.centerX(), rect.centerY());
-        rotRect.transform(rotM);
-        fClips.addToTail()->setPath(rotRect);
+        fClips.addToTail()->setPath(SkPath::Rect(rect).makeTransform(rotM));
 
         fBmp = make_bmp(100, 100);
     }

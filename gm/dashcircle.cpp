@@ -54,8 +54,7 @@ protected:
         refPaint.setStrokeWidth(1);
         const SkScalar radius = 125;
         SkRect oval = SkRect::MakeLTRB(-radius - 20, -radius - 20, radius + 20, radius + 20);
-        SkPath circle;
-        circle.addCircle(0, 0, radius);
+        SkPath circle = SkPath::Circle(0, 0, radius);
         SkScalar circumference = radius * SK_ScalarPI * 2;
         int wedges[] = { 6, 12, 36 };
         canvas->translate(radius+20, radius+20);
@@ -250,7 +249,7 @@ DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
 
     canvas->drawCircle(400, 400, 200, p);
 
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(800, 400);
     path.quadTo(1000, 400, 1000, 600);
     path.quadTo(1000, 800, 800, 800);
@@ -259,9 +258,8 @@ DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
     path.close();
     canvas->translate(350, 150);
     p.setStrokeWidth(320);
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 
-    path.reset();
     path.moveTo(800, 400);
     path.cubicTo(900, 400, 1000, 500, 1000, 600);
     path.cubicTo(1000, 700, 900, 800, 800, 800);
@@ -270,5 +268,5 @@ DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
     path.close();
     canvas->translate(-550, 500);
     p.setStrokeWidth(300);
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }

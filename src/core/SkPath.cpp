@@ -3405,8 +3405,8 @@ SkPath SkPath::Make(const SkPoint pts[], int pointCount,
                   ft, isVolatile, SkPathConvexityType::kUnknown);
 }
 
-SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir) {
-    return SkPathBuilder().addRect(r, dir).detach();
+SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir, unsigned startIndex) {
+    return SkPathBuilder().addRect(r, dir, startIndex).detach();
 }
 
 SkPath SkPath::Oval(const SkRect& r, SkPathDirection dir) {
@@ -3419,6 +3419,10 @@ SkPath SkPath::Circle(SkScalar x, SkScalar y, SkScalar r, SkPathDirection dir) {
 
 SkPath SkPath::RRect(const SkRRect& rr, SkPathDirection dir) {
     return SkPathBuilder().addRRect(rr, dir).detach();
+}
+
+SkPath SkPath::RRect(const SkRRect& rr, SkPathDirection dir, unsigned startIndex) {
+    return SkPathBuilder().addRRect(rr, dir, startIndex).detach();
 }
 
 SkPath SkPath::RRect(const SkRect& r, SkScalar rx, SkScalar ry, SkPathDirection dir) {

@@ -167,136 +167,118 @@ static PathDY make_line() {
     };
 }
 
-static void make_info(SkPath* path) {
-    path->moveTo(24, 4);
-    path->cubicTo(12.94999980926514f,
-                  4,
-                  4,
-                  12.94999980926514f,
-                  4,
-                  24);
-    path->cubicTo(4,
-                  35.04999923706055f,
-                  12.94999980926514f,
-                  44,
-                  24,
-                  44);
-    path->cubicTo(35.04999923706055f,
-                  44,
-                  44,
-                  35.04999923706055f,
-                  44,
-                  24);
-    path->cubicTo(44,
-                  12.95000076293945f,
-                  35.04999923706055f,
-                  4,
-                  24,
-                  4);
-    path->close();
-    path->moveTo(26, 34);
-    path->lineTo(22, 34);
-    path->lineTo(22, 22);
-    path->lineTo(26, 22);
-    path->lineTo(26, 34);
-    path->close();
-    path->moveTo(26, 18);
-    path->lineTo(22, 18);
-    path->lineTo(22, 14);
-    path->lineTo(26, 14);
-    path->lineTo(26, 18);
-    path->close();
+static SkPath make_info() {
+    SkPathBuilder path;
+    path.moveTo(24, 4);
+    path.cubicTo(12.94999980926514f, 4,
+                 4, 12.94999980926514f,
+                 4, 24);
+    path.cubicTo(4, 35.04999923706055f,
+                 12.94999980926514f, 44,
+                 24, 44);
+    path.cubicTo(35.04999923706055f, 44,
+                 44, 35.04999923706055f,
+                 44, 24);
+    path.cubicTo(44, 12.95000076293945f,
+                 35.04999923706055f, 4,
+                 24, 4);
+    path.close();
+    path.moveTo(26, 34);
+    path.lineTo(22, 34);
+    path.lineTo(22, 22);
+    path.lineTo(26, 22);
+    path.lineTo(26, 34);
+    path.close();
+    path.moveTo(26, 18);
+    path.lineTo(22, 18);
+    path.lineTo(22, 14);
+    path.lineTo(26, 14);
+    path.lineTo(26, 18);
+    path.close();
+    return path.detach();
 }
 
-static void make_accessibility(SkPath* path) {
-    path->moveTo(12, 2);
-    path->cubicTo(13.10000038146973f,
-                  2,
-                  14,
-                  2.900000095367432f,
-                  14,
-                  4);
-    path->cubicTo(14,
-                  5.099999904632568f,
-                  13.10000038146973f,
-                  6,
-                  12,
-                  6);
-    path->cubicTo(10.89999961853027f,
-                  6,
-                  10,
-                  5.099999904632568f,
-                  10,
-                  4);
-    path->cubicTo(10,
-                  2.900000095367432f,
-                  10.89999961853027f,
-                  2,
-                  12,
-                  2);
-    path->close();
-    path->moveTo(21, 9);
-    path->lineTo(15, 9);
-    path->lineTo(15, 22);
-    path->lineTo(13, 22);
-    path->lineTo(13, 16);
-    path->lineTo(11, 16);
-    path->lineTo(11, 22);
-    path->lineTo(9, 22);
-    path->lineTo(9, 9);
-    path->lineTo(3, 9);
-    path->lineTo(3, 7);
-    path->lineTo(21, 7);
-    path->lineTo(21, 9);
-    path->close();
+static SkPath make_accessibility() {
+    SkPathBuilder path;
+    path.moveTo(12, 2);
+    path.cubicTo(13.10000038146973f, 2,
+                 14, 2.900000095367432f,
+                 14, 4);
+    path.cubicTo(14, 5.099999904632568f,
+                 13.10000038146973f, 6,
+                 12, 6);
+    path.cubicTo(10.89999961853027f, 6,
+                 10, 5.099999904632568f,
+                 10, 4);
+    path.cubicTo(10, 2.900000095367432f,
+                 10.89999961853027f, 2,
+                 12, 2);
+    path.close();
+    path.moveTo(21, 9);
+    path.lineTo(15, 9);
+    path.lineTo(15, 22);
+    path.lineTo(13, 22);
+    path.lineTo(13, 16);
+    path.lineTo(11, 16);
+    path.lineTo(11, 22);
+    path.lineTo(9, 22);
+    path.lineTo(9, 9);
+    path.lineTo(3, 9);
+    path.lineTo(3, 7);
+    path.lineTo(21, 7);
+    path.lineTo(21, 9);
+    path.close();
+    return path.detach();
 }
 
 // test case for http://crbug.com/695196
-static void make_visualizer(SkPath* path) {
-    path->moveTo(1.9520f, 2.0000f);
-    path->conicTo(1.5573f, 1.9992f, 1.2782f, 2.2782f, 0.9235f);
-    path->conicTo(0.9992f, 2.5573f, 1.0000f, 2.9520f, 0.9235f);
-    path->lineTo(1.0000f, 5.4300f);
-    path->lineTo(17.0000f, 5.4300f);
-    path->lineTo(17.0000f, 2.9520f);
-    path->conicTo(17.0008f, 2.5573f, 16.7218f, 2.2782f, 0.9235f);
-    path->conicTo(16.4427f, 1.9992f, 16.0480f, 2.0000f, 0.9235f);
-    path->lineTo(1.9520f, 2.0000f);
-    path->close();
-    path->moveTo(2.7140f, 3.1430f);
-    path->conicTo(3.0547f, 3.1287f, 3.2292f, 3.4216f, 0.8590f);
-    path->conicTo(3.4038f, 3.7145f, 3.2292f, 4.0074f, 0.8590f);
-    path->conicTo(3.0547f, 4.3003f, 2.7140f, 4.2860f, 0.8590f);
-    path->conicTo(2.1659f, 4.2631f, 2.1659f, 3.7145f, 0.7217f);
-    path->conicTo(2.1659f, 3.1659f, 2.7140f, 3.1430f, 0.7217f);
-    path->lineTo(2.7140f, 3.1430f);
-    path->close();
-    path->moveTo(5.0000f, 3.1430f);
-    path->conicTo(5.3407f, 3.1287f, 5.5152f, 3.4216f, 0.8590f);
-    path->conicTo(5.6898f, 3.7145f, 5.5152f, 4.0074f, 0.8590f);
-    path->conicTo(5.3407f, 4.3003f, 5.0000f, 4.2860f, 0.8590f);
-    path->conicTo(4.4519f, 4.2631f, 4.4519f, 3.7145f, 0.7217f);
-    path->conicTo(4.4519f, 3.1659f, 5.0000f, 3.1430f, 0.7217f);
-    path->lineTo(5.0000f, 3.1430f);
-    path->close();
-    path->moveTo(7.2860f, 3.1430f);
-    path->conicTo(7.6267f, 3.1287f, 7.8012f, 3.4216f, 0.8590f);
-    path->conicTo(7.9758f, 3.7145f, 7.8012f, 4.0074f, 0.8590f);
-    path->conicTo(7.6267f, 4.3003f, 7.2860f, 4.2860f, 0.8590f);
-    path->conicTo(6.7379f, 4.2631f, 6.7379f, 3.7145f, 0.7217f);
-    path->conicTo(6.7379f, 3.1659f, 7.2860f, 3.1430f, 0.7217f);
-    path->close();
-    path->moveTo(1.0000f, 6.1900f);
-    path->lineTo(1.0000f, 14.3810f);
-    path->conicTo(0.9992f, 14.7757f, 1.2782f, 15.0548f, 0.9235f);
-    path->conicTo(1.5573f, 15.3338f, 1.9520f, 15.3330f, 0.9235f);
-    path->lineTo(16.0480f, 15.3330f);
-    path->conicTo(16.4427f, 15.3338f, 16.7218f, 15.0548f, 0.9235f);
-    path->conicTo(17.0008f, 14.7757f, 17.0000f, 14.3810f, 0.9235f);
-    path->lineTo(17.0000f, 6.1910f);
-    path->lineTo(1.0000f, 6.1910f);
-    path->lineTo(1.0000f, 6.1900f);
-    path->close();
+static SkPath make_visualizer() {
+    SkPathBuilder path;
+    path.moveTo(1.9520f, 2.0000f);
+    path.conicTo(1.5573f, 1.9992f, 1.2782f, 2.2782f, 0.9235f);
+    path.conicTo(0.9992f, 2.5573f, 1.0000f, 2.9520f, 0.9235f);
+    path.lineTo(1.0000f, 5.4300f);
+    path.lineTo(17.0000f, 5.4300f);
+    path.lineTo(17.0000f, 2.9520f);
+    path.conicTo(17.0008f, 2.5573f, 16.7218f, 2.2782f, 0.9235f);
+    path.conicTo(16.4427f, 1.9992f, 16.0480f, 2.0000f, 0.9235f);
+    path.lineTo(1.9520f, 2.0000f);
+    path.close();
+    path.moveTo(2.7140f, 3.1430f);
+    path.conicTo(3.0547f, 3.1287f, 3.2292f, 3.4216f, 0.8590f);
+    path.conicTo(3.4038f, 3.7145f, 3.2292f, 4.0074f, 0.8590f);
+    path.conicTo(3.0547f, 4.3003f, 2.7140f, 4.2860f, 0.8590f);
+    path.conicTo(2.1659f, 4.2631f, 2.1659f, 3.7145f, 0.7217f);
+    path.conicTo(2.1659f, 3.1659f, 2.7140f, 3.1430f, 0.7217f);
+    path.lineTo(2.7140f, 3.1430f);
+    path.close();
+    path.moveTo(5.0000f, 3.1430f);
+    path.conicTo(5.3407f, 3.1287f, 5.5152f, 3.4216f, 0.8590f);
+    path.conicTo(5.6898f, 3.7145f, 5.5152f, 4.0074f, 0.8590f);
+    path.conicTo(5.3407f, 4.3003f, 5.0000f, 4.2860f, 0.8590f);
+    path.conicTo(4.4519f, 4.2631f, 4.4519f, 3.7145f, 0.7217f);
+    path.conicTo(4.4519f, 3.1659f, 5.0000f, 3.1430f, 0.7217f);
+    path.lineTo(5.0000f, 3.1430f);
+    path.close();
+    path.moveTo(7.2860f, 3.1430f);
+    path.conicTo(7.6267f, 3.1287f, 7.8012f, 3.4216f, 0.8590f);
+    path.conicTo(7.9758f, 3.7145f, 7.8012f, 4.0074f, 0.8590f);
+    path.conicTo(7.6267f, 4.3003f, 7.2860f, 4.2860f, 0.8590f);
+    path.conicTo(6.7379f, 4.2631f, 6.7379f, 3.7145f, 0.7217f);
+    path.conicTo(6.7379f, 3.1659f, 7.2860f, 3.1430f, 0.7217f);
+    path.close();
+    path.moveTo(1.0000f, 6.1900f);
+    path.lineTo(1.0000f, 14.3810f);
+    path.conicTo(0.9992f, 14.7757f, 1.2782f, 15.0548f, 0.9235f);
+    path.conicTo(1.5573f, 15.3338f, 1.9520f, 15.3330f, 0.9235f);
+    path.lineTo(16.0480f, 15.3330f);
+    path.conicTo(16.4427f, 15.3338f, 16.7218f, 15.0548f, 0.9235f);
+    path.conicTo(17.0008f, 14.7757f, 17.0000f, 14.3810f, 0.9235f);
+    path.lineTo(17.0000f, 6.1910f);
+    path.lineTo(1.0000f, 6.1910f);
+    path.lineTo(1.0000f, 6.1900f);
+    path.close();
+    return path.detach();
 }
 
 constexpr MakePathProc gProcs[] = {
@@ -328,9 +310,9 @@ protected:
             fDY[i] = dy;
         }
 
-        make_info(&fInfoPath);
-        make_accessibility(&fAccessibilityPath);
-        make_visualizer(&fVisualizerPath);
+        fInfoPath = make_info();
+        fAccessibilityPath = make_accessibility();
+        fVisualizerPath = make_visualizer();
     }
 
 
@@ -405,14 +387,13 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPath path;
+        SkPath path = SkPathBuilder().addCircle(50, 50, 40)
+                                     .toggleInverseFillType()
+                                     .detach();
 
-        path.addCircle(SkIntToScalar(50), SkIntToScalar(50), SkIntToScalar(40));
-        path.toggleInverseFillType();
+        SkRect clipR = {0, 0, 100, 200};
 
-        SkRect clipR = { 0, 0, SkIntToScalar(100), SkIntToScalar(200) };
-
-        canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
+        canvas->translate(10, 10);
 
         for (int doclip = 0; doclip <= 1; ++doclip) {
             for (int aa = 0; aa <= 1; ++aa) {

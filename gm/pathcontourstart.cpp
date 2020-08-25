@@ -56,9 +56,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
 
         drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {
-            SkPath path;
-            path.addRect(rect, dir, startIndex);
-            return path;
+            return SkPath::Rect(rect, dir, startIndex);
         });
 
         drawDirs(canvas, [](const SkRect& rect, SkPathDirection dir, unsigned startIndex) {

@@ -266,10 +266,11 @@ class CCPR_parseEmptyPath : public CCPRTest {
 
         // Make a path large enough that ccpr chooses to crop it by the RT bounds, and ends up with
         // an empty path.
-        SkPath largeOutsidePath;
-        largeOutsidePath.moveTo(-1e30f, -1e30f);
-        largeOutsidePath.lineTo(-1e30f, +1e30f);
-        largeOutsidePath.lineTo(-1e10f, +1e30f);
+        SkPath largeOutsidePath = SkPath::Polygon({
+            {-1e30f, -1e30f},
+            {-1e30f, +1e30f},
+            {-1e10f, +1e30f},
+        }, false);
         ccpr.drawPath(largeOutsidePath);
 
         // Normally an empty path is culled before reaching ccpr, however we use a back door for

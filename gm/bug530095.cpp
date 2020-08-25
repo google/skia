@@ -16,9 +16,8 @@
 #include "include/effects/SkDashPathEffect.h"
 
 DEF_SIMPLE_GM(bug530095, canvas, 900, 1200) {
-    SkPath path1, path2;
-    path1.addCircle(200, 200, 124);
-    path2.addCircle(2, 2, 1.24f);
+    SkPath path1 = SkPath::Circle(200, 200, 124),
+           path2 = SkPath::Circle(2, 2, 1.24f);
 
     SkPaint paint;
     paint.setAntiAlias(true);

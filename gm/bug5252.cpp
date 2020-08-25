@@ -15,13 +15,9 @@
 DEF_SIMPLE_GM(bug5252, canvas, 500, 500) {
 	canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
-	SkPath clip1;
-	clip1.addOval(SkRect::MakeWH(225, 200));
-	canvas->clipPath(clip1); // bug
+	canvas->clipPath(SkPath::Oval(SkRect::MakeWH(225, 200))); // bug
 
-	SkPath clip2;
-	clip2.addRect(SkRect::MakeWH(220, 200));
-	//canvas->clipPath(clip2); // ok
+	//canvas->clipPath(SkPath::Oval(SkRect::MakeWH(220, 200))); // ok
 
 	SkPaint pa;
 	pa.setStyle(SkPaint::kStroke_Style);
