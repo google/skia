@@ -58,6 +58,9 @@ public:
         auto collection = sk_make_sp<skia::textlayout::FontCollection>();
         collection->setDefaultFontManager(SkFontMgr::RefDefault());
         auto builder = skia::textlayout::ParagraphBuilder::make(paraStyle, collection);
+        if (nullptr == builder) {
+            return;
+        }
 
         builder->addText(gSpeach, strlen(gSpeach));
 
