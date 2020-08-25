@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c25fad82_715ca355",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2346,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-25T20:53:41Z",
+      "side": 1,
+      "message": "optional/tiny nit:\n\n            // the argument is just a variable, so we only need to copy it if it\u0027s\n            // an out parameter or it\u0027s written to within the function\n\n\"we only need to copy it if X or Y\" is more direct than \"we don\u0027t need to copy it (except for X or Y)\"",
+      "range": {
+        "startLine": 2345,
+        "startChar": 0,
+        "endLine": 2346,
+        "endChar": 76
+      },
+      "revId": "78bf640e46a5b0d6138672284f71771d42aae6e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
