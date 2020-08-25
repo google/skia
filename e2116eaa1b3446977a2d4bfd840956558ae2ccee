@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d22ffeba_e3f7aeba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-25T18:37:49Z",
+      "side": 1,
+      "message": "I like it, the setup is a lot cleaner.",
+      "revId": "e2116eaa1b3446977a2d4bfd840956558ae2ccee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
