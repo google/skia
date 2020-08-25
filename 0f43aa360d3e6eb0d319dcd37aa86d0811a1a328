@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5a1be46_3f0dfd3e",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-25T15:56:04Z",
+      "side": 1,
+      "message": "I\u0027d do this unconditionally. We\u0027re globally trying to be less clever about some of this stuff anyway. Having drawAtlas fast-forward to the world where we trust the client and just do what they say seems fine (and it avoids a sharp performance edge).",
+      "revId": "0f43aa360d3e6eb0d319dcd37aa86d0811a1a328",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
