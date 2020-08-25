@@ -71,10 +71,11 @@ using HBBlob   = resource<hb_blob_t     , decltype(hb_blob_destroy)  , hb_blob_d
 using HBFace   = resource<hb_face_t     , decltype(hb_face_destroy)  , hb_face_destroy  >;
 using HBFont   = resource<hb_font_t     , decltype(hb_font_destroy)  , hb_font_destroy  >;
 using HBBuffer = resource<hb_buffer_t   , decltype(hb_buffer_destroy), hb_buffer_destroy>;
-using ICUBrk   = resource<UBreakIterator, decltype(ubrk_close)       , ubrk_close       >;
-using ICUUText = resource<UText         , decltype(utext_close)      , utext_close      >;
+//using ICUBrk   = resource<UBreakIterator, decltype(ubrk_close)       , ubrk_close       >;
+//using ICUUText = resource<UText         , decltype(utext_close)      , utext_close      >;
 
 using SkUnicodeBidi = std::unique_ptr<SkBidiIterator>;
+using SkUnicodeBreak = std::unique_ptr<SkBreakIterator>;
 
 hb_position_t skhb_position(SkScalar value) {
     // Treat HarfBuzz hb_position_t as 16.16 fixed-point.
@@ -653,11 +654,11 @@ struct ShapedRunGlyphIterator {
 
 class ShaperHarfBuzz : public SkShaper {
 public:
-    ShaperHarfBuzz(HBBuffer, ICUBrk line, ICUBrk grapheme, sk_sp<SkFontMgr>);
+    ShaperHarfBuzz(HBBuffer, SkUnicodeBreak line, SkUnicodeBreak grapheme, sk_sp<SkFontMgr>);
 
 protected:
-    ICUBrk fLineBreakIterator;
-    ICUBrk fGraphemeBreakIterator;
+    SkUnicodeBreak fLineBreakIterator;
+    SkUnicodeBreak fGraphemeBreakIterator;
 
     ShapedRun shape(const char* utf8, size_t utf8Bytes,
                     const char* utf8Start,
@@ -667,8 +668,9 @@ protected:
                     const ScriptRunIterator&,
                     const FontRunIterator&,
                     const Feature*, size_t featuresSize) const;
-private:
+protected:
     std::unique_ptr<SkUnicode> fUnicode = SkUnicode::Make();
+private:
     const sk_sp<SkFontMgr> fFontMgr;
     HBBuffer               fBuffer;
     hb_language_t          fUndefinedLanguage;
@@ -765,16 +767,14 @@ static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fontmgr, bool cor
         return nullptr;
     }
 
-    UErrorCode status = U_ZERO_ERROR;
-    ICUBrk lineBreakIterator(ubrk_open(UBRK_LINE, "th", nullptr, 0, &status));
-    if (!lineBreakIterator || U_FAILURE(status)) {
-        SkDEBUGF("Could not create line break iterator: %s", u_errorName(status));
+    auto unicode = SkUnicode::Make();
+    SkUnicodeBreak lineBreakIterator = unicode->makeBreakIterator("th", nullptr, 0, UBreakType::kLines);
+    if (!lineBreakIterator) {
         return nullptr;
     }
 
-    ICUBrk graphemeBreakIterator(ubrk_open(UBRK_CHARACTER, "th", nullptr, 0, &status));
-    if (!graphemeBreakIterator || U_FAILURE(status)) {
-        SkDEBUGF("Could not create grapheme break iterator: %s", u_errorName(status));
+    SkUnicodeBreak graphemeBreakIterator = unicode->makeBreakIterator("th", nullptr, 0, UBreakType::kGraphemes);
+    if (!graphemeBreakIterator) {
         return nullptr;
     }
 
@@ -791,7 +791,7 @@ static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fontmgr, bool cor
     }
 }
 
-ShaperHarfBuzz::ShaperHarfBuzz(HBBuffer buffer, ICUBrk line, ICUBrk grapheme,
+ShaperHarfBuzz::ShaperHarfBuzz(HBBuffer buffer, SkUnicodeBreak line, SkUnicodeBreak grapheme,
                                sk_sp<SkFontMgr> fontmgr)
     : fLineBreakIterator(std::move(line))
     , fGraphemeBreakIterator(std::move(grapheme))
@@ -929,20 +929,8 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
 
             // TODO: break iterator per item, but just reset position if needed?
             // Maybe break iterator with model?
-            UBreakIterator& breakIterator = *fLineBreakIterator;
-            {
-                UErrorCode status = U_ZERO_ERROR;
-                UText sUtf8UText = UTEXT_INITIALIZER;
-                ICUUText utf8UText(utext_openUTF8(&sUtf8UText, utf8Start, utf8runLength, &status));
-                if (U_FAILURE(status)) {
-                    SkDebugf("Could not create utf8UText: %s", u_errorName(status));
-                    return;
-                }
-                ubrk_setUText(&breakIterator, utf8UText.get(), &status);
-                if (U_FAILURE(status)) {
-                    SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
-                    return;
-                }
+            if (!fLineBreakIterator->setUtf8Text(utf8Start, utf8runLength)) {
+                return;
             }
 
             ShapedRun best(RunHandler::Range(), SkFont(), 0, nullptr, 0,
@@ -951,9 +939,9 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
             bool bestUsesModelForGlyphs = false;
             SkScalar widthLeft = width - line.fAdvance.fX;
 
-            for (int32_t breakIteratorCurrent = ubrk_next(&breakIterator);
+            for (int32_t breakIteratorCurrent = fLineBreakIterator->next();
                  breakIteratorCurrent != UBRK_DONE;
-                 breakIteratorCurrent = ubrk_next(&breakIterator))
+                 breakIteratorCurrent = fLineBreakIterator->next())
             {
                 // TODO: if past a safe to break, future safe to break will be at least as long
 
@@ -1032,27 +1020,11 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
 {
     SkTArray<ShapedRun> runs;
 {
-    UBreakIterator& lineBreakIterator = *fLineBreakIterator;
-    UBreakIterator& graphemeBreakIterator = *fGraphemeBreakIterator;
-    {
-        UErrorCode status = U_ZERO_ERROR;
-        UText sUtf8UText = UTEXT_INITIALIZER;
-        ICUUText utf8UText(utext_openUTF8(&sUtf8UText, utf8, utf8Bytes, &status));
-        if (U_FAILURE(status)) {
-            SkDebugf("Could not create utf8UText: %s", u_errorName(status));
-            return;
-        }
-
-        ubrk_setUText(&lineBreakIterator, utf8UText.get(), &status);
-        if (U_FAILURE(status)) {
-            SkDebugf("Could not setText on line break iterator: %s", u_errorName(status));
-            return;
-        }
-        ubrk_setUText(&graphemeBreakIterator, utf8UText.get(), &status);
-        if (U_FAILURE(status)) {
-            SkDebugf("Could not setText on grapheme break iterator: %s", u_errorName(status));
-            return;
-        }
+    if (!fLineBreakIterator->setUtf8Text(utf8, utf8Bytes)) {
+        return;
+    }
+    if (!fGraphemeBreakIterator->setUtf8Text(utf8, utf8Bytes)) {
+        return;
     }
 
     const char* utf8Start = nullptr;
@@ -1072,20 +1044,20 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
             ShapedGlyph& glyph = run.fGlyphs[i];
             int32_t glyphCluster = glyph.fCluster;
 
-            int32_t lineBreakIteratorCurrent = ubrk_current(&lineBreakIterator);
+            int32_t lineBreakIteratorCurrent = fLineBreakIterator->current();
             while (lineBreakIteratorCurrent != UBRK_DONE &&
                    lineBreakIteratorCurrent < glyphCluster)
             {
-                lineBreakIteratorCurrent = ubrk_next(&lineBreakIterator);
+                lineBreakIteratorCurrent = fLineBreakIterator->next();
             }
             glyph.fMayLineBreakBefore = glyph.fCluster != previousCluster &&
                                         lineBreakIteratorCurrent == glyphCluster;
 
-            int32_t graphemeBreakIteratorCurrent = ubrk_current(&graphemeBreakIterator);
+            int32_t graphemeBreakIteratorCurrent = fGraphemeBreakIterator->current();
             while (graphemeBreakIteratorCurrent != UBRK_DONE &&
                    graphemeBreakIteratorCurrent < glyphCluster)
             {
-                graphemeBreakIteratorCurrent = ubrk_next(&graphemeBreakIterator);
+                graphemeBreakIteratorCurrent = fGraphemeBreakIterator->next();
             }
             glyph.fGraphemeBreakBefore = glyph.fCluster != previousCluster &&
                                          graphemeBreakIteratorCurrent == glyphCluster;

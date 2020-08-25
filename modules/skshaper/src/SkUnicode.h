@@ -86,10 +86,32 @@ public:
         kLTR,
         kRTL,
     };
-    virtual ~SkBidiIterator() {}
+    virtual ~SkBidiIterator() = default;
     virtual Position getLength() = 0;
     virtual Level getLevelAt(Position) = 0;
     static void ReorderVisual(const Level runLevels[], int levelsCount, int32_t logicalFromVisual[]);
+};
+
+class SKUNICODE_API SkBreakIterator {
+public:
+    // SkParagraph iterates text by lines and graphemes as utf8 (SkShaper requires it)
+    // Flutter requires results for words iterator to be in utf16
+    // It's possible that other clients will have different needs
+    enum Encoding {
+        kUtf8,
+        kUtf16
+    };
+    typedef int32_t Position;
+    typedef int32_t Status;
+    virtual ~SkBreakIterator() = default;
+    virtual Position first() = 0;
+    virtual Position current() = 0;
+    virtual Position next() = 0;
+    virtual Position preceding(Position offset) = 0;
+    virtual Position following(Position offset) = 0;
+    virtual Status status() = 0;
+    virtual bool setUtf8Text(const char* text, size_t size) = 0;
+    virtual void copyUtf8Text(SkBreakIterator* other) = 0;
 };
 
 class SKUNICODE_API SkUnicode {
@@ -104,6 +126,8 @@ class SKUNICODE_API SkUnicode {
             (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
             (const char text[], int count, SkBidiIterator::Direction) = 0;
+        virtual std::unique_ptr<SkBreakIterator> makeBreakIterator
+            (const char locale[], const char text[], int count, UBreakType breakType) = 0;
 
         // High level methods (that we actually use somewhere=SkParagraph)
         virtual bool getBidiRegions
