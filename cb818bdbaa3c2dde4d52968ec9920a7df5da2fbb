@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57d9c5e9_38529910",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-25T18:26:41Z",
+      "side": 1,
+      "message": "If the GMs look good, I\u0027d probably just disable those tests on this device and go on with your life. I doubt anyone\u0027s going to use the remote glyph cache on it.",
+      "revId": "cb818bdbaa3c2dde4d52968ec9920a7df5da2fbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
