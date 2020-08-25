@@ -45,6 +45,7 @@ bool GrLinearGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     (void)that;
     return true;
 }
+bool GrLinearGradientLayout::usesExplicitReturn() const { return false; }
 GrLinearGradientLayout::GrLinearGradientLayout(const GrLinearGradientLayout& src)
         : INHERITED(kGrLinearGradientLayout_ClassID, src.optimizationFlags()) {
     this->cloneAndRegisterAllChildProcessors(src);

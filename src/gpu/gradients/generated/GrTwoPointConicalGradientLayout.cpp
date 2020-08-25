@@ -169,6 +169,7 @@ bool GrTwoPointConicalGradientLayout::onIsEqual(const GrFragmentProcessor& other
     if (focalParams != that.focalParams) return false;
     return true;
 }
+bool GrTwoPointConicalGradientLayout::usesExplicitReturn() const { return false; }
 GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
         const GrTwoPointConicalGradientLayout& src)
         : INHERITED(kGrTwoPointConicalGradientLayout_ClassID, src.optimizationFlags())
