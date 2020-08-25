@@ -186,23 +186,17 @@ float dot(const Sk2f& a, const Sk2f& b) {
     return ab[0] + ab[1];
 }
 
-static float measure_angle_inside_vectors(const Sk2f& a, const Sk2f& b) {
-    auto [xx, yy] = transpose(a, b);
-    Sk2f lengthsSqd = xx*xx + yy*yy;
-    if ((lengthsSqd == 0).anyTrue()) {
-        return 0;  // If these vectors came from tangents on a curve, then the curve is a flat line.
+static float measure_angle_inside_vectors(const SkVector& a, const SkVector& b) {
+    if (a.isZero() || b.isZero()) {
+        return 0;  // If these vectors came from tangents on a curve then the curve is a flat line.
     }
-    // The dot product is equivalent to |a||b|cos(theta). Use sqrt instead of rsqrt for better
-    // precision. The "Geometry" unit test fails otherwise.
-    float cosTheta = dot(a, b) / std::sqrt(lengthsSqd[0] * lengthsSqd[1]);
-    return std::acos(SkTPin(cosTheta, -1.f, 1.f));
+    float ax=a.x(), ay=a.y(), bx=b.x(), by=b.y();
+    float cosTheta = (ax*bx + ay*by) / SkScalarSqrt((ax*ax + ay*ay) * (bx*bx + by*by));
+    return SkScalarACos(SkTPin(cosTheta, -1.f, 1.f));
 }
 
 float SkMeasureQuadRotation(const SkPoint pts[3]) {
-    Sk2f p0 = from_point(pts[0]);
-    Sk2f p1 = from_point(pts[1]);
-    Sk2f p2 = from_point(pts[2]);
-    return measure_angle_inside_vectors(p1 - p0, p2 - p1);
+    return measure_angle_inside_vectors(pts[1] - pts[0], pts[2] - pts[1]);
 }
 
 static Sk2f find_bisector(Sk2f a, Sk2f b) {
@@ -554,31 +548,21 @@ void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]) {
 }
 
 float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
-    Sk2f p0 = from_point(pts[0]);
-    Sk2f p1 = from_point(pts[1]);
-    Sk2f p2 = from_point(pts[2]);
-    Sk2f p3 = from_point(pts[3]);
-
-    // If any points are colocated, then this reduces to a simple angle between vectors.
-    if ((p0 == p1).allTrue()) {
-        return measure_angle_inside_vectors(p2 - p1, p3 - p2);
+    SkVector a = pts[1] - pts[0];
+    SkVector b = pts[2] - pts[1];
+    SkVector c = pts[3] - pts[2];
+    if (a.isZero()) {
+        return measure_angle_inside_vectors(b, c);
     }
-    if ((p1 == p2).allTrue()) {
-        return measure_angle_inside_vectors(p1 - p0, p3 - p2);
+    if (b.isZero()) {
+        return measure_angle_inside_vectors(a, c);
     }
-    if ((p2 == p3).allTrue()) {
-        return measure_angle_inside_vectors(p1 - p0, p2 - p1);
+    if (c.isZero()) {
+        return measure_angle_inside_vectors(a, b);
     }
-
     // Postulate: When no points are colocated and there are no inflection points in T=0..1, the
     // rotation is: 360 degrees, minus the angle [p0,p1,p2], minus the angle [p1,p2,p3].
-    auto [xx0, yy0] = transpose(p0 - p1, p1 - p2);
-    auto [xx1, yy1] = transpose(p2 - p1, p3 - p2);
-    // The dot product is equivalent to |a||b|cos(theta). Use sqrt here instead of rsqrt for better
-    // precision. The "Geometry" unit test fails otherwise.
-    Sk2f cosines = (xx0*xx1 + yy0*yy1) / ((xx0*xx0 + yy0*yy0) * (xx1*xx1 + yy1*yy1)).sqrt();
-    cosines = Sk2f::Min(Sk2f::Max(cosines, -1), 1);
-    return 2*SK_ScalarPI - std::acos(cosines[0]) - std::acos(cosines[1]);
+    return 2*SK_ScalarPI - measure_angle_inside_vectors(a,-b) - measure_angle_inside_vectors(b,-c);
 }
 
 void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
