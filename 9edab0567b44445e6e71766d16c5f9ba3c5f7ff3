@@ -16,6 +16,24 @@
       "revId": "9edab0567b44445e6e71766d16c5f9ba3c5f7ff3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e47ad3f0_31c63a83",
+        "filename": "modules/skshaper/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-25T19:55:52Z",
+      "side": 1,
+      "message": "For now I am going to keep it as a limitation: skparagraph requires harfbuzz and icu.",
+      "parentUuid": "ab12402e_59907d56",
+      "revId": "9edab0567b44445e6e71766d16c5f9ba3c5f7ff3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
