@@ -16,6 +16,24 @@
       "revId": "15fc0430f8c9779e58fe4fcf1e274d9b7bb06f72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "efb5258b_106469ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-25T19:26:25Z",
+      "side": 1,
+      "message": "Good call.",
+      "parentUuid": "c60d5827_df042bcd",
+      "revId": "15fc0430f8c9779e58fe4fcf1e274d9b7bb06f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
