@@ -9,14 +9,9 @@
 #define GrSemaphore_DEFINED
 
 #include "include/gpu/GrBackendSemaphore.h"
-#include "src/gpu/GrGpuResource.h"
 
 /**
- * Represents a semaphore-like GPU synchronization object. This is a slightly odd fit for
- * GrGpuResource because we don't care about budgeting, recycling, or read/write references for
- * these. However, making it a GrGpuResource makes it simpler to handle releasing/abandoning these
- * along with other resources. If more cases like this arise we could consider moving some of the
- * unused functionality off of GrGpuResource.
+ * Represents a semaphore-like GPU synchronization object.
  */
 class GrSemaphore {
 public:
