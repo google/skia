@@ -184,6 +184,11 @@ private:
 }  // namespace
 
 DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "Hello World Text Dialog";
@@ -191,7 +196,7 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -222,6 +227,12 @@ DEF_TEST(SkParagraph_SimpleParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -232,7 +243,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -321,6 +332,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBaselineParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -331,7 +348,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -377,6 +394,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderBaselineParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderAboveBaselineParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -387,7 +410,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -433,6 +456,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderAboveBaselineParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBelowBaselineParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -443,7 +472,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -489,6 +518,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderBelowBaselineParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBottomParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -499,7 +534,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -543,6 +578,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderBottomParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderTopParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -553,7 +594,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -597,6 +638,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderTopParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderMiddleParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -607,7 +654,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -651,6 +698,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderMiddleParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderIdeographicBaselineParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -661,7 +714,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Source Han Serif CN")});
@@ -704,6 +757,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderIdeographicBaselineParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderBreakParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -714,7 +773,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -839,6 +898,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderBreakParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_InlinePlaceholderGetRectsParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -849,7 +914,7 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(14);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -967,6 +1032,12 @@ DEF_TEST(SkParagraph_InlinePlaceholderGetRectsParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "I am RED";
@@ -974,7 +1045,7 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1006,6 +1077,12 @@ DEF_TEST(SkParagraph_SimpleRedParagraph, reporter) {
 
 // Checked: DIFF+ (Space between 1 & 2 style blocks)
 DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     TestCanvas canvas("SkParagraph_RainbowParagraph.png");
     if (!fontCollection->fontsFound()) return;
@@ -1026,7 +1103,7 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
     paragraph_style.turnHintingOff();
     paragraph_style.setTextAlign(TextAlign::kLeft);
     paragraph_style.setMaxLines(2);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style1;
     text_style1.setFontFamilies({SkString("Roboto")});
@@ -1129,6 +1206,12 @@ DEF_TEST(SkParagraph_RainbowParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_DefaultStyleParagraph.png");
@@ -1140,7 +1223,7 @@ DEF_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
     defaultStyle.setFontFamilies({SkString("Roboto")});
     paragraph_style.setTextStyle(defaultStyle);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
     builder.addText(text, len);
 
     auto paragraph = builder.Build();
@@ -1168,6 +1251,12 @@ DEF_TEST(SkParagraph_DefaultStyleParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_BoldParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_BoldParagraph.png");
@@ -1176,7 +1265,7 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1214,6 +1303,12 @@ DEF_TEST(SkParagraph_BoldParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_HeightOverrideParagraph.png");
@@ -1223,7 +1318,7 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
     paragraph_style.setMaxLines(10);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1269,6 +1364,12 @@ DEF_TEST(SkParagraph_HeightOverrideParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_LeftAlignParagraph.png");
@@ -1296,7 +1397,7 @@ DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kLeft);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1353,6 +1454,12 @@ DEF_TEST(SkParagraph_LeftAlignParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_RightAlignParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_RightAlignParagraph.png");
@@ -1380,7 +1487,7 @@ DEF_TEST(SkParagraph_RightAlignParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kRight);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, SkUnicode::Make());
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1440,6 +1547,12 @@ DEF_TEST(SkParagraph_RightAlignParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_CenterAlignParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_CenterAlignParagraph.png");
@@ -1467,7 +1580,7 @@ DEF_TEST(SkParagraph_CenterAlignParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kCenter);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1527,6 +1640,12 @@ DEF_TEST(SkParagraph_CenterAlignParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_JustifyAlignParagraph.png");
@@ -1552,7 +1671,7 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kJustify);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1615,6 +1734,12 @@ DEF_TEST(SkParagraph_JustifyAlignParagraph, reporter) {
 
 // Checked: DIFF (ghost spaces as a separate box in TxtLib)
 DEF_TEST(SkParagraph_JustifyRTL, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_JustifyRTL.png");
@@ -1629,7 +1754,7 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
     paragraph_style.setTextAlign(TextAlign::kJustify);
     paragraph_style.setTextDirection(TextDirection::kRtl);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -1679,6 +1804,12 @@ DEF_TEST(SkParagraph_JustifyRTL, reporter) {
 }
 
 DEF_TEST_DISABLED(SkParagraph_JustifyRTLNewLine, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_JustifyRTLNewLine.png");
@@ -1693,7 +1824,7 @@ DEF_TEST_DISABLED(SkParagraph_JustifyRTLNewLine, reporter) {
     paragraph_style.setTextAlign(TextAlign::kJustify);
     paragraph_style.setTextDirection(TextDirection::kRtl);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -1748,6 +1879,12 @@ DEF_TEST_DISABLED(SkParagraph_JustifyRTLNewLine, reporter) {
 }
 
 DEF_TEST_DISABLED(SkParagraph_LeadingSpaceRTL, reporter) {
+      std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_LeadingSpaceRTL.png");
@@ -1760,7 +1897,7 @@ DEF_TEST_DISABLED(SkParagraph_LeadingSpaceRTL, reporter) {
     paragraph_style.setTextAlign(TextAlign::kJustify);
     paragraph_style.setTextDirection(TextDirection::kRtl);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -1791,6 +1928,12 @@ DEF_TEST_DISABLED(SkParagraph_LeadingSpaceRTL, reporter) {
 }
 
 DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_DecorationsParagraph.png");
@@ -1804,7 +1947,7 @@ DEF_TEST(SkParagraph_DecorationsParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kLeft);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1914,6 +2057,12 @@ DEF_TEST(SkParagraph_WavyDecorationParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ItalicsParagraph.png");
@@ -1923,7 +2072,7 @@ DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -1978,6 +2127,12 @@ DEF_TEST(SkParagraph_ItalicsParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ChineseParagraph.png");
@@ -1993,7 +2148,7 @@ DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kJustify);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     auto decoration = (TextDecoration)(TextDecoration::kUnderline | TextDecoration::kOverline |
                                        TextDecoration::kLineThrough);
@@ -2027,6 +2182,12 @@ DEF_TEST(SkParagraph_ChineseParagraph, reporter) {
 
 // Checked: disabled for TxtLib
 DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ArabicParagraph.png");
@@ -2039,7 +2200,7 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kJustify);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     auto decoration = (TextDecoration)(TextDecoration::kUnderline | TextDecoration::kOverline |
                                        TextDecoration::kLineThrough);
@@ -2072,6 +2233,11 @@ DEF_TEST(SkParagraph_ArabicParagraph, reporter) {
 
 // Checked: DIFF (2 boxes and each space is a word)
 DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -2084,7 +2250,7 @@ DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kRight);
     paragraph_style.setTextDirection(TextDirection::kRtl);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
@@ -2123,6 +2289,11 @@ DEF_TEST(SkParagraph_ArabicRectsParagraph, reporter) {
 // [36:38) for arabic text and [38:39) for the last space
 // that has default paragraph direction (LTR) and is placed at the end of the paragraph
 DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -2135,7 +2306,7 @@ DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kLeft);
     paragraph_style.setTextDirection(TextDirection::kLtr);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
@@ -2171,6 +2342,11 @@ DEF_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
 
 // Checked DIFF+
 DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -2183,7 +2359,7 @@ DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kRight);
     paragraph_style.setTextDirection(TextDirection::kLtr);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
@@ -2218,6 +2394,12 @@ DEF_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetGlyphPositionAtCoordinateParagraph.png");
@@ -2240,7 +2422,7 @@ DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
     textStyle.setHeight(1);
     textStyle.setColor(SK_ColorBLACK);
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -2282,6 +2464,12 @@ DEF_TEST(SkParagraph_GetGlyphPositionAtCoordinateParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_GetRectsForRangeParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeParagraph.png");
@@ -2301,7 +2489,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeParagraph, reporter) {
     textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                        SkFontStyle::kUpright_Slant));
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -2378,6 +2566,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeTight.png");
@@ -2404,7 +2598,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
     textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                        SkFontStyle::kUpright_Slant));
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -2450,6 +2644,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeTight, reporter) {
 
 // Checked: DIFF+
 DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle.png");
@@ -2472,7 +2672,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
     textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                        SkFontStyle::kUpright_Slant));
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -2572,6 +2772,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingMiddle, reporter) {
 
 // Checked: NO DIFF+
 DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingTop, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeIncludeLineSpacingTop.png");
@@ -2594,7 +2800,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingTop, reporter) {
     textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                        SkFontStyle::kUpright_Slant));
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -2694,6 +2900,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingTop, reporter) {
 
 // Checked: NO DIFF+
 DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeIncludeLineSpacingBottom.png");
@@ -2716,7 +2928,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
     textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                        SkFontStyle::kUpright_Slant));
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -2817,6 +3029,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeIncludeLineSpacingBottom, reporter) {
 // This is the test I cannot accommodate
 // Any text range gets a smallest glyph rectangle
 DEF_TEST_DISABLED(SkParagraph_GetRectsForRangeIncludeCombiningCharacter, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeIncludeCombiningCharacter.png");
@@ -2827,7 +3045,7 @@ DEF_TEST_DISABLED(SkParagraph_GetRectsForRangeIncludeCombiningCharacter, reporte
     paragraphStyle.setTextAlign(TextAlign::kLeft);
     paragraphStyle.setMaxLines(10);
     paragraphStyle.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
 
     TextStyle textStyle;
     textStyle.setFontFamilies({SkString("Roboto")});
@@ -2880,6 +3098,12 @@ DEF_TEST_DISABLED(SkParagraph_GetRectsForRangeIncludeCombiningCharacter, reporte
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeCenterParagraph.png");
@@ -2894,7 +3118,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraph, reporter) {
     paragraphStyle.setTextAlign(TextAlign::kCenter);
     paragraphStyle.setMaxLines(10);
     paragraphStyle.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
 
     TextStyle textStyle;
     textStyle.setFontFamilies({SkString("Roboto")});
@@ -2978,6 +3202,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraph, reporter) {
 
 // Checked DIFF+
 DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered.png");
@@ -2988,7 +3218,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered, reporter) {
     paragraphStyle.setTextAlign(TextAlign::kCenter);
     paragraphStyle.setMaxLines(10);
     paragraphStyle.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
 
     TextStyle textStyle;
     textStyle.setFontFamilies({SkString("Roboto")});
@@ -3040,6 +3270,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterParagraphNewlineCentered, reporter) {
 
 // Checked NO DIFF
 DEF_TEST(SkParagraph_GetRectsForRangeCenterMultiLineParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeCenterMultiLineParagraph.png");
@@ -3050,7 +3286,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterMultiLineParagraph, reporter) {
     paragraphStyle.setTextAlign(TextAlign::kCenter);
     paragraphStyle.setMaxLines(10);
     paragraphStyle.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
 
     TextStyle textStyle;
     textStyle.setFontFamilies({SkString("Roboto")});
@@ -3142,6 +3378,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeCenterMultiLineParagraph, reporter) {
 
 // Checked: DIFF (line height rounding error)
 DEF_TEST(SkParagraph_GetRectsForRangeStrut, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeStrut.png");
@@ -3161,7 +3403,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrut, reporter) {
     textStyle.setFontSize(20);
     textStyle.setColor(SK_ColorBLACK);
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -3189,6 +3431,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrut, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_GetRectsForRangeStrutFallback, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetRectsForRangeStrutFallback.png");
@@ -3206,7 +3454,7 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrutFallback, reporter) {
     textStyle.setFontSize(20);
     textStyle.setColor(SK_ColorBLACK);
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -3229,6 +3477,12 @@ DEF_TEST(SkParagraph_GetRectsForRangeStrutFallback, reporter) {
 
 // Checked: DIFF (small in numbers)
 DEF_TEST(SkParagraph_GetWordBoundaryParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_GetWordBoundaryParagraph.png");
@@ -3248,7 +3502,7 @@ DEF_TEST(SkParagraph_GetWordBoundaryParagraph, reporter) {
     textStyle.setHeightOverride(true);
     textStyle.setColor(SK_ColorBLACK);
 
-    ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+    ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
     builder.pushStyle(textStyle);
     builder.addText(text, len);
     builder.pop();
@@ -3305,6 +3559,12 @@ DEF_TEST(SkParagraph_GetWordBoundaryParagraph, reporter) {
 
 // Checked: DIFF (unclear)
 DEF_TEST(SkParagraph_SpacingParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_SpacingParagraph.png");
@@ -3312,7 +3572,7 @@ DEF_TEST(SkParagraph_SpacingParagraph, reporter) {
     paragraph_style.setMaxLines(10);
     paragraph_style.setTextAlign(TextAlign::kLeft);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3388,6 +3648,12 @@ DEF_TEST(SkParagraph_SpacingParagraph, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_LongWordParagraph.png");
@@ -3399,7 +3665,7 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3431,6 +3697,12 @@ DEF_TEST(SkParagraph_LongWordParagraph, reporter) {
 
 // Checked: DIFF?
 DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_KernScaleParagraph.png");
@@ -3440,7 +3712,7 @@ DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
                         "if kerning works on a bigger set of characters AVAVAW";
     float scale = 3.0f;
     ParagraphStyle paragraph_style;
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Droid Serif")});
     text_style.setFontSize(100 / scale);
@@ -3477,6 +3749,12 @@ DEF_TEST(SkParagraph_KernScaleParagraph, reporter) {
 
 // Checked: DIFF+
 DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_NewlineParagraph.png");
@@ -3487,7 +3765,7 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3518,6 +3796,12 @@ DEF_TEST(SkParagraph_NewlineParagraph, reporter) {
 
 // TODO: Fix underline
 DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_EmojiParagraph.png");
@@ -3530,7 +3814,7 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Color Emoji")});
@@ -3562,6 +3846,12 @@ DEF_TEST(SkParagraph_EmojiParagraph, reporter) {
 
 // Checked: DIFF+
 DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_EmojiMultiLineRectsParagraph.png");
@@ -3576,7 +3866,7 @@ DEF_TEST(SkParagraph_EmojiMultiLineRectsParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Color Emoji")});
@@ -3626,6 +3916,12 @@ DEF_TEST(SkParagraph_HyphenBreakParagraph, reporter) {
 
 // Checked: DIFF (line breaking)
 DEF_TEST(SkParagraph_RepeatLayoutParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_RepeatLayoutParagraph.png");
@@ -3638,7 +3934,7 @@ DEF_TEST(SkParagraph_RepeatLayoutParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3666,6 +3962,12 @@ DEF_TEST(SkParagraph_RepeatLayoutParagraph, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_Ellipsize, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_Ellipsize.png");
@@ -3679,7 +3981,7 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
     paragraph_style.setMaxLines(1);
     paragraph_style.setEllipsis(u"\u2026");
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3704,6 +4006,12 @@ DEF_TEST(SkParagraph_Ellipsize, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_UnderlineShiftParagraph.png");
@@ -3715,7 +4023,7 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
     paragraph_style.turnHintingOff();
     paragraph_style.setTextAlign(TextAlign::kLeft);
     paragraph_style.setMaxLines(2);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3734,7 +4042,8 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
 
     auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
-    ParagraphBuilderImpl builder1(paragraph_style, fontCollection);
+    auto unicode1 = SkUnicode::Make();
+    ParagraphBuilderImpl builder1(paragraph_style, fontCollection, std::move(unicode1));
     text_style.setDecoration(TextDecoration::kNoDecoration);
     builder1.pushStyle(text_style);
     builder1.addText(text3, strlen(text3));
@@ -3773,6 +4082,12 @@ DEF_TEST(SkParagraph_UnderlineShiftParagraph, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_SimpleShadow, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_SimpleShadow.png");
@@ -3781,7 +4096,7 @@ DEF_TEST(SkParagraph_SimpleShadow, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3811,6 +4126,12 @@ DEF_TEST(SkParagraph_SimpleShadow, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_ComplexShadow, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_ComplexShadow.png");
@@ -3819,7 +4140,7 @@ DEF_TEST(SkParagraph_ComplexShadow, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -3881,6 +4202,12 @@ DEF_TEST(SkParagraph_ComplexShadow, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_BaselineParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_BaselineParagraph.png");
@@ -3894,7 +4221,7 @@ DEF_TEST(SkParagraph_BaselineParagraph, reporter) {
     paragraph_style.setMaxLines(14);
     paragraph_style.setTextAlign(TextAlign::kJustify);
     paragraph_style.setHeight(1.5);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Source Han Serif CN")});
@@ -3928,6 +4255,12 @@ DEF_TEST(SkParagraph_BaselineParagraph, reporter) {
 
 // Checked: NO DIFF (number of runs only)
 DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_FontFallbackParagraph.png");
@@ -3938,7 +4271,7 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({
@@ -4015,6 +4348,12 @@ DEF_TEST(SkParagraph_FontFallbackParagraph, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_StrutParagraph1.png");
@@ -4036,7 +4375,7 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
     strut_style.setLeading(0.1f);
     paragraph_style.setStrutStyle(strut_style);
 
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -4120,6 +4459,12 @@ DEF_TEST(SkParagraph_StrutParagraph1, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_StrutParagraph2.png");
@@ -4141,7 +4486,7 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
     strut_style.setHeightOverride(true);
     paragraph_style.setStrutStyle(strut_style);
 
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -4227,6 +4572,12 @@ DEF_TEST(SkParagraph_StrutParagraph2, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_StrutParagraph3.png");
@@ -4248,7 +4599,7 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
     strut_style.setHeightOverride(true);
     paragraph_style.setStrutStyle(strut_style);
 
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -4335,6 +4686,12 @@ DEF_TEST(SkParagraph_StrutParagraph3, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_StrutForceParagraph.png");
@@ -4356,7 +4713,7 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
     strut_style.setForceStrutHeight(true);
     paragraph_style.setStrutStyle(strut_style);
 
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -4434,6 +4791,12 @@ DEF_TEST(SkParagraph_StrutForceParagraph, reporter) {
 
 // Checked: NO DIFF
 DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_StrutDefaultParagraph.png");
@@ -4455,7 +4818,7 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
     strut_style.setForceStrutHeight(false);
     paragraph_style.setStrutStyle(strut_style);
 
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -4497,6 +4860,12 @@ DEF_TEST(SkParagraph_StrutDefaultParagraph, reporter) {
 }
 
 DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_FontFeaturesParagraph.png");
@@ -4505,7 +4874,7 @@ DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontStyle(SkFontStyle::Italic()); // Regular Roboto doesn't have font features
@@ -4548,6 +4917,12 @@ DEF_TEST(SkParagraph_FontFeaturesParagraph, reporter) {
 
 // Not in Minikin
 DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
@@ -4555,7 +4930,7 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies(
@@ -4580,6 +4955,12 @@ DEF_TEST(SkParagraph_WhitespacesInMultipleFonts, reporter) {
 
 // Disable until I sort out fonts
 DEF_TEST_DISABLED(SkParagraph_JSON1, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "👨‍👩‍👧‍👦";
@@ -4587,7 +4968,7 @@ DEF_TEST_DISABLED(SkParagraph_JSON1, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Color Emoji")});
@@ -4619,6 +5000,12 @@ DEF_TEST_DISABLED(SkParagraph_JSON1, reporter) {
 
 // Disable until I sort out fonts
 DEF_TEST_DISABLED(SkParagraph_JSON2, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     const char* text = "p〠q";
@@ -4626,7 +5013,7 @@ DEF_TEST_DISABLED(SkParagraph_JSON2, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Noto Sans CJK JP")});
@@ -4662,6 +5049,7 @@ DEF_TEST_DISABLED(SkParagraph_JSON2, reporter) {
 }
 
 DEF_TEST(SkParagraph_CacheText, reporter) {
+
     ParagraphCache cache;
     cache.turnOn(true);
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -4675,7 +5063,12 @@ DEF_TEST(SkParagraph_CacheText, reporter) {
     text_style.setColor(SK_ColorBLACK);
 
     auto test = [&](const char* text, int count, bool expectedToBeFound) {
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         builder.pushStyle(text_style);
         builder.addText(text, strlen(text));
         builder.pop();
@@ -4712,7 +5105,12 @@ DEF_TEST(SkParagraph_CacheFonts, reporter) {
     const size_t len = strlen(text);
 
     auto test = [&](int count, bool expectedToBeFound) {
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         builder.pushStyle(text_style);
         builder.addText(text, len);
         builder.pop();
@@ -4755,7 +5153,13 @@ DEF_TEST(SkParagraph_CacheFontRanges, reporter) {
                     const char* font2,
                     int count,
                     bool expectedToBeFound) {
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
+
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         text_style.setFontFamilies({SkString(font1)});
         builder.pushStyle(text_style);
         builder.addText(text1, strlen(text1));
@@ -4782,6 +5186,7 @@ DEF_TEST(SkParagraph_CacheFontRanges, reporter) {
 }
 
 DEF_TEST(SkParagraph_CacheStyles, reporter) {
+
     ParagraphCache cache;
     cache.turnOn(true);
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -4798,7 +5203,12 @@ DEF_TEST(SkParagraph_CacheStyles, reporter) {
     const size_t len = strlen(text);
 
     auto test = [&](int count, bool expectedToBeFound) {
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         builder.pushStyle(text_style);
         builder.addText(text, len);
         builder.pop();
@@ -4822,6 +5232,12 @@ DEF_TEST(SkParagraph_CacheStyles, reporter) {
 }
 
 DEF_TEST(SkParagraph_EmptyParagraphWithLineBreak, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -4831,7 +5247,7 @@ DEF_TEST(SkParagraph_EmptyParagraphWithLineBreak, reporter) {
     TextStyle text_style;
     text_style.setFontSize(16);
     text_style.setFontFamilies({SkString("Roboto")});
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
     builder.addText("\n", 1);
 
     auto paragraph = builder.Build();
@@ -4841,6 +5257,12 @@ DEF_TEST(SkParagraph_EmptyParagraphWithLineBreak, reporter) {
 }
 
 DEF_TEST(SkParagraph_NullInMiddleOfText, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -4852,7 +5274,7 @@ DEF_TEST(SkParagraph_NullInMiddleOfText, reporter) {
     TextStyle text_style;
     text_style.setFontSize(16);
     text_style.setFontFamilies({SkString("Roboto")});
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
     builder.addText(text.c_str(), text.size());
 
     auto paragraph = builder.Build();
@@ -4861,12 +5283,18 @@ DEF_TEST(SkParagraph_NullInMiddleOfText, reporter) {
 }
 
 DEF_TEST(SkParagraph_PlaceholderOnly, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_PlaceholderOnly.png");
 
     ParagraphStyle paragraph_style;
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     PlaceholderStyle placeholder(0, 0, PlaceholderAlignment::kBaseline, TextBaseline::kAlphabetic, 0);
     builder.addPlaceholder(placeholder);
@@ -4878,6 +5306,7 @@ DEF_TEST(SkParagraph_PlaceholderOnly, reporter) {
 }
 
 DEF_TEST(SkParagraph_Fallbacks, reporter) {
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault(), "Arial");
@@ -4898,9 +5327,13 @@ DEF_TEST(SkParagraph_Fallbacks, reporter) {
     };
 
     for (auto& font : androidFonts) {
-
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
@@ -4921,6 +5354,12 @@ DEF_TEST(SkParagraph_Fallbacks, reporter) {
 }
 
 DEF_TEST(SkParagraph_Bidi1, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -4936,7 +5375,7 @@ DEF_TEST(SkParagraph_Bidi1, reporter) {
     std::u16string abcDEFghiJKLmno = u"\u202Dabc\u202EDEF\u202Dghi\u202EJKL\u202Dmno";
 
     ParagraphStyle paragraph_style;
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({ SkString("sans-serif")});
@@ -4973,6 +5412,12 @@ DEF_TEST(SkParagraph_Bidi1, reporter) {
 }
 
 DEF_TEST(SkParagraph_Bidi2, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -4991,7 +5436,7 @@ DEF_TEST(SkParagraph_Bidi2, reporter) {
     text_style.setFontSize(40);
 
     {
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         builder.pushStyle(text_style);
         builder.addText(abcD);
         builder.pushStyle(text_style);
@@ -5004,7 +5449,8 @@ DEF_TEST(SkParagraph_Bidi2, reporter) {
     }
     canvas.get()->translate(0, 400);
     {
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        auto unicode = SkUnicode::Make();
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         builder.pushStyle(text_style);
         builder.addText(abcDEFghiJKLmno);
         auto paragraph = builder.Build();
@@ -5014,6 +5460,12 @@ DEF_TEST(SkParagraph_Bidi2, reporter) {
 }
 
 DEF_TEST(SkParagraph_NewlineOnly, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -5027,7 +5479,7 @@ DEF_TEST(SkParagraph_NewlineOnly, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.setStrutStyle(strut_style);
     paragraph_style.setTextStyle(text_style);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
     builder.addText("\n");
     auto paragraph = builder.Build();
     paragraph->layout(1000);
@@ -5035,6 +5487,12 @@ DEF_TEST(SkParagraph_NewlineOnly, reporter) {
 }
 
 DEF_TEST_DISABLED(SkParagraph_FontResolutions, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     TestCanvas canvas("SkParagraph_FontResolutions.png");
 
     sk_sp<TestFontCollection> fontCollection =
@@ -5056,7 +5514,7 @@ DEF_TEST_DISABLED(SkParagraph_FontResolutions, reporter) {
     text_style.setFontSize(50);
 
     ParagraphStyle paragraph_style;
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     text_style.setFontFamilies({SkString("abc"), SkString("abc+grave")});
     text_style.setColor(SK_ColorBLUE);
@@ -5092,6 +5550,12 @@ DEF_TEST_DISABLED(SkParagraph_FontResolutions, reporter) {
 }
 
 DEF_TEST_DISABLED(SkParagraph_FontStyle, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     TestCanvas canvas("SkParagraph_FontStyle.png");
 
     sk_sp<TestFontCollection> fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
@@ -5118,7 +5582,7 @@ DEF_TEST_DISABLED(SkParagraph_FontStyle, reporter) {
         SkFontStyle::Slant::kItalic_Slant
     );
     boldItalic.setFontStyle(bi);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
     builder.addText("Default text\n");
     builder.pushStyle(boldItalic);
     builder.addText("Bold and Italic\n");
@@ -5130,6 +5594,12 @@ DEF_TEST_DISABLED(SkParagraph_FontStyle, reporter) {
 }
 
 DEF_TEST_DISABLED(SkParagraph_Shaping, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     TestCanvas canvas("SkParagraph_Shaping.png");
 
     auto dir = "/usr/local/google/home/jlavrova/Sources/flutter/engine/src/out/host_debug_unopt_x86/gen/flutter/third_party/txt/assets";
@@ -5149,7 +5619,7 @@ DEF_TEST_DISABLED(SkParagraph_Shaping, reporter) {
     );
     text_style.setFontStyle(b);
     ParagraphStyle paragraph_style;
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
     builder.pushStyle(text_style);
     builder.addText("Eat0 apple0 pies0 | Eat1 apple1 pies1 | Eat2 apple2 pies2");
     auto paragraph = builder.Build();
@@ -5158,6 +5628,7 @@ DEF_TEST_DISABLED(SkParagraph_Shaping, reporter) {
 }
 
 DEF_TEST(SkParagraph_Ellipsis, reporter) {
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -5172,6 +5643,11 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
 
     auto relayout = [&](size_t lines, bool ellipsis,
             SkScalar width, SkScalar height, SkScalar minWidth, SkScalar maxWidth, SkColor bg) {
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
         ParagraphStyle paragraph_style;
         SkPaint paint;
         paint.setColor(bg);
@@ -5181,7 +5657,7 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
         if (ellipsis) {
             paragraph_style.setEllipsis(u"\u2026");
         }
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         builder.addText(text);
         auto paragraph = builder.Build();
         paragraph->layout(50);
@@ -5219,6 +5695,7 @@ DEF_TEST(SkParagraph_Ellipsis, reporter) {
 }
 
 DEF_TEST(SkParagraph_MemoryLeak, reporter) {
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -5226,6 +5703,11 @@ DEF_TEST(SkParagraph_MemoryLeak, reporter) {
     std::string text;
     for (size_t i = 0; i < 10; i++)
 	{
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
 		SkPaint paint;
 		paint.setAntiAlias(true);
 		paint.setColor(SK_ColorBLACK);
@@ -5237,7 +5719,7 @@ DEF_TEST(SkParagraph_MemoryLeak, reporter) {
 		ParagraphStyle paragraphStyle;
 		paragraphStyle.setTextStyle(textStyle);
 
-		ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+		ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
 		text += "Text ";
 		builder.addText(text.c_str());
 
@@ -5268,8 +5750,13 @@ DEF_TEST(SkParagraph_FormattingInfinity, reporter) {
     paragraphStyle.setTextStyle(textStyle);
 
     auto draw = [&](const char* prefix, TextAlign textAlign) {
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return;
+        }
         paragraphStyle.setTextAlign(textAlign);
-        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(unicode));
         builder.addText(text);
         auto paragraph = builder.Build();
         paragraph->layout(SK_ScalarInfinity);
@@ -5284,6 +5771,7 @@ DEF_TEST(SkParagraph_FormattingInfinity, reporter) {
 };
 
 DEF_TEST(SkParagraph_Infinity, reporter) {
+
     SkASSERT(nearlyEqual(1, SK_ScalarInfinity) == false);
     SkASSERT(nearlyEqual(1, SK_ScalarNegativeInfinity) == false);
     SkASSERT(nearlyEqual(1, SK_ScalarNaN) == false);
@@ -5302,6 +5790,11 @@ DEF_TEST(SkParagraph_Infinity, reporter) {
 };
 
 DEF_TEST(SkParagraph_LineMetrics, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
@@ -5313,7 +5806,7 @@ DEF_TEST(SkParagraph_LineMetrics, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});
@@ -5382,6 +5875,12 @@ DEF_TEST(SkParagraph_LineMetrics, reporter) {
 };
 
 DEF_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     TestCanvas canvas("SkParagraph_PlaceholderHeightInf.png");
 
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -5401,7 +5900,7 @@ DEF_TEST(SkParagraph_PlaceholderHeightInf, reporter) {
 
     ParagraphStyle paragraph_style;
     paragraph_style.setDrawOptions(DrawOptions::kRecord);
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
     builder.pushStyle(text_style);
     builder.addText("Limited by budget");
     builder.addPlaceholder(placeholder_style);
@@ -5428,8 +5927,13 @@ DEF_TEST(SkParagraph_LineMetricsTextAlign, reporter) {
     text_style.setColor(SK_ColorBLACK);
 
     auto layout = [&](TextAlign text_align) -> std::pair<SkScalar, SkScalar> {
+        std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            //SkDebugf("Cannot be tested: no unicode\n");
+            return { -1, -1 };
+        }
         paragraph_style.setTextAlign(text_align);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
         builder.pushStyle(text_style);
         builder.addText("Some text that takes more than 200 px");
         auto paragraph = builder.Build();
@@ -5459,6 +5963,12 @@ DEF_TEST(SkParagraph_LineMetricsTextAlign, reporter) {
 }
 
 DEF_TEST(SkParagraph_FontResolutionInRTL, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_FontResolutionInRTL.png");
@@ -5470,7 +5980,7 @@ DEF_TEST(SkParagraph_FontResolutionInRTL, reporter) {
     paragraph_style.setTextAlign(TextAlign::kRight);
     paragraph_style.setTextDirection(TextDirection::kRtl);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Ahem")});
@@ -5489,6 +5999,12 @@ DEF_TEST(SkParagraph_FontResolutionInRTL, reporter) {
 }
 
 DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
+    if (unicode == nullptr) {
+        //SkDebugf("Cannot be tested: no unicode\n");
+        return;
+    }
+
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
     if (!fontCollection->fontsFound()) return;
     TestCanvas canvas("SkParagraph_FontResolutionInLTR.png");
@@ -5497,7 +6013,7 @@ DEF_TEST(SkParagraph_FontResolutionInLTR, reporter) {
     ParagraphStyle paragraph_style;
     paragraph_style.setMaxLines(14);
     paragraph_style.turnHintingOff();
-    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(unicode));
 
     TextStyle text_style;
     text_style.setFontFamilies({SkString("Roboto")});

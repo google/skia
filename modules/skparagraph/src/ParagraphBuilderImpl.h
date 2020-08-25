@@ -11,13 +11,19 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skshaper/src/SkUnicode.h"
 
 namespace skia {
 namespace textlayout {
 
 class ParagraphBuilderImpl : public ParagraphBuilder {
 public:
-    ParagraphBuilderImpl(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection);
+    ParagraphBuilderImpl(const ParagraphStyle& style,
+        sk_sp<FontCollection> fontCollection,
+        std::unique_ptr<SkUnicode> unicode);
+
+    // Just until we fix all the code; calls icu::make inside
+    //ParagraphBuilderImpl(const ParagraphStyle& style, sk_sp<FontCollection> fontCollection);
 
     ~ParagraphBuilderImpl() override;
 
@@ -42,7 +48,7 @@ public:
 
     // Adds text to the builder. Forms the proper runs to use the upper-most style
     // on the style_stack.
-    void addText(const std::u16string& text) override;
+    bool addText(const std::u16string& text) override;
 
     // Adds text to the builder, using the top-most style on on the style_stack.
     void addText(const char* text) override; // Don't use this one - going away soon
@@ -65,6 +71,8 @@ private:
     SkTArray<Placeholder, true> fPlaceholders;
     sk_sp<FontCollection> fFontCollection;
     ParagraphStyle fParagraphStyle;
+
+    std::unique_ptr<SkUnicode> fUnicode;
 };
 }  // namespace textlayout
 }  // namespace skia

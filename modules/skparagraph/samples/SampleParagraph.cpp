@@ -17,9 +17,9 @@
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
+#include "modules/skshaper/src/SkUnicode.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/shaders/SkColorShader.h"
@@ -28,13 +28,20 @@
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
 
-
 static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
 
 using namespace skia::textlayout;
 namespace {
 
 class ParagraphView_Base : public Sample {
+ public:
+    void draw(SkCanvas* canvas) override {
+        fUnicode = SkUnicode::Make();
+        if (fUnicode == nullptr) {
+            return;
+        }
+        Sample::draw(canvas);
+    }
 protected:
     sk_sp<TestFontCollection> getFontCollection() {
         // If we reset font collection we need to reset paragraph cache
@@ -48,6 +55,8 @@ protected:
     bool isVerbose() {
         return FLAGS_verboseParagraph;
     }
+
+    std::unique_ptr<SkUnicode> fUnicode;
 };
 
 sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
@@ -71,6 +80,11 @@ protected:
     SkString name() override { return SkString("Paragraph1"); }
 
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
+
+        auto unicode = SkUnicode::Make();
+        if (unicode == nullptr) {
+            return;
+        }
         const std::vector<
             std::tuple<std::string, bool, bool, int, SkColor, SkColor, bool, TextDecorationStyle>>
             gParagraph = {{"monospace", true, false, 14, SK_ColorWHITE, SK_ColorRED, true,
@@ -107,7 +121,7 @@ protected:
         for (auto i = 1; i < 5; ++i) {
             defaultStyle.setFontSize(24 * i);
             paraStyle.setTextStyle(defaultStyle);
-            ParagraphBuilderImpl builder(paraStyle, fontCollection);
+            ParagraphBuilderImpl builder(paraStyle, fontCollection, std::move(fUnicode));
             std::string name = "Paragraph: " + std::to_string(24 * i);
             builder.addText(name.c_str(), name.length());
             for (auto para : gParagraph) {
@@ -206,7 +220,7 @@ protected:
 
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        ParagraphBuilderImpl builder(paraStyle, fontCollection);
+        ParagraphBuilderImpl builder(paraStyle, fontCollection, std::move(fUnicode));
 
         const char* text1 = "RaisedButton";
         const char* text2 = "(\n";
@@ -288,7 +302,7 @@ protected:
         TextStyle defaultStyle;
         defaultStyle.setFontSize(20);
         paraStyle.setTextStyle(defaultStyle);
-        ParagraphBuilderImpl builder(paraStyle, getFontCollection());
+        ParagraphBuilderImpl builder(paraStyle, getFontCollection(), std::move(fUnicode));
 
         SkPaint foreground;
         foreground.setColor(fg);
@@ -335,7 +349,7 @@ protected:
 
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        ParagraphBuilderImpl builder(paraStyle, fontCollection);
+        ParagraphBuilderImpl builder(paraStyle, fontCollection, std::move(fUnicode));
         builder.addText(text.c_str(), text.length());
 
         auto paragraph = builder.Build();
@@ -458,7 +472,7 @@ protected:
 
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        ParagraphBuilderImpl builder(paraStyle, fontCollection);
+        ParagraphBuilderImpl builder(paraStyle, fontCollection, std::move(fUnicode));
         if (RTL) {
             builder.addText(mirror(text));
         } else {
@@ -632,7 +646,7 @@ protected:
         const char* logo5 = "google_lo";
         const char* logo6 = "go";
         {
-            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection(), std::move(fUnicode));
 
             builder.pushStyle(style0);
             builder.addText(logo1, strlen(logo1));
@@ -722,7 +736,7 @@ protected:
 
         paraStyle.setEllipsis(ellipsis);
 
-        ParagraphBuilderImpl builder(paraStyle, getFontCollection());
+        ParagraphBuilderImpl builder(paraStyle, getFontCollection(), std::move(fUnicode));
 
         if (text.empty()) {
             const std::u16string text0 = u"\u202Dabc";
@@ -746,14 +760,15 @@ protected:
             builder.addText(text4);
             builder.pop();
         } else {
-            if (this->isVerbose()) {
-                SkString str = SkStringFromU16String(text);
-                SkDebugf("Text: %s\n", str.c_str());
-            }
             builder.addText(text + expected);
         }
 
         auto paragraph = builder.Build();
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        if (this->isVerbose()) {
+            SkDebugf("Text: >%s<\n", impl->text().data());
+        }
+
         paragraph->layout(w - margin * 2);
         paragraph->paint(canvas, margin, margin);
     }
@@ -882,7 +897,7 @@ protected:
         const char* logo5 = "Ski";
         const char* logo6 = "a";
         {
-            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection(), std::move(fUnicode));
 
             builder.pushStyle(style0);
             builder.addText(logo1, strlen(logo1));
@@ -922,7 +937,7 @@ protected:
         const char* logo15 = "S";
         const char* logo16 = "S";
         {
-            ParagraphBuilderImpl builder(paraStyle, getFontCollection());
+            ParagraphBuilderImpl builder(paraStyle, getFontCollection(), std::move(fUnicode));
 
             builder.pushStyle(style0);
             builder.addText(logo11, strlen(logo1));
@@ -993,7 +1008,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection(), std::move(fUnicode));
         builder.pushStyle(textStyle);
         builder.addText(line, strlen(line));
         builder.pop();
@@ -1063,7 +1078,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection());
+        ParagraphBuilderImpl builder(paragraphStyle, getFontCollection(), std::move(fUnicode));
         builder.pushStyle(textStyle);
         builder.addText(line, strlen(line));
         builder.pop();
@@ -1158,7 +1173,7 @@ protected:
         textStyle.setFontStyle(SkFontStyle(SkFontStyle::kMedium_Weight, SkFontStyle::kNormal_Width,
                                            SkFontStyle::kUpright_Slant));
 
-        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(fUnicode));
         builder.pushStyle(textStyle);
         builder.addText(text, strlen(text));
         builder.pop();
@@ -1222,7 +1237,7 @@ protected:
 
         ParagraphStyle paragraph_style;
         paragraph_style.turnHintingOff();
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Roboto"),
@@ -1266,7 +1281,7 @@ protected:
         paragraph_style.setTextStyle(text_style);
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         builder.addText(text, strlen(text));
         auto paragraph = builder.Build();
         paragraph->layout(1000);
@@ -1344,7 +1359,7 @@ protected:
         ParagraphStyle paragraph_style;
         paragraph_style.setStrutStyle(strut_style);
         paragraph_style.setTextStyle(text_style);
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection(), std::move(fUnicode));
         builder.addText(text);
         auto paragraph = builder.Build();
         paragraph->layout(1095.000000);
@@ -1382,7 +1397,7 @@ protected:
         ParagraphStyle paragraph_style;
         paragraph_style.setTextStyle(text_style);
         paragraph_style.setTextDirection(TextDirection::kRtl);
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection(), std::move(fUnicode));
         builder.pushStyle(text_style);
         builder.addText("Hello, wor!\nabcd.");
         auto paragraph = builder.Build();
@@ -1418,7 +1433,7 @@ protected:
         fontCollection->addFontFromFile("abc/abc+agrave.ttf", "abc+agrave");
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
 
         text_style.setFontFamilies({SkString("abc"), SkString("abc+grave")});
         text_style.setColor(SK_ColorBLUE);
@@ -1463,7 +1478,7 @@ protected:
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
 
         TextStyle text_style;
         text_style.setFontFamilies({SkString(".SF Pro Text")});
@@ -1499,7 +1514,7 @@ protected:
         //const char* text = ">Sͬ͑̀͐̈͒̈́̋̎ͮͩ̽̓ͬ̂̆̔͗́̓ͣͧ͊ͫ͛̉͌̐̑ͪ͗̚͝҉̴͉͢k̡̊̓ͫͭͩ͂͊ͨͪͬ̑ͫ̍̌̄͛̌̂̑̂̋̊̔ͫ͛̽̑ͨ̍ͭ̓̀ͪͪ̉͐͗̌̓̃̚͟͝҉̢͏̫̞̙͇͖̮͕̗̟͕͇͚̻͈̣̻̪͉̰̲̣̫ͅͅP̴̅̍͒̿͗͗̇ͩ̃͆͌̀̽͏̧̡͕͖̝̖̼̺̰̣̬͔͖͔̼͙̞̦̫͓̘͜a̸̴̸̴̢̢̨̨̫͍͓̥̼̭̼̻̤̯̙̤̻̠͚̍̌͋̂ͦͨ̽̇͌͌͆̀̽̎͒̄ͪ̐ͦ̈ͫ͐͗̓̚̚͜ͅr͐͐ͤͫ̐ͥ͂̈́̿́ͮ̃͗̓̏ͫ̀̿͏̸̵̧́͘̕͟͝͠͞͠҉̷̧͚͢͟a̓̽̎̄͗̔͛̄̐͊͛ͫ͂͌̂̂̈̈̓̔̅̅̄͊̉́ͪ̑̄͆ͬ̍͆ͭ͋̐ͬ͏̷̵̨̢̩̹̖͓̥̳̰͔̱̬͖̙͓̙͇̀̀̕͜͟͟͢͟͜͠͡g̨̅̇ͦ͋̂ͦͨͭ̓͐͆̏̂͛̉ͧ̑ͫ̐̒͛ͫ̍̒͛́̚҉̷̨̛̛̀͜͢͞҉̩̘̲͍͎̯̹̝̭̗̱͇͉̲̱͔̯̠̹̥̻͉̲̜̤̰̪̗̺̖̺r̷͌̓̇̅ͭ̀̐̃̃ͭ͑͗̉̈̇̈́ͥ̓ͣ́ͤ͂ͤ͂̏͌̆̚҉̴̸̧̢̢̛̫͉̦̥̤̙͈͉͈͉͓̙̗̟̳̜͈̗̺̟̠̠͖͓̖̪͕̠̕̕͝ͅả̸̴̡̡̧͠͞͡͞҉̛̕͟͏̷̘̪̱͈̲͉̞̠̞̪̫͎̲̬̖̀̀͟͝͞͞͠p̛͂̈͐̚͠҉̵̸̡̢̢̩̹͙̯͖̙̙̮̥̙͚̠͔̥̭̮̞̣̪̬̥̠̖̝̥̪͎́̀̕͜͡͡ͅͅh̵̷̵̡̛ͤ̂͌̐̓̐̋̋͊̒̆̽́̀̀̀͢͠͞͞҉̷̸̢̕҉͚̯͖̫̜̞̟̠̱͉̝̲̹̼͉̟͉̩̮͔̤͖̞̭̙̹̬ͅ<";
         const char* text = ">S͛ͭ̋͆̈̔̇͗̍͑̎ͪͮͧͣ̽ͫͣ́ͬ̀͌͑͂͗͒̍̔̄ͧ̏̉̌̊̊̿̀̌̃̄͐̓̓̚̚҉̵̡͜͟͝͠͏̸̵̡̧͜҉̷̡͇̜̘̻̺̘̟̝͙̬̘̩͇̭̼̥̖̤̦͎k͉̩̘͚̜̹̗̗͍̤̥̱͉̳͕͖̤̲̣͚̮̞̬̲͍͔̯̻̮̞̭͈̗̫͓̂ͨ̉ͪ̒͋͛̀̍͊ͧ̿̅͆̓̔̔ͬ̇̑̿ͩ͗ͮ̎͌̿̄ͅP̴̵̡̡̛̪͙̼̣̟̩̭̫̱͙̬͔͉͍̘̠͉̦̝̘̥̟̗͖̫̤͕̙̬̦͍̱̖̮̱͑͐̎̃̒͐͋̚͘͞a̶̶̵̵̵̶̶̡̧̢̢̺͔̣͖̭̺͍̤͚̱̜̰̥͕̬̥̲̞̥̘͇͚̺̰͚̪̺͔̤͍̓̿͆̎͋̓ͦ̈́ͦ̌́̄͗̌̓͌̕͜͜͟͢͝͡ŕ͎̝͕͉̻͎̤̭͚̗̳̖̙̘͚̫͖͓͚͉͔͈̟̰̟̬̗͓̟͚̱̕͡ͅͅͅa̸̶̢̛̛̽ͮͩ̅͒ͫ͗͂̎ͦ̈́̓̚͘͜͢͡҉̷̵̶̢̡̜̮̦̜̥̜̯̙͓͔̼̗̻͜͜ͅḡ̢̛͕̗͖̖̤̦̘͔ͨͨ̊͒ͩͭͤ̍̅̃ͪ̋̏̓̍̋͗̋ͨ̏̽̈́̔̀̋̉ͫ̅̂ͭͫ̏͒͋ͥ̚͜r̶̢̧̧̥̤̼̀̂̒ͪ͌̿͌̅͛ͨͪ͒̍ͥ̉ͤ̌̿̆́ͭ͆̃̒ͤ͛̊ͧ̽͘͝͠a̧̢̧̢͑͑̓͑ͮ̃͂̄͛́̈́͋̂͌̽̄͒̔́̇ͨͧͭ͐ͦ̋ͨ̍ͦ̍̋͆̔ͧ͑͋͌̈̓͛͛̚͢͜͜͏̴̢̧̛̳͍̹͚̰̹̻͔p̨̡͆ͦͣ͊̽̔͂̉ͣ̔ͣ̌̌̉̃̋̂͒ͫ̄̎̐͗̉̌̃̽̽́̀̚͘͜͟҉̱͉h̭̮̘̗͔̜̯͔͈̯̺͔̗̣̭͚̱̰̙̼̹͚̣̻̥̲̮͍̤͜͝<";
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         SkPaint paint;
         paint.setColor(ltgray);
         TextStyle text_style;
@@ -1605,18 +1620,17 @@ protected:
         if (fRedraw || fRepeat) {
 
             if (fRedraw || fParagraph == nullptr) {
-                ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+                ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
                 builder.pushStyle(text_style);
                 auto utf16text = zalgo.zalgo("SkParagraph");
-                if (this->isVerbose()) {
-                    SkString str = SkStringFromU16String(utf16text);
-                    SkDebugf("Text:>%s<\n", str.c_str());
-                }
                 builder.addText(utf16text);
                 fParagraph = builder.Build();
             }
 
             auto impl = static_cast<ParagraphImpl*>(fParagraph.get());
+            if (this->isVerbose()) {
+                SkDebugf("Text:>%s<\n", impl->text().data());
+            }
             impl->setState(InternalState::kUnknown);
             fParagraph->layout(1000);
             fParagraph->paint(canvas, 300, 200);
@@ -1662,7 +1676,7 @@ protected:
 
         std::u16string text = u"\u0068\u0301\u0350\u0312\u0357\u030C\u0369\u0305\u036C\u0304\u0310\u033F\u0366\u0350\u0343\u0364\u0369\u0311\u0309\u030E\u0365\u031B\u0340\u0337\u0335\u035E\u0334\u0328\u0360\u0360\u0315\u035F\u0340\u0340\u0362\u0360\u0322\u031B\u031B\u0337\u0340\u031E\u031F\u032A\u0331\u0345\u032F\u0332\u032E\u0333\u0353\u0320\u0345\u031C\u031F\u033C\u0325\u0355\u032C\u0325\u033Aa\u0307\u0312\u034B\u0308\u0312\u0346\u0313\u0346\u0304\u0307\u0344\u0305\u0342\u0368\u0346\u036A\u035B\u030F\u0365\u0307\u0340\u0328\u0322\u0361\u0489\u034F\u0328\u0334\u035F\u0335\u0362\u0489\u0360\u0358\u035E\u0360\u035D\u0341\u0337\u0337\u032E\u0326\u032D\u0359\u0318\u033C\u032F\u0333\u035A\u034D\u0319\u031C\u0353\u033C\u0345\u0359\u0331\u033B\u0331\u033C";
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -1691,7 +1705,7 @@ protected:
         ParagraphStyle paragraph_style;
         paragraph_style.setEllipsis(u"\u2026");
         paragraph_style.setMaxLines(1);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -1716,7 +1730,7 @@ protected:
 
         const char* text =  "Referral Code";
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+        ParagraphBuilderImpl builder(paragraph_style, getFontCollection(), std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Google Sans")});
@@ -1756,7 +1770,7 @@ protected:
         ParagraphStyle paragraph_style;
         paragraph_style.setTextDirection(direction ? TextDirection::kLtr : TextDirection::kRtl);
         auto collection = getFontCollection();
-        ParagraphBuilderImpl builder(paragraph_style, collection);
+        ParagraphBuilderImpl builder(paragraph_style, collection, std::move(fUnicode));
         collection->getParagraphCache()->reset();
         collection->getParagraphCache()->turnOn(false);
         TextStyle text_style;
@@ -1799,7 +1813,7 @@ protected:
         auto draw = [&](SkScalar h, SkScalar v, SkScalar b) {
             text_style.resetShadows();
             text_style.addShadow(TextShadow(SK_ColorBLACK, SkPoint::Make(h, v), b));
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection(), std::move(fUnicode));
             builder.pushStyle(text_style);
             builder.addText(text);
             auto paragraph = builder.Build();
@@ -1846,7 +1860,7 @@ protected:
         text_style.setFontFamilies({SkString("Google Sans")});
         text_style.setFontSize(24);
         {
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection(), std::move(fUnicode));
             builder.pushStyle(text_style);
             builder.addText("Right_to_left:");
             auto paragraph = builder.Build();
@@ -1855,7 +1869,7 @@ protected:
         }
         canvas->translate(0, 200);
         {
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection(), std::move(fUnicode));
             builder.pushStyle(text_style);
             builder.addText("Right_to_left+");
             auto paragraph = builder.Build();
@@ -1864,7 +1878,7 @@ protected:
         }
         canvas->translate(0, 200);
         {
-            ParagraphBuilderImpl builder(paragraph_style, getFontCollection());
+            ParagraphBuilderImpl builder(paragraph_style, getFontCollection(), std::move(fUnicode));
             builder.pushStyle(text_style);
             builder.addText("Right_to_left.");
             auto paragraph = builder.Build();
@@ -1918,7 +1932,7 @@ Shell: layout('Go to device settings ￼ and set up a passcode. ￼', 280.000000
         text_style.setFontSize(16);
         PlaceholderStyle placeholder_style;
         {
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
             builder.pushStyle(text_style);
             builder.addText(text1);
             placeholder_style.fHeight = 32;
@@ -1970,7 +1984,7 @@ protected:
         paragraphStyle.setTextStyle(textStyle);
         paragraphStyle.setTextAlign(TextAlign::kLeft);
 
-        ParagraphBuilderImpl builder(paragraphStyle, fontCollection);
+        ParagraphBuilderImpl builder(paragraphStyle, fontCollection, std::move(fUnicode));
         builder.addText(u"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut dolor ornare, fermentum nibh in, consectetur libero. Ut id semper est. Sed malesuada, est id bibendum egestas, urna risus tristique nibh, euismod interdum risus turpis nec purus. Maecenas dolor nisl, consectetur in vestibulum et, tincidunt id leo. Duis maximus, odio eget tristique commodo, lacus tellus dapibus leo, consequat pellentesque arcu nisi sit amet diam. Quisque euismod venenatis egestas. Mauris posuere volutpat iaculis. Suspendisse finibus tempor urna, dignissim venenatis sapien finibus eget. Donec interdum lacus ac venenatis fringilla. Curabitur eget lacinia augue. Vestibulum eu vulputate odio. Quisque nec imperdiet");
 
         auto paragraph = builder.Build();
@@ -2052,7 +2066,7 @@ protected:
             paragraph_style.setTextDirection(td);
             paragraph_style.setTextAlign(ta);
             text_style.setFontSize(20);
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
             text_style.setBackgroundColor(whiteSpaces);
             builder.pushStyle(text_style);
             builder.addText("   ");
@@ -2131,7 +2145,7 @@ protected:
         ParagraphStyle paragraph_style;
         paragraph_style.setTextAlign(TextAlign::kJustify);
         auto collection = getFontCollection();
-        ParagraphBuilderImpl builder(paragraph_style, collection);
+        ParagraphBuilderImpl builder(paragraph_style, collection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2167,7 +2181,7 @@ protected:
         auto collection = getFontCollection();
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, collection);
+        ParagraphBuilderImpl builder(paragraph_style, collection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2237,7 +2251,7 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Noto Color Emoji")});
@@ -2292,7 +2306,7 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2322,7 +2336,7 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2362,7 +2376,7 @@ protected:
 
         ParagraphStyle paragraph_style;
         paragraph_style.setTextAlign(TextAlign::kJustify);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
@@ -2396,7 +2410,7 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Noto Color Emoji")});
@@ -2457,7 +2471,7 @@ protected:
 
         ParagraphStyle paragraph_style;
         //paragraph_style.setTextAlign(TextAlign::kJustify);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
@@ -2511,7 +2525,7 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Serif CJK JP")});
@@ -2543,7 +2557,7 @@ protected:
         fontCollection->enableFontFallback();
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2596,7 +2610,7 @@ protected:
 
         ParagraphStyle paragraph_style;
         paragraph_style.setTextAlign(TextAlign::kLeft);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorDKGRAY);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2658,7 +2672,7 @@ protected:
 
         ParagraphStyle paragraph_style;
         paragraph_style.setTextAlign(TextAlign::kJustify);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2701,7 +2715,7 @@ protected:
         auto draw = [&](SkColor color, TextHeightBehavior thb) {
             ParagraphStyle paragraph_style;
             paragraph_style.setTextHeightBehavior(thb);
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
             TextStyle text_style;
             text_style.setColor(SK_ColorBLACK);
             SkPaint paint;
@@ -2742,7 +2756,7 @@ protected:
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true, true);
 
         ParagraphStyle paragraph_style;
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Ahem")});
@@ -2792,7 +2806,7 @@ protected:
         paragraph_style.setTextAlign(TextAlign::kJustify);
         paragraph_style.setEllipsis(u"\u2026");
         paragraph_style.setMaxLines(2);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto")});
@@ -2826,7 +2840,7 @@ protected:
         ParagraphStyle paragraph_style;
         paragraph_style.setMaxLines(7);
         paragraph_style.setEllipsis(u"\u2026");
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto"), SkString("Noto Color Emoji")});
@@ -2881,7 +2895,7 @@ protected:
         paragraph_style.setMaxLines(1);
         paragraph_style.setHeight(0);
         paragraph_style.setEllipsis(u"\u2026");
-        ParagraphBuilderImpl builder(paragraph_style, font_collection);
+        ParagraphBuilderImpl builder(paragraph_style, font_collection, std::move(fUnicode));
         TextStyle text_style;
         text_style.setColor(SK_ColorBLACK);
         text_style.setFontFamilies({SkString("Roboto"), SkString("Noto"), SkString("Emoji")});
@@ -2916,7 +2930,7 @@ protected:
 
         auto draw = [&](DrawOptions options) {
             paragraph_style.setDrawOptions(options);
-            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection, std::move(fUnicode));
             TextStyle text_style;
             text_style.setColor(SK_ColorBLACK);
             text_style.setFontFamilies({SkString("Roboto")});
