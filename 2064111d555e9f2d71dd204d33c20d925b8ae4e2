@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d1765f4_a65ef231",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-25T23:49:00Z",
+      "side": 1,
+      "message": "Please take a gander at Test-Mac10.13-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-Metal:\n\n\t../../../../../../skia/tests/SkRuntimeEffectTest.cpp:164\t\nExpected: [ ff0000ff ff00ff00 ffff0000 ffffffff ]\nGot     : [ ff00ffff ff00ffff ff00ffff ff00ffff ]\nSkSL:\nin shader child; half4 main(float2 p) { return sample(child); }\n [SkRuntimeEffectSimple_GPU, Metal]: Runtime effect didn\u0027t match expectations\n1 failures\n",
+      "revId": "2064111d555e9f2d71dd204d33c20d925b8ae4e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
