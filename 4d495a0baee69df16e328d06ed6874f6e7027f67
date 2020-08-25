@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4bd941c1_d9d125d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-08-25T02:36:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36d97702_555fe6b6",
+      "range": {
+        "startLine": 24,
+        "startChar": 14,
+        "endLine": 24,
+        "endChar": 15
+      },
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6bc5a34_e2f0a821",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -59,6 +83,42 @@
     },
     {
       "key": {
+        "uuid": "966cecb2_7a02a2cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-08-25T02:36:49Z",
+      "side": 1,
+      "message": "I\u0027m obviously targeting Windows, and haven\u0027t really looked at what other platforms are doing.  \n\nWould it maybe make sense to #ifdef the new parameters so they only apply on Windows?  And maybe rename them to DWriteGamma/Contrast, or something, so that it\u0027s clear we\u0027re trying to simulate DWrite, and they should be populated with the corresponding DWrite settings?",
+      "parentUuid": "054cd521_3cd3b8af",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f82304be_266055ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-08-25T02:36:49Z",
+      "side": 1,
+      "message": "A few thoughts:\n\n1. On Windows, the font gamma \u0026 contrast settings are a per-monitor property... just like the LCDtext orientation property.  Since *that* value is passed in, it seemed to make sense to pass in the other per-monitor properties, hence putting it in SkSurfaceProps and exposing it publicly.\n\n\n2. The API we\u0027re calling to retrieve the DWrite mask (IDWriteGlyphRunAnalysis::CreateAlphaTexture) doesn\u0027t bake the contrast/gamma into the mask, so some sort of post-processing is obviously necessary.\n\nSo the basic approach taken by SK_FONT_HOST_USE_SYSTEM_SETTINGS seemed to be the right one, except it\u0027s inherently limited to the \"default\" monitor, and it also doesn\u0027t work under Chrome\u0027s sandbox.\n\n\n3. The actual *math* used to apply the gamma/contrast is certainly different than what DWrite uses internally.  (I can investigate that more deeply, if you like.)  But the end result is a lot closer to what Windows does than no adjustments at all.\n\n\n4. Re: https://fontgammatest.netlify.app/\n-- It\u0027s using a font with two custom glyphs.\n-- One glyph is just a black square; no issues there.\n-- The other glyph is a series of barcode-like bars.\n-- The pattern is (wide bar, wide gap, narrow bar, narrow gap) repeated 16 times.  At a glance, the \"wide\" bars/gaps appear to be exactly twice as wide as the \"narrow\" ones.\n-- At 16px, you\u0027d expect each repetition of the pattern to occupy one pixel (subject to sub-pixel positioning).  Each pixel would be be exactly 50% covered by the bars.\n-- The *text* of the site says it expects \"linear 50% gray\" (which might make sense, mathematically), but the actual color being tested against #BCBCBC.  I\u0027m not sure of the rationale for this.",
+      "parentUuid": "e6bc5a34_e2f0a821",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
@@ -70,6 +130,24 @@
       "writtenOn": "2020-08-19T13:58:11Z",
       "side": 1,
       "message": "We need to remove this file and move the globals in it into Chromium. This has been a long term issue. Skia should not be getting new globals, especially here.",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "990db9d5_be311b5b",
+        "filename": "src/core/SkFontLCDConfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-08-25T02:36:49Z",
+      "side": 1,
+      "message": "I agree, and I rather expected this feedback.  I guess I\u0027m hoping to appeal to pragmatism:  I don\u0027t think this change makes the job of switching Chromium to use the other APIs any harder, and I don\u0027t think that work should necessarily be a prerequisite for this.\n\n(Also, I just talked w/my manager, and he indicated some willingness for me to take on the task of updating Chrome to use the other APIs as followup, maybe.)",
+      "parentUuid": "b8ccc899_d8034f36",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
