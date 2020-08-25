@@ -93,7 +93,7 @@ struct ParagraphStyle {
     void setMaxLines(size_t maxLines) { fLinesLimit = maxLines; }
 
     const SkString& getEllipsis() const { return fEllipsis; }
-    void setEllipsis(const std::u16string& ellipsis);
+    bool setEllipsis(const std::u16string& ellipsis);
     void setEllipsis(const SkString& ellipsis) { fEllipsis = ellipsis; }
 
     SkScalar getHeight() const { return fHeight; }

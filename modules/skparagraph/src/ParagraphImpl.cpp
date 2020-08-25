@@ -13,17 +13,11 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
-
-#if defined(SK_USING_THIRD_PARTY_ICU)
-#include "third_party/icu/SkLoadICU.h"
-#endif
-
 #include <math.h>
 #include <algorithm>
 #include <utility>
@@ -81,7 +75,8 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fPicture(nullptr)
         , fStrutMetrics(false)
         , fOldWidth(0)
-        , fOldHeight(0) {
+        , fOldHeight(0)
+{
     fICU = SkUnicode::Make();
 }
 
@@ -90,12 +85,18 @@ ParagraphImpl::ParagraphImpl(const std::u16string& utf16text,
                              SkTArray<Block, true> blocks,
                              SkTArray<Placeholder, true> placeholders,
                              sk_sp<FontCollection> fonts)
-        : ParagraphImpl(SkStringFromU16String(utf16text),
+        : ParagraphImpl(SkString(),
                         std::move(style),
                         std::move(blocks),
                         std::move(placeholders),
                         std::move(fonts))
-{ }
+{
+    std::unique_ptr<char[]> utf8;
+    auto utf8Units = SkUnicode::convertUtf16ToUtf8((uint16_t*)utf16text.data(), utf16text.size(), &utf8);
+    if (utf8Units >= 0) {
+        fText = SkString(utf8.get(), utf8Units);
+    }
+}
 
 ParagraphImpl::~ParagraphImpl() = default;
 
@@ -248,11 +249,9 @@ void ParagraphImpl::resetContext() {
 // (that contains all ICU dependencies except for words)
 bool ParagraphImpl::computeCodeUnitProperties() {
 
-    #if defined(SK_USING_THIRD_PARTY_ICU)
-    if (!SkLoadICU()) {
+    if (nullptr == fICU) {
         return false;
     }
-    #endif
 
     // Get bidi regions
     auto textDirection = fParagraphStyle.getTextDirection() == TextDirection::kLtr

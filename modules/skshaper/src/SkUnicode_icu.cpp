@@ -4,16 +4,22 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
+#include "include/core/SkString.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skshaper/src/SkUnicode.h"
 #include "src/utils/SkUTF.h"
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
+#include <unicode/ustring.h>
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
 #include <vector>
 #include <functional>
+
+#if defined(SK_USING_THIRD_PARTY_ICU)
+#include "SkLoadICU.h"
+#endif
 
 using SkUnicodeBidi = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close), ubidi_close>>;
 using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close), utext_close>>;
@@ -123,18 +129,6 @@ class SkUnicode_icu : public SkUnicode {
               SkDEBUGF("Convert error: wrong break type");
               return UBRK_CHARACTER;
         }
-    }
-
-    static int convertUtf8ToUtf16(const char* utf8, size_t utf8Units, std::unique_ptr<uint16_t[]>* utf16) {
-        int utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Units);
-        if (utf16Units < 0) {
-            SkDEBUGF("Convert error: Invalid utf8 input");
-            return utf16Units;
-        }
-        *utf16 = std::unique_ptr<uint16_t[]>(new uint16_t[utf16Units]);
-        SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16->get(), utf16Units, utf8, utf8Units);
-        SkASSERT(dstLen == utf16Units);
-        return utf16Units;
     }
 
     static bool extractBidi(const char utf8[], int utf8Units, TextDirection dir, std::vector<BidiRegion>* bidiRegions) {
@@ -287,6 +281,15 @@ public:
         return SkBidiIterator_icu::makeBidiIterator(text, count, dir);
     }
 
+    // TODO: Use ICU data file to detect controls and whitespaces
+    bool isControl(SkUnichar utf8) override {
+        return u_iscntrl(utf8);
+    }
+
+    bool isWhitespace(SkUnichar utf8) override {
+        return u_isWhitespace(utf8);
+    }
+
     bool getBidiRegions(const char utf8[], int utf8Units, TextDirection dir, std::vector<BidiRegion>* results) override {
         return extractBidi(utf8, utf8Units, dir, results);
     }
@@ -330,4 +333,12 @@ public:
     }
 };
 
-std::unique_ptr<SkUnicode> SkUnicode::Make() { return std::make_unique<SkUnicode_icu>(); }
+std::unique_ptr<SkUnicode> SkUnicode::Make() {
+    #if defined(SK_USING_THIRD_PARTY_ICU)
+    if (!SkLoadICU()) {
+        SkDEBUGF("SkLoadICU() failed!\n");
+        return nullptr;
+    }
+    #endif
+    return std::make_unique<SkUnicode_icu>();
+}

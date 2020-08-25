@@ -8,10 +8,10 @@
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
 
 #include <algorithm>
 #include <utility>
+#include <src/core/SkStringUtils.h>
 
 namespace skia {
 namespace textlayout {
@@ -23,7 +23,9 @@ std::unique_ptr<ParagraphBuilder> ParagraphBuilder::make(
 
 ParagraphBuilderImpl::ParagraphBuilderImpl(
         const ParagraphStyle& style, sk_sp<FontCollection> fontCollection)
-        : ParagraphBuilder(style, fontCollection), fUtf8(), fFontCollection(std::move(fontCollection)) {
+        : ParagraphBuilder(style, fontCollection)
+        , fUtf8()
+        , fFontCollection(std::move(fontCollection)) {
     this->setParagraphStyle(style);
 }
 
@@ -73,8 +75,15 @@ TextStyle ParagraphBuilderImpl::peekStyle() {
     }
 }
 
-void ParagraphBuilderImpl::addText(const std::u16string& text) {
-    fUtf8.append(SkStringFromU16String(text));
+bool ParagraphBuilderImpl::addText(const std::u16string& text) {
+
+    std::unique_ptr<char[]> utf8;
+    auto utf8Units = SkUnicode::convertUtf16ToUtf8((uint16_t*)text.data(), text.size(), &utf8);
+    if (utf8Units < 0) {
+        return false;
+    }
+    fUtf8.append(utf8.get(), utf8Units);
+    return true;
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
