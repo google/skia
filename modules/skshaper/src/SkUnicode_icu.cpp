@@ -11,6 +11,7 @@
 #include "src/utils/SkUTF.h"
 #include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
+#include <unicode/uscript.h>
 #include <unicode/ustring.h>
 #include <unicode/utext.h>
 #include <unicode/utypes.h>
@@ -384,6 +385,18 @@ public:
 
     bool isWhitespace(SkUnichar utf8) override {
         return u_isWhitespace(utf8);
+    }
+
+    bool getScript(SkUnichar u, ScriptID* script) override {
+        UErrorCode status = U_ZERO_ERROR;
+        UScriptCode scriptCode = uscript_getScript(u, &status);
+        if (U_FAILURE (status)) {
+            return false;
+        }
+        if (script) {
+            *script = (ScriptID)scriptCode;
+        }
+        return true;
     }
 
     SkString convertUtf16ToUtf8(const std::u16string& utf16) override {
