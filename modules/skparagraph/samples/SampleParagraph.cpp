@@ -17,9 +17,9 @@
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
+#include "modules/skshaper/src/SkUnicode.h"
 #include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/shaders/SkColorShader.h"
@@ -27,7 +27,6 @@
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
-
 
 static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
 
@@ -747,7 +746,7 @@ protected:
             builder.pop();
         } else {
             if (this->isVerbose()) {
-                SkString str = SkStringFromU16String(text);
+                SkString str = skia::SkUnicode::SkStringFromU16String(text);
                 SkDebugf("Text: %s\n", str.c_str());
             }
             builder.addText(text + expected);
@@ -1609,7 +1608,7 @@ protected:
                 builder.pushStyle(text_style);
                 auto utf16text = zalgo.zalgo("SkParagraph");
                 if (this->isVerbose()) {
-                    SkString str = SkStringFromU16String(utf16text);
+                    SkString str = skia::SkUnicode::SkStringFromU16String(utf16text);
                     SkDebugf("Text:>%s<\n", str.c_str());
                 }
                 builder.addText(utf16text);

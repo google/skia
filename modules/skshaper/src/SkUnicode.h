@@ -79,6 +79,11 @@ class SKUNICODE_API SkUnicode {
         typedef uint32_t CombiningClass;
         typedef uint32_t GeneralCategory;
         virtual ~SkUnicode() = default;
+
+        static bool isControl(SkUnichar utf8);
+        static bool isWhitespace(SkUnichar utf8);
+        static SkString SkStringFromU16String(const std::u16string& utf16text);
+
         // High level methods (that we actually use somewhere=SkParagraph)
         virtual bool getBidiRegions
                (const char utf8[], int utf8Units, Direction dir, std::vector<BidiRegion>* results) = 0;
