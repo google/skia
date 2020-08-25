@@ -40,6 +40,9 @@ std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
 #ifdef SK_UNICODE_AVAILABLE
     auto unicode = SkUnicode::Make();
+    if (!unicode) {
+        return nullptr;
+    }
     std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
         SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
                                                utf8,
@@ -54,9 +57,13 @@ SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLe
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
 SkShaper::MakeScriptRunIterator(const char* utf8, size_t utf8Bytes, SkFourByteTag scriptTag) {
-#ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_UNICODE_AVAILABLE)
+    auto unicode = SkUnicode::Make();
+    if (!unicode) {
+        return nullptr;
+    }
     std::unique_ptr<SkShaper::ScriptRunIterator> script =
-        SkShaper::MakeHbIcuScriptRunIterator(utf8, utf8Bytes);
+        SkShaper::MakeSkUnicodeHbScriptRunIterator(unicode.get(), utf8, utf8Bytes);
     if (script) {
         return script;
     }
