@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c60d5827_df042bcd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-08-25T19:18:40Z",
+      "side": 1,
+      "message": "This looks pretty similar to what I had before I added all this cruft. Running it through TSAN just to make sure.",
+      "revId": "15fc0430f8c9779e58fe4fcf1e274d9b7bb06f72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
