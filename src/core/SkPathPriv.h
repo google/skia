@@ -317,6 +317,23 @@ public:
         return gPtsInVerb[verb];
     }
 
+    // Returns number of valid points for each verb, not including the "starter"
+    // point that the Iterator adds for line/quad/conic/cubic
+    static int PtsInVerb(unsigned verb) {
+        static const uint8_t gPtsInVerb[] = {
+            1,  // kMove    pts[0]
+            1,  // kLine    pts[0..1]
+            2,  // kQuad    pts[0..2]
+            2,  // kConic   pts[0..2]
+            3,  // kCubic   pts[0..3]
+            0,  // kClose
+            0   // kDone
+        };
+
+        SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
+        return gPtsInVerb[verb];
+    }
+
     static bool IsAxisAligned(const SkPath& path) {
         SkRect tmp;
         return (path.fPathRef->fIsRRect | path.fPathRef->fIsOval) || path.isRect(&tmp);
@@ -395,6 +412,10 @@ public:
 
     static void SetConvexityType(SkPathBuilder* builder, SkPathConvexityType c) {
         builder->privateSetConvexityType(c);
+    }
+
+    static void ReverseAddPath(SkPathBuilder* builder, const SkPath& reverseMe) {
+        builder->privateReverseAddPath(reverseMe);
     }
 };
 
