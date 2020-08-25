@@ -2,9 +2,14 @@
 
 #include "modules/skparagraph/src/Iterators.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
-#include "modules/skparagraph/src/ParagraphUtil.h"
+#include "src/utils/SkUTF.h"
 #include <algorithm>
 #include <unordered_set>
+
+static inline SkUnichar nextUtf8Unit(const char** ptr, const char* end) {
+    SkUnichar val = SkUTF::NextUTF8(ptr, end);
+    return val < 0 ? 0xFFFD : val;
+}
 
 namespace skia {
 namespace textlayout {
@@ -297,8 +302,8 @@ void OneLineShaper::sortOutGlyphs(std::function<void(GlyphRange)>&& sortOutUnres
 
         const char* cluster = text.begin() + clusterIndex(i);
         SkUnichar codepoint = nextUtf8Unit(&cluster, text.end());
-        bool isControl8 = isControl(codepoint);
-        bool isWhitespace8 = isWhitespace(codepoint);
+        bool isControl8 = fParagraph->getUnicode()->isControl(codepoint);
+        bool isWhitespace8 = fParagraph->getUnicode()->isWhitespace(codepoint);
 
         // Inspect the glyph
         auto glyph = fCurrentRun->fGlyphs[i];

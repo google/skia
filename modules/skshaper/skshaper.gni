@@ -19,3 +19,7 @@ skia_shaper_icu_sources = [
 ]
 skia_shaper_harfbuzz_sources = [ "$_src/SkShaper_harfbuzz.cpp" ]
 skia_shaper_coretext_sources = [ "$_src/SkShaper_coretext.cpp" ]
+
+declare_args() {
+  skia_enable_skshaper = true
+}

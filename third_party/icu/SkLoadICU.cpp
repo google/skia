@@ -25,7 +25,7 @@ static void* win_mmap(const char* dataFile) {
     struct FCloseWrapper { void operator()(FILE* f) { fclose(f); } };
     std::unique_ptr<FILE, FCloseWrapper> stream(fopen(dataFile, "rb"));
     if (!stream) {
-        fprintf(stderr, "SkIcuLoader: datafile missing.\n");
+        fprintf(stderr, "SkIcuLoader: datafile missing: %s.\n", dataFile);
         return nullptr;
     }
     int fileno = _fileno(stream.get());
