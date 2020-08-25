@@ -52,6 +52,24 @@
       "revId": "f2f9b0d6f9a61d6048958cd163a388b27d46d983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99ab9918_33021352",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-25T19:10:46Z",
+      "side": 1,
+      "message": "OK, makes sense then. Sounds like SkDEBUGFAIL isn\u0027t appropriate for this situation since GPU abandon is pretty much impossible to control.\n\nPTAL http://review.skia.org/313153",
+      "parentUuid": "9f99da7a_0aa7ce49",
+      "revId": "f2f9b0d6f9a61d6048958cd163a388b27d46d983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
