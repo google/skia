@@ -385,7 +385,6 @@ static SkMatrix kSkewMatrices[] = {
 };
 
 static void test_chop_quad_at_midtangent(skiatest::Reporter* reporter, const SkPoint pts[3]) {
-    constexpr float kTolerance = 1e-3f;
     for (const SkMatrix& m : kSkewMatrices) {
         SkPoint mapped[3];
         m.mapPoints(mapped, pts, 3);
@@ -394,14 +393,13 @@ static void test_chop_quad_at_midtangent(skiatest::Reporter* reporter, const SkP
         SkChopQuadAtMidTangent(pts, chopped);
         float leftRotation = SkMeasureQuadRotation(chopped);
         float rightRotation = SkMeasureQuadRotation(chopped+2);
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, fullRotation/2, kTolerance));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rightRotation, fullRotation/2, kTolerance));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, fullRotation/2));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rightRotation, fullRotation/2));
     }
 }
 
 static void test_chop_cubic_at_midtangent(skiatest::Reporter* reporter, const SkPoint pts[4],
                                           SkCubicType cubicType) {
-    constexpr float kTolerance = 1e-3f;
     int n = SK_ARRAY_COUNT(kSkewMatrices);
     if (cubicType == SkCubicType::kLocalCusp || cubicType == SkCubicType::kLineOrPoint) {
         // FP precision isn't always enough to get the exact correct T value of the mid-tangent on
@@ -419,14 +417,12 @@ static void test_chop_cubic_at_midtangent(skiatest::Reporter* reporter, const Sk
         float expectedChoppedRotation = fullRotation/2;
         if (cubicType == SkCubicType::kLocalCusp ||
             (cubicType == SkCubicType::kLineOrPoint &&
-             SkScalarNearlyEqual(fullRotation, SK_ScalarPI, kTolerance))) {
+             SkScalarNearlyEqual(fullRotation, SK_ScalarPI))) {
             // If we chop a cubic at an exact cusp, we lose 180 degrees of rotation.
             expectedChoppedRotation = (fullRotation - SK_ScalarPI)/2;
         }
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, expectedChoppedRotation,
-                                                      kTolerance));
-        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rightRotation, expectedChoppedRotation,
-                                                      kTolerance));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, expectedChoppedRotation));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(rightRotation, expectedChoppedRotation));
     }
 }
 
