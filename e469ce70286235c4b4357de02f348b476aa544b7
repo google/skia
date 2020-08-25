@@ -22,6 +22,30 @@
       "revId": "e469ce70286235c4b4357de02f348b476aa544b7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "264d68d0_a9bf94e2",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-25T17:35:17Z",
+      "side": 1,
+      "message": "Too verbose?",
+      "parentUuid": "b6357148_a5cc528f",
+      "range": {
+        "startLine": 218,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 79
+      },
+      "revId": "e469ce70286235c4b4357de02f348b476aa544b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
