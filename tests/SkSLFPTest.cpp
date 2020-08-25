@@ -1212,7 +1212,7 @@ do {
          });
 }
 
-DEF_TEST(SkSLFPUnnecessaryBlocksAffectEarlyReturnDetection, r) {
+DEF_TEST(SkSLFPUnnecessaryBlocksDoNotAffectEarlyReturnDetection, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -1231,14 +1231,11 @@ DEF_TEST(SkSLFPUnnecessaryBlocksAffectEarlyReturnDetection, r) {
          R"__Cpp__(fragBuilder->codeAppendf(
 R"SkSL(half4 _inlineResulthalf4blockyhalf40;
 half4 _inlineArghalf4blockyhalf41_0 = %s;
-do {
+{
     {
-        {
-            _inlineResulthalf4blockyhalf40 = _inlineArghalf4blockyhalf41_0;
-            break;
-        }
+        _inlineResulthalf4blockyhalf40 = _inlineArghalf4blockyhalf41_0;
     }
-} while (false);
+}
 %s = _inlineResulthalf4blockyhalf40;
 
 )SkSL"
