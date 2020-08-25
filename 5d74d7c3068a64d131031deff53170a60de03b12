@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d33e317a_61afe8c2",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-25T16:42:24Z",
+      "side": 1,
+      "message": "SkYUVAInfo always has a valid PlanarConfig which is used to compute the number of planes.\n\nBut it can just be fYUVAPixmaps.isValid().",
+      "parentUuid": "e52b4242_308a4147",
+      "range": {
+        "startLine": 158,
+        "startChar": 36,
+        "endLine": 158,
+        "endChar": 77
+      },
+      "revId": "5d74d7c3068a64d131031deff53170a60de03b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d351d567_3df4d66b",
         "filename": "tools/DDLPromiseImageHelper.h",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "077f17fb_3ba5d2d2",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-25T16:42:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d351d567_3df4d66b",
+      "range": {
+        "startLine": 228,
+        "startChar": 68,
+        "endLine": 228,
+        "endChar": 70
+      },
+      "revId": "5d74d7c3068a64d131031deff53170a60de03b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0db3bdd0_e4316a56",
         "filename": "tools/DDLPromiseImageHelper.h",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "5d74d7c3068a64d131031deff53170a60de03b12",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48127434_5df26de4",
+        "filename": "tools/DDLPromiseImageHelper.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-25T16:42:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0db3bdd0_e4316a56",
+      "range": {
+        "startLine": 242,
+        "startChar": 43,
+        "endLine": 242,
+        "endChar": 54
+      },
+      "revId": "5d74d7c3068a64d131031deff53170a60de03b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
