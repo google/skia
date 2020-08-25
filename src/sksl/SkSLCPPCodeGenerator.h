@@ -131,9 +131,18 @@ private:
     // parameter in its body.
     bool fAccessSampleCoordsDirectly = false;
 
-    // if true, we are writing a C++ expression instead of a GLSL expression
+    // If true, we are writing a C++ expression instead of a GLSL expression
     bool fCPPMode = false;
+
+    // True while compiling the main() function of the FP.
     bool fInMain = false;
+
+    // True if the main() function of the FP contains a return statement. (Incompatible with
+    // fUsesSkOutColor.)
+    bool fUsesExplicitReturn = false;
+
+    // True if the FP contains sk_OutColor anywhere. (Incompatible with fUsesExplicitReturn.)
+    bool fUsesSkOutColor = false;
 
     // if not null, we are accumulating SkSL for emitCode into fOut, which
     // replaced the original buffer with a StringStream. The original buffer is

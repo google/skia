@@ -304,6 +304,12 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
+            fUsesSkOutColor = true;
+            if (fUsesExplicitReturn) {
+                fErrors.error(
+                        ref.fOffset,
+                        "Fragment processors must not mix sk_OutColor and return statements\n");
+            }
             break;
         case SK_MAIN_COORDS_BUILTIN:
             this->write("%s");
@@ -357,7 +363,11 @@ void CPPCodeGenerator::writeIfStatement(const IfStatement& s) {
 
 void CPPCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
     if (fInMain) {
-        fErrors.error(s.fOffset, "fragmentProcessor main() may not contain return statements");
+        fUsesExplicitReturn = true;
+        if (fUsesSkOutColor) {
+            fErrors.error(s.fOffset,
+                          "Fragment processors must not mix sk_OutColor and return statements\n");
+        }
     }
     INHERITED::writeReturnStatement(s);
 }
@@ -1406,12 +1416,14 @@ bool CPPCodeGenerator::generateCode() {
     }
     this->write("    return true;\n"
                 "}\n");
+    this->writef("bool %s::usesExplicitReturn() const {\n"
+                 "    return %s;\n"
+                 "}\n", fullName, fUsesExplicitReturn ? "true" : "false");
     this->writeClone();
     this->writeDumpInfo();
     this->writeOnTextureSampler();
     this->writeTest();
     this->writeSection(kCppEndSection);
-
     result &= 0 == fErrors.errorCount();
     return result;
 }
