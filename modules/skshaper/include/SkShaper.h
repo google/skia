@@ -151,7 +151,9 @@ public:
 
     static std::unique_ptr<ScriptRunIterator>
     MakeScriptRunIterator(const char* utf8, size_t utf8Bytes, SkFourByteTag script);
-    #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
+    #if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_UNICODE_AVAILABLE)
+    static std::unique_ptr<ScriptRunIterator>
+    MakeSkUnicodeHbScriptRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes);
     static std::unique_ptr<ScriptRunIterator>
     MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes);
     #endif
