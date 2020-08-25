@@ -2219,7 +2219,7 @@ template <bool countTopLevelReturns>
 static int return_count(const Statement& statement, bool inLoopOrSwitch) {
     switch (statement.fKind) {
         case Statement::kBlock_Kind: {
-            const Block& b = static_cast<const Block&>(statement);
+            const Block& b = statement.as<Block>();
             int result = 0;
             for (const std::unique_ptr<Statement>& s : b.fStatements) {
                 result += return_count<countTopLevelReturns>(*s, inLoopOrSwitch);
@@ -2227,15 +2227,15 @@ static int return_count(const Statement& statement, bool inLoopOrSwitch) {
             return result;
         }
         case Statement::kDo_Kind: {
-            const DoStatement& d = static_cast<const DoStatement&>(statement);
+            const DoStatement& d = statement.as<DoStatement>();
             return return_count<countTopLevelReturns>(*d.fStatement, /*inLoopOrSwitch=*/true);
         }
         case Statement::kFor_Kind: {
-            const ForStatement& f = static_cast<const ForStatement&>(statement);
+            const ForStatement& f = statement.as<ForStatement>();
             return return_count<countTopLevelReturns>(*f.fStatement, /*inLoopOrSwitch=*/true);
         }
         case Statement::kIf_Kind: {
-            const IfStatement& i = static_cast<const IfStatement&>(statement);
+            const IfStatement& i = statement.as<IfStatement>();
             int result = return_count<countTopLevelReturns>(*i.fIfTrue, inLoopOrSwitch);
             if (i.fIfFalse) {
                 result += return_count<countTopLevelReturns>(*i.fIfFalse, inLoopOrSwitch);
@@ -2245,7 +2245,7 @@ static int return_count(const Statement& statement, bool inLoopOrSwitch) {
         case Statement::kReturn_Kind:
             return (countTopLevelReturns || inLoopOrSwitch) ? 1 : 0;
         case Statement::kSwitch_Kind: {
-            const SwitchStatement& ss = static_cast<const SwitchStatement&>(statement);
+            const SwitchStatement& ss = statement.as<SwitchStatement>();
             int result = 0;
             for (const std::unique_ptr<SwitchCase>& sc : ss.fCases) {
                 for (const std::unique_ptr<Statement>& s : sc->fStatements) {
@@ -2255,7 +2255,7 @@ static int return_count(const Statement& statement, bool inLoopOrSwitch) {
             return result;
         }
         case Statement::kWhile_Kind: {
-            const WhileStatement& w = static_cast<const WhileStatement&>(statement);
+            const WhileStatement& w = statement.as<WhileStatement>();
             return return_count<countTopLevelReturns>(*w.fStatement, /*inLoopOrSwitch=*/true);
         }
         case Statement::kBreak_Kind:
@@ -2281,8 +2281,30 @@ static bool has_early_return(const FunctionDefinition& f) {
     if (returnCount > 1) {
         return true;
     }
-    SkASSERT(f.fBody->fKind == Statement::kBlock_Kind);
-    return static_cast<Block&>(*f.fBody).fStatements.back()->fKind != Statement::kReturn_Kind;
+
+    // Descend into the last statement of the block to see if it ends with a return statement.
+    // Sometimes the last statement of the function is actually another block, so we may need to
+    // descend more than once.
+    const Block* block = &f.fBody->as<Block>();
+    for (;;) {
+        if (block->fStatements.empty()) {
+            // The function ended with a totally empty block, but we know there's a return statement
+            // earlier in the function, so there must be an early return.
+            return true;
+        }
+        const Statement& lastStatement = *block->fStatements.back();
+        if (lastStatement.fKind == Statement::kReturn_Kind) {
+            // The last statement is a return; it's not early.
+            return false;
+        }
+        if (lastStatement.fKind != Statement::kBlock_Kind) {
+            // The last statement is not a sub-block but also not a return. We know there's a return
+            // statement earlier in the function, which must be an early return.
+            return true;
+        }
+        // The last statement is itself another block. We have to go deeper.
+        block = &lastStatement.as<Block>();
+    }
 }
 
 static bool has_return_in_breakable_construct(const FunctionDefinition& f) {
