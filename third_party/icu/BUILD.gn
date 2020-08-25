@@ -78,6 +78,13 @@ if (skia_use_system_icu) {
       "U_STATIC_IMPLEMENTATION",
       "U_ENABLE_DYLOAD=0",
       "U_I18N_IMPLEMENTATION",
+
+      # If we don't set this to zero, ICU will set it to 600,
+      # which makes Macs set _POSIX_C_SOURCE=200112L,
+      # which makes Macs set __DARWIN_C_LEVEL=_POSIX_C_SOURCE instead of =__DARWIN_C_FULL,
+      # which makes <time.h> not expose timespec_get,
+      # which makes recent libc++ <ctime> not #include-able with -std=c++17.
+      "_XOPEN_SOURCE=0",
     ]
     if (target_cpu == "wasm") {
       # Tell ICU that we are a 32 bit platform, otherwise,
