@@ -16,6 +16,24 @@
       "revId": "f2f9b0d6f9a61d6048958cd163a388b27d46d983",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b9af8be_3dd8a60e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-25T19:06:55Z",
+      "side": 1,
+      "message": "Oh, strange—I added some DEBUGFAILs to report some of the early-out failure cases, and apparently this bot hits one of them? This is dying on\n\nfatal error: \"unable to convert image shader to fragment processor\"\n\nWhich was previously just a silent `return`, meaning this bot would have been failing to render the paint for some reason. I\u0027ll remove the DEBUGFAILs to bring us back to where we were before.\n\nWhat\u0027s a \"PreAbandonGpuContext\" bot? Is this expected to not be able to render?",
+      "parentUuid": "453ffc77_e38d6638",
+      "revId": "f2f9b0d6f9a61d6048958cd163a388b27d46d983",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
