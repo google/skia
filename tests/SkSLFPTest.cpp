@@ -1212,6 +1212,40 @@ do {
          });
 }
 
+DEF_TEST(SkSLFPUnnecessaryBlocksAffectEarlyReturnDetection, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             half4 blocky(half4 c) {
+                 {
+                     return c;
+                 }
+             }
+             void main() {
+                 sk_OutColor = blocky(color);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(half4 _inlineResulthalf4blockyhalf40;
+half4 _inlineArghalf4blockyhalf41_0 = %s;
+do {
+    {
+        {
+            _inlineResulthalf4blockyhalf40 = _inlineArghalf4blockyhalf41_0;
+            break;
+        }
+    }
+} while (false);
+%s = _inlineResulthalf4blockyhalf40;
+
+)SkSL"
+, args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
+)__Cpp__"});
+}
+
 DEF_TEST(SkSLFPGrSLTypesAreSupported, r) {
     // We thwart the optimizer by wrapping our return statement in a loop, which prevents inlining.
     test(r,
