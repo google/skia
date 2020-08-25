@@ -118,20 +118,84 @@ void SkBidiIterator::ReorderVisual(const Level runLevels[], int levelsCount,
     ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
 }
 
+class SkBreakIterator_icu : public SkBreakIterator {
+    ICUBreakIterator fBreakIterator;
+    Position fLastResult;
+ public:
+    explicit SkBreakIterator_icu(ICUBreakIterator iter)
+        : fBreakIterator(std::move(iter)), fLastResult(0) {}
+    Position first() override
+      { return fLastResult = ubrk_first(fBreakIterator.get()); }
+    Position current() override
+      { return fLastResult = ubrk_current(fBreakIterator.get()); }
+    Position next() override
+      { return fLastResult = ubrk_next(fBreakIterator.get()); }
+    Position preceding(Position offset) override
+        { return fLastResult = ubrk_preceding(fBreakIterator.get(), offset); }
+    Position following(Position offset) override
+        { return fLastResult = ubrk_following(fBreakIterator.get(), offset);}
+    Status status() override { return ubrk_getRuleStatus(fBreakIterator.get()); }
+    bool isDone() override { return fLastResult == UBRK_DONE; }
+
+    bool setText(const char utftext8[], int utf8Units) override {
+        UErrorCode status = U_ZERO_ERROR;
+
+        UText sUtf8UText = UTEXT_INITIALIZER;
+        ICUUText text(utext_openUTF8(&sUtf8UText, &utftext8[0], utf8Units, &status));
+
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Break error: %s", u_errorName(status));
+            return false;
+        }
+        SkASSERT(text);
+        ubrk_setUText(fBreakIterator.get(), text.get(), &status);
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Break error: %s", u_errorName(status));
+            return false;
+        }
+        fLastResult = 0;
+        return true;
+    }
+
+    static UBreakIteratorType convertType(SkUnicode::BreakType type) {
+        switch (type) {
+            case SkUnicode::BreakType::kLines: return UBRK_LINE;
+            case SkUnicode::BreakType::kGraphemes: return UBRK_CHARACTER;
+            case SkUnicode::BreakType::kWords: return UBRK_WORD;
+            default:
+              return UBRK_CHARACTER;
+        }
+    }
+
+    static std::unique_ptr<SkBreakIterator> makeUtf8BreakIterator
+        (const char locale[], SkUnicode::BreakType type) {
+        UErrorCode status = U_ZERO_ERROR;
+        ICUBreakIterator iterator(ubrk_open(convertType(type), locale, nullptr, 0, &status));
+        if (U_FAILURE(status)) {
+            SkDEBUGF("Break error: %s", u_errorName(status));
+            return nullptr;
+        }
+        return std::unique_ptr<SkBreakIterator>(new SkBreakIterator_icu(std::move(iterator)));
+    }
+};
+
 class SkUnicode_icu : public SkUnicode {
 
-    static UBreakIteratorType convertType(UBreakType type) {
+    static UBreakIteratorType convertType(BreakType type) {
         switch (type) {
-            case UBreakType::kLines: return UBRK_LINE;
-            case UBreakType::kGraphemes: return UBRK_CHARACTER;
-            case UBreakType::kWords: return UBRK_WORD;
+            case BreakType::kLines: return UBRK_LINE;
+            case BreakType::kGraphemes: return UBRK_CHARACTER;
+            case BreakType::kWords: return UBRK_WORD;
             default:
               SkDEBUGF("Convert error: wrong break type");
               return UBRK_CHARACTER;
         }
     }
 
-    static bool extractBidi(const char utf8[], int utf8Units, TextDirection dir, std::vector<BidiRegion>* bidiRegions) {
+    static bool extractBidi(const char utf8[],
+                            int utf8Units,
+                            TextDirection dir,
+                            std::vector<BidiRegion>* bidiRegions) {
 
         // Convert to UTF16 since for now bidi iterator only operates on utf16
         std::unique_ptr<uint16_t[]> utf16;
@@ -189,7 +253,7 @@ class SkUnicode_icu : public SkUnicode {
 
         UErrorCode status = U_ZERO_ERROR;
 
-        UBreakIteratorType breakType = convertType(UBreakType::kWords);
+        UBreakIteratorType breakType = convertType(BreakType::kWords);
         ICUBreakIterator iterator(ubrk_open(breakType, uloc_getDefault(), nullptr, 0, &status));
         if (U_FAILURE(status)) {
             SkDEBUGF("Break error: %s", u_errorName(status));
@@ -220,7 +284,8 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractPositions(const char utf8[], int utf8Units, UBreakType type, std::function<void(int, int)> add) {
+    static bool extractPositions
+        (const char utf8[], int utf8Units, BreakType type, std::function<void(int, int)> add) {
 
         UErrorCode status = U_ZERO_ERROR;
         UText sUtf8UText = UTEXT_INITIALIZER;
@@ -252,7 +317,9 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractWhitespaces(const char utf8[], int utf8Units, std::vector<Position>* whitespaces) {
+    static bool extractWhitespaces(const char utf8[],
+                                   int utf8Units,
+                                   std::vector<Position>* whitespaces) {
 
         const char* start = utf8;
         const char* end = utf8 + utf8Units;
@@ -293,15 +360,21 @@ class SkUnicode_icu : public SkUnicode {
         SkASSERT(dstLen == utf8Units);
         return utf8Units;
    }
+
 public:
     ~SkUnicode_icu() override { }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
                                                      SkBidiIterator::Direction dir) override {
         return SkBidiIterator_icu::makeBidiIterator(text, count, dir);
     }
-    std::unique_ptr<SkBidiIterator> makeBidiIterator(const char text[], int count,
+    std::unique_ptr<SkBidiIterator> makeBidiIterator(const char text[],
+                                                     int count,
                                                      SkBidiIterator::Direction dir) override {
         return SkBidiIterator_icu::makeBidiIterator(text, count, dir);
+    }
+    std::unique_ptr<SkBreakIterator> makeBreakIterator(const char locale[],
+                                                       BreakType breakType) override {
+        return SkBreakIterator_icu::makeUtf8BreakIterator(locale, breakType);
     }
 
     // TODO: Use ICU data file to detect controls and whitespaces
@@ -323,13 +396,18 @@ public:
         }
     }
 
-    bool getBidiRegions(const char utf8[], int utf8Units, TextDirection dir, std::vector<BidiRegion>* results) override {
+    bool getBidiRegions(const char utf8[],
+                        int utf8Units,
+                        TextDirection dir,
+                        std::vector<BidiRegion>* results) override {
         return extractBidi(utf8, utf8Units, dir, results);
     }
 
-    bool getLineBreaks(const char utf8[], int utf8Units, std::vector<LineBreakBefore>* results) override {
+    bool getLineBreaks(const char utf8[],
+                       int utf8Units,
+                       std::vector<LineBreakBefore>* results) override {
 
-        return extractPositions(utf8, utf8Units, UBreakType::kLines,
+        return extractPositions(utf8, utf8Units, BreakType::kLines,
             [results](int pos, int status) {
                     results->emplace_back(pos,status == UBRK_LINE_HARD
                                                         ? LineBreakType::kHardLineBreak
@@ -351,7 +429,7 @@ public:
 
     bool getGraphemes(const char utf8[], int utf8Units, std::vector<Position>* results) override {
 
-        return extractPositions(utf8, utf8Units, UBreakType::kGraphemes,
+        return extractPositions(utf8, utf8Units, BreakType::kGraphemes,
             [results](int pos, int status) { results->emplace_back(pos);
         });
     }
@@ -361,7 +439,9 @@ public:
         return extractWhitespaces(utf8, utf8Units, results);
     }
 
-    void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) override {
+    void reorderVisual(const BidiLevel runLevels[],
+                       int levelsCount,
+                       int32_t logicalFromVisual[]) override {
         ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
     }
 };
