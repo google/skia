@@ -10,6 +10,7 @@ require (
 	github.com/VividCortex/godaemon v0.0.0-20150910212227-3d9f6e0b234f // indirect
 	github.com/andygrunwald/go-gerrit v0.0.0-20200503132804-ed2419acda39
 	github.com/boltdb/bolt v1.3.1 // indirect
+	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/addlicense v0.0.0-20190510175307-22550fa7c1b0 // indirect
