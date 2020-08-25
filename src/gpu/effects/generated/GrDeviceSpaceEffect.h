@@ -28,6 +28,7 @@ public:
     GrDeviceSpaceEffect(const GrDeviceSpaceEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "DeviceSpaceEffect"; }
+    bool usesExplicitReturn() const override;
 
 private:
     GrDeviceSpaceEffect(std::unique_ptr<GrFragmentProcessor> fp)
