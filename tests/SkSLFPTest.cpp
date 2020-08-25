@@ -115,6 +115,7 @@ public:
     GrTest(const GrTest& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "Test"; }
+    bool usesExplicitReturn() const override;
 private:
     GrTest()
     : INHERITED(kGrTest_ClassID, kNone_OptimizationFlags) {
@@ -171,6 +172,9 @@ bool GrTest::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTest& that = other.cast<GrTest>();
     (void) that;
     return true;
+}
+bool GrTest::usesExplicitReturn() const {
+    return false;
 }
 GrTest::GrTest(const GrTest& src)
 : INHERITED(kGrTest_ClassID, src.optimizationFlags()) {
@@ -261,6 +265,27 @@ SkString GrTest::onDumpInfo() const {
 }
 )__Cpp__",
         });
+}
+
+DEF_TEST(SkSLFPUseExplicitReturn, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 main() {
+                 return half4(0, 1, 0, 1);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{R"__Cpp__(
+        fragBuilder->codeAppendf(
+R"SkSL(return half4(0.0, 1.0, 0.0, 1.0);
+)SkSL"
+);
+)__Cpp__", R"__Cpp__(
+bool GrTest::usesExplicitReturn() const {
+    return true;
+}
+)__Cpp__"});
 }
 
 DEF_TEST(SkSLFPUniform, r) {
@@ -508,7 +533,7 @@ DEF_TEST(SkSLFPSections, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "const char* name() const override { return \"Test\"; }\n"
+            "bool usesExplicitReturn() const override;\n"
             " fields section private:"
          },
          /*expectedCPP=*/{});

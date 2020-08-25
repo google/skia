@@ -236,6 +236,7 @@ bool GrRRectBlurEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (cornerRadius != that.cornerRadius) return false;
     return true;
 }
+bool GrRRectBlurEffect::usesExplicitReturn() const { return false; }
 GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
         : INHERITED(kGrRRectBlurEffect_ClassID, src.optimizationFlags())
         , sigma(src.sigma)
