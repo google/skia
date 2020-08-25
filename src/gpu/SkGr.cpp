@@ -387,7 +387,7 @@ bool SkPaintToGrPaintNoShader(GrRecordingContext* context,
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
-be setup as a vertex attribute using the specified SkBlendMode. */
+    be setup as a vertex attribute using the specified SkBlendMode. */
 bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                const GrColorInfo& dstColorInfo,
                                const SkPaint& skPaint,
@@ -396,6 +396,22 @@ bool SkPaintToGrPaintWithBlend(GrRecordingContext* context,
                                GrPaint* grPaint) {
     return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider,
                                    /*shaderProcessor=*/nullptr, &primColorMode, grPaint);
+}
+
+/** Blends the passed-in shader with a per-primitive color which must be setup as a vertex attribute
+    using the specified SkBlendMode. */
+bool SkPaintToGrPaintWithBlendReplaceShader(GrRecordingContext* context,
+                                            const GrColorInfo& dstColorInfo,
+                                            const SkPaint& skPaint,
+                                            const SkMatrixProvider& matrixProvider,
+                                            std::unique_ptr<GrFragmentProcessor> shaderFP,
+                                            SkBlendMode primColorMode,
+                                            GrPaint* grPaint) {
+    if (!shaderFP) {
+        return false;
+    }
+    return skpaint_to_grpaint_impl(context, dstColorInfo, skPaint, matrixProvider, &shaderFP,
+                                   &primColorMode, grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
@@ -438,7 +454,8 @@ GrInterpretFilterQuality(SkISize imageDims,
                          SkFilterQuality paintFilterQuality,
                          const SkMatrix& viewM,
                          const SkMatrix& localM,
-                         bool sharpenMipmappedTextures) {
+                         bool sharpenMipmappedTextures,
+                         bool allowFilterQualityReduction) {
     using Filter = GrSamplerState::Filter;
     using MipmapMode = GrSamplerState::MipmapMode;
     switch (paintFilterQuality) {
@@ -447,27 +464,32 @@ GrInterpretFilterQuality(SkISize imageDims,
         case kLow_SkFilterQuality:
             return {Filter::kLinear, MipmapMode::kNone, false};
         case kMedium_SkFilterQuality: {
-            SkMatrix matrix;
-            matrix.setConcat(viewM, localM);
-            // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until the
-            // computed LOD is >= 0.5. At what scale factor does a texture get an LOD of 0.5?
-            //
-            // Want:  0       = log2(1/s) - 0.5
-            //        0.5     = log2(1/s)
-            //        2^0.5   = 1/s
-            //        1/2^0.5 = s
-            //        2^0.5/2 = s
-            SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
-            if (matrix.getMinScale() < mipScale) {
-                return {Filter::kLinear, MipmapMode::kLinear, false};
-            } else {
-                return {Filter::kLinear, MipmapMode::kNone, false};
+            if (allowFilterQualityReduction) {
+                SkMatrix matrix;
+                matrix.setConcat(viewM, localM);
+                // With sharp mips, we bias lookups by -0.5. That means our final LOD is >= 0 until
+                // the computed LOD is >= 0.5. At what scale factor does a texture get an LOD of
+                // 0.5?
+                //
+                // Want:  0       = log2(1/s) - 0.5
+                //        0.5     = log2(1/s)
+                //        2^0.5   = 1/s
+                //        1/2^0.5 = s
+                //        2^0.5/2 = s
+                SkScalar mipScale = sharpenMipmappedTextures ? SK_ScalarRoot2Over2 : SK_Scalar1;
+                if (matrix.getMinScale() >= mipScale) {
+                    return {Filter::kLinear, MipmapMode::kNone, false};
+                }
             }
+            return {Filter::kLinear, MipmapMode::kLinear, false};
         }
         case kHigh_SkFilterQuality: {
-            SkMatrix matrix;
-            matrix.setConcat(viewM, localM);
-            switch (SkMatrixPriv::AdjustHighQualityFilterLevel(matrix)) {
+            if (allowFilterQualityReduction) {
+                SkMatrix matrix;
+                matrix.setConcat(viewM, localM);
+                paintFilterQuality = SkMatrixPriv::AdjustHighQualityFilterLevel(matrix);
+            }
+            switch (paintFilterQuality) {
                 case kNone_SkFilterQuality:   return {Filter::kNearest, MipmapMode::kNone  , false};
                 case kLow_SkFilterQuality:    return {Filter::kLinear , MipmapMode::kNone  , false};
                 case kMedium_SkFilterQuality: return {Filter::kLinear , MipmapMode::kLinear, false};
