@@ -174,37 +174,52 @@ config("default") {
   }
 
   if (is_ios) {
-    _target = target_cpu
     if (target_cpu == "arm") {
-      _target = "armv7"
+      _arch_flags = [
+        "-arch",
+        "armv7",
+      ]
+    } else if (target_cpu == "arm64") {
+      _arch_flags = [
+        "-arch",
+        "arm64",
+        "-arch",
+        "arm64e",
+      ]
     } else if (target_cpu == "x86") {
-      _target = "i386"
+      _arch_flags = [
+        "-arch",
+        "i386",
+      ]
     } else if (target_cpu == "x64") {
-      _target = "x86_64"
+      _arch_flags = [
+        "-arch",
+        "x86_64",
+      ]
+    } else {
+      _arch_flags = [
+        "-arch",
+        target_cpu,
+      ]
     }
+
     asmflags += [
-      "-isysroot",
-      xcode_sysroot,
-      "-arch",
-      _target,
-    ]
+                  "-isysroot",
+                  xcode_sysroot,
+                ] + _arch_flags
     cflags += [
-      "-isysroot",
-      xcode_sysroot,
-      "-arch",
-      _target,
-    ]
+                "-isysroot",
+                xcode_sysroot,
+              ] + _arch_flags
     cflags_cc += [
       "-stdlib=libc++",
       "-fno-aligned-allocation",
     ]
     ldflags += [
-      "-isysroot",
-      xcode_sysroot,
-      "-arch",
-      _target,
-      "-stdlib=libc++",
-    ]
+                 "-isysroot",
+                 xcode_sysroot,
+                 "-stdlib=libc++",
+               ] + _arch_flags
     libs += [ "objc" ]
   }
 
