@@ -395,7 +395,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                          this->resolveFiltering(args.fFilterQuality),
                                          args.fMatrixProvider.localToDevice(),
                                          *lm,
-                                         sharpen);
+                                         sharpen,
+                                         args.fAllowFilterQualityReduction);
     }
     std::unique_ptr<GrFragmentProcessor> fp;
     if (bicubic) {
