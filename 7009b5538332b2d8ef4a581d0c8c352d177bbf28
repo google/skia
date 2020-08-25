@@ -33,6 +33,24 @@
       "revId": "7009b5538332b2d8ef4a581d0c8c352d177bbf28",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8be3e083_e54f4330",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-25T17:04:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83a8cbbc_727da883",
+      "revId": "7009b5538332b2d8ef4a581d0c8c352d177bbf28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
