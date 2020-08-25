@@ -284,8 +284,8 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             // Leaf statements just return false
             return false;
         case Statement::kBlock_Kind:
-            for (const auto& s : s.as<Block>().fStatements) {
-                if (this->visitStatement(*s)) { return true; }
+            for (const std::unique_ptr<Statement>& blockStmt : s.as<Block>().fStatements) {
+                if (this->visitStatement(*blockStmt)) { return true; }
             }
             return false;
         case Statement::kDo_Kind: {
@@ -312,15 +312,15 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             if (this->visitExpression(*sw.fValue)) { return true; }
             for (const auto& c : sw.fCases) {
                 if (c->fValue && this->visitExpression(*c->fValue)) { return true; }
-                for (const auto& st : c->fStatements) {
+                for (const std::unique_ptr<Statement>& st : c->fStatements) {
                     if (this->visitStatement(*st)) { return true; }
                 }
             }
             return false; }
         case Statement::kVarDeclaration_Kind: {
             const VarDeclaration& v = s.as<VarDeclaration>();
-            for (const auto& s : v.fSizes) {
-                if (s && this->visitExpression(*s)) { return true; }
+            for (const std::unique_ptr<Expression>& sizeExpr : v.fSizes) {
+                if (sizeExpr && this->visitExpression(*sizeExpr)) { return true; }
             }
             return v.fValue && this->visitExpression(*v.fValue); }
         case Statement::kVarDeclarations_Kind:
