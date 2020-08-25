@@ -45,6 +45,7 @@ struct GrFPArgs {
     bool fInputColorIsOpaque = false;
 
     SkFilterQuality fFilterQuality;
+    bool fAllowFilterQualityReduction = true;
     const GrColorInfo* fDstColorInfo;
 };
 
