@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 #include "src/core/SkSpan.h"
+#include "src/utils/SkUTF.h"
 #include <vector>
 
 #if !defined(SKUNICODE_IMPLEMENTATION)
@@ -89,6 +90,10 @@ class SKUNICODE_API SkUnicode {
 
         virtual ~SkUnicode() = default;
 
+        virtual bool isControl(SkUnichar utf8) = 0;
+        virtual bool isWhitespace(SkUnichar utf8) = 0;
+        virtual SkString convertUtf16ToUtf8(const std::u16string& utf16) = 0;
+        
         // Iterators (used in SkShaper)
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
             (const uint16_t text[], int count, SkBidiIterator::Direction) = 0;
