@@ -16,6 +16,24 @@
       "revId": "a9f271890c15cbc9d79c6bd777bf38bb79be6c01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57abef56_58046dca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-25T23:39:39Z",
+      "side": 1,
+      "message": "btw, lottie-web is also borked in fun ways with this test: https://skottie-internal.skia.org/4c6637c031d1304cc5dc013a6cc7d0a1?h\u003d500\u0026l\u003dtrue\u0026w\u003d500",
+      "parentUuid": "e27c8b52_f4aca013",
+      "revId": "a9f271890c15cbc9d79c6bd777bf38bb79be6c01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
