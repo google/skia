@@ -677,7 +677,8 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
 
     bool sharpenMM = fContext->priv().options().fSharpenMipmappedTextures;
     auto [fm, mm, bicubic] = GrInterpretFilterQuality(image->dimensions(), paint.getFilterQuality(),
-                                                      ctm, srcToDst, sharpenMM);
+                                                      ctm, srcToDst, sharpenMM,
+                                                      /*allowFilterQualityReduction=*/true);
 
     auto clip = this->clip();
 

@@ -9,6 +9,9 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * GPU backends now properly honor the SkFilterQuality when calling drawAtlas.
+    https://review.skia.org/313081
+
   * The signature of 'main' used with SkRuntimeEffect SkSL has changed. There is no longer an
     'inout half4 color' parameter, effects must return their color instead.
     Valid signatures are now 'half4 main()' or 'half4 main(float2 coord)'.
