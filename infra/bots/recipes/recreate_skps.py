@@ -68,6 +68,7 @@ def RunSteps(api):
     api.run.rmtree(output_dir)
   api.file.ensure_directory('makedirs skp_output', output_dir)
 
+  """
   # Capture the SKPs.
   asset_dir = skia_dir.join('infra', 'bots', 'assets', 'skp')
   cmd = ['python', asset_dir.join('create.py'),
@@ -78,6 +79,7 @@ def RunSteps(api):
     cmd.append('--upload_to_partner_bucket')
   with api.context(cwd=skia_dir):
     api.run(api.step, 'Recreate SKPs', cmd=cmd)
+  """
 
   # Upload the SKPs.
   if 'DryRun' not in api.properties['buildername']:

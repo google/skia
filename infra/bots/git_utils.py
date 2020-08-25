@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 
 import utils
 
@@ -79,6 +80,11 @@ class GitBranch(object):
       upload_cmd.append('--send-mail')
     if self._cc_list:
       upload_cmd.extend(['--cc=%s' % ','.join(self._cc_list)])
+    print 'UPLOAD_CMD:'
+    print upload_cmd
+    print 'SLEEPING FOR 2 HOURS'
+    time.sleep(2*60*60)
+
     subprocess.check_call(upload_cmd)
     output = subprocess.check_output(['git', 'cl', 'issue']).rstrip()
     return re.match('^Issue number: (?P<issue>\d+) \((?P<issue_url>.+)\)$',
