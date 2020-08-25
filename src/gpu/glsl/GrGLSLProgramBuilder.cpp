@@ -179,10 +179,12 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                                            output.c_str(),
                                            input.c_str(),
                                            "_coords",
-                                           coords);
+                                           coords,
+                                           /*forceInline=*/true);
 
     if (fp.usesExplicitReturn()) {
-        // FPs that explicitly return their output color must be in a helper function
+        // FPs that explicitly return their output color must be in a helper function, but we inline
+        // it if at all possible.
         args.fInputColor = "_input";
         args.fOutputColor = "_output";
         auto name = fFS.writeProcessorFunction(&glslFP, args);
