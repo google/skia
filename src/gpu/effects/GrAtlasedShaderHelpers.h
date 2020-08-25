@@ -8,7 +8,6 @@
 #ifndef GrAtlasedShaderHelpers_DEFINED
 #define GrAtlasedShaderHelpers_DEFINED
 
-#include "src/gpu/GrDrawOpAtlas.h"
 #include "src/gpu/GrShaderCaps.h"
 #include "src/gpu/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/glsl/GrGLSLPrimitiveProcessor.h"
@@ -23,42 +22,35 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      GrGLSLVarying* texIdx,
                                      GrGLSLVarying* st) {
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
-    constexpr int bitShift = GrDrawOpAtlas::kPageIndexBit;
+
     // This extracts the texture index and texel coordinates from the same variable
     // Packing structure: texel coordinates are multiplied by 2 (or shifted left 1)
     //                    texture index is stored as lower bits of both x and y
     if (args.fShaderCaps->integerSupport()) {
-        args.fVertBuilder->codeAppendf("int2 coords = int2(%s.x, %s.y);",
+        args.fVertBuilder->codeAppendf("int2 signedCoords = int2(%s.x, %s.y);",
                                        inTexCoordsName, inTexCoordsName);
-        constexpr int mask = (1 << bitShift) - 1;
-        args.fVertBuilder->codeAppendf(
-                "float2 unormTexCoords = float2(coords.x & %d, coords.y & %d);", mask, mask);
+        args.fVertBuilder->codeAppend("float2 unormTexCoords = float2(signedCoords.x/2, signedCoords.y/2);");
         if (numTextureSamplers <= 1) {
             args.fVertBuilder->codeAppend("int texIdx = 0;");
         } else {
-            args.fVertBuilder->codeAppendf(
-                    "int texIdx = 2*((coords.x >> %d) & 0x1) + ((coords.y >> %d) & 0x1);",
-                    bitShift, bitShift);
+            args.fVertBuilder->codeAppend("int texIdx = 2*(signedCoords.x & 0x1) + (signedCoords.y & 0x1);");
         }
     } else {
-        args.fVertBuilder->codeAppendf("float2 coord = float2(%s.x, %s.y);",
+        args.fVertBuilder->codeAppendf("float2 indexTexCoords = float2(%s.x, %s.y);",
                                        inTexCoordsName, inTexCoordsName);
-        constexpr float indexFactor = 1.0f / (1 << bitShift);
-        args.fVertBuilder->codeAppendf("float2 unitTexCoords = %g * coord;", indexFactor);
-        args.fVertBuilder->codeAppendf(
-                "float2 unormTexCoords = fract(unitTexCoords) * %d;", 1 << bitShift);
+        args.fVertBuilder->codeAppend("float2 unormTexCoords = floor(0.5*indexTexCoords);");
         if (numTextureSamplers <= 1) {
             args.fVertBuilder->codeAppend("float texIdx = 0;");
         } else {
-            args.fVertBuilder->codeAppend("float2 highBits = floor(unitTexCoords);");
-            args.fVertBuilder->codeAppend("float texIdx = highBits.x * 2.0 + highBits.y;");
+            args.fVertBuilder->codeAppend("float2 diff = indexTexCoords - 2.0*unormTexCoords;");
+            args.fVertBuilder->codeAppend("float texIdx = 2.0*diff.x + diff.y;");
         }
     }
 
     // Multiply by 1/atlasDimensions to get normalized texture coordinates
     args.fVaryingHandler->addVarying("TextureCoords", uv);
-    args.fVertBuilder->codeAppendf(
-            "%s = unormTexCoords * %s;", uv->vsOut(), atlasDimensionsInvName);
+    args.fVertBuilder->codeAppendf("%s = unormTexCoords * %s;", uv->vsOut(),
+                                   atlasDimensionsInvName);
 
     args.fVaryingHandler->addVarying("TexIndex", texIdx, args.fShaderCaps->integerSupport()
                                                                  ? Interpolation::kMustBeFlat

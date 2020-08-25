@@ -52,8 +52,6 @@ class GrTextureProxy;
  */
 class GrDrawOpAtlas {
 public:
-    static constexpr int kPageIndexBit = 14;
-
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
 
@@ -217,8 +215,12 @@ public:
         // The two bits that make up the texture index are packed into the lower bits of the u and v
         // coordinate respectively.
         SkASSERT(pageIndex >= 0 && pageIndex < 4);
-        u |= ((pageIndex >> 1u) & 0x1u) << kPageIndexBit;
-        v |= (pageIndex & 0x1u) << kPageIndexBit;
+        uint16_t uBit = (pageIndex >> 1u) & 0x1u;
+        uint16_t vBit = pageIndex & 0x1u;
+        u <<= 1u;
+        u |= uBit;
+        v <<= 1u;
+        v |= vBit;
         return std::make_pair(u, v);
     }
 
