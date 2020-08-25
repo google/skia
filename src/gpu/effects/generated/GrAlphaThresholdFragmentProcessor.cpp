@@ -86,6 +86,7 @@ bool GrAlphaThresholdFragmentProcessor::onIsEqual(const GrFragmentProcessor& oth
     if (outerThreshold != that.outerThreshold) return false;
     return true;
 }
+bool GrAlphaThresholdFragmentProcessor::usesExplicitReturn() const { return false; }
 GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         const GrAlphaThresholdFragmentProcessor& src)
         : INHERITED(kGrAlphaThresholdFragmentProcessor_ClassID, src.optimizationFlags())

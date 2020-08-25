@@ -295,6 +295,15 @@ void CPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
 }
 
+void CPPCodeGenerator::setReturnType(int offset, ReturnType typeToSet) {
+    if (fReturnType == ReturnType::kNothing) {
+        fReturnType = typeToSet;
+    } else if (fReturnType != typeToSet) {
+        fErrors.error(offset,
+                      "Fragment processors must not mix sk_OutColor and return statements\n");
+    }
+}
+
 void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     if (fCPPMode) {
         this->write(ref.fVariable.fName);
@@ -304,6 +313,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
+            this->setReturnType(ref.fOffset, ReturnType::kUsesSkOutColor);
             break;
         case SK_MAIN_COORDS_BUILTIN:
             this->write("%s");
@@ -357,7 +367,7 @@ void CPPCodeGenerator::writeIfStatement(const IfStatement& s) {
 
 void CPPCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
     if (fInMain) {
-        fErrors.error(s.fOffset, "fragmentProcessor main() may not contain return statements");
+        this->setReturnType(s.fOffset, ReturnType::kUsesExplicitReturn);
     }
     INHERITED::writeReturnStatement(s);
 }
@@ -1406,6 +1416,10 @@ bool CPPCodeGenerator::generateCode() {
     }
     this->write("    return true;\n"
                 "}\n");
+    this->writef("bool %s::usesExplicitReturn() const {\n"
+                 "    return %s;\n"
+                 "}\n",
+                 fullName, fReturnType == ReturnType::kUsesExplicitReturn ? "true" : "false");
     this->writeClone();
     this->writeDumpInfo();
     this->writeOnTextureSampler();
