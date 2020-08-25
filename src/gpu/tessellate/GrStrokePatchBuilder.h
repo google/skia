@@ -66,40 +66,18 @@ private:
     void allocVertexChunk(int minVertexAllocCount);
     SkPoint* reservePatch();
 
-    // Join types are written as floats in P4.x. See GrStrokeTessellateShader for definitions.
-    void writeCubicSegment(float leftJoinType, const SkPoint pts[4], float overrideNumSegments = 0);
-    void writeCubicSegment(float leftJoinType, const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
-                           const Sk2f& p3, float overrideNumSegments = 0) {
-        SkPoint pts[4];
-        p0.store(&pts[0]);
-        p1.store(&pts[1]);
-        p2.store(&pts[2]);
-        p3.store(&pts[3]);
-        this->writeCubicSegment(leftJoinType, pts, overrideNumSegments);
-    }
-    void writeJoin(float joinType, const SkPoint& anchorPoint, const SkPoint& prevControlPoint,
+    void writeCubicSegment(float prevJoinType, const SkPoint pts[4]);
+    void writeJoin(float joinType, const SkPoint& prevControlPoint, const SkPoint& anchorPoint,
                    const SkPoint& nextControlPoint);
     void writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint);
-    void writeCaps();
+    void writeCaps(SkPaint::Cap);
 
-    void beginPath(const SkStrokeRec&);
     void moveTo(const SkPoint&);
-    void lineTo(const SkPoint& p0, const SkPoint& p1);
-    void quadraticTo(const SkPoint[3]);
-    void cubicTo(const SkPoint[4]);
-    void close();
-
-    void lineTo(float leftJoinType, const SkPoint& p0, const SkPoint& p1);
-    void quadraticTo(float leftJoinType, const SkPoint[3], float maxCurvatureT);
-
-    static constexpr float kLeftMaxCurvatureNone = 1;
-    static constexpr float kRightMaxCurvatureNone = 0;
-    void cubicTo(float leftJoinType, const SkPoint[4], float maxCurvatureT, float leftMaxCurvatureT,
-                 float rightMaxCurvatureT);
-
-    // TEMPORARY: Rotates the current control point without changing the current position.
-    // This is used when we convert a curve to a lineTo, and that behavior will soon go away.
-    void rotateTo(float leftJoinType, const SkPoint& anchorPoint, const SkPoint& controlPoint);
+    void lineTo(float prevJoinType, const SkPoint&, const SkPoint&);
+    void quadraticTo(float prevJoinType, const SkPoint[3], int maxDepth = -1);
+    void cubicTo(float prevJoinType, const SkPoint[4]);
+    void nonInflectCubicTo(float prevJoinType, const SkPoint[4], int maxDepth = -1);
+    void close(SkPaint::Cap);
 
     // These are raw pointers whose lifetimes are controlled outside this class.
     GrMeshDrawOp::Target* const fTarget;
@@ -115,16 +93,14 @@ private:
 
     // Variables related to the path that we are currently iterating.
     float fCurrStrokeRadius;
-    float fCurrStrokeJoinType;  // See GrStrokeTessellateShader for join type definitions .
-    SkPaint::Cap fCurrStrokeCapType;
-    // Any curvature on the original curve gets magnified on the outer edge of the stroke,
-    // proportional to how thick the stroke radius is. This field tells us the maximum curvature we
-    // can tolerate using the current stroke radius, before linearization artifacts begin to appear
-    // on the outer edge.
-    //
-    // (Curvature this strong is quite rare in practice, but when it does happen, we decompose the
-    // section with strong curvature into lineTo's with round joins in between.)
-    float fMaxCurvatureCosTheta;
+    float fCurrStrokeJoinType;  // See GrStrokeTessellateShader for join type definitions.
+    float fNumRadialSegmentsPerRad;
+    // These values contain worst-case numbers of parametric segments our hardware can support for
+    // the current stroke radius, in the event that there are also enough radial segments to rotate
+    // 180 and 360 degrees respectively. These are used for "quick accepts" that allow us to send
+    // almost all curves directly to the hardware without having to chop or think any further.
+    float fMaxParametricSegments180;
+    float fMaxParametricSegments360;
 
     // Variables related to the specific contour that we are currently iterating.
     bool fHasPreviousSegment = false;
