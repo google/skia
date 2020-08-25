@@ -9,6 +9,9 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * GPU backends now properly honor the SkFilterQuality when calling drawAtlas.
+    https://review.skia.org/313081
+
   * New YUVA planar interface in SkCodec. Chroma subsampling is specified in more structured way.
     Doesn't assume 8bit planar values.
     https://review.skia.org/309658
