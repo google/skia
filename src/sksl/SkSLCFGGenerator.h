@@ -119,7 +119,7 @@ struct BasicBlock {
     DefinitionMap fBefore;
 };
 
-struct CFG {
+struct ControlFlowGraph {
     BlockId fStart;
     BlockId fExit;
     std::vector<BasicBlock> fBlocks;
@@ -154,14 +154,15 @@ class CFGGenerator {
 public:
     CFGGenerator() {}
 
-    CFG getCFG(FunctionDefinition& f);
+    ControlFlowGraph getCFG(FunctionDefinition& f);
 
 private:
-    void addStatement(CFG& cfg, std::unique_ptr<Statement>* s);
+    void addStatement(ControlFlowGraph& cfg, std::unique_ptr<Statement>* s);
 
-    void addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate);
+    void addExpression(ControlFlowGraph& cfg, std::unique_ptr<Expression>* e,
+                       bool constantPropagate);
 
-    void addLValue(CFG& cfg, std::unique_ptr<Expression>* e);
+    void addLValue(ControlFlowGraph& cfg, std::unique_ptr<Expression>* e);
 
     std::stack<BlockId> fLoopContinues;
     std::stack<BlockId> fLoopExits;

@@ -192,9 +192,9 @@ private:
 
     void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
 
-    void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
+    void scanCFG(ControlFlowGraph* cfg, BlockId block, std::set<BlockId>* workList);
 
-    void computeDataFlow(CFG* cfg);
+    void computeDataFlow(ControlFlowGraph* cfg);
 
     /**
      * Simplifies the expression pointed to by iter (in both the IR and CFG structures), if

@@ -508,7 +508,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
     }
 }
 
-void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
+void Compiler::scanCFG(ControlFlowGraph* cfg, BlockId blockId, std::set<BlockId>* workList) {
     BasicBlock& block = cfg->fBlocks[blockId];
 
     // compute definitions after this block
@@ -550,7 +550,7 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
 
 // returns a map which maps all local variables in the function to null, indicating that their value
 // is initially unknown
-static DefinitionMap compute_start_state(const CFG& cfg) {
+static DefinitionMap compute_start_state(const ControlFlowGraph& cfg) {
     DefinitionMap result;
     for (const auto& block : cfg.fBlocks) {
         for (const auto& node : block.fNodes) {
@@ -612,7 +612,7 @@ static bool dead_assignment(const BinaryExpression& b) {
     return is_dead(*b.fLeft);
 }
 
-void Compiler::computeDataFlow(CFG* cfg) {
+void Compiler::computeDataFlow(ControlFlowGraph* cfg) {
     cfg->fBlocks[cfg->fStart].fBefore = compute_start_state(*cfg);
     std::set<BlockId> workList;
     for (BlockId i = 0; i < cfg->fBlocks.size(); i++) {
@@ -1395,7 +1395,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
 }
 
 void Compiler::scanCFG(FunctionDefinition& f) {
-    CFG cfg = CFGGenerator().getCFG(f);
+    ControlFlowGraph cfg = CFGGenerator().getCFG(f);
     this->computeDataFlow(&cfg);
 
     // check for unreachable code

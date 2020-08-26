@@ -28,7 +28,7 @@
 
 namespace SkSL {
 
-BlockId CFG::newBlock() {
+BlockId ControlFlowGraph::newBlock() {
     BlockId result = fBlocks.size();
     fBlocks.emplace_back();
     if (fBlocks.size() > 1) {
@@ -38,13 +38,13 @@ BlockId CFG::newBlock() {
     return result;
 }
 
-BlockId CFG::newIsolatedBlock() {
+BlockId ControlFlowGraph::newIsolatedBlock() {
     BlockId result = fBlocks.size();
     fBlocks.emplace_back();
     return result;
 }
 
-void CFG::addExit(BlockId from, BlockId to) {
+void ControlFlowGraph::addExit(BlockId from, BlockId to) {
     if (from == 0 || fBlocks[from].fEntrances.size()) {
         fBlocks[from].fExits.insert(to);
         fBlocks[to].fEntrances.insert(from);
@@ -52,7 +52,7 @@ void CFG::addExit(BlockId from, BlockId to) {
 }
 
 #ifdef SK_DEBUG
-void CFG::dump() {
+void ControlFlowGraph::dump() {
     for (size_t i = 0; i < fBlocks.size(); i++) {
         printf("Block %d\n-------\nBefore: ", (int) i);
         const char* separator = "";
@@ -311,7 +311,8 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
     }
 }
 
-void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate) {
+void CFGGenerator::addExpression(ControlFlowGraph& cfg, std::unique_ptr<Expression>* e,
+                                 bool constantPropagate) {
     SkASSERT(e);
     switch ((*e)->fKind) {
         case Expression::kBinary_Kind: {
@@ -451,7 +452,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
 }
 
 // adds expressions that are evaluated as part of resolving an lvalue
-void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
+void CFGGenerator::addLValue(ControlFlowGraph& cfg, std::unique_ptr<Expression>* e) {
     switch ((*e)->fKind) {
         case Expression::kFieldAccess_Kind:
             this->addLValue(cfg, &((FieldAccess&) **e).fBase);
@@ -485,7 +486,7 @@ static bool is_true(Expression& expr) {
     return expr.fKind == Expression::kBoolLiteral_Kind && ((BoolLiteral&) expr).fValue;
 }
 
-void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
+void CFGGenerator::addStatement(ControlFlowGraph& cfg, std::unique_ptr<Statement>* s) {
     switch ((*s)->fKind) {
         case Statement::kBlock_Kind:
             for (auto& child : (*s)->as<Block>().fStatements) {
@@ -670,8 +671,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
     }
 }
 
-CFG CFGGenerator::getCFG(FunctionDefinition& f) {
-    CFG result;
+ControlFlowGraph CFGGenerator::getCFG(FunctionDefinition& f) {
+    ControlFlowGraph result;
     result.fStart = result.newBlock();
     result.fCurrent = result.fStart;
     this->addStatement(result, &f.fBody);
