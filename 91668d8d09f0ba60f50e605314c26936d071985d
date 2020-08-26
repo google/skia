@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5638c1a_170d151c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-26T17:40:15Z",
+      "side": 1,
+      "message": "Fixed the build break in Android.\nTested with Canary-Android.",
+      "revId": "91668d8d09f0ba60f50e605314c26936d071985d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
