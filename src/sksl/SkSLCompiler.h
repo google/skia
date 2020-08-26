@@ -8,8 +8,8 @@
 #ifndef SKSL_COMPILER
 #define SKSL_COMPILER
 
-#include <map>
 #include <set>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include "src/sksl/SkSLASTFile.h"
@@ -46,6 +46,8 @@ namespace SkSL {
 class ByteCode;
 class ExternalValue;
 class IRGenerator;
+struct IRIntrinsic;
+using IRIntrinsicMap = std::unordered_map<String, IRIntrinsic>;
 struct PipelineStageArgs;
 
 /**
@@ -223,8 +225,8 @@ private:
     Position position(int offset);
 
     std::shared_ptr<SymbolTable> fGpuSymbolTable;
-    std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>> fGPUIntrinsics;
-    std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>> fInterpreterIntrinsics;
+    std::unique_ptr<IRIntrinsicMap> fGPUIntrinsics;
+    std::unique_ptr<IRIntrinsicMap> fInterpreterIntrinsics;
     std::unique_ptr<ASTFile> fGpuIncludeSource;
     std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
