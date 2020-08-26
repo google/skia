@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkVertices.h"
@@ -302,10 +303,10 @@ static bool draw_rects_into_mask(const SkRect rects[], int count, SkMask* mask) 
         canvas.drawRect(rects[0], paint);
     } else {
         // todo: do I need a fast way to do this?
-        SkPath path;
-        path.addRect(rects[0]);
-        path.addRect(rects[1]);
-        path.setFillType(SkPathFillType::kEvenOdd);
+        SkPath path = SkPathBuilder().addRect(rects[0])
+                                     .addRect(rects[1])
+                                     .setFillType(SkPathFillType::kEvenOdd)
+                                     .detach();
         canvas.drawPath(path, paint);
     }
     return true;
