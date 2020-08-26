@@ -200,8 +200,8 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                 // proxy.
                 return {std::move(tex), true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
-            backendFormat, fBackendTexture.dimensions(), GrRenderable::kNo, 1, textureIsMipMapped,
-            mipmapStatus, GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            backendFormat, fBackendTexture.dimensions(), textureIsMipMapped, mipmapStatus,
+            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
             GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
     if (!proxy) {
         return {};

@@ -568,11 +568,23 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                 } else {
                     budgeted = SkBudgeted::kNo;
                 }
-                auto proxy = dContext->priv().proxyProvider()->createLazyProxy(
-                        singleUseLazyCB, backendFormat, desc, renderable, 1, GrMipmapped::kNo,
-                        GrMipmapStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
-                        SkBackingFit::kExact, budgeted, GrProtected::kNo,
-                        GrSurfaceProxy::UseAllocator::kYes);
+                sk_sp<GrSurfaceProxy> proxy;
+                if (renderable == GrRenderable::kYes) {
+                    static const GrProxyProvider::TextureInfo kTexInfo = {GrMipMapped::kNo,
+                                                                          GrTextureType::k2D};
+                    proxy = dContext->priv().proxyProvider()->createLazyRenderTargetProxy(
+                            singleUseLazyCB, backendFormat, desc, 1,
+                            GrInternalSurfaceFlags ::kNone, &kTexInfo,
+                            GrMipmapStatus::kNotAllocated,
+                            SkBackingFit::kExact, budgeted, GrProtected::kNo, false,
+                            GrSurfaceProxy::UseAllocator::kYes);
+                } else {
+                    proxy = dContext->priv().proxyProvider()->createLazyProxy(
+                            singleUseLazyCB, backendFormat, desc, GrMipmapped::kNo,
+                            GrMipmapStatus::kNotAllocated, GrInternalSurfaceFlags ::kNone,
+                            SkBackingFit::kExact, budgeted, GrProtected::kNo,
+                            GrSurfaceProxy::UseAllocator::kYes);
+                }
                 GrSwizzle readSwizzle = dContext->priv().caps()->getReadSwizzle(
                         backendFormat, GrColorType::kRGBA_8888);
                 GrSurfaceProxyView view(std::move(proxy), kTopLeft_GrSurfaceOrigin, readSwizzle);

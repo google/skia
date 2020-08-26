@@ -273,9 +273,9 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
             };
             sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
                     TestCallback(&testCount, releaseCallback, tex), format, {kSize, kSize},
-                    GrRenderable::kNo, 1, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
-                    GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
-                    GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+                    GrMipmapped::kNo, GrMipmapStatus::kNotAllocated, GrInternalSurfaceFlags::kNone,
+                    SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
+                    GrSurfaceProxy::UseAllocator::kYes);
 
             REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
@@ -343,9 +343,9 @@ private:
                                               desc.fProtected),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, dims, GrRenderable::kNo, 1, GrMipmapped::kNo,
-                GrMipmapStatus::kNotAllocated, GrInternalSurfaceFlags::kNone, SkBackingFit::kExact,
-                SkBudgeted::kNo, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+                format, dims, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
+                GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
+                GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
 
         SkASSERT(fLazyProxy.get());
 

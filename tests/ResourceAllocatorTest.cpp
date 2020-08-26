@@ -275,10 +275,17 @@ sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* ca
     };
     GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
     SkISize dims = {p.fSize, p.fSize};
-    return proxyProvider->createLazyProxy(callback, format, dims, p.fRenderable, p.fSampleCnt,
-                                          GrMipmapped::kNo, GrMipmapStatus::kNotAllocated, flags,
-                                          p.fFit, p.fBudgeted, GrProtected::kNo,
-                                          GrSurfaceProxy::UseAllocator::kYes);
+    if (p.fRenderable == GrRenderable::kYes) {
+        static const GrProxyProvider::TextureInfo kTexInfo = {GrMipMapped::kNo, GrTextureType::k2D};
+        return proxyProvider->createLazyRenderTargetProxy(
+                callback, format, dims, p.fSampleCnt, flags, &kTexInfo,
+                GrMipmapStatus::kNotAllocated,
+                p.fFit, p.fBudgeted, GrProtected::kNo, false, GrSurfaceProxy::UseAllocator::kYes);
+    } else {
+        return proxyProvider->createLazyProxy(
+                callback, format, dims, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated, flags,
+                p.fFit, p.fBudgeted, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+    }
 }
 
 // Set up so there are two opsTasks that need to be flushed but the resource allocator thinks
