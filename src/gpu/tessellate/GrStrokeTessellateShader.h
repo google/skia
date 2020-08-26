@@ -71,15 +71,13 @@ public:
     // If 'miterLimitOrZero' is zero, then the patches being drawn cannot include any miter joins.
     // If a stroke uses miter joins with a miter limit of zero, then they need to be pre-converted
     // to bevel joins.
-    GrStrokeTessellateShader(const SkMatrix& skewMatrix, SkPMColor4f color, float miterLimitOrZero)
+    GrStrokeTessellateShader(const SkMatrix& skewMatrix, float matrixScale, float miterLimitOrZero,
+                             SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, skewMatrix,
                            GrPrimitiveType::kPatches, kNumVerticesPerPatch)
-            , fColor(color)
-            , fMiterLimitOrZero(miterLimitOrZero) {
-        // Since the skewMatrix is applied after tessellation, it cannot expand the geometry in any
-        // direction. (The caller can create a skewMatrix by dividing their viewMatrix by its
-        // maxScale and then pre-multiplying their control points by the same maxScale.)
-        SkASSERT(skewMatrix.getMaxScale() < 1 + SK_ScalarNearlyZero);
+            , fMatrixScale(matrixScale)
+            , fMiterLimitOrZero(miterLimitOrZero)
+            , fColor(color) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
@@ -101,8 +99,9 @@ private:
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 
-    const SkPMColor4f fColor;
+    const float fMatrixScale;
     const float fMiterLimitOrZero;  // Zero if there will not be any miter join patches.
+    const SkPMColor4f fColor;
 
     class Impl;
 };

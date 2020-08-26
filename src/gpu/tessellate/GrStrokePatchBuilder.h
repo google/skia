@@ -48,7 +48,8 @@ public:
             : fTarget(target)
             , fVertexChunkArray(vertexChunkArray)
             , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
-            , fMatrixScale(matrixScale) {
+            , fMatrixScale(matrixScale)
+            , fMatrixScaleRoot2(SkScalarSqrt(matrixScale)) {
         this->allocVertexChunk(
                 (totalCombinedVerbCnt * 3) * GrStrokeTessellateShader::kNumVerticesPerPatch);
     }
@@ -85,6 +86,7 @@ private:
 
     const int fMaxTessellationSegments;
     const float fMatrixScale;
+    const float fMatrixScaleRoot2;
 
     // Variables related to the vertex chunk that we are currently filling.
     int fCurrChunkVertexCapacity;
