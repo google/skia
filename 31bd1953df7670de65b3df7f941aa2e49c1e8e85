@@ -39,6 +39,30 @@
       "revId": "31bd1953df7670de65b3df7f941aa2e49c1e8e85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10efe9aa_396a9ca2",
+        "filename": "include/private/SkPathRef.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-26T18:41:56Z",
+      "side": 1,
+      "message": "good call. done.",
+      "parentUuid": "8b46a69f_a3464c39",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 38
+      },
+      "revId": "31bd1953df7670de65b3df7f941aa2e49c1e8e85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
