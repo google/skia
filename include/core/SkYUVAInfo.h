@@ -66,13 +66,15 @@ public:
      * written. The input image dimensions are as displayed (after the planes have been transformed
      * to the intended display orientation).
      */
-    static int ExpectedPlaneDims(PlanarConfig,
-                                 SkEncodedOrigin,
-                                 SkISize imageDims,
-                                 SkISize planeDims[kMaxPlanes]);
+    static int PlaneDimensions(SkISize imageDimensions,
+                               PlanarConfig,
+                               SkEncodedOrigin,
+                               SkISize planeDimensions[kMaxPlanes]);
 
     /** Number of planes for a given PlanarConfig. */
     static int NumPlanes(PlanarConfig);
+
+    static bool HasAlpha(PlanarConfig);
 
     SkYUVAInfo() = default;
     SkYUVAInfo(const SkYUVAInfo&) = default;
@@ -84,7 +86,7 @@ public:
     SkYUVAInfo(SkISize dimensions,
                PlanarConfig,
                SkYUVColorSpace,
-               SkEncodedOrigin origin,
+               SkEncodedOrigin origin = kTopLeft_SkEncodedOrigin,
                Siting sitingX = Siting::kCentered,
                Siting sitingY = Siting::kCentered);
 
@@ -106,12 +108,14 @@ public:
 
     SkEncodedOrigin origin() const { return fOrigin; }
 
+    bool hasAlpha() const { return HasAlpha(fPlanarConfig); }
+
     /**
      * Returns the number of planes and initializes planeDims[0]..planeDims[<ret>] to the expected
-     * dimensions for each plane.
+     * dimensions for each plane. Dimensions are before transformation to display space.
      */
-    int expectedPlaneDims(SkISize planeDims[kMaxPlanes]) const {
-        return ExpectedPlaneDims(fPlanarConfig, fOrigin, fDimensions, planeDims);
+    int planeDimensions(SkISize planeDimensions[kMaxPlanes]) const {
+        return PlaneDimensions(fDimensions, fPlanarConfig, fOrigin, planeDimensions);
     }
 
     /**
