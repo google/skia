@@ -1276,6 +1276,7 @@ static_library("pathkit") {
     "src/core/SkOpts.cpp",
     "src/core/SkPaint.cpp",
     "src/core/SkPath.cpp",
+    "src/core/SkPathBuilder.cpp",
     "src/core/SkPathEffect.cpp",
     "src/core/SkPathMeasure.cpp",
     "src/core/SkPathRef.cpp",
