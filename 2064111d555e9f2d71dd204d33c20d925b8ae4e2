@@ -88,6 +88,24 @@
       "revId": "2064111d555e9f2d71dd204d33c20d925b8ae4e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "369464ff_a8a7068a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-26T13:57:34Z",
+      "side": 1,
+      "message": "At some point we talked about putting in a flag to extend this timeout for dm, since our bots are presumably heavily loaded, but I don\u0027t know if that\u0027s actually on anyone\u0027s radar to change.",
+      "parentUuid": "217249a0_54a3b7f6",
+      "revId": "2064111d555e9f2d71dd204d33c20d925b8ae4e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
