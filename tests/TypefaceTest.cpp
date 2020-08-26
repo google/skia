@@ -117,6 +117,10 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
 
 DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
     SkFontDescriptor desc;
+    SkFontStyle style(2, 9, SkFontStyle::kOblique_Slant);
+    desc.setStyle(style);
+    const char postscriptName[] = "postscript";
+    desc.setPostscriptName(postscriptName);
     SkFontArguments::VariationPosition::Coordinate* variation = desc.setVariationCoordinates(1);
     variation[0] = { 0, -1.0f };
 
@@ -125,6 +129,8 @@ DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
     SkFontDescriptor descD;
     SkFontDescriptor::Deserialize(stream.detachAsStream().get(), &descD);
 
+    REPORTER_ASSERT(reporter, descD.getStyle() == style);
+    REPORTER_ASSERT(reporter, 0 == strcmp(desc.getPostscriptName(), postscriptName));
     if (descD.getVariationCoordinateCount() != 1) {
         REPORT_FAILURE(reporter, "descD.getVariationCoordinateCount() != 1", SkString());
         return;
