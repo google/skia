@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cedbadd_5273be8f",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-26T13:58:52Z",
+      "side": 1,
+      "message": "Seems like this would break with:\n\nvoid main() {\n    sk_OutColor \u003d half4(1);\n    return;\n}",
+      "range": {
+        "startLine": 370,
+        "startChar": 8,
+        "endLine": 370,
+        "endChar": 72
+      },
+      "revId": "5ac5dcc934cc940d5d2e66b078e11fa93bbd1ad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
