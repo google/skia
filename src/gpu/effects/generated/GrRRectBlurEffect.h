@@ -40,7 +40,7 @@ private:
                       float sigma,
                       SkRect rect,
                       float cornerRadius,
-                      std::unique_ptr<GrFragmentProcessor> ninePatchFP)
+                      std::unique_ptr<GrFragmentProcessor> ninePatchFP, bool foo, bool bar)
             : INHERITED(kGrRRectBlurEffect_ClassID,
                         (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
                                                     : kAll_OptimizationFlags) &

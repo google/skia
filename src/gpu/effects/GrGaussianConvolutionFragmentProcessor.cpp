@@ -104,7 +104,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::GenKey(const GrProcessor& pro
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void fill_in_1D_gaussian_kernel(float* kernel, float gaussianSigma, int radius) {
+void fill_in_1D_gaussian_kernel(float* kernel, float gaussianSigma, int radius) {
     const float twoSigmaSqrd = 2.0f * gaussianSigma * gaussianSigma;
     int width = radius_to_width(radius);
     if (SkScalarNearlyZero(twoSigmaSqrd, SK_ScalarNearlyZero)) {
