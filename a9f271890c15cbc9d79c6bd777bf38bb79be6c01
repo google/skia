@@ -57,6 +57,30 @@
       "revId": "a9f271890c15cbc9d79c6bd777bf38bb79be6c01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c81d7d44_1f58fff9",
+        "filename": "modules/skottie/src/layers/shapelayer/Repeater.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-08-26T13:24:04Z",
+      "side": 1,
+      "message": "Indeed, this is how AE seems to think about it and it shows up in several places.",
+      "parentUuid": "eb071af3_e7e717e5",
+      "range": {
+        "startLine": 45,
+        "startChar": 29,
+        "endLine": 45,
+        "endChar": 37
+      },
+      "revId": "a9f271890c15cbc9d79c6bd777bf38bb79be6c01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
