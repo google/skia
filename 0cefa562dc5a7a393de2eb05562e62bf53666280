@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "e1658215_05c5bebd",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-26T16:57:51Z",
+      "side": 1,
+      "message": "Agreed, it\u0027s better. I copied the SkImageGenerator text but kept the line here about the return type since SkImageGenerator\u0027s return type is bool not Result.",
+      "parentUuid": "036b7c1c_8e824a27",
+      "range": {
+        "startLine": 392,
+        "startChar": 8,
+        "endLine": 392,
+        "endChar": 41
+      },
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40bd09f2_7a1f7fb7",
         "filename": "include/core/SkYUVAPixmaps.h",
         "patchSetId": 7
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "8dcc8906_5e0d47ea",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-26T16:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40bd09f2_7a1f7fb7",
+      "range": {
+        "startLine": 36,
+        "startChar": 16,
+        "endLine": 36,
+        "endChar": 21
+      },
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40058174_1e95d2d5",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 7
@@ -102,6 +150,30 @@
       "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25322549_04f46b89",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-26T16:57:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40058174_1e95d2d5",
+      "range": {
+        "startLine": 752,
+        "startChar": 0,
+        "endLine": 752,
+        "endChar": 0
+      },
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
