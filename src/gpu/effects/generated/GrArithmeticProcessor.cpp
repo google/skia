@@ -72,6 +72,7 @@ bool GrArithmeticProcessor::onIsEqual(const GrFragmentProcessor& other) const {
     if (enforcePMColor != that.enforcePMColor) return false;
     return true;
 }
+bool GrArithmeticProcessor::usesExplicitReturn() const { return false; }
 GrArithmeticProcessor::GrArithmeticProcessor(const GrArithmeticProcessor& src)
         : INHERITED(kGrArithmeticProcessor_ClassID, src.optimizationFlags())
         , k(src.k)

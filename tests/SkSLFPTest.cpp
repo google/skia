@@ -75,6 +75,14 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
     if (!compiler.errorCount()) {
         compiler.optimize(*program);
     }
+    if (!compiler.errorCount()) {
+        SkSL::StringStream output;
+        compiler.toH(*program, "Test", output);
+    }
+    if (!compiler.errorCount()) {
+        SkSL::StringStream output;
+        compiler.toCPP(*program, "Test", output);
+    }
     SkSL::String skError(error);
     if (compiler.errorText() != skError) {
         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s",
@@ -115,6 +123,7 @@ public:
     GrTest(const GrTest& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "Test"; }
+    bool usesExplicitReturn() const override;
 private:
     GrTest()
     : INHERITED(kGrTest_ClassID, kNone_OptimizationFlags) {
@@ -171,6 +180,9 @@ bool GrTest::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTest& that = other.cast<GrTest>();
     (void) that;
     return true;
+}
+bool GrTest::usesExplicitReturn() const {
+    return false;
 }
 GrTest::GrTest(const GrTest& src)
 : INHERITED(kGrTest_ClassID, src.optimizationFlags()) {
@@ -261,6 +273,53 @@ SkString GrTest::onDumpInfo() const {
 }
 )__Cpp__",
         });
+}
+
+DEF_TEST(SkSLFPUseExplicitReturn, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 main() {
+                 return half4(0, 1, 0, 1);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{R"__Cpp__(
+        fragBuilder->codeAppendf(
+R"SkSL(return half4(0.0, 1.0, 0.0, 1.0);
+)SkSL"
+);
+)__Cpp__", R"__Cpp__(
+bool GrTest::usesExplicitReturn() const {
+    return true;
+}
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPBothExplicitReturnAndSkOutColor, r) {
+    test_failure(r,
+         R"__SkSL__(
+             half4 main() {
+                 sk_OutColor = half4(1, 0, 1, 0);
+                 return half4(0, 1, 0, 1);
+             }
+         )__SkSL__",
+         "error: 4: Fragment processors must not mix sk_OutColor and return statements\n\n"
+         "1 error\n");
+}
+
+DEF_TEST(SkSLFPCannotReturnWithSkOutColor, r) {
+    // We don't support returns with sk_OutColor at all, even when it conceptually makes sense.
+    // sk_OutColor is going away, so there's no need to add engineering effort to that path.
+    test_failure(r,
+         R"__SkSL__(
+             void main() {
+                 sk_OutColor = half4(1, 0, 1, 0);
+                 return;
+             }
+         )__SkSL__",
+         "error: 4: Fragment processors must not mix sk_OutColor and return statements\n\n"
+         "1 error\n");
 }
 
 DEF_TEST(SkSLFPUniform, r) {
@@ -508,7 +567,7 @@ DEF_TEST(SkSLFPSections, r) {
              }
          )__SkSL__",
          /*expectedH=*/{
-            "const char* name() const override { return \"Test\"; }\n"
+            "bool usesExplicitReturn() const override;\n"
             " fields section private:"
          },
          /*expectedCPP=*/{});

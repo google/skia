@@ -62,6 +62,7 @@ bool GrMixerEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (weight != that.weight) return false;
     return true;
 }
+bool GrMixerEffect::usesExplicitReturn() const { return false; }
 GrMixerEffect::GrMixerEffect(const GrMixerEffect& src)
         : INHERITED(kGrMixerEffect_ClassID, src.optimizationFlags()), weight(src.weight) {
     this->cloneAndRegisterAllChildProcessors(src);

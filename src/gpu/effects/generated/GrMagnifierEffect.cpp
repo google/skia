@@ -133,6 +133,7 @@ bool GrMagnifierEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (yInvInset != that.yInvInset) return false;
     return true;
 }
+bool GrMagnifierEffect::usesExplicitReturn() const { return false; }
 GrMagnifierEffect::GrMagnifierEffect(const GrMagnifierEffect& src)
         : INHERITED(kGrMagnifierEffect_ClassID, src.optimizationFlags())
         , bounds(src.bounds)

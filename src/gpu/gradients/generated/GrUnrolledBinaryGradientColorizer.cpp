@@ -316,6 +316,7 @@ bool GrUnrolledBinaryGradientColorizer::onIsEqual(const GrFragmentProcessor& oth
     if (thresholds9_13 != that.thresholds9_13) return false;
     return true;
 }
+bool GrUnrolledBinaryGradientColorizer::usesExplicitReturn() const { return false; }
 GrUnrolledBinaryGradientColorizer::GrUnrolledBinaryGradientColorizer(
         const GrUnrolledBinaryGradientColorizer& src)
         : INHERITED(kGrUnrolledBinaryGradientColorizer_ClassID, src.optimizationFlags())

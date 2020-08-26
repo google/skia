@@ -27,6 +27,7 @@ public:
     GrCircleBlurFragmentProcessor(const GrCircleBlurFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "CircleBlurFragmentProcessor"; }
+    bool usesExplicitReturn() const override;
     SkRect circleRect;
     float solidRadius;
     float textureRadius;

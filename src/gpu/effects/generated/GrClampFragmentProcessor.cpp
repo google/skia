@@ -57,6 +57,7 @@ bool GrClampFragmentProcessor::onIsEqual(const GrFragmentProcessor& other) const
     if (clampToPremul != that.clampToPremul) return false;
     return true;
 }
+bool GrClampFragmentProcessor::usesExplicitReturn() const { return false; }
 GrClampFragmentProcessor::GrClampFragmentProcessor(const GrClampFragmentProcessor& src)
         : INHERITED(kGrClampFragmentProcessor_ClassID, src.optimizationFlags())
         , clampToPremul(src.clampToPremul) {

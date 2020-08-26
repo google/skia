@@ -101,6 +101,7 @@ bool GrAARectEffect::onIsEqual(const GrFragmentProcessor& other) const {
     if (rect != that.rect) return false;
     return true;
 }
+bool GrAARectEffect::usesExplicitReturn() const { return false; }
 GrAARectEffect::GrAARectEffect(const GrAARectEffect& src)
         : INHERITED(kGrAARectEffect_ClassID, src.optimizationFlags())
         , edgeType(src.edgeType)

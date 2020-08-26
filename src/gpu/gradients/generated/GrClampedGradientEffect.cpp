@@ -103,6 +103,7 @@ bool GrClampedGradientEffect::onIsEqual(const GrFragmentProcessor& other) const 
     if (colorsAreOpaque != that.colorsAreOpaque) return false;
     return true;
 }
+bool GrClampedGradientEffect::usesExplicitReturn() const { return false; }
 GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& src)
         : INHERITED(kGrClampedGradientEffect_ClassID, src.optimizationFlags())
         , leftBorderColor(src.leftBorderColor)

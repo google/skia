@@ -29,6 +29,7 @@ public:
     GrTwoPointConicalGradientLayout(const GrTwoPointConicalGradientLayout& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "TwoPointConicalGradientLayout"; }
+    bool usesExplicitReturn() const override;
     Type type;
     bool isRadiusIncreasing;
     bool isFocalOnCircle;
