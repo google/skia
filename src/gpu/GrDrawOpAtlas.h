@@ -52,7 +52,7 @@ class GrTextureProxy;
  */
 class GrDrawOpAtlas {
 public:
-    static constexpr int kPageIndexBit = 13;
+    static constexpr int kPageIndexBit = 15;
 
     /** Is the atlas allowed to use more than one texture? */
     enum class AllowMultitexturing : bool { kNo, kYes };
