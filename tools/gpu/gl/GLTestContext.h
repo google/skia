@@ -9,6 +9,7 @@
 #define GLTestContext_DEFINED
 
 #include "include/gpu/gl/GrGLInterface.h"
+#include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/TestContext.h"
 
 namespace sk_gpu_test {
@@ -26,7 +27,7 @@ public:
     /** Does this represent a successfully created GL context? */
     bool isValid() const;
 
-    const GrGLInterface* gl() const { return fGL.get(); }
+    const GrGLInterface* gl() const { return fGLInterface.get(); }
 
     /** Used for testing EGLImage integration. Take a GL_TEXTURE_2D and wraps it in an EGL Image */
     virtual GrEGLImage texture2DToEGLImage(GrGLuint /*texID*/) const { return nullptr; }
@@ -43,6 +44,8 @@ public:
 
     /** Wait until all GPU work is finished. */
     void finish() override;
+
+    void overrideVersion(const char* version, const char* shadingLanguageVersion);
 
     /**
      * Creates a new GL context of the same type and makes the returned context current
@@ -81,9 +84,12 @@ protected:
     virtual GrGLFuncPtr onPlatformGetProcAddress(const char *) const = 0;
 
 private:
-    /** Subclass provides the gl interface object if construction was
-     *  successful. */
-    sk_sp<const GrGLInterface> fGL;
+    /** Subclass provides the gl interface object if construction was successful. */
+    sk_sp<const GrGLInterface> fOriginalGLInterface;
+
+    /** The same as fOriginalGLInterface unless the version has been overridden. */
+    sk_sp<const GrGLInterface> fGLInterface;
+
 #ifndef SK_GL
     bool fWasInitialized = false;
 #endif
