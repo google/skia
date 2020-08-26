@@ -46,6 +46,30 @@
       "revId": "5ac5dcc934cc940d5d2e66b078e11fa93bbd1ad4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef8f85ec_b1c9485a",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-26T14:11:50Z",
+      "side": 1,
+      "message": "Added SkSLFPCannotReturnWithSkOutColor to verify that your example case would fail to compile, with a comment explaining that sk_OutColor is going away.",
+      "parentUuid": "ae211cff_3e45566b",
+      "range": {
+        "startLine": 370,
+        "startChar": 8,
+        "endLine": 370,
+        "endChar": 72
+      },
+      "revId": "5ac5dcc934cc940d5d2e66b078e11fa93bbd1ad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
