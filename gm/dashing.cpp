@@ -11,7 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPathBuilder.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -105,38 +105,36 @@ class DashingGM : public skiagm::GM {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkPath make_unit_star(int n) {
+static void make_unit_star(SkPath* path, int n) {
     SkScalar rad = -SK_ScalarPI / 2;
     const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
 
-    SkPathBuilder b;
-    b.moveTo(0, -SK_Scalar1);
+    path->moveTo(0, -SK_Scalar1);
     for (int i = 1; i < n; i++) {
         rad += drad;
-        b.lineTo(SkScalarCos(rad), SkScalarSin(rad));
+        path->lineTo(SkScalarCos(rad), SkScalarSin(rad));
     }
-    return b.close().detach();
+    path->close();
 }
 
-static SkPath make_path_line(const SkRect& bounds) {
-    return SkPathBuilder().moveTo(bounds.left(), bounds.top())
-                          .lineTo(bounds.right(), bounds.bottom())
-                          .detach();
+static void make_path_line(SkPath* path, const SkRect& bounds) {
+    path->moveTo(bounds.left(), bounds.top());
+    path->lineTo(bounds.right(), bounds.bottom());
 }
 
-static SkPath make_path_rect(const SkRect& bounds) {
-    return SkPath::Rect(bounds);
+static void make_path_rect(SkPath* path, const SkRect& bounds) {
+    path->addRect(bounds);
 }
 
-static SkPath make_path_oval(const SkRect& bounds) {
-    return SkPath::Oval(bounds);
+static void make_path_oval(SkPath* path, const SkRect& bounds) {
+    path->addOval(bounds);
 }
 
-static SkPath make_path_star(const SkRect& bounds) {
-    SkPath path = make_unit_star(5);
+static void make_path_star(SkPath* path, const SkRect& bounds) {
+    make_unit_star(path, 5);
     SkMatrix matrix;
-    matrix.setRectToRect(path.getBounds(), bounds, SkMatrix::kCenter_ScaleToFit);
-    return path.makeTransform(matrix);
+    matrix.setRectToRect(path->getBounds(), bounds, SkMatrix::kCenter_ScaleToFit);
+    path->transform(matrix);
 }
 
 class Dashing2GM : public skiagm::GM {
@@ -152,7 +150,7 @@ class Dashing2GM : public skiagm::GM {
             2,  2, 2
         };
 
-        SkPath (*gProc[])(const SkRect&) = {
+        void (*gProc[])(SkPath*, const SkRect&) = {
             make_path_line, make_path_rect, make_path_oval, make_path_star,
         };
 
@@ -180,7 +178,9 @@ class Dashing2GM : public skiagm::GM {
                 SkPath path;
                 SkRect r = bounds;
                 r.offset(x * dx, y * dy);
-                canvas->drawPath(gProc[x](r), paint);
+                gProc[x](&path, r);
+
+                canvas->drawPath(path, paint);
             }
         }
     }

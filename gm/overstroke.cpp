@@ -60,11 +60,14 @@ SkPaint make_overstroke_paint() {
 }
 
 SkPath quad_path() {
-    return SkPathBuilder().moveTo(0, 0)
-                          .lineTo(100, 0)
-                          .quadTo(50, -40, 0, 0)
-                          .close()
-                          .detach();
+    SkPath path;
+    path.moveTo(0, 0);
+    path.lineTo(100, 0);
+    path.quadTo(50, -40,
+                0, 0);
+    path.close();
+
+    return path;
 }
 
 SkPath cubic_path() {
