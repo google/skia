@@ -26,6 +26,11 @@ DEF_TEST(pathbuilder, reporter) {
     SkPath p1 = b.snapshot();
     SkPath p2 = b.detach();
 
+    // Builders should always precompute the path's bounds, so there is no race condition later
+    REPORTER_ASSERT(reporter, SkPathPriv::HasComputedBounds(p0));
+    REPORTER_ASSERT(reporter, SkPathPriv::HasComputedBounds(p1));
+    REPORTER_ASSERT(reporter, SkPathPriv::HasComputedBounds(p2));
+
     REPORTER_ASSERT(reporter, p0.getBounds() == SkRect::MakeLTRB(10, 10, 30, 20));
     REPORTER_ASSERT(reporter, p0.countPoints() == 4);
 
