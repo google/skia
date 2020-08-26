@@ -126,6 +126,14 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			// Just run GLES for now - maybe add gles_msaa4 in the future
 			configs = []string{"gles"}
 		}
+		// skia:10644 Used to compare highest available ES version to when we're limited to ES2
+		// We could consider adding a MSAA fake config as well.
+		if b.os("Android") {
+			// These only support ES2. No point in running twice.
+			if (!b.gpu("Mali400MP2", "Tegra3")) {
+				configs = append(configs, "glesfakev2")
+			}
+		}
 	}
 
 	args = append(args, "--config")
