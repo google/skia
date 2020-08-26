@@ -8,7 +8,6 @@
 #ifndef SKSL_IRGENERATOR
 #define SKSL_IRGENERATOR
 
-#include <map>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -34,6 +33,15 @@
 namespace SkSL {
 
 struct Swizzle;
+
+/**
+ * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.
+ */
+struct IRIntrinsic {
+    std::unique_ptr<ProgramElement> fIntrinsic;
+    bool fAlreadyIncluded = false;
+};
+using IRIntrinsicMap = std::unordered_map<String, IRIntrinsic>;
 
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding
@@ -179,9 +187,8 @@ private:
     // additional statements that need to be inserted before the one that convertStatement is
     // currently working on
     std::vector<std::unique_ptr<Statement>> fExtraStatements;
-    // Symbols which have definitions in the include files. The bool tells us whether this
-    // intrinsic has been included already.
-    std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* fIntrinsics = nullptr;
+    // Symbols which have definitions in the include files.
+    IRIntrinsicMap* fIntrinsics = nullptr;
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
     int fLoopLevel;
     int fSwitchLevel;
