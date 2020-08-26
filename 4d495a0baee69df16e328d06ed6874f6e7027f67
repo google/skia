@@ -155,6 +155,24 @@
     },
     {
       "key": {
+        "uuid": "3dd68625_6ee25781",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-26T18:54:07Z",
+      "side": 1,
+      "message": "Not really, that would be far more invasive and hacky than just putting something on the SkSurface. The right place for all of this is to be applied in the blitter at the blend stage, but no one wants to do that because of gpu limitations and it\u0027s slow on the cpu. We already have more or less the best hack that can be done to the mask itself.",
+      "parentUuid": "fb6f0cbd_30946d39",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
@@ -220,6 +238,24 @@
       "side": 1,
       "message": "I totally agree on the per-monitor vs. globals comment... the two are obviously incompatible.  Per-monitor was a longer-term goal (and requires quite a bit more work on the Chromium side).\n\nFWIW, I going to take a stab at removing the use of the globals from Chromium, since that appears to be our primary sticking point.  \n\nI\u0027m not sure what that\u0027ll look like, yet... the first pass might be to literally move the globals into Chromium.  I think the UI process will be easy (plumbing from CachedFontRenderParams, which is basically an already existing global), but the renderer and GPU processes are more interesting.\n\nI\u0027m assuming that Chromium is the only client of these deprecated APIs?",
       "parentUuid": "9c82fc70_5c63e48b",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "681425c2_baed57b7",
+        "filename": "src/core/SkFontLCDConfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-26T18:54:07Z",
+      "side": 1,
+      "message": "Chromium is the only user of these deprecated APIs, and I wouldn\u0027t expect that you should go and try to remove them, just not add to them. CachedFontRenderParams seems to be Windows only (and does the wrong things, subpixel_rendering there should be a boolean about whether or not to request it, the actual subpixel geometry should be on the Display). That\u0027s actually how blink works (because there is someone working on text in blink), gfx is always behind and a bit backwards (since there isn\u0027t).",
+      "parentUuid": "9b76e51b_574388dc",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
