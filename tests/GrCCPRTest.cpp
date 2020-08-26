@@ -9,6 +9,7 @@
 #include "tests/Test.h"
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -893,14 +894,14 @@ class CCPR_busyPath : public CCPRRenderingTest {
     void onRun(skiatest::Reporter* reporter, const CCPRPathDrawer& ccpr) const override {
         static constexpr int kNumBusyVerbs = 1 << 17;
         ccpr.clear();
-        SkPath busyPath;
+        SkPathBuilder busyPath;
         busyPath.moveTo(0, 0); // top left
         busyPath.lineTo(kCanvasSize, kCanvasSize); // bottom right
         for (int i = 2; i < kNumBusyVerbs; ++i) {
             float offset = i * ((float)kCanvasSize / kNumBusyVerbs);
             busyPath.lineTo(kCanvasSize - offset, kCanvasSize + offset); // offscreen
         }
-        ccpr.drawPath(busyPath);
+        ccpr.drawPath(busyPath.detach());
 
         ccpr.flush(); // If this doesn't crash, the test passed.
                       // If it does, maybe fiddle with fMaxInstancesPerDrawArraysWithoutCrashing in

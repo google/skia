@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -66,20 +66,20 @@ constexpr int gXY[] = {
 4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
 };
 
-static void scale(SkPath* path, SkScalar scale) {
+static SkPath scale(const SkPath& path, SkScalar scale) {
     SkMatrix m;
     m.setScale(scale, scale);
-    path->transform(m);
+    return path.makeTransform(m);
 }
 
 static void one_d_pe(SkPaint* paint) {
-    SkPath  path;
-    path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
-    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2)
-        path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
-    path.close();
-    path.offset(SkIntToScalar(-6), 0);
-    scale(&path, 1.5f);
+    SkPathBuilder b;
+    b.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
+    for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2) {
+        b.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
+    }
+    b.close().offset(SkIntToScalar(-6), 0);
+    SkPath path = scale(b.detach(), 1.5f);
 
     paint->setPathEffect(SkPath1DPathEffect::Make(path, SkIntToScalar(21), 0,
                                                   SkPath1DPathEffect::kRotate_Style));
@@ -102,10 +102,7 @@ static sk_sp<SkPathEffect> MakeTileEffect() {
     SkMatrix m;
     m.setScale(SkIntToScalar(12), SkIntToScalar(12));
 
-    SkPath path;
-    path.addCircle(0, 0, SkIntToScalar(5));
-
-    return SkPath2DPathEffect::Make(m, path);
+    return SkPath2DPathEffect::Make(m, SkPath::Circle(0,0,5));
 }
 
 static void tile_pe(SkPaint* paint) {
@@ -131,12 +128,13 @@ protected:
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
 
-        SkPath path;
-        path.moveTo(20, 20);
-        path.lineTo(70, 120);
-        path.lineTo(120, 30);
-        path.lineTo(170, 80);
-        path.lineTo(240, 50);
+        SkPath path = SkPath::Polygon({
+            {20, 20},
+            {70, 120},
+            {120, 30},
+            {170, 80},
+            {240, 50},
+        }, false);
 
         canvas->save();
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
@@ -148,9 +146,9 @@ protected:
 
         path.reset();
         SkRect r = { 0, 0, 250, 120 };
-        path.addOval(r, SkPathDirection::kCW);
-        r.inset(50, 50);
-        path.addRect(r, SkPathDirection::kCCW);
+        path = SkPathBuilder().addOval(r, SkPathDirection::kCW)
+                              .addRect(r.makeInset(50, 50), SkPathDirection::kCCW)
+                              .detach();
 
         canvas->translate(320, 20);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {
@@ -193,9 +191,10 @@ protected:
     SkISize onISize() override { return SkISize::Make(360, 630); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPath path0, path1, path2;
-        path0.addCircle(100, 100, 60);
-        path1.moveTo(20, 20); path1.cubicTo(20, 180, 140, 0, 140, 140);
+        SkPath path0 = SkPath::Circle(100, 100, 60),
+               path1 = SkPathBuilder().moveTo(20, 20)
+                                      .cubicTo(20, 180, 140, 0, 140, 140)
+                                      .detach();
 
         sk_sp<SkPathEffect> effects[] = {
             nullptr,

@@ -65,14 +65,11 @@ static void draw_drrect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
 }
 
 static void draw_path(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
-    SkPath path;
-
-    path.moveTo(r.fLeft, r.fTop);
-    path.lineTo(r.fLeft, r.fBottom);
-    path.lineTo(r.fRight, r.fBottom);
-    path.close();
-
-    canvas->drawPath(path, p);
+    canvas->drawPath(SkPath::Polygon({
+        {r.fLeft, r.fTop},
+        {r.fLeft, r.fBottom},
+        {r.fRight, r.fBottom},
+    }, true), p);
 }
 
 static void draw_points(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {

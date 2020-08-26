@@ -16,7 +16,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -44,8 +44,8 @@ static void fill_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
 }
 
 static void draw_donut(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
-    SkRect  rect;
-    SkPath  path;
+    SkRect        rect;
+    SkPathBuilder path;
 
     rect = r;
     rect.outset(STROKE_WIDTH/2, STROKE_WIDTH/2);
@@ -56,12 +56,12 @@ static void draw_donut(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
     path.addRect(rect);
     path.setFillType(SkPathFillType::kEvenOdd);
 
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }
 
 static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
-    SkRect  rect;
-    SkPath  path;
+    SkRect        rect;
+    SkPathBuilder path;
 
     rect = r;
     rect.outset(STROKE_WIDTH/2, STROKE_WIDTH/2);
@@ -74,7 +74,7 @@ static void draw_donut_skewed(SkCanvas* canvas, const SkRect& r, const SkPaint& 
     path.addRect(rect);
     path.setFillType(SkPathFillType::kEvenOdd);
 
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }
 
 /*

@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -229,7 +229,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
 }
 
 DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(SkBits2Float(0x41a00000), SkBits2Float(0x41a00000));  // 20, 20
     path.lineTo(SkBits2Float(0x4208918c), SkBits2Float(0x4208918c));  // 34.1421f, 34.1421f
     path.conicTo(SkBits2Float(0x41a00000), SkBits2Float(0x42412318),  // 20, 48.2843f
@@ -245,7 +245,7 @@ DEF_SIMPLE_GM(onebadarc, canvas, 100, 100) {
     p0.setStroke(true);
     p0.setAlpha(100);
     canvas->translate(20, 0);
-    canvas->drawPath(path, p0);
+    canvas->drawPath(path.detach(), p0);
 
     SkRect kRect = { 60, 0, 100, 40};
     canvas->drawArc(kRect, 45, 90, true, p0);
