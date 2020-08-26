@@ -15,7 +15,6 @@
 #include "src/gpu/GrSwizzle.h"
 
 class GrResourceProvider;
-class GrRenderTargetProxyPriv;
 
 // This class delays the acquisition of RenderTargets until they are actually
 // required
@@ -57,6 +56,8 @@ public:
 
     int maxWindowRectangles(const GrCaps& caps) const;
 
+    bool glRTFBOIDIs0() const { return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0; }
+
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
     void markMSAADirty(const SkIRect& dirtyRect, GrSurfaceOrigin origin) {
@@ -81,10 +82,6 @@ public:
 
     // TODO: move this to a priv class!
     bool refsWrappedObjects() const;
-
-    // Provides access to special purpose functions.
-    GrRenderTargetProxyPriv rtPriv();
-    const GrRenderTargetProxyPriv rtPriv() const;  // NOLINT(readability-const-return-type)
 
 protected:
     friend class GrProxyProvider;  // for ctors
@@ -132,12 +129,6 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
-    void setGLRTFBOIDIs0() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
-    }
-    bool glRTFBOIDIs0() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kGLRTFBOIDIs0;
-    }
     bool canChangeStencilAttachment() const;
 
     size_t onUninstantiatedGpuMemorySize(const GrCaps&) const override;

@@ -22,7 +22,6 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContextPriv.h"
-#include "src/gpu/GrRenderTargetProxyPriv.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGpuDevice.h"
 #include "src/image/SkImage_Base.h"
@@ -235,7 +234,7 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
         return false;
     }
 
-    bool usesGLFBO0 = rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0();
+    bool usesGLFBO0 = rtc->asRenderTargetProxy()->glRTFBOIDIs0();
     // We should never get in the situation where we have a texture render target that is also
     // backend by FBO 0.
     SkASSERT(!usesGLFBO0 || !SkToBool(rtc->asTextureProxy()));
@@ -329,7 +328,7 @@ bool SkSurface_Gpu::onIsCompatible(const SkSurfaceCharacterization& characteriza
         }
     }
 
-    if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->rtPriv().glRTFBOIDIs0()) {
+    if (characterization.usesGLFBO0() != rtc->asRenderTargetProxy()->glRTFBOIDIs0()) {
         // FBO0-ness effects how MSAA and window rectangles work. If the characterization was
         // tagged as FBO0 it would never have been allowed to use window rectangles. If MSAA
         // was also never used then a DDL recorded with this characterization should be replayable
