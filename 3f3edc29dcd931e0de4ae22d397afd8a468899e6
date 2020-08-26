@@ -175,6 +175,30 @@
       "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a62de024_c844cc08",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-26T19:07:14Z",
+      "side": 1,
+      "message": "Ah, sorry. I meant literally 8192:\n\n  float kIndexBit \u003d 8192",
+      "parentUuid": "c58f9cc0_5022c291",
+      "range": {
+        "startLine": 49,
+        "startChar": 49,
+        "endLine": 49,
+        "endChar": 57
+      },
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0225451_9fcac4da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-26T19:07:14Z",
+      "side": 1,
+      "message": "lgtm\n\nI added a nit to clarify what I meant before, but don\u0027t have a strong opinion. I\u0027m happy to land either way.",
+      "revId": "e4dae1ff7aa0e39e2e9495c3592cd8ec61e1344d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7cb493c_011bc8cd",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-26T19:07:14Z",
+      "side": 1,
+      "message": "NIT: Since we won\u0027t lose any precision writing out positive powers of two in decimal, we might not need exp2 for this one.\n\n  args.fVertBuilder-\u003edefineConstantf(\"float\", \"kIndexBit\", \"%d\", 1 \u003c\u003c bitShift);\n  const float kIndexBit \u003d 8192;",
+      "revId": "e4dae1ff7aa0e39e2e9495c3592cd8ec61e1344d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
