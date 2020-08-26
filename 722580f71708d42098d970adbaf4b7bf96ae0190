@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "785bfc0f_4791456a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2184,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-26T17:31:23Z",
+      "side": 1,
+      "message": "It took me a while to reason about how/why this works. My first thought was that it would fail if you used an if/return without an else:\n\n  if (foo) { return x; }\n  doStuff;\n  return y;\n\nThen I realized that it wouldn\u0027t necessarily, because the top-level block of the function body would only have the last statement inspected, so it would indicate 1 return at end of control flow. Then I thought that only inspecting the last statement could be a problem, but I guess not - that\u0027s the actual idea.\n\nThen I thought that having the only return be the last statement in a loop body, where the loop is the last thing in the function would give a false positive:\n\n  half foo(half x) {\n    while(true) {\n      x *\u003d 0.5;\n      if (x \u003c 1) { return x; }\n    }\n  }\n\nWill we report that not all control paths return a value in something like that? If not, I think we hit a problem?",
+      "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
