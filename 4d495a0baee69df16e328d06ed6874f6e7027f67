@@ -259,6 +259,24 @@
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e4928e1_f8763319",
+        "filename": "src/core/SkFontLCDConfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-08-26T20:13:09Z",
+      "side": 1,
+      "message": "\"Chromium is the only user of these deprecated APIs, and I wouldn\u0027t expect that you should go and try to remove them, just not add to them.\"\n\nI think it\u0027s the same work, unfortunately.  At least if we\u0027re agreed that adding them to SkSurfaceProps makes sense (at least on Windows, where these are per-monitor properties), we\u0027d have to get the new parameters to all the constructors that are currently using `kLegacyFontHost_InitType`... and you may as well pass in the correct pixel geometry while you\u0027re at it.\n\nBut as mentioned, I might end up having to globally cache the values on the Chromium side, for now (pending a larger Chromium change that actually handles the per-monitor stuff).",
+      "parentUuid": "681425c2_baed57b7",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
