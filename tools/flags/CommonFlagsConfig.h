@@ -54,6 +54,7 @@ public:
     SkCommandLineConfigGpu(const SkString&           tag,
                            const SkTArray<SkString>& viaParts,
                            ContextType               contextType,
+                           bool                      fakeGLESVer2,
                            bool                      useDIText,
                            int                       samples,
                            SkColorType               colorType,

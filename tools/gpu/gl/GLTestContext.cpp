@@ -156,7 +156,8 @@ namespace sk_gpu_test {
 GLTestContext::GLTestContext() : TestContext() {}
 
 GLTestContext::~GLTestContext() {
-    SkASSERT(nullptr == fGL.get());
+    SkASSERT(!fGLInterface);
+    SkASSERT(!fOriginalGLInterface);
 }
 
 bool GLTestContext::isValid() const {
@@ -192,7 +193,8 @@ static bool fence_is_supported(const GLTestContext* ctx) {
 }
 
 void GLTestContext::init(sk_sp<const GrGLInterface> gl) {
-    fGL = std::move(gl);
+    fGLInterface = std::move(gl);
+    fOriginalGLInterface = fGLInterface;
     fFenceSupport = fence_is_supported(this);
     fGpuTimer = GLGpuTimer::MakeIfSupported(this);
 #ifndef SK_GL
@@ -201,30 +203,52 @@ void GLTestContext::init(sk_sp<const GrGLInterface> gl) {
 }
 
 void GLTestContext::teardown() {
-    fGL.reset(nullptr);
+    fGLInterface.reset();
+    fOriginalGLInterface.reset();
     INHERITED::teardown();
 }
 
 void GLTestContext::testAbandon() {
     INHERITED::testAbandon();
 #ifdef SK_GL
-    if (fGL) {
-        fGL->abandon();
+    if (fGLInterface) {
+        fGLInterface->abandon();
+        fOriginalGLInterface->abandon();
     }
 #endif
 }
 
 void GLTestContext::finish() {
 #ifdef SK_GL
-    if (fGL) {
-        GR_GL_CALL(fGL.get(), Finish());
+    if (fGLInterface) {
+        GR_GL_CALL(fGLInterface.get(), Finish());
     }
 #endif
 }
 
+void GLTestContext::overrideVersion(const char* version, const char* shadingLanguageVersion) {
+#ifdef SK_GL
+    // GrGLFunction has both a limited capture size and doesn't call a destructor when it is
+    // initialized with a lambda. So here we're trusting fOriginalGLInterface will be kept alive.
+    auto getString = [wrapped = &fOriginalGLInterface->fFunctions.fGetString,
+                      version,
+                      shadingLanguageVersion](GrGLenum name) {
+        if (name == GR_GL_VERSION) {
+            return reinterpret_cast<const GrGLubyte*>(version);
+        } else if (name == GR_GL_SHADING_LANGUAGE_VERSION) {
+            return reinterpret_cast<const GrGLubyte*>(shadingLanguageVersion);
+        }
+        return (*wrapped)(name);
+    };
+    auto newInterface = sk_make_sp<GrGLInterface>(*fOriginalGLInterface);
+    newInterface->fFunctions.fGetString = getString;
+    fGLInterface = std::move(newInterface);
+#endif
+};
+
 sk_sp<GrDirectContext> GLTestContext::makeContext(const GrContextOptions& options) {
 #ifdef SK_GL
-    return GrDirectContext::MakeGL(fGL, options);
+    return GrDirectContext::MakeGL(fGLInterface, options);
 #else
     return nullptr;
 #endif
