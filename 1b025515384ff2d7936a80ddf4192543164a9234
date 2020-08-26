@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b9393f7_c7f0840c",
+        "filename": "tools/flags/CommonFlagsConfig.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-26T19:14:04Z",
+      "side": 1,
+      "message": "can we just set this to false at the top outside all these ifs. And the just set it to true in the one case we care?",
+      "range": {
+        "startLine": 244,
+        "startChar": 7,
+        "endLine": 244,
+        "endChar": 37
+      },
+      "revId": "1b025515384ff2d7936a80ddf4192543164a9234",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
