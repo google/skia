@@ -193,8 +193,11 @@ if (skia_use_system_zlib) {
   }
 }
 
+config("zlib_config") {
+}
+
 third_party("compression_utils_portable") {
-  visibility = [ "//third_party/angle2:*" ]
+  visibility = [ "//third_party/externals/angle2:*" ]
   public_include_dirs = [ "../externals/zlib/google" ]
   sources = [
     "../externals/zlib/google/compression_utils_portable.cc",
