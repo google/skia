@@ -457,16 +457,6 @@ public:
                                           GrRenderable,
                                           GrProtected = GrProtected::kNo);
 
-
-    /**
-     * If possible, create an uninitialized backend texture that is compatible with the
-     * provided characterization. The client should ensure that the returned backend texture
-     * is valid.
-     * For the Vulkan backend the layout of the created VkImage will be:
-     *      VK_IMAGE_LAYOUT_UNDEFINED.
-     */
-    GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization);
-
     /**
      * If possible, create a backend texture initialized to a particular color. The client should
      * ensure that the returned backend texture is valid. The client can pass in a finishedProc
@@ -502,22 +492,6 @@ public:
                                           GrMipmapped,
                                           GrRenderable,
                                           GrProtected = GrProtected::kNo,
-                                          GrGpuFinishedProc finishedProc = nullptr,
-                                          GrGpuFinishedContext finishedContext = nullptr);
-
-    /**
-     * If possible, create a backend texture initialized to a particular color that is
-     * compatible with the provided characterization. The client should ensure that the
-     * returned backend texture is valid. The client can pass in a finishedProc to be notified when
-     * the data has been uploaded by the gpu and the texture can be deleted. The client is required
-     * to call GrContext::submit to send the upload work to the gpu. The finishedProc will always
-     * get called even if we failed to create the GrBackendTexture.
-     * For the Vulkan backend the layout of the created VkImage will be:
-     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL if texturaeble
-     *      VK_IMAGE_LAYOUT_UNDEFINED                if not textureable
-     */
-    GrBackendTexture createBackendTexture(const SkSurfaceCharacterization& characterization,
-                                          const SkColor4f& color,
                                           GrGpuFinishedProc finishedProc = nullptr,
                                           GrGpuFinishedContext finishedContext = nullptr);
 

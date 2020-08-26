@@ -434,37 +434,6 @@ GrBackendTexture GrContext::createBackendTexture(int width, int height,
     return this->createBackendTexture(width, height, format, mipMapped, renderable, isProtected);
 }
 
-GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c) {
-    if (!this->asDirectContext() || !c.isValid()) {
-        return GrBackendTexture();
-    }
-
-    if (this->abandoned()) {
-        return GrBackendTexture();
-    }
-
-    if (c.usesGLFBO0()) {
-        // If we are making the surface we will never use FBO0.
-        return GrBackendTexture();
-    }
-
-    if (c.vulkanSecondaryCBCompatible()) {
-        return {};
-    }
-
-    const GrBackendFormat format = this->defaultBackendFormat(c.colorType(), GrRenderable::kYes);
-    if (!format.isValid()) {
-        return GrBackendTexture();
-    }
-
-    GrBackendTexture result = this->createBackendTexture(c.width(), c.height(), format,
-                                                         GrMipmapped(c.isMipMapped()),
-                                                         GrRenderable::kYes,
-                                                         c.isProtected());
-    SkASSERT(c.isCompatible(result));
-    return result;
-}
-
 static GrBackendTexture create_and_update_backend_texture(
         GrDirectContext* context,
         SkISize dimensions,
@@ -487,47 +456,6 @@ static GrBackendTexture create_and_update_backend_texture(
         return {};
     }
     return beTex;
-}
-
-
-GrBackendTexture GrContext::createBackendTexture(const SkSurfaceCharacterization& c,
-                                                 const SkColor4f& color,
-                                                 GrGpuFinishedProc finishedProc,
-                                                 GrGpuFinishedContext finishedContext) {
-    sk_sp<GrRefCntedCallback> finishedCallback;
-    if (finishedProc) {
-        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
-    }
-
-    if (!this->asDirectContext() || !c.isValid()) {
-        return {};
-    }
-
-    if (this->abandoned()) {
-        return {};
-    }
-
-    if (c.usesGLFBO0()) {
-        // If we are making the surface we will never use FBO0.
-        return {};
-    }
-
-    if (c.vulkanSecondaryCBCompatible()) {
-        return {};
-    }
-
-    const GrBackendFormat format = this->defaultBackendFormat(c.colorType(), GrRenderable::kYes);
-    if (!format.isValid()) {
-        return {};
-    }
-
-    GrGpu::BackendTextureData data(color);
-    GrBackendTexture result = create_and_update_backend_texture(
-            this->asDirectContext(), {c.width(), c.height()}, format, GrMipmapped(c.isMipMapped()),
-            GrRenderable::kYes, c.isProtected(), std::move(finishedCallback), &data);
-
-    SkASSERT(c.isCompatible(result));
-    return result;
 }
 
 GrBackendTexture GrContext::createBackendTexture(int width, int height,

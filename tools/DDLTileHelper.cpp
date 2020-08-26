@@ -209,8 +209,10 @@ sk_sp<SkImage> DDLTileHelper::TileData::makePromiseImage(SkDeferredDisplayListRe
 
 void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, TileData* tile) {
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
-
-    GrBackendTexture beTex = direct->createBackendTexture(tile->fCharacterization);
+    const SkSurfaceCharacterization& c = tile->fCharacterization;
+    GrBackendTexture beTex = direct->createBackendTexture(c.width(), c.height(), c.colorType(),
+                                                          GrMipMapped(c.isMipMapped()),
+                                                          GrRenderable::kYes);
     tile->fCallbackContext->setBackendTexture(beTex);
 }
 

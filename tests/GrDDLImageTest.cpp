@@ -42,7 +42,9 @@ DEF_GPUTEST(GrDDLImage_MakeSubset, reporter, options) {
         auto surf = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, ii);
         SkSurfaceCharacterization sc;
         REPORTER_ASSERT(reporter, surf->characterize(&sc));
-        GrBackendTexture tex = dContext->createBackendTexture(sc);
+        GrBackendTexture tex =
+                dContext->createBackendTexture(ii.width(), ii.height(), ii.colorType(),
+                                               GrMipmapped(sc.isMipMapped()), GrRenderable::kYes);
         auto gpuImage = SkImage::MakeFromTexture(dContext, tex, kTopLeft_GrSurfaceOrigin,
                                                  ii.colorType(), ii.alphaType(),
                                                  ii.refColorSpace());
