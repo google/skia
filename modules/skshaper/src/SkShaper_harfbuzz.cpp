@@ -26,6 +26,7 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "modules/skshaper/src/SkUnicode.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkSpan.h"
 #include "src/core/SkTDPQueue.h"
@@ -34,7 +35,6 @@
 #include <hb.h>
 #include <hb-icu.h>
 #include <hb-ot.h>
-#include <unicode/ubidi.h>
 #include <unicode/ubrk.h>
 #include <unicode/umachine.h>
 #include <unicode/urename.h>
@@ -71,9 +71,10 @@ using HBBlob   = resource<hb_blob_t     , decltype(hb_blob_destroy)  , hb_blob_d
 using HBFace   = resource<hb_face_t     , decltype(hb_face_destroy)  , hb_face_destroy  >;
 using HBFont   = resource<hb_font_t     , decltype(hb_font_destroy)  , hb_font_destroy  >;
 using HBBuffer = resource<hb_buffer_t   , decltype(hb_buffer_destroy), hb_buffer_destroy>;
-using ICUBiDi  = resource<UBiDi         , decltype(ubidi_close)      , ubidi_close      >;
 using ICUBrk   = resource<UBreakIterator, decltype(ubrk_close)       , ubrk_close       >;
 using ICUUText = resource<UText         , decltype(utext_close)      , utext_close      >;
+
+using SkUnicodeBidi = std::unique_ptr<SkBidiIterator>;
 
 hb_position_t skhb_position(SkScalar value) {
     // Treat HarfBuzz hb_position_t as 16.16 fixed-point.
@@ -343,25 +344,26 @@ static inline SkUnichar utf8_next(const char** ptr, const char* end) {
     return val < 0 ? 0xFFFD : val;
 }
 
-class IcuBiDiRunIterator final : public SkShaper::BiDiRunIterator {
+class SkUnicodeBidiRunIterator final : public SkShaper::BiDiRunIterator {
 public:
-    IcuBiDiRunIterator(const char* utf8, const char* end, ICUBiDi bidi)
+    SkUnicodeBidiRunIterator(const char* utf8, const char* end, SkUnicodeBidi bidi)
         : fBidi(std::move(bidi))
         , fEndOfCurrentRun(utf8)
         , fBegin(utf8)
         , fEnd(end)
         , fUTF16LogicalPosition(0)
-        , fLevel(UBIDI_DEFAULT_LTR)
+        , fLevel(SkBidiIterator::kLTR)
     {}
+
     void consume() override {
-        SkASSERT(fUTF16LogicalPosition < ubidi_getLength(fBidi.get()));
-        int32_t endPosition = ubidi_getLength(fBidi.get());
-        fLevel = ubidi_getLevelAt(fBidi.get(), fUTF16LogicalPosition);
+        SkASSERT(fUTF16LogicalPosition < fBidi->getLength());
+        int32_t endPosition = fBidi->getLength();
+        fLevel = fBidi->getLevelAt(fUTF16LogicalPosition);
         SkUnichar u = utf8_next(&fEndOfCurrentRun, fEnd);
         fUTF16LogicalPosition += SkUTF::ToUTF16(u);
-        UBiDiLevel level;
+        SkBidiIterator::Level level;
         while (fUTF16LogicalPosition < endPosition) {
-            level = ubidi_getLevelAt(fBidi.get(), fUTF16LogicalPosition);
+            level = fBidi->getLevelAt(fUTF16LogicalPosition);
             if (level != fLevel) {
                 break;
             }
@@ -374,19 +376,18 @@ public:
         return fEndOfCurrentRun - fBegin;
     }
     bool atEnd() const override {
-        return fUTF16LogicalPosition == ubidi_getLength(fBidi.get());
+        return fUTF16LogicalPosition == fBidi->getLength();
     }
-
-    UBiDiLevel currentLevel() const override {
+    SkBidiIterator::Level currentLevel() const override {
         return fLevel;
     }
 private:
-    ICUBiDi fBidi;
+    SkUnicodeBidi fBidi;
     char const * fEndOfCurrentRun;
     char const * const fBegin;
     char const * const fEnd;
     int32_t fUTF16LogicalPosition;
-    UBiDiLevel fLevel;
+    SkBidiIterator::Level fLevel;
 };
 
 class HbIcuScriptRunIterator final : public SkShaper::ScriptRunIterator {
@@ -509,7 +510,7 @@ struct ShapedGlyph {
     bool fUnsafeToBreak;
 };
 struct ShapedRun {
-    ShapedRun(SkShaper::RunHandler::Range utf8Range, const SkFont& font, UBiDiLevel level,
+    ShapedRun(SkShaper::RunHandler::Range utf8Range, const SkFont& font, SkBidiIterator::Level level,
               std::unique_ptr<ShapedGlyph[]> glyphs, size_t numGlyphs, SkVector advance = {0, 0})
         : fUtf8Range(utf8Range), fFont(font), fLevel(level)
         , fGlyphs(std::move(glyphs)), fNumGlyphs(numGlyphs), fAdvance(advance)
@@ -517,7 +518,7 @@ struct ShapedRun {
 
     SkShaper::RunHandler::Range fUtf8Range;
     SkFont fFont;
-    UBiDiLevel fLevel;
+    SkBidiIterator::Level fLevel;
     std::unique_ptr<ShapedGlyph[]> fGlyphs;
     size_t fNumGlyphs;
     SkVector fAdvance;
@@ -527,7 +528,7 @@ struct ShapedLine {
     SkVector fAdvance = { 0, 0 };
 };
 
-constexpr bool is_LTR(UBiDiLevel level) {
+constexpr bool is_LTR(SkBidiIterator::Level level) {
     return (level & 1) == 0;
 }
 
@@ -565,12 +566,12 @@ void emit(const ShapedLine& line, SkShaper::RunHandler* handler) {
     handler->beginLine();
 
     int numRuns = line.runs.size();
-    SkAutoSTMalloc<4, UBiDiLevel> runLevels(numRuns);
+    SkAutoSTMalloc<4, SkBidiIterator::Level> runLevels(numRuns);
     for (int i = 0; i < numRuns; ++i) {
         runLevels[i] = line.runs[i].fLevel;
     }
     SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
-    ubidi_reorderVisual(runLevels, numRuns, logicalFromVisual);
+    SkBidiIterator::ReorderVisual(runLevels, numRuns, logicalFromVisual);
 
     for (int i = 0; i < numRuns; ++i) {
         int logicalIndex = logicalFromVisual[i];
@@ -667,6 +668,7 @@ protected:
                     const FontRunIterator&,
                     const Feature*, size_t featuresSize) const;
 private:
+    std::unique_ptr<SkUnicode> fUnicode = SkUnicode::Make();
     const sk_sp<SkFontMgr> fFontMgr;
     HBBuffer               fBuffer;
     hb_language_t          fUndefinedLanguage;
@@ -804,9 +806,12 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
                            SkScalar width,
                            RunHandler* handler) const
 {
-    UBiDiLevel defaultLevel = leftToRight ? UBIDI_DEFAULT_LTR : UBIDI_DEFAULT_RTL;
+    SkBidiIterator::Level defaultLevel = leftToRight ? SkBidiIterator::kLTR : SkBidiIterator::kRTL;
+    std::unique_ptr<BiDiRunIterator> bidi(MakeSkUnicodeBidiRunIterator(fUnicode.get(),
+                                                                       utf8,
+                                                                       utf8Bytes,
+                                                                       defaultLevel));
 
-    std::unique_ptr<BiDiRunIterator> bidi(MakeIcuBiDiRunIterator(utf8, utf8Bytes, defaultLevel));
     if (!bidi) {
         return;
     }
@@ -1182,12 +1187,12 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
         }
 
         int numRuns = current.fRunIndex - previousBreak.fRunIndex + 1;
-        SkAutoSTMalloc<4, UBiDiLevel> runLevels(numRuns);
+        SkAutoSTMalloc<4, SkBidiIterator::Level> runLevels(numRuns);
         for (int i = 0; i < numRuns; ++i) {
             runLevels[i] = runs[previousBreak.fRunIndex + i].fLevel;
         }
         SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
-        ubidi_reorderVisual(runLevels, numRuns, logicalFromVisual);
+        SkBidiIterator::ReorderVisual(runLevels, numRuns, logicalFromVisual);
 
         // step through the runs in reverse visual order and the glyphs in reverse logical order
         // until a visible glyph is found and force them to the end of the visual line.
@@ -1438,6 +1443,17 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
+    auto unicode = SkUnicode::Make();
+    std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
+        SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
+                                               utf8,
+                                               utf8Bytes,
+                                               bidiLevel);
+    return bidi;
+}
+
+std::unique_ptr<SkShaper::BiDiRunIterator>
+SkShaper::MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
     // ubidi only accepts utf16 (though internally it basically works on utf32 chars).
     // We want an ubidi_setPara(UBiDi*, UText*, UBiDiLevel, UBiDiLevel*, UErrorCode*);
     if (!SkTFitsIn<int32_t>(utf8Bytes)) {
@@ -1445,35 +1461,23 @@ SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bid
         return nullptr;
     }
 
-    UErrorCode status = U_ZERO_ERROR;
-
-    // Getting the length like this seems to always set U_BUFFER_OVERFLOW_ERROR
-    int32_t utf16Units;
-    u_strFromUTF8(nullptr, 0, &utf16Units, utf8, utf8Bytes, &status);
-    status = U_ZERO_ERROR;
-    std::unique_ptr<UChar[]> utf16(new UChar[utf16Units]);
-    u_strFromUTF8(utf16.get(), utf16Units, nullptr, utf8, utf8Bytes, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Invalid utf8 input: %s", u_errorName(status));
+    int32_t utf16Units = SkUTF::UTF8ToUTF16(nullptr, 0, utf8, utf8Bytes);
+    if (utf16Units < 0) {
+        SkDEBUGF("Invalid utf8 input\n");
         return nullptr;
     }
 
-    ICUBiDi bidi(ubidi_openSized(utf16Units, 0, &status));
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
-        return nullptr;
-    }
-    SkASSERT(bidi);
+    std::unique_ptr<uint16_t[]> utf16(new uint16_t[utf16Units]);
+    (void)SkUTF::UTF8ToUTF16(utf16.get(), utf16Units, utf8, utf8Bytes);
 
-    // The required lifetime of utf16 isn't well documented.
-    // It appears it isn't used after ubidi_setPara except through ubidi_getText.
-    ubidi_setPara(bidi.get(), utf16.get(), utf16Units, bidiLevel, nullptr, &status);
-    if (U_FAILURE(status)) {
-        SkDEBUGF("Bidi error: %s", u_errorName(status));
+    auto bidiDir = (bidiLevel % 2 == 0) ? SkBidiIterator::kLTR : SkBidiIterator::kRTL;
+    SkUnicodeBidi bidi = unicode->makeBidiIterator(utf16.get(), utf16Units, bidiDir);
+    if (!bidi) {
+        SkDEBUGF("Bidi error\n");
         return nullptr;
     }
 
-    return std::make_unique<IcuBiDiRunIterator>(utf8, utf8 + utf8Bytes, std::move(bidi));
+    return std::make_unique<SkUnicodeBidiRunIterator>(utf8, utf8 + utf8Bytes, std::move(bidi));
 }
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
