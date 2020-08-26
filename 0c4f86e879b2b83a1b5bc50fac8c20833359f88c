@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d99e046e_ec6be341",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-26T19:40:07Z",
+      "side": 1,
+      "message": "This is how OpenType and CSS are doing things now so not fighting it since the 1-9 values were a bit strange to begin with. The old 1-9 values have direct percentage mappings given by the OpenType specification.",
+      "range": {
+        "startLine": 20,
+        "startChar": 39,
+        "endLine": 20,
+        "endChar": 66
+      },
+      "revId": "0c4f86e879b2b83a1b5bc50fac8c20833359f88c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "807d090c_9ffa1702",
+        "filename": "src/core/SkFontDescriptor.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-26T19:40:07Z",
+      "side": 1,
+      "message": "Note this is a pragmatic decision to be cw. Skia is y-down and positive angles are visually clockwise (at least that\u0027s how sweep angles seem to be defined). OpenType is y-up and negative angles are visual clockwise. Taking and reporting this consistent with the rest of Skia allows for a direct answer to the question, \"If I want to draw an angle to match what do I pass in to Skia?\". However, it does mean that this will have the opposite sign of a typical \u0027ital\u0027 variation value since that will be specified in OpenType units. I think this will end up ok, since this is how CSS works (positive angles visually clockwise, but \u0027ital\u0027 axis values will need to be negated from that).",
+      "range": {
+        "startLine": 21,
+        "startChar": 39,
+        "endLine": 21,
+        "endChar": 41
+      },
+      "revId": "0c4f86e879b2b83a1b5bc50fac8c20833359f88c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
