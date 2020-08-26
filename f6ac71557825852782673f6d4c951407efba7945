@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a850afa_380b62fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-26T19:16:33Z",
+      "side": 1,
+      "message": "Should just be formatting, no logical change. Was using it, so figured I should clean it up.",
+      "revId": "f6ac71557825852782673f6d4c951407efba7945",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
