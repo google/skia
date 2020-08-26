@@ -84,8 +84,6 @@ void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
             }
         }
         fPaths[index] = b.detach();
-        // This should make SkPath::getBounds() queries threadsafe.
-        fPaths[index].updateBoundsCache();
     }
 }
 

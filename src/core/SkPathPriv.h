@@ -224,6 +224,11 @@ public:
         return path.fPathRef->unique();
     }
 
+    // Won't be needed once we can make path's immutable (with their bounds always computed)
+    static bool HasComputedBounds(const SkPath& path) {
+        return path.hasComputedBounds();
+    }
+
     /** Returns true if constructed by addCircle(), addOval(); and in some cases,
      addRoundRect(), addRRect(). SkPath constructed with conicTo() or rConicTo() will not
      return true though SkPath draws oval.
