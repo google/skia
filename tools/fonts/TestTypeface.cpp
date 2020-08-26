@@ -10,7 +10,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
@@ -42,9 +42,6 @@ SkTestFont::SkTestFont(const SkTestFontData& fontData)
 }
 
 SkTestFont::~SkTestFont() {
-    for (unsigned index = 0; index < fCharCodesCount; ++index) {
-        delete fPaths[index];
-    }
     delete[] fPaths;
 }
 
@@ -58,35 +55,35 @@ SkGlyphID SkTestFont::glyphForUnichar(SkUnichar charCode) const {
 }
 
 void SkTestFont::init(const SkScalar* pts, const unsigned char* verbs) {
-    fPaths = new SkPath*[fCharCodesCount];
+    fPaths = new SkPath[fCharCodesCount];
     for (unsigned index = 0; index < fCharCodesCount; ++index) {
-        SkPath*      path = new SkPath;
+        SkPathBuilder b;
         SkPath::Verb verb;
         while ((verb = (SkPath::Verb)*verbs++) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kMove_Verb:
-                    path->moveTo(pts[0], pts[1]);
+                    b.moveTo(pts[0], pts[1]);
                     pts += 2;
                     break;
                 case SkPath::kLine_Verb:
-                    path->lineTo(pts[0], pts[1]);
+                    b.lineTo(pts[0], pts[1]);
                     pts += 2;
                     break;
                 case SkPath::kQuad_Verb:
-                    path->quadTo(pts[0], pts[1], pts[2], pts[3]);
+                    b.quadTo(pts[0], pts[1], pts[2], pts[3]);
                     pts += 4;
                     break;
                 case SkPath::kCubic_Verb:
-                    path->cubicTo(pts[0], pts[1], pts[2], pts[3], pts[4], pts[5]);
+                    b.cubicTo(pts[0], pts[1], pts[2], pts[3], pts[4], pts[5]);
                     pts += 6;
                     break;
-                case SkPath::kClose_Verb: path->close(); break;
+                case SkPath::kClose_Verb:
+                    b.close();
+                    break;
                 default: SkDEBUGFAIL("bad verb"); return;
             }
         }
-        // This should make SkPath::getBounds() queries threadsafe.
-        path->updateBoundsCache();
-        fPaths[index] = path;
+        fPaths[index] = b.detach();
     }
 }
 
@@ -104,9 +101,9 @@ void TestTypeface::getAdvance(SkGlyph* glyph) {
 
 void TestTypeface::getFontMetrics(SkFontMetrics* metrics) { *metrics = fTestFont->fMetrics; }
 
-void TestTypeface::getPath(SkGlyphID glyphID, SkPath* path) {
+SkPath TestTypeface::getPath(SkGlyphID glyphID) {
     glyphID = glyphID < fTestFont->fCharCodesCount ? glyphID : 0;
-    *path   = *fTestFont->fPaths[glyphID];
+    return fTestFont->fPaths[glyphID];
 }
 
 void TestTypeface::onFilterRec(SkScalerContextRec* rec) const {
@@ -182,8 +179,7 @@ protected:
     void generateImage(const SkGlyph&) override { SK_ABORT("Should have generated from path."); }
 
     bool generatePath(SkGlyphID glyph, SkPath* path) override {
-        this->getTestTypeface()->getPath(glyph, path);
-        path->transform(fMatrix);
+        *path = this->getTestTypeface()->getPath(glyph).makeTransform(fMatrix);
         return true;
     }
 

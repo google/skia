@@ -12,7 +12,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -82,43 +82,43 @@ DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
 // is translated a fractional amount.
 //
 DEF_SIMPLE_GM(blur2rects, canvas, 700, 500) {
-        SkPaint paint;
+    SkPaint paint;
 
-        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 2.3f));
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 2.3f));
 
-        SkRect outer = SkRect::MakeXYWH(10.125f, 10.125f, 100.125f, 100);
-        SkRect inner = SkRect::MakeXYWH(20.25f, 20.125f, 80, 80);
-        SkPath path;
-        path.addRect(outer, SkPathDirection::kCW);
-        path.addRect(inner, SkPathDirection::kCCW);
+    SkRect outer = SkRect::MakeXYWH(10.125f, 10.125f, 100.125f, 100);
+    SkRect inner = SkRect::MakeXYWH(20.25f, 20.125f, 80, 80);
+    SkPath path = SkPathBuilder().addRect(outer, SkPathDirection::kCW)
+                                 .addRect(inner, SkPathDirection::kCCW)
+                                 .detach();
 
-        canvas->drawPath(path, paint);
-        // important to translate by a factional amount to exercise a different "phase"
-        // of the same path w.r.t. the pixel grid
-        SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 14 + 0.25f;
-        canvas->translate(dx, 0);
-        canvas->drawPath(path, paint);
+    canvas->drawPath(path, paint);
+    // important to translate by a factional amount to exercise a different "phase"
+    // of the same path w.r.t. the pixel grid
+    SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 14 + 0.25f;
+    canvas->translate(dx, 0);
+    canvas->drawPath(path, paint);
 }
 
 DEF_SIMPLE_GM(blur2rectsnonninepatch, canvas, 700, 500) {
-        SkPaint paint;
-        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 4.3f));
+    SkPaint paint;
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 4.3f));
 
-        SkRect outer = SkRect::MakeXYWH(10, 110, 100, 100);
-        SkRect inner = SkRect::MakeXYWH(50, 150, 10, 10);
-        SkPath path;
-        path.addRect(outer, SkPathDirection::kCW);
-        path.addRect(inner, SkPathDirection::kCW);
-        canvas->drawPath(path, paint);
+    SkRect outer = SkRect::MakeXYWH(10, 110, 100, 100);
+    SkRect inner = SkRect::MakeXYWH(50, 150, 10, 10);
+    SkPath path = SkPathBuilder().addRect(outer, SkPathDirection::kCW)
+                                 .addRect(inner, SkPathDirection::kCW)
+                                 .detach();
+    canvas->drawPath(path, paint);
 
-        SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 40 + 0.25f;
-        canvas->translate(dx, 0);
-        canvas->drawPath(path, paint);
+    SkScalar dx = SkScalarRoundToScalar(path.getBounds().width()) + 40 + 0.25f;
+    canvas->translate(dx, 0);
+    canvas->drawPath(path, paint);
 
-        // Translate to outside of clip bounds.
-        canvas->translate(-dx, 0);
-        canvas->translate(-30, -150);
-        canvas->drawPath(path, paint);
+    // Translate to outside of clip bounds.
+    canvas->translate(-dx, 0);
+    canvas->translate(-30, -150);
+    canvas->drawPath(path, paint);
 }
 
 DEF_SIMPLE_GM(BlurDrawImage, canvas, 256, 256) {

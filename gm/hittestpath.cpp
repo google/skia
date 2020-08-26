@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
@@ -42,7 +42,7 @@ DEF_SIMPLE_GM_CAN_FAIL(hittestpath, canvas, errorMsg, 700, 460) {
         return skiagm::DrawResult::kSkip;
     }
 
-    SkPath path;
+    SkPathBuilder b;
     SkRandom rand;
 
     int scale = 300;
@@ -52,16 +52,18 @@ DEF_SIMPLE_GM_CAN_FAIL(hittestpath, canvas, errorMsg, 700, 460) {
         for (int index = 0; index < (int) SK_ARRAY_COUNT(randoms); ++index) {
             randoms[index] = rand.nextUScalar1();
         }
-        path.lineTo(randoms[0] * scale, randoms[1] * scale);
-        path.quadTo(randoms[2] * scale, randoms[3] * scale,
-                    randoms[4] * scale, randoms[5] * scale);
-        path.cubicTo(randoms[6] * scale, randoms[7] * scale,
-                     randoms[8] * scale, randoms[9] * scale,
-                     randoms[10] * scale, randoms[11] * scale);
+        b.lineTo(randoms[0] * scale, randoms[1] * scale)
+         .quadTo(randoms[2] * scale, randoms[3] * scale,
+                 randoms[4] * scale, randoms[5] * scale)
+         .cubicTo(randoms[6] * scale, randoms[7] * scale,
+                  randoms[8] * scale, randoms[9] * scale,
+                  randoms[10] * scale, randoms[11] * scale);
     }
 
-    path.setFillType(SkPathFillType::kEvenOdd);
-    path.offset(SkIntToScalar(20), SkIntToScalar(20));
+    b.setFillType(SkPathFillType::kEvenOdd);
+    b.offset(SkIntToScalar(20), SkIntToScalar(20));
+
+    SkPath path = b.detach();
 
     test_hittest(canvas, path);
 
