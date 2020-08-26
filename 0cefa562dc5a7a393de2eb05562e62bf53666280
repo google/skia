@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df296c7c_2621c86f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-26T15:14:35Z",
+      "side": 1,
+      "message": "As I\u0027ve worked with SkYUVAInfo integration into Chrome I realized it would be nice to pass fewer arguments through various layers and also consolidate validity checking of combinations of SkYUVAInfo with colortypes/rowbytes or pixmaps. This adds some new types to do that.",
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
