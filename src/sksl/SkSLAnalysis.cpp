@@ -177,6 +177,33 @@ private:
     typedef ProgramVisitor INHERITED;
 };
 
+class VariableWriteVisitor : public ProgramVisitor {
+public:
+    VariableWriteVisitor(const Variable* var)
+        : fVar(var) {}
+
+    bool visit(const Statement& s) {
+        return this->visitStatement(s);
+    }
+
+    bool visitExpression(const Expression& e) override {
+        if (e.fKind == Expression::kVariableReference_Kind) {
+            const VariableReference& ref = e.as<VariableReference>();
+            if (&ref.fVariable == fVar && (ref.fRefKind == VariableReference::kWrite_RefKind ||
+                                           ref.fRefKind == VariableReference::kReadWrite_RefKind ||
+                                           ref.fRefKind == VariableReference::kPointer_RefKind)) {
+                return true;
+            }
+        }
+        return this->INHERITED::visitExpression(e);
+    }
+
+private:
+    const Variable* fVar;
+
+    typedef ProgramVisitor INHERITED;
+};
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +229,10 @@ bool Analysis::ReferencesFragCoords(const Program& program) {
 
 int Analysis::NodeCount(const FunctionDefinition& function) {
     return NodeCountVisitor().visit(*function.fBody);
+}
+
+bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {
+    return VariableWriteVisitor(&var).visit(stmt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
