@@ -26,35 +26,12 @@ typedef SkFixed3232    SkFractionalInt;
 
 class SkPaint;
 
-struct SkBitmapProcInfo {
-    SkBitmapProcInfo(const SkImage_Base*, SkTileMode tmx, SkTileMode tmy);
-    ~SkBitmapProcInfo();
-
-    const SkImage_Base*     fImage;
-
-    SkPixmap                fPixmap;
-    SkMatrix                fInvMatrix;         // This changes based on tile mode.
-    SkColor                 fPaintColor;
-    SkTileMode              fTileModeX;
-    SkTileMode              fTileModeY;
-    SkFilterQuality         fFilterQuality;
-
-    bool init(const SkMatrix& inverse, const SkPaint&);
-
-private:
-    enum {
-        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
-    };
-    SkSTArenaAlloc<kBMStateSize> fAlloc;
-    SkBitmapController::State* fBMState;
-};
-
-struct SkBitmapProcState : public SkBitmapProcInfo {
-    SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy)
-        : SkBitmapProcInfo(image, tmx, tmy) {}
+struct SkBitmapProcState {
+    SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy);
 
     bool setup(const SkMatrix& inv, const SkPaint& paint) {
-        return this->init(inv, paint) && this->chooseProcs();
+        return this->init(inv, paint)
+            && this->chooseProcs();
     }
 
     typedef void (*ShaderProc32)(const void* ctx, int x, int y, SkPMColor[], int count);
@@ -68,6 +45,15 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
                                  const uint32_t[],
                                  int count,
                                  SkPMColor colors[]);
+
+    const SkImage_Base*     fImage;
+
+    SkPixmap                fPixmap;
+    SkMatrix                fInvMatrix;         // This changes based on tile mode.
+    SkColor                 fPaintColor;
+    SkTileMode              fTileModeX;
+    SkTileMode              fTileModeY;
+    SkFilterQuality         fFilterQuality;
 
     SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
@@ -101,13 +87,20 @@ struct SkBitmapProcState : public SkBitmapProcInfo {
     SampleProc32 getSampleProc32() const { return fSampleProc32; }
 
 private:
+    enum {
+        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
+    };
+    SkSTArenaAlloc<kBMStateSize> fAlloc;
+    SkBitmapController::State* fBMState;
+
     ShaderProc32        fShaderProc32;      // chooseProcs
     // These are used if the shaderproc is nullptr
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
 
+    bool init(const SkMatrix& inverse, const SkPaint&);
+    bool chooseProcs();
     MatrixProc chooseMatrixProc(bool trivial_matrix);
-    bool chooseProcs(); // caller must have called init() first (on our base-class)
     ShaderProc32 chooseShaderProc32();
 
     // Return false if we failed to setup for fast translate (e.g. overflow)
