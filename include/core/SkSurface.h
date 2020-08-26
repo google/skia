@@ -456,35 +456,6 @@ public:
                                              const SkSurfaceCharacterization& characterization,
                                              SkBudgeted budgeted);
 
-    /** Wraps a backend texture in an SkSurface - setting up the surface to match the provided
-        characterization. The caller must ensure the texture is valid for the lifetime of
-        returned SkSurface.
-
-        If the backend texture and surface characterization are incompatible then null will
-        be returned.
-
-        Usually, the GrContext::createBackendTexture variant that takes a surface characterization
-        should be used to create the backend texture. If not,
-        SkSurfaceCharacterization::isCompatible can be used to determine if a given backend texture
-        is compatible with a specific surface characterization.
-
-        Upon success textureReleaseProc is called when it is safe to delete the texture in the
-        backend API (accounting only for use of the texture by this surface). If SkSurface creation
-        fails textureReleaseProc is called before this function returns.
-
-        @param context             GPU context
-        @param characterization    characterization of the desired surface
-        @param backendTexture      texture residing on GPU
-        @param textureReleaseProc  function called when texture can be released
-        @param releaseContext      state passed to textureReleaseProc
-        @return                    SkSurface if all parameters are compatible; otherwise, nullptr
-    */
-    static sk_sp<SkSurface> MakeFromBackendTexture(GrContext* context,
-                                                   const SkSurfaceCharacterization& characterzation,
-                                                   const GrBackendTexture& backendTexture,
-                                                   TextureReleaseProc textureReleaseProc = nullptr,
-                                                   ReleaseContext releaseContext = nullptr);
-
     /** Is this surface compatible with the provided characterization?
 
         This method can be used to determine if an existing SkSurface is a viable destination
