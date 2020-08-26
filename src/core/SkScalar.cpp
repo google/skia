@@ -15,21 +15,25 @@ SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
     SkASSERT(keys != nullptr);
     SkASSERT(values != nullptr);
 #ifdef SK_DEBUG
-    for (int i = 1; i < length; i++)
-        SkASSERT(keys[i] >= keys[i-1]);
+    for (int i = 1; i < length; i++) {
+        SkASSERT(keys[i-1] <= keys[i]);
+    }
 #endif
     int right = 0;
-    while (right < length && searchKey > keys[right])
-        right++;
+    while (right < length && keys[right] < searchKey) {
+        ++right;
+    }
     // Could use sentinel values to eliminate conditionals, but since the
     // tables are taken as input, a simpler format is better.
-    if (length == right)
+    if (right == length) {
         return values[length-1];
-    if (0 == right)
+    }
+    if (right == 0) {
         return values[0];
+    }
     // Otherwise, interpolate between right - 1 and right.
-    SkScalar rightKey = keys[right];
     SkScalar leftKey = keys[right-1];
+    SkScalar rightKey = keys[right];
     SkScalar fract = (searchKey - leftKey) / (rightKey - leftKey);
     return SkScalarInterp(values[right-1], values[right], fract);
 }
