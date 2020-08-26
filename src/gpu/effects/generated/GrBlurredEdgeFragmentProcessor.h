@@ -27,6 +27,7 @@ public:
     GrBlurredEdgeFragmentProcessor(const GrBlurredEdgeFragmentProcessor& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "BlurredEdgeFragmentProcessor"; }
+    bool usesExplicitReturn() const override;
     Mode mode;
 
 private:

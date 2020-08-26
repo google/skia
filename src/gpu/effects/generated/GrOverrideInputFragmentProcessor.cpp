@@ -92,6 +92,7 @@ bool GrOverrideInputFragmentProcessor::onIsEqual(const GrFragmentProcessor& othe
     if (literalColor != that.literalColor) return false;
     return true;
 }
+bool GrOverrideInputFragmentProcessor::usesExplicitReturn() const { return false; }
 GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         const GrOverrideInputFragmentProcessor& src)
         : INHERITED(kGrOverrideInputFragmentProcessor_ClassID, src.optimizationFlags())
