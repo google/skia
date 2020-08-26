@@ -2170,30 +2170,41 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
     }
 }
 
-template <bool countTopLevelReturns>
+template <bool countTopLevelReturns, bool onlyAtEndOfControlFlow>
 static int return_count(const Statement& statement, bool inLoopOrSwitch) {
+    constexpr auto& recurse = return_count<countTopLevelReturns, onlyAtEndOfControlFlow>;
+
     switch (statement.fKind) {
         case Statement::kBlock_Kind: {
             const Block& b = statement.as<Block>();
+            const std::vector<std::unique_ptr<Statement>>& statements = b.fStatements;
             int result = 0;
-            for (const std::unique_ptr<Statement>& s : b.fStatements) {
-                result += return_count<countTopLevelReturns>(*s, inLoopOrSwitch);
+
+            if (!statements.empty()) {
+                if (onlyAtEndOfControlFlow && !inLoopOrSwitch) {
+                    result = recurse(*statements.back(), inLoopOrSwitch);
+                } else {
+                    for (const std::unique_ptr<Statement>& s : statements) {
+                        result += recurse(*s, inLoopOrSwitch);
+                    }
+                }
             }
+
             return result;
         }
         case Statement::kDo_Kind: {
             const DoStatement& d = statement.as<DoStatement>();
-            return return_count<countTopLevelReturns>(*d.fStatement, /*inLoopOrSwitch=*/true);
+            return recurse(*d.fStatement, /*inLoopOrSwitch=*/true);
         }
         case Statement::kFor_Kind: {
             const ForStatement& f = statement.as<ForStatement>();
-            return return_count<countTopLevelReturns>(*f.fStatement, /*inLoopOrSwitch=*/true);
+            return recurse(*f.fStatement, /*inLoopOrSwitch=*/true);
         }
         case Statement::kIf_Kind: {
             const IfStatement& i = statement.as<IfStatement>();
-            int result = return_count<countTopLevelReturns>(*i.fIfTrue, inLoopOrSwitch);
+            int result = recurse(*i.fIfTrue, inLoopOrSwitch);
             if (i.fIfFalse) {
-                result += return_count<countTopLevelReturns>(*i.fIfFalse, inLoopOrSwitch);
+                result += recurse(*i.fIfFalse, inLoopOrSwitch);
             }
             return result;
         }
@@ -2204,14 +2215,14 @@ static int return_count(const Statement& statement, bool inLoopOrSwitch) {
             int result = 0;
             for (const std::unique_ptr<SwitchCase>& sc : ss.fCases) {
                 for (const std::unique_ptr<Statement>& s : sc->fStatements) {
-                    result += return_count<countTopLevelReturns>(*s, /*inLoopOrSwitch=*/true);
+                    result += recurse(*s, /*inLoopOrSwitch=*/true);
                 }
             }
             return result;
         }
         case Statement::kWhile_Kind: {
             const WhileStatement& w = statement.as<WhileStatement>();
-            return return_count<countTopLevelReturns>(*w.fStatement, /*inLoopOrSwitch=*/true);
+            return recurse(*w.fStatement, /*inLoopOrSwitch=*/true);
         }
         case Statement::kBreak_Kind:
         case Statement::kContinue_Kind:
@@ -2227,45 +2238,29 @@ static int return_count(const Statement& statement, bool inLoopOrSwitch) {
     }
 }
 
-static bool has_early_return(const FunctionDefinition& f) {
-    int returnCount =
-            return_count</*countTopLevelReturns=*/true>(*f.fBody, /*inLoopOrSwitch=*/false);
+static int count_all_returns(const FunctionDefinition& funcDef) {
+    return return_count</*countTopLevelReturns=*/true,
+                        /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody, /*inLoopOrSwitch=*/false);
+}
+
+static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDef) {
+    return return_count</*countTopLevelReturns=*/true,
+                        /*onlyAtEndOfControlFlow=*/true>(*funcDef.fBody, /*inLoopOrSwitch=*/false);
+}
+
+static int count_returns_in_breakable_constructs(const FunctionDefinition& funcDef) {
+    return return_count</*countTopLevelReturns=*/false,
+                        /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody, /*inLoopOrSwitch=*/false);
+}
+
+static bool has_early_return(const FunctionDefinition& funcDef) {
+    int returnCount = count_all_returns(funcDef);
     if (returnCount == 0) {
         return false;
     }
-    if (returnCount > 1) {
-        return true;
-    }
 
-    // Descend into the last statement of the block to see if it ends with a return statement.
-    // Sometimes the last statement of the function is actually another block, so we may need to
-    // descend more than once.
-    const Block* block = &f.fBody->as<Block>();
-    for (;;) {
-        if (block->fStatements.empty()) {
-            // The function ended with a totally empty block, but we know there's a return statement
-            // earlier in the function, so there must be an early return.
-            return true;
-        }
-        const Statement& lastStatement = *block->fStatements.back();
-        if (lastStatement.fKind == Statement::kReturn_Kind) {
-            // The last statement is a return; it's not early.
-            return false;
-        }
-        if (lastStatement.fKind != Statement::kBlock_Kind) {
-            // The last statement is not a sub-block but also not a return. We know there's a return
-            // statement earlier in the function, which must be an early return.
-            return true;
-        }
-        // The last statement is itself another block. We have to go deeper.
-        block = &lastStatement.as<Block>();
-    }
-}
-
-static bool has_return_in_breakable_construct(const FunctionDefinition& f) {
-    int returnCount =
-            return_count</*countTopLevelReturns=*/false>(*f.fBody, /*inLoopOrSwitch=*/false);
-    return returnCount > 0;
+    int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
+    return returnCount > returnsAtEndOfControlFlow;
 }
 
 std::unique_ptr<Expression> IRGenerator::inlineCall(
@@ -2425,7 +2420,7 @@ bool IRGenerator::isSafeToInline(const FunctionDefinition& functionDef) {
     }
     // We have do-while loops, but we don't have any mechanism to simulate early returns within a
     // breakable construct (switch/for/do/while), so we can't inline if there's a return inside one.
-    return !has_return_in_breakable_construct(functionDef);
+    return count_returns_in_breakable_constructs(functionDef) == 0;
 }
 
 std::unique_ptr<Expression> IRGenerator::call(int offset,
