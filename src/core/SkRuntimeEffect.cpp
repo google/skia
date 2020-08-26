@@ -347,25 +347,12 @@ static skvm::Color program_fn(skvm::Builder* p,
     auto push = [&](skvm::F32 x) { stack.push_back(x); };
     auto pop  = [&]{ skvm::F32 x = stack.back(); stack.pop_back(); return x; };
 
-#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
-    // main(inout half4 color) or main(float2 local, inout half4 color)
-    SkASSERT(fn.getParameterCount() == 4 || fn.getParameterCount() == 6);
-    if (fn.getParameterCount() == 6) {
-        push(local.x);
-        push(local.y);
-    }
-    push(inColor.r);
-    push(inColor.g);
-    push(inColor.b);
-    push(inColor.a);
-#else
     // half4 main() or half4 main(float2 local)
     SkASSERT(fn.getParameterCount() == 0 || fn.getParameterCount() == 2);
     if (fn.getParameterCount() == 2) {
         push(local.x);
         push(local.y);
     }
-#endif
 
     for (int i = 0; i < fn.getLocalCount(); i++) {
         push(p->splat(0.0f));
@@ -600,39 +587,21 @@ static skvm::Color program_fn(skvm::Builder* p,
             } break;
 
             case Inst::kReturn: {
-#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
-                SkAssertResult(u8() == 0);
-                SkASSERT(ip == end);
-#else
                 SkAssertResult(u8() == 4);
                 // We'd like to assert that (ip == end) -> there is only one return, but ByteCode
                 // always includes a kReturn/0 at the end of each function, as a precaution.
-//                SkASSERT(ip == end);
                 SkASSERT(stack.size() >= 4);
                 skvm::F32 a = pop(),
                           b = pop(),
                           g = pop(),
                           r = pop();
                 return { r, g, b, a };
-#endif
             } break;
         }
     }
 
-#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
-    for (int i = 0; i < fn.getLocalCount(); i++) {
-        pop();
-    }
-    SkASSERT(stack.size() == (size_t)fn.getParameterCount());
-    skvm::F32 a = pop(),
-              b = pop(),
-              g = pop(),
-              r = pop();
-    return { r, g, b, a };
-#else
     SkUNREACHABLE;
     return {};
-#endif
 }
 
 static sk_sp<SkData> get_xformed_uniforms(const SkRuntimeEffect* effect,

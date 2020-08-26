@@ -45,13 +45,7 @@ public:
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
-    bool usesExplicitReturn() const override {
-#ifdef SK_USE_LEGACY_RUNTIME_EFFECT_SIGNATURE
-        return false;
-#else
-        return true;
-#endif
-    }
+    bool usesExplicitReturn() const override { return true; }
 
 private:
     using ShaderErrorHandler = GrContextOptions::ShaderErrorHandler;
