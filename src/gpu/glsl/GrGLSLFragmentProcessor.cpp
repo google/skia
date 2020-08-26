@@ -34,7 +34,8 @@ void GrGLSLFragmentProcessor::emitChildFunction(int childIndex, EmitArgs& args) 
                            "_output",
                            "_input",
                            "_coords",
-                           coordVars);
+                           coordVars,
+                           /*forceInline=*/false);
         fFunctionNames[childIndex] =
                 fragBuilder->writeProcessorFunction(this->childProcessor(childIndex), childArgs);
     }
