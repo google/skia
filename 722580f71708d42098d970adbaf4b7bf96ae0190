@@ -16,6 +16,24 @@
       "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fb9cb9f_b2e0f09d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2184,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-26T17:41:58Z",
+      "side": 1,
+      "message": "In your first example, it has two returns total (count_all_returns\u003d2) and one return as the last statement in the top level block (count_returns_at_end_of_control_flow\u003d1). count_returns_at_end_of_control_flow will not see the if statement because it\u0027s not the last statement of the top-level block; it only recurses into the `return` statement at the end. So early-return detection should work fine here.\n\nYour second example isn\u0027t eligible for inlining at all because it has a return inside of a loop or switch, i.e. count_returns_in_breakable_constructs !\u003d 0. However, ignoring that... count_all_returns\u003d1 (correct) and count_returns_at_end_of_control_flow\u003d1 (oops). You\u0027re right, that\u0027s incorrect. It should be count_returns_at_end_of_control_flow\u003d0. I\u0027ll fix that. I thought of that case and added in the \"!inLoopOrSwitch\" check to the if statement, but on deeper inspection, that wasn\u0027t good enough. I\u0027ll try again.",
+      "parentUuid": "785bfc0f_4791456a",
+      "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
