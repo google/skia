@@ -69,14 +69,12 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
     return this->getPixels(requestInfo, requestPixels, requestRowBytes, nullptr);
 }
 
-bool SkCodecImageGenerator::onQueryYUVAInfo(SkYUVAInfo* yuvaInfo,
-                                            SkColorType colorType[SkYUVAInfo::kMaxPlanes],
-                                            size_t rowBytes[SkYUVAInfo::kMaxPlanes]) const {
-    return fCodec->queryYUVAInfo(yuvaInfo, colorType, rowBytes);
+bool SkCodecImageGenerator::onQueryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const {
+    return fCodec->queryYUVAInfo(yuvaPixmapInfo);
 }
 
-bool SkCodecImageGenerator::onGetYUVAPlanes(const SkPixmap planes[SkYUVAInfo::kMaxPlanes]) {
-    switch (fCodec->getYUVAPlanes(planes)) {
+bool SkCodecImageGenerator::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
+    switch (fCodec->getYUVAPlanes(yuvaPixmaps)) {
         case SkCodec::kSuccess:
         case SkCodec::kIncompleteInput:
         case SkCodec::kErrorInInput:

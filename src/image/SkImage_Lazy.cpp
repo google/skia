@@ -21,7 +21,6 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/GrResourceKey.h"
 #include "src/core/SkResourceCache.h"
-#include "src/core/SkYUVAInfoPriv.h"
 #include "src/core/SkYUVPlanesCache.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
@@ -364,27 +363,17 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
     sk_sp<SkCachedData> data(SkYUVPlanesCache::FindAndRef(generator->uniqueID(), &yuvInfo));
 
     // Try the new more descriptive SkImageGenerator/SkCodec YUVA interface.
-    SkYUVAInfo yuvaInfo;
-    SkColorType colorTypes[SkYUVAInfo::kMaxPlanes];
-    size_t rowBytes[SkYUVAInfo::kMaxPlanes];
-    if (!data && generator->queryYUVAInfo(&yuvaInfo, colorTypes, rowBytes) &&
-        yuvaInfo.dimensions() == this->dimensions()) {
-        SkISize planeDims[SkYUVAInfo::kMaxPlanes];
-        size_t planeSizes[SkYUVAInfo::kMaxPlanes];
-        size_t totalSize;
-        totalSize = yuvaInfo.computeTotalBytes(rowBytes, planeSizes);
-        data.reset(SkResourceCache::NewCachedData(totalSize));
-        const char* addr = static_cast<const char*>(data->data());
-        int n = yuvaInfo.expectedPlaneDims(planeDims);
-        for (int i = 0; i < n; ++i) {
-            auto ii = SkImageInfo::Make(planeDims[i], colorTypes[i], kPremul_SkAlphaType);
-            yuvInfo.fPlanes[i].reset(ii, addr, rowBytes[i]);
-            addr += planeSizes[i];
-        }
-        if (generator->getYUVAPlanes(yuvInfo.fPlanes) &&
-            SkYUVAInfoPriv::InitLegacyInfo(yuvaInfo, yuvInfo.fPlanes, &yuvInfo.fSizeInfo,
-                                           yuvInfo.fYUVAIndices)) {
-            yuvInfo.fColorSpace = yuvaInfo.yuvColorSpace();
+    if (SkYUVAPixmapInfo yuvaPixmapInfo;
+        !data && generator->queryYUVAInfo(&yuvaPixmapInfo) &&
+        yuvaPixmapInfo.yuvaInfo().dimensions() == this->dimensions()) {
+
+        data.reset(SkResourceCache::NewCachedData(yuvaPixmapInfo.computeTotalBytes()));
+        auto pixmaps = SkYUVAPixmaps::FromExternalMemory(yuvaPixmapInfo, data->writable_data());
+        SkASSERT(pixmaps.isValid());
+        if (generator->getYUVAPlanes(pixmaps) &&
+            pixmaps.toLegacy(&yuvInfo.fSizeInfo, yuvInfo.fYUVAIndices)) {
+            yuvInfo.fColorSpace = yuvaPixmapInfo.yuvColorSpace();
+            std::copy_n(pixmaps.planes().data(), SkYUVAPixmapInfo::kMaxPlanes, yuvInfo.fPlanes);
             // Decoding is done, cache the resulting YUV planes
             SkYUVPlanesCache::Add(this->uniqueID(), data.get(), &yuvInfo);
         } else {
