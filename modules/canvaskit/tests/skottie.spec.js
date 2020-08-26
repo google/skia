@@ -53,7 +53,7 @@ describe('Skottie behavior', () => {
 
         const animation = CanvasKit.MakeManagedAnimation(promises[0]);
         expect(animation).toBeTruthy();
-        animation.setColor('$Icon.$Icon Fill.Color', CanvasKit.RED);
+        animation.setColor('$Icon Fill', CanvasKit.RED);
         animation.seek(0.5);
         animation.render(canvas, bounds);
         animation.delete();
