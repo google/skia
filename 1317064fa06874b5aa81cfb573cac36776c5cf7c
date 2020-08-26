@@ -33,6 +33,24 @@
       "revId": "1317064fa06874b5aa81cfb573cac36776c5cf7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38d41508_243fe4ad",
+        "filename": "gm/runtimeshader_blur.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-26T20:05:45Z",
+      "side": 1,
+      "message": "Yup, exactly.",
+      "parentUuid": "d64f802d_43052c50",
+      "revId": "1317064fa06874b5aa81cfb573cac36776c5cf7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
