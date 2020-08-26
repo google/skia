@@ -199,7 +199,7 @@ SkString GrGLSLFPFragmentBuilder::writeProcessorFunction(GrGLSLFragmentProcessor
 
     SkString result;
     this->emitFunction(kHalf4_GrSLType, args.fFp.name(), paramCount, params,
-                       this->code().c_str(), &result);
+                       this->code().c_str(), &result, args.fForceInline);
     this->deleteStage();
     this->onAfterChildProcEmitCode();
     return result;
