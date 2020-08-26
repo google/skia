@@ -10,7 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
@@ -47,14 +47,14 @@ enum ShadowMode {
 
 void draw_paths(SkCanvas* canvas, ShadowMode mode) {
     SkTArray<SkPath> paths;
-    paths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
+    paths.push_back(SkPath::RRect(SkRect::MakeWH(50, 50), 10, 10));
     SkRRect oddRRect;
     oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
-    paths.push_back().addRRect(oddRRect);
-    paths.push_back().addRect(SkRect::MakeWH(50, 50));
-    paths.push_back().addCircle(25, 25, 25);
-    paths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
-    paths.push_back().addOval(SkRect::MakeWH(20, 60));
+    paths.push_back(SkPath::RRect(oddRRect));
+    paths.push_back(SkPath::Rect(SkRect::MakeWH(50, 50)));
+    paths.push_back(SkPath::Circle(25, 25, 25));
+    paths.push_back(SkPathBuilder().cubicTo(100, 50, 20, 100, 0, 0).detach());
+    paths.push_back(SkPath::Oval(SkRect::MakeWH(20, 60)));
 
     // star
     SkTArray<SkPath> concavePaths;
