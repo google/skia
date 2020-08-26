@@ -116,63 +116,94 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     return compiledLibrary;
 }
 
-id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
-                                         MTLCompileOptions* options, NSError** outError) {
-    SkASSERT(outError != nullptr);
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+// Wrapper to get atomic assignment for compiles and pipeline creation
+class MtlCompileResult : public SkRefCnt {
+public:
+    MtlCompileResult() : fCompiledObject(nil), fError(nil) {}
+    void set(id compiledObject, NSError* error) {
+        SkAutoMutexExclusive automutex(fMutex);
+        fCompiledObject = compiledObject;
+        fError = error;
+    }
+    std::pair<id, NSError*> get() {
+        SkAutoMutexExclusive automutex(fMutex);
+        return std::make_pair(fCompiledObject, fError);
+    }
+private:
+    SkMutex fMutex;
+    id fCompiledObject SK_GUARDED_BY(fMutex);
+    NSError* fError SK_GUARDED_BY(fMutex);
+};
 
-    __block id<MTLLibrary> library;
-    __block NSError* error;
+id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode,
+                                         MTLCompileOptions* options, NSError** error) {
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    sk_sp<MtlCompileResult> compileResult(new MtlCompileResult);
+    // We have to increment the ref for the Obj-C block manually because it won't do it for us
+    compileResult->ref();
     MTLNewLibraryCompletionHandler completionHandler =
-            ^(id<MTLLibrary> libraryArg, NSError* errorArg) {
-                library = libraryArg;
-                error = errorArg;
+            ^(id<MTLLibrary> library, NSError* error) {
+                compileResult->set(library, error);
                 dispatch_semaphore_signal(semaphore);
+                compileResult->unref();
             };
 
-    [device newLibraryWithSource:mslCode
-                         options:options
-               completionHandler:completionHandler];
+    [device newLibraryWithSource: mslCode
+                         options: options
+               completionHandler: completionHandler];
 
     // Wait 300 ms for the compiler
-    constexpr int kTimeoutMS = 300;
-    if (dispatch_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutMS * NSEC_PER_MSEC))) {
-        NSString* description =
-                [NSString stringWithFormat:@"Compilation took longer than %d ms", kTimeoutMS];
-        *outError = GrCreateMtlError(description, GrMtlErrorCode::kTimeout);
+    constexpr auto kTimeoutNS = 300000000UL;
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutNS))) {
+        if (error) {
+            constexpr auto kTimeoutMS = kTimeoutNS/1000000UL;
+            NSString* description =
+                    [NSString stringWithFormat:@"Compilation took longer than %lu ms",
+                                               kTimeoutMS];
+            *error = GrCreateMtlError(description, GrMtlErrorCode::kTimeout);
+        }
         return nil;
     }
-    *outError = error;
-    return library;
+
+    id<MTLLibrary> compiledLibrary;
+    std::tie(compiledLibrary, *error) = compileResult->get();
+
+    return compiledLibrary;
 }
 
 id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
-        id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, NSError** outError) {
-    SkASSERT(outError != nullptr);
+        id<MTLDevice> device, MTLRenderPipelineDescriptor* pipelineDescriptor, NSError** error) {
     dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    __block id<MTLRenderPipelineState> pipeline;
-    __block NSError* error;
-
+    sk_sp<MtlCompileResult> compileResult(new MtlCompileResult);
+    // We have to increment the ref for the Obj-C block manually because it won't do it for us
+    compileResult->ref();
     MTLNewRenderPipelineStateCompletionHandler completionHandler =
-            ^(id<MTLRenderPipelineState> pipelineArg, NSError* errorArg) {
-                pipeline = pipelineArg;
-                error = errorArg;
+            ^(id<MTLRenderPipelineState> state, NSError* error) {
+                compileResult->set(state, error);
                 dispatch_semaphore_signal(semaphore);
+                compileResult->unref();
             };
 
-    [device newRenderPipelineStateWithDescriptor:pipelineDescriptor
-                               completionHandler:completionHandler];
+    [device newRenderPipelineStateWithDescriptor: pipelineDescriptor
+                               completionHandler: completionHandler];
 
     // Wait 300 ms for pipeline creation
-    constexpr int kTimeoutMS = 300;
-    if (dispatch_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutMS * NSEC_PER_MSEC))) {
-        NSString* description =
-                [NSString stringWithFormat:@"Pipeline creation took longer than %d ms", kTimeoutMS];
-        *outError = GrCreateMtlError(description, GrMtlErrorCode::kTimeout);
+    constexpr auto kTimeoutNS = 300000000UL;
+    if (dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutNS))) {
+        if (error) {
+            constexpr auto kTimeoutMS = kTimeoutNS/1000000UL;
+            NSString* description =
+                    [NSString stringWithFormat:@"Pipeline creation took longer than %lu ms",
+                                               kTimeoutMS];
+            *error = GrCreateMtlError(description, GrMtlErrorCode::kTimeout);
+        }
         return nil;
     }
-    *outError = error;
-    return pipeline;
+
+    id<MTLRenderPipelineState> pipelineState;
+    std::tie(pipelineState, *error) = compileResult->get();
+
+    return pipelineState;
 }
 
 id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
