@@ -136,7 +136,7 @@ id<MTLLibrary> GrMtlNewLibraryWithSource(id<MTLDevice> device, NSString* mslCode
 
     // Wait 300 ms for the compiler
     constexpr int kTimeoutMS = 300;
-    if (dispatch_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutMS * NSEC_PER_MSEC))) {
+    if (dispatch_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
         NSString* description =
                 [NSString stringWithFormat:@"Compilation took longer than %d ms", kTimeoutMS];
         *outError = GrCreateMtlError(description, GrMtlErrorCode::kTimeout);
@@ -165,7 +165,7 @@ id<MTLRenderPipelineState> GrMtlNewRenderPipelineStateWithDescriptor(
 
     // Wait 300 ms for pipeline creation
     constexpr int kTimeoutMS = 300;
-    if (dispatch_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, kTimeoutMS * NSEC_PER_MSEC))) {
+    if (dispatch_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 100000))) {
         NSString* description =
                 [NSString stringWithFormat:@"Pipeline creation took longer than %d ms", kTimeoutMS];
         *outError = GrCreateMtlError(description, GrMtlErrorCode::kTimeout);
