@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61c53325_3536989e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-26T19:31:53Z",
+      "side": 1,
+      "message": "Eventually bits of this will be lifted into SkFontStyle (and will then also need a \u0027mono\u0027 bit which will subsume the isFixedPitch one on the SkTypeface).",
+      "revId": "e13b33027c6419658cec2abe6dab4744761b8874",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
