@@ -88,6 +88,24 @@
       "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4345631e_13bb0aef",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2184,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-26T18:55:52Z",
+      "side": 1,
+      "message": "(For the record, the newly-added asserts fired on unit test `SkSLFPGrSLTypesAreSupported` without the fix to the logic.)",
+      "parentUuid": "336bdace_8fe86960",
+      "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
