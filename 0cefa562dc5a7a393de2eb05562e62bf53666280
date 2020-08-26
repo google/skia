@@ -16,6 +16,92 @@
       "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ae6f1fa_0fb27d94",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-26T16:35:21Z",
+      "side": 1,
+      "message": "SkCodec related changes lgtm",
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "036b7c1c_8e824a27",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-26T16:35:21Z",
+      "side": 1,
+      "message": "nit: I find this wording awkward. I think the docs in SkImageGenerator sound clearer:\n\n     *  @param yuvaPixmaps  Contains preallocated pixmaps configured according to a successful \n     *                      call to queryYUVAInfo().",
+      "range": {
+        "startLine": 392,
+        "startChar": 8,
+        "endLine": 392,
+        "endChar": 41
+      },
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40bd09f2_7a1f7fb7",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-26T16:35:21Z",
+      "side": 1,
+      "message": "entry*",
+      "range": {
+        "startLine": 36,
+        "startChar": 16,
+        "endLine": 36,
+        "endChar": 21
+      },
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40058174_1e95d2d5",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-26T16:35:21Z",
+      "side": 1,
+      "message": "nit: No need to add this extra line here.",
+      "range": {
+        "startLine": 752,
+        "startChar": 0,
+        "endLine": 752,
+        "endChar": 0
+      },
+      "revId": "0cefa562dc5a7a393de2eb05562e62bf53666280",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
