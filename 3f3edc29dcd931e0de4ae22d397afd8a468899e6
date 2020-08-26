@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "907c69ba_ed645120",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-26T17:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f07640ec_68b34576",
+      "range": {
+        "startLine": 40,
+        "startChar": 34,
+        "endLine": 40,
+        "endChar": 60
+      },
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f93a220_e8750369",
         "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
         "patchSetId": 10
@@ -86,6 +110,24 @@
       "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf53a5eb_a8f37a6a",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-26T17:42:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f93a220_e8750369",
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -109,6 +151,30 @@
       "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c58f9cc0_5022c291",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-26T17:42:45Z",
+      "side": 1,
+      "message": "I don\u0027t know what you mean by a literal.",
+      "parentUuid": "45d734af_7c7cadd3",
+      "range": {
+        "startLine": 49,
+        "startChar": 49,
+        "endLine": 49,
+        "endChar": 57
+      },
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
