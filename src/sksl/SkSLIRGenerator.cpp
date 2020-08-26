@@ -2363,6 +2363,17 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     // create variables to hold the arguments and assign the arguments to them
     int argIndex = fInlineVarCounter++;
     for (int i = 0; i < (int) arguments.size(); ++i) {
+        if (arguments[i]->fKind == Expression::kVariableReference_Kind) {
+            // the argument is just a variable, so we only need to copy it if it's an out parameter
+            // or it's written to within the function
+            const VariableReference& v = arguments[i]->as<VariableReference>();
+            const Variable* param = function.fDeclaration.fParameters[i];
+            if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
+                !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
+                varMap[param] = &v.fVariable;
+                continue;
+            }
+        }
         std::unique_ptr<String> argName(new String());
         argName->appendf("_inlineArg%s%d_%d", inlineSalt.c_str(), argIndex, i);
         const String* argNamePtr = fSymbolTable->takeOwnershipOfString(std::move(argName));
@@ -2405,6 +2416,13 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     for (size_t i = 0; i < arguments.size(); ++i) {
         const Variable* p = function.fDeclaration.fParameters[i];
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
+            SkASSERT(varMap.find(p) != varMap.end());
+            if (arguments[i]->fKind == Expression::kVariableReference_Kind &&
+                &arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
+                // we didn't create a temporary for this parameter, so there's nothing to copy back
+                // out
+                continue;
+            }
             std::unique_ptr<Expression> varRef(new VariableReference(offset, *varMap[p]));
             fExtraStatements.emplace_back(new ExpressionStatement(
                     std::unique_ptr<Expression>(new BinaryExpression(offset,
