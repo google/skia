@@ -52,6 +52,24 @@
       "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ce2ea88_490dcfde",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2184,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-26T17:54:34Z",
+      "side": 1,
+      "message": "Right--has_return_in_breakable_construct(fn) should be a strict subset of has_early_return(fn). I could/should add asserts to check this.",
+      "parentUuid": "8507fee8_4819f7d5",
+      "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
