@@ -39,7 +39,6 @@
 
 class SkFont;
 class SkFontMgr;
-class SkUnicode;
 
 /**
    Shapes text using HarfBuzz and places the shaped text into a
@@ -134,9 +133,7 @@ public:
 
     static std::unique_ptr<BiDiRunIterator>
     MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
-    #ifdef SK_UNICODE_AVAILABLE
-    static std::unique_ptr<BiDiRunIterator>
-    MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
+    #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
     static std::unique_ptr<BiDiRunIterator>
     MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel);
     #endif
