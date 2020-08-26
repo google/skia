@@ -61,6 +61,8 @@ public:
         fRRectOrOvalStartIdx = 0xAC;
         SkDEBUGCODE(fEditorsAttached.store(0);)
         SkDEBUGCODE(this->validate();)
+
+        this->computeBounds();  // do this now, before we worry about multiple owners/threads
     }
 
     class Editor {
