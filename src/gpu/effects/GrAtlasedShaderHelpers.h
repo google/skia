@@ -23,32 +23,28 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      GrGLSLVarying* texIdx,
                                      GrGLSLVarying* st) {
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
-    constexpr int bitShift = GrDrawOpAtlas::kPageIndexBit;
     // This extracts the texture index and texel coordinates from the same variable
-    // Packing structure: texel coordinates have the 2-bit texture page encoded in bit 13 of uv,
+    // Packing structure: texel coordinates have the 2-bit texture page encoded in bit 15 of uv,
     // with the high bit of the page in u, and to low bit in v.
     if (args.fShaderCaps->integerSupport()) {
         args.fVertBuilder->codeAppendf("int2 coords = int2(%s.x, %s.y);",
                                        inTexCoordsName, inTexCoordsName);
-        constexpr int mask = (1 << bitShift) - 1;
-        args.fVertBuilder->codeAppendf(
-                "float2 unormTexCoords = float2(coords.x & %d, coords.y & %d);", mask, mask);
+        args.fVertBuilder->codeAppend(
+                "float2 unormTexCoords = float2(coords.x & 0x7FFF, coords.y & 0x7FFF);");
         if (numTextureSamplers <= 1) {
             args.fVertBuilder->codeAppend("int texIdx = 0;");
         } else {
-            args.fVertBuilder->codeAppendf(
-                    "int texIdx = ((coords.x >> %d) & 0x2) + ((coords.y >> %d) & 0x1);",
-                    bitShift - 1, bitShift);
+            args.fVertBuilder->codeAppend(
+                    "int texIdx = ((coords.x >> 14) & 0x2) + ((coords.y >> 15) & 0x1);");
         }
     } else {
-        args.fVertBuilder->defineConstantf("float", "kIndexBit", "exp2(%d.0)", bitShift);
-        args.fVertBuilder->defineConstantf("float", "kInvIndexBit", "exp2(-%d.0)", bitShift);
         args.fVertBuilder->codeAppendf("float2 coord = float2(%s.x, %s.y);",
                                        inTexCoordsName, inTexCoordsName);
-        args.fVertBuilder->codeAppend("float2 unitTexCoords = kInvIndexBit * coord;");
-        args.fVertBuilder->codeAppend("float2 highBits = floor(unitTexCoords);");
-        args.fVertBuilder->codeAppend(
-                "float2 unormTexCoords = coord - kIndexBit * highBits;");
+        args.fVertBuilder->codeAppend(R"code(
+            float2 unitTexCoords = exp2(-15) * coord;
+            float2 highBits = floor(unitTexCoords);
+            float2 unormTexCoords = coord - exp2(15) * highBits;
+        )code");
         if (numTextureSamplers <= 1) {
             args.fVertBuilder->codeAppend("float texIdx = 0;");
         } else {
