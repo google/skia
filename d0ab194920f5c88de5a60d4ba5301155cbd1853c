@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29da7acc_bb7bec31",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-26T17:20:00Z",
+      "side": 1,
+      "message": "Is there an extra space here ?",
+      "range": {
+        "startLine": 504,
+        "startChar": 65,
+        "endLine": 504,
+        "endChar": 66
+      },
+      "revId": "d0ab194920f5c88de5a60d4ba5301155cbd1853c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
