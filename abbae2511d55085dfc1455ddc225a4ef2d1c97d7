@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d73ce85_656281cf",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-26T19:57:37Z",
+      "side": 1,
+      "message": "define fontStyle, strutStyle and placeholderStyle in CanvasKit like .CanvasKitParagraphStyle and CanvasKit.TextStyle\n\nusers wanting to make such styles and re-use them will need to call those methods.",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "499b2057_9b057612",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-26T19:57:37Z",
+      "side": 1,
+      "message": "What is a placeholder in this context? what is it\u0027s purpose?",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dc41f18_98c03185",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-08-26T19:57:37Z",
+      "side": 1,
+      "message": "Add tests for strutStyles, fontFeatures, placeholderStyle",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
