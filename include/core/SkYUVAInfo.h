@@ -84,7 +84,7 @@ public:
     SkYUVAInfo(SkISize dimensions,
                PlanarConfig,
                SkYUVColorSpace,
-               SkEncodedOrigin origin,
+               SkEncodedOrigin origin = kTopLeft_SkEncodedOrigin,
                Siting sitingX = Siting::kCentered,
                Siting sitingY = Siting::kCentered);
 
@@ -108,7 +108,7 @@ public:
 
     /**
      * Returns the number of planes and initializes planeDims[0]..planeDims[<ret>] to the expected
-     * dimensions for each plane.
+     * dimensions for each plane. Dimensions are before transformation to display space.
      */
     int expectedPlaneDims(SkISize planeDims[kMaxPlanes]) const {
         return ExpectedPlaneDims(fPlanarConfig, fOrigin, fDimensions, planeDims);

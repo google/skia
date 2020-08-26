@@ -21,6 +21,7 @@ int SkYUVAInfo::ExpectedPlaneDims(PlanarConfig planarConfig,
     auto down2 = [](int x) { return (x + 1)/2; };
     auto down4 = [](int x) { return (x + 3)/4; };
     planeDims[0] = {w, h};
+    planeDims[3] = {0, 0};
     switch (planarConfig) {
         case SkYUVAInfo::PlanarConfig::kY_U_V_444:
             planeDims[0] = planeDims[1] = planeDims[2] = {w, h};
