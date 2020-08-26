@@ -3682,29 +3682,31 @@ struct SkHalfPlane {
 
 // assumes plane is pre-normalized
 // If we fail in our calculations, we return the empty path
-static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
+static void clip(const SkPath& path, const SkHalfPlane& plane, SkPath* clippedPath) {
     SkMatrix mx, inv;
     SkPoint p0 = { -plane.fA*plane.fC, -plane.fB*plane.fC };
     mx.setAll( plane.fB, plane.fA, p0.fX,
               -plane.fA, plane.fB, p0.fY,
                       0,        0,     1);
     if (!mx.invert(&inv)) {
-        return SkPath();
+        clippedPath->reset();
+        return;
     }
 
     SkPath rotated;
     path.transform(inv, &rotated);
     if (!rotated.isFinite()) {
-        return SkPath();
+        clippedPath->reset();
+        return;
     }
 
     SkScalar big = SK_ScalarMax;
     SkRect clip = {-big, 0, big, big };
 
     struct Rec {
-        SkPathBuilder fResult;
-        SkPoint       fPrev = {0,0};
-    } rec;
+        SkPath* fResult;
+        SkPoint fPrev;
+    } rec = { clippedPath, {0, 0} };
 
     SkEdgeClipper::ClipPath(rotated.view(), clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
@@ -3715,26 +3717,26 @@ static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
         SkPath::Verb verb;
         while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
             if (newCtr) {
-                rec->fResult.moveTo(pts[0]);
+                rec->fResult->moveTo(pts[0]);
                 rec->fPrev = pts[0];
                 newCtr = false;
             }
 
             if (addLineTo || pts[0] != rec->fPrev) {
-                rec->fResult.lineTo(pts[0]);
+                rec->fResult->lineTo(pts[0]);
             }
 
             switch (verb) {
                 case SkPath::kLine_Verb:
-                    rec->fResult.lineTo(pts[1]);
+                    rec->fResult->lineTo(pts[1]);
                     rec->fPrev = pts[1];
                     break;
                 case SkPath::kQuad_Verb:
-                    rec->fResult.quadTo(pts[1], pts[2]);
+                    rec->fResult->quadTo(pts[1], pts[2]);
                     rec->fPrev = pts[2];
                     break;
                 case SkPath::kCubic_Verb:
-                    rec->fResult.cubicTo(pts[1], pts[2], pts[3]);
+                    rec->fResult->cubicTo(pts[1], pts[2], pts[3]);
                     rec->fPrev = pts[3];
                     break;
                 default: break;
@@ -3743,12 +3745,11 @@ static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
         }
     }, &rec);
 
-    rec.fResult.setFillType(path.getFillType());
-    SkPath result = rec.fResult.detach().makeTransform(mx);
-    if (!result.isFinite()) {
-        result = SkPath();
+    clippedPath->setFillType(path.getFillType());
+    clippedPath->transform(mx);
+    if (!path.isFinite()) {
+        clippedPath->reset();
     }
-    return result;
 }
 
 // true means we have written to clippedPath
@@ -3767,14 +3768,14 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
             case SkHalfPlane::kAllPositive:
                 return false;
             case SkHalfPlane::kMixed: {
-                *clippedPath = clip(path, plane);
+                clip(path, plane, clippedPath);
                 return true;
             } break;
             default: break; // handled outside of the switch
         }
     }
     // clipped out (or failed)
-    *clippedPath = SkPath();
+    clippedPath->reset();
     return true;
 }
 

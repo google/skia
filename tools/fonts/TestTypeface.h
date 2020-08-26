@@ -57,7 +57,7 @@ private:
     const SkFixed*       fWidths;
     const SkFontMetrics& fMetrics;
     const char*          fName;
-    SkPath*              fPaths;
+    SkPath**             fPaths;
     friend class TestTypeface;
     typedef SkRefCnt INHERITED;
 };
@@ -67,7 +67,7 @@ public:
     TestTypeface(sk_sp<SkTestFont>, const SkFontStyle& style);
     void getAdvance(SkGlyph* glyph);
     void getFontMetrics(SkFontMetrics* metrics);
-    SkPath getPath(SkGlyphID glyph);
+    void getPath(SkGlyphID glyph, SkPath* path);
 
 protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,

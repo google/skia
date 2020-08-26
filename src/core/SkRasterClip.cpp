@@ -263,7 +263,10 @@ bool SkRasterClip::op(const SkRRect& rrect, const SkMatrix& matrix, const SkIRec
     SkIRect bounds(devBounds);
     this->applyClipRestriction(op, &bounds);
 
-    return this->op(SkPath::RRect(rrect), matrix, bounds, op, doAA);
+    SkPath path;
+    path.addRRect(rrect);
+
+    return this->op(path, matrix, bounds, op, doAA);
 }
 
 bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, const SkIRect& devBounds,

@@ -679,7 +679,9 @@ bool SkAAClip::setRect(const SkRect& r, bool doAA) {
 
     // TODO: special case this
 
-    return this->setPath(SkPath::Rect(r), nullptr, doAA);
+    SkPath path;
+    path.addRect(r);
+    return this->setPath(path, nullptr, doAA);
 }
 
 static void append_run(SkTDArray<uint8_t>& array, uint8_t value, int count) {

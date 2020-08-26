@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPathBuilder.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -74,15 +74,13 @@ protected:
 
         SkASSERT(SK_ARRAY_COUNT(pgs) == kNumPolygons);
         for (size_t pgIndex = 0; pgIndex < SK_ARRAY_COUNT(pgs); ++pgIndex) {
-            SkPathBuilder b;
-            b.moveTo(pgs[pgIndex].fPoints[0].fX,
-                     pgs[pgIndex].fPoints[0].fY);
+            fPolygons.push_back().moveTo(pgs[pgIndex].fPoints[0].fX,
+                                         pgs[pgIndex].fPoints[0].fY);
             for (size_t ptIndex = 1; ptIndex < pgs[pgIndex].fPointNum; ++ptIndex) {
-                b.lineTo(pgs[pgIndex].fPoints[ptIndex].fX,
-                         pgs[pgIndex].fPoints[ptIndex].fY);
+                fPolygons.back().lineTo(pgs[pgIndex].fPoints[ptIndex].fX,
+                                        pgs[pgIndex].fPoints[ptIndex].fY);
             }
-            b.close();
-            fPolygons.push_back(b.detach());
+            fPolygons.back().close();
         }
     }
 
