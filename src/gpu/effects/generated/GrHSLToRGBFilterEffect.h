@@ -38,6 +38,7 @@ public:
     GrHSLToRGBFilterEffect(const GrHSLToRGBFilterEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "HSLToRGBFilterEffect"; }
+    bool usesExplicitReturn() const override;
 
 private:
     GrHSLToRGBFilterEffect(std::unique_ptr<GrFragmentProcessor> inputFP)

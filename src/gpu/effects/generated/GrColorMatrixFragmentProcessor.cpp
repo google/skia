@@ -110,6 +110,7 @@ bool GrColorMatrixFragmentProcessor::onIsEqual(const GrFragmentProcessor& other)
     if (premulOutput != that.premulOutput) return false;
     return true;
 }
+bool GrColorMatrixFragmentProcessor::usesExplicitReturn() const { return false; }
 GrColorMatrixFragmentProcessor::GrColorMatrixFragmentProcessor(
         const GrColorMatrixFragmentProcessor& src)
         : INHERITED(kGrColorMatrixFragmentProcessor_ClassID, src.optimizationFlags())
