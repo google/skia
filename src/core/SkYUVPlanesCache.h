@@ -24,7 +24,7 @@ public:
      * fSizeInfo: fWidth, fHeight, and fWidthBytes of each of the Y, U, V, and A planes.
      * fColorSpace: color space that will be used for the YUV -> RGB conversion.
      *
-     * TODO: Replace first three fields with SkYUVAInfo.
+     * TODO: Replace this with SkYUVAPixmaps
      */
     struct Info {
         SkYUVASizeInfo  fSizeInfo;

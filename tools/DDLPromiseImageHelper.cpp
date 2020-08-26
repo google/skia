@@ -17,7 +17,6 @@
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTaskGroup.h"
-#include "src/core/SkYUVAInfoPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
@@ -72,8 +71,7 @@ void DDLPromiseImageHelper::PromiseImageInfo::setMipLevels(const SkBitmap& baseL
 
 void DDLPromiseImageHelper::PromiseImageInfo::initYUVAIndices() {
     SkYUVASizeInfo unusedSizeInfo;
-    SkYUVAInfoPriv::InitLegacyInfo(fYUVAPixmaps.yuvaInfo(), fYUVAPixmaps.planes(), &unusedSizeInfo,
-                                   fYUVAIndices);
+    fYUVAPixmaps.toLegacy(&unusedSizeInfo, fYUVAIndices);
     // We can wind up with alpha pixmaps that become red textures. If so, update YUVA indices.
     // Note: This goes away when we start creating YUVA images using SkYUVAInfo.
     for (int i = 0; i < SkYUVAIndex::kIndexCount; ++i) {
@@ -445,12 +443,10 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
                                                              overallII);
 
     auto codec = SkCodecImageGenerator::MakeFromEncodedCodec(ib->refEncodedData());
-    SkYUVAInfo yuvaInfo;
-    SkColorType colorTypes[SkYUVAInfo::kMaxPlanes];
-    size_t rowBytes[SkYUVAInfo::kMaxPlanes];
-    if (codec && codec->queryYUVAInfo(&yuvaInfo, colorTypes, rowBytes)) {
-        sk_gpu_test::YUVAPixmaps yuvaPixmaps(yuvaInfo, colorTypes, rowBytes);
-        SkAssertResult(codec->getYUVAPlanes(yuvaPixmaps.planes()));
+    SkYUVAPixmapInfo yuvaInfo;
+    if (codec && codec->queryYUVAInfo(&yuvaInfo)) {
+        auto yuvaPixmaps = SkYUVAPixmaps::Allocate(yuvaInfo);
+        SkAssertResult(codec->getYUVAPlanes(yuvaPixmaps));
         SkASSERT(yuvaPixmaps.isValid());
         newImageInfo.setYUVPlanes(std::move(yuvaPixmaps));
     } else {
