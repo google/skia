@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89e125d6_8d1ac102",
+        "filename": "gm/runtimeshader_blur.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-26T19:13:36Z",
+      "side": 1,
+      "message": "As of this week, the signature here will need to be:\n  half4 main(float2 xy)\n\nand you\u0027ll just need to change the last line to:\n  return half4(c.rgb * 0.2, 1.0);",
+      "revId": "1317064fa06874b5aa81cfb573cac36776c5cf7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
