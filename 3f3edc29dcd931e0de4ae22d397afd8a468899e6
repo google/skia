@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0cf5fe21_45dc02dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-26T14:57:43Z",
+      "side": 1,
+      "message": "It\u0027s similar. I think the problem with the nexus 7 is that the exponent is asymmetric around 0. There are fewer negative exponents values than positive exponent values. I think the iphone was did not handle bit 15 properly. I plan to investigate more.",
+      "parentUuid": "46fc181a_0eea9890",
+      "range": {
+        "startLine": 10,
+        "startChar": 38,
+        "endLine": 10,
+        "endChar": 49
+      },
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f07640ec_68b34576",
         "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
         "patchSetId": 10
