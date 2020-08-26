@@ -1237,6 +1237,137 @@ R"SkSL(half4 _inlineResulthalf4blockyhalf40;
 )__Cpp__"});
 }
 
+DEF_TEST(SkSLFPInlinedEarlyReturnsAreWrappedInDoWhileBlock, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             inline half4 returny(half4 c) {
+                 if (c.x > c.y) return c.xxxx;
+                 if (c.y > c.z) return c.yyyy;
+                 return c.zzzz;
+             }
+             void main() {
+                 sk_OutColor = returny(color);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(half4 _inlineResulthalf4returnyhalf40;
+do {
+    if (%s.x > %s.y) {
+        _inlineResulthalf4returnyhalf40 = %s.xxxx;
+        break;
+    }
+    if (%s.y > %s.z) {
+        _inlineResulthalf4returnyhalf40 = %s.yyyy;
+        break;
+    }
+    {
+        _inlineResulthalf4returnyhalf40 = %s.zzzz;
+        break;
+    }
+} while (false);
+%s = _inlineResulthalf4returnyhalf40;
+
+)SkSL"
+, args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPEarlyReturnDetectionSupportsIfElse, r) {
+    // An if-else statement at the end of a function, with a return as the last statement on all
+    // paths, are not actually "early" returns. The inliner is able to recognize this pattern.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             inline half4 branchy(half4 c) {
+                 c *= 0.5;
+                 if (c.x > 0)
+                     return c.xxxx;
+                 else if (c.y > 0)
+                     return c.yyyy;
+                 else if (c.z > 0)
+                     return c.zzzz;
+                 else
+                     return c.wwww;
+             }
+             inline half4 branchyAndBlocky(half4 c) {{{
+                 if (c.x > 0) {
+                     half4 d = c * 0.5;
+                     return d.xxxx;
+                 } else {{{
+                     if (c.x < 0) {
+                         return c.wwww;
+                     } else {
+                         return c.yyyy;
+                     }
+                 }}}
+             }}}
+             void main() {
+                 sk_OutColor = branchy(color) * branchyAndBlocky(color);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(half4 _inlineResulthalf4branchyhalf40;
+half4 _inlineArghalf4branchyhalf41_0 = %s;
+do {
+    _inlineArghalf4branchyhalf41_0 *= 0.5;
+    if (_inlineArghalf4branchyhalf41_0.x > 0.0) {
+        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.xxxx;
+        break;
+    } else if (_inlineArghalf4branchyhalf41_0.y > 0.0) {
+        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.yyyy;
+        break;
+    } else if (_inlineArghalf4branchyhalf41_0.z > 0.0) {
+        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.zzzz;
+        break;
+    } else {
+        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.wwww;
+        break;
+    }
+} while (false);
+half4 _inlineResulthalf4branchyAndBlockyhalf42;
+do {
+    {
+        {
+            if (%s.x > 0.0) {
+                half4 d = %s * 0.5;
+                {
+                    _inlineResulthalf4branchyAndBlockyhalf42 = d.xxxx;
+                    break;
+                }
+            } else {
+                {
+                    {
+                        if (%s.x < 0.0) {
+                            {
+                                _inlineResulthalf4branchyAndBlockyhalf42 = %s.wwww;
+                                break;
+                            }
+                        } else {
+                            {
+                                _inlineResulthalf4branchyAndBlockyhalf42 = %s.yyyy;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+} while (false);
+%s = _inlineResulthalf4branchyhalf40 * _inlineResulthalf4branchyAndBlockyhalf42;
+
+)SkSL"
+, args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
+)__Cpp__"});
+}
+
 DEF_TEST(SkSLFPGrSLTypesAreSupported, r) {
     // We thwart the optimizer by wrapping our return statement in a loop, which prevents inlining.
     test(r,
