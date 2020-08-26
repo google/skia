@@ -192,7 +192,7 @@ void IRGenerator::start(const Program::Settings* settings,
     }
     SkASSERT(fIntrinsics);
     for (auto& pair : *fIntrinsics) {
-        pair.second.second = false;
+        pair.second.fAlreadyIncluded = false;
     }
 }
 
@@ -2398,9 +2398,9 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
     auto found = fIntrinsics->find(function.description());
-    if (found != fIntrinsics->end() && !found->second.second) {
-        found->second.second = true;
-        FunctionDefinition& original = found->second.first->as<FunctionDefinition>();
+    if (found != fIntrinsics->end() && !found->second.fAlreadyIncluded) {
+        found->second.fAlreadyIncluded = true;
+        FunctionDefinition& original = found->second.fIntrinsic->as<FunctionDefinition>();
         for (const FunctionDeclaration* f : original.fReferencedIntrinsics) {
             this->copyIntrinsicIfNeeded(*f);
         }
@@ -3061,9 +3061,9 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     if (!result) {
         auto found = fIntrinsics->find(type.fName);
         if (found != fIntrinsics->end()) {
-            SkASSERT(!found->second.second);
-            found->second.second = true;
-            fProgramElements->push_back(found->second.first->clone());
+            SkASSERT(!found->second.fAlreadyIncluded);
+            found->second.fAlreadyIncluded = true;
+            fProgramElements->push_back(found->second.fIntrinsic->clone());
             return this->convertTypeField(offset, type, field);
         }
         fErrors.error(offset, "type '" + type.fName + "' does not have a field named '" + field +

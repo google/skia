@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLDehydrator.h"
 
+#include <map>
+
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"

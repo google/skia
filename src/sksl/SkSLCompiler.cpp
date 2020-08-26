@@ -70,7 +70,7 @@ static const char SKSL_PIPELINE_INCLUDE[] = "sksl_pipeline.sksl";
 namespace SkSL {
 
 static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
-               std::map<String, std::pair<std::unique_ptr<ProgramElement>, bool>>* target) {
+                            IRIntrinsicMap* target) {
     for (auto iter = src->begin(); iter != src->end(); ) {
         std::unique_ptr<ProgramElement>& element = *iter;
         switch (element->fKind) {
@@ -79,7 +79,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 SkASSERT(f.fDeclaration.fBuiltin);
                 String key = f.fDeclaration.description();
                 SkASSERT(target->find(key) == target->end());
-                (*target)[key] = std::make_pair(std::move(element), false);
+                (*target)[key] = IRIntrinsic{std::move(element), /*fAlreadyIncluded=*/false};
                 iter = src->erase(iter);
                 break;
             }
@@ -87,7 +87,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 Enum& e = element->as<Enum>();
                 StringFragment name = e.fTypeName;
                 SkASSERT(target->find(name) == target->end());
-                (*target)[name] = std::make_pair(std::move(element), false);
+                (*target)[name] = IRIntrinsic{std::move(element), /*fAlreadyIncluded=*/false};
                 iter = src->erase(iter);
                 break;
             }
@@ -99,8 +99,10 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
 }
 
 Compiler::Compiler(Flags flags)
-: fFlags(flags)
-, fContext(new Context())
+: fGPUIntrinsics(std::make_unique<IRIntrinsicMap>())
+, fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>())
+, fFlags(flags)
+, fContext(std::make_shared<Context>())
 , fErrorCount(0) {
     auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(this));
     fIRGenerator = new IRGenerator(fContext.get(), symbols, *this);
@@ -236,7 +238,7 @@ Compiler::Compiler(Flags flags)
             std::make_unique<Variable>(/*offset=*/-1, Modifiers(), skCapsName,
                                        *fContext->fSkCaps_Type, Variable::kGlobal_Storage));
 
-    fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+    fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
     std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
 #if SKSL_STANDALONE
@@ -266,8 +268,8 @@ Compiler::Compiler(Flags flags)
         fFragmentInclude = rehydrator.elements();
     }
 #endif
-    grab_intrinsics(&gpuIntrinsics, &fGPUIntrinsics);
-    grab_intrinsics(&interpIntrinsics, &fInterpreterIntrinsics);
+    grab_intrinsics(&gpuIntrinsics, fGPUIntrinsics.get());
+    grab_intrinsics(&interpIntrinsics, fInterpreterIntrinsics.get());
 }
 
 Compiler::~Compiler() {
@@ -1548,20 +1550,20 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
         case Program::kVertex_Kind:
             inherited = &fVertexInclude;
             fIRGenerator->fSymbolTable = fVertexSymbolTable;
-            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kFragment_Kind:
             inherited = &fFragmentInclude;
             fIRGenerator->fSymbolTable = fFragmentSymbolTable;
-            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kGeometry_Kind:
             this->loadGeometryIntrinsics();
             inherited = &fGeometryInclude;
             fIRGenerator->fSymbolTable = fGeometrySymbolTable;
-            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kFragmentProcessor_Kind: {
@@ -1575,14 +1577,14 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             }
             inherited = &fFPInclude;
             fIRGenerator->fSymbolTable = fFPSymbolTable;
-            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             fIRGenerator->start(&settings, inherited);
             break;
 #else
             inherited = nullptr;
             fIRGenerator->fSymbolTable = fGpuSymbolTable;
             fIRGenerator->start(&settings, /*inherited=*/nullptr, /*builtin=*/true);
-            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             std::ifstream in(SKSL_FP_INCLUDE);
             std::string stdText{std::istreambuf_iterator<char>(in),
                                 std::istreambuf_iterator<char>()};
@@ -1601,14 +1603,14 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             this->loadPipelineIntrinsics();
             inherited = &fPipelineInclude;
             fIRGenerator->fSymbolTable = fPipelineSymbolTable;
-            fIRGenerator->fIntrinsics = &fGPUIntrinsics;
+            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             fIRGenerator->start(&settings, inherited);
             break;
         case Program::kGeneric_Kind:
             this->loadInterpreterIntrinsics();
             inherited = &fInterpreterInclude;
             fIRGenerator->fSymbolTable = fInterpreterSymbolTable;
-            fIRGenerator->fIntrinsics = &fInterpreterIntrinsics;
+            fIRGenerator->fIntrinsics = fInterpreterIntrinsics.get();
             fIRGenerator->start(&settings, inherited);
             break;
     }
