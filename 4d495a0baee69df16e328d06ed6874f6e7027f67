@@ -137,6 +137,24 @@
     },
     {
       "key": {
+        "uuid": "fb6f0cbd_30946d39",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-08-26T18:33:49Z",
+      "side": 1,
+      "message": "3. I\u0027ll dig a little deeper into what DWrite does internally when it applies its gamma/contrast settings.  \n\nThe best approach here might be a Windows/DWrite-specific mask-fixup that doesn\u0027t make use of the existing gamma/contrast hacks.",
+      "parentUuid": "22984c11_7eed8ede",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8ccc899_d8034f36",
         "filename": "src/core/SkFontLCDConfig.cpp",
         "patchSetId": 4
@@ -184,6 +202,24 @@
       "side": 1,
       "message": "The fact that on Windows the gamma and contrast are a per-monitor property is a very strong argument that not only should this global not go in a library it shouldn\u0027t be a single global (which is also an argument for why these existing globals which could vary on a per-monitor basis shouldn\u0027t be here as well).\n\nI\u0027m well aware that this makes the change in Chromium more difficult; while I\u0027ve started on it twice I still haven\u0027t been able to get these globals out of Skia. All of these values need to come from the Display (ui/display/display.h) in Chromium (just like the color space) and be plumbed down to SkSurface creation. (Most of the issue with the existing globals, however, is moving all the existing surface geometry detection code which is all over the place around while keeping things working. Hopefully this proposal doesn\u0027t have that limitation and you can just pass the information down with the color space.)\n\nNow, I don\u0027t really like the idea of the SkSurface having a different color space for text vs everything else, but I\u0027ll leave the prospect of adding another color space to SkSurface up to the owners of SkSurface. However, if these globals are added they will always be wrong and will be here for a very long time and Chromium will be unlikely to ever set the correctly. If you really want globals for pragmatic reasons that could better be done pragmatically in Chromium directly and let Chromium handle the technical debt of that (though I would much rather see this plumbed from Display on down).",
       "parentUuid": "990db9d5_be311b5b",
+      "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b76e51b_574388dc",
+        "filename": "src/core/SkFontLCDConfig.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-08-26T18:33:49Z",
+      "side": 1,
+      "message": "I totally agree on the per-monitor vs. globals comment... the two are obviously incompatible.  Per-monitor was a longer-term goal (and requires quite a bit more work on the Chromium side).\n\nFWIW, I going to take a stab at removing the use of the globals from Chromium, since that appears to be our primary sticking point.  \n\nI\u0027m not sure what that\u0027ll look like, yet... the first pass might be to literally move the globals into Chromium.  I think the UI process will be easy (plumbing from CachedFontRenderParams, which is basically an already existing global), but the renderer and GPU processes are more interesting.\n\nI\u0027m assuming that Chromium is the only client of these deprecated APIs?",
+      "parentUuid": "9c82fc70_5c63e48b",
       "revId": "4d495a0baee69df16e328d06ed6874f6e7027f67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
