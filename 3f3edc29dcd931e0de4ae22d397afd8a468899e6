@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46fc181a_0eea9890",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-26T14:36:00Z",
+      "side": 1,
+      "message": "Is this the case for Nexus 7 also?",
+      "range": {
+        "startLine": 10,
+        "startChar": 38,
+        "endLine": 10,
+        "endChar": 49
+      },
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f07640ec_68b34576",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-26T14:36:00Z",
+      "side": 1,
+      "message": "Why not \"(coords.x \u003e\u003e %d) \u0026 0x2\"? (where %d \u003d\u003e bitShift-1)",
+      "range": {
+        "startLine": 40,
+        "startChar": 34,
+        "endLine": 40,
+        "endChar": 60
+      },
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f93a220_e8750369",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-26T14:36:00Z",
+      "side": 1,
+      "message": "I just had a thought on how to make this value feel more constant:\n\n  args.fVertBuilder-\u003edefineConstantf(\"float\", \"kBitShiftRight\", \"exp2(-%d.0)\", bitShift);\n  args.fVertBuilder-\u003ecodeAppendf(\"float2 unitTexCoords \u003d kBitShiftRight * coord;\");\n\n(defineConstantf puts the declaration outside the main() function in global scope.)",
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45d734af_7c7cadd3",
+        "filename": "src/gpu/effects/GrAtlasedShaderHelpers.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-26T14:36:00Z",
+      "side": 1,
+      "message": "I would probably just express this as a literal:\n\n  args.fVertBuilder-\u003ecodeAppendf(\n                  \"float2 unormTexCoords \u003d coord - %d * highBits;\", 1 \u003c\u003c bitShift);",
+      "range": {
+        "startLine": 49,
+        "startChar": 49,
+        "endLine": 49,
+        "endChar": 57
+      },
+      "revId": "3f3edc29dcd931e0de4ae22d397afd8a468899e6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
