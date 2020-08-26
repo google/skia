@@ -249,7 +249,7 @@ private:
     SkTArray<CodeUnitFlags> fCodeUnitProperties;
     SkTArray<size_t> fClustersIndexFromCodeUnit;
     std::vector<size_t> fWords;
-    std::vector<SkUnicode::BidiRegion> fBidiRegions;
+    std::vector<BidiRegion> fBidiRegions;
     // These two arrays are used in measuring methods (getRectsForRange, getGlyphPositionAtCoordinate)
     // They are filled lazily whenever they need and cached
     SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
