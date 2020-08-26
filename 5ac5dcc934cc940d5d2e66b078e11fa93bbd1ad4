@@ -22,6 +22,30 @@
       "revId": "5ac5dcc934cc940d5d2e66b078e11fa93bbd1ad4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ae211cff_3e45566b",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-26T14:03:31Z",
+      "side": 1,
+      "message": "It would fail to compile, yes. We\u0027ve historically never allowed the keyword `return` in our FP main(), since it might be pasted as a stage instead of used as a standalone function, so this isn\u0027t actually a regression. Allowing sk_OutColor and return statements to mix is a more complicated change and I don\u0027t think the complexity is warranted since sk_OutColor is slated for near-term removal.\n\nI\u0027ll add a unit test that verifies that this fails to compile, though, since if it succeeds we\u0027ve got other issues.",
+      "parentUuid": "2cedbadd_5273be8f",
+      "range": {
+        "startLine": 370,
+        "startChar": 8,
+        "endLine": 370,
+        "endChar": 72
+      },
+      "revId": "5ac5dcc934cc940d5d2e66b078e11fa93bbd1ad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
