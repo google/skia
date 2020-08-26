@@ -52,6 +52,24 @@
       "revId": "2064111d555e9f2d71dd204d33c20d925b8ae4e2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51cb2e99_feef0abc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-26T12:45:59Z",
+      "side": 1,
+      "message": "Haven\u0027t looked at the log, but almost certainly a timeout of Apple\u0027s metal compiler service. Those still happen somewhat frequently, leading to draws getting dropped.",
+      "parentUuid": "e3778830_3e500f0f",
+      "revId": "2064111d555e9f2d71dd204d33c20d925b8ae4e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
