@@ -68,6 +68,15 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		}
 
 		configs = append(configs, glPrefix, glPrefix+"srgb")
+		// skia:10644 The fake ES2 config is used to compare highest available ES version to
+		// when we're limited to ES2. We could consider adding a MSAA fake config as well.
+		if b.os("Android") && glPrefix == "gles" {
+			// These only support ES2. No point in running twice.
+			if (!b.gpu("Mali400MP2", "Tegra3")) {
+				configs = append(configs, "glesfakev2")
+			}
+		}
+
 		if sampleCount > 0 {
 			configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
 		}
