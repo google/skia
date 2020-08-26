@@ -34,6 +34,24 @@
       "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8507fee8_4819f7d5",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2184,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-26T17:48:01Z",
+      "side": 1,
+      "message": "Right. Just to be sure: looking at isSafeToInline, well never even check count_returns_in_breakable_constructs, if we don\u0027t have loop support, right? So in that case, we would have just trusted the \"no early returns\" result, and inlined the function?",
+      "parentUuid": "4fb9cb9f_b2e0f09d",
+      "revId": "722580f71708d42098d970adbaf4b7bf96ae0190",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
