@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "66789299_657a907e",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T15:25:57Z",
+      "side": 1,
+      "message": "Yup, agreed. I was trying to anticipate advanced users, but those people should probably bypass the builder and use SkRE directly.",
+      "parentUuid": "b7ff1dae_53dcfd2d",
+      "range": {
+        "startLine": 248,
+        "startChar": 4,
+        "endLine": 248,
+        "endChar": 32
+      },
+      "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28a2ce27_4ac96a80",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -91,6 +115,24 @@
       "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f4c5f76_40689410",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T15:25:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a54f18cb_b6ad1b7c",
+      "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
