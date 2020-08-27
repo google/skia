@@ -38,19 +38,22 @@ SkScalerCache::SkScalerCache(
 
 // -- glyph creation -------------------------------------------------------------------------------
 std::tuple<SkGlyph*, size_t> SkScalerCache::makeGlyph(SkPackedGlyphID packedGlyphID) {
+    size_t denseID = fIndex.size();
     SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
-    fGlyphMap.set(glyph);
+    fIndexMap.set(packedGlyphID, denseID);
+    fIndex.push_back(glyph);
     return {glyph, sizeof(SkGlyph)};
 }
 
 std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
-    SkGlyph* glyph = fGlyphMap.findOrNull(packedGlyphID);
-    size_t bytes = 0;
-    if (glyph == nullptr) {
-        std::tie(glyph, bytes) = this->makeGlyph(packedGlyphID);
+    int* index = fIndexMap.find(packedGlyphID);
+    if (index == nullptr) {
+        auto [glyph, bytes] = this->makeGlyph(packedGlyphID);
         fScalerContext->getMetrics(glyph);
+        return {glyph, bytes};
+    } else {
+        return {fIndex[*index], 0};
     }
-    return {glyph, bytes};
 }
 
 std::tuple<const SkPath*, size_t> SkScalerCache::preparePath(SkGlyph* glyph) {
@@ -76,7 +79,7 @@ const SkDescriptor& SkScalerCache::getDescriptor() const {
 
 int SkScalerCache::countCachedGlyphs() const {
     SkAutoMutexExclusive lock(fMu);
-    return fGlyphMap.count();
+    return fIndexMap.count();
 }
 
 std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::internalPrepare(
@@ -109,9 +112,12 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
     SkAutoMutexExclusive lock{fMu};
     size_t delta = 0;
     size_t imageDelta = 0;
-    SkGlyph* glyph = fGlyphMap.findOrNull(toID);
-    if (glyph == nullptr) {
+    int* index = fIndexMap.find(toID);
+    SkGlyph* glyph;
+    if (index == nullptr) {
         std::tie(glyph, delta) = this->makeGlyph(toID);
+    } else {
+        glyph = fIndex[*index];
     }
     if (glyph->setMetricsAndImage(&fAlloc, from)) {
         imageDelta= glyph->imageSize();
@@ -255,7 +261,7 @@ void SkScalerCache::dump() const {
     SkFontStyle style = face->fontStyle();
     msg.printf("cache typeface:%x %25s:(%d,%d,%d)\n %s glyphs:%3d",
                face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
-               rec.dump().c_str(), fGlyphMap.count());
+               rec.dump().c_str(), fIndexMap.count());
     SkDebugf("%s\n", msg.c_str());
 }
 
