@@ -16,6 +16,24 @@
       "revId": "70d8ce8534c8b38274ba28c62c4ebaf379ce33e4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e59cd383_8a5d0222",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-27T16:04:33Z",
+      "side": 1,
+      "message": "At the very least, I am pretty confident that the asserts will keep us honest.\n\nI\u0027m trying to learn the CFG code now. I don\u0027t see it used anywhere else in the IR generator code so would this mean that inlining moves to a different phase of compilation entirely? Give me some time to noodle it through :)",
+      "parentUuid": "c55b3e2f_46ffbd54",
+      "revId": "70d8ce8534c8b38274ba28c62c4ebaf379ce33e4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
