@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c75d79f2_94f1887c",
+        "filename": "bench/nanobench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T14:41:39Z",
+      "side": 1,
+      "message": "maybe\n\n  while (fCurrentSKP \u003c fSKPs.count()) {\n      const SkString\u0026 path \u003d fSKPs[fCurrentSKP++];\n      ...\n  }",
+      "range": {
+        "startLine": 811,
+        "startChar": 12,
+        "endLine": 812,
+        "endChar": 62
+      },
+      "revId": "2c86d8c48ca6a69493e27ff1c566f870f96a6731",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
