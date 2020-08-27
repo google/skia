@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "edf779e0_54403c1c",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T15:04:13Z",
+      "side": 1,
+      "message": "It\u0027s now important that clients don\u0027t take their own refs to fUniforms, so enforcing some encapsulation.",
+      "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28a2ce27_4ac96a80",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T15:04:13Z",
+      "side": 1,
+      "message": "My read of unique()\u0027s impl is that this is conservatively safe/correct.",
+      "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
