@@ -411,24 +411,24 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
         auto gpuCopyResult = dContext->priv().getGpu()->copySurface(
                 proxy->peekSurface(), copySrc.proxy()->peekSurface(), SkIRect::MakeWH(kSize, kSize),
                 {0, 0});
-        REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
+REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
 
-        // Mip regen should not work with a read only texture.
-        if (dContext->priv().caps()->mipmapSupport()) {
-            DeleteBackendTexture(dContext, backendTex);
-            backendTex = dContext->createBackendTexture(
-                    kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, GrMipmapped::kYes, GrRenderable::kYes,
-                    GrProtected::kNo);
-            proxy = proxyProvider->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
-                                                      GrWrapCacheable::kNo, ioType);
-            dContext->flushAndSubmit();
-            proxy->peekTexture()->markMipmapsDirty();  // avoids assert in GrGpu.
-            auto regenResult =
-                    dContext->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
-            REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
-        }
-        DeleteBackendTexture(dContext, backendTex);
+// Mip regen should not work with a read only texture.
+if (dContext->priv().caps()->mipmapSupport()) {
+    DeleteBackendTexture(dContext, backendTex);
+    backendTex = dContext->createBackendTexture(
+        kSize, kSize, kRGBA_8888_SkColorType,
+        SkColors::kTransparent, GrMipmapped::kYes, GrRenderable::kYes,
+        GrProtected::kNo);
+    proxy = proxyProvider->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
+        GrWrapCacheable::kNo, ioType);
+    dContext->flushAndSubmit();
+    proxy->peekTexture()->markMipmapsDirty();  // avoids assert in GrGpu.
+    auto regenResult =
+        dContext->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
+    REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
+}
+DeleteBackendTexture(dContext, backendTex);
     }
 }
 
@@ -437,15 +437,16 @@ static const int kSurfSize = 10;
 static sk_sp<GrTexture> make_wrapped_texture(GrDirectContext* dContext, GrRenderable renderable) {
     GrBackendTexture backendTexture;
     CreateBackendTexture(dContext, &backendTexture, kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipmapped::kNo, renderable, GrProtected::kNo);
+        SkColors::kTransparent, GrMipmapped::kNo, renderable, GrProtected::kNo);
     SkASSERT(backendTexture.isValid());
     sk_sp<GrTexture> texture;
     if (GrRenderable::kYes == renderable) {
         texture = dContext->priv().resourceProvider()->wrapRenderableBackendTexture(
-                backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
-    } else {
+            backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
+    }
+    else {
         texture = dContext->priv().resourceProvider()->wrapBackendTexture(
-                backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
+            backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
     }
     // Add a release proc that deletes the GrBackendTexture.
     struct ReleaseContext {
@@ -458,7 +459,7 @@ static sk_sp<GrTexture> make_wrapped_texture(GrDirectContext* dContext, GrRender
         dContext->deleteBackendTexture(releaseContext->fBackendTexture);
         delete releaseContext;
     };
-    texture->setRelease(release, new ReleaseContext{dContext, backendTexture});
+    texture->setRelease(release, new ReleaseContext{ dContext, backendTexture });
     return texture;
 }
 
@@ -466,9 +467,9 @@ static sk_sp<GrTexture> make_normal_texture(GrDirectContext* dContext, GrRendera
     SkISize desc;
     desc.fWidth = desc.fHeight = kSurfSize;
     auto format = dContext->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888,
-                                                                   renderable);
+        renderable);
     return dContext->priv().resourceProvider()->createTexture(
-            desc, format, renderable, 1, GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
+        desc, format, renderable, 1, GrMipmapped::kNo, SkBudgeted::kNo, GrProtected::kNo);
 }
 
 DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
@@ -504,13 +505,16 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
         texture->resourcePriv().setUniqueKey(key);
     };
     auto dontAddKey = [](GrTexture* texture) {};
-    std::function<void(GrTexture*)> keyAdders[] = {addKey, dontAddKey};
+    std::function<void(GrTexture*)> keyAdders[] = { addKey, dontAddKey };
 
     for (const auto& m : makers) {
         for (const auto& keyAdder : keyAdders) {
             for (int type = 0; type < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++type) {
                 sk_gpu_test::GrContextFactory factory;
                 auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(type);
+                if (contextType != sk_gpu_test::GrContextFactory::kVulkan_ContextType) {
+                    continue;
+                }
                 auto dContext = factory.get(contextType);
                 if (!dContext) {
                     continue;
@@ -574,7 +578,8 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                                                           GrTextureType::k2D};
                     proxy = dContext->priv().proxyProvider()->createLazyRenderTargetProxy(
                             singleUseLazyCB, backendFormat, desc, 1,
-                            GrInternalSurfaceFlags ::kNone, &kTexInfo,
+                            dContext->priv().caps()->getExtraSurfaceFlagsForDeferredRT(),
+                            &kTexInfo,
                             GrMipmapStatus::kNotAllocated,
                             SkBackingFit::kExact, budgeted, GrProtected::kNo, false,
                             GrSurfaceProxy::UseAllocator::kYes);

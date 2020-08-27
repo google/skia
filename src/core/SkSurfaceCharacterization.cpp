@@ -59,7 +59,9 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
                                      fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
-                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+                                     fVkRTSupportsInputAttachment,
+                                     fVulkanSecondaryCBCompatible,
+                                     fIsProtected, fSurfaceProps);
 }
 
 SkSurfaceCharacterization SkSurfaceCharacterization::createColorSpace(
@@ -71,6 +73,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createColorSpace(
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeColorSpace(std::move(cs)), fBackendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
@@ -85,6 +88,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createBackendFormat(
 
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes, newII, backendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
@@ -97,6 +101,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createFBO0(bool usesGLFBO0)
                                      fImageInfo, fBackendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped,
                                      usesGLFBO0 ? UsesGLFBO0::kYes : UsesGLFBO0::kNo,
+                                     fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
@@ -115,6 +120,10 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
     }
 
     if (this->vulkanSecondaryCBCompatible()) {
+        return false;
+    }
+
+    if (this->vkRTSupportsInputAttachment() && backendTex.backend() != GrBackendApi::kVulkan) {
         return false;
     }
 

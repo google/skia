@@ -72,7 +72,8 @@ public:
             , fShouldCreateMipMaps(true)
             , fUsesGLFBO0(false)
             , fIsTextureable(true)
-            , fIsProtected(GrProtected::kNo) {
+            , fIsProtected(GrProtected::kNo)
+            , fVkRTSupportsInputAttachment(false) {
 #ifdef SK_VULKAN
         if (GrBackendApi::kVulkan == rContext->backend()) {
             const GrVkCaps* vkCaps = (const GrVkCaps*) rContext->priv().caps();
@@ -90,6 +91,9 @@ public:
     void setTextureable(bool isTextureable) { fIsTextureable = isTextureable; }
     void setShouldCreateMipMaps(bool shouldCreateMipMaps) {
         fShouldCreateMipMaps = shouldCreateMipMaps;
+    }
+    void setVkRTInputAttachmentSupport(bool inputSupport) {
+        fVkRTSupportsInputAttachment = inputSupport;
     }
 
     // Modify the SurfaceParameters in just one way
@@ -163,7 +167,8 @@ public:
         SkSurfaceCharacterization c = dContext->threadSafeProxy()->createCharacterization(
                                                 maxResourceBytes, ii, backendFormat, fSampleCount,
                                                 fOrigin, fSurfaceProps, fShouldCreateMipMaps,
-                                                fUsesGLFBO0, fIsTextureable, fIsProtected);
+                                                fUsesGLFBO0, fIsTextureable, fIsProtected,
+                                                fVkRTSupportsInputAttachment);
         return c;
     }
 
@@ -264,6 +269,7 @@ private:
     bool                fUsesGLFBO0;
     bool                fIsTextureable;
     GrProtected         fIsProtected;
+    bool                fVkRTSupportsInputAttachment;
 };
 
 // Test out operator== && operator!=
@@ -342,7 +348,9 @@ void DDLSurfaceCharacterizationTestImpl(GrDirectContext* dContext, skiatest::Rep
     // First, create a DDL using the stock SkSurface parameters
     {
         SurfaceParameters params(dContext);
-
+        if (dContext->backend() == GrBackendApi::kVulkan) {
+            params.setVkRTInputAttachmentSupport(true);
+        }
         ddl = params.createDDL(dContext);
         SkAssertResult(ddl);
 
@@ -736,6 +744,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
             SurfaceParameters params(context);
             params.setShouldCreateMipMaps(false);
             params.setTextureable(false);
+            if (context->backend() == GrBackendApi::kVulkan) {
+                params.setVkRTInputAttachmentSupport(true);
+            }
 
             ddl = params.createDDL(context);
             SkAssertResult(ddl);
@@ -745,6 +756,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest, reporter, ctxInfo) 
         SurfaceParameters params(context);
         params.setShouldCreateMipMaps(textureability);
         params.setTextureable(textureability);
+        if (context->backend() == GrBackendApi::kVulkan) {
+            params.setVkRTInputAttachmentSupport(true);
+        }
 
         GrBackendTexture backend;
         sk_sp<SkSurface> s = params.make(context, &backend);
@@ -977,7 +991,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, 
     auto check = [proxy, reporter, maxResourceBytes](const GrBackendFormat& backendFormat,
                                                      int width, int height,
                                                      SkColorType ct, bool willUseGLFBO0,
-                                                     GrProtected prot) {
+                                                     GrProtected prot,
+                                                     bool vkRTSupportsInputAttachment) {
         const SkSurfaceProps surfaceProps(0x0, kRGB_H_SkPixelGeometry);
 
         SkImageInfo ii = SkImageInfo::Make(width, height, ct,
@@ -986,7 +1001,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, 
         SkSurfaceCharacterization c = proxy->createCharacterization(
                                                 maxResourceBytes, ii, backendFormat, 1,
                                                 kBottomLeft_GrSurfaceOrigin, surfaceProps, false,
-                                                willUseGLFBO0, true, prot);
+                                                willUseGLFBO0, true, prot,
+                                                vkRTSupportsInputAttachment);
         REPORTER_ASSERT(reporter, !c.isValid());
     };
 
@@ -1003,20 +1019,30 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures, reporter, 
     static const bool kGoodUseFBO0 = false;
     static const bool kBadUseFBO0 = true;
 
+    static const bool kVkInputAttachment = false;
+
     int goodWidth = 64;
     int goodHeight = 64;
     int badWidths[] = { 0, 1048576 };
     int badHeights[] = { 0, 1048576 };
 
-    check(goodBackendFormat, goodWidth, badHeights[0], kGoodCT, kGoodUseFBO0, GrProtected::kNo);
-    check(goodBackendFormat, goodWidth, badHeights[1], kGoodCT, kGoodUseFBO0, GrProtected::kNo);
-    check(goodBackendFormat, badWidths[0], goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo);
-    check(goodBackendFormat, badWidths[1], goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo);
-    check(badBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo);
-    check(goodBackendFormat, goodWidth, goodHeight, kBadCT, kGoodUseFBO0, GrProtected::kNo);
-    check(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kBadUseFBO0, GrProtected::kNo);
+    check(goodBackendFormat, goodWidth, badHeights[0], kGoodCT, kGoodUseFBO0, GrProtected::kNo,
+          kVkInputAttachment);
+    check(goodBackendFormat, goodWidth, badHeights[1], kGoodCT, kGoodUseFBO0, GrProtected::kNo,
+          kVkInputAttachment);
+    check(goodBackendFormat, badWidths[0], goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo,
+          kVkInputAttachment);
+    check(goodBackendFormat, badWidths[1], goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo,
+          kVkInputAttachment);
+    check(badBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kNo,
+          kVkInputAttachment);
+    check(goodBackendFormat, goodWidth, goodHeight, kBadCT, kGoodUseFBO0, GrProtected::kNo,
+          kVkInputAttachment);
+    check(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kBadUseFBO0, GrProtected::kNo,
+          kVkInputAttachment);
     if (dContext->backend() == GrBackendApi::kVulkan) {
-        check(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kYes);
+        check(goodBackendFormat, goodWidth, goodHeight, kGoodCT, kGoodUseFBO0, GrProtected::kYes,
+              kVkInputAttachment);
     }
 }
 

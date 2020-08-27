@@ -716,6 +716,11 @@ enum class GrInternalSurfaceFlags {
     // This means the pixels in the render target are write-only. This is used for Dawn and Metal
     // swap chain targets which can be rendered to, but not read or copied.
     kFramebufferOnly                = 1 << 3,
+
+    // This is a vulkan only flag. If set the surface can be used as an input attachment in a
+    // shader. This is used for doing in shader blending where we want to sample from the same
+    // image we are drawing to.
+    kVkRTSupportsInputAttachment    = 1 << 4,
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
@@ -725,8 +730,13 @@ GR_MAKE_BITFIELD_CLASS_OPS(GrInternalSurfaceFlags)
 constexpr static int kGrInternalTextureFlagsMask = static_cast<int>(
         GrInternalSurfaceFlags::kReadOnly);
 
+// We don't include kVkRTSupportsInputAttachment in this mask since we check it manually. We don't
+// require that both the surface and proxy have this flag set or both don't. Instead we just require
+// if the proxy has it set the surface must also have it set. All other flags must match.
 constexpr static int kGrInternalRenderTargetFlagsMask = static_cast<int>(
-        GrInternalSurfaceFlags::kGLRTFBOIDIs0 | GrInternalSurfaceFlags::kRequiresManualMSAAResolve);
+        GrInternalSurfaceFlags::kGLRTFBOIDIs0 |
+        GrInternalSurfaceFlags::kRequiresManualMSAAResolve |
+        GrInternalSurfaceFlags::kFramebufferOnly);
 
 constexpr static int kGrInternalTextureRenderTargetFlagsMask =
         kGrInternalTextureFlagsMask | kGrInternalRenderTargetFlagsMask;

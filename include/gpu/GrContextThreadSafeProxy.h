@@ -72,7 +72,8 @@ public:
                                   bool isMipMapped,
                                   bool willUseGLFBO0 = false,
                                   bool isTextureable = true,
-                                  GrProtected isProtected = GrProtected::kNo);
+                                  GrProtected isProtected = GrProtected::kNo,
+                                  bool vkRTSupportsInputAttachment = false);
 
     /*
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.

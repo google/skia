@@ -34,6 +34,7 @@ public:
     enum class Textureable : bool { kNo = false, kYes = true };
     enum class MipMapped : bool { kNo = false, kYes = true };
     enum class UsesGLFBO0 : bool { kNo = false, kYes = true };
+    enum class VkRTSupportsInputAttachment : bool { kNo = false, kYes = true };
     // This flag indicates if the surface is wrapping a raw Vulkan secondary command buffer.
     enum class VulkanSecondaryCBCompatible : bool { kNo = false, kYes = true };
 
@@ -99,6 +100,9 @@ public:
     bool isTextureable() const { return Textureable::kYes == fIsTextureable; }
     bool isMipMapped() const { return MipMapped::kYes == fIsMipMapped; }
     bool usesGLFBO0() const { return UsesGLFBO0::kYes == fUsesGLFBO0; }
+    bool vkRTSupportsInputAttachment() const {
+        return VkRTSupportsInputAttachment::kYes == fVkRTSupportsInputAttachment;
+    }
     bool vulkanSecondaryCBCompatible() const {
         return VulkanSecondaryCBCompatible::kYes == fVulkanSecondaryCBCompatible;
     }
@@ -128,6 +132,7 @@ private:
                               Textureable isTextureable,
                               MipMapped isMipMapped,
                               UsesGLFBO0 usesGLFBO0,
+                              VkRTSupportsInputAttachment vkRTSupportsInputAttachment,
                               VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
                               GrProtected isProtected,
                               const SkSurfaceProps& surfaceProps)
@@ -140,6 +145,7 @@ private:
             , fIsTextureable(isTextureable)
             , fIsMipMapped(isMipMapped)
             , fUsesGLFBO0(usesGLFBO0)
+            , fVkRTSupportsInputAttachment(vkRTSupportsInputAttachment)
             , fVulkanSecondaryCBCompatible(vulkanSecondaryCBCompatible)
             , fIsProtected(isProtected)
             , fSurfaceProps(surfaceProps) {
@@ -155,14 +161,17 @@ private:
              Textureable isTextureable,
              MipMapped isMipMapped,
              UsesGLFBO0 usesGLFBO0,
+             VkRTSupportsInputAttachment vkRTSupportsInputAttachment,
              VulkanSecondaryCBCompatible vulkanSecondaryCBCompatible,
              GrProtected isProtected,
              const SkSurfaceProps& surfaceProps) {
         SkASSERT(MipMapped::kNo == isMipMapped || Textureable::kYes == isTextureable);
         SkASSERT(Textureable::kNo == isTextureable || UsesGLFBO0::kNo == usesGLFBO0);
-
+        SkASSERT(UsesGLFBO0::kNo == usesGLFBO0 ||
+                 VkRTSupportsInputAttachment::kNo == vkRTSupportsInputAttachment);
         SkASSERT(VulkanSecondaryCBCompatible::kNo == vulkanSecondaryCBCompatible ||
-                 UsesGLFBO0::kNo == usesGLFBO0);
+                 (UsesGLFBO0::kNo == usesGLFBO0 &&
+                  VkRTSupportsInputAttachment::kNo == vkRTSupportsInputAttachment));
         SkASSERT(Textureable::kNo == isTextureable ||
                  VulkanSecondaryCBCompatible::kNo == vulkanSecondaryCBCompatible);
 
@@ -176,6 +185,7 @@ private:
         fIsTextureable = isTextureable;
         fIsMipMapped = isMipMapped;
         fUsesGLFBO0 = usesGLFBO0;
+        fVkRTSupportsInputAttachment = vkRTSupportsInputAttachment;
         fVulkanSecondaryCBCompatible = vulkanSecondaryCBCompatible;
         fIsProtected = isProtected;
         fSurfaceProps = surfaceProps;
@@ -193,6 +203,7 @@ private:
     Textureable                     fIsTextureable;
     MipMapped                       fIsMipMapped;
     UsesGLFBO0                      fUsesGLFBO0;
+    VkRTSupportsInputAttachment     fVkRTSupportsInputAttachment;
     VulkanSecondaryCBCompatible     fVulkanSecondaryCBCompatible;
     GrProtected                     fIsProtected;
     SkSurfaceProps                  fSurfaceProps;
@@ -235,6 +246,7 @@ public:
     bool isTextureable() const { return false; }
     bool isMipMapped() const { return false; }
     bool usesGLFBO0() const { return false; }
+    bool vkRTSupportsAttachmentInput() const { return false; }
     bool vulkanSecondaryCBCompatible() const { return false; }
     SkColorSpace* colorSpace() const { return nullptr; }
     sk_sp<SkColorSpace> refColorSpace() const { return nullptr; }
