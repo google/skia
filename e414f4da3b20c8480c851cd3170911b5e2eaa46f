@@ -122,6 +122,24 @@
     },
     {
       "key": {
+        "uuid": "7cd1c781_437f9bf6",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:40:51Z",
+      "side": 1,
+      "message": "*can\u0027t",
+      "parentUuid": "e34672e6_3409526d",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c1f1c867_9041931e",
         "filename": "src/core/SkSurfaceCharacterization.cpp",
         "patchSetId": 4
@@ -133,6 +151,103 @@
       "writtenOn": "2020-08-27T16:10:26Z",
       "side": 1,
       "message": "Don\u0027t we require this be set on the backend texture too ?",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2222fd10_2acaff76",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:40:51Z",
+      "side": 1,
+      "message": "// This method specifies, for each backend, the extra properties of a RT when Ganesh \n// creates one internally. For example, for Vulkan, Ganesh always creates RTs that \n// can be used as input attachments.\n\n?",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f6a5db0_8aaf14a2",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:40:51Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we have something here like:\n\nif (isn\u0027t Vulkan backend \u0026\u0026 vkRTSupportsInputAttachment) {\n    return {};\n}\n\n?",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56ba2168_f636f277",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:40:51Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 803,
+        "startChar": 59,
+        "endLine": 803,
+        "endChar": 60
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c61cd3f_d89a19a5",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1022,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:40:51Z",
+      "side": 1,
+      "message": "kGoodVkInputAttachment ?",
+      "range": {
+        "startLine": 1022,
+        "startChar": 22,
+        "endLine": 1022,
+        "endChar": 41
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f17345b5_6fcbf3f0",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:40:51Z",
+      "side": 1,
+      "message": "else {\n\n   // test that creating a characterization w/ vkRTSupportsInputAttachment on a non-Vk context fails\n}\n\n?",
       "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
