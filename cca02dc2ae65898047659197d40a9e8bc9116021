@@ -16,6 +16,24 @@
       "revId": "cca02dc2ae65898047659197d40a9e8bc9116021",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5692888b_57127a4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-27T19:30:02Z",
+      "side": 1,
+      "message": "Nope. This works with the nexus 7. The algorithm fits in the 16-bit precision.",
+      "parentUuid": "6a5dd90b_3367263d",
+      "revId": "cca02dc2ae65898047659197d40a9e8bc9116021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
