@@ -2170,80 +2170,6 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
     }
 }
 
-template <bool countTopLevelReturns, bool onlyAtEndOfControlFlow>
-static int return_count(const Statement& statement, bool inLoopOrSwitch) {
-    constexpr auto& recurse = return_count<countTopLevelReturns, onlyAtEndOfControlFlow>;
-
-    switch (statement.fKind) {
-        case Statement::kBlock_Kind: {
-            const Block& b = statement.as<Block>();
-            const std::vector<std::unique_ptr<Statement>>& statements = b.fStatements;
-
-            if (onlyAtEndOfControlFlow) {
-                return (!inLoopOrSwitch && !statements.empty())
-                               ? recurse(*statements.back(), inLoopOrSwitch)
-                               : 0;
-            }
-
-            int result = 0;
-            for (const std::unique_ptr<Statement>& s : statements) {
-                result += recurse(*s, inLoopOrSwitch);
-            }
-            return result;
-        }
-        case Statement::kDo_Kind: {
-            const DoStatement& d = statement.as<DoStatement>();
-            return recurse(*d.fStatement, /*inLoopOrSwitch=*/true);
-        }
-        case Statement::kFor_Kind: {
-            const ForStatement& f = statement.as<ForStatement>();
-            return recurse(*f.fStatement, /*inLoopOrSwitch=*/true);
-        }
-        case Statement::kIf_Kind: {
-            const IfStatement& i = statement.as<IfStatement>();
-            int result = recurse(*i.fIfTrue, inLoopOrSwitch);
-            if (i.fIfFalse) {
-                result += recurse(*i.fIfFalse, inLoopOrSwitch);
-            }
-            return result;
-        }
-        case Statement::kReturn_Kind:
-            return (countTopLevelReturns || inLoopOrSwitch) ? 1 : 0;
-        case Statement::kSwitch_Kind: {
-            int result = 0;
-
-            if (!onlyAtEndOfControlFlow) {
-                // Fallthrough is not considered, so this is considered to have one return even
-                // though the `return` statement applies to both the `case 0` and `case 1` blocks.
-                //     switch (x) { case 0: case 1: return; }
-                const SwitchStatement& switchStmt = statement.as<SwitchStatement>();
-                for (const std::unique_ptr<SwitchCase>& switchCase : switchStmt.fCases) {
-                    for (const std::unique_ptr<Statement>& caseStmt : switchCase->fStatements) {
-                        result += recurse(*caseStmt, /*inLoopOrSwitch=*/true);
-                    }
-                }
-            }
-
-            return result;
-        }
-        case Statement::kWhile_Kind: {
-            const WhileStatement& w = statement.as<WhileStatement>();
-            return recurse(*w.fStatement, /*inLoopOrSwitch=*/true);
-        }
-        case Statement::kBreak_Kind:
-        case Statement::kContinue_Kind:
-        case Statement::kDiscard_Kind:
-        case Statement::kExpression_Kind:
-        case Statement::kNop_Kind:
-        case Statement::kVarDeclaration_Kind:
-        case Statement::kVarDeclarations_Kind:
-            return 0;
-        default:
-            SkASSERT(false);
-            return 0;
-    }
-}
-
 static int count_all_returns(const FunctionDefinition& funcDef) {
     class CountAllReturns : public ProgramVisitor {
     public:
@@ -2266,11 +2192,7 @@ static int count_all_returns(const FunctionDefinition& funcDef) {
         using INHERITED = ProgramVisitor;
     };
 
-    int count = CountAllReturns{funcDef}.fNumReturns;
-    SkASSERT((count == return_count</*countTopLevelReturns=*/true,
-                                    /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody,
-                                                                      /*inLoopOrSwitch=*/false)));
-    return count;
+    return CountAllReturns{funcDef}.fNumReturns;
 }
 
 static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDef) {
@@ -2308,11 +2230,7 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
         using INHERITED = ProgramVisitor;
     };
 
-    int count = CountReturnsAtEndOfControlFlow{funcDef}.fNumReturns;
-    SkASSERT((count == return_count</*countTopLevelReturns=*/true,
-                                    /*onlyAtEndOfControlFlow=*/true>(*funcDef.fBody,
-                                                                     /*inLoopOrSwitch=*/false)));
-    return count;
+    return CountReturnsAtEndOfControlFlow{funcDef}.fNumReturns;
 }
 
 static int count_returns_in_breakable_constructs(const FunctionDefinition& funcDef) {
@@ -2348,11 +2266,7 @@ static int count_returns_in_breakable_constructs(const FunctionDefinition& funcD
         using INHERITED = ProgramVisitor;
     };
 
-    int count = CountReturnsInBreakableConstructs{funcDef}.fNumReturns;
-    SkASSERT((count == return_count</*countTopLevelReturns=*/false,
-                                    /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody,
-                                                                      /*inLoopOrSwitch=*/false)));
-    return count;
+    return CountReturnsInBreakableConstructs{funcDef}.fNumReturns;
 }
 
 static bool has_early_return(const FunctionDefinition& funcDef) {
