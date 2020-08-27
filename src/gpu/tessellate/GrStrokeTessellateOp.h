@@ -49,8 +49,8 @@ private:
     int fTotalCombinedVerbCnt;
 
     const GrAAType fAAType;
-    float fMatrixScale;  // The matrix scale is applied to control points before tessellation.
-    SkMatrix fSkewMatrix;  // The skew matrix is applied to the post-tessellation triangles.
+    SkMatrix fViewMatrix;
+    float fMatrixScale;
     float fMiterLimitOrZero = 0;  // Zero if there is not a stroke with a miter join type.
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;

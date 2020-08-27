@@ -27,6 +27,8 @@ class GrGLSLUniformHandler;
 //     * It is illegal for P1 and P2 to both be coincident with P0 or P3. If this is the case, send
 //       the curve [P0, P0, P3, P3] instead.
 //
+//     * Perspective is not supported.
+//
 // Tessellated stroking works by creating stroke-width, orthogonal edges at set locations along the
 // curve and then connecting them with a triangle strip. These orthogonal edges come from two
 // different sets: "parametric edges" and "radial edges". Parametric edges are spaced evenly in the
@@ -64,22 +66,20 @@ public:
 
     constexpr static int kNumVerticesPerPatch = 5;
 
-    // 'skewMatrix' is applied to the post-tessellation triangles. It cannot expand the geometry in
-    // any direction. For now, patches should be pre-scaled on CPU by the view matrix's maxScale,
-    // which leaves 'skewMatrix' as the original view matrix divided by maxScale.
+    // 'matrixScale' is used to set up an appropriate number of tessellation triangles. It should be
+    // equal to viewMatrix.getMaxScale(). (This works because perspective isn't supported.)
     //
-    // If 'miterLimitOrZero' is zero, then the patches being drawn cannot include any miter joins.
-    // If a stroke uses miter joins with a miter limit of zero, then they need to be pre-converted
-    // to bevel joins.
-    GrStrokeTessellateShader(const SkMatrix& skewMatrix, SkPMColor4f color, float miterLimitOrZero)
-            : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, skewMatrix,
+    // 'miterLimit' contains the stroke's miter limit, or may be zero if no patches being drawn will
+    // be miter joins.
+    //
+    // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
+    GrStrokeTessellateShader(float matrixScale, float miterLimit, const SkMatrix& viewMatrix,
+                             SkPMColor4f color)
+            : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
                            GrPrimitiveType::kPatches, kNumVerticesPerPatch)
-            , fColor(color)
-            , fMiterLimitOrZero(miterLimitOrZero) {
-        // Since the skewMatrix is applied after tessellation, it cannot expand the geometry in any
-        // direction. (The caller can create a skewMatrix by dividing their viewMatrix by its
-        // maxScale and then pre-multiplying their control points by the same maxScale.)
-        SkASSERT(skewMatrix.getMaxScale() < 1 + SK_ScalarNearlyZero);
+            , fMatrixScale(matrixScale)
+            , fMiterLimit(miterLimit)
+            , fColor(color) {
         constexpr static Attribute kInputPointAttrib{"inputPoint", kFloat2_GrVertexAttribType,
                                                      kFloat2_GrSLType};
         this->setVertexAttributes(&kInputPointAttrib, 1);
@@ -101,8 +101,9 @@ private:
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 
+    const float fMatrixScale;
+    const float fMiterLimit;
     const SkPMColor4f fColor;
-    const float fMiterLimitOrZero;  // Zero if there will not be any miter join patches.
 
     class Impl;
 };
