@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40fa08ef_a7c75294",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-27T19:31:53Z",
+      "side": 1,
+      "message": "lgtm\n\nWho, if anyone, might care about any perf-diff? (is there one?). i.e. clients who wouldn\u0027t also care about timing attacks.",
+      "revId": "54b527a37b96bebcc70238d6714efc28049496a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
