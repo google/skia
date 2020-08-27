@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "18035d12_6b7db733",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-08-27T16:01:53Z",
+      "side": 1,
+      "message": "LGTM if LGT nifong@ and kjlubick@",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "283d737a_c536b96d",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-08-27T16:01:53Z",
+      "side": 1,
+      "message": "If we eagerly convert the array to rects we\u0027ll end up with a double-conversion, first this, and another one on the Flutter side to convert to TextBox. That could be avoided if this returned the floatArray as is.\n\nAlternatively, we could treat `_getRectsForPlaceholders` as public stable API and have Flutter call that instead.",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d73ce85_656281cf",
         "filename": "modules/canvaskit/paragraph.js",
         "patchSetId": 2
@@ -13,6 +47,74 @@
       "writtenOn": "2020-08-26T19:57:37Z",
       "side": 1,
       "message": "define fontStyle, strutStyle and placeholderStyle in CanvasKit like .CanvasKitParagraphStyle and CanvasKit.TextStyle\n\nusers wanting to make such styles and re-use them will need to call those methods.",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "036a7130_d4dada15",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-08-27T16:01:53Z",
+      "side": 1,
+      "message": "How common would we have zero-length non-null fontFamilies array? Would the null check alone be sufficient?",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79e7f044_7b9f91f5",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-08-27T16:01:53Z",
+      "side": 1,
+      "message": "Do we know if this field will have a reasonable default (as opposed to picking up garbage from the allocator)? We might have to always populate this field (might even be faster since there won\u0027t be a branch).",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5eb2925a_f5f4e186",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-08-27T16:01:53Z",
+      "side": 1,
+      "message": "same for these fields (they may always need values to prevent garbage)",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13843286_08791595",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-08-27T16:01:53Z",
+      "side": 1,
+      "message": "That\u0027s a neat trick, but how do we know the compiler guarantees the exact layout of the `SimpleTextBox` struct? For example, what happens when we switch to 64-bit wasm?",
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
