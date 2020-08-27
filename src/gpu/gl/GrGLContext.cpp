@@ -66,6 +66,13 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     }
 #endif
 
+#if GR_TEST_UTILS
+    // REVERT ME. Temporary hack to see effect on performance.
+    if (args.fDriver == kANGLE_GrGLDriver) {
+        args.fGLSLGeneration = k110_GrGLSLGeneration;
+    }
+#endif
+
     // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
     // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2
     // extension to be enabled, even when using ESSL3. Some devices appear to only support the ES2
