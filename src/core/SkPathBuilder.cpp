@@ -30,6 +30,7 @@ SkPathBuilder& SkPathBuilder::reset() {
 
     // these are internal state
 
+    fFirstDirection = SkPathPriv::kUnknown_FirstDirection;
     fSegmentMask = 0;
     fLastMovePoint = {0, 0};
     fNeedsMoveVerb = true;
@@ -153,7 +154,7 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
         case kIsA_RRect: pr->setIsRRect(true, fIsACCW, fIsAStart); break;
         default: break;
     }
-    return SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity);
+    return SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity, fFirstDirection);
 }
 
 SkPath SkPathBuilder::snapshot() {
@@ -631,6 +632,15 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
     return *this;
 }
 
+static bool only_moves(const uint8_t verbs[], int count) {
+    for (int i = 0; i < count; ++i) {
+        if ((SkPathVerb)verbs[i] != SkPathVerb::kMove) {
+            return false;
+        }
+    }
+    return true;
+}
+
 SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir, unsigned index) {
     const IsA prevIsA = fIsA;
     const SkRect& bounds = rrect.getBounds();
@@ -642,6 +652,10 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
         // degenerate(oval) => line points are collapsing
         this->addOval(bounds, dir, index / 2);
     } else {
+        fFirstDirection = only_moves(fVerbs.begin(), fVerbs.count())
+                                    ? (SkPathPriv::FirstDirection)dir
+                                    : SkPathPriv::kUnknown_FirstDirection;
+
         // we start with a conic on odd indices when moving CW vs. even indices when moving CCW
         const bool startsWithConic = ((index & 1) == (dir == SkPathDirection::kCW));
         const SkScalar weight = SK_ScalarRoot2Over2;

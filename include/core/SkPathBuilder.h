@@ -215,6 +215,7 @@ private:
     SkPathFillType      fFillType;
     bool                fIsVolatile;
 
+    uint8_t     fFirstDirection;    // = SkPathPriv::kUnknown_FirstDirection
     unsigned    fSegmentMask;
     SkPoint     fLastMovePoint;
     bool        fNeedsMoveVerb;
