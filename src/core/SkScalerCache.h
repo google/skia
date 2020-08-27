@@ -86,16 +86,7 @@ public:
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
 private:
-    class GlyphMapHashTraits {
-    public:
-        static SkPackedGlyphID GetKey(const SkGlyph* glyph) {
-            return glyph->getPackedID();
-        }
-        static uint32_t Hash(SkPackedGlyphID glyphId) {
-            return glyphId.hash();
-        }
-    };
-
+    using SkGlyphIndex = int;
     std::tuple<SkGlyph*, size_t> makeGlyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
     template <typename Fn>
@@ -128,10 +119,12 @@ private:
 
     mutable SkMutex fMu;
 
-    // Map from a combined GlyphID and sub-pixel position to a SkGlyph*.
-    // The actual glyph is stored in the fAlloc. This structure provides an
-    // unchanging pointer as long as the strike is alive.
-    SkTHashTable<SkGlyph*, SkPackedGlyphID, GlyphMapHashTraits> fGlyphMap SK_GUARDED_BY(fMu);
+    // Map from a combined GlyphID and sub-pixel position to a SkGlyphIndex. The actual glyph is
+    // stored in the fAlloc. The pointer to the glyph is stored fIndex. This structure provides
+    // an unchanging SkGlyph pointer as long as the strike is alive, and fGlyphForIndex provides a
+    // dense index for glyphs.
+    SkTHashMap<SkPackedGlyphID, SkGlyphIndex> fIndexForPackedGlyphID SK_GUARDED_BY(fMu);
+    std::vector<SkGlyph*> fGlyphForIndex SK_GUARDED_BY(fMu);
 
     // so we don't grow our arrays a lot
     static constexpr size_t kMinGlyphCount = 8;
