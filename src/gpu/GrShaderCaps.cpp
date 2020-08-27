@@ -56,9 +56,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fHalfIs32Bits = false;
     fHasLowFragmentPrecision = false;
     fColorSpaceMathNeedsFloat = false;
-    // Backed API support is required to be able to make swizzle-neutral shaders (e.g.
-    // GL_ARB_texture_swizzle).
-    fTextureSwizzleAppliedInShader = true;
     fBuiltinFMASupport = false;
     fCanUseDoLoops = true;
 
@@ -140,7 +137,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("half == fp32", fHalfIs32Bits);
     writer->appendBool("Has poor fragment precision", fHasLowFragmentPrecision);
     writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
-    writer->appendBool("Texture swizzle applied in shader", fTextureSwizzleAppliedInShader);
     writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
     writer->appendBool("Can use do-while loops", fCanUseDoLoops);
 

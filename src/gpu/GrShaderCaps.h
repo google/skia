@@ -251,8 +251,6 @@ public:
 
     bool tessellationSupport() const { return SkToBool(fMaxTessellationSegments);}
 
-    bool textureSwizzleAppliedInShader() const { return fTextureSwizzleAppliedInShader; }
-
     GrGLSLGeneration generation() const { return fGLSLGeneration; }
 
 private:
@@ -280,7 +278,6 @@ private:
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
     bool fHasLowFragmentPrecision           : 1;
-    bool fTextureSwizzleAppliedInShader     : 1;
 
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport : 1;

@@ -2563,20 +2563,6 @@ void GrGLGpu::flushBlendAndColorWrite(
     this->flushColorWrite(blendInfo.fWriteColor);
 }
 
-static void get_gl_swizzle_values(const GrSwizzle& swizzle, GrGLenum glValues[4]) {
-    for (int i = 0; i < 4; ++i) {
-        switch (swizzle[i]) {
-            case 'r': glValues[i] = GR_GL_RED;   break;
-            case 'g': glValues[i] = GR_GL_GREEN; break;
-            case 'b': glValues[i] = GR_GL_BLUE;  break;
-            case 'a': glValues[i] = GR_GL_ALPHA; break;
-            case '0': glValues[i] = GR_GL_ZERO;  break;
-            case '1': glValues[i] = GR_GL_ONE;   break;
-            default:  SK_ABORT("Unsupported component");
-        }
-    }
-}
-
 void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwizzle& swizzle,
                           GrGLTexture* texture) {
     SkASSERT(texture);
@@ -2680,25 +2666,29 @@ void GrGLGpu::bindTexture(int unitIdx, GrSamplerState samplerState, const GrSwiz
     GrGLTextureParameters::NonsamplerState newNonsamplerState;
     newNonsamplerState.fBaseMipMapLevel = 0;
     newNonsamplerState.fMaxMipmapLevel = texture->maxMipmapLevel();
+    newNonsamplerState.fSwizzleIsRGBA = true;
 
     const GrGLTextureParameters::NonsamplerState& oldNonsamplerState =
             texture->parameters()->nonsamplerState();
-    if (!this->caps()->shaderCaps()->textureSwizzleAppliedInShader()) {
-        newNonsamplerState.fSwizzleKey = swizzle.asKey();
-        if (setAll || swizzle.asKey() != oldNonsamplerState.fSwizzleKey) {
-            GrGLenum glValues[4];
-            get_gl_swizzle_values(swizzle, glValues);
+    if (this->glCaps().textureSwizzleSupport()) {
+        if (setAll || !oldNonsamplerState.fSwizzleIsRGBA) {
+            static constexpr GrGLenum kRGBA[4] {
+                GR_GL_RED,
+                GR_GL_GREEN,
+                GR_GL_BLUE,
+                GR_GL_ALPHA
+            };
             this->setTextureUnit(unitIdx);
             if (GR_IS_GR_GL(this->glStandard())) {
-                static_assert(sizeof(glValues[0]) == sizeof(GrGLint));
+                static_assert(sizeof(kRGBA[0]) == sizeof(GrGLint));
                 GL_CALL(TexParameteriv(target, GR_GL_TEXTURE_SWIZZLE_RGBA,
-                                       reinterpret_cast<const GrGLint*>(glValues)));
+                                       reinterpret_cast<const GrGLint*>(kRGBA)));
             } else if (GR_IS_GR_GL_ES(this->glStandard())) {
                 // ES3 added swizzle support but not GL_TEXTURE_SWIZZLE_RGBA.
-                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_R, glValues[0]));
-                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_G, glValues[1]));
-                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_B, glValues[2]));
-                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_A, glValues[3]));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_R, kRGBA[0]));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_G, kRGBA[1]));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_B, kRGBA[2]));
+                GL_CALL(TexParameteri(target, GR_GL_TEXTURE_SWIZZLE_A, kRGBA[3]));
             }
         }
     }

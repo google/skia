@@ -29,9 +29,12 @@ static bool sampler_params_invalid(const GrGLTextureParameters& parameters) {
 }
 
 static bool nonsampler_params_invalid(const GrGLTextureParameters& parameters) {
+    GrGLTextureParameters::NonsamplerState nsState = parameters.nonsamplerState();
     GrGLTextureParameters::NonsamplerState invalidNSState;
     invalidNSState.invalidate();
-    return 0 == memcmp(&parameters.nonsamplerState(), &invalidNSState, sizeof(invalidNSState));
+    return nsState.fBaseMipMapLevel == invalidNSState.fBaseMipMapLevel &&
+           nsState.fMaxMipmapLevel  == invalidNSState.fMaxMipmapLevel  &&
+           nsState.fSwizzleIsRGBA   == invalidNSState.fSwizzleIsRGBA;
 }
 
 static bool params_invalid(const GrGLTextureParameters& parameters) {

@@ -32,10 +32,10 @@ void GrGLTextureParameters::SamplerOverriddenState::invalidate() {
 
 GrGLTextureParameters::NonsamplerState::NonsamplerState()
         // These are the OpenGL defaults.
-        : fSwizzleKey(GrSwizzle::RGBA().asKey()), fBaseMipMapLevel(0), fMaxMipmapLevel(1000) {}
+        : fBaseMipMapLevel(0), fMaxMipmapLevel(1000), fSwizzleIsRGBA(true) {}
 
 void GrGLTextureParameters::NonsamplerState::invalidate() {
-    fSwizzleKey = ~0U;
+    fSwizzleIsRGBA = false;
     fBaseMipMapLevel = ~0;
     fMaxMipmapLevel = ~0;
 }

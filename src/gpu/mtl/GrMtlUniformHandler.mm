@@ -270,7 +270,6 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
         0
     });
 
-    SkASSERT(caps->textureSwizzleAppliedInShader());
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
