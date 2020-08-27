@@ -203,6 +203,8 @@ public:
 
     GrProgramDesc makeDesc(GrRenderTarget*, const GrProgramInfo&) const override;
 
+    GrInternalSurfaceFlags getExtraSurfaceFlagsForDeferredRT() const override;
+
 #if GR_TEST_UTILS
     std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif

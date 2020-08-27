@@ -239,19 +239,23 @@ bool SkSurface_Gpu::onCharacterize(SkSurfaceCharacterization* characterization) 
     // backend by FBO 0.
     SkASSERT(!usesGLFBO0 || !SkToBool(rtc->asTextureProxy()));
 
+    bool vkRTSupportsInputAttachment = rtc->asRenderTargetProxy()->supportsVkInputAttachment();
+
     SkImageInfo ii = SkImageInfo::Make(rtc->width(), rtc->height(), ct, kPremul_SkAlphaType,
                                        rtc->colorInfo().refColorSpace());
 
     GrBackendFormat format = rtc->asSurfaceProxy()->backendFormat();
 
-    characterization->set(direct->threadSafeProxy(), maxResourceBytes, ii, format,
-                          rtc->origin(), rtc->numSamples(),
-                          SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
-                          SkSurfaceCharacterization::MipMapped(mipmapped),
-                          SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
-                          SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
-                          rtc->asRenderTargetProxy()->isProtected(),
-                          this->props());
+    characterization->set(
+            direct->threadSafeProxy(), maxResourceBytes, ii, format,
+            rtc->origin(), rtc->numSamples(),
+            SkSurfaceCharacterization::Textureable(SkToBool(rtc->asTextureProxy())),
+            SkSurfaceCharacterization::MipMapped(mipmapped),
+            SkSurfaceCharacterization::UsesGLFBO0(usesGLFBO0),
+            SkSurfaceCharacterization::VkRTSupportsInputAttachment(vkRTSupportsInputAttachment),
+            SkSurfaceCharacterization::VulkanSecondaryCBCompatible(false),
+            rtc->asRenderTargetProxy()->isProtected(),
+            this->props());
     return true;
 }
 

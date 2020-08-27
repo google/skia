@@ -60,6 +60,10 @@ public:
 
     bool wrapsVkSecondaryCB() const { return fWrapsVkSecondaryCB == WrapsVkSecondaryCB::kYes; }
 
+    bool supportsVkInputAttachment() const {
+        return fSurfaceFlags & GrInternalSurfaceFlags::kVkRTSupportsInputAttachment;
+    }
+
     void markMSAADirty(const SkIRect& dirtyRect, GrSurfaceOrigin origin) {
         SkASSERT(SkIRect::MakeSize(this->backingStoreDimensions()).contains(dirtyRect));
         SkASSERT(this->requiresManualMSAAResolve());

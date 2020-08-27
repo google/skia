@@ -255,39 +255,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInf
     context->setResourceCacheLimit(maxBytes);
 }
 
-sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrCaps* caps,
-                                const ProxyParams& p) {
-    const auto format = caps->getDefaultBackendFormat(p.fColorType, p.fRenderable);
-
-    auto callback = [](GrResourceProvider* resourceProvider,
-                       const GrSurfaceProxy::LazySurfaceDesc& desc) {
-        sk_sp<GrTexture> texture;
-        if (desc.fFit == SkBackingFit::kApprox) {
-            texture = resourceProvider->createApproxTexture(desc.fDimensions, desc.fFormat,
-                                                            desc.fRenderable, desc.fSampleCnt,
-                                                            desc.fProtected);
-        } else {
-            texture = resourceProvider->createTexture(
-                    desc.fDimensions, desc.fFormat, desc.fRenderable, desc.fSampleCnt,
-                    desc.fMipmapped, desc.fBudgeted, desc.fProtected);
-        }
-        return GrSurfaceProxy::LazyCallbackResult(std::move(texture));
-    };
-    GrInternalSurfaceFlags flags = GrInternalSurfaceFlags::kNone;
-    SkISize dims = {p.fSize, p.fSize};
-    if (p.fRenderable == GrRenderable::kYes) {
-        static const GrProxyProvider::TextureInfo kTexInfo = {GrMipMapped::kNo, GrTextureType::k2D};
-        return proxyProvider->createLazyRenderTargetProxy(
-                callback, format, dims, p.fSampleCnt, flags, &kTexInfo,
-                GrMipmapStatus::kNotAllocated,
-                p.fFit, p.fBudgeted, GrProtected::kNo, false, GrSurfaceProxy::UseAllocator::kYes);
-    } else {
-        return proxyProvider->createLazyProxy(
-                callback, format, dims, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated, flags,
-                p.fFit, p.fBudgeted, GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
-    }
-}
-
 // Set up so there are two opsTasks that need to be flushed but the resource allocator thinks
 // it is over budget. The two opsTasks should be flushed separately and the opsTask indices
 // returned from assign should be correct.

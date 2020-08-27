@@ -11,6 +11,10 @@
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 
+#ifdef SK_VULKAN
+#include "include/gpu/vk/GrVkTypes.h"
+#endif
+
 #ifdef SK_DEBUG
 void SkSurfaceCharacterization::validate() const {
     const GrCaps* caps = fContextInfo->priv().caps();
@@ -19,6 +23,18 @@ void SkSurfaceCharacterization::validate() const {
     SkASSERT(fSampleCnt && caps->isFormatAsColorTypeRenderable(grCT, fBackendFormat, fSampleCnt));
 
     SkASSERT(caps->areColorTypeAndFormatCompatible(grCT, fBackendFormat));
+
+    SkASSERT(MipMapped::kNo == fIsMipMapped || Textureable::kYes == fIsTextureable);
+    SkASSERT(Textureable::kNo == fIsTextureable || UsesGLFBO0::kNo == fUsesGLFBO0);
+    auto backend = fBackendFormat.backend();
+    SkASSERT(UsesGLFBO0::kNo == fUsesGLFBO0 || backend == GrBackendApi::kOpenGL);
+    SkASSERT((VulkanSecondaryCBCompatible::kNo == fVulkanSecondaryCBCompatible &&
+              VkRTSupportsInputAttachment::kNo == fVkRTSupportsInputAttachment) ||
+             backend == GrBackendApi::kVulkan);
+    SkASSERT(VulkanSecondaryCBCompatible::kNo == fVulkanSecondaryCBCompatible ||
+             VkRTSupportsInputAttachment::kNo == fVkRTSupportsInputAttachment);
+    SkASSERT(Textureable::kNo == fIsTextureable ||
+             VulkanSecondaryCBCompatible::kNo == fVulkanSecondaryCBCompatible);
 }
 #endif
 
@@ -59,7 +75,9 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createResized(int width, in
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeWH(width, height), fBackendFormat, fOrigin,
                                      fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
-                                     fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
+                                     fVkRTSupportsInputAttachment,
+                                     fVulkanSecondaryCBCompatible,
+                                     fIsProtected, fSurfaceProps);
 }
 
 SkSurfaceCharacterization SkSurfaceCharacterization::createColorSpace(
@@ -71,6 +89,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createColorSpace(
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo.makeColorSpace(std::move(cs)), fBackendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
@@ -85,6 +104,7 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createBackendFormat(
 
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes, newII, backendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped, fUsesGLFBO0,
+                                     fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
@@ -93,10 +113,18 @@ SkSurfaceCharacterization SkSurfaceCharacterization::createFBO0(bool usesGLFBO0)
         return SkSurfaceCharacterization();
     }
 
+    // We can't create an FBO0 characterization that is textureable or has any non-gl specific flags
+    if (fIsTextureable == Textureable::kYes ||
+        fVkRTSupportsInputAttachment == VkRTSupportsInputAttachment::kYes ||
+        fVulkanSecondaryCBCompatible == VulkanSecondaryCBCompatible::kYes) {
+        return SkSurfaceCharacterization();
+    }
+
     return SkSurfaceCharacterization(fContextInfo, fCacheMaxResourceBytes,
                                      fImageInfo, fBackendFormat,
                                      fOrigin, fSampleCnt, fIsTextureable, fIsMipMapped,
                                      usesGLFBO0 ? UsesGLFBO0::kYes : UsesGLFBO0::kNo,
+                                     fVkRTSupportsInputAttachment,
                                      fVulkanSecondaryCBCompatible, fIsProtected, fSurfaceProps);
 }
 
@@ -116,6 +144,21 @@ bool SkSurfaceCharacterization::isCompatible(const GrBackendTexture& backendTex)
 
     if (this->vulkanSecondaryCBCompatible()) {
         return false;
+    }
+
+    if (this->vkRTSupportsInputAttachment()) {
+        if (backendTex.backend() != GrBackendApi::kVulkan) {
+            return false;
+        }
+#ifdef SK_VULKAN
+        GrVkImageInfo vkInfo;
+        if (!backendTex.getVkImageInfo(&vkInfo)) {
+            return false;
+        }
+        if (!SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT)) {
+            return false;
+        }
+#endif  // SK_VULKAN
     }
 
     if (this->isMipMapped() && !backendTex.hasMipmaps()) {

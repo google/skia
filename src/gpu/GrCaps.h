@@ -446,6 +446,13 @@ public:
 
     virtual GrProgramDesc makeDesc(GrRenderTarget*, const GrProgramInfo&) const = 0;
 
+    // This method specifies, for each backend, the extra properties of a RT when Ganesh creates one
+    // internally. For example, for Vulkan, Ganesh always creates RTs that can be used as input
+    // attachments.
+    virtual GrInternalSurfaceFlags getExtraSurfaceFlagsForDeferredRT() const {
+        return GrInternalSurfaceFlags::kNone;
+    }
+
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
         GrColorType fColorType;

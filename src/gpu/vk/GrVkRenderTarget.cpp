@@ -41,6 +41,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
     SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -67,6 +68,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     SkASSERT(sampleCnt > 1);
     SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
 }
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
@@ -83,6 +85,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fMSAAImage(nullptr)
         , fResolveAttachmentView(nullptr) {
     SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -101,6 +104,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fMSAAImage(nullptr)
         , fResolveAttachmentView(nullptr) {
     SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
 }
 
 GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
@@ -119,7 +123,14 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         , fSecondaryCommandBuffer(secondaryCommandBuffer) {
     SkASSERT(fSecondaryCommandBuffer != VK_NULL_HANDLE);
     SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+    this->setFlags(info);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
+}
+
+void GrVkRenderTarget::setFlags(const GrVkImageInfo& info) {
+    if (info.fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT) {
+        this->setVkRTSupportsInputAttachment();
+    }
 }
 
 sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
