@@ -2245,18 +2245,114 @@ static int return_count(const Statement& statement, bool inLoopOrSwitch) {
 }
 
 static int count_all_returns(const FunctionDefinition& funcDef) {
-    return return_count</*countTopLevelReturns=*/true,
-                        /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody, /*inLoopOrSwitch=*/false);
+    class CountAllReturns : public ProgramVisitor {
+    public:
+        CountAllReturns(const FunctionDefinition& funcDef) {
+            this->visitProgramElement(funcDef);
+        }
+
+        bool visitStatement(const Statement& stmt) override {
+            switch (stmt.fKind) {
+                case Statement::kReturn_Kind:
+                    ++fNumReturns;
+                    [[fallthrough]];
+
+                default:
+                    return this->INHERITED::visitStatement(stmt);
+            }
+        }
+
+        int fNumReturns = 0;
+        using INHERITED = ProgramVisitor;
+    };
+
+    int count = CountAllReturns{funcDef}.fNumReturns;
+    SkASSERT((count == return_count</*countTopLevelReturns=*/true,
+                                    /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody,
+                                                                      /*inLoopOrSwitch=*/false)));
+    return count;
 }
 
 static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDef) {
-    return return_count</*countTopLevelReturns=*/true,
-                        /*onlyAtEndOfControlFlow=*/true>(*funcDef.fBody, /*inLoopOrSwitch=*/false);
+    class CountReturnsAtEndOfControlFlow : public ProgramVisitor {
+    public:
+        CountReturnsAtEndOfControlFlow(const FunctionDefinition& funcDef) {
+            this->visitProgramElement(funcDef);
+        }
+
+        bool visitStatement(const Statement& stmt) override {
+            switch (stmt.fKind) {
+                case Statement::kBlock_Kind: {
+                    // Check only the last statement of a block.
+                    const auto& blockStmts = stmt.as<Block>().fStatements;
+                    return (blockStmts.size() > 0) ? this->visitStatement(*blockStmts.back())
+                                                   : false;
+                }
+                case Statement::kSwitch_Kind:
+                case Statement::kWhile_Kind:
+                case Statement::kDo_Kind:
+                case Statement::kFor_Kind:
+                    // Don't introspect switches or loop structures at all.
+                    return false;
+
+                case Statement::kReturn_Kind:
+                    ++fNumReturns;
+                    [[fallthrough]];
+
+                default:
+                    return this->INHERITED::visitStatement(stmt);
+            }
+        }
+
+        int fNumReturns = 0;
+        using INHERITED = ProgramVisitor;
+    };
+
+    int count = CountReturnsAtEndOfControlFlow{funcDef}.fNumReturns;
+    SkASSERT((count == return_count</*countTopLevelReturns=*/true,
+                                    /*onlyAtEndOfControlFlow=*/true>(*funcDef.fBody,
+                                                                     /*inLoopOrSwitch=*/false)));
+    return count;
 }
 
 static int count_returns_in_breakable_constructs(const FunctionDefinition& funcDef) {
-    return return_count</*countTopLevelReturns=*/false,
-                        /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody, /*inLoopOrSwitch=*/false);
+    class CountReturnsInBreakableConstructs : public ProgramVisitor {
+    public:
+        CountReturnsInBreakableConstructs(const FunctionDefinition& funcDef) {
+            this->visitProgramElement(funcDef);
+        }
+
+        bool visitStatement(const Statement& stmt) override {
+            switch (stmt.fKind) {
+                case Statement::kSwitch_Kind:
+                case Statement::kWhile_Kind:
+                case Statement::kDo_Kind:
+                case Statement::kFor_Kind: {
+                    ++fInsideBreakableConstruct;
+                    bool result = this->INHERITED::visitStatement(stmt);
+                    --fInsideBreakableConstruct;
+                    return result;
+                }
+
+                case Statement::kReturn_Kind:
+                    fNumReturns += (fInsideBreakableConstruct > 0) ? 1 : 0;
+                    [[fallthrough]];
+
+                default:
+                    return this->INHERITED::visitStatement(stmt);
+            }
+        }
+
+        int fNumReturns = 0;
+        int fInsideBreakableConstruct = 0;
+        using INHERITED = ProgramVisitor;
+    };
+
+    int count = CountReturnsInBreakableConstructs{funcDef}.fNumReturns;
+    SkASSERT((count == return_count</*countTopLevelReturns=*/false,
+                                    /*onlyAtEndOfControlFlow=*/false>(*funcDef.fBody,
+                                                                      /*inLoopOrSwitch=*/false)));
+    return count;
 }
 
 static bool has_early_return(const FunctionDefinition& funcDef) {
