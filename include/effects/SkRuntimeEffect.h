@@ -184,14 +184,15 @@ private:
  *   SkRuntimeShaderBuilder builder(effect);
  *   builder.uniform("some_uniform_float")  = 3.14f;
  *   builder.uniform("some_uniform_matrix") = SkM44::Rotate(...);
- *   builder.child("some_child_effect")   = mySkImage->makeShader(...);
+ *   builder.child("some_child_effect")     = mySkImage->makeShader(...);
  *   ...
  *   sk_sp<SkShader> shader = builder.makeShader(nullptr, false);
  *
  * Note that SkRuntimeShaderBuilder is built entirely on the public API of SkRuntimeEffect,
  * so can be used as-is or serve as inspiration for other interfaces or binding techniques.
  */
-struct SkRuntimeShaderBuilder {
+class SkRuntimeShaderBuilder {
+public:
     SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect>);
     ~SkRuntimeShaderBuilder();
 
@@ -209,8 +210,8 @@ struct SkRuntimeShaderBuilder {
             } else if (sizeof(val) != fVar->sizeInBytes()) {
                 SkDEBUGFAIL("Incorrect value size");
             } else {
-                memcpy(SkTAddOffset<void>(fOwner->fUniforms->writable_data(), fVar->fOffset),
-                        &val, sizeof(val));
+                memcpy(SkTAddOffset<void>(fOwner->writableUniformData(), fVar->fOffset),
+                       &val, sizeof(val));
             }
             return *this;
         }
@@ -221,8 +222,7 @@ struct SkRuntimeShaderBuilder {
             } else if (fVar->sizeInBytes() != 9 * sizeof(float)) {
                 SkDEBUGFAIL("Incorrect value size");
             } else {
-                float* data = SkTAddOffset<float>(fOwner->fUniforms->writable_data(),
-                                                  fVar->fOffset);
+                float* data = SkTAddOffset<float>(fOwner->writableUniformData(), fVar->fOffset);
                 data[0] = val.get(0); data[1] = val.get(3); data[2] = val.get(6);
                 data[3] = val.get(1); data[4] = val.get(4); data[5] = val.get(7);
                 data[6] = val.get(2); data[7] = val.get(5); data[8] = val.get(8);
@@ -241,10 +241,15 @@ struct SkRuntimeShaderBuilder {
         int                     fIndex;  // -1 if the child was not found
     };
 
+    const SkRuntimeEffect* effect() const { return fEffect.get(); }
+
     BuilderUniform uniform(const char* name) { return { this, fEffect->findUniform(name) }; }
     BuilderChild child(const char* name) { return { this, fEffect->findChild(name) }; }
 
     sk_sp<SkShader> makeShader(const SkMatrix* localMatrix, bool isOpaque);
+
+private:
+    void* writableUniformData();
 
     sk_sp<SkRuntimeEffect>       fEffect;
     sk_sp<SkData>                fUniforms;
