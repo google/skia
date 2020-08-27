@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "3b5d687f_a5af2dcd",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T15:57:39Z",
+      "side": 1,
+      "message": "// This flag indicates that a Vulkan rendertarget can be used with the advanced blend operations\n// i.e., that it can be bound both as a source and destination in a single renderpass\n\n?? Is that even right?",
+      "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c3d22f8_49e6f2ff",
         "filename": "include/core/SkSurfaceCharacterization.h",
         "patchSetId": 3
