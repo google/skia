@@ -458,7 +458,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         SkBitmap tmp;
         tmp.allocPixels(overallII);
 
-        if (!rasterImage->readPixels(tmp.pixmap(), 0, 0)) {
+        if (!rasterImage->readPixels(nullptr, tmp.pixmap(), 0, 0)) {
             return -1;
         }
 

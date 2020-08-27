@@ -239,7 +239,8 @@ static SkBitmap to_pixels(const SkImage* image) {
             bm.allocPixels(SkImageInfo::Make(w, h, kBGRA_8888_SkColorType, at));
         }
     }
-    if (!image->readPixels(bm.pixmap(), 0, 0)) {
+    // TODO: support GPU images in PDFs
+    if (!image->readPixels(nullptr, bm.pixmap(), 0, 0)) {
         bm.eraseColor(SkColorSetARGB(0xFF, 0, 0, 0));
     }
     return bm;

@@ -275,7 +275,7 @@ static void check_base_readbacks(GrDirectContext* dContext, const GrBackendTextu
                                                       nullptr);
         if (img) {
             actual.erase(SkColors::kTransparent);
-            bool result = img->readPixels(actual, 0, 0);
+            bool result = img->readPixels(dContext, actual, 0, 0);
             if (!result) {
                 // TODO: we need a better way to tell a priori if readPixels will work for an
                 // arbitrary colorType

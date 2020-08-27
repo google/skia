@@ -131,7 +131,8 @@ sk_sp<SkImage> alpha_image_to_greyscale_image(const SkImage* mask) {
     int w = mask->width(), h = mask->height();
     SkBitmap greyBitmap;
     greyBitmap.allocPixels(SkImageInfo::Make(w, h, kGray_8_SkColorType, kOpaque_SkAlphaType));
-    if (!mask->readPixels(SkImageInfo::MakeA8(w, h),
+    // TODO: support gpu images in pdf
+    if (!mask->readPixels(nullptr, SkImageInfo::MakeA8(w, h),
                           greyBitmap.getPixels(), greyBitmap.rowBytes(), 0, 0)) {
         return nullptr;
     }
