@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "aaba914d_bb707b4d",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-27T20:27:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a52537de_3b6cf547",
+      "revId": "e8c3ebf3c0fa4e76d1107229f2f77bbcc88cdb0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9522e25e_2acbced4",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 9
@@ -33,6 +51,24 @@
       "revId": "e8c3ebf3c0fa4e76d1107229f2f77bbcc88cdb0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0189978_a6a59333",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-27T20:27:58Z",
+      "side": 1,
+      "message": "I use u_isWhitespace \u0026 u_iscntrl that don\u0027t use data file. \nYou are right, and I could do better but for now I follow Flutter pattern (I know it\u0027s a bad excuse).\nI will add big TODO here and make it non-static so I won\u0027t have to change the API later.",
+      "parentUuid": "9522e25e_2acbced4",
+      "revId": "e8c3ebf3c0fa4e76d1107229f2f77bbcc88cdb0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
