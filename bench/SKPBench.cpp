@@ -20,17 +20,13 @@ static DEFINE_int(GPUbenchTileW, 1600, "Tile width  used for GPU SKP playback.")
 static DEFINE_int(GPUbenchTileH, 512, "Tile height used for GPU SKP playback.");
 
 SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, SkScalar scale,
-                   bool useMultiPictureDraw, bool doLooping)
+                   bool doLooping)
     : fPic(SkRef(pic))
     , fClip(clip)
     , fScale(scale)
     , fName(name)
-    , fUseMultiPictureDraw(useMultiPictureDraw)
     , fDoLooping(doLooping) {
     fUniqueName.printf("%s_%.2g", name, scale);  // Scale makes this unqiue for perf.skia.org traces.
-    if (useMultiPictureDraw) {
-        fUniqueName.append("_mpd");
-    }
 }
 
 SKPBench::~SKPBench() {
@@ -108,11 +104,7 @@ SkIPoint SKPBench::onGetSize() {
 void SKPBench::onDraw(int loops, SkCanvas* canvas) {
     SkASSERT(fDoLooping || 1 == loops);
     while (1) {
-        if (fUseMultiPictureDraw) {
-            this->drawMPDPicture();
-        } else {
-            this->drawPicture();
-        }
+        this->drawPicture();
         if (0 == --loops) {
             break;
         }
