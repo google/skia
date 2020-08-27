@@ -16,6 +16,69 @@
       "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0c43416_7625d043",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-27T15:07:22Z",
+      "side": 1,
+      "message": "just looked at headers",
+      "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c3d22f8_49e6f2ff",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-27T15:07:22Z",
+      "side": 1,
+      "message": "Would it makes sense to look at contextInfo\u0027s (or backendFormat\u0027s) backend API to do these asserts instead of checking combinations of vulkan and gl param values?",
+      "range": {
+        "startLine": 170,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 84
+      },
+      "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b78437a_248a167c",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-27T15:07:22Z",
+      "side": 1,
+      "message": "Vulkan?",
+      "range": {
+        "startLine": 720,
+        "startChar": 17,
+        "endLine": 720,
+        "endChar": 24
+      },
+      "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
