@@ -76,6 +76,30 @@
     },
     {
       "key": {
+        "uuid": "a233c7c7_7a27dc42",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T15:57:45Z",
+      "side": 1,
+      "message": "Done. Asserts now are backend specific.",
+      "parentUuid": "7c3d22f8_49e6f2ff",
+      "range": {
+        "startLine": 170,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 84
+      },
+      "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b78437a_248a167c",
         "filename": "include/private/GrTypesPriv.h",
         "patchSetId": 3
@@ -96,6 +120,30 @@
       "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "069017ec_694974ef",
+        "filename": "include/private/GrTypesPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T15:57:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b78437a_248a167c",
+      "range": {
+        "startLine": 720,
+        "startChar": 17,
+        "endLine": 720,
+        "endChar": 24
+      },
+      "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
