@@ -123,7 +123,6 @@ static DEFINE_string(zoom, "1.0,0",
                      "Comma-separated zoomMax,zoomPeriodMs factors for a periodic SKP zoom "
                      "function that ping-pongs between 1.0 and zoomMax.");
 static DEFINE_bool(bbh, true, "Build a BBH for SKPs?");
-static DEFINE_bool(mpd, true, "Use MultiPictureDraw for the SKPs?");
 static DEFINE_bool(loopSKP, true, "Loop SKPs like we do for micro benches?");
 static DEFINE_int(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 static DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
@@ -672,11 +671,6 @@ public:
             exit(1);
         }
 
-        if (FLAGS_mpd) {
-            fUseMPDs.push_back() = true;
-        }
-        fUseMPDs.push_back() = false;
-
         // Prepare the images for decoding
         if (!CollectImages(FLAGS_images, &fImages)) {
             exit(1);
@@ -815,40 +809,35 @@ public:
         // Then once each for each scale as SKPBenches (playback).
         while (fCurrentScale < fScales.count()) {
             while (fCurrentSKP < fSKPs.count()) {
-                const SkString& path = fSKPs[fCurrentSKP];
+                const SkString& path = fSKPs[fCurrentSKP++];
                 sk_sp<SkPicture> pic = ReadPicture(path.c_str());
                 if (!pic) {
-                    fCurrentSKP++;
                     continue;
                 }
 
-                while (fCurrentUseMPD < fUseMPDs.count()) {
-                    if (FLAGS_bbh) {
-                        // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
-                        SkRTreeFactory factory;
-                        SkPictureRecorder recorder;
-                        pic->playback(recorder.beginRecording(pic->cullRect().width(),
-                                                              pic->cullRect().height(),
-                                                              &factory));
-                        pic = recorder.finishRecordingAsPicture();
-                    }
-                    SkString name = SkOSPath::Basename(path.c_str());
-                    fSourceType = "skp";
-                    fBenchType = "playback";
-                    return new SKPBench(name.c_str(), pic.get(), fClip, fScales[fCurrentScale],
-                                        fUseMPDs[fCurrentUseMPD++], FLAGS_loopSKP);
+                if (FLAGS_bbh) {
+                    // The SKP we read off disk doesn't have a BBH.  Re-record so it grows one.
+                    SkRTreeFactory factory;
+                    SkPictureRecorder recorder;
+                    pic->playback(recorder.beginRecording(pic->cullRect().width(),
+                                                          pic->cullRect().height(),
+                                                          &factory));
+                    pic = recorder.finishRecordingAsPicture();
                 }
-                fCurrentUseMPD = 0;
-                fCurrentSKP++;
+                SkString name = SkOSPath::Basename(path.c_str());
+                fSourceType = "skp";
+                fBenchType = "playback";
+                return new SKPBench(name.c_str(), pic.get(), fClip, fScales[fCurrentScale],
+                                    FLAGS_loopSKP);
             }
 
-            while (fCurrentSVG++ < fSVGs.count()) {
-                const char* path = fSVGs[fCurrentSVG - 1].c_str();
+            while (fCurrentSVG < fSVGs.count()) {
+                const char* path = fSVGs[fCurrentSVG++].c_str();
                 if (sk_sp<SkPicture> pic = ReadSVGPicture(path)) {
                     fSourceType = "svg";
                     fBenchType = "playback";
                     return new SKPBench(SkOSPath::Basename(path).c_str(), pic.get(), fClip,
-                                        fScales[fCurrentScale], false, FLAGS_loopSKP);
+                                        fScales[fCurrentScale], FLAGS_loopSKP);
                 }
             }
 
@@ -1082,11 +1071,6 @@ public:
                                                   fClip.fRight, fClip.fBottom).c_str());
             SkASSERT_RELEASE(fCurrentScale < fScales.count());  // debugging paranoia
             log.appendString("scale", SkStringPrintf("%.2g", fScales[fCurrentScale]).c_str());
-            if (fCurrentUseMPD > 0) {
-                SkASSERT(1 == fCurrentUseMPD || 2 == fCurrentUseMPD);
-                log.appendString("multi_picture_draw",
-                                 fUseMPDs[fCurrentUseMPD-1] ? "true" : "false");
-            }
         }
     }
 
@@ -1119,7 +1103,6 @@ private:
     SkTArray<SkString> fSKPs;
     SkTArray<SkString> fSVGs;
     SkTArray<SkString> fTextBlobTraces;
-    SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
     SkTArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
@@ -1135,7 +1118,6 @@ private:
     int fCurrentSKP = 0;
     int fCurrentSVG = 0;
     int fCurrentTextBlobTrace = 0;
-    int fCurrentUseMPD = 0;
     int fCurrentCodec = 0;
     int fCurrentAndroidCodec = 0;
 #ifdef SK_ENABLE_ANDROID_UTILS
