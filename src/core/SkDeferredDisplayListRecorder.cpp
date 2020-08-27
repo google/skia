@@ -120,12 +120,20 @@ bool SkDeferredDisplayListRecorder::init() {
         }
     }
 
+    bool vkRTSupportsInputAttachment = fCharacterization.vkRTSupportsInputAttachment();
+    if (vkRTSupportsInputAttachment) {
+        if (GrBackendApi::kVulkan != fContext->backend()) {
+            return false;
+        }
+    }
+
     if (fCharacterization.vulkanSecondaryCBCompatible()) {
         // Because of the restrictive API allowed for a GrVkSecondaryCBDrawContext, we know ahead
         // of time that we don't be able to support certain parameter combinations. Specifially we
         // fail on usesGLFBO0 since we can't mix GL and Vulkan. We can't have a texturable object.
         // And finally the GrVkSecondaryCBDrawContext always assumes a top left origin.
         if (usesGLFBO0 ||
+            vkRTSupportsInputAttachment ||
             fCharacterization.isTextureable() ||
             fCharacterization.origin() == kBottomLeft_GrSurfaceOrigin) {
             return false;
@@ -147,6 +155,11 @@ bool SkDeferredDisplayListRecorder::init() {
                fCharacterization.isTextureable()) {
         surfaceFlags |= GrInternalSurfaceFlags::kRequiresManualMSAAResolve;
     }
+
+    if (vkRTSupportsInputAttachment) {
+        surfaceFlags |= GrInternalSurfaceFlags::kVkRTSupportsInputAttachment;
+    }
+
     // FIXME: Why do we use GrMipmapped::kNo instead of SkSurfaceCharacterization::fIsMipMapped?
     static constexpr GrProxyProvider::TextureInfo kTextureInfo{GrMipmapped::kNo,
                                                                GrTextureType::k2D};
