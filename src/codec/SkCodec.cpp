@@ -167,35 +167,21 @@ SkCodec::SkCodec(SkEncodedInfo&& info, XformFormat srcFormat, std::unique_ptr<Sk
 
 SkCodec::~SkCodec() {}
 
-bool SkCodec::queryYUVAInfo(SkYUVAInfo* yuvaInfo,
-                            SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
-                            size_t rowBytes[SkYUVAInfo::kMaxPlanes]) const {
-    if (!yuvaInfo || !colorTypes || !rowBytes) {
+bool SkCodec::queryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const {
+    if (!yuvaPixmapInfo) {
         return false;
     }
-    if (!this->onQueryYUVAInfo(yuvaInfo, colorTypes, rowBytes)) {
-        return false;
-    }
-    SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
-    int numPlanes = yuvaInfo->expectedPlaneDims(planeDimensions);
-    // Validate that the returned color types and row bytes are OK for the expected plane sizes.
-    for (int i = 0; i < numPlanes; ++i) {
-        SkImageInfo ii = SkImageInfo::Make(planeDimensions[i], colorTypes[i], kPremul_SkAlphaType);
-        if (!ii.validRowBytes(rowBytes[i])) {
-            return false;
-        }
-    }
-    return true;
+    return this->onQueryYUVAInfo(yuvaPixmapInfo) && yuvaPixmapInfo->isValid();
 }
 
-SkCodec::Result SkCodec::getYUVAPlanes(const SkPixmap planes[SkYUVAInfo::kMaxPlanes]) {
-    if (!planes) {
+SkCodec::Result SkCodec::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
+    if (!yuvaPixmaps.isValid()) {
         return kInvalidInput;
     }
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
-    return this->onGetYUVAPlanes(planes);
+    return this->onGetYUVAPlanes(yuvaPixmaps);
 }
 
 bool SkCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque, bool needsColorXform) {

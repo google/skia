@@ -12,12 +12,12 @@
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkTLazy.h"
-#include "tools/gpu/YUVUtils.h"
 
 class GrContext;
 class SkImage;
@@ -221,9 +221,7 @@ private:
         void setMipLevels(const SkBitmap& baseLevel, std::unique_ptr<SkMipmap> mipLevels);
 
         /** Takes ownership of the plane data. */
-        void setYUVPlanes(sk_gpu_test::YUVAPixmaps yuvaPixmaps) {
-            fYUVAPixmaps = std::move(yuvaPixmaps);
-        }
+        void setYUVPlanes(SkYUVAPixmaps yuvaPixmaps) { fYUVAPixmaps = std::move(yuvaPixmaps); }
 
         /** Call after setYUVPlanes() and callback contexts have been installed.  */
         void initYUVAIndices();
@@ -239,7 +237,7 @@ private:
         std::unique_ptr<SkMipmap>          fMipLevels;
 
         // CPU-side cache of a YUV SkImage's contents
-        sk_gpu_test::YUVAPixmaps           fYUVAPixmaps;
+        SkYUVAPixmaps                      fYUVAPixmaps;
         SkYUVAIndex                        fYUVAIndices[SkYUVAIndex::kIndexCount] = {};
 
         // Up to SkYUVASizeInfo::kMaxCount for a YUVA image. Only one for a normal image.

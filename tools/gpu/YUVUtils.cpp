@@ -10,46 +10,10 @@
 #include "include/core/SkData.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/codec/SkCodecImageGenerator.h"
-#include "src/core/SkYUVAInfoPriv.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
 namespace sk_gpu_test {
-
-YUVAPixmaps::YUVAPixmaps(const SkYUVAInfo& yuvaInfo,
-                         SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
-                         size_t rowBytes[SkYUVAInfo::kMaxPlanes])
-        : fYUVAInfo(yuvaInfo) {
-    if (yuvaInfo.dimensions().isEmpty()) {
-        return;
-    }
-    SkISize planeDims[SkYUVAInfo::kMaxPlanes];
-    SkImageInfo ii[SkYUVAInfo::kMaxPlanes];
-    size_t planeSizes[SkYUVAInfo::kMaxPlanes];
-    size_t totalBytes = yuvaInfo.computeTotalBytes(rowBytes, planeSizes);
-    int numPlanes = yuvaInfo.expectedPlaneDims(planeDims);
-    for (int i = 0; i < numPlanes; ++i) {
-        ii[i] = SkImageInfo::Make(planeDims[i], colorTypes[i], kPremul_SkAlphaType);
-        if (!ii[i].validRowBytes(rowBytes[i])) {
-            return;
-        }
-    }
-
-    fStorage.reset(new char[totalBytes]);
-    char* addr = fStorage.get();
-    for (int i = 0; i < numPlanes; ++i) {
-        fPlanes[i].reset(ii[i], addr, rowBytes[i]);
-        addr += planeSizes[i];
-    }
-    fIsValid = true;
-}
-
-bool YUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndices[4]) {
-    if (!this->isValid()) {
-        return false;
-    }
-    return SkYUVAInfoPriv::InitLegacyInfo(fYUVAInfo, fPlanes, yuvaSizeInfo, yuvaIndices);
-}
 
 std::unique_ptr<LazyYUVImage> LazyYUVImage::Make(sk_sp<SkData> data, GrMipmapped mipmapped) {
     std::unique_ptr<LazyYUVImage> image(new LazyYUVImage());
@@ -83,18 +47,16 @@ bool LazyYUVImage::reset(sk_sp<SkData> data, GrMipmapped mipmapped) {
         return false;
     }
 
-    SkColorType colorTypes[4];
-    size_t rowBytes[4];
-    SkYUVAInfo yuvaInfo;
-    if (!codec->queryYUVAInfo(&yuvaInfo, colorTypes, rowBytes)) {
+    SkYUVAPixmapInfo yuvaPixmapInfo;
+    if (!codec->queryYUVAInfo(&yuvaPixmapInfo)) {
         return false;
     }
-    fPixmaps = YUVAPixmaps(yuvaInfo, colorTypes, rowBytes);
+    fPixmaps = SkYUVAPixmaps::Allocate(yuvaPixmapInfo);
     if (!fPixmaps.isValid()) {
         return false;
     }
 
-    if (!codec->getYUVAPlanes(fPixmaps.planes())) {
+    if (!codec->getYUVAPlanes(fPixmaps)) {
         return false;
     }
 
@@ -115,7 +77,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext) {
     // Try to make a new YUV image for this context.
     fYUVImage = SkImage::MakeFromYUVAPixmaps(rContext->priv().backdoor(),
                                              fPixmaps.yuvaInfo().yuvColorSpace(),
-                                             fPixmaps.planes(),
+                                             fPixmaps.planes().data(),
                                              fComponents,
                                              fSizeInfo.fSizes[0],
                                              kTopLeft_GrSurfaceOrigin,

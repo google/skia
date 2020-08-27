@@ -28,59 +28,48 @@ static void codec_yuv(skiatest::Reporter* reporter,
     }
 
     // Test queryYUBAInfo()
-    SkYUVAInfo yuvaInfo;
-    static_assert(SkYUVAInfo::kMaxPlanes == 4);
-    SkColorType colorTypes[SkYUVAInfo::kMaxPlanes] = {kUnknown_SkColorType,
-                                                      kUnknown_SkColorType,
-                                                      kUnknown_SkColorType,
-                                                      kUnknown_SkColorType};
-    size_t rowBytes[SkYUVAInfo::kMaxPlanes] = {};
+    SkYUVAPixmapInfo yuvaPixmapInfo;
 
-    // All params are required to be non-null.
-    bool success = codec->queryYUVAInfo(&yuvaInfo, colorTypes, nullptr);
+    // Param is required to be non-null.
+    bool success = codec->queryYUVAInfo(nullptr);
     REPORTER_ASSERT(reporter, !success);
-    success = codec->queryYUVAInfo(&yuvaInfo, nullptr, rowBytes);
-    REPORTER_ASSERT(reporter, !success);
-    success = codec->queryYUVAInfo(nullptr, colorTypes, rowBytes);
-    REPORTER_ASSERT(reporter, !success);
-    success = codec->queryYUVAInfo(&yuvaInfo, colorTypes, rowBytes);
+    success = codec->queryYUVAInfo(&yuvaPixmapInfo);
     REPORTER_ASSERT(reporter, SkToBool(expectedInfo) == success);
     if (!success) {
         return;
     }
-    REPORTER_ASSERT(reporter, *expectedInfo == yuvaInfo);
+    REPORTER_ASSERT(reporter, *expectedInfo == yuvaPixmapInfo.yuvaInfo());
 
-    SkImageInfo ii[SkYUVAInfo::kMaxPlanes];
-
-    SkISize planeDims[SkYUVAInfo::kMaxPlanes] = {};
-    int numPlanes = yuvaInfo.expectedPlaneDims(planeDims);
+    int numPlanes = yuvaPixmapInfo.numPlanes();
     REPORTER_ASSERT(reporter, numPlanes <= SkYUVAInfo::kMaxPlanes);
     size_t totalBytes = 0;
     for (int i = 0; i < numPlanes; ++i) {
-        REPORTER_ASSERT(reporter, !planeDims[i].isEmpty());
-        REPORTER_ASSERT(reporter, colorTypes[i] != kUnknown_SkColorType);
-        ii[i] = SkImageInfo::Make(planeDims[i], colorTypes[i], kPremul_SkAlphaType);
-        REPORTER_ASSERT(reporter, ii[i].validRowBytes(rowBytes[i]));
-        totalBytes += ii[i].height()*rowBytes[i];
+        const SkImageInfo& planeInfo = yuvaPixmapInfo.planeInfo(i);
+        REPORTER_ASSERT(reporter, !planeInfo.isEmpty());
+        REPORTER_ASSERT(reporter, planeInfo.colorType() != kUnknown_SkColorType);
+        REPORTER_ASSERT(reporter, planeInfo.validRowBytes(yuvaPixmapInfo.rowBytes(i)));
+        totalBytes += planeInfo.height()*yuvaPixmapInfo.rowBytes(i);
     }
     for (int i = numPlanes; i < SkYUVAInfo::kMaxPlanes; ++i) {
-        REPORTER_ASSERT(reporter, planeDims[i].isZero());
-        REPORTER_ASSERT(reporter, colorTypes[i] == kUnknown_SkColorType);
-        REPORTER_ASSERT(reporter, rowBytes[i] == 0);
+        const SkImageInfo& planeInfo = yuvaPixmapInfo.planeInfo(i);
+        REPORTER_ASSERT(reporter, planeInfo.dimensions().isEmpty());
+        REPORTER_ASSERT(reporter, planeInfo.colorType() == kUnknown_SkColorType);
+        REPORTER_ASSERT(reporter, yuvaPixmapInfo.rowBytes(i) == 0);
     }
 
     // Allocate the memory for the YUV decode.
-    SkAutoMalloc storage(totalBytes);
-    SkPixmap planes[SkYUVAInfo::kMaxPlanes];
-    char* addr = static_cast<char*>(storage.get());
-    for (int i = 0; i < numPlanes; ++i) {
-        planes[i].reset(ii[i], addr, rowBytes[i]);
-        addr += planes[i].height()*rowBytes[i];
+    auto pixmaps = SkYUVAPixmaps::Allocate(yuvaPixmapInfo);
+    REPORTER_ASSERT(reporter, pixmaps.isValid());
+
+    for (int i = 0; i < SkYUVAPixmaps::kMaxPlanes; ++i) {
+        REPORTER_ASSERT(reporter, pixmaps.plane(i).info() == yuvaPixmapInfo.planeInfo(i));
+    }
+    for (int i = numPlanes; i < SkYUVAInfo::kMaxPlanes; ++i) {
+        REPORTER_ASSERT(reporter, pixmaps.plane(i).rowBytes() == 0);
     }
 
     // Test getYUVAPlanes()
-    REPORTER_ASSERT(reporter, SkCodec::kInvalidInput == codec->getYUVAPlanes(nullptr));
-    REPORTER_ASSERT(reporter, SkCodec::kSuccess == codec->getYUVAPlanes(planes));
+    REPORTER_ASSERT(reporter, SkCodec::kSuccess == codec->getYUVAPlanes(pixmaps));
 }
 
 DEF_TEST(Jpeg_YUV_Codec, r) {
