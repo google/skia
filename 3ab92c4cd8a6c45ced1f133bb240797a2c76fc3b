@@ -415,6 +415,52 @@
       "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1fc1f50_773b9f10",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:52:08Z",
+      "side": 1,
+      "message": "I don\u0027t know the codec code but it seems a bit odd that these are clumped in with success",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "697bb787_e91e9675",
+        "filename": "src/core/SkYUVAInfo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:52:08Z",
+      "side": 1,
+      "message": "We do this here and in every following case except for kY_U_V_411 (which I think is an error)",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 32
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
