@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72898dbf_9d46cb5e",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T21:11:06Z",
+      "side": 1,
+      "message": "Here you\u0027re using \u0027denseID\u0027 and elsewhere \u0027index\u0027. Should they all be \u0027denseID\u0027?",
+      "range": {
+        "startLine": 41,
+        "startChar": 11,
+        "endLine": 41,
+        "endChar": 18
+      },
+      "revId": "ddcd5aaf0e8b077ce51ad973e515853216cd183f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed51b27f_0059ca9a",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T21:11:06Z",
+      "side": 1,
+      "message": "nit: I know you like this, but it drives me crazy because mentally this is \u0027if index is not nullptr\u0027 (has a negation in it) instead of just \u0027if we got an index\u0027. Anyhow, you don\u0027t need to change it, I just need just need to say it.",
+      "range": {
+        "startLine": 51,
+        "startChar": 13,
+        "endLine": 51,
+        "endChar": 24
+      },
+      "revId": "ddcd5aaf0e8b077ce51ad973e515853216cd183f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
