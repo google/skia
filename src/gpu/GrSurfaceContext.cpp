@@ -138,8 +138,7 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_AUDIT_TRAIL_AUTO_FRAME(this->auditTrail(), "GrSurfaceContext::readPixels");
-
-    if (!dContext) {
+    if (!fContext->priv().matches(dContext)) {
         return false;
     }
 
