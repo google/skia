@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18bd49c5_46b00b37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T19:40:00Z",
+      "side": 1,
+      "message": "So this would be extra overhead for everyone other than oopr in Chromium? Do these \u0027indexes\u0027 really need to be here or could they just be done in the remoting with a map of packed glyph ids to \u0027indexes\u0027 and the remote side just look things up by \u0027indexes\u0027? (I\u0027d really have to re-read through how all that works again...)",
+      "revId": "1a39b4d0408a1604985d02a08d3ab55ccf532da6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14d339fc_10a86e94",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T19:40:00Z",
+      "side": 1,
+      "message": "Seems a bit easier to follow now like\n\n    if (index) {\n        return {fIndex[*index], 0}\n    }\n    ...",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 5
+      },
+      "revId": "1a39b4d0408a1604985d02a08d3ab55ccf532da6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16ef0675_60169c0b",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T19:40:00Z",
+      "side": 1,
+      "message": "Similar, can we flip these so the \u0027found\u0027 comes first\n\n    if (index) {\n        glyph \u003d fIndex[*index];\n    } else {\n        std::tie(glyph, delta) \u003d this-\u003emakeGlyph(toID);\n    }",
+      "range": {
+        "startLine": 117,
+        "startChar": 1,
+        "endLine": 121,
+        "endChar": 5
+      },
+      "revId": "1a39b4d0408a1604985d02a08d3ab55ccf532da6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63a3eeeb_f1fc8a38",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T19:40:00Z",
+      "side": 1,
+      "message": "fIndexForPackedGlyphID?",
+      "range": {
+        "startLine": 126,
+        "startChar": 46,
+        "endLine": 126,
+        "endChar": 55
+      },
+      "revId": "1a39b4d0408a1604985d02a08d3ab55ccf532da6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d3cb2df_233fbb3f",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T19:40:00Z",
+      "side": 1,
+      "message": "fGlyphForIndex? It seems odd to name a map based on just the key.",
+      "range": {
+        "startLine": 127,
+        "startChar": 26,
+        "endLine": 127,
+        "endChar": 32
+      },
+      "revId": "1a39b4d0408a1604985d02a08d3ab55ccf532da6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
