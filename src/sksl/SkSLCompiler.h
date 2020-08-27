@@ -241,7 +241,7 @@ private:
     std::vector<std::unique_ptr<ProgramElement>> fFPInclude;
     std::shared_ptr<SymbolTable> fFPSymbolTable;
 
-    IRGenerator* fIRGenerator;
+    std::unique_ptr<IRGenerator> fIRGenerator;
     int fFlags;
 
     const String* fSource;
