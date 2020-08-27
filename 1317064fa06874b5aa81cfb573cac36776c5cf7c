@@ -69,6 +69,24 @@
       "revId": "1317064fa06874b5aa81cfb573cac36776c5cf7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b11d9c39_37bdcb6f",
+        "filename": "gm/runtimeshader_blur.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T12:58:30Z",
+      "side": 1,
+      "message": "Aha, I thought I had a test case for this situation, but I guess not. And yes - it\u0027s not safe. Oops. I\u0027ll file a bug about this one.",
+      "parentUuid": "165598f8_3fd46587",
+      "revId": "1317064fa06874b5aa81cfb573cac36776c5cf7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
