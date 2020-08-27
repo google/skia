@@ -161,7 +161,7 @@ public:
                                           "Got     : [ %08x %08x %08x %08x ]\n"
                                           "SkSL:\n%s\n",
                                           TL, TR, BL, BR, actual[0], actual[1], actual[2],
-                                          actual[3], fBuilder->fEffect->source().c_str()));
+                                          actual[3], fBuilder->effect()->source().c_str()));
         }
     }
 
@@ -266,4 +266,22 @@ DEF_TEST(SkRuntimeEffectSimple, r) {
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU, r, ctxInfo) {
     test_RuntimeEffect_Shaders(r, ctxInfo.directContext());
+}
+
+DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
+    const char* kSource = R"(
+        uniform half x;
+        half4 main() { return half4(x); }
+    )";
+
+    sk_sp<SkRuntimeEffect> effect = std::get<0>(SkRuntimeEffect::Make(SkString(kSource)));
+    REPORTER_ASSERT(r, effect);
+
+    // Test passes if this sequence doesn't assert.  skbug.com/10667
+    SkRuntimeShaderBuilder b(std::move(effect));
+    b.uniform("x") = 0.0f;
+    auto shader_0 = b.makeShader(nullptr, false);
+
+    b.uniform("x") = 1.0f;
+    auto shader_1 = b.makeShader(nullptr, true);
 }
