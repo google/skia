@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "56de5491_24e39e94",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97a9377a_54140a00",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db664f2b_39aff7e9",
         "filename": "include/gpu/GrContextThreadSafeProxy.h",
         "patchSetId": 4
@@ -47,6 +65,30 @@
       "writtenOn": "2020-08-27T16:10:26Z",
       "side": 1,
       "message": "VkRTSupportsInputAttachment ?",
+      "range": {
+        "startLine": 76,
+        "startChar": 34,
+        "endLine": 76,
+        "endChar": 39
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5576c963_8526cae8",
+        "filename": "include/gpu/GrContextThreadSafeProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Everything else here used just the bools, and not the enums Texturable, MipMapped, UsesGLFBO0. So I was keep the pattern the same.",
+      "parentUuid": "db664f2b_39aff7e9",
       "range": {
         "startLine": 76,
         "startChar": 34,
@@ -82,6 +124,30 @@
     },
     {
       "key": {
+        "uuid": "4b4d3e22_6d0203ce",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8986d5b_1fed9a70",
+      "range": {
+        "startLine": 124,
+        "startChar": 35,
+        "endLine": 125,
+        "endChar": 12
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbcc5c7f_f5611e67",
         "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
         "patchSetId": 4
@@ -102,6 +168,30 @@
       "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a04d3322_d69fad28",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbcc5c7f_f5611e67",
+      "range": {
+        "startLine": 132,
+        "startChar": 84,
+        "endLine": 132,
+        "endChar": 95
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "6ed56c4f_be10d9d5",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cd1c781_437f9bf6",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1f1c867_9041931e",
         "filename": "src/core/SkSurfaceCharacterization.cpp",
         "patchSetId": 4
@@ -151,6 +259,24 @@
       "writtenOn": "2020-08-27T16:10:26Z",
       "side": 1,
       "message": "Don\u0027t we require this be set on the backend texture too ?",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "198028d8_e5218647",
+        "filename": "src/core/SkSurfaceCharacterization.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "added checks on the backend texture.",
+      "parentUuid": "c1f1c867_9041931e",
       "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -174,6 +300,24 @@
     },
     {
       "key": {
+        "uuid": "36fc3286_304d76d7",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2222fd10_2acaff76",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f6a5db0_8aaf14a2",
         "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
         "patchSetId": 4
@@ -188,6 +332,24 @@
       "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "885c4bff_4a81d3f7",
+        "filename": "src/gpu/GrContextThreadSafeProxy.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f6a5db0_8aaf14a2",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -214,6 +376,30 @@
     },
     {
       "key": {
+        "uuid": "153880eb_08805abc",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56ba2168_f636f277",
+      "range": {
+        "startLine": 803,
+        "startChar": 59,
+        "endLine": 803,
+        "endChar": 60
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3c61cd3f_d89a19a5",
         "filename": "tests/DeferredDisplayListTest.cpp",
         "patchSetId": 4
@@ -237,6 +423,30 @@
     },
     {
       "key": {
+        "uuid": "6f3e6b55_9a4002af",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1022,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c61cd3f_d89a19a5",
+      "range": {
+        "startLine": 1022,
+        "startChar": 22,
+        "endLine": 1022,
+        "endChar": 41
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f17345b5_6fcbf3f0",
         "filename": "tests/DeferredDisplayListTest.cpp",
         "patchSetId": 4
@@ -251,6 +461,24 @@
       "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fd11a85_6799b7f7",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1046,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T18:29:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f17345b5_6fcbf3f0",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
