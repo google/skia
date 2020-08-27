@@ -34,6 +34,24 @@
       "revId": "54b527a37b96bebcc70238d6714efc28049496a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f0a6ad4_844ce69c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-27T19:50:30Z",
+      "side": 1,
+      "message": "Android has in the past cared about *some* of our legacy blits (for speed) as well.",
+      "parentUuid": "1212d1ab_d5fd2876",
+      "revId": "54b527a37b96bebcc70238d6714efc28049496a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
