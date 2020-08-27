@@ -51,6 +51,24 @@
       "revId": "1317064fa06874b5aa81cfb573cac36776c5cf7c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "165598f8_3fd46587",
+        "filename": "gm/runtimeshader_blur.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-27T12:14:33Z",
+      "side": 1,
+      "message": "I tried that, but it asserts in debug mode with the following stack trace.\n\nsk_abort_no_print() SkMemory_malloc.cpp:49\nSkData::writable_data()::\u0027lambda\u0027()::operator()() const SkData.h:52\nSkData::writable_data() SkData.h:52\nstd::__1::enable_if\u003cstd::is_trivially_copyable\u003cfloat\u003e::value, SkRuntimeShaderBuilder::BuilderUniform\u0026\u003e::type SkRuntimeShaderBuilder::BuilderUniform::operator\u003d\u003cfloat\u003e(float const\u0026) SkRuntimeEffect.h:212\nKawaseBlurFilter::draw(SkCanvas*, sk_sp\u003cSkImage\u003e, int) runtimeshader_blur.cpp:122\n\n...",
+      "parentUuid": "38d41508_243fe4ad",
+      "revId": "1317064fa06874b5aa81cfb573cac36776c5cf7c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
