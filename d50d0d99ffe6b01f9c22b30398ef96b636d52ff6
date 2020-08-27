@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "857a7610_e0acd041",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T14:32:29Z",
+      "side": 1,
+      "message": "The CL description says the scale is factored into the tolerances, but this is just multiplying the number of segments. Can we maybe pass the scale value into these helper functions and then those helper functions can document exactly what the scale is doing, why it is sqrt, etc.",
+      "range": {
+        "startLine": 231,
+        "startChar": 90,
+        "endLine": 232,
+        "endChar": 51
+      },
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6784e1f_b7c1f3bd",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T14:32:29Z",
+      "side": 1,
+      "message": "the order of your uniforms here is float2, float2x2, float2, half4. At least on some apis, we\u0027ll get better uniform packing if you flip the float2x2 and second float2.",
+      "range": {
+        "startLine": 45,
+        "startChar": 55,
+        "endLine": 45,
+        "endChar": 71
+      },
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70c33c22_ea5ce069",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T14:32:29Z",
+      "side": 1,
+      "message": "do we already have something that restricts the view matrix to be non-perspective?",
+      "range": {
+        "startLine": 68,
+        "startChar": 27,
+        "endLine": 68,
+        "endChar": 40
+      },
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
