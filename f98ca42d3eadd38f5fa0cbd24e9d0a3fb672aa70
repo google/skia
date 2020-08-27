@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "130e6e1f_4a5f3d08",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T18:50:19Z",
+      "side": 1,
+      "message": "Guessing that one more config on GL/GLES perf bots isn\u0027t too bad? We were only running \"gl\" and \"glsrgb\", which should be (and are) ~identical in performance. This change will give us numbers about the cost when all content actually needs to be transformed to a different space.",
+      "revId": "f98ca42d3eadd38f5fa0cbd24e9d0a3fb672aa70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
