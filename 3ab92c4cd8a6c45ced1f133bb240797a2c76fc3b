@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c5911b1_c37d4db3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:05:18Z",
+      "side": 1,
+      "message": "Only partway through",
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d24f7748_24f03b6f",
+        "filename": "gn/core.gni",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:05:18Z",
+      "side": 1,
+      "message": "Mv this up one ?",
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef2df4b2_6dc498cc",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:05:18Z",
+      "side": 1,
+      "message": "yuvaPixmapInfo ?",
+      "range": {
+        "startLine": 384,
+        "startChar": 71,
+        "endLine": 384,
+        "endChar": 80
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bee634cf_814804c7",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:05:18Z",
+      "side": 1,
+      "message": "they ?",
+      "range": {
+        "startLine": 393,
+        "startChar": 8,
+        "endLine": 393,
+        "endChar": 10
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c09171eb_4c6e9e5a",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:05:18Z",
+      "side": 1,
+      "message": "It seems very odd that this is const\u0026",
+      "range": {
+        "startLine": 398,
+        "startChar": 25,
+        "endLine": 398,
+        "endChar": 46
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
