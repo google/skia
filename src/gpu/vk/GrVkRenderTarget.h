@@ -200,6 +200,8 @@ private:
                      const GrVkRenderPass* renderPass,
                      VkCommandBuffer secondaryCommandBuffer);
 
+    void setFlags(const GrVkImageInfo& info);
+
     GrVkGpu* getVkGpu() const;
 
     const GrVkRenderPass* createSimpleRenderPass(bool withStencil, bool needsXferBarrier);

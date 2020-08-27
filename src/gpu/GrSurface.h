@@ -115,6 +115,11 @@ protected:
         fSurfaceFlags |= GrInternalSurfaceFlags::kReadOnly;
     }
 
+    void setVkRTSupportsInputAttachment() {
+        SkASSERT(this->asRenderTarget());
+        fSurfaceFlags |= GrInternalSurfaceFlags::kVkRTSupportsInputAttachment;
+    }
+
     GrSurface(GrGpu* gpu, const SkISize& dimensions, GrProtected isProtected)
             : INHERITED(gpu)
             , fDimensions(dimensions)

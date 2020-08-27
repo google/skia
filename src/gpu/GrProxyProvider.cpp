@@ -429,11 +429,13 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
     if (renderable == GrRenderable::kYes) {
         renderTargetSampleCnt = caps->getRenderTargetSampleCount(renderTargetSampleCnt, format);
         SkASSERT(renderTargetSampleCnt);
+        GrInternalSurfaceFlags extraFlags = caps->getExtraSurfaceFlagsForDeferredRT();
         // We know anything we instantiate later from this deferred path will be
         // both texturable and renderable
         return sk_sp<GrTextureProxy>(new GrTextureRenderTargetProxy(
                 *caps, format, dimensions, renderTargetSampleCnt, mipMapped, mipmapStatus, fit,
-                budgeted, isProtected, surfaceFlags, useAllocator, this->isDDLProvider()));
+                budgeted, isProtected, surfaceFlags | extraFlags, useAllocator,
+                this->isDDLProvider()));
     }
 
     return sk_sp<GrTextureProxy>(new GrTextureProxy(format, dimensions, mipMapped, mipmapStatus,
@@ -786,7 +788,10 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
     }
 
     SkASSERT(renderTargetSampleCnt == 1 || renderable == GrRenderable::kYes);
-    GrInternalSurfaceFlags surfaceFlags = GrInternalSurfaceFlags::kNone;
+    // TODO: If we ever have callers requesting specific surface flags then we shouldn't use the
+    // extra deferred flags here. Instead those callers should all pass in exactly what they want.
+    // However, as of today all uses of this essentially create a deferred proxy in the end.
+    GrInternalSurfaceFlags surfaceFlags = caps.getExtraSurfaceFlagsForDeferredRT();
 
     // MakeFullyLazyProxy is only called at flush time so we know these texture proxies are
     // not being created by a DDL provider.

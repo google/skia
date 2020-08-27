@@ -104,6 +104,7 @@ bool GrVkSecondaryCBDrawContext::characterize(SkSurfaceCharacterization* charact
                           SkSurfaceCharacterization::Textureable(false),
                           SkSurfaceCharacterization::MipMapped(false),
                           SkSurfaceCharacterization::UsesGLFBO0(false),
+                          SkSurfaceCharacterization::VkRTSupportsInputAttachment(false),
                           SkSurfaceCharacterization::VulkanSecondaryCBCompatible(true),
                           rtc->asRenderTargetProxy()->isProtected(),
                           this->props());
