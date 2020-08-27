@@ -1050,6 +1050,13 @@ SkRuntimeShaderBuilder::SkRuntimeShaderBuilder(sk_sp<SkRuntimeEffect> effect)
 
 SkRuntimeShaderBuilder::~SkRuntimeShaderBuilder() = default;
 
+void* SkRuntimeShaderBuilder::writableUniformData() {
+    if (!fUniforms->unique()) {
+        fUniforms = SkData::MakeWithCopy(fUniforms->data(), fUniforms->size());
+    }
+    return fUniforms->writable_data();
+}
+
 sk_sp<SkShader> SkRuntimeShaderBuilder::makeShader(const SkMatrix* localMatrix, bool isOpaque) {
     return fEffect->makeShader(fUniforms, fChildren.data(), fChildren.size(), localMatrix, isOpaque);
 }
