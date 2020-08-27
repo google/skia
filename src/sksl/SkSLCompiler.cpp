@@ -104,8 +104,8 @@ Compiler::Compiler(Flags flags)
 , fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
-    auto symbols = std::shared_ptr<SymbolTable>(new SymbolTable(this));
-    fIRGenerator = new IRGenerator(fContext.get(), symbols, *this);
+    auto symbols = std::make_shared<SymbolTable>(this);
+    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), symbols, *this);
     #define ADD_TYPE(t) symbols->addWithoutOwnership(fContext->f ## t ## _Type->fName, \
                                                      fContext->f ## t ## _Type.get())
     ADD_TYPE(Void);
@@ -272,9 +272,7 @@ Compiler::Compiler(Flags flags)
     grab_intrinsics(&interpIntrinsics, fInterpreterIntrinsics.get());
 }
 
-Compiler::~Compiler() {
-    delete fIRGenerator;
-}
+Compiler::~Compiler() {}
 
 void Compiler::loadGeometryIntrinsics() {
     if (fGeometrySymbolTable) {
