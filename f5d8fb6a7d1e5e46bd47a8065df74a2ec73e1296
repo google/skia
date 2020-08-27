@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "46bd77aa_622ec8ab",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-08-27T16:01:46Z",
+      "side": 1,
+      "message": "Maybe something more along the lines of,\n\n// This flag indicates that the backing VkImage for this Vulkan surface will have the\n// VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT set. This allows skia to handle advanced blends\n// more optimally in a shader by being able to directly read the dst values.",
+      "parentUuid": "3b5d687f_a5af2dcd",
+      "revId": "f5d8fb6a7d1e5e46bd47a8065df74a2ec73e1296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7c3d22f8_49e6f2ff",
         "filename": "include/core/SkSurfaceCharacterization.h",
         "patchSetId": 3
