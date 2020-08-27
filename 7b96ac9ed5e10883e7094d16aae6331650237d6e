@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0a19dabf_6f416f8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-27T16:03:37Z",
+      "side": 1,
+      "message": "I redid the text code again incorporating your suggestions from the last CL, and moving the bit from 13 to 15.",
+      "revId": "7b96ac9ed5e10883e7094d16aae6331650237d6e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
