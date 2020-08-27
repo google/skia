@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20181c5d_3b405167",
+        "filename": "src/pdf/SkPDFBitmap.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T17:07:16Z",
+      "side": 1,
+      "message": "Maybe C++17-if this?  It\u0027d introduce the block naturally.",
+      "range": {
+        "startLine": 256,
+        "startChar": 4,
+        "endLine": 258,
+        "endChar": 69
+      },
+      "revId": "c64706d8dc5b76ff1415ab058f379140aa8dce8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fdbb95e_eff700ff",
+        "filename": "tools/flags/CommandLineFlags.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T17:07:16Z",
+      "side": 1,
+      "message": "it\u0027s things like this that keep making me review this CL slowly.",
+      "range": {
+        "startLine": 258,
+        "startChar": 42,
+        "endLine": 258,
+        "endChar": 43
+      },
+      "revId": "c64706d8dc5b76ff1415ab058f379140aa8dce8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8af9a56f_1c63a068",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T17:07:16Z",
+      "side": 0,
+      "message": "Might try this one converting this loop to j instead?  It\u0027s a little more usual to have i iterate over the x axis and j over the y axis.",
+      "range": {
+        "startLine": 44,
+        "startChar": 9,
+        "endLine": 44,
+        "endChar": 35
+      },
+      "revId": "052ece3e25384de07b0305eaff5955adbcb3796d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a66878f3_e4a10b19",
+        "filename": "src/pathops/SkOpAngle.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T17:07:16Z",
+      "side": 0,
+      "message": "I don\u0027t think I understand this code well enough to know if this is safe.",
+      "revId": "052ece3e25384de07b0305eaff5955adbcb3796d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57b34dd5_75523c32",
+        "filename": "src/pathops/SkPathOpsCubic.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T17:07:16Z",
+      "side": 0,
+      "message": "I don\u0027t have a suggestion for what to do here, but I don\u0027t think this is a good idea.",
+      "range": {
+        "startLine": 476,
+        "startChar": 8,
+        "endLine": 476,
+        "endChar": 16
+      },
+      "revId": "052ece3e25384de07b0305eaff5955adbcb3796d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
