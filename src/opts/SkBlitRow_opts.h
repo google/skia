@@ -11,6 +11,14 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkMSAN.h"
+
+// Helpers for blit_row_s32a_opaque(),
+// then blit_row_s32a_opaque() itself,
+// then unrelated blit_row_color32() at the bottom.
+//
+// To keep Skia resistant to timing attacks, it's important not to branch on pixel data.
+// In particular, don't be tempted to [v]ptest, pmovmskb, etc. to branch on the source alpha.
+
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
     #include <immintrin.h>
 
@@ -40,8 +48,9 @@
 
         return _mm512_add_epi32(src, _mm512_or_si512(rb, ga));
     }
+#endif
 
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #include <immintrin.h>
 
     static inline __m256i SkPMSrcOver_AVX2(const __m256i& src, const __m256i& dst) {
@@ -88,37 +97,129 @@
 
         return _mm256_add_epi32(src, _mm256_or_si256(rb, ga));
     }
+#endif
 
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #include <immintrin.h>
 
     static inline __m128i SkPMSrcOver_SSE2(const __m128i& src, const __m128i& dst) {
-        auto SkAlphaMulQ_SSE2 = [](const __m128i& c, const __m128i& scale) {
-            const __m128i mask = _mm_set1_epi32(0xFF00FF);
-            __m128i s = _mm_or_si128(_mm_slli_epi32(scale, 16), scale);
+        __m128i scale = _mm_sub_epi32(_mm_set1_epi32(256),
+                                      _mm_srli_epi32(src, 24));
+        __m128i scale_x2 = _mm_or_si128(_mm_slli_epi32(scale, 16), scale);
 
-            // uint32_t rb = ((c & mask) * scale) >> 8
-            __m128i rb = _mm_and_si128(mask, c);
-            rb = _mm_mullo_epi16(rb, s);
-            rb = _mm_srli_epi16(rb, 8);
+        __m128i rb = _mm_and_si128(_mm_set1_epi32(0x00ff00ff), dst);
+        rb = _mm_mullo_epi16(rb, scale_x2);
+        rb = _mm_srli_epi16(rb, 8);
 
-            // uint32_t ag = ((c >> 8) & mask) * scale
-            __m128i ag = _mm_srli_epi16(c, 8);
-            ag = _mm_mullo_epi16(ag, s);
+        __m128i ga = _mm_srli_epi16(dst, 8);
+        ga = _mm_mullo_epi16(ga, scale_x2);
+        ga = _mm_andnot_si128(_mm_set1_epi32(0x00ff00ff), ga);
 
-            // (rb & mask) | (ag & ~mask)
-            ag = _mm_andnot_si128(mask, ag);
-            return _mm_or_si128(rb, ag);
-        };
-        return _mm_add_epi32(src,
-                             SkAlphaMulQ_SSE2(dst, _mm_sub_epi32(_mm_set1_epi32(256),
-                                                                 _mm_srli_epi32(src, 24))));
+        return _mm_add_epi32(src, _mm_or_si128(rb, ga));
     }
+#endif
+
+#if defined(SK_ARM_HAS_NEON)
+    #include <arm_neon.h>
+
+    // SkMulDiv255Round() applied to each lane.
+    static inline uint8x8_t SkMulDiv255Round_neon8(uint8x8_t x, uint8x8_t y) {
+        uint16x8_t prod = vmull_u8(x, y);
+        return vraddhn_u16(prod, vrshrq_n_u16(prod, 8));
+    }
+
+    static inline uint8x8x4_t SkPMSrcOver_neon8(uint8x8x4_t dst, uint8x8x4_t src) {
+        uint8x8_t nalphas = vmvn_u8(src.val[3]);  // 256 - alpha
+        return {
+            vadd_u8(src.val[0], SkMulDiv255Round_neon8(nalphas,  dst.val[0])),
+            vadd_u8(src.val[1], SkMulDiv255Round_neon8(nalphas,  dst.val[1])),
+            vadd_u8(src.val[2], SkMulDiv255Round_neon8(nalphas,  dst.val[2])),
+            vadd_u8(src.val[3], SkMulDiv255Round_neon8(nalphas,  dst.val[3])),
+        };
+    }
+
+    // Variant assuming dst and src contain the color components of two consecutive pixels.
+    static inline uint8x8_t SkPMSrcOver_neon2(uint8x8_t dst, uint8x8_t src) {
+        const uint8x8_t alpha_indices = vcreate_u8(0x0707070703030303);
+        uint8x8_t nalphas = vmvn_u8(vtbl1_u8(src, alpha_indices));
+        return vadd_u8(src, SkMulDiv255Round_neon8(nalphas, dst));
+    }
+
 #endif
 
 namespace SK_OPTS_NS {
 
+/*not static*/
+inline void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU alpha) {
+    SkASSERT(alpha == 0xFF);
+    sk_msan_assert_initialized(src, src+len);
+
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
+    while (len >= 16) {
+        _mm512_storeu_si512((__m512*)dst,
+                            SkPMSrcOver_SKX(_mm512_loadu_si512((const __m512i*)src),
+                                            _mm512_loadu_si512((const __m512i*)dst)));
+        src += 16;
+        dst += 16;
+        len -= 16;
+    }
+#endif
+
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    while (len >= 8) {
+        _mm256_storeu_si256((__m256i*)dst,
+                            SkPMSrcOver_AVX2(_mm256_loadu_si256((const __m256i*)src),
+                                             _mm256_loadu_si256((const __m256i*)dst)));
+        src += 8;
+        dst += 8;
+        len -= 8;
+    }
+#endif
+
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
+    while (len >= 4) {
+        _mm_storeu_si128((__m128i*)dst, SkPMSrcOver_SSE2(_mm_loadu_si128((const __m128i*)src),
+                                                         _mm_loadu_si128((const __m128i*)dst)));
+        src += 4;
+        dst += 4;
+        len -= 4;
+    }
+#endif
+
+#if defined(SK_ARM_HAS_NEON)
+    while (len >= 8) {
+        vst4_u8((uint8_t*)dst, SkPMSrcOver_neon8(vld4_u8((const uint8_t*)dst),
+                                                 vld4_u8((const uint8_t*)src)));
+        src += 8;
+        dst += 8;
+        len -= 8;
+    }
+
+    while (len >= 2) {
+        vst1_u8((uint8_t*)dst, SkPMSrcOver_neon2(vld1_u8((const uint8_t*)dst),
+                                                 vld1_u8((const uint8_t*)src)));
+        src += 2;
+        dst += 2;
+        len -= 2;
+    }
+
+    if (len != 0) {
+        uint8x8_t result = SkPMSrcOver_neon2(vcreate_u8((uint64_t)*dst),
+                                             vcreate_u8((uint64_t)*src));
+        vst1_lane_u32(dst, vreinterpret_u32_u8(result), 0);
+    }
+    return;
+#endif
+
+    while (len --> 0) {
+        *dst = SkPMSrcOver(*src, *dst);
+        src++;
+        dst++;
+    }
+}
+
 // Blend constant color over count src pixels, writing into dst.
+/*not static*/
 inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, SkPMColor color) {
     constexpr int N = 4;  // 8, 16 also reasonable choices
     using U32 = skvx::Vec<  N, uint32_t>;
@@ -147,309 +248,6 @@ inline void blit_row_color32(SkPMColor* dst, const SkPMColor* src, int count, Sk
     }
     while (count --> 0) {
         *dst++ = kernel(U32{*src++})[0];
-    }
-}
-
-#if defined(SK_ARM_HAS_NEON)
-
-// Return a uint8x8_t value, r, computed as r[i] = SkMulDiv255Round(x[i], y[i]), where r[i], x[i],
-// y[i] are the i-th lanes of the corresponding NEON vectors.
-static inline uint8x8_t SkMulDiv255Round_neon8(uint8x8_t x, uint8x8_t y) {
-    uint16x8_t prod = vmull_u8(x, y);
-    return vraddhn_u16(prod, vrshrq_n_u16(prod, 8));
-}
-
-// The implementations of SkPMSrcOver below perform alpha blending consistently with
-// SkMulDiv255Round. They compute the color components (numbers in the interval [0, 255]) as:
-//
-//   result_i = src_i + rint(g(src_alpha, dst_i))
-//
-// where g(x, y) = ((255.0 - x) * y) / 255.0 and rint rounds to the nearest integer.
-
-// In this variant of SkPMSrcOver each NEON register, dst.val[i], src.val[i], contains the value
-// of the same color component for 8 consecutive pixels. The result of this function follows the
-// same convention.
-static inline uint8x8x4_t SkPMSrcOver_neon8(uint8x8x4_t dst, uint8x8x4_t src) {
-    uint8x8_t nalphas = vmvn_u8(src.val[3]);
-    uint8x8x4_t result;
-    result.val[0] = vadd_u8(src.val[0], SkMulDiv255Round_neon8(nalphas,  dst.val[0]));
-    result.val[1] = vadd_u8(src.val[1], SkMulDiv255Round_neon8(nalphas,  dst.val[1]));
-    result.val[2] = vadd_u8(src.val[2], SkMulDiv255Round_neon8(nalphas,  dst.val[2]));
-    result.val[3] = vadd_u8(src.val[3], SkMulDiv255Round_neon8(nalphas,  dst.val[3]));
-    return result;
-}
-
-// In this variant of SkPMSrcOver dst and src contain the color components of two consecutive
-// pixels. The return value follows the same convention.
-static inline uint8x8_t SkPMSrcOver_neon2(uint8x8_t dst, uint8x8_t src) {
-    const uint8x8_t alpha_indices = vcreate_u8(0x0707070703030303);
-    uint8x8_t nalphas = vmvn_u8(vtbl1_u8(src, alpha_indices));
-    return vadd_u8(src, SkMulDiv255Round_neon8(nalphas, dst));
-}
-
-#endif
-
-/*not static*/ inline
-void blit_row_s32a_opaque(SkPMColor* dst, const SkPMColor* src, int len, U8CPU alpha) {
-    SkASSERT(alpha == 0xFF);
-    sk_msan_assert_initialized(src, src+len);
-#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
-    while (len >= 64) {
-        // Load 64 source pixels.
-        auto s0 = _mm512_loadu_si512((const __m512i*)(src) + 0),
-             s1 = _mm512_loadu_si512((const __m512i*)(src) + 1),
-             s2 = _mm512_loadu_si512((const __m512i*)(src) + 2),
-             s3 = _mm512_loadu_si512((const __m512i*)(src) + 3);
-
-        const auto alphaMask = _mm512_set1_epi32(0xFF000000);
-
-        auto ORed = _mm512_or_si512(s3, _mm512_or_si512(s2, _mm512_or_si512(s1, s0)));
-        if (0 == _mm512_cmpneq_epi8_mask(_mm512_and_si512(ORed, alphaMask),
-                                         _mm512_setzero_si512())) {
-            // All 64 source pixels are transparent.  Nothing to do.
-            src += 64;
-            dst += 64;
-            len -= 64;
-            continue;
-        }
-
-        auto d0 = (__m512i*)(dst) + 0,
-             d1 = (__m512i*)(dst) + 1,
-             d2 = (__m512i*)(dst) + 2,
-             d3 = (__m512i*)(dst) + 3;
-
-        auto ANDed = _mm512_and_si512(s3, _mm512_and_si512(s2, _mm512_and_si512(s1, s0)));
-        if (0 == _mm512_cmpneq_epi8_mask(_mm512_and_si512(ANDed, alphaMask),
-                                         alphaMask)) {
-            // All 64 source pixels are opaque.  SrcOver becomes Src.
-            _mm512_storeu_si512(d0, s0);
-            _mm512_storeu_si512(d1, s1);
-            _mm512_storeu_si512(d2, s2);
-            _mm512_storeu_si512(d3, s3);
-            src += 64;
-            dst += 64;
-            len -= 64;
-            continue;
-        }
-
-        // TODO: This math is wrong.
-        // Do SrcOver.
-        _mm512_storeu_si512(d0, SkPMSrcOver_SKX(s0, _mm512_loadu_si512(d0)));
-        _mm512_storeu_si512(d1, SkPMSrcOver_SKX(s1, _mm512_loadu_si512(d1)));
-        _mm512_storeu_si512(d2, SkPMSrcOver_SKX(s2, _mm512_loadu_si512(d2)));
-        _mm512_storeu_si512(d3, SkPMSrcOver_SKX(s3, _mm512_loadu_si512(d3)));
-        src += 64;
-        dst += 64;
-        len -= 64;
-    }
-
-// Require AVX2 because of AVX2 integer calculation intrinsics in SrcOver
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-    while (len >= 32) {
-        // Load 32 source pixels.
-        auto s0 = _mm256_loadu_si256((const __m256i*)(src) + 0),
-             s1 = _mm256_loadu_si256((const __m256i*)(src) + 1),
-             s2 = _mm256_loadu_si256((const __m256i*)(src) + 2),
-             s3 = _mm256_loadu_si256((const __m256i*)(src) + 3);
-
-        const auto alphaMask = _mm256_set1_epi32(0xFF000000);
-
-        auto ORed = _mm256_or_si256(s3, _mm256_or_si256(s2, _mm256_or_si256(s1, s0)));
-        if (_mm256_testz_si256(ORed, alphaMask)) {
-            // All 32 source pixels are transparent.  Nothing to do.
-            src += 32;
-            dst += 32;
-            len -= 32;
-            continue;
-        }
-
-        auto d0 = (__m256i*)(dst) + 0,
-             d1 = (__m256i*)(dst) + 1,
-             d2 = (__m256i*)(dst) + 2,
-             d3 = (__m256i*)(dst) + 3;
-
-        auto ANDed = _mm256_and_si256(s3, _mm256_and_si256(s2, _mm256_and_si256(s1, s0)));
-        if (_mm256_testc_si256(ANDed, alphaMask)) {
-            // All 32 source pixels are opaque.  SrcOver becomes Src.
-            _mm256_storeu_si256(d0, s0);
-            _mm256_storeu_si256(d1, s1);
-            _mm256_storeu_si256(d2, s2);
-            _mm256_storeu_si256(d3, s3);
-            src += 32;
-            dst += 32;
-            len -= 32;
-            continue;
-        }
-
-        // TODO: This math is wrong.
-        // Do SrcOver.
-        _mm256_storeu_si256(d0, SkPMSrcOver_AVX2(s0, _mm256_loadu_si256(d0)));
-        _mm256_storeu_si256(d1, SkPMSrcOver_AVX2(s1, _mm256_loadu_si256(d1)));
-        _mm256_storeu_si256(d2, SkPMSrcOver_AVX2(s2, _mm256_loadu_si256(d2)));
-        _mm256_storeu_si256(d3, SkPMSrcOver_AVX2(s3, _mm256_loadu_si256(d3)));
-        src += 32;
-        dst += 32;
-        len -= 32;
-    }
-
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
-    while (len >= 16) {
-        // Load 16 source pixels.
-        auto s0 = _mm_loadu_si128((const __m128i*)(src) + 0),
-             s1 = _mm_loadu_si128((const __m128i*)(src) + 1),
-             s2 = _mm_loadu_si128((const __m128i*)(src) + 2),
-             s3 = _mm_loadu_si128((const __m128i*)(src) + 3);
-
-        const auto alphaMask = _mm_set1_epi32(0xFF000000);
-
-        auto ORed = _mm_or_si128(s3, _mm_or_si128(s2, _mm_or_si128(s1, s0)));
-        if (_mm_testz_si128(ORed, alphaMask)) {
-            // All 16 source pixels are transparent.  Nothing to do.
-            src += 16;
-            dst += 16;
-            len -= 16;
-            continue;
-        }
-
-        auto d0 = (__m128i*)(dst) + 0,
-             d1 = (__m128i*)(dst) + 1,
-             d2 = (__m128i*)(dst) + 2,
-             d3 = (__m128i*)(dst) + 3;
-
-        auto ANDed = _mm_and_si128(s3, _mm_and_si128(s2, _mm_and_si128(s1, s0)));
-        if (_mm_testc_si128(ANDed, alphaMask)) {
-            // All 16 source pixels are opaque.  SrcOver becomes Src.
-            _mm_storeu_si128(d0, s0);
-            _mm_storeu_si128(d1, s1);
-            _mm_storeu_si128(d2, s2);
-            _mm_storeu_si128(d3, s3);
-            src += 16;
-            dst += 16;
-            len -= 16;
-            continue;
-        }
-
-        // TODO: This math is wrong.
-        // Do SrcOver.
-        _mm_storeu_si128(d0, SkPMSrcOver_SSE2(s0, _mm_loadu_si128(d0)));
-        _mm_storeu_si128(d1, SkPMSrcOver_SSE2(s1, _mm_loadu_si128(d1)));
-        _mm_storeu_si128(d2, SkPMSrcOver_SSE2(s2, _mm_loadu_si128(d2)));
-        _mm_storeu_si128(d3, SkPMSrcOver_SSE2(s3, _mm_loadu_si128(d3)));
-        src += 16;
-        dst += 16;
-        len -= 16;
-    }
-
-#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
-    while (len >= 16) {
-        // Load 16 source pixels.
-        auto s0 = _mm_loadu_si128((const __m128i*)(src) + 0),
-             s1 = _mm_loadu_si128((const __m128i*)(src) + 1),
-             s2 = _mm_loadu_si128((const __m128i*)(src) + 2),
-             s3 = _mm_loadu_si128((const __m128i*)(src) + 3);
-
-        const auto alphaMask = _mm_set1_epi32(0xFF000000);
-
-        auto ORed = _mm_or_si128(s3, _mm_or_si128(s2, _mm_or_si128(s1, s0)));
-        if (0xffff == _mm_movemask_epi8(_mm_cmpeq_epi8(_mm_and_si128(ORed, alphaMask),
-                                                       _mm_setzero_si128()))) {
-            // All 16 source pixels are transparent.  Nothing to do.
-            src += 16;
-            dst += 16;
-            len -= 16;
-            continue;
-        }
-
-        auto d0 = (__m128i*)(dst) + 0,
-             d1 = (__m128i*)(dst) + 1,
-             d2 = (__m128i*)(dst) + 2,
-             d3 = (__m128i*)(dst) + 3;
-
-        auto ANDed = _mm_and_si128(s3, _mm_and_si128(s2, _mm_and_si128(s1, s0)));
-        if (0xffff == _mm_movemask_epi8(_mm_cmpeq_epi8(_mm_and_si128(ANDed, alphaMask),
-                                                       alphaMask))) {
-            // All 16 source pixels are opaque.  SrcOver becomes Src.
-            _mm_storeu_si128(d0, s0);
-            _mm_storeu_si128(d1, s1);
-            _mm_storeu_si128(d2, s2);
-            _mm_storeu_si128(d3, s3);
-            src += 16;
-            dst += 16;
-            len -= 16;
-            continue;
-        }
-
-        // TODO: This math is wrong.
-        // Do SrcOver.
-        _mm_storeu_si128(d0, SkPMSrcOver_SSE2(s0, _mm_loadu_si128(d0)));
-        _mm_storeu_si128(d1, SkPMSrcOver_SSE2(s1, _mm_loadu_si128(d1)));
-        _mm_storeu_si128(d2, SkPMSrcOver_SSE2(s2, _mm_loadu_si128(d2)));
-        _mm_storeu_si128(d3, SkPMSrcOver_SSE2(s3, _mm_loadu_si128(d3)));
-
-        src += 16;
-        dst += 16;
-        len -= 16;
-    }
-
-#elif defined(SK_ARM_HAS_NEON)
-    // Do 8-pixels at a time. A 16-pixels at a time version of this code was also tested, but it
-    // underperformed on some of the platforms under test for inputs with frequent transitions of
-    // alpha (corresponding to changes of the conditions [~]alpha_u64 == 0 below). It may be worth
-    // revisiting the situation in the future.
-    while (len >= 8) {
-        // Load 8 pixels in 4 NEON registers. src_col.val[i] will contain the same color component
-        // for 8 consecutive pixels (e.g. src_col.val[3] will contain all alpha components of 8
-        // pixels).
-        uint8x8x4_t src_col = vld4_u8(reinterpret_cast<const uint8_t*>(src));
-        src += 8;
-        len -= 8;
-
-        // We now detect 2 special cases: the first occurs when all alphas are zero (the 8 pixels
-        // are all transparent), the second when all alphas are fully set (they are all opaque).
-        uint8x8_t alphas = src_col.val[3];
-        uint64_t alphas_u64 = vget_lane_u64(vreinterpret_u64_u8(alphas), 0);
-        if (alphas_u64 == 0) {
-            // All pixels transparent.
-            dst += 8;
-            continue;
-        }
-
-        if (~alphas_u64 == 0) {
-            // All pixels opaque.
-            vst4_u8(reinterpret_cast<uint8_t*>(dst), src_col);
-            dst += 8;
-            continue;
-        }
-
-        uint8x8x4_t dst_col = vld4_u8(reinterpret_cast<uint8_t*>(dst));
-        vst4_u8(reinterpret_cast<uint8_t*>(dst), SkPMSrcOver_neon8(dst_col, src_col));
-        dst += 8;
-    }
-
-    // Deal with leftover pixels.
-    for (; len >= 2; len -= 2, src += 2, dst += 2) {
-        uint8x8_t src2 = vld1_u8(reinterpret_cast<const uint8_t*>(src));
-        uint8x8_t dst2 = vld1_u8(reinterpret_cast<const uint8_t*>(dst));
-        vst1_u8(reinterpret_cast<uint8_t*>(dst), SkPMSrcOver_neon2(dst2, src2));
-    }
-
-    if (len != 0) {
-        uint8x8_t result = SkPMSrcOver_neon2(vcreate_u8((uint64_t)*dst), vcreate_u8((uint64_t)*src));
-        vst1_lane_u32(dst, vreinterpret_u32_u8(result), 0);
-    }
-    return;
-#endif
-
-    while (len-- > 0) {
-        // This 0xFF000000 is not semantically necessary, but for compatibility
-        // with chromium:611002 we need to keep it until we figure out where
-        // the non-premultiplied src values (like 0x00FFFFFF) are coming from.
-        // TODO(mtklein): sort this out and assert *src is premul here.
-        if (*src & 0xFF000000) {
-            *dst = (*src >= 0xFF000000) ? *src : SkPMSrcOver(*src, *dst);
-        }
-        src++;
-        dst++;
     }
 }
 
