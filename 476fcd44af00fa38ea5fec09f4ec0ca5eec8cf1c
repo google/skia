@@ -16,6 +16,24 @@
       "revId": "476fcd44af00fa38ea5fec09f4ec0ca5eec8cf1c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78bd33fe_12e3b70d",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-27T16:05:50Z",
+      "side": 1,
+      "message": "Yup, my bad, was trying to avoid repeated x-\u003eas\u003cY\u003e and overdid it.",
+      "parentUuid": "4352d81e_a333a2c5",
+      "revId": "476fcd44af00fa38ea5fec09f4ec0ca5eec8cf1c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
