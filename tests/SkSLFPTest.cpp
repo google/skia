@@ -1056,6 +1056,38 @@ R"SkSL(half4 _inlineResulthalf4fliphalf40;
 )__Cpp__"});
 }
 
+DEF_TEST(SkSLFPSwitchWithMultipleReturnsInside, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             half4 switchy(half4 c) {
+                 switch (int(c.x)) {
+                     case 0: return c.yyyy;
+                     default: return c.zzzz;
+                 }
+             }
+             void main() {
+                 sk_OutColor = switchy(color);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->emitFunction(kHalf4_GrSLType, "switchy", 1, switchy_args,
+R"SkSL(switch (int(c.x)) {
+    case 0:
+        return c.yyyy;
+    default:
+        return c.zzzz;
+}
+)SkSL", &switchy_name);
+        fragBuilder->codeAppendf(
+R"SkSL(%s = %s(%s);
+)SkSL"
+, args.fOutputColor, switchy_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar));
+)__Cpp__"});
+}
+
 DEF_TEST(SkSLFPSwitchWithReturnInsideCannotBeInlined, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
@@ -1249,15 +1281,9 @@ DEF_TEST(SkSLFPIfStatementWithReturnInsideCanBeInlined, r) {
          /*expectedCPP=*/{
          R"__Cpp__(fragBuilder->codeAppendf(
 R"SkSL(half4 _inlineResulthalf4branchyhalf40;
-do {
-    if (%s.z == %s.w) {
-        _inlineResulthalf4branchyhalf40 = %s.yyyy;
-        break;
-    } else {
-        _inlineResulthalf4branchyhalf40 = %s.zzzz;
-        break;
-    }
-} while (false);
+{
+    if (%s.z == %s.w) _inlineResulthalf4branchyhalf40 = %s.yyyy; else _inlineResulthalf4branchyhalf40 = %s.zzzz;
+}
 %s = _inlineResulthalf4branchyhalf40;
 
 )SkSL"
@@ -1374,52 +1400,31 @@ DEF_TEST(SkSLFPEarlyReturnDetectionSupportsIfElse, r) {
          R"__Cpp__(fragBuilder->codeAppendf(
 R"SkSL(half4 _inlineResulthalf4branchyhalf40;
 half4 _inlineArghalf4branchyhalf41_0 = %s;
-do {
+{
     _inlineArghalf4branchyhalf41_0 *= 0.5;
-    if (_inlineArghalf4branchyhalf41_0.x > 0.0) {
-        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.xxxx;
-        break;
-    } else if (_inlineArghalf4branchyhalf41_0.y > 0.0) {
-        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.yyyy;
-        break;
-    } else if (_inlineArghalf4branchyhalf41_0.z > 0.0) {
-        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.zzzz;
-        break;
-    } else {
-        _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.wwww;
-        break;
-    }
-} while (false);
+    if (_inlineArghalf4branchyhalf41_0.x > 0.0) _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.xxxx; else if (_inlineArghalf4branchyhalf41_0.y > 0.0) _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.yyyy; else if (_inlineArghalf4branchyhalf41_0.z > 0.0) _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.zzzz; else _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.wwww;
+}
 half4 _inlineResulthalf4branchyAndBlockyhalf42;
-do {
+{
     {
         {
             if (%s.x > 0.0) {
                 half4 d = %s * 0.5;
-                {
-                    _inlineResulthalf4branchyAndBlockyhalf42 = d.xxxx;
-                    break;
-                }
+                _inlineResulthalf4branchyAndBlockyhalf42 = d.xxxx;
             } else {
                 {
                     {
                         if (%s.x < 0.0) {
-                            {
-                                _inlineResulthalf4branchyAndBlockyhalf42 = %s.wwww;
-                                break;
-                            }
+                            _inlineResulthalf4branchyAndBlockyhalf42 = %s.wwww;
                         } else {
-                            {
-                                _inlineResulthalf4branchyAndBlockyhalf42 = %s.yyyy;
-                                break;
-                            }
+                            _inlineResulthalf4branchyAndBlockyhalf42 = %s.yyyy;
                         }
                     }
                 }
             }
         }
     }
-} while (false);
+}
 %s = _inlineResulthalf4branchyhalf40 * _inlineResulthalf4branchyAndBlockyhalf42;
 
 )SkSL"
