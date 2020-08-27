@@ -227,6 +227,9 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 (overrides & ContextOverrides::kFakeGLESVersionAs2)) {
                 glCtx->overrideVersion("OpenGL ES 2.0", "OpenGL ES GLSL ES 1.00");
             }
+#if 0
+            glCtx->overrideVersion("OpenGL ES 2.0", "OpenGL ES GLSL ES 1.00");
+#endif
             testCtx.reset(glCtx);
             break;
         }
