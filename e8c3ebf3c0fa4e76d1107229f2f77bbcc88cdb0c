@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a52537de_3b6cf547",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T16:47:47Z",
+      "side": 1,
+      "message": "The issue is that SkUnicode::Make() can return nullptr. There\u0027s no backup \u0027primitive\u0027 implementation for when ICU loading fails so fICU may end up nullptr. So everywhere you were checking from \u0027SkLoadICU\u0027 before you\u0027ll need to check for \u0027fICU\u0027.",
+      "revId": "e8c3ebf3c0fa4e76d1107229f2f77bbcc88cdb0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9522e25e_2acbced4",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 9
