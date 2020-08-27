@@ -8,42 +8,47 @@
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkSafeMath.h"
 
-int SkYUVAInfo::ExpectedPlaneDims(PlanarConfig planarConfig,
-                                  SkEncodedOrigin origin,
-                                  SkISize imageDims,
-                                  SkISize planeDims[kMaxPlanes]) {
-    int w = imageDims.width();
-    int h = imageDims.height();
+int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
+                                PlanarConfig planarConfig,
+                                SkEncodedOrigin origin,
+                                SkISize* planeDimensions) {
+    int w = imageDimensions.width();
+    int h = imageDimensions.height();
     if (origin >= kLeftTop_SkEncodedOrigin) {
         using std::swap;
         swap(w, h);
     }
     auto down2 = [](int x) { return (x + 1)/2; };
     auto down4 = [](int x) { return (x + 3)/4; };
-    planeDims[0] = {w, h};
     switch (planarConfig) {
         case SkYUVAInfo::PlanarConfig::kY_U_V_444:
-            planeDims[0] = planeDims[1] = planeDims[2] = {w, h};
+            planeDimensions[0] = planeDimensions[1] = planeDimensions[2] = {w, h};
+            planeDimensions[3] = {0, 0};
             return 3;
         case SkYUVAInfo::PlanarConfig::kY_U_V_422:
-            planeDims[0] = {w, h};
-            planeDims[1] = planeDims[2] = {down2(w), h};
+            planeDimensions[0] = {w, h};
+            planeDimensions[1] = planeDimensions[2] = {down2(w), h};
+            planeDimensions[3] = {0, 0};
             return 3;
         case SkYUVAInfo::PlanarConfig::kY_U_V_420:
-            planeDims[0] = {w, h};
-            planeDims[1] = planeDims[2] = {down2(w), down2(h)};
+            planeDimensions[0] = {w, h};
+            planeDimensions[1] = planeDimensions[2] = {down2(w), down2(h)};
+            planeDimensions[3] = {0, 0};
             return 3;
         case SkYUVAInfo::PlanarConfig::kY_U_V_440:
-            planeDims[0] = {w, h};
-            planeDims[1] = planeDims[2] = {w, down2(h)};
+            planeDimensions[0] = {w, h};
+            planeDimensions[1] = planeDimensions[2] = {w, down2(h)};
+            planeDimensions[3] = {0, 0};
             return 3;
         case SkYUVAInfo::PlanarConfig::kY_U_V_411:
-            planeDims[1] = {w, h};
-            planeDims[1] = planeDims[2] = {down4(w), h};
+            planeDimensions[0] = {w, h};
+            planeDimensions[1] = planeDimensions[2] = {down4(w), h};
+            planeDimensions[3] = {0, 0};
             return 3;
         case SkYUVAInfo::PlanarConfig::kY_U_V_410:
-            planeDims[0] = {w, h};
-            planeDims[1] = planeDims[2] = {down4(w), down2(h)};
+            planeDimensions[0] = {w, h};
+            planeDimensions[1] = planeDimensions[2] = {down4(w), down2(h)};
+            planeDimensions[3] = {0, 0};
             return 3;
     }
     SkUNREACHABLE;
@@ -57,6 +62,18 @@ int SkYUVAInfo::NumPlanes(PlanarConfig planarConfig) {
         case SkYUVAInfo::PlanarConfig::kY_U_V_440: return 3;
         case SkYUVAInfo::PlanarConfig::kY_U_V_411: return 3;
         case SkYUVAInfo::PlanarConfig::kY_U_V_410: return 3;
+    }
+    SkUNREACHABLE;
+}
+
+bool SkYUVAInfo::HasAlpha(PlanarConfig planarConfig) {
+    switch (planarConfig) {
+        case SkYUVAInfo::PlanarConfig::kY_U_V_444: return false;
+        case SkYUVAInfo::PlanarConfig::kY_U_V_422: return false;
+        case SkYUVAInfo::PlanarConfig::kY_U_V_420: return false;
+        case SkYUVAInfo::PlanarConfig::kY_U_V_440: return false;
+        case SkYUVAInfo::PlanarConfig::kY_U_V_411: return false;
+        case SkYUVAInfo::PlanarConfig::kY_U_V_410: return false;
     }
     SkUNREACHABLE;
 }
@@ -81,12 +98,12 @@ size_t SkYUVAInfo::computeTotalBytes(const size_t rowBytes[kMaxPlanes],
     }
     SkSafeMath safe;
     size_t totalBytes = 0;
-    SkISize dims[kMaxPlanes];
-    int n = this->expectedPlaneDims(dims);
+    SkISize planeDimensions[kMaxPlanes];
+    int n = this->planeDimensions(planeDimensions);
     for (int i = 0; i < n; ++i) {
-        SkASSERT(!dims[i].isEmpty());
+        SkASSERT(!planeDimensions[i].isEmpty());
         SkASSERT(rowBytes[i]);
-        size_t size = safe.mul(rowBytes[i], dims[i].height());
+        size_t size = safe.mul(rowBytes[i], planeDimensions[i].height());
         if (planeSizes) {
             planeSizes[i] = size;
         }

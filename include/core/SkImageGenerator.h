@@ -13,7 +13,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkYUVAIndex.h"
-#include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
 
 class GrRecordingContext;
@@ -91,27 +91,22 @@ public:
 
     /**
      *  If decoding to YUV is supported, this returns true. Otherwise, this
-     *  returns false and does not modify any of the parameters.
+     *  returns false and does not modify yuvaPixmapInfo.
      *
-     *  @param yuvaInfo  Specifies the planar configuration, subsampling, orientation, and chroma
-     *                   siting.
-     *  @param colorTypes  Output parameter. Color types for the planar data.
-     *  @param rowBytes  Output parameter. Row bytes for planar data.
+     *  @param yuvaPixmapInfo Specifies the planar configuration, subsampling, orientation,
+     *                        chroma siting, plane color types, and row bytes.
      */
-    bool queryYUVAInfo(SkYUVAInfo* yuvaInfo,
-                       SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
-                       size_t rowBytes[SkYUVAInfo::kMaxPlanes]) const;
+    bool queryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const;
 
     /**
      *  Returns true on success and false on failure.
-     *  This always attempts to perform a full decode. If the client only wants planar information
-     *  it should call queryYUVAInfo().
+     *  This always attempts to perform a full decode. To get the planar
+     *  configuration without decoding use queryYUVAInfo().
      *
-     *  @param planes      Memory allocated by caller for the planes. Number of allocated planes,
-     *                     sizes, color types, and row bytes are initialized using the result of a
-     *                     successful call to queryYUVAInfo().
+     *  @param yuvaPixmaps  Contains preallocated pixmaps configured according to a successful call
+     *                      to queryYUVAInfo().
      */
-    bool getYUVAPlanes(const SkPixmap planes[SkYUVAInfo::kMaxPlanes]);
+    bool getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps);
 
     /**
      *  Deprecated. Use queryYUVAInfo instead for more structured YUVA plane specification.
@@ -209,12 +204,8 @@ protected:
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrRecordingContext*) const { return true; }
-    virtual bool onQueryYUVAInfo(SkYUVAInfo*,
-                                 SkColorType[SkYUVAInfo::kMaxPlanes],
-                                 size_t[SkYUVAInfo::kMaxPlanes]) const {
-        return false;
-    }
-    virtual bool onGetYUVAPlanes(const SkPixmap[SkYUVAInfo::kMaxPlanes]) { return false; }
+    virtual bool onQueryYUVAInfo(SkYUVAPixmapInfo*) const { return false; }
+    virtual bool onGetYUVAPlanes(const SkYUVAPixmaps&) { return false; }
     virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
                               SkYUVColorSpace*) const { return false; }
     virtual bool onGetYUVA8Planes(const SkYUVASizeInfo&, const SkYUVAIndex[SkYUVAIndex::kIndexCount],

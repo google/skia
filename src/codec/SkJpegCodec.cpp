@@ -744,9 +744,8 @@ bool SkJpegCodec::onSkipScanlines(int count) {
 }
 
 static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
-                             SkYUVAInfo::PlanarConfig* planarConfig,
-                             SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
-                             size_t rowBytes[SkYUVAInfo::kMaxPlanes]) {
+                             const SkJpegCodec& codec,
+                             SkYUVAPixmapInfo* yuvaPixmapInfo) {
     // Scaling is not supported in raw data mode.
     SkASSERT(dinfo->scale_num == dinfo->scale_denom);
 
@@ -812,43 +811,33 @@ static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
     } else {
         return false;
     }
-    if (planarConfig) {
-        *planarConfig = tempPlanarConfig;
-    }
-    if (colorTypes) {
+    if (yuvaPixmapInfo) {
+        SkColorType colorTypes[SkYUVAPixmapInfo::kMaxPlanes];
+        size_t rowBytes[SkYUVAPixmapInfo::kMaxPlanes];
         for (int i = 0; i < 3; ++i) {
             colorTypes[i] = kAlpha_8_SkColorType;
-        }
-    }
-    if (rowBytes) {
-        for (int i = 0; i < 3; ++i) {
             rowBytes[i] = dinfo->comp_info[i].width_in_blocks * DCTSIZE;
         }
+        SkYUVAInfo yuvaInfo(codec.dimensions(),
+                            tempPlanarConfig,
+                            kJPEG_Full_SkYUVColorSpace,
+                            codec.getOrigin(),
+                            SkYUVAInfo::Siting::kCentered,
+                            SkYUVAInfo::Siting::kCentered);
+        *yuvaPixmapInfo = SkYUVAPixmapInfo(yuvaInfo, colorTypes, rowBytes);
     }
     return true;
 }
 
-bool SkJpegCodec::onQueryYUVAInfo(SkYUVAInfo* yuvaInfo,
-                                  SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
-                                  size_t rowBytes[SkYUVAInfo::kMaxPlanes]) const {
+bool SkJpegCodec::onQueryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const {
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
-    SkYUVAInfo::PlanarConfig planarConfig;
-    if (!is_yuv_supported(dinfo, &planarConfig, colorTypes, rowBytes)) {
-        return false;
-    }
-    *yuvaInfo = SkYUVAInfo(this->dimensions(),
-                           planarConfig,
-                           kJPEG_Full_SkYUVColorSpace,
-                           this->getOrigin(),
-                           SkYUVAInfo::Siting::kCentered,
-                           SkYUVAInfo::Siting::kCentered);
-    return true;
+    return is_yuv_supported(dinfo, *this, yuvaPixmapInfo);
 }
 
-SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkPixmap planes[SkYUVAInfo::kMaxPlanes]) {
+SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     // Get a pointer to the decompress info since we will use it quite frequently
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
-    if (!is_yuv_supported(dinfo, nullptr, nullptr, nullptr)) {
+    if (!is_yuv_supported(dinfo, *this, nullptr)) {
         return fDecoderMgr->returnFailure("onGetYUVAPlanes", kInvalidInput);
     }
     // Set the jump location for libjpeg errors
@@ -862,26 +851,20 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkPixmap planes[SkYUVAInfo::k
         return fDecoderMgr->returnFailure("startDecompress", kInvalidInput);
     }
 
+    const std::array<SkPixmap, SkYUVAPixmaps::kMaxPlanes>& planes = yuvaPixmaps.planes();
+
 #ifdef SK_DEBUG
     {
         // A previous implementation claims that the return value of is_yuv_supported()
         // may change after calling jpeg_start_decompress().  It looks to me like this
         // was caused by a bug in the old code, but we'll be safe and check here.
         // Also check that pixmap properties agree with expectations.
-        SkYUVAInfo::PlanarConfig planeConfig;
-        SkColorType expectedColorTypes[SkYUVAInfo::kMaxPlanes];
-        size_t expectedRowbytes[SkYUVAInfo::kMaxPlanes];
-        SkASSERT(is_yuv_supported(dinfo, &planeConfig, expectedColorTypes, expectedRowbytes));
-        SkISize expectedDims[SkYUVAInfo::kMaxPlanes];
-        int n = SkYUVAInfo::ExpectedPlaneDims(planeConfig,
-                                              this->getOrigin(),
-                                              this->dimensions(),
-                                              expectedDims);
-        SkASSERT(n == 3);
-        for (int i = 0; i < n; ++i) {
+        SkYUVAPixmapInfo info;
+        SkASSERT(is_yuv_supported(dinfo, *this,  &info));
+        SkASSERT(info.yuvaInfo() == yuvaPixmaps.yuvaInfo());
+        for (int i = 0; i < info.numPlanes(); ++i) {
             SkASSERT(planes[i].colorType() == kAlpha_8_SkColorType);
-            SkASSERT(planes[i].dimensions() == expectedDims[i]);
-            SkASSERT(planes[i].rowBytes() == expectedRowbytes[i]);
+            SkASSERT(info.planeInfo(i) == planes[i].info());
         }
     }
 #endif
@@ -902,13 +885,13 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkPixmap planes[SkYUVAInfo::k
     int numYRowsPerBlock = DCTSIZE * dinfo->comp_info[0].v_samp_factor;
     static_assert(sizeof(JSAMPLE) == 1);
     for (int i = 0; i < numYRowsPerBlock; i++) {
-        rowptrs[i] = static_cast<JSAMPLE*>(planes[0].writable_addr()) + i*planes[0].rowBytes();
+        rowptrs[i] = static_cast<JSAMPLE*>(planes[0].writable_addr()) + i* planes[0].rowBytes();
     }
     for (int i = 0; i < DCTSIZE; i++) {
         rowptrs[i + 2 * DCTSIZE] =
-                static_cast<JSAMPLE*>(planes[1].writable_addr()) + i*planes[1].rowBytes();
+                static_cast<JSAMPLE*>(planes[1].writable_addr()) + i* planes[1].rowBytes();
         rowptrs[i + 3 * DCTSIZE] =
-                static_cast<JSAMPLE*>(planes[2].writable_addr()) + i*planes[2].rowBytes();
+                static_cast<JSAMPLE*>(planes[2].writable_addr()) + i* planes[2].rowBytes();
     }
 
     // After each loop iteration, we will increment pointers to Y, U, and V.
