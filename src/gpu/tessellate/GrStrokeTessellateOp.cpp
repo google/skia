@@ -26,9 +26,12 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
         , fPathStrokes(path, stroke)
         , fTotalCombinedVerbCnt(path.countVerbs())
         , fAAType(aaType)
+        , fViewMatrix(viewMatrix)
+        , fMatrixScale(fViewMatrix.getMaxScale())
         , fColor(get_paint_constant_blended_color(paint))
         , fProcessors(std::move(paint)) {
     SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples support yet.
+    SkASSERT(fMatrixScale >= 0);
     if (stroke.getJoin() == SkPaint::kMiter_Join) {
         float miter = stroke.getMiter();
         if (miter <= 0) {
@@ -37,18 +40,6 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
             fMiterLimitOrZero = miter;
         }
     }
-    if (!(viewMatrix.getType() & ~SkMatrix::kScale_Mask) &&
-        viewMatrix.getScaleX() == viewMatrix.getScaleY()) {
-        fMatrixScale = viewMatrix.getScaleX();
-        fSkewMatrix = SkMatrix::I();
-    } else {
-        SkASSERT(!viewMatrix.hasPerspective());  // getMaxScale() doesn't work with perspective.
-        fMatrixScale = viewMatrix.getMaxScale();
-        float invScale = SkScalarInvert(fMatrixScale);
-        fSkewMatrix = viewMatrix;
-        fSkewMatrix.preScale(invScale, invScale);
-    }
-    SkASSERT(fMatrixScale >= 0);
     SkRect devBounds = fPathStrokes.head().fPath.getBounds();
     float inflationRadius = fPathStrokes.head().fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);
@@ -78,10 +69,7 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
                                                               const GrCaps&) {
     auto* op = grOp->cast<GrStrokeTessellateOp>();
     if (fColor != op->fColor ||
-        // TODO: When stroking is finished, we may want to consider whether a unique matrix scale
-        // can be stored with each PathStroke instead. This might improve batching.
-        fMatrixScale != op->fMatrixScale ||
-        fSkewMatrix != op->fSkewMatrix ||
+        fViewMatrix != op->fViewMatrix ||
         fAAType != op->fAAType ||
         ((fMiterLimitOrZero * op->fMiterLimitOrZero != 0) &&  // Are both non-zero?
          fMiterLimitOrZero != op->fMiterLimitOrZero) ||
@@ -122,7 +110,7 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
-    GrStrokeTessellateShader strokeShader(fSkewMatrix, fColor, fMiterLimitOrZero);
+    GrStrokeTessellateShader strokeShader(fMatrixScale, fMiterLimitOrZero, fViewMatrix, fColor);
     GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader);
 
     SkASSERT(chainBounds == this->bounds());

@@ -48,7 +48,8 @@ public:
             : fTarget(target)
             , fVertexChunkArray(vertexChunkArray)
             , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
-            , fMatrixScale(matrixScale) {
+            , fLinearizationIntolerance(matrixScale *
+                                        GrTessellationPathRenderer::kLinearizationIntolerance) {
         this->allocVertexChunk(
                 (totalCombinedVerbCnt * 3) * GrStrokeTessellateShader::kNumVerticesPerPatch);
     }
@@ -84,7 +85,8 @@ private:
     SkTArray<VertexChunk>* const fVertexChunkArray;
 
     const int fMaxTessellationSegments;
-    const float fMatrixScale;
+    // GrTessellationPathRenderer::kIntolerance adjusted for the matrix scale.
+    const float fLinearizationIntolerance;
 
     // Variables related to the vertex chunk that we are currently filling.
     int fCurrChunkVertexCapacity;
