@@ -450,18 +450,17 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             var->fWriteCount = 1;
             var->fInitialValue = value.get();
         }
-        if (storage == Variable::kGlobal_Storage && var->fName == "sk_FragColor" &&
-            (*fSymbolTable)[var->fName]) {
-            // already defined, ignore
-        } else if (storage == Variable::kGlobal_Storage && (*fSymbolTable)[var->fName] &&
-                   (*fSymbolTable)[var->fName]->fKind == Symbol::kVariable_Kind &&
-                   ((Variable*) (*fSymbolTable)[var->fName])->fModifiers.fLayout.fBuiltin >= 0) {
-            // already defined, just update the modifiers
-            Variable* old = (Variable*) (*fSymbolTable)[var->fName];
-            old->fModifiers = var->fModifiers;
+        const Symbol* symbol = (*fSymbolTable)[var->fName];
+        if (symbol && storage == Variable::kGlobal_Storage && var->fName == "sk_FragColor") {
+            // Already defined, ignore.
+        } else if (symbol && storage == Variable::kGlobal_Storage &&
+                   symbol->fKind == Symbol::kVariable_Kind &&
+                   symbol->as<Variable>().fModifiers.fLayout.fBuiltin >= 0) {
+            // Already defined, just update the modifiers.
+            symbol->as<Variable>().fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(new VarDeclaration(var.get(), std::move(sizes),
-                                                      std::move(value)));
+            variables.emplace_back(std::make_unique<VarDeclaration>(var.get(), std::move(sizes),
+                                                                    std::move(value)));
             StringFragment name = var->fName;
             fSymbolTable->add(name, std::move(var));
         }
@@ -480,10 +479,9 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
         fInvocations = modifiers.fLayout.fInvocations;
         if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
-            Variable* invocationId = (Variable*) (*fSymbolTable)["sk_InvocationID"];
-            SkASSERT(invocationId);
-            invocationId->fModifiers.fFlags = 0;
-            invocationId->fModifiers.fLayout.fBuiltin = -1;
+            const Variable& invocationId = (*fSymbolTable)["sk_InvocationID"]->as<Variable>();
+            invocationId.fModifiers.fFlags = 0;
+            invocationId.fModifiers.fLayout.fBuiltin = -1;
             if (modifiers.fLayout.description() == "") {
                 return nullptr;
             }
@@ -2569,11 +2567,11 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                                                         v, std::move(arguments)));
         }
         case Expression::kFunctionReference_Kind: {
-            FunctionReference* ref = (FunctionReference*) functionValue.get();
+            const FunctionReference& ref = functionValue->as<FunctionReference>();
             int bestCost = INT_MAX;
             const FunctionDeclaration* best = nullptr;
-            if (ref->fFunctions.size() > 1) {
-                for (const auto& f : ref->fFunctions) {
+            if (ref.fFunctions.size() > 1) {
+                for (const auto& f : ref.fFunctions) {
                     int cost = this->callCost(*f, arguments);
                     if (cost < bestCost) {
                         bestCost = cost;
@@ -2583,7 +2581,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                 if (best) {
                     return this->call(offset, *best, std::move(arguments));
                 }
-                String msg = "no match for " + ref->fFunctions[0]->fName + "(";
+                String msg = "no match for " + ref.fFunctions[0]->fName + "(";
                 String separator;
                 for (size_t i = 0; i < arguments.size(); i++) {
                     msg += separator;
@@ -2594,7 +2592,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                 fErrors.error(offset, msg);
                 return nullptr;
             }
-            return this->call(offset, *ref->fFunctions[0], std::move(arguments));
+            return this->call(offset, *ref.fFunctions[0], std::move(arguments));
         }
         default:
             fErrors.error(offset, "not a function");
