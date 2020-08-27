@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6fbadaf3_aabd56dd",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-27T21:27:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72898dbf_9d46cb5e",
+      "range": {
+        "startLine": 41,
+        "startChar": 11,
+        "endLine": 41,
+        "endChar": 18
+      },
+      "revId": "ddcd5aaf0e8b077ce51ad973e515853216cd183f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed51b27f_0059ca9a",
         "filename": "src/core/SkScalerCache.cpp",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "ddcd5aaf0e8b077ce51ad973e515853216cd183f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c47ba36_f9dbb751",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-27T21:27:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ed51b27f_0059ca9a",
+      "range": {
+        "startLine": 51,
+        "startChar": 13,
+        "endLine": 51,
+        "endChar": 24
+      },
+      "revId": "ddcd5aaf0e8b077ce51ad973e515853216cd183f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
