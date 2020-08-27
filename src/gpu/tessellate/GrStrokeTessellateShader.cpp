@@ -18,12 +18,14 @@ constexpr static float kLinearizationIntolerance =
 
 class GrStrokeTessellateShader::Impl : public GrGLSLGeometryProcessor {
 public:
-    const char* getMiterLimitUniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fMiterLimitUniform);
+    const char* getTessControlArgsUniformName(const GrGLSLUniformHandler& uniformHandler) const {
+        return uniformHandler.getUniformCStr(fTessControlArgsUniform);
     }
-
-    const char* getSkewMatrixUniformName(const GrGLSLUniformHandler& uniformHandler) const {
-        return uniformHandler.getUniformCStr(fSkewMatrixUniform);
+    const char* getTranslateUniformName(const GrGLSLUniformHandler& uniformHandler) const {
+        return uniformHandler.getUniformCStr(fTranslateUniform);
+    }
+    const char* getAffineMatrixUniformName(const GrGLSLUniformHandler& uniformHandler) const {
+        return uniformHandler.getUniformCStr(fAffineMatrixUniform);
     }
 
 private:
@@ -31,21 +33,20 @@ private:
         const auto& shader = args.fGP.cast<GrStrokeTessellateShader>();
         args.fVaryingHandler->emitAttributes(shader);
 
-        fMiterLimitUniform = args.fUniformHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
-                                                              kFloat_GrSLType, "miterLimit",
-                                                              nullptr);
-
+        auto* uniHandler = args.fUniformHandler;
+        fTessControlArgsUniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
+                                                         kFloat2_GrSLType, "tessControlArgs",
+                                                         nullptr);
         if (!shader.viewMatrix().isIdentity()) {
-            fSkewMatrixUniform = args.fUniformHandler->addUniform(nullptr,
-                                                                  kTessEvaluation_GrShaderFlag,
-                                                                  kFloat3x3_GrSLType, "skewMatrix",
-                                                                  nullptr);
+            fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
+                                                       kFloat2_GrSLType, "translate", nullptr);
+            fAffineMatrixUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
+                                                          kFloat2x2_GrSLType, "affineMatrix",
+                                                          nullptr);
         }
-
         const char* colorUniformName;
-        fColorUniform = args.fUniformHandler->addUniform(nullptr, kFragment_GrShaderFlag,
-                                                         kHalf4_GrSLType, "color",
-                                                         &colorUniformName);
+        fColorUniform = uniHandler->addUniform(nullptr, kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                               "color", &colorUniformName);
 
         // The vertex shader is pure pass-through. Stroke widths and normals are defined in local
         // path space, so we don't apply the view matrix until after tessellation.
@@ -61,27 +62,22 @@ private:
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
-
-        if (shader.fMiterLimitOrZero != 0 && fCachedMiterLimitValue != shader.fMiterLimitOrZero) {
-            pdman.set1f(fMiterLimitUniform, shader.fMiterLimitOrZero);
-            fCachedMiterLimitValue = shader.fMiterLimitOrZero;
+        // tessControlArgs.x is the tolerance in pixels.
+        pdman.set2f(fTessControlArgsUniform, 1 / (kLinearizationIntolerance * shader.fMatrixScale),
+                    shader.fMiterLimit);
+        const SkMatrix& m = shader.viewMatrix();
+        if (!m.isIdentity()) {
+            pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
+            float affineMatrix[4] = {m.getScaleX(), m.getSkewY(), m.getSkewX(), m.getScaleY()};
+            pdman.setMatrix2f(fAffineMatrixUniform, affineMatrix);
         }
-
-        if (!shader.viewMatrix().isIdentity()) {
-            // Since the view matrix is applied after tessellation, it must not expand the geometry
-            // in any direction.
-            SkASSERT(shader.viewMatrix().getMaxScale() < 1 + SK_ScalarNearlyZero);
-            pdman.setSkMatrix(fSkewMatrixUniform, shader.viewMatrix());
-        }
-
         pdman.set4fv(fColorUniform, 1, shader.fColor.vec());
     }
 
-    GrGLSLUniformHandler::UniformHandle fMiterLimitUniform;
-    GrGLSLUniformHandler::UniformHandle fSkewMatrixUniform;
+    GrGLSLUniformHandler::UniformHandle fTessControlArgsUniform;
+    GrGLSLUniformHandler::UniformHandle fTranslateUniform;
+    GrGLSLUniformHandler::UniformHandle fAffineMatrixUniform;
     GrGLSLUniformHandler::UniformHandle fColorUniform;
-
-    float fCachedMiterLimitValue = -1;
 };
 
 SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
@@ -92,15 +88,14 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     SkString code(versionAndExtensionDecls);
     code.append("layout(vertices = 1) out;\n");
 
-    code.appendf("const float kTolerance = %f;\n", 1/kLinearizationIntolerance);
-    code.appendf("const float kCubicK = %f;\n", GrWangsFormula::cubic_k(kLinearizationIntolerance));
     code.appendf("const float kPI = 3.141592653589793238;\n");
     code.appendf("const float kMaxTessellationSegments = %i;\n",
                  shaderCaps.maxTessellationSegments());
 
-    const char* miterLimitName = impl->getMiterLimitUniformName(uniformHandler);
-    code.appendf("uniform float %s;\n", miterLimitName);
-    code.appendf("#define uMiterLimit %s\n", miterLimitName);
+    const char* tessControlArgsName = impl->getTessControlArgsUniformName(uniformHandler);
+    code.appendf("uniform vec2 %s;\n", tessControlArgsName);
+    code.appendf("#define uTolerance %s.x\n", tessControlArgsName);
+    code.appendf("#define uMiterLimit %s.y\n", tessControlArgsName);
 
     code.append(R"(
     in vec2 P[];
@@ -133,10 +128,12 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         float strokeRadius = P[4].y;
 
         // Calculate the number of evenly spaced (in the parametric sense) segments to chop the
-        // curve into. (See GrWangsFormula::cubic().) The final tessellated strip will be a
-        // composition of these parametric segments as well as radial segments.
-        float numParametricSegments = sqrt(kCubicK * length(max(abs(P[2] - P[1]*2.0 + P[0]),
-                                                                abs(P[3] - P[2]*2.0 + P[1]))));
+        // curve into. (See GrWangsFormula::cubic() for more documentation on this formula.) The
+        // final tessellated strip will be a composition of these parametric segments as well as
+        // radial segments.
+        float numParametricSegments = sqrt(
+                .75/uTolerance * length(max(abs(P[2] - P[1]*2.0 + P[0]),
+                                            abs(P[3] - P[2]*2.0 + P[1]))));
         if (P[1] == P[0] && P[2] == P[3]) {
             // This type of curve is used to represent flat lines, but wang's formula does not
             // return 1 segment. Force numParametricSegments to 1.
@@ -178,7 +175,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // Calculate the number of evenly spaced radial segments to chop the curve into. Radial
         // segments divide the curve's rotation into even steps. The final tessellated strip will be
         // a composition of both parametric and radial segments.
-        float numRadialSegments = abs(rotation) / (2 * acos(max(1 - kTolerance/strokeRadius, -1)));
+        float numRadialSegments = abs(rotation) / (2 * acos(max(1 - uTolerance/strokeRadius, -1)));
         numRadialSegments = max(ceil(numRadialSegments), 1);
 
         // Set up joins.
@@ -199,7 +196,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
                 // Bevel join. Make a fan with only one segment.
                 numRadialSegments = 1;
             }
-            if (length(tan0norm - tan1norm) * strokeRadius < kTolerance) {
+            if (length(tan0norm - tan1norm) * strokeRadius < uTolerance) {
                 // The join angle is too tight to guarantee there won't be gaps on the inside of the
                 // junction. Just in case our join was supposed to only go on the outside, switch to
                 // a double sided bevel that ties all 4 incoming vertices together. The join angle
@@ -270,10 +267,13 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
 
     code.appendf("const float kPI = 3.141592653589793238;\n");
 
-    const char* skewMatrixName = nullptr;
     if (!this->viewMatrix().isIdentity()) {
-        skewMatrixName = impl->getSkewMatrixUniformName(uniformHandler);
-        code.appendf("uniform mat3x3 %s;\n", skewMatrixName);
+        const char* translateName = impl->getTranslateUniformName(uniformHandler);
+        code.appendf("uniform vec2 %s;\n", translateName);
+        code.appendf("#define uTranslate %s\n", translateName);
+        const char* affineMatrixName = impl->getAffineMatrixUniformName(uniformHandler);
+        code.appendf("uniform mat2x2 %s;\n", affineMatrixName);
+        code.appendf("#define uAffineMatrix %s\n", affineMatrixName);
     }
 
     code.append(R"(
@@ -449,17 +449,17 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         outset = clamp(outset, strokeOutsetClamp.x, strokeOutsetClamp.y);
         outset *= strokeRadius;
 
-        vec2 vertexpos = position + normalize(vec2(-tangent.y, tangent.x)) * outset;
+        vec2 vertexPos = position + normalize(vec2(-tangent.y, tangent.x)) * outset;
     )");
 
     // Transform after tessellation. Stroke widths and normals are defined in (pre-transform) local
     // path space.
     if (!this->viewMatrix().isIdentity()) {
-        code.appendf("vertexpos = (%s * vec3(vertexpos, 1)).xy;\n", skewMatrixName);
+        code.append("vertexPos = uAffineMatrix * vertexPos + uTranslate;");
     }
 
     code.append(R"(
-        gl_Position = vec4(vertexpos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
+        gl_Position = vec4(vertexPos * sk_RTAdjust.xz + sk_RTAdjust.yw, 0.0, 1.0);
     }
     )");
 

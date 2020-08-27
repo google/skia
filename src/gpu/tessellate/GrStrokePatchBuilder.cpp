@@ -17,9 +17,6 @@
 #include "src/gpu/tessellate/GrVectorXform.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
-constexpr static float kLinearizationIntolerance =
-        GrTessellationPathRenderer::kLinearizationIntolerance;
-
 constexpr static float kStandardCubicType = GrStrokeTessellateShader::kStandardCubicType;
 constexpr static float kDoubleSidedRoundJoinType = -GrStrokeTessellateShader::kRoundJoinType;
 
@@ -145,14 +142,14 @@ void GrStrokePatchBuilder::addPath(const SkPath& path, const SkStrokeRec& stroke
     // space and then use a stroke width of 1.
     SkASSERT(stroke.getWidth() > 0);
 
-    fCurrStrokeRadius = stroke.getWidth()/2 * fMatrixScale;
+    fCurrStrokeRadius = stroke.getWidth()/2;
     fCurrStrokeJoinType = join_type_from_join(stroke.getJoin());
 
     // This is the number of radial segments we need to add to a triangle strip for each radian of
     // rotation, given the current stroke radius. Any fewer radial segments and our error would fall
     // outside the linearization tolerance.
     fNumRadialSegmentsPerRad = 1 / std::acos(
-            std::max(1 - 1 / (kLinearizationIntolerance * fCurrStrokeRadius), -1.f));
+            std::max(1 - 1 / (fLinearizationIntolerance * fCurrStrokeRadius), -1.f));
 
     // Calculate the worst-case numbers of parametric segments our hardware can support for the
     // current stroke radius, in the event that there are also enough radial segments to rotate 180
@@ -165,15 +162,7 @@ void GrStrokePatchBuilder::addPath(const SkPath& path, const SkStrokeRec& stroke
 
     fHasPreviousSegment = false;
     SkPathVerb previousVerb = SkPathVerb::kClose;
-    for (auto [verb, rawPts, w] : SkPathPriv::Iterate(path)) {
-        SkPoint pts[4];
-        int numPtsInVerb = SkPathPriv::PtsInIter((unsigned)verb);
-        for (int i = 0; i < numPtsInVerb; ++i) {
-            // TEMPORORY: Scale all the points up front. SkFind*MaxCurvature and GrWangsFormula::*
-            // both expect arrays of points. As we refine this class and its math, this scale will
-            // hopefully be integrated more efficiently.
-            pts[i] = rawPts[i] * fMatrixScale;
-        }
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
             case SkPathVerb::kMove:
                 // "A subpath ... consisting of a single moveto shall not be stroked."
@@ -236,7 +225,7 @@ void GrStrokePatchBuilder::quadraticTo(float prevJoinType, const SkPoint p[3], i
     // Ensure our hardware supports enough tessellation segments to render the curve. The first
     // branch assumes a worst-case rotation of 180 degrees and checks if even then we have enough.
     // In practice it is rare to take even the first branch.
-    float numParametricSegments = GrWangsFormula::quadratic(kLinearizationIntolerance, p);
+    float numParametricSegments = GrWangsFormula::quadratic(fLinearizationIntolerance, p);
     if (numParametricSegments > fMaxParametricSegments180 && maxDepth != 0) {
         // We still might have enough tessellation segments to render the curve. Check again with
         // the actual rotation.
@@ -321,7 +310,7 @@ void GrStrokePatchBuilder::nonInflectCubicTo(float prevJoinType, const SkPoint p
     // NOTE: We could technically assume a worst-case rotation of 180 because cubicTo() chops at
     // midtangents and inflections. However, this is only temporary so we leave it at 360 where it
     // will arrive at in the future.
-    float numParametricSegments = GrWangsFormula::cubic(kLinearizationIntolerance, p);
+    float numParametricSegments = GrWangsFormula::cubic(fLinearizationIntolerance, p);
     if (numParametricSegments > fMaxParametricSegments360 && maxDepth != 0) {
         // We still might have enough tessellation segments to render the curve. Check again with
         // the actual rotation.
