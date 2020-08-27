@@ -441,6 +441,30 @@
     },
     {
       "key": {
+        "uuid": "5ae365cb_fc579be3",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-27T15:00:59Z",
+      "side": 1,
+      "message": "I don\u0027t either but this has been like this since the old YUV8 code. If it needs to change should be a different CL.",
+      "parentUuid": "e1fc1f50_773b9f10",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "697bb787_e91e9675",
         "filename": "src/core/SkYUVAInfo.cpp",
         "patchSetId": 8
@@ -461,6 +485,30 @@
       "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85dc715c_d2523ba1",
+        "filename": "src/core/SkYUVAInfo.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-27T15:00:59Z",
+      "side": 1,
+      "message": "Done. Made all cases init all entries, having defaults here will make less sense as configs are added.",
+      "parentUuid": "697bb787_e91e9675",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 32
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
