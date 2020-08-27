@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4a0acbce_d63bb1b1",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T21:24:34Z",
+      "side": 1,
+      "message": "nit: you don\u0027t have to change it, but I find this verbose when it can just be \u0027if (!fICU)\u0027 which can just be read as \u0027if we don\u0027t have an fICU here\u0027 as opposed to relying on the implementation detail that it\u0027s comparable with nullptr.",
+      "range": {
+        "startLine": 245,
+        "startChar": 8,
+        "endLine": 245,
+        "endChar": 23
+      },
+      "revId": "f4ccc122cc4151fc9bdbfe425dcfcdc57a09f8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61bf9572_ac6ecb16",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T21:24:34Z",
+      "side": 1,
+      "message": "Nothing in the SkUnicode class should be defined in this file. This file is for ICU. The body of this function depends on icu. The point of SkUnicode is to abstract that away and SkUnicode should know nothing of ICU.",
+      "range": {
+        "startLine": 340,
+        "startChar": 5,
+        "endLine": 340,
+        "endChar": 16
+      },
+      "revId": "f4ccc122cc4151fc9bdbfe425dcfcdc57a09f8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
