@@ -102,6 +102,115 @@
       "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baaa7e23_92754851",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:27:59Z",
+      "side": 1,
+      "message": "yuvaPixmapInfo ?",
+      "range": {
+        "startLine": 94,
+        "startChar": 42,
+        "endLine": 94,
+        "endChar": 63
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d0e08de_20eccf5e",
+        "filename": "include/core/SkYUVAInfo.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:27:59Z",
+      "side": 1,
+      "message": "planeDimensions ?",
+      "range": {
+        "startLine": 65,
+        "startChar": 58,
+        "endLine": 65,
+        "endChar": 67
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a323fda5_e59e79b2",
+        "filename": "include/core/SkYUVAInfo.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:27:59Z",
+      "side": 1,
+      "message": "planeDimensions ?",
+      "range": {
+        "startLine": 115,
+        "startChar": 52,
+        "endLine": 115,
+        "endChar": 61
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2454df3_352743d4",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:27:59Z",
+      "side": 1,
+      "message": "Add a \u0027\\n\u0027 here ?",
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e151dba_1a061524",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T14:27:59Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 101,
+        "startChar": 7,
+        "endLine": 101,
+        "endChar": 21
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
