@@ -465,6 +465,30 @@
     },
     {
       "key": {
+        "uuid": "0e97e99d_27627c93",
+        "filename": "src/codec/SkCodecImageGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-08-27T19:16:28Z",
+      "side": 1,
+      "message": "Years ago I received a number of bugs that images failed to decode, and it turned out they were incomplete. But I believe I also received bugs that incomplete images *did* decode, and the clients wanted to know they were incomplete, so they could react (e.g. by re-downloading).\n\nThe Result enum was intended to allow the client to pick either behavior. But SkCodecImageGenerator just returns a boolean. I (perhaps arbitrarily) chose the behavior of treating incomplete and error (which is like incomplete, but more data will not complete it, because it\u0027s reached an error) as success, since there is something to see. (We could flip this around, and only include success.)\n\nAll that said, SkJpegCodec is the only one that implements onGetYUVAPlanes, and it only ever returns kInvalidInput or kSuccess. I\u0027d be fine with making the method return a boolean. But I agree that should be a separate change.",
+      "parentUuid": "5ae365cb_fc579be3",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 36
+      },
+      "revId": "3ab92c4cd8a6c45ced1f133bb240797a2c76fc3b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "697bb787_e91e9675",
         "filename": "src/core/SkYUVAInfo.cpp",
         "patchSetId": 8
