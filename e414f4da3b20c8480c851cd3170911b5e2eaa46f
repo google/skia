@@ -16,6 +16,126 @@
       "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "97a9377a_54140a00",
+        "filename": "include/core/SkSurfaceCharacterization.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:10:26Z",
+      "side": 1,
+      "message": "We do all these checks here but not in the ctor. Is that a problem? Should it all just be in validate?",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db664f2b_39aff7e9",
+        "filename": "include/gpu/GrContextThreadSafeProxy.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:10:26Z",
+      "side": 1,
+      "message": "VkRTSupportsInputAttachment ?",
+      "range": {
+        "startLine": 76,
+        "startChar": 34,
+        "endLine": 76,
+        "endChar": 39
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8986d5b_1fed9a70",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:10:26Z",
+      "side": 1,
+      "message": "\u0026\u0026 ?",
+      "range": {
+        "startLine": 124,
+        "startChar": 35,
+        "endLine": 125,
+        "endChar": 12
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbcc5c7f_f5611e67",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:10:26Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 132,
+        "startChar": 84,
+        "endLine": 132,
+        "endChar": 95
+      },
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e34672e6_3409526d",
+        "filename": "src/core/SkDeferredDisplayListRecorder.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:10:26Z",
+      "side": 1,
+      "message": "// We can use a secondaryCB as a ... ?",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1f1c867_9041931e",
+        "filename": "src/core/SkSurfaceCharacterization.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T16:10:26Z",
+      "side": 1,
+      "message": "Don\u0027t we require this be set on the backend texture too ?",
+      "revId": "e414f4da3b20c8480c851cd3170911b5e2eaa46f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
