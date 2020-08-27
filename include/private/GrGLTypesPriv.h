@@ -48,7 +48,7 @@ public:
         NonsamplerState();
         void invalidate();
 
-        uint32_t fSwizzleKey;
+        bool    fSwizzleIsRGBA;
         GrGLint fBaseMipMapLevel;
         GrGLint fMaxMipmapLevel;
     };

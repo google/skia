@@ -56,9 +56,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fHalfIs32Bits = false;
     fHasLowFragmentPrecision = false;
     fColorSpaceMathNeedsFloat = false;
-    // Backed API support is required to be able to make swizzle-neutral shaders (e.g.
-    // GL_ARB_texture_swizzle).
-    fTextureSwizzleAppliedInShader = true;
     fBuiltinFMASupport = false;
     fCanUseDoLoops = true;
 

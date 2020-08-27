@@ -431,6 +431,8 @@ public:
 
     bool samplerObjectSupport() const { return fSamplerObjectSupport; }
 
+    bool textureSwizzleSupport() const { return fTextureSwizzleSupport; }
+
     bool tiledRenderingSupport() const { return fTiledRenderingSupport; }
 
     bool fbFetchRequiresEnablePerSample() const { return fFBFetchRequiresEnablePerSample; }
@@ -541,6 +543,7 @@ private:
     bool fProgramBinarySupport : 1;
     bool fProgramParameterSupport : 1;
     bool fSamplerObjectSupport : 1;
+    bool fTextureSwizzleSupport : 1;
     bool fTiledRenderingSupport : 1;
     bool fFBFetchRequiresEnablePerSample : 1;
     bool fSRGBWriteControl : 1;
