@@ -446,6 +446,10 @@ public:
 
     virtual GrProgramDesc makeDesc(GrRenderTarget*, const GrProgramInfo&) const = 0;
 
+    virtual GrInternalSurfaceFlags getExtraSurfaceFlagsForDeferredRT() const {
+        return GrInternalSurfaceFlags::kNone;
+    }
+
 #if GR_TEST_UTILS
     struct TestFormatColorTypeCombination {
         GrColorType fColorType;

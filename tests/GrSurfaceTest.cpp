@@ -574,7 +574,8 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                                                           GrTextureType::k2D};
                     proxy = dContext->priv().proxyProvider()->createLazyRenderTargetProxy(
                             singleUseLazyCB, backendFormat, desc, 1,
-                            GrInternalSurfaceFlags ::kNone, &kTexInfo,
+                            dContext->priv().caps()->getExtraSurfaceFlagsForDeferredRT(),
+                            &kTexInfo,
                             GrMipmapStatus::kNotAllocated,
                             SkBackingFit::kExact, budgeted, GrProtected::kNo, false,
                             GrSurfaceProxy::UseAllocator::kYes);
