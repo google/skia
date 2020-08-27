@@ -16,6 +16,40 @@
       "revId": "1f5bdd6f16dd6d7ae11de1235df7a1f774b4ff2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "007592ca_02c6ad23",
+        "filename": "tests/ImageTest.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T13:59:28Z",
+      "side": 1,
+      "message": "\\n ?",
+      "revId": "1f5bdd6f16dd6d7ae11de1235df7a1f774b4ff2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c50635dc_e8e760f7",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 2432,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-08-27T13:59:28Z",
+      "side": 1,
+      "message": "Can we just use \"fWindow-\u003edirectContext();\" here ?",
+      "revId": "1f5bdd6f16dd6d7ae11de1235df7a1f774b4ff2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
