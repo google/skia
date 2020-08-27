@@ -443,7 +443,8 @@ static sk_sp<GrTexture> make_wrapped_texture(GrDirectContext* dContext, GrRender
     if (GrRenderable::kYes == renderable) {
         texture = dContext->priv().resourceProvider()->wrapRenderableBackendTexture(
                 backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
-    } else {
+    }
+    else {
         texture = dContext->priv().resourceProvider()->wrapBackendTexture(
                 backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
     }
@@ -574,7 +575,8 @@ DEF_GPUTEST(TextureIdleProcTest, reporter, options) {
                                                                           GrTextureType::k2D};
                     proxy = dContext->priv().proxyProvider()->createLazyRenderTargetProxy(
                             singleUseLazyCB, backendFormat, desc, 1,
-                            GrInternalSurfaceFlags ::kNone, &kTexInfo,
+                            dContext->priv().caps()->getExtraSurfaceFlagsForDeferredRT(),
+                            &kTexInfo,
                             GrMipmapStatus::kNotAllocated,
                             SkBackingFit::kExact, budgeted, GrProtected::kNo, false,
                             GrSurfaceProxy::UseAllocator::kYes);

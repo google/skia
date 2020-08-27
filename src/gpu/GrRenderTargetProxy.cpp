@@ -166,5 +166,12 @@ void GrRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     }
     SkASSERT(((int)proxyFlags & kGrInternalRenderTargetFlagsMask) ==
              ((int)surfaceFlags & kGrInternalRenderTargetFlagsMask));
+
+    // We manually check the kVkRTSupportsInputAttachment since we only require it on the surface if
+    // the proxy has it set. If the proxy doesn't have the flag it is legal for the surface to
+    // have the flag.
+    if (proxyFlags & GrInternalSurfaceFlags::kVkRTSupportsInputAttachment) {
+        SkASSERT(surfaceFlags & GrInternalSurfaceFlags::kVkRTSupportsInputAttachment);
+    }
 }
 #endif
