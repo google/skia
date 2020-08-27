@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "b7ff1dae_53dcfd2d",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T15:09:17Z",
+      "side": 1,
+      "message": "Try making this private?",
+      "range": {
+        "startLine": 248,
+        "startChar": 4,
+        "endLine": 248,
+        "endChar": 32
+      },
+      "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "28a2ce27_4ac96a80",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
@@ -30,6 +53,24 @@
       "writtenOn": "2020-08-27T15:04:13Z",
       "side": 1,
       "message": "My read of unique()\u0027s impl is that this is conservatively safe/correct.",
+      "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a54f18cb_b6ad1b7c",
+        "filename": "src/core/SkRuntimeEffect.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T15:09:17Z",
+      "side": 1,
+      "message": "Yeah, if unique() returns true, it\u0027ll keep returning true.\nIf it returns false, it might return true if you check again.",
+      "parentUuid": "28a2ce27_4ac96a80",
       "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
