@@ -2366,9 +2366,8 @@ static bool has_early_return(const FunctionDefinition& funcDef) {
 }
 
 std::unique_ptr<Expression> IRGenerator::inlineCall(
-                                               int offset,
-                                               const FunctionDefinition& function,
-                                               std::vector<std::unique_ptr<Expression>> arguments) {
+        std::unique_ptr<FunctionCall> call,
+        std::vector<std::unique_ptr<Statement>>* extraStatements) {
     // Inlining is more complicated here than in a typical compiler, because we have to have a
     // high-level IR and can't just drop statements into the middle of an expression or even use
     // gotos.
@@ -2378,6 +2377,12 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     // order guarantees. Since we can't use gotos (which are normally used to replace return
     // statements), we wrap the whole function in a loop and use break statements to jump to the
     // end.
+    SkASSERT(call);
+    SkASSERT(this->isSafeToInline(*call));
+
+    int offset = call->fOffset;
+    std::vector<std::unique_ptr<Expression>>& arguments = call->fArguments;
+    const FunctionDefinition& function = *call->fFunction.fDefinition;
 
     // Use unique variable names based on the function signature. Otherwise there are situations in
     // which an inlined function is later inlined into another function, and we end up with
@@ -2392,79 +2397,92 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
         }
     }
 
+    auto makeInlineVar = [&](const String& name, const Type& type, Modifiers modifiers,
+                             std::unique_ptr<Expression>* initialValue) -> const Variable* {
+
+        const String* namePtr = fSymbolTable->takeOwnershipOfString(std::make_unique<String>(name));
+        StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
+
+        const Variable* variableSymbol =
+                fSymbolTable->add(nameFrag, std::make_unique<Variable>(
+                                                    /*offset=*/-1, Modifiers(), nameFrag, type,
+                                                    Variable::kLocal_Storage, initialValue->get()));
+        std::vector<std::unique_ptr<VarDeclaration>> variables;
+        if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
+            variables.push_back(std::make_unique<VarDeclaration>(
+                    variableSymbol,
+                    /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
+                    (*initialValue)->clone()));
+        } else {
+            variables.push_back(std::make_unique<VarDeclaration>(
+                    variableSymbol,
+                    /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
+                    std::move(*initialValue)));
+        }
+        extraStatements->push_back(std::make_unique<VarDeclarationsStatement>(
+                std::make_unique<VarDeclarations>(offset, &type, std::move(variables))));
+
+        return variableSymbol;
+    };
+
+    // Create a variable to hold the result in the extra statements (excepting void).
     const Variable* resultVar = nullptr;
     if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
-        std::unique_ptr<String> name(new String());
         int varIndex = fInlineVarCounter++;
-        name->appendf("_inlineResult%s%d", inlineSalt.c_str(), varIndex);
-        const String* namePtr = fSymbolTable->takeOwnershipOfString(std::move(name));
-        StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
-        resultVar = fSymbolTable->add(
-                nameFrag,
-                std::make_unique<Variable>(
-                        /*offset=*/-1, Modifiers(), nameFrag, function.fDeclaration.fReturnType,
-                        Variable::kLocal_Storage, /*initialValue=*/nullptr));
-        std::vector<std::unique_ptr<VarDeclaration>> variables;
-        variables.emplace_back(new VarDeclaration(resultVar, {}, nullptr));
-        fExtraStatements.emplace_back(
-                new VarDeclarationsStatement(std::make_unique<VarDeclarations>(
-                        offset, &resultVar->fType, std::move(variables))));
 
+        std::unique_ptr<Expression> noInitialValue;
+        resultVar = makeInlineVar(String::printf("_inlineResult%s%d", inlineSalt.c_str(), varIndex),
+                                  function.fDeclaration.fReturnType, Modifiers{}, &noInitialValue);
     }
+
+    // Create variables in the extra statements to hold the arguments, and assign the arguments to
+    // them.
     std::unordered_map<const Variable*, const Variable*> varMap;
-    // create variables to hold the arguments and assign the arguments to them
     int argIndex = fInlineVarCounter++;
     for (int i = 0; i < (int) arguments.size(); ++i) {
+        const Variable* param = function.fDeclaration.fParameters[i];
+
         if (arguments[i]->fKind == Expression::kVariableReference_Kind) {
-            // the argument is just a variable, so we only need to copy it if it's an out parameter
-            // or it's written to within the function
-            const VariableReference& v = arguments[i]->as<VariableReference>();
-            const Variable* param = function.fDeclaration.fParameters[i];
+            // The argument is just a variable, so we only need to copy it if it's an out parameter
+            // or it's written to within the function.
             if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
                 !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
-                varMap[param] = &v.fVariable;
+                varMap[param] = &arguments[i]->as<VariableReference>().fVariable;
                 continue;
             }
         }
-        std::unique_ptr<String> argName(new String());
-        argName->appendf("_inlineArg%s%d_%d", inlineSalt.c_str(), argIndex, i);
-        const String* argNamePtr = fSymbolTable->takeOwnershipOfString(std::move(argName));
-        StringFragment argNameFrag{argNamePtr->c_str(), argNamePtr->length()};
-        const Variable* argVar = fSymbolTable->add(
-                argNameFrag, std::make_unique<Variable>(
-                                     /*offset=*/-1, Modifiers(), argNameFrag, arguments[i]->fType,
-                                     Variable::kLocal_Storage, arguments[i].get()));
-        varMap[function.fDeclaration.fParameters[i]] = argVar;
-        std::vector<std::unique_ptr<VarDeclaration>> vars;
-        if (function.fDeclaration.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
-            vars.emplace_back(new VarDeclaration(argVar, {}, arguments[i]->clone()));
-        } else {
-            vars.emplace_back(new VarDeclaration(argVar, {}, std::move(arguments[i])));
-        }
-        fExtraStatements.emplace_back(new VarDeclarationsStatement(
-                std::make_unique<VarDeclarations>(offset, &argVar->fType, std::move(vars))));
+
+        varMap[param] = makeInlineVar(
+                String::printf("_inlineArg%s%d_%d", inlineSalt.c_str(), argIndex, i),
+                arguments[i]->fType, param->fModifiers, &arguments[i]);
     }
+
     const Block& body = function.fBody->as<Block>();
     bool hasEarlyReturn = has_early_return(function);
-    std::vector<std::unique_ptr<Statement>> inlined;
-    for (const auto& s : body.fStatements) {
-        inlined.push_back(this->inlineStatement(offset, &varMap, resultVar, hasEarlyReturn, *s));
+    auto inlineBlock =
+            std::make_unique<Block>(offset,
+                                    /*statements=*/std::vector<std::unique_ptr<Statement>>{});
+    inlineBlock->fStatements.reserve(body.fStatements.size());
+    for (const std::unique_ptr<Statement>& stmt : body.fStatements) {
+        inlineBlock->fStatements.push_back(this->inlineStatement(offset, &varMap, resultVar,
+                                                                 hasEarlyReturn, *stmt));
     }
     if (hasEarlyReturn) {
         // Since we output to backends that don't have a goto statement (which would normally be
         // used to perform an early return), we fake it by wrapping the function in a
         // do { } while (false); and then use break statements to jump to the end in order to
         // emulate a goto.
-        fExtraStatements.emplace_back(new DoStatement(-1,
-                                std::unique_ptr<Statement>(new Block(-1, std::move(inlined))),
-                                std::unique_ptr<Expression>(new BoolLiteral(fContext, -1, false))));
+        extraStatements->push_back(std::make_unique<DoStatement>(
+                /*offset=*/-1,
+                std::move(inlineBlock),
+                std::make_unique<BoolLiteral>(fContext, offset, /*value=*/false)));
     } else {
         // No early returns, so we can just dump the code in. We need to use a block so we don't get
         // name conflicts with locals.
-        fExtraStatements.emplace_back(std::unique_ptr<Statement>(new Block(-1,
-                                                                           std::move(inlined))));
+        extraStatements->push_back(std::move(inlineBlock));
     }
-    // copy the values of out parameters into their destinations
+
+    // Copy the values of `out` parameters into their destinations.
     for (size_t i = 0; i < arguments.size(); ++i) {
         const Variable* p = function.fDeclaration.fParameters[i];
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
@@ -2475,21 +2493,22 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
                 // out
                 continue;
             }
-            std::unique_ptr<Expression> varRef(new VariableReference(offset, *varMap[p]));
-            fExtraStatements.emplace_back(new ExpressionStatement(
-                    std::unique_ptr<Expression>(new BinaryExpression(offset,
-                                                                     arguments[i]->clone(),
-                                                                     Token::Kind::TK_EQ,
-                                                                     std::move(varRef),
-                                                                     arguments[i]->fType))));
+            auto varRef = std::make_unique<VariableReference>(offset, *varMap[p]);
+            extraStatements->push_back(std::make_unique<ExpressionStatement>(
+                    std::make_unique<BinaryExpression>(offset,
+                                                       arguments[i]->clone(),
+                                                       Token::Kind::TK_EQ,
+                                                       std::move(varRef),
+                                                       arguments[i]->fType)));
         }
     }
+
     if (function.fDeclaration.fReturnType != *fContext.fVoid_Type) {
-        return std::unique_ptr<Expression>(new VariableReference(-1, *resultVar));
+        return std::make_unique<VariableReference>(offset, *resultVar);
     } else {
-        // it's a void function, so it doesn't actually result in anything, but we have to return
-        // something non-null as a standin
-        return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1, false));
+        // It's a void function, so it doesn't actually result in anything, but we have to return
+        // something non-null as a standin.
+        return std::make_unique<BoolLiteral>(fContext, /*offset=*/-1, /*value=*/false);
     }
 }
 
@@ -2505,32 +2524,37 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
     }
 }
 
-bool IRGenerator::isSafeToInline(const FunctionDefinition& functionDef) {
+bool IRGenerator::isSafeToInline(const FunctionCall& functionCall) {
     if (!fCanInline) {
         // Inlining has been explicitly disabled by the IR generator.
         return false;
     }
-    if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
-        Analysis::NodeCount(functionDef) >= fSettings->fInlineThreshold) {
+    const FunctionDefinition* functionDef = functionCall.fFunction.fDefinition;
+    if (functionDef == nullptr) {
+        // Can't inline something if we don't actually have its definition.
+        return false;
+    }
+    if (!(functionDef->fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
+        Analysis::NodeCount(*functionDef) >= fSettings->fInlineThreshold) {
         // The function exceeds our maximum inline size and is not flagged 'inline'.
         return false;
     }
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
         // can't inline functions that have an early return.
-        bool hasEarlyReturn = has_early_return(functionDef);
+        bool hasEarlyReturn = has_early_return(*functionDef);
 
         // If we didn't detect an early return, there shouldn't be any returns in breakable
         // constructs either.
-        SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(functionDef) == 0);
+        SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(*functionDef) == 0);
         return !hasEarlyReturn;
     }
     // We have do-while loops, but we don't have any mechanism to simulate early returns within a
     // breakable construct (switch/for/do/while), so we can't inline if there's a return inside one.
-    bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(functionDef) > 0);
+    bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(*functionDef) > 0);
 
     // If we detected returns in breakable constructs, we should also detect an early return.
-    SkASSERT(!hasReturnInBreakableConstruct || has_early_return(functionDef));
+    SkASSERT(!hasReturnInBreakableConstruct || has_early_return(*functionDef));
     return !hasReturnInBreakableConstruct;
 }
 
@@ -2587,11 +2611,14 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                              VariableReference::kPointer_RefKind);
         }
     }
-    if (function.fDefinition && this->isSafeToInline(*function.fDefinition)) {
-        return this->inlineCall(offset, *function.fDefinition, std::move(arguments));
+
+    auto funcCall = std::make_unique<FunctionCall>(offset, *returnType, function,
+                                                   std::move(arguments));
+    if (this->isSafeToInline(*funcCall)) {
+        return this->inlineCall(std::move(funcCall), &fExtraStatements);
     }
 
-    return std::make_unique<FunctionCall>(offset, *returnType, function, std::move(arguments));
+    return std::move(funcCall);
 }
 
 /**
