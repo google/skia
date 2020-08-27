@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9522e25e_2acbced4",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-27T16:40:24Z",
+      "side": 1,
+      "message": "I don\u0027t think any of these can really be static. I don\u0027t think ICU in particular makes any statement about anything these do working without a data file. The string conversion might work (it\u0027s a simple enough transformation) but I wouldn\u0027t rely on that. isControl and isWhitespace probably do need the data file though.",
+      "revId": "e8c3ebf3c0fa4e76d1107229f2f77bbcc88cdb0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
