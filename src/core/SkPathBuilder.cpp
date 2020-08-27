@@ -33,7 +33,9 @@ SkPathBuilder& SkPathBuilder::reset() {
     fSegmentMask = 0;
     fLastMovePoint = {0, 0};
     fNeedsMoveVerb = true;
-    fConvexity = SkPathConvexityType::kUnknown;
+
+    // testing
+    fOverrideConvexity = SkPathConvexityType::kUnknown;
 
     return *this;
 }
@@ -148,12 +150,28 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
+    auto dir = SkPathPriv::kUnknown_FirstDirection;
+    auto convexity = SkPathConvexityType::kUnknown;
     switch (fIsA) {
-        case kIsA_Oval:  pr->setIsOval( true, fIsACCW, fIsAStart); break;
-        case kIsA_RRect: pr->setIsRRect(true, fIsACCW, fIsAStart); break;
+        case kIsA_Oval:
+            pr->setIsOval( true, fIsACCW, fIsAStart);
+            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            convexity = SkPathConvexityType::kConvex;
+            break;
+        case kIsA_RRect:
+            pr->setIsRRect(true, fIsACCW, fIsAStart);
+            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            convexity = SkPathConvexityType::kConvex;
+            break;
         default: break;
     }
-    return SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity);
+
+    if (fOverrideConvexity != SkPathConvexityType::kUnknown) {
+        convexity = fOverrideConvexity;
+    }
+    dir = SkPathPriv::kUnknown_FirstDirection;
+
+    return SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
 }
 
 SkPath SkPathBuilder::snapshot() {
