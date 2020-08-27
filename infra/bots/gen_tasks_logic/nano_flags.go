@@ -196,15 +196,11 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~desk_ynevsvg.skp_1.1")
 		match = append(match, "~desk_nostroke_tiger8svg.skp")
 		match = append(match, "~keymobi_booking_com.skp_1")
-		match = append(match, "~keymobi_booking_com.skp_1_mpd")
 		match = append(match, "~keymobi_cnn_article.skp_1")
-		match = append(match, "~keymobi_cnn_article.skp_1_mpd")
 		match = append(match, "~keymobi_forecast_io.skp_1")
-		match = append(match, "~keymobi_forecast_io.skp_1_mpd")
 		match = append(match, "~keymobi_sfgate.skp_1")
 		match = append(match, "~keymobi_techcrunch_com.skp_1.1")
 		match = append(match, "~keymobi_techcrunch.skp_1.1")
-		match = append(match, "~keymobi_techcrunch.skp_1.1_mpd")
 		match = append(match, "~svgparse_Seal_of_California.svg_1.1")
 		match = append(match, "~svgparse_NewYork-StateSeal.svg_1.1")
 		match = append(match, "~svgparse_Vermont_state_seal.svg_1")
@@ -212,7 +208,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~tabl_pravda.skp_1")
 		match = append(match, "~top25desk_ebay_com.skp_1.1")
 		match = append(match, "~top25desk_ebay.skp_1.1")
-		match = append(match, "~top25desk_ebay.skp_1.1_mpd")
 	}
 	if b.extraConfig("Vulkan") && b.gpu("GTX660") {
 		// skia:8523 skia:9271

@@ -21,7 +21,7 @@ class SkSurface;
 class SKPBench : public Benchmark {
 public:
     SKPBench(const char* name, const SkPicture*, const SkIRect& devClip, SkScalar scale,
-             bool useMultiPictureDraw, bool doLooping);
+             bool doLooping);
     ~SKPBench() override;
 
     int calculateLoops(int defaultLoops) const override {
@@ -53,7 +53,6 @@ private:
     SkString fName;
     SkString fUniqueName;
 
-    const bool fUseMultiPictureDraw;
     SkTArray<sk_sp<SkSurface>> fSurfaces;   // for MultiPictureDraw
     SkTDArray<SkIRect> fTileRects;     // for MultiPictureDraw
 

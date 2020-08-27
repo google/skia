@@ -11,7 +11,7 @@
 
 SKPAnimationBench::SKPAnimationBench(const char* name, const SkPicture* pic, const SkIRect& clip,
                                      sk_sp<Animation> animation, bool doLooping)
-    : INHERITED(name, pic, clip, 1.0, false, doLooping)
+    : INHERITED(name, pic, clip, 1.0, doLooping)
     , fAnimation(std::move(animation)) {
     fUniqueName.printf("%s_%s", name, fAnimation->getTag());
 }
