@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8f5a9bbd_6586084f",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-27T22:57:34Z",
+      "side": 1,
+      "message": "I know. I changed it to (nullptr \u003d\u003d fICU) so it would not remind an assignment. I still have problems transforming an address to a boolean :)",
+      "parentUuid": "4a0acbce_d63bb1b1",
+      "range": {
+        "startLine": 245,
+        "startChar": 8,
+        "endLine": 245,
+        "endChar": 23
+      },
+      "revId": "f4ccc122cc4151fc9bdbfe425dcfcdc57a09f8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "61bf9572_ac6ecb16",
         "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "f4ccc122cc4151fc9bdbfe425dcfcdc57a09f8b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7c20fef_be9e5abb",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-27T22:57:34Z",
+      "side": 1,
+      "message": "Well, SkStringFromU16String is truly static, and is used everywhere (ParagraphBuilder, ParagraphStyle). Any my attempt to make it virtual on SkUnicode leads to lots of unnecessary changes. Do you have a suggestion?..",
+      "parentUuid": "61bf9572_ac6ecb16",
+      "range": {
+        "startLine": 340,
+        "startChar": 5,
+        "endLine": 340,
+        "endChar": 16
+      },
+      "revId": "f4ccc122cc4151fc9bdbfe425dcfcdc57a09f8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
