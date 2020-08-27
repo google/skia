@@ -83,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "2ddf4c7e_47734f44",
+        "filename": "include/effects/SkRuntimeEffect.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-27T15:31:57Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s how I\u0027d approach it as a user.",
+      "parentUuid": "66789299_657a907e",
+      "range": {
+        "startLine": 248,
+        "startChar": 4,
+        "endLine": 248,
+        "endChar": 32
+      },
+      "revId": "dba36f56b2305cb78ffa5f2f7faa551b963fd95d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28a2ce27_4ac96a80",
         "filename": "src/core/SkRuntimeEffect.cpp",
         "patchSetId": 1
