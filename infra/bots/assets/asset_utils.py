@@ -167,6 +167,13 @@ class GSStore(object):
     else:
       gsutils = subprocess.check_output([
           utils.WHICH, 'gsutil']).rstrip().splitlines()
+      if os.name == "nt":
+        # On Windows "gsutil" may be a python script that can't executed
+        # without launching from the python executable. However, the python
+        # installer configures ".py" files to be executable. Therfore, we look
+        # for gsutil.py first.
+        gsutils = subprocess.check_output([
+          utils.WHICH, 'gsutil.py']).rstrip().splitlines() + gsutils
       for g in gsutils:
         ok = True
         try:
