@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "064c787a_11237af7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-08-27T16:44:47Z",
+      "side": 1,
+      "message": "The Chromium failure this time seems like it just needs a rebase due to other Skia changes. Rebased, re-running canaries, and adding bsalomon for API stamp.",
+      "revId": "76ef281abb57276a195f6891efd73efa3aa8df38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
