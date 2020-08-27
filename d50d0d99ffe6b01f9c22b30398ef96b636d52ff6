@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8022f9f1_cc9748cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-27T17:34:51Z",
+      "side": 1,
+      "message": "lgtm\n\nSo does this mean we are dropping support for nexus7?",
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "857a7610_e0acd041",
         "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
         "patchSetId": 2
