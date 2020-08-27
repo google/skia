@@ -287,7 +287,6 @@ GrGLSLUniformHandler::SamplerHandle GrVkUniformHandler::addSampler(
         SkASSERT(info.fImmutableSampler);
     }
 
-    SkASSERT(shaderCaps->textureSwizzleAppliedInShader());
     fSamplerSwizzles.push_back(swizzle);
     SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
