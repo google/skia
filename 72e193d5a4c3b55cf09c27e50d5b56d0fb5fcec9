@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "234a4794_fe292e37",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T14:01:09Z",
+      "side": 1,
+      "message": "I know you\u0027re looking at the CFG, so this CL may become obsolete. In any case - are case statements always block-wrapped? I don\u0027t think so, from looking at the IR generator, in which case something like:\n\nfloat foo() {\n  switch (x) {\n    case 0: return 1;\n    default: return 2;\n  }\n}\n\n... could still trigger the assert, I think? The switch will iterate over the case statements, and recurse() on those, which would be kReturn_Kind (bypassing the extra logic to detect this in kBlock_Kind).",
+      "revId": "72e193d5a4c3b55cf09c27e50d5b56d0fb5fcec9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
