@@ -118,6 +118,48 @@ DEF_TEST(pathbuilder_addRect, reporter) {
     }
 }
 
+static bool is_eq(const SkPath& a, const SkPath& b) {
+    if (a != b) {
+        return false;
+    }
+
+    {
+        SkRect ra, rb;
+        bool is_a = a.isOval(&ra);
+        bool is_b = b.isOval(&rb);
+        if (is_a != is_b) {
+            return false;
+        }
+        if (is_a && (ra != rb)) {
+            return false;
+        }
+    }
+
+    {
+        SkRRect rra, rrb;
+        bool is_a = a.isRRect(&rra);
+        bool is_b = b.isRRect(&rrb);
+        if (is_a != is_b) {
+            return false;
+        }
+        if (is_a && (rra != rrb)) {
+            return false;
+        }
+    }
+
+    // getConvextity() should be sufficient to test, but internally we sometimes don't want
+    // to trigger computing it, so this is the stronger test for equality.
+    {
+        SkPathConvexityType ca = a.getConvexityTypeOrUnknown(),
+                            cb = b.getConvexityTypeOrUnknown();
+        if (ca != cb) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 DEF_TEST(pathbuilder_addOval, reporter) {
     const SkRect r = { 10, 20, 30, 40 };
     SkRect tmp;
@@ -127,16 +169,12 @@ DEF_TEST(pathbuilder_addOval, reporter) {
             auto bp = SkPathBuilder().addOval(r, dir, i).detach();
             SkPath p;
             p.addOval(r, dir, i);
-            REPORTER_ASSERT(reporter, p == bp);
-            REPORTER_ASSERT(reporter,  p.isOval(&tmp) && (tmp == r));
-            REPORTER_ASSERT(reporter, bp.isOval(&tmp) && (tmp == r));
+            REPORTER_ASSERT(reporter, is_eq(p, bp));
         }
         auto bp = SkPathBuilder().addOval(r, dir).detach();
         SkPath p;
         p.addOval(r, dir);
-        REPORTER_ASSERT(reporter, p == bp);
-        REPORTER_ASSERT(reporter,  p.isOval(&tmp) && (tmp == r));
-        REPORTER_ASSERT(reporter, bp.isOval(&tmp) && (tmp == r));
+        REPORTER_ASSERT(reporter, is_eq(p, bp));
 
         // test negative case -- can't have any other segments
         bp = SkPathBuilder().addOval(r, dir).lineTo(10, 10).detach();
@@ -148,7 +186,6 @@ DEF_TEST(pathbuilder_addOval, reporter) {
 
 DEF_TEST(pathbuilder_addRRect, reporter) {
     const SkRRect rr = SkRRect::MakeRectXY({ 10, 20, 30, 40 }, 5, 6);
-    SkRRect tmp;
 
     for (auto dir : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
         for (int i = 0; i < 4; ++i) {
@@ -158,18 +195,15 @@ DEF_TEST(pathbuilder_addRRect, reporter) {
 
             SkPath p;
             p.addRRect(rr, dir, i);
-            REPORTER_ASSERT(reporter, p == bp);
-            REPORTER_ASSERT(reporter,  p.isRRect(&tmp) && (tmp == rr));
-            REPORTER_ASSERT(reporter, bp.isRRect(&tmp) && (tmp == rr));
+            REPORTER_ASSERT(reporter, is_eq(p, bp));
         }
         auto bp = SkPathBuilder().addRRect(rr, dir).detach();
         SkPath p;
         p.addRRect(rr, dir);
-        REPORTER_ASSERT(reporter, p == bp);
-        REPORTER_ASSERT(reporter,  p.isRRect(&tmp) && (tmp == rr));
-        REPORTER_ASSERT(reporter, bp.isRRect(&tmp) && (tmp == rr));
+        REPORTER_ASSERT(reporter, is_eq(p, bp));
 
         // test negative case -- can't have any other segments
+        SkRRect tmp;
         bp = SkPathBuilder().addRRect(rr, dir).lineTo(10, 10).detach();
         REPORTER_ASSERT(reporter, !bp.isRRect(&tmp));
         bp = SkPathBuilder().lineTo(10, 10).addRRect(rr, dir).detach();
