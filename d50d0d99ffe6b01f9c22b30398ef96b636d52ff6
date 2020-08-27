@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8e0347ca_2bd0551e",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-27T16:23:06Z",
+      "side": 1,
+      "message": "Done. Good point, I forgot you can just give these any tolerance you want 🤦‍♂️",
+      "parentUuid": "857a7610_e0acd041",
+      "range": {
+        "startLine": 231,
+        "startChar": 90,
+        "endLine": 232,
+        "endChar": 51
+      },
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6784e1f_b7c1f3bd",
         "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed2c5d9a_d3d18f9a",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-27T16:23:06Z",
+      "side": 1,
+      "message": "Done. Thanks for the suggestion!",
+      "parentUuid": "d6784e1f_b7c1f3bd",
+      "range": {
+        "startLine": 45,
+        "startChar": 55,
+        "endLine": 45,
+        "endChar": 71
+      },
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d15cb81b_a5d1caa0",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-27T16:23:06Z",
+      "side": 1,
+      "message": "This is \"wang\u0027s formula\" The comment says to see GrWangsFormula::cubic(), where this is documented better.",
+      "parentUuid": "74f5d5c9_1b5bae62",
+      "range": {
+        "startLine": 134,
+        "startChar": 16,
+        "endLine": 134,
+        "endChar": 19
+      },
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70c33c22_ea5ce069",
         "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9637ecbb_25003f07",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-27T16:23:06Z",
+      "side": 1,
+      "message": "Yes, in GrTessellationPathRenderer.cpp",
+      "parentUuid": "70c33c22_ea5ce069",
+      "range": {
+        "startLine": 68,
+        "startChar": 27,
+        "endLine": 68,
+        "endChar": 40
+      },
+      "revId": "d50d0d99ffe6b01f9c22b30398ef96b636d52ff6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
