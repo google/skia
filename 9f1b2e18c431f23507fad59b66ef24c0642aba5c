@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d940317e_b99dfcfc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-27T21:17:32Z",
+      "side": 1,
+      "message": "Will land this, wait a bit then revert. I\u0027m having trouble reproducing the difference on the one Windows machine I have access to. So I\u0027m resorting to bot experiments.",
+      "revId": "9f1b2e18c431f23507fad59b66ef24c0642aba5c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
