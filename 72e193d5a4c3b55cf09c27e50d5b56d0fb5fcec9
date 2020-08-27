@@ -16,6 +16,23 @@
       "revId": "72e193d5a4c3b55cf09c27e50d5b56d0fb5fcec9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e77cdacd_30823531",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-27T14:05:33Z",
+      "side": 1,
+      "message": "\u003e Patch Set 9:\n\u003e \n\u003e Wouldn\u0027t the inLoopOrSwitch check protect against this?\n\nWhich one? I think total and early returns would both be 2, so has_early_return would be false. But then returns in breakable constructs would also be 2, so the assert would fire?",
+      "revId": "72e193d5a4c3b55cf09c27e50d5b56d0fb5fcec9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
