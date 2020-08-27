@@ -33,6 +33,24 @@
       "revId": "72e193d5a4c3b55cf09c27e50d5b56d0fb5fcec9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a68f9f16_855e2cf2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-27T14:40:56Z",
+      "side": 1,
+      "message": "Yup, confirmed, it\u0027s just as you say. I\u0027ll put in a fix.",
+      "parentUuid": "e77cdacd_30823531",
+      "revId": "72e193d5a4c3b55cf09c27e50d5b56d0fb5fcec9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
