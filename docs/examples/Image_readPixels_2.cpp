@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
             SkPixmap pixmap(SkImageInfo::MakeN32Premul(quarterWidth, quarterHeight),
                     &srcPixels.front() + x * image->height() * quarterWidth +
                     y * quarterWidth, rowBytes);
-            image->readPixels(pixmap, x * quarterWidth, y * quarterHeight);
+            image->readPixels(nullptr, pixmap, x * quarterWidth, y * quarterHeight);
         }
     }
     canvas->scale(.5f, .5f);

@@ -159,7 +159,7 @@ DEF_TEST(Encode_JPG, r) {
 
             SkBitmap bm;
             bm.allocPixels(info);
-            if (!surface->makeImageSnapshot()->readPixels(bm.pixmap(), 0, 0)) {
+            if (!surface->makeImageSnapshot()->readPixels(nullptr, bm.pixmap(), 0, 0)) {
                 ERRORF(r, "failed to readPixels! ct: %i\tat: %i\n", ct, at);
                 continue;
             }

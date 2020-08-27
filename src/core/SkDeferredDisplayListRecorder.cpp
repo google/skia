@@ -134,8 +134,6 @@ bool SkDeferredDisplayListRecorder::init() {
 
     GrColorType grColorType = SkColorTypeToGrColorType(fCharacterization.colorType());
 
-    sk_sp<SkDeferredDisplayList::LazyProxyData> lazyProxyData = fLazyProxyData;
-
     // What we're doing here is we're creating a lazy proxy to back the SkSurface. The lazy
     // proxy, when instantiated, will use the GrRenderTarget that backs the SkSurface that the
     // DDL is being replayed into.
@@ -158,7 +156,7 @@ bool SkDeferredDisplayListRecorder::init() {
     GrSwizzle readSwizzle = caps->getReadSwizzle(fCharacterization.backendFormat(), grColorType);
 
     fTargetProxy = proxyProvider->createLazyRenderTargetProxy(
-            [lazyProxyData](GrResourceProvider* resourceProvider,
+            [lazyProxyData = fLazyProxyData](GrResourceProvider* resourceProvider,
                             const GrSurfaceProxy::LazySurfaceDesc&) {
                 // The proxy backing the destination surface had better have been instantiated
                 // prior to the this one (i.e., the proxy backing the DLL's surface).

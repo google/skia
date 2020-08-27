@@ -742,7 +742,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
             // Extract pixels on the CPU, since we have to split into separate textures before
             // sending to the GPU.
             SkBitmap bm;
-            if (as_IB(image)->getROPixels(&bm)) {
+            if (as_IB(image)->getROPixels(nullptr, &bm)) {
                 // This is the funnel for all paths that draw tiled bitmaps/images. Log histogram
                 SK_HISTOGRAM_BOOLEAN("DrawTiled", true);
                 LogDrawScaleFactor(ctm, srcToDst, paint.getFilterQuality());
@@ -769,7 +769,7 @@ void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, con
     }
 
     SkBitmap bm;
-    if (as_IB(image)->getROPixels(&bm)) {
+    if (as_IB(image)->getROPixels(nullptr, &bm)) {
         GrBitmapTextureMaker maker(fContext.get(), bm, GrImageTexGenPolicy::kDraw);
         draw_texture_producer(fContext.get(), fRenderTargetContext.get(), clip, matrixProvider,
                               paint, &maker, src, dst, dstClip, srcToDst, aa, aaFlags, constraint,
