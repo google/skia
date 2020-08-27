@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "51313f77_b3e949e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-08-27T15:00:43Z",
+      "side": 1,
+      "message": "Thanks for the code reviews, and all the lessons about GPU FP.",
+      "revId": "4e6777408c47339661167e6422ab061b76cfddbe",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
