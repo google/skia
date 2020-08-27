@@ -84,6 +84,13 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     GrGLGetDriverInfo(interface->fStandard, args.fVendor, renderer, ver,
                       &args.fDriver, &args.fDriverVersion);
 
+#if GR_TEST_UTILS
+    // REVERT ME. Temporary hack to see affect on performance.
+    if (args.fDriver == kANGLE_GrGLDriver) {
+        args.fGLSLGeneration = k110_GrGLSLGeneration;
+    }
+#endif
+
     args.fContextOptions = &options;
     args.fInterface = std::move(interface);
 
