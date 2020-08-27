@@ -52,6 +52,7 @@
 #include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkResourceCache.h"
+#include "src/image/SkImage_Base.h"
 #include "src/sksl/SkSLCompiler.h"
 
 #include <iostream>
@@ -63,7 +64,7 @@
 
 #ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -1348,8 +1349,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                     // See comment above for uintptr_t explanation
             uint8_t* pixels = reinterpret_cast<uint8_t*>(pPtr);
             SkImageInfo ii = toSkImageInfo(sii);
-
-            return self->readPixels(ii, pixels, dstRowBytes, srcX, srcY);
+            // TODO: Migrate CanvasKit API to require DirectContext arg here.
+            GrDirectContext* dContext = nullptr;
+#ifdef SK_GL
+            dContext = GrAsDirectContext(as_IB(self.get())->context());
+#endif
+            return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
         }), allow_raw_pointers());
 
     class_<SkImageFilter>("SkImageFilter")

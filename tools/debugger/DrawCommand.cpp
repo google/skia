@@ -28,8 +28,15 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/image/SkImage_Base.h"
 #include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/JsonWriteBuffer.h"
+
+#ifdef SK_SUPPORT_GPU
+#include "include/gpu/GrDirectContext.h"
+#else
+class GrDirectContext;
+#endif
 
 #define DEBUGCANVAS_ATTRIBUTE_COMMAND "command"
 #define DEBUGCANVAS_ATTRIBUTE_VISIBLE "visible"
@@ -645,7 +652,12 @@ bool DrawCommand::flatten(const SkImage&  image,
     SkAutoMalloc buffer(rowBytes * image.height());
     SkImageInfo  dstInfo =
             SkImageInfo::Make(image.dimensions(), kN32_SkColorType, kPremul_SkAlphaType);
-    if (!image.readPixels(dstInfo, buffer.get(), rowBytes, 0, 0)) {
+    // "cheat" for this debug tool and use image's context
+    GrDirectContext* dContext = nullptr;
+#ifdef SK_SUPPORT_GPU
+    dContext = GrAsDirectContext(as_IB(&image)->context());
+#endif
+    if (!image.readPixels(dContext, dstInfo, buffer.get(), rowBytes, 0, 0)) {
         SkDebugf("DrawCommand::flatten SkImage: readPixels failed\n");
         return false;
     }

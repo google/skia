@@ -951,7 +951,8 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
 void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                 const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) {
     SkBitmap bm;
-    if (!as_IB(image)->getROPixels(&bm)) {
+    // TODO: support gpu images
+    if (!as_IB(image)->getROPixels(nullptr, &bm)) {
         return;
     }
 

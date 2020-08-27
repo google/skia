@@ -362,7 +362,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     } else if (fImage->isLazyGenerated()) {
         producer = new (&storage)
                 GrImageTextureMaker(args.fContext, fImage.get(), GrImageTexGenPolicy::kDraw);
-    } else if (as_IB(fImage)->getROPixels(&bm)) {
+    } else if (as_IB(fImage)->getROPixels(nullptr, &bm)) {
         producer =
                 new (&storage) GrBitmapTextureMaker(args.fContext, bm, GrImageTexGenPolicy::kDraw);
     } else {

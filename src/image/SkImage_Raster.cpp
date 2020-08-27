@@ -78,7 +78,7 @@ public:
                    uint32_t id = kNeedNewImageUniqueID);
     ~SkImage_Raster() override;
 
-    bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
+    bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
     bool onPeekPixels(SkPixmap*) const override;
     const SkBitmap* onPeekBitmap() const override { return &fBitmap; }
@@ -87,12 +87,12 @@ public:
     GrSurfaceProxyView refView(GrRecordingContext*, GrMipmapped) const override;
 #endif
 
-    bool getROPixels(SkBitmap*, CachingHint) const override;
+    bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
-    bool onAsLegacyBitmap(SkBitmap*) const override;
+    bool onAsLegacyBitmap(GrDirectContext*, SkBitmap*) const override;
 
     SkImage_Raster(const SkBitmap& bm, bool bitmapMayBeMutable = false)
             : INHERITED(bm.info(),
@@ -168,8 +168,13 @@ SkImage_Raster::~SkImage_Raster() {
 #endif
 }
 
-bool SkImage_Raster::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                                  int srcX, int srcY, CachingHint) const {
+bool SkImage_Raster::onReadPixels(GrDirectContext*,
+                                  const SkImageInfo& dstInfo,
+                                  void* dstPixels,
+                                  size_t dstRowBytes,
+                                  int srcX,
+                                  int srcY,
+                                  CachingHint) const {
     SkBitmap shallowCopy(fBitmap);
     return shallowCopy.readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY);
 }
@@ -178,7 +183,7 @@ bool SkImage_Raster::onPeekPixels(SkPixmap* pm) const {
     return fBitmap.peekPixels(pm);
 }
 
-bool SkImage_Raster::getROPixels(SkBitmap* dst, CachingHint) const {
+bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) const {
     *dst = fBitmap;
     return true;
 }
@@ -367,7 +372,7 @@ const SkPixelRef* SkBitmapImageGetPixelRef(const SkImage* image) {
     return ((const SkImage_Raster*)image)->getPixelRef();
 }
 
-bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap) const {
+bool SkImage_Raster::onAsLegacyBitmap(GrDirectContext*, SkBitmap* bitmap) const {
     // When we're a snapshot from a surface, our bitmap may not be marked immutable
     // even though logically always we are, but in that case we can't physically share our
     // pixelref since the caller might call setImmutable() themselves
@@ -378,7 +383,7 @@ bool SkImage_Raster::onAsLegacyBitmap(SkBitmap* bitmap) const {
         bitmap->setPixelRef(sk_ref_sp(fBitmap.pixelRef()), origin.x(), origin.y());
         return true;
     }
-    return this->INHERITED::onAsLegacyBitmap(bitmap);
+    return this->INHERITED::onAsLegacyBitmap(nullptr, bitmap);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -129,7 +129,8 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkImage::CachingHint chint) const {
+bool SkImage_Lazy::getROPixels(GrDirectContext*, SkBitmap* bitmap,
+                               SkImage::CachingHint chint) const {
     auto check_output_bitmap = [bitmap]() {
         SkASSERT(bitmap->isImmutable());
         SkASSERT(bitmap->getPixels());
@@ -164,10 +165,15 @@ bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkImage::CachingHint chint) con
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkImage_Lazy::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                                int srcX, int srcY, CachingHint chint) const {
+bool SkImage_Lazy::onReadPixels(GrDirectContext* dContext,
+                                const SkImageInfo& dstInfo,
+                                void* dstPixels,
+                                size_t dstRB,
+                                int srcX,
+                                int srcY,
+                                CachingHint chint) const {
     SkBitmap bm;
-    if (this->getROPixels(&bm, chint)) {
+    if (this->getROPixels(dContext, &bm, chint)) {
         return bm.readPixels(dstInfo, dstPixels, dstRB, srcX, srcY);
     }
     return false;
@@ -438,7 +444,7 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
  *  3. Ask the generator to return YUV planes, which the GPU can convert
  *  4. Ask the generator to return RGB(A) data, which the GPU can convert
  */
-GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
+GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rContext,
                                                       GrImageTexGenPolicy texGenPolicy,
                                                       GrMipmapped mipMapped) const {
     // Values representing the various texture lock paths we can take. Used for logging the path
@@ -459,13 +465,13 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
         GrMakeKeyFromImageID(&key, this->uniqueID(), SkIRect::MakeSize(this->dimensions()));
     }
 
-    const GrCaps* caps = ctx->priv().caps();
-    GrProxyProvider* proxyProvider = ctx->priv().proxyProvider();
+    const GrCaps* caps = rContext->priv().caps();
+    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
     auto installKey = [&](const GrSurfaceProxyView& view) {
         SkASSERT(view && view.asTextureProxy());
         if (key.isValid()) {
-            auto listener = GrMakeUniqueKeyInvalidationListener(&key, ctx->priv().contextID());
+            auto listener = GrMakeUniqueKeyInvalidationListener(&key, rContext->priv().contextID());
             this->addUniqueIDListener(std::move(listener));
             proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
         }
@@ -488,7 +494,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
                 // We need a mipped proxy, but we found a cached proxy that wasn't mipped. Thus we
                 // generate a new mipped surface and copy the original proxy into the base layer. We
                 // will then let the gpu generate the rest of the mips.
-                auto mippedView = GrCopyBaseMipMapToView(ctx, view);
+                auto mippedView = GrCopyBaseMipMapToView(rContext, view);
                 if (!mippedView) {
                     // We failed to make a mipped proxy with the base copied into it. This could
                     // have been from failure to make the proxy or failure to do the copy. Thus we
@@ -505,7 +511,7 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     // 2. Ask the generator to natively create one.
     {
         ScopedGenerator generator(fSharedGenerator);
-        if (auto view = generator->generateTexture(ctx, this->imageInfo(), {0,0}, mipMapped,
+        if (auto view = generator->generateTexture(rContext, this->imageInfo(), {0,0}, mipMapped,
                                                    texGenPolicy)) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kNative_LockTexturePath,
                                      kLockTexturePathCount);
@@ -516,13 +522,13 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
 
     // 3. Ask the generator to return YUV planes, which the GPU can convert. If we will be mipping
     //    the texture we skip this step so the CPU generate non-planar MIP maps for us.
-    if (mipMapped == GrMipmapped::kNo && !ctx->priv().options().fDisableGpuYUVConversion) {
+    if (mipMapped == GrMipmapped::kNo && !rContext->priv().options().fDisableGpuYUVConversion) {
         // TODO: Update to create the mipped surface in the textureProxyViewFromPlanes generator and
         //  draw the base layer directly into the mipped surface.
         SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                       ? SkBudgeted::kNo
                                       : SkBudgeted::kYes;
-        auto view = this->textureProxyViewFromPlanes(ctx, budgeted);
+        auto view = this->textureProxyViewFromPlanes(rContext, budgeted);
         if (view) {
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                      kLockTexturePathCount);
@@ -534,13 +540,13 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* ctx,
     // 4. Ask the generator to return a bitmap, which the GPU can convert.
     auto hint = texGenPolicy == GrImageTexGenPolicy::kDraw ? CachingHint::kAllow_CachingHint
                                                            : CachingHint::kDisallow_CachingHint;
-    if (SkBitmap bitmap; this->getROPixels(&bitmap, hint)) {
+    if (SkBitmap bitmap; this->getROPixels(nullptr, &bitmap, hint)) {
         // We always pass uncached here because we will cache it external to the maker based on
         // *our* cache policy. We're just using the maker to generate the texture.
         auto makerPolicy = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                    ? GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                    : GrImageTexGenPolicy::kNew_Uncached_Budgeted;
-        GrBitmapTextureMaker bitmapMaker(ctx, bitmap, makerPolicy);
+        GrBitmapTextureMaker bitmapMaker(rContext, bitmap, makerPolicy);
         auto view = bitmapMaker.view(mipMapped);
         if (view) {
             installKey(view);

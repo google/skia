@@ -49,8 +49,9 @@ SkImageInfo read_pixels_info(SkImage* image) {
     return SkImageInfo::MakeN32(image->width(), image->height(), image->alphaType());
 }
 
-static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect* subsetA,
-                         SkImage* b) {
+// image `b` is assumed to be raster
+static void assert_equal(skiatest::Reporter* reporter, GrDirectContext* dContextA, SkImage* a,
+                         const SkIRect* subsetA, SkImage* b) {
     const int widthA = subsetA ? subsetA->width() : a->width();
     const int heightA = subsetA ? subsetA->height() : a->height();
 
@@ -67,8 +68,8 @@ static void assert_equal(skiatest::Reporter* reporter, SkImage* a, const SkIRect
     const int srcX = subsetA ? subsetA->x() : 0;
     const int srcY = subsetA ? subsetA->y() : 0;
 
-    REPORTER_ASSERT(reporter, a->readPixels(pmapA, srcX, srcY));
-    REPORTER_ASSERT(reporter, b->readPixels(pmapB, 0, 0));
+    REPORTER_ASSERT(reporter, a->readPixels(dContextA, pmapA, srcX, srcY));
+    REPORTER_ASSERT(reporter, b->readPixels(nullptr, pmapB, 0, 0));
 
     const size_t widthBytes = widthA * 4;
     for (int y = 0; y < heightA; ++y) {
@@ -157,7 +158,7 @@ static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext,
     return surface->makeImageSnapshot();
 }
 
-static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
+static void test_encode(skiatest::Reporter* reporter, GrDirectContext* dContext, SkImage* image) {
     const SkIRect ir = SkIRect::MakeXYWH(5, 5, 10, 10);
     sk_sp<SkData> origEncoded = image->encodeToData();
     REPORTER_ASSERT(reporter, origEncoded);
@@ -169,21 +170,22 @@ static void test_encode(skiatest::Reporter* reporter, SkImage* image) {
         return;
     }
     REPORTER_ASSERT(reporter, decoded);
-    assert_equal(reporter, image, nullptr, decoded.get());
+    assert_equal(reporter, dContext, image, nullptr, decoded.get());
 
     // Now see if we can instantiate an image from a subset of the surface/origEncoded
 
     decoded = SkImage::MakeFromEncoded(origEncoded)->makeSubset(ir);
     REPORTER_ASSERT(reporter, decoded);
-    assert_equal(reporter, image, &ir, decoded.get());
+    assert_equal(reporter, dContext, image, &ir, decoded.get());
 }
 
 DEF_TEST(ImageEncode, reporter) {
-    test_encode(reporter, create_image().get());
+    test_encode(reporter, nullptr, create_image().get());
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu, reporter, ctxInfo) {
-    test_encode(reporter, create_gpu_image(ctxInfo.directContext()).get());
+    auto dContext = ctxInfo.directContext();
+    test_encode(reporter, dContext, create_gpu_image(dContext).get());
 }
 
 DEF_TEST(Image_MakeFromRasterBitmap, reporter) {
@@ -266,7 +268,7 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
     const size_t dstRowBytes = 2 * sizeof(SkPMColor);
 
     sk_sp<SkImage> image1(surface->makeImageSnapshot());
-    REPORTER_ASSERT(reporter, image1->readPixels(dstInfo, pixels, dstRowBytes, 0, 0));
+    REPORTER_ASSERT(reporter, image1->readPixels(nullptr, dstInfo, pixels, dstRowBytes, 0, 0));
     for (size_t i = 0; i < SK_ARRAY_COUNT(pixels); ++i) {
         REPORTER_ASSERT(reporter, pixels[i] == green);
     }
@@ -278,7 +280,7 @@ DEF_TEST(Image_RetainSnapshot, reporter) {
     surface->getCanvas()->drawRect(SkRect::MakeXYWH(1, 1, 1, 1), paint);
 
     sk_sp<SkImage> image2(surface->makeImageSnapshot());
-    REPORTER_ASSERT(reporter, image2->readPixels(dstInfo, pixels, dstRowBytes, 0, 0));
+    REPORTER_ASSERT(reporter, image2->readPixels(nullptr, dstInfo, pixels, dstRowBytes, 0, 0));
     REPORTER_ASSERT(reporter, pixels[0] == green);
     REPORTER_ASSERT(reporter, pixels[1] == green);
     REPORTER_ASSERT(reporter, pixels[2] == green);
@@ -449,20 +451,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
 }
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contextInfo) {
-    auto context = contextInfo.directContext();
+    auto dContext = contextInfo.directContext();
 
     std::function<sk_sp<SkImage>()> imageFactories[] = {
         create_image,
         create_codec_image,
         create_data_image,
         create_picture_image,
-        [context] { return create_gpu_image(context); },
+        [dContext] { return create_gpu_image(dContext); },
     };
     for (const auto& factory : imageFactories) {
         sk_sp<SkImage> image = factory();
         if (!image->isTextureBacked()) {
             REPORTER_ASSERT(reporter, image->makeNonTextureImage().get() == image.get());
-            if (!(image = image->makeTextureImage(context))) {
+            if (!(image = image->makeTextureImage(dContext))) {
                 continue;
             }
         }
@@ -471,7 +473,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage, reporter, contex
             ERRORF(reporter, "makeNonTextureImage failed for texture-backed image.");
         }
         REPORTER_ASSERT(reporter, !rasterImage->isTextureBacked());
-        assert_equal(reporter, image.get(), nullptr, rasterImage.get());
+        assert_equal(reporter, dContext, image.get(), nullptr, rasterImage.get());
     }
 }
 
@@ -510,7 +512,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
                     SkColorSetARGB((U8CPU)y, 255 - (U8CPU)y, (U8CPU)x, 255 - (U8CPU)x);
         }
     }
-    auto texImage = SkImage::MakeFromBitmap(bmp)->makeTextureImage(ctxInfo.directContext());
+    auto dContext = ctxInfo.directContext();
+    auto texImage = SkImage::MakeFromBitmap(bmp)->makeTextureImage(dContext);
     if (!texImage || texImage->alphaType() != kUnpremul_SkAlphaType) {
         ERRORF(reporter, "Failed to make unpremul texture image.");
         return;
@@ -518,8 +521,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
     SkBitmap unpremul;
     unpremul.allocPixels(SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType,
                                            kUnpremul_SkAlphaType, nullptr));
-    if (!texImage->readPixels(unpremul.info(), unpremul.getPixels(), unpremul.rowBytes(), 0,
-                              0)) {
+    if (!texImage->readPixels(dContext, unpremul.info(), unpremul.getPixels(), unpremul.rowBytes(),
+                              0, 0)) {
         ERRORF(reporter, "Unpremul readback failed.");
         return;
     }
@@ -535,7 +538,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage, reporter, ctxInfo) {
     SkBitmap premul;
     premul.allocPixels(
             SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr));
-    if (!texImage->readPixels(premul.info(), premul.getPixels(), premul.rowBytes(), 0, 0)) {
+    if (!texImage->readPixels(dContext, premul.info(), premul.getPixels(), premul.rowBytes(),
+                              0, 0)) {
         ERRORF(reporter, "Unpremul readback failed.");
         return;
     }
@@ -641,7 +645,8 @@ static bool has_pixels(const SkPMColor pixels[], int count, SkPMColor expected) 
     return true;
 }
 
-static void image_test_read_pixels(skiatest::Reporter* reporter, SkImage* image) {
+static void image_test_read_pixels(GrDirectContext* dContext, skiatest::Reporter* reporter,
+                                   SkImage* image) {
     if (!image) {
         ERRORF(reporter, "Failed to create image!");
         return;
@@ -656,61 +661,64 @@ static void image_test_read_pixels(skiatest::Reporter* reporter, SkImage* image)
     SkImageInfo info;
 
     info = SkImageInfo::MakeUnknown(w, h);
-    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, 0, 0));
+    REPORTER_ASSERT(reporter, !image->readPixels(dContext, info, pixels, rowBytes, 0, 0));
 
     // out-of-bounds should fail
     info = SkImageInfo::MakeN32Premul(w, h);
-    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, -w, 0));
-    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, 0, -h));
-    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, image->width(), 0));
-    REPORTER_ASSERT(reporter, !image->readPixels(info, pixels, rowBytes, 0, image->height()));
+    REPORTER_ASSERT(reporter, !image->readPixels(dContext, info, pixels, rowBytes, -w, 0));
+    REPORTER_ASSERT(reporter, !image->readPixels(dContext, info, pixels, rowBytes, 0, -h));
+    REPORTER_ASSERT(reporter, !image->readPixels(dContext, info, pixels, rowBytes,
+                                                 image->width(), 0));
+    REPORTER_ASSERT(reporter, !image->readPixels(dContext, info, pixels, rowBytes,
+                                                 0, image->height()));
 
     // top-left should succeed
     sk_memset32(pixels, notExpected, w*h);
-    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes, 0, 0));
+    REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes, 0, 0));
     REPORTER_ASSERT(reporter, has_pixels(pixels, w*h, expected));
 
     // bottom-right should succeed
     sk_memset32(pixels, notExpected, w*h);
-    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes,
+    REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes,
                                                 image->width() - w, image->height() - h));
     REPORTER_ASSERT(reporter, has_pixels(pixels, w*h, expected));
 
     // partial top-left should succeed
     sk_memset32(pixels, notExpected, w*h);
-    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes, -1, -1));
+    REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes, -1, -1));
     REPORTER_ASSERT(reporter, pixels[3] == expected);
     REPORTER_ASSERT(reporter, has_pixels(pixels, w*h - 1, notExpected));
 
     // partial bottom-right should succeed
     sk_memset32(pixels, notExpected, w*h);
-    REPORTER_ASSERT(reporter, image->readPixels(info, pixels, rowBytes,
+    REPORTER_ASSERT(reporter, image->readPixels(dContext, info, pixels, rowBytes,
                                                 image->width() - 1, image->height() - 1));
     REPORTER_ASSERT(reporter, pixels[0] == expected);
     REPORTER_ASSERT(reporter, has_pixels(&pixels[1], w*h - 1, notExpected));
 }
 DEF_TEST(ImageReadPixels, reporter) {
     sk_sp<SkImage> image(create_image());
-    image_test_read_pixels(reporter, image.get());
+    image_test_read_pixels(nullptr, reporter, image.get());
 
     image = create_data_image();
-    image_test_read_pixels(reporter, image.get());
+    image_test_read_pixels(nullptr, reporter, image.get());
 
     RasterDataHolder dataHolder;
     image = create_rasterproc_image(&dataHolder);
-    image_test_read_pixels(reporter, image.get());
+    image_test_read_pixels(nullptr, reporter, image.get());
     image.reset();
     REPORTER_ASSERT(reporter, 1 == dataHolder.fReleaseCount);
 
     image = create_codec_image();
-    image_test_read_pixels(reporter, image.get());
+    image_test_read_pixels(nullptr, reporter, image.get());
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu, reporter, ctxInfo) {
-    image_test_read_pixels(reporter, create_gpu_image(ctxInfo.directContext()).get());
+    auto dContext = ctxInfo.directContext();
+    image_test_read_pixels(dContext, reporter, create_gpu_image(dContext).get());
 }
 
-static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image,
-                                const SkBitmap& bitmap) {
+static void check_legacy_bitmap(skiatest::Reporter* reporter, GrDirectContext* dContext,
+                                const SkImage* image, const SkBitmap& bitmap) {
     REPORTER_ASSERT(reporter, image->width() == bitmap.width());
     REPORTER_ASSERT(reporter, image->height() == bitmap.height());
     REPORTER_ASSERT(reporter, image->alphaType() == bitmap.alphaType());
@@ -721,18 +729,20 @@ static void check_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* ima
 
     const SkImageInfo info = SkImageInfo::MakeN32(1, 1, bitmap.alphaType());
     SkPMColor imageColor;
-    REPORTER_ASSERT(reporter, image->readPixels(info, &imageColor, sizeof(SkPMColor), 0, 0));
+    REPORTER_ASSERT(reporter, image->readPixels(dContext, info, &imageColor, sizeof(SkPMColor),
+                                                0, 0));
     REPORTER_ASSERT(reporter, imageColor == *bitmap.getAddr32(0, 0));
 }
 
-static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* image) {
+static void test_legacy_bitmap(skiatest::Reporter* reporter, GrDirectContext* dContext,
+                               const SkImage* image) {
     if (!image) {
         ERRORF(reporter, "Failed to create image.");
         return;
     }
     SkBitmap bitmap;
     REPORTER_ASSERT(reporter, image->asLegacyBitmap(&bitmap));
-    check_legacy_bitmap(reporter, image, bitmap);
+    check_legacy_bitmap(reporter, dContext, image, bitmap);
 
     // Test subsetting to exercise the rowBytes logic.
     SkBitmap tmp;
@@ -743,27 +753,28 @@ static void test_legacy_bitmap(skiatest::Reporter* reporter, const SkImage* imag
 
     SkBitmap subsetBitmap;
     REPORTER_ASSERT(reporter, subsetImage->asLegacyBitmap(&subsetBitmap));
-    check_legacy_bitmap(reporter, subsetImage.get(), subsetBitmap);
+    check_legacy_bitmap(reporter, nullptr, subsetImage.get(), subsetBitmap);
 }
 DEF_TEST(ImageLegacyBitmap, reporter) {
     sk_sp<SkImage> image(create_image());
-    test_legacy_bitmap(reporter, image.get());
+    test_legacy_bitmap(reporter, nullptr, image.get());
 
     image = create_data_image();
-    test_legacy_bitmap(reporter, image.get());
+    test_legacy_bitmap(reporter, nullptr, image.get());
 
     RasterDataHolder dataHolder;
     image = create_rasterproc_image(&dataHolder);
-    test_legacy_bitmap(reporter, image.get());
+    test_legacy_bitmap(reporter, nullptr, image.get());
     image.reset();
     REPORTER_ASSERT(reporter, 1 == dataHolder.fReleaseCount);
 
     image = create_codec_image();
-    test_legacy_bitmap(reporter, image.get());
+    test_legacy_bitmap(reporter, nullptr, image.get());
 }
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu, reporter, ctxInfo) {
-    sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
-    test_legacy_bitmap(reporter, image.get());
+    auto dContext = ctxInfo.directContext();
+    sk_sp<SkImage> image(create_gpu_image(dContext));
+    test_legacy_bitmap(reporter, dContext, image.get());
 }
 
 static void test_peek(skiatest::Reporter* reporter, SkImage* image, bool expectPeekSuccess) {
@@ -1242,7 +1253,7 @@ DEF_TEST(image_roundtrip_encode, reporter) {
 
     SkBitmap bm1;
     bm1.allocPixels(SkImageInfo::MakeN32(256, 256, kPremul_SkAlphaType));
-    img1->readPixels(bm1.info(), bm1.getPixels(), bm1.rowBytes(), 0, 0);
+    img1->readPixels(nullptr, bm1.info(), bm1.getPixels(), bm1.rowBytes(), 0, 0);
 
     REPORTER_ASSERT(reporter, equal(bm0, bm1));
 }

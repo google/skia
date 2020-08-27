@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     const int rowBytes = image->width() * 4;
     srcPixels.resize(image->height() * rowBytes);
     SkPixmap pixmap(info, (const void*) &srcPixels.front(), rowBytes);
-    image->readPixels(pixmap, 0, 0);
+    image->readPixels(nullptr, pixmap, 0, 0);
     for (int index = 0; index < 3; ++index ) {
         std::vector<int32_t> dstPixels;
         dstPixels.resize(image->height() * rowBytes);

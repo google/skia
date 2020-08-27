@@ -167,7 +167,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* rContext
 
     // raster to gpu is supported here, but gpu to raster is not
     SkBitmap bm;
-    if (!image->isTextureBacked() && as_IB(image)->getROPixels(&bm)) {
+    if (as_IB(image)->getROPixels(nullptr, &bm)) {
         return MakeFromRaster(subset, bm, props);
     }
     return nullptr;

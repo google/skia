@@ -250,7 +250,7 @@ public:
                                                           nullptr)) {
             if (auto image = asset->getFrame(0)) {
                 fBitmap.allocPixels(image->imageInfo().makeColorType(kRGBA_F32_SkColorType));
-                image->readPixels(fBitmap.pixmap(), 0, 0);
+                image->readPixels(nullptr, fBitmap.pixmap(), 0, 0);
                 return;
             }
         }

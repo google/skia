@@ -2009,8 +2009,9 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
                                 const SkRect& dst,
                                 const SkPaint& paint,
                                 SkCanvas::SrcRectConstraint constraint) {
+    // TODO: support gpu images
     SkBitmap bitmap;
-    if (!as_IB(image)->getROPixels(&bitmap)) {
+    if (!as_IB(image)->getROPixels(nullptr, &bitmap)) {
         return;
     }
 
