@@ -17,7 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
@@ -381,20 +381,21 @@ public:
     }
 
     /**
-     * If decoding to YUVA is supported, this returns true and updates yuvaInfo to be a
-     * specification of the planar layout and YUVA->RGBA transformation. If YUVA decoding is not
-     * supported then returns false.
+     * If decoding to YUVA is supported, this returns true and updates yuvaPixmapInfo to be a
+     * specification of the planar layout, YUVA->RGBA transformation, per-plane color types and row
+     * bytes. If YUVA decoding is not supported then returns false.
      */
-    bool queryYUVAInfo(SkYUVAInfo* yuvaInfo,
-                       SkColorType colorTypes[SkYUVAInfo::kMaxPlanes],
-                       size_t rowBytes[SkYUVAInfo::kMaxPlanes]) const;
+    bool queryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const;
 
     /**
-     *  Returns kSuccess, or another value explaining the type of failure. The passed in pixmaps
-     *  are allocated using the color types, row bytes, implied plane sizes, and origin indicated
-     *  by queryYUVAInfo(). This function fills in the pixmap data.
+     *  Returns kSuccess, or another value explaining the type of failure.
+     *  This always attempts to perform a full decode. To get the planar
+     *  configuration without decoding use queryYUVAInfo().
+     *
+     *  @param yuvaPixmaps  Contains preallocated pixmaps configured according to a successful call
+     *                      to queryYUVAInfo().
      */
-    Result getYUVAPlanes(const SkPixmap planes[SkYUVAInfo::kMaxPlanes]);
+    Result getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps);
 
     /**
      *  Prepare for an incremental decode with the specified options.
@@ -731,15 +732,9 @@ protected:
                                void* pixels, size_t rowBytes, const Options&,
                                int* rowsDecoded) = 0;
 
-    virtual bool onQueryYUVAInfo(SkYUVAInfo*,
-                               SkColorType[SkYUVAInfo::kMaxPlanes],
-                               size_t /*rowBytes*/[SkYUVAInfo::kMaxPlanes]) const {
-        return false;
-    }
+    virtual bool onQueryYUVAInfo(SkYUVAPixmapInfo*) const { return false; }
 
-    virtual Result onGetYUVAPlanes(const SkPixmap[SkYUVAInfo::kMaxPlanes]) {
-        return kUnimplemented;
-    }
+    virtual Result onGetYUVAPlanes(const SkYUVAPixmaps&) { return kUnimplemented; }
 
     virtual bool onGetValidSubset(SkIRect* /*desiredSubset*/) const {
         // By default, subsets are not supported.

@@ -61,18 +61,22 @@ public:
     static constexpr int kMaxPlanes = 4;
 
     /**
-     * Given a plane configuration, origin, and image dimensions, determine the expected size of
-     * each plane. Returns the number of expected planes. planeDims[0] through planeDims[<ret>] are
-     * written. The input image dimensions are as displayed (after the planes have been transformed
-     * to the intended display orientation).
+     * Given image dimensions, a planar configuration, and origin, determine the expected size of
+     * each plane. Returns the number of expected planes. planeDimensions[0] through
+     * planeDimensons[<ret>] are written. The input image dimensions are as displayed (after the
+     * planes have been transformed to the intended display orientation). The plane dimensions
+     * are output as stored in memory.
      */
-    static int ExpectedPlaneDims(PlanarConfig,
-                                 SkEncodedOrigin,
-                                 SkISize imageDims,
-                                 SkISize planeDims[kMaxPlanes]);
+    static int PlaneDimensions(SkISize imageDimensions,
+                               PlanarConfig,
+                               SkEncodedOrigin,
+                               SkISize planeDimensions[kMaxPlanes]);
 
     /** Number of planes for a given PlanarConfig. */
     static int NumPlanes(PlanarConfig);
+
+    /** Does the PlanarConfig have alpha values? */
+    static bool HasAlpha(PlanarConfig);
 
     SkYUVAInfo() = default;
     SkYUVAInfo(const SkYUVAInfo&) = default;
@@ -84,7 +88,7 @@ public:
     SkYUVAInfo(SkISize dimensions,
                PlanarConfig,
                SkYUVColorSpace,
-               SkEncodedOrigin origin,
+               SkEncodedOrigin origin = kTopLeft_SkEncodedOrigin,
                Siting sitingX = Siting::kCentered,
                Siting sitingY = Siting::kCentered);
 
@@ -106,18 +110,21 @@ public:
 
     SkEncodedOrigin origin() const { return fOrigin; }
 
+    bool hasAlpha() const { return HasAlpha(fPlanarConfig); }
+
     /**
-     * Returns the number of planes and initializes planeDims[0]..planeDims[<ret>] to the expected
-     * dimensions for each plane.
+     * Returns the number of planes and initializes planeDimensions[0]..planeDimensions[<ret>] to
+     * the expected dimensions for each plane. Dimensions are as stored in memory, before
+     * transformation to image display space as indicated by origin().
      */
-    int expectedPlaneDims(SkISize planeDims[kMaxPlanes]) const {
-        return ExpectedPlaneDims(fPlanarConfig, fOrigin, fDimensions, planeDims);
+    int planeDimensions(SkISize planeDimensions[kMaxPlanes]) const {
+        return PlaneDimensions(fDimensions, fPlanarConfig, fOrigin, planeDimensions);
     }
 
     /**
      * Given a per-plane row bytes, determine size to allocate for all planes. Optionally retrieves
-     * the per-plane sizes in planeSizes if not null. If total size overflows will return SIZE_MAX
-     * and set all planeSizes to SIZE_MAX.
+     * the per-plane byte sizes in planeSizes if not null. If total size overflows will return
+     * SIZE_MAX and set all planeSizes to SIZE_MAX.
      */
     size_t computeTotalBytes(const size_t rowBytes[kMaxPlanes],
                              size_t planeSizes[kMaxPlanes] = nullptr) const;
