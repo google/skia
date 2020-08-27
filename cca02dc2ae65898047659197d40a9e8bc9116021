@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a5dd90b_3367263d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-08-27T19:20:22Z",
+      "side": 1,
+      "message": "Ugh, I thought I reviewed this but I actually put my comments on the wrong CL!\n\nlgtm\n\nSo does this mean we are dropping support for nexus7?",
+      "revId": "cca02dc2ae65898047659197d40a9e8bc9116021",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
