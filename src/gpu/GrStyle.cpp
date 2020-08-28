@@ -117,6 +117,7 @@ void GrStyle::initPathEffect(sk_sp<SkPathEffect> pe) {
             fDashInfo.fType = SkPathEffect::kDash_DashType;
             fDashInfo.fIntervals.reset(info.fCount);
             fDashInfo.fPhase = info.fPhase;
+            fDashInfo.fAlignment = info.fAlignment;
             info.fIntervals = fDashInfo.fIntervals.get();
             pe->asADash(&info);
             fPathEffect = std::move(pe);
@@ -145,6 +146,7 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
         if (!SkDashPath::InternalFilter(dst, src, strokeRec,
                                         nullptr, intervals, intervalCnt,
                                         initialLength, initialIndex, intervalLength,
+                                        fDashInfo.fAlignment,
                                         SkDashPath::StrokeRecApplication::kDisallow)) {
             return false;
         }

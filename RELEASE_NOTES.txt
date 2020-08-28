@@ -106,6 +106,12 @@ Milestone 85
     is invoked.
     https://review.skia.org/292840
 
+  * Add new experimental SkAlignedDashPathEffect. This path effect is similar to
+    regular path dashing, except the dashes are aligned to the geometry of the
+    path (e.g. path nodes and corners). This is experimental because it is not
+    supported by all backends, such as PDF.
+    https://review.skia.org/293351
+
   * Add VkSharingMode field to GrVkImageInfo.
     https://review.skia.org/293559
 

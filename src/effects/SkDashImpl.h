@@ -39,4 +39,29 @@ private:
     typedef SkPathEffect INHERITED;
 };
 
+class SkAlignedDashImpl : public SkPathEffect {
+public:
+    SkAlignedDashImpl(const SkScalar intervals[], int count);
+
+protected:
+    ~SkAlignedDashImpl() override;
+
+    void flatten(SkWriteBuffer&) const override;
+
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
+
+    DashType onAsADash(DashInfo* info) const override;
+
+private:
+    SK_FLATTENABLE_HOOKS(SkAlignedDashImpl)
+
+    SkScalar*   fIntervals;
+    int32_t     fCount;
+    SkScalar    fInitialDashLength;
+    int32_t     fInitialDashIndex;
+    SkScalar    fIntervalLength;
+
+    typedef SkPathEffect INHERITED;
+};
+
 #endif

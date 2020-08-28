@@ -130,16 +130,23 @@ public:
         kDash_DashType, //!< fills in all of the info parameter
     };
 
+    enum DashAlignment {
+        kNone_DashAlignment,       //!< No adjustments made to intervals.
+        kPathVerbs_DashAlignment,  //!< Adjustments are made to interval values to align
+                                   //   dashes to path verbs.
+    };
+
     struct DashInfo {
-        DashInfo() : fIntervals(nullptr), fCount(0), fPhase(0) {}
-        DashInfo(SkScalar* intervals, int32_t count, SkScalar phase)
-            : fIntervals(intervals), fCount(count), fPhase(phase) {}
+        DashInfo() : fIntervals(nullptr), fCount(0), fPhase(0), fAlignment(kNone_DashAlignment) {}
+        DashInfo(SkScalar* intervals, int32_t count, SkScalar phase, DashAlignment alignment)
+            : fIntervals(intervals), fCount(count), fPhase(phase), fAlignment(alignment) {}
 
         SkScalar*   fIntervals;         //!< Length of on/off intervals for dashed lines
                                         //   Even values represent ons, and odds offs
         int32_t     fCount;             //!< Number of intervals in the dash. Should be even number
         SkScalar    fPhase;             //!< Offset into the dashed interval pattern
                                         //   mod the sum of all intervals
+        DashAlignment fAlignment;       //!< Kind of alignment adjustment made to intervals
     };
 
     DashType asADash(DashInfo* info) const;

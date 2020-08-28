@@ -1293,6 +1293,7 @@ static_library("pathkit") {
     "src/core/SkStrokerPriv.cpp",
     "src/core/SkThreadID.cpp",
     "src/core/SkUtils.cpp",
+    "src/effects/SkAlignedDashPathEffect.cpp",
     "src/effects/SkDashPathEffect.cpp",
     "src/effects/SkTrimPathEffect.cpp",
     "src/ports/SkDebug_stdio.cpp",

@@ -42,7 +42,8 @@ SkDashImpl::~SkDashImpl() {
 bool SkDashImpl::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                               const SkRect* cullRect) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals, fCount,
-                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength,
+                                      SkPathEffect::kNone_DashAlignment);
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
@@ -363,6 +364,7 @@ SkPathEffect::DashType SkDashImpl::onAsADash(DashInfo* info) const {
         }
         info->fCount = fCount;
         info->fPhase = fPhase;
+        info->fAlignment = SkPathEffect::kNone_DashAlignment;
     }
     return kDash_DashType;
 }
