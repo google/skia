@@ -16,6 +16,24 @@
       "revId": "6882bd8f2143f944aab0f9ef72161b29d7a2140c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a28d663_0eaac5f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T14:00:18Z",
+      "side": 1,
+      "message": "I wrote this originally, but now mostly use a kdevelop plugin for gn I wrote (which is really fast, like can load up the Chromium project in about half a second). There are a few other people on our team who use it (mostly with CLion) and we do test that Skia builds with it.\n\nNote that Chromium has a copy of this that I think they use with gradle somehow [0] and they also did something very similar [1]. I think what they did there is a bit better since that caches the results directly instead of trying to figure out how to reduce the calculation. Also, I suspect the code here at PS1 is dropping (transitive) dependencies since it is just skipping things and not additionally adding cached results to object_dependencies. Of course their change only applies to objects, but this could also be done to libraries.\n\n[0] https://source.chromium.org/chromium/chromium/src/+/master:build/android/gradle/gn_to_cmake.py\n[1] https://codereview.chromium.org/2866863003/diff/1/build/android/gradle/gn_to_cmake.py",
+      "parentUuid": "1b84fff3_17317709",
+      "revId": "6882bd8f2143f944aab0f9ef72161b29d7a2140c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
