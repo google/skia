@@ -9,7 +9,7 @@
 #define SkSwizzler_opts_DEFINED
 
 #include "include/private/SkColorData.h"
-
+#include "include/private/SkVx.h"
 #include <utility>
 
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
