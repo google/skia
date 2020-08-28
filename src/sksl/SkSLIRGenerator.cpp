@@ -2030,12 +2030,14 @@ static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
 std::unique_ptr<Statement> IRGenerator::inlineStatement(
         int offset,
         std::unordered_map<const Variable*, const Variable*>* varMap,
+        SymbolTable* symbolTableForStatement,
         const Variable* returnVar,
         bool haveEarlyReturns,
         const Statement& statement) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
-            return this->inlineStatement(offset, varMap, returnVar, haveEarlyReturns, *s);
+            return this->inlineStatement(offset, varMap, symbolTableForStatement, returnVar,
+                                         haveEarlyReturns, *s);
         }
         return nullptr;
     };
@@ -2135,9 +2137,9 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
             // need to copy the var name in case the originating function is discarded and we lose
             // its symbols
             std::unique_ptr<String> name(new String(old->fName));
-            const String* namePtr = fSymbolTable->takeOwnershipOfString(std::move(name));
-            const Type* typePtr = copy_if_needed(&old->fType, *fSymbolTable);
-            const Variable* clone = fSymbolTable->takeOwnershipOfSymbol(
+            const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
+            const Type* typePtr = copy_if_needed(&old->fType, *symbolTableForStatement);
+            const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
                                                old->fModifiers,
                                                namePtr->c_str(),
@@ -2154,7 +2156,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
             for (const auto& var : decls.fVars) {
                 vars.emplace_back(&stmt(var).release()->as<VarDeclaration>());
             }
-            const Type* typePtr = copy_if_needed(&decls.fBaseType, *fSymbolTable);
+            const Type* typePtr = copy_if_needed(&decls.fBaseType, *symbolTableForStatement);
             return std::unique_ptr<Statement>(new VarDeclarationsStatement(
                     std::make_unique<VarDeclarations>(offset, typePtr, std::move(vars))));
         }
@@ -2277,10 +2279,8 @@ static bool has_early_return(const FunctionDefinition& funcDef) {
     return returnCount > returnsAtEndOfControlFlow;
 }
 
-std::unique_ptr<Expression> IRGenerator::inlineCall(
-                                               int offset,
-                                               const FunctionDefinition& function,
-                                               std::vector<std::unique_ptr<Expression>> arguments) {
+std::unique_ptr<Expression> IRGenerator::inlineCall(std::unique_ptr<FunctionCall> call,
+                                                    SymbolTable* symbolTableForCall) {
     // Inlining is more complicated here than in a typical compiler, because we have to have a
     // high-level IR and can't just drop statements into the middle of an expression or even use
     // gotos.
@@ -2290,6 +2290,12 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     // order guarantees. Since we can't use gotos (which are normally used to replace return
     // statements), we wrap the whole function in a loop and use break statements to jump to the
     // end.
+    SkASSERT(call);
+    SkASSERT(this->isSafeToInline(*call, /*inlineThreshold=*/INT_MAX));
+
+    int offset = call->fOffset;
+    std::vector<std::unique_ptr<Expression>>& arguments = call->fArguments;
+    const FunctionDefinition& function = *call->fFunction.fDefinition;
 
     // Use unique variable names based on the function signature. Otherwise there are situations in
     // which an inlined function is later inlined into another function, and we end up with
@@ -2307,13 +2313,14 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     auto makeInlineVar = [&](const String& name, const Type& type, Modifiers modifiers,
                              std::unique_ptr<Expression>* initialValue) -> const Variable* {
         // Add our new variable's name to the symbol table.
-        const String* namePtr = fSymbolTable->takeOwnershipOfString(std::make_unique<String>(name));
+        const String* namePtr =
+                symbolTableForCall->takeOwnershipOfString(std::make_unique<String>(name));
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
         // Add our new variable to the symbol table.
         auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
                                                  Variable::kLocal_Storage, initialValue->get());
-        const Variable* variableSymbol = fSymbolTable->add(nameFrag, std::move(newVar));
+        const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
         // initial value).
@@ -2372,8 +2379,8 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
     auto inlineBlock = std::make_unique<Block>(offset, std::vector<std::unique_ptr<Statement>>{});
     inlineBlock->fStatements.reserve(body.fStatements.size());
     for (const std::unique_ptr<Statement>& stmt : body.fStatements) {
-        inlineBlock->fStatements.push_back(this->inlineStatement(offset, &varMap, resultVar,
-                                                                 hasEarlyReturn, *stmt));
+        inlineBlock->fStatements.push_back(this->inlineStatement(
+                offset, &varMap, symbolTableForCall, resultVar, hasEarlyReturn, *stmt));
     }
     if (hasEarlyReturn) {
         // Since we output to backends that don't have a goto statement (which would normally be
@@ -2433,15 +2440,22 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
     }
 }
 
-bool IRGenerator::isSafeToInline(const FunctionDefinition& functionDef) {
+bool IRGenerator::isSafeToInline(const FunctionCall& functionCall, int inlineThreshold) {
     if (!fCanInline) {
         // Inlining has been explicitly disabled by the IR generator.
         return false;
     }
-    if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
-        Analysis::NodeCount(functionDef) >= fSettings->fInlineThreshold) {
-        // The function exceeds our maximum inline size and is not flagged 'inline'.
+    if (functionCall.fFunction.fDefinition == nullptr) {
+        // Can't inline something if we don't actually have its definition.
         return false;
+    }
+    const FunctionDefinition& functionDef = *functionCall.fFunction.fDefinition;
+    if (inlineThreshold < INT_MAX) {
+        if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
+            Analysis::NodeCount(functionDef) >= inlineThreshold) {
+            // The function exceeds our maximum inline size and is not flagged 'inline'.
+            return false;
+        }
     }
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
@@ -2515,11 +2529,14 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                              VariableReference::kPointer_RefKind);
         }
     }
-    if (function.fDefinition && this->isSafeToInline(*function.fDefinition)) {
-        return this->inlineCall(offset, *function.fDefinition, std::move(arguments));
+
+    auto funcCall = std::make_unique<FunctionCall>(offset, *returnType, function,
+                                                   std::move(arguments));
+    if (this->isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
+        return this->inlineCall(std::move(funcCall), fSymbolTable.get());
     }
 
-    return std::make_unique<FunctionCall>(offset, *returnType, function, std::move(arguments));
+    return std::move(funcCall);
 }
 
 /**
