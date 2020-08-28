@@ -31,6 +31,8 @@
 #include <utility>
 #include <vector>
 
+#if 0
+
 static void set_radii(SkVector radii[4], int index, float rad) {
     sk_bzero(radii, sizeof(SkVector) * 4);
     radii[index].set(rad, rad);
@@ -1313,11 +1315,11 @@ static void test_close(skiatest::Reporter* reporter) {
 }
 
 static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
-                            SkPathConvexityType expected) {
+                            bool expectedConvexity) {
     // We make a copy so that we don't cache the result on the passed in path.
     SkPath copy(path);  // NOLINT(performance-unnecessary-copy-initialization)
-    SkPathConvexityType c = copy.getConvexityType();
-    REPORTER_ASSERT(reporter, c == expected);
+    bool convexity = copy.isConvex();
+    REPORTER_ASSERT(reporter, convexity == expectedConvexity);
 
     // test points-by-array interface
     SkPath::Iter iter(path, true);
@@ -1332,7 +1334,7 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
         (void) path.getPoints(&points.front(), points.size());
         int skip = initialMoves - 1;
         bool isConvex = SkPathPriv::IsConvex(&points.front() + skip, points.size() - skip);
-        REPORTER_ASSERT(reporter, isConvex == (SkPathConvexityType::kConvex == expected));
+        REPORTER_ASSERT(reporter, isConvex == expectedConvexity);
     }
 }
 
@@ -1343,7 +1345,7 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     tinyConvexPolygon.lineTo(600.148962f, 800.142338f);
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
-    tinyConvexPolygon.getConvexityType();
+    tinyConvexPolygon.isConvex();
     // This is convex, but so small that it fails many of our checks, and the three "backwards"
     // bends convince the checker that it's concave. That's okay though, we draw it correctly.
     check_convexity(reporter, tinyConvexPolygon, SkPathConvexityType::kConcave);
@@ -1354,7 +1356,7 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     platTriangle.lineTo(200, 0);
     platTriangle.lineTo(100, 0.04f);
     platTriangle.close();
-    platTriangle.getConvexityType();
+    platTriangle.isConvex();
     check_direction(reporter, platTriangle, SkPathPriv::kCW_FirstDirection);
 
     platTriangle.reset();
@@ -1362,7 +1364,7 @@ static void test_path_crbug389050(skiatest::Reporter* reporter) {
     platTriangle.lineTo(200, 0);
     platTriangle.lineTo(100, 0.03f);
     platTriangle.close();
-    platTriangle.getConvexityType();
+    platTriangle.isConvex();
     check_direction(reporter, platTriangle, SkPathPriv::kCW_FirstDirection);
 }
 
@@ -1370,14 +1372,14 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     SkPath pt;
     pt.moveTo(0, 0);
     pt.close();
-    check_convexity(reporter, pt, SkPathConvexityType::kConvex);
+    check_convexity(reporter, pt, true);
     check_direction(reporter, pt, SkPathPriv::kUnknown_FirstDirection);
 
     SkPath line;
     line.moveTo(12*SK_Scalar1, 20*SK_Scalar1);
     line.lineTo(-12*SK_Scalar1, -20*SK_Scalar1);
     line.close();
-    check_convexity(reporter, line, SkPathConvexityType::kConvex);
+    check_convexity(reporter, line, true);
     check_direction(reporter, line, SkPathPriv::kUnknown_FirstDirection);
 
     SkPath triLeft;
@@ -1385,7 +1387,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     triLeft.lineTo(SK_Scalar1, 0);
     triLeft.lineTo(SK_Scalar1, SK_Scalar1);
     triLeft.close();
-    check_convexity(reporter, triLeft, SkPathConvexityType::kConvex);
+    check_convexity(reporter, triLeft, true);
     check_direction(reporter, triLeft, SkPathPriv::kCW_FirstDirection);
 
     SkPath triRight;
@@ -1393,7 +1395,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     triRight.lineTo(-SK_Scalar1, 0);
     triRight.lineTo(SK_Scalar1, SK_Scalar1);
     triRight.close();
-    check_convexity(reporter, triRight, SkPathConvexityType::kConvex);
+    check_convexity(reporter, triRight, true);
     check_direction(reporter, triRight, SkPathPriv::kCCW_FirstDirection);
 
     SkPath square;
@@ -1402,7 +1404,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     square.lineTo(SK_Scalar1, SK_Scalar1);
     square.lineTo(0, SK_Scalar1);
     square.close();
-    check_convexity(reporter, square, SkPathConvexityType::kConvex);
+    check_convexity(reporter, square, true);
     check_direction(reporter, square, SkPathPriv::kCW_FirstDirection);
 
     SkPath redundantSquare;
@@ -1419,7 +1421,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     redundantSquare.lineTo(0, SK_Scalar1);
     redundantSquare.lineTo(0, SK_Scalar1);
     redundantSquare.close();
-    check_convexity(reporter, redundantSquare, SkPathConvexityType::kConvex);
+    check_convexity(reporter, redundantSquare, true);
     check_direction(reporter, redundantSquare, SkPathPriv::kCW_FirstDirection);
 
     SkPath bowTie;
@@ -1436,7 +1438,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     bowTie.lineTo(0, SK_Scalar1);
     bowTie.lineTo(0, SK_Scalar1);
     bowTie.close();
-    check_convexity(reporter, bowTie, SkPathConvexityType::kConcave);
+    check_convexity(reporter, bowTie, false);
     check_direction(reporter, bowTie, kDontCheckDir);
 
     SkPath spiral;
@@ -1448,7 +1450,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     spiral.lineTo(50*SK_Scalar1, 50*SK_Scalar1);
     spiral.lineTo(50*SK_Scalar1, 75*SK_Scalar1);
     spiral.close();
-    check_convexity(reporter, spiral, SkPathConvexityType::kConcave);
+    check_convexity(reporter, spiral, false);
     check_direction(reporter, spiral, kDontCheckDir);
 
     SkPath dent;
@@ -1458,7 +1460,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     dent.lineTo(-50*SK_Scalar1, 200*SK_Scalar1);
     dent.lineTo(-200*SK_Scalar1, 100*SK_Scalar1);
     dent.close();
-    check_convexity(reporter, dent, SkPathConvexityType::kConcave);
+    check_convexity(reporter, dent, valse);
     check_direction(reporter, dent, SkPathPriv::kCW_FirstDirection);
 
     // https://bug.skia.org/2235
@@ -1475,7 +1477,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
     stroke.applyToPath(&strokedSin, strokedSin);
-    check_convexity(reporter, strokedSin, SkPathConvexityType::kConcave);
+    check_convexity(reporter, strokedSin, false);
     check_direction(reporter, strokedSin, kDontCheckDir);
 
     // http://crbug.com/412640
@@ -1486,7 +1488,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     degenerateConcave.lineTo(41.446522f, 376.25f);
     degenerateConcave.lineTo(-55.971577f, 460.0f);
     degenerateConcave.lineTo(41.446522f, 376.25f);
-    check_convexity(reporter, degenerateConcave, SkPathConvexityType::kConcave);
+    check_convexity(reporter, degenerateConcave, false);
     check_direction(reporter, degenerateConcave, SkPathPriv::kUnknown_FirstDirection);
 
     // http://crbug.com/433683
@@ -1501,7 +1503,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     badFirstVector.lineTo(504.912292f, 316.389648f);
     badFirstVector.lineTo(501.087708f, 319.610352f);
     badFirstVector.close();
-    check_convexity(reporter, badFirstVector, SkPathConvexityType::kConcave);
+    check_convexity(reporter, badFirstVector, false);
 
     // http://crbug.com/993330
     SkPath falseBackEdge;
@@ -1516,30 +1518,30 @@ static void test_convexity2(skiatest::Reporter* reporter) {
                           -151.46727226799754f,     -419.98027663161537f,
                           -217.83430557928145f,     -382.14948768484857f);
     falseBackEdge.close();
-    check_convexity(reporter, falseBackEdge, SkPathConvexityType::kConcave);
+    check_convexity(reporter, falseBackEdge, false);
 }
 
 static void test_convexity_doubleback(skiatest::Reporter* reporter) {
     SkPath doubleback;
     doubleback.lineTo(1, 1);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
     doubleback.lineTo(2, 2);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
     doubleback.reset();
     doubleback.lineTo(1, 0);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
     doubleback.lineTo(2, 0);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
     doubleback.lineTo(1, 0);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
     doubleback.reset();
     doubleback.quadTo(1, 1, 2, 2);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
     doubleback.reset();
     doubleback.quadTo(1, 0, 2, 0);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
     doubleback.quadTo(1, 0, 0, 0);
-    check_convexity(reporter, doubleback, SkPathConvexityType::kConvex);
+    check_convexity(reporter, doubleback, true);
 }
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
@@ -5663,3 +5665,4 @@ DEF_TEST(pathedger, r) {
 
     test_edger(r, { M, L, L, M, L, L }, { L, L, L,   L, L, L });
 }
+#endif

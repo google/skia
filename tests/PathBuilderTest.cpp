@@ -147,6 +147,7 @@ static bool is_eq(const SkPath& a, const SkPath& b) {
         }
     }
 
+#if 0   // use pathpriv?
     // getConvextity() should be sufficient to test, but internally we sometimes don't want
     // to trigger computing it, so this is the stronger test for equality.
     {
@@ -156,6 +157,7 @@ static bool is_eq(const SkPath& a, const SkPath& b) {
             return false;
         }
     }
+#endif
 
     return true;
 }
