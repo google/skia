@@ -951,7 +951,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                         to_string(fUniformBuffer) + ")]]");
         }
         for (const auto& e : fProgram) {
-            if (ProgramElement::kVar_Kind == e.fKind) {
+            if (IRNode::kGlobalVar_Kind == e.fKind) {
                 const VarDeclarations& decls = e.as<VarDeclarations>();
                 if (!decls.fVars.size()) {
                     continue;
@@ -976,7 +976,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                         this->write(")]]");
                     }
                 }
-            } else if (ProgramElement::kInterfaceBlock_Kind == e.fKind) {
+            } else if (IRNode::kInterfaceBlock_Kind == e.fKind) {
                 InterfaceBlock& intf = (InterfaceBlock&) e;
                 if ("sk_PerVertex" == intf.fTypeName) {
                     continue;
@@ -1391,7 +1391,7 @@ void MetalCodeGenerator::writeHeader() {
 
 void MetalCodeGenerator::writeUniformStruct() {
     for (const auto& e : fProgram) {
-        if (ProgramElement::kVar_Kind == e.fKind) {
+        if (IRNode::kGlobalVar_Kind == e.fKind) {
             const VarDeclarations& decls = e.as<VarDeclarations>();
             if (!decls.fVars.size()) {
                 continue;
@@ -1430,7 +1430,7 @@ void MetalCodeGenerator::writeUniformStruct() {
 void MetalCodeGenerator::writeInputStruct() {
     this->write("struct Inputs {\n");
     for (const auto& e : fProgram) {
-        if (ProgramElement::kVar_Kind == e.fKind) {
+        if (IRNode::kGlobalVar_Kind == e.fKind) {
             const VarDeclarations& decls = e.as<VarDeclarations>();
             if (!decls.fVars.size()) {
                 continue;
@@ -1469,7 +1469,7 @@ void MetalCodeGenerator::writeOutputStruct() {
         this->write("    float4 sk_FragColor [[color(0)]];\n");
     }
     for (const auto& e : fProgram) {
-        if (ProgramElement::kVar_Kind == e.fKind) {
+        if (IRNode::kGlobalVar_Kind == e.fKind) {
             const VarDeclarations& decls = e.as<VarDeclarations>();
             if (!decls.fVars.size()) {
                 continue;
@@ -1509,7 +1509,7 @@ void MetalCodeGenerator::writeOutputStruct() {
 void MetalCodeGenerator::writeInterfaceBlocks() {
     bool wroteInterfaceBlock = false;
     for (const auto& e : fProgram) {
-        if (ProgramElement::kInterfaceBlock_Kind == e.fKind) {
+        if (IRNode::kInterfaceBlock_Kind == e.fKind) {
             this->writeInterfaceBlock(e.as<InterfaceBlock>());
             wroteInterfaceBlock = true;
         }
@@ -1526,8 +1526,8 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
     for (const auto& [interfaceType, interfaceName] : fInterfaceBlockNameMap) {
         visitor->VisitInterfaceBlock(*interfaceType, interfaceName);
     }
-    for (const ProgramElement& element : fProgram) {
-        if (element.fKind != ProgramElement::kVar_Kind) {
+    for (const IRNode& element : fProgram) {
+        if (element.fKind != IRNode::kGlobalVar_Kind) {
             continue;
         }
         const VarDeclarations& decls = static_cast<const VarDeclarations&>(element);
@@ -1657,11 +1657,11 @@ void MetalCodeGenerator::writeGlobalInit() {
     visitor.Finish();
 }
 
-void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
+void MetalCodeGenerator::writeProgramElement(const IRNode& e) {
     switch (e.fKind) {
-        case ProgramElement::kExtension_Kind:
+        case IRNode::kExtension_Kind:
             break;
-        case ProgramElement::kVar_Kind: {
+        case IRNode::kGlobalVar_Kind: {
             const VarDeclarations& decl = e.as<VarDeclarations>();
             if (decl.fVars.size() > 0) {
                 int builtin = decl.fVars[0]->as<VarDeclaration>().fVar->fModifiers.fLayout.fBuiltin;
@@ -1675,13 +1675,13 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
             }
             break;
         }
-        case ProgramElement::kInterfaceBlock_Kind:
+        case IRNode::kInterfaceBlock_Kind:
             // handled in writeInterfaceBlocks, do nothing
             break;
-        case ProgramElement::kFunction_Kind:
+        case IRNode::kFunction_Kind:
             this->writeFunction(e.as<FunctionDefinition>());
             break;
-        case ProgramElement::kModifiers_Kind:
+        case IRNode::kModifiers_Kind:
             this->writeModifiers(e.as<ModifiersDeclaration>().fModifiers, true);
             this->writeLine(";");
             break;
@@ -1840,7 +1840,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
     if (found == fRequirements.end()) {
         fRequirements[&f] = kNo_Requirements;
         for (const auto& e : fProgram) {
-            if (ProgramElement::kFunction_Kind == e.fKind) {
+            if (IRNode::kFunction_Kind == e.fKind) {
                 const FunctionDefinition& def = e.as<FunctionDefinition>();
                 if (&def.fDeclaration == &f) {
                     Requirements reqs = this->requirements(def.fBody.get());

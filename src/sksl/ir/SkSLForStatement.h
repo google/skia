@@ -18,24 +18,26 @@ namespace SkSL {
  * A 'for' statement.
  */
 struct ForStatement : public Statement {
-    static constexpr Kind kStatementKind = kFor_Kind;
+    static constexpr Kind kIRNodeKind = kFor_Kind;
 
     ForStatement(int offset, std::unique_ptr<Statement> initializer,
                  std::unique_ptr<Expression> test, std::unique_ptr<Expression> next,
                  std::unique_ptr<Statement> statement, std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, kStatementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fSymbols(symbols)
     , fInitializer(std::move(initializer))
     , fTest(std::move(test))
     , fNext(std::move(next))
     , fStatement(std::move(statement)) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new ForStatement(fOffset,
-                                                     fInitializer ? fInitializer->clone() : nullptr,
-                                                     fTest ? fTest->clone() : nullptr,
-                                                     fNext ? fNext->clone() : nullptr,
-                                                     fStatement->clone(),
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new ForStatement(
+                                                     fOffset,
+                                                     fInitializer ? fInitializer->cloneStatement()
+                                                                  : nullptr,
+                                                     fTest ? fTest->cloneExpression() : nullptr,
+                                                     fNext ? fNext->cloneExpression() : nullptr,
+                                                     fStatement->cloneStatement(),
                                                      fSymbols));
     }
 

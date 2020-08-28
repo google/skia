@@ -17,19 +17,23 @@ namespace SkSL {
  * An 'if' statement.
  */
 struct IfStatement : public Statement {
-    static constexpr Kind kStatementKind = kIf_Kind;
+    static constexpr Kind kIRNodeKind = kIf_Kind;
 
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-    : INHERITED(offset, kStatementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fIsStatic(isStatic)
     , fTest(std::move(test))
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new IfStatement(fOffset, fIsStatic, fTest->clone(),
-                fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new IfStatement(fOffset,
+                                                       fIsStatic,
+                                                       fTest->cloneExpression(),
+                                                       fIfTrue->cloneStatement(),
+                                                       fIfFalse ? fIfFalse->cloneStatement()
+                                                                : nullptr));
     }
 
     String description() const override {

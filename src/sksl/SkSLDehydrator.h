@@ -45,7 +45,7 @@ public:
 
     void write(const SymbolTable& symbols);
 
-    void write(const std::vector<std::unique_ptr<ProgramElement>>& elements);
+    void write(const std::vector<std::unique_ptr<IRNode>>& elements);
 
     void finish(OutputStream& out);
 
@@ -101,7 +101,7 @@ private:
 
     void write(String s);
 
-    void write(const ProgramElement& e);
+    void write(const IRNode& n);
 
     void write(const Expression* e);
 

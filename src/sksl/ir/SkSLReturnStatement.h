@@ -17,20 +17,20 @@ namespace SkSL {
  * A 'return' statement.
  */
 struct ReturnStatement : public Statement {
-    static constexpr Kind kStatementKind = kReturn_Kind;
+    static constexpr Kind kIRNodeKind = kReturn_Kind;
 
     ReturnStatement(int offset)
-    : INHERITED(offset, kStatementKind) {}
+    : INHERITED(offset, kIRNodeKind) {}
 
     ReturnStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fOffset, kStatementKind)
+    : INHERITED(expression->fOffset, kIRNodeKind)
     , fExpression(std::move(expression)) {}
 
-    std::unique_ptr<Statement> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         if (fExpression) {
-            return std::unique_ptr<Statement>(new ReturnStatement(fExpression->clone()));
+            return std::unique_ptr<IRNode>(new ReturnStatement(fExpression->cloneExpression()));
         }
-        return std::unique_ptr<Statement>(new ReturnStatement(fOffset));
+        return std::unique_ptr<IRNode>(new ReturnStatement(fOffset));
     }
 
     String description() const override {

@@ -17,13 +17,13 @@ namespace SkSL {
  * A 'continue' statement.
  */
 struct ContinueStatement : public Statement {
-    static constexpr Kind kStatementKind = kContinue_Kind;
+    static constexpr Kind kIRNodeKind = kContinue_Kind;
 
     ContinueStatement(int offset)
-    : INHERITED(offset, kStatementKind) {}
+    : INHERITED(offset, kIRNodeKind) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new ContinueStatement(fOffset));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new ContinueStatement(fOffset));
     }
 
     String description() const override {

@@ -42,7 +42,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         int index = 0;
         bool found = false;
         for (const auto& p : fProgram) {
-            if (ProgramElement::kVar_Kind == p.fKind) {
+            if (IRNode::kGlobalVar_Kind == p.fKind) {
                 const VarDeclarations& decls = p.as<VarDeclarations>();
                 for (const std::unique_ptr<Statement>& raw : decls.fVars) {
                     VarDeclaration& decl = raw->as<VarDeclaration>();
@@ -80,8 +80,8 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         INHERITED::writeFunctionCall(c);
     } else {
         int index = 0;
-        for (const ProgramElement& e : fProgram) {
-            if (e.fKind == ProgramElement::kFunction_Kind) {
+        for (const IRNode& e : fProgram) {
+            if (e.fKind == IRNode::kFunction_Kind) {
                 if (&e.as<FunctionDefinition>().fDeclaration == &c.fFunction) {
                     break;
                 }
@@ -120,11 +120,11 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             auto varIndexByFlag = [this, &ref](uint32_t flag) {
                 int index = 0;
                 bool found = false;
-                for (const ProgramElement& e : fProgram) {
+                for (const IRNode& e : fProgram) {
                     if (found) {
                         break;
                     }
-                    if (e.fKind == ProgramElement::Kind::kVar_Kind) {
+                    if (e.fKind == IRNode::Kind::kGlobalVar_Kind) {
                         const VarDeclarations& decls = e.as<VarDeclarations>();
                         for (const auto& decl : decls.fVars) {
                             const Variable& var = *decl->as<VarDeclaration>().fVar;
@@ -211,11 +211,11 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     }
 }
 
-void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
-    if (p.fKind == ProgramElement::kSection_Kind) {
+void PipelineStageCodeGenerator::writeProgramElement(const IRNode& p) {
+    if (p.fKind == IRNode::kSection_Kind) {
         return;
     }
-    if (p.fKind == ProgramElement::kVar_Kind) {
+    if (p.fKind == IRNode::kGlobalVar_Kind) {
         const VarDeclarations& decls = p.as<VarDeclarations>();
         if (!decls.fVars.size()) {
             return;

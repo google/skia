@@ -158,7 +158,7 @@ int main(int argc, const char** argv) {
             exit(4);
         }
         std::shared_ptr<SkSL::SymbolTable> symbols;
-        std::vector<std::unique_ptr<SkSL::ProgramElement>> elements;
+        std::vector<std::unique_ptr<SkSL::IRNode>> elements;
         compiler.processIncludeFile(kind, argv[1], nullptr, &elements, &symbols);
         SkSL::Dehydrator dehydrator;
         for (int i = symbols->fParent->fOwnedSymbols.size() - 1; i >= 0; --i) {

@@ -160,7 +160,7 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
 }
 
 void IRGenerator::start(const Program::Settings* settings,
-                        std::vector<std::unique_ptr<ProgramElement>>* inherited,
+                        std::vector<std::unique_ptr<IRNode>>* inherited,
                         bool isBuiltinCode) {
     fSettings = settings;
     fInherited = inherited;
@@ -181,7 +181,7 @@ void IRGenerator::start(const Program::Settings* settings,
     fInlineVarCounter = 0;
     if (inherited) {
         for (const auto& e : *inherited) {
-            if (e->fKind == ProgramElement::kInterfaceBlock_Kind) {
+            if (e->fKind == IRNode::kInterfaceBlock_Kind) {
                 InterfaceBlock& intf = e->as<InterfaceBlock>();
                 if (intf.fVariable.fName == Compiler::PERVERTEX_NAME) {
                     SkASSERT(!fSkPerVertex);
@@ -1216,7 +1216,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                                                      Variable::kGlobal_Storage, value.get()));
         fSymbolTable->takeOwnershipOfIRNode(std::move(value));
     }
-    fProgramElements->push_back(std::unique_ptr<ProgramElement>(
+    fProgramElements->push_back(std::unique_ptr<IRNode>(
             new Enum(e.fOffset, e.getString(), fSymbolTable, fIsBuiltinCode)));
 }
 
@@ -1619,18 +1619,18 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Context& context,
     bool leftVal = left.as<BoolLiteral>().fValue;
     if (op == Token::Kind::TK_LOGICALAND) {
         // (true && expr) -> (expr) and (false && expr) -> (false)
-        return leftVal ? right.clone()
+        return leftVal ? right.cloneExpression()
                        : std::unique_ptr<Expression>(new BoolLiteral(context, left.fOffset, false));
     } else if (op == Token::Kind::TK_LOGICALOR) {
         // (true || expr) -> (true) and (false || expr) -> (expr)
         return leftVal ? std::unique_ptr<Expression>(new BoolLiteral(context, left.fOffset, true))
-                       : right.clone();
+                       : right.cloneExpression();
     } else if (op == Token::Kind::TK_LOGICALXOR) {
         // (true ^^ expr) -> !(expr) and (false ^^ expr) -> (expr)
         return leftVal ? std::unique_ptr<Expression>(new PrefixExpression(
                                                                          Token::Kind::TK_LOGICALNOT,
-                                                                         right.clone()))
-                       : right.clone();
+                                                                         right.cloneExpression()))
+                       : right.cloneExpression();
     } else {
         return nullptr;
     }
@@ -1943,7 +1943,7 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
         case Expression::kIntLiteral_Kind:
         case Expression::kFloatLiteral_Kind:
         case Expression::kNullLiteral_Kind:
-            return expression.clone();
+            return expression.cloneExpression();
         case Expression::kConstructor_Kind: {
             const Constructor& c = expression.as<Constructor>();
             std::vector<std::unique_ptr<Expression>> args;
@@ -1963,7 +1963,7 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
                                                                         std::move(args)));
         }
         case Expression::kExternalValue_Kind:
-            return expression.clone();
+            return expression.cloneExpression();
         case Expression::kFieldAccess_Kind: {
             const FieldAccess& f = expression.as<FieldAccess>();
             return std::unique_ptr<Expression>(new FieldAccess(expr(f.fBase), f.fFieldIndex,
@@ -1993,7 +1993,7 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
                                                                      p.fOperator));
         }
         case Expression::kSetting_Kind:
-            return expression.clone();
+            return expression.cloneExpression();
         case Expression::kSwizzle_Kind: {
             const Swizzle& s = expression.as<Swizzle>();
             return std::unique_ptr<Expression>(new Swizzle(fContext, expr(s.fBase), s.fComponents));
@@ -2012,7 +2012,7 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
                                                                          *found->second,
                                                                          v.fRefKind));
             }
-            return v.clone();
+            return v.cloneExpression();
         }
         default:
             SkASSERT(false);
@@ -2061,7 +2061,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
         case Statement::kBreak_Kind:
         case Statement::kContinue_Kind:
         case Statement::kDiscard_Kind:
-            return statement.clone();
+            return statement.cloneStatement();
 
         case Statement::kDo_Kind: {
             const DoStatement& d = statement.as<DoStatement>();
@@ -2085,7 +2085,7 @@ std::unique_ptr<Statement> IRGenerator::inlineStatement(
                                                  stmt(i.fIfTrue), stmt(i.fIfFalse));
         }
         case Statement::kNop_Kind:
-            return statement.clone();
+            return statement.cloneStatement();
         case Statement::kReturn_Kind: {
             const ReturnStatement& r = statement.as<ReturnStatement>();
             if (r.fExpression) {
@@ -2321,7 +2321,7 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
         if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
             variables.push_back(std::make_unique<VarDeclaration>(
                     variableSymbol, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
-                    (*initialValue)->clone()));
+                    (*initialValue)->cloneExpression()));
         } else {
             variables.push_back(std::make_unique<VarDeclaration>(
                     variableSymbol, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
@@ -2404,7 +2404,7 @@ std::unique_ptr<Expression> IRGenerator::inlineCall(
             auto varRef = std::make_unique<VariableReference>(offset, *varMap[p]);
             fExtraStatements.push_back(std::make_unique<ExpressionStatement>(
                     std::make_unique<BinaryExpression>(offset,
-                                                       arguments[i]->clone(),
+                                                       arguments[i]->cloneExpression(),
                                                        Token::Kind::TK_EQ,
                                                        std::move(varRef),
                                                        arguments[i]->fType)));
@@ -3015,7 +3015,7 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         for (size_t i = 0; i < swizzleComponents.size(); ++i) {
             switch (swizzleComponents[i]) {
                 case 0: {
-                    args.push_back(expr->clone());
+                    args.push_back(expr->cloneExpression());
                     int count = 1;
                     while (i + 1 < swizzleComponents.size() && swizzleComponents[i + 1] == 0) {
                         ++i;
@@ -3062,12 +3062,12 @@ std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
 }
 
 std::unique_ptr<Expression> IRGenerator::findEnumRef(
-                                           int offset,
-                                           const Type& type,
-                                           StringFragment field,
-                                           std::vector<std::unique_ptr<ProgramElement>>& elements) {
+                                                   int offset,
+                                                   const Type& type,
+                                                   StringFragment field,
+                                                   std::vector<std::unique_ptr<IRNode>>& elements) {
     for (const auto& e : elements) {
-        if (e->fKind == ProgramElement::kEnum_Kind && type.name() == e->as<Enum>().fTypeName) {
+        if (e->fKind == IRNode::kEnum_Kind && type.name() == e->as<Enum>().fTypeName) {
             std::shared_ptr<SymbolTable> old = fSymbolTable;
             fSymbolTable = e->as<Enum>().fSymbols;
             std::unique_ptr<Expression> result = convertIdentifier(ASTNode(&fFile->fNodes, offset,
@@ -3261,7 +3261,7 @@ bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) 
 void IRGenerator::convertProgram(Program::Kind kind,
                                  const char* text,
                                  size_t length,
-                                 std::vector<std::unique_ptr<ProgramElement>>* out) {
+                                 std::vector<std::unique_ptr<IRNode>>* out) {
     fKind = kind;
     fProgramElements = out;
     Parser parser(text, length, *fSymbolTable, fErrors);

@@ -47,11 +47,11 @@ static inline bool check_ref(Expression* expr) {
  * A binary operation.
  */
 struct BinaryExpression : public Expression {
-    static constexpr Kind kExpressionKind = kBinary_Kind;
+    static constexpr Kind kIRNodeKind = kBinary_Kind;
 
     BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
                      std::unique_ptr<Expression> right, const Type& type)
-    : INHERITED(offset, kExpressionKind, type)
+    : INHERITED(offset, kIRNodeKind, type)
     , fLeft(std::move(left))
     , fOperator(op)
     , fRight(std::move(right)) {
@@ -77,9 +77,10 @@ struct BinaryExpression : public Expression {
         return fLeft->hasProperty(property) || fRight->hasProperty(property);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
-                                                                fRight->clone(), fType));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new BinaryExpression(fOffset, fLeft->cloneExpression(),
+                                                            fOperator, fRight->cloneExpression(),
+                                                            fType));
     }
 
     String description() const override {

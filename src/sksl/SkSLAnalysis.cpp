@@ -10,7 +10,6 @@
 #include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
 
 // ProgramElements
@@ -162,7 +161,7 @@ public:
         return this->INHERITED::visitExpression(e);
     }
 
-    bool visitProgramElement(const ProgramElement& p) override {
+    bool visitProgramElement(const IRNode& p) override {
         ++fCount;
         return this->INHERITED::visitProgramElement(p);
     }
@@ -240,7 +239,7 @@ bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& 
 // ProgramVisitor
 
 bool ProgramVisitor::visit(const Program& program) {
-    for (const ProgramElement& pe : program) {
+    for (const IRNode& pe : program) {
         if (this->visitProgramElement(pe)) {
             return true;
         }
@@ -361,22 +360,22 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
     }
 }
 
-bool ProgramVisitor::visitProgramElement(const ProgramElement& pe) {
+bool ProgramVisitor::visitProgramElement(const IRNode& pe) {
     switch(pe.fKind) {
-        case ProgramElement::kEnum_Kind:
-        case ProgramElement::kExtension_Kind:
-        case ProgramElement::kModifiers_Kind:
-        case ProgramElement::kSection_Kind:
+        case IRNode::kEnum_Kind:
+        case IRNode::kExtension_Kind:
+        case IRNode::kModifiers_Kind:
+        case IRNode::kSection_Kind:
             // Leaf program elements just return false by default
             return false;
-        case ProgramElement::kFunction_Kind:
+        case IRNode::kFunction_Kind:
             return this->visitStatement(*pe.as<FunctionDefinition>().fBody);
-        case ProgramElement::kInterfaceBlock_Kind:
+        case IRNode::kInterfaceBlock_Kind:
             for (const auto& e : pe.as<InterfaceBlock>().fSizes) {
                 if (this->visitExpression(*e)) { return true; }
             }
             return false;
-        case ProgramElement::kVar_Kind:
+        case IRNode::kGlobalVar_Kind:
             for (const auto& v : pe.as<VarDeclarations>().fVars) {
                 if (this->visitStatement(*v)) { return true; }
             }

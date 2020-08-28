@@ -421,6 +421,11 @@ public:
      */
     const Type& toCompound(const Context& context, int columns, int rows) const;
 
+    std::unique_ptr<IRNode> clone() const override {
+        SkASSERT(false);
+        return nullptr;
+    }
+
 private:
     typedef Symbol INHERITED;
 

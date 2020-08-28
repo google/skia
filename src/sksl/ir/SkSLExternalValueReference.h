@@ -17,10 +17,10 @@ namespace SkSL {
  * Represents an identifier referring to an ExternalValue.
  */
 struct ExternalValueReference : public Expression {
-    static constexpr Kind kExpressionKind = kExternalValue_Kind;
+    static constexpr Kind kIRNodeKind = kExternalValue_Kind;
 
     ExternalValueReference(int offset, const ExternalValue* ev)
-    : INHERITED(offset, kExpressionKind, ev->type())
+    : INHERITED(offset, kIRNodeKind, ev->type())
     , fValue(ev) {}
 
     bool hasProperty(Property property) const override {
@@ -31,8 +31,8 @@ struct ExternalValueReference : public Expression {
         return String(fValue->fName);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new ExternalValueReference(fOffset, fValue));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new ExternalValueReference(fOffset, fValue));
     }
 
     const ExternalValue* fValue;

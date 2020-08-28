@@ -155,7 +155,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     // Go through program elements, pulling out information that we need
     for (const auto& elem : *program) {
         // Variables (uniform, varying, etc.)
-        if (elem.fKind == SkSL::ProgramElement::kVar_Kind) {
+        if (elem.fKind == SkSL::IRNode::kGlobalVar_Kind) {
             const auto& varDecls = static_cast<const SkSL::VarDeclarations&>(elem);
             for (const auto& varDecl : varDecls.fVars) {
                 const SkSL::Variable& var =
@@ -213,7 +213,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             }
         }
         // Functions
-        else if (elem.fKind == SkSL::ProgramElement::kFunction_Kind) {
+        else if (elem.fKind == SkSL::IRNode::kFunction_Kind) {
             const auto& func = static_cast<const SkSL::FunctionDefinition&>(elem);
             const SkSL::FunctionDeclaration& decl = func.fDeclaration;
             if (decl.fName == "main") {

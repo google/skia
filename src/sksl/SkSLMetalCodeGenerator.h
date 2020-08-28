@@ -33,7 +33,6 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStatement.h"
@@ -248,7 +247,7 @@ protected:
 
     void writeReturnStatement(const ReturnStatement& r);
 
-    void writeProgramElement(const ProgramElement& e);
+    void writeProgramElement(const IRNode& e);
 
     Requirements requirements(const FunctionDeclaration& f);
 

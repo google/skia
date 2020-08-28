@@ -17,10 +17,10 @@ namespace SkSL {
  * One or more variable declarations appearing as a statement within a function.
  */
 struct VarDeclarationsStatement : public Statement {
-    static constexpr Kind kStatementKind = kVarDeclarations_Kind;
+    static constexpr Kind kIRNodeKind = kVarDeclarations_Kind;
 
     VarDeclarationsStatement(std::unique_ptr<VarDeclarations> decl)
-    : INHERITED(decl->fOffset, kStatementKind)
+    : INHERITED(decl->fOffset, kIRNodeKind)
     , fDeclaration(std::move(decl)) {}
 
     bool isEmpty() const override {
@@ -32,9 +32,9 @@ struct VarDeclarationsStatement : public Statement {
         return true;
     }
 
-    std::unique_ptr<Statement> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::unique_ptr<VarDeclarations> cloned((VarDeclarations*) fDeclaration->clone().release());
-        return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(cloned)));
+        return std::unique_ptr<IRNode>(new VarDeclarationsStatement(std::move(cloned)));
     }
 
     String description() const override {

@@ -19,24 +19,25 @@ class SymbolTable;
  * A 'switch' statement.
  */
 struct SwitchStatement : public Statement {
-    static constexpr Kind kStatementKind = kSwitch_Kind;
+    static constexpr Kind kIRNodeKind = kSwitch_Kind;
 
     SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
                     const std::shared_ptr<SymbolTable> symbols)
-    : INHERITED(offset, kStatementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fIsStatic(isStatic)
     , fValue(std::move(value))
     , fSymbols(std::move(symbols))
     , fCases(std::move(cases)) {}
 
-    std::unique_ptr<Statement> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::vector<std::unique_ptr<SwitchCase>> cloned;
         for (const auto& s : fCases) {
             cloned.push_back(std::unique_ptr<SwitchCase>((SwitchCase*) s->clone().release()));
         }
-        return std::unique_ptr<Statement>(new SwitchStatement(fOffset, fIsStatic, fValue->clone(),
-                                                              std::move(cloned), fSymbols));
+        return std::unique_ptr<IRNode>(new SwitchStatement(fOffset, fIsStatic,
+                                                           fValue->cloneExpression(),
+                                                           std::move(cloned), fSymbols));
     }
 
     String description() const override {

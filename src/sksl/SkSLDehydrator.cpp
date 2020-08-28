@@ -31,7 +31,6 @@
 #include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStatement.h"
@@ -495,9 +494,9 @@ void Dehydrator::write(const Statement* s) {
     }
 }
 
-void Dehydrator::write(const ProgramElement& e) {
+void Dehydrator::write(const IRNode& e) {
     switch (e.fKind) {
-        case ProgramElement::kEnum_Kind: {
+        case IRNode::kEnum_Kind: {
             const Enum& en = e.as<Enum>();
             this->writeU8(Rehydrator::kEnum_Command);
             this->write(en.fTypeName);
@@ -511,10 +510,10 @@ void Dehydrator::write(const ProgramElement& e) {
             }
             break;
         }
-        case ProgramElement::kExtension_Kind:
+        case IRNode::kExtension_Kind:
             SkASSERT(false);
             break;
-        case ProgramElement::kFunction_Kind: {
+        case IRNode::kFunction_Kind: {
             const FunctionDefinition& f = e.as<FunctionDefinition>();
             this->writeU8(Rehydrator::kFunctionDefinition_Command);
             this->writeU16(this->symbolId(&f.fDeclaration));
@@ -529,7 +528,7 @@ void Dehydrator::write(const ProgramElement& e) {
             }
             break;
         }
-        case ProgramElement::kInterfaceBlock_Kind: {
+        case IRNode::kInterfaceBlock_Kind: {
             const InterfaceBlock& i = e.as<InterfaceBlock>();
             this->writeU8(Rehydrator::kInterfaceBlock_Command);
             this->write(i.fVariable);
@@ -541,13 +540,13 @@ void Dehydrator::write(const ProgramElement& e) {
             }
             break;
         }
-        case ProgramElement::kModifiers_Kind:
+        case IRNode::kModifiers_Kind:
             SkASSERT(false);
             break;
-        case ProgramElement::kSection_Kind:
+        case IRNode::kSection_Kind:
             SkASSERT(false);
             break;
-        case ProgramElement::kVar_Kind: {
+        case IRNode::kGlobalVar_Kind: {
             const VarDeclarations& v = e.as<VarDeclarations>();
             this->writeU8(Rehydrator::kVarDeclarations_Command);
             this->write(v.fBaseType);
@@ -557,10 +556,12 @@ void Dehydrator::write(const ProgramElement& e) {
             }
             break;
         }
+        default:
+            SkASSERT(false);
     }
 }
 
-void Dehydrator::write(const std::vector<std::unique_ptr<ProgramElement>>& elements) {
+void Dehydrator::write(const std::vector<std::unique_ptr<IRNode>>& elements) {
     this->writeU8(Rehydrator::kElements_Command);
     this->writeU8(elements.size());
     for (const auto& e : elements) {

@@ -8,22 +8,20 @@
 #ifndef SKSL_EXTENSION
 #define SKSL_EXTENSION
 
-#include "src/sksl/ir/SkSLProgramElement.h"
-
 namespace SkSL {
 
 /**
  * An extension declaration.
  */
-struct Extension : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kExtension_Kind;
+struct Extension : public IRNode {
+    static constexpr Kind kIRNodeKind = kExtension_Kind;
 
     Extension(int offset, String name)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fName(std::move(name)) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Extension(fOffset, fName));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new Extension(fOffset, fName));
     }
 
     String description() const override {
@@ -32,7 +30,7 @@ struct Extension : public ProgramElement {
 
     const String fName;
 
-    typedef ProgramElement INHERITED;
+    typedef IRNode INHERITED;
 };
 
 }  // namespace SkSL

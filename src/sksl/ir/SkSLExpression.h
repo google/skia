@@ -24,37 +24,13 @@ typedef std::unordered_map<const Variable*, std::unique_ptr<Expression>*> Defini
  * Abstract supertype of all expressions.
  */
 struct Expression : public IRNode {
-    enum Kind {
-        kBinary_Kind,
-        kBoolLiteral_Kind,
-        kConstructor_Kind,
-        kExternalFunctionCall_Kind,
-        kExternalValue_Kind,
-        kIntLiteral_Kind,
-        kFieldAccess_Kind,
-        kFloatLiteral_Kind,
-        kFunctionReference_Kind,
-        kFunctionCall_Kind,
-        kIndex_Kind,
-        kNullLiteral_Kind,
-        kPrefix_Kind,
-        kPostfix_Kind,
-        kSetting_Kind,
-        kSwizzle_Kind,
-        kTernary_Kind,
-        kTypeReference_Kind,
-        kVariableReference_Kind,
-        kDefined_Kind
-    };
-
     enum class Property {
         kSideEffects,
         kContainsRTAdjust
     };
 
     Expression(int offset, Kind kind, const Type& type)
-    : INHERITED(offset)
-    , fKind(kind)
+    : INHERITED(offset, kind)
     , fType(std::move(type)) {}
 
     /**
@@ -62,13 +38,13 @@ struct Expression : public IRNode {
      */
     template <typename T>
     const T& as() const {
-        SkASSERT(this->fKind == T::kExpressionKind);
+        SkASSERT(this->fKind == T::kIRNodeKind);
         return static_cast<const T&>(*this);
     }
 
     template <typename T>
     T& as() {
-        SkASSERT(this->fKind == T::kExpressionKind);
+        SkASSERT(this->fKind == T::kIRNodeKind);
         return static_cast<T&>(*this);
     }
 
@@ -168,9 +144,6 @@ struct Expression : public IRNode {
         return 0;
     }
 
-    virtual std::unique_ptr<Expression> clone() const = 0;
-
-    const Kind fKind;
     const Type& fType;
 
     typedef IRNode INHERITED;

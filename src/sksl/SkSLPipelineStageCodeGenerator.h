@@ -39,7 +39,7 @@ private:
 
     void writeFunction(const FunctionDefinition& f) override;
 
-    void writeProgramElement(const ProgramElement& p) override;
+    void writeProgramElement(const IRNode& p) override;
 
     PipelineStageArgs* fArgs;
 
