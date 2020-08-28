@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9353a4c_072c45b5",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-28T13:53:14Z",
+      "side": 0,
+      "message": "Let\u0027s just delete these __builtin_assume() parts.... they\u0027re not super important.",
+      "revId": "767f444febd1349bbaf817740fc12636499a8790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

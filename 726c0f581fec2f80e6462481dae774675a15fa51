@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "910cff00_5b6a5503",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-28T13:53:14Z",
+      "side": 1,
+      "message": "I wrote up a bunch of comments, but they mostly boiled down to questions I had around the deficiencies of GCC\u0027s vector extensions compared to Clang\u0027s.  So instead of hitting them one by one, let me see if I can propose a way to moot all of them.  I bet we could polyfill Clang\u0027s vector extensions into GCC if we define some new vector types using a combination of GCC\u0027s extensions and ordinary C++ to make the rest of Clang\u0027s conveniences work?  Then hopefully the rest of the code will mostly work unchanged?  If we get it right we should be able to use the polyfill with Clang too, which will make it easier for us to keep this code covered by continuous integration, where we run little to no GCC bots.\n\nSomething like...\n\n// Generically,\ntemplate \u003ctypename T, int N\u003e\nstruct Polyfill {\n   using Vec \u003d T __attribute__((vector_size(sizeof(T)*N)));\n\n   Vec v;\n\n   PolyFill() \u003d default;\n\n   // Auto-broadcast from scalar.\n   /*implicit*/ Polyfill(T x) : v(Vec() + x) {}\n\n   // Initialize using braces, Polyfill\u003c...\u003e foo \u003d { 0,1,2,3, ...}.\n   /*implicit*/ Polyfill(std::initializer_list\u003cT\u003e vals) {\n       memcpy(\u0026v, vals.begin(), sizeof(T)*vals.size());\n   }\n\n   // Auto-bit-pun from same-sized types.\n   template \u003ctypename U\u003e\n   /*implicit*/ Polyfill(U x) : v(sk_bit_cast\u003cVec\u003e(x)) {}\n\n   // Auto-bit-pun to same-sized types.\n   template \u003ctypename U\u003e\n   /*implicit*/ operator U() const { return sk_bit_cast\u003cU\u003e(v); }\n\n   // Forward lane access to v.\n   T  operator[](int k) const { return v[k]; }\n   T\u0026 operator[](int k)       { return v[k]; }\n\n   ... other operators and casts as needed ...\n};\n\n// For AVX2 code,\ntemplate \u003ctypename T\u003e using V \u003d Polyfill\u003cT,8\u003e;",
+      "revId": "726c0f581fec2f80e6462481dae774675a15fa51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c997a10_28292356",
+        "filename": "src/opts/SkRasterPipeline_opts.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 945,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-28T13:53:14Z",
+      "side": 1,
+      "message": "Doesn\u0027t GCC support __builtin_convertvector() now?",
+      "revId": "726c0f581fec2f80e6462481dae774675a15fa51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
