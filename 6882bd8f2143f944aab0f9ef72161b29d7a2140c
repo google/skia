@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b84fff3_17317709",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13821
+      },
+      "writtenOn": "2020-08-28T04:17:13Z",
+      "side": 1,
+      "message": "Hi there,\nI\u0027m from the wearable firmware team and currently using gn_to_cmake.py to facilitate my own work. I don\u0027t know where is the actual upstream of this script but it seems skia is actively maintaining it, so I decided to submit my change here. \nThis change should speed up the generation a lot (in our project from 10 minutes to 2 seconds) and it seems working in our project. ",
+      "revId": "6882bd8f2143f944aab0f9ef72161b29d7a2140c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
