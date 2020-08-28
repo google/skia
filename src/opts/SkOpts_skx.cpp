@@ -8,13 +8,11 @@
 #include "src/core/SkOpts.h"
 
 #define SK_OPTS_NS skx
-#include "src/opts/SkBlitRow_opts.h"
 #include "src/opts/SkSwizzler_opts.h"
 #include "src/opts/SkVM_opts.h"
 
 namespace SkOpts {
     void Init_skx() {
-        blit_row_s32a_opaque = SK_OPTS_NS::blit_row_s32a_opaque;
         interpret_skvm = SK_OPTS_NS::interpret_skvm;
         RGBA_to_BGRA          = SK_OPTS_NS::RGBA_to_BGRA;
         RGBA_to_rgbA          = SK_OPTS_NS::RGBA_to_rgbA;
