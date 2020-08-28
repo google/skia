@@ -203,7 +203,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Picture_approximateOpCount
     */
-    virtual int approximateOpCount(bool nested = false) const = 0;
+    virtual int approximateOpCount(bool nested = true) const = 0;
 
     /** Returns the approximate byte size of SkPicture. Does not include large objects
         referenced by SkPicture.
