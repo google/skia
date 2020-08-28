@@ -1930,14 +1930,24 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
         }
         return nullptr;
     };
+    auto argList = [&](const std::vector<std::unique_ptr<Expression>>& originalArgs)
+            -> std::vector<std::unique_ptr<Expression>> {
+        std::vector<std::unique_ptr<Expression>> args;
+        args.reserve(originalArgs.size());
+        for (const std::unique_ptr<Expression>& arg : originalArgs) {
+            args.push_back(expr(arg));
+        }
+        return args;
+    };
+
     switch (expression.fKind) {
         case Expression::kBinary_Kind: {
             const BinaryExpression& b = expression.as<BinaryExpression>();
-            return std::unique_ptr<Expression>(new BinaryExpression(offset,
-                                                                    expr(b.fLeft),
-                                                                    b.fOperator,
-                                                                    expr(b.fRight),
-                                                                    b.fType));
+            return std::make_unique<BinaryExpression>(offset,
+                                                      expr(b.fLeft),
+                                                      b.fOperator,
+                                                      expr(b.fRight),
+                                                      b.fType);
         }
         case Expression::kBoolLiteral_Kind:
         case Expression::kIntLiteral_Kind:
@@ -1945,72 +1955,55 @@ std::unique_ptr<Expression> IRGenerator::inlineExpression(
         case Expression::kNullLiteral_Kind:
             return expression.clone();
         case Expression::kConstructor_Kind: {
-            const Constructor& c = expression.as<Constructor>();
-            std::vector<std::unique_ptr<Expression>> args;
-            for (const auto& arg : c.fArguments) {
-                args.push_back(expr(arg));
-            }
-            return std::unique_ptr<Expression>(new Constructor(offset, c.fType, std::move(args)));
+            const Constructor& constructor = expression.as<Constructor>();
+            return std::make_unique<Constructor>(offset, constructor.fType,
+                                                 argList(constructor.fArguments));
         }
         case Expression::kExternalFunctionCall_Kind: {
-            const ExternalFunctionCall& e = expression.as<ExternalFunctionCall>();
-            std::vector<std::unique_ptr<Expression>> args;
-            for (const auto& arg : e.fArguments) {
-                args.push_back(expr(arg));
-            }
-            return std::unique_ptr<Expression>(new ExternalFunctionCall(offset, e.fType,
-                                                                        e.fFunction,
-                                                                        std::move(args)));
+            const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
+            return std::make_unique<ExternalFunctionCall>(offset, externalCall.fType,
+                                                          externalCall.fFunction,
+                                                          argList(externalCall.fArguments));
         }
         case Expression::kExternalValue_Kind:
             return expression.clone();
         case Expression::kFieldAccess_Kind: {
             const FieldAccess& f = expression.as<FieldAccess>();
-            return std::unique_ptr<Expression>(new FieldAccess(expr(f.fBase), f.fFieldIndex,
-                                                               f.fOwnerKind));
+            return std::make_unique<FieldAccess>(expr(f.fBase), f.fFieldIndex, f.fOwnerKind);
         }
         case Expression::kFunctionCall_Kind: {
-            const FunctionCall& c = expression.as<FunctionCall>();
-            std::vector<std::unique_ptr<Expression>> args;
-            for (const auto& arg : c.fArguments) {
-                args.push_back(expr(arg));
-            }
-            return std::unique_ptr<Expression>(new FunctionCall(offset, c.fType, c.fFunction,
-                                                                std::move(args)));
+            const FunctionCall& funcCall = expression.as<FunctionCall>();
+            return std::make_unique<FunctionCall>(offset, funcCall.fType, funcCall.fFunction,
+                                                  argList(funcCall.fArguments));
         }
         case Expression::kIndex_Kind: {
             const IndexExpression& idx = expression.as<IndexExpression>();
-            return std::unique_ptr<Expression>(new IndexExpression(fContext, expr(idx.fBase),
-                                                                   expr(idx.fIndex)));
+            return std::make_unique<IndexExpression>(fContext, expr(idx.fBase), expr(idx.fIndex));
         }
         case Expression::kPrefix_Kind: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
-            return std::unique_ptr<Expression>(new PrefixExpression(p.fOperator, expr(p.fOperand)));
+            return std::make_unique<PrefixExpression>(p.fOperator, expr(p.fOperand));
         }
         case Expression::kPostfix_Kind: {
             const PostfixExpression& p = expression.as<PostfixExpression>();
-            return std::unique_ptr<Expression>(new PostfixExpression(expr(p.fOperand),
-                                                                     p.fOperator));
+            return std::make_unique<PostfixExpression>(expr(p.fOperand), p.fOperator);
         }
         case Expression::kSetting_Kind:
             return expression.clone();
         case Expression::kSwizzle_Kind: {
             const Swizzle& s = expression.as<Swizzle>();
-            return std::unique_ptr<Expression>(new Swizzle(fContext, expr(s.fBase), s.fComponents));
+            return std::make_unique<Swizzle>(fContext, expr(s.fBase), s.fComponents);
         }
         case Expression::kTernary_Kind: {
             const TernaryExpression& t = expression.as<TernaryExpression>();
-            return std::unique_ptr<Expression>(new TernaryExpression(offset, expr(t.fTest),
-                                                                     expr(t.fIfTrue),
-                                                                     expr(t.fIfFalse)));
+            return std::make_unique<TernaryExpression>(offset, expr(t.fTest),
+                                                       expr(t.fIfTrue), expr(t.fIfFalse));
         }
         case Expression::kVariableReference_Kind: {
             const VariableReference& v = expression.as<VariableReference>();
             auto found = varMap->find(&v.fVariable);
             if (found != varMap->end()) {
-                return std::unique_ptr<Expression>(new VariableReference(offset,
-                                                                         *found->second,
-                                                                         v.fRefKind));
+                return std::make_unique<VariableReference>(offset, *found->second, v.fRefKind);
             }
             return v.clone();
         }
