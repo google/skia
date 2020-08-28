@@ -212,11 +212,9 @@ public:
      */
     static std::pair<uint16_t, uint16_t> PackIndexInTexCoords(
             uint16_t u, uint16_t v, int pageIndex) {
-        // Pack the two bits for the page index in bit 15 of u and v; u gets the high bit, and v
-        // gets the low bit.
+        // Pack the two bits of page in bits 14 and 15 of u.
         SkASSERT(0 <= pageIndex && pageIndex < 4);
-        u |= (pageIndex & 0x2u) << 14;
-        v |= pageIndex << 15;
+        u |= pageIndex << 14;
         return std::make_pair(u, v);
     }
 
