@@ -230,7 +230,7 @@ private:
     bool fIsACCW  = false;  // tracks direction iff fIsA is not unknown
 
     // for testing
-    SkPathConvexityType fConvexity = SkPathConvexityType::kUnknown;
+    SkPathConvexityType fOverrideConvexity = SkPathConvexityType::kUnknown;
 
     int countVerbs() const { return fVerbs.count(); }
 
@@ -247,7 +247,7 @@ private:
     SkPathBuilder& privateReverseAddPath(const SkPath&);
 
     // For testing
-    void privateSetConvexityType(SkPathConvexityType c) { fConvexity = c; }
+    void privateSetConvexityType(SkPathConvexityType c) { fOverrideConvexity = c; }
 
     friend class SkPathPriv;
 };

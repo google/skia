@@ -33,7 +33,9 @@ SkPathBuilder& SkPathBuilder::reset() {
     fSegmentMask = 0;
     fLastMovePoint = {0, 0};
     fNeedsMoveVerb = true;
-    fConvexity = SkPathConvexityType::kUnknown;
+
+    // testing
+    fOverrideConvexity = SkPathConvexityType::kUnknown;
 
     return *this;
 }
@@ -148,12 +150,32 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
+    auto convexity = SkPathConvexityType::kUnknown;
+    SkPathPriv::FirstDirection dir = SkPathPriv::kUnknown_FirstDirection;
+
     switch (fIsA) {
-        case kIsA_Oval:  pr->setIsOval( true, fIsACCW, fIsAStart); break;
-        case kIsA_RRect: pr->setIsRRect(true, fIsACCW, fIsAStart); break;
+        case kIsA_Oval:
+            pr->setIsOval( true, fIsACCW, fIsAStart);
+            convexity = SkPathConvexityType::kConvex;
+            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            break;
+        case kIsA_RRect:
+            pr->setIsRRect(true, fIsACCW, fIsAStart);
+            convexity = SkPathConvexityType::kConvex;
+            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            break;
         default: break;
     }
-    return SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity);
+
+    if (fOverrideConvexity != SkPathConvexityType::kUnknown) {
+        convexity = fOverrideConvexity;
+    }
+
+    // Wonder if we can combine convexity and dir internally...
+    //  unknown, convex_cw, convex_ccw, concave
+    // Do we ever have direction w/o convexity, or viceversa (inside path)?
+    //
+    return SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
 }
 
 SkPath SkPathBuilder::snapshot() {
