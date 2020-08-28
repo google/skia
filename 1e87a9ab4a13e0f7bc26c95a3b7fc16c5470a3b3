@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22e4a188_ae56127a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-28T22:40:12Z",
+      "side": 1,
+      "message": "The perf chart hit a new low after this landed, but I think it looks more like \"no diff\" overall.",
+      "revId": "1e87a9ab4a13e0f7bc26c95a3b7fc16c5470a3b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
