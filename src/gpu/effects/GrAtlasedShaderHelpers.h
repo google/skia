@@ -35,8 +35,8 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
         } else {
             args.fVertBuilder->codeAppendf(R"code(
                 int2 coords = int2(%s.x, %s.y);
-                int texIdx = coords.x >> 14;
-                float2 unormTexCoords = float2(coords.x & 0x3FFF, coords.y);
+                int texIdx = coords.x >> 13;
+                float2 unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
             )code", inTexCoordsName, inTexCoordsName);
         }
     } else {
@@ -48,8 +48,8 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
         } else {
             args.fVertBuilder->codeAppendf(R"code(
                 float2 coord = float2(%s.x, %s.y);
-                float texIdx = floor(coord.x * exp2(-14));
-                float2 unormTexCoords = float2(coord.x - texIdx * exp2(14), coord.y);
+                float texIdx = floor(coord.x * exp2(-13));
+                float2 unormTexCoords = float2(coord.x - texIdx * exp2(13), coord.y);
             )code", inTexCoordsName, inTexCoordsName);
         }
     }
