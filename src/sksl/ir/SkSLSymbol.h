@@ -16,18 +16,8 @@ namespace SkSL {
  * Represents a symboltable entry.
  */
 struct Symbol : public IRNode {
-    enum Kind {
-        kFunctionDeclaration_Kind,
-        kUnresolvedFunction_Kind,
-        kType_Kind,
-        kVariable_Kind,
-        kField_Kind,
-        kExternal_Kind
-    };
-
     Symbol(int offset, Kind kind, StringFragment name)
-    : INHERITED(offset)
-    , fKind(kind)
+    : INHERITED(offset, kind)
     , fName(name) {}
 
     ~Symbol() override {}
@@ -47,7 +37,11 @@ struct Symbol : public IRNode {
         return static_cast<T&>(*this);
     }
 
-    Kind fKind;
+    std::unique_ptr<IRNode> clone() const override{
+        SkASSERT(false); // symbols can't be cloned
+        return nullptr;
+    }
+
     StringFragment fName;
 
     typedef IRNode INHERITED;

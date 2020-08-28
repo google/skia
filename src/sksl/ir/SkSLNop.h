@@ -17,10 +17,10 @@ namespace SkSL {
  * A no-op statement that does nothing.
  */
 struct Nop : public Statement {
-    static constexpr Kind kStatementKind = kNop_Kind;
+    static constexpr Kind kIRNodeKind = kNop_Kind;
 
     Nop()
-    : INHERITED(-1, kStatementKind) {}
+    : INHERITED(-1, kIRNodeKind) {}
 
     bool isEmpty() const override {
         return true;
@@ -30,8 +30,8 @@ struct Nop : public Statement {
         return String(";");
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new Nop());
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new Nop());
     }
 
     typedef Statement INHERITED;

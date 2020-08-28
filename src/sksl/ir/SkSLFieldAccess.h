@@ -24,11 +24,11 @@ struct FieldAccess : public Expression {
         kAnonymousInterfaceBlock_OwnerKind
     };
 
-    static constexpr Kind kExpressionKind = kFieldAccess_Kind;
+    static constexpr Kind kIRNodeKind = kFieldAccess_Kind;
 
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
                 OwnerKind ownerKind = kDefault_OwnerKind)
-    : INHERITED(base->fOffset, kExpressionKind, *base->fType.fields()[fieldIndex].fType)
+    : INHERITED(base->fOffset, kIRNodeKind, *base->fType.fields()[fieldIndex].fType)
     , fBase(std::move(base))
     , fFieldIndex(fieldIndex)
     , fOwnerKind(ownerKind) {}
@@ -37,9 +37,9 @@ struct FieldAccess : public Expression {
         return fBase->hasProperty(property);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FieldAccess(fBase->clone(), fFieldIndex,
-                                                           fOwnerKind));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new FieldAccess(fBase->cloneExpression(), fFieldIndex,
+                                                       fOwnerKind));
     }
 
     String description() const override {

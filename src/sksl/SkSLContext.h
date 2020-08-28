@@ -366,10 +366,10 @@ public:
 private:
     class Defined : public Expression {
     public:
-        static constexpr Kind kExpressionKind = kDefined_Kind;
+        static constexpr Kind kIRNodeKind = kDefined_Kind;
 
         Defined(const Type& type)
-        : INHERITED(-1, kExpressionKind, type) {}
+        : INHERITED(-1, kIRNodeKind, type) {}
 
         bool hasProperty(Property property) const override {
             return false;
@@ -379,8 +379,8 @@ private:
             return "<defined>";
         }
 
-        std::unique_ptr<Expression> clone() const override {
-            return std::unique_ptr<Expression>(new Defined(fType));
+        std::unique_ptr<IRNode> clone() const override {
+            return std::unique_ptr<IRNode>(new Defined(fType));
         }
 
         typedef Expression INHERITED;

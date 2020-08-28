@@ -9,7 +9,6 @@
 #define SKSL_ENUM
 
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -20,18 +19,18 @@ namespace SkSL {
 
 struct Symbol;
 
-struct Enum : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kEnum_Kind;
+struct Enum : public IRNode {
+    static constexpr Kind kIRNodeKind = kEnum_Kind;
 
     Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
          bool isBuiltin = true)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fTypeName(typeName)
     , fSymbols(std::move(symbols))
     , fBuiltin(isBuiltin) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Enum(fOffset, fTypeName, fSymbols, fBuiltin));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new Enum(fOffset, fTypeName, fSymbols, fBuiltin));
     }
 
     String code() const {
@@ -61,7 +60,7 @@ struct Enum : public ProgramElement {
     const std::shared_ptr<SymbolTable> fSymbols;
     bool fBuiltin;
 
-    typedef ProgramElement INHERITED;
+    typedef IRNode INHERITED;
 };
 
 }  // namespace SkSL

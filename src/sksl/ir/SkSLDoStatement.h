@@ -17,17 +17,17 @@ namespace SkSL {
  * A 'do' statement.
  */
 struct DoStatement : public Statement {
-    static constexpr Kind kStatementKind = kDo_Kind;
+    static constexpr Kind kIRNodeKind = kDo_Kind;
 
     DoStatement(int offset, std::unique_ptr<Statement> statement,
                 std::unique_ptr<Expression> test)
-    : INHERITED(offset, kStatementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fStatement(std::move(statement))
     , fTest(std::move(test)) {}
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new DoStatement(fOffset, fStatement->clone(),
-                                                          fTest->clone()));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new DoStatement(fOffset, fStatement->cloneStatement(),
+                                                       fTest->cloneExpression()));
     }
 
     String description() const override {

@@ -8,24 +8,22 @@
 #ifndef SKSL_SECTION
 #define SKSL_SECTION
 
-#include "src/sksl/ir/SkSLProgramElement.h"
-
 namespace SkSL {
 
 /**
  * A section declaration (e.g. @body { body code here })..
  */
-struct Section : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kSection_Kind;
+struct Section : public IRNode {
+    static constexpr Kind kIRNodeKind = kSection_Kind;
 
     Section(int offset, String name, String arg, String text)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fName(std::move(name))
     , fArgument(std::move(arg))
     , fText(std::move(text)) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Section(fOffset, fName, fArgument, fText));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new Section(fOffset, fName, fArgument, fText));
     }
 
     String description() const override {
@@ -41,7 +39,7 @@ struct Section : public ProgramElement {
     const String fArgument;
     const String fText;
 
-    typedef ProgramElement INHERITED;
+    typedef IRNode INHERITED;
 };
 
 }  // namespace SkSL

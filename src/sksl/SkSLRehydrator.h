@@ -20,7 +20,6 @@ namespace SkSL {
 class Context;
 class ErrorReporter;
 struct Expression;
-struct ProgramElement;
 struct Statement;
 class SymbolTable;
 class Type;
@@ -152,7 +151,7 @@ public:
         fIP += this->readU16();
     }
 
-    std::vector<std::unique_ptr<ProgramElement>> elements();
+    std::vector<std::unique_ptr<IRNode>> elements();
 
     std::shared_ptr<SymbolTable> symbolTable();
 
@@ -215,7 +214,7 @@ private:
 
     const Symbol* symbol();
 
-    std::unique_ptr<ProgramElement> element();
+    std::unique_ptr<IRNode> element();
 
     std::unique_ptr<Statement> statement();
 

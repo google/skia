@@ -69,12 +69,12 @@ static const char SKSL_PIPELINE_INCLUDE[] = "sksl_pipeline.sksl";
 
 namespace SkSL {
 
-static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
+static void grab_intrinsics(std::vector<std::unique_ptr<IRNode>>* src,
                             IRIntrinsicMap* target) {
     for (auto iter = src->begin(); iter != src->end(); ) {
-        std::unique_ptr<ProgramElement>& element = *iter;
+        std::unique_ptr<IRNode>& element = *iter;
         switch (element->fKind) {
-            case ProgramElement::kFunction_Kind: {
+            case IRNode::kFunction_Kind: {
                 FunctionDefinition& f = element->as<FunctionDefinition>();
                 SkASSERT(f.fDeclaration.fBuiltin);
                 String key = f.fDeclaration.description();
@@ -83,7 +83,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 iter = src->erase(iter);
                 break;
             }
-            case ProgramElement::kEnum_Kind: {
+            case IRNode::kEnum_Kind: {
                 Enum& e = element->as<Enum>();
                 StringFragment name = e.fTypeName;
                 SkASSERT(target->find(name) == target->end());
@@ -239,8 +239,8 @@ Compiler::Compiler(Flags flags)
                                        *fContext->fSkCaps_Type, Variable::kGlobal_Storage));
 
     fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-    std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
-    std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
+    std::vector<std::unique_ptr<IRNode>> gpuIntrinsics;
+    std::vector<std::unique_ptr<IRNode>> interpIntrinsics;
 #if SKSL_STANDALONE
     this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, symbols, &gpuIntrinsics,
                              &fGpuSymbolTable);
@@ -331,7 +331,7 @@ void Compiler::loadInterpreterIntrinsics() {
 
 void Compiler::processIncludeFile(Program::Kind kind, const char* path,
                                   std::shared_ptr<SymbolTable> base,
-                                  std::vector<std::unique_ptr<ProgramElement>>* outElements,
+                                  std::vector<std::unique_ptr<IRNode>>* outElements,
                                   std::shared_ptr<SymbolTable>* outSymbolTable) {
     std::ifstream in(path);
     std::string stdText{std::istreambuf_iterator<char>(in),
@@ -1091,7 +1091,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                 }
                 *outUpdated = true;
-                std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.fBase->clone(),
+                std::unique_ptr<Expression> replacement(new Swizzle(*fContext,
+                                                                    base.fBase->cloneExpression(),
                                                                     std::move(final)));
                 if (!try_replace_expression(&b, iter, &replacement)) {
                     *outNeedsRescan = true;
@@ -1542,8 +1543,8 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                                   const Program::Settings& settings) {
     fErrorText = "";
     fErrorCount = 0;
-    std::vector<std::unique_ptr<ProgramElement>>* inherited;
-    std::vector<std::unique_ptr<ProgramElement>> elements;
+    std::vector<std::unique_ptr<IRNode>>* inherited;
+    std::vector<std::unique_ptr<IRNode>> elements;
     switch (kind) {
         case Program::kVertex_Kind:
             inherited = &fVertexInclude;
@@ -1636,7 +1637,7 @@ bool Compiler::optimize(Program& program) {
         fIRGenerator->fKind = program.fKind;
         fIRGenerator->fSettings = &program.fSettings;
         for (auto& element : program) {
-            if (element.fKind == ProgramElement::kFunction_Kind) {
+            if (element.fKind == IRNode::kFunction_Kind) {
                 this->scanCFG(element.as<FunctionDefinition>());
             }
         }
@@ -1644,7 +1645,7 @@ bool Compiler::optimize(Program& program) {
         // even in unused code
         if (program.fSettings.fRemoveDeadFunctions) {
             for (auto iter = program.fElements.begin(); iter != program.fElements.end(); ) {
-                if ((*iter)->fKind == ProgramElement::kFunction_Kind) {
+                if ((*iter)->fKind == IRNode::kFunction_Kind) {
                     const FunctionDefinition& f = (*iter)->as<FunctionDefinition>();
                     if (!f.fDeclaration.fCallCount && f.fDeclaration.fName != "main") {
                         iter = program.fElements.erase(iter);
@@ -1656,7 +1657,7 @@ bool Compiler::optimize(Program& program) {
         }
         if (program.fKind != Program::kFragmentProcessor_Kind) {
             for (auto iter = program.fElements.begin(); iter != program.fElements.end();) {
-                if ((*iter)->fKind == ProgramElement::kVar_Kind) {
+                if ((*iter)->fKind == IRNode::kGlobalVar_Kind) {
                     VarDeclarations& vars = (*iter)->as<VarDeclarations>();
                     for (auto varIter = vars.fVars.begin(); varIter != vars.fVars.end();) {
                         const Variable& var = *(*varIter)->as<VarDeclaration>().fVar;

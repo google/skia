@@ -355,7 +355,7 @@ bool HCodeGenerator::generateCode() {
                  "public:\n",
                  fFullName.c_str());
     for (const auto& p : fProgram) {
-        if (ProgramElement::kEnum_Kind == p.fKind && !((Enum&) p).fBuiltin) {
+        if (IRNode::kEnum_Kind == p.fKind && !((Enum&) p).fBuiltin) {
             this->writef("%s\n", ((Enum&) p).code().c_str());
         }
     }

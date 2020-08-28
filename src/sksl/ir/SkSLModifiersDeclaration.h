@@ -9,7 +9,6 @@
 #define SKSL_MODIFIERDECLARATION
 
 #include "src/sksl/ir/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 
@@ -18,15 +17,15 @@ namespace SkSL {
  *
  * layout(blend_support_all_equations) out;
  */
-struct ModifiersDeclaration : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kModifiers_Kind;
+struct ModifiersDeclaration : public IRNode {
+    static constexpr Kind kIRNodeKind = kModifiers_Kind;
 
     ModifiersDeclaration(Modifiers modifiers)
-    : INHERITED(-1, kProgramElementKind)
+    : INHERITED(-1, kIRNodeKind)
     , fModifiers(modifiers) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new ModifiersDeclaration(fModifiers));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new ModifiersDeclaration(fModifiers));
     }
 
     String description() const override {
@@ -35,7 +34,7 @@ struct ModifiersDeclaration : public ProgramElement {
 
     Modifiers fModifiers;
 
-    typedef ProgramElement INHERITED;
+    typedef IRNode INHERITED;
 };
 
 }  // namespace SkSL

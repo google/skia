@@ -17,16 +17,16 @@ namespace SkSL {
  * A literal integer.
  */
 struct IntLiteral : public Expression {
-    static constexpr Kind kExpressionKind = kIntLiteral_Kind;
+    static constexpr Kind kIRNodeKind = kIntLiteral_Kind;
 
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
     IntLiteral(const Context& context, int offset, int64_t value)
-    : INHERITED(offset, kExpressionKind, *context.fInt_Type)
+    : INHERITED(offset, kIRNodeKind, *context.fInt_Type)
     , fValue(value) {}
 
     IntLiteral(int offset, int64_t value, const Type* type = nullptr)
-    : INHERITED(offset, kExpressionKind, *type)
+    : INHERITED(offset, kIRNodeKind, *type)
     , fValue(value) {}
 
     String description() const override {
@@ -57,8 +57,8 @@ struct IntLiteral : public Expression {
         return fValue;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &fType));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new IntLiteral(fOffset, fValue, &fType));
     }
 
     const int64_t fValue;
