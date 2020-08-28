@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce48985f_08f9df90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-08-28T17:02:19Z",
+      "side": 1,
+      "message": "This seems to have worked.  As I write this, all four AVX512 bot runs since this landed beat all of its previous 25 runs.\n\nNext week once this is all landed I\u0027ll try the reverse change one last time to doubletriple check.",
+      "revId": "fc1eb95f39a36483f9b1e790100a1df92fc8e37b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
