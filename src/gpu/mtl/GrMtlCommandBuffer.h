@@ -22,7 +22,7 @@ class GrMtlOpsRenderPass;
 class GrMtlCommandBuffer : public SkRefCnt {
 public:
     static sk_sp<GrMtlCommandBuffer> Make(id<MTLCommandQueue> queue);
-    ~GrMtlCommandBuffer();
+    ~GrMtlCommandBuffer() override;
 
     bool commit(bool waitUntilCompleted);
     bool hasWork() { return fHasWork; }
