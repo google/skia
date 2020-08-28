@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cee789c7_2e918fe0",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-28T19:55:31Z",
+      "side": 1,
+      "message": "I really don\u0027t want a client to deal with ICU. That would be flutter dealing creating SkUnicode, and I don\u0027t think it\u0027s a good idea.",
+      "parentUuid": "0d37d1f3_c3168790",
+      "range": {
+        "startLine": 28,
+        "startChar": 8,
+        "endLine": 28,
+        "endChar": 32
+      },
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa14ba48_b3632140",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 13
@@ -82,6 +106,24 @@
       "writtenOn": "2020-08-28T19:16:46Z",
       "side": 1,
       "message": "Now that SkParagraphImpl constructors are taking std::unique_ptr\u003cSkUnicode\u003e can we just assert in the constructors that it\u0027s non-nullptr? That\u0027s what we really want, which not to be able to create a ParagraphImpl without a working SkUnicode.",
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28ea21a5_21ed3cd3",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-28T19:55:31Z",
+      "side": 1,
+      "message": "I really don\u0027t like an idea of SkUnicode coming to Paragraph from somewhere.\nI have string transformation in ParagraphBuilder (addText) and ParagraphStyle (setEllipsis).\nDo I have to drag SkUnicode all over? I tried and I really don\u0027t like the results (and API changes).\nNow, I have a question: all these complications come from \nvirtual SkString SkStringFromU16String(const std::u16string\u0026 utf16text) \u003d 0;\nCan I use an implementation that has SkUTF::ToUTF8 instead of u_strToUTF8?\nThen it\u0027s not going to depend on ICU at all.",
+      "parentUuid": "8b0eabd6_38c98b4f",
       "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
