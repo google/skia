@@ -93,6 +93,30 @@
       "revId": "f4ccc122cc4151fc9bdbfe425dcfcdc57a09f8b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49f3f442_26db1cbd",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T01:41:16Z",
+      "side": 1,
+      "message": "Well, I suppose one could write an implementation that didn\u0027t use icu, though that\u0027s really the start of writing a simple non-icu backed implementation. I\u0027m not sure what you mean by truly static, it doesn\u0027t really matter since nothing on SkUnicode should be calling into icu at all (that\u0027s the reason for the existence of SkUnicode, so if it isn\u0027t worth making all these virtual functions which can be backed by not-icu then there is no point in having this class at all and we should just use icu directly).",
+      "parentUuid": "d7c20fef_be9e5abb",
+      "range": {
+        "startLine": 340,
+        "startChar": 5,
+        "endLine": 340,
+        "endChar": 16
+      },
+      "revId": "f4ccc122cc4151fc9bdbfe425dcfcdc57a09f8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
