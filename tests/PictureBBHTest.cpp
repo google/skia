@@ -108,7 +108,7 @@ DEF_TEST(PictureNegativeSpace, r) {
             canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
             canvas->restore();
         auto pic = recorder.finishRecordingAsPicture();
-        REPORTER_ASSERT(r, pic->approximateOpCount() == 5);
+        REPORTER_ASSERT(r, pic->approximateOpCount() == 2);
         REPORTER_ASSERT(r, pic->cullRect() == (SkRect{-20,-20,-10,-10}));
     }
 
@@ -118,7 +118,7 @@ DEF_TEST(PictureNegativeSpace, r) {
             canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
             canvas->drawRect({-20,-20,-10,-10}, SkPaint{});
         auto pic = recorder.finishRecordingAsPicture();
-        REPORTER_ASSERT(r, pic->approximateOpCount() == 3);
+        REPORTER_ASSERT(r, pic->approximateOpCount() == 2);
         REPORTER_ASSERT(r, pic->cullRect() == (SkRect{-20,-20,-10,-10}));
     }
 }

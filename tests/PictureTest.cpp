@@ -823,7 +823,7 @@ DEF_TEST(Picture_RecordsFlush, r) {
 
     // Did we record the flushes?
     auto pic = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(r, pic->approximateOpCount() == 120);  // 10 clears, 100 draws, 10 flushes
+    REPORTER_ASSERT(r, pic->approximateOpCount() == 110);  // 10 clears, 100 draws, 10 flushes
 
     // Do we serialize and deserialize flushes?
     auto skp = pic->serialize();
@@ -847,7 +847,7 @@ DEF_TEST(Placeholder, r) {
         canvas->drawPicture(p1);
         canvas->drawPicture(p2);
     sk_sp<SkPicture> pic = recorder.finishRecordingAsPicture();
-    REPORTER_ASSERT(r, pic->approximateOpCount() == 2);
+    REPORTER_ASSERT(r, pic->approximateOpCount() == 0);
 
     // Any upper limit when recursing into nested placeholders is fine as long
     // as it doesn't overflow an int.
@@ -995,7 +995,7 @@ DEF_TEST(Picture_nested_op_count, r) {
     check(leaf10, 10, 10);
 
     check(make_pic( 1, leaf1),   1,   1);
-    check(make_pic( 1, leaf10),  1,  10);
+    check(make_pic( 1, leaf10),  0,  10);
     check(make_pic(10, leaf1),  10,  10);
-    check(make_pic(10, leaf10), 10, 100);
+    check(make_pic(10, leaf10),  0, 100);
 }
