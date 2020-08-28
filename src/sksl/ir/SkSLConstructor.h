@@ -26,10 +26,10 @@ namespace SkSL {
  * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
 struct Constructor : public Expression {
-    static constexpr Kind kExpressionKind = kConstructor_Kind;
+    static constexpr Kind kIRNodeKind = kConstructor_Kind;
 
     Constructor(int offset, const Type& type, std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kExpressionKind, type)
+    : INHERITED(offset, kIRNodeKind, type)
     , fArguments(std::move(arguments)) {}
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
@@ -61,12 +61,12 @@ struct Constructor : public Expression {
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::vector<std::unique_ptr<Expression>> cloned;
         for (const auto& arg : fArguments) {
-            cloned.push_back(arg->clone());
+            cloned.push_back(arg->cloneExpression());
         }
-        return std::unique_ptr<Expression>(new Constructor(fOffset, fType, std::move(cloned)));
+        return std::unique_ptr<IRNode>(new Constructor(fOffset, fType, std::move(cloned)));
     }
 
     String description() const override {

@@ -178,7 +178,7 @@ public:
 
     void processIncludeFile(Program::Kind kind, const char* path,
                             std::shared_ptr<SymbolTable> base,
-                            std::vector<std::unique_ptr<ProgramElement>>* outElements,
+                            std::vector<std::unique_ptr<IRNode>>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
 
 private:
@@ -228,17 +228,17 @@ private:
     std::unique_ptr<IRIntrinsicMap> fGPUIntrinsics;
     std::unique_ptr<IRIntrinsicMap> fInterpreterIntrinsics;
     std::unique_ptr<ASTFile> fGpuIncludeSource;
-    std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
+    std::vector<std::unique_ptr<IRNode>> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
+    std::vector<std::unique_ptr<IRNode>> fFragmentInclude;
     std::shared_ptr<SymbolTable> fFragmentSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fGeometryInclude;
+    std::vector<std::unique_ptr<IRNode>> fGeometryInclude;
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fPipelineInclude;
+    std::vector<std::unique_ptr<IRNode>> fPipelineInclude;
     std::shared_ptr<SymbolTable> fPipelineSymbolTable;
     std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
-    std::vector<std::unique_ptr<ProgramElement>> fFPInclude;
+    std::vector<std::unique_ptr<IRNode>> fInterpreterInclude;
+    std::vector<std::unique_ptr<IRNode>> fFPInclude;
     std::shared_ptr<SymbolTable> fFPSymbolTable;
 
     std::unique_ptr<IRGenerator> fIRGenerator;

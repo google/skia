@@ -16,7 +16,6 @@
 #include "src/sksl/ir/SkSLFloatLiteral.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLModifiers.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #ifdef SK_VULKAN
@@ -146,7 +145,7 @@ struct Program {
 
     class iterator {
     public:
-        ProgramElement& operator*() {
+        IRNode& operator*() {
             if (fIter1 != fEnd1) {
                 return **fIter1;
             }
@@ -171,7 +170,7 @@ struct Program {
         }
 
     private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::iterator;
+        using inner = std::vector<std::unique_ptr<IRNode>>::iterator;
 
         iterator(inner begin1, inner end1, inner begin2, inner end2)
         : fIter1(begin1)
@@ -189,7 +188,7 @@ struct Program {
 
     class const_iterator {
     public:
-        const ProgramElement& operator*() {
+        const IRNode& operator*() {
             if (fIter1 != fEnd1) {
                 return **fIter1;
             }
@@ -214,7 +213,7 @@ struct Program {
         }
 
     private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::const_iterator;
+        using inner = std::vector<std::unique_ptr<IRNode>>::const_iterator;
 
         const_iterator(inner begin1, inner end1, inner begin2, inner end2)
         : fIter1(begin1)
@@ -243,8 +242,8 @@ struct Program {
             std::unique_ptr<String> source,
             Settings settings,
             std::shared_ptr<Context> context,
-            std::vector<std::unique_ptr<ProgramElement>>* inheritedElements,
-            std::vector<std::unique_ptr<ProgramElement>> elements,
+            std::vector<std::unique_ptr<IRNode>>* inheritedElements,
+            std::vector<std::unique_ptr<IRNode>> elements,
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
     : fKind(kind)
@@ -299,8 +298,8 @@ struct Program {
     bool fIsOptimized = false;
 
 private:
-    std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
-    std::vector<std::unique_ptr<ProgramElement>> fElements;
+    std::vector<std::unique_ptr<IRNode>>* fInheritedElements;
+    std::vector<std::unique_ptr<IRNode>> fElements;
 
     friend class Compiler;
 };

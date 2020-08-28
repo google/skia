@@ -17,11 +17,11 @@ namespace SkSL {
  * A ternary expression (test ? ifTrue : ifFalse).
  */
 struct TernaryExpression : public Expression {
-    static constexpr Kind kExpressionKind = kTernary_Kind;
+    static constexpr Kind kIRNodeKind = kTernary_Kind;
 
     TernaryExpression(int offset, std::unique_ptr<Expression> test,
                       std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
-    : INHERITED(offset, kExpressionKind, ifTrue->fType)
+    : INHERITED(offset, kIRNodeKind, ifTrue->fType)
     , fTest(std::move(test))
     , fIfTrue(std::move(ifTrue))
     , fIfFalse(std::move(ifFalse)) {
@@ -38,10 +38,10 @@ struct TernaryExpression : public Expression {
                fIfFalse->isConstantOrUniform();
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new TernaryExpression(fOffset, fTest->clone(),
-                                                                 fIfTrue->clone(),
-                                                                 fIfFalse->clone()));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new TernaryExpression(fOffset, fTest->cloneExpression(),
+                                                             fIfTrue->cloneExpression(),
+                                                             fIfFalse->cloneExpression()));
     }
 
     String description() const override {

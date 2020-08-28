@@ -8,7 +8,6 @@
 #ifndef SKSL_INTERFACEBLOCK
 #define SKSL_INTERFACEBLOCK
 
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -24,28 +23,28 @@ namespace SkSL {
  *
  * At the IR level, this is represented by a single variable of struct type.
  */
-struct InterfaceBlock : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kInterfaceBlock_Kind;
+struct InterfaceBlock : public IRNode {
+    static constexpr Kind kIRNodeKind = kInterfaceBlock_Kind;
 
     InterfaceBlock(int offset, const Variable* var, String typeName, String instanceName,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::shared_ptr<SymbolTable> typeOwner)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fVariable(*var)
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes))
     , fTypeOwner(typeOwner) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::vector<std::unique_ptr<Expression>> sizesClone;
         for (const auto& s : fSizes) {
-            sizesClone.push_back(s->clone());
+            sizesClone.push_back(s->cloneExpression());
         }
-        return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, &fVariable, fTypeName,
-                                                                  fInstanceName,
-                                                                  std::move(sizesClone),
-                                                                  fTypeOwner));
+        return std::unique_ptr<IRNode>(new InterfaceBlock(fOffset, &fVariable, fTypeName,
+                                                          fInstanceName,
+                                                          std::move(sizesClone),
+                                                          fTypeOwner));
     }
 
     String description() const override {
@@ -77,7 +76,7 @@ struct InterfaceBlock : public ProgramElement {
     std::vector<std::unique_ptr<Expression>> fSizes;
     const std::shared_ptr<SymbolTable> fTypeOwner;
 
-    typedef ProgramElement INHERITED;
+    typedef IRNode INHERITED;
 };
 
 }  // namespace SkSL

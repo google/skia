@@ -30,7 +30,7 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
     : fProgram(*program) {
     for (const auto& p : fProgram) {
         switch (p.fKind) {
-            case ProgramElement::kVar_Kind: {
+            case IRNode::kGlobalVar_Kind: {
                 const VarDeclarations& decls = (const VarDeclarations&) p;
                 for (const auto& raw : decls.fVars) {
                     const VarDeclaration& decl = (VarDeclaration&) *raw;
@@ -40,7 +40,7 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
                 }
                 break;
             }
-            case ProgramElement::kSection_Kind: {
+            case IRNode::kSection_Kind: {
                 const Section& s = (const Section&) p;
                 if (IsSupportedSection(s.fName.c_str())) {
                     if (SectionRequiresArgument(s.fName.c_str()) && !s.fArgument.size()) {

@@ -38,7 +38,7 @@ struct Swizzle;
  * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.
  */
 struct IRIntrinsic {
-    std::unique_ptr<ProgramElement> fIntrinsic;
+    std::unique_ptr<IRNode> fIntrinsic;
     bool fAlreadyIncluded = false;
 };
 using IRIntrinsicMap = std::unordered_map<String, IRIntrinsic>;
@@ -55,7 +55,7 @@ public:
     void convertProgram(Program::Kind kind,
                         const char* text,
                         size_t length,
-                        std::vector<std::unique_ptr<ProgramElement>>* result);
+                        std::vector<std::unique_ptr<IRNode>>* result);
 
     /**
      * If both operands are compile-time constants and can be folded, returns an expression
@@ -77,7 +77,7 @@ private:
      * settings.
      */
     void start(const Program::Settings* settings,
-               std::vector<std::unique_ptr<ProgramElement>>* inherited,
+               std::vector<std::unique_ptr<IRNode>>* inherited,
                bool isBuiltinCode = false);
 
     /**
@@ -158,7 +158,7 @@ private:
     std::unique_ptr<Expression> findEnumRef(int offset,
                                             const Type& type,
                                             StringFragment field,
-                                            std::vector<std::unique_ptr<ProgramElement>>& elements);
+                                            std::vector<std::unique_ptr<IRNode>>& elements);
     std::unique_ptr<Expression> convertTypeField(int offset, const Type& type,
                                                  StringFragment field);
     std::unique_ptr<Expression> convertField(std::unique_ptr<Expression> base,
@@ -194,8 +194,8 @@ private:
     int fSwitchLevel;
     ErrorReporter& fErrors;
     int fInvocations;
-    std::vector<std::unique_ptr<ProgramElement>>* fInherited;
-    std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
+    std::vector<std::unique_ptr<IRNode>>* fInherited;
+    std::vector<std::unique_ptr<IRNode>>* fProgramElements;
     const Variable* fSkPerVertex = nullptr;
     const Variable* fRTAdjust;
     const Variable* fRTAdjustInterfaceBlock;

@@ -996,7 +996,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kSaturate_SpecialIntrinsic: {
             SkASSERT(c.fArguments.size() == 1);
             std::vector<std::unique_ptr<Expression>> finalArgs;
-            finalArgs.push_back(c.fArguments[0]->clone());
+            finalArgs.push_back(c.fArguments[0]->cloneExpression());
             finalArgs.emplace_back(new FloatLiteral(fContext, -1, 0));
             finalArgs.emplace_back(new FloatLiteral(fContext, -1, 1));
             std::vector<SpvId> spvArgs = this->vectorize(finalArgs, out);
@@ -2701,7 +2701,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     SpvId typeId;
     if (intf.fVariable.fModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
         for (const auto& e : fProgram) {
-            if (e.fKind == ProgramElement::kModifiers_Kind) {
+            if (e.fKind == IRNode::kModifiers_Kind) {
                 const Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
                 update_sk_in_count(m, &fSkInCount);
             }
@@ -3084,7 +3084,7 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
     SkASSERT(fProgram.fKind == Program::kGeometry_Kind);
     int invocations = 1;
     for (const auto& e : fProgram) {
-        if (e.fKind == ProgramElement::kModifiers_Kind) {
+        if (e.fKind == IRNode::kModifiers_Kind) {
             const Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
             if (m.fFlags & Modifiers::kIn_Flag) {
                 if (m.fLayout.fInvocations != -1) {
@@ -3154,12 +3154,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     int skInSize = -1;
     for (const auto& e : program) {
         switch (e.fKind) {
-            case ProgramElement::kFunction_Kind: {
+            case IRNode::kFunction_Kind: {
                 FunctionDefinition& f = (FunctionDefinition&) e;
                 fFunctionMap[&f.fDeclaration] = this->nextId();
                 break;
             }
-            case ProgramElement::kModifiers_Kind: {
+            case IRNode::kModifiers_Kind: {
                 Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
                 if (m.fFlags & Modifiers::kIn_Flag) {
                     switch (m.fLayout.fPrimitive) {
@@ -3185,7 +3185,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         }
     }
     for (const auto& e : program) {
-        if (e.fKind == ProgramElement::kInterfaceBlock_Kind) {
+        if (e.fKind == IRNode::kInterfaceBlock_Kind) {
             InterfaceBlock& intf = (InterfaceBlock&) e;
             if (SK_IN_BUILTIN == intf.fVariable.fModifiers.fLayout.fBuiltin) {
                 SkASSERT(skInSize != -1);
@@ -3201,12 +3201,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
         }
     }
     for (const auto& e : program) {
-        if (e.fKind == ProgramElement::kVar_Kind) {
+        if (e.fKind == IRNode::kGlobalVar_Kind) {
             this->writeGlobalVars(program.fKind, ((VarDeclarations&) e), body);
         }
     }
     for (const auto& e : program) {
-        if (e.fKind == ProgramElement::kFunction_Kind) {
+        if (e.fKind == IRNode::kFunction_Kind) {
             this->writeFunction(((FunctionDefinition&) e), body);
         }
     }
@@ -3262,7 +3262,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                                out);
     }
     for (const auto& e : program) {
-        if (e.fKind == ProgramElement::kExtension_Kind) {
+        if (e.fKind == IRNode::kExtension_Kind) {
             this->writeInstruction(SpvOpSourceExtension, ((Extension&) e).fName.c_str(), out);
         }
     }

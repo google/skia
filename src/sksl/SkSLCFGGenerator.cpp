@@ -453,6 +453,9 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::kDefined_Kind:
             SkASSERT(false);
             break;
+        default:
+            SkASSERT(false);
+            break;
     }
 }
 

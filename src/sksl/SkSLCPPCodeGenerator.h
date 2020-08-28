@@ -61,7 +61,7 @@ private:
 
     void writeSetting(const Setting& s) override;
 
-    void writeProgramElement(const ProgramElement& p) override;
+    void writeProgramElement(const IRNode& p) override;
 
     void addUniform(const Variable& var);
 

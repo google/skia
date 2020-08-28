@@ -42,11 +42,11 @@ static const Type& index_type(const Context& context, const Type& type) {
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
 struct IndexExpression : public Expression {
-    static constexpr Kind kExpressionKind = kIndex_Kind;
+    static constexpr Kind kIRNodeKind = kIndex_Kind;
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-    : INHERITED(base->fOffset, kExpressionKind, index_type(context, base->fType))
+    : INHERITED(base->fOffset, kIRNodeKind, index_type(context, base->fType))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
         SkASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
@@ -56,9 +56,10 @@ struct IndexExpression : public Expression {
         return fBase->hasProperty(property) || fIndex->hasProperty(property);
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
-                                                               &fType));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new IndexExpression(fBase->cloneExpression(),
+                                                           fIndex->cloneExpression(),
+                                                           &fType));
     }
 
     String description() const override {

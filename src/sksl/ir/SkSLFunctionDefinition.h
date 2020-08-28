@@ -10,7 +10,6 @@
 
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 
 #include <unordered_set>
 
@@ -21,21 +20,21 @@ struct ASTNode;
 /**
  * A function definition (a declaration plus an associated block of code).
  */
-struct FunctionDefinition : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kFunction_Kind;
+struct FunctionDefinition : public IRNode {
+    static constexpr Kind kIRNodeKind = kFunction_Kind;
 
     FunctionDefinition(int offset,
                        const FunctionDeclaration& declaration,
                        std::unique_ptr<Statement> body,
                        std::unordered_set<const FunctionDeclaration*> referencedIntrinsics = {})
-        : INHERITED(offset, kProgramElementKind)
+        : INHERITED(offset, kIRNodeKind)
         , fDeclaration(declaration)
         , fBody(std::move(body))
         , fReferencedIntrinsics(std::move(referencedIntrinsics)) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         return std::make_unique<FunctionDefinition>(fOffset, fDeclaration,
-                                                    fBody->clone(), fReferencedIntrinsics);
+                                                    fBody->cloneStatement(), fReferencedIntrinsics);
     }
 
     String description() const override {
@@ -53,7 +52,7 @@ struct FunctionDefinition : public ProgramElement {
     // invalidate this pointer.
     const ASTNode* fSource = nullptr;
 
-    typedef ProgramElement INHERITED;
+    typedef IRNode INHERITED;
 };
 
 }  // namespace SkSL

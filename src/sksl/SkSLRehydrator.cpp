@@ -33,7 +33,6 @@
 #include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLStatement.h"
@@ -248,11 +247,11 @@ const Type* Rehydrator::type() {
     return (const Type*) result;
 }
 
-std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
+std::vector<std::unique_ptr<IRNode>> Rehydrator::elements() {
     SkDEBUGCODE(uint8_t command = )this->readU8();
     SkASSERT(command == kElements_Command);
     uint8_t count = this->readU8();
-    std::vector<std::unique_ptr<ProgramElement>> result;
+    std::vector<std::unique_ptr<IRNode>> result;
     result.reserve(count);
     for (int i = 0; i < count; ++i) {
         result.push_back(this->element());
@@ -260,7 +259,7 @@ std::vector<std::unique_ptr<ProgramElement>> Rehydrator::elements() {
     return result;
 }
 
-std::unique_ptr<ProgramElement> Rehydrator::element() {
+std::unique_ptr<IRNode> Rehydrator::element() {
     int kind = this->readU8();
     switch (kind) {
         case Rehydrator::kEnum_Command: {
@@ -274,7 +273,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                         std::make_unique<IntLiteral>(fContext, /*offset=*/-1, value));
                 v.fWriteCount = 1;
             }
-            return std::unique_ptr<ProgramElement>(new Enum(-1, typeName, std::move(symbols)));
+            return std::unique_ptr<IRNode>(new Enum(-1, typeName, std::move(symbols)));
         }
         case Rehydrator::kFunctionDefinition_Command: {
             const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(
@@ -289,7 +288,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             FunctionDefinition* result = new FunctionDefinition(-1, *decl, std::move(body),
                                                                 std::move(refs));
             decl->fDefinition = result;
-            return std::unique_ptr<ProgramElement>(result);
+            return std::unique_ptr<IRNode>(result);
         }
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
@@ -302,9 +301,9 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             for (int i = 0; i < sizeCount; ++i) {
                 sizes.push_back(this->expression());
             }
-            return std::unique_ptr<ProgramElement>(new InterfaceBlock(-1, (Variable*) var, typeName,
-                                                                      instanceName,
-                                                                      std::move(sizes), nullptr));
+            return std::unique_ptr<IRNode>(new InterfaceBlock(-1, (Variable*) var, typeName,
+                                                              instanceName,
+                                                              std::move(sizes), nullptr));
         }
         case Rehydrator::kVarDeclarations_Command: {
             const Type* baseType = this->type();
@@ -316,8 +315,8 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 SkASSERT(s->fKind == Statement::kVarDeclaration_Kind);
                 vars.emplace_back((VarDeclaration*) s.release());
             }
-            return std::unique_ptr<ProgramElement>(new VarDeclarations(-1, baseType,
-                                                                       std::move(vars)));
+            return std::unique_ptr<IRNode>(new VarDeclarations(-1, baseType,
+                                                               std::move(vars)));
         }
         default:
             printf("unsupported element %d\n", kind);

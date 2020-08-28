@@ -9,7 +9,6 @@
 #define SKSL_VARDECLARATIONS
 
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
@@ -21,27 +20,28 @@ namespace SkSL {
  * instances.
  */
 struct VarDeclaration : public Statement {
-    static constexpr Kind kStatementKind = kVarDeclaration_Kind;
+    static constexpr Kind kIRNodeKind = kVarDeclaration_Kind;
 
     VarDeclaration(const Variable* var,
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::unique_ptr<Expression> value)
-    : INHERITED(var->fOffset, kStatementKind)
+    : INHERITED(var->fOffset, kIRNodeKind)
     , fVar(var)
     , fSizes(std::move(sizes))
     , fValue(std::move(value)) {}
 
-    std::unique_ptr<Statement> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::vector<std::unique_ptr<Expression>> sizesClone;
         for (const auto& s : fSizes) {
             if (s) {
-                sizesClone.push_back(s->clone());
+                sizesClone.push_back(s->cloneExpression());
             } else {
                 sizesClone.push_back(nullptr);
             }
         }
-        return std::unique_ptr<Statement>(new VarDeclaration(fVar, std::move(sizesClone),
-                                                             fValue ? fValue->clone() : nullptr));
+        return std::unique_ptr<IRNode>(new VarDeclaration(fVar, std::move(sizesClone),
+                                                          fValue ? fValue->cloneExpression()
+                                                                 : nullptr));
     }
 
     String description() const override {
@@ -69,26 +69,26 @@ struct VarDeclaration : public Statement {
 /**
  * A variable declaration statement, which may consist of one or more individual variables.
  */
-struct VarDeclarations : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kVar_Kind;
+struct VarDeclarations : public IRNode {
+    static constexpr Kind kIRNodeKind = kGlobalVar_Kind;
 
     VarDeclarations(int offset, const Type* baseType,
                     std::vector<std::unique_ptr<VarDeclaration>> vars)
-    : INHERITED(offset, kProgramElementKind)
+    : INHERITED(offset, kIRNodeKind)
     , fBaseType(*baseType) {
         for (auto& var : vars) {
             fVars.push_back(std::unique_ptr<Statement>(var.release()));
         }
     }
 
-    std::unique_ptr<ProgramElement> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::vector<std::unique_ptr<VarDeclaration>> cloned;
         for (const auto& v : fVars) {
             cloned.push_back(std::unique_ptr<VarDeclaration>(
                                                            (VarDeclaration*) v->clone().release()));
         }
-        return std::unique_ptr<ProgramElement>(new VarDeclarations(fOffset, &fBaseType,
-                                                                     std::move(cloned)));
+        return std::unique_ptr<IRNode>(new VarDeclarations(fOffset, &fBaseType,
+                                                           std::move(cloned)));
     }
 
     String description() const override {
@@ -126,7 +126,7 @@ struct VarDeclarations : public ProgramElement {
     // CFG to only have to worry about unique_ptr<Statement>
     std::vector<std::unique_ptr<Statement>> fVars;
 
-    typedef ProgramElement INHERITED;
+    typedef IRNode INHERITED;
 };
 
 }  // namespace SkSL

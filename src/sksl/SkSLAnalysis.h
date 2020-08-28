@@ -15,8 +15,8 @@ namespace SkSL {
 
 struct Expression;
 struct FunctionDefinition;
+struct IRNode;
 struct Program;
-struct ProgramElement;
 struct Statement;
 struct Variable;
 
@@ -60,7 +60,7 @@ public:
 protected:
     virtual bool visitExpression(const Expression&);
     virtual bool visitStatement(const Statement&);
-    virtual bool visitProgramElement(const ProgramElement&);
+    virtual bool visitProgramElement(const IRNode&);
 };
 
 }  // namespace SkSL

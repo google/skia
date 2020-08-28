@@ -31,7 +31,6 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
-#include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
@@ -175,7 +174,7 @@ private:
 
     void writeStruct(const Type& type, const MemoryLayout& layout, SpvId resultId);
 
-    void writeProgramElement(const ProgramElement& pe, OutputStream& out);
+    void writeProgramElement(const IRNode& pe, OutputStream& out);
 
     SpvId writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight = true);
 

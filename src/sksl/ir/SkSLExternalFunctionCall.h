@@ -18,11 +18,11 @@ namespace SkSL {
  * An external function invocation.
  */
 struct ExternalFunctionCall : public Expression {
-    static constexpr Kind kExpressionKind = kExternalFunctionCall_Kind;
+    static constexpr Kind kIRNodeKind = kExternalFunctionCall_Kind;
 
     ExternalFunctionCall(int offset, const Type& type, const ExternalValue* function,
                          std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kExpressionKind, type)
+    : INHERITED(offset, kIRNodeKind, type)
     , fFunction(function)
     , fArguments(std::move(arguments)) {}
 
@@ -38,15 +38,15 @@ struct ExternalFunctionCall : public Expression {
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::vector<std::unique_ptr<Expression>> cloned;
         for (const auto& arg : fArguments) {
-            cloned.push_back(arg->clone());
+            cloned.push_back(arg->cloneExpression());
         }
-        return std::unique_ptr<Expression>(new ExternalFunctionCall(fOffset,
-                                                                    fType,
-                                                                    fFunction,
-                                                                    std::move(cloned)));
+        return std::unique_ptr<IRNode>(new ExternalFunctionCall(fOffset,
+                                                                fType,
+                                                                fFunction,
+                                                                std::move(cloned)));
     }
 
     String description() const override {

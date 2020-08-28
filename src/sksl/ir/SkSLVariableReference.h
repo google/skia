@@ -23,7 +23,7 @@ class IRGenerator;
  * there is only one Variable 'x', but two VariableReferences to it.
  */
 struct VariableReference : public Expression {
-    static constexpr Kind kExpressionKind = kVariableReference_Kind;
+    static constexpr Kind kIRNodeKind = kVariableReference_Kind;
 
     enum RefKind {
         kRead_RefKind,
@@ -61,8 +61,8 @@ struct VariableReference : public Expression {
         return (fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) != 0;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new VariableReference(fOffset, fVariable, fRefKind));
     }
 
     String description() const override {

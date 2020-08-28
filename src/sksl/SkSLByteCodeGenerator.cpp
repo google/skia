@@ -141,7 +141,7 @@ void ByteCodeGenerator::gatherUniforms(const Type& type, const String& name) {
 bool ByteCodeGenerator::generateCode() {
     for (const auto& e : fProgram) {
         switch (e.fKind) {
-            case ProgramElement::kFunction_Kind: {
+            case IRNode::kFunction_Kind: {
                 std::unique_ptr<ByteCodeFunction> f =
                         this->writeFunction(e.as<FunctionDefinition>());
                 if (!f) {
@@ -151,7 +151,7 @@ bool ByteCodeGenerator::generateCode() {
                 fFunctions.push_back(&e.as<FunctionDefinition>());
                 break;
             }
-            case ProgramElement::kVar_Kind: {
+            case IRNode::kGlobalVar_Kind: {
                 const VarDeclarations& decl = e.as<VarDeclarations>();
                 for (const auto& v : decl.fVars) {
                     const Variable* declVar = v->as<VarDeclaration>().fVar;
@@ -449,7 +449,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             if (var.fType == *fContext.fFragmentProcessor_Type) {
                 int offset = 0;
                 for (const auto& e : fProgram) {
-                    if (e.fKind == ProgramElement::kVar_Kind) {
+                    if (e.fKind == IRNode::kGlobalVar_Kind) {
                         const VarDeclarations& decl = e.as<VarDeclarations>();
                         for (const auto& v : decl.fVars) {
                             const Variable* declVar = v->as<VarDeclaration>().fVar;
@@ -479,7 +479,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             int offset = 0;
             bool isUniform = is_uniform(var);
             for (const auto& e : fProgram) {
-                if (e.fKind == ProgramElement::kVar_Kind) {
+                if (e.fKind == IRNode::kGlobalVar_Kind) {
                     const VarDeclarations& decl = e.as<VarDeclarations>();
                     for (const auto& v : decl.fVars) {
                         const Variable* declVar = v->as<VarDeclaration>().fVar;

@@ -1549,7 +1549,7 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     if (f.fTest) {
         if (fProgram.fSettings.fCaps->addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    -1, f.fTest->clone(), Token::Kind::TK_LOGICALAND,
+                    -1, f.fTest->cloneExpression(), Token::Kind::TK_LOGICALAND,
                     std::make_unique<BoolLiteral>(fContext, -1, true),
                     *fContext.fBool_Type));
             this->writeExpression(*and_true, kTopLevel_Precedence);
@@ -1663,12 +1663,12 @@ void GLSLCodeGenerator::writeHeader() {
     this->writeLine();
 }
 
-void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
+void GLSLCodeGenerator::writeProgramElement(const IRNode& e) {
     switch (e.fKind) {
-        case ProgramElement::kExtension_Kind:
+        case IRNode::kExtension_Kind:
             this->writeExtension(e.as<Extension>().fName);
             break;
-        case ProgramElement::kVar_Kind: {
+        case IRNode::kGlobalVar_Kind: {
             const VarDeclarations& decl = e.as<VarDeclarations>();
             if (decl.fVars.size() > 0) {
                 int builtin = decl.fVars[0]->as<VarDeclaration>().fVar->fModifiers.fLayout.fBuiltin;
@@ -1692,13 +1692,13 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             }
             break;
         }
-        case ProgramElement::kInterfaceBlock_Kind:
+        case IRNode::kInterfaceBlock_Kind:
             this->writeInterfaceBlock(e.as<InterfaceBlock>());
             break;
-        case ProgramElement::kFunction_Kind:
+        case IRNode::kFunction_Kind:
             this->writeFunction(e.as<FunctionDefinition>());
             break;
-        case ProgramElement::kModifiers_Kind: {
+        case IRNode::kModifiers_Kind: {
             const Modifiers& modifiers = e.as<ModifiersDeclaration>().fModifiers;
             if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
                 if (fProgram.fSettings.fCaps->gsInvocationsExtensionString()) {
@@ -1710,7 +1710,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeLine(";");
             break;
         }
-        case ProgramElement::kEnum_Kind:
+        case IRNode::kEnum_Kind:
             break;
         default:
 #ifdef SK_DEBUG

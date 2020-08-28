@@ -408,7 +408,7 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
     int index = 0;
     bool found = false;
     for (const auto& p : fProgram) {
-        if (ProgramElement::kVar_Kind == p.fKind) {
+        if (IRNode::kGlobalVar_Kind == p.fKind) {
             const VarDeclarations& decls = p.as<VarDeclarations>();
             for (const auto& raw : decls.fVars) {
                 const VarDeclaration& decl = raw->as<VarDeclaration>();
@@ -649,11 +649,11 @@ bool CPPCodeGenerator::writeSection(const char* name, const char* prefix) {
     return false;
 }
 
-void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
-    if (p.fKind == ProgramElement::kSection_Kind) {
+void CPPCodeGenerator::writeProgramElement(const IRNode& p) {
+    if (p.fKind == IRNode::kSection_Kind) {
         return;
     }
-    if (p.fKind == ProgramElement::kVar_Kind) {
+    if (p.fKind == IRNode::kGlobalVar_Kind) {
         const VarDeclarations& decls = p.as<VarDeclarations>();
         if (!decls.fVars.size()) {
             return;
@@ -699,7 +699,7 @@ void CPPCodeGenerator::writeInputVars() {
 
 void CPPCodeGenerator::writePrivateVars() {
     for (const auto& p : fProgram) {
-        if (ProgramElement::kVar_Kind == p.fKind) {
+        if (IRNode::kGlobalVar_Kind == p.fKind) {
             const VarDeclarations& decls = p.as<VarDeclarations>();
             for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = raw->as<VarDeclaration>();
@@ -739,7 +739,7 @@ void CPPCodeGenerator::writePrivateVars() {
 
 void CPPCodeGenerator::writePrivateVarValues() {
     for (const auto& p : fProgram) {
-        if (ProgramElement::kVar_Kind == p.fKind) {
+        if (IRNode::kGlobalVar_Kind == p.fKind) {
             const VarDeclarations& decls = p.as<VarDeclarations>();
             for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = raw->as<VarDeclaration>();
@@ -956,7 +956,7 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
                  "        (void) _outer;\n",
                  fFullName.c_str(), fFullName.c_str());
     for (const auto& p : fProgram) {
-        if (ProgramElement::kVar_Kind == p.fKind) {
+        if (IRNode::kGlobalVar_Kind == p.fKind) {
             const VarDeclarations& decls = p.as<VarDeclarations>();
             for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = raw->as<VarDeclaration>();
@@ -1072,7 +1072,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     if (section) {
         int samplerIndex = 0;
         for (const auto& p : fProgram) {
-            if (ProgramElement::kVar_Kind == p.fKind) {
+            if (IRNode::kGlobalVar_Kind == p.fKind) {
                 const VarDeclarations& decls = p.as<VarDeclarations>();
                 for (const std::unique_ptr<Statement>& raw : decls.fVars) {
                     const VarDeclaration& decl = raw->as<VarDeclaration>();
@@ -1246,7 +1246,7 @@ void CPPCodeGenerator::writeGetKey() {
                                                 "GrProcessorKeyBuilder* b) const {\n",
                  fFullName.c_str());
     for (const auto& p : fProgram) {
-        if (ProgramElement::kVar_Kind == p.fKind) {
+        if (IRNode::kGlobalVar_Kind == p.fKind) {
             const VarDeclarations& decls = p.as<VarDeclarations>();
             for (const auto& raw : decls.fVars) {
                 const VarDeclaration& decl = raw->as<VarDeclaration>();
@@ -1324,7 +1324,7 @@ void CPPCodeGenerator::writeGetKey() {
 bool CPPCodeGenerator::generateCode() {
     std::vector<const Variable*> uniforms;
     for (const auto& p : fProgram) {
-        if (ProgramElement::kVar_Kind == p.fKind) {
+        if (IRNode::kGlobalVar_Kind == p.fKind) {
             const VarDeclarations& decls = p.as<VarDeclarations>();
             for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = raw->as<VarDeclaration>();

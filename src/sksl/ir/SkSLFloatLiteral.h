@@ -17,14 +17,14 @@ namespace SkSL {
  * A literal floating point number.
  */
 struct FloatLiteral : public Expression {
-    static constexpr Kind kExpressionKind = kFloatLiteral_Kind;
+    static constexpr Kind kIRNodeKind = kFloatLiteral_Kind;
 
     FloatLiteral(const Context& context, int offset, double value)
-    : INHERITED(offset, kExpressionKind, *context.fFloatLiteral_Type)
+    : INHERITED(offset, kIRNodeKind, *context.fFloatLiteral_Type)
     , fValue(value) {}
 
     FloatLiteral(int offset, double value, const Type* type)
-    : INHERITED(offset, kExpressionKind, *type)
+    : INHERITED(offset, kIRNodeKind, *type)
     , fValue(value) {}
 
     String description() const override {
@@ -54,8 +54,8 @@ struct FloatLiteral : public Expression {
         return fValue;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &fType));
+    std::unique_ptr<IRNode> clone() const override {
+        return std::unique_ptr<IRNode>(new FloatLiteral(fOffset, fValue, &fType));
     }
 
     const double fValue;

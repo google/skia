@@ -17,11 +17,11 @@ namespace SkSL {
  * A function invocation.
  */
 struct FunctionCall : public Expression {
-    static constexpr Kind kExpressionKind = kFunctionCall_Kind;
+    static constexpr Kind kIRNodeKind = kFunctionCall_Kind;
 
     FunctionCall(int offset, const Type& type, const FunctionDeclaration& function,
                  std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kExpressionKind, type)
+    : INHERITED(offset, kIRNodeKind, type)
     , fFunction(std::move(function))
     , fArguments(std::move(arguments)) {
         ++fFunction.fCallCount;
@@ -44,13 +44,13 @@ struct FunctionCall : public Expression {
         return false;
     }
 
-    std::unique_ptr<Expression> clone() const override {
+    std::unique_ptr<IRNode> clone() const override {
         std::vector<std::unique_ptr<Expression>> cloned;
         for (const auto& arg : fArguments) {
-            cloned.push_back(arg->clone());
+            cloned.push_back(arg->cloneExpression());
         }
-        return std::unique_ptr<Expression>(new FunctionCall(fOffset, fType, fFunction,
-                                                            std::move(cloned)));
+        return std::unique_ptr<IRNode>(new FunctionCall(fOffset, fType, fFunction,
+                                                        std::move(cloned)));
     }
 
     String description() const override {
