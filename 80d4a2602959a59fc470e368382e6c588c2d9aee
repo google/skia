@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d37d1f3_c3168790",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T19:16:46Z",
+      "side": 1,
+      "message": "Why doesn\u0027t this constructor also just take a unique_ptr\u003cSkUnicode\u003e like ParagraphImpl constructors do? Then at least the \u0027make\u0027 can return nullptr if something fails.",
+      "range": {
+        "startLine": 28,
+        "startChar": 8,
+        "endLine": 28,
+        "endChar": 32
+      },
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa14ba48_b3632140",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T19:16:46Z",
+      "side": 1,
+      "message": "This is more confusion. This isn\u0027t icu.",
+      "range": {
+        "startLine": 88,
+        "startChar": 56,
+        "endLine": 88,
+        "endChar": 59
+      },
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97100419_2e0811b4",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T19:16:46Z",
+      "side": 1,
+      "message": "For that matter, this has nothing to do with icu either.",
+      "range": {
+        "startLine": 96,
+        "startChar": 12,
+        "endLine": 96,
+        "endChar": 16
+      },
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b0eabd6_38c98b4f",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T19:16:46Z",
+      "side": 1,
+      "message": "Now that SkParagraphImpl constructors are taking std::unique_ptr\u003cSkUnicode\u003e can we just assert in the constructors that it\u0027s non-nullptr? That\u0027s what we really want, which not to be able to create a ParagraphImpl without a working SkUnicode.",
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
