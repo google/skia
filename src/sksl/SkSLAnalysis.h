@@ -53,22 +53,14 @@ struct Analysis {
 
 class ProgramVisitor {
 public:
-    virtual ~ProgramVisitor() { SkASSERT(!fProgram); }
+    virtual ~ProgramVisitor() = default;
 
     bool visit(const Program&);
 
 protected:
-    const Program& program() const {
-        SkASSERT(fProgram);
-        return *fProgram;
-    }
-
     virtual bool visitExpression(const Expression&);
     virtual bool visitStatement(const Statement&);
     virtual bool visitProgramElement(const ProgramElement&);
-
-private:
-    const Program* fProgram = nullptr;
 };
 
 }  // namespace SkSL
