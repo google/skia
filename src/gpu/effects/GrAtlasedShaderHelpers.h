@@ -24,8 +24,9 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      GrGLSLVarying* st) {
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
     // This extracts the texture index and texel coordinates from the same variable
-    // Packing structure: texel coordinates have the 2-bit texture page encoded in bits 14 & 15 of
-    // the x coordinate.
+    // Packing structure: texel coordinates have the 2-bit texture page encoded in bits 13 & 14 of
+    // the x coordinate. It would be nice to use bits 14 and 15, but iphone6 has problem with those
+    // bits when in gles. Iphone6 works fine with bits 14 and 15 in metal.
     if (args.fShaderCaps->integerSupport()) {
         if (numTextureSamplers <= 1) {
             args.fVertBuilder->codeAppendf(R"code(
@@ -35,8 +36,8 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
         } else {
             args.fVertBuilder->codeAppendf(R"code(
                 int2 coords = int2(%s.x, %s.y);
-                int texIdx = coords.x >> 14;
-                float2 unormTexCoords = float2(coords.x & 0x3FFF, coords.y);
+                int texIdx = coords.x >> 13;
+                float2 unormTexCoords = float2(coords.x & 0x1FFF, coords.y);
             )code", inTexCoordsName, inTexCoordsName);
         }
     } else {
@@ -48,8 +49,8 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
         } else {
             args.fVertBuilder->codeAppendf(R"code(
                 float2 coord = float2(%s.x, %s.y);
-                float texIdx = floor(coord.x * exp2(-14));
-                float2 unormTexCoords = float2(coord.x - texIdx * exp2(14), coord.y);
+                float texIdx = floor(coord.x * exp2(-13));
+                float2 unormTexCoords = float2(coord.x - texIdx * exp2(13), coord.y);
             )code", inTexCoordsName, inTexCoordsName);
         }
     }
