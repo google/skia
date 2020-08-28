@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba3efb21_cbc6b4df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-08-28T20:50:15Z",
+      "side": 1,
+      "message": "Enter the CL necromancer.\n\nThe latest patchset removes all the core changes that I had and instead makes the new effect available in the \u0027experimental/\u0027 directory. Hopefully this is a better place to start and gain feedback to see if this is worth supporting in the long run. Looks like it doesn\u0027t render properly with DDLs (see gold images).\n\nHappy to make any other changes as well.",
+      "revId": "514bf5ba2f6718da9d3a59849f1ffeafa08bb31a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
