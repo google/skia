@@ -224,6 +224,7 @@ public:
         fFillType ^= 2;
     }
 
+private:
     /** Returns the comvexity type, computing if needed. Never returns kUnknown.
         @return  path's convexity type (convex or concave)
     */
@@ -253,6 +254,7 @@ public:
      */
     void setConvexityType(SkPathConvexityType convexity);
 
+public:
     /** Returns true if the path is convex. If necessary, it will first compute the convexity.
      */
     bool isConvex() const {
