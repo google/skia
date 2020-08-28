@@ -1243,7 +1243,7 @@ public:
         fPath.addRRect(SkRRect::MakeRectXY(r, w/8.0f, h/8.0f));
 
         if (forceConcave) {
-            fPath.setConvexityType(SkPathConvexityType::kConcave);
+            SkPathPriv::SetConvexityType(fPath, SkPathConvexityType::kConcave);
             SkASSERT(!fPath.isConvex());
         } else {
             SkASSERT(fPath.isConvex());
