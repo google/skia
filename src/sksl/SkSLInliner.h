@@ -40,7 +40,7 @@ public:
      * immediately above the statement containing the inlined expression.
      */
     struct InlinedCall {
-        std::vector<std::unique_ptr<Statement>> fInlinedBody;
+        std::unique_ptr<Statement> fInlinedBody;
         std::unique_ptr<Expression> fReplacementExpr;
     };
     InlinedCall inlineCall(std::unique_ptr<FunctionCall>, SymbolTable*);
