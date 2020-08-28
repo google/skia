@@ -46,6 +46,13 @@ SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
     }
     SkISize planeDimensions[4];
     int n = yuvaInfo.planeDimensions(planeDimensions);
+    size_t tempRowBytes[kMaxPlanes];
+    if (!rowBytes) {
+        for (int i = 0; i < n; ++i) {
+            tempRowBytes[i] = SkColorTypeBytesPerPixel(colorTypes[i]) * planeDimensions[i].width();
+        }
+        rowBytes = tempRowBytes;
+    }
     bool ok = true;
     for (int i = 0; i < n; ++i) {
         fRowBytes[i] = rowBytes[i];
@@ -78,6 +85,14 @@ SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
     } else {
         SkASSERT(this->isValid());
     }
+}
+
+SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
+                                   const SkColorType colorType,
+                                   const size_t rowBytes[kMaxPlanes]) {
+    SkColorType colorTypes[kMaxPlanes];
+    std::fill_n(colorTypes, kMaxPlanes, colorType);
+    *this = SkYUVAPixmapInfo(yuvaInfo, colorTypes, rowBytes);
 }
 
 size_t SkYUVAPixmapInfo::computeTotalBytes(size_t planeSizes[kMaxPlanes]) const {
