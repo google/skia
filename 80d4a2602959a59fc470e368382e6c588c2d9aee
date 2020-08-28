@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "99132fa8_019a6cfb",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T20:56:14Z",
+      "side": 1,
+      "message": "This constructor should never be called by a client? (It is in src/ after all.) The idea here is just to move this \"SkUnicode::Make\" call out of the constructor and into the \u0027make\u0027 above so that \u0027make\u0027 can just return nullptr should Make return nullptr.\n\nThat being said the point of SkUnicode is for the client to create one (though they may just pick between implementations we have already written) and pass one in. The point is for users like Flutter to pass one in eventually.",
+      "parentUuid": "cee789c7_2e918fe0",
+      "range": {
+        "startLine": 28,
+        "startChar": 8,
+        "endLine": 28,
+        "endChar": 32
+      },
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "aa14ba48_b3632140",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 13
@@ -124,6 +148,24 @@
       "side": 1,
       "message": "I really don\u0027t like an idea of SkUnicode coming to Paragraph from somewhere.\nI have string transformation in ParagraphBuilder (addText) and ParagraphStyle (setEllipsis).\nDo I have to drag SkUnicode all over? I tried and I really don\u0027t like the results (and API changes).\nNow, I have a question: all these complications come from \nvirtual SkString SkStringFromU16String(const std::u16string\u0026 utf16text) \u003d 0;\nCan I use an implementation that has SkUTF::ToUTF8 instead of u_strToUTF8?\nThen it\u0027s not going to depend on ICU at all.",
       "parentUuid": "8b0eabd6_38c98b4f",
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75b7a869_1ab80f16",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-28T20:56:14Z",
+      "side": 1,
+      "message": "I suppose we could have our own UTF encoding converter but the reality is that everyone already has one and it would be nice to just use an existing one if we can.\n\nSkUnicode basically has to be provided to Paragraph by a user at some point. If Paragraph just says \u0027I\u0027m always just going to use the ICU one\u0027 then it might as well just use ICU directly and not go through any of this.",
+      "parentUuid": "28ea21a5_21ed3cd3",
       "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
