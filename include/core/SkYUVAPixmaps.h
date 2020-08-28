@@ -35,10 +35,17 @@ public:
      * This will be invalid if the colorTypes aren't compatible with the SkYUVAInfo or if a
      * rowBytes entry is not valid for the plane dimensions and color type. Color type and
      * row byte values beyond the number of planes in SkYUVAInfo are ignored.
+     *
+     * If rowBytes is nullptr then bpp*width is assumed for each plane.
      */
     SkYUVAPixmapInfo(const SkYUVAInfo&,
                      const SkColorType[kMaxPlanes],
                      const size_t rowBytes[kMaxPlanes]);
+    /**
+     * Like above but uses the same color type for all planes.
+     */
+    SkYUVAPixmapInfo(const SkYUVAInfo&, SkColorType, const size_t rowBytes[kMaxPlanes]);
+
     SkYUVAPixmapInfo(const SkYUVAPixmapInfo&) = default;
 
     SkYUVAPixmapInfo& operator=(const SkYUVAPixmapInfo&) = default;
