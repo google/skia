@@ -415,8 +415,21 @@ public:
         path->dirtyAfterEdit();
     }
 
+    static SkPathConvexityType GetConvexityType(const SkPath& path) {
+        return path.getConvexityType();
+    }
+    static SkPathConvexityType GetConvexityTypeOrUnknown(const SkPath& path) {
+        return path.getConvexityTypeOrUnknown();
+    }
+    static void SetConvexityType(const SkPath& path, SkPathConvexityType c) {
+        path.setConvexityType(c);
+    }
     static void SetConvexityType(SkPathBuilder* builder, SkPathConvexityType c) {
         builder->privateSetConvexityType(c);
+    }
+    static void ForceComputeConvexity(const SkPath& path) {
+        path.setConvexityType(SkPathConvexityType::kUnknown);
+        (void)path.isConvex();
     }
 
     static void ReverseAddPath(SkPathBuilder* builder, const SkPath& reverseMe) {

@@ -224,35 +224,6 @@ public:
         fFillType ^= 2;
     }
 
-    /** Returns the comvexity type, computing if needed. Never returns kUnknown.
-        @return  path's convexity type (convex or concave)
-    */
-    SkPathConvexityType getConvexityType() const {
-        SkPathConvexityType convexity = this->getConvexityTypeOrUnknown();
-        if (convexity != SkPathConvexityType::kUnknown) {
-            return convexity;
-        }
-        return this->internalGetConvexity();
-    }
-
-    /** If the path's convexity is already known, return it, else return kUnknown.
-     *  If you always want to know the convexity, even if that means having to compute it,
-     *  call getConvexitytype().
-     *
-     *  @return  known convexity, or kUnknown
-     */
-    SkPathConvexityType getConvexityTypeOrUnknown() const {
-        return (SkPathConvexityType)fConvexity.load(std::memory_order_relaxed);
-    }
-
-    /** Stores a convexity type for this path. This is what will be returned if
-     *  getConvexityTypeOrUnknown() is called. If you pass kUnknown, then if getContexityType()
-     *  is called, the real convexity will be computed.
-     *
-     *  example: https://fiddle.skia.org/c/@Path_setConvexity
-     */
-    void setConvexityType(SkPathConvexityType convexity);
-
     /** Returns true if the path is convex. If necessary, it will first compute the convexity.
      */
     bool isConvex() const {
@@ -1912,6 +1883,27 @@ private:
     void    setConvexityType(SkPathConvexityType) const;
     void    setFirstDirection(uint8_t) const;
     uint8_t getFirstDirection() const;
+
+    /** Returns the comvexity type, computing if needed. Never returns kUnknown.
+        @return  path's convexity type (convex or concave)
+    */
+    SkPathConvexityType getConvexityType() const {
+        SkPathConvexityType convexity = this->getConvexityTypeOrUnknown();
+        if (convexity != SkPathConvexityType::kUnknown) {
+            return convexity;
+        }
+        return this->internalGetConvexity();
+    }
+    SkPathConvexityType getConvexityTypeOrUnknown() const {
+        return (SkPathConvexityType)fConvexity.load(std::memory_order_relaxed);
+    }
+    /** Stores a convexity type for this path. This is what will be returned if
+     *  getConvexityTypeOrUnknown() is called. If you pass kUnknown, then if getContexityType()
+     *  is called, the real convexity will be computed.
+     *
+     *  example: https://fiddle.skia.org/c/@Path_setConvexity
+     */
+    void setConvexityType(SkPathConvexityType convexity);
 
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;
