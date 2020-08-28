@@ -72,7 +72,8 @@ static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
 // Visitor that determines the merged SampleUsage for a given child 'fp' in the program.
 class MergeSampleUsageVisitor : public ProgramVisitor {
 public:
-    MergeSampleUsageVisitor(const Variable& fp) : fFP(fp) {}
+    MergeSampleUsageVisitor(const Context& context, const Variable& fp)
+            : fContext(context), fFP(fp) {}
 
     SampleUsage visit(const Program& program) {
         fUsage = SampleUsage(); // reset to none
@@ -81,6 +82,7 @@ public:
     }
 
 protected:
+    const Context& fContext;
     const Variable& fFP;
     SampleUsage fUsage;
 
@@ -91,11 +93,10 @@ protected:
             if (is_sample_call_to_fp(fc, fFP)) {
                 // Determine the type of call at this site, and merge it with the accumulated state
                 const Expression* lastArg = fc.fArguments.back().get();
-                const Context& context = *this->program().fContext;
 
-                if (lastArg->fType == *context.fFloat2_Type) {
+                if (lastArg->fType == *fContext.fFloat2_Type) {
                     fUsage.merge(SampleUsage::Explicit());
-                } else if (lastArg->fType == *context.fFloat3x3_Type) {
+                } else if (lastArg->fType == *fContext.fFloat3x3_Type) {
                     // Determine the type of matrix for this call site
                     if (lastArg->isConstantOrUniform()) {
                         if (lastArg->fKind == Expression::Kind::kVariableReference_Kind ||
@@ -210,7 +211,7 @@ private:
 // Analysis
 
 SampleUsage Analysis::GetSampleUsage(const Program& program, const Variable& fp) {
-    MergeSampleUsageVisitor visitor(fp);
+    MergeSampleUsageVisitor visitor(*program.fContext, fp);
     return visitor.visit(program);
 }
 
@@ -239,16 +240,12 @@ bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& 
 // ProgramVisitor
 
 bool ProgramVisitor::visit(const Program& program) {
-    fProgram = &program;
-    bool result = false;
-    for (const auto& pe : program) {
+    for (const ProgramElement& pe : program) {
         if (this->visitProgramElement(pe)) {
-            result = true;
-            break;
+            return true;
         }
     }
-    fProgram = nullptr;
-    return result;
+    return false;
 }
 
 bool ProgramVisitor::visitExpression(const Expression& e) {
