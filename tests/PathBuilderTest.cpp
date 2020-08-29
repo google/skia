@@ -150,8 +150,8 @@ static bool is_eq(const SkPath& a, const SkPath& b) {
     // getConvextity() should be sufficient to test, but internally we sometimes don't want
     // to trigger computing it, so this is the stronger test for equality.
     {
-        SkPathConvexityType ca = SkPathPriv::GetConvexityTypeOrUnknown(a),
-                            cb = SkPathPriv::GetConvexityTypeOrUnknown(b);
+        SkPathConvexity ca = SkPathPriv::GetConvexityOrUnknown(a),
+                        cb = SkPathPriv::GetConvexityOrUnknown(b);
         if (ca != cb) {
             return false;
         }

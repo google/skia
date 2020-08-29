@@ -33,12 +33,6 @@ static inline SkPathFillType SkPathFillType_ConvertToNonInverse(SkPathFillType f
     return static_cast<SkPathFillType>(static_cast<int>(ft) & 1);
 }
 
-enum class SkPathConvexityType {
-    kUnknown,
-    kConvex,
-    kConcave
-};
-
 enum class SkPathDirection {
     /** clockwise direction for adding closed contours */
     kCW,

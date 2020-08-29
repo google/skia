@@ -117,7 +117,7 @@ static bool center_of_mass(const SegmentArray& segments, SkPoint* c) {
 
 static bool compute_vectors(SegmentArray* segments,
                             SkPoint* fanPt,
-                            SkPathPriv::FirstDirection dir,
+                            SkPathFirstDirection dir,
                             int* vCount,
                             int* iCount) {
     if (!center_of_mass(*segments, fanPt)) {
@@ -127,7 +127,7 @@ static bool compute_vectors(SegmentArray* segments,
 
     // Make the normals point towards the outside
     SkPointPriv::Side normSide;
-    if (dir == SkPathPriv::kCCW_FirstDirection) {
+    if (dir == SkPathFirstDirection::kCCW) {
         normSide = SkPointPriv::kRight_Side;
     } else {
         normSide = SkPointPriv::kLeft_Side;
@@ -223,7 +223,7 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
 }
 
 static inline bool get_direction(const SkPath& path, const SkMatrix& m,
-                                 SkPathPriv::FirstDirection* dir) {
+                                 SkPathFirstDirection* dir) {
     // At this point, we've already returned true from canDraw(), which checked that the path's
     // direction could be determined, so this should just be fetching the cached direction.
     // However, if perspective is involved, we're operating on a transformed path, which may no
@@ -265,7 +265,7 @@ static inline void add_quad_segment(const SkPoint pts[3],
 }
 
 static inline void add_cubic_segments(const SkPoint pts[4],
-                                      SkPathPriv::FirstDirection dir,
+                                      SkPathFirstDirection dir,
                                       SegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuadsConstrainToTangents(pts, SK_Scalar1, dir, &quads);
@@ -290,7 +290,7 @@ static bool get_segments(const SkPath& path,
     // line paths. We detect paths that are very close to a line (zero area) and
     // draw nothing.
     DegenerateTestData degenerateData;
-    SkPathPriv::FirstDirection dir;
+    SkPathFirstDirection dir;
     if (!get_direction(path, m, &dir)) {
         return false;
     }

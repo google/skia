@@ -73,7 +73,7 @@ size_t SkPath::writeToMemoryAsRRect(void* storage) const {
         return sizeNeeded;
     }
 
-    int firstDir = isCCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+    int firstDir = isCCW ? (int)SkPathFirstDirection::kCCW : (int)SkPathFirstDirection::kCW;
     int32_t packed = (fFillType << kFillType_SerializationShift) |
                      (firstDir << kDirection_SerializationShift) |
                      (SerializationType::kRRect << kType_SerializationShift) |
@@ -173,10 +173,10 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
     SkRRect rrect;
     int32_t start;
     switch (dir) {
-        case SkPathPriv::kCW_FirstDirection:
+        case (int)SkPathFirstDirection::kCW:
             rrectDir = SkPathDirection::kCW;
             break;
-        case SkPathPriv::kCCW_FirstDirection:
+        case (int)SkPathFirstDirection::kCCW:
             rrectDir = SkPathDirection::kCCW;
             break;
         default:

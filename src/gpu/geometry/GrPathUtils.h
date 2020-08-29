@@ -117,7 +117,7 @@ namespace GrPathUtils {
     // must specify the orientation of the contour containing the cubic.
     void convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
                                                 SkScalar tolScale,
-                                                SkPathPriv::FirstDirection dir,
+                                                SkPathFirstDirection dir,
                                                 SkTArray<SkPoint, true>* quads);
 
     enum class ExcludedTerm {
