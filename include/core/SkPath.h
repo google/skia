@@ -1846,7 +1846,7 @@ private:
 
     inline bool hasOnlyMoveTos() const;
 
-    SkPathConvexityType internalGetConvexity() const;
+    SkPathConvexityType computeConvexity() const;
 
     /** Asserts if SkPath data is inconsistent.
         Debugging check intended for internal use only.
@@ -1889,10 +1889,11 @@ private:
     */
     SkPathConvexityType getConvexityType() const {
         SkPathConvexityType convexity = this->getConvexityTypeOrUnknown();
-        if (convexity != SkPathConvexityType::kUnknown) {
-            return convexity;
+        if (convexity == SkPathConvexityType::kUnknown) {
+            convexity = this->computeConvexity();
         }
-        return this->internalGetConvexity();
+        SkASSERT(convexity != SkPathConvexityType::kUnknown);
+        return convexity;
     }
     SkPathConvexityType getConvexityTypeOrUnknown() const {
         return (SkPathConvexityType)fConvexity.load(std::memory_order_relaxed);
