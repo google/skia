@@ -227,7 +227,7 @@ public:
     /** Returns true if the path is convex. If necessary, it will first compute the convexity.
      */
     bool isConvex() const {
-        return SkPathConvexityType::kConvex == this->getConvexityType();
+        return SkPathConvexity::kConvex == this->getConvexity();
     }
 
     /** Returns true if this path is recognized as an oval or circle.
@@ -1800,13 +1800,13 @@ public:
     bool isValid() const { return this->isValidImpl() && fPathRef->isValid(); }
 
 private:
-    SkPath(sk_sp<SkPathRef>, SkPathFillType, bool isVolatile, SkPathConvexityType,
-           uint8_t firstDirection);
+    SkPath(sk_sp<SkPathRef>, SkPathFillType, bool isVolatile, SkPathConvexity,
+           SkPathFirstDirection firstDirection);
 
     sk_sp<SkPathRef>               fPathRef;
     int                            fLastMoveToIndex;
-    mutable std::atomic<uint8_t>   fConvexity;      // SkPathConvexityType
-    mutable std::atomic<uint8_t>   fFirstDirection; // really an SkPathPriv::FirstDirection
+    mutable std::atomic<uint8_t>   fConvexity;      // SkPathConvexity
+    mutable std::atomic<uint8_t>   fFirstDirection; // SkPathFirstDirection
     uint8_t                        fFillType    : 2;
     uint8_t                        fIsVolatile  : 1;
 
@@ -1846,7 +1846,7 @@ private:
 
     inline bool hasOnlyMoveTos() const;
 
-    SkPathConvexityType computeConvexity() const;
+    SkPathConvexity computeConvexity() const;
 
     /** Asserts if SkPath data is inconsistent.
         Debugging check intended for internal use only.
@@ -1880,31 +1880,32 @@ private:
 
     // Bottlenecks for working with fConvexity and fFirstDirection.
     // Notice the setters are const... these are mutable atomic fields.
-    void    setConvexityType(SkPathConvexityType) const;
-    void    setFirstDirection(uint8_t) const;
-    uint8_t getFirstDirection() const;
+    void  setConvexity(SkPathConvexity) const;
+
+    void setFirstDirection(SkPathFirstDirection) const;
+    SkPathFirstDirection getFirstDirection() const;
 
     /** Returns the comvexity type, computing if needed. Never returns kUnknown.
         @return  path's convexity type (convex or concave)
     */
-    SkPathConvexityType getConvexityType() const {
-        SkPathConvexityType convexity = this->getConvexityTypeOrUnknown();
-        if (convexity == SkPathConvexityType::kUnknown) {
+    SkPathConvexity getConvexity() const {
+        SkPathConvexity convexity = this->getConvexityOrUnknown();
+        if (convexity == SkPathConvexity::kUnknown) {
             convexity = this->computeConvexity();
         }
-        SkASSERT(convexity != SkPathConvexityType::kUnknown);
+        SkASSERT(convexity != SkPathConvexity::kUnknown);
         return convexity;
     }
-    SkPathConvexityType getConvexityTypeOrUnknown() const {
-        return (SkPathConvexityType)fConvexity.load(std::memory_order_relaxed);
+    SkPathConvexity getConvexityOrUnknown() const {
+        return (SkPathConvexity)fConvexity.load(std::memory_order_relaxed);
     }
     /** Stores a convexity type for this path. This is what will be returned if
-     *  getConvexityTypeOrUnknown() is called. If you pass kUnknown, then if getContexityType()
+     *  getConvexityOrUnknown() is called. If you pass kUnknown, then if getContexityType()
      *  is called, the real convexity will be computed.
      *
      *  example: https://fiddle.skia.org/c/@Path_setConvexity
      */
-    void setConvexityType(SkPathConvexityType convexity);
+    void setConvexity(SkPathConvexity convexity);
 
     friend class SkAutoPathBoundsUpdate;
     friend class SkAutoDisableOvalCheck;

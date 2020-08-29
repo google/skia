@@ -27,26 +27,20 @@ public:
 
     static constexpr SkScalar kW0PlaneDistance = 0.05f;
 
-    enum FirstDirection : int {
-        kCW_FirstDirection,         // == SkPathDirection::kCW
-        kCCW_FirstDirection,        // == SkPathDirection::kCCW
-        kUnknown_FirstDirection,
-    };
-
-    static FirstDirection AsFirstDirection(SkPathDirection dir) {
+    static SkPathFirstDirection AsFirstDirection(SkPathDirection dir) {
         // since we agree numerically for the values in Direction, we can just cast.
-        return (FirstDirection)dir;
+        return (SkPathFirstDirection)dir;
     }
 
     /**
      *  Return the opposite of the specified direction. kUnknown is its own
      *  opposite.
      */
-    static FirstDirection OppositeFirstDirection(FirstDirection dir) {
-        static const FirstDirection gOppositeDir[] = {
-            kCCW_FirstDirection, kCW_FirstDirection, kUnknown_FirstDirection,
+    static SkPathFirstDirection OppositeFirstDirection(SkPathFirstDirection dir) {
+        static const SkPathFirstDirection gOppositeDir[] = {
+            SkPathFirstDirection::kCCW, SkPathFirstDirection::kCW, SkPathFirstDirection::kUnknown,
         };
-        return gOppositeDir[dir];
+        return gOppositeDir[(unsigned)dir];
     }
 
     /**
@@ -56,7 +50,7 @@ public:
      *  the dir parameter. If the direction was determined, it is cached to make
      *  subsequent calls return quickly.
      */
-    static bool CheapComputeFirstDirection(const SkPath&, FirstDirection* dir);
+    static bool CheapComputeFirstDirection(const SkPath&, SkPathFirstDirection* dir);
 
     /**
      *  Returns true if the path's direction can be computed via
@@ -64,8 +58,8 @@ public:
      *  specified direction. If dir is kUnknown, returns true if the direction
      *  cannot be computed.
      */
-    static bool CheapIsFirstDirection(const SkPath& path, FirstDirection dir) {
-        FirstDirection computedDir = kUnknown_FirstDirection;
+    static bool CheapIsFirstDirection(const SkPath& path, SkPathFirstDirection dir) {
+        SkPathFirstDirection computedDir = SkPathFirstDirection::kUnknown;
         (void)CheapComputeFirstDirection(path, &computedDir);
         return computedDir == dir;
     }
@@ -415,20 +409,20 @@ public:
         path->dirtyAfterEdit();
     }
 
-    static SkPathConvexityType GetConvexityType(const SkPath& path) {
-        return path.getConvexityType();
+    static SkPathConvexity GetConvexity(const SkPath& path) {
+        return path.getConvexity();
     }
-    static SkPathConvexityType GetConvexityTypeOrUnknown(const SkPath& path) {
-        return path.getConvexityTypeOrUnknown();
+    static SkPathConvexity GetConvexityOrUnknown(const SkPath& path) {
+        return path.getConvexityOrUnknown();
     }
-    static void SetConvexityType(const SkPath& path, SkPathConvexityType c) {
-        path.setConvexityType(c);
+    static void SetConvexity(const SkPath& path, SkPathConvexity c) {
+        path.setConvexity(c);
     }
-    static void SetConvexityType(SkPathBuilder* builder, SkPathConvexityType c) {
-        builder->privateSetConvexityType(c);
+    static void SetConvexity(SkPathBuilder* builder, SkPathConvexity c) {
+        builder->privateSetConvexity(c);
     }
     static void ForceComputeConvexity(const SkPath& path) {
-        path.setConvexityType(SkPathConvexityType::kUnknown);
+        path.setConvexity(SkPathConvexity::kUnknown);
         (void)path.isConvex();
     }
 

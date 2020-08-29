@@ -686,7 +686,7 @@ bool SkPathRef::isValid() const {
 
 #include "src/core/SkPathView.h"
 
-SkPathView SkPathRef::view(SkPathFillType ft, SkPathConvexityType ct) const {
+SkPathView SkPathRef::view(SkPathFillType ft, SkPathConvexity ct) const {
     return {
         { fPoints.begin(),       fPoints.size()       },
         { fVerbs.begin(),        fVerbs.size()        },

@@ -35,7 +35,7 @@ SkPathBuilder& SkPathBuilder::reset() {
     fNeedsMoveVerb = true;
 
     // testing
-    fOverrideConvexity = SkPathConvexityType::kUnknown;
+    fOverrideConvexity = SkPathConvexity::kUnknown;
 
     return *this;
 }
@@ -49,7 +49,7 @@ void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
  *  Some old behavior in SkPath -- should we keep it?
  *
  *  After each edit (i.e. adding a verb)
-        this->setConvexityType(SkPathConvexityType::kUnknown);
+        this->setConvexityType(SkPathConvexity::kUnknown);
         this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
  */
 
@@ -150,24 +150,24 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
-    auto convexity = SkPathConvexityType::kUnknown;
-    SkPathPriv::FirstDirection dir = SkPathPriv::kUnknown_FirstDirection;
+    auto convexity = SkPathConvexity::kUnknown;
+    SkPathFirstDirection dir = SkPathFirstDirection::kUnknown;
 
     switch (fIsA) {
         case kIsA_Oval:
             pr->setIsOval( true, fIsACCW, fIsAStart);
-            convexity = SkPathConvexityType::kConvex;
-            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            convexity = SkPathConvexity::kConvex;
+            dir = fIsACCW ? SkPathFirstDirection::kCCW : SkPathFirstDirection::kCW;
             break;
         case kIsA_RRect:
             pr->setIsRRect(true, fIsACCW, fIsAStart);
-            convexity = SkPathConvexityType::kConvex;
-            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            convexity = SkPathConvexity::kConvex;
+            dir = fIsACCW ? SkPathFirstDirection::kCCW : SkPathFirstDirection::kCW;
             break;
         default: break;
     }
 
-    if (fOverrideConvexity != SkPathConvexityType::kUnknown) {
+    if (fOverrideConvexity != SkPathConvexity::kUnknown) {
         convexity = fOverrideConvexity;
     }
 

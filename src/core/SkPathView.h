@@ -10,12 +10,13 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/private/SkPathRef.h"
 #include "src/core/SkSpan.h"
 
 struct SkPathView {
     SkPathView(SkSpan<const SkPoint> points, SkSpan<const uint8_t> verbs, SkSpan<const float> weights,
-            SkPathFillType ft, SkPathConvexityType ct, const SkRect& bounds, unsigned segmentMask,
-            bool isFinite)
+               SkPathFillType ft, SkPathConvexity ct, const SkRect& bounds, unsigned segmentMask,
+               bool isFinite)
         : fPoints(points)
         , fVerbs(verbs)
         , fWeights(weights)
@@ -29,7 +30,7 @@ struct SkPathView {
     }
 
     bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
-    bool isConvex() const { return fConvexity == SkPathConvexityType::kConvex; }
+    bool isConvex() const { return fConvexity == SkPathConvexity::kConvex; }
 
     bool isEmpty() const { return fPoints.size() == 0; }
 
@@ -42,10 +43,10 @@ struct SkPathView {
 
     SkRect fBounds;
 
-    SkPathFillType      fFillType;
-    SkPathConvexityType fConvexity;
-    uint8_t             fSegmentMask;
-    bool                fIsFinite;
+    SkPathFillType  fFillType;
+    SkPathConvexity fConvexity;
+    uint8_t         fSegmentMask;
+    bool            fIsFinite;
 
 #ifdef SK_DEBUG
     void validate() const;
@@ -61,7 +62,7 @@ static inline SkPathView SkPathView_triangle(const SkPoint pts[3], const SkRect&
         (uint8_t)SkPathVerb::kLine,
     };
     return SkPathView({pts, 3}, SkMakeSpan(verbs), {},
-                      SkPathFillType::kWinding, SkPathConvexityType::kConvex,
+                      SkPathFillType::kWinding, SkPathConvexity::kConvex,
                       bounds, kLine_SkPathSegmentMask, true);
 }
 
@@ -73,6 +74,6 @@ static inline SkPathView SkPathView_quad(const SkPoint pts[4], const SkRect& bou
         (uint8_t)SkPathVerb::kLine,
     };
     return SkPathView({pts, 4}, SkMakeSpan(verbs), {},
-                      SkPathFillType::kWinding, SkPathConvexityType::kConvex,
+                      SkPathFillType::kWinding, SkPathConvexity::kConvex,
                       bounds, kLine_SkPathSegmentMask, true);
 };

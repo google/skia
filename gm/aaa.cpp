@@ -12,6 +12,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkFloatBits.h"
+#include "include/private/SkPathRef.h"
 #include "src/core/SkPathPriv.h"
 
 #define W   800
@@ -64,7 +65,7 @@ DEF_SIMPLE_GM(analytic_antialias_convex, canvas, W, H) {
             SkBits2Float(0x4344f079), SkBits2Float(0x4397e900), SkBits2Float(0x3f3504f3));
     path.close();
     // Manually setting convexity is required. Otherwise, this path will be considered concave.
-    SkPathPriv::SetConvexityType(&path, SkPathConvexityType::kConvex);
+    SkPathPriv::SetConvexity(&path, SkPathConvexity::kConvex);
     canvas->drawPath(path.detach(), p);
 
     // skbug.com/7573

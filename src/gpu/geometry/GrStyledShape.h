@@ -178,8 +178,7 @@ public:
         // Assuming this is called after knownToBeConvex(), this should just be relying on
         // cached convexity and direction and will be cheap.
         return !fShape.isPath() ||
-               !SkPathPriv::CheapIsFirstDirection(fShape.path(),
-                                                  SkPathPriv::kUnknown_FirstDirection);
+               !SkPathPriv::CheapIsFirstDirection(fShape.path(), SkPathFirstDirection::kUnknown);
     }
 
     /** Is the pre-styled geometry inverse filled? */

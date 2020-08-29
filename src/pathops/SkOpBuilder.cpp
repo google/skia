@@ -42,9 +42,9 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
     } else if (fillType == SkPathFillType::kEvenOdd) {
         fillType = SkPathFillType::kWinding;
     }
-    SkPathPriv::FirstDirection dir;
+    SkPathFirstDirection dir;
     if (one_contour(*path) && SkPathPriv::CheapComputeFirstDirection(*path, &dir)) {
-        if (dir != SkPathPriv::kCCW_FirstDirection) {
+        if (dir != SkPathFirstDirection::kCCW) {
             ReversePath(path);
         }
         path->setFillType(fillType);
@@ -127,7 +127,7 @@ bool SkOpBuilder::resolve(SkPath* result) {
     SkPath original = *result;
     int count = fOps.count();
     bool allUnion = true;
-    SkPathPriv::FirstDirection firstDir = SkPathPriv::kUnknown_FirstDirection;
+    SkPathFirstDirection firstDir = SkPathFirstDirection::kUnknown;
     for (int index = 0; index < count; ++index) {
         SkPath* test = &fPathRefs[index];
         if (kUnion_SkPathOp != fOps[index] || test->isInverseFillType()) {
@@ -136,12 +136,12 @@ bool SkOpBuilder::resolve(SkPath* result) {
         }
         // If all paths are convex, track direction, reversing as needed.
         if (test->isConvex()) {
-            SkPathPriv::FirstDirection dir;
+            SkPathFirstDirection dir;
             if (!SkPathPriv::CheapComputeFirstDirection(*test, &dir)) {
                 allUnion = false;
                 break;
             }
-            if (firstDir == SkPathPriv::kUnknown_FirstDirection) {
+            if (firstDir == SkPathFirstDirection::kUnknown) {
                 firstDir = dir;
             } else if (firstDir != dir) {
                 ReversePath(test);
