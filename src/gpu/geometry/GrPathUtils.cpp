@@ -366,16 +366,16 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
                                     const SkVector& ab,
                                     const SkVector& dc,
                                     const SkPoint& d,
-                                    SkPathPriv::FirstDirection dir,
+                                    SkPathFirstDirection dir,
                                     const SkPoint p) {
     SkVector ap = p - a;
     SkScalar apXab = ap.cross(ab);
-    if (SkPathPriv::kCW_FirstDirection == dir) {
+    if (SkPathFirstDirection::kCW == dir) {
         if (apXab > 0) {
             return false;
         }
     } else {
-        SkASSERT(SkPathPriv::kCCW_FirstDirection == dir);
+        SkASSERT(SkPathFirstDirection::kCCW == dir);
         if (apXab < 0) {
             return false;
         }
@@ -383,12 +383,12 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
 
     SkVector dp = p - d;
     SkScalar dpXdc = dp.cross(dc);
-    if (SkPathPriv::kCW_FirstDirection == dir) {
+    if (SkPathFirstDirection::kCW == dir) {
         if (dpXdc < 0) {
             return false;
         }
     } else {
-        SkASSERT(SkPathPriv::kCCW_FirstDirection == dir);
+        SkASSERT(SkPathFirstDirection::kCCW == dir);
         if (dpXdc > 0) {
             return false;
         }
@@ -463,7 +463,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
 
 void convert_noninflect_cubic_to_quads_with_constraint(const SkPoint p[4],
                                                        SkScalar toleranceSqd,
-                                                       SkPathPriv::FirstDirection dir,
+                                                       SkPathFirstDirection dir,
                                                        SkTArray<SkPoint, true>* quads,
                                                        int sublevel = 0) {
     // Notation: Point a is always p[0]. Point b is p[1] unless p[1] == p[0], in which case it is
@@ -613,7 +613,7 @@ void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
 
 void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
                                                          SkScalar tolScale,
-                                                         SkPathPriv::FirstDirection dir,
+                                                         SkPathFirstDirection dir,
                                                          SkTArray<SkPoint, true>* quads) {
     if (!p[0].isFinite() || !p[1].isFinite() || !p[2].isFinite() || !p[3].isFinite()) {
         return;
