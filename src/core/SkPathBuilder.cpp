@@ -150,32 +150,39 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
-    auto convexity = SkPathConvexityType::kUnknown;
-    SkPathPriv::FirstDirection dir = SkPathPriv::kUnknown_FirstDirection;
+    auto convexDir = SkPathConvexDir::kUnknown;
 
     switch (fIsA) {
         case kIsA_Oval:
             pr->setIsOval( true, fIsACCW, fIsAStart);
-            convexity = SkPathConvexityType::kConvex;
-            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            convexDir = fIsACCW ? SkPathConvexDir::kConvex_CCW
+                                : SkPathConvexDir::kConvex_CW;
             break;
         case kIsA_RRect:
             pr->setIsRRect(true, fIsACCW, fIsAStart);
-            convexity = SkPathConvexityType::kConvex;
-            dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
+            convexDir = fIsACCW ? SkPathConvexDir::kConvex_CCW
+                                : SkPathConvexDir::kConvex_CW;
             break;
         default: break;
     }
 
     if (fOverrideConvexity != SkPathConvexityType::kUnknown) {
-        convexity = fOverrideConvexity;
+        switch (fOverrideConvexity) {
+            case SkPathConvexityType::kConvex:
+                convexDir = SkPathConvexDir::kConvex_CW;  // do we want dir from the client?
+                break;
+            case SkPathConvexityType::kConcave:
+                convexDir = SkPathConvexDir::kConcave;
+                break;
+            default: break;
+        }
     }
 
     // Wonder if we can combine convexity and dir internally...
     //  unknown, convex_cw, convex_ccw, concave
     // Do we ever have direction w/o convexity, or viceversa (inside path)?
     //
-    return SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
+    return SkPath(std::move(pr), fFillType, fIsVolatile, convexDir);
 }
 
 SkPath SkPathBuilder::snapshot() {

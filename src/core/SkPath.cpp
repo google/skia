@@ -64,21 +64,6 @@ static bool is_degenerate(const SkPath& path) {
     return path.countVerbs() <= 1;
 }
 
-class SkAutoDisableDirectionCheck {
-public:
-    SkAutoDisableDirectionCheck(SkPath* path) : fPath(path) {
-        fSaved = static_cast<SkPathPriv::FirstDirection>(fPath->getFirstDirection());
-    }
-
-    ~SkAutoDisableDirectionCheck() {
-        fPath->setFirstDirection(fSaved);
-    }
-
-private:
-    SkPath*                     fPath;
-    SkPathPriv::FirstDirection  fSaved;
-};
-
 /*  This class's constructor/destructor bracket a path editing operation. It is
     used when we know the bounds of the amount we are going to add to the path
     (usually a new contour, but not required).
@@ -147,12 +132,10 @@ SkPath::SkPath()
     fIsVolatile = false;
 }
 
-SkPath::SkPath(sk_sp<SkPathRef> pr, SkPathFillType ft, bool isVolatile, SkPathConvexityType ct,
-               uint8_t firstDirection)
+SkPath::SkPath(sk_sp<SkPathRef> pr, SkPathFillType ft, bool isVolatile, SkPathConvexDir cd)
     : fPathRef(std::move(pr))
     , fLastMoveToIndex(INITIAL_LASTMOVETOINDEX_VALUE)
-    , fConvexity((uint8_t)ct)
-    , fFirstDirection(firstDirection)
+    , fConvexDir(cd)
     , fFillType((unsigned)ft)
     , fIsVolatile(isVolatile)
 {}
@@ -161,8 +144,7 @@ void SkPath::resetFields() {
     //fPathRef is assumed to have been emptied by the caller.
     fLastMoveToIndex = INITIAL_LASTMOVETOINDEX_VALUE;
     fFillType = SkToU8(SkPathFillType::kWinding);
-    this->setConvexityType(SkPathConvexityType::kUnknown);
-    this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
+    this->setConvexDir(SkPathConvexDir::kUnknown);
 
     // We don't touch Android's fSourcePath.  It's used to track texture garbage collection, so we
     // don't want to muck with it if it's been set to something non-nullptr.
@@ -195,9 +177,7 @@ void SkPath::copyFields(const SkPath& that) {
     fFillType        = that.fFillType;
     fIsVolatile      = that.fIsVolatile;
 
-    // Non-atomic assignment of atomic values.
-    this->setConvexityType(that.getConvexityTypeOrUnknown());
-    this->setFirstDirection(that.getFirstDirection());
+    this->setConvexDir(that.convexDir());
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
@@ -221,13 +201,9 @@ void SkPath::swap(SkPath& that) {
         that.fIsVolatile = iv;
 
         // Non-atomic swaps of atomic values.
-        SkPathConvexityType c = this->getConvexityTypeOrUnknown();
-        this->setConvexityType(that.getConvexityTypeOrUnknown());
-        that.setConvexityType(c);
-
-        uint8_t fd = this->getFirstDirection();
-        this->setFirstDirection(that.getFirstDirection());
-        that.setFirstDirection(fd);
+        auto c = this->convexDir();
+        this->setConvexDir(that.convexDir());
+        that.setConvexDir(c);
     }
 }
 
@@ -575,26 +551,62 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
 
 // This is the public-facing non-const setConvexity().
 void SkPath::setConvexityType(SkPathConvexityType c) {
-    fConvexity.store((uint8_t)c, std::memory_order_relaxed);
+    SkPathConvexDir cd;
+    switch (c) {
+        case SkPathConvexityType::kUnknown:
+            cd = SkPathConvexDir::kUnknown;
+            break;
+        case SkPathConvexityType::kConcave:
+            cd = SkPathConvexDir::kConcave;
+            break;
+        case SkPathConvexityType::kConvex:
+            cd = SkPathConvexDir::kConvex_CW;
+            break;
+    }
+    fConvexDir.store(cd, std::memory_order_relaxed);
 }
 
-// Const hooks for working with fConvexity and fFirstDirection from const methods.
 void SkPath::setConvexityType(SkPathConvexityType c) const {
-    fConvexity.store((uint8_t)c, std::memory_order_relaxed);
+    const_cast<SkPath*>(this)->setConvexityType(c);
 }
+
+SkPathConvexityType SkPath::getConvexityTypeOrUnknown() const {
+    switch (this->convexDir()) {
+        case SkPathConvexDir::kUnknown:
+            break;
+        case SkPathConvexDir::kConcave:
+            return SkPathConvexityType::kConcave;
+        case SkPathConvexDir::kConvex_CW:
+        case SkPathConvexDir::kConvex_CCW:
+            return SkPathConvexityType::kConvex;
+    }
+    return SkPathConvexityType::kUnknown;
+}
+
+uint8_t SkPath::getFirstDirection() const {
+    switch (this->convexDir()) {
+        case SkPathConvexDir::kUnknown:
+        case SkPathConvexDir::kConcave:
+            break;
+        case SkPathConvexDir::kConvex_CW:
+            return SkPathPriv::kCW_FirstDirection;
+        case SkPathConvexDir::kConvex_CCW:
+            return SkPathPriv::kCCW_FirstDirection;
+    }
+    return SkPathPriv::kUnknown_FirstDirection;
+}
+
+#if 0
 void SkPath::setFirstDirection(uint8_t d) const {
     fFirstDirection.store(d, std::memory_order_relaxed);
 }
-uint8_t SkPath::getFirstDirection() const {
-    return fFirstDirection.load(std::memory_order_relaxed);
-}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //  Construction methods
 
 SkPath& SkPath::dirtyAfterEdit() {
-    this->setConvexityType(SkPathConvexityType::kUnknown);
-    this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
+    this->setConvexDir(SkPathConvexDir::kUnknown);
     return *this;
 }
 
@@ -771,6 +783,25 @@ SkPath& SkPath::close() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+class SkAutoSetConvexDirIfOnlyMoveTos {
+    SkPath* fPath;
+    SkPathDirection fDir;
+    bool            fOnlyMoveTos;
+
+public:
+    SkAutoSetConvexDirIfOnlyMoveTos(SkPath* path, SkPathDirection dir)
+        : fPath(path)
+        , fDir(dir)
+        , fOnlyMoveTos(path->hasOnlyMoveTos())
+    {}
+
+    ~SkAutoSetConvexDirIfOnlyMoveTos() {
+        if (fOnlyMoveTos) {
+            fPath->setConvexDir(fDir);
+        }
+    }
+};
+
 static void assert_known_direction(SkPathDirection dir) {
     SkASSERT(SkPathDirection::kCW == dir || SkPathDirection::kCCW == dir);
 }
@@ -786,9 +817,8 @@ SkPath& SkPath::addRect(SkScalar left, SkScalar top, SkScalar right,
 
 SkPath& SkPath::addRect(const SkRect &rect, SkPathDirection dir, unsigned startIndex) {
     assert_known_direction(dir);
-    this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathPriv::FirstDirection)dir
-                                                   : SkPathPriv::kUnknown_FirstDirection);
-    SkAutoDisableDirectionCheck addc(this);
+
+    SkAutoSetConvexDirIfOnlyMoveTos(this, dir);
     SkAutoPathBoundsUpdate apbu(this, rect);
 
     SkDEBUGCODE(int initialVerbCount = this->countVerbs());
@@ -938,11 +968,8 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, SkPathDirection dir, unsigned sta
         // degenerate(oval) => line points are collapsing
         this->addOval(bounds, dir, startIndex / 2);
     } else {
-        this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathPriv::FirstDirection)dir
-                                                       : SkPathPriv::kUnknown_FirstDirection);
-
         SkAutoPathBoundsUpdate apbu(this, bounds);
-        SkAutoDisableDirectionCheck addc(this);
+        SkAutoSetConvexDirIfOnlyMoveTos ascd(this, dir);
 
         // we start with a conic on odd indices when moving CW vs. even indices when moving CCW
         const bool startsWithConic = ((startIndex & 1) == (dir == SkPathDirection::kCW));
@@ -1044,13 +1071,8 @@ SkPath& SkPath::addOval(const SkRect &oval, SkPathDirection dir, unsigned startP
        moveTo() would mark the path non empty.
      */
     bool isOval = hasOnlyMoveTos();
-    if (isOval) {
-        this->setFirstDirection((SkPathPriv::FirstDirection)dir);
-    } else {
-        this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
-    }
 
-    SkAutoDisableDirectionCheck addc(this);
+    SkAutoSetConvexDirIfOnlyMoveTos ascd(this, dir);
     SkAutoPathBoundsUpdate apbu(this, oval);
 
     SkDEBUGCODE(int initialVerbCount = this->countVerbs());
@@ -1617,9 +1639,9 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
         dst->swap(tmp);
         SkPathRef::Editor ed(&dst->fPathRef);
         matrix.mapPoints(ed.writablePoints(), ed.pathRef()->countPoints());
-        dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
+        dst->setConvexDir(SkPathConvexDir::kUnknown);
     } else {
-        SkPathConvexityType convexity = this->getConvexityTypeOrUnknown();
+        SkPathConvexDir convexDir = this->convexDir();
 
         SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef, matrix);
 
@@ -1638,26 +1660,20 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
         // If we can land a robust convex scan-converter, we may be able to relax/remove this
         // check, and keep convex paths marked as such after a general transform...
         //
-        if (matrix.isScaleTranslate() && SkPathPriv::IsAxisAligned(*this)) {
-            dst->setConvexityType(convexity);
-        } else {
-            dst->setConvexityType(SkPathConvexityType::kUnknown);
+        if (!matrix.isScaleTranslate() || !SkPathPriv::IsAxisAligned(*this)) {
+            convexDir = SkPathConvexDir::kUnknown;
         }
 
-        if (this->getFirstDirection() == SkPathPriv::kUnknown_FirstDirection) {
-            dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
-        } else {
+        if (SkPathConvexDir_isConvex(convexDir)) {
             SkScalar det2x2 =
                 matrix.get(SkMatrix::kMScaleX) * matrix.get(SkMatrix::kMScaleY) -
                 matrix.get(SkMatrix::kMSkewX)  * matrix.get(SkMatrix::kMSkewY);
             if (det2x2 < 0) {
-                dst->setFirstDirection(
-                        SkPathPriv::OppositeFirstDirection(
-                            (SkPathPriv::FirstDirection)this->getFirstDirection()));
+                dst->setConvexDir(SkPathConvexDir_reverse_dir(convexDir));
             } else if (det2x2 > 0) {
-                dst->setFirstDirection(this->getFirstDirection());
+                dst->setConvexDir(convexDir);
             } else {
-                dst->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
+                dst->setConvexDir(SkPathConvexDir::kUnknown);
             }
         }
 
@@ -2175,14 +2191,15 @@ private:
     bool                fIsFinite { true };
 };
 
-SkPathConvexityType SkPath::internalGetConvexity() const {
+SkPathConvexDir SkPath::computeConvexDir() const {
     SkPoint         pts[4];
     SkPath::Verb    verb;
     SkPath::Iter    iter(*this, true);
-    auto setComputedConvexity = [=](SkPathConvexityType convexity){
-        SkASSERT(SkPathConvexityType::kUnknown != convexity);
-        this->setConvexityType(convexity);
-        return convexity;
+
+    auto setComputedConvexity = [=](SkPathConvexDir cd){
+        SkASSERT(SkPathConvexDir::kUnknown != cd);
+        this->setConvexDir(cd);
+        return cd;
     };
 
     // Check to see if path changes direction more than three times as quick concave test
@@ -2201,7 +2218,7 @@ SkPathConvexityType SkPath::internalGetConvexity() const {
         --points;
         SkPathConvexityType convexity = Convexicator::BySign(points, (int) (last - points));
         if (SkPathConvexityType::kConcave == convexity) {
-            return setComputedConvexity(SkPathConvexityType::kConcave);
+            return setComputedConvexity(SkPathConvexDir::kConcave);
         } else if (SkPathConvexityType::kUnknown == convexity) {
             return SkPathConvexityType::kUnknown;
         }
@@ -3206,8 +3223,14 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
     if (useCenter) {
         path->close();
     }
-    path->setConvexityType(convex ? SkPathConvexityType::kConvex : SkPathConvexityType::kConcave);
-    path->setFirstDirection(firstDir);
+
+    if (convex) {
+        path->setConvexDir(firstDir == SkPathPriv::kCW_FirstDirection
+                                    ? SkPathConvexDir::kConvex_CW
+                                    : SkPathConvexDir::kConvex_CW);
+    } else {
+        path->setConvexDir(SkPathConvexDir::kConcave);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3388,7 +3411,7 @@ SkPath SkPath::Make(const SkPoint pts[], int pointCount,
                                                  SkTDArray<uint8_t>(vbs, verbCount),
                                                  SkTDArray<SkScalar>(ws, info.weights),
                                                  info.segmentMask)),
-              ft, isVolatile, SkPathConvexityType::kUnknown, SkPathPriv::kUnknown_FirstDirection);
+                  ft, isVolatile, SkPathConvexDir::kUnknown);
 }
 
 SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir, unsigned startIndex) {
