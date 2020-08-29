@@ -35,7 +35,7 @@ SkPathBuilder& SkPathBuilder::reset() {
     fNeedsMoveVerb = true;
 
     // testing
-    fOverrideConvexity = SkPathConvexityType::kUnknown;
+    fOverrideConvexity = SkPathConvexity::kUnknown;
 
     return *this;
 }
@@ -49,7 +49,7 @@ void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
  *  Some old behavior in SkPath -- should we keep it?
  *
  *  After each edit (i.e. adding a verb)
-        this->setConvexityType(SkPathConvexityType::kUnknown);
+        this->setConvexityType(SkPathConvexity::kUnknown);
         this->setFirstDirection(SkPathPriv::kUnknown_FirstDirection);
  */
 
@@ -150,24 +150,24 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
-    auto convexity = SkPathConvexityType::kUnknown;
+    auto convexity = SkPathConvexity::kUnknown;
     SkPathPriv::FirstDirection dir = SkPathPriv::kUnknown_FirstDirection;
 
     switch (fIsA) {
         case kIsA_Oval:
             pr->setIsOval( true, fIsACCW, fIsAStart);
-            convexity = SkPathConvexityType::kConvex;
+            convexity = SkPathConvexity::kConvex;
             dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
             break;
         case kIsA_RRect:
             pr->setIsRRect(true, fIsACCW, fIsAStart);
-            convexity = SkPathConvexityType::kConvex;
+            convexity = SkPathConvexity::kConvex;
             dir = fIsACCW ? SkPathPriv::kCCW_FirstDirection : SkPathPriv::kCW_FirstDirection;
             break;
         default: break;
     }
 
-    if (fOverrideConvexity != SkPathConvexityType::kUnknown) {
+    if (fOverrideConvexity != SkPathConvexity::kUnknown) {
         convexity = fOverrideConvexity;
     }
 

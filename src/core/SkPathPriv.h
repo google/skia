@@ -27,6 +27,12 @@ public:
 
     static constexpr SkScalar kW0PlaneDistance = 0.05f;
 
+    enum class Convexity {
+        kConvex,
+        kConcave,
+        kUnknown,
+    };
+
     enum FirstDirection : int {
         kCW_FirstDirection,         // == SkPathDirection::kCW
         kCCW_FirstDirection,        // == SkPathDirection::kCCW
@@ -415,20 +421,20 @@ public:
         path->dirtyAfterEdit();
     }
 
-    static SkPathConvexityType GetConvexityType(const SkPath& path) {
-        return path.getConvexityType();
+    static SkPathConvexity GetConvexity(const SkPath& path) {
+        return path.getConvexity();
     }
-    static SkPathConvexityType GetConvexityTypeOrUnknown(const SkPath& path) {
-        return path.getConvexityTypeOrUnknown();
+    static SkPathConvexity GetConvexityOrUnknown(const SkPath& path) {
+        return path.getConvexityOrUnknown();
     }
-    static void SetConvexityType(const SkPath& path, SkPathConvexityType c) {
-        path.setConvexityType(c);
+    static void SetConvexity(const SkPath& path, SkPathConvexity c) {
+        path.setConvexity(c);
     }
-    static void SetConvexityType(SkPathBuilder* builder, SkPathConvexityType c) {
-        builder->privateSetConvexityType(c);
+    static void SetConvexity(SkPathBuilder* builder, SkPathConvexity c) {
+        builder->privateSetConvexity(c);
     }
     static void ForceComputeConvexity(const SkPath& path) {
-        path.setConvexityType(SkPathConvexityType::kUnknown);
+        path.setConvexity(SkPathConvexity::kUnknown);
         (void)path.isConvex();
     }
 

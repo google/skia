@@ -1680,7 +1680,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
             case 12: path.moveTo(nonFinitePts[i]); break;
         }
         REPORTER_ASSERT(reporter,
-                    SkPathPriv::GetConvexityTypeOrUnknown(path) == SkPathConvexityType::kUnknown);
+                    SkPathPriv::GetConvexityOrUnknown(path) == SkPathConvexity::kUnknown);
     }
 
     for (int index = 0; index < (int) (11 * axisAlignedPtsCount); ++index) {
@@ -2603,8 +2603,8 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     reader.readPath(&readBack);
     REPORTER_ASSERT(reporter, readBack == p);
 
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityTypeOrUnknown(readBack) ==
-                              SkPathPriv::GetConvexityTypeOrUnknown(p));
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(readBack) ==
+                              SkPathPriv::GetConvexityOrUnknown(p));
 
     SkRect oval0, oval1;
     SkPathDirection dir0, dir1;
@@ -5509,8 +5509,8 @@ struct Xforms {
 };
 
 static bool conditional_convex(const SkPath& path, bool is_convex) {
-    SkPathConvexityType c = SkPathPriv::GetConvexityTypeOrUnknown(path);
-    return is_convex ? (c == SkPathConvexityType::kConvex) : (c != SkPathConvexityType::kConvex);
+    SkPathConvexity c = SkPathPriv::GetConvexityOrUnknown(path);
+    return is_convex ? (c == SkPathConvexity::kConvex) : (c != SkPathConvexity::kConvex);
 }
 
 // expect axis-aligned shape to survive assignment, identity and scale/translate matrices
@@ -5526,15 +5526,15 @@ void survive(SkPath* path, const Xforms& x, bool isAxisAligned, skiatest::Report
     // a path's isa and convexity should survive assignment
     path2 = *path;
     REPORTER_ASSERT(reporter, isa_proc(path2));
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityTypeOrUnknown(path2) == SkPathConvexityType::kConvex);
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(path2) == SkPathConvexity::kConvex);
 
     // a path's isa and convexity should identity transform
     path->transform(x.fIM, &path2);
     path->transform(x.fIM);
     REPORTER_ASSERT(reporter, isa_proc(path2));
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityTypeOrUnknown(path2) == SkPathConvexityType::kConvex);
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(path2) == SkPathConvexity::kConvex);
     REPORTER_ASSERT(reporter, isa_proc(*path));
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityTypeOrUnknown(*path) == SkPathConvexityType::kConvex);
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(*path) == SkPathConvexity::kConvex);
 
     // a path's isa should survive translation, convexity depends on axis alignment
     path->transform(x.fTM, &path2);
@@ -5554,11 +5554,11 @@ void survive(SkPath* path, const Xforms& x, bool isAxisAligned, skiatest::Report
 
     // For security, post-rotation, we can't assume we're still convex. It might prove to be,
     // in fact, still be convex, be we can't have cached that setting, hence the call to
-    // getConvexityTypeOrUnknown() instead of getConvexityType().
+    // getConvexityOrUnknown() instead of getConvexity().
     path->transform(x.fRM, &path2);
     path->transform(x.fRM);
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityTypeOrUnknown(path2) != SkPathConvexityType::kConvex);
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityTypeOrUnknown(*path) != SkPathConvexityType::kConvex);
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(path2) != SkPathConvexity::kConvex);
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(*path) != SkPathConvexity::kConvex);
 
     if (isAxisAligned) {
         REPORTER_ASSERT(reporter, !isa_proc(path2));
