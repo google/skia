@@ -1,0 +1,10 @@
+angle_root = "//third_party/externals/angle2"
+angle_zlib_compression_utils_dir = "//third_party/zlib"
+
+# We don't have Chromium's build/ or testing/ directories.
+angle_has_build = false
+
+# Bunch of features ANGLE's build files test for that we never set.
+is_cfi = false
+is_chromecast = false
+is_chromeos = false
