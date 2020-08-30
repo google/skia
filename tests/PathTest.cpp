@@ -1059,21 +1059,17 @@ static void check_direction(skiatest::Reporter* reporter, const SkPath& path,
     // We make a copy so that we don't cache the result on the passed in path.
     SkPath copy(path);  // NOLINT(performance-unnecessary-copy-initialization)
 
-    SkPathFirstDirection dir;
-    if (SkPathPriv::CheapComputeFirstDirection(copy, &dir)) {
+    SkPathFirstDirection dir = SkPathPriv::ComputeFirstDirection(copy);
+    if (dir != SkPathFirstDirection::kUnknown) {
         REPORTER_ASSERT(reporter, dir == expected);
-    } else {
-        REPORTER_ASSERT(reporter, SkPathFirstDirection::kUnknown == expected);
     }
 }
 
 static void test_direction(skiatest::Reporter* reporter) {
     size_t i;
     SkPath path;
-    REPORTER_ASSERT(reporter, !SkPathPriv::CheapComputeFirstDirection(path, nullptr));
-    REPORTER_ASSERT(reporter, !SkPathPriv::CheapIsFirstDirection(path, SkPathFirstDirection::kCW));
-    REPORTER_ASSERT(reporter, !SkPathPriv::CheapIsFirstDirection(path, SkPathFirstDirection::kCCW));
-    REPORTER_ASSERT(reporter,  SkPathPriv::CheapIsFirstDirection(path, SkPathFirstDirection::kUnknown));
+    REPORTER_ASSERT(reporter,
+                    SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kUnknown);
 
     static const char* gDegen[] = {
         "M 10 10",
@@ -1087,7 +1083,8 @@ static void test_direction(skiatest::Reporter* reporter) {
         path.reset();
         bool valid = SkParsePath::FromSVGString(gDegen[i], &path);
         REPORTER_ASSERT(reporter, valid);
-        REPORTER_ASSERT(reporter, !SkPathPriv::CheapComputeFirstDirection(path, nullptr));
+        REPORTER_ASSERT(reporter,
+                        SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kUnknown);
     }
 
     static const char* gCW[] = {
@@ -1588,12 +1585,12 @@ static void test_convexity(skiatest::Reporter* reporter) {
     path.reset();
     path.addRect(0, 0, SkIntToScalar(10), SkIntToScalar(10), SkPathDirection::kCCW);
     check_convexity(reporter, path, true);
-    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, SkPathFirstDirection::kCCW));
+    REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kCCW);
 
     path.reset();
     path.addRect(0, 0, SkIntToScalar(10), SkIntToScalar(10), SkPathDirection::kCW);
     check_convexity(reporter, path, true);
-    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, SkPathFirstDirection::kCW));
+    REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kCW);
 
     path.reset();
     path.quadTo(100, 100, 50, 50); // This from GM:convexpaths
@@ -1623,8 +1620,8 @@ static void test_convexity(skiatest::Reporter* reporter) {
         if (kDontCheckDir != gRec[i].fExpectedDirection) {
             // We make a copy so that we don't cache the result on the passed in path.
             SkPath copy(path);  // NOLINT(performance-unnecessary-copy-initialization)
-            SkPathFirstDirection dir;
-            bool foundDir = SkPathPriv::CheapComputeFirstDirection(copy, &dir);
+            SkPathFirstDirection dir = SkPathPriv::ComputeFirstDirection(copy);
+            bool foundDir = dir != SkPathFirstDirection::kUnknown;
             REPORTER_ASSERT(reporter, (gRec[i].fExpectedDirection == SkPathFirstDirection::kUnknown)
                     ^ foundDir);
             REPORTER_ASSERT(reporter, !foundDir || gRec[i].fExpectedDirection == dir);
@@ -2154,10 +2151,10 @@ static void test_isRect(skiatest::Reporter* reporter) {
             SkRect computed, expected;
             bool isClosed;
             SkPathDirection direction;
-            SkPathFirstDirection cheapDirection;
             int pointCount = tests[testIndex].fPointCount - (d2 == tests[testIndex].fPoints);
             expected.setBounds(tests[testIndex].fPoints, pointCount);
-            REPORTER_ASSERT(reporter, SkPathPriv::CheapComputeFirstDirection(path, &cheapDirection));
+            SkPathFirstDirection cheapDirection = SkPathPriv::ComputeFirstDirection(path);
+            REPORTER_ASSERT(reporter, cheapDirection != SkPathFirstDirection::kUnknown);
             REPORTER_ASSERT(reporter, path.isRect(&computed, &isClosed, &direction));
             REPORTER_ASSERT(reporter, expected == computed);
             REPORTER_ASSERT(reporter, isClosed == tests[testIndex].fClose);
@@ -2758,7 +2755,7 @@ static void test_transform(skiatest::Reporter* reporter) {
         p1.moveTo(SkPoint::Make(0, 0));
 
         p.transform(matrix, &p1);
-        REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p1, SkPathFirstDirection::kCW));
+        REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(p1) == SkPathFirstDirection::kCW);
     }
 
 
@@ -2770,7 +2767,7 @@ static void test_transform(skiatest::Reporter* reporter) {
         p1.moveTo(SkPoint::Make(0, 0)); // Make p1 unique (i.e., not empty path)
 
         p.transform(matrix, &p1);
-        REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p1, SkPathFirstDirection::kCCW));
+        REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(p1) == SkPathFirstDirection::kCCW);
     }
 
     {
@@ -2780,7 +2777,7 @@ static void test_transform(skiatest::Reporter* reporter) {
         p1.moveTo(SkPoint::Make(0, 0)); // Make p1 unique (i.e., not empty path)
 
         p.transform(matrix, &p1);
-        REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p1, SkPathFirstDirection::kUnknown));
+        REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(p1) == SkPathFirstDirection::kUnknown);
     }
 
     {
@@ -3315,7 +3312,7 @@ static void check_for_circle(skiatest::Reporter* reporter,
         tmpPath.addOval(rect, isOvalDir, isOvalStart);
         REPORTER_ASSERT(reporter, path == tmpPath);
     }
-    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(path, expectedDir));
+    REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(path) == expectedDir);
 }
 
 static void test_circle_skew(skiatest::Reporter* reporter,
@@ -3613,7 +3610,8 @@ static void test_empty(skiatest::Reporter* reporter, const SkPath& p) {
 static void test_rrect_is_convex(skiatest::Reporter* reporter, SkPath* path,
                                  SkPathDirection dir) {
     REPORTER_ASSERT(reporter, path->isConvex());
-    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(*path, SkPathPriv::AsFirstDirection(dir)));
+    REPORTER_ASSERT(reporter,
+                    SkPathPriv::ComputeFirstDirection(*path) == SkPathPriv::AsFirstDirection(dir));
     SkPathPriv::ForceComputeConvexity(*path);
     REPORTER_ASSERT(reporter, path->isConvex());
     path->reset();
@@ -3622,7 +3620,8 @@ static void test_rrect_is_convex(skiatest::Reporter* reporter, SkPath* path,
 static void test_rrect_convexity_is_unknown(skiatest::Reporter* reporter, SkPath* path,
                                  SkPathDirection dir) {
     REPORTER_ASSERT(reporter, path->isConvex());
-    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(*path, SkPathPriv::AsFirstDirection(dir)));
+    REPORTER_ASSERT(reporter,
+                    SkPathPriv::ComputeFirstDirection(*path) == SkPathPriv::AsFirstDirection(dir));
     SkPathPriv::ForceComputeConvexity(*path);
     REPORTER_ASSERT(reporter, !path->isConvex());
     path->reset();
@@ -3725,7 +3724,7 @@ static void test_arc(skiatest::Reporter* reporter) {
     // TODO: one way to keep it concave would be to introduce interpolated on curve points
     // between control points and computing the on curve point at scan conversion time
     REPORTER_ASSERT(reporter, p.isConvex());
-    REPORTER_ASSERT(reporter, SkPathPriv::CheapIsFirstDirection(p, SkPathFirstDirection::kCW));
+    REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(p) == SkPathFirstDirection::kCW);
     SkPathPriv::ForceComputeConvexity(p);
     REPORTER_ASSERT(reporter, p.isConvex());
 }

@@ -290,8 +290,8 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
         return false;
     }
 
-    SkPathFirstDirection direction;
-    if (!SkPathPriv::CheapComputeFirstDirection(*this, &direction)) {
+    SkPathFirstDirection direction = SkPathPriv::ComputeFirstDirection(*this);
+    if (direction == SkPathFirstDirection::kUnknown) {
         return false;
     }
 
@@ -2443,8 +2443,8 @@ static int find_min_max_x_at_y(const SkPoint pts[], int index, int n,
     return minIndex;
 }
 
-static void crossToDir(SkScalar cross, SkPathFirstDirection* dir) {
-    *dir = cross > 0 ? SkPathFirstDirection::kCW : SkPathFirstDirection::kCCW;
+static SkPathFirstDirection crossToDir(SkScalar cross) {
+    return cross > 0 ? SkPathFirstDirection::kCW : SkPathFirstDirection::kCCW;
 }
 
 /*
@@ -2455,19 +2455,17 @@ static void crossToDir(SkScalar cross, SkPathFirstDirection* dir) {
  *  that is outer most (or at least has the global y-max) before we can consider
  *  its cross product.
  */
-bool SkPathPriv::CheapComputeFirstDirection(const SkPath& path, SkPathFirstDirection* dir) {
+SkPathFirstDirection SkPathPriv::ComputeFirstDirection(const SkPath& path) {
     auto d = path.getFirstDirection();
     if (d != SkPathFirstDirection::kUnknown) {
-        *dir = d;
-        return true;
+        return d;
     }
 
     // We don't want to pay the cost for computing convexity if it is unknown,
     // so we call getConvexityOrUnknown() instead of isConvex().
     if (path.getConvexityOrUnknown() == SkPathConvexity::kConvex) {
-        SkASSERT(path.getFirstDirection() == SkPathFirstDirection::kUnknown);
-        *dir = path.getFirstDirection();
-        return false;
+        SkASSERT(d == SkPathFirstDirection::kUnknown);
+        return d;
     }
 
     ContourIter iter(*path.fPathRef);
@@ -2538,12 +2536,10 @@ bool SkPathPriv::CheapComputeFirstDirection(const SkPath& path, SkPathFirstDirec
         }
     }
     if (ymaxCross) {
-        crossToDir(ymaxCross, dir);
-        path.setFirstDirection(*dir);
-        return true;
-    } else {
-        return false;
+        d = crossToDir(ymaxCross);
+        path.setFirstDirection(d);
     }
+    return d;   // may still be kUnknown
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -134,10 +134,8 @@ sk_sp<SkPathEffect> SkStrokeAndFillPathEffect::Make() {
 void SkStrokeAndFillPE::flatten(SkWriteBuffer&) const {}
 
 static bool known_to_be_opposite_directions(const SkPath& a, const SkPath& b) {
-    auto a_dir = SkPathFirstDirection::kUnknown,
-         b_dir = SkPathFirstDirection::kUnknown;
-    (void)SkPathPriv::CheapComputeFirstDirection(a, &a_dir);
-    (void)SkPathPriv::CheapComputeFirstDirection(b, &b_dir);
+    auto a_dir = SkPathPriv::ComputeFirstDirection(a),
+         b_dir = SkPathPriv::ComputeFirstDirection(b);
 
     return (a_dir == SkPathFirstDirection::kCCW &&
             b_dir == SkPathFirstDirection::kCW)

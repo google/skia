@@ -44,25 +44,12 @@ public:
     }
 
     /**
-     *  Tries to quickly compute the direction of the first non-degenerate
-     *  contour. If it can be computed, return true and set dir to that
-     *  direction. If it cannot be (quickly) determined, return false and ignore
-     *  the dir parameter. If the direction was determined, it is cached to make
-     *  subsequent calls return quickly.
+     *  Tries to compute the direction of the outer-most non-degenerate
+     *  contour. If it can be computed, return that direction. If it cannot be determined,
+     *  or the contour is known to be convex, return kUnknown. If the direction was determined,
+     *  it is cached to make subsequent calls return quickly.
      */
-    static bool CheapComputeFirstDirection(const SkPath&, SkPathFirstDirection* dir);
-
-    /**
-     *  Returns true if the path's direction can be computed via
-     *  cheapComputDirection() and if that computed direction matches the
-     *  specified direction. If dir is kUnknown, returns true if the direction
-     *  cannot be computed.
-     */
-    static bool CheapIsFirstDirection(const SkPath& path, SkPathFirstDirection dir) {
-        SkPathFirstDirection computedDir = SkPathFirstDirection::kUnknown;
-        (void)CheapComputeFirstDirection(path, &computedDir);
-        return computedDir == dir;
-    }
+    static SkPathFirstDirection ComputeFirstDirection(const SkPath&);
 
     static bool IsClosedSingleContour(const SkPath& path) {
         int verbCount = path.countVerbs();
