@@ -42,13 +42,15 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
     } else if (fillType == SkPathFillType::kEvenOdd) {
         fillType = SkPathFillType::kWinding;
     }
-    SkPathFirstDirection dir;
-    if (one_contour(*path) && SkPathPriv::CheapComputeFirstDirection(*path, &dir)) {
-        if (dir != SkPathFirstDirection::kCCW) {
-            ReversePath(path);
+    if (one_contour(*path)) {
+        SkPathFirstDirection dir = SkPathPriv::ComputeFirstDirection(*path);
+        if (dir != SkPathFirstDirection::kUnknown) {
+            if (dir == SkPathFirstDirection::kCW) {
+                ReversePath(path);
+            }
+            path->setFillType(fillType);
+            return true;
         }
-        path->setFillType(fillType);
-        return true;
     }
     SkSTArenaAlloc<4096> allocator;
     SkOpContourHead contourHead;
@@ -136,8 +138,8 @@ bool SkOpBuilder::resolve(SkPath* result) {
         }
         // If all paths are convex, track direction, reversing as needed.
         if (test->isConvex()) {
-            SkPathFirstDirection dir;
-            if (!SkPathPriv::CheapComputeFirstDirection(*test, &dir)) {
+            SkPathFirstDirection dir = SkPathPriv::ComputeFirstDirection(*test);
+            if (dir == SkPathFirstDirection::kUnknown) {
                 allUnion = false;
                 break;
             }

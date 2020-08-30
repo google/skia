@@ -303,12 +303,12 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
     path2.reset();
     path2.addCircle(x + SkIntToScalar(240), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCCW);
     canvas->drawPath(path2, paint);
-    SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathFirstDirection::kCCW));
+    SkASSERT(SkPathPriv::ComputeFirstDirection(path2) == SkPathFirstDirection::kCCW);
 
     path2.reset();
-    SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path2, nullptr));
+    SkASSERT(SkPathPriv::ComputeFirstDirection(path2) == SkPathFirstDirection::kUnknown);
     path2.addCircle(x + SkIntToScalar(360), y + SkIntToScalar(200), SkIntToScalar(50), SkPathDirection::kCW);
-    SkASSERT(SkPathPriv::CheapIsFirstDirection(path2, SkPathFirstDirection::kCW));
+    SkASSERT(SkPathPriv::ComputeFirstDirection(path2) == SkPathFirstDirection::kCW);
     canvas->drawPath(path2, paint);
 
     SkRect r = SkRect::MakeXYWH(x - SkIntToScalar(50), y + SkIntToScalar(280),
@@ -332,18 +332,18 @@ DEF_SIMPLE_GM_BG_NAME(strokefill, canvas, 640, 480, SK_ColorWHITE,
     r = SkRect::MakeXYWH(x + SkIntToScalar(190), y + SkIntToScalar(280),
                          SkIntToScalar(100), SkIntToScalar(100));
     path4.reset();
-    SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
+    SkASSERT(SkPathPriv::ComputeFirstDirection(path4) == SkPathFirstDirection::kUnknown);
     path4.addRect(r, SkPathDirection::kCCW);
-    SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathFirstDirection::kCCW));
+    SkASSERT(SkPathPriv::ComputeFirstDirection(path4) == SkPathFirstDirection::kCCW);
     path4.moveTo(0, 0); // test for crbug.com/247770
     canvas->drawPath(path4, paint);
 
     r = SkRect::MakeXYWH(x + SkIntToScalar(310), y + SkIntToScalar(280),
                          SkIntToScalar(100), SkIntToScalar(100));
     path4.reset();
-    SkASSERT(!SkPathPriv::CheapComputeFirstDirection(path4, nullptr));
+    SkASSERT(SkPathPriv::ComputeFirstDirection(path4) == SkPathFirstDirection::kUnknown);
     path4.addRect(r, SkPathDirection::kCW);
-    SkASSERT(SkPathPriv::CheapIsFirstDirection(path4, SkPathFirstDirection::kCW));
+    SkASSERT(SkPathPriv::ComputeFirstDirection(path4) == SkPathFirstDirection::kCW);
     path4.moveTo(0, 0); // test for crbug.com/247770
     canvas->drawPath(path4, paint);
 }

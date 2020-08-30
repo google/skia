@@ -228,7 +228,8 @@ static inline bool get_direction(const SkPath& path, const SkMatrix& m,
     // direction could be determined, so this should just be fetching the cached direction.
     // However, if perspective is involved, we're operating on a transformed path, which may no
     // longer have a computable direction.
-    if (!SkPathPriv::CheapComputeFirstDirection(path, dir)) {
+    *dir = SkPathPriv::ComputeFirstDirection(path);
+    if (*dir == SkPathFirstDirection::kUnknown) {
         return false;
     }
 
