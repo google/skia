@@ -258,8 +258,7 @@ protected:
         // of the GMs rows.
         SkASSERT(path.isConvex());
         SkASSERT(SkPath::kLine_SegmentMask == path.getSegmentMasks());
-        SkPathFirstDirection actualDir;
-        SkASSERT(SkPathPriv::CheapComputeFirstDirection(path, &actualDir));
+        SkPathFirstDirection actualDir = SkPathPriv::ComputeFirstDirection(path);
         SkASSERT(SkPathPriv::AsFirstDirection(dir) == actualDir);
         SkRect bounds = path.getBounds();
         SkASSERT(SkScalarNearlyEqual(bounds.centerX(), 0.0f));
