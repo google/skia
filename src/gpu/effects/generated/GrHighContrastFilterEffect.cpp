@@ -56,6 +56,7 @@ half4 _inlineResulthalf4unpremulhalf40;
 {
     _inlineResulthalf4unpremulhalf40 = half4(inColor.xyz / max(inColor.w, 9.9999997473787516e-05), inColor.w);
 }
+
 half4 color = _inlineResulthalf4unpremulhalf40;
 
 @if (%s) {

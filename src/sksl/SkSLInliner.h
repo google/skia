@@ -36,11 +36,11 @@ public:
 
     /**
      * Processes the passed-in FunctionCall expression. The FunctionCall expression should be
-     * replaced with `fReplacementExpr`. Any statements in `fInlinedBody` should be inserted
-     * immediately above the statement containing the inlined expression.
+     * replaced with `fReplacementExpr`. If non-null, `fInlinedBody` should be inserted immediately
+     * above the statement containing the inlined expression.
      */
     struct InlinedCall {
-        std::vector<std::unique_ptr<Statement>> fInlinedBody;
+        std::unique_ptr<Statement> fInlinedBody;
         std::unique_ptr<Expression> fReplacementExpr;
     };
     InlinedCall inlineCall(std::unique_ptr<FunctionCall>, SymbolTable*);

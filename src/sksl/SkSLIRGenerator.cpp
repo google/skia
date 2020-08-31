@@ -1993,9 +1993,9 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
     if (fCanInline && fInliner.isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
         Inliner::InlinedCall inlinedCall = fInliner.inlineCall(std::move(funcCall),
                                                                fSymbolTable.get());
-        fExtraStatements.insert(fExtraStatements.end(),
-                                std::make_move_iterator(inlinedCall.fInlinedBody.begin()),
-                                std::make_move_iterator(inlinedCall.fInlinedBody.end()));
+        if (inlinedCall.fInlinedBody) {
+            fExtraStatements.push_back(std::move(inlinedCall.fInlinedBody));
+        }
         return std::move(inlinedCall.fReplacementExpr);
     }
 

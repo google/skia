@@ -114,6 +114,7 @@ DEF_TEST(SkSLFunctions, r) {
          "        {\n"
          "            _inlineResultfloatfoofloat20 = y[0] * y[1];\n"
          "        }\n"
+         "\n"
          "        z = _inlineResultfloatfoofloat20;\n"
          "\n"
          "        x = z;\n"
@@ -274,6 +275,7 @@ DEF_TEST(SkSLFunctionInlineArguments, r) {
          "        _inlineArghalfparameterWritehalf1_0 *= 2.0;\n"
          "        _inlineResulthalfparameterWritehalf0 = _inlineArghalfparameterWritehalf1_0;\n"
          "    }\n"
+         "\n"
          "    sk_FragColor.x = _inlineResulthalfparameterWritehalf0;\n"
          "\n"
          "}\n");
@@ -328,6 +330,7 @@ DEF_TEST(SkSLFunctionInlineArguments, r) {
          "    {\n"
          "        foo(_inlineArghalfbarhalf1_0);\n"
          "    }\n"
+         "\n"
          "\n"
          "    sk_FragColor.x = 0.0;\n"
          "}\n");
