@@ -30,10 +30,17 @@ static void codec_yuv(skiatest::Reporter* reporter,
     // Test queryYUBAInfo()
     SkYUVAPixmapInfo yuvaPixmapInfo;
 
-    // Param is required to be non-null.
-    bool success = codec->queryYUVAInfo(nullptr);
+    static constexpr auto kAllCombos = SkYUVAPixmapInfo::SupportedDataTypes::All();
+    static constexpr auto kNoCombos  = SkYUVAPixmapInfo::SupportedDataTypes();
+
+    // SkYUVAInfo param is required to be non-null.
+    bool success = codec->queryYUVAInfo(kAllCombos, nullptr);
     REPORTER_ASSERT(reporter, !success);
-    success = codec->queryYUVAInfo(&yuvaPixmapInfo);
+    // Fails when there is no support for YUVA planes.
+    success = codec->queryYUVAInfo(kNoCombos, &yuvaPixmapInfo);
+    REPORTER_ASSERT(reporter, !success);
+
+    success = codec->queryYUVAInfo(kAllCombos, &yuvaPixmapInfo);
     REPORTER_ASSERT(reporter, SkToBool(expectedInfo) == success);
     if (!success) {
         return;
