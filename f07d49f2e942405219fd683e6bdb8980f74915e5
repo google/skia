@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6d3194c_b6b205ea",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-31T14:11:10Z",
+      "side": 1,
+      "message": "This CL calls attention to how little state we really need here. This can just be a local in inlineCall.\n\nGiven how close it is, I\u0027d be tempted to eliminate all the state, and have context/settings passed to inlineCall (and settings passed to isSafeToInline). At that point, the inliner is just a free function (though it may not be worth it? YUou\u0027d need to thread the context through the recursive internal calls).",
+      "range": {
+        "startLine": 486,
+        "startChar": 23,
+        "endLine": 486,
+        "endChar": 40
+      },
+      "revId": "f07d49f2e942405219fd683e6bdb8980f74915e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
