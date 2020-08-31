@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3b6d84f_eb020040",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-31T16:17:08Z",
+      "side": 1,
+      "message": "Nit: We\u0027re an LLC now :-)",
+      "range": {
+        "startLine": 2,
+        "startChar": 25,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "463c19fea32876386bcdad0c26dbe8a380654873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d44f6c89_dc9b5d63",
+        "filename": "src/sksl/SkSLInliner.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-31T16:17:08Z",
+      "side": 1,
+      "message": "Nit: 2020 Google LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "463c19fea32876386bcdad0c26dbe8a380654873",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
