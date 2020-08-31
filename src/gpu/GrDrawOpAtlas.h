@@ -110,15 +110,15 @@ public:
 
     static const uint64_t kInvalidAtlasGeneration = 0;
 
+
+    // AtlasLocator handles atlas position information. It keeps a left-top, right-bottom pair of
+    // encoded UV coordinates. The bits 13 & 14 of the U coordinates hold the atlas page index.
+    // This information is handed directly as is from fUVs. This encoding has the nice property
+    // that width = fUVs[2] - fUVs[0]; the page encoding in the top bits subtracts to zero.
     class AtlasLocator {
     public:
         std::array<uint16_t, 4> getUVs() const {
-
-            // We pack the 2bit page index in the low bit of the u and v texture coords
-            uint32_t pageIndex = this->pageIndex();
-            auto [left, top] = PackIndexInTexCoords(fRect.fLeft, fRect.fTop, pageIndex);
-            auto [right, bottom] = PackIndexInTexCoords(fRect.fRight, fRect.fBottom, pageIndex);
-            return { left, top, right, bottom };
+            return fUVs;
         }
 
         void invalidatePlotLocator() { fPlotLocator.makeInvalid(); }
@@ -132,28 +132,51 @@ public:
 
         uint64_t genID() const { return fPlotLocator.genID(); }
 
-        void insetSrc(int padding) {
-            fRect.fLeft += padding;
-            fRect.fTop += padding;
-            fRect.fRight -= padding;
-            fRect.fBottom -= padding;
+        SkIPoint topLeft() const {
+            return {fUVs[0] & 0x1FFF, fUVs[1]};
         }
 
-        GrIRect16 rect() const { return fRect; }
+        uint16_t width() const {
+            return fUVs[2] - fUVs[0];
+        }
+
+        uint16_t height() const {
+            return fUVs[3] - fUVs[1];
+        }
+
+        void insetSrc(int padding) {
+            SkASSERT(2 * padding <= this->width());
+            SkASSERT(2 * padding <= this->height());
+
+            fUVs[0] += padding;
+            fUVs[1] += padding;
+            fUVs[2] -= padding;
+            fUVs[3] -= padding;
+        }
 
         void updatePlotLocator(PlotLocator p) {
             fPlotLocator = p;
+            SkASSERT(0 <= fPlotLocator.pageIndex() && fPlotLocator.pageIndex() <= 3);
+            uint16_t page = fPlotLocator.pageIndex() << 13;
+            fUVs[0] = (fUVs[0] & 0x1FFF) | page;
+            fUVs[2] = (fUVs[2] & 0x1FFF) | page;
         }
 
         void updateRect(GrIRect16 rect) {
-            fRect = rect;
+            SkASSERT(rect.fLeft <= rect.fRight);
+            SkASSERT(rect.fRight <= 0x1FFF);
+            fUVs[0] = (fUVs[0] & 0xE000) | rect.fLeft;
+            fUVs[1] = rect.fTop;
+            fUVs[2] = (fUVs[2] & 0xE000) | rect.fRight;
+            fUVs[3] = rect.fBottom;
         }
 
     private:
         PlotLocator fPlotLocator{0, 0, 0};
 
-        // The inset padded bounds in the atlas.
-        GrIRect16   fRect{0, 0, 0, 0};
+        // The inset padded bounds in the atlas in the lower 13 bits, and page index in bits 13 &
+        // 14 of the Us.
+        std::array<uint16_t, 4> fUVs{0, 0, 0, 0};
     };
 
     /**
@@ -205,31 +228,6 @@ public:
                                                GenerationCounter* generationCounter,
                                                AllowMultitexturing allowMultitexturing,
                                                EvictionCallback* evictor);
-
-    /**
-     * Packs a texture atlas page index into the uint16 texture coordinates.
-     *  @param u      U texture coordinate
-     *  @param v      V texture coordinate
-     *  @param pageIndex   index of the texture these coordinates apply to.
-                           Must be in the range [0, 3].
-     *  @return    The new u and v coordinates with the packed value
-     */
-    static std::pair<uint16_t, uint16_t> PackIndexInTexCoords(
-            uint16_t u, uint16_t v, int pageIndex) {
-        // Pack the two bits of page in bits 13 and 14 of u.
-        SkASSERT(0 <= pageIndex && pageIndex < 4);
-        u &= 0x1FFF;
-        u |= pageIndex << 13;
-        return std::make_pair(u, v);
-    }
-
-    /**
-     * Unpacks a texture atlas page index from uint16 texture coordinates.
-     *  @param u      Packed U texture coordinate
-     *  @param v      Packed V texture coordinate
-     *  @return    The unpacked u and v coordinates with the page index.
-     */
-    static std::tuple<uint16_t, uint16_t, int> UnpackIndexFromTexCoords(uint16_t u, uint16_t v);
 
     /**
      * Adds a width x height subimage to the atlas. Upon success it returns 'kSucceeded' and returns
