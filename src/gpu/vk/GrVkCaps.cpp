@@ -458,7 +458,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // On Mali galaxy s7 and s9 we see lots of rendering issues with image filters dropping out when
     // using only primary command buffers.
     if (kARM_VkVendor == properties.vendorID) {
-        fPreferPrimaryOverSecondaryCommandBuffers = false;
+      //  fPreferPrimaryOverSecondaryCommandBuffers = false;
     }
 
     // On Mali G series GPUs, applying transfer functions in the fragment shader with half-floats
