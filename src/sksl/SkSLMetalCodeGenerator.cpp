@@ -1501,7 +1501,7 @@ void MetalCodeGenerator::writeOutputStruct() {
         }
     }
     if (fProgram.fKind == Program::kVertex_Kind) {
-        this->write("    float sk_PointSize;\n");
+        this->write("    float sk_PointSize [[point_size]];\n");
     }
     this->write("};\n");
 }
