@@ -33,6 +33,23 @@
       "revId": "514bf5ba2f6718da9d3a59849f1ffeafa08bb31a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "771dfadb_39bc920a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10818
+      },
+      "writtenOn": "2020-08-31T14:43:20Z",
+      "side": 1,
+      "message": "Hmm, I forgot about the serialization tests (trybot failing with \u0027serialize-8888 gm  aligneddashing: Pixels don\u0027t match reference\u0027). Since this is now explicitly experimental, maybe I should just remove the gm? @Mike any preferences?",
+      "revId": "514bf5ba2f6718da9d3a59849f1ffeafa08bb31a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
