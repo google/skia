@@ -2284,6 +2284,7 @@ if (skia_enable_tools) {
         ":skia",
         "modules/skottie",
         "modules/sksg:samples",
+        "//third_party/oboe",
       ]
     }
   }
