@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dae67f7c_f7c4be63",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-31T17:51:50Z",
+      "side": 1,
+      "message": "Might as well simplify this down to CubicResampler, too, right?",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 24
+      },
+      "revId": "fc38fafaee79b6ea4fd9cdf16c76bcff42dc1e67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
