@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7ab74e3_b4c5f519",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-08-31T13:13:39Z",
+      "side": 1,
+      "message": "I know it\u0027s a big CL, but it\u0027s very straightforward. With this getting a lot of the prerequisite work out of the way, the followups won\u0027t be so big.",
+      "revId": "2c48c1ced5ad750055ef20c76ba7276a3967a960",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
