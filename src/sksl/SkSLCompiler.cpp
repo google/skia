@@ -10,6 +10,7 @@
 #include <memory>
 #include <unordered_set>
 
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLByteCodeGenerator.h"
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLCPPCodeGenerator.h"
@@ -1106,56 +1107,60 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     }
 }
 
-// Implementation-detail recursive helper function for `contains_conditional_break`.
-static bool contains_conditional_break_impl(Statement& s, bool inConditional) {
-    switch (s.fKind) {
-        case Statement::kBlock_Kind:
-            for (const std::unique_ptr<Statement>& sub : s.as<Block>().fStatements) {
-                if (contains_conditional_break_impl(*sub, inConditional)) {
-                    return true;
-                }
-            }
-            return false;
-
-        case Statement::kBreak_Kind:
-            return inConditional;
-
-        case Statement::kIf_Kind: {
-            const IfStatement& i = s.as<IfStatement>();
-            return contains_conditional_break_impl(*i.fIfTrue, /*inConditional=*/true) ||
-                   (i.fIfFalse &&
-                    contains_conditional_break_impl(*i.fIfFalse, /*inConditional=*/true));
-        }
-
-        default:
-            return false;
-    }
-}
-
 // Returns true if this statement could potentially execute a break at the current level. We ignore
 // nested loops and switches, since any breaks inside of them will merely break the loop / switch.
-static bool contains_conditional_break(Statement& s) {
-    return contains_conditional_break_impl(s, /*inConditional=*/false);
+static bool contains_conditional_break(Statement& stmt) {
+    class ContainsConditionalBreak : public ProgramVisitor {
+    public:
+        bool visitStatement(const Statement& stmt) override {
+            switch (stmt.fKind) {
+                case Statement::kBlock_Kind:
+                    return this->INHERITED::visitStatement(stmt);
+
+                case Statement::kBreak_Kind:
+                    return fInConditional > 0;
+
+                case Statement::kIf_Kind: {
+                    ++fInConditional;
+                    bool result = this->INHERITED::visitStatement(stmt);
+                    --fInConditional;
+                    return result;
+                }
+
+                default:
+                    return false;
+            }
+        }
+
+        int fInConditional = 0;
+        using INHERITED = ProgramVisitor;
+    };
+
+    return ContainsConditionalBreak{}.visitStatement(stmt);
 }
 
 // returns true if this statement definitely executes a break at the current level (we ignore
 // nested loops and switches, since any breaks inside of them will merely break the loop / switch)
-static bool contains_unconditional_break(Statement& s) {
-    switch (s.fKind) {
-        case Statement::kBlock_Kind:
-            for (const std::unique_ptr<Statement>& sub : static_cast<Block&>(s).fStatements) {
-                if (contains_unconditional_break(*sub)) {
+static bool contains_unconditional_break(Statement& stmt) {
+    class ContainsUnconditionalBreak : public ProgramVisitor {
+    public:
+        bool visitStatement(const Statement& stmt) override {
+            switch (stmt.fKind) {
+                case Statement::kBlock_Kind:
+                    return this->INHERITED::visitStatement(stmt);
+
+                case Statement::kBreak_Kind:
                     return true;
-                }
+
+                default:
+                    return false;
             }
-            return false;
+        }
 
-        case Statement::kBreak_Kind:
-            return true;
+        using INHERITED = ProgramVisitor;
+    };
 
-        default:
-            return false;
-    }
+    return ContainsUnconditionalBreak{}.visitStatement(stmt);
 }
 
 static void move_all_but_break(std::unique_ptr<Statement>& stmt,
