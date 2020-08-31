@@ -30,9 +30,9 @@ void GrDrawOpAtlas::validate(const AtlasLocator& atlasLocator) const {
     int numPlotsY = fTextureHeight / fPlotHeight;
 
     int plotIndex = atlasLocator.plotIndex();
-    auto rect = atlasLocator.rect();
-    int plotX = rect.fLeft / fPlotWidth;
-    int plotY = rect.fTop / fPlotHeight;
+    auto topLeft = atlasLocator.topLeft();
+    int plotX = topLeft.x() / fPlotWidth;
+    int plotY = topLeft.y() / fPlotHeight;
     SkASSERT(plotIndex == (numPlotsY - plotY - 1) * numPlotsX + (numPlotsX - plotX - 1));
 }
 #endif
@@ -75,18 +75,6 @@ std::unique_ptr<GrDrawOpAtlas> GrDrawOpAtlas::Make(GrProxyProvider* proxyProvide
         atlas->fEvictionCallbacks.emplace_back(evictor);
     }
     return atlas;
-}
-
-std::tuple<uint16_t, uint16_t, int> GrDrawOpAtlas::UnpackIndexFromTexCoords(uint16_t u,
-                                                                            uint16_t v) {
-    int pageIndex = 0;
-    if (u & 0x1) {
-        pageIndex |= 0x2;
-    }
-    if (v & 0x1) {
-        pageIndex |= 0x1;
-    }
-    return std::make_tuple(u >> 1, v >> 1, pageIndex);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
