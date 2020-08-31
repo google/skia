@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98fdea72_26df7f83",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-08-31T16:42:12Z",
+      "side": 1,
+      "message": "Lots of small diffs -- clearly I\u0027ve changed some behavior :( \n",
+      "revId": "19c04a8dc9b886f2c7a351158e174ca2381b5a39",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
