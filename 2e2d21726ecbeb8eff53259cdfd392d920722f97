@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3175880a_865296c1",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-31T17:11:36Z",
+      "side": 1,
+      "message": "Maybe defer the make_unique until after the loop, for the cases where we do need to adjust the string? So:\n\nString uniqueName \u003d name;\nfor(;;) {\n  ...\n  uniqueName \u003d String::printf(...);\n}\ntakeOwnershipOfString(std::make_unique\u003cString\u003e(std::move(uniqueName)));",
+      "revId": "2e2d21726ecbeb8eff53259cdfd392d920722f97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "658a5d23_0c6d2a3e",
+        "filename": "tests/SkSLFPTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1279,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-31T17:11:36Z",
+      "side": 1,
+      "message": "nit: Totally irrelevant for what this is testing, but fma usually implies \"multiply, then add\"",
+      "revId": "2e2d21726ecbeb8eff53259cdfd392d920722f97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
