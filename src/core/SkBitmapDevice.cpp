@@ -590,36 +590,13 @@ void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& origPaint) {
+void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& paint) {
     SkASSERT(!src->isTextureBacked());
-    SkASSERT(!origPaint.getMaskFilter());
-
-    sk_sp<SkSpecialImage> filteredImage;
-    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
-
-    if (SkImageFilter* filter = paint->getImageFilter()) {
-        SkIPoint offset = SkIPoint::Make(0, 0);
-        const SkMatrix matrix = SkMatrix::Concat(
-            SkMatrix::Translate(SkIntToScalar(-x), SkIntToScalar(-y)), this->localToDevice());
-        const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
-        sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-        SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), fBitmap.colorType(),
-                                        fBitmap.colorSpace(), src);
-
-        filteredImage = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);
-        if (!filteredImage) {
-            return;
-        }
-
-        src = filteredImage.get();
-        paint.writable()->setImageFilter(nullptr);
-        x += offset.x();
-        y += offset.y();
-    }
+    SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
 
     SkBitmap resultBM;
     if (src->getROPixels(&resultBM)) {
-        BDDraw(this).drawSprite(resultBM, x, y, *paint);
+        BDDraw(this).drawSprite(resultBM, x, y, paint);
     }
 }
 

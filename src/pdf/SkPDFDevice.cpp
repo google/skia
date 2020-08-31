@@ -1714,37 +1714,11 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, int x, int y, const SkPain
         return;
     }
     SkASSERT(!srcImg->isTextureBacked());
-    SkASSERT(!paint.getMaskFilter());
-
-    //TODO: clipImage support
+    SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
 
     SkBitmap resultBM;
-
-    SkImageFilter* filter = paint.getImageFilter();
-    if (filter) {
-        SkIPoint offset = SkIPoint::Make(0, 0);
-        SkMatrix matrix = this->localToDevice();
-        matrix.postTranslate(SkIntToScalar(-x), SkIntToScalar(-y));
-        const SkIRect clipBounds =
-            this->cs().bounds(this->bounds()).roundOut().makeOffset(-x, -y);
-        sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-        // TODO: Should PDF be operating in a specified color type/space? For now, run the filter
-        // in the same color space as the source (this is different from all other backends).
-        SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), kN32_SkColorType,
-                                        srcImg->getColorSpace(), srcImg);
-
-        sk_sp<SkSpecialImage> resultImg(as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset));
-        if (resultImg) {
-            SkPaint tmpUnfiltered(paint);
-            tmpUnfiltered.setImageFilter(nullptr);
-            if (resultImg->getROPixels(&resultBM)) {
-                this->drawSprite(resultBM, x + offset.x(), y + offset.y(), tmpUnfiltered);
-            }
-        }
-    } else {
-        if (srcImg->getROPixels(&resultBM)) {
-            this->drawSprite(resultBM, x, y, paint);
-        }
+    if (srcImg->getROPixels(&resultBM)) {
+        this->drawSprite(resultBM, x, y, paint);
     }
 }
 
