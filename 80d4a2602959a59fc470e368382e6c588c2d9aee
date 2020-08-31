@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "fedfd319_d247e60d",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-31T15:12:39Z",
+      "side": 1,
+      "message": "I understand (and like) the idea but it does not fit Flutter API.\nTried to make as much sense out of it as possible...",
+      "parentUuid": "99132fa8_019a6cfb",
+      "range": {
+        "startLine": 28,
+        "startChar": 8,
+        "endLine": 28,
+        "endChar": 32
+      },
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa14ba48_b3632140",
         "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
         "patchSetId": 13
@@ -169,6 +193,24 @@
       "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39607808_8717efc6",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-08-31T15:12:39Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "75b7a869_1ab80f16",
+      "revId": "80d4a2602959a59fc470e368382e6c588c2d9aee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
