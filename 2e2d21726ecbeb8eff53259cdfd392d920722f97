@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "134575e5_200fe231",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-31T19:29:23Z",
+      "side": 1,
+      "message": "Somehow this is breaking fp_sample_chaining, and imagemagnifier_cropped in Metal... I\u0027ll dig into this now.",
+      "parentUuid": "7f4e21ad_dc057750",
+      "revId": "2e2d21726ecbeb8eff53259cdfd392d920722f97",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "658a5d23_0c6d2a3e",
         "filename": "tests/SkSLFPTest.cpp",
         "patchSetId": 2
