@@ -102,26 +102,27 @@ DEF_TEST(SkSLFunctions, r) {
          "void bar(inout float x) { float y[2], z; y[0] = x; y[1] = x * 2; z = foo(y); x = z; }"
          "void main() { float x = 10; bar(x); sk_FragColor = half4(half(x)); }",
          *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    float x = 10.0;\n"
-         "    {\n"
-         "        float y[2], z;\n"
-         "        y[0] = 10.0;\n"
-         "        y[1] = 20.0;\n"
-         "        float _inlineResultfloatfoofloat20;\n"
-         "        {\n"
-         "            _inlineResultfloatfoofloat20 = y[0] * y[1];\n"
-         "        }\n"
-         "\n"
-         "        z = _inlineResultfloatfoofloat20;\n"
-         "\n"
-         "        x = z;\n"
-         "    }\n"
-         "\n"
-         "    sk_FragColor = vec4(x);\n"
-         "}\n");
+R"__GLSL__(#version 400
+out vec4 sk_FragColor;
+void main() {
+    float x = 10.0;
+    {
+        float y[2], z;
+        y[0] = 10.0;
+        y[1] = 20.0;
+        float _0_foo;
+        {
+            _0_foo = y[0] * y[1];
+        }
+
+        z = _0_foo;
+
+        x = z;
+    }
+
+    sk_FragColor = vec4(x);
+}
+)__GLSL__");
 }
 
 DEF_TEST(SkSLFunctionInlineThreshold, r) {
@@ -266,19 +267,20 @@ DEF_TEST(SkSLFunctionInlineArguments, r) {
          "    sk_FragColor.x = parameterWrite(1);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    float _inlineResulthalfparameterWritehalf0;\n"
-         "    float _inlineArghalfparameterWritehalf1_0 = 1.0;\n"
-         "    {\n"
-         "        _inlineArghalfparameterWritehalf1_0 *= 2.0;\n"
-         "        _inlineResulthalfparameterWritehalf0 = _inlineArghalfparameterWritehalf1_0;\n"
-         "    }\n"
-         "\n"
-         "    sk_FragColor.x = _inlineResulthalfparameterWritehalf0;\n"
-         "\n"
-         "}\n");
+R"__GLSL__(#version 400
+out vec4 sk_FragColor;
+void main() {
+    float _0_parameterWrite;
+    float _1_x = 1.0;
+    {
+        _1_x *= 2.0;
+        _0_parameterWrite = _1_x;
+    }
+
+    sk_FragColor.x = _0_parameterWrite;
+
+}
+)__GLSL__");
     test(r,
          "void outParameter(inout half x) {"
          "    x *= 2;"
@@ -310,30 +312,61 @@ DEF_TEST(SkSLFunctionInlineArguments, r) {
          "    return y;"
          "}"
          "void main() {"
+         "    half _1_y = 123;"  // make sure the inliner doesn't try to reuse this name
          "    half z = 0;"
          "    bar(z);"
          "    sk_FragColor.x = z;"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void foo(out float x) {\n"
-         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
-         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
-         "    ++x;\n    --x;\n    --x;\n    --x;\n    --x;\n    --x;\n    --x;\n    --x;\n"
-         "    --x;\n    --x;\n    --x;\n    --x;\n    --x;\n    --x;\n    --x;\n    --x;\n"
-         "    --x;\n    --x;\n"
-         "    x = 42.0;\n"
-         "}\n"
-         "void main() {\n"
-         "    float _inlineArghalfbarhalf1_0 = 0.0;\n"
-         "    {\n"
-         "        foo(_inlineArghalfbarhalf1_0);\n"
-         "    }\n"
-         "\n"
-         "\n"
-         "    sk_FragColor.x = 0.0;\n"
-         "}\n");
+R"__GLSL__(#version 400
+out vec4 sk_FragColor;
+void foo(out float x) {
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    --x;
+    x = 42.0;
+}
+void main() {
+    float _2_y = 0.0;
+    {
+        foo(_2_y);
+    }
+
+
+    sk_FragColor.x = 0.0;
+}
+)__GLSL__");
 }
 
 DEF_TEST(SkSLMatrices, r) {
