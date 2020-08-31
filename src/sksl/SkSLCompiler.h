@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLCFGGenerator.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLInliner.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -241,6 +242,7 @@ private:
     std::vector<std::unique_ptr<ProgramElement>> fFPInclude;
     std::shared_ptr<SymbolTable> fFPSymbolTable;
 
+    Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
     int fFlags;
 

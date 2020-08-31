@@ -106,7 +106,7 @@ Compiler::Compiler(Flags flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
     auto symbols = std::make_shared<SymbolTable>(this);
-    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), symbols, *this);
+    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), &fInliner, symbols, *this);
     #define ADD_TYPE(t) symbols->addWithoutOwnership(fContext->f ## t ## _Type->fName, \
                                                      fContext->f ## t ## _Type.get())
     ADD_TYPE(Void);
@@ -1547,6 +1547,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                                   const Program::Settings& settings) {
     fErrorText = "";
     fErrorCount = 0;
+    fInliner.reset(context(), settings);
     std::vector<std::unique_ptr<ProgramElement>>* inherited;
     std::vector<std::unique_ptr<ProgramElement>> elements;
     switch (kind) {

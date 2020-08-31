@@ -51,7 +51,7 @@ using IRIntrinsicMap = std::unordered_map<String, IRIntrinsic>;
  */
 class IRGenerator {
 public:
-    IRGenerator(const Context* context, std::shared_ptr<SymbolTable> root,
+    IRGenerator(const Context* context, Inliner* inliner, std::shared_ptr<SymbolTable> root,
                 ErrorReporter& errorReporter);
 
     void convertProgram(Program::Kind kind,
@@ -168,7 +168,7 @@ private:
     bool checkSwizzleWrite(const Swizzle& swizzle);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
 
-    Inliner fInliner;
+    Inliner* fInliner = nullptr;
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
