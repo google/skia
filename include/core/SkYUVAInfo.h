@@ -44,7 +44,10 @@ public:
         kY_U_V_440,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
         kY_U_V_411,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
         kY_U_V_410,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
+
+        kLast = kY_U_V_410
     };
+    static constexpr int kPlanarConfigCnt = static_cast<int>(PlanarConfig::kLast) + 1;
 
     /**
      * Describes how subsampled chroma values are sited relative to luma values.
