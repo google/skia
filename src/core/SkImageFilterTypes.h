@@ -519,6 +519,9 @@ public:
     FilterResult(sk_sp<SkSpecialImage> image, const LayerSpace<SkIPoint>& origin)
             : fImage(std::move(image))
             , fOrigin(origin) {}
+    explicit FilterResult(sk_sp<SkSpecialImage> image)
+            : fImage(std::move(image))
+            , fOrigin{{0, 0}} {}
 
     // Allow explicit moves/copies in order to cast from one use type to another, except kInput0
     // and kInput1 can only be cast to kOutput (e.g. as part of a noop image filter).

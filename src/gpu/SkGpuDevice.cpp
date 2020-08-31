@@ -27,7 +27,6 @@
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRecord.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/core/SkStroke.h"
 #include "src/core/SkTLazy.h"
 #include "src/core/SkVerticesPriv.h"
@@ -155,27 +154,6 @@ std::unique_ptr<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
             context, SkColorTypeToGrColorType(origInfo.colorType()), origInfo.refColorSpace(),
             SkBackingFit::kExact, origInfo.dimensions(), sampleCount, mipMapped, GrProtected::kNo,
             origin, budgeted, surfaceProps);
-}
-
-sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
-                                                 int left, int top,
-                                                 SkIPoint* offset,
-                                                 const SkImageFilter* filter) {
-    SkASSERT(srcImg->isTextureBacked());
-    SkASSERT(filter);
-
-    SkMatrix matrix = this->localToDevice();
-    matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
-    const SkIRect clipBounds = this->devClipBounds().makeOffset(-left, -top);
-    sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
-    SkColorType colorType = GrColorTypeToSkColorType(fRenderTargetContext->colorInfo().colorType());
-    if (colorType == kUnknown_SkColorType) {
-        colorType = kRGBA_8888_SkColorType;
-    }
-    SkImageFilter_Base::Context ctx(matrix, clipBounds, cache.get(), colorType,
-                                    fRenderTargetContext->colorInfo().colorSpace(), srcImg);
-
-    return as_IFB(filter)->filterImage(ctx).imageAndOffset(offset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -637,70 +615,6 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
 
     GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
                                          paint, this->asMatrixProvider(), shape);
-}
-
-void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint) {
-    SkASSERT(!paint.getMaskFilter());
-
-    ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
-
-    sk_sp<SkSpecialImage> result;
-    if (paint.getImageFilter()) {
-        SkIPoint offset = { 0, 0 };
-
-        result = this->filterTexture(special, left, top, &offset, paint.getImageFilter());
-        if (!result) {
-            return;
-        }
-
-        left += offset.fX;
-        top += offset.fY;
-    } else {
-        result = sk_ref_sp(special);
-    }
-
-    SkASSERT(result->isTextureBacked());
-    GrSurfaceProxyView view = result->view(this->recordingContext());
-    if (!view) {
-        return;
-    }
-
-    SkMatrix ctm = this->localToDevice();
-    ctm.postTranslate(-SkIntToScalar(left), -SkIntToScalar(top));
-
-    SkPaint tmpUnfiltered(paint);
-    tmpUnfiltered.setImageFilter(nullptr);
-
-    auto fp = GrTextureEffect::Make(std::move(view), special->alphaType());
-    fp = GrColorSpaceXformEffect::Make(
-            std::move(fp),
-            result->getColorSpace(), result->alphaType(),
-            fRenderTargetContext->colorInfo().colorSpace(), kPremul_SkAlphaType);
-    if (GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(result->colorType()))) {
-        fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
-    } else {
-        if (paint.getColor4f().isOpaque()) {
-            fp = GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
-        } else {
-            fp = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
-        }
-    }
-
-    GrPaint grPaint;
-    if (!SkPaintToGrPaintReplaceShader(this->recordingContext(), fRenderTargetContext->colorInfo(),
-                                       tmpUnfiltered, this->asMatrixProvider(), std::move(fp),
-                                       &grPaint)) {
-        return;
-    }
-
-    const SkIRect& subset = result->subset();
-    SkRect dstRect = SkRect::Make(SkIRect::MakeXYWH(left, top, subset.width(), subset.height()));
-    SkRect srcRect = SkRect::Make(subset);
-
-    // Draw directly in screen space, possibly with an extra coverage processor
-    fRenderTargetContext->fillRectToRect(this->clip(), std::move(grPaint),
-            GrAA(paint.isAntiAlias()), SkMatrix::I(), dstRect, srcRect);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {

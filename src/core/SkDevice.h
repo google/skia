@@ -22,12 +22,17 @@ class SkBitmap;
 struct SkDrawShadowRec;
 class SkGlyphRun;
 class SkGlyphRunList;
+class SkImageFilter;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMarkerStack;
 class SkMatrix;
 class SkRasterHandleAllocator;
 class SkSpecialImage;
+
+namespace skif {
+    class Mapping;
+} // namespace skif
 
 class SkBaseDevice : public SkRefCnt, public SkMatrixProvider {
 public:
@@ -126,10 +131,10 @@ public:
      */
     bool isPixelAlignedToGlobal() const;
     /**
-     *  Get the transformation from the input device's to this device's coordinate space. This
-     *  transform can be used to draw the input device into this device, such that once this device
-     *  is drawn to the root device, the net effect will have the input device's content drawn
-     *  transformed by the global CTM.
+     * Get the transformation from this device's coordinate system to the provided device space.
+     * This transform can be used to draw this device into the provided device, such that once
+     * that device is drawn to the root device, the net effect will be that this device's contents
+     * have been transformed by the global CTM.
      */
     SkMatrix getRelativeTransform(const SkBaseDevice&) const;
 
@@ -289,19 +294,33 @@ protected:
                                     const SkPoint dstClips[], const SkMatrix preViewMatrices[],
                                     const SkPaint& paint, SkCanvas::SrcRectConstraint);
 
-    /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateDevice on this device with kNeverTile_TileExpectation.
-     */
-    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
-
     void drawGlyphRunRSXform(const SkFont&, const SkGlyphID[], const SkRSXform[], int count,
                              SkPoint origin, const SkPaint& paint);
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
+    /** The SkDevice passed will be an SkDevice which was returned by a call to
+        onCreateDevice on this device with kNeverTile_TileExpectation.
+     */
+    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
+
     virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
+
+    /**
+     * Evaluate 'filter' and draw the final output into this device using 'paint'. The 'mapping'
+     * defines the parameter-to-layer space transform used to evaluate the image filter on 'src',
+     * and the layer-to-device space transform that is used to draw the result into this device.
+     * Since 'mapping' fully specifies the transform, this draw function ignores the current
+     * local-to-device matrix (i.e. just like drawSpecial and drawDevice).
+     *
+     * The final paint must not have an image filter or mask filter set on it; a shader is ignored.
+     */
+    virtual void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
+                                   const SkImageFilter* filter, const SkPaint& paint);
+
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
+
     // Get a view of the entire device's current contents as an image.
     sk_sp<SkSpecialImage> snapSpecial();
     // Snap the 'subset' contents from this device, possibly as a read-only view. If 'forceCopy'
@@ -501,6 +520,9 @@ protected:
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
+
+    void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
+                           const SkImageFilter* filter, const SkPaint& paint) override {}
 
 private:
     typedef SkBaseDevice INHERITED;
