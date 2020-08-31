@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "34cd97da_8e276542",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "With https://skia-review.googlesource.com/c/skia/+/312491 I\u0027m changing how SkRects are represented in CanvasKit to be float arrays.\n\nI\u0027m ok introducing a \"type\" called TextRects which is 4 floats representing the corners and then a float representing the direction. This means we can just return the flat Float32Array from getRectsForPlaceholders containing a multiple of 5 elements. This would avoid the double-conversion and be mostly compatible with plugging the rectangles into other APIs.",
+      "parentUuid": "283d737a_c536b96d",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d73ce85_656281cf",
         "filename": "modules/canvaskit/paragraph.js",
         "patchSetId": 2
@@ -64,6 +82,185 @@
       "writtenOn": "2020-08-26T19:57:37Z",
       "side": 1,
       "message": "define fontStyle, strutStyle and placeholderStyle in CanvasKit like .CanvasKitParagraphStyle and CanvasKit.TextStyle\n\nusers wanting to make such styles and re-use them will need to call those methods.",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c22102c_3126fd27",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "I\u0027m not sure about that - ParagraphStyle and TextStyle are defined that way because they are meant to be re-used by a developer in calls to APIs. fontStyle and strutStyle aren\u0027t used directly in an API call, right? As such, I wouldn\u0027t expect to need for a developer to hold onto those names.\n\nPlaceholderStyle, if it is commonly reused, could be exposed so the same object isn\u0027t created multiple times.",
+      "parentUuid": "5d73ce85_656281cf",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee360a05_d4fceb43",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "I don\u0027t think this needs to be a SimpleType. These are just 5 numeric values, so I think it will be simpler/faster to just have _addPlaceHolder (in the bindings) take 5 floats as parameters. \n\nTaking it further, does addPlaceholder (in this file) need to take an object? If the goal is to make it so we handle default values gracefully, then I\u0027m fine as is, but would it be more ergonomic to take 5 parameters in order (width, height, offset, alignment, baseline) so the ones that are omitted more commonly are near the end and can be easily omitted to use the default value?",
+      "range": {
+        "startLine": 107,
+        "startChar": 13,
+        "endLine": 107,
+        "endChar": 29
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "884cdb50_ca22333e",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "style: prefer single quotes in JS",
+      "range": {
+        "startLine": 160,
+        "startChar": 68,
+        "endLine": 160,
+        "endChar": 69
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "006862e9_e5a310e2",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "Does this actually get used?",
+      "range": {
+        "startLine": 43,
+        "startChar": 7,
+        "endLine": 43,
+        "endChar": 23
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8712546f_864e9497",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "This struct is now quite large and a bit unweildy with all the pointer types. It may be time to refactor this into a builder pattern or something like that so it does not become a maintenance burden.",
+      "range": {
+        "startLine": 49,
+        "startChar": 7,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "868ca1ab_d03c7979",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "SkColor4f* is probably more clear here.\nSame for SkPoint* on line 71.",
+      "range": {
+        "startLine": 70,
+        "startChar": 17,
+        "endLine": 70,
+        "endChar": 22
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d948dbae_17b30305",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "style: 4 spaces indent here and everywhere",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 2
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29ebc659_24be3cc6",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "As mentioned in the js file comments, I think we can omit this helper type. Additional reasoning, it\u0027s never used as a return value nor as an array of input values, nor as something embedded in another type.",
+      "range": {
+        "startLine": 90,
+        "startChar": 7,
+        "endLine": 90,
+        "endChar": 29
+      },
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -121,6 +318,29 @@
     },
     {
       "key": {
+        "uuid": "a2d82096_27a8a6f9",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "It is a best practice to always supply a len with arbitrary strings coming over the wire, unless we know the strings won\u0027t be arbitrary (i.e. won\u0027t have null bytes). If we can get away w/o specifying the length, please document why we can do that.",
+      "range": {
+        "startLine": 207,
+        "startChar": 17,
+        "endLine": 207,
+        "endChar": 42
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "13843286_08791595",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 2
@@ -132,6 +352,24 @@
       "writtenOn": "2020-08-27T16:01:53Z",
       "side": 1,
       "message": "That\u0027s a neat trick, but how do we know the compiler guarantees the exact layout of the `SimpleTextBox` struct? For example, what happens when we switch to 64-bit wasm?",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e7b01e8_02e52be9",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "As the original author of this code (het@ is refactoring it), I was under the impression that C++ guarantees that the members of struct appear in memory in the same order as they are declared.\n\nI would not expect 64bit WASM (which seems a long way off) to change this, unless you are referring to alignment changes.",
+      "parentUuid": "13843286_08791595",
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -155,6 +393,69 @@
     },
     {
       "key": {
+        "uuid": "8cbd94b9_eb7adbde",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "nit: add canvas.clear(CanvasKit.WHITE) as the first line to all these tests. It makes it easier to view the full-sized images from Gold easier.",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3de81c5_f221e59d",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "Please augment this test to have a style with multiple shadows on it. Be sure to include \"offset\"",
+      "range": {
+        "startLine": 226,
+        "startChar": 16,
+        "endLine": 226,
+        "endChar": 23
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "82d58a6a_bcfd1a4b",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "nit: add comments explaining which word from the text above these numbers corresponds to.",
+      "range": {
+        "startLine": 600,
+        "startChar": 41,
+        "endLine": 600,
+        "endChar": 42
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3dc41f18_98c03185",
         "filename": "modules/canvaskit/tests/paragraph.spec.js",
         "patchSetId": 2
@@ -166,6 +467,24 @@
       "writtenOn": "2020-08-26T19:57:37Z",
       "side": 1,
       "message": "Add tests for strutStyles, fontFeatures, placeholderStyle",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bfe2495_f21b8e1d",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-08-31T14:57:05Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "3dc41f18_98c03185",
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
