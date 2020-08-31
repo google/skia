@@ -16,6 +16,98 @@
       "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c47b0f9_e8f75cf6",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-31T15:50:19Z",
+      "side": 1,
+      "message": "Personally, I think I\u0027d rather just see using For \u003d skif::Usage here. To understand this code I looked up this macro which is just doing this one-liner.",
+      "range": {
+        "startLine": 330,
+        "startChar": 4,
+        "endLine": 330,
+        "endChar": 36
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1fd3710_db4edba7",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-31T15:50:19Z",
+      "side": 1,
+      "message": "this device\u0027s",
+      "range": {
+        "startLine": 133,
+        "startChar": 7,
+        "endLine": 134,
+        "endChar": 35
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dde3c34_f8340c75",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-31T15:50:19Z",
+      "side": 1,
+      "message": "this device",
+      "range": {
+        "startLine": 135,
+        "startChar": 42,
+        "endLine": 135,
+        "endChar": 57
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f26d641a_1981598c",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-08-31T15:50:19Z",
+      "side": 1,
+      "message": "Could just be fOrigin{0, 0}",
+      "range": {
+        "startLine": 524,
+        "startChar": 14,
+        "endLine": 524,
+        "endChar": 43
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
