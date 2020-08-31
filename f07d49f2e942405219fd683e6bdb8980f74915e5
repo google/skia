@@ -22,6 +22,30 @@
       "revId": "f07d49f2e942405219fd683e6bdb8980f74915e5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85fedeef_4e254c18",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-31T14:21:23Z",
+      "side": 1,
+      "message": "I\u0027d like to tackle changes that affect the output in separate CLs, because any change here is probably going to require touchups to all the unit tests that invoke the inliner. For this CL my goal was to extract the inliner and have it generate the exact same results as before. This is meant to be a signal that I didn\u0027t accidentally change it during the migration.\n\nConceptually this is a great thought though. There\u0027s really no reason an inliner should need to hold interesting state between invocations. It should be idempotent.",
+      "parentUuid": "c6d3194c_b6b205ea",
+      "range": {
+        "startLine": 486,
+        "startChar": 23,
+        "endLine": 486,
+        "endChar": 40
+      },
+      "revId": "f07d49f2e942405219fd683e6bdb8980f74915e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
