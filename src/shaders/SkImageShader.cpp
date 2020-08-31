@@ -23,6 +23,19 @@
 #include "src/shaders/SkEmptyShader.h"
 
 SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
+    if (B == 1.0f/3 && B == 1.0f/3) {
+        return SkM44( 1.f/18.f, -9.f/18.f,  15.f/18.f,  -7.f/18.f,
+                                         16.f/18.f,  0.f/18.f, -36.f/18.f,  21.f/18.f,
+                                          1.f/18.f,  9.f/18.f,  27.f/18.f, -21.f/18.f,
+                                          0.f/18.f,  0.f/18.f,  -6.f/18.f,   7.f/18.f);
+    }
+    if (B == 0 && C == 0.5f) {
+        return SkM44(0.0f, -0.5f,  1.0f, -0.5f,
+                                           1.0f,  0.0f, -2.5f,  1.5f,
+                                           0.0f,  0.5f,  2.0f, -1.5f,
+                                           0.0f,  0.0f, -0.5f,  0.5f);
+    }
+
     const float scale = 1.0f/18;
     B *= scale;
     C *= scale;
@@ -378,29 +391,41 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
     GrSamplerState::Filter fm;
     GrSamplerState::MipmapMode mm;
     bool bicubic;
-    if (fFilterEnum == kUseFilterOptions) {
-        bicubic = false;
-        switch (fFilterOptions.fSampling) {
-            case SkSamplingMode::kNearest: fm = GrSamplerState::Filter::kNearest; break;
-            case SkSamplingMode::kLinear : fm = GrSamplerState::Filter::kLinear ; break;
-        }
-        switch (fFilterOptions.fMipmap) {
-            case SkMipmapMode::kNone   : mm = GrSamplerState::MipmapMode::kNone   ; break;
-            case SkMipmapMode::kNearest: mm = GrSamplerState::MipmapMode::kNearest; break;
-            case SkMipmapMode::kLinear : mm = GrSamplerState::MipmapMode::kLinear ; break;
-        }
-    } else {
-        std::tie(fm, mm, bicubic) =
-                GrInterpretFilterQuality(fImage->dimensions(),
-                                         this->resolveFiltering(args.fFilterQuality),
-                                         args.fMatrixProvider.localToDevice(),
-                                         *lm,
-                                         sharpen,
-                                         args.fAllowFilterQualityReduction);
+    SkImage::CubicResampler kernel = GrBicubicEffect::gMitchell;
+
+    switch (fFilterEnum) {
+        case FilterEnum::kUseFilterOptions:
+            bicubic = false;
+            switch (fFilterOptions.fSampling) {
+                case SkSamplingMode::kNearest: fm = GrSamplerState::Filter::kNearest; break;
+                case SkSamplingMode::kLinear : fm = GrSamplerState::Filter::kLinear ; break;
+            }
+            switch (fFilterOptions.fMipmap) {
+                case SkMipmapMode::kNone   : mm = GrSamplerState::MipmapMode::kNone   ; break;
+                case SkMipmapMode::kNearest: mm = GrSamplerState::MipmapMode::kNearest; break;
+                case SkMipmapMode::kLinear : mm = GrSamplerState::MipmapMode::kLinear ; break;
+            }
+            break;
+        case FilterEnum::kUseCubicResampler:
+            bicubic = true;
+            kernel = fCubic;
+            fm = GrSamplerState::Filter::kNearest;
+            mm = GrSamplerState::MipmapMode::kNone;
+            break;
+        case FilterEnum::kInheritFromPaint:
+        default: // none, low, medium, high
+            std::tie(fm, mm, bicubic) =
+                    GrInterpretFilterQuality(fImage->dimensions(),
+                                             this->resolveFiltering(args.fFilterQuality),
+                                             args.fMatrixProvider.localToDevice(),
+                                             *lm,
+                                             sharpen,
+                                             args.fAllowFilterQualityReduction);
+            break;
     }
     std::unique_ptr<GrFragmentProcessor> fp;
     if (bicubic) {
-        fp = producer->createBicubicFragmentProcessor(lmInverse, nullptr, nullptr, wmX, wmY);
+        fp = producer->createBicubicFragmentProcessor(lmInverse, nullptr, nullptr, wmX, wmY, kernel);
     } else {
         fp = producer->createFragmentProcessor(lmInverse, nullptr, nullptr, {wmX, wmY, fm, mm});
     }
