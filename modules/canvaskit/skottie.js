@@ -63,10 +63,43 @@ CanvasKit.MakeManagedAnimation = function(json, assets, prop_filter_prefix) {
   CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
   CanvasKit._extraInitializations.push(function() {
 
-  CanvasKit.ManagedAnimation.prototype.setColor = function(key, color) {
-    var cPtr = copyColorToWasm(color);
-    this._setColor(key, cPtr);
+  CanvasKit.Animation.prototype.render = function(canvas, dstRect) {
+    var dPtr = copyRectToWasm(dstRect);
+    this._render(canvas, dPtr);
   }
+
+  if (CanvasKit.ManagedAnimation) {
+    CanvasKit.ManagedAnimation.prototype.render = function(canvas, dstRect) {
+      var dPtr = copyRectToWasm(dstRect);
+      this._render(canvas, dPtr);
+    }
+
+    CanvasKit.ManagedAnimation.prototype.seek = function(t, optDamageRect) {
+      this._seek(t, _scratchRectPtr);
+      var ta = _scratchRect['toTypedArray']();
+      if (optDamageRect) {
+        optDamageRect.set(ta);
+        return optDamageRect;
+      }
+      return ta.slice();
+    }
+
+    CanvasKit.ManagedAnimation.prototype.seekFrame = function(frame, optDamageRect) {
+      this._seekFrame(frame, _scratchRectPtr);
+      var ta = _scratchRect['toTypedArray']();
+      if (optDamageRect) {
+        optDamageRect.set(ta);
+        return optDamageRect;
+      }
+      return ta.slice();
+    }
+
+    CanvasKit.ManagedAnimation.prototype.setColor = function(key, color) {
+      var cPtr = copyColorToWasm(color);
+      this._setColor(key, cPtr);
+    }
+  }
+
 
 });
 }(Module)); // When this file is loaded in, the high level object is "Module";

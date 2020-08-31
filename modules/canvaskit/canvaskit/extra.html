@@ -81,12 +81,12 @@
         p.lifetime = 3 + rand(p.seed);
         p.vel.y = -50;
       }
-      
+
       void update(inout Particle p) {
         float w = mix(15, 3, p.age);
         p.pos.x = sin(radians(p.age * 320)) * mix(25, 10, p.age) + mix(-w, w, rand(p.seed));
         if (rand(p.seed) < 0.5) { p.pos.x = -p.pos.x; }
-      
+
         p.color.g = (mix(75, 220, p.age) + mix(-30, 30, rand(p.seed))) / 255;
       }
       `
@@ -122,10 +122,10 @@
   // Examples requiring external resources.
   // Set bounds to fix the 4:3 resolution of the legos
   Promise.all([ckLoaded, loadLegoJSON]).then(([ck, jsonstr]) => {
-    SkottieExample(ck, 'sk_legos', jsonstr, {fLeft: -50, fTop: 0, fRight: 350, fBottom: 300});
+    SkottieExample(ck, 'sk_legos', jsonstr, [-50, 0, 350, 300]);
   });
   // Re-size to fit
-  let fullBounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+  let fullBounds = [0, 0, 500, 500];
   Promise.all([ckLoaded, loadDrinksJSON]).then(([ck, jsonstr]) => {
     SkottieExample(ck, 'sk_drinks', jsonstr, fullBounds);
   });
@@ -146,6 +146,11 @@
   Promise.all([ckLoaded, loadSkp]).then((results) => {SkpExample(...results)});
   Promise.all([ckLoaded, loadBrickTex, loadBrickBump, loadFont]).then((results) => {Camera3D(...results)});
 
+  const rectLeft = 0;
+  const rectTop = 1;
+  const rectRight = 2;
+  const rectBottom = 3;
+
   function SkottieExample(CanvasKit, id, jsonStr, bounds, assets) {
     if (!CanvasKit || !jsonStr) {
       return;
@@ -154,7 +159,7 @@
     const duration = animation.duration() * 1000;
     const size = animation.size();
     let c = document.getElementById(id);
-    bounds = bounds || {fLeft: 0, fTop: 0, fRight: size.w, fBottom: size.h};
+    bounds = bounds || CanvasKit.LTRBRect(0, 0, size.w, size.h);
 
     // Basic managed animation test.
     if (id === 'sk_drinks') {
@@ -172,8 +177,8 @@
     function drawFrame(canvas) {
       let seek = ((Date.now() - firstFrame) / duration) % 1.0;
       let damage = animation.seek(seek);
-      // TODO: SkRect.isEmpty()?
-      if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
+
+      if (damage[rectRight] > damage[rectLeft] && damage[rectBottom] > damage[rectTop]) {
         canvas.clear(CanvasKit.WHITE);
         animation.render(canvas, bounds);
       }
@@ -181,7 +186,6 @@
     }
     surface.requestAnimationFrame(drawFrame);
 
-    //animation.delete();
     return surface;
   }
 
@@ -523,7 +527,7 @@
         float dp = dot(plane_norm, light_dir);
         float scale = min(ambient + max(dp, 0), 1);
 
-        color = sample(color_map, p) * half4(float4(scale, scale, scale, 1)); 
+        color = sample(color_map, p) * half4(float4(scale, scale, scale, 1));
       }
 `;
 
@@ -830,7 +834,7 @@
       // then covering with semitransparent background color.
       if (lastImage) {
         canvas.drawImage(lastImage, 0, 0, null);
-        canvas.drawColor(CanvasKit.Color(171, 244, 255, 0.1)); // sky blue, almost transparent 
+        canvas.drawColor(CanvasKit.Color(171, 244, 255, 0.1)); // sky blue, almost transparent
       } else {
         canvas.clear(CanvasKit.Color(171, 244, 255)); // sky blue, opaque
       }
@@ -855,8 +859,8 @@
         let r = letter['r'];
         // rotate about the center of the glyph's rect.
         rotationPoint = [
-          margin + r.fLeft + (r.fRight - r.fLeft) / 2,
-          marginTop + r.fTop + (r.fBottom - r.fTop) / 2,
+          margin + r[rectLeft] + (r[rectRight] - r[rectLeft]) / 2,
+          marginTop + r[rectTop] + (r[rectBottom] - r[rectTop]) / 2,
           0
         ];
         distanceFromPointer = CanvasKit.SkVector.dist(pointer, rotationPoint.slice(0, 2));
@@ -870,7 +874,7 @@
           CanvasKit.SkM44.rotated([0,1,0], distanceFromPointer * -0.035),
           CanvasKit.SkM44.translated(CanvasKit.SkVector.mulScalar(rotationPoint, -1)),
         ));
-        canvas.drawParagraph(letter['para'], margin + r.fLeft, marginTop + r.fTop);
+        canvas.drawParagraph(letter['para'], margin + r[rectLeft], marginTop + r[rectTop]);
         i++;
         canvas.restore();
       }
@@ -907,9 +911,9 @@
     paint.setColor(red, CanvasKit.SkColorSpace.ADOBE_RGB);
     canvas.drawPaint(paint);
     paint.setColor(red, CanvasKit.SkColorSpace.DISPLAY_P3);
-    canvas.drawRoundRect(CanvasKit.LTRBRect(50, 50, 250, 250), 30, 30, paint);
+    canvas.drawRRect(CanvasKit.RRectXY([50, 50, 250, 250], 30, 30), paint);
     paint.setColor(red, CanvasKit.SkColorSpace.SRGB);
-    canvas.drawRoundRect(CanvasKit.LTRBRect(100, 100, 200, 200), 30, 30, paint);
+    canvas.drawRRect(CanvasKit.RRectXY([100, 100, 200, 200], 30, 30), paint);
 
     surface.flush();
     surface.delete();
