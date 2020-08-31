@@ -434,6 +434,7 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
     std::vector<std::unique_ptr<Expression>>& arguments = call->fArguments;
     const FunctionDefinition& function = *call->fFunction.fDefinition;
     InlinedCall inlinedCall;
+    std::vector<std::unique_ptr<Statement>> inlinedBody;
 
     // Use unique variable names based on the function signature. Otherwise there are situations in
     // which an inlined function is later inlined into another function, and we end up with
@@ -474,7 +475,7 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
         }
 
         // Add the new variable-declaration statement to our block of extra statements.
-        inlinedCall.fInlinedBody.push_back(std::make_unique<VarDeclarationsStatement>(
+        inlinedBody.push_back(std::make_unique<VarDeclarationsStatement>(
                 std::make_unique<VarDeclarations>(offset, &type, std::move(variables))));
 
         return variableSymbol;
@@ -525,14 +526,14 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
         // used to perform an early return), we fake it by wrapping the function in a
         // do { } while (false); and then use break statements to jump to the end in order to
         // emulate a goto.
-        inlinedCall.fInlinedBody.push_back(std::make_unique<DoStatement>(
+        inlinedBody.push_back(std::make_unique<DoStatement>(
                 /*offset=*/-1,
                 std::move(inlineBlock),
                 std::make_unique<BoolLiteral>(*fContext, offset, /*value=*/false)));
     } else {
         // No early returns, so we can just dump the code in. We need to use a block so we don't get
         // name conflicts with locals.
-        inlinedCall.fInlinedBody.push_back(std::move(inlineBlock));
+        inlinedBody.push_back(std::move(inlineBlock));
     }
 
     // Copy the values of `out` parameters into their destinations.
@@ -547,7 +548,7 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
                 continue;
             }
             auto varRef = std::make_unique<VariableReference>(offset, *varMap[p]);
-            inlinedCall.fInlinedBody.push_back(std::make_unique<ExpressionStatement>(
+            inlinedBody.push_back(std::make_unique<ExpressionStatement>(
                     std::make_unique<BinaryExpression>(offset,
                                                        arguments[i]->clone(),
                                                        Token::Kind::TK_EQ,
@@ -564,6 +565,19 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
         // something non-null as a standin.
         inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(*fContext, offset,
                                                                      /*value=*/false);
+    }
+
+    switch (inlinedBody.size()) {
+        case 0:
+            break;
+        case 1:
+            inlinedCall.fInlinedBody = std::move(inlinedBody.front());
+            break;
+        default:
+            inlinedCall.fInlinedBody = std::make_unique<Block>(offset, std::move(inlinedBody),
+                                                               /*symbols=*/nullptr,
+                                                               /*isScope=*/false);
+            break;
     }
 
     return inlinedCall;
