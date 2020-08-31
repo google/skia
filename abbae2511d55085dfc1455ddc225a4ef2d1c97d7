@@ -376,6 +376,24 @@
     },
     {
       "key": {
+        "uuid": "80445363_7d0c6cd9",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 12084
+      },
+      "writtenOn": "2020-08-31T16:18:10Z",
+      "side": 1,
+      "message": "Yes, alignment is the risky one. SimpleTextBox is a 5*32-bit struct, which means it may not align exactly in 64-bit world (i.e. the compiler may choose to make it a 6*32-bit struct).",
+      "parentUuid": "3e7b01e8_02e52be9",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "499b2057_9b057612",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 2
