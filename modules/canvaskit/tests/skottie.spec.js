@@ -14,6 +14,14 @@ describe('Skottie behavior', () => {
         document.body.removeChild(container);
     });
 
+    const expectArrayCloseTo = (a, b, precision) => {
+        precision = precision || 14 // digits of precision in base 10
+        expect(a.length).toEqual(b.length);
+        for (let i=0; i<a.length; i++) {
+          expect(a[i]).toBeCloseTo(b[i], precision);
+        }
+    };
+
     const imgPromise = fetch('/assets/flightAnim.gif')
         .then((response) => response.arrayBuffer());
     const jsonPromise = fetch('/assets/animated_gif.json')
@@ -30,14 +38,21 @@ describe('Skottie behavior', () => {
             'flightAnim.gif': promises[0],
         });
         expect(animation).toBeTruthy();
-        const bounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+        const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
 
         canvas.clear(CanvasKit.WHITE);
         animation.render(canvas, bounds);
 
+        // We intentionally make the length of this array 5 and add a sentinel value
+        // of 999 so we can make sure the bounds are copied into this rect and a new
+        // one is not allocated.
+        const damageRect = Float32Array.of(0, 0, 0, 0, 999);
+
         // There was a bug, fixed in https://skia-review.googlesource.com/c/skia/+/241757
         // that seeking again and drawing again revealed.
-        animation.seek(0.5);
+        animation.seek(0.5, damageRect);
+        expectArrayCloseTo(damageRect, Float32Array.of(0, 0, 800, 600, 999), 4);
+
         canvas.clear(CanvasKit.WHITE);
         animation.render(canvas, bounds);
         animation.delete();
@@ -48,7 +63,7 @@ describe('Skottie behavior', () => {
             console.warn('Skipping test because not compiled with skottie');
             return;
         }
-        const bounds = {fLeft: 0, fTop: 0, fRight: 500, fBottom: 500};
+        const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
         canvas.clear(CanvasKit.WHITE);
 
         const animation = CanvasKit.MakeManagedAnimation(promises[0]);
