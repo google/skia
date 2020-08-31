@@ -467,7 +467,8 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
         } break;
         case DRAW_POINTS: {
             const SkPaint& paint = fPictureData->requiredPaint(reader);
-            SkCanvas::PointMode mode = (SkCanvas::PointMode)reader->readInt();
+            SkCanvas::PointMode mode = reader->checkRange(SkCanvas::kPoints_PointMode,
+                                                          SkCanvas::kPolygon_PointMode);
             size_t count = reader->readInt();
             const SkPoint* pts = (const SkPoint*)reader->skip(count, sizeof(SkPoint));
             BREAK_ON_READ_ERROR(reader);
