@@ -177,7 +177,6 @@ static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
 void Inliner::reset(const Context& context, const Program::Settings& settings) {
     fContext = &context;
     fSettings = &settings;
-    fInlineVarCounter = 0;
 }
 
 std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
@@ -436,24 +435,22 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
     InlinedCall inlinedCall;
     std::vector<std::unique_ptr<Statement>> inlinedBody;
 
-    // Use unique variable names based on the function signature. Otherwise there are situations in
-    // which an inlined function is later inlined into another function, and we end up with
-    // duplicate names like 'inlineResult0' because the counter was reset. (skbug.com/10526)
-    String raw = function.fDeclaration.description();
-    String inlineSalt;
-    for (size_t i = 0; i < raw.length(); ++i) {
-        char c = raw[i];
-        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
-            c == '_') {
-            inlineSalt += c;
-        }
-    }
-
     auto makeInlineVar = [&](const String& name, const Type& type, Modifiers modifiers,
                              std::unique_ptr<Expression>* initialValue) -> const Variable* {
+        // If necessary, append a unique numeric suffix to avoid name overlap.
+        auto uniqueName = std::make_unique<String>(name);
+        int uniqueCount = 1;
+        for (;;) {
+            StringFragment frag{uniqueName->data(), uniqueName->length()};
+            if ((*symbolTableForCall)[frag] == nullptr) {
+                break;
+            }
+            uniqueName = std::make_unique<String>(String::printf("%s_%d", name.c_str(),
+                                                                 uniqueCount++));
+        }
+
         // Add our new variable's name to the symbol table.
-        const String* namePtr =
-                symbolTableForCall->takeOwnershipOfString(std::make_unique<String>(name));
+        const String* namePtr = symbolTableForCall->takeOwnershipOfString(std::move(uniqueName));
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
         // Add our new variable to the symbol table.
@@ -484,17 +481,14 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
     // Create a variable to hold the result in the extra statements (excepting void).
     const Variable* resultVar = nullptr;
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
-        int varIndex = fInlineVarCounter++;
-
         std::unique_ptr<Expression> noInitialValue;
-        resultVar = makeInlineVar(String::printf("_inlineResult%s%d", inlineSalt.c_str(), varIndex),
+        resultVar = makeInlineVar(String("_") + String(function.fDeclaration.fName),
                                   function.fDeclaration.fReturnType, Modifiers{}, &noInitialValue);
     }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
     // them.
     VariableRewriteMap varMap;
-    int argIndex = fInlineVarCounter++;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
 
@@ -508,9 +502,8 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
             }
         }
 
-        varMap[param] = makeInlineVar(
-                String::printf("_inlineArg%s%d_%d", inlineSalt.c_str(), argIndex, i),
-                arguments[i]->fType, param->fModifiers, &arguments[i]);
+        varMap[param] = makeInlineVar(String("_") + String(param->fName), arguments[i]->fType,
+                                      param->fModifiers, &arguments[i]);
     }
 
     const Block& body = function.fBody->as<Block>();
