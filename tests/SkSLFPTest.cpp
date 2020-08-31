@@ -1049,6 +1049,7 @@ R"SkSL(half4 _inlineResulthalf4fliphalf40;
 {
     _inlineResulthalf4fliphalf40 = %s.wzyx;
 }
+
 %s = _inlineResulthalf4fliphalf40;
 
 )SkSL"
@@ -1150,6 +1151,7 @@ R"SkSL(half4 _inlineResulthalf4switchyhalf40;
     result = %s.zzzz;
     _inlineResulthalf4switchyhalf40 = result;
 }
+
 %s = _inlineResulthalf4switchyhalf40;
 
 )SkSL"
@@ -1221,6 +1223,7 @@ R"SkSL(half4 _inlineResulthalf4switchyhalf40;
     }
     _inlineResulthalf4switchyhalf40 = result;
 }
+
 %s = _inlineResulthalf4switchyhalf40;
 
 )SkSL"
@@ -1257,6 +1260,7 @@ R"SkSL(half4 _inlineResulthalf4loopyhalf40;
     pix = %s.zzzz;
     _inlineResulthalf4loopyhalf40 = pix;
 }
+
 %s = _inlineResulthalf4loopyhalf40;
 
 )SkSL"
@@ -1284,6 +1288,7 @@ R"SkSL(half4 _inlineResulthalf4branchyhalf40;
 {
     if (%s.z == %s.w) _inlineResulthalf4branchyhalf40 = %s.yyyy; else _inlineResulthalf4branchyhalf40 = %s.zzzz;
 }
+
 %s = _inlineResulthalf4branchyhalf40;
 
 )SkSL"
@@ -1315,6 +1320,7 @@ R"SkSL(half4 _inlineResulthalf4blockyhalf40;
         _inlineResulthalf4blockyhalf40 = %s;
     }
 }
+
 %s = _inlineResulthalf4blockyhalf40;
 
 )SkSL"
@@ -1354,6 +1360,7 @@ do {
         break;
     }
 } while (false);
+
 %s = _inlineResulthalf4returnyhalf40;
 
 )SkSL"
@@ -1404,6 +1411,7 @@ half4 _inlineArghalf4branchyhalf41_0 = %s;
     _inlineArghalf4branchyhalf41_0 *= 0.5;
     if (_inlineArghalf4branchyhalf41_0.x > 0.0) _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.xxxx; else if (_inlineArghalf4branchyhalf41_0.y > 0.0) _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.yyyy; else if (_inlineArghalf4branchyhalf41_0.z > 0.0) _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.zzzz; else _inlineResulthalf4branchyhalf40 = _inlineArghalf4branchyhalf41_0.wwww;
 }
+
 half4 _inlineResulthalf4branchyAndBlockyhalf42;
 {
     {
@@ -1425,6 +1433,7 @@ half4 _inlineResulthalf4branchyAndBlockyhalf42;
         }
     }
 }
+
 %s = _inlineResulthalf4branchyhalf40 * _inlineResulthalf4branchyAndBlockyhalf42;
 
 )SkSL"
