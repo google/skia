@@ -120,15 +120,18 @@ public:
     bool fOldCanInline;
 };
 
-IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> symbolTable,
-                         ErrorReporter& errorReporter)
-: fContext(*context)
-, fCurrentFunction(nullptr)
-, fRootSymbolTable(symbolTable)
-, fSymbolTable(symbolTable)
-, fLoopLevel(0)
-, fSwitchLevel(0)
-, fErrors(errorReporter) {}
+IRGenerator::IRGenerator(const Context* context, Inliner* inliner,
+                         std::shared_ptr<SymbolTable> symbolTable, ErrorReporter& errorReporter)
+        : fContext(*context)
+        , fInliner(inliner)
+        , fCurrentFunction(nullptr)
+        , fRootSymbolTable(symbolTable)
+        , fSymbolTable(symbolTable)
+        , fLoopLevel(0)
+        , fSwitchLevel(0)
+        , fErrors(errorReporter) {
+    SkASSERT(fInliner);
+}
 
 void IRGenerator::pushSymbolTable() {
     fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable)));
@@ -176,7 +179,6 @@ void IRGenerator::start(const Program::Settings* settings,
     this->pushSymbolTable();
     fInvocations = -1;
     fInputs.reset();
-    fInliner.reset(fContext, *fSettings);
     fSkPerVertex = nullptr;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
@@ -1990,9 +1992,9 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
 
     auto funcCall = std::make_unique<FunctionCall>(offset, *returnType, function,
                                                    std::move(arguments));
-    if (fCanInline && fInliner.isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
-        Inliner::InlinedCall inlinedCall = fInliner.inlineCall(std::move(funcCall),
-                                                               fSymbolTable.get());
+    if (fCanInline && fInliner->isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
+        Inliner::InlinedCall inlinedCall = fInliner->inlineCall(std::move(funcCall),
+                                                                fSymbolTable.get());
         if (inlinedCall.fInlinedBody) {
             fExtraStatements.push_back(std::move(inlinedCall.fInlinedBody));
         }
