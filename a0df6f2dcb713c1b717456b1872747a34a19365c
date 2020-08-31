@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f744603c_39faffe1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-31T13:49:09Z",
+      "side": 1,
+      "message": "Thanks Brian!",
+      "parentUuid": "0f4649cc_fe0c468f",
+      "revId": "a0df6f2dcb713c1b717456b1872747a34a19365c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aad9235d_d9e271ec",
         "filename": "gm/crbug_1113794.cpp",
         "patchSetId": 3
@@ -77,6 +95,30 @@
       "side": 1,
       "message": "I agree. It looks like \u0027rotMatrix\u0027 is limited to rotation and translation. Maybe Michael just thought this was clearer or liked that it fit on one line? There is another arg \u0027viewMatrix\u0027 and \u0027pts\u0027 is clearly on one side of that matrix while \u0027lineData.fPtsRot\u0027 is not. So it does make some logical sense to me even if mathematically it works out the same in the current implementation.",
       "parentUuid": "3b374827_f78aef4e",
+      "range": {
+        "startLine": 775,
+        "startChar": 91,
+        "endLine": 775,
+        "endChar": 94
+      },
+      "revId": "a0df6f2dcb713c1b717456b1872747a34a19365c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3a9ec55_a4d0b6fe",
+        "filename": "src/gpu/ops/GrDashOp.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-31T13:49:09Z",
+      "side": 1,
+      "message": "calc_dash_scaling applies the matrix to the points before it calculates the magnitude. It also rotates the vector from pts[0] to pts[1] by 90 CW and then applies the view matrix to get the perpendicular vector. For a view matrix with non-uniform scale factors, you\u0027ll get a different parallel and perpendicular magnitude. When combined with a 90 degree rotation from align_to_x_axis (when dealing with a perfectly vertical line), the old code effectively swapped the x and y non-uniform scale factors.\n\nI agree that it should be just as correct to use rotMatrix with ptsRot, but I thought this was more direct.",
+      "parentUuid": "35ad2d66_609349d7",
       "range": {
         "startLine": 775,
         "startChar": 91,
