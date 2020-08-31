@@ -452,7 +452,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
 
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
     if (kARM_VkVendor == properties.vendorID) {
-        fShouldAlwaysUseDedicatedImageMemory = true;
+       // fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
     // On Mali galaxy s7 and s9 we see lots of rendering issues with image filters dropping out when
