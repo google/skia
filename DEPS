@@ -10,7 +10,7 @@ deps = {
   "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@d3eba1db0a1451029dcb34a028d8e347107cf929",
   # Dawn requires jinja2 and markupsafe for the code generator, and glslang and shaderc for SPIRV compilation.
   # When the Dawn revision is updated these should be updated from the Dawn DEPS as well.
-  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@900bd341a3c6fc71dfbaeac8adb45b1da0de53d0",
+  "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@0b89b27263b127a46371641b299fdf0f2cd7caff",
   "third_party/externals/glslang"         : "https://chromium.googlesource.com/external/github.com/KhronosGroup/glslang@983698bb34ecfbf8a172a59ee4edc2ab7bdfa3b8",
   "third_party/externals/jinja2"          : "https://chromium.googlesource.com/chromium/src/third_party/jinja2@b41863e42637544c2941b574c7877d3e1f663e25",
   "third_party/externals/markupsafe"      : "https://chromium.googlesource.com/chromium/src/third_party/markupsafe@8f45f5cfa0009d2a70589bcda0349b8cb2b72783",
