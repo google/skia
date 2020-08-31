@@ -33,6 +33,7 @@
 namespace SkSL {
 
 struct Swizzle;
+struct FunctionCall;
 
 /**
  * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.
@@ -105,15 +106,16 @@ private:
     std::unique_ptr<Statement> inlineStatement(
             int offset,
             std::unordered_map<const Variable*, const Variable*>* varMap,
+            SymbolTable* symbolTableForStatement,
             const Variable* returnVar,
             bool haveEarlyReturns,
             const Statement& statement);
-    std::unique_ptr<Expression> inlineCall(int offset, const FunctionDefinition& function,
-                                           std::vector<std::unique_ptr<Expression>> arguments);
+    std::unique_ptr<Expression> inlineCall(std::unique_ptr<FunctionCall> call,
+                                           SymbolTable* symbolTableForCall);
     std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
-    bool isSafeToInline(const FunctionDefinition& function);
+    bool isSafeToInline(const FunctionCall& function, int inlineThreshold);
     int callCost(const FunctionDeclaration& function,
                  const std::vector<std::unique_ptr<Expression>>& arguments);
     std::unique_ptr<Expression> call(int offset, std::unique_ptr<Expression> function,
