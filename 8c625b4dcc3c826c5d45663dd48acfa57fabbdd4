@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "5444fc0b_fe268106",
+        "filename": "src/core/SkDevice.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-31T17:07:47Z",
+      "side": 1,
+      "message": "Done; originally this macro had several usings in it, but now I agree that it\u0027s easier to read just the single using. I am leaning towards updating this to just not have Usage at all, since it\u0027s not buying as much as I\u0027d originally hoped it would.",
+      "parentUuid": "3c47b0f9_e8f75cf6",
+      "range": {
+        "startLine": 330,
+        "startChar": 4,
+        "endLine": 330,
+        "endChar": 36
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1fd3710_db4edba7",
         "filename": "src/core/SkDevice.h",
         "patchSetId": 8
@@ -62,6 +86,30 @@
       "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07e246be_7036ae82",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-31T17:07:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1fd3710_db4edba7",
+      "range": {
+        "startLine": 133,
+        "startChar": 7,
+        "endLine": 134,
+        "endChar": 35
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "06ef724c_458429b9",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-31T17:07:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8dde3c34_f8340c75",
+      "range": {
+        "startLine": 135,
+        "startChar": 42,
+        "endLine": 135,
+        "endChar": 57
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f26d641a_1981598c",
         "filename": "src/core/SkImageFilterTypes.h",
         "patchSetId": 8
@@ -108,6 +180,30 @@
       "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c783193_1ec75403",
+        "filename": "src/core/SkImageFilterTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-08-31T17:07:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f26d641a_1981598c",
+      "range": {
+        "startLine": 524,
+        "startChar": 14,
+        "endLine": 524,
+        "endChar": 43
+      },
+      "revId": "8c625b4dcc3c826c5d45663dd48acfa57fabbdd4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
