@@ -394,11 +394,10 @@ static void direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
                       GrColor color,
                       SkIPoint deviceOrigin) {
     for (auto[quad, glyph, leftTop] : quadData) {
-        GrIRect16 rect = glyph->fAtlasLocator.rect();
-        int16_t w = rect.width(),
-                h = rect.height();
-        auto[l, t] = leftTop + deviceOrigin;
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        uint16_t w = ar - al,
+                 h = ab - at;
+        auto[l, t] = leftTop + deviceOrigin;
 
         auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
         quad[0] = {{dl, dt}, color, {al, at}};  // L,T
@@ -415,11 +414,10 @@ void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadDat
                            SkIPoint deviceOrigin,
                            SkIRect* clip = nullptr) {
     for (auto[quad, glyph, leftTop] : quadData) {
-        GrIRect16 rect = glyph->fAtlasLocator.rect();
-        int16_t w = rect.width(),
-                h = rect.height();
-        auto[l, t] = leftTop + deviceOrigin;
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        uint16_t w = ar - al,
+                 h = ab - at;
+        auto[l, t] = leftTop + deviceOrigin;
         if (clip == nullptr) {
             auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
             quad[0] = {{dl, dt}, color, {al, at}};  // L,T
@@ -429,35 +427,25 @@ void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadDat
         } else {
             SkIRect devIRect = SkIRect::MakeLTRB(l, t, l + w, t + h);
             SkScalar dl, dt, dr, db;
-            uint16_t tl, tt, tr, tb;
             if (!clip->containsNoEmptyCheck(devIRect)) {
                 if (SkIRect clipped; clipped.intersect(devIRect, *clip)) {
-                    int lD = clipped.left() - devIRect.left();
-                    int tD = clipped.top() - devIRect.top();
-                    int rD = clipped.right() - devIRect.right();
-                    int bD = clipped.bottom() - devIRect.bottom();
+                    al += clipped.left()   - devIRect.left();
+                    at += clipped.top()    - devIRect.top();
+                    ar += clipped.right()  - devIRect.right();
+                    ab += clipped.bottom() - devIRect.bottom();
                     std::tie(dl, dt, dr, db) = ltbr(clipped);
-                    int index = glyph->fAtlasLocator.pageIndex();
-                    std::tie(tl, tt) =
-                            GrDrawOpAtlas::PackIndexInTexCoords(
-                                    rect.fLeft + lD, rect.fTop + tD, index);
-                    std::tie(tr, tb) =
-                            GrDrawOpAtlas::PackIndexInTexCoords(
-                                    rect.fRight + rD, rect.fBottom + bD, index);
                 } else {
                     // TODO: omit generating any vertex data for fully clipped glyphs ?
                     std::tie(dl, dt, dr, db) = std::make_tuple(0, 0, 0, 0);
-                    std::tie(tl, tt, tr, tb) = std::make_tuple(0, 0, 0, 0);
+                    std::tie(al, at, ar, ab) = std::make_tuple(0, 0, 0, 0);
                 }
-
             } else {
                 std::tie(dl, dt, dr, db) = ltbr(devIRect);
-                std::tie(tl, tt, tr, tb) = std::tie(al, at, ar, ab);
             }
-            quad[0] = {{dl, dt}, color, {tl, tt}};  // L,T
-            quad[1] = {{dl, db}, color, {tl, tb}};  // L,B
-            quad[2] = {{dr, dt}, color, {tr, tt}};  // R,T
-            quad[3] = {{dr, db}, color, {tr, tb}};  // R,B
+            quad[0] = {{dl, dt}, color, {al, at}};  // L,T
+            quad[1] = {{dl, db}, color, {al, ab}};  // L,B
+            quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
+            quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
         }
     }
 }

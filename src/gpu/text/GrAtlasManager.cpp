@@ -179,7 +179,9 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                       storage.get(),
                                       &grGlyph->fAtlasLocator);
 
-    grGlyph->fAtlasLocator.insetSrc(srcPadding);
+    if (errorCode == GrDrawOpAtlas::ErrorCode::kSucceeded) {
+        grGlyph->fAtlasLocator.insetSrc(srcPadding);
+    }
 
     return errorCode;
 }
