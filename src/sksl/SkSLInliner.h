@@ -63,7 +63,7 @@ private:
 
     const Context* fContext = nullptr;
     const Program::Settings* fSettings = nullptr;
-    int fInlineVarCounter = 0;
+    int fInlineVarCount = 0;
 };
 
 }  // namespace SkSL
