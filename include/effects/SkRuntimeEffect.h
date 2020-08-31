@@ -92,7 +92,6 @@ public:
                                          size_t childCount);
 
     const SkString& source() const { return fSkSL; }
-    uint32_t hash() const { return fHash; }
 
     template <typename T>
     class ConstIterable {
@@ -123,8 +122,6 @@ public:
     // Returns index of the named child, or -1 if not found
     int findChild(const char* name) const;
 
-    bool usesSampleCoords() const { return fUsesSampleCoords; }
-
     static void RegisterFlattenables();
     ~SkRuntimeEffect() override;
 
@@ -137,6 +134,9 @@ private:
                     std::vector<Varying>&& varyings,
                     bool usesSampleCoords,
                     bool allowColorFilter);
+
+    uint32_t hash() const { return fHash; }
+    bool usesSampleCoords() const { return fUsesSampleCoords; }
 
 #if SK_SUPPORT_GPU
     friend class GrSkSLFP;      // toPipelineStage
