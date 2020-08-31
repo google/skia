@@ -1,0 +1,74 @@
+# Copyright 2020 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../third_party.gni")
+
+third_party("oboe") {
+  public_include_dirs = [
+    "../externals/oboe/include",
+    "../externals/oboe/samples/parselib/src/main/cpp",
+  ]
+  include_dirs = [ "../externals/oboe/src" ]
+
+  sources = [
+    "../externals/oboe/samples/parselib/src/main/cpp/stream/FileInputStream.cpp",
+    "../externals/oboe/samples/parselib/src/main/cpp/stream/InputStream.cpp",
+    "../externals/oboe/samples/parselib/src/main/cpp/stream/MemInputStream.cpp",
+    "../externals/oboe/samples/parselib/src/main/cpp/wav/AudioEncoding.cpp",
+    "../externals/oboe/samples/parselib/src/main/cpp/wav/WavChunkHeader.cpp",
+    "../externals/oboe/samples/parselib/src/main/cpp/wav/WavFmtChunkHeader.cpp",
+    "../externals/oboe/samples/parselib/src/main/cpp/wav/WavRIFFChunkHeader.cpp",
+    "../externals/oboe/samples/parselib/src/main/cpp/wav/WavStreamReader.cpp",
+    "../externals/oboe/src/aaudio/AAudioLoader.cpp",
+    "../externals/oboe/src/aaudio/AudioStreamAAudio.cpp",
+    "../externals/oboe/src/common/AudioSourceCaller.cpp",
+    "../externals/oboe/src/common/AudioStream.cpp",
+    "../externals/oboe/src/common/AudioStreamBuilder.cpp",
+    "../externals/oboe/src/common/DataConversionFlowGraph.cpp",
+    "../externals/oboe/src/common/FilterAudioStream.cpp",
+    "../externals/oboe/src/common/FixedBlockAdapter.cpp",
+    "../externals/oboe/src/common/FixedBlockReader.cpp",
+    "../externals/oboe/src/common/FixedBlockWriter.cpp",
+    "../externals/oboe/src/common/LatencyTuner.cpp",
+    "../externals/oboe/src/common/QuirksManager.cpp",
+    "../externals/oboe/src/common/SourceFloatCaller.cpp",
+    "../externals/oboe/src/common/SourceI16Caller.cpp",
+    "../externals/oboe/src/common/StabilizedCallback.cpp",
+    "../externals/oboe/src/common/Trace.cpp",
+    "../externals/oboe/src/common/Utilities.cpp",
+    "../externals/oboe/src/common/Version.cpp",
+    "../externals/oboe/src/fifo/FifoBuffer.cpp",
+    "../externals/oboe/src/fifo/FifoController.cpp",
+    "../externals/oboe/src/fifo/FifoControllerBase.cpp",
+    "../externals/oboe/src/fifo/FifoControllerIndirect.cpp",
+    "../externals/oboe/src/flowgraph/ClipToRange.cpp",
+    "../externals/oboe/src/flowgraph/FlowGraphNode.cpp",
+    "../externals/oboe/src/flowgraph/ManyToMultiConverter.cpp",
+    "../externals/oboe/src/flowgraph/MonoToMultiConverter.cpp",
+    "../externals/oboe/src/flowgraph/RampLinear.cpp",
+    "../externals/oboe/src/flowgraph/SampleRateConverter.cpp",
+    "../externals/oboe/src/flowgraph/SinkFloat.cpp",
+    "../externals/oboe/src/flowgraph/SinkI16.cpp",
+    "../externals/oboe/src/flowgraph/SinkI24.cpp",
+    "../externals/oboe/src/flowgraph/SourceFloat.cpp",
+    "../externals/oboe/src/flowgraph/SourceI16.cpp",
+    "../externals/oboe/src/flowgraph/SourceI24.cpp",
+    "../externals/oboe/src/flowgraph/resampler/IntegerRatio.cpp",
+    "../externals/oboe/src/flowgraph/resampler/LinearResampler.cpp",
+    "../externals/oboe/src/flowgraph/resampler/MultiChannelResampler.cpp",
+    "../externals/oboe/src/flowgraph/resampler/PolyphaseResampler.cpp",
+    "../externals/oboe/src/flowgraph/resampler/PolyphaseResamplerMono.cpp",
+    "../externals/oboe/src/flowgraph/resampler/PolyphaseResamplerStereo.cpp",
+    "../externals/oboe/src/flowgraph/resampler/SincResampler.cpp",
+    "../externals/oboe/src/flowgraph/resampler/SincResamplerStereo.cpp",
+    "../externals/oboe/src/opensles/AudioInputStreamOpenSLES.cpp",
+    "../externals/oboe/src/opensles/AudioOutputStreamOpenSLES.cpp",
+    "../externals/oboe/src/opensles/AudioStreamBuffered.cpp",
+    "../externals/oboe/src/opensles/AudioStreamOpenSLES.cpp",
+    "../externals/oboe/src/opensles/EngineOpenSLES.cpp",
+    "../externals/oboe/src/opensles/OpenSLESUtilities.cpp",
+    "../externals/oboe/src/opensles/OutputMixerOpenSLES.cpp",
+  ]
+}
