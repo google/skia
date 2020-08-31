@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d010c66a_ab0cfe59",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-08-31T18:49:01Z",
+      "side": 1,
+      "message": "Can we std::move this? (I guess it may not actually help, with most std::string implementations using embedded short-strings)?",
+      "range": {
+        "startLine": 457,
+        "startChar": 83,
+        "endLine": 457,
+        "endChar": 93
+      },
+      "revId": "6c3ada02708fa48d601e281de60e2964ae105c85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
