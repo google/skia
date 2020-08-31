@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "750b8618_ac620ccf",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-31T16:57:48Z",
+      "side": 1,
+      "message": "Can remove this?",
+      "revId": "0f1a76a30fd908a94b38a58be98a94018dbae70f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85894ba2_ebf6f847",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-31T16:57:48Z",
+      "side": 1,
+      "message": "Any reason for the name change? This is supposed to create an SkString from a u16string, the UTF-16 to UTF-8 conversion is just an implementation detail really (in theory SkString could in the future just store UTF-16 and convert to UTF-8 when needed lazily or something?). If this were just converting bytes (taking a span\u003cchar16_t\u003e for input and a span\u003cchar8_t\u003e for output (and returning a size_t length or error or something) then this would be a good name (and maybe that should be the actual implementation of a protected virtual with SkStringFromU16String being a public non-virtual which calls the protected virtual).",
+      "range": {
+        "startLine": 95,
+        "startChar": 25,
+        "endLine": 95,
+        "endChar": 43
+      },
+      "revId": "0f1a76a30fd908a94b38a58be98a94018dbae70f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f2df4d2_59c1e37b",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-08-31T16:57:48Z",
+      "side": 1,
+      "message": "I don\u0027t understand why this is being done here. This file already depends on ICU and ICU already does all of this. It should just use ICU. This would be fine code for a generic non-icu implementation subclass of SkUnicode though.",
+      "revId": "0f1a76a30fd908a94b38a58be98a94018dbae70f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
