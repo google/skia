@@ -22,6 +22,30 @@
       "revId": "6c3ada02708fa48d601e281de60e2964ae105c85",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccb85463_fa599776",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-08-31T18:56:39Z",
+      "side": 1,
+      "message": "Done.\n\nYes, both GCC and Clang use SSO so it\u0027s probably a low-value optimization, but it\u0027s harmless and it does convey information to the reader (uniqueName is dead here).",
+      "parentUuid": "d010c66a_ab0cfe59",
+      "range": {
+        "startLine": 457,
+        "startChar": 83,
+        "endLine": 457,
+        "endChar": 93
+      },
+      "revId": "6c3ada02708fa48d601e281de60e2964ae105c85",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
