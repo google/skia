@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0e557f3_1ce40230",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-01T01:43:44Z",
+      "side": 1,
+      "message": "I can\u0027t find a combo that shows no diffs. As checked-in, it is simple, but happy to enable other matrix options if another build system shows no diffs (assuming we care about no diffs).",
+      "revId": "bd65553fc6e2d722e265ab77708a26579e14ef69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

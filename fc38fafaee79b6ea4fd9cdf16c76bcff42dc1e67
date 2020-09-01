@@ -22,6 +22,30 @@
       "revId": "fc38fafaee79b6ea4fd9cdf16c76bcff42dc1e67",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2825dac2_8a3ae195",
+        "filename": "src/gpu/effects/GrBicubicEffect.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-01T01:43:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dae67f7c_f7c4be63",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 24
+      },
+      "revId": "fc38fafaee79b6ea4fd9cdf16c76bcff42dc1e67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
