@@ -30,8 +30,6 @@ public:
     static GrVkDescriptorSetManager* CreateUniformManager(GrVkGpu* gpu);
     static GrVkDescriptorSetManager* CreateSamplerManager(GrVkGpu* gpu, VkDescriptorType type,
                                                           const GrVkUniformHandler&);
-    static GrVkDescriptorSetManager* CreateSamplerManager(GrVkGpu* gpu, VkDescriptorType type,
-                                                          const SkTArray<uint32_t>& visibilities);
 
     ~GrVkDescriptorSetManager() {}
 
@@ -44,8 +42,6 @@ public:
     void recycleDescriptorSet(const GrVkDescriptorSet*);
 
     bool isCompatible(VkDescriptorType type, const GrVkUniformHandler*) const;
-    bool isCompatible(VkDescriptorType type,
-                      const SkTArray<uint32_t>& visibilities) const;
 
 private:
     struct DescriptorPoolManager {

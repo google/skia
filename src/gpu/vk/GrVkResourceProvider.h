@@ -128,9 +128,6 @@ public:
     void getSamplerDescriptorSetHandle(VkDescriptorType type,
                                        const GrVkUniformHandler&,
                                        GrVkDescriptorSetManager::Handle* handle);
-    void getSamplerDescriptorSetHandle(VkDescriptorType type,
-                                       const SkTArray<uint32_t>& visibilities,
-                                       GrVkDescriptorSetManager::Handle* handle);
 
     // Returns the compatible VkDescriptorSetLayout to use for uniform buffers. The caller does not
     // own the VkDescriptorSetLayout and thus should not delete it. This function should be used

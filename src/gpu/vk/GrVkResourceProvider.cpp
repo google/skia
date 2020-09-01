@@ -280,25 +280,6 @@ void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
     *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
 }
 
-void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
-                                                         const SkTArray<uint32_t>& visibilities,
-                                                         GrVkDescriptorSetManager::Handle* handle) {
-    SkASSERT(handle);
-    SkASSERT(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
-             VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type);
-    for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
-        if (fDescriptorSetManagers[i]->isCompatible(type, visibilities)) {
-            *handle = GrVkDescriptorSetManager::Handle(i);
-            return;
-        }
-    }
-
-    GrVkDescriptorSetManager* dsm = GrVkDescriptorSetManager::CreateSamplerManager(fGpu, type,
-                                                                                   visibilities);
-    fDescriptorSetManagers.emplace_back(dsm);
-    *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
-}
-
 VkDescriptorSetLayout GrVkResourceProvider::getUniformDSLayout() const {
     SkASSERT(fUniformDSHandle.isValid());
     return fDescriptorSetManagers[fUniformDSHandle.toIndex()]->layout();
