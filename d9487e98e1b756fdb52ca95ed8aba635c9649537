@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "960c98d4_677d0119",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-01T14:05:18Z",
+      "side": 1,
+      "message": "This is motivated by trying to integrate SkYUVAPixmapInfo into chrome. Chrome\u0027s image generator code thinks in terms of bit depth, with one value for Y, U, and V. Having to construct color types was making the integration painful.\n\nChrome\u0027s SkImageGenerator subclass currently only succeeds the YUV query if the planes are 8 bit (because our old API is explicitly tri-planar 8bit). The SupportedDataTypes thing here is looking ahead to relaxing that in Chrome but only when the GrContext supports it.",
+      "revId": "d9487e98e1b756fdb52ca95ed8aba635c9649537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21179401_e4a798e4",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-01T14:05:18Z",
+      "side": 1,
+      "message": "I had this as std::array but std::array is a pain to use with constexpr until the C++17 std library.",
+      "range": {
+        "startLine": 76,
+        "startChar": 13,
+        "endLine": 76,
+        "endChar": 19
+      },
+      "revId": "d9487e98e1b756fdb52ca95ed8aba635c9649537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "472e6186_28f9690d",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-01T14:05:18Z",
+      "side": 1,
+      "message": "Made these arrays because it makes op\u003d\u003d for the class simpler to implement. (Op\u003d\u003d is implemented because I\u0027m using it in the Chrome integration change in unit tests).",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 166,
+        "endChar": 50
+      },
+      "revId": "d9487e98e1b756fdb52ca95ed8aba635c9649537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
