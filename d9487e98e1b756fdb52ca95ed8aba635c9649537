@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "081a1529_eefd8991",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-01T18:48:57Z",
+      "side": 1,
+      "message": "I find these comments confusing. When you say \"the generator returns true\", I think you\u0027re actually referring to the call to\n\n  this-\u003eonQueryYUVAInfo()\n\n?\n\nAlso, it says \"YUVA decoding will not be performed\", but I think that happens in getYUVAPlanes?\n\nMaybe this comment should say something along the lines of\n\n  If the generator supports decoding to YUV(A), but not as a type in supportedDataTypes,\n  this method returns false.\n\n?\n\n(Same comments for SkImageGenerator.)",
+      "range": {
+        "startLine": 388,
+        "startChar": 59,
+        "endLine": 390,
+        "endChar": 85
+      },
+      "revId": "d9487e98e1b756fdb52ca95ed8aba635c9649537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "21179401_e4a798e4",
         "filename": "include/core/SkYUVAPixmaps.h",
         "patchSetId": 5
@@ -58,6 +81,29 @@
         "startChar": 0,
         "endLine": 166,
         "endChar": 50
+      },
+      "revId": "d9487e98e1b756fdb52ca95ed8aba635c9649537",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a171c7d_44fd0534",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-01T18:48:57Z",
+      "side": 1,
+      "message": "I don\u0027t have a strong preference, but why is this not\n\n  return this-\u003eonQueryYUVAInfo(...) \u0026\u0026 yuvaPixmapInfo-\u003eisSupported(...);\n\n?",
+      "range": {
+        "startLine": 175,
+        "startChar": 0,
+        "endLine": 179,
+        "endChar": 16
       },
       "revId": "d9487e98e1b756fdb52ca95ed8aba635c9649537",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
