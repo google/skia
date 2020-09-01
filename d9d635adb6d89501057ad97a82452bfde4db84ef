@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "423e9082_51b819e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13844
+      },
+      "writtenOn": "2020-09-01T11:12:48Z",
+      "side": 1,
+      "message": "The patch introduces a new Polyfill class as mentioned here:\nhttps://skia-review.googlesource.com/c/skia/+/313816\n\nThe code can\u0027t be compiled for Neon ARM target, but it works for me when building with Clang.\nThe patch is WIP and subject for discussion.",
+      "revId": "d9d635adb6d89501057ad97a82452bfde4db84ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
