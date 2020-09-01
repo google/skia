@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15450b56_2ca3150a",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-01T16:03:43Z",
+      "side": 1,
+      "message": "Why this change? It doesn\u0027t seem related to the rest.",
+      "range": {
+        "startLine": 182,
+        "startChar": 4,
+        "endLine": 182,
+        "endChar": 58
+      },
+      "revId": "6dae3d02e55c983b92ae2be667458c1766dd5abc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
