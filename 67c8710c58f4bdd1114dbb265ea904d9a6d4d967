@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a1122300_6dda4e46",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-01T17:00:27Z",
+      "side": 1,
+      "message": "Will revert this part if perf does not win.",
+      "range": {
+        "startLine": 721,
+        "startChar": 0,
+        "endLine": 721,
+        "endChar": 88
+      },
+      "revId": "67c8710c58f4bdd1114dbb265ea904d9a6d4d967",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
