@@ -15,7 +15,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/core/SkYUVAIndex.h"
-#include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "src/gpu/GrTextureMaker.h"
 #endif
@@ -69,7 +69,8 @@ public:
 private:
     void addUniqueIDListener(sk_sp<SkIDChangeListener>) const;
 #if SK_SUPPORT_GPU
-    sk_sp<SkCachedData> getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
+    sk_sp<SkCachedData> getPlanes(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
+                                  SkYUVASizeInfo* yuvaSizeInfo,
                                   SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
                                   SkYUVColorSpace* yuvColorSpace,
                                   SkPixmap planes[SkYUVASizeInfo::kMaxCount]) const;
