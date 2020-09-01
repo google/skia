@@ -31,6 +31,35 @@
 #include <cstddef>
 #include <new>
 
+struct AtlasPt {
+    uint16_t u;
+    uint16_t v;
+};
+
+// Normal text mask, SDFT, or color.
+struct Mask2DVertex {
+    SkPoint devicePos;
+    GrColor color;
+    AtlasPt atlasPos;
+};
+struct ARGB2DVertex {
+    ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+    SkPoint devicePos;
+    AtlasPt atlasPos;
+};
+
+// Perspective SDFT or SDFT forced to 3D or perspective color.
+struct Mask3DVertex {
+    SkPoint3 devicePos;
+    GrColor color;
+    AtlasPt atlasPos;
+};
+struct ARGB3DVertex {
+    ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
+    SkPoint3 devicePos;
+    AtlasPt atlasPos;
+};
+
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
 GrTextBlob::Key::Key() { sk_bzero(this, sizeof(Key)); }
 
@@ -389,17 +418,16 @@ static auto ltbr(const Rect& r) {
 }
 
 // The 99% case. No clip. Non-color only.
-template<typename Quad, typename VertexData>
-static void direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+static void direct_2D(SkZip<Mask2DVertex[4], const GrGlyph*, const SkIPoint> quadData,
                       GrColor color,
                       SkIPoint deviceOrigin) {
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        uint16_t w = ar - al,
-                 h = ab - at;
-        auto[l, t] = leftTop + deviceOrigin;
+        SkScalar dl = leftTop.x() + deviceOrigin.x(),
+                dt = leftTop.y() + deviceOrigin.y(),
+                dr = dl + (ar - al),
+                db = dt + (ab - at);
 
-        auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
         quad[0] = {{dl, dt}, color, {al, at}};  // L,T
         quad[1] = {{dl, db}, color, {al, ab}};  // L,B
         quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
