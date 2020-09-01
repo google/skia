@@ -1814,7 +1814,8 @@ Result GPUDDLSink::ddlDraw(const Src& src,
     // this is our ultimate final drawing area/rect
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
 
-    DDLPromiseImageHelper promiseImageHelper;
+    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADataTypes(*gpuThreadCtx);
+    DDLPromiseImageHelper promiseImageHelper(supportedYUVADataTypes);
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
         return Result::Fatal("GPUDDLSink: Couldn't deflate SkPicture");
@@ -2270,7 +2271,7 @@ Result ViaDDL::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStrin
     // this is our ultimate final drawing area/rect
     SkIRect viewport = SkIRect::MakeWH(size.fWidth, size.fHeight);
 
-    DDLPromiseImageHelper promiseImageHelper;
+    DDLPromiseImageHelper promiseImageHelper(SkYUVAPixmapInfo::SupportedDataTypes::All());
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture.get());
     if (!compressedPictureData) {
         return Result::Fatal("ViaDDL: Couldn't deflate SkPicture");
