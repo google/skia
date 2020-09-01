@@ -156,7 +156,7 @@ public:
 
         void updatePlotLocator(PlotLocator p) {
             fPlotLocator = p;
-            SkASSERT(0 <= fPlotLocator.pageIndex() && fPlotLocator.pageIndex() <= 3);
+            SkASSERT(fPlotLocator.pageIndex() <= 3);
             uint16_t page = fPlotLocator.pageIndex() << 13;
             fUVs[0] = (fUVs[0] & 0x1FFF) | page;
             fUVs[2] = (fUVs[2] & 0x1FFF) | page;
