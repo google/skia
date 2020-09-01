@@ -33,7 +33,8 @@ public:
             const SkRect* subset,
             const SkRect* domain,
             GrSamplerState::WrapMode wrapX,
-            GrSamplerState::WrapMode wrapY) override;
+            GrSamplerState::WrapMode wrapY,
+            SkImage::CubicResampler) override;
 
 private:
     GrSurfaceProxyView onView(GrMipmapped) override;
