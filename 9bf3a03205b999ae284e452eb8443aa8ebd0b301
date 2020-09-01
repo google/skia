@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e936c2cc_ea50cef8",
+        "filename": "modules/skparagraph/src/ParagraphImpl.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-01T15:46:12Z",
+      "side": 1,
+      "message": "nit: did you intend to add two blank lines here?",
+      "revId": "9bf3a03205b999ae284e452eb8443aa8ebd0b301",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
