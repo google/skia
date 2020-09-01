@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "563d5368_0f318894",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-01T20:23:01Z",
+      "side": 1,
+      "message": "Is it easy to land this as a runtime alternative, and not a replacement? Just wonder if we can hedge our bets for now (on device support, perf, etc.)\n\ni.e.\n\nShaper_CT\nShaper_Framesetter\n\nor\n\nShaper_CT1\nShaper_CT2\n\n:)",
+      "revId": "c24b4176499aedfd3b1d4fe735d04946919701cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
