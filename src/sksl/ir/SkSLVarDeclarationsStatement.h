@@ -17,7 +17,7 @@ namespace SkSL {
  * One or more variable declarations appearing as a statement within a function.
  */
 struct VarDeclarationsStatement : public Statement {
-    static constexpr Kind kStatementKind = kVarDeclarations_Kind;
+    static constexpr Kind kStatementKind = Kind::kVarDeclarations;
 
     VarDeclarationsStatement(std::unique_ptr<VarDeclarations> decl)
     : INHERITED(decl->fOffset, kStatementKind)

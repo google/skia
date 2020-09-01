@@ -17,7 +17,7 @@ namespace SkSL {
  * Represents 'true' or 'false'.
  */
 struct BoolLiteral : public Expression {
-    static constexpr Kind kExpressionKind = kBoolLiteral_Kind;
+    static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
     BoolLiteral(const Context& context, int offset, bool value)
     : INHERITED(offset, kExpressionKind, *context.fBool_Type)

@@ -17,7 +17,7 @@ namespace SkSL {
  * A function invocation.
  */
 struct FunctionCall : public Expression {
-    static constexpr Kind kExpressionKind = kFunctionCall_Kind;
+    static constexpr Kind kExpressionKind = Kind::kFunctionCall;
 
     FunctionCall(int offset, const Type& type, const FunctionDeclaration& function,
                  std::vector<std::unique_ptr<Expression>> arguments)

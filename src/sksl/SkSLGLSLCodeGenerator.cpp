@@ -82,8 +82,8 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
 }
 
 String GLSLCodeGenerator::getTypeName(const Type& type) {
-    switch (type.kind()) {
-        case Type::kVector_Kind: {
+    switch (type.typeKind()) {
+        case Type::TypeKind::kVector: {
             const Type& component = type.componentType();
             String result;
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
@@ -104,7 +104,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             result += to_string(type.columns());
             return result;
         }
-        case Type::kMatrix_Kind: {
+        case Type::TypeKind::kMatrix: {
             String result;
             const Type& component = type.componentType();
             if (component == *fContext.fFloat_Type || component == *fContext.fHalf_Type) {
@@ -120,7 +120,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             }
             return result;
         }
-        case Type::kArray_Kind: {
+        case Type::TypeKind::kArray: {
             String result = this->getTypeName(type.componentType()) + "[";
             if (type.columns() != -1) {
                 result += to_string(type.columns());
@@ -128,7 +128,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             result += "]";
             return result;
         }
-        case Type::kScalar_Kind: {
+        case Type::TypeKind::kScalar: {
             if (type == *fContext.fHalf_Type) {
                 return "float";
             }
@@ -149,7 +149,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             }
             break;
         }
-        case Type::kEnum_Kind:
+        case Type::TypeKind::kEnum:
             return "int";
         default:
             return type.name();
@@ -157,7 +157,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeType(const Type& type) {
-    if (type.kind() == Type::kStruct_Kind) {
+    if (type.typeKind() == Type::TypeKind::kStruct) {
         for (const Type* search : fWrittenStructs) {
             if (*search == type) {
                 // already written
@@ -187,47 +187,47 @@ void GLSLCodeGenerator::writeType(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence parentPrecedence) {
-    switch (expr.fKind) {
-        case Expression::kBinary_Kind:
-            this->writeBinaryExpression(expr.as<BinaryExpression>(), parentPrecedence);
+    switch (expr.kind()) {
+        case Expression::Kind::kBinary:
+            this->writeBinaryExpression(expr, parentPrecedence);
             break;
-        case Expression::kBoolLiteral_Kind:
+        case Expression::Kind::kBoolLiteral:
             this->writeBoolLiteral(expr.as<BoolLiteral>());
             break;
-        case Expression::kConstructor_Kind:
+        case Expression::Kind::kConstructor:
             this->writeConstructor(expr.as<Constructor>(), parentPrecedence);
             break;
-        case Expression::kIntLiteral_Kind:
+        case Expression::Kind::kIntLiteral:
             this->writeIntLiteral(expr.as<IntLiteral>());
             break;
-        case Expression::kFieldAccess_Kind:
+        case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(expr.as<FieldAccess>());
             break;
-        case Expression::kFloatLiteral_Kind:
+        case Expression::Kind::kFloatLiteral:
             this->writeFloatLiteral(expr.as<FloatLiteral>());
             break;
-        case Expression::kFunctionCall_Kind:
+        case Expression::Kind::kFunctionCall:
             this->writeFunctionCall(expr.as<FunctionCall>());
             break;
-        case Expression::kPrefix_Kind:
+        case Expression::Kind::kPrefix:
             this->writePrefixExpression(expr.as<PrefixExpression>(), parentPrecedence);
             break;
-        case Expression::kPostfix_Kind:
+        case Expression::Kind::kPostfix:
             this->writePostfixExpression(expr.as<PostfixExpression>(), parentPrecedence);
             break;
-        case Expression::kSetting_Kind:
+        case Expression::Kind::kSetting:
             this->writeSetting(expr.as<Setting>());
             break;
-        case Expression::kSwizzle_Kind:
+        case Expression::Kind::kSwizzle:
             this->writeSwizzle(expr.as<Swizzle>());
             break;
-        case Expression::kVariableReference_Kind:
+        case Expression::Kind::kVariableReference:
             this->writeVariableReference(expr.as<VariableReference>());
             break;
-        case Expression::kTernary_Kind:
+        case Expression::Kind::kTernary:
             this->writeTernaryExpression(expr.as<TernaryExpression>(), parentPrecedence);
             break;
-        case Expression::kIndex_Kind:
+        case Expression::Kind::kIndex:
             this->writeIndexExpression(expr.as<IndexExpression>());
             break;
         default:
@@ -239,7 +239,7 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
 }
 
 static bool is_abs(Expression& expr) {
-    if (expr.fKind != Expression::kFunctionCall_Kind) {
+    if (expr.kind() != Expression::Kind::kFunctionCall) {
         return false;
     }
     return expr.as<FunctionCall>().fFunction.fName == "abs";
@@ -506,7 +506,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             case FunctionClass::kAtan:
                 if (fProgram.fSettings.fCaps->mustForceNegatedAtanParamToFloat() &&
                     c.fArguments.size() == 2 &&
-                    c.fArguments[1]->fKind == Expression::kPrefix_Kind) {
+                    c.fArguments[1]->kind() == Expression::Kind::kPrefix) {
                     const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
                     if (p.fOperator == Token::Kind::TK_MINUS) {
                         this->write("atan(");
@@ -713,7 +713,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 void GLSLCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
     if (c.fArguments.size() == 1 &&
         (this->getTypeName(c.fType) == this->getTypeName(c.fArguments[0]->fType) ||
-        (c.fType.kind() == Type::kScalar_Kind &&
+        (c.fType.typeKind() == Type::TypeKind::kScalar &&
          c.fArguments[0]->fType == *fContext.fFloatLiteral_Type))) {
         // in cases like half(float), they're different types as far as SkSL is concerned but the
         // same type as far as GLSL is concerned. We avoid a redundant float(float) by just writing
@@ -1082,33 +1082,35 @@ GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind
     }
 }
 
-void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
+void GLSLCodeGenerator::writeBinaryExpression(const Expression& b,
                                               Precedence parentPrecedence) {
+    Token::Kind op = b.getBinaryData().fOperator;
     if (fProgram.fSettings.fCaps->unfoldShortCircuitAsTernary() &&
-            (b.fOperator == Token::Kind::TK_LOGICALAND ||
-             b.fOperator == Token::Kind::TK_LOGICALOR)) {
+            (op == Token::Kind::TK_LOGICALAND || op == Token::Kind::TK_LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
         return;
     }
 
-    Precedence precedence = GetBinaryPrecedence(b.fOperator);
+    Precedence precedence = GetBinaryPrecedence(op);
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
+    const Expression& left = b.expressionChild(IRNode::Index::kBinaryLeft);
+    const Expression& right = b.expressionChild(IRNode::Index::kBinaryRight);
     bool positionWorkaround = fProgramKind == Program::Kind::kVertex_Kind &&
-                              Compiler::IsAssignment(b.fOperator) &&
-                              Expression::kFieldAccess_Kind == b.fLeft->fKind &&
-                              is_sk_position((FieldAccess&) *b.fLeft) &&
-                              !b.fRight->containsRTAdjust() &&
+                              Compiler::IsAssignment(op) &&
+                              left.kind() == Expression::Kind::kFieldAccess &&
+                              is_sk_position((FieldAccess&) left) &&
+                              !right.containsRTAdjust() &&
                               !fProgram.fSettings.fCaps->canUseFragCoord();
     if (positionWorkaround) {
         this->write("sk_FragCoord_Workaround = (");
     }
-    this->writeExpression(*b.fLeft, precedence);
+    this->writeExpression(left, precedence);
     this->write(" ");
-    this->write(Compiler::OperatorName(b.fOperator));
+    this->write(Compiler::OperatorName(op));
     this->write(" ");
-    this->writeExpression(*b.fRight, precedence);
+    this->writeExpression(right, precedence);
     if (positionWorkaround) {
         this->write(")");
     }
@@ -1117,7 +1119,7 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     }
 }
 
-void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
+void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const Expression& b,
                                                               Precedence parentPrecedence) {
     if (kTernary_Precedence >= parentPrecedence) {
         this->write("(");
@@ -1126,20 +1128,21 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     // Transform:
     // a && b  =>   a ? b : false
     // a || b  =>   a ? true : b
-    this->writeExpression(*b.fLeft, kTernary_Precedence);
+    this->writeExpression(b.expressionChild(IRNode::Index::kBinaryLeft), kTernary_Precedence);
     this->write(" ? ");
-    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
-        this->writeExpression(*b.fRight, kTernary_Precedence);
+    Token::Kind op = b.getBinaryData().fOperator;
+    if (op == Token::Kind::TK_LOGICALAND) {
+        this->writeExpression(b.expressionChild(IRNode::Index::kBinaryRight), kTernary_Precedence);
     } else {
         BoolLiteral boolTrue(fContext, -1, true);
         this->writeBoolLiteral(boolTrue);
     }
     this->write(" : ");
-    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
+    if (op == Token::Kind::TK_LOGICALAND) {
         BoolLiteral boolFalse(fContext, -1, false);
         this->writeBoolLiteral(boolFalse);
     } else {
-        this->writeExpression(*b.fRight, kTernary_Precedence);
+        this->writeExpression(b.expressionChild(IRNode::Index::kBinaryRight), kTernary_Precedence);
     }
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
@@ -1223,7 +1226,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
             this->writeModifiers(param->fModifiers, false);
             std::vector<int> sizes;
             const Type* type = &param->fType;
-            while (type->kind() == Type::kArray_Kind) {
+            while (type->typeKind() == Type::TypeKind::kArray) {
                 sizes.push_back(type->columns());
                 type = &type->componentType();
             }
@@ -1347,7 +1350,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     this->writeLine(intf.fTypeName + " {");
     fIndentation++;
     const Type* structType = &intf.fVariable.fType;
-    while (structType->kind() == Type::kArray_Kind) {
+    while (structType->typeKind() == Type::TypeKind::kArray) {
         structType = &structType->componentType();
     }
     for (const auto& f : structType->fields()) {
@@ -1378,8 +1381,8 @@ void GLSLCodeGenerator::writeVarInitializer(const Variable& var, const Expressio
 
 const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
     if (usesPrecisionModifiers()) {
-        switch (type.kind()) {
-            case Type::kScalar_Kind:
+        switch (type.typeKind()) {
+            case Type::TypeKind::kScalar:
                 if (type == *fContext.fShort_Type || type == *fContext.fUShort_Type ||
                     type == *fContext.fByte_Type || type == *fContext.fUByte_Type) {
                     if (fProgram.fSettings.fForceHighPrecision ||
@@ -1396,8 +1399,8 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
                     return "highp ";
                 }
                 return "";
-            case Type::kVector_Kind: // fall through
-            case Type::kMatrix_Kind:
+            case Type::TypeKind::kVector: // fall through
+            case Type::TypeKind::kMatrix:
                 return this->getTypePrecision(type.componentType());
             default:
                 break;
@@ -1458,45 +1461,45 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
 }
 
 void GLSLCodeGenerator::writeStatement(const Statement& s) {
-    switch (s.fKind) {
-        case Statement::kBlock_Kind:
+    switch (s.kind()) {
+        case Statement::Kind::kBlock:
             this->writeBlock(s.as<Block>());
             break;
-        case Statement::kExpression_Kind:
+        case Statement::Kind::kExpression:
             this->writeExpression(*s.as<ExpressionStatement>().fExpression, kTopLevel_Precedence);
             this->write(";");
             break;
-        case Statement::kReturn_Kind:
+        case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
-        case Statement::kVarDeclarations_Kind:
+        case Statement::Kind::kVarDeclarations:
             this->writeVarDeclarations(*s.as<VarDeclarationsStatement>().fDeclaration, false);
             break;
-        case Statement::kIf_Kind:
+        case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
             break;
-        case Statement::kFor_Kind:
+        case Statement::Kind::kFor:
             this->writeForStatement(s.as<ForStatement>());
             break;
-        case Statement::kWhile_Kind:
+        case Statement::Kind::kWhile:
             this->writeWhileStatement(s.as<WhileStatement>());
             break;
-        case Statement::kDo_Kind:
+        case Statement::Kind::kDo:
             this->writeDoStatement(s.as<DoStatement>());
             break;
-        case Statement::kSwitch_Kind:
+        case Statement::Kind::kSwitch:
             this->writeSwitchStatement(s.as<SwitchStatement>());
             break;
-        case Statement::kBreak_Kind:
+        case Statement::Kind::kBreak:
             this->write("break;");
             break;
-        case Statement::kContinue_Kind:
+        case Statement::Kind::kContinue:
             this->write("continue;");
             break;
-        case Statement::kDiscard_Kind:
+        case Statement::Kind::kDiscard:
             this->write("discard;");
             break;
-        case Statement::kNop_Kind:
+        case Statement::Kind::kNop:
             this->write(";");
             break;
         default:
@@ -1548,10 +1551,14 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     }
     if (f.fTest) {
         if (fProgram.fSettings.fCaps->addAndTrueToLoopCondition()) {
-            std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    -1, f.fTest->clone(), Token::Kind::TK_LOGICALAND,
-                    std::make_unique<BoolLiteral>(fContext, -1, true),
-                    *fContext.fBool_Type));
+            std::unique_ptr<Expression> and_true = Expression::MakeBinary(
+                                                             -1,
+                                                             f.fTest->clone(),
+                                                             Token::Kind::TK_LOGICALAND,
+                                                             std::make_unique<BoolLiteral>(fContext,
+                                                                                           -1,
+                                                                                           true),
+                                                             *fContext.fBool_Type);
             this->writeExpression(*and_true, kTopLevel_Precedence);
         } else {
             this->writeExpression(*f.fTest, kTopLevel_Precedence);
@@ -1664,11 +1671,11 @@ void GLSLCodeGenerator::writeHeader() {
 }
 
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
-    switch (e.fKind) {
-        case ProgramElement::kExtension_Kind:
+    switch (e.kind()) {
+        case ProgramElement::Kind::kExtension:
             this->writeExtension(e.as<Extension>().fName);
             break;
-        case ProgramElement::kVar_Kind: {
+        case ProgramElement::Kind::kVar: {
             const VarDeclarations& decl = e.as<VarDeclarations>();
             if (decl.fVars.size() > 0) {
                 int builtin = decl.fVars[0]->as<VarDeclaration>().fVar->fModifiers.fLayout.fBuiltin;
@@ -1692,13 +1699,13 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             }
             break;
         }
-        case ProgramElement::kInterfaceBlock_Kind:
+        case ProgramElement::Kind::kInterfaceBlock:
             this->writeInterfaceBlock(e.as<InterfaceBlock>());
             break;
-        case ProgramElement::kFunction_Kind:
+        case ProgramElement::Kind::kFunction:
             this->writeFunction(e.as<FunctionDefinition>());
             break;
-        case ProgramElement::kModifiers_Kind: {
+        case ProgramElement::Kind::kModifiers: {
             const Modifiers& modifiers = e.as<ModifiersDeclaration>().fModifiers;
             if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
                 if (fProgram.fSettings.fCaps->gsInvocationsExtensionString()) {
@@ -1710,7 +1717,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeLine(";");
             break;
         }
-        case ProgramElement::kEnum_Kind:
+        case ProgramElement::Kind::kEnum:
             break;
         default:
 #ifdef SK_DEBUG

@@ -15,7 +15,6 @@
 #include "src/sksl/SkSLCodeGenerator.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -273,22 +272,22 @@ private:
                                SpvId rhs, SpvOp_ ifFloat, SpvOp_ ifInt, SpvOp_ ifUInt,
                                SpvOp_ ifBool, OutputStream& out);
 
-    SpvId writeBinaryOperation(const BinaryExpression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
+    SpvId writeBinaryOperation(const Expression& expr, SpvOp_ ifFloat, SpvOp_ ifInt,
                                SpvOp_ ifUInt, OutputStream& out);
 
     SpvId writeBinaryExpression(const Type& leftType, SpvId lhs, Token::Kind op,
                                 const Type& rightType, SpvId rhs, const Type& resultType,
                                 OutputStream& out);
 
-    SpvId writeBinaryExpression(const BinaryExpression& b, OutputStream& out);
+    SpvId writeBinaryExpression(const Expression& b, OutputStream& out);
 
     SpvId writeTernaryExpression(const TernaryExpression& t, OutputStream& out);
 
     SpvId writeIndexExpression(const IndexExpression& expr, OutputStream& out);
 
-    SpvId writeLogicalAnd(const BinaryExpression& b, OutputStream& out);
+    SpvId writeLogicalAnd(const Expression& b, OutputStream& out);
 
-    SpvId writeLogicalOr(const BinaryExpression& o, OutputStream& out);
+    SpvId writeLogicalOr(const Expression& o, OutputStream& out);
 
     SpvId writePrefixExpression(const PrefixExpression& p, OutputStream& out);
 

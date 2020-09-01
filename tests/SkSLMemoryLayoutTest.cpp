@@ -80,12 +80,14 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
     REPORTER_ASSERT(r, 16 == layout.alignment(s5));
 
     // arrays
-    SkSL::Type array1(SkSL::String("float[4]"), SkSL::Type::kArray_Kind, *context.fFloat_Type, 4);
+    SkSL::Type array1(SkSL::String("float[4]"), SkSL::Type::TypeKind::kArray, *context.fFloat_Type,
+                      4);
     REPORTER_ASSERT(r, 64 == layout.size(array1));
     REPORTER_ASSERT(r, 16 == layout.alignment(array1));
     REPORTER_ASSERT(r, 16 == layout.stride(array1));
 
-    SkSL::Type array2(SkSL::String("float4[4]"), SkSL::Type::kArray_Kind, *context.fFloat4_Type, 4);
+    SkSL::Type array2(SkSL::String("float4[4]"), SkSL::Type::TypeKind::kArray,
+                      *context.fFloat4_Type, 4);
     REPORTER_ASSERT(r, 64 == layout.size(array2));
     REPORTER_ASSERT(r, 16 == layout.alignment(array2));
     REPORTER_ASSERT(r, 16 == layout.stride(array2));
@@ -161,12 +163,14 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     REPORTER_ASSERT(r, 16 == layout.alignment(s5));
 
     // arrays
-    SkSL::Type array1(SkSL::String("float[4]"), SkSL::Type::kArray_Kind, *context.fFloat_Type, 4);
+    SkSL::Type array1(SkSL::String("float[4]"), SkSL::Type::TypeKind::kArray, *context.fFloat_Type,
+                      4);
     REPORTER_ASSERT(r, 16 == layout.size(array1));
     REPORTER_ASSERT(r, 4 == layout.alignment(array1));
     REPORTER_ASSERT(r, 4 == layout.stride(array1));
 
-    SkSL::Type array2(SkSL::String("float4[4]"), SkSL::Type::kArray_Kind, *context.fFloat4_Type, 4);
+    SkSL::Type array2(SkSL::String("float4[4]"), SkSL::Type::TypeKind::kArray,
+                      *context.fFloat4_Type, 4);
     REPORTER_ASSERT(r, 64 == layout.size(array2));
     REPORTER_ASSERT(r, 16 == layout.alignment(array2));
     REPORTER_ASSERT(r, 16 == layout.stride(array2));

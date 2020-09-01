@@ -15,7 +15,6 @@
 #include "src/sksl/SkSLByteCode.h"
 #include "src/sksl/SkSLCodeGenerator.h"
 #include "src/sksl/SkSLMemoryLayout.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -260,7 +259,7 @@ private:
 
     void writeSwizzle(const Swizzle& swizzle);
 
-    bool writeBinaryExpression(const BinaryExpression& b, bool discard);
+    bool writeBinaryExpression(const Expression& b, bool discard);
 
     void writeTernaryExpression(const TernaryExpression& t);
 

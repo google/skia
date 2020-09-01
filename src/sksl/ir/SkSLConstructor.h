@@ -26,7 +26,7 @@ namespace SkSL {
  * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
 struct Constructor : public Expression {
-    static constexpr Kind kExpressionKind = kConstructor_Kind;
+    static constexpr Kind kExpressionKind = Kind::kConstructor;
 
     Constructor(int offset, const Type& type, std::vector<std::unique_ptr<Expression>> arguments)
     : INHERITED(offset, kExpressionKind, type)
@@ -34,7 +34,7 @@ struct Constructor : public Expression {
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (fArguments.size() == 1 && fArguments[0]->fKind == Expression::kIntLiteral_Kind) {
+        if (fArguments.size() == 1 && fArguments[0]->kind() == Expression::Kind::kIntLiteral) {
             if (fType.isFloat()) {
                 // promote float(1) to 1.0
                 int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
@@ -100,9 +100,9 @@ struct Constructor : public Expression {
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        SkASSERT(other.fKind == Expression::kConstructor_Kind && other.fType == fType);
+        SkASSERT(other.kind() == Expression::Kind::kConstructor && other.fType == fType);
         Constructor& c = (Constructor&) other;
-        if (c.fType.kind() == Type::kVector_Kind) {
+        if (c.fType.typeKind() == Type::TypeKind::kVector) {
             bool isFloat = c.fType.columns() > 1 ? c.fType.componentType().isFloat()
                                                  : c.fType.isFloat();
             for (int i = 0; i < fType.columns(); i++) {
@@ -119,7 +119,7 @@ struct Constructor : public Expression {
         // shouldn't be possible to have a constant constructor that isn't a vector or matrix;
         // a constant scalar constructor should have been collapsed down to the appropriate
         // literal
-        SkASSERT(fType.kind() == Type::kMatrix_Kind);
+        SkASSERT(fType.typeKind() == Type::TypeKind::kMatrix);
         for (int col = 0; col < fType.columns(); col++) {
             for (int row = 0; row < fType.rows(); row++) {
                 if (getMatComponent(col, row) != c.getMatComponent(col, row)) {
@@ -132,8 +132,8 @@ struct Constructor : public Expression {
 
     template <typename type>
     type getVecComponent(int index) const {
-        SkASSERT(fType.kind() == Type::kVector_Kind);
-        if (fArguments.size() == 1 && fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+        SkASSERT(fType.typeKind() == Type::TypeKind::kVector);
+        if (fArguments.size() == 1 && fArguments[0]->fType.typeKind() == Type::TypeKind::kScalar) {
             // This constructor just wraps a scalar. Propagate out the value.
             if (std::is_floating_point<type>::value) {
                 return fArguments[0]->getConstantFloat();
@@ -150,7 +150,7 @@ struct Constructor : public Expression {
                 break;
             }
 
-            if (arg->fType.kind() == Type::kScalar_Kind) {
+            if (arg->fType.typeKind() == Type::TypeKind::kScalar) {
                 if (index == current) {
                     // We're on the proper argument, and it's a scalar; fetch it.
                     if (std::is_floating_point<type>::value) {
@@ -163,8 +163,8 @@ struct Constructor : public Expression {
                 continue;
             }
 
-            switch (arg->fKind) {
-                case kConstructor_Kind: {
+            switch (arg->kind()) {
+                case Kind::kConstructor: {
                     const Constructor& constructor = static_cast<const Constructor&>(*arg);
                     if (current + constructor.fType.columns() > index) {
                         // We've found a constructor that overlaps the proper argument. Descend into
@@ -177,7 +177,7 @@ struct Constructor : public Expression {
                     }
                     break;
                 }
-                case kPrefix_Kind: {
+                case Kind::kPrefix: {
                     const PrefixExpression& prefix = static_cast<const PrefixExpression&>(*arg);
                     if (current + prefix.fType.columns() > index) {
                         // We found a prefix operator that contains the proper argument. Descend
@@ -186,7 +186,7 @@ struct Constructor : public Expression {
                         SkASSERT(prefix.fOperator == Token::Kind::TK_MINUS);
 
                         // We expect the - prefix to always be attached to a constructor.
-                        SkASSERT(prefix.fOperand->fKind == kConstructor_Kind);
+                        SkASSERT(prefix.fOperand->kind() == Kind::kConstructor);
                         const Constructor& constructor =
                                 static_cast<const Constructor&>(*prefix.fOperand);
 
@@ -227,10 +227,10 @@ struct Constructor : public Expression {
 
     SKSL_FLOAT getMatComponent(int col, int row) const override {
         SkASSERT(this->isCompileTimeConstant());
-        SkASSERT(fType.kind() == Type::kMatrix_Kind);
+        SkASSERT(fType.typeKind() == Type::TypeKind::kMatrix);
         SkASSERT(col < fType.columns() && row < fType.rows());
         if (fArguments.size() == 1) {
-            if (fArguments[0]->fType.kind() == Type::kScalar_Kind) {
+            if (fArguments[0]->fType.typeKind() == Type::TypeKind::kScalar) {
                 // single scalar argument, so matrix is of the form:
                 // x 0 0
                 // 0 x 0
@@ -238,8 +238,8 @@ struct Constructor : public Expression {
                 // return x if col == row
                 return col == row ? fArguments[0]->getConstantFloat() : 0.0;
             }
-            if (fArguments[0]->fType.kind() == Type::kMatrix_Kind) {
-                SkASSERT(fArguments[0]->fKind == Expression::kConstructor_Kind);
+            if (fArguments[0]->fType.typeKind() == Type::TypeKind::kMatrix) {
+                SkASSERT(fArguments[0]->kind() == Expression::Kind::kConstructor);
                 // single matrix argument. make sure we're within the argument's bounds.
                 const Type& argType = ((Constructor&) *fArguments[0]).fType;
                 if (col < argType.columns() && row < argType.rows()) {

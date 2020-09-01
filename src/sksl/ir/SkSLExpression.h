@@ -24,27 +24,27 @@ typedef std::unordered_map<const Variable*, std::unique_ptr<Expression>*> Defini
  * Abstract supertype of all expressions.
  */
 struct Expression : public IRNode {
-    enum Kind {
-        kBinary_Kind,
-        kBoolLiteral_Kind,
-        kConstructor_Kind,
-        kExternalFunctionCall_Kind,
-        kExternalValue_Kind,
-        kIntLiteral_Kind,
-        kFieldAccess_Kind,
-        kFloatLiteral_Kind,
-        kFunctionReference_Kind,
-        kFunctionCall_Kind,
-        kIndex_Kind,
-        kNullLiteral_Kind,
-        kPrefix_Kind,
-        kPostfix_Kind,
-        kSetting_Kind,
-        kSwizzle_Kind,
-        kTernary_Kind,
-        kTypeReference_Kind,
-        kVariableReference_Kind,
-        kDefined_Kind
+    enum class Kind {
+        kBinary,
+        kBoolLiteral,
+        kConstructor,
+        kExternalFunctionCall,
+        kExternalValue,
+        kIntLiteral,
+        kFieldAccess,
+        kFloatLiteral,
+        kFunctionReference,
+        kFunctionCall,
+        kIndex,
+        kNullLiteral,
+        kPrefix,
+        kPostfix,
+        kSetting,
+        kSwizzle,
+        kTernary,
+        kTypeReference,
+        kVariableReference,
+        kDefined,
     };
 
     enum class Property {
@@ -53,22 +53,40 @@ struct Expression : public IRNode {
     };
 
     Expression(int offset, Kind kind, const Type& type)
-    : INHERITED(offset)
-    , fKind(kind)
-    , fType(std::move(type)) {}
+    : INHERITED(offset, (int) kind)
+    , fType(type) {}
+
+    Expression(int offset, Kind kind, BinaryData data,
+               std::vector<std::unique_ptr<IRNode>> children)
+    : INHERITED(offset, (int) kind, data, std::move(children))
+    , fType(*data.fType) {}
+
+    static std::unique_ptr<Expression> MakeBinary(int offset, std::unique_ptr<Expression> left,
+                                                  Token::Kind op, std::unique_ptr<Expression> right,
+                                                  const Type& type) {
+        std::vector<std::unique_ptr<IRNode>> children;
+        children.push_back(std::move(left));
+        children.push_back(std::move(right));
+        return std::make_unique<Expression>(offset, Kind::kBinary, BinaryData{&type, op},
+                                            std::move(children));
+    }
+
+    Kind kind() const {
+        return (Kind) fKind;
+    }
 
     /**
      *  Use as<T> to downcast expressions: e.g. replace `(IntLiteral&) i` with `i.as<IntLiteral>()`.
      */
     template <typename T>
     const T& as() const {
-        SkASSERT(this->fKind == T::kExpressionKind);
+        SkASSERT(this->kind() == T::kExpressionKind);
         return static_cast<const T&>(*this);
     }
 
     template <typename T>
     T& as() {
-        SkASSERT(this->fKind == T::kExpressionKind);
+        SkASSERT(this->kind() == T::kExpressionKind);
         return static_cast<T&>(*this);
     }
 
@@ -109,12 +127,9 @@ struct Expression : public IRNode {
      * Returns true if, given fixed values for uniforms, this expression always evaluates to the
      * same result with no side effects.
      */
-    virtual bool isConstantOrUniform() const {
-        SkASSERT(!this->isCompileTimeConstant() || !this->hasSideEffects());
-        return this->isCompileTimeConstant();
-    }
+    virtual bool isConstantOrUniform() const;
 
-    virtual bool hasProperty(Property property) const = 0;
+    virtual bool hasProperty(Property property) const;
 
     bool hasSideEffects() const {
         return this->hasProperty(Property::kSideEffects);
@@ -132,9 +147,7 @@ struct Expression : public IRNode {
      * made. If a new expression is returned, this expression is no longer valid.
      */
     virtual std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
-                                                          const DefinitionMap& definitions) {
-        return nullptr;
-    }
+                                                          const DefinitionMap& definitions);
 
     virtual int coercionCost(const Type& target) const {
         return fType.coercionCost(target);
@@ -168,9 +181,10 @@ struct Expression : public IRNode {
         return 0;
     }
 
-    virtual std::unique_ptr<Expression> clone() const = 0;
+    virtual std::unique_ptr<Expression> clone() const;
 
-    const Kind fKind;
+    String description() const override;
+
     const Type& fType;
 
     typedef IRNode INHERITED;

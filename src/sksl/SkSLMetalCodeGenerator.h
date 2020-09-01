@@ -16,7 +16,6 @@
 #include "src/sksl/SkSLCodeGenerator.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
-#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBoolLiteral.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -212,7 +211,7 @@ protected:
 
     static Precedence GetBinaryPrecedence(Token::Kind op);
 
-    void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
+    void writeBinaryExpression(const Expression& b, Precedence parentPrecedence);
 
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
 

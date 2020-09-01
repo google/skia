@@ -56,6 +56,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLDiscardStatement.h",
   "$_src/sksl/ir/SkSLDoStatement.h",
   "$_src/sksl/ir/SkSLEnum.h",
+  "$_src/sksl/ir/SkSLExpression.cpp",
   "$_src/sksl/ir/SkSLExpression.h",
   "$_src/sksl/ir/SkSLExpressionStatement.h",
   "$_src/sksl/ir/SkSLExtension.h",

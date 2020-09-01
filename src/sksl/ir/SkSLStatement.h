@@ -18,25 +18,28 @@ namespace SkSL {
  */
 struct Statement : public IRNode {
     enum Kind {
-        kBlock_Kind,
-        kBreak_Kind,
-        kContinue_Kind,
-        kDiscard_Kind,
-        kDo_Kind,
-        kExpression_Kind,
-        kFor_Kind,
-        kIf_Kind,
-        kNop_Kind,
-        kReturn_Kind,
-        kSwitch_Kind,
-        kVarDeclaration_Kind,
-        kVarDeclarations_Kind,
-        kWhile_Kind
+        kBlock,
+        kBreak,
+        kContinue,
+        kDiscard,
+        kDo,
+        kExpression,
+        kFor,
+        kIf,
+        kNop,
+        kReturn,
+        kSwitch,
+        kVarDeclaration,
+        kVarDeclarations,
+        kWhile,
     };
 
     Statement(int offset, Kind kind)
-    : INHERITED(offset)
-    , fKind(kind) {}
+    : INHERITED(offset, (int) kind) {}
+
+    Kind kind() const {
+        return (Kind) fKind;
+    }
 
     /**
      *  Use as<T> to downcast statements.
@@ -59,8 +62,6 @@ struct Statement : public IRNode {
     }
 
     virtual std::unique_ptr<Statement> clone() const = 0;
-
-    const Kind fKind;
 
     typedef IRNode INHERITED;
 };

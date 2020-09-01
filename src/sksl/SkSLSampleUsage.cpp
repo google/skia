@@ -7,7 +7,6 @@
 
 #include "include/private/SkSLSampleUsage.h"
 
-#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"

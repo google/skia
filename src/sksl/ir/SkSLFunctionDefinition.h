@@ -22,7 +22,7 @@ struct ASTNode;
  * A function definition (a declaration plus an associated block of code).
  */
 struct FunctionDefinition : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kFunction_Kind;
+    static constexpr Kind kProgramElementKind = Kind::kFunction;
 
     FunctionDefinition(int offset,
                        const FunctionDeclaration& declaration,
