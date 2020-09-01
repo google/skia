@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9d2b076_052b2b3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2020-09-01T21:04:18Z",
+      "side": 1,
+      "message": "Some more context, |minimal_ios_mtl_skia_app| and |skottie_ios_app| include MetalKit directly since they are also the users of MetalKit specific functionality. So this change should not affect those targets.",
+      "revId": "e2fc9bb9ca155dc11acb9e5b61805c8abd92642d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
