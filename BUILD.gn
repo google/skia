@@ -789,7 +789,6 @@ optional("gpu") {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     frameworks += [ "Metal.framework" ]
-    frameworks += [ "MetalKit.framework" ]
     frameworks += [ "Foundation.framework" ]
     cflags_objcc += [ "-fobjc-arc" ]
   }
