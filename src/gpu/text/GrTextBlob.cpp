@@ -389,17 +389,17 @@ static auto ltbr(const Rect& r) {
 }
 
 // The 99% case. No clip. Non-color only.
-template<typename Quad, typename VertexData>
-static void direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
-                      GrColor color,
-                      SkIPoint deviceOrigin) {
+void GrDirectMaskSubRun::direct2D(SkZip<Mask2DVertex[4], const GrGlyph*, const SkIPoint> quadData,
+                                  GrColor color,
+                                  SkIPoint deviceOrigin) const {
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        uint16_t w = ar - al,
-                 h = ab - at;
-        auto[l, t] = leftTop + deviceOrigin;
+        int l = leftTop.x() + deviceOrigin.x(),
+            t = leftTop.y() + deviceOrigin.y(),
+            r = l + (ar - al),
+            b = t + (ab - at);
 
-        auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
+        auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, r, b);
         quad[0] = {{dl, dt}, color, {al, at}};  // L,T
         quad[1] = {{dl, db}, color, {al, ab}};  // L,B
         quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
@@ -468,7 +468,7 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
         if (fMaskFormat != kARGB_GrMaskFormat) {
             using Quad = Mask2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);
-            direct_2D(quadData((Quad*)vertexDst), color, originInDeviceSpace);
+            this->direct2D(quadData((Quad*)vertexDst), color, originInDeviceSpace);
         } else {
             using Quad = ARGB2DVertex[4];
             SkASSERT(sizeof(Quad) == this->vertexStride() * kVerticesPerGlyph);

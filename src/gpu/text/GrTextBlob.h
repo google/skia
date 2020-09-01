@@ -365,6 +365,10 @@ private:
     // The rectangle that surrounds all the glyph bounding boxes in device space.
     SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
 
+    void direct2D(SkZip<Mask2DVertex[4], const GrGlyph*, const SkIPoint> quadData,
+                  GrColor color,
+                  SkIPoint deviceOrigin) const;
+
     const GrMaskFormat fMaskFormat;
     const SkPoint fResidual;
     GrTextBlob* const fBlob;
