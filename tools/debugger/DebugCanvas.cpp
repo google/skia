@@ -44,6 +44,7 @@ namespace {
     }, true);
 
     void drawArrow(SkCanvas* canvas, const SkPoint& a, const SkPoint& b, const SkPaint& paint) {
+        canvas->translate(0.5, 0.5);
         canvas->drawLine(a, b, paint);
         canvas->save();
         canvas->translate(b.fX, b.fY);
@@ -51,6 +52,7 @@ namespace {
         canvas->rotate(angle * 180 / SK_ScalarPI - 90);
         // arrow head
         canvas->drawPath(arrowHead, paint);
+        canvas->restore();
         canvas->restore();
     }
 } // namespace
