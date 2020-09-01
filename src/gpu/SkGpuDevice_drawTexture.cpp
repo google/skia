@@ -498,7 +498,8 @@ static void draw_texture_producer(GrRecordingContext* context,
     std::unique_ptr<GrFragmentProcessor> fp;
     if (doBicubic) {
         fp = producer->createBicubicFragmentProcessor(textureMatrix, subset, domain,
-                                                      sampler.wrapModeX(), sampler.wrapModeY());
+                                                      sampler.wrapModeX(), sampler.wrapModeY(),
+                                                      GrBicubicEffect::gMitchell);
     } else {
         fp = producer->createFragmentProcessor(textureMatrix, subset, domain, sampler);
     }

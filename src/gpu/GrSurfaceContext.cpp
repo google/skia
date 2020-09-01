@@ -1141,7 +1141,7 @@ std::unique_ptr<GrRenderTargetContext> GrSurfaceContext::rescale(const GrImageIn
                 dir = GrBicubicEffect::Direction::kX;
             }
             static constexpr auto kWM     = GrSamplerState::WrapMode::kClamp;
-            static constexpr auto kKernel = GrBicubicEffect::Kernel::kCatmullRom;
+            static constexpr auto kKernel = GrBicubicEffect::gCatmullRom;
             fp = GrBicubicEffect::MakeSubset(std::move(texView), prevAlphaType, matrix, kWM, kWM,
                                              SkRect::Make(srcRect), kKernel, dir, *this->caps());
             if (xform) {
