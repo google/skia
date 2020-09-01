@@ -46,7 +46,7 @@ static bool params_valid(const GrGLTextureParameters& parameters, const GrGLCaps
         return false;
     }
     // We should only set the sampler parameters to valid if we don't have sampler object support.
-    return caps->samplerObjectSupport() == sampler_params_invalid(parameters);
+    return caps->useSamplerObjects() == sampler_params_invalid(parameters);
 }
 
 DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters, reporter, ctxInfo) {
