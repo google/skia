@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bcdb357_d2f4731e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-01T20:47:44Z",
+      "side": 1,
+      "message": "SkCodec changes lgtm",
+      "revId": "3fdcf514a22ed0fb64fe7c8b0f4a9929fb73a790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
