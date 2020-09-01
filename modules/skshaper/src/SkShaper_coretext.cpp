@@ -96,27 +96,6 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
                        width, handler);
 }
 
-// CTFramesetter/CTFrame can do this, but require version 10.14
-class LineBreakIter {
-    CTTypesetterRef fTypesetter;
-    double          fWidth;
-    CFIndex         fStart;
-
-public:
-    LineBreakIter(CTTypesetterRef ts, SkScalar width) : fTypesetter(ts), fWidth(width) {
-        fStart = 0;
-    }
-
-    SkUniqueCFRef<CTLineRef> nextLine() {
-        CFRange stringRange {fStart, CTTypesetterSuggestLineBreak(fTypesetter, fStart, fWidth)};
-        if (stringRange.length == 0) {
-            return nullptr;
-        }
-        fStart += stringRange.length;
-        return SkUniqueCFRef<CTLineRef>(CTTypesetterCreateLine(fTypesetter, stringRange));
-    }
-};
-
 static void dict_add_double(CFMutableDictionaryRef d, const void* name, double value) {
     SkUniqueCFRef<CFNumberRef> number(
             CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &value));
@@ -147,11 +126,8 @@ static SkFont run_to_font(CTRunRef run, const SkFont& orig) {
 // kCTTrackingAttributeName not available until 10.12
 const CFStringRef kCTTracking_AttributeName = CFSTR("CTTracking");
 
-void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
-                              const SkFont& font,
-                              bool /* leftToRight */,
-                              SkScalar width,
-                              RunHandler* handler) const {
+static SkUniqueCFRef<CTFrameRef> make_frame(const char* utf8, size_t utf8Bytes, const SkFont& font,
+                                            CGFloat width) {
     SkUniqueCFRef<CFStringRef> textString(
             CFStringCreateWithBytes(kCFAllocatorDefault, (const uint8_t*)utf8, utf8Bytes,
                                     kCFStringEncodingUTF8, false));
@@ -172,17 +148,34 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
     SkUniqueCFRef<CFAttributedStringRef> attrString(
             CFAttributedStringCreate(kCFAllocatorDefault, textString.get(), attr.get()));
 
-    SkUniqueCFRef<CTTypesetterRef> typesetter(
-            CTTypesetterCreateWithAttributedString(attrString.get()));
+    SkUniqueCFRef<CTFramesetterRef> framesetter(
+            CTFramesetterCreateWithAttributedString(attrString.get()));
+    SkUniqueCFRef<CGPathRef> path(
+            CGPathCreateWithRect(CGRectMake(0, 0, width, CGFLOAT_MAX), nullptr));
+
+    return SkUniqueCFRef<CTFrameRef>(
+            CTFramesetterCreateFrame(framesetter.get(),
+                                     CFRangeMake(0, CFStringGetLength(textString.get())),
+                                     path.get(),
+                                     nullptr));
+}
+
+void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
+                              const SkFont& font,
+                              bool /* leftToRight */,
+                              SkScalar width,
+                              RunHandler* handler) const {
+    SkUniqueCFRef<CTFrameRef> frame = make_frame(utf8, utf8Bytes, font, SkScalarToCGFloat(width));
+    CFArrayRef lines = CTFrameGetLines(frame.get());
 
     // We have to compute RunInfos in a loop, and then reuse them in a 2nd loop,
     // so we store them in an array (we reuse the array's storage for each line).
     std::vector<SkFont> fontStorage;
     std::vector<SkShaper::RunHandler::RunInfo> infos;
 
-    LineBreakIter iter(typesetter.get(), width);
-    while (SkUniqueCFRef<CTLineRef> line = iter.nextLine()) {
-        CFArrayRef run_array = CTLineGetGlyphRuns(line.get());
+    for (CFIndex i = 0, iMax = CFArrayGetCount(lines); i < iMax; i++) {
+        CTLineRef line = (CTLineRef)CFArrayGetValueAtIndex(lines, i);
+        CFArrayRef run_array = CTLineGetGlyphRuns(line);
         CFIndex runCount = CFArrayGetCount(run_array);
         if (runCount == 0) {
             continue;
