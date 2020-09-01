@@ -1641,25 +1641,32 @@ bool Compiler::optimize(Program& program) {
         program.fIsOptimized = true;
         fIRGenerator->fKind = program.fKind;
         fIRGenerator->fSettings = &program.fSettings;
-        for (auto& element : program) {
+
+        // Build the control-flow graph for each function.
+        for (ProgramElement& element : program) {
             if (element.fKind == ProgramElement::kFunction_Kind) {
                 this->scanCFG(element.as<FunctionDefinition>());
             }
         }
-        // we wait until after analysis to remove dead functions so that we still report errors
-        // even in unused code
+
+        // Remove dead functions. We wait until after analysis so that we still report errors, even
+        // in unused code.
         if (program.fSettings.fRemoveDeadFunctions) {
-            for (auto iter = program.fElements.begin(); iter != program.fElements.end(); ) {
-                if ((*iter)->fKind == ProgramElement::kFunction_Kind) {
-                    const FunctionDefinition& f = (*iter)->as<FunctionDefinition>();
-                    if (!f.fDeclaration.fCallCount && f.fDeclaration.fName != "main") {
-                        iter = program.fElements.erase(iter);
-                        continue;
-                    }
-                }
-                ++iter;
-            }
+            program.fElements.erase(
+                    std::remove_if(program.fElements.begin(),
+                                   program.fElements.end(),
+                                   [](const std::unique_ptr<ProgramElement>& pe) {
+                                       if (pe->fKind != ProgramElement::kFunction_Kind) {
+                                           return false;
+                                       }
+                                       const FunctionDefinition& fn = pe->as<FunctionDefinition>();
+                                       return fn.fDeclaration.fCallCount == 0 &&
+                                              fn.fDeclaration.fName != "main";
+                                   }),
+                    program.fElements.end());
         }
+
+        // Remove dead variables.
         if (program.fKind != Program::kFragmentProcessor_Kind) {
             for (auto iter = program.fElements.begin(); iter != program.fElements.end();) {
                 if ((*iter)->fKind == ProgramElement::kVar_Kind) {
