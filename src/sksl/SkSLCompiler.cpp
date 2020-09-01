@@ -1671,14 +1671,13 @@ bool Compiler::optimize(Program& program) {
             for (auto iter = program.fElements.begin(); iter != program.fElements.end();) {
                 if ((*iter)->fKind == ProgramElement::kVar_Kind) {
                     VarDeclarations& vars = (*iter)->as<VarDeclarations>();
-                    for (auto varIter = vars.fVars.begin(); varIter != vars.fVars.end();) {
-                        const Variable& var = *(*varIter)->as<VarDeclaration>().fVar;
-                        if (var.dead()) {
-                            varIter = vars.fVars.erase(varIter);
-                        } else {
-                            ++varIter;
-                        }
-                    }
+                    vars.fVars.erase(
+                            std::remove_if(vars.fVars.begin(), vars.fVars.end(),
+                                           [](const std::unique_ptr<Statement>& stmt) {
+                                               return stmt->as<VarDeclaration>().fVar->dead();
+                                           }),
+                            vars.fVars.end());
+
                     if (vars.fVars.size() == 0) {
                         iter = program.fElements.erase(iter);
                         continue;
