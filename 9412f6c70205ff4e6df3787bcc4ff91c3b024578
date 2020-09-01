@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3268eff_10c51f65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-01T14:26:14Z",
+      "side": 1,
+      "message": "Seems pretty good.",
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "48b21ee8_f1e3f8aa",
+        "filename": "modules/skparagraph/include/ParagraphStyle.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-01T14:26:14Z",
+      "side": 1,
+      "message": "It\u0027s a bit awkward to include a \u0027src\u0027 header from a \u0027include\u0027 header. It doesn\u0027t seem this include is needed in this header?",
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c3c309e_3055c980",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-01T14:26:14Z",
+      "side": 1,
+      "message": "This doesn\u0027t seem to be used here? (It\u0027s also a globally visible symbol since the default is \u0027export\u0027 so it should at least be \u0027static\u0027 if it is needed.)",
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "316d4273_22966ded",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-01T14:26:14Z",
+      "side": 1,
+      "message": "If this isn\u0027t allowed to fail should this remain \u0027void\u0027? I think we\u0027re already asserting that fUnicode isn\u0027t nullptr so we don\u0027t need to check that here.",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 4
+      },
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
