@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bc0ac3c6_0ad607c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 23
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-01T15:23:28Z",
+      "side": 1,
+      "message": "That was unexpectedly hard. Thank you for driving that into the right direction.",
+      "parentUuid": "c3268eff_10c51f65",
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48b21ee8_f1e3f8aa",
         "filename": "modules/skparagraph/include/ParagraphStyle.h",
         "patchSetId": 23
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "a15ab871_3b8fb7c8",
+        "filename": "modules/skparagraph/include/ParagraphStyle.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-01T15:23:28Z",
+      "side": 1,
+      "message": "It\u0027s more than just awkward. Here is a simple leftover of my previous experiment and must be removed but for ParagraphBuilder.h it\u0027s another story. Flutter does not allow to use src headers at all. I",
+      "parentUuid": "48b21ee8_f1e3f8aa",
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6c3c309e_3055c980",
         "filename": "modules/skparagraph/src/OneLineShaper.cpp",
         "patchSetId": 23
@@ -50,6 +86,24 @@
       "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28a4622a_cf640b2f",
+        "filename": "modules/skparagraph/src/OneLineShaper.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-01T15:23:28Z",
+      "side": 1,
+      "message": "There are 3 usages of it. I made it static",
+      "parentUuid": "6c3c309e_3055c980",
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -73,6 +127,30 @@
       "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2ec1a46_a54623f0",
+        "filename": "modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+        "patchSetId": 23
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-01T15:23:28Z",
+      "side": 1,
+      "message": "Yes, it\u0027s another leftovers of my experiments.",
+      "parentUuid": "316d4273_22966ded",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 4
+      },
+      "revId": "9412f6c70205ff4e6df3787bcc4ff91c3b024578",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
