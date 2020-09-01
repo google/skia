@@ -444,7 +444,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
 
     auto codec = SkCodecImageGenerator::MakeFromEncodedCodec(ib->refEncodedData());
     SkYUVAPixmapInfo yuvaInfo;
-    if (codec && codec->queryYUVAInfo(&yuvaInfo)) {
+    if (codec && codec->queryYUVAInfo(fSupportedYUVADataTypes, &yuvaInfo)) {
         auto yuvaPixmaps = SkYUVAPixmaps::Allocate(yuvaInfo);
         SkAssertResult(codec->getYUVAPlanes(yuvaPixmaps));
         SkASSERT(yuvaPixmaps.isValid());

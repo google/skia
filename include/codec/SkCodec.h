@@ -381,11 +381,18 @@ public:
     }
 
     /**
-     * If decoding to YUVA is supported, this returns true and updates yuvaPixmapInfo to be a
-     * specification of the planar layout, YUVA->RGBA transformation, per-plane color types and row
-     * bytes. If YUVA decoding is not supported then returns false.
+     *  If decoding to YUV is supported, this returns true. Otherwise, this
+     *  returns false and does not modify yuvaPixmapInfo.
+     *
+     * @param  supportedDataTypes Indicates the data type/planar config combinations that are
+     *                            supported by the caller. If the generator returns true but
+     *                            produces an unsupported combination in the yuvaPixmapInfo out
+     *                            parameter then YUVA decoding will not be performed.
+     *  @param yuvaPixmapInfo Output parameter that specifies the planar configuration, subsampling,
+     *                        orientation, chroma siting, plane color types, and row bytes.
      */
-    bool queryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const;
+    bool queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
+                       SkYUVAPixmapInfo* yuvaPixmapInfo) const;
 
     /**
      *  Returns kSuccess, or another value explaining the type of failure.
@@ -732,7 +739,8 @@ protected:
                                void* pixels, size_t rowBytes, const Options&,
                                int* rowsDecoded) = 0;
 
-    virtual bool onQueryYUVAInfo(SkYUVAPixmapInfo*) const { return false; }
+    virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
+                                 SkYUVAPixmapInfo*) const { return false; }
 
     virtual Result onGetYUVAPlanes(const SkYUVAPixmaps&) { return kUnimplemented; }
 

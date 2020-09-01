@@ -15,7 +15,9 @@
 #include "include/private/SkTo.h"
 
 #include <array>
+#include <bitset>
 
+class GrImageContext;
 struct SkYUVASizeInfo;
 struct SkYUVAIndex;
 
@@ -27,6 +29,67 @@ class SK_API SkYUVAPixmapInfo {
 public:
     static constexpr auto kMaxPlanes = SkYUVAInfo::kMaxPlanes;
 
+    using PlanarConfig = SkYUVAInfo::PlanarConfig;
+
+    /**
+     * Data type for Y, U, V, and possibly A channels independent of how values are packed into
+     * planes.
+     **/
+    enum class DataType {
+        kUnorm8,   ///< 8 bit unsigned normalized
+        kUnorm16,  ///< 16 bit unsigned normalized
+        kFloat16,  ///< 16 bit (half) floating point
+
+        kLast = kFloat16
+    };
+    static constexpr int kDataTypeCnt = static_cast<int>(DataType::kLast) + 1;
+
+    class SupportedDataTypes {
+    public:
+        /** Defaults to nothing supported. */
+        constexpr SupportedDataTypes() = default;
+
+        /** Init based on texture formats supported by the context. */
+        SupportedDataTypes(const GrImageContext&);
+
+        /** All combinations of PlanarConfig and DataType are supported. */
+        static constexpr SupportedDataTypes All() {
+            SupportedDataTypes combinations;
+            combinations.fDataTypeSupport = std::bitset<kDataTypeCnt>(~(0ULL));
+            return combinations;
+        }
+
+        constexpr bool supported(PlanarConfig, DataType type) const {
+            return fDataTypeSupport[static_cast<size_t>(type)];
+        }
+
+        /**
+         * Update to add support for pixmaps with numChannel channels where each channel is
+         * represented as DataType.
+         */
+        void enableDataType(DataType, int numChannels);
+
+    private:
+        // Because all of our PlanarConfigs are currently single channel per-plane, we just need to
+        // keep track of whether each data type is supported (implicitly as a single channel plane).
+        // As we add multi-channel per-plane PlanarConfigs this will have to change.
+        std::bitset<kDataTypeCnt> fDataTypeSupport = {};
+    };
+
+    /**
+     * Gets the default SkColorType to use with numChannels channels, each represented as DataType.
+     * Returns kUnknown_SkColorType if no such color type.
+     */
+    static SkColorType DefaultColorTypeForDataType(DataType dataType, int numChannels);
+
+    /**
+     * If the SkColorType is supported for YUVA pixmaps this will return the number of YUVA channels
+     * that can be stored in a plane of this color type and what the DataType is of those channels.
+     * If the SkColorType is not supported as a YUVA plane the number of channels is reported as 0
+     * and the DataType returned should be ignored.
+     */
+    static std::tuple<int, DataType> NumChannelsAndDataType(SkColorType);
+
     /** Default SkYUVAPixmapInfo is invalid. */
     SkYUVAPixmapInfo() = default;
 
@@ -34,7 +97,8 @@ public:
      * Initializes the SkYUVAPixmapInfo from a SkYUVAInfo with per-plane color types and row bytes.
      * This will be invalid if the colorTypes aren't compatible with the SkYUVAInfo or if a
      * rowBytes entry is not valid for the plane dimensions and color type. Color type and
-     * row byte values beyond the number of planes in SkYUVAInfo are ignored.
+     * row byte values beyond the number of planes in SkYUVAInfo are ignored. All SkColorTypes
+     * must have the same DataType or this will be invalid.
      *
      * If rowBytes is nullptr then bpp*width is assumed for each plane.
      */
@@ -42,13 +106,17 @@ public:
                      const SkColorType[kMaxPlanes],
                      const size_t rowBytes[kMaxPlanes]);
     /**
-     * Like above but uses the same color type for all planes.
+     * Like above but uses DefaultColorTypeForDataType to determine each plane's SkColorType. If
+     * rowBytes is nullptr then bpp*width is assumed for each plane.
      */
-    SkYUVAPixmapInfo(const SkYUVAInfo&, SkColorType, const size_t rowBytes[kMaxPlanes]);
+    SkYUVAPixmapInfo(const SkYUVAInfo&, DataType, const size_t rowBytes[kMaxPlanes]);
 
     SkYUVAPixmapInfo(const SkYUVAPixmapInfo&) = default;
 
     SkYUVAPixmapInfo& operator=(const SkYUVAPixmapInfo&) = default;
+
+    bool operator==(const SkYUVAPixmapInfo&) const;
+    bool operator!=(const SkYUVAPixmapInfo& that) const { return !(*this == that); }
 
     const SkYUVAInfo& yuvaInfo() const { return fYUVAInfo; }
 
@@ -57,14 +125,17 @@ public:
     /** The number of SkPixmap planes, 0 if this SkYUVAPixmapInfo is invalid. */
     int numPlanes() const { return this->isValid() ? fYUVAInfo.numPlanes() : 0; }
 
+    /** The per-YUV[A] channel data type. */
+    DataType dataType() const { return fDataType; }
+
     /**
      * Row bytes for the ith plane. Returns zero if i >= numPlanes() or this SkYUVAPixmapInfo is
      * invalid.
      */
-    size_t rowBytes(int i) const { return fRowBytes[i]; }
+    size_t rowBytes(int i) const { return fRowBytes[static_cast<size_t>(i)]; }
 
     /** Image info for the ith plane, or default SkImageInfo if i >= numPlanes() */
-    const SkImageInfo& planeInfo(int i) const { return fPlaneInfos[i]; }
+    const SkImageInfo& planeInfo(int i) const { return fPlaneInfos[static_cast<size_t>(i)]; }
 
     /**
      * Determine size to allocate for all planes. Optionally retrieves the per-plane sizes in
@@ -86,10 +157,14 @@ public:
      */
     bool isValid() const { return fPlaneInfos[0].colorType() != kUnknown_SkColorType; }
 
+    /** Is this valid and does it use color types allowed by the passed SupportedDataTypes? */
+    bool isSupported(const SupportedDataTypes&) const;
+
 private:
     SkYUVAInfo fYUVAInfo;
-    SkImageInfo fPlaneInfos[kMaxPlanes] = {};
-    size_t fRowBytes[kMaxPlanes] = {};
+    std::array<SkImageInfo, kMaxPlanes> fPlaneInfos = {};
+    std::array<size_t, kMaxPlanes> fRowBytes = {};
+    DataType fDataType = DataType::kUnorm8;
     static_assert(kUnknown_SkColorType == 0, "default init isn't kUnknown");
 };
 
