@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73570c7d_a763e2a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 25
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-01T17:51:35Z",
+      "side": 1,
+      "message": "Had to add back make method on ParagraphBuilder: we have one google3 client that is using SkParagraph directly. Will remove it later.",
+      "revId": "ad7b915f2e7b060200cbb8a1a4451f5bda1b0585",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
