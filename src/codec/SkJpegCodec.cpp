@@ -745,6 +745,7 @@ bool SkJpegCodec::onSkipScanlines(int count) {
 
 static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
                              const SkJpegCodec& codec,
+                             const SkYUVAPixmapInfo::SupportedDataTypes* supportedDataTypes,
                              SkYUVAPixmapInfo* yuvaPixmapInfo) {
     // Scaling is not supported in raw data mode.
     SkASSERT(dinfo->scale_num == dinfo->scale_denom);
@@ -811,6 +812,10 @@ static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
     } else {
         return false;
     }
+    if (supportedDataTypes &&
+        !supportedDataTypes->supported(tempPlanarConfig, SkYUVAPixmapInfo::DataType::kUnorm8)) {
+        return false;
+    }
     if (yuvaPixmapInfo) {
         SkColorType colorTypes[SkYUVAPixmapInfo::kMaxPlanes];
         size_t rowBytes[SkYUVAPixmapInfo::kMaxPlanes];
@@ -829,15 +834,16 @@ static bool is_yuv_supported(const jpeg_decompress_struct* dinfo,
     return true;
 }
 
-bool SkJpegCodec::onQueryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const {
+bool SkJpegCodec::onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
+                                  SkYUVAPixmapInfo* yuvaPixmapInfo) const {
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
-    return is_yuv_supported(dinfo, *this, yuvaPixmapInfo);
+    return is_yuv_supported(dinfo, *this, &supportedDataTypes, yuvaPixmapInfo);
 }
 
 SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
     // Get a pointer to the decompress info since we will use it quite frequently
     jpeg_decompress_struct* dinfo = fDecoderMgr->dinfo();
-    if (!is_yuv_supported(dinfo, *this, nullptr)) {
+    if (!is_yuv_supported(dinfo, *this, nullptr, nullptr)) {
         return fDecoderMgr->returnFailure("onGetYUVAPlanes", kInvalidInput);
     }
     // Set the jump location for libjpeg errors
@@ -860,7 +866,7 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
         // was caused by a bug in the old code, but we'll be safe and check here.
         // Also check that pixmap properties agree with expectations.
         SkYUVAPixmapInfo info;
-        SkASSERT(is_yuv_supported(dinfo, *this,  &info));
+        SkASSERT(is_yuv_supported(dinfo, *this, nullptr, &info));
         SkASSERT(info.yuvaInfo() == yuvaPixmaps.yuvaInfo());
         for (int i = 0; i < info.numPlanes(); ++i) {
             SkASSERT(planes[i].colorType() == kAlpha_8_SkColorType);
