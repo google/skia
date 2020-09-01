@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "425c107f_d745b430",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-01T18:00:22Z",
+      "side": 1,
+      "message": "You\u0027ll want to reach out to hcm@ to make sure that you have all the right LICENSE and README files needed to land a 3rd party library.",
+      "revId": "040b3515390878391e426cb862c68978bb44e7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0868eaa2_62eb77a2",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-01T18:00:22Z",
+      "side": 1,
+      "message": "looks like this commit line up with https://github.com/google/oboe/releases can you document in the commit message that this is 1.4.3 of oboe?",
+      "range": {
+        "startLine": 31,
+        "startChar": 115,
+        "endLine": 31,
+        "endChar": 155
+      },
+      "revId": "040b3515390878391e426cb862c68978bb44e7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a93c718a_63b1ffb3",
+        "filename": "third_party/oboe/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-01T18:00:22Z",
+      "side": 1,
+      "message": "why does this need to be in the public includes?  I think you should be able to drop it.",
+      "revId": "040b3515390878391e426cb862c68978bb44e7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
