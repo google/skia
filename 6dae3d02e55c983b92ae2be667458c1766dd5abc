@@ -22,6 +22,30 @@
       "revId": "6dae3d02e55c983b92ae2be667458c1766dd5abc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa5c028b_84b606b3",
+        "filename": "src/gpu/text/GrAtlasManager.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-01T16:32:37Z",
+      "side": 1,
+      "message": "If it is tryagain, then the fUVs are all 0. This rightly causes an assert to fire on the insetSrc. The atlas locator is only valid if kSucceeded is returned.",
+      "parentUuid": "15450b56_2ca3150a",
+      "range": {
+        "startLine": 182,
+        "startChar": 4,
+        "endLine": 182,
+        "endChar": 58
+      },
+      "revId": "6dae3d02e55c983b92ae2be667458c1766dd5abc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
