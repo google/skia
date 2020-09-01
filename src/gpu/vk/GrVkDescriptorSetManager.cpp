@@ -39,16 +39,6 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
     return Create(gpu, type, visibilities, immutableSamplers);
 }
 
-GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
-        GrVkGpu* gpu, VkDescriptorType type, const SkTArray<uint32_t>& visibilities) {
-    SkSTArray<4, const GrVkSampler*> immutableSamplers;
-    SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    for (int i = 0 ; i < visibilities.count(); ++i) {
-        immutableSamplers.push_back(nullptr);
-    }
-    return Create(gpu, type, visibilities, immutableSamplers);
-}
-
 VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
     VkShaderStageFlags flags = 0;
 
