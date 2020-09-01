@@ -12,6 +12,209 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkUtils.h"  // unaligned_{load,store}
 
+template <typename T, int N>
+struct Polyfill {
+   using Vec __attribute__ ((vector_size (sizeof(T) * N))) = T;
+   using BoolVec __attribute__ ((vector_size (sizeof(int) * N))) = int;
+
+   Vec v;
+   Polyfill() = default;
+
+   Polyfill(T x) : v(Vec() + x) {}
+
+   Polyfill(const Vec &vec): v(vec) {}
+
+   Polyfill(std::initializer_list<T> vals) {
+       __builtin_memcpy(&v, vals.begin(), sizeof(T) * vals.size());
+   }
+
+   template <typename U>
+   operator U() const { return sk_bit_cast<U>(v); }
+
+   template <class U>
+   U convert() { return U(__builtin_convertvector(v, typename U::Vec)); }
+
+   Polyfill operator&(const int &mask) const
+   {
+     return *this & Polyfill(mask);
+   }
+
+   Polyfill operator-(const float &value) const
+   {
+     return v - value;
+   }
+
+   Polyfill operator-(const int &value) const
+   {
+     return v - value;
+   }
+
+   Polyfill operator+(const float &value) const
+   {
+     return v + value;
+   }
+
+   Polyfill operator+(const int &value) const
+   {
+     return v + value;
+   }
+
+   Polyfill operator*(const float &value) const
+   {
+     return v * value;
+   }
+
+   Polyfill &operator*=(const float &value)
+   {
+     v *= value;
+     return *this;
+   }
+
+   Polyfill operator-() const
+   {
+     return -v;
+   }
+
+   BoolVec operator!()
+   {
+     return v == 0;
+   }
+
+   Polyfill operator<<(int k) const
+   {
+     return v << k;
+   }
+
+   Polyfill operator>>(int k) const
+   {
+     return v >> k;
+   }
+
+   Polyfill operator|(int k) const
+   {
+     return v | k;
+   }
+
+   friend BoolVec operator==(const Polyfill &lhs, const Polyfill &rhs)
+   {
+     return lhs.v == rhs.v;
+   }
+
+   BoolVec operator!=(const Polyfill &value) const
+   {
+     return v != value.v;
+   }
+
+   BoolVec operator<(const Polyfill &value) const
+   {
+     return v < value.v;
+   }
+
+   BoolVec operator>(const Polyfill &value) const
+   {
+     return value < *this;
+   }
+
+   BoolVec operator>=(const Polyfill &value) const
+   {
+     return *this < value == 0;
+   }
+
+   BoolVec operator<=(const Polyfill &value) const
+   {
+     return *this > value == 0;
+   }
+
+   Polyfill operator&(const Polyfill &value) const
+   {
+     return v & value.v;
+   }
+
+   Polyfill operator|(const Polyfill &value) const
+   {
+     return v | value.v;
+   }
+
+   Polyfill operator^(const Polyfill &value) const
+   {
+     return v ^ value.v;
+   }
+
+   Polyfill operator-(const Polyfill &value) const
+   {
+     return v - value.v;
+   }
+
+   friend Polyfill operator-(T lhs, const Polyfill &rhs)
+   {
+     return Polyfill(lhs) - rhs;
+   }
+
+   friend Polyfill operator+(Polyfill lhs, const Polyfill &rhs)
+   {
+     lhs += rhs;
+     return lhs;
+   }
+
+   Polyfill &operator+=(const Polyfill &value)
+   {
+     v += value.v;
+     return *this;
+   }
+
+   friend Polyfill operator+(T lhs, const Polyfill &rhs)
+   {
+     return Polyfill(lhs) + rhs;
+   }
+
+   friend Polyfill operator*(Polyfill lhs, const Polyfill &rhs)
+   {
+     lhs *= rhs;
+     return lhs;
+   }
+
+   friend Polyfill operator*(T lhs, const Polyfill &rhs)
+   {
+     return Polyfill(lhs) * rhs;
+   }
+
+   Polyfill &operator*=(const Polyfill &value)
+   {
+     v *= value.v;
+     return *this;
+   }
+
+   Polyfill &operator/=(const Polyfill &value)
+   {
+     v /= value.v;
+     return *this;
+   }
+
+   friend Polyfill operator/(Polyfill lhs, const Polyfill &rhs)
+   {
+     lhs /= rhs;
+     return lhs;
+   }
+
+   friend Polyfill operator/(T lhs, const Polyfill &rhs)
+   {
+     return Polyfill(lhs) / rhs;
+   }
+
+   struct PolyfillReference
+   {
+     PolyfillReference(Polyfill<T, N> &ref, int i): reference(ref), index(i) {}
+
+     operator T() { return reference.v[index]; }
+     void operator=(T value) { reference.v[index] = value; }
+
+     Polyfill<T, N> &reference;
+     int index;
+   };
+
+   PolyfillReference operator[](int k) { return PolyfillReference (*this, k); }
+};
+
 // Every function in this file should be marked static and inline using SI.
 #if defined(__clang__)
     #define SI __attribute__((always_inline)) static inline
@@ -64,9 +267,7 @@ struct Ctx {
 };
 
 
-#if !defined(__clang__)
-    #define JUMPER_IS_SCALAR
-#elif defined(SK_ARM_HAS_NEON)
+#if defined(SK_ARM_HAS_NEON)
     #define JUMPER_IS_NEON
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SKX
     #define JUMPER_IS_SKX
@@ -108,12 +309,13 @@ namespace SK_OPTS_NS {
 
 #if defined(JUMPER_IS_SCALAR)
     // This path should lead to portable scalar code.
-    using F   = float   ;
-    using I32 =  int32_t;
-    using U64 = uint64_t;
-    using U32 = uint32_t;
-    using U16 = uint16_t;
-    using U8  = uint8_t ;
+    template <typename T> using V = Polyfill<T,1>;
+    using F   = V<float   >;
+    using I32 = V< int32_t>;
+    using U64 = V<uint64_t>;
+    using U32 = V<uint32_t>;
+    using U16 = V<uint16_t>;
+    using U8  = V<uint8_t >;
 
     SI F   mad(F f, F m, F a)   { return f*m+a; }
     SI F   min(F a, F b)        { return fminf(a,b); }
@@ -333,8 +535,7 @@ namespace SK_OPTS_NS {
     }
 
 #elif defined(JUMPER_IS_AVX) || defined(JUMPER_IS_HSW) || defined(JUMPER_IS_SKX)
-    // These are __m256 and __m256i, but friendlier and strongly-typed.
-    template <typename T> using V = T __attribute__((ext_vector_type(8)));
+    template <typename T> using V = Polyfill<T,8>;
     using F   = V<float   >;
     using I32 = V< int32_t>;
     using U64 = V<uint64_t>;
@@ -352,7 +553,7 @@ namespace SK_OPTS_NS {
 
     SI F   min(F a, F b)        { return _mm256_min_ps(a,b);    }
     SI F   max(F a, F b)        { return _mm256_max_ps(a,b);    }
-    SI F   abs_  (F v)          { return _mm256_and_ps(v, 0-v); }
+    SI F   abs_  (F v)          { return _mm256_and_ps(v, -v); }
     SI F   floor_(F v)          { return _mm256_floor_ps(v);    }
     SI F   rcp   (F v)          { return _mm256_rcp_ps  (v);    }
     SI F   rsqrt (F v)          { return _mm256_rsqrt_ps(v);    }
@@ -592,10 +793,10 @@ namespace SK_OPTS_NS {
           _4567 = _mm256_permute2f128_pd(_0145, _2367, 0x31);
 
         if (__builtin_expect(tail, 0)) {
-            const __m256* s = &_0123;
+            const __m256* s = &_0123.v;
             if (tail > 3) {
                 _mm256_storeu_ps(ptr, *s);
-                s = &_4567;
+                s = &_4567.v;
                 tail -= 4;
                 ptr += 8;
             }
@@ -672,7 +873,7 @@ namespace SK_OPTS_NS {
     }
 
 #elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41)
-    template <typename T> using V = T __attribute__((ext_vector_type(4)));
+    template <typename T> using V = Polyfill<T,4>;
     using F   = V<float   >;
     using I32 = V< int32_t>;
     using U64 = V<uint64_t>;
@@ -683,7 +884,7 @@ namespace SK_OPTS_NS {
     SI F   mad(F f, F m, F a)  { return f*m+a;              }
     SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
     SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
-    SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
+    SI F   abs_(F v)           { return _mm_and_ps(v, -v); }
     SI F   rcp   (F v)         { return _mm_rcp_ps  (v);    }
     SI F   rsqrt (F v)         { return _mm_rsqrt_ps(v);    }
     SI F    sqrt_(F v)         { return _mm_sqrt_ps (v);    }
@@ -905,23 +1106,6 @@ namespace SK_OPTS_NS {
     }
 #endif
 
-// We need to be a careful with casts.
-// (F)x means cast x to float in the portable path, but bit_cast x to float in the others.
-// These named casts and bit_cast() are always what they seem to be.
-#if defined(JUMPER_IS_SCALAR)
-    SI F   cast  (U32 v) { return   (F)v; }
-    SI F   cast64(U64 v) { return   (F)v; }
-    SI U32 trunc_(F   v) { return (U32)v; }
-    SI U32 expand(U16 v) { return (U32)v; }
-    SI U32 expand(U8  v) { return (U32)v; }
-#else
-    SI F   cast  (U32 v) { return      __builtin_convertvector((I32)v,   F); }
-    SI F   cast64(U64 v) { return      __builtin_convertvector(     v,   F); }
-    SI U32 trunc_(F   v) { return (U32)__builtin_convertvector(     v, I32); }
-    SI U32 expand(U16 v) { return      __builtin_convertvector(     v, U32); }
-    SI U32 expand(U8  v) { return      __builtin_convertvector(     v, U32); }
-#endif
-
 template <typename V>
 SI V if_then_else(I32 c, V t, V e) {
     return sk_bit_cast<V>(if_then_else(c, sk_bit_cast<F>(t), sk_bit_cast<F>(e)));
@@ -939,12 +1123,13 @@ SI U16 bswap(U16 x) {
 #endif
 }
 
-SI F fract(F v) { return v - floor_(v); }
+// TODO: add to Polyfill
+SI F fract(F v) { return v - floor_(v.v); }
 
 // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
 SI F approx_log2(F x) {
     // e - 127 is a fair approximation of log2(x) in its own right...
-    F e = cast(sk_bit_cast<U32>(x)) * (1.0f / (1<<23));
+    F e = (sk_bit_cast<U32>(x)).convert<F>() * (1.0f / (1<<23));
 
     // ... but using the mantissa to refine its error is _much_ better.
     F m = sk_bit_cast<F>((sk_bit_cast<U32>(x) & 0x007fffff) | 0x3f000000);
@@ -973,7 +1158,7 @@ SI F approx_exp(F x) {
 }
 
 SI F approx_powf(F x, F y) {
-    return if_then_else((x == 0)|(x == 1), x
+    return if_then_else((x == F(0))|(x == F(1)), x
                                          , approx_pow2(approx_log2(x) * y));
 }
 
@@ -987,12 +1172,12 @@ SI F from_half(U16 h) {
 
 #else
     // Remember, a half is 1-5-10 (sign-exponent-mantissa) with 15 exponent bias.
-    U32 sem = expand(h),
+    U32 sem = h.convert<U32>(),
         s   = sem & 0x8000,
          em = sem ^ s;
 
     // Convert to 1-8-23 float with 127 bias, flushing denorm halfs (including zero) to zero.
-    auto denorm = (I32)em < 0x0400;      // I32 comparison is often quicker, and always safe here.
+    auto denorm = (I32)em < I32(0x0400);      // I32 comparison is often quicker, and always safe here.
     return if_then_else(denorm, F(0)
                               , sk_bit_cast<F>( (s<<16) + (em<<13) + ((127-15)<<23) ));
 #endif
@@ -1009,11 +1194,11 @@ SI U16 to_half(F f) {
 #else
     // Remember, a float is 1-8-23 (sign-exponent-mantissa) with 127 exponent bias.
     U32 sem = sk_bit_cast<U32>(f),
-        s   = sem & 0x80000000,
+        s   = sem & U32(0x80000000),
          em = sem ^ s;
 
     // Convert to 1-5-10 half with 15 bias, flushing denorm halfs (including zero) to zero.
-    auto denorm = (I32)em < 0x38800000;  // I32 comparison is often quicker, and always safe here.
+    auto denorm = (I32)em < I32(0x38800000);  // I32 comparison is often quicker, and always safe here.
     return pack(if_then_else(denorm, U32(0)
                                    , (s>>16) + (em>>13) - ((127-15)<<10)));
 #endif
@@ -1139,7 +1324,6 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
 template <typename V, typename T>
 SI V load(const T* src, size_t tail) {
 #if !defined(JUMPER_IS_SCALAR)
-    __builtin_assume(tail < N);
     if (__builtin_expect(tail, 0)) {
         V v{};  // Any inactive lanes are zeroed.
         switch (tail) {
@@ -1160,7 +1344,6 @@ SI V load(const T* src, size_t tail) {
 template <typename V, typename T>
 SI void store(T* dst, V v, size_t tail) {
 #if !defined(JUMPER_IS_SCALAR)
-    __builtin_assume(tail < N);
     if (__builtin_expect(tail, 0)) {
         switch (tail) {
             case 7: dst[6] = v[6]; [[fallthrough]];
@@ -1178,50 +1361,50 @@ SI void store(T* dst, V v, size_t tail) {
 }
 
 SI F from_byte(U8 b) {
-    return cast(expand(b)) * (1/255.0f);
+    return b.convert<U32>().convert<F>() * (1/255.0f);
 }
 SI F from_short(U16 s) {
-    return cast(expand(s)) * (1/65535.0f);
+    return s.convert<U32>().convert<F>() * (1/65535.0f);
 }
 SI void from_565(U16 _565, F* r, F* g, F* b) {
-    U32 wide = expand(_565);
-    *r = cast(wide & (31<<11)) * (1.0f / (31<<11));
-    *g = cast(wide & (63<< 5)) * (1.0f / (63<< 5));
-    *b = cast(wide & (31<< 0)) * (1.0f / (31<< 0));
+    U32 wide = _565.convert<U32>();
+    *r = (wide & (31<<11)).convert<F>() * (1.0f / (31<<11));
+    *g = (wide & (63<< 5)).convert<F>() * (1.0f / (63<< 5));
+    *b = (wide & (31<< 0)).convert<F>() * (1.0f / (31<< 0));
 }
 SI void from_4444(U16 _4444, F* r, F* g, F* b, F* a) {
-    U32 wide = expand(_4444);
-    *r = cast(wide & (15<<12)) * (1.0f / (15<<12));
-    *g = cast(wide & (15<< 8)) * (1.0f / (15<< 8));
-    *b = cast(wide & (15<< 4)) * (1.0f / (15<< 4));
-    *a = cast(wide & (15<< 0)) * (1.0f / (15<< 0));
+    U32 wide = _4444.convert<U32>();
+    *r = (wide & (15<<12)).convert<F>() * (1.0f / (15<<12));
+    *g = (wide & (15<< 8)).convert<F>() * (1.0f / (15<< 8));
+    *b = (wide & (15<< 4)).convert<F>() * (1.0f / (15<< 4));
+    *a = (wide & (15<< 0)).convert<F>() * (1.0f / (15<< 0));
 }
 SI void from_8888(U32 _8888, F* r, F* g, F* b, F* a) {
-    *r = cast((_8888      ) & 0xff) * (1/255.0f);
-    *g = cast((_8888 >>  8) & 0xff) * (1/255.0f);
-    *b = cast((_8888 >> 16) & 0xff) * (1/255.0f);
-    *a = cast((_8888 >> 24)       ) * (1/255.0f);
+    *r = ((_8888      ) & 0xff).convert<F>() * (1/255.0f);
+    *g = ((_8888 >>  8) & 0xff).convert<F>() * (1/255.0f);
+    *b = ((_8888 >> 16) & 0xff).convert<F>() * (1/255.0f);
+    *a = ((_8888 >> 24)       ).convert<F>() * (1/255.0f);
 }
 SI void from_88(U16 _88, F* r, F* g) {
-    U32 wide = expand(_88);
-    *r = cast((wide      ) & 0xff) * (1/255.0f);
-    *g = cast((wide >>  8) & 0xff) * (1/255.0f);
+    U32 wide = _88.convert<U32> ();
+    *r = ((wide      ) & 0xff).convert<F>() * (1/255.0f);
+    *g = ((wide >>  8) & 0xff).convert<F>() * (1/255.0f);
 }
 SI void from_1010102(U32 rgba, F* r, F* g, F* b, F* a) {
-    *r = cast((rgba      ) & 0x3ff) * (1/1023.0f);
-    *g = cast((rgba >> 10) & 0x3ff) * (1/1023.0f);
-    *b = cast((rgba >> 20) & 0x3ff) * (1/1023.0f);
-    *a = cast((rgba >> 30)        ) * (1/   3.0f);
+    *r = ((rgba      ) & 0x3ff).convert<F>() * (1/1023.0f);
+    *g = ((rgba >> 10) & 0x3ff).convert<F>() * (1/1023.0f);
+    *b = ((rgba >> 20) & 0x3ff).convert<F>() * (1/1023.0f);
+    *a = ((rgba >> 30)        ).convert<F>() * (1/   3.0f);
 }
 SI void from_1616(U32 _1616, F* r, F* g) {
-    *r = cast((_1616      ) & 0xffff) * (1/65535.0f);
-    *g = cast((_1616 >> 16) & 0xffff) * (1/65535.0f);
+    *r = ((_1616      ) & 0xffff).convert<F>() * (1/65535.0f);
+    *g = ((_1616 >> 16) & 0xffff).convert<F>() * (1/65535.0f);
 }
 SI void from_16161616(U64 _16161616, F* r, F* g, F* b, F* a) {
-    *r = cast64((_16161616      ) & 0xffff) * (1/65535.0f);
-    *g = cast64((_16161616 >> 16) & 0xffff) * (1/65535.0f);
-    *b = cast64((_16161616 >> 32) & 0xffff) * (1/65535.0f);
-    *a = cast64((_16161616 >> 48) & 0xffff) * (1/65535.0f);
+    *r = ((_16161616      ) & U64(0xffff)).convert<F>() * (1/65535.0f);
+    *g = ((_16161616 >> 16) & 0xffff).convert<F>() * (1/65535.0f);
+    *b = ((_16161616 >> 32) & 0xffff).convert<F>() * (1/65535.0f);
+    *a = ((_16161616 >> 48) & 0xffff).convert<F>() * (1/65535.0f);
 }
 
 // Used by load_ and store_ stages to get to the right (dx,dy) starting point of contiguous memory.
@@ -1243,7 +1426,7 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
     y = clamp(y, ctx->height);
 
     *ptr = (const T*)ctx->pixels;
-    return trunc_(y)*ctx->stride + trunc_(x);
+    return y.convert<U32>() * U32((uint32_t)ctx->stride) + x.convert<U32>();
 }
 
 // We often have a nominally [0,1] float value we need to scale and convert to an integer,
@@ -1271,8 +1454,8 @@ STAGE(seed_shader, Ctx::None) {
     // It's important for speed to explicitly cast(dx) and cast(dy),
     // which has the effect of splatting them to vectors before converting to floats.
     // On Intel this breaks a data dependency on previous loop iterations' registers.
-    r = cast(dx) + sk_unaligned_load<F>(iota);
-    g = cast(dy) + 0.5f;
+    r = U64(dx).convert<F>() + sk_unaligned_load<F>(iota);
+    g = U64(dy).convert<F>() + 0.5f;
     b = 1.0f;
     a = 0;
     dr = dg = db = da = 0;
@@ -1281,14 +1464,14 @@ STAGE(seed_shader, Ctx::None) {
 STAGE(dither, const float* rate) {
     // Get [(dx,dy), (dx+1,dy), (dx+2,dy), ...] loaded up in integer vectors.
     uint32_t iota[] = {0,1,2,3,4,5,6,7};
-    U32 X = dx + sk_unaligned_load<U32>(iota),
-        Y = dy;
+    U32 X = U64(dx).convert<U32>() + sk_unaligned_load<U32>(iota),
+        Y = U64(dy).convert<U32>();
 
     // We're doing 8x8 ordered dithering, see https://en.wikipedia.org/wiki/Ordered_dithering.
     // In this case n=8 and we're using the matrix that looks like 1/64 x [ 0 48 12 60 ... ].
 
     // We only need X and X^Y from here on, so it's easier to just think of that as "Y".
-    Y ^= X;
+    Y = Y ^ X;
 
     // We'll mix the bottom 3 bits of each of X and Y to make 6 bits,
     // for 2^6 == 64 == 8x8 matrix values.  If X=abc and Y=def, we make fcebda.
@@ -1299,7 +1482,7 @@ STAGE(dither, const float* rate) {
     // Scale that dither to [0,1), then (-0.5,+0.5), here using 63/128 = 0.4921875 as 0.5-epsilon.
     // We want to make sure our dither is less than 0.5 in either direction to keep exact values
     // like 0 and 1 unchanged after rounding.
-    F dither = cast(M) * (2/128.0f) - (63/128.0f);
+    F dither = M.convert<F>() * (2/128.0f) - (63/128.0f);
 
     r += *rate*dither;
     g += *rate*dither;
@@ -1387,6 +1570,7 @@ STAGE(store_dst, float* ptr) {
     }                                          \
     SI F name##_channel(F s, F d, F sa, F da)
 
+// TODO: add to class?
 SI F inv(F x) { return 1.0f - x; }
 SI F two(F x) { return x + x; }
 
@@ -1426,25 +1610,25 @@ BLEND_MODE(exclusion)  { return s + d - two(s*d); }
 
 BLEND_MODE(colorburn) {
     return if_then_else(d == da,    d +    s*inv(da),
-           if_then_else(s ==  0, /* s + */ d*inv(sa),
+           if_then_else(s ==  F(0), /* s + */ d*inv(sa),
                                  sa*(da - min(da, (da-d)*sa*rcp(s))) + s*inv(da) + d*inv(sa)));
 }
 BLEND_MODE(colordodge) {
-    return if_then_else(d ==  0, /* d + */ s*inv(da),
+    return if_then_else(d ==  F(0), /* d + */ s*inv(da),
            if_then_else(s == sa,    s +    d*inv(sa),
                                  sa*min(da, (d*sa)*rcp(sa - s)) + s*inv(da) + d*inv(sa)));
 }
 BLEND_MODE(hardlight) {
     return s*inv(da) + d*inv(sa)
-         + if_then_else(two(s) <= sa, two(s*d), sa*da - two((da-d)*(sa-s)));
+         + if_then_else(two(s) <= F(sa), two(s*d), sa*da - two((da-d)*(sa-s)));
 }
 BLEND_MODE(overlay) {
     return s*inv(da) + d*inv(sa)
-         + if_then_else(two(d) <= da, two(s*d), sa*da - two((da-d)*(sa-s)));
+         + if_then_else(two(d) <= F(da), two(s*d), sa*da - two((da-d)*(sa-s)));
 }
 
 BLEND_MODE(softlight) {
-    F m  = if_then_else(da > 0, d / da, 0),
+    F m  = if_then_else(da > F(0), d / da, 0),
       s2 = two(s),
       m4 = two(two(m));
 
@@ -1478,7 +1662,7 @@ SI void set_sat(F* r, F* g, F* b, F s) {
 
     // Map min channel to 0, max channel to s, and scale the middle proportionally.
     auto scale = [=](F c) {
-        return if_then_else(sat == 0, 0, (c - mn) * s / sat);
+        return if_then_else(F(sat) == F(0), 0, (c - mn) * s / sat);
     };
     *r = scale(*r);
     *g = scale(*g);
@@ -1496,8 +1680,8 @@ SI void clip_color(F* r, F* g, F* b, F a) {
       l  = lum(*r, *g, *b);
 
     auto clip = [=](F c) {
-        c = if_then_else(mn >= 0, c, l + (c - l) * (    l) / (l - mn)   );
-        c = if_then_else(mx >  a,    l + (c - l) * (a - l) / (mx - l), c);
+        c = if_then_else(F(mn) >= F(0), c, l + (c - l) * (    l) / (l - mn)   );
+        c = if_then_else(F(mx) >  F(a),    l + (c - l) * (a - l) / (mx - l), c);
         c = max(c, 0);  // Sometimes without this we may dip just a little negative.
         return c;
     };
@@ -1565,10 +1749,10 @@ STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 
     U32 dst = load<U32>(ptr, tail);
-    dr = cast((dst      ) & 0xff);
-    dg = cast((dst >>  8) & 0xff);
-    db = cast((dst >> 16) & 0xff);
-    da = cast((dst >> 24)       );
+    dr = ((dst      ) & 0xff).convert<F>();
+    dg = ((dst >>  8) & 0xff).convert<F>();
+    db = ((dst >> 16) & 0xff).convert<F>();
+    da = ((dst >> 24)       ).convert<F>();
     // {dr,dg,db,da} are in [0,255]
     // { r, g, b, a} are in [0,  1] (but may be out of gamut)
 
@@ -1661,7 +1845,7 @@ STAGE(premul_dst, Ctx::None) {
 }
 STAGE(unpremul, Ctx::None) {
     float inf = sk_bit_cast<float>(0x7f800000);
-    auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0);
+    auto scale = if_then_else(F(1.0f)/a < F(inf), 1.0f/a, 0);
     r *= scale;
     g *= scale;
     b *= scale;
@@ -1688,7 +1872,7 @@ STAGE(rgb_to_hsl, Ctx::None) {
 
     F l = (mx + mn) * 0.5f;
     F s = if_then_else(mx == mn, 0,
-                       d / if_then_else(l > 0.5f, 2.0f-mx-mn, mx+mn));
+                       d / if_then_else(l > F(0.5f), 2.0f-mx-mn, mx+mn));
 
     r = h;
     g = s;
@@ -1700,7 +1884,7 @@ STAGE(hsl_to_rgb, Ctx::None) {
     F h = r,
       s = g,
       l = b,
-      c = (1.0f - abs_(2.0f * l - 1)) * s;
+      c = (1.0f - abs_(2.0f * l - 1.0f)) * s;
 
     auto hue_to_rgb = [&](F hue) {
         F q = clamp_01(abs_(fract(hue) * 6.0f - 3.0f) - 1.0f);
@@ -1822,7 +2006,7 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkRasterPipeline_B
 
 SI F strip_sign(F x, U32* sign) {
     U32 bits = sk_bit_cast<U32>(x);
-    *sign = bits & 0x80000000;
+    *sign = bits & U32(0x80000000);
     return sk_bit_cast<F>(bits ^ *sign);
 }
 
@@ -1835,7 +2019,7 @@ STAGE(parametric, const skcms_TransferFunction* ctx) {
         U32 sign;
         v = strip_sign(v, &sign);
 
-        F r = if_then_else(v <= ctx->d, mad(ctx->c, v, ctx->f)
+        F r = if_then_else(v <= F(ctx->d), mad(ctx->c, v, ctx->f)
                                       , approx_powf(mad(ctx->a, v, ctx->b), ctx->g) + ctx->e);
         return apply_sign(r, sign);
     };
@@ -1879,7 +2063,7 @@ STAGE(HLGish, const skcms_TransferFunction* ctx) {
         const float R = ctx->a, G = ctx->b,
                     a = ctx->c, b = ctx->d, c = ctx->e;
 
-        F r = if_then_else(v*R <= 1, approx_powf(v*R, G)
+        F r = if_then_else(v*R <= F(1), approx_powf(v*R, G)
                                    , approx_exp((v-c)*a) + b);
 
         return apply_sign(r, sign);
@@ -1897,7 +2081,7 @@ STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
         const float R = ctx->a, G = ctx->b,
                     a = ctx->c, b = ctx->d, c = ctx->e;
 
-        F r = if_then_else(v <= 1, R * approx_powf(v, G)
+        F r = if_then_else(v <= F(1), R * approx_powf(v, G)
                                  , a * approx_log(v - b) + c);
 
         return apply_sign(r, sign);
@@ -2253,10 +2437,10 @@ STAGE(load_f32_dst, const SkRasterPipeline_MemoryCtx* ctx) {
 STAGE(gather_f32, const SkRasterPipeline_GatherCtx* ctx) {
     const float* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    r = gather(ptr, 4*ix + 0);
-    g = gather(ptr, 4*ix + 1);
-    b = gather(ptr, 4*ix + 2);
-    a = gather(ptr, 4*ix + 3);
+    r = gather(ptr, 4u*ix + 0);
+    g = gather(ptr, 4u*ix + 1);
+    b = gather(ptr, 4u*ix + 2);
+    a = gather(ptr, 4u*ix + 3);
 }
 STAGE(store_f32, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<float>(ctx, 4*dx,4*dy);
@@ -2302,17 +2486,17 @@ STAGE(mirror_x_1, Ctx::None) { r = clamp_01(abs_( (r-1.0f) - two(floor_((r-1.0f)
 
 STAGE(decal_x, SkRasterPipeline_DecalTileCtx* ctx) {
     auto w = ctx->limit_x;
-    sk_unaligned_store(ctx->mask, cond_to_mask((0 <= r) & (r < w)));
+    sk_unaligned_store(ctx->mask, cond_to_mask((F(0) <= r) & (r < F(w))));
 }
 STAGE(decal_y, SkRasterPipeline_DecalTileCtx* ctx) {
     auto h = ctx->limit_y;
-    sk_unaligned_store(ctx->mask, cond_to_mask((0 <= g) & (g < h)));
+    sk_unaligned_store(ctx->mask, cond_to_mask((F(0) <= g) & (g < F(h))));
 }
 STAGE(decal_x_and_y, SkRasterPipeline_DecalTileCtx* ctx) {
     auto w = ctx->limit_x;
     auto h = ctx->limit_y;
     sk_unaligned_store(ctx->mask,
-                    cond_to_mask((0 <= r) & (r < w) & (0 <= g) & (g < h)));
+                    cond_to_mask((F(0) <= r) & (r < F(w)) & (F(0) <= g) & (g < F(h))));
 }
 STAGE(check_decal_mask, SkRasterPipeline_DecalTileCtx* ctx) {
     auto mask = sk_unaligned_load<U32>(ctx->mask);
@@ -2427,7 +2611,7 @@ SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
 
 STAGE(evenly_spaced_gradient, const SkRasterPipeline_GradientCtx* c) {
     auto t = r;
-    auto idx = trunc_(t * (c->stopCount-1));
+    auto idx = (t * F((float)c->stopCount-1)).convert<U32>();
     gradient_lookup(c, idx, t, &r, &g, &b, &a);
 }
 
@@ -2437,7 +2621,7 @@ STAGE(gradient, const SkRasterPipeline_GradientCtx* c) {
 
     // N.B. The loop starts at 1 because idx 0 is the color to use before the first stop.
     for (size_t i = 1; i < c->stopCount; i++) {
-        idx += if_then_else(t >= c->ts[i], U32(1), U32(0));
+        idx += if_then_else(t >= F(c->ts[i]), U32(1), U32(0));
     }
 
     gradient_lookup(c, idx, t, &r, &g, &b, &a);
@@ -2475,8 +2659,8 @@ STAGE(xy_to_unit_angle, Ctx::None) {
              * (-7.0547382347285747528076171875e-3f))));
 
     phi = if_then_else(xabs < yabs, 1.0f/4.0f - phi, phi);
-    phi = if_then_else(X < 0.0f   , 1.0f/2.0f - phi, phi);
-    phi = if_then_else(Y < 0.0f   , 1.0f - phi     , phi);
+    phi = if_then_else(X < F(0.0f)   , 1.0f/2.0f - phi, phi);
+    phi = if_then_else(Y < F(0.0f)   , 1.0f - phi     , phi);
     phi = if_then_else(phi != phi , 0              , phi);  // Check for NaN.
     r = phi;
 }
@@ -2493,7 +2677,7 @@ STAGE(negate_x, Ctx::None) { r = -r; }
 
 STAGE(xy_to_2pt_conical_strip, const SkRasterPipeline_2PtConicalCtx* ctx) {
     F x = r, y = g, &t = r;
-    t = x + sqrt_(ctx->fP0 - y*y); // ctx->fP0 = r0 * r0
+    t = x + sqrt_(F(ctx->fP0) - y*y); // ctx->fP0 = r0 * r0
 }
 
 STAGE(xy_to_2pt_conical_focal_on_circle, Ctx::None) {
@@ -2523,21 +2707,21 @@ STAGE(alter_2pt_conical_compensate_focal, const SkRasterPipeline_2PtConicalCtx* 
 
 STAGE(alter_2pt_conical_unswap, Ctx::None) {
     F& t = r;
-    t = 1 - t;
+    t = 1.0f - t;
 }
 
 STAGE(mask_2pt_conical_nan, SkRasterPipeline_2PtConicalCtx* c) {
     F& t = r;
     auto is_degenerate = (t != t); // NaN
     t = if_then_else(is_degenerate, F(0), t);
-    sk_unaligned_store(&c->fMask, cond_to_mask(!is_degenerate));
+    sk_unaligned_store(&c->fMask, cond_to_mask(!I32(is_degenerate)));
 }
 
 STAGE(mask_2pt_conical_degenerates, SkRasterPipeline_2PtConicalCtx* c) {
     F& t = r;
-    auto is_degenerate = (t <= 0) | (t != t);
+    auto is_degenerate = (t <= F(0)) | (t != t);
     t = if_then_else(is_degenerate, F(0), t);
-    sk_unaligned_store(&c->fMask, cond_to_mask(!is_degenerate));
+    sk_unaligned_store(&c->fMask, cond_to_mask(!I32(is_degenerate)));
 }
 
 STAGE(apply_vector_mask, const uint32_t* ctx) {
@@ -2684,7 +2868,7 @@ SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
         case SkTileMode::kClamp:  return v;
         case SkTileMode::kRepeat: return v - floor_(v*invLimit)*limit;
         case SkTileMode::kMirror:
-            return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
+            return abs_( (v-limit) - F(limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
     }
     SkUNREACHABLE;
 }
@@ -2745,8 +2929,8 @@ STAGE(bilinear, const SkRasterPipeline_SamplerCtx2* ctx) {
 STAGE(bicubic, SkRasterPipeline_SamplerCtx2* ctx) {
     F x = r, fx = fract(x + 0.5f),
       y = g, fy = fract(y + 0.5f);
-    const F wx[] = { bicubic_far(1-fx), bicubic_near(1-fx), bicubic_near(fx), bicubic_far(fx) };
-    const F wy[] = { bicubic_far(1-fy), bicubic_near(1-fy), bicubic_near(fy), bicubic_far(fy) };
+    const F wx[] = { bicubic_far(1.0f-fx), bicubic_near(1.0f-fx), bicubic_near(fx), bicubic_far(fx) };
+    const F wy[] = { bicubic_far(1.0f-fy), bicubic_near(1.0f-fy), bicubic_near(fy), bicubic_far(fy) };
 
     sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
 }

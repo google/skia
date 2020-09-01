@@ -218,6 +218,9 @@ opts("hsw") {
     if (is_mac && is_debug) {
       cflags += [ "-fno-stack-check" ]  # Work around skia:9709
     }
+    if (!is_win && !is_clang) {
+      cflags += [ "-flax-vector-conversions" ]
+    }
   }
 }
 
