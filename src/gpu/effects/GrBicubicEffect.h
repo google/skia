@@ -19,10 +19,8 @@ public:
                              // surrounding texels are needed by the kernel in x and y.
     };
 
-    enum class Kernel {
-        kMitchell,
-        kCatmullRom,
-    };
+    static constexpr SkImage::CubicResampler gMitchell = { 1.0f/3, 1.0f/3 };
+    static constexpr SkImage::CubicResampler gCatmullRom = {    0, 1.0f/2 };
 
     enum class Direction {
         /** Apply bicubic kernel in local coord x, nearest neighbor in y. */
@@ -45,7 +43,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(GrSurfaceProxyView view,
                                                      SkAlphaType,
                                                      const SkMatrix&,
-                                                     Kernel,
+                                                     SkImage::CubicResampler,
                                                      Direction);
 
     /**
@@ -56,7 +54,7 @@ public:
                                                      const SkMatrix&,
                                                      const GrSamplerState::WrapMode wrapX,
                                                      const GrSamplerState::WrapMode wrapY,
-                                                     Kernel,
+                                                     SkImage::CubicResampler,
                                                      Direction,
                                                      const GrCaps&);
 
@@ -70,7 +68,7 @@ public:
                                                            const GrSamplerState::WrapMode wrapX,
                                                            const GrSamplerState::WrapMode wrapY,
                                                            const SkRect& subset,
-                                                           Kernel,
+                                                           SkImage::CubicResampler,
                                                            Direction,
                                                            const GrCaps&);
 
@@ -85,7 +83,7 @@ public:
                                                            const GrSamplerState::WrapMode wrapY,
                                                            const SkRect& subset,
                                                            const SkRect& domain,
-                                                           Kernel,
+                                                           SkImage::CubicResampler,
                                                            Direction,
                                                            const GrCaps&);
 
@@ -96,7 +94,7 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor>,
                                                      SkAlphaType,
                                                      const SkMatrix&,
-                                                     Kernel,
+                                                     SkImage::CubicResampler,
                                                      Direction);
 
 private:
@@ -108,7 +106,7 @@ private:
     };
 
     GrBicubicEffect(std::unique_ptr<GrFragmentProcessor>,
-                    Kernel,
+                    SkImage::CubicResampler,
                     Direction,
                     Clamp);
 
@@ -122,7 +120,7 @@ private:
 
     SkPMColor4f constantOutputForConstantInput(const SkPMColor4f&) const override;
 
-    Kernel fKernel;
+    SkImage::CubicResampler fKernel;
     Direction fDirection;
     Clamp fClamp;
 
