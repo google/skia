@@ -212,9 +212,6 @@ class DefaultFlavor(object):
       env[ 'LSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
       env['UBSAN_OPTIONS'] = 'symbolize=1 print_stacktrace=1'
 
-      # Temporary to debug failures in LSAN.
-      env['LSAN_OPTIONS'] += ' verbosity=1 log_threads=1'
-
       # If you see <unknown module> in stacktraces, try fast_unwind_on_malloc=0.
       # This may cause a 2-25x slowdown, so use it only when you really need it.
       if name == 'dm' and 'Vulkan' in extra_tokens:
