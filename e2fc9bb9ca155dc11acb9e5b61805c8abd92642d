@@ -33,6 +33,40 @@
       "revId": "e2fc9bb9ca155dc11acb9e5b61805c8abd92642d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f9c8704_c126fb51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-01T21:27:48Z",
+      "side": 1,
+      "message": "Please hold off on submitting this before I can take a closer look.",
+      "revId": "e2fc9bb9ca155dc11acb9e5b61805c8abd92642d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e53af42_73076376",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 1759,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-01T21:27:48Z",
+      "side": 1,
+      "message": "Probably need to add the MetalKit framework here.",
+      "revId": "e2fc9bb9ca155dc11acb9e5b61805c8abd92642d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
