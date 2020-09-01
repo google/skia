@@ -832,7 +832,6 @@ optional("gpu") {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     frameworks += [ "Metal.framework" ]
-    frameworks += [ "MetalKit.framework" ]
     frameworks += [ "Foundation.framework" ]
     cflags_objcc += [ "-fobjc-arc" ]
   }
@@ -1798,9 +1797,11 @@ if (skia_enable_tools) {
   import("gn/tests.gni")
   test_lib("tests") {
     sources = tests_sources + pathops_tests_sources
+    frameworks = []
     if (skia_use_metal) {
       sources += metal_tests_sources
       cflags_objcc = [ "-fobjc-arc" ]
+      frameworks += [ "MetalKit.framework" ]
     }
     if (skia_use_gl) {
       sources += gl_tests_sources
