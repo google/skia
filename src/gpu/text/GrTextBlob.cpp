@@ -421,19 +421,56 @@ static auto ltbr(const Rect& r) {
 static void direct_2D(SkZip<Mask2DVertex[4], const GrGlyph*, const SkIPoint> quadData,
                       GrColor color,
                       SkIPoint deviceOrigin) {
+    using namespace skvx;
+    Vec<4, int> o = {deviceOrigin.fX, deviceOrigin.fY, deviceOrigin.fX, deviceOrigin.fY};
+    #if 0
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         SkScalar dl = leftTop.x() + deviceOrigin.x(),
-                dt = leftTop.y() + deviceOrigin.y(),
-                dr = dl + (ar - al),
-                db = dt + (ab - at);
+                 dt = leftTop.y() + deviceOrigin.y(),
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
 
-        quad[0] = {{dl, dt}, color, {al, at}};  // L,T
-        quad[1] = {{dl, db}, color, {al, ab}};  // L,B
-        quad[2] = {{dr, dt}, color, {ar, at}};  // R,T
-        quad[3] = {{dr, db}, color, {ar, ab}};  // R,B
+        auto write_quad = [=](Mask2DVertex* q, SkScalar x, SkScalar y, uint16_t ax, uint16_t ay) {
+            uint32_t X,Y;
+            memcpy(&X, &x, 4);
+            memcpy(&Y, &y, 4);
+            using u32x4 = uint32_t __attribute__((vector_size(16)));
+            u32x4 quad_bits = {X, Y, color, ax | (uint32_t)ay<<16};
+            memcpy(q, &quad_bits, 16);
+        };
+        write_quad(quad+0, dl,dt, al,at);
+        write_quad(quad+1, dl,db, al,ab);
+        write_quad(quad+2, dr,dt, ar,at);
+        write_quad(quad+3, dr,db, ar,ab);
     }
+    #else
+    for (auto[quad, glyph, lt] : quadData) {
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        Vec<4, uint16_t> uv = {al, at, ar, ab};
+        Vec<8, uint16_t> allUVs = {uv[0], uv[1], uv[0], uv[3], uv[2], uv[1], uv[2], uv[3]};
+        Vec<4, uint32_t> UVs = bit_pun<Vec<4, uint32_t>>(allUVs);
+        Vec<4, uint32_t> c = color;
+        Vec<8, uint32_t> cu = {c[0], UVs[0], c[1], UVs[1], c[2], UVs[2], c[3], UVs[3]};
+
+        Vec<4, int> rect = cast<int>(uv);
+        Vec<4, int> wh = rect - Vec<4, int>{rect[0], rect[1], rect[0], rect[1]};
+        Vec<4, int> leftTop = {lt.fX, lt.fY, lt.fX, lt.fY};
+        Vec<4, int> dstRect = o + leftTop + wh;
+        Vec<4, SkScalar> dstRectF = cast<SkScalar>(dstRect);
+        Vec<4, uint32_t> dstRectU = bit_pun<Vec<4, uint32_t>>(dstRectF);
+        Vec<4, uint32_t> Xs = {dstRectU[0], dstRectU[0], dstRectU[2], dstRectU[2]};
+        Vec<4, uint32_t> Ys = {dstRectU[1], dstRectU[3], dstRectU[1], dstRectU[3]};
+        Vec<8, uint32_t> XYs = {Xs[0], Ys[0], Xs[1], Ys[1], Xs[2], Ys[2], Xs[3], Ys[3]};
+        Vec<16, uint32_t> all = {XYs[0], XYs[1], cu[0], cu[1],
+                                 XYs[2], XYs[3], cu[2], cu[3],
+                                 XYs[4], XYs[5], cu[4], cu[5],
+                                 XYs[6], XYs[7], cu[6], cu[7]};
+        all.store(quad);
+    }
+    #endif
 }
+
 
 // Handle any combination of BW or color and clip or no clip.
 template<typename Quad, typename VertexData>
