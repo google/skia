@@ -100,15 +100,13 @@ public:
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
-                  sk_sp<FontCollection> fonts,
-                  std::unique_ptr<SkUnicode> unicode);
+                  sk_sp<FontCollection> fonts);
 
     ParagraphImpl(const std::u16string& utf16text,
                   ParagraphStyle style,
                   SkTArray<Block, true> blocks,
                   SkTArray<Placeholder, true> placeholders,
-                  sk_sp<FontCollection> fonts,
-                  std::unique_ptr<SkUnicode> unicode);
+                  sk_sp<FontCollection> fonts);
     ~ParagraphImpl() override;
 
     void layout(SkScalar width) override;
@@ -156,8 +154,6 @@ public:
         return paragraphStyle().getStrutStyle().getHeightOverride();
     }
     InternalLineMetrics strutMetrics() const { return fStrutMetrics; }
-
-    SkString getEllipsis() const;
 
     SkSpan<const char> text(TextRange textRange);
     SkSpan<Cluster> clusters(ClusterRange clusterRange);
@@ -222,7 +218,7 @@ public:
 
     bool codeUnitHasProperty(size_t index, CodeUnitFlags property) const { return (fCodeUnitProperties[index] & property) == property; }
 
-    SkUnicode* getUnicode() { return fUnicode.get(); }
+    SkUnicode* getICU() { return fICU.get(); }
 
 private:
     friend class ParagraphBuilder;
@@ -272,7 +268,7 @@ private:
     SkScalar fOldHeight;
     SkScalar fMaxWidthWithTrailingSpaces;
 
-    std::unique_ptr<SkUnicode> fUnicode;
+    std::unique_ptr<SkUnicode> fICU;
 };
 }  // namespace textlayout
 }  // namespace skia
