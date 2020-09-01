@@ -167,11 +167,13 @@ SkCodec::SkCodec(SkEncodedInfo&& info, XformFormat srcFormat, std::unique_ptr<Sk
 
 SkCodec::~SkCodec() {}
 
-bool SkCodec::queryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const {
+bool SkCodec::queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
+                            SkYUVAPixmapInfo* yuvaPixmapInfo) const {
     if (!yuvaPixmapInfo) {
         return false;
     }
-    return this->onQueryYUVAInfo(yuvaPixmapInfo) && yuvaPixmapInfo->isValid();
+    return this->onQueryYUVAInfo(supportedDataTypes, yuvaPixmapInfo) &&
+           yuvaPixmapInfo->isSupported(supportedDataTypes);
 }
 
 SkCodec::Result SkCodec::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
