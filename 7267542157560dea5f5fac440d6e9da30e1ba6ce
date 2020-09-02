@@ -52,6 +52,24 @@
       "revId": "7267542157560dea5f5fac440d6e9da30e1ba6ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "04cba742_dd3f6dcd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-02T21:19:05Z",
+      "side": 1,
+      "message": "Messages crossed in the ether. Yeah, similar idea, and yours takes advantage of the existing skslc functionality. The look-at-before-and-after thing is what we do on skcms, and it\u0027s really nice to just use git/gerrit diffs to validate that the changes we\u0027re making are sensible for all of our existing test cases.",
+      "parentUuid": "a7b7b6f9_55a73974",
+      "revId": "7267542157560dea5f5fac440d6e9da30e1ba6ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
