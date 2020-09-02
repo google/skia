@@ -581,6 +581,8 @@ static const char* glsltype_string(const Context& context, const Type& type) {
         return "kHalf4x4_GrSLType";
     } else if (type == *context.fVoid_Type) {
         return "kVoid_GrSLType";
+    } else if (type == *context.fBool_Type) {
+        return "kBool_GrSLType";
     } else if (type.kind() == Type::kEnum_Kind) {
         return "int";
     }
