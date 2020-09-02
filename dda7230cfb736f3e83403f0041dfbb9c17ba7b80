@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6f28fffc_68bd24dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-02T14:36:53Z",
+      "side": 1,
+      "message": "Not much interesting... was just looking to maybe port SkRasterPipeline to SkVx, and thought I\u0027d start from a tidy spot.",
+      "revId": "dda7230cfb736f3e83403f0041dfbb9c17ba7b80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
