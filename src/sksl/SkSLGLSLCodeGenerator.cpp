@@ -1212,44 +1212,47 @@ void GLSLCodeGenerator::writeSetting(const Setting& s) {
 void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fSetupFragPositionLocal = false;
     fSetupFragCoordWorkaround = false;
-    if (fProgramKind != Program::kPipelineStage_Kind) {
-        this->writeTypePrecision(f.fDeclaration.fReturnType);
-        this->writeType(f.fDeclaration.fReturnType);
-        this->write(" " + f.fDeclaration.fName + "(");
-        const char* separator = "";
-        for (const auto& param : f.fDeclaration.fParameters) {
-            this->write(separator);
-            separator = ", ";
-            this->writeModifiers(param->fModifiers, false);
-            std::vector<int> sizes;
-            const Type* type = &param->fType;
-            while (type->kind() == Type::kArray_Kind) {
-                sizes.push_back(type->columns());
-                type = &type->componentType();
-            }
-            this->writeTypePrecision(*type);
-            this->writeType(*type);
-            this->write(" " + param->fName);
-            for (int s : sizes) {
-                if (s <= 0) {
-                    this->write("[]");
-                } else {
-                    this->write("[" + to_string(s) + "]");
-                }
+
+    // The pipeline-stage code generator can't use functions written this way, so make sure we don't
+    // accidentally end up here.
+    SkASSERT(fProgramKind != Program::kPipelineStage_Kind);
+
+    this->writeTypePrecision(f.fDeclaration.fReturnType);
+    this->writeType(f.fDeclaration.fReturnType);
+    this->write(" " + f.fDeclaration.fName + "(");
+    const char* separator = "";
+    for (const auto& param : f.fDeclaration.fParameters) {
+        this->write(separator);
+        separator = ", ";
+        this->writeModifiers(param->fModifiers, false);
+        std::vector<int> sizes;
+        const Type* type = &param->fType;
+        while (type->kind() == Type::kArray_Kind) {
+            sizes.push_back(type->columns());
+            type = &type->componentType();
+        }
+        this->writeTypePrecision(*type);
+        this->writeType(*type);
+        this->write(" " + param->fName);
+        for (int s : sizes) {
+            if (s <= 0) {
+                this->write("[]");
+            } else {
+                this->write("[" + to_string(s) + "]");
             }
         }
-        this->writeLine(") {");
-        fIndentation++;
     }
+    this->writeLine(") {");
+    fIndentation++;
+
     fFunctionHeader = "";
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
     this->writeStatements(f.fBody->as<Block>().fStatements);
-    if (fProgramKind != Program::kPipelineStage_Kind) {
-        fIndentation--;
-        this->writeLine("}");
-    }
+
+    fIndentation--;
+    this->writeLine("}");
 
     fOut = oldOut;
     this->write(fFunctionHeader);
@@ -1736,9 +1739,7 @@ void GLSLCodeGenerator::writeInputVars() {
 }
 
 bool GLSLCodeGenerator::generateCode() {
-    if (fProgramKind != Program::kPipelineStage_Kind) {
-        this->writeHeader();
-    }
+    this->writeHeader();
     if (Program::kGeometry_Kind == fProgramKind &&
         fProgram.fSettings.fCaps->geometryShaderExtensionString()) {
         this->writeExtension(fProgram.fSettings.fCaps->geometryShaderExtensionString());
