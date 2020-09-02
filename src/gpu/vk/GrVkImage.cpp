@@ -253,6 +253,8 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
         initialLayout                                // initialLayout
     };
 
+    fprintf(stderr, "%s %d %d \n", __func__, imageDesc.fWidth, imageDesc.fHeight);
+
     VkResult result;
     GR_VK_CALL_RESULT(gpu, result, CreateImage(gpu->device(), &imageCreateInfo, nullptr, &image));
     if (result != VK_SUCCESS) {
@@ -337,4 +339,3 @@ void GrVkImage::setCurrentQueueFamilyToGraphicsQueue(GrVkGpu* gpu) {
     fMutableState->setQueueFamilyIndex(gpu->queueIndex());
 }
 #endif
-

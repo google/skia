@@ -127,10 +127,12 @@ VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image, AllocationPr
     }
 
     VmaAllocation allocation;
-    VkResult result = vmaAllocateMemoryForImage(fAllocator, image, &info, &allocation, nullptr);
+    VmaAllocationInfo allocation_info;
+    VkResult result = vmaAllocateMemoryForImage(fAllocator, image, &info, &allocation, &allocation_info);
     if (VK_SUCCESS == result) {
         *backendMemory = (GrVkBackendMemory)allocation;
     }
+    fprintf(stderr, "%s %lu \n", __func__, allocation_info.size);
     return result;
 }
 
