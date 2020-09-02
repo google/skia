@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2967b2c0_47eaa78d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-02T16:23:55Z",
+      "side": 1,
+      "message": "This is unrelated to refactoring SkVx or anything I\u0027m really actively working on... it\u0027s just something I noticed was failing any time I used Goma (and thus Chrome\u0027s toolchain).",
+      "revId": "f52562c61b98fbd61915e27f39bd07ed6597dcb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
