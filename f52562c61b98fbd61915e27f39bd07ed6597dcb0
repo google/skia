@@ -33,6 +33,24 @@
       "revId": "f52562c61b98fbd61915e27f39bd07ed6597dcb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "039c2119_dade6bd3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-02T16:29:12Z",
+      "side": 1,
+      "message": "Sorry, no, nevermind... I thought I was seeing UB in Load() but I think it\u0027s fine looking again.",
+      "parentUuid": "f9933dbf_baf17f41",
+      "revId": "f52562c61b98fbd61915e27f39bd07ed6597dcb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
