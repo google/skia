@@ -1432,8 +1432,6 @@ if (_0_ifTest) %s = half4(1.0); else %s = half4(0.5);
 }
 
 DEF_TEST(SkSLFPInlinedIfBodyMustBeInAScope, r) {
-    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
-    // scope, so the inlined code is emitted outside of the if-body.
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -1452,13 +1450,14 @@ DEF_TEST(SkSLFPInlinedIfBodyMustBeInAScope, r) {
          /*expectedCPP=*/{
          R"__Cpp__(fragBuilder->codeAppendf(
 R"SkSL(half4 c = %s;
-if (c.x >= 0.5) half4 _0_ifBody;
-{
-    _0_ifBody = %s + half4(0.125);
+if (c.x >= 0.5) {
+    half4 _0_ifBody;
+    {
+        _0_ifBody = %s + half4(0.125);
+    }
+
+    c = _0_ifBody;
 }
-
-c = _0_ifBody;
-
 %s = c;
 )SkSL"
 , args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar));
@@ -1466,8 +1465,6 @@ c = _0_ifBody;
 }
 
 DEF_TEST(SkSLFPInlinedElseBodyMustBeInAScope, r) {
-    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
-    // scope, so the inlined code is emitted outside of the else-body.
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -1489,13 +1486,14 @@ DEF_TEST(SkSLFPInlinedElseBodyMustBeInAScope, r) {
          R"__Cpp__(fragBuilder->codeAppendf(
 R"SkSL(half4 c = %s;
 if (c.x >= 0.5) {
-} else half4 _0_elseBody;
-{
-    _0_elseBody = %s + half4(0.125);
+} else {
+    half4 _0_elseBody;
+    {
+        _0_elseBody = %s + half4(0.125);
+    }
+
+    c = _0_elseBody;
 }
-
-c = _0_elseBody;
-
 %s = c;
 )SkSL"
 , args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar));
