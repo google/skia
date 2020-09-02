@@ -93,12 +93,12 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
 sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
             GrD3DGpu* gpu, SkISize dimensions, int sampleCnt, const GrD3DTextureResourceInfo& info,
             sk_sp<GrD3DResourceState> state) {
-    SkASSERT(info.fResource.get());
+    SkASSERT(info.fResource.Get());
 
     SkASSERT(1 == info.fLevelCount);
 
     GrD3DDescriptorHeap::CPUHandle renderTargetView =
-            gpu->resourceProvider().createRenderTargetView(info.fResource.get());
+            gpu->resourceProvider().createRenderTargetView(info.fResource.Get());
 
     // create msaa surface if necessary
     GrD3DRenderTarget* d3dRT;
@@ -111,7 +111,7 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
                 GrD3DTextureResource::CreateMSAA(gpu, dimensions, sampleCnt, info, clearColor);
 
         GrD3DDescriptorHeap::CPUHandle msaaRenderTargetView =
-                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
+                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.Get());
 
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, std::move(state), msInfo,
                                       std::move(msState), msaaRenderTargetView,

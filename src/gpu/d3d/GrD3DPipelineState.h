@@ -40,7 +40,7 @@ public:
     /** Output a human-readable dump of this resource's information
     */
     void dumpInfo() const override {
-        SkDebugf("GrD3DPipelineState: %p (%d refs)\n", fPipelineState.get(), this->getRefCnt());
+        SkDebugf("GrD3DPipelineState: %p (%d refs)\n", fPipelineState.Get(), this->getRefCnt());
     }
 #endif
 
@@ -48,7 +48,7 @@ public:
     // release the fPipelineState cause the gr_cp will handle that in the dtor.
     void freeGPUData() const override {}
 
-    ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
+    ID3D12PipelineState* pipelineState() const { return fPipelineState.Get(); }
     const sk_sp<GrD3DRootSignature>& rootSignature() const { return fRootSignature; }
 
     void setAndBindConstants(GrD3DGpu*, const GrRenderTarget*, const GrProgramInfo&);

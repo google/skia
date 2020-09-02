@@ -53,10 +53,10 @@ bool CreateD3DBackendContext(GrD3DBackendContext* ctx,
     }
 
     gr_cp<IDXGIAdapter1> hardwareAdapter;
-    get_hardware_adapter(factory.get(), &hardwareAdapter);
+    get_hardware_adapter(factory.Get(), &hardwareAdapter);
 
     gr_cp<ID3D12Device> device;
-    if (!SUCCEEDED(D3D12CreateDevice(hardwareAdapter.get(),
+    if (!SUCCEEDED(D3D12CreateDevice(hardwareAdapter.Get(),
                                      D3D_FEATURE_LEVEL_11_0,
                                      IID_PPV_ARGS(&device)))) {
         return false;

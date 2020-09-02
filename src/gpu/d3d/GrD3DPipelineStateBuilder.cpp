@@ -117,7 +117,7 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
             this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
         }
         shaders[shaderType] = GrCompileHLSLShader(fGpu, hlsl[shaderType], kind);
-        return shaders[shaderType].get();
+        return shaders[shaderType].Get();
     };
 
     return compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) &&
@@ -486,7 +486,7 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
     psoDesc.PS = { reinterpret_cast<UINT8*>(pixelShader->GetBufferPointer()),
                    pixelShader->GetBufferSize() };
 
-    if (geometryShader.get()) {
+    if (geometryShader.Get()) {
         psoDesc.GS = { reinterpret_cast<UINT8*>(geometryShader->GetBufferPointer()),
                        geometryShader->GetBufferSize() };
     }
@@ -602,7 +602,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         auto compile = [&](SkSL::Program::Kind kind, GrShaderType shaderType) {
             shaders[shaderType] = this->compileD3DProgram(kind, *sksl[shaderType], settings,
                                                           &inputs[shaderType], &hlsl[shaderType]);
-            return shaders[shaderType].get();
+            return shaders[shaderType].Get();
         };
 
         if (!compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) ||

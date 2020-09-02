@@ -25,14 +25,14 @@ public:
         return (fIndexed == indexed && fSlot == slot);
     }
 
-    ID3D12CommandSignature* commandSignature() const { return fCommandSignature.get(); }
+    ID3D12CommandSignature* commandSignature() const { return fCommandSignature.Get(); }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** Output a human-readable dump of this resource's information
     */
     void dumpInfo() const override {
         SkDebugf("GrD3DCommandSignature: %p, (%d refs)\n",
-                 fCommandSignature.get(), this->getRefCnt());
+                 fCommandSignature.Get(), this->getRefCnt());
     }
 #endif
 

@@ -40,7 +40,7 @@ public:
     void setupSurfaces(int width, int height);
 
     bool isValid() override {
-        return fDevice.get() != nullptr;
+        return fDevice.Get() != nullptr;
     }
 
     sk_sp<SkSurface> getBackbufferSurface() override;
@@ -108,7 +108,7 @@ void D3D12WindowContext::initializeContext() {
 
     gr_cp<IDXGISwapChain1> swapChain;
     GR_D3D_CALL_ERRCHECK(factory->CreateSwapChainForHwnd(
-            fQueue.get(), fWindow, &swapChainDesc, nullptr, nullptr, &swapChain));
+            fQueue.Get(), fWindow, &swapChainDesc, nullptr, nullptr, &swapChain));
 
     // We don't support fullscreen transitions.
     GR_D3D_CALL_ERRCHECK(factory->MakeWindowAssociation(fWindow, DXGI_MWA_NO_ALT_ENTER));
@@ -164,16 +164,16 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
 
 void D3D12WindowContext::destroyContext() {
     CloseHandle(fFenceEvent);
-    fFence.reset(nullptr);
+    fFence.Reset();
 
     for (int i = 0; i < kNumFrames; ++i) {
-        fSurfaces[i].reset(nullptr);
-        fBuffers[i].reset(nullptr);
+        fSurfaces[i].reset();
+        fBuffers[i].Reset();
     }
 
-    fSwapChain.reset(nullptr);
-    fQueue.reset(nullptr);
-    fDevice.reset(nullptr);
+    fSwapChain.Reset();
+    fQueue.Reset();
+    fDevice.Reset();
 }
 
 sk_sp<SkSurface> D3D12WindowContext::getBackbufferSurface() {
@@ -203,7 +203,7 @@ void D3D12WindowContext::swapBuffers() {
     GR_D3D_CALL_ERRCHECK(fSwapChain->Present(1, 0));
 
     // Schedule a Signal command in the queue.
-    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), fFenceValues[fBufferIndex]));
+    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.Get(), fFenceValues[fBufferIndex]));
 }
 
 void D3D12WindowContext::resize(int width, int height) {
@@ -218,8 +218,8 @@ void D3D12WindowContext::resize(int width, int height) {
             GR_D3D_CALL_ERRCHECK(fFence->SetEventOnCompletion(fFenceValues[i], fFenceEvent));
             WaitForSingleObjectEx(fFenceEvent, INFINITE, FALSE);
         }
-        fSurfaces[i].reset(nullptr);
-        fBuffers[i].reset(nullptr);
+        fSurfaces[i].reset();
+        fBuffers[i].Reset();
     }
 
     GR_D3D_CALL_ERRCHECK(fSwapChain->ResizeBuffers(0, width, height,

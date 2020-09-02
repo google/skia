@@ -33,7 +33,7 @@ public:
 
     ID3D12Resource* d3dResource() const {
         SkASSERT(fResource);
-        return fInfo.fResource.get();
+        return fInfo.fResource.Get();
     }
     DXGI_FORMAT dxgiFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
@@ -117,7 +117,7 @@ private:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource.get(), this->getRefCnt());
+            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource.Get(), this->getRefCnt());
         }
 #endif
 

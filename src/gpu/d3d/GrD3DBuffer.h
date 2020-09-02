@@ -23,7 +23,7 @@ public:
 
     ID3D12Resource* d3dResource() const {
         SkASSERT(fD3DResource);
-        return fD3DResource.get();
+        return fD3DResource.Get();
     }
 
     void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState);

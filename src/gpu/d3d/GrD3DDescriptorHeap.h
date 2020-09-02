@@ -36,7 +36,7 @@ public:
 
     CPUHandle getCPUHandle(unsigned int index); // write-only if shader-visible
     GPUHandle getGPUHandle(unsigned int index);
-    ID3D12DescriptorHeap* descriptorHeap() const { return fHeap.get(); }
+    ID3D12DescriptorHeap* descriptorHeap() const { return fHeap.Get(); }
     size_t handleIncrementSize() { return fHandleIncrementSize; }
 
     size_t getIndex(const CPUHandle& handle) {

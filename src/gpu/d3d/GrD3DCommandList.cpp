@@ -43,7 +43,7 @@ GrD3DCommandList::SubmitResult GrD3DCommandList::submit(ID3D12CommandQueue* queu
         return SubmitResult::kFailure;
     }
     SkASSERT(!fIsActive);
-    ID3D12CommandList* ppCommandLists[] = { fCommandList.get() };
+    ID3D12CommandList* ppCommandLists[] = { fCommandList.Get() };
     queue->ExecuteCommandLists(1, ppCommandLists);
 
     return SubmitResult::kSuccess;
@@ -52,7 +52,7 @@ GrD3DCommandList::SubmitResult GrD3DCommandList::submit(ID3D12CommandQueue* queu
 void GrD3DCommandList::reset() {
     SkASSERT(!fIsActive);
     GR_D3D_CALL_ERRCHECK(fAllocator->Reset());
-    GR_D3D_CALL_ERRCHECK(fCommandList->Reset(fAllocator.get(), nullptr));
+    GR_D3D_CALL_ERRCHECK(fCommandList->Reset(fAllocator.Get(), nullptr));
     this->onReset();
 
     this->releaseResources();
@@ -206,7 +206,7 @@ std::unique_ptr<GrD3DDirectCommandList> GrD3DDirectCommandList::Make(ID3D12Devic
 
     gr_cp<ID3D12GraphicsCommandList> commandList;
     GR_D3D_CALL_ERRCHECK(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-                                                   allocator.get(), nullptr,
+                                                   allocator.Get(), nullptr,
                                                    IID_PPV_ARGS(&commandList)));
 
     auto grCL = new GrD3DDirectCommandList(std::move(allocator), std::move(commandList));
@@ -508,7 +508,7 @@ std::unique_ptr<GrD3DCopyCommandList> GrD3DCopyCommandList::Make(ID3D12Device* d
                                                         IID_PPV_ARGS(&allocator)));
 
     gr_cp<ID3D12GraphicsCommandList> commandList;
-    GR_D3D_CALL_ERRCHECK(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, allocator.get(),
+    GR_D3D_CALL_ERRCHECK(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, allocator.Get(),
                                                    nullptr, IID_PPV_ARGS(&commandList)));
     auto grCL = new GrD3DCopyCommandList(std::move(allocator), std::move(commandList));
     return std::unique_ptr<GrD3DCopyCommandList>(grCL);

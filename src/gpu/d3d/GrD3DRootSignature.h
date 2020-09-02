@@ -28,14 +28,14 @@ public:
 
     bool isCompatible(int numTextureSamplers) const;
 
-    ID3D12RootSignature* rootSignature() const { return fRootSignature.get(); }
+    ID3D12RootSignature* rootSignature() const { return fRootSignature.Get(); }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** Output a human-readable dump of this resource's information
     */
     void dumpInfo() const override {
         SkDebugf("GrD3DRootSignature: %p, numTextures: %d (%d refs)\n",
-                 fRootSignature.get(), fNumTextureSamplers, this->getRefCnt());
+                 fRootSignature.Get(), fNumTextureSamplers, this->getRefCnt());
     }
 #endif
 
