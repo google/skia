@@ -185,11 +185,13 @@ var CanvasKit = {
   SkCanvas: {
     // public API (from C++ bindings)
     clipPath: function() {},
+    clipRRect: function() {},
     clipRect: function() {},
     drawAnimatedImage: function() {},
     drawArc: function() {},
     drawCircle: function() {},
     drawColorInt: function() {},
+    drawDRRect:  function() {},
     drawImage: function() {},
     drawImageNine: function() {},
     drawImageRect: function() {},
@@ -199,6 +201,7 @@ var CanvasKit = {
     drawParagraph: function() {},
     drawPath: function() {},
     drawPicture: function() {},
+    drawRRect:  function() {},
     drawRect: function() {},
     drawRoundRect: function() {},
     drawText: function() {},
@@ -220,38 +223,24 @@ var CanvasKit = {
 
     prototype: {
       clear: function() {},
-      clipRRect: function() {},
-      concat44: function() {}, // deprecated
-      concat: function() {},
-      drawAtlas: function() {},
       drawColor: function() {},
       drawColorComponents: function() {},
-      drawDRRect:  function() {},
-      drawPoints: function() {},
-      drawRRect:  function() {},
       drawShadow: function() {},
-      drawText: function() {},
-      findMarkedCTM: function() {},
-      getLocalToDevice: function() {},
-      getTotalMatrix: function() {},
-      readPixels: function() {},
-      writePixels : function() {},
     },
 
     // private API
     _clear: function() {},
-    _clipRRect: function() {},
     _concat: function() {},
     _drawAtlas: function() {},
     _drawColor: function() {},
-    _drawDRRect:  function() {},
     _drawPoints: function() {},
-    _drawRRect:  function() {},
     _drawShadow: function() {},
     _drawSimpleText: function() {},
-    _findMarkedCTM: function() {},
+    _getLocalToCamera: function() {},
     _getLocalToDevice: function() {},
+    _getLocalToWorld: function() {},
     _getTotalMatrix: function() {},
+    _findMarkedCTM: function() {},
     _readPixels: function() {},
     _writePixels: function() {},
     delete: function() {},
@@ -942,6 +931,19 @@ CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function() {};
 
 CanvasKit.SkImage.prototype.encodeToData = function() {};
 CanvasKit.SkImage.prototype.makeShader = function() {};
+
+CanvasKit.SkCanvas.prototype.concat = function() {};
+CanvasKit.SkCanvas.prototype.concat44 = function() {}; // deprecated
+CanvasKit.SkCanvas.prototype.drawAtlas = function() {};
+CanvasKit.SkCanvas.prototype.drawPoints = function() {};
+CanvasKit.SkCanvas.prototype.drawText = function() {};
+CanvasKit.SkCanvas.prototype.getLocalToCamera = function() {};
+CanvasKit.SkCanvas.prototype.getLocalToDevice = function() {};
+CanvasKit.SkCanvas.prototype.getLocalToWorld = function() {};
+CanvasKit.SkCanvas.prototype.getTotalMatrix = function() {};
+/** @return {Uint8Array} */
+CanvasKit.SkCanvas.prototype.readPixels = function() {};
+CanvasKit.SkCanvas.prototype.writePixels = function() {};
 
 CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function() {};
 
