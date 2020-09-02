@@ -122,6 +122,9 @@ struct Program {
         int fInlineThreshold = 50;
         // true to enable optimization passes
         bool fOptimize = true;
+        // If true, implicit conversions to lower precision numeric types are allowed
+        // (eg, float to half)
+        bool fAllowNarrowingConversions = false;
     };
 
     struct Inputs {

@@ -218,6 +218,10 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
     effect.test(0xFF000000, 0xFF00007F, 0xFF007F00, 0xFF007F7F,
                 [](SkCanvas* canvas, SkPaint*) { canvas->rotate(45.0f); });
 
+    // Runtime effects should use relaxed precision rules by default
+    effect.build("", "return float4(p - 0.5, 0, 1);");
+    effect.test(0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF);
+
     //
     // Sampling children
     //
