@@ -1879,13 +1879,18 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
     if (!test) {
         return nullptr;
     }
-    std::unique_ptr<Expression> ifTrue = this->convertExpression(*(iter++));
-    if (!ifTrue) {
-        return nullptr;
-    }
-    std::unique_ptr<Expression> ifFalse = this->convertExpression(*(iter++));
-    if (!ifFalse) {
-        return nullptr;
+    std::unique_ptr<Expression> ifTrue;
+    std::unique_ptr<Expression> ifFalse;
+    {
+        AutoDisableInline disableInline(this);
+        ifTrue = this->convertExpression(*(iter++));
+        if (!ifTrue) {
+            return nullptr;
+        }
+        ifFalse = this->convertExpression(*(iter++));
+        if (!ifFalse) {
+            return nullptr;
+        }
     }
     const Type* trueType;
     const Type* falseType;
@@ -1918,10 +1923,10 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
             return ifFalse;
         }
     }
-    return std::unique_ptr<Expression>(new TernaryExpression(node.fOffset,
-                                                             std::move(test),
-                                                             std::move(ifTrue),
-                                                             std::move(ifFalse)));
+    return std::make_unique<TernaryExpression>(node.fOffset,
+                                               std::move(test),
+                                               std::move(ifTrue),
+                                               std::move(ifFalse));
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {

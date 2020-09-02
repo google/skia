@@ -1088,9 +1088,6 @@ R"SkSL(%s = %s(%s);
 }
 
 DEF_TEST(SkSLFPTernaryExpressionsShouldNotInlineResults, r) {
-    // NOTE: this test exposes a bug with the inliner. We don't want to inline both sides of a
-    // ternary, since only one side needs to be evaluated, and side effects from the wrong side
-    // must not occur.
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -1114,30 +1111,30 @@ DEF_TEST(SkSLFPTernaryExpressionsShouldNotInlineResults, r) {
          )__SkSL__",
          /*expectedH=*/{},
          /*expectedCPP=*/{
-         R"__Cpp__(fragBuilder->codeAppendf(
+         R"__Cpp__(SkString trueSide_name;
+        const GrShaderVar trueSide_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "trueSide", 1, trueSide_args,
+R"SkSL(count += 1.0;
+return half4(sin(v.x), sin(v.y), sin(v.z), sin(v.w));
+)SkSL", &trueSide_name);
+        SkString falseSide_name;
+        const GrShaderVar falseSide_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "falseSide", 1, falseSide_args,
+R"SkSL(count += 1.0;
+return half4(cos(v.y), cos(v.z), cos(v.w), cos(v.z));
+)SkSL", &falseSide_name);
+        fragBuilder->codeAppendf(
 R"SkSL(half count = %f;
 bool _0_test;
 {
     _0_test = %s.x <= 0.5;
 }
 
-half4 _1_trueSide;
-{
-    count += 1.0;
-    _1_trueSide = half4(sin(%s.x), sin(%s.y), sin(%s.z), sin(%s.w));
-}
-
-half4 _2_falseSide;
-{
-    count += 1.0;
-    _2_falseSide = half4(cos(%s.y), cos(%s.z), cos(%s.w), cos(%s.z));
-}
-
-%s = _0_test ? _1_trueSide : _2_falseSide;
+%s = _0_test ? %s(%s) : %s(%s);
 
 %s *= count;
 )SkSL"
-, count, args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor, args.fOutputColor);
+, count, args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor, trueSide_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar), falseSide_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
 )__Cpp__"});
 }
 
