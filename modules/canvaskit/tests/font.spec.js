@@ -60,10 +60,10 @@ describe('Font Behavior', () => {
         canvas.drawText(shapedText, textBoxX, textBoxY, textPaint);
         const bounds = shapedText.getBounds();
 
-        bounds.fLeft += textBoxX;
-        bounds.fRight += textBoxX;
-        bounds.fTop += textBoxY;
-        bounds.fBottom += textBoxY
+        bounds[0] += textBoxX; // left
+        bounds[2] += textBoxX; // right
+        bounds[1] += textBoxY; // top
+        bounds[3] += textBoxY // bottom
 
         canvas.drawRect(bounds, paint);
         const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
@@ -102,9 +102,9 @@ describe('Font Behavior', () => {
 
 
         const arc = new CanvasKit.SkPath();
-        arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+        arc.arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
         arc.lineTo(210, 140);
-        arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+        arc.arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
 
         // Only 1 dot should show up in the image, because we run out of path.
         const str = 'This téxt should follow the curve across contours...';
@@ -134,9 +134,9 @@ describe('Font Behavior', () => {
         fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
 
         const arc = new CanvasKit.SkPath();
-        arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+        arc.arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
         arc.lineTo(210, 140);
-        arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+        arc.arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
 
         const str = 'This téxt should follow the curve across contours...';
         const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font, 60.5);

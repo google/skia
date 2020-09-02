@@ -49,13 +49,13 @@ describe('Path Behavior', () => {
 
         canvas.drawPath(path, paint);
 
-        const rrect = new CanvasKit.SkPath()
-                           .addRoundRect(100, 10, 140, 62,
-                                         10, 4, true);
+        const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
 
-        canvas.drawPath(rrect, paint);
-        rrect.delete();
+        const rrectPath = new CanvasKit.SkPath().addRRect(rrect, true);
 
+        canvas.drawPath(rrectPath, paint);
+
+        rrectPath.delete();
         path.delete();
         paint.delete();
         // See PathKit for more tests, since they share implementation
@@ -263,7 +263,7 @@ describe('Path Behavior', () => {
         canvas.clear(CanvasKit.WHITE);
 
         const path = new CanvasKit.SkPath();
-        
+
         // - x1, y1, x2, y2, radius
         path.arcToTangent(40, 0, 40, 40, 40);
         // - oval (as Rect), startAngle, sweepAngle, forceMoveTo
@@ -417,10 +417,11 @@ describe('Path Behavior', () => {
         path.addArc(CanvasKit.LTRBRect(10, 20, 100, 200), 30, 300)
             .addRect(CanvasKit.LTRBRect(200, 200, 300, 300)) // test single arg, default cw
             .addRect(CanvasKit.LTRBRect(240, 240, 260, 260), true) // test two arg, true means ccw
-            .addRect(260, 260, 290, 290, true) // test five arg, true means ccw
-            .addRoundRect(CanvasKit.LTRBRect(300, 10, 500, 290),
-                [60, 60, 60, 60, 60, 60, 60, 60], false) // SkRect, radii, ccw
-            .addRoundRect(CanvasKit.LTRBRect(350, 60, 450, 240), 20, 80, true) // SkRect, rx, ry, ccw
+            .addRect([260, 260, 290, 290], true) // test five arg, true means ccw
+            .addRRect([300, 10, 500, 290, // SkRect in LTRB order
+                       60, 60, 60, 60, 60, 60, 60, 60], // all radii are the same
+                       false) // ccw
+            .addRRect(CanvasKit.RRectXY([350, 60, 450, 240], 20, 80), true) // SkRect, rx, ry, ccw
             .addPath(arcpath)
             .transform(0.54, -0.84,  390.35,
                        0.84,  0.54, -114.53,

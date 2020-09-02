@@ -24,7 +24,7 @@ describe('Core canvas behavior', () => {
         paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        rcanvas.drawRoundRect(CanvasKit.LTRBRect(5, 35, 45, 80), 15, 10, paint);
+        rcanvas.drawRRect(CanvasKit.RRectXY([5, 35, 45, 80], 15, 10), paint);
 
         const font = new CanvasKit.SkFont(null, 20);
         rcanvas.drawText('this picture has a round rect', 5, 100, paint, font);

@@ -94,6 +94,19 @@ CanvasKit._extraInitializations.push(function() {
     return font;
   }
 
+  // Clients can pass in a Float32Array with length 4 to this and the results
+  // will be copied into that array. Otherwise, a new TypedArray will be allocated
+  // and returned.
+  CanvasKit.ShapedText.prototype.getBounds = function(optionalOutputArray) {
+    this._getBounds(_scratchRectPtr);
+    var ta = _scratchRect['toTypedArray']();
+    if (optionalOutputArray) {
+      optionalOutputArray.set(ta);
+      return optionalOutputArray;
+    }
+    return ta.slice();
+  }
+
   CanvasKit.SkTextBlob.MakeOnPath = function(str, path, font, initialOffset) {
     if (!str || !str.length) {
       SkDebug('ignoring 0 length string');
