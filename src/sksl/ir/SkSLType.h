@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/spirv.h"
+#include <algorithm>
 #include <climits>
 #include <vector>
 #include <memory>
@@ -20,6 +21,40 @@
 namespace SkSL {
 
 class Context;
+
+struct Coercion {
+    enum Kind { kNormal, kNarrowing, kImpossible };
+
+    explicit Coercion(int cost) : fKind(Kind::kNormal), fCost(cost) {}
+    Coercion(Kind kind, int cost) : fKind(kind), fCost(cost) {}
+
+    static Coercion Free()              { return { Kind::kNormal, 0 }; }
+    static Coercion Narrowing(int cost) { return { Kind::kNarrowing, cost }; }
+    static Coercion Impossible()        { return { Kind::kImpossible, 0 }; }
+
+    bool possible(bool allowNarrowing) const {
+        return fKind == kNormal || (fKind == kNarrowing && allowNarrowing);
+    }
+
+    Coercion& operator++() {
+        ++fCost;
+        return *this;
+    }
+
+    Coercion operator+(Coercion rhs) const {
+        return { std::max(fKind, rhs.fKind), fCost + rhs.fCost };
+    }
+
+    bool operator<(Coercion rhs) const {
+        if (fKind != rhs.fKind) {
+            return fKind < rhs.fKind;
+        }
+        return fCost < rhs.fCost;
+    }
+
+    Kind fKind;
+    int  fCost;
+};
 
 /**
  * Represents a type, such as int or float4.
@@ -310,8 +345,8 @@ public:
      * Returns true if an instance of this type can be freely coerced (implicitly converted) to
      * another type.
      */
-    bool canCoerceTo(const Type& other) const {
-        return coercionCost(other) != INT_MAX;
+    bool canCoerceTo(const Type& other, bool allowNarrowing) const {
+        return this->coercionCost(other).possible(allowNarrowing);
     }
 
     /**
@@ -319,7 +354,7 @@ public:
      * is a number with no particular meaning other than that lower costs are preferable to higher
      * costs. Returns INT_MAX if the coercion is not possible.
      */
-    int coercionCost(const Type& other) const;
+    Coercion coercionCost(const Type& other) const;
 
     /**
      * For matrices and vectors, returns the type of individual cells (e.g. mat2 has a component
