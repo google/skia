@@ -766,8 +766,13 @@ namespace skvm {
 
         Color   premul(Color c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
         Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
+
         Color lerp(Color lo, Color hi, F32 t);
         Color blend(SkBlendMode, Color src, Color dst);
+
+        Color clamp01(Color c) {
+            return { clamp01(c.r), clamp01(c.g), clamp01(c.b), clamp01(c.a) };
+        }
 
         HSLA  to_hsla(Color);
         Color to_rgba(HSLA);
@@ -1101,6 +1106,8 @@ namespace skvm {
     static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
 
     static inline Color blend(SkBlendMode m, Color s, Color d) { return s->blend(m,s,d); }
+
+    static inline Color clamp01(Color c) { return c->clamp01(c); }
 
     static inline HSLA  to_hsla(Color c) { return c->to_hsla(c); }
     static inline Color to_rgba(HSLA  c) { return c->to_rgba(c); }
