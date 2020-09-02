@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "b7909a0c_a62c1bf2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-02T14:26:32Z",
+      "side": 1,
+      "message": "Does that bench time the creation of the rect/array as well, or just using it?",
+      "parentUuid": "364bc85c_2aa59371",
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87b2cf28_cf85582e",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 1
@@ -72,6 +90,30 @@
       "side": 1,
       "message": "I\u0027m not sure it matters for this binding code (I have assumed because there is not a distinction of by value or by reference in JS, there isn\u0027t any distinction at the binding layer), but I can benchmark it and see.\n\nI\u0027ll add this to my list of questions to chat with the embind folks about.",
       "parentUuid": "87b2cf28_cf85582e",
+      "range": {
+        "startLine": 1067,
+        "startChar": 59,
+        "endLine": 1067,
+        "endChar": 72
+      },
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "926d1109_53d9cb36",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-02T14:26:32Z",
+      "side": 1,
+      "message": "I expect this is just a decision for this code. Passing by value is more expensive, unless we need to mutate the paint parameter (which it doesn\u0027t look like we do here). See all of the similar calls in SkCanvas.h",
+      "parentUuid": "91e93067_35b7bea4",
       "range": {
         "startLine": 1067,
         "startChar": 59,
