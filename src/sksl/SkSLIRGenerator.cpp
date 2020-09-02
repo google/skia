@@ -201,6 +201,13 @@ void IRGenerator::start(const Program::Settings* settings,
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
+    if (fKind != Program::kFragment_Kind &&
+        fKind != Program::kVertex_Kind &&
+        fKind != Program::kGeometry_Kind) {
+        fErrors.error(offset, "extensions are not allowed here");
+        return nullptr;
+    }
+
     return std::make_unique<Extension>(offset, name);
 }
 
@@ -473,6 +480,13 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
 }
 
 std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(const ASTNode& m) {
+    if (fKind != Program::kFragment_Kind &&
+        fKind != Program::kVertex_Kind &&
+        fKind != Program::kGeometry_Kind) {
+        fErrors.error(m.fOffset, "layout qualifiers are not allowed here");
+        return nullptr;
+    }
+
     SkASSERT(m.fKind == ASTNode::Kind::kModifiers);
     Modifiers modifiers = m.getModifiers();
     if (modifiers.fLayout.fInvocations != -1) {
@@ -1118,6 +1132,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 }
 
 std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode& intf) {
+    if (fKind != Program::kFragment_Kind &&
+        fKind != Program::kVertex_Kind &&
+        fKind != Program::kGeometry_Kind) {
+        fErrors.error(intf.fOffset, "interface block is not allowed here");
+        return nullptr;
+    }
+
     SkASSERT(intf.fKind == ASTNode::Kind::kInterfaceBlock);
     ASTNode::InterfaceBlockData id = intf.getInterfaceBlockData();
     std::shared_ptr<SymbolTable> old = fSymbolTable;
@@ -1231,6 +1252,11 @@ bool IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
 }
 
 void IRGenerator::convertEnum(const ASTNode& e) {
+    if (fKind == Program::kPipelineStage_Kind) {
+        fErrors.error(e.fOffset, "enum is not allowed here");
+        return;
+    }
+
     SkASSERT(e.fKind == ASTNode::Kind::kEnum);
     int64_t currentValue = 0;
     Layout layout;
@@ -1421,6 +1447,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
 }
 
 std::unique_ptr<Section> IRGenerator::convertSection(const ASTNode& s) {
+    if (fKind != Program::kFragmentProcessor_Kind) {
+        fErrors.error(s.fOffset, "syntax error");
+        return nullptr;
+    }
+
     ASTNode::SectionData section = s.getSectionData();
     return std::make_unique<Section>(s.fOffset, section.fName, section.fArgument,
                                                 section.fText);
