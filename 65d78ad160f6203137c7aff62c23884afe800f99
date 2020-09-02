@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "6f35e3d5_571968c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T14:30:25Z",
+      "side": 1,
+      "message": "Creating and using.",
+      "parentUuid": "b7909a0c_a62c1bf2",
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87b2cf28_cf85582e",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 1
@@ -114,6 +132,30 @@
       "side": 1,
       "message": "I expect this is just a decision for this code. Passing by value is more expensive, unless we need to mutate the paint parameter (which it doesn\u0027t look like we do here). See all of the similar calls in SkCanvas.h",
       "parentUuid": "91e93067_35b7bea4",
+      "range": {
+        "startLine": 1067,
+        "startChar": 59,
+        "endLine": 1067,
+        "endChar": 72
+      },
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f30620c_74e6af87",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T14:30:25Z",
+      "side": 1,
+      "message": "I\u0027ll add a benchmark and then test with and without. I\u0027m happy to be wrong (and thus get a speed win in many callsites here)",
+      "parentUuid": "926d1109_53d9cb36",
       "range": {
         "startLine": 1067,
         "startChar": 59,
