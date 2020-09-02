@@ -439,16 +439,24 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 #endif
 
+    // Defaults to zero since all our workaround checks that use this consider things "fixed" once
+    // above a certain api level. So this will just default to it being less which will enable
+    // workarounds.
+    int androidAPIVersion = 0;
 #if defined(SK_BUILD_FOR_ANDROID)
+    char androidAPIVersionStr[PROP_VALUE_MAX];
+    int strLength = __system_property_get("ro.build.version.sdk", androidAPIVersionStr);
+    // Defaults to zero since most checks care if it is greater than a specific value. So this will
+    // just default to it being less.
+    androidAPIVersion = (strLength == 0) ? 0 : atoi(androidAPIVersionStr);
+#endif
+
     // Protected memory features have problems in Android P and earlier.
     if (fSupportsProtectedMemory && (kQualcomm_VkVendor == properties.vendorID)) {
-        char androidAPIVersion[PROP_VALUE_MAX];
-        int strLength = __system_property_get("ro.build.version.sdk", androidAPIVersion);
-        if (strLength == 0 || atoi(androidAPIVersion) <= 28) {
+        if (androidAPIVersion <= 28) {
             fSupportsProtectedMemory = false;
         }
     }
-#endif
 
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
     if (kARM_VkVendor == properties.vendorID) {
@@ -456,8 +464,8 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 
     // On Mali galaxy s7 and s9 we see lots of rendering issues with image filters dropping out when
-    // using only primary command buffers.
-    if (kARM_VkVendor == properties.vendorID) {
+    // using only primary command buffers. We also see issues on the P30 running android 28.
+    if (kARM_VkVendor == properties.vendorID && androidAPIVersion <= 28) {
         fPreferPrimaryOverSecondaryCommandBuffers = false;
     }
 
