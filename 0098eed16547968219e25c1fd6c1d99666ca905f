@@ -86,6 +86,23 @@
       "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "be5587f7_e2964190",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-02T18:33:01Z",
+      "side": 1,
+      "message": "Bigger question... since we\u0027ve already got this data mostly planar anyway, can we just keep it planar and push it that way up to the GPU?\n\nWe\u0027re pushing up\n\n    varying { x,y, color, atlas x, atlas y }... (128-bit per glyph)\n\ncan we instead push something SoA-ish?\n\n   varying x...        (32-bit per glyph)\n   varying y...        (32-bit per glyph)\n   replicated color... (32-bit per glyph)  \n   varying atlas x...  (16-bit per glyph)\n   varying atlas y...  (16-bit per glyph)\n\nSame amount of data, just leaving it planar?",
+      "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
