@@ -44,8 +44,7 @@ protected:
     Result onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes, const Options&,
             int*) override;
 
-    bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
-                         SkYUVAPixmapInfo*) const override;
+    bool onQueryYUVAInfo(SkYUVAPixmapInfo*) const override;
 
     Result onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) override;
 

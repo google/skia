@@ -124,8 +124,7 @@ private:
 // all the replaying is complete. This will pin the GrBackendTextures in VRAM.
 class DDLPromiseImageHelper {
 public:
-    DDLPromiseImageHelper(const SkYUVAPixmapInfo::SupportedDataTypes& supportedYUVADataTypes)
-            : fSupportedYUVADataTypes(supportedYUVADataTypes) {}
+    DDLPromiseImageHelper() = default;
     ~DDLPromiseImageHelper() = default;
 
     // Convert the SkPicture into SkData replacing all the SkImages with an index.
@@ -271,7 +270,6 @@ private:
     // returns -1 on failure
     int findOrDefineImage(SkImage* image);
 
-    SkYUVAPixmapInfo::SupportedDataTypes fSupportedYUVADataTypes;
     SkTArray<PromiseImageInfo> fImageInfo;
 };
 
