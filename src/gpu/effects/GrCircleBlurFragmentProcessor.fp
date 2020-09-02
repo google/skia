@@ -13,7 +13,7 @@ in fragmentProcessor blurProfile;
 
 @header {
     #include "src/gpu/effects/GrTextureEffect.h"
-};
+}
 
 // The data is formatted as:
 // x, y - the center of the circle
