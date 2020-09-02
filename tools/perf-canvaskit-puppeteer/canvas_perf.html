@@ -79,15 +79,23 @@
         document.getElementById('start_bench').addEventListener('click', async () => {
           window._perfData = {};
 
-          // canvas_perf.js should have defined a single object called tests that is an array of
-          // objects having:
+          // canvas_perf.js should have defined an array called tests whose objects have:
           //  setup:    A function called once before testing begins, it is expected to make its
           //            own canvas and put it in ctx.
           //  test:     A function called to draw one frame
           //  teardown: A function called after testing finishes
           //  description:     A human readable description
           //  perfkey:  A key used to save the results in perf.skia.org.
-          for (const t of tests) {
+          //
+          // For quick local bench testing, there is also an array called onlytests. This way
+          // a developer can replace tests.push with onlytests.push to just run one or two
+          // performance benchmarks they care about.
+          let testsToRun = tests;
+          if (onlytests.length) {
+            testsToRun = onlytests;
+          }
+
+          for (const t of testsToRun) {
             let ctx = {
               'surface': surface,
               'files': externalFiles,
