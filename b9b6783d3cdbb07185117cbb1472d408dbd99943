@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd2eda06_bc3a3982",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-02T16:10:44Z",
+      "side": 1,
+      "message": "Can we put these in an anonymous namespace? Just want to ensure they don\u0027t get exported as names and clash somewhere.",
+      "revId": "b9b6783d3cdbb07185117cbb1472d408dbd99943",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
