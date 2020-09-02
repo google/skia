@@ -223,6 +223,15 @@ int SkCreateIntegralTable(float sixSigma, SkBitmap* table) {
         *table->getAddr8(i, 0) = SkToU8(sk_float_round2int(255.f * integral));
     }
 
+#if 0
+    for (int i = 0; i < width/2; ++i) {
+        *bitmap.getAddr8(i, 0) = 255;
+    }
+    for (int i = width/2; i < width; ++i) {
+        *bitmap.getAddr8(i, 0) = 0;
+    }
+#endif
+
     *table->getAddr8(width - 1, 0) = 0;
     table->setImmutable();
     return table->width();
