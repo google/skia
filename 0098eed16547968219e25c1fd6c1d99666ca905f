@@ -16,6 +16,23 @@
       "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87e55ac9_5aba5240",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-02T17:08:34Z",
+      "side": 1,
+      "message": "I\u0027ll take a look.\n\nIs your focus here on desktop or mobile performance?  I ask because this sort of code screams for st4-type NEON code on ARM, but you\u0027ll never get there using skvx.",
+      "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
