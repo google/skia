@@ -161,14 +161,9 @@ public:
                                    fHalf2x3_Type.get(),   fHalf2x4_Type.get(),
                                    fHalf3x2_Type.get(),   fHalf3x3_Type.get(),
                                    fHalf3x4_Type.get(),   fHalf4x2_Type.get(),
-                                   fHalf4x3_Type.get(),   fHalf4x4_Type.get(),
-                                   fDouble2x2_Type.get(), fDouble2x3_Type.get(),
-                                   fDouble2x4_Type.get(), fDouble3x2_Type.get(),
-                                   fDouble3x3_Type.get(), fDouble3x4_Type.get(),
-                                   fDouble4x2_Type.get(), fDouble4x3_Type.get(),
-                                   fDouble4x4_Type.get() }))
+                                   fHalf4x3_Type.get(),   fHalf4x4_Type.get() }))
     , fVec_Type(new Type("$vec", { fInvalid_Type.get(), fFloat2_Type.get(),
-                                           fFloat3_Type.get(), fFloat4_Type.get() }))
+                                   fFloat3_Type.get(), fFloat4_Type.get() }))
     , fGVec_Type(new Type("$gvec"))
     , fGVec2_Type(new Type("$gfloat2"))
     , fGVec3_Type(new Type("$gfloat3"))
@@ -267,16 +262,6 @@ public:
     const std::unique_ptr<Type> fHalf4x2_Type;
     const std::unique_ptr<Type> fHalf4x3_Type;
     const std::unique_ptr<Type> fHalf4x4_Type;
-
-    const std::unique_ptr<Type> fDouble2x2_Type;
-    const std::unique_ptr<Type> fDouble2x3_Type;
-    const std::unique_ptr<Type> fDouble2x4_Type;
-    const std::unique_ptr<Type> fDouble3x2_Type;
-    const std::unique_ptr<Type> fDouble3x3_Type;
-    const std::unique_ptr<Type> fDouble3x4_Type;
-    const std::unique_ptr<Type> fDouble4x2_Type;
-    const std::unique_ptr<Type> fDouble4x3_Type;
-    const std::unique_ptr<Type> fDouble4x4_Type;
 
     const std::unique_ptr<Type> fTexture1D_Type;
     const std::unique_ptr<Type> fTexture2D_Type;
