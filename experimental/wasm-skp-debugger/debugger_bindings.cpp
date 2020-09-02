@@ -1,4 +1,10 @@
 /*
+ * This file defines SkpDebugPlayer, a class which loads a SKP or MSKP file and draws it
+ * to an SkSurface with annotation, and detailed playback controls. It holds as many DebugCanvases
+ * as there are frames in the file.
+ *
+ * It also defines emscripten bindings for SkpDebugPlayer and other classes necessary to us it.
+ *
  * Copyright 2019 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
@@ -401,6 +407,10 @@ sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
     }
     // setup GrContext
     auto interface = GrGLMakeNativeInterface();
+    if (!interface) {
+        SkDebugf("failed to make GrGLMakeNativeInterface\n");
+        return nullptr;
+    }
     // setup contexts
     sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
     return grContext;
