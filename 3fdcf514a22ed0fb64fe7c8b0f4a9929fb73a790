@@ -16,6 +16,52 @@
       "revId": "3fdcf514a22ed0fb64fe7c8b0f4a9929fb73a790",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "674ba790_d2bec4f6",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-02T13:08:26Z",
+      "side": 1,
+      "message": "Not necessarily for this CL but, do you think a kInvalid would help here and in the failure case for NumChannelsAndDataType ?",
+      "range": {
+        "startLine": 167,
+        "startChar": 35,
+        "endLine": 167,
+        "endChar": 42
+      },
+      "revId": "3fdcf514a22ed0fb64fe7c8b0f4a9929fb73a790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4f20393_3f9efdf6",
+        "filename": "src/core/SkYUVAPixmaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-02T13:08:26Z",
+      "side": 1,
+      "message": "I\u0027m a bit surprised this isn\u0027t kAlpha",
+      "range": {
+        "startLine": 50,
+        "startChar": 40,
+        "endLine": 50,
+        "endChar": 45
+      },
+      "revId": "3fdcf514a22ed0fb64fe7c8b0f4a9929fb73a790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
