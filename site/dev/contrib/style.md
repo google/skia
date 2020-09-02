@@ -329,17 +329,6 @@ private:
 };
 ~~~~
 
-Subclasses should have a private typedef of their super class called INHERITED:
-
-<!--?prettify?-->
-~~~~
-class GrDillPickle : public GrPickle {
-    ...
-private:
-    typedef GrPickle INHERITED;
-};
-~~~~
-
 Virtual functions that are overridden in derived classes should use override,
 and the virtual keyword should be omitted.
 
@@ -349,16 +338,24 @@ void myVirtual() override {
 }
 ~~~~
 
-All references to base-class implementations of a virtual function
-should be explicitly qualified:
+If you call a method on a parent type that must stand out as specifically the
+parent's version of that method, we usually privately alias that parent type to
+`INHERITED` within the class.  That lets calls like `INHERITED::onFoo()` stand
+out visually.  No need for `this->` when using `INHERITED::`.
 
 <!--?prettify?-->
 ~~~~
-void myVirtual() override {
+class GrDillPickle : public GrPickle {
     ...
-    this->INHERITED::myVirtual();
+    bool onTasty() const override {
+        return INHERITED::onTasty()
+            && fFreshDill;
+    }
     ...
-}
+private:
+    bool fFreshDill;
+    using INHERITED = GrPickle;
+};
 ~~~~
 
 Constructor initializers should be one per line, indented, with punctuation
