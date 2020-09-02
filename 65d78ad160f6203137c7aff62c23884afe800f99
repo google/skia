@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "364bc85c_2aa59371",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T14:18:52Z",
+      "side": 1,
+      "message": "I can easily add a benchmark for the last 2 cases. I\u0027ve already measured the delta between the first 2 and the second is at least 20% faster (probably more given that the existing benchmark wasn\u0027t as narrow as it could have been, but it was convenient).",
+      "parentUuid": "3f801430_6fe923b6",
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "87b2cf28_cf85582e",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2020-09-02T13:57:16Z",
       "side": 1,
       "message": "Why are we passing the Paint by value instead of const\u0026 ?",
+      "range": {
+        "startLine": 1067,
+        "startChar": 59,
+        "endLine": 1067,
+        "endChar": 72
+      },
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91e93067_35b7bea4",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T14:18:52Z",
+      "side": 1,
+      "message": "I\u0027m not sure it matters for this binding code (I have assumed because there is not a distinction of by value or by reference in JS, there isn\u0027t any distinction at the binding layer), but I can benchmark it and see.\n\nI\u0027ll add this to my list of questions to chat with the embind folks about.",
+      "parentUuid": "87b2cf28_cf85582e",
       "range": {
         "startLine": 1067,
         "startChar": 59,
