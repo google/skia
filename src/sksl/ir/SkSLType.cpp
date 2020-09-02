@@ -10,41 +10,43 @@
 
 namespace SkSL {
 
-int Type::coercionCost(const Type& other) const {
+Coercion Type::coercionCost(const Type& other) const {
     if (*this == other) {
-        return 0;
+        return Coercion::Free();
     }
     if (this->kind() == kNullable_Kind && other.kind() != kNullable_Kind) {
-        int result = this->componentType().coercionCost(other);
-        if (result != INT_MAX) {
-            ++result;
-        }
+        Coercion result = this->componentType().coercionCost(other);
+        ++result;
         return result;
     }
     if (this->fName == "null" && other.kind() == kNullable_Kind) {
-        return 0;
+        return Coercion::Free();
     }
     if (this->kind() == kVector_Kind && other.kind() == kVector_Kind) {
         if (this->columns() == other.columns()) {
             return this->componentType().coercionCost(other.componentType());
         }
-        return INT_MAX;
+        return Coercion::Impossible();
     }
     if (this->kind() == kMatrix_Kind) {
         if (this->columns() == other.columns() && this->rows() == other.rows()) {
             return this->componentType().coercionCost(other.componentType());
         }
-        return INT_MAX;
+        return Coercion::Impossible();
     }
-    if (this->isNumber() && other.isNumber() && other.priority() > this->priority()) {
-        return other.priority() - this->priority();
+    if (this->isNumber() && other.isNumber()) {
+        if (other.priority() >= this->priority()) {
+            return Coercion(other.priority() - this->priority());
+        } else {
+            return Coercion::Narrowing(this->priority() - other.priority());
+        }
     }
     for (size_t i = 0; i < fCoercibleTypes.size(); i++) {
         if (*fCoercibleTypes[i] == other) {
-            return (int) i + 1;
+            return Coercion((int) i + 1);
         }
     }
-    return INT_MAX;
+    return Coercion::Impossible();
 }
 
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {
