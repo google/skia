@@ -6,14 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Breaking
- - SkRRect (Rectangles with rounded corners) are no longer returned from `CanvasKit.RRectXY`
-   nor accepted as JS objects. Instead, the format is 12 floats in either an array, a
-   Float32Array or a piece of memory returned by CanvasKit.Malloc. The first 4 floats
-   are the left, top, right, bottom numbers of the rectangle and then 4 sets of points
-   starting in the upper left corner and going clockwise. This change allows for faster
-   transfer between JS and WASM code.
-
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.0 when testing and deploying to npm.
  - WebGL interface creation is a little leaner in terms of code size and speed.

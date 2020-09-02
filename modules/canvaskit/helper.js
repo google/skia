@@ -465,18 +465,6 @@ function copyColorFromWasm(colorPtr) {
   return rv;
 }
 
-// These will be initialized after loading.
-var _scratchRRect;
-var _scratchRRectPtr = nullptr;
-
-var _scratchRRect2;
-var _scratchRRect2Ptr = nullptr;
-
-
-function copyRRectToWasm(twelveFloats, ptr) {
-  return copy1dArray(twelveFloats, "HEAPF32", ptr || _scratchRRectPtr);
-}
-
 // Caching the Float32Arrays can save having to reallocate them
 // over and over again.
 var Float32ArrayCache = {};
