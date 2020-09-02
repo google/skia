@@ -16,6 +16,29 @@
       "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87b2cf28_cf85582e",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-02T13:57:16Z",
+      "side": 1,
+      "message": "Why are we passing the Paint by value instead of const\u0026 ?",
+      "range": {
+        "startLine": 1067,
+        "startChar": 59,
+        "endLine": 1067,
+        "endChar": 72
+      },
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
