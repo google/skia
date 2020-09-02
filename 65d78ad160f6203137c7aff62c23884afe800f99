@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f801430_6fe923b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-02T13:56:18Z",
+      "side": 1,
+      "message": "Are we in a good position to time these various patterns?\n\ne.g.\n\ndraw(rect_object)\ndraw([rect array])\ndraw(l, t, r, b)\n",
+      "revId": "65d78ad160f6203137c7aff62c23884afe800f99",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
