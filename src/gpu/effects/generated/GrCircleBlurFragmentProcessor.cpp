@@ -297,25 +297,24 @@ public:
         circleDataVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                          kHalf4_GrSLType, "circleData");
         fragBuilder->codeAppendf(
-                R"SkSL(;
-half2 vec = half2((sk_FragCoord.xy - float2(%s.xy)) * float(%s.w));
+                R"SkSL(half2 vec = half2((sk_FragCoord.xy - float2(%s.xy)) * float(%s.w));
 half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
-        SkString _sample13902 = this->invokeChild(0, args);
+        SkString _sample13901 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample13902.c_str());
-        SkString _coords13950("float2(half2(dist, 0.5))");
-        SkString _sample13950 = this->invokeChild(1, args, _coords13950.c_str());
+                _sample13901.c_str());
+        SkString _coords13949("float2(half2(dist, 0.5))");
+        SkString _sample13949 = this->invokeChild(1, args, _coords13949.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s.w;
 )SkSL",
-                args.fOutputColor, _sample13950.c_str());
+                args.fOutputColor, _sample13949.c_str());
     }
 
 private:

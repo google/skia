@@ -401,8 +401,14 @@ ASTNode::ID Parser::enumDeclaration() {
    (COMMA parameter)* RPAREN (block | SEMICOLON)) | SEMICOLON) | interfaceBlock) */
 ASTNode::ID Parser::declaration() {
     Token lookahead = this->peek();
-    if (lookahead.fKind == Token::Kind::TK_ENUM) {
-        return this->enumDeclaration();
+    switch (lookahead.fKind) {
+        case Token::Kind::TK_ENUM:
+            return this->enumDeclaration();
+        case Token::Kind::TK_SEMICOLON:
+            this->error(lookahead.fOffset, "expected a declaration, but found ';'");
+            return ASTNode::ID::Invalid();
+        default:
+            break;
     }
     Modifiers modifiers = this->modifiers();
     lookahead = this->peek();

@@ -469,10 +469,10 @@ DEF_TEST(SkSLDivByZero, r) {
 
 DEF_TEST(SkSLUnsupportedGLSLIdentifiers, r) {
     test_failure(r,
-                 "void main() { float x = gl_FragCoord.x; };",
+                 "void main() { float x = gl_FragCoord.x; }",
                  "error: 1: unknown identifier 'gl_FragCoord'\n1 error\n");
     test_failure(r,
-                 "void main() { float r = gl_FragColor.r; };",
+                 "void main() { float r = gl_FragColor.r; }",
                  "error: 1: unknown identifier 'gl_FragColor'\n1 error\n");
 }
 
