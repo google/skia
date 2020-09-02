@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2f170361_90f6732a",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T19:26:25Z",
+      "side": 1,
+      "message": "Done. Find the line starting with \"Some signatures below have uintptr_t\" for the explanation.",
+      "parentUuid": "b6bb58d3_c2d3cf6b",
+      "range": {
+        "startLine": 1434,
+        "startChar": 12,
+        "endLine": 1434,
+        "endChar": 58
+      },
+      "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32b3951a_403bbe23",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 10
@@ -39,6 +63,24 @@
       "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c3532e7_15a4cc9c",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T19:26:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "32b3951a_403bbe23",
+      "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -62,6 +104,30 @@
       "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf0afb0_2d3eb676",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T19:26:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c94ff39_2c4bfe06",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 422,
+        "endChar": 84
+      },
+      "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
