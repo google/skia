@@ -16,6 +16,24 @@
       "revId": "7267542157560dea5f5fac440d6e9da30e1ba6ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7fa8c77_3bc8a09a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-02T21:15:52Z",
+      "side": 1,
+      "message": "For sure, some mechanism for \"I updated something, rebuild all the golden tests\" would be amazing. \n\nI wonder if we could cobble something together with skslc...? Just have it rebuild a ton of simple SkSL files into GLSL, and then we can look at the before-and-after in Gerrit.",
+      "parentUuid": "5292c6b5_f40fca32",
+      "revId": "7267542157560dea5f5fac440d6e9da30e1ba6ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
