@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17092c1d_052c4541",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T19:40:11Z",
+      "side": 1,
+      "message": "PTAL. The commit message has the benchmark results from running locally.",
+      "revId": "c31b885905ef8e2d57eea456fb82849793ac3692",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
