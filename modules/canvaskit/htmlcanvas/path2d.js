@@ -35,7 +35,7 @@ function closePath(skpath) {
   }
   // Check to see if we are not just a single point
   var bounds = skpath.getBounds();
-  if ((bounds.fBottom - bounds.fTop) || (bounds.fRight - bounds.fLeft)) {
+  if ((bounds[3] - bounds[1]) || (bounds[2] - bounds[0])) {
     skpath.close();
   }
 }
@@ -134,11 +134,12 @@ function quadraticCurveTo(skpath, cpx, cpy, x, y) {
 }
 
 function rect(skpath, x, y, width, height) {
-  if (!allAreFinite([x, y, width, height])) {
+  var rect = CanvasKit.XYWHRect(x, y, width, height);
+  if (!allAreFinite(rect)) {
     return;
   }
   // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-rect
-  skpath.addRect(x, y, x+width, y+height);
+  skpath.addRect(rect);
 }
 
 function Path2D(path) {

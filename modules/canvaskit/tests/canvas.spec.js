@@ -22,7 +22,8 @@ describe('Canvas Behavior', () => {
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
         canvas.drawLine(3, 10, 30, 15, paint);
-        canvas.drawRoundRect(CanvasKit.LTRBRect(5, 35, 45, 80), 15, 10, paint);
+        const rrect = CanvasKit.RRectXY([5, 35, 45, 80], 15, 10);
+        canvas.drawRRect(rrect, paint);
 
         canvas.drawOval(CanvasKit.LTRBRect(5, 35, 45, 80), paint);
 
@@ -435,7 +436,7 @@ describe('Canvas Behavior', () => {
         // The rectangle is just a hint, so I've set it to be the area that
         // we actually draw in before restore is called. It could also be omitted,
         // see the test below.
-        canvas.saveLayer(CanvasKit.LTRBRect(10, 10, 220, 180), alpha);
+        canvas.saveLayer(alpha, CanvasKit.LTRBRect(10, 10, 220, 180));
 
         // Draw the same blue overlapping rectangles as before. Notice in the
         // final output, we have two different shades of purple instead of the
@@ -536,7 +537,7 @@ describe('Canvas Behavior', () => {
 
         const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
 
-        const count = canvas.saveLayer(null, blurIF, 0);
+        const count = canvas.saveLayer(null, null, blurIF, 0);
         expect(count).toEqual(1);
         canvas.scale(1/4, 1/4);
         canvas.drawCircle(125, 85, 8, redPaint);
@@ -593,12 +594,8 @@ describe('Canvas Behavior', () => {
         canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.SkPaint();
 
-        canvas.drawImageNine(img, {
-            fLeft: 40,
-            fTop: 40,
-            fRight: 400,
-            fBottom: 300,
-        }, CanvasKit.LTRBRect(5, 5, 300, 650), paint);
+        canvas.drawImageNine(img, CanvasKit.LTRBiRect(40, 40, 400, 300),
+            CanvasKit.LTRBRect(5, 5, 300, 650), paint);
         paint.delete();
         img.delete();
     }, '/assets/mandrill_512.png');
@@ -615,10 +612,7 @@ describe('Canvas Behavior', () => {
             points, null /*textureCoordinates*/, colors, false /*isVolatile*/);
 
         const bounds = vertices.bounds();
-        expect(bounds.fLeft).toEqual(0);
-        expect(bounds.fTop).toEqual(0);
-        expect(bounds.fRight).toEqual(250);
-        expect(bounds.fBottom).toEqual(250);
+        expect(bounds).toEqual(CanvasKit.LTRBRect(0, 0, 250, 250));
 
         canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
         vertices.delete();
@@ -637,10 +631,7 @@ describe('Canvas Behavior', () => {
             points, null /*textureCoordinates*/, colors, false /*isVolatile*/);
 
         const bounds = vertices.bounds();
-        expect(bounds.fLeft).toEqual(0);
-        expect(bounds.fTop).toEqual(0);
-        expect(bounds.fRight).toEqual(250);
-        expect(bounds.fBottom).toEqual(250);
+        expect(bounds).toEqual(CanvasKit.LTRBRect(0, 0, 250, 250));
 
         canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
         vertices.delete();
