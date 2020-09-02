@@ -43,31 +43,31 @@ CanvasKit.Color4f = function(r, g, b, a) {
 
 // Color constants use property getters to prevent other code from accidentally
 // changing them.
-Object.defineProperty(CanvasKit, 'TRANSPARENT', {
+Object.defineProperty(CanvasKit, "TRANSPARENT", {
     get: function() { return CanvasKit.Color4f(0, 0, 0, 0); }
 });
-Object.defineProperty(CanvasKit, 'BLACK', {
+Object.defineProperty(CanvasKit, "BLACK", {
     get: function() { return CanvasKit.Color4f(0, 0, 0, 1); }
 });
-Object.defineProperty(CanvasKit, 'WHITE', {
+Object.defineProperty(CanvasKit, "WHITE", {
     get: function() { return CanvasKit.Color4f(1, 1, 1, 1); }
 });
-Object.defineProperty(CanvasKit, 'RED', {
+Object.defineProperty(CanvasKit, "RED", {
     get: function() { return CanvasKit.Color4f(1, 0, 0, 1); }
 });
-Object.defineProperty(CanvasKit, 'GREEN', {
+Object.defineProperty(CanvasKit, "GREEN", {
     get: function() { return CanvasKit.Color4f(0, 1, 0, 1); }
 });
-Object.defineProperty(CanvasKit, 'BLUE', {
+Object.defineProperty(CanvasKit, "BLUE", {
     get: function() { return CanvasKit.Color4f(0, 0, 1, 1); }
 });
-Object.defineProperty(CanvasKit, 'YELLOW', {
+Object.defineProperty(CanvasKit, "YELLOW", {
     get: function() { return CanvasKit.Color4f(1, 1, 0, 1); }
 });
-Object.defineProperty(CanvasKit, 'CYAN', {
+Object.defineProperty(CanvasKit, "CYAN", {
     get: function() { return CanvasKit.Color4f(0, 1, 1, 1); }
 });
-Object.defineProperty(CanvasKit, 'MAGENTA', {
+Object.defineProperty(CanvasKit, "MAGENTA", {
     get: function() { return CanvasKit.Color4f(1, 0, 1, 1); }
 });
 
@@ -207,9 +207,9 @@ function degreesToRadians(deg) {
 
 // See https://stackoverflow.com/a/31090240
 // This contraption keeps closure from minifying away the check
-// if btoa is defined *and* prevents runtime 'btoa' or 'window' is not defined.
+// if btoa is defined *and* prevents runtime "btoa" or "window" is not defined.
 // Defined outside any scopes to make it available in all files.
-var isNode = !(new Function('try {return this===window;}catch(e){ return false;}')());
+var isNode = !(new Function("try {return this===window;}catch(e){ return false;}")());
 
 function almostEqual(floata, floatb) {
   return Math.abs(floata - floatb) < 0.00001;
@@ -218,7 +218,7 @@ function almostEqual(floata, floatb) {
 var nullptr = 0; // emscripten doesn't like to take null as uintptr_t
 
 // arr can be a normal JS array or a TypedArray
-// dest is a string like 'HEAPU32' that specifies the type the src array
+// dest is a string like "HEAPU32" that specifies the type the src array
 // should be copied into.
 // ptr can be optionally provided if the memory was already allocated.
 function copy1dArray(arr, dest, ptr) {
@@ -290,15 +290,15 @@ function copyFlexibleColorArray(colors) {
     colorType: CanvasKit.ColorType.RGBA_F32,
   }
   if (colors instanceof Float32Array) {
-    result.colorPtr = copy1dArray(colors, 'HEAPF32');
+    result.colorPtr = copy1dArray(colors, "HEAPF32");
     result.count = colors.length / 4;
 
   } else if (colors instanceof Uint32Array) {
-    result.colorPtr = copy1dArray(colors, 'HEAPU32');
+    result.colorPtr = copy1dArray(colors, "HEAPU32");
     result.colorType = CanvasKit.ColorType.RGBA_8888;
 
   } else if (colors instanceof Array && colors[0] instanceof Float32Array) {
-    result.colorPtr = copy2dArray(colors, 'HEAPF32');
+    result.colorPtr = copy2dArray(colors, "HEAPF32");
   } else {
     throw('Invalid argument to copyFlexibleColorArray, Not a color array '+typeof(colors));
   }
@@ -326,8 +326,9 @@ function copy3x3MatrixToWasm(matr) {
     if (matr.length !== 6 && matr.length !== 9) {
       throw 'invalid matrix size';
     }
-    // matr should be an array or typed array.
-    var mPtr = copy1dArray(matr, 'HEAPF32', _scratch3x3MatrixPtr);
+    // This should be an array or typed array.
+    // have to divide the pointer by 4 to "cast" it from bytes to float.
+    var mPtr = copy1dArray(matr, "HEAPF32", _scratch3x3MatrixPtr);
     if (matr.length === 6) {
       // Overwrite the last 3 floats with the default perspective. The divide
       // by 4 casts the pointer into a float pointer.
@@ -364,8 +365,9 @@ function copy4x4MatrixToWasm(matr) {
       throw 'invalid matrix size';
     }
     if (matr.length === 16) {
-      // matr should be an array or typed array.
-      return copy1dArray(matr, 'HEAPF32', _scratch4x4MatrixPtr);
+      // This should be an array or typed array.
+      // have to divide the pointer by 4 to "cast" it from bytes to float.
+      return copy1dArray(matr, "HEAPF32", _scratch4x4MatrixPtr);
     }
     // Upscale the row-major 3x3 or 3x2 matrix into a 4x4 row-major matrix
     // TODO(skbug.com/10108) This will need to change when we convert our
@@ -428,7 +430,7 @@ function copy4x4MatrixFromWasm(matrPtr) {
   // typedArrays, then we should return a typed array here too.
   var rv = new Array(16);
   for (var i = 0; i < 16; i++) {
-    rv[i] = CanvasKit.HEAPF32[matrPtr/4 + i]; // divide by 4 to cast to float.
+    rv[i] = CanvasKit.HEAPF32[matrPtr/4 + i]; // divide by 4 to "cast" to float.
   }
   return rv;
 }
@@ -437,7 +439,7 @@ var _scratchColorPtr = nullptr;
 var _scratchColor; // the result from CanvasKit.Malloc
 
 function copyColorToWasm(color4f, ptr) {
-  return copy1dArray(color4f, 'HEAPF32', ptr || _scratchColorPtr);
+  return copy1dArray(color4f, "HEAPF32", ptr || _scratchColorPtr);
 }
 
 function copyColorComponentsToWasm(r, g, b, a) {
@@ -451,33 +453,16 @@ function copyColorComponentsToWasm(r, g, b, a) {
 
 function copyColorToWasmNoScratch(color4f) {
   // TODO(kjlubick): accept 4 floats or int color
-  return copy1dArray(color4f, 'HEAPF32');
+  return copy1dArray(color4f, "HEAPF32");
 }
 
 // copies the four floats at the given pointer in a js Float32Array
 function copyColorFromWasm(colorPtr) {
   var rv = new Float32Array(4);
   for (var i = 0; i < 4; i++) {
-    rv[i] = CanvasKit.HEAPF32[colorPtr/4 + i]; // divide by 4 to cast to float.
+    rv[i] = CanvasKit.HEAPF32[colorPtr/4 + i]; // divide by 4 to "cast" to float.
   }
   return rv;
-}
-
-// These will be initialized after loading.
-var _scratchRect;
-var _scratchRectPtr = nullptr;
-
-var _scratchRect2;
-var _scratchRect2Ptr = nullptr;
-
-function copyRectToWasm(fourFloats, ptr) {
-  return copy1dArray(fourFloats, 'HEAPF32', ptr || _scratchRectPtr);
-}
-
-var _scratchIRect;
-var _scratchIRectPtr = nullptr;
-function copyIRectToWasm(fourInts, ptr) {
-  return copy1dArray(fourInts, 'HEAP32', ptr || _scratchIRectPtr);
 }
 
 // These will be initialized after loading.
@@ -489,7 +474,7 @@ var _scratchRRect2Ptr = nullptr;
 
 
 function copyRRectToWasm(twelveFloats, ptr) {
-  return copy1dArray(twelveFloats, 'HEAPF32', ptr || _scratchRRectPtr);
+  return copy1dArray(twelveFloats, "HEAPF32", ptr || _scratchRRectPtr);
 }
 
 // Caching the Float32Arrays can save having to reallocate them
@@ -532,7 +517,7 @@ function loadCmdsTypedArray(arr) {
     }
   }
 
-  var ptr = copy1dArray(ta, 'HEAPF32');
+  var ptr = copy1dArray(ta, "HEAPF32");
   return [ptr, len];
 }
 
@@ -622,7 +607,7 @@ CanvasKit.FourFloatArrayHelper.prototype.build = function() {
   if (this._ptr) {
     return this._ptr;
   }
-  this._ptr = copy1dArray(this._floats, 'HEAPF32');
+  this._ptr = copy1dArray(this._floats, "HEAPF32");
   return this._ptr;
 }
 
@@ -695,7 +680,7 @@ CanvasKit.OneUIntArrayHelper.prototype.build = function() {
   if (this._ptr) {
     return this._ptr;
   }
-  this._ptr = copy1dArray(this._uints, 'HEAPU32');
+  this._ptr = copy1dArray(this._uints, "HEAPU32");
   return this._ptr;
 }
 

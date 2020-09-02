@@ -23,15 +23,6 @@ CanvasKit.onRuntimeInitialized = function() {
   _scratchRRect2 = CanvasKit.Malloc(Float32Array, 12); // 4 scalars for rrect, 8 for radii.
   _scratchRRect2Ptr = _scratchRRect2['byteOffset'];
 
-  _scratchRect = CanvasKit.Malloc(Float32Array, 4);
-  _scratchRectPtr = _scratchRect['byteOffset'];
-
-  _scratchRect2 = CanvasKit.Malloc(Float32Array, 4);
-  _scratchRect2Ptr = _scratchRect2['byteOffset'];
-
-  _scratchIRect = CanvasKit.Malloc(Int32Array, 4);
-  _scratchIRectPtr = _scratchIRect['byteOffset'];
-
   // Create single copies of all three supported color spaces
   // These are sk_sp<SkColorSpace>
   CanvasKit.SkColorSpace.SRGB = CanvasKit.SkColorSpace._MakeSRGB();
@@ -475,8 +466,8 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkM44.setupCamera = function(area, zscale, cam) {
     var camera = CanvasKit.SkM44.lookat(cam['eye'], cam['coa'], cam['up']);
     var perspective = CanvasKit.SkM44.perspective(cam['near'], cam['far'], cam['angle']);
-    var center = [(area[0] + area[2])/2, (area[1] + area[3])/2, 0];
-    var viewScale = [(area[2] - area[0])/2, (area[3] - area[1])/2, zscale];
+    var center = [(area.fLeft + area.fRight)/2, (area.fTop + area.fBottom)/2, 0];
+    var viewScale = [(area.fRight - area.fLeft)/2, (area.fBottom - area.fTop)/2, zscale];
     var viewport = CanvasKit.SkM44.multiply(
       CanvasKit.SkM44.translated(center),
       CanvasKit.SkM44.scaled(viewScale));
@@ -599,8 +590,7 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkPath.prototype.addArc = function(oval, startAngle, sweepAngle) {
     // see arc() for the HTMLCanvas version
     // note input angles are degrees.
-    var oPtr = copyRectToWasm(oval);
-    this._addArc(oPtr, startAngle, sweepAngle);
+    this._addArc(oval, startAngle, sweepAngle);
     return this;
   };
 
@@ -608,8 +598,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (startIndex === undefined) {
       startIndex = 1;
     }
-    var oPtr = copyRectToWasm(oval);
-    this._addOval(oPtr, !!isCCW, startIndex);
+    this._addOval(oval, !!isCCW, startIndex);
     return this;
   };
 
@@ -675,15 +664,58 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
-  CanvasKit.SkPath.prototype.addRect = function(rect, isCCW) {
-    var rPtr = copyRectToWasm(rect);
-    this._addRect(rPtr, !!isCCW);
+  CanvasKit.SkPath.prototype.addRect = function() {
+    // Takes 1, 2, 4 or 5 args
+    //  - SkRect
+    //  - SkRect, isCCW
+    //  - left, top, right, bottom
+    //  - left, top, right, bottom, isCCW
+    if (arguments.length === 1 || arguments.length === 2) {
+      var r = arguments[0];
+      var ccw = arguments[1] || false;
+      this._addRect(r.fLeft, r.fTop, r.fRight, r.fBottom, ccw);
+    } else if (arguments.length === 4 || arguments.length === 5) {
+      var a = arguments;
+      this._addRect(a[0], a[1], a[2], a[3], a[4] || false);
+    } else {
+      SkDebug('addRect expected to take 1, 2, 4, or 5 args. Got ' + arguments.length);
+      return null;
+    }
     return this;
   };
 
-  CanvasKit.SkPath.prototype.addRRect = function(rrect, isCCW) {
-    var rPtr = copyRRectToWasm(rrect);
-    this._addRRect(rPtr, !!isCCW);
+  CanvasKit.SkPath.prototype.addRoundRect = function() {
+    // Takes 3, 4, 6 or 7 args
+    //  - SkRect, radii (an array of 8 numbers), ccw
+    //  - SkRect, rx, ry, ccw
+    //  - left, top, right, bottom, radii, ccw
+    //  - left, top, right, bottom, rx, ry, ccw
+    var args = arguments;
+    if (args.length === 3 || args.length === 6) {
+      var radii = args[args.length-2];
+    } else if (args.length === 4 || args.length === 7){
+      // duplicate the given (rx, ry) pairs for each corner.
+      var rx = args[args.length-3];
+      var ry = args[args.length-2];
+      var radii = [rx, ry, rx, ry, rx, ry, rx, ry];
+    } else {
+      SkDebug('addRoundRect expected to take 3, 4, 6, or 7 args. Got ' + args.length);
+      return null;
+    }
+    if (radii.length !== 8) {
+      SkDebug('addRoundRect needs 8 radii provided. Got ' + radii.length);
+      return null;
+    }
+    var rptr = copy1dArray(radii, 'HEAPF32');
+    if (args.length === 3 || args.length === 4) {
+      var r = args[0];
+      var ccw = args[args.length - 1];
+      this._addRoundRect(r.fLeft, r.fTop, r.fRight, r.fBottom, rptr, ccw);
+    } else if (args.length === 6 || args.length === 7) {
+      var a = args;
+      this._addRoundRect(a[0], a[1], a[2], a[3], rptr, ccw);
+    }
+    freeArraysThatAreNotMallocedByUsers(rptr, radii);
     return this;
   };
 
@@ -712,13 +744,32 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  // Deprecated, use one of the three variants below depending on how many args you were calling it with.
+  CanvasKit.SkPath.prototype.arcTo = function() {
+    // takes 4, 5 or 7 args
+    // - 5 x1, y1, x2, y2, radius
+    // - 4 oval (as Rect), startAngle, sweepAngle, forceMoveTo
+    // - 7 rx, ry, xAxisRotate, useSmallArc, isCCW, x, y
+    var args = arguments;
+    if (args.length === 5) {
+      this._arcToTangent(args[0], args[1], args[2], args[3], args[4]);
+    } else if (args.length === 4) {
+      this._arcToOval(args[0], args[1], args[2], args[3]);
+    } else if (args.length === 7) {
+      this._arcToRotated(args[0], args[1], args[2], !!args[3], !!args[4], args[5], args[6]);
+    } else {
+      throw 'Invalid args for arcTo. Expected 4, 5, or 7, got '+ args.length;
+    }
+
+    return this;
+  };
+
   // Appends arc to SkPath. Arc added is part of ellipse
   // bounded by oval, from startAngle through sweepAngle. Both startAngle and
   // sweepAngle are measured in degrees, where zero degrees is aligned with the
   // positive x-axis, and positive sweeps extends arc clockwise.
   CanvasKit.SkPath.prototype.arcToOval = function(oval, startAngle, sweepAngle, forceMoveTo) {
-    var oPtr = copyRectToWasm(oval);
-    this._arcToOval(oPtr, startAngle, sweepAngle, forceMoveTo);
+    this._arcToOval(oval, startAngle, sweepAngle, forceMoveTo);
     return this;
   };
 
@@ -779,19 +830,6 @@ CanvasKit.onRuntimeInitialized = function() {
       return this;
     }
     return null;
-  };
-
-  // Clients can pass in a Float32Array with length 4 to this and the results
-  // will be copied into that array. Otherwise, a new TypedArray will be allocated
-  // and returned.
-  CanvasKit.SkPath.prototype.getBounds = function(optionalOutputArray) {
-    this._getBounds(_scratchRectPtr);
-    var ta = _scratchRect['toTypedArray']();
-    if (optionalOutputArray) {
-      optionalOutputArray.set(ta);
-      return optionalOutputArray;
-    }
-    return ta.slice();
   };
 
   CanvasKit.SkPath.prototype.lineTo = function(x, y) {
@@ -958,11 +996,6 @@ CanvasKit.onRuntimeInitialized = function() {
     this._clipRRect(rPtr, op, antialias);
   }
 
-  CanvasKit.SkCanvas.prototype.clipRect = function(rect, op, antialias) {
-    var rPtr = copyRectToWasm(rect);
-    this._clipRect(rPtr, op, antialias);
-  }
-
   // concat takes a 3x2, a 3x3, or a 4x4 matrix and upscales it (if needed) to 4x4. This is because
   // under the hood, SkCanvas uses a 4x4 matrix.
   CanvasKit.SkCanvas.prototype.concat = function(matr) {
@@ -972,11 +1005,6 @@ CanvasKit.onRuntimeInitialized = function() {
 
   // Deprecated - just use concat
   CanvasKit.SkCanvas.prototype.concat44 = CanvasKit.SkCanvas.prototype.concat;
-
-  CanvasKit.SkCanvas.prototype.drawArc = function(oval, startAngle, sweepAngle, useCenter, paint) {
-    var oPtr = copyRectToWasm(oval);
-    this._drawArc(oPtr, startAngle, sweepAngle, useCenter, paint);
-  }
 
   // atlas is an SkImage, e.g. from CanvasKit.MakeImageFromEncoded
   // srcRects, dstXforms, and colors should be CanvasKit.SkRectBuilder, CanvasKit.RSXFormBuilder,
@@ -1067,23 +1095,6 @@ CanvasKit.onRuntimeInitialized = function() {
     this._drawDRRect(oPtr, iPtr, paint);
   }
 
-  CanvasKit.SkCanvas.prototype.drawImageNine = function(img, center, dest, paint) {
-    var cPtr = copyIRectToWasm(center);
-    var dPtr = copyRectToWasm(dest);
-    this._drawImageNine(img, cPtr, dPtr, paint);
-  }
-
-  CanvasKit.SkCanvas.prototype.drawImageRect = function(img, src, dest, paint, fastSample) {
-    var sPtr = copyRectToWasm(src,  _scratchRectPtr);
-    var dPtr = copyRectToWasm(dest, _scratchRect2Ptr);
-    this._drawImageRect(img, sPtr, dPtr, paint, !!fastSample);
-  }
-
-  CanvasKit.SkCanvas.prototype.drawOval = function(oval, paint) {
-    var oPtr = copyRectToWasm(oval);
-    this._drawOval(oPtr, paint);
-  }
-
   // points is either an array of [x, y] where x and y are numbers or
   // a typed array from Malloc where the even indices will be treated
   // as x coordinates and the odd indices will be treated as y coordinates.
@@ -1106,11 +1117,6 @@ CanvasKit.onRuntimeInitialized = function() {
   CanvasKit.SkCanvas.prototype.drawRRect = function(rrect, paint) {
     var rPtr = copyRRectToWasm(rrect);
     this._drawRRect(rPtr, paint);
-  }
-
-  CanvasKit.SkCanvas.prototype.drawRect = function(rect, paint) {
-    var rPtr = copyRectToWasm(rect);
-    this._drawRect(rPtr, paint);
   }
 
   CanvasKit.SkCanvas.prototype.drawShadow = function(path, zPlaneParams, lightPos, lightRadius, ambientColor, spotColor, flags) {
@@ -1186,13 +1192,6 @@ CanvasKit.onRuntimeInitialized = function() {
     return pixels;
   }
 
-  CanvasKit.SkCanvas.prototype.saveLayer = function(paint, boundsRect, backdrop, flags) {
-    // bPtr will be 0 (nullptr) if boundsRect is undefined/null.
-    var bPtr = copyRectToWasm(boundsRect);
-    // These or clauses help emscripten, which does not deal with undefined well.
-    return this._saveLayer(paint || null, bPtr, backdrop || null, flags || 0);
-  }
-
   // pixels should be a Uint8Array or a plain JS array.
   CanvasKit.SkCanvas.prototype.writePixels = function(pixels, srcWidth, srcHeight,
                                                       destX, destY, alphaType, colorType, colorSpace) {
@@ -1264,11 +1263,6 @@ CanvasKit.onRuntimeInitialized = function() {
     this._setColor(cPtr, colorSpace);
   }
 
-  CanvasKit.SkPictureRecorder.prototype.beginRecording = function(bounds) {
-    var bPtr = copyRectToWasm(bounds);
-    return this._beginRecording(bPtr);
-  }
-
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
     // Set up SkPictureRecorder
     var spr = new CanvasKit.SkPictureRecorder();
@@ -1280,11 +1274,6 @@ CanvasKit.onRuntimeInitialized = function() {
     // TODO: do we need to clean up the memory for canvas?
     // If we delete it here, saveAsFile doesn't work correctly.
     return pic;
-  }
-
-  CanvasKit.SkSurface.prototype.makeImageSnapshot = function(optionalBoundsRect) {
-    var bPtr = copyIRectToWasm(optionalBoundsRect);
-    return this._makeImageSnapshot(bPtr);
   }
 
   CanvasKit.SkSurface.prototype.requestAnimationFrame = function(callback, dirtyRect) {
@@ -1408,19 +1397,6 @@ CanvasKit.onRuntimeInitialized = function() {
     return rgs;
   }
 
-  // Clients can pass in a Float32Array with length 4 to this and the results
-  // will be copied into that array. Otherwise, a new TypedArray will be allocated
-  // and returned.
-  CanvasKit.SkVertices.prototype.bounds = function(optionalOutputArray) {
-    this._bounds(_scratchRectPtr);
-    var ta = _scratchRect['toTypedArray']();
-    if (optionalOutputArray) {
-      optionalOutputArray.set(ta);
-      return optionalOutputArray;
-    }
-    return ta.slice();
-  }
-
   // temporary support for deprecated names.
   CanvasKit.MakeSkDashPathEffect = CanvasKit.SkPathEffect.MakeDash;
   CanvasKit.MakeLinearGradientShader = CanvasKit.SkShader.MakeLinearGradient;
@@ -1461,26 +1437,28 @@ CanvasKit.computeTonalColors = function(tonalColors) {
 };
 
 CanvasKit.LTRBRect = function(l, t, r, b) {
-  return Float32Array.of(l, t, r, b);
+  return {
+    fLeft: l,
+    fTop: t,
+    fRight: r,
+    fBottom: b,
+  };
 };
 
 CanvasKit.XYWHRect = function(x, y, w, h) {
-  return Float32Array.of(x, y, x+w, y+h);
-};
-
-CanvasKit.LTRBiRect = function(l, t, r, b) {
-  return Int32Array.of(l, t, r, b);
-};
-
-CanvasKit.XYWHiRect = function(x, y, w, h) {
-  return Int32Array.of(x, y, x+w, y+h);
+  return {
+    fLeft: x,
+    fTop: y,
+    fRight: x+w,
+    fBottom: y+h,
+  };
 };
 
 // RRectXY returns a TypedArray representing an RRect with the given rect and a radiusX and
 // radiusY for all 4 corners.
 CanvasKit.RRectXY = function(rect, rx, ry) {
   return Float32Array.of(
-    rect[0], rect[1], rect[2], rect[3],
+    rect['fLeft'], rect['fTop'], rect['fRight'], rect['fBottom'],
     rx, ry,
     rx, ry,
     rx, ry,
