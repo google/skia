@@ -1228,8 +1228,6 @@ while (%s(%s)) {
 }
 
 DEF_TEST(SkSLFPInlinedWhileBodyMustBeInAScope, r) {
-    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
-    // scope, so the inlined code is emitted outside of the while loop.
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -1249,13 +1247,14 @@ R"SkSL(return v + half4(0.125);
 )SkSL", &adjust_name);
         fragBuilder->codeAppendf(
 R"SkSL(%s = half4(0.0);
-while (%s.x < 0.5) half4 _0_adjust;
-{
-    _0_adjust = %s + half4(0.125);
+while (%s.x < 0.5) {
+    half4 _0_adjust;
+    {
+        _0_adjust = %s + half4(0.125);
+    }
+
+    %s = _0_adjust;
 }
-
-%s = _0_adjust;
-
 )SkSL"
 , args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor);
 )__Cpp__"});
@@ -1293,8 +1292,6 @@ do {
 }
 
 DEF_TEST(SkSLFPInlinedDoWhileBodyMustBeInAScope, r) {
-    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
-    // scope, so the emitted inlined code is just invalid.
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -1315,13 +1312,14 @@ R"SkSL(return v + half4(0.125);
 )SkSL", &adjust_name);
         fragBuilder->codeAppendf(
 R"SkSL(%s = half4(0.0);
-do half4 _0_adjust;
-{
-    _0_adjust = %s + half4(0.125);
-}
+do {
+    half4 _0_adjust;
+    {
+        _0_adjust = %s + half4(0.125);
+    }
 
-%s = _0_adjust;
- while (%s.x < 0.5);
+    %s = _0_adjust;
+} while (%s.x < 0.5);
 )SkSL"
 , args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor);
 )__Cpp__"});
@@ -1374,8 +1372,6 @@ R"SkSL(for (%s = half4(0.0625);
 }
 
 DEF_TEST(SkSLFPInlinedForBodyMustBeInAScope, r) {
-    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
-    // scope, so the inlined code is emitted outside of the for loop.
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
@@ -1392,13 +1388,14 @@ DEF_TEST(SkSLFPInlinedForBodyMustBeInAScope, r) {
          /*expectedCPP=*/{
          R"__Cpp__(fragBuilder->codeAppendf(
 R"SkSL(%s = half4(0.0);
-for (int x = 0;x < 4; ++x) half4 _0_adjust;
-{
-    _0_adjust = %s + half4(0.125);
+for (int x = 0;x < 4; ++x) {
+    half4 _0_adjust;
+    {
+        _0_adjust = %s + half4(0.125);
+    }
+
+    %s = _0_adjust;
 }
-
-%s = _0_adjust;
-
 )SkSL"
 , args.fOutputColor, args.fOutputColor, args.fOutputColor);
 )__Cpp__"});

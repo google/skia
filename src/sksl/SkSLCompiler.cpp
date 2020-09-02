@@ -1642,7 +1642,7 @@ bool Compiler::optimize(Program& program) {
         fIRGenerator->fKind = program.fKind;
         fIRGenerator->fSettings = &program.fSettings;
 
-        // Build the control-flow graph for each function.
+        // Scan and optimize based on the control-flow graph for each function.
         for (ProgramElement& element : program) {
             if (element.fKind == ProgramElement::kFunction_Kind) {
                 this->scanCFG(element.as<FunctionDefinition>());
