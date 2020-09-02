@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bdf81b6f_df9c7996",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-02T16:47:29Z",
+      "side": 1,
+      "message": "I\u0027ll check if/else in a followup CL; you\u0027re right, there\u0027s every reason to think that it\u0027s also affected, but I neglected to write a test case for it in the prior CL.",
+      "parentUuid": "228ba594_c98f734a",
+      "revId": "af562ab3c646ac6354e292c40ccd6beb3e3f28b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2ce95576_5bb2ae28",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "af562ab3c646ac6354e292c40ccd6beb3e3f28b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2b9f173_4837fa51",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-02T16:47:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ce95576_5bb2ae28",
+      "range": {
+        "startLine": 547,
+        "startChar": 28,
+        "endLine": 547,
+        "endChar": 31
+      },
+      "revId": "af562ab3c646ac6354e292c40ccd6beb3e3f28b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
