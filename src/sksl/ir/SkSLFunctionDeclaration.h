@@ -74,6 +74,10 @@ struct FunctionDeclaration : public Symbol {
      * does not guarantee that the function can be successfully called with those arguments, merely
      * indicates that an attempt should be made. If false is returned, the state of
      * outParameterTypes and outReturnType are undefined.
+     *
+     * This always assumes narrowing conversions are *allowed*. The calling code needs to verify
+     * that each argument can actually be coerced to the final parameter type, respecting the
+     * narrowing-conversions flag. This is handled in callCost(), or in convertCall() (via coerce).
      */
     bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
                              std::vector<const Type*>* outParameterTypes,
@@ -86,7 +90,7 @@ struct FunctionDeclaration : public Symbol {
                 std::vector<const Type*> types = parameterType.coercibleTypes();
                 if (genericIndex == -1) {
                     for (size_t j = 0; j < types.size(); j++) {
-                        if (arguments[i]->type().canCoerceTo(*types[j])) {
+                        if (arguments[i]->type().canCoerceTo(*types[j], /*allowNarrowing=*/true)) {
                             genericIndex = j;
                             break;
                         }
