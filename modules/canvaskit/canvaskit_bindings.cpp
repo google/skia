@@ -1053,6 +1053,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             const SkRect* rect = reinterpret_cast<const SkRect*>(fPtr);
             self.drawRect(*rect, paint);
         }))
+        .function("drawRect4f", optional_override([](SkCanvas& self, SkScalar left, SkScalar top,
+                                                     SkScalar right, SkScalar bottom,
+                                                     const SkPaint paint)->void {
+            const SkRect rect = SkRect::MakeLTRB(left, top, right, bottom);
+            self.drawRect(rect, paint);
+        }))
         .function("_drawShadow", optional_override([](SkCanvas& self, const SkPath& path,
                                                      const SkPoint3& zPlaneParams,
                                                      const SkPoint3& lightPos, SkScalar lightRadius,

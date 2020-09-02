@@ -1,3 +1,4 @@
+const onlytests = [];
 const tests = [];
 // In all tests, the canvas is 600 by 600 px.
 // tests should NOT call ctx.surface.flush()
@@ -91,6 +92,80 @@ tests.push({
         ctx.paint.delete();
     },
     perfKey: 'canvas_drawRRect',
+});
+
+tests.push({
+    description: 'Draw 10K colored rects',
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint.setAntiAlias(true);
+        ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i=0; i<10000; i++) {
+            const x = Math.random()*550;
+            const y = Math.random()*550;
+            ctx.paint.setColor(randomColorTwo(CanvasKit, 1, 2));
+            ctx.canvas.drawRect(CanvasKit.LTRBRect(x, y, x+50, y+50), ctx.paint);
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.paint.delete();
+    },
+    perfKey: 'canvas_drawRect',
+});
+
+tests.push({
+    description: "Draw 10K colored rects with malloc'd rect",
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint.setAntiAlias(true);
+        ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
+        ctx.rect = CanvasKit.Malloc(Float32Array, 4);
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i=0; i<10000; i++) {
+            ctx.paint.setColor(randomColorTwo(CanvasKit, 1, 2));
+            const ta = ctx.rect.toTypedArray();
+            ta[0] = Math.random()*550; // x
+            ta[1] = Math.random()*550; // y
+            ta[2] = ta[0] + 50;
+            ta[3] = ta[1] + 50;
+            ctx.canvas.drawRect(ta, ctx.paint);
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.paint.delete();
+        CanvasKit.Free(ctx.rect);
+    },
+    perfKey: 'canvas_drawRect_malloc',
+});
+
+tests.push({
+    description: 'Draw 10K colored rects using 4 float API',
+    setup: function(CanvasKit, ctx) {
+        ctx.canvas = ctx.surface.getCanvas();
+
+        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint.setAntiAlias(true);
+        ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
+    },
+    test: function(CanvasKit, ctx) {
+        for (let i=0; i<10000; i++) {
+            const x = Math.random()*550;
+            const y = Math.random()*550;
+            ctx.paint.setColor(randomColorTwo(CanvasKit, 1, 2));
+            ctx.canvas.drawRect4f(x, y, x+50, y+50, ctx.paint);
+        }
+    },
+    teardown: function(CanvasKit, ctx) {
+        ctx.paint.delete();
+    },
+    perfKey: 'canvas_drawRect4f',
 });
 
 tests.push({
