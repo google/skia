@@ -498,42 +498,6 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
     return std::make_unique<ModifiersDeclaration>(modifiers);
 }
 
-std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
-    SkASSERT(n.fKind == ASTNode::Kind::kIf);
-    auto iter = n.begin();
-    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
-                                                    *fContext.fBool_Type);
-    if (!test) {
-        return nullptr;
-    }
-    std::unique_ptr<Statement> ifTrue = this->convertStatement(*(iter++));
-    if (!ifTrue) {
-        return nullptr;
-    }
-    std::unique_ptr<Statement> ifFalse;
-    if (iter != n.end()) {
-        ifFalse = this->convertStatement(*(iter++));
-        if (!ifFalse) {
-            return nullptr;
-        }
-    }
-    if (test->fKind == Expression::kBoolLiteral_Kind) {
-        // static boolean value, fold down to a single branch
-        if (test->as<BoolLiteral>().fValue) {
-            return ifTrue;
-        } else if (ifFalse) {
-            return ifFalse;
-        } else {
-            // False & no else clause. Not an error, so don't return null!
-            std::vector<std::unique_ptr<Statement>> empty;
-            return std::unique_ptr<Statement>(new Block(n.fOffset, std::move(empty),
-                                                        fSymbolTable));
-        }
-    }
-    return std::unique_ptr<Statement>(new IfStatement(n.fOffset, n.getBool(), std::move(test),
-                                                      std::move(ifTrue), std::move(ifFalse)));
-}
-
 static void ensure_scoped_blocks(Statement* stmt) {
     // No changes necessary if this statement isn't actually a block.
     if (stmt->fKind != Statement::kBlock_Kind) {
@@ -568,6 +532,43 @@ static void ensure_scoped_blocks(Statement* stmt) {
         // We have to go deeper.
         nestedBlock = &nestedBlock->fStatements[0]->as<Block>();
     }
+}
+
+std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
+    SkASSERT(n.fKind == ASTNode::Kind::kIf);
+    auto iter = n.begin();
+    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
+                                                    *fContext.fBool_Type);
+    if (!test) {
+        return nullptr;
+    }
+    std::unique_ptr<Statement> ifTrue = this->convertStatement(*(iter++));
+    if (!ifTrue) {
+        return nullptr;
+    }
+    ensure_scoped_blocks(ifTrue.get());
+    std::unique_ptr<Statement> ifFalse;
+    if (iter != n.end()) {
+        ifFalse = this->convertStatement(*(iter++));
+        if (!ifFalse) {
+            return nullptr;
+        }
+        ensure_scoped_blocks(ifFalse.get());
+    }
+    if (test->fKind == Expression::kBoolLiteral_Kind) {
+        // static boolean value, fold down to a single branch
+        if (test->as<BoolLiteral>().fValue) {
+            return ifTrue;
+        } else if (ifFalse) {
+            return ifFalse;
+        } else {
+            // False & no else clause. Not an error, so don't return null!
+            std::vector<std::unique_ptr<Statement>> empty;
+            return std::make_unique<Block>(n.fOffset, std::move(empty), fSymbolTable);
+        }
+    }
+    return std::make_unique<IfStatement>(n.fOffset, n.getBool(),
+                                         std::move(test), std::move(ifTrue), std::move(ifFalse));
 }
 
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
