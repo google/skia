@@ -48,10 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
  - `CanvasKit.LTRBiRect` and `CanvasKit.XYWHiRect` as helpers to create SkIRects.
- - `SkCanvas.drawRect4f` as a somewhat experimental way to have array-free APIs for clients that
-   already have their own representation of Rect. This is experimental because we don't know
-   if it's faster/better under real-world use and because we don't want to commit to having these
-   for all Rect APIs (and for similar types) until it has baked in a bit.
 
 ## [0.17.3] - 2020-08-05
 
