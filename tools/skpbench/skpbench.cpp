@@ -258,8 +258,7 @@ static void run_ddl_benchmark(sk_gpu_test::TestContext* testContext, GrDirectCon
 
     SkIRect viewport = dstSurface->imageInfo().bounds();
 
-    SkYUVAPixmapInfo::SupportedDataTypes supportedYUVADataTypes(*context);
-    DDLPromiseImageHelper promiseImageHelper(supportedYUVADataTypes);
+    DDLPromiseImageHelper promiseImageHelper;
     sk_sp<SkData> compressedPictureData = promiseImageHelper.deflateSKP(inputPicture);
     if (!compressedPictureData) {
         exitf(ExitErr::kUnavailable, "DDL: conversion of skp failed");

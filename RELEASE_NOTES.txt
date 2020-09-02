@@ -21,7 +21,6 @@ Milestone 87
     Doesn't assume 8bit planar values.
     https://review.skia.org/309658
     https://review.skia.org/312886
-    https://review.skia.org/314276
 
   * Added VkImageUsageFlags to GrVkImageInfo struct.
 

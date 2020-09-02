@@ -91,17 +91,12 @@ public:
 
     /**
      *  If decoding to YUV is supported, this returns true. Otherwise, this
-     *  returns false and the caller will ignore output parameter yuvaPixmapInfo.
+     *  returns false and does not modify yuvaPixmapInfo.
      *
-     * @param  supportedDataTypes Indicates the data type/planar config combinations that are
-     *                            supported by the caller. If the generator supports decoding to
-     *                            YUV(A), but not as a type in supportedDataTypes, this method
-     *                            returns false.
-     *  @param yuvaPixmapInfo Output parameter that specifies the planar configuration, subsampling,
-     *                        orientation, chroma siting, plane color types, and row bytes.
+     *  @param yuvaPixmapInfo Specifies the planar configuration, subsampling, orientation,
+     *                        chroma siting, plane color types, and row bytes.
      */
-    bool queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
-                       SkYUVAPixmapInfo* yuvaPixmapInfo) const;
+    bool queryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const;
 
     /**
      *  Returns true on success and false on failure.
@@ -209,8 +204,7 @@ protected:
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
     virtual bool onIsValid(GrRecordingContext*) const { return true; }
-    virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
-                                 SkYUVAPixmapInfo*) const { return false; }
+    virtual bool onQueryYUVAInfo(SkYUVAPixmapInfo*) const { return false; }
     virtual bool onGetYUVAPlanes(const SkYUVAPixmaps&) { return false; }
     virtual bool onQueryYUVA8(SkYUVASizeInfo*, SkYUVAIndex[SkYUVAIndex::kIndexCount],
                               SkYUVColorSpace*) const { return false; }

@@ -98,8 +98,7 @@ protected:
                      size_t rowBytes,
                      const Options& opts) override;
 
-    bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,
-                         SkYUVAPixmapInfo*) const override;
+    bool onQueryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const override;
 
     bool onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) override;
 

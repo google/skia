@@ -30,17 +30,10 @@ static void codec_yuv(skiatest::Reporter* reporter,
     // Test queryYUBAInfo()
     SkYUVAPixmapInfo yuvaPixmapInfo;
 
-    static constexpr auto kAllTypes = SkYUVAPixmapInfo::SupportedDataTypes::All();
-    static constexpr auto kNoTypes  = SkYUVAPixmapInfo::SupportedDataTypes();
-
-    // SkYUVAInfo param is required to be non-null.
-    bool success = codec->queryYUVAInfo(kAllTypes, nullptr);
+    // Param is required to be non-null.
+    bool success = codec->queryYUVAInfo(nullptr);
     REPORTER_ASSERT(reporter, !success);
-    // Fails when there is no support for YUVA planes.
-    success = codec->queryYUVAInfo(kNoTypes, &yuvaPixmapInfo);
-    REPORTER_ASSERT(reporter, !success);
-
-    success = codec->queryYUVAInfo(kAllTypes, &yuvaPixmapInfo);
+    success = codec->queryYUVAInfo(&yuvaPixmapInfo);
     REPORTER_ASSERT(reporter, SkToBool(expectedInfo) == success);
     if (!success) {
         return;
@@ -49,15 +42,13 @@ static void codec_yuv(skiatest::Reporter* reporter,
 
     int numPlanes = yuvaPixmapInfo.numPlanes();
     REPORTER_ASSERT(reporter, numPlanes <= SkYUVAInfo::kMaxPlanes);
+    size_t totalBytes = 0;
     for (int i = 0; i < numPlanes; ++i) {
         const SkImageInfo& planeInfo = yuvaPixmapInfo.planeInfo(i);
-        SkColorType planeCT = planeInfo.colorType();
         REPORTER_ASSERT(reporter, !planeInfo.isEmpty());
-        REPORTER_ASSERT(reporter, planeCT != kUnknown_SkColorType);
+        REPORTER_ASSERT(reporter, planeInfo.colorType() != kUnknown_SkColorType);
         REPORTER_ASSERT(reporter, planeInfo.validRowBytes(yuvaPixmapInfo.rowBytes(i)));
-        // Currently all planes must share a data type, gettable as SkYUVAPixmapInfo::dataType().
-        auto [numChannels, planeDataType] = SkYUVAPixmapInfo::NumChannelsAndDataType(planeCT);
-        REPORTER_ASSERT(reporter, planeDataType == yuvaPixmapInfo.dataType());
+        totalBytes += planeInfo.height()*yuvaPixmapInfo.rowBytes(i);
     }
     for (int i = numPlanes; i < SkYUVAInfo::kMaxPlanes; ++i) {
         const SkImageInfo& planeInfo = yuvaPixmapInfo.planeInfo(i);

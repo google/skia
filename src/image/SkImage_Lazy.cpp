@@ -266,9 +266,8 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
     SkYUVColorSpace yuvColorSpace;
     SkPixmap planes[SkYUVASizeInfo::kMaxCount];
 
-    SkYUVAPixmapInfo::SupportedDataTypes supportedDataTypes(*ctx);
     sk_sp<SkCachedData> dataStorage =
-            this->getPlanes(supportedDataTypes, &yuvSizeInfo, yuvaIndices, &yuvColorSpace, planes);
+            this->getPlanes(&yuvSizeInfo, yuvaIndices, &yuvColorSpace, planes);
     if (!dataStorage) {
         return {};
     }
@@ -360,12 +359,10 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
     return renderTargetContext->readSurfaceView();
 }
 
-sk_sp<SkCachedData> SkImage_Lazy::getPlanes(
-        const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
-        SkYUVASizeInfo* yuvaSizeInfo,
-        SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
-        SkYUVColorSpace* yuvColorSpace,
-        SkPixmap planes[SkYUVASizeInfo::kMaxCount]) const {
+sk_sp<SkCachedData> SkImage_Lazy::getPlanes(SkYUVASizeInfo* yuvaSizeInfo,
+                                            SkYUVAIndex yuvaIndices[SkYUVAIndex::kIndexCount],
+                                            SkYUVColorSpace* yuvColorSpace,
+                                            SkPixmap planes[SkYUVASizeInfo::kMaxCount]) const {
     ScopedGenerator generator(fSharedGenerator);
 
     SkYUVPlanesCache::Info yuvInfo;
@@ -373,8 +370,9 @@ sk_sp<SkCachedData> SkImage_Lazy::getPlanes(
 
     // Try the new more descriptive SkImageGenerator/SkCodec YUVA interface.
     if (SkYUVAPixmapInfo yuvaPixmapInfo;
-        !data && generator->queryYUVAInfo(supportedDataTypes, &yuvaPixmapInfo) &&
+        !data && generator->queryYUVAInfo(&yuvaPixmapInfo) &&
         yuvaPixmapInfo.yuvaInfo().dimensions() == this->dimensions()) {
+
         data.reset(SkResourceCache::NewCachedData(yuvaPixmapInfo.computeTotalBytes()));
         auto pixmaps = SkYUVAPixmaps::FromExternalMemory(yuvaPixmapInfo, data->writable_data());
         SkASSERT(pixmaps.isValid());

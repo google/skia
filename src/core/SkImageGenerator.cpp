@@ -30,12 +30,10 @@ bool SkImageGenerator::getPixels(const SkImageInfo& info, void* pixels, size_t r
     return this->onGetPixels(info, pixels, rowBytes, defaultOpts);
 }
 
-bool SkImageGenerator::queryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
-                                     SkYUVAPixmapInfo* yuvaPixmapInfo) const {
+bool SkImageGenerator::queryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const {
     SkASSERT(yuvaPixmapInfo);
 
-    return this->onQueryYUVAInfo(supportedDataTypes, yuvaPixmapInfo) &&
-           yuvaPixmapInfo->isSupported(supportedDataTypes);
+    return this->onQueryYUVAInfo(yuvaPixmapInfo);
 }
 
 bool SkImageGenerator::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {

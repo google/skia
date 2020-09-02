@@ -48,7 +48,7 @@ bool LazyYUVImage::reset(sk_sp<SkData> data, GrMipmapped mipmapped) {
     }
 
     SkYUVAPixmapInfo yuvaPixmapInfo;
-    if (!codec->queryYUVAInfo(SkYUVAPixmapInfo::SupportedDataTypes::All(), &yuvaPixmapInfo)) {
+    if (!codec->queryYUVAInfo(&yuvaPixmapInfo)) {
         return false;
     }
     fPixmaps = SkYUVAPixmaps::Allocate(yuvaPixmapInfo);

@@ -69,10 +69,8 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
     return this->getPixels(requestInfo, requestPixels, requestRowBytes, nullptr);
 }
 
-bool SkCodecImageGenerator::onQueryYUVAInfo(
-        const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
-        SkYUVAPixmapInfo* yuvaPixmapInfo) const {
-    return fCodec->queryYUVAInfo(supportedDataTypes, yuvaPixmapInfo);
+bool SkCodecImageGenerator::onQueryYUVAInfo(SkYUVAPixmapInfo* yuvaPixmapInfo) const {
+    return fCodec->queryYUVAInfo(yuvaPixmapInfo);
 }
 
 bool SkCodecImageGenerator::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
