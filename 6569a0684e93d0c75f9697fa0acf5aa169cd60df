@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a47dc8fc_fe4708db",
+        "filename": "experimental/wasm-skp-debugger/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-02T12:13:20Z",
+      "side": 1,
+      "message": "remove this line since it\u0027s in the GN_GPU?",
+      "range": {
+        "startLine": 111,
+        "startChar": 2,
+        "endLine": 111,
+        "endChar": 17
+      },
+      "revId": "6569a0684e93d0c75f9697fa0acf5aa169cd60df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
