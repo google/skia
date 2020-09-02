@@ -1087,6 +1087,326 @@ R"SkSL(%s = %s(%s);
 )__Cpp__"});
 }
 
+DEF_TEST(SkSLFPTernaryExpressionsShouldNotInlineResults, r) {
+    // NOTE: this test exposes a bug with the inliner. We don't want to inline both sides of a
+    // ternary, since only one side needs to be evaluated, and side effects from the wrong side
+    // must not occur.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             half count = 0;
+             bool test(half4 v) {
+                 return v.x <= 0.5;
+             }
+             half4 trueSide(half4 v) {
+                 count += 1;
+                 return half4(sin(v.x), sin(v.y), sin(v.z), sin(v.w));
+             }
+             half4 falseSide(half4 v) {
+                 count += 1;
+                 return half4(cos(v.y), cos(v.z), cos(v.w), cos(v.z));
+             }
+             void main() {
+                 sk_OutColor = test(color) ? trueSide(color) : falseSide(color);
+                 sk_OutColor *= count;
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(half count = %f;
+bool _0_test;
+{
+    _0_test = %s.x <= 0.5;
+}
+
+half4 _1_trueSide;
+{
+    count += 1.0;
+    _1_trueSide = half4(sin(%s.x), sin(%s.y), sin(%s.z), sin(%s.w));
+}
+
+half4 _2_falseSide;
+{
+    count += 1.0;
+    _2_falseSide = half4(cos(%s.y), cos(%s.z), cos(%s.w), cos(%s.z));
+}
+
+%s = _0_test ? _1_trueSide : _2_falseSide;
+
+%s *= count;
+)SkSL"
+, count, args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor, args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPShortCircuitEvaluationsCannotInlineRightHandSide, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             bool testA(half4 v) {
+                 return v.x <= 0.5;
+             }
+             bool testB(half4 v) {
+                 return v.x > 0.5;
+             }
+             void main() {
+                 sk_OutColor = half4(0);
+                 if (testA(color) && testB(color)) {
+                    sk_OutColor = half4(0.5);
+                 }
+                 if (testB(color) || testA(color)) {
+                    sk_OutColor = half4(1.0);
+                 }
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(        SkString testA_name;
+        const GrShaderVar testA_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kBool_GrSLType, "testA", 1, testA_args,
+R"SkSL(return v.x <= 0.5;
+)SkSL", &testA_name);
+        SkString testB_name;
+        const GrShaderVar testB_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kBool_GrSLType, "testB", 1, testB_args,
+R"SkSL(return v.x > 0.5;
+)SkSL", &testB_name);
+        fragBuilder->codeAppendf(
+R"SkSL(%s = half4(0.0);
+bool _0_testA;
+{
+    _0_testA = %s.x <= 0.5;
+}
+
+if (_0_testA && %s(%s)) {
+    %s = half4(0.5);
+}
+
+bool _1_testB;
+{
+    _1_testB = %s.x > 0.5;
+}
+
+if (_1_testB || %s(%s)) {
+    %s = half4(1.0);
+}
+
+)SkSL"
+, args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar), testB_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor, args.fUniformHandler->getUniformCStr(colorVar), testA_name.c_str(), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPWhileTestCannotBeInlined, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             bool shouldLoop(half4 v) {
+                 return v.x < 0.5;
+             }
+             void main() {
+                 sk_OutColor = half4(0);
+                 while (shouldLoop(sk_OutColor)) {
+                     sk_OutColor += half4(0.125);
+                 }
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(SkString shouldLoop_name;
+        const GrShaderVar shouldLoop_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kBool_GrSLType, "shouldLoop", 1, shouldLoop_args,
+R"SkSL(return v.x < 0.5;
+)SkSL", &shouldLoop_name);
+        fragBuilder->codeAppendf(
+R"SkSL(%s = half4(0.0);
+while (%s(%s)) {
+    %s += half4(0.125);
+}
+)SkSL"
+, args.fOutputColor, shouldLoop_name.c_str(), args.fOutputColor, args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPInlinedWhileBodyMustBeInAScope, r) {
+    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
+    // scope, so the inlined code is emitted outside of the while loop.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 adjust(half4 v) {
+                 return v + half4(0.125);
+             }
+             void main() {
+                 sk_OutColor = half4(0);
+                 while (sk_OutColor.x < 0.5)
+                     sk_OutColor = adjust(sk_OutColor);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->emitFunction(kHalf4_GrSLType, "adjust", 1, adjust_args,
+R"SkSL(return v + half4(0.125);
+)SkSL", &adjust_name);
+        fragBuilder->codeAppendf(
+R"SkSL(%s = half4(0.0);
+while (%s.x < 0.5) half4 _0_adjust;
+{
+    _0_adjust = %s + half4(0.125);
+}
+
+%s = _0_adjust;
+
+)SkSL"
+, args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPDoWhileTestCannotBeInlined, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             bool shouldLoop(half4 v) {
+                 return v.x < 0.5;
+             }
+             void main() {
+                 sk_OutColor = half4(0);
+                 do {
+                     sk_OutColor += half4(0.125);
+                 } while (shouldLoop(sk_OutColor));
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(SkString shouldLoop_name;
+        const GrShaderVar shouldLoop_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kBool_GrSLType, "shouldLoop", 1, shouldLoop_args,
+R"SkSL(return v.x < 0.5;
+)SkSL", &shouldLoop_name);
+        fragBuilder->codeAppendf(
+R"SkSL(%s = half4(0.0);
+do {
+    %s += half4(0.125);
+} while (%s(%s));
+)SkSL"
+, args.fOutputColor, args.fOutputColor, shouldLoop_name.c_str(), args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPInlinedDoWhileBodyMustBeInAScope, r) {
+    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
+    // scope, so the emitted inlined code is just invalid.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 adjust(half4 v) {
+                 return v + half4(0.125);
+             }
+             void main() {
+                 sk_OutColor = half4(0);
+                 do
+                     sk_OutColor = adjust(sk_OutColor);
+                 while (sk_OutColor.x < 0.5);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->emitFunction(kHalf4_GrSLType, "adjust", 1, adjust_args,
+R"SkSL(return v + half4(0.125);
+)SkSL", &adjust_name);
+        fragBuilder->codeAppendf(
+R"SkSL(%s = half4(0.0);
+do half4 _0_adjust;
+{
+    _0_adjust = %s + half4(0.125);
+}
+
+%s = _0_adjust;
+ while (%s.x < 0.5);
+)SkSL"
+, args.fOutputColor, args.fOutputColor, args.fOutputColor, args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPOnlyForInitializerExpressionsCanBeInlined, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 initLoopVar() {
+                 return half4(0.0625);
+             }
+             bool shouldLoop(half4 v) {
+                 return v.x < 0.5;
+             }
+             half4 grow(half4 v) {
+                 return v + half4(0.125);
+             }
+             void main() {
+                 for (sk_OutColor = initLoopVar();
+                      shouldLoop(sk_OutColor);
+                      sk_OutColor = grow(sk_OutColor)) {
+                 }
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(SkString initLoopVar_name;
+        const GrShaderVar initLoopVar_args[] = { };
+        fragBuilder->emitFunction(kHalf4_GrSLType, "initLoopVar", 0, initLoopVar_args,
+R"SkSL(return half4(0.0625);
+)SkSL", &initLoopVar_name);
+        SkString shouldLoop_name;
+        const GrShaderVar shouldLoop_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kBool_GrSLType, "shouldLoop", 1, shouldLoop_args,
+R"SkSL(return v.x < 0.5;
+)SkSL", &shouldLoop_name);
+        SkString grow_name;
+        const GrShaderVar grow_args[] = { GrShaderVar("v", kHalf4_GrSLType)};
+        fragBuilder->emitFunction(kHalf4_GrSLType, "grow", 1, grow_args,
+R"SkSL(return v + half4(0.125);
+)SkSL", &grow_name);
+        fragBuilder->codeAppendf(
+R"SkSL(for (%s = half4(0.0625);
+%s(%s); %s = %s(%s)) {
+}
+)SkSL"
+, args.fOutputColor, shouldLoop_name.c_str(), args.fOutputColor, args.fOutputColor, grow_name.c_str(), args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPInlinedForBodyMustBeInAScope, r) {
+    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
+    // scope, so the inlined code is emitted outside of the for loop.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             half4 adjust(half4 v) {
+                 return v + half4(0.125);
+             }
+             void main() {
+                 sk_OutColor = half4(0);
+                 for (int x=0; x<4; ++x)
+                     sk_OutColor = adjust(sk_OutColor);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(%s = half4(0.0);
+for (int x = 0;x < 4; ++x) half4 _0_adjust;
+{
+    _0_adjust = %s + half4(0.125);
+}
+
+%s = _0_adjust;
+
+)SkSL"
+, args.fOutputColor, args.fOutputColor, args.fOutputColor);
+)__Cpp__"});
+}
+
 DEF_TEST(SkSLFPSwitchWithReturnInsideCannotBeInlined, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
