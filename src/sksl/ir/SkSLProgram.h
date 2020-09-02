@@ -120,6 +120,9 @@ struct Program {
         // Functions smaller than this (measured in IR nodes) will be inlined. Default is arbitrary.
         // Set to 0 to disable inlining entirely.
         int fInlineThreshold = 50;
+        // If true, implicit conversions to lower precision numeric types are allowed
+        // (eg, float to half)
+        bool fAllowNarrowingConversions = false;
     };
 
     struct Inputs {

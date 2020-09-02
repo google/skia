@@ -85,7 +85,7 @@ struct FunctionDeclaration : public Symbol {
                 std::vector<const Type*> types = fParameters[i]->fType.coercibleTypes();
                 if (genericIndex == -1) {
                     for (size_t j = 0; j < types.size(); j++) {
-                        if (arguments[i]->fType.canCoerceTo(*types[j])) {
+                        if (arguments[i]->fType.canCoerceTo(*types[j], false)) {
                             genericIndex = j;
                             break;
                         }
