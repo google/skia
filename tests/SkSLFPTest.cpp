@@ -1401,6 +1401,107 @@ for (int x = 0;x < 4; ++x) {
 )__Cpp__"});
 }
 
+DEF_TEST(SkSLFPIfTestsCanBeInlined, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             bool ifTest(half4 v) {
+                 return color.x >= 0.5;
+             }
+             void main() {
+                 if (ifTest(color))
+                     sk_OutColor = half4(1.0);
+                 else
+                     sk_OutColor = half4(0.5);
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(bool _0_ifTest;
+{
+    _0_ifTest = %s.x >= 0.5;
+}
+
+if (_0_ifTest) %s = half4(1.0); else %s = half4(0.5);
+
+)SkSL"
+, args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fOutputColor);
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPInlinedIfBodyMustBeInAScope, r) {
+    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
+    // scope, so the inlined code is emitted outside of the if-body.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             half4 ifBody() {
+                 return color + half4(0.125);
+             }
+             void main() {
+                 half4 c = color;
+                 if (c.x >= 0.5)
+                     c = ifBody();
+                 sk_OutColor = c;
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(half4 c = %s;
+if (c.x >= 0.5) half4 _0_ifBody;
+{
+    _0_ifBody = %s + half4(0.125);
+}
+
+c = _0_ifBody;
+
+%s = c;
+)SkSL"
+, args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar));
+)__Cpp__"});
+}
+
+DEF_TEST(SkSLFPInlinedElseBodyMustBeInAScope, r) {
+    // NOTE: this test exposes a bug with the inliner. The inlined function body is not wrapped in a
+    // scope, so the inlined code is emitted outside of the else-body.
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+             uniform half4 color;
+             half4 elseBody() {
+                 return color + half4(0.125);
+             }
+             void main() {
+                 half4 c = color;
+                 if (c.x >= 0.5)
+                     ;
+                 else
+                     c = elseBody();
+                 sk_OutColor = c;
+             }
+         )__SkSL__",
+         /*expectedH=*/{},
+         /*expectedCPP=*/{
+         R"__Cpp__(fragBuilder->codeAppendf(
+R"SkSL(half4 c = %s;
+if (c.x >= 0.5) {
+} else half4 _0_elseBody;
+{
+    _0_elseBody = %s + half4(0.125);
+}
+
+c = _0_elseBody;
+
+%s = c;
+)SkSL"
+, args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar), args.fUniformHandler->getUniformCStr(colorVar));
+)__Cpp__"});
+}
+
 DEF_TEST(SkSLFPSwitchWithReturnInsideCannotBeInlined, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
