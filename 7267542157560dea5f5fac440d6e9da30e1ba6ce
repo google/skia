@@ -34,6 +34,24 @@
       "revId": "7267542157560dea5f5fac440d6e9da30e1ba6ce",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7b7b6f9_55a73974",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-02T21:17:05Z",
+      "side": 1,
+      "message": "Just to clarify my idea: https://skia.googlesource.com/skcms/+/refs/heads/master/tests.c#712\n\nThat function is part of the skcms unit test suite. It goes through a hard-coded list of .icc files (though we could also just do *all* files in some directory...). For each one it parses and dumps out the parse results to a text buffer. \u0027regen\u0027 is tied to a command line flag. If that\u0027s true, we just write out the buffer to a corresponding .txt file, otherwise we read the .txt file and diff against the buffer, printing out any mismatches and failing the test.",
+      "parentUuid": "5292c6b5_f40fca32",
+      "revId": "7267542157560dea5f5fac440d6e9da30e1ba6ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
