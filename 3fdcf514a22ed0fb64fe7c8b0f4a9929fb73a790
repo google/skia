@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "d25c10f0_e3f77b37",
+        "filename": "include/core/SkYUVAPixmaps.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-02T13:21:24Z",
+      "side": 1,
+      "message": "Maybe. I went back and forth on it myself. Maybe more experience with these new types will make it clearer.",
+      "parentUuid": "674ba790_d2bec4f6",
+      "range": {
+        "startLine": 167,
+        "startChar": 35,
+        "endLine": 167,
+        "endChar": 42
+      },
+      "revId": "3fdcf514a22ed0fb64fe7c8b0f4a9929fb73a790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4f20393_3f9efdf6",
         "filename": "src/core/SkYUVAPixmaps.cpp",
         "patchSetId": 6
@@ -62,6 +86,30 @@
       "revId": "3fdcf514a22ed0fb64fe7c8b0f4a9929fb73a790",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e688cdb_4e1c716f",
+        "filename": "src/core/SkYUVAPixmaps.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-02T13:21:24Z",
+      "side": 1,
+      "message": "It shouldn\u0027t really matter either way but I chose kGray because Chrome seemed to use it throughout its image generator code.",
+      "parentUuid": "b4f20393_3f9efdf6",
+      "range": {
+        "startLine": 50,
+        "startChar": 40,
+        "endLine": 50,
+        "endChar": 45
+      },
+      "revId": "3fdcf514a22ed0fb64fe7c8b0f4a9929fb73a790",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
