@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "fd0b8b78_ef379446",
+        "filename": "DEPS",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-09-02T14:09:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0868eaa2_62eb77a2",
+      "range": {
+        "startLine": 31,
+        "startChar": 115,
+        "endLine": 31,
+        "endChar": 155
+      },
+      "revId": "040b3515390878391e426cb862c68978bb44e7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a93c718a_63b1ffb3",
         "filename": "third_party/oboe/BUILD.gn",
         "patchSetId": 2
