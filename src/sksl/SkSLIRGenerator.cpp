@@ -534,6 +534,42 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
                                                       std::move(ifTrue), std::move(ifFalse)));
 }
 
+static void ensure_scoped_blocks(Statement* stmt) {
+    // No changes necessary if this statement isn't actually a block.
+    if (stmt->fKind != Statement::kBlock_Kind) {
+        return;
+    }
+
+    Block& block = stmt->as<Block>();
+
+    // Occasionally, IR generation can lead to Blocks containing multiple statements, but no scope.
+    // If this block is used as the statement for a while/if/for, this isn't actually possible to
+    // represent textually; a scope must be added for the generated code to match the intent. In the
+    // case of Blocks nested inside other Blocks, we add the scope to the outermost block if needed.
+    // Zero-statement blocks have similar issues--if we don't represent the Block textually somehow,
+    // we run the risk of accidentally absorbing the following statement into our loop--so we also
+    // add a scope to these.
+    for (Block* nestedBlock = &block;; ) {
+        if (nestedBlock->fIsScope) {
+            // We found an explicit scope; all is well.
+            return;
+        }
+        if (nestedBlock->fStatements.size() != 1) {
+            // We found a block with multiple (or zero) statements, but no scope? Let's add a scope
+            // to the outermost block.
+            block.fIsScope = true;
+            return;
+        }
+        if (nestedBlock->fStatements[0]->fKind != Statement::kBlock_Kind) {
+            // This block has exactly one thing inside, and it's not another block. No need to scope
+            // it.
+            return;
+        }
+        // We have to go deeper.
+        nestedBlock = &nestedBlock->fStatements[0]->as<Block>();
+    }
+}
+
 std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     SkASSERT(f.fKind == ASTNode::Kind::kFor);
     AutoLoopLevel level(this);
@@ -571,6 +607,7 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     if (!statement) {
         return nullptr;
     }
+    ensure_scoped_blocks(statement.get());
     return std::make_unique<ForStatement>(f.fOffset, std::move(initializer), std::move(test),
                                           std::move(next), std::move(statement), fSymbolTable);
 }
@@ -591,6 +628,7 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     if (!statement) {
         return nullptr;
     }
+    ensure_scoped_blocks(statement.get());
     return std::make_unique<WhileStatement>(w.fOffset, std::move(test), std::move(statement));
 }
 
@@ -602,6 +640,7 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     if (!statement) {
         return nullptr;
     }
+    ensure_scoped_blocks(statement.get());
     std::unique_ptr<Expression> test;
     {
         AutoDisableInline disableInline(this);
