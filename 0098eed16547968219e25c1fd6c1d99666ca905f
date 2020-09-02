@@ -33,6 +33,23 @@
       "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2bde8763_4058b326",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-02T17:50:42Z",
+      "side": 1,
+      "message": "Here\u0027s a version of the code at head that does 16-byte writes:\n\n    for (auto[quad, glyph, leftTop] : quadData) {\n        auto[al, at, ar, ab] \u003d glyph-\u003efAtlasLocator.getUVs();\n        SkScalar dl \u003d leftTop.x() + deviceOrigin.x(),\n                 dt \u003d leftTop.y() + deviceOrigin.y(),\n                 dr \u003d dl + (ar - al),\n                 db \u003d dt + (ab - at);\n\n        auto write_quad \u003d [\u003d](Mask2DVertex* q, SkScalar x, SkScalar y, uint16_t ax, uint16_t ay) {\n            uint32_t X,Y;\n            memcpy(\u0026X, \u0026x, 4);\n            memcpy(\u0026Y, \u0026y, 4);\n            using u32x4 \u003d uint32_t __attribute__((vector_size(16)));\n            u32x4 quad_bits \u003d {X, Y, color, ax | (uint32_t)ay\u003c\u003c16};\n            memcpy(q, \u0026quad_bits, 16);\n        };\n\n        write_quad(quad+0, dl,dt, al,at);\n        write_quad(quad+1, dl,db, al,ab);\n        write_quad(quad+2, dr,dt, ar,at);\n        write_quad(quad+3, dr,db, ar,ab);\n    }\n\n(I have not run or tested this.)",
+      "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
