@@ -80,6 +80,24 @@
       "revId": "040b3515390878391e426cb862c68978bb44e7e8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f41af34_fe96bec5",
+        "filename": "third_party/oboe/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-09-02T14:33:40Z",
+      "side": 1,
+      "message": "It\u0027s needed for the SkAudioPlayer. Oboe doesn\u0027t have a player, so I\u0027m building one from scratch and need the parselib for the wav data",
+      "parentUuid": "a93c718a_63b1ffb3",
+      "revId": "040b3515390878391e426cb862c68978bb44e7e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
