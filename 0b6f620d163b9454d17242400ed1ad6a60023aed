@@ -34,6 +34,24 @@
       "revId": "0b6f620d163b9454d17242400ed1ad6a60023aed",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0a269b6_b54220e0",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-02T15:40:45Z",
+      "side": 1,
+      "message": "Ok. It\u0027s static now. I moved all the helper structs to the .cpp.",
+      "parentUuid": "a2802b58_b6317fdd",
+      "revId": "0b6f620d163b9454d17242400ed1ad6a60023aed",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
