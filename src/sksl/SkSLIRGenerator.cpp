@@ -577,8 +577,7 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
             return ifFalse;
         } else {
             // False & no else clause. Not an error, so don't return null!
-            std::vector<std::unique_ptr<Statement>> empty;
-            return std::make_unique<Block>(n.fOffset, std::move(empty), fSymbolTable);
+            return std::make_unique<Nop>();
         }
     }
     return std::make_unique<IfStatement>(n.fOffset, n.getBool(),
