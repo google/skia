@@ -328,10 +328,7 @@ namespace {
             assert_true(src.b == clamp(src.b, lo, hi), src.b);
             assert_true(src.a == clamp(src.a, lo, hi), src.a);
         } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
-            src.r = clamp01(src.r);
-            src.g = clamp01(src.g);
-            src.b = clamp01(src.b);
-            src.a = clamp01(src.a);
+            src = clamp01(src);
         }
 
         // Write it out!

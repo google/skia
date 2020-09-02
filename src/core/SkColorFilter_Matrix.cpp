@@ -119,7 +119,7 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
         c = {r,g,b,a};
     }
 
-    return premul(c);    // note: rasterpipeline version does clamp01 first
+    return premul(clamp01(c));
 }
 
 #if SK_SUPPORT_GPU
