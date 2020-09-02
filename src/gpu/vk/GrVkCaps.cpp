@@ -459,7 +459,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
-    if (kARM_VkVendor == properties.vendorID) {
+    if (kARM_VkVendor == properties.vendorID && androidAPIVersion <= 28) {
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
