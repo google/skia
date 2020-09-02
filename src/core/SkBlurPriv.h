@@ -29,6 +29,8 @@ bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRec
                                  SkScalar texXs[kSkBlurRRectMaxDivisions],
                                  SkScalar texYs[kSkBlurRRectMaxDivisions]);
 
+int SkCreateIntegralTable(float sixSigma, SkBitmap* table);
+
 extern void sk_register_blur_maskfilter_createproc();
 
 #endif
