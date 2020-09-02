@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04ce3921_083a5f20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-02T16:38:22Z",
+      "side": 1,
+      "message": "Chart of what\u0027s allowed where (with some comments about future expansion): https://docs.google.com/spreadsheets/d/1zxHXaHe-WXaVLNuSuHqbFbxGWemgFYIcy_yl1p5gtWU/edit?usp\u003dsharing\n",
+      "revId": "813d971fb4a9384b45dec200c54c9759ec6a1809",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
