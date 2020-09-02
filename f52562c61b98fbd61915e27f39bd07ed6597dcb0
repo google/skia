@@ -16,6 +16,23 @@
       "revId": "f52562c61b98fbd61915e27f39bd07ed6597dcb0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f9933dbf_baf17f41",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-02T16:26:13Z",
+      "side": 1,
+      "message": "Actually, hold on a sec... I think this might be UB in the specialized version of SkNx\u003c2,float\u003e.  Want to try that out first before I pull this trigger.",
+      "revId": "f52562c61b98fbd61915e27f39bd07ed6597dcb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
