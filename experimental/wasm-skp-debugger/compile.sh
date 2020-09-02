@@ -36,6 +36,9 @@ else
 fi
 
 mkdir -p $BUILD_DIR
+# sometimes the .a files keep old symbols around - cleaning them out makes sure
+# we get a fresh build.
+rm -f $BUILD_DIR/*.a
 
 BUILTIN_FONT="$BASE_DIR/fonts/NotoMono-Regular.ttf.cpp"
 # Generate the font's binary file (which is covered by .gitignore)
@@ -45,6 +48,7 @@ python tools/embed_resources.py \
     --output $BASE_DIR/fonts/NotoMono-Regular.ttf.cpp \
     --align 4
 
+GN_GPU="skia_enable_gpu=true skia_gl_standard = \"webgl\""
 GN_GPU_FLAGS="\"-DSK_DISABLE_LEGACY_SHADERCONTEXT\","
 WASM_GPU="-lEGL -lGL -lGLESv2 -DSK_SUPPORT_GPU=1 -DSK_GL \
           -DSK_DISABLE_LEGACY_SHADERCONTEXT --pre-js $BASE_DIR/cpu.js --pre-js $BASE_DIR/gpu.js"
@@ -103,7 +107,7 @@ echo "Compiling bitcode"
   skia_use_system_zlib=false\
   skia_use_vulkan=false \
   skia_use_zlib=true \
-  skia_enable_gpu=true \
+  ${GN_GPU} \
   skia_enable_tools=false \
   skia_enable_skshaper=false \
   skia_enable_ccpr=false \
@@ -118,17 +122,18 @@ ${NINJA} -C ${BUILD_DIR} libskia.a libdebugcanvas.a
 
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
-echo "Generating final debugger wasm and javascript"
+echo "Generating final wasm"
 
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
-${EMCXX} \
+EMCC_DEBUG=1 ${EMCXX} \
     $RELEASE_CONF \
     -I. \
     -Ithird_party/icu \
     -Ithird_party/skcms \
     -DSK_DISABLE_AAA \
+    -DSK_FORCE_8_BYTE_ALIGNMENT \
     -std=c++17 \
     $WASM_GPU \
     --pre-js $BASE_DIR/helper.js \
@@ -141,6 +146,7 @@ ${EMCXX} \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORT_NAME="DebuggerInit" \
     -s FORCE_FILESYSTEM=0 \
+    -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
