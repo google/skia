@@ -1666,25 +1666,28 @@ bool Compiler::optimize(Program& program) {
                     program.fElements.end());
         }
 
-        // Remove dead variables.
         if (program.fKind != Program::kFragmentProcessor_Kind) {
-            for (auto iter = program.fElements.begin(); iter != program.fElements.end();) {
-                if ((*iter)->fKind == ProgramElement::kVar_Kind) {
-                    VarDeclarations& vars = (*iter)->as<VarDeclarations>();
+            // Remove dead variables.
+            for (ProgramElement& element : program) {
+                if (element.fKind == ProgramElement::kVar_Kind) {
+                    VarDeclarations& vars = element.as<VarDeclarations>();
                     vars.fVars.erase(
                             std::remove_if(vars.fVars.begin(), vars.fVars.end(),
                                            [](const std::unique_ptr<Statement>& stmt) {
                                                return stmt->as<VarDeclaration>().fVar->dead();
                                            }),
                             vars.fVars.end());
-
-                    if (vars.fVars.size() == 0) {
-                        iter = program.fElements.erase(iter);
-                        continue;
-                    }
                 }
-                ++iter;
             }
+
+            // Remove empty variable declarations with no variables left inside of them.
+            program.fElements.erase(
+                    std::remove_if(program.fElements.begin(), program.fElements.end(),
+                                   [](const std::unique_ptr<ProgramElement>& element) {
+                                       return element->fKind == ProgramElement::kVar_Kind &&
+                                              element->as<VarDeclarations>().fVars.empty();
+                                   }),
+                    program.fElements.end());
         }
     }
     return fErrorCount == 0;
