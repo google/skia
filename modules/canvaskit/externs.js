@@ -209,6 +209,7 @@ var CanvasKit = {
     drawParagraph: function() {},
     drawPath: function() {},
     drawPicture: function() {},
+    drawRect4f: function() {},
     drawText: function() {},
     drawTextBlob: function() {},
     drawVertices: function() {},
