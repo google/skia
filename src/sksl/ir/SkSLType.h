@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/spirv.h"
+#include <algorithm>
 #include <climits>
 #include <vector>
 #include <memory>
@@ -20,6 +21,32 @@
 namespace SkSL {
 
 class Context;
+
+struct CoercionCost {
+    enum Kind { kNormal, kNarrowing, kImpossible };
+
+    CoercionCost(Kind kind, int cost) : fKind(kind), fCost(cost) {}
+
+    static CoercionCost Free()              { return { Kind::kNormal, 0 }; }
+    static CoercionCost Normal(int cost)    { return { Kind::kNormal, cost }; }
+    static CoercionCost Narrowing(int cost) { return { Kind::kNarrowing, cost }; }
+    static CoercionCost Impossible()        { return { Kind::kImpossible, 0 }; }
+
+    bool isPossible(bool allowNarrowing) const {
+        return fKind == kNormal || (fKind == kNarrowing && allowNarrowing);
+    }
+
+    CoercionCost operator+(CoercionCost rhs) const {
+        return { std::max(fKind, rhs.fKind), fCost + rhs.fCost };
+    }
+
+    bool operator<(CoercionCost rhs) const {
+        return std::tie(fKind, fCost) < std::tie(rhs.fKind, rhs.fCost);
+    }
+
+    Kind fKind;
+    int  fCost;
+};
 
 /**
  * Represents a type, such as int or float4.
@@ -310,8 +337,8 @@ public:
      * Returns true if an instance of this type can be freely coerced (implicitly converted) to
      * another type.
      */
-    bool canCoerceTo(const Type& other) const {
-        return coercionCost(other) != INT_MAX;
+    bool canCoerceTo(const Type& other, bool allowNarrowing) const {
+        return this->coercionCost(other).isPossible(allowNarrowing);
     }
 
     /**
@@ -319,7 +346,7 @@ public:
      * is a number with no particular meaning other than that lower costs are preferable to higher
      * costs. Returns INT_MAX if the coercion is not possible.
      */
-    int coercionCost(const Type& other) const;
+    CoercionCost coercionCost(const Type& other) const;
 
     /**
      * For matrices and vectors, returns the type of individual cells (e.g. mat2 has a component
