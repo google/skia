@@ -104,7 +104,7 @@ class FontMgrGM : public skiagm::GM {
                 SkString sname;
                 SkFontStyle fs;
                 set->getStyle(j, &fs, &sname);
-                sname.appendf(" [%d %d %d]", fs.weight(), fs.width(), fs.slant());
+                sname.appendf(" [%f %d %d]", fs.weight(), fs.width(), fs.slant());
 
                 font.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 x = drawString(canvas, sname, x, y, font) + 20;
@@ -141,7 +141,7 @@ class FontMgrMatchGM : public skiagm::GM {
             SkFontStyle fs;
             fset->getStyle(j, &fs, &sname);
 
-            sname.appendf(" [%d %d]", fs.weight(), fs.width());
+            sname.appendf(" [%f %d]", fs.weight(), fs.width());
 
             f.setTypeface(sk_sp<SkTypeface>(fset->createTypeface(j)));
             (void)drawString(canvas, sname, 0, y, f);
@@ -159,7 +159,7 @@ class FontMgrMatchGM : public skiagm::GM {
                 sk_sp<SkTypeface> face(fset->matchStyle(fs));
                 if (face) {
                     SkString str;
-                    str.printf("request [%d %d]", fs.weight(), fs.width());
+                    str.printf("request [%f %d]", fs.weight(), fs.width());
                     f.setTypeface(std::move(face));
                     (void)drawString(canvas, str, 0, y, f);
                     y += 24;

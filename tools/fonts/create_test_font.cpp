@@ -302,15 +302,6 @@ static void generate_fonts(const char* basepath, const SkSpan<const FontFamilyDe
     }
 }
 
-static const char* slant_to_string(SkFontStyle::Slant slant) {
-    switch (slant) {
-        case SkFontStyle::kUpright_Slant: return "SkFontStyle::kUpright_Slant";
-        case SkFontStyle::kItalic_Slant : return "SkFontStyle::kItalic_Slant" ;
-        case SkFontStyle::kOblique_Slant: return "SkFontStyle::kOblique_Slant";
-        default: SK_ABORT("Unknown slant");
-    }
-}
-
 static void generate_index(const SkSpan<const FontFamilyDesc>& families,
                            const FontDesc* defaultFont)
 {
@@ -324,12 +315,13 @@ static void generate_index(const SkSpan<const FontFamilyDesc>& families,
             fprintf(out,
                     "    {    %sPoints, %sVerbs,\n"
                     "         %sCharCodes, %sCharCodesCount, %sWidths,\n"
-                    "         %sMetrics, \"Toy %s\", SkFontStyle(%d,%d,%s)\n"
+                    "         %sMetrics, \"Toy %s\", SkFontStyle(%f,%f,%f,%f,%s)\n"
                     "    },\n",
                     identifier, identifier,
                     identifier, identifier, identifier,
                     identifier, family.fFamilyName,
-                    style.weight(), style.width(), slant_to_string(style.slant()));
+                    style.weight(), style.stretch(), style.angle(), style.italic(),
+                    style.isFixedPitch() ? "true" : "false");
         }
     }
     fprintf(out, "};\n\n");
@@ -351,21 +343,22 @@ static void generate_index(const SkSpan<const FontFamilyDesc>& families,
             }
             const SkFontStyle& style = font.fNamedStyle.fStyle;
             fprintf(out,
-                    "    { \"%s\", \"%s\", SkFontStyle(%d,%d,%s), gTestFonts[%d], \"%s\" },\n",
+                    "    { \"%s\", \"%s\", SkFontStyle(%f,%f,%f,%f,%s), gTestFonts[%d], \"%s\" },\n",
                     family.fGenericName, font.fNamedStyle.fName,
-                    style.weight(), style.width(), slant_to_string(style.slant()),
-                    testFontsIndex, font.fFile);
+                    style.weight(), style.stretch(), style.angle(), style.italic(),
+                    style.isFixedPitch() ? "true" : "false", testFontsIndex, font.fFile);
             testFontsIndex++;
         }
     }
     testFontsIndex = 0;
     for (const FontFamilyDesc& family : families) {
         for (const FontDesc& font : family.fFonts) {
+            const SkFontStyle& style = font.fNamedStyle.fStyle;
             fprintf(out,
-                    "    { \"Toy %s\", \"%s\", SkFontStyle(%d,%d,%s), gTestFonts[%d], \"%s\" },\n",
+                    "    { \"Toy %s\", \"%s\", SkFontStyle(%f,%f,%f,%f,%s), gTestFonts[%d], \"%s\" },\n",
                     family.fFamilyName, font.fNamedStyle.fName,
-                    font.fNamedStyle.fStyle.weight(), font.fNamedStyle.fStyle.width(),
-                    slant_to_string(font.fNamedStyle.fStyle.slant()), testFontsIndex, font.fFile);
+                    style.weight(), style.stretch(), style.angle(), style.italic(),
+                    style.isFixedPitch() ? "true" : "false", testFontsIndex, font.fFile);
             testFontsIndex++;
         }
     }

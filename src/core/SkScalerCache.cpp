@@ -261,7 +261,7 @@ void SkScalerCache::dump() const {
 
     SkString msg;
     SkFontStyle style = face->fontStyle();
-    msg.printf("cache typeface:%x %25s:(%d,%d,%d)\n %s glyphs:%3d",
+    msg.printf("cache typeface:%x %25s:(%f,%d,%d)\n %s glyphs:%3d",
                face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
                rec.dump().c_str(), fIndexForPackedGlyphID.count());
     SkDebugf("%s\n", msg.c_str());

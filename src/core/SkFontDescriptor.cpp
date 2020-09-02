@@ -20,6 +20,7 @@ enum {
     kWidth          = 0x11, // scalar (percentage, 100 is 'normal')
     kSlant          = 0x12, // scalar (cw angle, 14 is a normal right leaning oblique)
     kItalic         = 0x13, // scalar (0 is Roman, 1 is fully Italic)
+    kFixedPitch     = 0x14, // bool
 
     // Related to font data. Can also be used with a requested font.
     kFontVariation  = 0xFA, // int count, (u32, scalar)[count]
@@ -49,6 +50,11 @@ static bool write_string(SkWStream* stream, const SkString& string, uint32_t id)
            stream->write(string.c_str(), string.size());
 }
 
+static bool write_bool(SkWStream* stream, bool n, uint32_t id) {
+    return stream->writePackedUInt(id) &&
+           stream->writeBool(n);
+}
+
 static bool write_uint(SkWStream* stream, size_t n, uint32_t id) {
     return stream->writePackedUInt(id) &&
            stream->writePackedUInt(n);
@@ -75,9 +81,6 @@ std::unique_ptr<SkFontData> SkFontDescriptor::maybeAsSkFontData() {
     return std::make_unique<SkFontData>(this->dupStream(), args);
 }
 
-static constexpr SkScalar usWidths[9] {
-    1, 2, 3, 4, 5, 6, 7, 8, 9
-};
 static constexpr SkScalar width_for_usWidth[0x10] = {
     50,
     50, 62.5, 75, 87.5, 100, 112.5, 125, 150, 200,
@@ -99,9 +102,11 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     SkScalar width = SkFontStyle::kNormal_Width;
     SkScalar slant = 0;
     SkScalar italic = 0;
+    bool fixedPitch = false;
 
     size_t styleBits;
     if (!stream->readPackedUInt(&styleBits)) { return false; }
+    // This is to support picture version 79 and earlier.
     weight = ((styleBits >> 16) & 0xFFFF);
     width  = ((styleBits >>  8) & 0x000F)[width_for_usWidth];
     slant  = ((styleBits >>  0) & 0x000F) != SkFontStyle::kUpright_Slant ? 14 : 0;
@@ -129,6 +134,9 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
                 break;
             case kItalic:
                 if (!stream->readScalar(&italic)) { return false; }
+                break;
+            case kFixedPitch:
+                if (!stream->readBool(&fixedPitch)) { return false; }
                 break;
             case kFontAxes:
                 if (variationDataIsNewAndGood) {
@@ -174,11 +182,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
         }
     }
 
-    SkFontStyle::Slant slantEnum = SkFontStyle::kUpright_Slant;
-    if (slant != 0) { slantEnum = SkFontStyle::kOblique_Slant; }
-    if (0 < italic) { slantEnum = SkFontStyle::kItalic_Slant; }
-    int usWidth = SkScalarRoundToInt(SkScalarInterpFunc(width, &width_for_usWidth[1], usWidths, 9));
-    result->fStyle = SkFontStyle(SkScalarRoundToInt(weight), usWidth, slantEnum);
+    result->fStyle = SkFontStyle(weight, width, slant, italic, fixedPitch);
 
     size_t length;
     if (!stream->readPackedUInt(&length)) { return false; }
@@ -194,17 +198,18 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
 }
 
 void SkFontDescriptor::serialize(SkWStream* stream) const {
-    uint32_t styleBits = (fStyle.weight() << 16) | (fStyle.width() << 8) | (fStyle.slant());
-    stream->writePackedUInt(styleBits);
+    // Was packed style, used in picture version 79 and older.
+    stream->writePackedUInt(0);
 
     write_string(stream, fFamilyName, kFontFamilyName);
     write_string(stream, fFullName, kFullName);
     write_string(stream, fPostscriptName, kPostscriptName);
 
     write_scalar(stream, fStyle.weight(), kWeight);
-    write_scalar(stream, fStyle.width()[width_for_usWidth], kWidth);
-    write_scalar(stream, fStyle.slant() == SkFontStyle::kUpright_Slant ? 0 : 14, kSlant);
-    write_scalar(stream, fStyle.slant() == SkFontStyle::kItalic_Slant ? 1 : 0, kItalic);
+    write_scalar(stream, fStyle.stretch(), kWidth);
+    write_scalar(stream, fStyle.angle(), kSlant);
+    write_scalar(stream, fStyle.italic(), kItalic);
+    write_bool(stream, fStyle.isFixedPitch(), kFixedPitch);
 
     if (fCollectionIndex) {
         write_uint(stream, fCollectionIndex, kFontIndex);

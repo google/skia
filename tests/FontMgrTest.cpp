@@ -106,7 +106,7 @@ DEF_TEST(FontMgr_Iter, reporter) {
 //            REPORTER_ASSERT(reporter, face.get());
 
             if (FLAGS_verboseFontMgr) {
-                SkDebugf("\t[%d] %s [%3d %d %d]\n", j, sname.c_str(),
+                SkDebugf("\t[%d] %s [%3f %d %d]\n", j, sname.c_str(),
                          fs.weight(), fs.width(), fs.slant());
             }
         }

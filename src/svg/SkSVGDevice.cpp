@@ -643,7 +643,7 @@ void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {
     } else if (style.slant() == SkFontStyle::kOblique_Slant) {
         this->addAttribute("font-style", "oblique");
     }
-    int weightIndex = (SkTPin(style.weight(), 100, 900) - 50) / 100;
+    int weightIndex = (SkTPin((int)style.weight(), 100, 900) - 50) / 100;
     if (weightIndex != 3) {
         static constexpr const char* weights[] = {
             "100", "200", "300", "normal", "400", "500", "600", "bold", "800", "900"
