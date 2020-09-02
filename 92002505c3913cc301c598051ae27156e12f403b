@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "922b8203_0401be5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-02T17:31:34Z",
+      "side": 1,
+      "message": "Looks like SkSLUnsupportedGLSLIdentifiers needs to be fixed",
+      "revId": "92002505c3913cc301c598051ae27156e12f403b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
