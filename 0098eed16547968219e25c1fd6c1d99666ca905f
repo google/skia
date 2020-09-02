@@ -50,6 +50,24 @@
       "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e862bdd9_abc8a8a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-02T18:02:23Z",
+      "side": 1,
+      "message": "I think mobile (arm) is more important.",
+      "parentUuid": "87e55ac9_5aba5240",
+      "revId": "0098eed16547968219e25c1fd6c1d99666ca905f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
