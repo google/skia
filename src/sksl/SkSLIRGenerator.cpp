@@ -1469,9 +1469,9 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
     if (expr->fType == *fContext.fInvalid_Type) {
         return nullptr;
     }
-    if (expr->coercionCost(type) == INT_MAX) {
+    if (!expr->coercionCost(type).possible(fSettings->fAllowNarrowingConversions)) {
         fErrors.error(expr->fOffset, "expected '" + type.displayName() + "', but found '" +
-                                        expr->fType.displayName() + "'");
+                                             expr->fType.displayName() + "'");
         return nullptr;
     }
     if (type.kind() == Type::kScalar_Kind) {
@@ -1515,6 +1515,7 @@ static bool is_matrix_multiply(const Type& left, const Type& right) {
  * legal, false otherwise. If false, the values of the out parameters are undefined.
  */
 static bool determine_binary_type(const Context& context,
+                                  bool allowNarrowing,
                                   Token::Kind op,
                                   const Type& left,
                                   const Type& right,
@@ -1529,21 +1530,28 @@ static bool determine_binary_type(const Context& context,
             *outLeftType = &left;
             *outRightType = &left;
             *outResultType = &left;
-            return right.canCoerceTo(left);
+            return right.canCoerceTo(left, allowNarrowing);
         case Token::Kind::TK_EQEQ: // fall through
-        case Token::Kind::TK_NEQ:
-            if (right.canCoerceTo(left)) {
-                *outLeftType = &left;
-                *outRightType = &left;
-                *outResultType = context.fBool_Type.get();
-                return true;
-            } if (left.canCoerceTo(right)) {
-                *outLeftType = &right;
-                *outRightType = &right;
-                *outResultType = context.fBool_Type.get();
-                return true;
+        case Token::Kind::TK_NEQ: {
+            Coercion r2l = right.coercionCost(left),
+                     l2r = left.coercionCost(right);
+            if (r2l < l2r) {
+                if (r2l.possible(allowNarrowing)) {
+                    *outLeftType = &left;
+                    *outRightType = &left;
+                    *outResultType = context.fBool_Type.get();
+                    return true;
+                }
+            } else {
+                if (l2r.possible(allowNarrowing)) {
+                    *outLeftType = &right;
+                    *outRightType = &right;
+                    *outResultType = context.fBool_Type.get();
+                    return true;
+                }
             }
             return false;
+        }
         case Token::Kind::TK_LT:   // fall through
         case Token::Kind::TK_GT:   // fall through
         case Token::Kind::TK_LTEQ: // fall through
@@ -1560,22 +1568,22 @@ static bool determine_binary_type(const Context& context,
             *outLeftType = context.fBool_Type.get();
             *outRightType = context.fBool_Type.get();
             *outResultType = context.fBool_Type.get();
-            return left.canCoerceTo(*context.fBool_Type) &&
-                   right.canCoerceTo(*context.fBool_Type);
+            return left.canCoerceTo(*context.fBool_Type, allowNarrowing) &&
+                   right.canCoerceTo(*context.fBool_Type, allowNarrowing);
         case Token::Kind::TK_STAREQ:
             if (left.kind() == Type::kScalar_Kind) {
                 *outLeftType = &left;
                 *outRightType = &left;
                 *outResultType = &left;
-                return right.canCoerceTo(left);
+                return right.canCoerceTo(left, allowNarrowing);
             }
             [[fallthrough]];
         case Token::Kind::TK_STAR:
             if (is_matrix_multiply(left, right)) {
                 // determine final component type
-                if (determine_binary_type(context, Token::Kind::TK_STAR, left.componentType(),
-                                          right.componentType(), outLeftType, outRightType,
-                                          outResultType, false)) {
+                if (determine_binary_type(context, allowNarrowing, Token::Kind::TK_STAR,
+                                          left.componentType(), right.componentType(),
+                                          outLeftType, outRightType, outResultType, false)) {
                     *outLeftType = &(*outResultType)->toCompound(context, left.columns(),
                                                                  left.rows());
                     *outRightType = &(*outResultType)->toCompound(context, right.columns(),
@@ -1620,7 +1628,7 @@ static bool determine_binary_type(const Context& context,
                 *outLeftType = &left;
                 *outRightType = &left;
                 *outResultType = &left;
-                return right.canCoerceTo(left);
+                return right.canCoerceTo(left, allowNarrowing);
             }
             [[fallthrough]];
         case Token::Kind::TK_PLUS:    // fall through
@@ -1640,7 +1648,7 @@ static bool determine_binary_type(const Context& context,
     }
     bool isVectorOrMatrix = left.kind() == Type::kVector_Kind || left.kind() == Type::kMatrix_Kind;
     if (left.kind() == Type::kScalar_Kind && right.kind() == Type::kScalar_Kind &&
-            right.canCoerceTo(left)) {
+            right.canCoerceTo(left, allowNarrowing)) {
         if (left.priority() > right.priority()) {
             *outLeftType = &left;
             *outRightType = &left;
@@ -1655,7 +1663,7 @@ static bool determine_binary_type(const Context& context,
         }
         return true;
     }
-    if (right.canCoerceTo(left) && isVectorOrMatrix && validMatrixOrVectorOp) {
+    if (right.canCoerceTo(left, allowNarrowing) && isVectorOrMatrix && validMatrixOrVectorOp) {
         *outLeftType = &left;
         *outRightType = &left;
         if (isLogical) {
@@ -1667,8 +1675,8 @@ static bool determine_binary_type(const Context& context,
     }
     if ((left.kind() == Type::kVector_Kind || left.kind() == Type::kMatrix_Kind) &&
         (right.kind() == Type::kScalar_Kind)) {
-        if (determine_binary_type(context, op, left.componentType(), right, outLeftType,
-                                  outRightType, outResultType, false)) {
+        if (determine_binary_type(context, allowNarrowing, op, left.componentType(), right,
+                                  outLeftType, outRightType, outResultType, false)) {
             *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
             if (!isLogical) {
                 *outResultType = &(*outResultType)->toCompound(context, left.columns(),
@@ -1679,8 +1687,8 @@ static bool determine_binary_type(const Context& context,
         return false;
     }
     if (tryFlipped) {
-        return determine_binary_type(context, op, right, left, outRightType, outLeftType,
-                                     outResultType, false);
+        return determine_binary_type(context, allowNarrowing, op, right, left,
+                                     outRightType, outLeftType, outResultType, false);
     }
     return false;
 }
@@ -1913,8 +1921,9 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     } else {
         rawRightType = &right->fType;
     }
-    if (!determine_binary_type(fContext, op, *rawLeftType, *rawRightType, &leftType, &rightType,
-                               &resultType, !Compiler::IsAssignment(op))) {
+    if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions, op,
+                               *rawLeftType, *rawRightType, &leftType, &rightType, &resultType,
+                               !Compiler::IsAssignment(op))) {
         fErrors.error(expression.fOffset, String("type mismatch: '") +
                                           Compiler::OperatorName(expression.getToken().fKind) +
                                           "' cannot operate on '" + left->fType.displayName() +
@@ -1965,7 +1974,8 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
     const Type* trueType;
     const Type* falseType;
     const Type* resultType;
-    if (!determine_binary_type(fContext, Token::Kind::TK_EQEQ, ifTrue->fType, ifFalse->fType,
+    if (!determine_binary_type(fContext, fSettings->fAllowNarrowingConversions,
+                               Token::Kind::TK_EQEQ, ifTrue->fType, ifFalse->fType,
                                &trueType, &falseType, &resultType, true) || trueType != falseType) {
         fErrors.error(node.fOffset, "ternary operator result mismatch: '" +
                                     ifTrue->fType.displayName() + "', '" +
@@ -2084,24 +2094,19 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
  * particular meaning other than "lower costs are preferred". Returns INT_MAX if the call is not
  * valid.
  */
-int IRGenerator::callCost(const FunctionDeclaration& function,
-             const std::vector<std::unique_ptr<Expression>>& arguments) {
+Coercion IRGenerator::callCost(const FunctionDeclaration& function,
+                               const std::vector<std::unique_ptr<Expression>>& arguments) {
     if (function.fParameters.size() != arguments.size()) {
-        return INT_MAX;
+        return Coercion::Impossible();
     }
-    int total = 0;
     std::vector<const Type*> types;
     const Type* ignored;
     if (!function.determineFinalTypes(arguments, &types, &ignored)) {
-        return INT_MAX;
+        return Coercion::Impossible();
     }
+    Coercion total{0};
     for (size_t i = 0; i < arguments.size(); i++) {
-        int cost = arguments[i]->coercionCost(*types[i]);
-        if (cost != INT_MAX) {
-            total += cost;
-        } else {
-            return INT_MAX;
-        }
+        total = total + arguments[i]->coercionCost(*types[i]);
     }
     return total;
 }
@@ -2141,11 +2146,11 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
         case Expression::kFunctionReference_Kind: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
-            int bestCost = INT_MAX;
+            Coercion bestCost = Coercion::Impossible();
             const FunctionDeclaration* best = nullptr;
             if (ref.fFunctions.size() > 1) {
                 for (const auto& f : ref.fFunctions) {
-                    int cost = this->callCost(*f, arguments);
+                    Coercion cost = this->callCost(*f, arguments);
                     if (cost < bestCost) {
                         bestCost = cost;
                         best = f;

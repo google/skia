@@ -45,10 +45,10 @@ struct IntLiteral : public Expression {
         return fValue == other.as<IntLiteral>().fValue;
     }
 
-    int coercionCost(const Type& target) const override {
+    Coercion coercionCost(const Type& target) const override {
         if (target.isSigned() || target.isUnsigned() || target.isFloat() ||
             target.kind() == Type::kEnum_Kind) {
-            return 0;
+            return Coercion::Free();
         }
         return INHERITED::coercionCost(target);
     }

@@ -39,9 +39,9 @@ struct FloatLiteral : public Expression {
         return true;
     }
 
-    int coercionCost(const Type& target) const override {
+    Coercion coercionCost(const Type& target) const override {
         if (target.isFloat()) {
-            return 0;
+            return Coercion::Free();
         }
         return INHERITED::coercionCost(target);
     }
