@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6bb58d3_c2d3cf6b",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-02T15:03:24Z",
+      "side": 1,
+      "message": "it seems unnecessary for this to be printed all over the place. Once, somewhere, would be enough.",
+      "range": {
+        "startLine": 1434,
+        "startChar": 12,
+        "endLine": 1434,
+        "endChar": 58
+      },
+      "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32b3951a_403bbe23",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-02T15:03:24Z",
+      "side": 1,
+      "message": "this is way cleaner!",
+      "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c94ff39_2c4bfe06",
+        "filename": "modules/canvaskit/tests/path.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-02T15:03:24Z",
+      "side": 1,
+      "message": "I think this could use some comments and formatting to help the reader understand what the different parameters are.",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 422,
+        "endChar": 84
+      },
+      "revId": "4420e69cfa85bff4c5665da64e9244fb54ed7e64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
