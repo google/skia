@@ -112,8 +112,7 @@ public:
     ~ManagedAnimation() override = default;
 
     // skottie::Animation API
-    void render(SkCanvas* canvas) const { fAnimation->render(canvas, nullptr); }
-    void render(SkCanvas* canvas, const SkRect& dst) const { fAnimation->render(canvas, &dst); }
+    void render(SkCanvas* canvas, const SkRect* dst) const { fAnimation->render(canvas, dst); }
     // Returns a damage rect.
     SkRect seek(SkScalar t) {
         sksg::InvalidationController ic;
@@ -207,12 +206,10 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("seekFrame", optional_override([](skottie::Animation& self, double t)->void {
             self.seekFrame(t);
         }))
-        .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas)->void {
-            self.render(canvas, nullptr);
-        }), allow_raw_pointers())
-        .function("render", optional_override([](skottie::Animation& self, SkCanvas* canvas,
-                                                 const SkRect r)->void {
-            self.render(canvas, &r);
+        .function("_render", optional_override([](skottie::Animation& self, SkCanvas* canvas,
+                                                  uintptr_t /* float* */ fPtr)->void {
+            const SkRect* dst = reinterpret_cast<const SkRect*>(fPtr);
+            self.render(canvas, dst);
         }), allow_raw_pointers());
 
     function("MakeAnimation", optional_override([](std::string json)->sk_sp<skottie::Animation> {
@@ -227,11 +224,22 @@ EMSCRIPTEN_BINDINGS(Skottie) {
         .function("size"      , &ManagedAnimation::size)
         .function("duration"  , &ManagedAnimation::duration)
         .function("fps"       , &ManagedAnimation::fps)
-        .function("seek"      , &ManagedAnimation::seek)
+        .function("_render", optional_override([](ManagedAnimation& self, SkCanvas* canvas,
+                                                  uintptr_t /* float* */ fPtr)->void {
+            const SkRect* dst = reinterpret_cast<const SkRect*>(fPtr);
+            self.render(canvas, dst);
+        }), allow_raw_pointers())
+        .function("_seek", optional_override([](ManagedAnimation& self, SkScalar t,
+                                                uintptr_t /* float* */ fPtr) {
+            SkRect* damageRect = reinterpret_cast<SkRect*>(fPtr);
+            damageRect[0] = self.seek(t);
+        }))
+        .function("_seekFrame", optional_override([](ManagedAnimation& self, double frame,
+                                                     uintptr_t /* float* */ fPtr) {
+            SkRect* damageRect = reinterpret_cast<SkRect*>(fPtr);
+            damageRect[0] = self.seekFrame(frame);
+        }))
         .function("seekFrame" , &ManagedAnimation::seekFrame)
-        .function("render"    , select_overload<void(SkCanvas*) const>(&ManagedAnimation::render), allow_raw_pointers())
-        .function("render"    , select_overload<void(SkCanvas*, const SkRect&) const>
-                                    (&ManagedAnimation::render), allow_raw_pointers())
         .function("_setColor"  , optional_override([](ManagedAnimation& self, const std::string& key, uintptr_t /* float* */ cPtr) {
             float* fourFloats = reinterpret_cast<float*>(cPtr);
             SkColor4f color = { fourFloats[0], fourFloats[1], fourFloats[2], fourFloats[3] };
