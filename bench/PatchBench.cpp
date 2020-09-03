@@ -179,7 +179,7 @@ public:
         memcpy(fCubics, points, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
     }
 private:
-    typedef PatchBench INHERITED;
+    using INHERITED = PatchBench;
 };
 
 class LODDiffPatchBench : public PatchBench {
@@ -205,7 +205,7 @@ public:
         memcpy(fCubics, points, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
     }
 private:
-    typedef PatchBench INHERITED;
+    using INHERITED = PatchBench;
 };
 
 class LoopPatchBench : public PatchBench {
@@ -231,7 +231,7 @@ public:
         memcpy(fCubics, points, SkPatchUtils::kNumCtrlPts * sizeof(SkPoint));
     }
 private:
-    typedef PatchBench INHERITED;
+    using INHERITED = PatchBench;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

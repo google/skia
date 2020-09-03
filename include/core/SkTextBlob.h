@@ -251,7 +251,7 @@ private:
     // The actual payload resides in externally-managed storage, following the object.
     // (see the .cpp for more details)
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 /** \class SkTextBlobBuilder

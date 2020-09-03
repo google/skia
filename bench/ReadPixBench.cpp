@@ -137,7 +137,7 @@ protected:
 private:
     SkBitmap fBM;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new GetAlphafBench(kN32_SkColorType, "rgba"); )
 DEF_BENCH( return new GetAlphafBench(kRGB_888x_SkColorType, "rgbx"); )

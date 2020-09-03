@@ -139,7 +139,7 @@ protected:
 private:
     sk_sp<SkPicture> fPicture;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new PictureGM;)

@@ -58,7 +58,7 @@ public:
         this->setName(SkString("blurrectsninepatch"));
     }
 private:
-    typedef BlurRectsBench INHERITED;
+    using INHERITED = BlurRectsBench;
 };
 
 class BlurRectsNonNinePatchBench: public BlurRectsBench {
@@ -69,7 +69,7 @@ public:
         this->setName(SkString("blurrectsnonninepatch"));
     }
 private:
-    typedef BlurRectsBench INHERITED;
+    using INHERITED = BlurRectsBench;
 };
 
 DEF_BENCH(return new BlurRectsNinePatchBench(SkRect::MakeXYWH(10, 10, 100, 100),

@@ -97,7 +97,7 @@ private:
     // FIXME: this should be sparse
     SkSVGPresentationAttributes fPresentationAttributes;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif // SkSVGNode_DEFINED

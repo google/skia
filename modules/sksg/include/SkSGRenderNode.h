@@ -121,7 +121,7 @@ protected:
 private:
     friend class ImageFilterEffect;
 
-    typedef Node INHERITED;
+    using INHERITED = Node;
 };
 
 /**

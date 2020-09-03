@@ -17,7 +17,7 @@ public:
 private:
     SkSVGG() : INHERITED(SkSVGTag::kG) { }
 
-    typedef SkSVGContainer INHERITED;
+    using INHERITED = SkSVGContainer;
 };
 
 #endif // SkSVGG_DEFINED

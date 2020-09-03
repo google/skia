@@ -84,7 +84,7 @@ private:
     const sk_sp<Color> fColor;
     const SkBlendMode  fMode;
 
-    typedef ColorFilter INHERITED;
+    using INHERITED = ColorFilter;
 };
 
 /**

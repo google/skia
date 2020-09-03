@@ -129,7 +129,7 @@ public:
     /** Function called when SkImage no longer shares pixels. ReleaseContext is
         provided by caller when SkImage is created, and may be nullptr.
     */
-    typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);
+    using RasterReleaseProc = void (*)(const void *, ReleaseContext);
 
     /** Creates SkImage from pixmap, sharing SkPixmap pixels. Pixels must remain valid and
         unchanged until rasterReleaseProc is called. rasterReleaseProc is passed
@@ -276,7 +276,7 @@ public:
 
     /** User function called when supplied texture may be deleted.
     */
-    typedef void (*TextureReleaseProc)(ReleaseContext releaseContext);
+    using TextureReleaseProc = void (*)(ReleaseContext);
 
     /** Creates SkImage from GPU texture associated with context. GPU texture must stay
         valid and unchanged until textureReleaseProc is called. textureReleaseProc is
@@ -1257,7 +1257,7 @@ public:
     /** Defines a callback function, taking one parameter of type GrBackendTexture with
         no return value. Function is called when back-end texture is to be released.
     */
-    typedef std::function<void(GrBackendTexture)> BackendTextureReleaseProc;
+    using BackendTextureReleaseProc = std::function<void (GrBackendTexture)>;
 
     /** Creates a GrBackendTexture from the provided SkImage. Returns true and
         stores result in backendTexture and backendTextureReleaseProc if
@@ -1364,7 +1364,7 @@ private:
     SkImageInfo     fInfo;
     const uint32_t  fUniqueID;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

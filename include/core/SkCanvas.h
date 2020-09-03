@@ -644,7 +644,7 @@ public:
 #endif
     };
 
-    typedef uint32_t SaveLayerFlags;
+    using SaveLayerFlags = uint32_t;
 
     /** \struct SkCanvas::SaveLayerRec
         SaveLayerRec contains the state used to create the layer.
@@ -2795,7 +2795,7 @@ private:
 
     std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 /** \class SkAutoCanvasRestore

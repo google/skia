@@ -59,7 +59,7 @@ static uint32_t rotr(uint32_t value, unsigned bits) {
     return (value >> bits) | (value << (32 - bits));
 }
 
-typedef uint32_t (*HasherProc)(uint32_t);
+using HasherProc = uint32_t (*)(uint32_t);
 
 static uint32_t hasher0(uint32_t value) {
     value = value ^ (value >> 16);
@@ -138,7 +138,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new FontCacheBench(); )
 
@@ -193,7 +193,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new FontPathBench(true); )
 DEF_BENCH( return new FontPathBench(false); )

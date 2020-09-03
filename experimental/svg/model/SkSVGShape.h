@@ -29,7 +29,7 @@ protected:
                         SkPathFillType) const = 0;
 
 private:
-    typedef SkSVGTransformableNode INHERITED;
+    using INHERITED = SkSVGTransformableNode;
 };
 
 #endif // SkSVGShape_DEFINED

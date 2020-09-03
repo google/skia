@@ -59,7 +59,7 @@ public:
         return str;
     }
 
-    typedef void (*FreeProc)(void* context);
+    using FreeProc = void (*)(void *);
 
     static sk_sp<SkDataTable> MakeEmpty();
 
@@ -112,7 +112,7 @@ private:
 
     friend class SkDataTableBuilder;    // access to Dir
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

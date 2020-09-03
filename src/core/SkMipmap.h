@@ -20,7 +20,7 @@ class SkData;
 class SkDiscardableMemory;
 class SkMipmapBuilder;
 
-typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
+using SkDiscardableFactoryProc = SkDiscardableMemory *(*)(size_t);
 
 /*
  * SkMipmap will generate mipmap levels when given a base mipmap level image.
@@ -91,7 +91,7 @@ private:
 
     static size_t AllocLevelsSize(int levelCount, size_t pixelSize);
 
-    typedef SkCachedData INHERITED;
+    using INHERITED = SkCachedData;
 };
 
 #endif

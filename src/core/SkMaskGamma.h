@@ -128,7 +128,7 @@ public:
     }
 
     /** The type of the mask pre-blend which will be returned from preBlend(SkColor). */
-    typedef SkTMaskPreBlend<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS> PreBlend;
+    using PreBlend = SkTMaskPreBlend<R_LUM_BITS, G_LUM_BITS, B_LUM_BITS>;
 
     /**
      * Provides access to the tables appropriate for converting linear alpha
@@ -161,7 +161,7 @@ private:
     uint8_t fGammaTables[1 << MAX_LUM_BITS][256];
     bool fIsLinear;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 

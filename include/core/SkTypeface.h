@@ -29,9 +29,9 @@ struct SkAdvancedTypefaceMetrics;
 struct SkScalerContextEffects;
 struct SkScalerContextRec;
 
-typedef uint32_t SkFontID;
+using SkFontID = uint32_t;
 /** Machine endian. */
-typedef uint32_t SkFontTableTag;
+using SkFontTableTag = uint32_t;
 
 /** \class SkTypeface
 
@@ -429,6 +429,6 @@ private:
     mutable SkOnce      fBoundsOnce;
     bool                fIsFixedPitch;
 
-    typedef SkWeakRefCnt INHERITED;
+    using INHERITED = SkWeakRefCnt;
 };
 #endif

@@ -40,7 +40,7 @@ public:
         kSkUnused_Type3,    // use to be NormalSource,
     };
 
-    typedef sk_sp<SkFlattenable> (*Factory)(SkReadBuffer&);
+    using Factory = sk_sp<SkFlattenable> (*)(SkReadBuffer &);
 
     SkFlattenable() {}
 
@@ -92,7 +92,7 @@ private:
 
     friend class SkGraphics;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #if defined(SK_DISABLE_EFFECT_DESERIALIZATION)

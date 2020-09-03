@@ -635,7 +635,7 @@ private:
     size_t                  fPng_rowbytes;
     SkAutoTMalloc<png_byte> fInterlaceBuffer;
 
-    typedef SkPngCodec INHERITED;
+    using INHERITED = SkPngCodec;
 
     // FIXME: Currently sharing interlaced callback for all rows and subset. It's not
     // as expensive as the subset version of non-interlaced, but it still does extra

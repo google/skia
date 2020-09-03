@@ -376,7 +376,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kTranslate_Type));

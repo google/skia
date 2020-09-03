@@ -169,7 +169,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new PathEffectGM; )
@@ -232,7 +232,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM(return new ComboPathEfectsGM;)
 
@@ -243,7 +243,7 @@ DEF_GM(return new ComboPathEfectsGM;)
 DEF_SIMPLE_GM(stroke_and_fill_patheffect, canvas, 900, 450) {
     const float kStrokeWidth = 20;
 
-    typedef SkPath (*Maker)();
+    using Maker = SkPath (*)();
     const Maker makers[] = {
         []() { return SkPath::Oval({0, 0, 100, 100}, SkPathDirection::kCW); },
         []() { return SkPath::Oval({0, 0, 100, 100}, SkPathDirection::kCCW); },

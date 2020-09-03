@@ -19,10 +19,10 @@
 #include "include/core/SkFontMgr.h"
 
 // These are forward declared to avoid pimpl but also hide the FreeType implementation.
-typedef struct FT_LibraryRec_* FT_Library;
-typedef struct FT_FaceRec_* FT_Face;
-typedef struct FT_StreamRec_* FT_Stream;
-typedef signed long FT_Pos;
+typedef struct FT_LibraryRec_* FT_Library;  // NOLINT
+typedef struct FT_FaceRec_* FT_Face;  // NOLINT
+typedef struct FT_StreamRec_* FT_Stream;  // NOLINT
+typedef signed long FT_Pos;  // NOLINT
 
 
 #ifdef SK_DEBUG
@@ -50,7 +50,7 @@ protected:
     bool generateGlyphPath(FT_Face face, SkPath* path);
     bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path);
 private:
-    typedef SkScalerContext INHERITED;
+    using INHERITED = SkScalerContext;
 };
 
 class SkTypeface_FreeType : public SkTypeface {
@@ -129,7 +129,7 @@ private:
     mutable SkMutex fC2GCacheMutex;
     mutable SkCharToGlyphCache fC2GCache;
 
-    typedef SkTypeface INHERITED;
+    using INHERITED = SkTypeface;
 };
 
 #endif // SKFONTHOST_FREETYPE_COMMON_H_

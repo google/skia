@@ -126,7 +126,7 @@ private:
         }
     }
 
-    typedef ShapesGM INHERITED;
+    using INHERITED = ShapesGM;
 };
 
 class InnerShapesGM : public ShapesGM {
@@ -161,7 +161,7 @@ private:
         }
     }
 
-    typedef ShapesGM INHERITED;
+    using INHERITED = ShapesGM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

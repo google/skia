@@ -135,7 +135,7 @@ protected:
 private:
     bool fDither;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -232,7 +232,7 @@ class GradientsManyColorsGM : public GM {
     };
     sk_sp<SkShader> fShader;
 
-    typedef void (*Proc)(ColorPos*);
+    using Proc = void (*)(ColorPos *);
 public:
     GradientsManyColorsGM(bool dither) : fDither(dither) {}
 
@@ -287,7 +287,7 @@ protected:
 private:
     bool fDither;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
