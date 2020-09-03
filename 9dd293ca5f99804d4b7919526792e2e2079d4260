@@ -51,6 +51,24 @@
       "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c7ad2c7_44951600",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-03T21:16:54Z",
+      "side": 0,
+      "message": "It\u0027s very flaky; contains is super sensitive to float error. I have tweaks in this function to try and guarantee it, but kept running into issues where I\u0027d need to increase the inset to pass this check (but every time it failed it would be off by 1e-5 or something trivial).\n\nI figured this would actually just be a fuzzer landmine, since unit tests already confirm it\u0027s doing the right thing mathematically.",
+      "parentUuid": "3301249f_d9fc4277",
+      "revId": "9dd293ca5f99804d4b7919526792e2e2079d4260",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
