@@ -37,7 +37,7 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
 
-    CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
+    CAMetalLayer* metalLayer = (CAMetalLayer*)layer;
     GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(metalLayer.pixelFormat);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
@@ -51,24 +51,24 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrContext* context,
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [layer, drawable](GrResourceProvider* resourceProvider,
                               const GrSurfaceProxy::LazySurfaceDesc& desc) {
-                CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
+                CAMetalLayer* metalLayer = (CAMetalLayer*)layer;
                 id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
+                sk_cf_obj<id<MTLTexture>> drawableTexture(sk_ref_cf_obj(currentDrawable.texture));
                 if (metalLayer.framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, std::move(drawableTexture));
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, std::move(drawableTexture),
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {
                     surface->setRequiresManualMSAAResolve();
                 }
-
-                *drawable = (__bridge_retained GrMTLHandle) currentDrawable;
+                *drawable = [currentDrawable retain];
                 return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
             },
             backendFormat,
@@ -108,7 +108,7 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
     GrProxyProvider* proxyProvider = context->priv().proxyProvider();
     const GrCaps* caps = context->priv().caps();
 
-    MTKView* mtkView = (__bridge MTKView*)view;
+    MTKView* mtkView = (MTKView*)view;
     GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(mtkView.colorPixelFormat);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
@@ -122,17 +122,18 @@ sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrContext* context,
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [view](GrResourceProvider* resourceProvider,
                    const GrSurfaceProxy::LazySurfaceDesc& desc) {
-                MTKView* mtkView = (__bridge MTKView*)view;
+                MTKView* mtkView = (MTKView*)view;
                 id<CAMetalDrawable> currentDrawable = [mtkView currentDrawable];
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
+                sk_cf_obj<id<MTLTexture>> drawableTexture(sk_ref_cf_obj(currentDrawable.texture));
                 if (mtkView.framebufferOnly) {
                     surface = GrMtlRenderTarget::MakeWrappedRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture);
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, std::move(drawableTexture));
                 } else {
                     surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
-                            mtlGpu, desc.fDimensions, desc.fSampleCnt, currentDrawable.texture,
+                            mtlGpu, desc.fDimensions, desc.fSampleCnt, std::move(drawableTexture),
                             GrWrapCacheable::kNo);
                 }
                 if (surface && desc.fSampleCnt > 1) {
