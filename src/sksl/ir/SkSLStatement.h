@@ -39,18 +39,27 @@ struct Statement : public IRNode {
     , fKind(kind) {}
 
     /**
+     *  Use is<T> to check the type of a statement.
+     *  e.g. replace `s.fKind == Statement::kReturn_Kind` with `s.is<ReturnStatement>()`.
+     */
+    template <typename T>
+    bool is() const {
+        return this->fKind == T::kStatementKind;
+    }
+
+    /**
      *  Use as<T> to downcast statements.
      *  e.g. replace `(ReturnStatement&) s` with `s.as<ReturnStatement>()`.
      */
     template <typename T>
     const T& as() const {
-        SkASSERT(this->fKind == T::kStatementKind);
+        SkASSERT(this->is<T>());
         return static_cast<const T&>(*this);
     }
 
     template <typename T>
     T& as() {
-        SkASSERT(this->fKind == T::kStatementKind);
+        SkASSERT(this->is<T>());
         return static_cast<T&>(*this);
     }
 
