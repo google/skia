@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d226f0bd_8d79748a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-03T17:33:04Z",
+      "side": 1,
+      "message": "https://googleplex-android-review.git.corp.google.com/c/platform/external/skia/+/12512610 passed Android\u0027s presubmit, so hopefully this one will, too.",
+      "revId": "ba0b06d5e8ee6d94cd2b50353b96f00509d786c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
