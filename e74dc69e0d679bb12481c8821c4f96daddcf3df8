@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6a78bc0_2790e5b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-03T15:08:33Z",
+      "side": 1,
+      "message": "Mike, I added the runtime switching. It\u0027s not exactly beautiful on the internal side, but I wanted to preserve the exact performance of the old way, and also get the best performance of the new way. \n\nI think it should be a fairly quick iteration cycle – CTFramesetter is … really how this is supposed to be done and has been since macOS Leopard. Who should I talk to about getting an experiment running to use this in a client?",
+      "revId": "e74dc69e0d679bb12481c8821c4f96daddcf3df8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
