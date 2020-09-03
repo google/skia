@@ -30,7 +30,7 @@ struct ContinueStatement : public Statement {
         return String("continue;");
     }
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

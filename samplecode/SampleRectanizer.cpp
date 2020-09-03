@@ -180,7 +180,7 @@ private:
         fCurRandRect = 0;
     }
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

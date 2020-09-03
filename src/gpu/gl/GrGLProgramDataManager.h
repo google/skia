@@ -110,7 +110,7 @@ private:
     GrGLGpu* fGpu;
     GrGLuint fProgramID;
 
-    typedef GrGLSLProgramDataManager INHERITED;
+    using INHERITED = GrGLSLProgramDataManager;
 };
 
 #endif

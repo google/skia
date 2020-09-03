@@ -363,7 +363,7 @@ public:
         };
         std::vector<MarkedUniform> fCustomMatrixUniforms;
 
-        typedef GrGLSLGeometryProcessor INHERITED;
+        using INHERITED = GrGLSLGeometryProcessor;
     };
 
     void getGLSLProcessorKey(const GrShaderCaps& caps, GrProcessorKeyBuilder* b) const override {
@@ -431,7 +431,7 @@ private:
     int                          fCustomAttributeCount;
     const MarkedMatrices*        fCustomMatrices;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 class DrawVerticesOp final : public GrMeshDrawOp {
@@ -533,7 +533,7 @@ private:
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs,

@@ -43,7 +43,7 @@ private:
 
     VkFramebuffer  fFramebuffer;
 
-    typedef GrVkManagedResource INHERITED;
+    using INHERITED = GrVkManagedResource;
 };
 
 #endif

@@ -237,7 +237,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 
     sk_sp<SkShader> MakeShader(GradType gradType, GradData data,
                                SkTileMode tm, float scale) {
@@ -348,7 +348,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new Gradient2Bench(false); )

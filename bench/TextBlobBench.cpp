@@ -54,7 +54,7 @@ private:
     SkTDArray<uint16_t> fGlyphs;
     SkTDArray<SkScalar> fXPos;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class TextBlobCachedBench : public SkTextBlobBench {

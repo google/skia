@@ -218,7 +218,7 @@ private:
     SkBitmap        fBitmap;
     sk_sp<SkImage>  fCheckerboard;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -151,7 +151,7 @@ private:
 
     friend class SkTableColorFilter;
 
-    typedef SkColorFilter INHERITED;
+    using INHERITED = SkColorFilter;
 };
 
 static const uint8_t kCountNibBits[] = {
@@ -285,7 +285,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 ColorTableEffect::ColorTableEffect(std::unique_ptr<GrFragmentProcessor> inputFP,

@@ -116,6 +116,6 @@ private:
     size_t                         fIdatLength;
     bool                           fDecodedIdat;
 
-    typedef SkCodec INHERITED;
+    using INHERITED = SkCodec;
 };
 #endif  // SkPngCodec_DEFINED

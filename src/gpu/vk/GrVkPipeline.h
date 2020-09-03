@@ -59,7 +59,7 @@ protected:
 private:
     void freeGPUData() const override;
 
-    typedef GrVkManagedResource INHERITED;
+    using INHERITED = GrVkManagedResource;
 };
 
 #endif

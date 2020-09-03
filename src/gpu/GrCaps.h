@@ -574,7 +574,7 @@ private:
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

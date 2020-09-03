@@ -36,7 +36,7 @@ struct Field : public Symbol {
     const Variable& fOwner;
     const int fFieldIndex;
 
-    typedef Symbol INHERITED;
+    using INHERITED = Symbol;
 };
 
 } // namespace SkSL

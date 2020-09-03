@@ -269,7 +269,7 @@ private:
         char    fStorage[SIZE];
     } fData;
 
-    typedef SkWriter32 INHERITED;
+    using INHERITED = SkWriter32;
 };
 
 #endif

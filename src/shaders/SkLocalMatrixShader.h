@@ -58,7 +58,7 @@ private:
 
     sk_sp<SkShader> fProxyShader;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 #endif

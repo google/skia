@@ -311,7 +311,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::SwizzleOutput(
 
         GrSwizzle fSwizzle;
 
-        typedef GrFragmentProcessor INHERITED;
+        using INHERITED = GrFragmentProcessor;
     };
 
     if (!fp) {
@@ -382,7 +382,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::MakeInputPremulAndMulB
             return premulInput * childColor;
         }
 
-        typedef GrFragmentProcessor INHERITED;
+        using INHERITED = GrFragmentProcessor;
     };
     if (!fp) {
         return nullptr;
@@ -455,7 +455,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Compose(
             return color;
         }
 
-        typedef GrFragmentProcessor INHERITED;
+        using INHERITED = GrFragmentProcessor;
     };
 
     // Allow either of the composed functions to be null.

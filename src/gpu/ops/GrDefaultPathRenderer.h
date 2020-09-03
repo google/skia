@@ -40,7 +40,7 @@ private:
                           const GrStyledShape&,
                           bool stencilOnly);
 
-    typedef GrPathRenderer INHERITED;
+    using INHERITED = GrPathRenderer;
 };
 
 #endif

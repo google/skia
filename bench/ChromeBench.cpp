@@ -489,7 +489,7 @@ protected:
 
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 // Disabled this benchmark: it takes 15x longer than any other benchmark

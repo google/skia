@@ -40,7 +40,7 @@ public:
     void pushEncodedText(SkTextEncoding, const void*, size_t);
 
 private:
-    typedef SkLua INHERITED;
+    using INHERITED = SkLua;
 };
 
 #define AUTO_LUA(verb)  AutoCallLua lua(fL, fFunc.c_str(), verb)

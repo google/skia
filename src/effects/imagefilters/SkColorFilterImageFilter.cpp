@@ -38,7 +38,7 @@ private:
 
     sk_sp<SkColorFilter> fColorFilter;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace

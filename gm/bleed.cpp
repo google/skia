@@ -315,7 +315,7 @@ private:
     SkIRect fSmallSrcRect;
     SkCanvas::SrcRectConstraint fConstraint;
     bool fBatch = false;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new SrcRectConstraintGM("strict_constraint_no_red_allowed",

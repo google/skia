@@ -163,7 +163,7 @@ private:
     SkPoint         fPositions[kCnt];
     SkRect          fClipRects[kCnt];
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new VariedTextGM(false, false);)

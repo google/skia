@@ -85,7 +85,7 @@ protected:
 private:
     bool fInitialized;
     bool fIsSmall;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class DisplacementZeroBench : public DisplacementBaseBench {
@@ -110,7 +110,7 @@ protected:
     }
 
 private:
-    typedef DisplacementBaseBench INHERITED;
+    using INHERITED = DisplacementBaseBench;
 };
 
 class DisplacementAlphaBench : public DisplacementBaseBench {
@@ -134,7 +134,7 @@ protected:
     }
 
 private:
-    typedef DisplacementBaseBench INHERITED;
+    using INHERITED = DisplacementBaseBench;
 };
 
 class DisplacementFullBench : public DisplacementBaseBench {
@@ -158,7 +158,7 @@ protected:
     }
 
 private:
-    typedef DisplacementBaseBench INHERITED;
+    using INHERITED = DisplacementBaseBench;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

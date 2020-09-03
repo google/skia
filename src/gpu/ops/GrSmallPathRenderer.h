@@ -39,7 +39,7 @@ private:
 
     bool onDrawPath(const DrawPathArgs&) override;
 
-    typedef GrPathRenderer INHERITED;
+    using INHERITED = GrPathRenderer;
 };
 
 #endif

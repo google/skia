@@ -68,7 +68,7 @@ public:
             const SkISize& size, SkAlphaType at) const = 0;
 
 private:
-    typedef SkSpecialImage INHERITED;
+    using INHERITED = SkSpecialImage;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -256,7 +256,7 @@ sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType, const SkColorSpace* c
 private:
     SkBitmap fBitmap;
 
-    typedef SkSpecialImage_Base INHERITED;
+    using INHERITED = SkSpecialImage_Base;
 };
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeFromRaster(const SkIRect& subset,
@@ -447,7 +447,7 @@ private:
     const SkAlphaType         fAlphaType;
     sk_sp<SkColorSpace>       fColorSpace;
 
-    typedef SkSpecialImage_Base INHERITED;
+    using INHERITED = SkSpecialImage_Base;
 };
 
 sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* context,

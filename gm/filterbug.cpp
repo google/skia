@@ -103,7 +103,7 @@ private:
     sk_sp<SkImage> fTop;
     sk_sp<SkImage> fBot;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

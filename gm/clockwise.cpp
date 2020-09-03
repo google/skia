@@ -103,7 +103,7 @@ private:
 
     const bool fReadSkFragCoord;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 class GLSLClockwiseTestProcessor : public GrGLSLGeometryProcessor {
@@ -232,7 +232,7 @@ private:
 
     friend class ::GrOpMemoryPool; // for ctor
 
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

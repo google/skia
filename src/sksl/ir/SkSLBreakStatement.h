@@ -30,7 +30,7 @@ struct BreakStatement : public Statement {
         return String("break;");
     }
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

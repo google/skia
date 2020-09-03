@@ -89,7 +89,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 /* See
@@ -169,7 +169,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 class TeenyStrokesGM : public skiagm::GM {
@@ -204,7 +204,7 @@ class TeenyStrokesGM : public skiagm::GM {
         line(0.000002f, canvas, SK_ColorBLACK);
     }
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_SIMPLE_GM(CubicStroke, canvas, 384, 384) {
@@ -331,7 +331,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -436,7 +436,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 class Strokes4GM : public skiagm::GM {
@@ -463,7 +463,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 // Test stroking for curves that produce degenerate tangents when t is 0 or 1 (see bug 4191)
@@ -517,7 +517,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 

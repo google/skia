@@ -42,7 +42,7 @@ private:
     sk_sp<SkSVGNode> fRoot;
     SkSVGIDMapper    fIDMapper;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif // SkSVGDOM_DEFINED

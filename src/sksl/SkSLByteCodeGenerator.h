@@ -353,7 +353,7 @@ private:
     friend class ByteCodeExpressionLValue;
     friend class ByteCodeSwizzleLValue;
 
-    typedef CodeGenerator INHERITED;
+    using INHERITED = CodeGenerator;
 };
 
 }  // namespace SkSL

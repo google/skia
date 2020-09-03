@@ -112,7 +112,7 @@ private:
     int                           fMaxMipmapLevel;
     friend class GrTextureResource;
 
-    typedef GrSurface INHERITED;
+    using INHERITED = GrSurface;
 };
 
 #endif

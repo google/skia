@@ -47,7 +47,7 @@ private:
     NSOpenGLPixelFormat* fPixelFormat;
     sk_sp<SkSurface>     fBackbufferSurface;
 
-    typedef GLWindowContext INHERITED;
+    using INHERITED = GLWindowContext;
 };
 
 RasterWindowContext_mac::RasterWindowContext_mac(const MacWindowInfo& info,

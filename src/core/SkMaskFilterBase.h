@@ -228,7 +228,7 @@ private:
     bool filterRRect(const SkRRect& devRRect, const SkMatrix& ctm, const SkRasterClip&,
                      SkBlitter*) const;
 
-    typedef SkFlattenable INHERITED;
+    using INHERITED = SkFlattenable;
 };
 
 inline SkMaskFilterBase* as_MFB(SkMaskFilter* mf) {

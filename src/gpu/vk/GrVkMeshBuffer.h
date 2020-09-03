@@ -30,7 +30,7 @@ private:
 
     GrVkGpu* getVkGpu() const;
 
-    typedef GrGpuBuffer INHERITED;
+    using INHERITED = GrGpuBuffer;
 };
 
 #endif

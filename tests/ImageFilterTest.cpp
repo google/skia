@@ -64,7 +64,7 @@ private:
     skiatest::Reporter* fReporter;
     SkMatrix fExpectedMatrix;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 class FailImageFilter : public SkImageFilter_Base {
@@ -78,7 +78,7 @@ public:
     SK_FLATTENABLE_HOOKS(FailImageFilter)
 
 private:
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -263,7 +263,7 @@ private:
 
     SkIRect fBounds;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 }  // namespace
 

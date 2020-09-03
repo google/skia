@@ -967,7 +967,7 @@ private:
     const skjson::Value& fValue;
     SkSL::Compiler& fCompiler;
 
-    typedef SkSL::ExternalValue INHERITED;
+    using INHERITED = SkSL::ExternalValue;
 };
 
 class PointerExternalValue : public SkSL::ExternalValue {
@@ -998,7 +998,7 @@ private:
     void* fData;
     size_t fSize;
 
-    typedef SkSL::ExternalValue INHERITED;
+    using INHERITED = SkSL::ExternalValue;
 };
 
 DEF_TEST(SkSLInterpreterExternalValues, r) {
@@ -1101,7 +1101,7 @@ private:
 
     float (*fFunction)(float);
 
-    typedef SkSL::ExternalValue INHERITED;
+    using INHERITED = SkSL::ExternalValue;
 };
 
 DEF_TEST(SkSLInterpreterExternalValuesCall, r) {
@@ -1165,7 +1165,7 @@ private:
 
     void (*fFunction)(float[4], float[4]);
 
-    typedef SkSL::ExternalValue INHERITED;
+    using INHERITED = SkSL::ExternalValue;
 };
 
 

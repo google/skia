@@ -111,7 +111,7 @@ private:
 
     friend class Offscreen;
 
-    typedef SkScalerContext INHERITED;
+    using INHERITED = SkScalerContext;
 };
 
 #endif

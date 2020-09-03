@@ -125,7 +125,7 @@ protected:
     SkDrawLooper() {}
 
 private:
-    typedef SkFlattenable INHERITED;
+    using INHERITED = SkFlattenable;
 };
 
 #endif

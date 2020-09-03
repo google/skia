@@ -32,7 +32,7 @@ struct Extension : public ProgramElement {
 
     const String fName;
 
-    typedef ProgramElement INHERITED;
+    using INHERITED = ProgramElement;
 };
 
 }  // namespace SkSL

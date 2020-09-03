@@ -346,7 +346,7 @@ private:
 
     bool fPreferCachedCpuMemory = true;
 
-    typedef GrCaps INHERITED;
+    using INHERITED = GrCaps;
 };
 
 #endif

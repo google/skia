@@ -103,7 +103,7 @@ private:
 
     mutable SkSL::Compiler* fCompiler;
 
-    typedef GrGLContextInfo INHERITED;
+    using INHERITED = GrGLContextInfo;
 };
 
 #endif

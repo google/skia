@@ -40,7 +40,7 @@ struct FunctionReference : public Expression {
 
     const std::vector<const FunctionDeclaration*> fFunctions;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 
 private:
     FunctionReference(int offset, std::vector<const FunctionDeclaration*> function,

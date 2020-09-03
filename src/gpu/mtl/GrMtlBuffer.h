@@ -51,7 +51,7 @@ private:
     size_t        fOffset;       // offset into shared buffer for dynamic buffers
     id<MTLBuffer> fMappedBuffer; // buffer used by static buffers for uploads
 
-    typedef GrGpuBuffer INHERITED;
+    using INHERITED = GrGpuBuffer;
 };
 
 #endif

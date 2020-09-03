@@ -95,7 +95,7 @@ private:
     int    fTransparent;
     int    fForceGeometric;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new ShadowBench(false, false);)

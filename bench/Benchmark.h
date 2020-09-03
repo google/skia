@@ -103,7 +103,7 @@ protected:
 private:
     int fUnits = 1;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 typedef sk_tools::Registry<Benchmark*(*)(void*)> BenchRegistry;

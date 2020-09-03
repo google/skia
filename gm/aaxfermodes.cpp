@@ -280,6 +280,6 @@ private:
     SkPath    fOval;
     SkPath    fConcave;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new AAXfermodesGM; )

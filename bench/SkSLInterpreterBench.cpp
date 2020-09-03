@@ -68,7 +68,7 @@ private:
     int fCount;
     std::vector<float> fPixels;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

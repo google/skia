@@ -111,7 +111,7 @@ private:
 
     friend class SkBlurMaskFilter;
 
-    typedef SkMaskFilter INHERITED;
+    using INHERITED = SkMaskFilter;
     friend void sk_register_blur_maskfilter_createproc();
 };
 

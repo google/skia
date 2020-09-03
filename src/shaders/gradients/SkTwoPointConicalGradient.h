@@ -88,7 +88,7 @@ private:
     FocalData fFocalData;
 
     friend class SkGradientShader;
-    typedef SkGradientShaderBase INHERITED;
+    using INHERITED = SkGradientShaderBase;
 };
 
 #endif

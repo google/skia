@@ -72,7 +72,7 @@ private:
     static constexpr int kWidth = 200;
     static constexpr int kHeight = 200;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

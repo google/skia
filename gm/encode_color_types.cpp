@@ -150,7 +150,7 @@ private:
     const Variant              fVariant;
     const char*                fName;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 

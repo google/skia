@@ -78,7 +78,7 @@ private:
 
     mutable std::atomic<int32_t> fRefCnt;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 /**
@@ -294,7 +294,7 @@ private:
     bool fRefsWrappedObjects = false;
     const UniqueID fUniqueID;
 
-    typedef GrIORef<GrGpuResource> INHERITED;
+    using INHERITED = GrIORef<GrGpuResource>;
     friend class GrIORef<GrGpuResource>; // to access notifyRefCntWillBeZero and notifyRefCntIsZero.
 };
 

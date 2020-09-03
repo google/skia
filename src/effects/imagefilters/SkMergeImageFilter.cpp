@@ -33,7 +33,7 @@ private:
     friend void SkMergeImageFilter::RegisterFlattenables();
     SK_FLATTENABLE_HOOKS(SkMergeImageFilterImpl)
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace

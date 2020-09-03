@@ -28,7 +28,7 @@ public:
     bool uploadUniformBuffers(GrVkGpu* gpu, GrVkUniformBuffer* buffer) const;
 
 private:
-    typedef GrUniformDataManager INHERITED;
+    using INHERITED = GrUniformDataManager;
 };
 
 #endif

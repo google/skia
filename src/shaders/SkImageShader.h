@@ -117,7 +117,7 @@ private:
     SkImage::CubicResampler fCubic = {1/3.0f, 1/3.0f};  // Default to Mitchell-Netravali.
 
     friend class SkShaderBase;
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 #endif

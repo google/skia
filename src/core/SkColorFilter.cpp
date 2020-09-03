@@ -180,7 +180,7 @@ private:
 
     friend class SkColorFilter;
 
-    typedef SkColorFilter INHERITED;
+    using INHERITED = SkColorFilter;
 };
 
 sk_sp<SkFlattenable> SkComposeColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -268,7 +268,7 @@ private:
     SkColorSpaceXformSteps fSteps;
 
     friend class SkColorFilter;
-    typedef SkColorFilterBase INHERITED;
+    using INHERITED = SkColorFilterBase;
 };
 
 sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -399,7 +399,7 @@ private:
 
     friend class SkColorFilter;
 
-    typedef SkColorFilterBase INHERITED;
+    using INHERITED = SkColorFilterBase;
 };
 
 sk_sp<SkFlattenable> SkMixerColorFilter::CreateProc(SkReadBuffer& buffer) {

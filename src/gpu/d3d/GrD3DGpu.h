@@ -289,7 +289,7 @@ private:
 
     std::unique_ptr<SkSL::Compiler> fCompiler;
 
-    typedef GrGpu INHERITED;
+    using INHERITED = GrGpu;
 };
 
 #endif

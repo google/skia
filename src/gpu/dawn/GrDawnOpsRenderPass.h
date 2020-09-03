@@ -69,7 +69,7 @@ private:
     sk_sp<GrDawnProgram>        fCurrentProgram;
     LoadAndStoreInfo            fColorInfo;
 
-    typedef GrOpsRenderPass     INHERITED;
+    using INHERITED = GrOpsRenderPass    ;
 };
 
 #endif

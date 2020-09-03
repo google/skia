@@ -85,7 +85,7 @@ protected:
 private:
     int fNumSteps;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new StringArtGM; )
@@ -156,7 +156,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM( return new SkottieGM; )
 #endif

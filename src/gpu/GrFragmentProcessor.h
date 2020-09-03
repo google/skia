@@ -428,7 +428,7 @@ private:
     uint32_t fFlags = 0;
     SkSL::SampleUsage fUsage;
 
-    typedef GrProcessor INHERITED;
+    using INHERITED = GrProcessor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

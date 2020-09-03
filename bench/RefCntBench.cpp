@@ -36,7 +36,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class PlacedRefCnt : public SkRefCnt {
@@ -45,7 +45,7 @@ public:
     void operator delete(void*) { }
 
 private:
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 class RefCntBench_Heap : public Benchmark {
@@ -72,7 +72,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class RefCntBench_New : public Benchmark {
@@ -98,7 +98,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class PlacedWeakRefCnt : public SkWeakRefCnt {
@@ -158,7 +158,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class WeakRefCntBench_New : public Benchmark {
@@ -184,7 +184,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

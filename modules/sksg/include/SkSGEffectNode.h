@@ -33,7 +33,7 @@ protected:
 private:
     sk_sp<RenderNode> fChild;
 
-    typedef RenderNode INHERITED;
+    using INHERITED = RenderNode;
 };
 
 } // namespace sksg

@@ -59,7 +59,7 @@ protected:
 
 private:
     SkRandom fRandom;
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

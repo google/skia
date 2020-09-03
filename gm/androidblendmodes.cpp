@@ -127,7 +127,7 @@ private:
     SkBitmap fCompositeSrc;
     SkBitmap fCompositeDst;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

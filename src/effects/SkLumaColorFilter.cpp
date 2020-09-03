@@ -56,7 +56,7 @@ private:
         };
     }
 
-    typedef SkColorFilterBase INHERITED;
+    using INHERITED = SkColorFilterBase;
 };
 
 sk_sp<SkColorFilter> SkLumaColorFilter::Make() {

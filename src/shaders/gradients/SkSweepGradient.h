@@ -40,7 +40,7 @@ private:
                    fTScale;
 
     friend class SkGradientShader;
-    typedef SkGradientShaderBase INHERITED;
+    using INHERITED = SkGradientShaderBase;
 };
 
 #endif

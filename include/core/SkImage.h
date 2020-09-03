@@ -1364,7 +1364,7 @@ private:
     SkImageInfo     fInfo;
     const uint32_t  fUniqueID;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

@@ -89,7 +89,7 @@ private:
 
     friend class SkColorFilter;
 
-    typedef SkFlattenable INHERITED;
+    using INHERITED = SkFlattenable;
 };
 
 static inline SkColorFilterBase* as_CFB(SkColorFilter* filter) {

@@ -119,7 +119,7 @@ private:
     friend class GrVkPipelineStateBuilder;
     friend class GrVkDescriptorSetManager;
 
-    typedef GrGLSLUniformHandler INHERITED;
+    using INHERITED = GrGLSLUniformHandler;
 };
 
 #endif

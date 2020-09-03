@@ -193,7 +193,7 @@ private:
     uint32_t fKey;
 #endif
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 // This subclass allows for recycling
@@ -269,7 +269,7 @@ private:
     mutable int fNumOwners = 0;
     mutable SkTArray<sk_sp<GrRefCntedCallback>> fIdleProcs;
 
-    typedef GrManagedResource INHERITED;
+    using INHERITED = GrManagedResource;
 };
 
 #endif

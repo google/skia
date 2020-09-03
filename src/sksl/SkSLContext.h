@@ -368,7 +368,7 @@ private:
             return std::unique_ptr<Expression>(new Defined(fType));
         }
 
-        typedef Expression INHERITED;
+        using INHERITED = Expression;
     };
 
     static std::unique_ptr<Type> fp_type(const Type* intType, const Type* boolType) {

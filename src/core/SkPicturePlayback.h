@@ -57,7 +57,7 @@ protected:
     };
 
 private:
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif

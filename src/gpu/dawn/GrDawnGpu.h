@@ -227,7 +227,7 @@ private:
 
     GrFinishCallbacks         fFinishCallbacks;
 
-    typedef GrGpu INHERITED;
+    using INHERITED = GrGpu;
 };
 
 #endif

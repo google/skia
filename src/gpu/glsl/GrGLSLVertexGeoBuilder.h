@@ -28,7 +28,7 @@ protected:
 
     friend class GrGLSLGeometryProcessor;
 
-    typedef GrGLSLShaderBuilder INHERITED;
+    using INHERITED = GrGLSLShaderBuilder;
 };
 
 
@@ -41,7 +41,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLSLVertexGeoBuilder INHERITED;
+    using INHERITED = GrGLSLVertexGeoBuilder;
 };
 
 
@@ -80,7 +80,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLSLVertexGeoBuilder INHERITED;
+    using INHERITED = GrGLSLVertexGeoBuilder;
 };
 
 #endif

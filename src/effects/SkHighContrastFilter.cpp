@@ -57,7 +57,7 @@ private:
 
     friend class SkHighContrastFilter;
 
-    typedef SkColorFilter INHERITED;
+    using INHERITED = SkColorFilter;
 };
 
 bool SkHighContrast_Filter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {

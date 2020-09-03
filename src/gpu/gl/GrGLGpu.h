@@ -752,7 +752,7 @@ private:
 
     friend class GrGLPathRendering; // For accessing setTextureUnit.
 
-    typedef GrGpu INHERITED;
+    using INHERITED = GrGpu;
 };
 
 #endif

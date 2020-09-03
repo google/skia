@@ -124,7 +124,7 @@ protected:
         }
     }
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH(return new VertBench(kTexture_VertFlag | kPersp_VertFlag);)
 DEF_BENCH(return new VertBench(kColors_VertFlag  | kPersp_VertFlag);)
@@ -214,7 +214,7 @@ protected:
         }
     }
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 //DEF_BENCH(return new AtlasBench(0);)
 //DEF_BENCH(return new AtlasBench(kColors_Flag);)

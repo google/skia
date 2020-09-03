@@ -53,7 +53,7 @@ struct FunctionDefinition : public ProgramElement {
     // invalidate this pointer.
     const ASTNode* fSource = nullptr;
 
-    typedef ProgramElement INHERITED;
+    using INHERITED = ProgramElement;
 };
 
 }  // namespace SkSL

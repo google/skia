@@ -166,7 +166,7 @@ private:
     uint64_t             fIOPosition;
     SkEncodedInfo::Alpha fReportedAlpha;
 
-    typedef SkFrame INHERITED;
+    using INHERITED = SkFrame;
 };
 
 // SkWuffsFrameHolder is a trivial indirector that forwards its calls onto a
@@ -185,7 +185,7 @@ public:
 private:
     const SkWuffsCodec* fCodec;
 
-    typedef SkFrameHolder INHERITED;
+    using INHERITED = SkFrameHolder;
 };
 
 class SkWuffsCodec final : public SkScalingCodec {
@@ -317,7 +317,7 @@ private:
 
     uint8_t fBuffer[SK_WUFFS_CODEC_BUFFER_SIZE];
 
-    typedef SkScalingCodec INHERITED;
+    using INHERITED = SkScalingCodec;
 };
 
 // -------------------------------- SkWuffsFrame implementation

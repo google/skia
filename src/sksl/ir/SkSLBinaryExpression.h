@@ -91,7 +91,7 @@ struct BinaryExpression : public Expression {
     const Token::Kind fOperator;
     std::unique_ptr<Expression> fRight;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

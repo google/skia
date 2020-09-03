@@ -31,7 +31,7 @@ public:
     public:
         virtual SkDiscardableMemory* create(size_t bytes) = 0;
     private:
-        typedef SkRefCnt INHERITED;
+        using INHERITED = SkRefCnt;
     };
 
     /** Must not be called while locked.

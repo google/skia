@@ -79,7 +79,7 @@ private:
 
     GrProcessorSet fProcessors;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 /**
@@ -139,7 +139,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 }  // namespace
 

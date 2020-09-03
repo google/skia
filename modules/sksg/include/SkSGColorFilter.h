@@ -37,7 +37,7 @@ protected:
 private:
     sk_sp<SkColorFilter> fColorFilter;
 
-    typedef EffectNode INHERITED;
+    using INHERITED = EffectNode;
 };
 
 /**
@@ -84,7 +84,7 @@ private:
     const sk_sp<Color> fColor;
     const SkBlendMode  fMode;
 
-    typedef ColorFilter INHERITED;
+    using INHERITED = ColorFilter;
 };
 
 /**

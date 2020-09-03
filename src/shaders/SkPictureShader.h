@@ -68,7 +68,7 @@ private:
         SkShaderBase::Context*  fBitmapShaderContext;
         void*                   fBitmapShaderContextStorage;
 
-        typedef Context INHERITED;
+        using INHERITED = Context;
     };
 
     sk_sp<SkPicture>    fPicture;
@@ -78,7 +78,7 @@ private:
     const uint32_t            fUniqueID;
     mutable std::atomic<bool> fAddedToCache;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 #endif // SkPictureShader_DEFINED

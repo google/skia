@@ -27,7 +27,7 @@ protected:
 private:
     SkImage::CubicResampler fKernel;
     UniformHandle fCoefficientUni;
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {

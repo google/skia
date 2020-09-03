@@ -98,7 +98,7 @@ private:
 
     sk_sp<SkImage> fBitmap, fCheckerboard;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new OffsetImageFilterGM; )
 
@@ -207,6 +207,6 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new SimpleOffsetImageFilterGM; )

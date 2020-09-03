@@ -33,7 +33,7 @@ protected:
     std::unique_ptr<SkCanvas> fCanvas;   // initialized by derived classes in ctors
 
 private:
-    typedef SkSpecialSurface INHERITED;
+    using INHERITED = SkSpecialSurface;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ public:
 private:
     SkBitmap fBitmap;
 
-    typedef SkSpecialSurface_Base INHERITED;
+    using INHERITED = SkSpecialSurface_Base;
 };
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, SkBitmap& bm,
@@ -160,7 +160,7 @@ public:
 
 private:
     GrSurfaceProxyView fReadView;
-    typedef SkSpecialSurface_Base INHERITED;
+    using INHERITED = SkSpecialSurface_Base;
 };
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* context,

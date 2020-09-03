@@ -37,7 +37,7 @@ public:
 private:
     size_t onGpuMemorySize() const override { return 100; }
     const char* getResourceType() const override { return "bench"; }
-    typedef GrGpuResource INHERITED;
+    using INHERITED = GrGpuResource;
 };
 
 static void populate_cache(GrGpu* gpu, int resourceCount, int keyData32Count) {
@@ -93,7 +93,7 @@ protected:
 private:
     SkString fFullName;
     int fKeyData32Count;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class GrResourceCacheBenchFind : public Benchmark {
@@ -153,7 +153,7 @@ private:
     sk_sp<GrDirectContext> fContext;
     SkString fFullName;
     int fKeyData32Count;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new GrResourceCacheBenchAdd(1); )

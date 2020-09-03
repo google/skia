@@ -50,7 +50,7 @@ struct FieldAccess : public Expression {
     const int fFieldIndex;
     const OwnerKind fOwnerKind;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

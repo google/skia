@@ -135,7 +135,7 @@ public:
         SkMatrix    fTotalInverse;
         uint8_t     fPaintAlpha;
 
-        typedef SkNoncopyable INHERITED;
+        using INHERITED = SkNoncopyable;
     };
 
     /**
@@ -255,7 +255,7 @@ private:
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
-    typedef SkShader INHERITED;
+    using INHERITED = SkShader;
 };
 
 inline SkShaderBase* as_SB(SkShader* shader) {

@@ -91,7 +91,7 @@ private:
     SkDEBUGCODE(bool fDidBindVertexBuffer = false;)
     SkDEBUGCODE(bool fDidBindInstanceBuffer = false;)
 
-    typedef GrOpsRenderPass INHERITED;
+    using INHERITED = GrOpsRenderPass;
 };
 
 #endif

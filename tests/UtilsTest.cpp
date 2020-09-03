@@ -27,7 +27,7 @@ public:
 private:
     int fN;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 static void test_autounref(skiatest::Reporter* reporter) {

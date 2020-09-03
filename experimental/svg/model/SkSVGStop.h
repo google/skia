@@ -38,7 +38,7 @@ private:
     SkSVGStopColor    fStopColor = SkSVGStopColor(SK_ColorBLACK);
     SkSVGNumberType fStopOpacity = SkSVGNumberType(1);
 
-    typedef SkSVGHiddenContainer INHERITED;
+    using INHERITED = SkSVGHiddenContainer;
 };
 
 #endif // SkSVGStop_DEFINED

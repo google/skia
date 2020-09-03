@@ -94,7 +94,7 @@ protected:
     int                  fSimpleShapeCount;
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 class SimpleShapesGM : public ShapesGM {
@@ -126,7 +126,7 @@ private:
         }
     }
 
-    typedef ShapesGM INHERITED;
+    using INHERITED = ShapesGM;
 };
 
 class InnerShapesGM : public ShapesGM {
@@ -161,7 +161,7 @@ private:
         }
     }
 
-    typedef ShapesGM INHERITED;
+    using INHERITED = ShapesGM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

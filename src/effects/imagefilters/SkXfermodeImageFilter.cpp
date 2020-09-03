@@ -61,7 +61,7 @@ private:
 
     SkBlendMode fMode;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace

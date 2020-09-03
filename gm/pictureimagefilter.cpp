@@ -153,7 +153,7 @@ private:
     sk_sp<SkPicture> fPicture;
     sk_sp<SkPicture> fLCDPicture;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

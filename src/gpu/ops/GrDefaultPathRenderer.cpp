@@ -528,7 +528,7 @@ private:
     SkTDArray<GrSimpleMesh*> fMeshes;
     GrProgramInfo* fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 }  // anonymous namespace

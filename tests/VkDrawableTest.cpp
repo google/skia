@@ -87,7 +87,7 @@ public:
         int32_t              fWidth;
         int32_t              fHeight;
 
-        typedef GpuDrawHandler INHERITED;
+        using INHERITED = GpuDrawHandler;
     };
 
     typedef void (*DrawProc)(TestDrawable*, const SkMatrix&, const SkIRect&,
@@ -128,7 +128,7 @@ public:
         const SkIRect     fClipBounds;
         const SkImageInfo fBufferInfo;
 
-        typedef GpuDrawHandler INHERITED;
+        using INHERITED = GpuDrawHandler;
     };
 
     // Helper function to test drawing to a secondary command buffer that we imported into the
@@ -215,7 +215,7 @@ private:
     int32_t              fWidth;
     int32_t              fHeight;
 
-    typedef SkDrawable INHERITED;
+    using INHERITED = SkDrawable;
 };
 
 void draw_drawable_test(skiatest::Reporter* reporter,

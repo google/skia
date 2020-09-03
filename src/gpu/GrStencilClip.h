@@ -61,7 +61,7 @@ private:
     GrFixedClip   fFixedClip;
     uint32_t      fStencilStackID;
 
-    typedef GrClip INHERITED;
+    using INHERITED = GrClip;
 };
 
 #endif

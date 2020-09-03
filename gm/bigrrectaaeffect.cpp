@@ -126,7 +126,7 @@ private:
     int fTestOffsetX;
     int fTestOffsetY;
     const char* fName;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

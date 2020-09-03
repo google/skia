@@ -41,7 +41,7 @@ struct Section : public ProgramElement {
     const String fArgument;
     const String fText;
 
-    typedef ProgramElement INHERITED;
+    using INHERITED = ProgramElement;
 };
 
 }  // namespace SkSL

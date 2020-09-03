@@ -53,7 +53,7 @@ struct TernaryExpression : public Expression {
     std::unique_ptr<Expression> fIfTrue;
     std::unique_ptr<Expression> fIfFalse;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

@@ -78,7 +78,7 @@ protected:
         }
     }
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +165,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -207,7 +207,7 @@ protected:
         }
     }
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,7 +237,7 @@ protected:
 
 private:
     SkRegion fRegion;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

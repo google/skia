@@ -46,7 +46,7 @@ private:
     // GrRenderTargetContexts.  It is also passed to the GrResourceProvider and SkGpuDevice.
     mutable GrSingleOwner            fSingleOwner;
 
-    typedef GrContext_Base INHERITED;
+    using INHERITED = GrContext_Base;
 };
 
 #endif

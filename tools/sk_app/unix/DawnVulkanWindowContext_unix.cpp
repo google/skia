@@ -36,7 +36,7 @@ private:
     XWindow      fWindow;
     VkSurfaceKHR fVkSurface = nullptr;
 
-    typedef DawnWindowContext INHERITED;
+    using INHERITED = DawnWindowContext;
 };
 
 DawnVulkanWindowContext_xlib::DawnVulkanWindowContext_xlib(const XlibWindowInfo& winInfo,

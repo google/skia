@@ -74,7 +74,7 @@ protected:
 private:
     GrMockTextureInfo fInfo;
 
-    typedef GrTexture INHERITED;
+    using INHERITED = GrTexture;
 };
 
 class GrMockRenderTarget : public GrRenderTarget {
@@ -140,7 +140,7 @@ protected:
 private:
     GrMockRenderTargetInfo fInfo;
 
-    typedef GrRenderTarget INHERITED;
+    using INHERITED = GrRenderTarget;
 };
 
 class GrMockTextureRenderTarget : public GrMockTexture, public GrMockRenderTarget {

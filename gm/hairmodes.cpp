@@ -126,7 +126,7 @@ namespace skiagm {
         }
 
     private:
-        typedef GM INHERITED;
+        using INHERITED = GM;
     };
 
     //////////////////////////////////////////////////////////////////////////////

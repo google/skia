@@ -51,7 +51,7 @@ private:
     GLGetQueryObjectui64vProc   fGLGetQueryObjectui64v;
 
 
-    typedef sk_gpu_test::GpuTimer INHERITED;
+    using INHERITED = sk_gpu_test::GpuTimer;
 };
 
 std::unique_ptr<GLGpuTimer> GLGpuTimer::MakeIfSupported(const sk_gpu_test::GLTestContext* ctx) {

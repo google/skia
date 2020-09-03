@@ -38,7 +38,7 @@ private:
     const sk_sp<SkData> fData;
     const SkEncodedOrigin fOrigin;
 
-    typedef SkImageGenerator INHERITED;
+    using INHERITED = SkImageGenerator;
 };
 
 static SkUniqueCFRef<CGImageSourceRef> data_to_CGImageSrc(SkData* data) {

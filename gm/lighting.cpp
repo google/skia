@@ -147,7 +147,7 @@ private:
     SkBitmap fBitmap;
     SkScalar fAzimuth;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -86,7 +86,7 @@ private:
     GrSimpleMesh* fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,

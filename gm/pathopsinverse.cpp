@@ -110,7 +110,7 @@ private:
     SkPaint fTwoPaint;
     SkPaint fOutlinePaint;
     SkPaint fOpPaint[kReverseDifference_SkPathOp - kDifference_SkPathOp + 1];
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

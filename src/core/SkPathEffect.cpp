@@ -67,7 +67,7 @@ protected:
     sk_sp<SkPathEffect> fPE1;
 
 private:
-    typedef SkPathEffect INHERITED;
+    using INHERITED = SkPathEffect;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ private:
     SkComposePathEffect& operator=(const SkComposePathEffect&);
     friend class SkPathEffect;
 
-    typedef SkPairPathEffect INHERITED;
+    using INHERITED = SkPairPathEffect;
 };
 
 sk_sp<SkFlattenable> SkComposePathEffect::CreateProc(SkReadBuffer& buffer) {
@@ -169,7 +169,7 @@ private:
     SkSumPathEffect& operator=(const SkSumPathEffect&);
     friend class SkPathEffect;
 
-    typedef SkPairPathEffect INHERITED;
+    using INHERITED = SkPairPathEffect;
 };
 
 sk_sp<SkFlattenable> SkSumPathEffect::CreateProc(SkReadBuffer& buffer) {

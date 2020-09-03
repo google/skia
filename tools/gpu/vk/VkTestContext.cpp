@@ -124,7 +124,7 @@ private:
     void onPlatformMakeCurrent() const override {}
     std::function<void()> onPlatformGetAutoContextRestore() const override  { return nullptr; }
 
-    typedef sk_gpu_test::VkTestContext INHERITED;
+    using INHERITED = sk_gpu_test::VkTestContext;
 };
 }  // anonymous namespace
 

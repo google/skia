@@ -126,7 +126,7 @@ private:
 
         mutable gr_cp<ID3D12Resource> fResource;
 
-        typedef GrTextureResource INHERITED;
+        using INHERITED = GrTextureResource;
     };
 
     sk_sp<Resource> fResource;

@@ -142,7 +142,7 @@ private:
     sk_sp<SkShader> fShader;
     sk_sp<SkMaskFilter> fMaskFilter;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

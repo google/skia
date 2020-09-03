@@ -900,7 +900,7 @@ public:
 private:
     bool computePathPolygon(const SkPath& path, const SkMatrix& ctm);
 
-    typedef SkBaseShadowTessellator INHERITED;
+    using INHERITED = SkBaseShadowTessellator;
 };
 
 SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
@@ -997,7 +997,7 @@ private:
                                     const SkMatrix& shadowTransform);
     void addToClip(const SkVector& nextPoint);
 
-    typedef SkBaseShadowTessellator INHERITED;
+    using INHERITED = SkBaseShadowTessellator;
 };
 
 SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMatrix& ctm,

@@ -93,7 +93,7 @@ public:
 private:
     GrSurfaceProxyView fView;
 
-    typedef SkImage_GpuBase INHERITED;
+    using INHERITED = SkImage_GpuBase;
 };
 
 #endif

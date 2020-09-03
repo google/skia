@@ -79,7 +79,7 @@ struct VariableReference : public Expression {
     RefKind fRefKind;
 
 private:
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

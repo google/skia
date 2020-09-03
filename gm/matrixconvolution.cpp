@@ -140,7 +140,7 @@ private:
     const char* fNameSuffix;
     KernelFixture fKernelFixture;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ public:
 private:
     void onFinalize() override;
 
-    typedef GrGLSLVaryingHandler INHERITED;
+    using INHERITED = GrGLSLVaryingHandler;
 };
 
 #endif

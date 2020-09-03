@@ -327,7 +327,7 @@ private:
 
     HANDLE fFontMemResource;
 
-    typedef LogFontTypeface INHERITED;
+    using INHERITED = LogFontTypeface;
 };
 
 static const LOGFONT& get_default_font() {

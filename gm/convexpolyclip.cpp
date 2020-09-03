@@ -304,7 +304,7 @@ private:
     ClipList         fClips;
     SkBitmap         fBmp;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new ConvexPolyClip;)

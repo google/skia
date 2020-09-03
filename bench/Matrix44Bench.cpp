@@ -47,7 +47,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class M4NEQ : public M4Bench {
@@ -61,7 +61,7 @@ protected:
     }
 private:
     bool fEQ;
-    typedef M4Bench INHERITED;
+    using INHERITED = M4Bench;
 };
 
 class M4EQ : public M4Bench {
@@ -76,7 +76,7 @@ protected:
     }
 private:
     bool fEQ;
-    typedef M4Bench INHERITED;
+    using INHERITED = M4Bench;
 };
 
 class M4Concat : public M4Bench {
@@ -89,7 +89,7 @@ protected:
         }
     }
 private:
-    typedef M4Bench INHERITED;
+    using INHERITED = M4Bench;
 };
 
 class M4SetConcat : public M4Bench {
@@ -102,7 +102,7 @@ protected:
         }
     }
 private:
-    typedef M4Bench INHERITED;
+    using INHERITED = M4Bench;
 };
 
 DEF_BENCH( return new M4EQ(); )
@@ -122,7 +122,7 @@ protected:
     }
 private:
     SkV4 fV;
-    typedef M4Bench INHERITED;
+    using INHERITED = M4Bench;
 };
 DEF_BENCH( return new M4_map4(); )
 
@@ -139,6 +139,6 @@ protected:
     }
 private:
     SkPoint fV;
-    typedef M4Bench INHERITED;
+    using INHERITED = M4Bench;
 };
 DEF_BENCH( return new M4_map2(); )

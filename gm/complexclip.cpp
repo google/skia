@@ -194,7 +194,7 @@ private:
     bool fDoSaveLayer;
     bool fInvertDraw;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

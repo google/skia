@@ -131,7 +131,7 @@ private:
     SkShader() = default;
     friend class SkShaderBase;
 
-    typedef SkFlattenable INHERITED;
+    using INHERITED = SkFlattenable;
 };
 
 class SK_API SkShaders {

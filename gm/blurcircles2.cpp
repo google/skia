@@ -164,7 +164,7 @@ private:
 
     SkRandom    fRandom;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new BlurCircles2GM();)

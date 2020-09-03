@@ -456,7 +456,7 @@ private:
     sk_sp<const GrBuffer> fIndexBuffer;
     int fBaseVertex;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 } // anonymous namespace

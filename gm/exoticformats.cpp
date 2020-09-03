@@ -434,7 +434,7 @@ private:
     sk_sp<SkImage> fETC1Image;
     sk_sp<SkImage> fBC1Image;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

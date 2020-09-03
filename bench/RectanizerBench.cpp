@@ -117,7 +117,7 @@ private:
     RectType                    fRectType;
     std::unique_ptr<GrRectanizer> fRectanizer;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 //////////////////////////////////////////////////////////////////////////////

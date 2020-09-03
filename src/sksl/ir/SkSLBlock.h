@@ -63,7 +63,7 @@ struct Block : public Statement {
     // no semantic impact.
     bool fIsScope;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

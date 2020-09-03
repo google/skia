@@ -51,7 +51,7 @@ class SkSVGText final : public SkSVGShape {
   SkSVGStringType fFontStyle;
   SkSVGStringType fFontWeight;
   SkTextUtils::Align fTextAlign = SkTextUtils::Align::kLeft_Align;
-  typedef SkSVGShape INHERITED;
+  using INHERITED = SkSVGShape;
 };
 
 #endif  // SkSVGText_DEFINED

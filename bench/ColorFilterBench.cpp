@@ -76,7 +76,7 @@ private:
     SkString fName;
     Type     fType;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new FilteredRectBench(FilteredRectBench::kNoFilter_Type); )

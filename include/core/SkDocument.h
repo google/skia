@@ -85,7 +85,7 @@ private:
     SkWStream* fStream;
     State      fState;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

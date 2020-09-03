@@ -108,7 +108,7 @@ private:
 
     sk_sp<SkImage> fYCbCrImage;
 
-    typedef GpuGM INHERITED;
+    using INHERITED = GpuGM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -21,7 +21,7 @@ protected:
     MtlTestContext() {}
 
 private:
-    typedef TestContext INHERITED;
+    using INHERITED = TestContext;
 };
 
 /**

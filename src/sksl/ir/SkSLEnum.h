@@ -61,7 +61,7 @@ struct Enum : public ProgramElement {
     const std::shared_ptr<SymbolTable> fSymbols;
     bool fBuiltin;
 
-    typedef ProgramElement INHERITED;
+    using INHERITED = ProgramElement;
 };
 
 }  // namespace SkSL

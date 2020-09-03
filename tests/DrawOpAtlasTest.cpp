@@ -108,7 +108,7 @@ public:
 private:
     GrTokenTracker fTokenTracker;
 
-    typedef GrDeferredUploadTarget INHERITED;
+    using INHERITED = GrDeferredUploadTarget;
 };
 
 static bool fill_plot(GrDrawOpAtlas* atlas,

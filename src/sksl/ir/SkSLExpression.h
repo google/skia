@@ -173,7 +173,7 @@ struct Expression : public IRNode {
     const Kind fKind;
     const Type& fType;
 
-    typedef IRNode INHERITED;
+    using INHERITED = IRNode;
 };
 
 }  // namespace SkSL

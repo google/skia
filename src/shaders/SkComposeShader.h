@@ -39,7 +39,7 @@ private:
     sk_sp<SkShader>     fSrc;
     const SkBlendMode   fMode;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 class SkShader_Lerp final : public SkShaderBase {
@@ -72,7 +72,7 @@ private:
     sk_sp<SkShader> fSrc;
     const float     fWeight;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 #endif

@@ -88,7 +88,7 @@ protected:
         using PatternHelper::vertices;
 
     private:
-        typedef PatternHelper INHERITED;
+        using INHERITED = PatternHelper;
     };
 
     static bool CombinedQuadCountWillOverflow(GrAAType aaType,
@@ -124,7 +124,7 @@ private:
     void onPrepare(GrOpFlushState* state) final;
 
     virtual void onPrepareDraws(Target*) = 0;
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 class GrMeshDrawOp::Target {

@@ -323,7 +323,7 @@ private:
     VkFence                                                     fSubmitFence;
     SkTArray<sk_sp<GrRefCntedCallback>>                         fFinishedProcs;
 
-    typedef GrVkCommandBuffer INHERITED;
+    using INHERITED = GrVkCommandBuffer;
 };
 
 class GrVkSecondaryCommandBuffer : public GrVkCommandBuffer {
@@ -349,7 +349,7 @@ private:
     // Used for accessing fIsActive (on GrVkCommandBuffer)
     friend class GrVkPrimaryCommandBuffer;
 
-    typedef GrVkCommandBuffer INHERITED;
+    using INHERITED = GrVkCommandBuffer;
 };
 
 #endif

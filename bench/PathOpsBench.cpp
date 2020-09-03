@@ -45,7 +45,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class PathOpsSimplifyBench : public Benchmark {
@@ -76,7 +76,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new PathOpsBench("sect", kIntersect_SkPathOp); )
 DEF_BENCH( return new PathOpsBench("join", kUnion_SkPathOp); )
@@ -210,7 +210,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 DEF_BENCH( return new PathBuilderBench(MakeType::kPath, false); )
 DEF_BENCH( return new PathBuilderBench(MakeType::kSnapshot, false); )

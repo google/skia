@@ -678,7 +678,7 @@ private:
     bool fGammaCorrect;
     bool fWideColor;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {

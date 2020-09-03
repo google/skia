@@ -29,7 +29,7 @@ private:
     SkSize fWinSize = SkSize::MakeEmpty();
     sk_sp<SkSVGDOM> fDom;
 
-    typedef Slide INHERITED;
+    using INHERITED = Slide;
 };
 
 #endif // SvgSlide_DEFINED

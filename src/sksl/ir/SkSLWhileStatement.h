@@ -37,7 +37,7 @@ struct WhileStatement : public Statement {
     std::unique_ptr<Expression> fTest;
     std::unique_ptr<Statement> fStatement;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

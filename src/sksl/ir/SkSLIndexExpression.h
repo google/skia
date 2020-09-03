@@ -68,7 +68,7 @@ struct IndexExpression : public Expression {
     std::unique_ptr<Expression> fBase;
     std::unique_ptr<Expression> fIndex;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 
 private:
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,

@@ -121,7 +121,7 @@ private:
     };
     SkTArray<TransformInfo> fTransformInfos;
 
-    typedef GrGLSLPrimitiveProcessor INHERITED;
+    using INHERITED = GrGLSLPrimitiveProcessor;
 };
 
 #endif

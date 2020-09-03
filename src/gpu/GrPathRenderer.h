@@ -202,7 +202,7 @@ private:
      */
     virtual void onStencilPath(const StencilPathArgs&);
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

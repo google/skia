@@ -82,7 +82,7 @@ private:
 
     friend class GrGLProgramBuilder;
 
-    typedef GrGLSLUniformHandler INHERITED;
+    using INHERITED = GrGLSLUniformHandler;
 };
 
 #endif

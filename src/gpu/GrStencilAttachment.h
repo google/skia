@@ -52,7 +52,7 @@ private:
     int fSampleCnt;
     bool fHasPerformedInitialClear = false;
 
-    typedef GrGpuResource INHERITED;
+    using INHERITED = GrGpuResource;
 };
 
 #endif

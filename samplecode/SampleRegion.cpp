@@ -338,7 +338,7 @@ protected:
 private:
     SkIRect    fBase, fRect;
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

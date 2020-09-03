@@ -33,7 +33,7 @@ private:
     const SkBudgeted   fBudgeted;
     GrUniqueKey        fKey;
 
-    typedef GrTextureMaker INHERITED;
+    using INHERITED = GrTextureMaker;
 };
 
 #endif

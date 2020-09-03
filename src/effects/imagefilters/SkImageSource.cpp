@@ -46,7 +46,7 @@ private:
     SkRect           fSrcRect, fDstRect;
     SkFilterQuality  fFilterQuality;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace

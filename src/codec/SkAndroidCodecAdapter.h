@@ -32,6 +32,6 @@ protected:
 
 private:
 
-    typedef SkAndroidCodec INHERITED;
+    using INHERITED = SkAndroidCodec;
 };
 #endif // SkAndroidCodecAdapter_DEFINED

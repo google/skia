@@ -152,7 +152,7 @@ private:
     GrProtected                fIsProtected;
     sk_sp<GrRefCntedCallback>  fReleaseHelper;
 
-    typedef GrGpuResource INHERITED;
+    using INHERITED = GrGpuResource;
 };
 
 #endif

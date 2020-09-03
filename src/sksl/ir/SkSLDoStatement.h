@@ -37,7 +37,7 @@ struct DoStatement : public Statement {
     std::unique_ptr<Statement> fStatement;
     std::unique_ptr<Expression> fTest;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

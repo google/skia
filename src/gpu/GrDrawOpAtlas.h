@@ -458,7 +458,7 @@ private:
 
         friend class GrDrawOpAtlas;
 
-        typedef SkRefCnt INHERITED;
+        using INHERITED = SkRefCnt;
     };
 
     typedef SkTInternalLList<Plot> PlotList;

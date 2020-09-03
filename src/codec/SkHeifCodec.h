@@ -94,7 +94,7 @@ private:
         }
 
     private:
-        typedef SkFrame INHERITED;
+        using INHERITED = SkFrame;
     };
 
     class FrameHolder : public SkFrameHolder {
@@ -122,7 +122,7 @@ private:
     };
 
     FrameHolder fFrameHolder;
-    typedef SkCodec INHERITED;
+    using INHERITED = SkCodec;
 };
 
 #endif // SkHeifCodec_DEFINED

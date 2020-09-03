@@ -34,7 +34,7 @@ struct Nop : public Statement {
         return std::unique_ptr<Statement>(new Nop());
     }
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

@@ -63,7 +63,7 @@ private:
 
     void sendverb(const char verb[]);
 
-    typedef SkCanvas INHERITED;
+    using INHERITED = SkCanvas;
 };
 
 #endif

@@ -31,7 +31,7 @@ private:
     SkBitmap    fBitmap;
     bool        fWeOwnThePixels;
 
-    typedef SkSurface_Base INHERITED;
+    using INHERITED = SkSurface_Base;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

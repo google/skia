@@ -72,7 +72,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new BigPathBench(kLeft_Align,     false); )

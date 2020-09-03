@@ -43,7 +43,7 @@ struct ReturnStatement : public Statement {
 
     std::unique_ptr<Expression> fExpression;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

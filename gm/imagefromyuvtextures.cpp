@@ -331,7 +331,7 @@ private:
 
     static constexpr SkScalar kPad = 10.0f;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new ImageFromYUVTextures;)

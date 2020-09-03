@@ -39,7 +39,7 @@ private:
 
     GrResourceProvider* fResourceProvider;
 
-    typedef GrPathRenderer INHERITED;
+    using INHERITED = GrPathRenderer;
 };
 
 #endif

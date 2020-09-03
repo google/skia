@@ -49,7 +49,7 @@ private:
     GLuint               fFramebuffer;
     GLuint               fRenderbuffer;
 
-    typedef GLWindowContext INHERITED;
+    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_ios::GLWindowContext_ios(const IOSWindowInfo& info, const DisplayParams& params)

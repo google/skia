@@ -32,7 +32,7 @@ protected:
     SkTypeface* matchStyleCSS3(const SkFontStyle& pattern);
 
 private:
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 class SK_API SkFontMgr : public SkRefCnt {
@@ -155,7 +155,7 @@ private:
     /** Implemented by porting layer to return the default factory. */
     static sk_sp<SkFontMgr> Factory();
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

@@ -40,7 +40,7 @@ private:
     SkSVGLength fCy = SkSVGLength(0);
     SkSVGLength fR  = SkSVGLength(0);
 
-    typedef SkSVGShape INHERITED;
+    using INHERITED = SkSVGShape;
 };
 
 #endif // SkSVGCircle_DEFINED

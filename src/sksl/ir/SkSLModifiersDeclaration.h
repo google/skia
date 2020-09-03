@@ -35,7 +35,7 @@ struct ModifiersDeclaration : public ProgramElement {
 
     Modifiers fModifiers;
 
-    typedef ProgramElement INHERITED;
+    using INHERITED = ProgramElement;
 };
 
 }  // namespace SkSL

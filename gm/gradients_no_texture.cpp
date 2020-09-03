@@ -135,7 +135,7 @@ protected:
 private:
     bool fDither;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -287,7 +287,7 @@ protected:
 private:
     bool fDither;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

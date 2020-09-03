@@ -179,7 +179,7 @@ private:
 
     int fNumTextureSamplers;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

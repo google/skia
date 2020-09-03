@@ -85,6 +85,6 @@ private:
     GrBackendTexture fBackendTexture;
     GrSurfaceOrigin  fSurfaceOrigin;
 
-    typedef SkImageGenerator INHERITED;
+    using INHERITED = SkImageGenerator;
 };
 #endif  // GrBackendTextureImageGenerator_DEFINED

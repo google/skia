@@ -252,7 +252,7 @@ private:
 
     friend class SkPictureData;   // for SkPictureData's SkPictureRecord-based constructor
 
-    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
+    using INHERITED = SkCanvasVirtualEnforcer<SkCanvas>;
 };
 
 #endif

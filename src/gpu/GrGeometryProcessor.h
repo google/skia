@@ -38,7 +38,7 @@ protected:
     }
 
 private:
-    typedef GrPrimitiveProcessor INHERITED;
+    using INHERITED = GrPrimitiveProcessor;
 };
 
 #endif

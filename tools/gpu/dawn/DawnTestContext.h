@@ -30,7 +30,7 @@ protected:
     wgpu::Device fDevice;
 
 private:
-    typedef TestContext INHERITED;
+    using INHERITED = TestContext;
 };
 
 /**

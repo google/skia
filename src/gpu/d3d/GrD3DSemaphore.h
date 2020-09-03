@@ -35,7 +35,7 @@ private:
 
     GrD3DFenceInfo fFenceInfo;
 
-    typedef GrSemaphore INHERITED;
+    using INHERITED = GrSemaphore;
 };
 
 #endif

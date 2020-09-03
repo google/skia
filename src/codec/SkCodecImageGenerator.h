@@ -111,6 +111,6 @@ private:
     std::unique_ptr<SkCodec> fCodec;
     sk_sp<SkData> fData;
 
-    typedef SkImageGenerator INHERITED;
+    using INHERITED = SkImageGenerator;
 };
 #endif  // SkCodecImageGenerator_DEFINED

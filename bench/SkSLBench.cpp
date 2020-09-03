@@ -45,7 +45,7 @@ private:
     SkSL::Compiler fCompiler;
     SkSL::Program::Settings fSettings;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

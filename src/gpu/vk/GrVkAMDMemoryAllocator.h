@@ -75,7 +75,7 @@ private:
 
     bool fPreferCachedCpuMemory;
 
-    typedef GrVkMemoryAllocator INHERITED;
+    using INHERITED = GrVkMemoryAllocator;
 };
 
 #endif // SK_USE_VMA

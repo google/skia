@@ -208,7 +208,7 @@ private:
 
     StencilFormat fPreferredStencilFormat;
 
-    typedef GrCaps INHERITED;
+    using INHERITED = GrCaps;
 };
 
 #endif

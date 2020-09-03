@@ -84,7 +84,7 @@ private:
 
     class Impl;
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 #endif

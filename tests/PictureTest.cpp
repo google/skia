@@ -142,7 +142,7 @@ private:
     unsigned int fSaveBehindCount;
     unsigned int fRestoreCount;
 
-    typedef SkCanvas INHERITED;
+    using INHERITED = SkCanvas;
 };
 
 void check_save_state(skiatest::Reporter* reporter, SkPicture* picture,
@@ -505,7 +505,7 @@ public:
 private:
     unsigned fClipCount;
 
-    typedef SkCanvas INHERITED;
+    using INHERITED = SkCanvas;
 };
 
 static void test_clip_expansion(skiatest::Reporter* reporter) {

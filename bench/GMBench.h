@@ -35,7 +35,7 @@ private:
     SkString                    fName;
     bool                        fGpuSetupFailed = false;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 #endif

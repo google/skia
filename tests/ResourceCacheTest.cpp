@@ -329,7 +329,7 @@ private:
     static int fNumAlive;
     SimulatedProperty fProperty;
     bool fIsScratch;
-    typedef GrGpuResource INHERITED;
+    using INHERITED = GrGpuResource;
 };
 int TestResource::fNumAlive = 0;
 

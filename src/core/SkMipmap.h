@@ -91,7 +91,7 @@ private:
 
     static size_t AllocLevelsSize(int levelCount, size_t pixelSize);
 
-    typedef SkCachedData INHERITED;
+    using INHERITED = SkCachedData;
 };
 
 #endif

@@ -92,7 +92,7 @@ private:
         unsigned int fDescriptorCount;
         unsigned int fNextAvailable;
 
-        typedef GrRecycledResource INHERITED;
+        using INHERITED = GrRecycledResource;
     };
 
     class HeapPool {

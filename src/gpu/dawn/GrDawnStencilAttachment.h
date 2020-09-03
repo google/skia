@@ -37,7 +37,7 @@ private:
     wgpu::Texture fTexture;
     wgpu::TextureView fView;
 
-    typedef GrStencilAttachment INHERITED;
+    using INHERITED = GrStencilAttachment;
 };
 
 #endif

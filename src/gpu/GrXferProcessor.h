@@ -217,7 +217,7 @@ private:
     bool fDstReadUsesMixedSamples;
     bool fIsLCD;
 
-    typedef GrProcessor INHERITED;
+    using INHERITED = GrProcessor;
 };
 
 /**

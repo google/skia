@@ -47,7 +47,7 @@ private:
 
     SkMatrix              fTransform;
     SkFilterQuality       fFilterQuality;
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 #endif

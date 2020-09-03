@@ -68,7 +68,7 @@ private:
     bool fDoAA;
     GrProcessorSet fProcessorSet;
 
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 class GrDrawPathOp final : public GrDrawPathOpBase {
@@ -98,7 +98,7 @@ private:
 
     sk_sp<const GrPath> fPath;
 
-    typedef GrDrawPathOpBase INHERITED;
+    using INHERITED = GrDrawPathOpBase;
 };
 
 #endif

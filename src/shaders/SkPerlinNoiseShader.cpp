@@ -364,7 +364,7 @@ public:
         SkMatrix     fMatrix;
         PaintingData fPaintingData;
 
-        typedef Context INHERITED;
+        using INHERITED = Context;
     };
 
 #if SK_SUPPORT_GPU
@@ -390,7 +390,7 @@ private:
 
     friend class ::SkPerlinNoiseShader;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 namespace {
@@ -712,7 +712,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fStitchDataUni;
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -808,7 +808,7 @@ private:
 
     std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> fPaintingData;
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -1084,7 +1084,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fZUni;
     GrGLSLProgramDataManager::UniformHandle fBaseFrequencyUni;
 
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -1170,7 +1170,7 @@ private:
 
     std::unique_ptr<SkPerlinNoiseShaderImpl::PaintingData> fPaintingData;
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 /////////////////////////////////////////////////////////////////////

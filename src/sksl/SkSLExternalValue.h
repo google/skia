@@ -108,7 +108,7 @@ public:
     }
 
 private:
-    typedef Symbol INHERITED;
+    using INHERITED = Symbol;
 
     const Type& fType;
 };

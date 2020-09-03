@@ -41,7 +41,7 @@ private:
     SkSVGLength fRx = SkSVGLength(0);
     SkSVGLength fRy = SkSVGLength(0);
 
-    typedef SkSVGShape INHERITED;
+    using INHERITED = SkSVGShape;
 };
 
 #endif // SkSVGEllipse_DEFINED

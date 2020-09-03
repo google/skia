@@ -52,7 +52,7 @@ protected:
 
 private:
     const char* getResourceType() const override { return "Path Data"; }
-    typedef GrGpuResource INHERITED;
+    using INHERITED = GrGpuResource;
 };
 
 #endif

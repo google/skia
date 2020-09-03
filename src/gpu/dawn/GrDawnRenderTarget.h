@@ -45,7 +45,7 @@ protected:
 
     bool completeStencilAttachment() override;
     GrDawnRenderTargetInfo fInfo;
-    typedef GrRenderTarget INHERITED;
+    using INHERITED = GrRenderTarget;
 };
 
 #endif

@@ -86,7 +86,7 @@ public:
 
 private:
     const GrUserStencilSettings* fStencilSettings;
-    typedef GrSimpleMeshDrawOpHelper INHERITED;
+    using INHERITED = GrSimpleMeshDrawOpHelper;
 };
 
 #endif

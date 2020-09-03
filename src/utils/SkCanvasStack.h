@@ -55,7 +55,7 @@ private:
 
     SkTArray<CanvasData> fCanvasData;
 
-    typedef SkNWayCanvas INHERITED;
+    using INHERITED = SkNWayCanvas;
 };
 
 #endif

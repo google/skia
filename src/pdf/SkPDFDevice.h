@@ -190,7 +190,7 @@ private:
 
     void reset();
 
-    typedef SkClipStackDevice INHERITED;
+    using INHERITED = SkClipStackDevice;
 };
 
 #endif

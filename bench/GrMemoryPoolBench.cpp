@@ -178,7 +178,7 @@ protected:
     int          fPoolSize;
     RunBenchProc fProc;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

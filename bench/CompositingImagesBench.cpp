@@ -314,7 +314,7 @@ private:
     TransformMode fTransformMode;
     int fLayerCnt;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 // Subpixel = false; all of the draw commands align with integer pixels so AA will be automatically

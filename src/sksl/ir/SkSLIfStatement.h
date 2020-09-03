@@ -50,7 +50,7 @@ struct IfStatement : public Statement {
     // may be null
     std::unique_ptr<Statement> fIfFalse;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

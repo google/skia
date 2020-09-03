@@ -65,7 +65,7 @@ private:
     // data, and size is greater than 0.
     size_t readDirectlyFromStream(char* dst, size_t size);
 
-    typedef SkStream INHERITED;
+    using INHERITED = SkStream;
 };
 } // anonymous namespace
 

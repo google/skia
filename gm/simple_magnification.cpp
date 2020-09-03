@@ -134,7 +134,7 @@ private:
     static const int kImgSize = 33;
     static const int kPad = 2;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

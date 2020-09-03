@@ -41,7 +41,7 @@ private:
 
     friend class SkColorFilter;
 
-    typedef SkColorFilterBase INHERITED;
+    using INHERITED = SkColorFilterBase;
 };
 
 #endif

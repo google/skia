@@ -77,7 +77,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 GrFPResult CircularRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -161,7 +161,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fInnerRectUniform;
     GrGLSLProgramDataManager::UniformHandle fRadiusPlusHalfUniform;
     SkRRect                                 fPrevRRect;
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 void GLCircularRRectEffect::emitCode(EmitArgs& args) {
@@ -430,7 +430,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 GrFPResult EllipticalRRectEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP,
@@ -530,7 +530,7 @@ private:
     GrGLSLProgramDataManager::UniformHandle fInvRadiiSqdUniform;
     GrGLSLProgramDataManager::UniformHandle fScaleUniform;
     SkRRect                                 fPrevRRect;
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 void GLEllipticalRRectEffect::emitCode(EmitArgs& args) {

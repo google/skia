@@ -121,7 +121,7 @@ private:
             std::unique_ptr<SkString[]> fAttribNames;
             std::unique_ptr<Attribute[]> fAttributes;
 
-            typedef GrGeometryProcessor INHERITED;
+            using INHERITED = GrGeometryProcessor;
         };
 
         GrGeometryProcessor* gp = GP::Make(arena, fNumAttribs);
@@ -163,7 +163,7 @@ private:
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 }  // namespace
 

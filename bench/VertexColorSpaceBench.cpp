@@ -124,7 +124,7 @@ private:
     Attribute fInPosition;
     Attribute fInColor;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 class Op : public GrMeshDrawOp {
@@ -273,7 +273,7 @@ private:
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 }  // namespace
 
@@ -340,7 +340,7 @@ private:
     SkString fName;
     Mode fMode;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new VertexColorSpaceBench(kBaseline_Mode, "baseline"));

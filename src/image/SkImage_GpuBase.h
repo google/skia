@@ -101,7 +101,7 @@ protected:
     sk_sp<GrContext> fContext;
 
 private:
-    typedef SkImage_Base INHERITED;
+    using INHERITED = SkImage_Base;
 };
 
 #endif

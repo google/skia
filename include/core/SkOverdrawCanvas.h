@@ -61,7 +61,7 @@ private:
 
     SkPaint   fPaint;
 
-    typedef SkCanvasVirtualEnforcer<SkNWayCanvas> INHERITED;
+    using INHERITED = SkCanvasVirtualEnforcer<SkNWayCanvas>;
 };
 
 #endif

@@ -95,7 +95,7 @@ private:
                             const SkIRect& rect,
                             const SkIRect& bounds) const;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 class UncheckedPixelFetcher {

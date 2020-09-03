@@ -153,7 +153,7 @@ public:
 
 private:
     bool fIsAtEnd;
-    typedef SkMemoryStream INHERITED;
+    using INHERITED = SkMemoryStream;
 };
 
 // This test ensures that buffering the exact length of the stream and attempting to read beyond it

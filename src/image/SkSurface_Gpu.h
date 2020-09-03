@@ -66,7 +66,7 @@ public:
 private:
     sk_sp<SkGpuDevice> fDevice;
 
-    typedef SkSurface_Base INHERITED;
+    using INHERITED = SkSurface_Base;
 };
 
 #endif // SK_SUPPORT_GPU

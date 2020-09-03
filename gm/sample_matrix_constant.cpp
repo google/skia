@@ -40,7 +40,7 @@ public:
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 class GLSLSampleMatrixConstantEffect : public GrGLSLFragmentProcessor {

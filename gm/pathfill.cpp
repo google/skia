@@ -349,7 +349,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 // test inverse-fill w/ a clip that completely excludes the geometry
@@ -415,7 +415,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {

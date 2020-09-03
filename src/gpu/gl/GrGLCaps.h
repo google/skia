@@ -743,7 +743,7 @@ private:
     GrGLFormat fColorTypeToFormatTable[kGrColorTypeCnt];
     void setColorTypeFormat(GrColorType, GrGLFormat);
 
-    typedef GrCaps INHERITED;
+    using INHERITED = GrCaps;
 };
 
 #endif

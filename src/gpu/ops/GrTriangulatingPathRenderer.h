@@ -33,7 +33,7 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
     int fMaxVerbCount;
 
-    typedef GrPathRenderer INHERITED;
+    using INHERITED = GrPathRenderer;
 };
 
 #endif

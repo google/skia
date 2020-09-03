@@ -192,7 +192,7 @@ private:
 
     SkTHashSet<int> fOutstandingTestingOnlyTextureIDs;
 
-    typedef GrGpu INHERITED;
+    using INHERITED = GrGpu;
 };
 
 #endif

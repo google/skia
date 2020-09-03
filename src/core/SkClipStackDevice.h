@@ -44,7 +44,7 @@ private:
     intptr_t fStorage[kPreallocCount * sizeof(SkClipStack::Element) / sizeof(intptr_t)];
     SkClipStack fClipStack;
 
-    typedef SkBaseDevice INHERITED;
+    using INHERITED = SkBaseDevice;
 };
 
 #endif

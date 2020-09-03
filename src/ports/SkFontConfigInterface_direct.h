@@ -33,7 +33,7 @@ private:
     bool isValidPattern(FcPattern* pattern);
     FcPattern* MatchFont(FcFontSet* font_set, const char* post_config_family,
                          const SkString& family);
-    typedef SkFontConfigInterface INHERITED;
+    using INHERITED = SkFontConfigInterface;
 };
 
 #endif

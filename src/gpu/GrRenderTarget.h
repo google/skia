@@ -82,7 +82,7 @@ private:
     int fSampleCnt;
     int fSamplePatternKey;
 
-    typedef GrSurface INHERITED;
+    using INHERITED = GrSurface;
 };
 
 #endif

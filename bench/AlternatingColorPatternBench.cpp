@@ -160,7 +160,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new AlternatingColorPatternBench(kWhite_ColorPattern,

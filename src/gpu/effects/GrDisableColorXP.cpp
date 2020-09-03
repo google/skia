@@ -32,7 +32,7 @@ private:
     }
     GrGLSLXferProcessor* createGLSLInstance() const override;
 
-    typedef GrXferProcessor INHERITED;
+    using INHERITED = GrXferProcessor;
 };
 
 class GLDisableColorXP : public GrGLSLXferProcessor {
@@ -58,7 +58,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
-    typedef GrGLSLXferProcessor INHERITED;
+    using INHERITED = GrGLSLXferProcessor;
 };
 
 GrGLSLXferProcessor* DisableColorXP::createGLSLInstance() const {

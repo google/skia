@@ -185,7 +185,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ReadPixelsGM; )
 
@@ -249,7 +249,7 @@ private:
     static const int kEncodedWidth = 8;
     static const int kEncodedHeight = 8;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ReadPixelsCodecGM; )
 
@@ -315,6 +315,6 @@ protected:
 
 private:
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ReadPixelsPictureGM; )

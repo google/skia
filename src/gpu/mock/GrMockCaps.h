@@ -205,7 +205,7 @@ private:
     static const int kMaxSampleCnt = 16;
 
     GrMockOptions fOptions;
-    typedef GrCaps INHERITED;
+    using INHERITED = GrCaps;
 };
 
 #endif

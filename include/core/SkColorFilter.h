@@ -74,7 +74,7 @@ private:
     SkColorFilter() = default;
     friend class SkColorFilterBase;
 
-    typedef SkFlattenable INHERITED;
+    using INHERITED = SkFlattenable;
 };
 
 class SK_API SkColorFilters {

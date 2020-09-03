@@ -1069,7 +1069,7 @@ private:
     const int            fHeight;
     uint32_t             fGenerationID;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

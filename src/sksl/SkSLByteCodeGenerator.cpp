@@ -1511,7 +1511,7 @@ public:
     }
 
 private:
-    typedef LValue INHERITED;
+    using INHERITED = LValue;
 
     int fCount;
     int fIndex;
@@ -1563,7 +1563,7 @@ public:
 private:
     const Swizzle& fSwizzle;
 
-    typedef LValue INHERITED;
+    using INHERITED = LValue;
 };
 
 class ByteCodeExpressionLValue : public ByteCodeGenerator::LValue {
@@ -1595,7 +1595,7 @@ public:
     }
 
 private:
-    typedef LValue INHERITED;
+    using INHERITED = LValue;
 
     const Expression& fExpression;
 };

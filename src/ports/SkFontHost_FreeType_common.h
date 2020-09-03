@@ -50,7 +50,7 @@ protected:
     bool generateGlyphPath(FT_Face face, SkPath* path);
     bool generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path);
 private:
-    typedef SkScalerContext INHERITED;
+    using INHERITED = SkScalerContext;
 };
 
 class SkTypeface_FreeType : public SkTypeface {
@@ -129,7 +129,7 @@ private:
     mutable SkMutex fC2GCacheMutex;
     mutable SkCharToGlyphCache fC2GCache;
 
-    typedef SkTypeface INHERITED;
+    using INHERITED = SkTypeface;
 };
 
 #endif // SKFONTHOST_FREETYPE_COMMON_H_

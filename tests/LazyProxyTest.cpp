@@ -370,7 +370,7 @@ private:
     int* fTestExecuteValue;
     sk_sp<GrTextureProxy> fLazyProxy;
 
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 // Test that when a lazy proxy fails to instantiate during flush that we drop the Op that it was

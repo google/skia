@@ -45,7 +45,7 @@ private:
     XVisualInfo* fVisualInfo;
     GLXContext   fGLContext;
 
-    typedef GLWindowContext INHERITED;
+    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo, const DisplayParams& params)

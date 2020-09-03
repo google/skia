@@ -55,7 +55,7 @@ private:
     GrDawnTextureInfo        fInfo;
     wgpu::TextureView        fTextureView;
 
-    typedef GrTexture INHERITED;
+    using INHERITED = GrTexture;
 };
 
 #endif

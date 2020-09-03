@@ -69,7 +69,7 @@ private:
     VkSamplerYcbcrConversion fYcbcrConversion;
     Key                      fKey;
 
-    typedef GrVkManagedResource INHERITED;
+    using INHERITED = GrVkManagedResource;
 };
 
 #endif

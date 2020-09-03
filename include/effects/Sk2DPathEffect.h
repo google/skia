@@ -47,7 +47,7 @@ private:
     Sk2DPathEffect& operator=(const Sk2DPathEffect&);
 
     friend class Sk2DPathEffectBlitter;
-    typedef SkPathEffect INHERITED;
+    using INHERITED = SkPathEffect;
 };
 
 class SK_API SkLine2DPathEffect : public Sk2DPathEffect {
@@ -75,7 +75,7 @@ private:
 
     SkScalar fWidth;
 
-    typedef Sk2DPathEffect INHERITED;
+    using INHERITED = Sk2DPathEffect;
 };
 
 class SK_API SkPath2DPathEffect : public Sk2DPathEffect {
@@ -99,7 +99,7 @@ private:
 
     SkPath  fPath;
 
-    typedef Sk2DPathEffect INHERITED;
+    using INHERITED = Sk2DPathEffect;
 };
 
 #endif

@@ -111,7 +111,7 @@ private:
 
     CCPRGeometryView* fView;
 
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 class CCPRGeometryView::VisualizeCoverageCountFP : public GrFragmentProcessor {

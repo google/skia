@@ -616,7 +616,7 @@ private:
 
     bool fConvexOnly;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

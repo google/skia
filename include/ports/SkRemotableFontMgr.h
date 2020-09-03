@@ -50,7 +50,7 @@ private:
     int fCount;
     SkAutoTMalloc<SkFontIdentity> fData;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 class SK_API SkRemotableFontMgr : public SkRefCnt {
@@ -133,7 +133,7 @@ public:
     virtual SkStreamAsset* getData(int dataId) const = 0;
 
 private:
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

@@ -61,7 +61,7 @@ private:
     GrSPIRVVaryingHandler fVaryingHandler;
     GrSPIRVUniformHandler fUniformHandler;
 
-    typedef GrGLSLProgramBuilder INHERITED;
+    using INHERITED = GrGLSLProgramBuilder;
 };
 
 #endif

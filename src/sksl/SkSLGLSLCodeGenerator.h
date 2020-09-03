@@ -258,7 +258,7 @@ protected:
     };
     static std::unordered_map<StringFragment, FunctionClass>* fFunctionClasses;
 
-    typedef CodeGenerator INHERITED;
+    using INHERITED = CodeGenerator;
 };
 
 }  // namespace SkSL

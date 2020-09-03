@@ -86,7 +86,7 @@ private:
     };
 
     friend class GLSLPipelineDynamicStateTestProcessor;
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 constexpr GrPrimitiveProcessor::Attribute GrPipelineDynamicStateTestProcessor::kAttributes[];
 
@@ -180,7 +180,7 @@ private:
     GrScissorTest               fScissorTest;
     const sk_sp<const GrBuffer> fVertexBuffer;
 
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo) {

@@ -58,7 +58,7 @@ private:
 
     const bool fDoLooping;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 #endif

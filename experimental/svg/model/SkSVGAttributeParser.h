@@ -70,7 +70,7 @@ private:
     // The current position in the input string.
     const char* fCurPos;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif // SkSVGAttributeParser_DEFINED

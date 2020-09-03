@@ -82,7 +82,7 @@ private:
     Key                         fKey;
     uint32_t                    fUniqueID;
 
-    typedef GrVkManagedResource INHERITED;
+    using INHERITED = GrVkManagedResource;
 };
 
 #endif

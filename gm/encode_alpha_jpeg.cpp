@@ -103,7 +103,7 @@ protected:
 private:
     SkAutoTMalloc<uint8_t> fStorage;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new EncodeJpegAlphaOptsGM; )

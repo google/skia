@@ -27,7 +27,7 @@ private:
     const SkImage_Lazy*     fImage;
     GrImageTexGenPolicy     fTexGenPolicy;
 
-    typedef GrTextureMaker INHERITED;
+    using INHERITED = GrTextureMaker;
 };
 
 /** This class manages the conversion of generator-backed YUVA images to GrTextures. */
@@ -55,7 +55,7 @@ private:
 
     const SkImage_GpuYUVA*  fImage;
 
-    typedef GrTextureMaker INHERITED;
+    using INHERITED = GrTextureMaker;
 };
 
 #endif

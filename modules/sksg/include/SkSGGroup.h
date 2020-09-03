@@ -48,7 +48,7 @@ private:
     std::vector<sk_sp<RenderNode>> fChildren;
     bool                           fRequiresIsolation = true;
 
-    typedef RenderNode INHERITED;
+    using INHERITED = RenderNode;
 };
 
 } // namespace sksg

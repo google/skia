@@ -240,7 +240,7 @@ private:
     void drawAndCollectOps(SkCanvas*);
     void cleanupAuditTrail(SkCanvas*);
 
-    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
+    using INHERITED = SkCanvasVirtualEnforcer<SkCanvas>;
 };
 
 #endif

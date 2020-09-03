@@ -60,7 +60,7 @@ public:
 #endif
 
 private:
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrDrawOp::FixedFunctionFlags);

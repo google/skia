@@ -207,7 +207,7 @@ private:
         GrVkAlloc      fAlloc;
         VkImageTiling  fImageTiling;
 
-        typedef GrTextureResource INHERITED;
+        using INHERITED = GrTextureResource;
     };
 
     // for wrapped textures

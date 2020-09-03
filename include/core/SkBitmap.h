@@ -1140,7 +1140,7 @@ public:
         */
         virtual bool allocPixelRef(SkBitmap* bitmap) = 0;
     private:
-        typedef SkRefCnt INHERITED;
+        using INHERITED = SkRefCnt;
     };
 
     /** \class SkBitmap::HeapAllocator

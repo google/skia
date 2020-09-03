@@ -167,7 +167,7 @@ private:
     SkBitmap            fBG;
     sk_sp<SkTypeface>   fColorType;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 }  // namespace
 

@@ -86,7 +86,7 @@ protected:
     sk_sp<GrContextThreadSafeProxy>         fThreadSafeProxy;
 
 private:
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

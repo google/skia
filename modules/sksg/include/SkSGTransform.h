@@ -109,7 +109,7 @@ private:
 
     const sk_sp<Transform> fTransform;
 
-    typedef EffectNode INHERITED;
+    using INHERITED = EffectNode;
 };
 
 } // namespace sksg

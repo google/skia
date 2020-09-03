@@ -94,7 +94,7 @@ private:
     mutable SkIDChangeListener::List fUniqueIDListeners;
 #endif
 
-    typedef SkImage_Base INHERITED;
+    using INHERITED = SkImage_Base;
 };
 
 #endif

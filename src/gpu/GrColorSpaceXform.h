@@ -95,7 +95,7 @@ private:
 
     sk_sp<GrColorSpaceXform> fColorXform;
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 #endif

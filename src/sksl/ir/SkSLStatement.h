@@ -62,7 +62,7 @@ struct Statement : public IRNode {
 
     const Kind fKind;
 
-    typedef IRNode INHERITED;
+    using INHERITED = IRNode;
 };
 
 }  // namespace SkSL
