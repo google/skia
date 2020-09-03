@@ -1467,7 +1467,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                              &needsRescan);
                 } else {
                     this->simplifyStatement(definitions, b, &iter, &undefinedVariables, &updated,
-                                             &needsRescan);
+                                            &needsRescan);
                 }
                 if (needsRescan) {
                     break;
@@ -1649,8 +1649,12 @@ bool Compiler::optimize(Program& program) {
             }
         }
 
+        // Allow the inliner to analyze the program.
+        fInliner.analyze(program);
+
         // Remove dead functions. We wait until after analysis so that we still report errors, even
-        // in unused code.
+        // in unused code. We also want to do this after the inlining pass to ensure that inlined
+        // functions are dropped.
         if (program.fSettings.fRemoveDeadFunctions) {
             program.fElements.erase(
                     std::remove_if(program.fElements.begin(),
