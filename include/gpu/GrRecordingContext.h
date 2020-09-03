@@ -218,7 +218,7 @@ private:
     int fSuppressWarningMessages = 0;
 #endif
 
-    typedef GrImageContext INHERITED;
+    using INHERITED = GrImageContext;
 };
 
 /**

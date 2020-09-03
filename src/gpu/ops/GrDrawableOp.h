@@ -47,7 +47,7 @@ private:
 
     std::unique_ptr<SkDrawable::GpuDrawHandler> fDrawable;
 
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 
 #endif

@@ -153,7 +153,7 @@ protected:
 private:
     SkLua* fLua;
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

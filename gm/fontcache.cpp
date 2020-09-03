@@ -130,7 +130,7 @@ private:
 
     GrContextOptions::Enable fAllowMultipleTextures;
     sk_sp<SkTypeface> fTypefaces[6];
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 constexpr SkScalar FontCacheGM::kSize;

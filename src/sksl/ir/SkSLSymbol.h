@@ -50,7 +50,7 @@ struct Symbol : public IRNode {
     Kind fKind;
     StringFragment fName;
 
-    typedef IRNode INHERITED;
+    using INHERITED = IRNode;
 };
 
 }  // namespace SkSL

@@ -68,7 +68,7 @@ struct FunctionCall : public Expression {
     const FunctionDeclaration& fFunction;
     std::vector<std::unique_ptr<Expression>> fArguments;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

@@ -161,7 +161,7 @@ private:
     SkGlyphRunListPainter fGlyphPainter;
 
 
-    typedef SkBaseDevice INHERITED;
+    using INHERITED = SkBaseDevice;
 };
 
 class SkBitmapDeviceFilteredSurfaceProps {

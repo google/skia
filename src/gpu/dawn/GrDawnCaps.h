@@ -74,7 +74,7 @@ private:
 
     GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
-    typedef GrCaps INHERITED;
+    using INHERITED = GrCaps;
 };
 
 #endif

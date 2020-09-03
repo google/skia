@@ -91,7 +91,7 @@ protected:
 private:
     SkScalar fTextHeight;
     sk_sp<SkTextBlob> fBlob;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

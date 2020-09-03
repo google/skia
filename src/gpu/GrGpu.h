@@ -871,7 +871,7 @@ private:
     bool fOOMed = false;
 
     friend class GrPathRendering;
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

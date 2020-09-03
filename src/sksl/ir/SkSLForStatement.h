@@ -66,7 +66,7 @@ struct ForStatement : public Statement {
     std::unique_ptr<Expression> fNext;
     std::unique_ptr<Statement> fStatement;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

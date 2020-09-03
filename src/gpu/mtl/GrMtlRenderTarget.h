@@ -81,7 +81,7 @@ private:
 
     bool completeStencilAttachment() override;
 
-    typedef GrRenderTarget INHERITED;
+    using INHERITED = GrRenderTarget;
 };
 
 

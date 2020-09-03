@@ -54,7 +54,7 @@ private:
     SkPoint     fPoints[4];
     SkString    fName;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new CubicKLMBench(285.625f, 499.687f, 411.625f, 808.188f,

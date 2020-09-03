@@ -622,7 +622,7 @@ public:
         }
 
     private:
-        typedef GrGLSLGeometryProcessor INHERITED;
+        using INHERITED = GrGLSLGeometryProcessor;
 
         SkMatrix      fLocalMatrix = SkMatrix::InvalidMatrix();
         UniformHandle fLocalMatrixUniform;
@@ -658,7 +658,7 @@ private:
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
@@ -898,7 +898,7 @@ private:
     SkTDArray<MeshDraw> fDraws;
     GrProgramInfo*      fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 }  // anonymous namespace

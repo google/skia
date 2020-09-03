@@ -114,7 +114,7 @@ protected:
 private:
     SkScalar fRotation;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new DashCircleGM; )

@@ -78,7 +78,7 @@ struct Variable : public Symbol {
     // eliminated.
     mutable int fWriteCount;
 
-    typedef Symbol INHERITED;
+    using INHERITED = Symbol;
 };
 
 } // namespace SkSL

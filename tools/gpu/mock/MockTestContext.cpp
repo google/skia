@@ -35,7 +35,7 @@ protected:
     std::function<void()> onPlatformGetAutoContextRestore() const override { return nullptr; }
 
 private:
-    typedef sk_gpu_test::TestContext INHERITED;
+    using INHERITED = sk_gpu_test::TestContext;
 };
 
 } // anonymous namespace

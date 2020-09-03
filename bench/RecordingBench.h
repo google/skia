@@ -24,7 +24,7 @@ protected:
     sk_sp<const SkPicture> fSrc;
     SkString fName;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class RecordingBench : public PictureCentricBench {
@@ -37,7 +37,7 @@ protected:
 private:
     bool fUseBBH;
 
-    typedef PictureCentricBench INHERITED;
+    using INHERITED = PictureCentricBench;
 };
 
 class DeserializePictureBench : public Benchmark {
@@ -54,7 +54,7 @@ private:
     SkString      fName;
     sk_sp<SkData> fEncodedPicture;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 #endif//RecordingBench_DEFINED

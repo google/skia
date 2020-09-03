@@ -34,7 +34,7 @@ private:
     SkMatrix            fMatrix;
     SkTLazy<SkPaint>    fPaint;
 
-    typedef SkImageGenerator INHERITED;
+    using INHERITED = SkImageGenerator;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

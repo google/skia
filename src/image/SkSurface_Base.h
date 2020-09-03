@@ -149,7 +149,7 @@ private:
     friend class SkCanvas;
     friend class SkSurface;
 
-    typedef SkSurface INHERITED;
+    using INHERITED = SkSurface;
 };
 
 SkCanvas* SkSurface_Base::getCachedCanvas() {

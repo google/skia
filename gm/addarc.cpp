@@ -69,7 +69,7 @@ protected:
 
 private:
     SkScalar fRotate;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new AddArcGM; )
 
@@ -154,7 +154,7 @@ protected:
 private:
     SkScalar fRotate;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new StrokeCircleGM; )
 
@@ -207,7 +207,7 @@ protected:
 private:
     SkScalar fRotate;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new FillCircleGM; )
 

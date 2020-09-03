@@ -54,7 +54,7 @@ protected:
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugReportCallbackEXT = nullptr;
 
 private:
-    typedef TestContext INHERITED;
+    using INHERITED = TestContext;
 };
 
 /**

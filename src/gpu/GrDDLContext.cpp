@@ -149,7 +149,7 @@ private:
 
     ProgramInfoMap fProgramInfoMap;
 
-    typedef GrContext INHERITED;
+    using INHERITED = GrContext;
 };
 
 sk_sp<GrRecordingContext> GrRecordingContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {

@@ -90,7 +90,7 @@ private:
 
     std::unique_ptr<GrSmallPathAtlasMgr> fSmallPathAtlasMgr;
 
-    typedef GrContext INHERITED;
+    using INHERITED = GrContext;
 };
 
 

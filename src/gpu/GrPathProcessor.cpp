@@ -107,7 +107,7 @@ private:
     UniformHandle fColorUniform;
     SkPMColor4f fColor;
 
-    typedef GrGLSLPrimitiveProcessor INHERITED;
+    using INHERITED = GrGLSLPrimitiveProcessor;
 };
 
 GrPathProcessor::GrPathProcessor(const SkPMColor4f& color,

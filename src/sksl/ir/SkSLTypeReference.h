@@ -38,7 +38,7 @@ struct TypeReference : public Expression {
 
     const Type& fValue;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 
 private:
     TypeReference(int offset, const Type& value, const Type* type)

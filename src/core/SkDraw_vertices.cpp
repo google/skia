@@ -161,7 +161,7 @@ private:
     const bool fIsOpaque;
     const bool fUsePersp;   // controls our stages, and what we do in update()
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 bool SkTriColorShader::update(const SkMatrix& ctmInv, const SkPoint pts[],

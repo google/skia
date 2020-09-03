@@ -51,7 +51,7 @@ struct ProgramElement : public IRNode {
 
     virtual std::unique_ptr<ProgramElement> clone() const = 0;
 
-    typedef IRNode INHERITED;
+    using INHERITED = IRNode;
 };
 
 }  // namespace SkSL

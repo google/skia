@@ -264,7 +264,7 @@ private:
     AttributeSet fInstanceAttributes;
 
     int fTextureSamplerCnt = 0;
-    typedef GrProcessor INHERITED;
+    using INHERITED = GrProcessor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

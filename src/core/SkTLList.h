@@ -177,7 +177,7 @@ public:
     /** The iterator becomes invalid if the element it refers to is removed from the list. */
     class Iter : private NodeList::Iter {
     private:
-        typedef typename NodeList::Iter INHERITED;
+        using INHERITED = typename NodeList::Iter;
 
     public:
         typedef typename INHERITED::IterStart IterStart;

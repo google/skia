@@ -210,7 +210,7 @@ private:
     sk_sp<SkImage> fRGBImage;
     sk_sp<SkImage> fRGBAImage;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -82,7 +82,7 @@ private:
     float fCurrentCoverage = 0.0f;
     float fDitherRate      = 0.0f;
 
-    typedef SkBlitter INHERITED;
+    using INHERITED = SkBlitter;
 };
 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,

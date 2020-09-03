@@ -83,7 +83,7 @@ protected:
     class Iter;
 
 private:
-    typedef SkCanvasVirtualEnforcer<SkNoDrawCanvas> INHERITED;
+    using INHERITED = SkCanvasVirtualEnforcer<SkNoDrawCanvas>;
 };
 
 

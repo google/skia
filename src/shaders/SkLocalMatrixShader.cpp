@@ -175,7 +175,7 @@ private:
     sk_sp<SkShader> fProxyShader;
     SkMatrix        fCTM;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 

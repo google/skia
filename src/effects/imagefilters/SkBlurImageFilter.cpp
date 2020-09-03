@@ -60,7 +60,7 @@ private:
     SkSize     fSigma;
     SkTileMode fTileMode;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace

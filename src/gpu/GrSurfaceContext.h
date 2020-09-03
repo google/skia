@@ -242,7 +242,7 @@ private:
 
     GrColorInfo fColorInfo;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

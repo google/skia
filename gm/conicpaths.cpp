@@ -141,7 +141,7 @@ protected:
 private:
     SkTArray<SkPath> fPaths;
     SkPath           fGiantCircle;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM(return new ConicPathsGM;)
 

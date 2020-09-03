@@ -42,7 +42,7 @@ private:
 
     GrSurfaceProxyView onView(GrMipmapped) final;
 
-    typedef GrTextureProducer INHERITED;
+    using INHERITED = GrTextureProducer;
 };
 
 #endif

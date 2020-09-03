@@ -59,7 +59,7 @@ struct SwitchStatement : public Statement {
     const std::shared_ptr<SymbolTable> fSymbols;
     std::vector<std::unique_ptr<SwitchCase>> fCases;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

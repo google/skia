@@ -54,6 +54,6 @@ private:
     SkCodec::Result sampledDecode(const SkImageInfo& info, void* pixels, size_t rowBytes,
             const AndroidOptions& options);
 
-    typedef SkAndroidCodec INHERITED;
+    using INHERITED = SkAndroidCodec;
 };
 #endif // SkSampledCodec_DEFINED

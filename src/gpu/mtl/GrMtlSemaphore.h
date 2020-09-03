@@ -38,7 +38,7 @@ private:
     id<MTLEvent> fEvent SK_API_AVAILABLE(macos(10.14), ios(12.0));
     uint64_t     fValue;
 
-    typedef GrSemaphore INHERITED;
+    using INHERITED = GrSemaphore;
 };
 
 #endif

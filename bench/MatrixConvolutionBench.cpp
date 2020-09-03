@@ -71,7 +71,7 @@ private:
     sk_sp<SkImageFilter> fFilter;
     SkString fName;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new MatrixConvolutionBench(false, SkTileMode::kClamp, true); )

@@ -149,7 +149,7 @@ private:
     static constexpr SkScalar kTestPad = 10.f;
     static constexpr SkScalar kColorSpaceOffset = 36.f;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new YUVtoRGBEffect;)
@@ -260,7 +260,7 @@ private:
     static constexpr SkScalar kTestPad = 10.f;
     static constexpr SkScalar kColorSpaceOffset = 36.f;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new YUVNV12toRGBEffect;)
@@ -380,7 +380,7 @@ private:
 
     static constexpr SkScalar kTestPad = 10.f;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new YUVtoRGBSubsetEffect;)

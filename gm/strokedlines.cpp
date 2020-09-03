@@ -232,7 +232,7 @@ private:
     SkTArray<SkPaint> fPaints;
     SkTArray<SkMatrix> fMatrices;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

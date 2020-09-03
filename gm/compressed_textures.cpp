@@ -319,7 +319,7 @@ private:
     sk_sp<SkImage> fOpaqueBC1Image;
     sk_sp<SkImage> fTransparentBC1Image;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

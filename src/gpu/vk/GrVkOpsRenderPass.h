@@ -109,7 +109,7 @@ private:
     bool fIsActive = false;
 #endif
 
-    typedef GrOpsRenderPass INHERITED;
+    using INHERITED = GrOpsRenderPass;
 };
 
 #endif

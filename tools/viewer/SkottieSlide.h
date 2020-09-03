@@ -56,7 +56,7 @@ private:
                                        fDraggingProgress   = false,
                                        fPreferGlyphPaths   = false;
 
-    typedef Slide INHERITED;
+    using INHERITED = Slide;
 };
 
 #endif // SK_ENABLE_SKOTTIE

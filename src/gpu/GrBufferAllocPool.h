@@ -241,7 +241,7 @@ public:
                            int* actualVertexCount);
 
 private:
-    typedef GrBufferAllocPool INHERITED;
+    using INHERITED = GrBufferAllocPool;
 };
 
 /**
@@ -311,7 +311,7 @@ public:
                            int* actualIndexCount);
 
 private:
-    typedef GrBufferAllocPool INHERITED;
+    using INHERITED = GrBufferAllocPool;
 };
 
 class GrDrawIndirectBufferAllocPool : private GrBufferAllocPool {

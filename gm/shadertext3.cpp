@@ -137,7 +137,7 @@ protected:
 
 private:
     SkBitmap fBmp;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

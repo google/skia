@@ -59,7 +59,7 @@ private:
     const char*          fName;
     SkPath*              fPaths;
     friend class TestTypeface;
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 class TestTypeface : public SkTypeface {

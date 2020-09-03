@@ -97,7 +97,7 @@ private:
     int                          fUnreleasedFulfills = 0;
     int                          fDoneCnt = 0;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 // This class consolidates tracking & extraction of the original image data from an skp,

@@ -77,7 +77,7 @@ private:
     bool fIsSmall;
     bool fInitialized;
     SkBitmap fCheckerboard;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -184,7 +184,7 @@ private:
  */
 class GrScratchKey : public GrResourceKey {
 private:
-    typedef GrResourceKey INHERITED;
+    using INHERITED = GrResourceKey;
 
 public:
     /** Uniquely identifies the type of resource that is cached as scratch. */
@@ -236,7 +236,7 @@ public:
  */
 class GrUniqueKey : public GrResourceKey {
 private:
-    typedef GrResourceKey INHERITED;
+    using INHERITED = GrResourceKey;
 
 public:
     typedef uint32_t Domain;

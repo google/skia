@@ -306,7 +306,7 @@ private:
     SkTArray<sk_sp<SkImage>> fLabels;
     sk_sp<SkImage> fReferenceImages[2];
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new FlippityGM;)

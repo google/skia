@@ -74,7 +74,7 @@ private:
     GrProxyProvider*       fProxyProvider;
     bool                   fAllowCaching;
 
-    typedef GrPathRenderer INHERITED;
+    using INHERITED = GrPathRenderer;
 };
 
 #endif

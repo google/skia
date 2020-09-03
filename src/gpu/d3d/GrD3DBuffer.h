@@ -56,7 +56,7 @@ private:
     ID3D12Resource* fStagingBuffer = nullptr;
     size_t fStagingOffset = 0;
 
-    typedef GrGpuBuffer INHERITED;
+    using INHERITED = GrGpuBuffer;
 };
 
 #endif

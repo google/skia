@@ -60,7 +60,7 @@ struct FloatLiteral : public Expression {
 
     const double fValue;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

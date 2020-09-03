@@ -104,7 +104,7 @@ private:
             fDescSetCache;
     static constexpr int kMaxCachedDescSets = 8;
 
-    typedef GrTexture INHERITED;
+    using INHERITED = GrTexture;
 };
 
 #endif

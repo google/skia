@@ -48,7 +48,7 @@ public:
     }
 
 private:
-    typedef GrGLSLGeometryProcessor INHERITED;
+    using INHERITED = GrGLSLGeometryProcessor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

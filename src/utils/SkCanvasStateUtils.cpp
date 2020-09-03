@@ -125,7 +125,7 @@ public:
     SkCanvasLayerState* layers;
 private:
     SkCanvas* originalCanvas;
-    typedef SkCanvasState INHERITED;
+    using INHERITED = SkCanvasState;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

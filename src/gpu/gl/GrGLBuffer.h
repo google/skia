@@ -62,7 +62,7 @@ private:
     size_t          fGLSizeInBytes;
     bool            fHasAttachedToTexture;
 
-    typedef GrGpuBuffer INHERITED;
+    using INHERITED = GrGpuBuffer;
 };
 
 #endif

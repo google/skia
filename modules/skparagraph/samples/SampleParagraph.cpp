@@ -170,7 +170,7 @@ protected:
 
 private:
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView2 : public ParagraphView_Base {
@@ -416,7 +416,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView3 : public ParagraphView_Base {
@@ -539,7 +539,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView4 : public ParagraphView_Base {
@@ -675,7 +675,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView5 : public ParagraphView_Base {
@@ -794,7 +794,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView6 : public ParagraphView_Base {
@@ -965,7 +965,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView7 : public ParagraphView_Base {
@@ -1035,7 +1035,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView8 : public ParagraphView_Base {
@@ -1105,7 +1105,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView9 : public ParagraphView_Base {
@@ -1202,7 +1202,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
     SkScalar letterSpacing;
     SkScalar wordSpacing;
 };
@@ -1244,7 +1244,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView11 : public ParagraphView_Base {
@@ -1323,7 +1323,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView12 : public ParagraphView_Base {
@@ -1362,7 +1362,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView14 : public ParagraphView_Base {
@@ -1397,7 +1397,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView15 : public ParagraphView_Base {
@@ -1444,7 +1444,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView16 : public ParagraphView_Base {
@@ -1479,7 +1479,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView17 : public ParagraphView_Base {
@@ -1515,7 +1515,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class Zalgo {
@@ -1648,7 +1648,7 @@ private:
     size_t fIndex = 0;
     size_t fLimit = 20;
     std::unique_ptr<Paragraph> fParagraph;
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView19 : public ParagraphView_Base {
@@ -1675,7 +1675,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView20 : public ParagraphView_Base {
@@ -1704,7 +1704,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView21 : public ParagraphView_Base {
@@ -1729,7 +1729,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView22 : public ParagraphView_Base {
@@ -1778,7 +1778,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
     bool direction;
 };
 
@@ -1829,7 +1829,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView24 : public ParagraphView_Base {
@@ -1874,7 +1874,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView25 : public ParagraphView_Base {
@@ -1941,7 +1941,7 @@ Shell: layout('Go to device settings ￼ and set up a passcode. ￼', 280.000000
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView26 : public ParagraphView_Base {
@@ -1984,7 +1984,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView27 : public ParagraphView_Base {
@@ -2116,7 +2116,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView28 : public ParagraphView_Base {
@@ -2152,7 +2152,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView29 : public ParagraphView_Base {
@@ -2220,7 +2220,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView30 : public ParagraphView_Base {
@@ -2276,7 +2276,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView31 : public ParagraphView_Base {
@@ -2306,7 +2306,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView32 : public ParagraphView_Base {
@@ -2345,7 +2345,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView33 : public ParagraphView_Base {
@@ -2378,7 +2378,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView34 : public ParagraphView_Base {
@@ -2430,7 +2430,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView35 : public ParagraphView_Base {
@@ -2489,7 +2489,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
     SkPoint fPoint;
 };
 
@@ -2525,7 +2525,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView37 : public ParagraphView_Base {
@@ -2579,7 +2579,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView38 : public ParagraphView_Base {
@@ -2641,7 +2641,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView39 : public ParagraphView_Base {
@@ -2677,7 +2677,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView41 : public ParagraphView_Base {
@@ -2727,7 +2727,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView42 : public ParagraphView_Base {
@@ -2772,7 +2772,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView43 : public ParagraphView_Base {
@@ -2806,7 +2806,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView44 : public ParagraphView_Base {
@@ -2839,7 +2839,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView45 : public ParagraphView_Base {
@@ -2895,7 +2895,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 class ParagraphView46 : public ParagraphView_Base {
@@ -2935,7 +2935,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 }  // namespace

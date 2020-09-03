@@ -82,7 +82,7 @@ private:
     const TestType fType;
     skiatest::Reporter* const fReporter;
 
-    typedef SkImageGenerator INHERITED;
+    using INHERITED = SkImageGenerator;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

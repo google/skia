@@ -116,7 +116,7 @@ private:
     static constexpr int kWidth = 5 * kCloseUpSize;
     static constexpr int kHeight = 2 * (kLastEnum_SkBlurStyle + 1) * kCloseUpSize;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new BigBlursGM;)

@@ -45,7 +45,7 @@ private:
     SkString         fUniqueName;
     SkIRect          fDevBounds;
 
-    typedef SKPBench INHERITED;
+    using INHERITED = SKPBench;
 };
 
 #endif

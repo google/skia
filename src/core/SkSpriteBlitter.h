@@ -43,7 +43,7 @@ protected:
     const SkPaint*  fPaint;
 
 private:
-    typedef SkBlitter INHERITED;
+    using INHERITED = SkBlitter;
 };
 
 #endif

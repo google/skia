@@ -193,7 +193,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ShowMipLevels(255); )
 DEF_GM( return new ShowMipLevels(256); )
@@ -306,7 +306,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ShowMipLevels2(255, 255); )
 DEF_GM( return new ShowMipLevels2(256, 255); )
@@ -369,6 +369,6 @@ private:
         return r.height() + 10;
     }
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new ShowMipLevels3; )

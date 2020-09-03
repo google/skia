@@ -84,7 +84,7 @@ private:
     GrBackendObjectOwnership fTextureIDOwnership;
     bool fBaseLevelHasBeenBoundToFBO = false;
 
-    typedef GrTexture INHERITED;
+    using INHERITED = GrTexture;
 };
 
 #endif

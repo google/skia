@@ -93,7 +93,7 @@ private:
     sk_sp<SkPicture> fPicture;
     SkBitmap         fBitmap;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new PictureShaderCacheGM(100);)

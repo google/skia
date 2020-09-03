@@ -63,7 +63,7 @@ struct IntLiteral : public Expression {
 
     const int64_t fValue;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

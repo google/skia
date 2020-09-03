@@ -44,7 +44,7 @@ private:
     SkRegion::Op fRegionOp;
     bool         fInvertCoverage;
 
-    typedef GrXferProcessor INHERITED;
+    using INHERITED = GrXferProcessor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ private:
 
     void onSetData(const GrGLSLProgramDataManager&, const GrXferProcessor&) override {}
 
-    typedef GrGLSLXferProcessor INHERITED;
+    using INHERITED = GrGLSLXferProcessor;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

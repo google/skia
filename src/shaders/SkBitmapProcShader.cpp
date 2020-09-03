@@ -69,7 +69,7 @@ private:
     SkBitmapProcState*  fState;
     uint32_t            fFlags;
 
-    typedef SkShaderBase::Context INHERITED;
+    using INHERITED = SkShaderBase::Context;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

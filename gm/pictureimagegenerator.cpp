@@ -206,7 +206,7 @@ private:
     const SkScalar kPictureWidth = 200;
     const SkScalar kPictureHeight = 100;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new PictureGeneratorGM;)

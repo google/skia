@@ -117,7 +117,7 @@ struct FunctionDeclaration : public Symbol {
     const Type& fReturnType;
     mutable std::atomic<int> fCallCount = 0;
 
-    typedef Symbol INHERITED;
+    using INHERITED = Symbol;
 };
 
 }  // namespace SkSL

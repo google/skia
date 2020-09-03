@@ -1484,7 +1484,7 @@ private:
     sk_sp<SkColorSpace>        fTargetColorSpace;
     bool                       fGpuGeneratedImages = false;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1674,7 +1674,7 @@ private:
     sk_sp<SkImage> fImages[2][2];
     sk_sp<SkColorSpace> fTargetColorSpace;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new YUVMakeColorSpaceGM();)
@@ -1799,6 +1799,6 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM( return new YUVSplitterGM; )
