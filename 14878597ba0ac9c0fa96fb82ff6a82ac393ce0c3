@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce6400b3_8c9510de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-03T14:25:21Z",
+      "side": 1,
+      "message": "This will cause slight image diffs in the DDL configs (particularly on the top \u0026 bottom of the blurred rrect masks).",
+      "revId": "14878597ba0ac9c0fa96fb82ff6a82ac393ce0c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
