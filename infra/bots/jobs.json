@@ -234,7 +234,6 @@
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit",
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit",
-  "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-SkottieWASM",
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-Puppeteer_SkottieFrames",
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-Puppeteer_RenderSKP",
   "Perf-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-Puppeteer_CanvasPerf",
