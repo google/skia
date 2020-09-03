@@ -66,8 +66,12 @@ public:
         // represents the bucket.  This functionality is currently only supported for A8
         SkColor fCanonicalColor;
         SkPaint::Style fStyle;
+        SkScalar fFrameWidth;
+        SkScalar fMiterLimit;
+        SkPaint::Join fJoin;
         SkPixelGeometry fPixelGeometry;
         bool fHasBlur;
+        SkMaskFilterBase::BlurRec fBlurRec;
         uint32_t fScalerContextFlags;
 
         bool operator==(const Key& other) const;
@@ -88,13 +92,10 @@ public:
     static sk_sp<GrTextBlob> Make(const SkGlyphRunList& glyphRunList,
                                   const SkMatrix& drawMatrix);
 
-    // Key manipulation functions
-    void setupKey(const GrTextBlob::Key& key,
-                  const SkMaskFilterBase::BlurRec& blurRec,
-                  const SkPaint& paint);
     static const Key& GetKey(const GrTextBlob& blob);
     static uint32_t Hash(const Key& key);
 
+    void addKey(const Key& key);
     bool hasDistanceField() const;
     bool hasBitmap() const;
     bool hasPerspective() const;
@@ -103,8 +104,7 @@ public:
     void setHasBitmap();
     void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax);
 
-    bool canReuse(const SkPaint& paint, const SkMaskFilterBase::BlurRec& blurRec,
-                  const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin);
 
     const Key& key() const;
     size_t size() const;
@@ -122,12 +122,6 @@ private:
     enum TextType {
         kHasDistanceField_TextType = 0x1,
         kHasBitmap_TextType = 0x2,
-    };
-
-    struct StrokeInfo {
-        SkScalar fFrameWidth;
-        SkScalar fMiterLimit;
-        SkPaint::Join fJoin;
     };
 
     GrTextBlob(size_t allocSize,
@@ -167,8 +161,6 @@ private:
 
     const SkColor fInitialLuminance;
 
-    SkMaskFilterBase::BlurRec fBlurRec;
-    StrokeInfo fStrokeInfo;
     Key fKey;
 
     // We can reuse distance field text, but only if the new view matrix would not result in

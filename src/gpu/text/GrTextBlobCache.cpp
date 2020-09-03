@@ -20,16 +20,10 @@ GrTextBlobCache::GrTextBlobCache(uint32_t messageBusID)
         , fMessageBusID(messageBusID)
         , fPurgeBlobInbox(messageBusID) { }
 
-sk_sp<GrTextBlob>
-GrTextBlobCache::makeCachedBlob(const SkGlyphRunList& glyphRunList, const GrTextBlob::Key& key,
-                                const SkMaskFilterBase::BlurRec& blurRec,
-                                const SkMatrix& viewMatrix) {
-    sk_sp<GrTextBlob> cacheBlob(GrTextBlob::Make(glyphRunList, viewMatrix));
-    cacheBlob->setupKey(key, blurRec, glyphRunList.paint());
+void GrTextBlobCache::add(const SkGlyphRunList& glyphRunList, sk_sp<GrTextBlob> blob) {
     SkAutoSpinlock lock{fSpinLock};
-    this->internalAdd(cacheBlob);
+    this->internalAdd(std::move(blob));
     glyphRunList.temporaryShuntBlobNotifyAddedToCache(fMessageBusID);
-    return cacheBlob;
 }
 
 sk_sp<GrTextBlob> GrTextBlobCache::find(const GrTextBlob::Key& key) {

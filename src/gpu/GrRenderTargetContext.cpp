@@ -475,25 +475,35 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         key.fPixelGeometry = pixelGeometry;
         key.fUniqueID = glyphRunList.uniqueID();
         key.fStyle = blobPaint.getStyle();
+        if (key.fStyle != SkPaint::kFill_Style) {
+            key.fFrameWidth = blobPaint.getStrokeWidth();
+            key.fMiterLimit = blobPaint.getStrokeMiter();
+            key.fJoin = blobPaint.getStrokeJoin();
+        }
         key.fHasBlur = SkToBool(mf);
+        if (key.fHasBlur) {
+            key.fBlurRec = blurRec;
+        }
         key.fCanonicalColor = canonicalColor;
         key.fScalerContextFlags = scalerContextFlags;
         blob = textBlobCache->find(key);
     }
 
     const SkMatrix& drawMatrix(viewMatrix.localToDevice());
-    if (blob == nullptr || !blob->canReuse(blobPaint, blurRec, drawMatrix, drawOrigin)) {
+    if (blob == nullptr || !blob->canReuse(blobPaint, drawMatrix, drawOrigin)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
             //      but we'd have to clear the SubRun information
             textBlobCache->remove(blob.get());
         }
+
+        blob = GrTextBlob::Make(glyphRunList, drawMatrix);
         if (canCache) {
-            blob = textBlobCache->makeCachedBlob(glyphRunList, key, blurRec, drawMatrix);
-        } else {
-            blob = GrTextBlob::Make(glyphRunList, drawMatrix);
+            blob->addKey(key);
+            textBlobCache->add(glyphRunList, blob);
         }
+
         bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
         fGlyphPainter.processGlyphRunList(
                 glyphRunList, drawMatrix, fSurfaceProps, supportsSDFT, options, blob.get());

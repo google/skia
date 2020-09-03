@@ -103,9 +103,9 @@ void direct_2D(SkZip<Mask2DVertex[4], const GrGlyph*, const SkIPoint> quadData,
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         SkScalar dl = leftTop.x() + deviceOrigin.x(),
-                dt = leftTop.y() + deviceOrigin.y(),
-                dr = dl + (ar - al),
-                db = dt + (ab - at);
+                 dt = leftTop.y() + deviceOrigin.y(),
+                 dr = dl + (ar - al),
+                 db = dt + (ab - at);
 
         quad[0] = {{dl, dt}, color, {al, at}};  // L,T
         quad[1] = {{dl, db}, color, {al, ab}};  // L,B
@@ -123,7 +123,7 @@ void generalized_direct_2D(SkZip<Quad, const GrGlyph*, const VertexData> quadDat
     for (auto[quad, glyph, leftTop] : quadData) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         uint16_t w = ar - al,
-                h = ab - at;
+                 h = ab - at;
         auto[l, t] = leftTop + deviceOrigin;
         if (clip == nullptr) {
             auto[dl, dt, dr, db] = SkRect::MakeLTRB(l, t, l + w, t + h);
@@ -200,9 +200,9 @@ void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> 
         SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
                 sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
         SkPoint3 lt = mapXYZ(sLT.x(), sLT.y()),
-                lb = mapXYZ(sLT.x(), sRB.y()),
-                rt = mapXYZ(sRB.x(), sLT.y()),
-                rb = mapXYZ(sRB.x(), sRB.y());
+                 lb = mapXYZ(sLT.x(), sRB.y()),
+                 rt = mapXYZ(sRB.x(), sLT.y()),
+                 rb = mapXYZ(sRB.x(), sRB.y());
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         quad[0] = {lt, color, {al, at}};  // L,T
         quad[1] = {lb, color, {al, ab}};  // L,B
@@ -215,8 +215,26 @@ void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> 
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
 GrTextBlob::Key::Key() { sk_bzero(this, sizeof(Key)); }
 
-bool GrTextBlob::Key::operator==(const GrTextBlob::Key& other) const {
-    return 0 == memcmp(this, &other, sizeof(Key));
+bool GrTextBlob::Key::operator==(const GrTextBlob::Key& that) const {
+    if (fUniqueID != that.fUniqueID) { return false; }
+    if (fCanonicalColor != that.fCanonicalColor) { return false; }
+    if (fStyle != that.fStyle) { return false; }
+    if (fStyle != SkPaint::kFill_Style) {
+        if (fFrameWidth != that.fFrameWidth ||
+            fMiterLimit != that.fMiterLimit ||
+            fJoin != that.fJoin) {
+                return false;
+        }
+    }
+    if (fPixelGeometry != that.fPixelGeometry) { return false; }
+    if (fHasBlur != that.fHasBlur) { return false; }
+    if (fHasBlur) {
+        if (fBlurRec.fStyle != that.fBlurRec.fStyle || fBlurRec.fSigma != that.fBlurRec.fSigma) {
+            return false;
+        }
+    }
+    if (fScalerContextFlags != that.fScalerContextFlags) { return false; }
+    return true;
 }
 
 // -- GrPathSubRun::PathGlyph ----------------------------------------------------------------------
@@ -997,21 +1015,12 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkM
     return blob;
 }
 
-void GrTextBlob::setupKey(const GrTextBlob::Key& key, const SkMaskFilterBase::BlurRec& blurRec,
-                          const SkPaint& paint) {
-    fKey = key;
-    if (key.fHasBlur) {
-        fBlurRec = blurRec;
-    }
-    if (key.fStyle != SkPaint::kFill_Style) {
-        fStrokeInfo.fFrameWidth = paint.getStrokeWidth();
-        fStrokeInfo.fMiterLimit = paint.getStrokeMiter();
-        fStrokeInfo.fJoin = paint.getStrokeJoin();
-    }
-}
 const GrTextBlob::Key& GrTextBlob::GetKey(const GrTextBlob& blob) { return blob.fKey; }
 uint32_t GrTextBlob::Hash(const GrTextBlob::Key& key) { return SkOpts::hash(&key, sizeof(Key)); }
 
+void GrTextBlob::addKey(const Key& key) {
+    fKey = key;
+}
 bool GrTextBlob::hasDistanceField() const {
     return SkToBool(fTextType & kHasDistanceField_TextType);
 }
@@ -1027,7 +1036,6 @@ void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
 }
 
 bool GrTextBlob::canReuse(const SkPaint& paint,
-                          const SkMaskFilterBase::BlurRec& blurRec,
                           const SkMatrix& drawMatrix,
                           SkPoint drawOrigin) {
     // A singular matrix will create a GrTextBlob with no SubRuns, but unknown glyphs can
@@ -1051,20 +1059,6 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
 
     /** This could be relaxed for blobs with only distance field glyphs. */
     if (fInitialMatrix.hasPerspective() && !SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix)) {
-        return false;
-    }
-
-    // We only cache one masked version
-    if (fKey.fHasBlur &&
-        (fBlurRec.fSigma != blurRec.fSigma || fBlurRec.fStyle != blurRec.fStyle)) {
-        return false;
-    }
-
-    // Similarly, we only cache one version for each style
-    if (fKey.fStyle != SkPaint::kFill_Style &&
-        (fStrokeInfo.fFrameWidth != paint.getStrokeWidth() ||
-         fStrokeInfo.fMiterLimit != paint.getStrokeMiter() ||
-         fStrokeInfo.fJoin != paint.getStrokeJoin())) {
         return false;
     }
 
