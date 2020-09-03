@@ -131,6 +131,15 @@ const GrTextBlobCache* GrRecordingContext::getTextBlobCache() const {
     return fThreadSafeProxy->priv().getTextBlobCache();
 }
 
+GrMagicCache* GrRecordingContext::magicCache() {
+    return fThreadSafeProxy->priv().magicCache();
+}
+
+const GrMagicCache* GrRecordingContext::magicCache() const {
+    return fThreadSafeProxy->priv().magicCache();
+}
+
+
 void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
     this->drawingManager()->addOnFlushCallbackObject(onFlushCBObject);
 }
