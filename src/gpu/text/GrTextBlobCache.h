@@ -22,10 +22,8 @@ class GrTextBlobCache {
 public:
     GrTextBlobCache(uint32_t messageBusID);
 
-    sk_sp<GrTextBlob> makeCachedBlob(const SkGlyphRunList& glyphRunList,
-                                     const GrTextBlob::Key& key,
-                                     const SkMaskFilterBase::BlurRec& blurRec,
-                                     const SkMatrix& viewMatrix) SK_EXCLUDES(fSpinLock);
+    void add(const SkGlyphRunList& glyphRunList,
+             sk_sp<GrTextBlob> blob) SK_EXCLUDES(fSpinLock);
 
     sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) SK_EXCLUDES(fSpinLock);
 
