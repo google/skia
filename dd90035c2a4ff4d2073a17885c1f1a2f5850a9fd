@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23509a75_7e5f535e",
+        "filename": "tools/skottie-wasm-perf/skottie-wasm-perf.html",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-09-03T12:49:22Z",
+      "side": 1,
+      "message": "We need the same update to skottie-player-sk, right?  Since it\u0027s a different repo, is there a way to land something preemptively that would work for both flavors?",
+      "revId": "dd90035c2a4ff4d2073a17885c1f1a2f5850a9fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
