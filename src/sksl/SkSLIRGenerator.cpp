@@ -1528,8 +1528,7 @@ static bool determine_binary_type(const Context& context,
                                   const Type& right,
                                   const Type** outLeftType,
                                   const Type** outRightType,
-                                  const Type** outResultType,
-                                  bool tryFlipped) {
+                                  const Type** outResultType) {
     bool isLogical;
     bool validMatrixOrVectorOp;
     switch (op) {
@@ -1571,6 +1570,7 @@ static bool determine_binary_type(const Context& context,
             return left.canCoerceTo(*context.fBool_Type) &&
                    right.canCoerceTo(*context.fBool_Type);
         case Token::Kind::TK_STAREQ:
+        // TODO: Unnecessary special case?
             if (left.typeKind() == Type::TypeKind::kScalar) {
                 *outLeftType = &left;
                 *outRightType = &left;
@@ -1583,7 +1583,7 @@ static bool determine_binary_type(const Context& context,
                 // determine final component type
                 if (determine_binary_type(context, Token::Kind::TK_STAR, left.componentType(),
                                           right.componentType(), outLeftType, outRightType,
-                                          outResultType, false)) {
+                                          outResultType)) {
                     *outLeftType = &(*outResultType)->toCompound(context, left.columns(),
                                                                  left.rows());
                     *outRightType = &(*outResultType)->toCompound(context, right.columns(),
@@ -1624,6 +1624,7 @@ static bool determine_binary_type(const Context& context,
         case Token::Kind::TK_PERCENTEQ:
         case Token::Kind::TK_SHLEQ:
         case Token::Kind::TK_SHREQ:
+        // TODO: I don't think this special case is needed!
             if (left.typeKind() == Type::TypeKind::kScalar) {
                 *outLeftType = &left;
                 *outRightType = &left;
@@ -1646,51 +1647,61 @@ static bool determine_binary_type(const Context& context,
             isLogical = false;
             validMatrixOrVectorOp = false;
     }
-    bool isVectorOrMatrix = left.typeKind() == Type::TypeKind::kVector ||
-                            left.typeKind() == Type::TypeKind::kMatrix;
-    if (left.typeKind() == Type::TypeKind::kScalar && right.typeKind() == Type::TypeKind::kScalar &&
-            right.canCoerceTo(left)) {
-        if (left.priority() > right.priority()) {
-            *outLeftType = &left;
-            *outRightType = &left;
-        } else {
-            *outLeftType = &right;
-            *outRightType = &right;
-        }
-        if (isLogical) {
-            *outResultType = context.fBool_Type.get();
-        } else {
-            *outResultType = &left;
-        }
-        return true;
-    }
-    if (right.canCoerceTo(left) && isVectorOrMatrix && validMatrixOrVectorOp) {
-        *outLeftType = &left;
-        *outRightType = &left;
-        if (isLogical) {
-            *outResultType = context.fBool_Type.get();
-        } else {
-            *outResultType = &left;
-        }
-        return true;
-    }
-    if ((left.typeKind() == Type::TypeKind::kVector ||
-        left.typeKind() == Type::TypeKind::kMatrix) &&
-        (right.typeKind() == Type::TypeKind::kScalar)) {
+
+    bool leftIsVectorOrMatrix  = left.typeKind()  == Type::TypeKind::kVector ||
+                                 left.typeKind()  == Type::TypeKind::kMatrix,
+         rightIsVectorOrMatrix = right.typeKind() == Type::TypeKind::kVector ||
+                                 right.typeKind() == Type::TypeKind::kMatrix;
+    bool isAssignment = Compiler::IsAssignment(op);
+
+    if (leftIsVectorOrMatrix && right.typeKind() == Type::TypeKind::kScalar) {
         if (determine_binary_type(context, op, left.componentType(), right, outLeftType,
-                                  outRightType, outResultType, false)) {
+                                  outRightType, outResultType)) {
             *outLeftType = &(*outLeftType)->toCompound(context, left.columns(), left.rows());
             if (!isLogical) {
-                *outResultType = &(*outResultType)->toCompound(context, left.columns(),
-                                                               left.rows());
+                *outResultType =
+                        &(*outResultType)->toCompound(context, left.columns(), left.rows());
             }
             return true;
         }
         return false;
     }
-    if (tryFlipped) {
-        return determine_binary_type(context, op, right, left, outRightType, outLeftType,
-                                     outResultType, false);
+
+    if (!isAssignment && rightIsVectorOrMatrix && left.typeKind() == Type::TypeKind::kScalar) {
+        if (determine_binary_type(context, op, left, right.componentType(), outLeftType,
+                                  outRightType, outResultType)) {
+            *outRightType = &(*outRightType)->toCompound(context, right.columns(), right.rows());
+            if (!isLogical) {
+                *outResultType =
+                        &(*outResultType)->toCompound(context, right.columns(), right.rows());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    int r2lCost = right.coercionCost(left);
+    int l2rCost = isAssignment ? INT_MAX : left.coercionCost(right);
+
+    if ((left.typeKind() == Type::TypeKind::kScalar && right.typeKind() == Type::TypeKind::kScalar) ||
+        (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
+        if (r2lCost < l2rCost) {
+            // Right-to-Left conversion is cheaper (and therefore possible)
+            *outLeftType = &left;
+            *outRightType = &left;
+        } else if (l2rCost != INT_MAX) {
+            // Left-to-Right conversion is possible (and at least as cheap as Right-to-Left)
+            *outLeftType = &right;
+            *outRightType = &right;
+        } else {
+            return false;
+        }
+        if (isLogical) {
+            *outResultType = context.fBool_Type.get();
+        } else {
+            *outResultType = &left;
+        }
+        return true;
     }
     return false;
 }
@@ -1925,8 +1936,8 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     } else {
         rawRightType = &right->fType;
     }
-    if (!determine_binary_type(fContext, op, *rawLeftType, *rawRightType, &leftType, &rightType,
-                               &resultType, !Compiler::IsAssignment(op))) {
+    if (!determine_binary_type(fContext, op, *rawLeftType, *rawRightType,
+                               &leftType, &rightType, &resultType)) {
         fErrors.error(expression.fOffset, String("type mismatch: '") +
                                           Compiler::OperatorName(expression.getToken().fKind) +
                                           "' cannot operate on '" + left->fType.displayName() +
@@ -1978,7 +1989,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
     const Type* falseType;
     const Type* resultType;
     if (!determine_binary_type(fContext, Token::Kind::TK_EQEQ, ifTrue->fType, ifFalse->fType,
-                               &trueType, &falseType, &resultType, true) || trueType != falseType) {
+                               &trueType, &falseType, &resultType) || trueType != falseType) {
         fErrors.error(node.fOffset, "ternary operator result mismatch: '" +
                                     ifTrue->fType.displayName() + "', '" +
                                     ifFalse->fType.displayName() + "'");
