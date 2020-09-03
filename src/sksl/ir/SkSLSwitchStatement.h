@@ -19,7 +19,7 @@ class SymbolTable;
  * A 'switch' statement.
  */
 struct SwitchStatement : public Statement {
-    static constexpr Kind kStatementKind = kSwitch_Kind;
+    static constexpr Kind kStatementKind = Kind::kSwitch;
 
     SwitchStatement(int offset, bool isStatic, std::unique_ptr<Expression> value,
                     std::vector<std::unique_ptr<SwitchCase>> cases,
