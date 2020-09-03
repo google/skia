@@ -24,41 +24,41 @@ public:
     : fInvalid_Type(new Type("<INVALID>"))
     , fVoid_Type(new Type("void"))
     , fNull_Type(new Type("null"))
-    , fFloatLiteral_Type(new Type("$floatLiteral", Type::kFloat_NumberKind, 3))
-    , fIntLiteral_Type(new Type("$intLiteral", Type::kSigned_NumberKind, 1))
-    , fFloat_Type(new Type("float", Type::kFloat_NumberKind, 5, true))
+    , fFloatLiteral_Type(new Type("$floatLiteral", Type::NumberKind::kFloat, 3))
+    , fIntLiteral_Type(new Type("$intLiteral", Type::NumberKind::kSigned, 1))
+    , fFloat_Type(new Type("float", Type::NumberKind::kFloat, 5, true))
     , fFloat2_Type(new Type("float2", *fFloat_Type, 2))
     , fFloat3_Type(new Type("float3", *fFloat_Type, 3))
     , fFloat4_Type(new Type("float4", *fFloat_Type, 4))
-    , fHalf_Type(new Type("half", Type::kFloat_NumberKind, 4))
+    , fHalf_Type(new Type("half", Type::NumberKind::kFloat, 4))
     , fHalf2_Type(new Type("half2", *fHalf_Type, 2))
     , fHalf3_Type(new Type("half3", *fHalf_Type, 3))
     , fHalf4_Type(new Type("half4", *fHalf_Type, 4))
-    , fUInt_Type(new Type("uint", Type::kUnsigned_NumberKind, 2, true))
+    , fUInt_Type(new Type("uint", Type::NumberKind::kUnsigned, 2, true))
     , fUInt2_Type(new Type("uint2", *fUInt_Type, 2))
     , fUInt3_Type(new Type("uint3", *fUInt_Type, 3))
     , fUInt4_Type(new Type("uint4", *fUInt_Type, 4))
-    , fInt_Type(new Type("int", Type::kSigned_NumberKind, 2, true))
+    , fInt_Type(new Type("int", Type::NumberKind::kSigned, 2, true))
     , fInt2_Type(new Type("int2", *fInt_Type, 2))
     , fInt3_Type(new Type("int3", *fInt_Type, 3))
     , fInt4_Type(new Type("int4", *fInt_Type, 4))
-    , fUShort_Type(new Type("ushort", Type::kUnsigned_NumberKind, 0))
+    , fUShort_Type(new Type("ushort", Type::NumberKind::kUnsigned, 0))
     , fUShort2_Type(new Type("ushort2", *fUShort_Type, 2))
     , fUShort3_Type(new Type("ushort3", *fUShort_Type, 3))
     , fUShort4_Type(new Type("ushort4", *fUShort_Type, 4))
-    , fShort_Type(new Type("short", Type::kSigned_NumberKind, 0))
+    , fShort_Type(new Type("short", Type::NumberKind::kSigned, 0))
     , fShort2_Type(new Type("short2", *fShort_Type, 2))
     , fShort3_Type(new Type("short3", *fShort_Type, 3))
     , fShort4_Type(new Type("short4", *fShort_Type, 4))
-    , fUByte_Type(new Type("ubyte", Type::kUnsigned_NumberKind, 0))
+    , fUByte_Type(new Type("ubyte", Type::NumberKind::kUnsigned, 0))
     , fUByte2_Type(new Type("ubyte2", *fUByte_Type, 2))
     , fUByte3_Type(new Type("ubyte3", *fUByte_Type, 3))
     , fUByte4_Type(new Type("ubyte4", *fUByte_Type, 4))
-    , fByte_Type(new Type("byte", Type::kSigned_NumberKind, 0))
+    , fByte_Type(new Type("byte", Type::NumberKind::kSigned, 0))
     , fByte2_Type(new Type("byte2", *fByte_Type, 2))
     , fByte3_Type(new Type("byte3", *fByte_Type, 3))
     , fByte4_Type(new Type("byte4", *fByte_Type, 4))
-    , fBool_Type(new Type("bool", Type::kNonnumeric_NumberKind, -1))
+    , fBool_Type(new Type("bool", Type::NumberKind::kNonnumeric, -1))
     , fBool2_Type(new Type("bool2", *fBool_Type, 2))
     , fBool3_Type(new Type("bool3", *fBool_Type, 3))
     , fBool4_Type(new Type("bool4", *fBool_Type, 4))
@@ -111,7 +111,7 @@ public:
     // Related to below FIXME, gsampler*s don't currently expand to cover integer case.
     , fISampler2D_Type(new Type("isampler2D", *fITexture2D_Type))
 
-    , fSampler_Type(new Type("sampler", Type::kSeparateSampler_Kind))
+    , fSampler_Type(new Type("sampler", Type::TypeKind::kSeparateSampler))
     // FIXME express these as "gimage2D" that expand to image2D, iimage2D, and uimage2D.
     , fImage2D_Type(new Type("image2D", SpvDim2D, false, false, false, true))
     , fIImage2D_Type(new Type("iimage2D", SpvDim2D, false, false, false, true))
@@ -186,7 +186,7 @@ public:
                                      fBool3_Type.get(), fBool4_Type.get() }))
     , fSkCaps_Type(new Type("$sk_Caps"))
     , fFragmentProcessor_Type(fp_type(fInt_Type.get(), fBool_Type.get()))
-    , fDefined_Expression(new Defined(*fInvalid_Type)) {}
+    , fDefined_Expression(new Defined(fInvalid_Type.get())) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
         return { &t, &t, &t, &t };
@@ -351,9 +351,9 @@ public:
 private:
     class Defined : public Expression {
     public:
-        static constexpr Kind kExpressionKind = kDefined_Kind;
+        static constexpr Kind kExpressionKind = Kind::kDefined;
 
-        Defined(const Type& type)
+        Defined(const Type* type)
         : INHERITED(-1, kExpressionKind, type) {}
 
         bool hasProperty(Property property) const override {
@@ -365,7 +365,7 @@ private:
         }
 
         std::unique_ptr<Expression> clone() const override {
-            return std::unique_ptr<Expression>(new Defined(fType));
+            return std::unique_ptr<Expression>(new Defined(&this->type()));
         }
 
         using INHERITED = Expression;

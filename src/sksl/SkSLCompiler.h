@@ -190,6 +190,9 @@ private:
 
     void loadPipelineIntrinsics();
 
+    void addDefinition(const Expression* lvalue, std::unique_ptr<IRNode>* expr,
+                       DefinitionMap* definitions);
+
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
                        DefinitionMap* definitions);
 
