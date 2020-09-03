@@ -16,6 +16,23 @@
       "revId": "7571f9e4902490c7a316c715e838d5042e2689f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08d7b6e0_7060282f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-03T13:27:21Z",
+      "side": 1,
+      "message": "If you wanted to see the whole diff, it\u0027s pretty doable at the command line via:\n  git diff 683beccf67 -r 7571f9e490 -U0\n",
+      "revId": "7571f9e4902490c7a316c715e838d5042e2689f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
