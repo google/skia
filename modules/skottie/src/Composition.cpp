@@ -66,7 +66,7 @@ CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
             if (!jlayer) continue;
 
             const auto  lbuilder_index = fLayerBuilders.size();
-            const auto& lbuilder       = fLayerBuilders.emplace_back(*jlayer);
+            const auto& lbuilder       = fLayerBuilders.emplace_back(*jlayer, fSize);
 
             fLayerIndexMap.set(lbuilder.index(), lbuilder_index);
 
