@@ -134,7 +134,7 @@ const Symbol* Rehydrator::symbol() {
             uint8_t count = this->readU8();
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Type>(componentType->name() + "[" + to_string(count) + "]",
-                                           Type::kArray_Kind, *componentType, count));
+                                           Type::TypeKind::kArray, *componentType, count));
             this->addSymbol(id, result);
             return result;
         }
@@ -142,7 +142,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(name, Type::kEnum_Kind));
+                    std::make_unique<Type>(name, Type::TypeKind::kEnum));
             this->addSymbol(id, result);
             return result;
         }
@@ -154,7 +154,7 @@ const Symbol* Rehydrator::symbol() {
             std::vector<const Variable*> parameters;
             parameters.reserve(parameterCount);
             for (int i = 0; i < parameterCount; ++i) {
-                parameters.push_back(this->symbolRef<Variable>(Symbol::kVariable_Kind));
+                parameters.push_back(this->symbolRef<Variable>(Symbol::Kind::kVariable));
             }
             const Type* returnType = this->type();
             const FunctionDeclaration* result =
@@ -165,7 +165,7 @@ const Symbol* Rehydrator::symbol() {
             return result;
         }
         case kField_Command: {
-            const Variable* owner = this->symbolRef<Variable>(Symbol::kVariable_Kind);
+            const Variable* owner = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             uint8_t index = this->readU8();
             const Field* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Field>(/*offset=*/-1, *owner, index));
@@ -175,7 +175,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             const Type* base = this->type();
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(base->name() + "?", Type::kNullable_Kind, *base));
+                    std::make_unique<Type>(base->name() + "?", Type::TypeKind::kNullable, *base));
             this->addSymbol(id, result);
             return result;
         }
@@ -205,7 +205,7 @@ const Symbol* Rehydrator::symbol() {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
             const Symbol* result = (*fSymbolTable)[name];
-            SkASSERT(result && result->fKind == Symbol::kType_Kind);
+            SkASSERT(result && result->kind() == Symbol::Kind::kType);
             this->addSymbol(id, result);
             return result;
         }
@@ -216,7 +216,7 @@ const Symbol* Rehydrator::symbol() {
             functions.reserve(length);
             for (int i = 0; i < length; ++i) {
                 const Symbol* f = this->symbol();
-                SkASSERT(f && f->fKind == Symbol::kFunctionDeclaration_Kind);
+                SkASSERT(f && f->kind() == Symbol::Kind::kFunctionDeclaration);
                 functions.push_back((const FunctionDeclaration*) f);
             }
             const UnresolvedFunction* result = fSymbolTable->takeOwnershipOfSymbol(
@@ -244,7 +244,7 @@ const Symbol* Rehydrator::symbol() {
 
 const Type* Rehydrator::type() {
     const Symbol* result = this->symbol();
-    SkASSERT(result->fKind == Symbol::kType_Kind);
+    SkASSERT(result->kind() == Symbol::Kind::kType);
     return (const Type*) result;
 }
 
@@ -267,7 +267,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             StringFragment typeName = this->readString();
             std::shared_ptr<SymbolTable> symbols = this->symbolTable();
             for (auto& s : symbols->fOwnedSymbols) {
-                SkASSERT(s->fKind == Symbol::kVariable_Kind);
+                SkASSERT(s->kind() == Symbol::Kind::kVariable);
                 Variable& v = (Variable&) *s;
                 int value = this->readS32();
                 v.fInitialValue = symbols->takeOwnershipOfIRNode(
@@ -278,13 +278,13 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         }
         case Rehydrator::kFunctionDefinition_Command: {
             const FunctionDeclaration* decl = this->symbolRef<FunctionDeclaration>(
-                                                                 Symbol::kFunctionDeclaration_Kind);
+                                                                Symbol::Kind::kFunctionDeclaration);
             std::unique_ptr<Statement> body = this->statement();
             std::unordered_set<const FunctionDeclaration*> refs;
             uint8_t refCount = this->readU8();
             for (int i = 0; i < refCount; ++i) {
                 refs.insert(this->symbolRef<FunctionDeclaration>(
-                                                                Symbol::kFunctionDeclaration_Kind));
+                                                               Symbol::Kind::kFunctionDeclaration));
             }
             FunctionDefinition* result = new FunctionDefinition(-1, *decl, std::move(body),
                                                                 std::move(refs));
@@ -293,7 +293,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         }
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
-            SkASSERT(var && var->fKind == Symbol::kVariable_Kind);
+            SkASSERT(var && var->kind() == Symbol::Kind::kVariable);
             StringFragment typeName = this->readString();
             StringFragment instanceName = this->readString();
             uint8_t sizeCount = this->readU8();
@@ -313,7 +313,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             vars.reserve(count);
             for (int i = 0 ; i < count; ++i) {
                 std::unique_ptr<Statement> s = this->statement();
-                SkASSERT(s->fKind == Statement::kVarDeclaration_Kind);
+                SkASSERT(s->kind() == Statement::Kind::kVarDeclaration);
                 vars.emplace_back((VarDeclaration*) s.release());
             }
             return std::unique_ptr<ProgramElement>(new VarDeclarations(-1, baseType,
@@ -407,7 +407,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                                                                   fSymbolTable));
         }
         case Rehydrator::kVarDeclaration_Command: {
-            Variable* var = this->symbolRef<Variable>(Symbol::kVariable_Kind);
+            Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             uint8_t sizeCount = this->readU8();
             std::vector<std::unique_ptr<Expression>> sizes;
             sizes.reserve(sizeCount);
@@ -431,7 +431,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             vars.reserve(count);
             for (int i = 0 ; i < count; ++i) {
                 std::unique_ptr<Statement> s = this->statement();
-                SkASSERT(s->fKind == Statement::kVarDeclaration_Kind);
+                SkASSERT(s->kind() == Statement::Kind::kVarDeclaration);
                 vars.emplace_back((VarDeclaration*) s.release());
             }
             return std::make_unique<VarDeclarationsStatement>(
@@ -489,16 +489,16 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return std::unique_ptr<Expression>(new FloatLiteral(fContext, -1, u.fFloat));
         }
         case Rehydrator::kFunctionCall_Command: {
-            const Type* type = this->type();
+            const Type& type = *this->type();
             const FunctionDeclaration* f = this->symbolRef<FunctionDeclaration>(
-                                                                 Symbol::kFunctionDeclaration_Kind);
+                                                                Symbol::Kind::kFunctionDeclaration);
             uint8_t argCount = this->readU8();
             std::vector<std::unique_ptr<Expression>> args;
             args.reserve(argCount);
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
-            return std::unique_ptr<Expression>(new FunctionCall(-1, *type, *f, std::move(args)));
+            return std::make_unique<FunctionCall>(-1, type, *f, std::move(args));
         }
         case Rehydrator::kIndex_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -547,7 +547,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
                                                                      std::move(ifTrue)));
         }
         case Rehydrator::kVariableReference_Command: {
-            const Variable* var = this->symbolRef<Variable>(Symbol::kVariable_Kind);
+            const Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             VariableReference::RefKind refKind = (VariableReference::RefKind) this->readU8();
             return std::unique_ptr<Expression>(new VariableReference(-1, *var, refKind));
         }

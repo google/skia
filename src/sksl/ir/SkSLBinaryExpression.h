@@ -20,20 +20,20 @@
 namespace SkSL {
 
 static inline bool check_ref(Expression* expr) {
-    switch (expr->fKind) {
-        case Expression::kExternalValue_Kind:
+    switch (expr->kind()) {
+        case Expression::Kind::kExternalValue:
             return true;
-        case Expression::kFieldAccess_Kind:
+        case Expression::Kind::kFieldAccess:
             return check_ref(((FieldAccess*) expr)->fBase.get());
-        case Expression::kIndex_Kind:
+        case Expression::Kind::kIndex:
             return check_ref(((IndexExpression*) expr)->fBase.get());
-        case Expression::kSwizzle_Kind:
+        case Expression::Kind::kSwizzle:
             return check_ref(((Swizzle*) expr)->fBase.get());
-        case Expression::kTernary_Kind: {
+        case Expression::Kind::kTernary: {
             TernaryExpression* t = (TernaryExpression*) expr;
             return check_ref(t->fIfTrue.get()) && check_ref(t->fIfFalse.get());
         }
-        case Expression::kVariableReference_Kind: {
+        case Expression::Kind::kVariableReference: {
             VariableReference* ref = (VariableReference*) expr;
             return ref->fRefKind == VariableReference::kWrite_RefKind ||
                    ref->fRefKind == VariableReference::kReadWrite_RefKind;
@@ -47,7 +47,7 @@ static inline bool check_ref(Expression* expr) {
  * A binary operation.
  */
 struct BinaryExpression : public Expression {
-    static constexpr Kind kExpressionKind = kBinary_Kind;
+    static constexpr Kind kExpressionKind = Kind::kBinary;
 
     BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
                      std::unique_ptr<Expression> right, const Type& type)

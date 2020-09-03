@@ -14,23 +14,23 @@ int Type::coercionCost(const Type& other) const {
     if (*this == other) {
         return 0;
     }
-    if (this->kind() == kNullable_Kind && other.kind() != kNullable_Kind) {
+    if (this->typeKind() == TypeKind::kNullable && other.typeKind() != TypeKind::kNullable) {
         int result = this->componentType().coercionCost(other);
         if (result != INT_MAX) {
             ++result;
         }
         return result;
     }
-    if (this->fName == "null" && other.kind() == kNullable_Kind) {
+    if (this->fName == "null" && other.typeKind() == TypeKind::kNullable) {
         return 0;
     }
-    if (this->kind() == kVector_Kind && other.kind() == kVector_Kind) {
+    if (this->typeKind() == TypeKind::kVector && other.typeKind() == TypeKind::kVector) {
         if (this->columns() == other.columns()) {
             return this->componentType().coercionCost(other.componentType());
         }
         return INT_MAX;
     }
-    if (this->kind() == kMatrix_Kind) {
+    if (this->typeKind() == TypeKind::kMatrix) {
         if (this->columns() == other.columns() && this->rows() == other.rows()) {
             return this->componentType().coercionCost(other.componentType());
         }
@@ -48,7 +48,7 @@ int Type::coercionCost(const Type& other) const {
 }
 
 const Type& Type::toCompound(const Context& context, int columns, int rows) const {
-    SkASSERT(this->kind() == Type::kScalar_Kind);
+    SkASSERT(this->typeKind() == Type::TypeKind::kScalar);
     if (columns == 1 && rows == 1) {
         return *this;
     }

@@ -29,8 +29,8 @@ namespace SkSL {
 SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, ErrorReporter& errors)
     : fProgram(*program) {
     for (const auto& p : fProgram) {
-        switch (p.fKind) {
-            case ProgramElement::kVar_Kind: {
+        switch (p.kind()) {
+            case ProgramElement::Kind::kVar: {
                 const VarDeclarations& decls = (const VarDeclarations&) p;
                 for (const auto& raw : decls.fVars) {
                     const VarDeclaration& decl = (VarDeclaration&) *raw;
@@ -40,7 +40,7 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
                 }
                 break;
             }
-            case ProgramElement::kSection_Kind: {
+            case ProgramElement::Kind::kSection: {
                 const Section& s = (const Section&) p;
                 if (IsSupportedSection(s.fName.c_str())) {
                     if (SectionRequiresArgument(s.fName.c_str()) && !s.fArgument.size()) {
