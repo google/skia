@@ -16,6 +16,24 @@
       "revId": "bdc214a50e854fabb62bda126977b63e298dea9f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7619fbc0_7129a014",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-09-03T12:43:25Z",
+      "side": 1,
+      "message": "Indeed, it did recover after the revert.",
+      "parentUuid": "c7b94639_b02fb389",
+      "revId": "bdc214a50e854fabb62bda126977b63e298dea9f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
