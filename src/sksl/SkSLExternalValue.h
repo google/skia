@@ -17,7 +17,7 @@ class Type;
 
 class ExternalValue : public Symbol {
 public:
-    static constexpr Kind kSymbolKind = kExternal_Kind;
+    static constexpr Kind kSymbolKind = Kind::kExternal;
 
     ExternalValue(const char* name, const Type& type)
         : INHERITED(-1, kSymbolKind, name)

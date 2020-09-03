@@ -25,7 +25,7 @@ namespace SkSL {
  * At the IR level, this is represented by a single variable of struct type.
  */
 struct InterfaceBlock : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kInterfaceBlock_Kind;
+    static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
 
     InterfaceBlock(int offset, const Variable* var, String typeName, String instanceName,
                    std::vector<std::unique_ptr<Expression>> sizes,
@@ -51,7 +51,7 @@ struct InterfaceBlock : public ProgramElement {
     String description() const override {
         String result = fVariable.fModifiers.description() + fTypeName + " {\n";
         const Type* structType = &fVariable.fType;
-        while (structType->kind() == Type::kArray_Kind) {
+        while (structType->typeKind() == Type::TypeKind::kArray) {
             structType = &structType->componentType();
         }
         for (const auto& f : structType->fields()) {
