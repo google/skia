@@ -161,9 +161,9 @@ async function driveBrowser() {
       waitUntil: 'networkidle0'
     });
 
-    console.log('Waiting 60s for run to be done');
+    console.log('Waiting 90s for run to be done');
     await page.waitForFunction(`(window._skottieDone === true) || window._error`, {
-      timeout: 60000,
+      timeout: 90000,
     });
 
     const err = await page.evaluate('window._error');

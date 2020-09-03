@@ -77,9 +77,9 @@
           this._canvas.getContext('2d').putImageData(imageData, 0, 0);
         } else {
           this._canvas.getContext('2d').putImageData(imageData, 0, 0,
-                                                     dirtyRect.fLeft, dirtyRect.fTop,
-                                                     dirtyRect.fRight - dirtyRect.fLeft,
-                                                     dirtyRect.fBottom - dirtyRect.fTop);
+                                                     dirtyRect[0], dirtyRect[1],
+                                                     dirtyRect[2] - dirtyRect[0],
+                                                     dirtyRect[3] - dirtyRect[1]);
         }
       }
     };

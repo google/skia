@@ -18,99 +18,93 @@
     <canvas id=anim width=1000 height=1000 style="height: 1000px; width: 1000px;"></canvas>
   </main>
   <script type="text/javascript" charset="utf-8">
+    const WIDTH  = 1000;
+    const HEIGHT = 1000;
+    const LOTTIE_JSON_PATH = '/res/lottie.json';
+    const MAX_FRAMES = 25;
+    const MAX_LOOPS = 25;
+    const MAX_SAMPLE_MS = 60*1000; // in case something takes a while, stop after 60 seconds.
     (function() {
-      const PATH = '/res/lottie.json';
-
-      let lottieJSON = null;
-      let CK = null;
-
-     CanvasKitInit({
-        locateFile: (file) => '/res/'+file,
-    }).then((CanvasKit) => {
-        CK = CanvasKit;
-        Bench(CK, lottieJSON);
-    });
-
-    fetch(PATH).then((resp) => {
-      resp.text().then((json) => {
-        lottieJSON = json;
-        Bench(CK, lottieJSON);
+      const loadKit = CanvasKitInit({
+        locateFile: (file) => '/res/' + file,
       });
-    });
-  })();
 
-  const maxFrames = 25;
-  const maxLoops = 5;
+      const loadLottie = fetch(LOTTIE_JSON_PATH).then((resp) => {
+        return resp.text();
+      });
 
-  function Bench(CK, json) {
-    if (!CK || !json) {
-      return;
-    }
+      Promise.all([loadKit, loadLottie]).then((values) => {
+        const [CanvasKit, json] = values;
 
-    const animation = CK.MakeManagedAnimation(json, null);
-    if (!animation) {
-      window._error = 'Could not process JSON';
-      return
-    }
-
-    let surface = null;
-    if (window.location.hash.indexOf('gpu') !== -1) {
-      surface = CK.MakeWebGLCanvasSurface('anim');
-      if (!surface) {
-        window._error = 'Could not make GPU surface';
-        return;
-      }
-      let c = document.getElementById('anim');
-      // If CanvasKit was unable to instantiate a WebGL context, it will fallback
-      // to CPU and add a ck-replaced class to the canvas element.
-      if (c.classList.contains('ck-replaced')) {
-        window._error = 'fell back to CPU';
-        return;
-      }
-    } else {
-      surface = CK.MakeSWCanvasSurface('anim');
-      if (!surface) {
-        window._error = 'Could not make CPU surface';
-        return;
-      }
-    }
-    const canvas = surface.getCanvas();
-
-    const t_rate = 1.0 / (maxFrames-1);
-    let seek = 0;
-    let frame = 0;
-    let loop = 0;
-    const drawFrame = () => {
-      if (frame >= maxFrames) {
-        // Reached the end of one loop.
-        loop++;
-        if (loop == maxLoops) {
-          // These are global variables to talk with puppeteer.
-          window._skottieDone = true;
-          return;
+        const animation = CanvasKit.MakeManagedAnimation(json, null);
+        if (!animation) {
+          window._error = 'Could not process JSON';
+          return
         }
-        // Reset frame and seek to restart the loop.
-        frame = 0;
-        seek = 0;
-      }
 
-      let damage = animation.seek(seek);
-      if (damage.fRight > damage.fLeft && damage.fBottom > damage.fTop) {
-        animation.render(canvas, {
-                         fLeft: 0,
-                         fTop: 0,
-                         fRight: 1000,
-                         fBottom: 1000
-                         });
-        surface.flush();
-      }
-      console.log(`Used seek: ${seek}`);
-      seek += t_rate;
-      frame++;
-      window.requestAnimationFrame(drawFrame);
-    };
-    window.requestAnimationFrame(drawFrame);
-  }
+        let surface = null;
+        if (window.location.hash.indexOf('gpu') !== -1) {
+          surface = CanvasKit.MakeWebGLCanvasSurface('anim');
+          if (!surface) {
+            window._error = 'Could not make GPU surface';
+            return;
+          }
+          let c = document.getElementById('anim');
+          // If CanvasKit was unable to instantiate a WebGL context, it will fallback
+          // to CPU and add a ck-replaced class to the canvas element.
+          if (c.classList.contains('ck-replaced')) {
+            window._error = 'fell back to CPU';
+            return;
+          }
+        } else {
+          surface = CanvasKit.MakeSWCanvasSurface('anim');
+          if (!surface) {
+            window._error = 'Could not make CPU surface';
+            return;
+          }
+        }
+        const canvas = surface.getCanvas();
+
+        const t_rate = 1.0 / (MAX_FRAMES-1);
+        let seek = 0;
+        let frame = 0;
+        let loop = 0;
+        const damageRect = Float32Array.of(0, 0, 0, 0);
+        const bounds = CanvasKit.LTRBRect(0, 0, WIDTH, HEIGHT);
+        const start = performance.now();
+
+        const drawFrame = () => {
+          if ((performance.now() - start) > MAX_SAMPLE_MS) {
+              // This global variable signals we are done.
+              window._skottieDone = true;
+              return;
+          }
+          if (frame >= MAX_FRAMES) {
+            // Reached the end of one loop.
+            loop++;
+            if (loop == MAX_LOOPS) {
+              // This global variable signals we are done.
+              window._skottieDone = true;
+              return;
+            }
+            // Reset frame and seek to restart the loop.
+            frame = 0;
+            seek = 0;
+          }
+
+          let damage = animation.seek(seek, damageRect);
+          if (damage[2] > damage[0] && damage[3] > damage[1]) {
+            animation.render(canvas, bounds);
+            surface.flush();
+          }
+          console.log(`Used seek: ${seek}`);
+          seek += t_rate;
+          frame++;
+          window.requestAnimationFrame(drawFrame);
+        };
+        window.requestAnimationFrame(drawFrame);
+      });
+    })();
   </script>
 </body>
 </html>
