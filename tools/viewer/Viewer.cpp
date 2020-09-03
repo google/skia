@@ -453,6 +453,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fWindow->setRequestedDisplayParams(params);
         fWindow->inval();
     });
+    fCommands.addCommand('k', "Modes", "Toggle strokitf", [this]() {
+        extern int skipstroke;
+        skipstroke=!skipstroke;
+        fWindow->inval();
+    });
     fCommands.addCommand(skui::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
         this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ? fCurrentSlide + 1 : 0);
     });

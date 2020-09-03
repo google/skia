@@ -1988,7 +1988,11 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     this->onDrawVerticesObject(vertices, mode, paint);
 }
 
+int skipstroke=0;
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+    if (skipstroke && paint.getStyle() != SkPaint::kFill_Style) {
+        return;
+    }
     TRACE_EVENT0("skia", TRACE_FUNC);
     this->onDrawPath(path, paint);
 }

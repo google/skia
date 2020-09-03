@@ -17,44 +17,46 @@
 #include "src/gpu/tessellate/GrVectorXform.h"
 #include "src/gpu/tessellate/GrWangsFormula.h"
 
+using Patch = GrStrokeTessellateShader::Patch;
+
+constexpr static float kDoubleSidedRoundJoinType = -Patch::kRoundJoinType;
+
 constexpr static float kLinearizationIntolerance =
         GrTessellationPathRenderer::kLinearizationIntolerance;
-
-constexpr static float kStandardCubicType = GrStrokeTessellateShader::kStandardCubicType;
-constexpr static float kDoubleSidedRoundJoinType = -GrStrokeTessellateShader::kRoundJoinType;
 
 static SkPoint lerp(const SkPoint& a, const SkPoint& b, float T) {
     SkASSERT(1 != T);  // The below does not guarantee lerp(a, b, 1) === b.
     return (b - a) * T + a;
 }
 
-void GrStrokePatchBuilder::allocVertexChunk(int minVertexAllocCount) {
-    VertexChunk* chunk = &fVertexChunkArray->push_back();
-    fCurrChunkVertexData = (SkPoint*)fTarget->makeVertexSpaceAtLeast(
-            sizeof(SkPoint), minVertexAllocCount, minVertexAllocCount, &chunk->fVertexBuffer,
-            &chunk->fBaseVertex, &fCurrChunkVertexCapacity);
-    fCurrChunkMinVertexAllocCount = minVertexAllocCount;
+void GrStrokePatchBuilder::allocPatchChunk(int minPatchAllocCount) {
+    PatchChunk* chunk = &fPatchChunkArray->push_back();
+    fCurrChunkPatchData = (Patch*)fTarget->makeVertexSpaceAtLeast(sizeof(Patch), minPatchAllocCount,
+                                                                  minPatchAllocCount,
+                                                                  &chunk->fPatchBuffer,
+                                                                  &chunk->fBasePatch,
+                                                                  &fCurrChunkPatchCapacity);
+    fCurrChunkMinPatchAllocCount = minPatchAllocCount;
 }
 
-SkPoint* GrStrokePatchBuilder::reservePatch() {
-    constexpr static int kNumVerticesPerPatch = GrStrokeTessellateShader::kNumVerticesPerPatch;
-    if (fVertexChunkArray->back().fVertexCount + kNumVerticesPerPatch > fCurrChunkVertexCapacity) {
+Patch* GrStrokePatchBuilder::reservePatch() {
+    if (fPatchChunkArray->back().fPatchCount >= fCurrChunkPatchCapacity) {
         // The current chunk is full. Time to allocate a new one. (And no need to put back vertices;
         // the buffer is full.)
-        this->allocVertexChunk(fCurrChunkMinVertexAllocCount * 2);
+        this->allocPatchChunk(fCurrChunkMinPatchAllocCount * 2);
     }
-    if (!fCurrChunkVertexData) {
+    if (!fCurrChunkPatchData) {
         SkDebugf("WARNING: Failed to allocate vertex buffer for tessellated stroke.");
         return nullptr;
     }
-    SkASSERT(fVertexChunkArray->back().fVertexCount + kNumVerticesPerPatch <=
-             fCurrChunkVertexCapacity);
-    SkPoint* patch = fCurrChunkVertexData + fVertexChunkArray->back().fVertexCount;
-    fVertexChunkArray->back().fVertexCount += kNumVerticesPerPatch;
+    SkASSERT(fPatchChunkArray->back().fPatchCount <= fCurrChunkPatchCapacity);
+    Patch* patch = fCurrChunkPatchData + fPatchChunkArray->back().fPatchCount;
+    ++fPatchChunkArray->back().fPatchCount;
     return patch;
 }
 
-void GrStrokePatchBuilder::writeCubicSegment(float prevJoinType, const SkPoint pts[4]) {
+void GrStrokePatchBuilder::writeCubicSegment(float prevJoinType, const SkPoint pts[4],
+                                             float cubicType) {
     SkPoint c1 = (pts[1] == pts[0]) ? pts[2] : pts[1];
     SkPoint c2 = (pts[2] == pts[3]) ? pts[1] : pts[2];
 
@@ -65,9 +67,10 @@ void GrStrokePatchBuilder::writeCubicSegment(float prevJoinType, const SkPoint p
         fHasPreviousSegment = true;
     }
 
-    if (SkPoint* patch = this->reservePatch()) {
-        memcpy(patch, pts, sizeof(SkPoint) * 4);
-        patch[4].set(kStandardCubicType, fCurrStrokeRadius);
+    if (Patch* patch = this->reservePatch()) {
+        memcpy(patch->fPts.data(), pts, sizeof(patch->fPts));
+        patch->fPatchType = cubicType;
+        patch->fStrokeRadius = fCurrStrokeRadius;
     }
 
     fLastControlPoint = c2;
@@ -76,12 +79,10 @@ void GrStrokePatchBuilder::writeCubicSegment(float prevJoinType, const SkPoint p
 
 void GrStrokePatchBuilder::writeJoin(float joinType, const SkPoint& prevControlPoint,
                                      const SkPoint& anchorPoint, const SkPoint& nextControlPoint) {
-    if (SkPoint* joinPatch = this->reservePatch()) {
-        joinPatch[0] = prevControlPoint;
-        joinPatch[1] = anchorPoint;
-        joinPatch[2] = anchorPoint;
-        joinPatch[3] = nextControlPoint;
-        joinPatch[4].set(joinType, fCurrStrokeRadius);
+    if (Patch* joinPatch = this->reservePatch()) {
+        joinPatch->fPts = {{prevControlPoint, anchorPoint, anchorPoint, nextControlPoint}};
+        joinPatch->fPatchType = joinType;
+        joinPatch->fStrokeRadius = fCurrStrokeRadius;
     }
 }
 
@@ -92,12 +93,10 @@ void GrStrokePatchBuilder::writeSquareCap(const SkPoint& endPoint, const SkPoint
     // Add a join to guarantee we get water tight seaming. Make the join type negative so it's
     // double sided.
     this->writeJoin(-fCurrStrokeJoinType, controlPoint, endPoint, capPoint);
-    if (SkPoint* capPatch = this->reservePatch()) {
-        capPatch[0] = endPoint;
-        capPatch[1] = endPoint;
-        capPatch[2] = capPoint;
-        capPatch[3] = capPoint;
-        capPatch[4].set(kStandardCubicType, fCurrStrokeRadius);
+    if (Patch* capPatch = this->reservePatch()) {
+        capPatch->fPts = {{endPoint, endPoint, capPoint, capPoint}};
+        capPatch->fPatchType = Patch::kFlatLineType;
+        capPatch->fStrokeRadius = fCurrStrokeRadius;
     }
 }
 
@@ -116,10 +115,10 @@ void GrStrokePatchBuilder::writeCaps(SkPaint::Cap capType) {
             break;
         case SkPaint::kRound_Cap:
             // A round cap is the same thing as a 180-degree round join.
-            this->writeJoin(GrStrokeTessellateShader::kRoundJoinType, fCurrContourFirstControlPoint,
+            this->writeJoin(Patch::kRoundJoinType, fCurrContourFirstControlPoint,
                             fCurrContourStartPoint, fCurrContourFirstControlPoint);
-            this->writeJoin(GrStrokeTessellateShader::kRoundJoinType, fLastControlPoint,
-                            fCurrentPoint, fLastControlPoint);
+            this->writeJoin(Patch::kRoundJoinType, fLastControlPoint, fCurrentPoint,
+                            fLastControlPoint);
             break;
         case SkPaint::kSquare_Cap:
             this->writeSquareCap(fCurrContourStartPoint, fCurrContourFirstControlPoint);
@@ -131,11 +130,11 @@ void GrStrokePatchBuilder::writeCaps(SkPaint::Cap capType) {
 static float join_type_from_join(SkPaint::Join join) {
     switch (join) {
         case SkPaint::kBevel_Join:
-            return GrStrokeTessellateShader::kBevelJoinType;
+            return GrStrokeTessellateShader::Patch::kBevelJoinType;
         case SkPaint::kMiter_Join:
-            return GrStrokeTessellateShader::kMiterJoinType;
+            return GrStrokeTessellateShader::Patch::kMiterJoinType;
         case SkPaint::kRound_Join:
-            return GrStrokeTessellateShader::kRoundJoinType;
+            return GrStrokeTessellateShader::Patch::kRoundJoinType;
     }
     SkUNREACHABLE;
 }
@@ -145,14 +144,14 @@ void GrStrokePatchBuilder::addPath(const SkPath& path, const SkStrokeRec& stroke
     // space and then use a stroke width of 1.
     SkASSERT(stroke.getWidth() > 0);
 
-    fCurrStrokeRadius = stroke.getWidth()/2 * fMatrixScale;
+    fCurrStrokeRadius = stroke.getWidth()/2;
     fCurrStrokeJoinType = join_type_from_join(stroke.getJoin());
 
     // This is the number of radial segments we need to add to a triangle strip for each radian of
     // rotation, given the current stroke radius. Any fewer radial segments and our error would fall
     // outside the linearization tolerance.
     fNumRadialSegmentsPerRad = 1 / std::acos(
-            std::max(1 - 1 / (kLinearizationIntolerance * fCurrStrokeRadius), -1.f));
+            std::max(1 - 1 / (kLinearizationIntolerance * fCurrStrokeRadius * fMatrixScale), -1.f));
 
     // Calculate the worst-case numbers of parametric segments our hardware can support for the
     // current stroke radius, in the event that there are also enough radial segments to rotate 180
@@ -165,15 +164,7 @@ void GrStrokePatchBuilder::addPath(const SkPath& path, const SkStrokeRec& stroke
 
     fHasPreviousSegment = false;
     SkPathVerb previousVerb = SkPathVerb::kClose;
-    for (auto [verb, rawPts, w] : SkPathPriv::Iterate(path)) {
-        SkPoint pts[4];
-        int numPtsInVerb = SkPathPriv::PtsInIter((unsigned)verb);
-        for (int i = 0; i < numPtsInVerb; ++i) {
-            // TEMPORORY: Scale all the points up front. SkFind*MaxCurvature and GrWangsFormula::*
-            // both expect arrays of points. As we refine this class and its math, this scale will
-            // hopefully be integrated more efficiently.
-            pts[i] = rawPts[i] * fMatrixScale;
-        }
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
             case SkPathVerb::kMove:
                 // "A subpath ... consisting of a single moveto shall not be stroked."
@@ -221,7 +212,8 @@ void GrStrokePatchBuilder::lineTo(float prevJoinType, const SkPoint& p0, const S
     }
 
     SkPoint cubic[4] = {p0, p0, p1, p1};
-    this->writeCubicSegment(prevJoinType, cubic);
+    this->writeCubicSegment(prevJoinType, cubic, Patch::kFlatLineType);
+    // this->writeCubicSegment(prevJoinType, cubic, Patch::kStandardCubicType);
 }
 
 void GrStrokePatchBuilder::quadraticTo(float prevJoinType, const SkPoint p[3], int maxDepth) {
@@ -236,7 +228,8 @@ void GrStrokePatchBuilder::quadraticTo(float prevJoinType, const SkPoint p[3], i
     // Ensure our hardware supports enough tessellation segments to render the curve. The first
     // branch assumes a worst-case rotation of 180 degrees and checks if even then we have enough.
     // In practice it is rare to take even the first branch.
-    float numParametricSegments = GrWangsFormula::quadratic(kLinearizationIntolerance, p);
+    float numParametricSegments = GrWangsFormula::quadratic(kLinearizationIntolerance, p) *
+                                  fMatrixScaleRoot2;
     if (numParametricSegments > fMaxParametricSegments180 && maxDepth != 0) {
         // We still might have enough tessellation segments to render the curve. Check again with
         // the actual rotation.
@@ -268,44 +261,11 @@ void GrStrokePatchBuilder::quadraticTo(float prevJoinType, const SkPoint p[3], i
     }
 
     SkPoint cubic[4] = {p[0], lerp(p[0], p[1], 2/3.f), lerp(p[1], p[2], 1/3.f), p[2]};
-    this->writeCubicSegment(prevJoinType, cubic);
+    this->writeCubicSegment(prevJoinType, cubic, Patch::kStandardCubicType);
 }
 
-void GrStrokePatchBuilder::cubicTo(float prevJoinType, const SkPoint inputPts[4]) {
-    const SkPoint* p = inputPts;
-    int numCubics = 1;
-    SkPoint chopped[10];
-    double tt[2], ss[2];
-    if (SkClassifyCubic(p, tt, ss) == SkCubicType::kSerpentine) {
-        // TEMPORARY: Don't allow cubics to have inflection points.
-        // TODO: This will soon be moved into the GPU tessellation pipeline and handled more
-        // elegantly.
-        float t[2] = {(float)(tt[0]/ss[0]), (float)(tt[1]/ss[1])};
-        const float* begin = (t[0] > 0 && t[0] < 1) ? t : t+1;
-        const float* end = (t[1] > 0 && t[1] > t[0] && t[1] < 1) ? t+2 : t+1;
-        numCubics = (end - begin) + 1;
-        if (numCubics > 1) {
-            SkChopCubicAt(p, chopped, begin, end - begin);
-            p = chopped;
-        }
-    } else if (SkMeasureNonInflectCubicRotation(p) > SK_ScalarPI*15/16) {
-        // TEMPORARY: Don't allow cubics to turn more than 180 degrees. We chop them when they get
-        // close, just to be sure.
-        // TODO: This will soon be moved into the GPU tessellation pipeline and handled more
-        // elegantly.
-        SkChopCubicAtMidTangent(p, chopped);
-        p = chopped;
-        numCubics = 2;
-    }
-    for (int i = 0; i < numCubics; ++i) {
-        this->nonInflectCubicTo(prevJoinType, p + i*3);
-        // Use kDoubleSidedRoundJoinType in case we happened to chop at an exact cusp or turnaround
-        // point of a flat cubic, in which case we would lose 180 degrees of rotation.
-        prevJoinType = kDoubleSidedRoundJoinType;
-    }
-}
-
-void GrStrokePatchBuilder::nonInflectCubicTo(float prevJoinType, const SkPoint p[4], int maxDepth) {
+void GrStrokePatchBuilder::cubicTo(float prevJoinType, const SkPoint p[4], int maxDepth,
+                                   bool mightInflect) {
     // The stroker relies on p1 and p2 to find tangents at the endpoints. (We have to treat the
     // endpoint tangents carefully in order to get water tight seams with the join segments.) If p0
     // and p1 are both colocated on an endpoint then we need to draw this cubic as a line instead.
@@ -314,46 +274,64 @@ void GrStrokePatchBuilder::nonInflectCubicTo(float prevJoinType, const SkPoint p
         return;
     }
 
-    // Ensure our hardware supports enough tessellation segments to render the curve. The first
-    // branch assumes a worst-case rotation of 360 degrees and checks if even then we have enough.
-    // In practice it is rare to take even the first branch.
-    //
-    // NOTE: We could technically assume a worst-case rotation of 180 because cubicTo() chops at
-    // midtangents and inflections. However, this is only temporary so we leave it at 360 where it
-    // will arrive at in the future.
-    float numParametricSegments = GrWangsFormula::cubic(kLinearizationIntolerance, p);
-    if (numParametricSegments > fMaxParametricSegments360 && maxDepth != 0) {
-        // We still might have enough tessellation segments to render the curve. Check again with
-        // the actual rotation.
-        float numRadialSegments = SkMeasureNonInflectCubicRotation(p) * fNumRadialSegmentsPerRad;
-        numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
-        numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
-        if (numParametricSegments + numRadialSegments - 1 > fMaxTessellationSegments) {
-            // The hardware doesn't support enough segments for this curve. Chop and recurse.
-            if (maxDepth < 0) {
-                // Decide on an extremely conservative upper bound for when to quit chopping. This
-                // is solely to protect us from infinite recursion in instances where FP error
-                // prevents us from chopping at the correct midtangent.
-                maxDepth = sk_float_nextlog2(numParametricSegments) +
-                           sk_float_nextlog2(numRadialSegments) + 1;
-                SkASSERT(maxDepth >= 1);
+    // Early-out if by conservative estimate we can ensure our hardware supports enough tessellation
+    // segments to render the curve. In practice we almost always take this branch.
+    float numParametricSegments = GrWangsFormula::cubic(kLinearizationIntolerance, p) *
+                                  fMatrixScaleRoot2;
+    // if (numParametricSegments <= fMaxParametricSegments360 || maxDepth == 0) {
+    if (1) {
+        this->writeCubicSegment(prevJoinType, p, Patch::kStandardCubicType);
+        return;
+    }
+
+    // Ensure the curve does not inflect before measuring rotation.
+    SkPoint chopped[10];
+    if (mightInflect) {
+        float inflectT[2];
+        if (int n = SkFindCubicInflections(p, inflectT)) {
+            SkChopCubicAt(p, chopped, inflectT, n);
+            for (int i = 0; i <= n; ++i) {
+                this->cubicTo(prevJoinType, chopped + i*3, maxDepth, false);
+                // Switch to kDoubleSidedRoundJoinType in case we happened to chop at an exact cusp
+                // or turnaround point of a flat cubic, in which case we would lose 180 degrees of
+                // rotation.
+                prevJoinType = kDoubleSidedRoundJoinType;
             }
-            SkPoint chopped[7];
-            if (numParametricSegments >= numRadialSegments) {
-                SkChopCubicAtHalf(p, chopped);
-            } else {
-                SkChopCubicAtMidTangent(p, chopped);
-            }
-            this->nonInflectCubicTo(prevJoinType, chopped, maxDepth - 1);
-            // Use kDoubleSidedRoundJoinType in case we happened to chop at an exact cusp or
-            // turnaround point of a flat cubic, in which case we would lose 180 degrees of
-            // rotation.
-            this->nonInflectCubicTo(kDoubleSidedRoundJoinType, chopped + 3, maxDepth - 1);
             return;
         }
     }
 
-    this->writeCubicSegment(prevJoinType, p);
+    // We still might have enough tessellation segments to render the curve. Check again with
+    // the actual rotation.
+    float numRadialSegments = SkMeasureNonInflectCubicRotation(p) * fNumRadialSegmentsPerRad;
+    numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
+    numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
+    if (numParametricSegments + numRadialSegments - 1 <= fMaxTessellationSegments) {
+        this->writeCubicSegment(prevJoinType, p, Patch::kStandardCubicType);
+        return;
+    }
+
+    // The hardware doesn't support enough segments for this curve. Chop and recurse.
+    if (numParametricSegments >= numRadialSegments) {
+        SkChopCubicAtHalf(p, chopped);
+    } else {
+        SkChopCubicAtMidTangent(p, chopped);
+    }
+
+    if (maxDepth < 0) {
+        // Decide on an extremely conservative upper bound for when to quit chopping. This
+        // is solely to protect us from infinite recursion in instances where FP error
+        // prevents us from chopping at the correct midtangent.
+        maxDepth = sk_float_nextlog2(numParametricSegments) +
+                   sk_float_nextlog2(numRadialSegments) + 1;
+        SkASSERT(maxDepth >= 1);
+    }
+
+    this->cubicTo(prevJoinType, chopped, maxDepth - 1, false);
+    // Use kDoubleSidedRoundJoinType in case we happened to chop at an exact cusp or
+    // turnaround point of a flat cubic, in which case we would lose 180 degrees of
+    // rotation.
+    this->cubicTo(kDoubleSidedRoundJoinType, chopped + 3, maxDepth - 1, false);
 }
 
 void GrStrokePatchBuilder::close(SkPaint::Cap capType) {

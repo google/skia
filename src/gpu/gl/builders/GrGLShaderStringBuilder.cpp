@@ -15,7 +15,7 @@
 
 // Print the source code for all shaders generated.
 static const bool gPrintSKSL = false;
-static const bool gPrintGLSL = false;
+static const bool gPrintGLSL = 0;
 
 void print_shader_banner(SkSL::Program::Kind programKind) {
     const char* typeName = "Unknown";
@@ -53,10 +53,6 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
             SkDebugf("SKSL:\n");
             GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(sksl));
         }
-        if (gPrintGLSL) {
-            SkDebugf("GLSL:\n");
-            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(*glsl));
-        }
     }
 
     return program;
@@ -68,6 +64,10 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     const SkSL::String& glsl,
                                     GrGpu::Stats* stats,
                                     GrContextOptions::ShaderErrorHandler* errorHandler) {
+        if (gPrintGLSL) {
+            SkDebugf("GLSL:\n");
+            GrShaderUtils::PrintLineByLine(GrShaderUtils::PrettyPrint(glsl));
+        }
     const GrGLInterface* gli = glCtx.glInterface();
 
     // Specify GLSL source to the driver.

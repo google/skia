@@ -21,21 +21,21 @@ class SkStrokeRec;
 // entire lifetime of this class. e.g.:
 //
 //   void onPrepare(GrOpFlushState* target)  {
-//        GrStrokePatchBuilder builder(target, &fMyVertexChunks, scale, count);  // Locks target.
+//        GrStrokePatchBuilder builder(target, &fMyPatchChunks, scale, count);  // Locks target.
 //        for (...) {
 //            builder.addPath(path, stroke);
 //        }
 //   }
 //   ... target can now be used normally again.
-//   ... fMyVertexChunks now contains chunks that can be drawn during onExecute.
+//   ... fMyPatchChunks now contains chunks that can be drawn during onExecute.
 class GrStrokePatchBuilder {
 public:
     // We generate vertex buffers in chunks. Normally there will only be one chunk, but in rare
     // cases the first can run out of space if too many cubics needed to be subdivided.
-    struct VertexChunk {
-        sk_sp<const GrBuffer> fVertexBuffer;
-        int fVertexCount = 0;
-        int fBaseVertex;
+    struct PatchChunk {
+        sk_sp<const GrBuffer> fPatchBuffer;
+        int fPatchCount = 0;
+        int fBasePatch;
     };
 
     // Stores raw pointers to the provided target and vertexChunkArray, which this class will use
@@ -43,30 +43,30 @@ public:
     // gets pushed to the array. (See GrStrokeTessellateShader.)
     //
     // All points are multiplied by 'matrixScale' before being written to the GPU buffer.
-    GrStrokePatchBuilder(GrMeshDrawOp::Target* target, SkTArray<VertexChunk>* vertexChunkArray,
+    GrStrokePatchBuilder(GrMeshDrawOp::Target* target, SkTArray<PatchChunk>* patchChunkArray,
                          float matrixScale, int totalCombinedVerbCnt)
             : fTarget(target)
-            , fVertexChunkArray(vertexChunkArray)
+            , fPatchChunkArray(patchChunkArray)
             , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
-            , fMatrixScale(matrixScale) {
-        this->allocVertexChunk(
-                (totalCombinedVerbCnt * 3) * GrStrokeTessellateShader::kNumVerticesPerPatch);
+            , fMatrixScale(matrixScale)
+            , fMatrixScaleRoot2(SkScalarSqrt(matrixScale)) {
+        this->allocPatchChunk(totalCombinedVerbCnt * 3);
     }
 
     // "Releases" the target to be used externally again by putting back any unused pre-allocated
     // vertices.
     ~GrStrokePatchBuilder() {
-        fTarget->putBackVertices(fCurrChunkVertexCapacity - fVertexChunkArray->back().fVertexCount,
-                                 sizeof(SkPoint));
+        fTarget->putBackVertices(fCurrChunkPatchCapacity - fPatchChunkArray->back().fPatchCount,
+                                 sizeof(GrStrokeTessellateShader::Patch));
     }
 
     void addPath(const SkPath&, const SkStrokeRec&);
 
 private:
-    void allocVertexChunk(int minVertexAllocCount);
-    SkPoint* reservePatch();
+    void allocPatchChunk(int minPatchAllocCount);
+    GrStrokeTessellateShader::Patch* reservePatch();
 
-    void writeCubicSegment(float prevJoinType, const SkPoint pts[4]);
+    void writeCubicSegment(float prevJoinType, const SkPoint pts[4], float cubicType);
     void writeJoin(float joinType, const SkPoint& prevControlPoint, const SkPoint& anchorPoint,
                    const SkPoint& nextControlPoint);
     void writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint);
@@ -75,21 +75,21 @@ private:
     void moveTo(const SkPoint&);
     void lineTo(float prevJoinType, const SkPoint&, const SkPoint&);
     void quadraticTo(float prevJoinType, const SkPoint[3], int maxDepth = -1);
-    void cubicTo(float prevJoinType, const SkPoint[4]);
-    void nonInflectCubicTo(float prevJoinType, const SkPoint[4], int maxDepth = -1);
+    void cubicTo(float prevJoinType, const SkPoint[4], int maxDepth = -1, bool mightInflect = true);
     void close(SkPaint::Cap);
 
     // These are raw pointers whose lifetimes are controlled outside this class.
     GrMeshDrawOp::Target* const fTarget;
-    SkTArray<VertexChunk>* const fVertexChunkArray;
+    SkTArray<PatchChunk>* const fPatchChunkArray;
 
     const int fMaxTessellationSegments;
     const float fMatrixScale;
+    const float fMatrixScaleRoot2;
 
     // Variables related to the vertex chunk that we are currently filling.
-    int fCurrChunkVertexCapacity;
-    int fCurrChunkMinVertexAllocCount;
-    SkPoint* fCurrChunkVertexData;
+    int fCurrChunkPatchCapacity;
+    int fCurrChunkMinPatchAllocCount;
+    GrStrokeTessellateShader::Patch* fCurrChunkPatchData;
 
     // Variables related to the path that we are currently iterating.
     float fCurrStrokeRadius;
