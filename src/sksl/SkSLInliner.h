@@ -48,6 +48,9 @@ public:
     /** Checks whether inlining is viable for a FunctionCall. */
     bool isSafeToInline(const FunctionCall&, int inlineThreshold);
 
+    /** Analyzes a program to find candidate functions for inlining. */
+    void analyze(Program& program);
+
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, const Variable*>;
 
@@ -60,6 +63,20 @@ private:
                                                const Variable* returnVar,
                                                bool haveEarlyReturns,
                                                const Statement& statement);
+
+    void scanFunctionCall(std::unique_ptr<Expression>* expr,
+                          std::unique_ptr<Statement>* outerStmt,
+                          SymbolTable* symbolTable);
+
+    void scanExpression(std::unique_ptr<Expression>* expr,
+                        std::unique_ptr<Statement>* outerStmt,
+                        SymbolTable* symbolTable);
+
+    void scanStatement(std::unique_ptr<Statement>* stmt, SymbolTable* symbolTable);
+
+    void scanStatement(std::unique_ptr<Statement>* stmt,
+                       std::unique_ptr<Statement>* outerStmt,
+                       SymbolTable* symbolTable);
 
     const Context* fContext = nullptr;
     const Program::Settings* fSettings = nullptr;

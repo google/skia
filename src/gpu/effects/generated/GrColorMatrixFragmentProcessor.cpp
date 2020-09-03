@@ -43,13 +43,7 @@ public:
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
 @if (%s) {
-    half4 _0_unpremul;
-    {
-        _0_unpremul = half4(inputColor.xyz / max(inputColor.w, 9.9999997473787516e-05), inputColor.w);
-    }
-
-    inputColor = _0_unpremul;
-
+    inputColor = unpremul(inputColor);
 }
 %s = %s * inputColor + %s;
 @if (%s) {
