@@ -9,6 +9,7 @@
 #define SKSL_ENUM
 
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -21,7 +22,7 @@ namespace SkSL {
 struct Symbol;
 
 struct Enum : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kEnum_Kind;
+    static constexpr Kind kProgramElementKind = Kind::kEnum;
 
     Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
          bool isBuiltin = true)

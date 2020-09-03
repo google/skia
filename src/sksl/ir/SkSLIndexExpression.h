@@ -17,39 +17,39 @@ namespace SkSL {
 /**
  * Given a type, returns the type that will result from extracting an array value from it.
  */
-static const Type& index_type(const Context& context, const Type& type) {
-    if (type.kind() == Type::kMatrix_Kind) {
+static const Type* index_type(const Context& context, const Type& type) {
+    if (type.typeKind() == Type::TypeKind::kMatrix) {
         if (type.componentType() == *context.fFloat_Type) {
             switch (type.rows()) {
-                case 2: return *context.fFloat2_Type;
-                case 3: return *context.fFloat3_Type;
-                case 4: return *context.fFloat4_Type;
+                case 2: return context.fFloat2_Type.get();
+                case 3: return context.fFloat3_Type.get();
+                case 4: return context.fFloat4_Type.get();
                 default: SkASSERT(false);
             }
         } else if (type.componentType() == *context.fHalf_Type) {
             switch (type.rows()) {
-                case 2: return *context.fHalf2_Type;
-                case 3: return *context.fHalf3_Type;
-                case 4: return *context.fHalf4_Type;
+                case 2: return context.fHalf2_Type.get();
+                case 3: return context.fHalf3_Type.get();
+                case 4: return context.fHalf4_Type.get();
                 default: SkASSERT(false);
             }
         }
     }
-    return type.componentType();
+    return &type.componentType();
 }
 
 /**
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
  */
 struct IndexExpression : public Expression {
-    static constexpr Kind kExpressionKind = kIndex_Kind;
+    static constexpr Kind kExpressionKind = Kind::kIndex;
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-    : INHERITED(base->fOffset, kExpressionKind, index_type(context, base->fType))
+    : INHERITED(base->fOffset, kExpressionKind, index_type(context, base->type()))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
-        SkASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
+        SkASSERT(fIndex->type() == *context.fInt_Type || fIndex->type() == *context.fUInt_Type);
     }
 
     bool hasProperty(Property property) const override {
@@ -58,7 +58,7 @@ struct IndexExpression : public Expression {
 
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
-                                                               &fType));
+                                                               &this->type()));
     }
 
     String description() const override {
@@ -73,7 +73,7 @@ struct IndexExpression : public Expression {
 private:
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
                     const Type* type)
-    : INHERITED(base->fOffset, kIndex_Kind, *type)
+    : INHERITED(base->fOffset, Kind::kIndex, &this->type())
     , fBase(std::move(base))
     , fIndex(std::move(index)) {}
 };

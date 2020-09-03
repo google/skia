@@ -18,11 +18,11 @@ namespace SkSL {
  * always eventually replaced by Constructors in valid programs.
  */
 struct TypeReference : public Expression {
-    static constexpr Kind kExpressionKind = kTypeReference_Kind;
+    static constexpr Kind kExpressionKind = Kind::kTypeReference;
 
-    TypeReference(const Context& context, int offset, const Type& value)
-    : INHERITED(offset, kExpressionKind, *context.fInvalid_Type)
-    , fValue(value) {}
+    TypeReference(const Context& context, int offset, const Type* value)
+    : INHERITED(offset, kExpressionKind, context.fInvalid_Type.get())
+    , fValue(*value) {}
 
     bool hasProperty(Property property) const override {
         return false;
@@ -33,7 +33,7 @@ struct TypeReference : public Expression {
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new TypeReference(fOffset, fValue, &fType));
+        return std::unique_ptr<Expression>(new TypeReference(fOffset, fValue, &this->type()));
     }
 
     const Type& fValue;
@@ -42,7 +42,7 @@ struct TypeReference : public Expression {
 
 private:
     TypeReference(int offset, const Type& value, const Type* type)
-    : INHERITED(offset, kExpressionKind, *type)
+    : INHERITED(offset, kExpressionKind, type)
     , fValue(value) {}
 };
 

@@ -46,17 +46,17 @@ public:
      */
     size_t alignment(const Type& type) const {
         // See OpenGL Spec 7.6.2.2 Standard Uniform Block Layout
-        switch (type.kind()) {
-            case Type::kScalar_Kind:
+        switch (type.typeKind()) {
+            case Type::TypeKind::kScalar:
                 return this->size(type);
-            case Type::kVector_Kind:
+            case Type::TypeKind::kVector:
                 return vector_alignment(this->size(type.componentType()), type.columns());
-            case Type::kMatrix_Kind:
+            case Type::TypeKind::kMatrix:
                 return this->roundUpIfNeeded(vector_alignment(this->size(type.componentType()),
                                                               type.rows()));
-            case Type::kArray_Kind:
+            case Type::TypeKind::kArray:
                 return this->roundUpIfNeeded(this->alignment(type.componentType()));
-            case Type::kStruct_Kind: {
+            case Type::TypeKind::kStruct: {
                 size_t result = 0;
                 for (const auto& f : type.fields()) {
                     size_t alignment = this->alignment(*f.fType);
@@ -76,12 +76,12 @@ public:
      * the case of matrices) to the start of the next.
      */
     size_t stride(const Type& type) const {
-        switch (type.kind()) {
-            case Type::kMatrix_Kind: {
+        switch (type.typeKind()) {
+            case Type::TypeKind::kMatrix: {
                 size_t base = vector_alignment(this->size(type.componentType()), type.rows());
                 return this->roundUpIfNeeded(base);
             }
-            case Type::kArray_Kind: {
+            case Type::TypeKind::kArray: {
                 int stride = this->size(type.componentType());
                 if (stride > 0) {
                     int align = this->alignment(type.componentType());
@@ -100,23 +100,23 @@ public:
      * Returns the size of a type in bytes.
      */
     size_t size(const Type& type) const {
-        switch (type.kind()) {
-            case Type::kScalar_Kind:
+        switch (type.typeKind()) {
+            case Type::TypeKind::kScalar:
                 if (type.name() == "bool") {
                     return 1;
                 }
                 // FIXME need to take precision into account, once we figure out how we want to
                 // handle it...
                 return 4;
-            case Type::kVector_Kind:
+            case Type::TypeKind::kVector:
                 if (fStd == kMetal_Standard && type.columns() == 3) {
                     return 4 * this->size(type.componentType());
                 }
                 return type.columns() * this->size(type.componentType());
-            case Type::kMatrix_Kind: // fall through
-            case Type::kArray_Kind:
+            case Type::TypeKind::kMatrix: // fall through
+            case Type::TypeKind::kArray:
                 return type.columns() * this->stride(type);
-            case Type::kStruct_Kind: {
+            case Type::TypeKind::kStruct: {
                 size_t total = 0;
                 for (const auto& f : type.fields()) {
                     size_t alignment = this->alignment(*f.fType);
