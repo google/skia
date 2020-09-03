@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "72766a79_02d2d2ea",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-03T16:32:50Z",
+      "side": 1,
+      "message": "Move these to the prior line ?",
+      "range": {
+        "startLine": 224,
+        "startChar": 12,
+        "endLine": 224,
+        "endChar": 14
+      },
+      "revId": "1edce843b0ec001cb5e13f377562d257112202b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e6d557e_be18779a",
+        "filename": "src/gpu/text/GrTextBlobCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-03T16:32:50Z",
+      "side": 1,
+      "message": "std::move here ?",
+      "range": {
+        "startLine": 25,
+        "startChar": 22,
+        "endLine": 25,
+        "endChar": 26
+      },
+      "revId": "1edce843b0ec001cb5e13f377562d257112202b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
