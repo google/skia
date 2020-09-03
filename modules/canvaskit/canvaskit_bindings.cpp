@@ -106,6 +106,19 @@ SkColor4f ptrToSkColor4f(uintptr_t /* float* */ cPtr) {
     return color;
 }
 
+SkRRect ptrToSkRRect(uintptr_t /* float* */ fPtr) {
+    // In order, these floats should be 4 floats for the rectangle
+    // (left, top, right, bottom) and then 8 floats for the radii
+    // (upper left, upper right, lower right, lower left).
+    const SkScalar* twelveFloats = reinterpret_cast<const SkScalar*>(fPtr);
+    const SkRect rect = reinterpret_cast<const SkRect*>(twelveFloats)[0];
+    const SkVector* radiiValues = reinterpret_cast<const SkVector*>(twelveFloats + 4);
+
+    SkRRect rr;
+    rr.setRectRadii(rect, radiiValues);
+    return rr;
+}
+
 // Surface creation structs and helpers
 struct SimpleImageInfo {
     int width;
@@ -689,28 +702,6 @@ struct PosTan {
     SkScalar px, py, tx, ty;
 };
 
-// SimpleRRect is simpler than passing a (complex) SkRRect over the wire to JS.
-struct SimpleRRect {
-    SkRect rect;
-
-    SkScalar rx1;
-    SkScalar ry1;
-    SkScalar rx2;
-    SkScalar ry2;
-    SkScalar rx3;
-    SkScalar ry3;
-    SkScalar rx4;
-    SkScalar ry4;
-};
-
-SkRRect toRRect(const SimpleRRect& r) {
-    SkVector fRadii[4] = {{r.rx1, r.ry1}, {r.rx2, r.ry2},
-                          {r.rx3, r.ry3}, {r.rx4, r.ry4}};
-    SkRRect rr;
-    rr.setRectRadii(r.rect, fRadii);
-    return rr;
-}
-
 // This function is private, we call it in interface.js
 void computeTonalColors(uintptr_t cPtrAmbi /* float * */, uintptr_t cPtrSpot /* float * */) {
     // private methods accepting colors take pointers to floats already copied into wasm memory.
@@ -1003,8 +994,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.clear(ptrToSkColor4f(cPtr));
         }))
         .function("clipPath", select_overload<void (const SkPath&, SkClipOp, bool)>(&SkCanvas::clipPath))
-        .function("clipRRect", optional_override([](SkCanvas& self, const SimpleRRect& r, SkClipOp op, bool doAntiAlias) {
-            self.clipRRect(toRRect(r), op, doAntiAlias);
+        .function("_clipRRect", optional_override([](SkCanvas& self, uintptr_t /* float* */ fPtr, SkClipOp op, bool doAntiAlias) {
+            self.clipRRect(ptrToSkRRect(fPtr), op, doAntiAlias);
         }))
         .function("clipRect", select_overload<void (const SkRect&, SkClipOp, bool)>(&SkCanvas::clipRect))
         .function("_concat", optional_override([](SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
@@ -1042,8 +1033,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawColorInt", optional_override([](SkCanvas& self, SkColor color, SkBlendMode mode) {
             self.drawColor(color, mode);
         }))
-        .function("drawDRRect",optional_override([](SkCanvas& self, const SimpleRRect& o, const SimpleRRect& i, const SkPaint& paint) {
-            self.drawDRRect(toRRect(o), toRRect(i), paint);
+        .function("_drawDRRect",optional_override([](SkCanvas& self, uintptr_t /* float* */ outerPtr,
+                                                     uintptr_t /* float* */ innerPtr, const SkPaint& paint) {
+            self.drawDRRect(ptrToSkRRect(outerPtr), ptrToSkRRect(innerPtr), paint);
         }))
         .function("drawAnimatedImage",  optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage>& aImg,
                                                              SkScalar x, SkScalar y)->void {
@@ -1082,8 +1074,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             const SkPoint* pts = reinterpret_cast<const SkPoint*>(pptr);
             self.drawPoints(mode, count, pts, paint);
         }))
-        .function("drawRRect",optional_override([](SkCanvas& self, const SimpleRRect& r, const SkPaint& paint) {
-            self.drawRRect(toRRect(r), paint);
+        .function("_drawRRect",optional_override([](SkCanvas& self, uintptr_t /* float* */ fPtr, const SkPaint& paint) {
+            self.drawRRect(ptrToSkRRect(fPtr), paint);
         }))
         .function("drawRect", &SkCanvas::drawRect)
         .function("drawRoundRect", &SkCanvas::drawRoundRect)
@@ -1857,17 +1849,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("fTop",    &SkRect::fTop)
         .field("fRight",  &SkRect::fRight)
         .field("fBottom", &SkRect::fBottom);
-
-    value_object<SimpleRRect>("SkRRect")
-        .field("rect", &SimpleRRect::rect)
-        .field("rx1",  &SimpleRRect::rx1)
-        .field("ry1",  &SimpleRRect::ry1)
-        .field("rx2",  &SimpleRRect::rx2)
-        .field("ry2",  &SimpleRRect::ry2)
-        .field("rx3",  &SimpleRRect::rx3)
-        .field("ry3",  &SimpleRRect::ry3)
-        .field("rx4",  &SimpleRRect::rx4)
-        .field("ry4",  &SimpleRRect::ry4);
 
     value_object<SkIRect>("SkIRect")
         .field("fLeft",   &SkIRect::fLeft)
