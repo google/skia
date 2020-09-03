@@ -602,7 +602,7 @@ template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHea
 template <int N, typename T, bool MEM_MOVE= false>
 class SkSTArray : public SkTArray<T, MEM_MOVE> {
 private:
-    typedef SkTArray<T, MEM_MOVE> INHERITED;
+    using INHERITED = SkTArray<T, MEM_MOVE>;
 
 public:
     SkSTArray() : INHERITED(&fStorage) {

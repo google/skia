@@ -94,7 +94,7 @@ private:
     bool fWasInitialized = false;
 #endif
 
-    typedef TestContext INHERITED;
+    using INHERITED = TestContext;
 };
 
 /**

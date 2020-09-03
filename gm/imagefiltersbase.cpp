@@ -51,7 +51,7 @@ protected:
 
 private:
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 sk_sp<SkFlattenable> FailImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -76,7 +76,7 @@ protected:
 private:
     IdentityImageFilter(sk_sp<SkImageFilter> input) : INHERITED(&input, 1, nullptr) {}
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 // Register these image filters as deserializable before main().
@@ -275,7 +275,7 @@ private:
 
     sk_sp<SkImage> fAtlas;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM( return new ImageFiltersBaseGM; )
 
@@ -346,7 +346,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 class ImageFiltersText_IF : public ImageFiltersTextBaseGM {

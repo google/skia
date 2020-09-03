@@ -63,7 +63,7 @@ struct VarDeclaration : public Statement {
     std::vector<std::unique_ptr<Expression>> fSizes;
     std::unique_ptr<Expression> fValue;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 /**
@@ -126,7 +126,7 @@ struct VarDeclarations : public ProgramElement {
     // CFG to only have to worry about unique_ptr<Statement>
     std::vector<std::unique_ptr<Statement>> fVars;
 
-    typedef ProgramElement INHERITED;
+    using INHERITED = ProgramElement;
 };
 
 }  // namespace SkSL

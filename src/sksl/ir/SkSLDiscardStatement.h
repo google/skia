@@ -30,7 +30,7 @@ struct DiscardStatement : public Statement {
         return String("discard;");
     }
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

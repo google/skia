@@ -48,7 +48,7 @@ private:
         return reinterpret_cast<GrVkGpu*>(this->getGpu());
     }
 
-    typedef GrGpuBuffer INHERITED;
+    using INHERITED = GrGpuBuffer;
 };
 
 #endif

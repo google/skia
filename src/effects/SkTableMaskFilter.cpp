@@ -30,7 +30,7 @@ private:
 
     uint8_t fTable[256];
 
-    typedef SkMaskFilter INHERITED;
+    using INHERITED = SkMaskFilter;
 };
 
 SkTableMaskFilterImpl::SkTableMaskFilterImpl() {

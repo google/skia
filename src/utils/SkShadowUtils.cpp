@@ -74,7 +74,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkGaussianColorFilter)
 
-    typedef SkColorFilterBase INHERITED;
+    using INHERITED = SkColorFilterBase;
 };
 
 sk_sp<SkFlattenable> SkGaussianColorFilter::CreateProc(SkReadBuffer&) {

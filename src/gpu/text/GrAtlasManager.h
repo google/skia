@@ -145,7 +145,7 @@ private:
     sk_sp<const GrCaps> fCaps;
     GrDrawOpAtlasConfig fAtlasConfig;
 
-    typedef GrOnFlushCallbackObject INHERITED;
+    using INHERITED = GrOnFlushCallbackObject;
 };
 
 #endif // GrAtlasManager_DEFINED

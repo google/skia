@@ -56,7 +56,7 @@ private:
     Result onStartScanlineDecode(const SkImageInfo& dstInfo,
             const Options& options) override;
 
-    typedef SkCodec INHERITED;
+    using INHERITED = SkCodec;
 };
 
 #endif  // SkCodec_wbmp_DEFINED

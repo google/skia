@@ -40,7 +40,7 @@ private:
     uint16_t    fFlags;
     Domain      fDomain;
 
-    typedef SkColorFilterBase INHERITED;
+    using INHERITED = SkColorFilterBase;
 };
 
 #endif

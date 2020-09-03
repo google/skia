@@ -159,7 +159,7 @@ private:
     // will work, but we use 4 to be more explicit about getting it to 16 byte alignment.
     char               fDummyPadding[4];
 
-    typedef GrSurfaceProxy INHERITED;
+    using INHERITED = GrSurfaceProxy;
 };
 
 #endif

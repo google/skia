@@ -286,7 +286,7 @@ protected:
     int fUniformBuffer = -1;
     String fRTHeightName;
 
-    typedef CodeGenerator INHERITED;
+    using INHERITED = CodeGenerator;
 };
 
 }  // namespace SkSL

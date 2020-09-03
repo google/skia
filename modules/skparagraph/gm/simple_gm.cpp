@@ -113,7 +113,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM(return new ParagraphGM(0);)
 DEF_GM(return new ParagraphGM(kTimeLayout);)

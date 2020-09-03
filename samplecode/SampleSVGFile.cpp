@@ -66,7 +66,7 @@ private:
     SkString        fPath;
     SkString        fLabel;
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 } // anonymous namespace

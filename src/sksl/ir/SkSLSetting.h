@@ -49,7 +49,7 @@ struct Setting : public Expression {
     const String fName;
     std::unique_ptr<Expression> fValue;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

@@ -137,7 +137,7 @@ private:
     bool fDoAA;
     bool fFlipped;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

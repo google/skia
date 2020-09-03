@@ -403,7 +403,7 @@ private:
     friend class PointerLValue;
     friend class SwizzleLValue;
 
-    typedef CodeGenerator INHERITED;
+    using INHERITED = CodeGenerator;
 };
 
 }  // namespace SkSL

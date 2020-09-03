@@ -59,7 +59,7 @@ public:
     }
 
 private:
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 class BigKeyProcessor : public GrFragmentProcessor {
@@ -85,7 +85,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
@@ -121,7 +121,7 @@ private:
         }
 
     private:
-        typedef GrGLSLFragmentProcessor INHERITED;
+        using INHERITED = GrGLSLFragmentProcessor;
     };
 
     BlockInputFragmentProcessor(std::unique_ptr<GrFragmentProcessor> child)
@@ -133,7 +133,7 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return true; }
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

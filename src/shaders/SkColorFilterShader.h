@@ -37,7 +37,7 @@ private:
     sk_sp<SkColorFilterBase> fFilter;
     float                    fAlpha;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 #endif

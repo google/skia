@@ -192,7 +192,7 @@ protected:
 
 private:
     SkTArray<SkPath> fPaths;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 static void draw_squarehair_tests(SkCanvas* canvas, SkScalar width, SkPaint::Cap cap, bool aa) {

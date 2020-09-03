@@ -92,7 +92,7 @@ private:
 
     friend class SkGraphics;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #if defined(SK_DISABLE_EFFECT_DESERIALIZATION)

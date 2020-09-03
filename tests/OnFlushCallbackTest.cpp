@@ -200,7 +200,7 @@ private:
     GrSimpleMesh*  fMesh = nullptr;
     GrProgramInfo* fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 }  // anonymous namespace
@@ -266,7 +266,7 @@ private:
     // The Atlased ops have an internal singly-linked list of ops that land in the same opsTask
     AtlasedRectOp* fNext;
 
-    typedef NonAARectOp INHERITED;
+    using INHERITED = NonAARectOp;
 };
 
 }  // anonymous namespace

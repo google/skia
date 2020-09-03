@@ -222,7 +222,7 @@ protected:
 
     class TriangleShader;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 inline const char* GrCCCoverageProcessor::PrimitiveTypeName(PrimitiveType type) {

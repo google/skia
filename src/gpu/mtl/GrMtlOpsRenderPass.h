@@ -76,7 +76,7 @@ private:
         size_t fOffset;
     } fBufferBindings[kNumBindings];
 
-    typedef GrOpsRenderPass INHERITED;
+    using INHERITED = GrOpsRenderPass;
 };
 
 #endif

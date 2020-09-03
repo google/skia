@@ -127,7 +127,7 @@ protected:
         return this->INHERITED::visitExpression(e);
     }
 
-    typedef ProgramVisitor INHERITED;
+    using INHERITED = ProgramVisitor;
 };
 
 // Visitor that searches through the program for references to a particular builtin variable
@@ -145,7 +145,7 @@ public:
 
     int fBuiltin;
 
-    typedef ProgramVisitor INHERITED;
+    using INHERITED = ProgramVisitor;
 };
 
 // Visitor that counts the number of nodes visited
@@ -175,7 +175,7 @@ public:
 private:
     int fCount;
 
-    typedef ProgramVisitor INHERITED;
+    using INHERITED = ProgramVisitor;
 };
 
 class VariableWriteVisitor : public ProgramVisitor {
@@ -202,7 +202,7 @@ public:
 private:
     const Variable* fVar;
 
-    typedef ProgramVisitor INHERITED;
+    using INHERITED = ProgramVisitor;
 };
 
 }  // namespace

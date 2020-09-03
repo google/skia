@@ -112,7 +112,7 @@ private:
 
     friend class SkDataTableBuilder;    // access to Dir
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

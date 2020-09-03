@@ -187,7 +187,7 @@ private:
     int fGeoCount;
     int fNumGlyphs;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 #endif

@@ -30,7 +30,7 @@ protected:
     SkSTArray<1, sk_sp<SkSVGNode>, true> fChildren;
 
 private:
-    typedef SkSVGTransformableNode INHERITED;
+    using INHERITED = SkSVGTransformableNode;
 };
 
 #endif // SkSVGContainer_DEFINED

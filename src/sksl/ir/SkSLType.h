@@ -422,7 +422,7 @@ public:
     const Type& toCompound(const Context& context, int columns, int rows) const;
 
 private:
-    typedef Symbol INHERITED;
+    using INHERITED = Symbol;
 
     String fNameString;
     Kind fTypeKind;

@@ -448,7 +448,7 @@ private:
     std::function<void(DrawMeshHelper*)> fPrepareFn;
     std::function<void(DrawMeshHelper*)> fExecuteFn;
 
-    typedef GrDrawOp INHERITED;
+    using INHERITED = GrDrawOp;
 };
 
 class GrMeshTestProcessor : public GrGeometryProcessor {
@@ -497,7 +497,7 @@ private:
     Attribute fInstanceLocation;
     Attribute fInstanceColor;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 class GLSLMeshTestProcessor : public GrGLSLGeometryProcessor {

@@ -105,7 +105,7 @@ private:
     // the IDs are just required for the computation in totalSamples we cache that result here.
     int         fNumSamplesOwnedPerPixel;
 
-    typedef GrRenderTarget INHERITED;
+    using INHERITED = GrRenderTarget;
 };
 
 #endif

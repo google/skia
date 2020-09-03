@@ -68,7 +68,7 @@ private:
     bool fOpen = true;
     FILE *fFile;
 
-    typedef OutputStream INHERITED;
+    using INHERITED = OutputStream;
 };
 
 } // namespace

@@ -162,7 +162,7 @@ protected:
 
 private:
     sk_sp<SkShader> fBmpShader;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

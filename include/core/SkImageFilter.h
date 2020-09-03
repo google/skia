@@ -158,7 +158,7 @@ protected:
 private:
     friend class SkImageFilter_Base;
 
-    typedef SkFlattenable INHERITED;
+    using INHERITED = SkFlattenable;
 };
 
 #endif

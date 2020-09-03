@@ -347,7 +347,7 @@ public:
     }
 
 private:
-    typedef Sample3DView INHERITED;
+    using INHERITED = Sample3DView;
 };
 
 class SampleBump3D : public SampleCubeBase {

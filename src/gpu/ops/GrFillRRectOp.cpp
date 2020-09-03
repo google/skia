@@ -125,7 +125,7 @@ private:
     // onExecute. In the prePrepared case it will have been stored in the record-time arena.
     GrProgramInfo* fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(FillRRectOp::ProcessorFlags)
@@ -361,7 +361,7 @@ private:
     class CoverageImpl;
     class MSAAImpl;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 constexpr GrPrimitiveProcessor::Attribute FillRRectOp::Processor::kVertexAttribs[];

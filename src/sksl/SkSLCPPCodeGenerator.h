@@ -154,7 +154,7 @@ private:
     // stored here for restoration.
     OutputStream* fCPPBuffer = nullptr;
 
-    typedef GLSLCodeGenerator INHERITED;
+    using INHERITED = GLSLCodeGenerator;
 };
 
 }  // namespace SkSL

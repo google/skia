@@ -721,7 +721,7 @@ private:
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif
     SkGlyphRunListPainter fGlyphPainter;
-    typedef GrSurfaceContext INHERITED;
+    using INHERITED = GrSurfaceContext;
 };
 
 #endif

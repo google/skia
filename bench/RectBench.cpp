@@ -108,7 +108,7 @@ protected:
 
 private:
     SkString fBaseName;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 class SrcModeRectBench : public RectBench {
@@ -135,7 +135,7 @@ private:
     SkBlendMode fMode;
     SkString fName;
 
-    typedef RectBench INHERITED;
+    using INHERITED = RectBench;
 };
 
 class TransparentRectBench : public RectBench {
@@ -157,7 +157,7 @@ protected:
 
 private:
     SkString fName;
-    typedef RectBench INHERITED;
+    using INHERITED = RectBench;
 };
 
 // Adds a shader to the paint that requires local coordinates to be used
@@ -189,7 +189,7 @@ private:
     SkString fName;
     sk_sp<SkShader> fShader;
 
-    typedef RectBench INHERITED;
+    using INHERITED = RectBench;
 };
 
 
@@ -326,7 +326,7 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
 private:
-    typedef RectBench INHERITED;
+    using INHERITED = RectBench;
     kMaskType _type;
     SkString fName;
 };

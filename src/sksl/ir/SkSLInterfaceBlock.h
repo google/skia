@@ -77,7 +77,7 @@ struct InterfaceBlock : public ProgramElement {
     std::vector<std::unique_ptr<Expression>> fSizes;
     const std::shared_ptr<SymbolTable> fTypeOwner;
 
-    typedef ProgramElement INHERITED;
+    using INHERITED = ProgramElement;
 };
 
 }  // namespace SkSL

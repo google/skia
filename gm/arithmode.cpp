@@ -164,7 +164,7 @@ class ArithmodeGM : public skiagm::GM {
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

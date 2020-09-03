@@ -55,7 +55,7 @@ private:
     SkScalar fRadius;
     SkTDArray<SkPoint>* fPts;
 
-    typedef Sk2DPathEffect INHERITED;
+    using INHERITED = Sk2DPathEffect;
 };
 
 // Register this path effect as deserializable before main().
@@ -86,7 +86,7 @@ public:
 private:
     SK_FLATTENABLE_HOOKS(InverseFillPE)
 
-    typedef SkPathEffect INHERITED;
+    using INHERITED = SkPathEffect;
 };
 
 sk_sp<SkFlattenable> InverseFillPE::CreateProc(SkReadBuffer& buffer) {
@@ -162,7 +162,7 @@ protected:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -45,7 +45,7 @@ private:
     uint32_t             fCount;
     VkDescriptorPool     fDescPool;
 
-    typedef GrVkManagedResource INHERITED;
+    using INHERITED = GrVkManagedResource;
 };
 
 #endif

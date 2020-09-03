@@ -45,7 +45,7 @@ private:
 
     GR_DECLARE_XP_FACTORY_TEST
 
-    typedef GrXPFactory INHERITED;
+    using INHERITED = GrXPFactory;
 };
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop

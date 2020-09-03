@@ -110,7 +110,7 @@ private:
     static constexpr int kSize = 512;
 
     sk_sp<SkTextBlob> fBlobs[3];
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ private:
     static constexpr int kSize = 512;
 
     sk_sp<SkTextBlob> fBlobs[3];
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

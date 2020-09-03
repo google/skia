@@ -109,7 +109,7 @@ public:
      */
     static SkFontConfigInterface* GetSingletonDirectInterface();
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

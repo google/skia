@@ -45,7 +45,7 @@ struct NullLiteral : public Expression {
         return std::unique_ptr<Expression>(new NullLiteral(fOffset, fType));
     }
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

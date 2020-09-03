@@ -52,7 +52,7 @@ private:
     UniformHandle fViewMatrixUniform;
     UniformHandle fLocalMatrixUniform;
 
-    typedef GrGLSLGeometryProcessor INHERITED;
+    using INHERITED = GrGLSLGeometryProcessor;
 };
 
 GrGLConicEffect::GrGLConicEffect(const GrGeometryProcessor& processor)
@@ -247,7 +247,7 @@ private:
     UniformHandle fViewMatrixUniform;
     UniformHandle fLocalMatrixUniform;
 
-    typedef GrGLSLGeometryProcessor INHERITED;
+    using INHERITED = GrGLSLGeometryProcessor;
 };
 
 GrGLQuadEffect::GrGLQuadEffect(const GrGeometryProcessor& processor)

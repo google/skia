@@ -150,7 +150,7 @@ private:
     // Set true by caches when they cache content that's derived from the current pixels.
     mutable std::atomic<bool> fAddedToRasterCache;
 
-    typedef SkImage INHERITED;
+    using INHERITED = SkImage;
 };
 
 static inline SkImage_Base* as_IB(SkImage* image) {

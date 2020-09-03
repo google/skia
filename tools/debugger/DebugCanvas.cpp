@@ -78,7 +78,7 @@ protected:
 
 private:
 
-    typedef SkPaintFilterCanvas INHERITED;
+    using INHERITED = SkPaintFilterCanvas;
 };
 
 DebugCanvas::DebugCanvas(int width, int height)

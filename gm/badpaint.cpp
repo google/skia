@@ -56,7 +56,7 @@ protected:
 private:
     SkTArray<SkPaint> fPaints;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

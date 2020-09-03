@@ -267,7 +267,7 @@ private:
     sk_sp<SkTextBlob> fBlob;
     SkTArray<sk_sp<SkDrawLooper>> fLoopers;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

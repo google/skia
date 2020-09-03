@@ -103,7 +103,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new BitmapRectBench(0xFF, kNone_SkFilterQuality, false))

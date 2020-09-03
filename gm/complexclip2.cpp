@@ -209,7 +209,7 @@ private:
     SkScalar fTotalWidth;
     SkScalar fTotalHeight;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

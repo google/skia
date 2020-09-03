@@ -50,7 +50,7 @@ private:
     bool fShouldStroke;
     bool fShouldFill;
 
-    typedef GrPath INHERITED;
+    using INHERITED = GrPath;
 };
 
 #endif

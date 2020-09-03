@@ -111,7 +111,7 @@ private:
     // using the separate YUVA planes. From thence forth we will only use the
     // the RGBView.
     mutable GrSurfaceProxyView       fRGBView;
-    typedef SkImage_GpuBase INHERITED;
+    using INHERITED = SkImage_GpuBase;
 };
 
 #endif

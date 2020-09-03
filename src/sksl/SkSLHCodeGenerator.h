@@ -80,7 +80,7 @@ private:
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;
 
-    typedef CodeGenerator INHERITED;
+    using INHERITED = CodeGenerator;
 };
 
 } // namespace SkSL

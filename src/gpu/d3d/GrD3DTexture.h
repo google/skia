@@ -86,7 +86,7 @@ private:
 
     GrD3DDescriptorHeap::CPUHandle fShaderResourceView;
 
-    typedef GrTexture INHERITED;
+    using INHERITED = GrTexture;
 };
 
 #endif

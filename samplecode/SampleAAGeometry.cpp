@@ -1695,7 +1695,7 @@ public:
     }
 
 private:
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 static struct KeyCommand {

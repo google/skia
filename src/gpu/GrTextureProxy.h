@@ -202,7 +202,7 @@ private:
 
     SkDEBUGCODE(void onValidateSurface(const GrSurface*) override;)
 
-    typedef GrSurfaceProxy INHERITED;
+    using INHERITED = GrSurfaceProxy;
 };
 
 #endif

@@ -74,7 +74,7 @@ private:
     SkDraw               fDraw;
     SkRasterClip         fRasterClip;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif // GrSWMaskHelper_DEFINED

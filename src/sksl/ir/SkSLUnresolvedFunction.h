@@ -34,7 +34,7 @@ struct UnresolvedFunction : public Symbol {
 
     const std::vector<const FunctionDeclaration*> fFunctions;
 
-    typedef Symbol INHERITED;
+    using INHERITED = Symbol;
 };
 
 }  // namespace SkSL

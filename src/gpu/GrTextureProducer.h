@@ -129,7 +129,7 @@ private:
     GrRecordingContext* fContext;
     const GrImageInfo fImageInfo;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif

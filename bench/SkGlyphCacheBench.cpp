@@ -68,7 +68,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
     const size_t fCacheSize;
     SkString fName;
 };
@@ -107,7 +107,7 @@ protected:
     }
 
 private:
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
     const size_t fCacheSize;
     SkString fName;
 };

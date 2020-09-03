@@ -39,7 +39,7 @@ private:
     NSOpenGLContext*     fGLContext;
     NSOpenGLPixelFormat* fPixelFormat;
 
-    typedef GLWindowContext INHERITED;
+    using INHERITED = GLWindowContext;
 };
 
 GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)

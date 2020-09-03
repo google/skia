@@ -30,7 +30,7 @@ private:
     // FIXME: should be sparse
     SkSVGTransformType fTransform;
 
-    typedef SkSVGNode INHERITED;
+    using INHERITED = SkSVGNode;
 };
 
 #endif // SkSVGTransformableNode_DEFINED

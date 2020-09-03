@@ -129,7 +129,7 @@ protected:
 private:
     bool fDoSimpleClipFirst;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

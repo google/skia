@@ -56,6 +56,6 @@ protected:
     SkRegion fRegion;
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new DrawRegionGM; )

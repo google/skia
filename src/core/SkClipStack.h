@@ -480,7 +480,7 @@ public:
 
     private:
 
-        typedef Iter INHERITED;
+        using INHERITED = Iter;
     };
 
     /**

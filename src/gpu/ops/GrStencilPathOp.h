@@ -68,7 +68,7 @@ private:
     GrScissorState            fScissor;
     sk_sp<const GrPath>       fPath;
 
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 
 #endif

@@ -162,7 +162,7 @@ private:
     int* fResult;
     const Combinable* fCombinable;
 
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 }  // namespace
 

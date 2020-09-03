@@ -95,7 +95,7 @@ private:
     int      fHardStopCount;
     SkPaint  fPaint;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new HardStopGradientBench_ScaleNumHardStops(10, 1);)
