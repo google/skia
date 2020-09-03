@@ -259,7 +259,7 @@ describe('Canvas Behavior', () => {
         paint.setColorFilter(lerp)
         canvas.drawRect(CanvasKit.LTRBRect(50, 10, 100, 60), paint);
         paint.setColorFilter(red)
-        canvas.drawRect(CanvasKit.LTRBRect(90, 10, 140, 60), paint);
+        canvas.drawRect4f(90, 10, 140, 60, paint);
 
         const r = CanvasKit.SkColorMatrix.rotated(0, .707, -.707);
         const b = CanvasKit.SkColorMatrix.rotated(2, .5, .866);
