@@ -219,7 +219,7 @@
       path.lineTo(36, 148);
 
       path.moveTo(150, 180);
-      path.arcTo(150, 100, 50, 200, 20);
+      path.arcToTangent(150, 100, 50, 200, 20);
       path.lineTo(160, 160);
 
       path.moveTo(20, 120);
@@ -227,14 +227,14 @@
 
       canvas.drawPath(path, paint);
 
-      let rrect = new CanvasKit.SkPath()
-                               .addRoundRect(100, 10, 140, 62,
-                                             10, 4, true);
+      const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
 
-      canvas.drawPath(rrect, paint);
+      const rrectPath = new CanvasKit.SkPath().addRRect(rrect, true);
 
+      canvas.drawPath(rrectPath, paint);
+
+      rrectPath.delete();
       path.delete();
-      rrect.delete();
       paint.delete();
     }
     // Intentionally just draw frame once
@@ -964,10 +964,10 @@
     canvas.drawText(shapedText, textBoxX, textBoxY, textPaint);
     const bounds = shapedText.getBounds();
 
-    bounds.fLeft += textBoxX;
-    bounds.fRight += textBoxX;
-    bounds.fTop += textBoxY;
-    bounds.fBottom += textBoxY
+    bounds[0] += textBoxX; // left
+    bounds[2] += textBoxX; // right
+    bounds[1] += textBoxY; // top
+    bounds[3] += textBoxY // bottom
 
     canvas.drawRect(bounds, paint);
     const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
@@ -1072,9 +1072,9 @@
     fontPaint.setAntiAlias(true);
 
     const arc = new CanvasKit.SkPath();
-    arc.arcTo(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
+    arc.arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
     arc.lineTo(210, 140);
-    arc.arcTo(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+    arc.arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
 
     const str = 'This téxt should follow the curve across contours...';
     const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font);

@@ -69,6 +69,7 @@ SKOTTIE_WASM_EXCLUDE = [
   'streetby_loading.json',
   'streetby_test_loading.json',
   # Times out
+  'an_endless_hike_on_a_tiny_world_.json', # times out on CPU
   'beetle.json',
 ]
 
