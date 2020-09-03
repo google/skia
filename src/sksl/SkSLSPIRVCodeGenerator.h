@@ -286,7 +286,7 @@ private:
 
     SpvId writeIndexExpression(const IndexExpression& expr, OutputStream& out);
 
-    SpvId writeLogicalAnd(const BinaryExpression& b, OutputStream& out);
+    SpvId writeLogicalAnd(const BinaryExpression& a, OutputStream& out);
 
     SpvId writeLogicalOr(const BinaryExpression& o, OutputStream& out);
 

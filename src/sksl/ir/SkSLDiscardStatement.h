@@ -17,7 +17,7 @@ namespace SkSL {
  * A 'discard' statement.
  */
 struct DiscardStatement : public Statement {
-    static constexpr Kind kStatementKind = kDiscard_Kind;
+    static constexpr Kind kStatementKind = Kind::kDiscard;
 
     DiscardStatement(int offset)
     : INHERITED(offset, kStatementKind) {}

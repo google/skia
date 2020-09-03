@@ -17,7 +17,7 @@ namespace SkSL {
  * A 'do' statement.
  */
 struct DoStatement : public Statement {
-    static constexpr Kind kStatementKind = kDo_Kind;
+    static constexpr Kind kStatementKind = Kind::kDo;
 
     DoStatement(int offset, std::unique_ptr<Statement> statement,
                 std::unique_ptr<Expression> test)

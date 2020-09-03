@@ -19,7 +19,7 @@ namespace SkSL {
  * layout(blend_support_all_equations) out;
  */
 struct ModifiersDeclaration : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kModifiers_Kind;
+    static constexpr Kind kProgramElementKind = Kind::kModifiers;
 
     ModifiersDeclaration(Modifiers modifiers)
     : INHERITED(-1, kProgramElementKind)
