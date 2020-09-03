@@ -18,7 +18,7 @@ namespace SkSL {
  * A 'for' statement.
  */
 struct ForStatement : public Statement {
-    static constexpr Kind kStatementKind = kFor_Kind;
+    static constexpr Kind kStatementKind = Kind::kFor;
 
     ForStatement(int offset, std::unique_ptr<Statement> initializer,
                  std::unique_ptr<Expression> test, std::unique_ptr<Expression> next,

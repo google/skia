@@ -65,7 +65,7 @@ namespace {
 static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
     const FunctionDeclaration& f = fc.fFunction;
     return f.fBuiltin && f.fName == "sample" && fc.fArguments.size() >= 1 &&
-            fc.fArguments[0]->fKind == Expression::kVariableReference_Kind &&
+            fc.fArguments[0]->kind() == Expression::Kind::kVariableReference &&
             &((VariableReference&) *fc.fArguments[0]).fVariable == &fp;
 }
 
@@ -88,7 +88,7 @@ protected:
 
     bool visitExpression(const Expression& e) override {
         // Looking for sample(fp, inColor?, ...)
-        if (e.fKind == Expression::kFunctionCall_Kind) {
+        if (e.kind() == Expression::Kind::kFunctionCall) {
             const FunctionCall& fc = e.as<FunctionCall>();
             if (is_sample_call_to_fp(fc, fFP)) {
                 // Determine the type of call at this site, and merge it with the accumulated state
@@ -99,8 +99,8 @@ protected:
                 } else if (lastArg->fType == *fContext.fFloat3x3_Type) {
                     // Determine the type of matrix for this call site
                     if (lastArg->isConstantOrUniform()) {
-                        if (lastArg->fKind == Expression::Kind::kVariableReference_Kind ||
-                            lastArg->fKind == Expression::Kind::kConstructor_Kind) {
+                        if (lastArg->kind() == Expression::Kind::kVariableReference ||
+                            lastArg->kind() == Expression::Kind::kConstructor) {
                             // FIXME if this is a constant, we should parse the float3x3 constructor
                             // and determine if the resulting matrix introduces perspective.
                             fUsage.merge(SampleUsage::UniformMatrix(lastArg->description()));
@@ -136,7 +136,7 @@ public:
     BuiltinVariableVisitor(int builtin) : fBuiltin(builtin) {}
 
     bool visitExpression(const Expression& e) override {
-        if (e.fKind == Expression::kVariableReference_Kind) {
+        if (e.kind() == Expression::Kind::kVariableReference) {
             const VariableReference& var = e.as<VariableReference>();
             return var.fVariable.fModifiers.fLayout.fBuiltin == fBuiltin;
         }
@@ -188,7 +188,7 @@ public:
     }
 
     bool visitExpression(const Expression& e) override {
-        if (e.fKind == Expression::kVariableReference_Kind) {
+        if (e.kind() == Expression::Kind::kVariableReference) {
             const VariableReference& ref = e.as<VariableReference>();
             if (&ref.fVariable == fVar && (ref.fRefKind == VariableReference::kWrite_RefKind ||
                                            ref.fRefKind == VariableReference::kReadWrite_RefKind ||
@@ -249,51 +249,51 @@ bool ProgramVisitor::visit(const Program& program) {
 }
 
 bool ProgramVisitor::visitExpression(const Expression& e) {
-    switch(e.fKind) {
-        case Expression::kBoolLiteral_Kind:
-        case Expression::kDefined_Kind:
-        case Expression::kExternalValue_Kind:
-        case Expression::kFieldAccess_Kind:
-        case Expression::kFloatLiteral_Kind:
-        case Expression::kFunctionReference_Kind:
-        case Expression::kIntLiteral_Kind:
-        case Expression::kNullLiteral_Kind:
-        case Expression::kSetting_Kind:
-        case Expression::kTypeReference_Kind:
-        case Expression::kVariableReference_Kind:
+    switch(e.kind()) {
+        case Expression::Kind::kBoolLiteral:
+        case Expression::Kind::kDefined:
+        case Expression::Kind::kExternalValue:
+        case Expression::Kind::kFieldAccess:
+        case Expression::Kind::kFloatLiteral:
+        case Expression::Kind::kFunctionReference:
+        case Expression::Kind::kIntLiteral:
+        case Expression::Kind::kNullLiteral:
+        case Expression::Kind::kSetting:
+        case Expression::Kind::kTypeReference:
+        case Expression::Kind::kVariableReference:
             // Leaf expressions return false
             return false;
-        case Expression::kBinary_Kind: {
+        case Expression::Kind::kBinary: {
             const BinaryExpression& b = e.as<BinaryExpression>();
             return this->visitExpression(*b.fLeft) || this->visitExpression(*b.fRight); }
-        case Expression::kConstructor_Kind: {
+        case Expression::Kind::kConstructor: {
             const Constructor& c = e.as<Constructor>();
             for (const auto& arg : c.fArguments) {
                 if (this->visitExpression(*arg)) { return true; }
             }
             return false; }
-        case Expression::kExternalFunctionCall_Kind: {
+        case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& c = e.as<ExternalFunctionCall>();
             for (const auto& arg : c.fArguments) {
                 if (this->visitExpression(*arg)) { return true; }
             }
             return false; }
-        case Expression::kFunctionCall_Kind: {
+        case Expression::Kind::kFunctionCall: {
             const FunctionCall& c = e.as<FunctionCall>();
             for (const auto& arg : c.fArguments) {
                 if (this->visitExpression(*arg)) { return true; }
             }
             return false; }
-        case Expression::kIndex_Kind:{
+        case Expression::Kind::kIndex: {
             const IndexExpression& i = e.as<IndexExpression>();
             return this->visitExpression(*i.fBase) || this->visitExpression(*i.fIndex); }
-        case Expression::kPostfix_Kind:
+        case Expression::Kind::kPostfix:
             return this->visitExpression(*e.as<PostfixExpression>().fOperand);
-        case Expression::kPrefix_Kind:
+        case Expression::Kind::kPrefix:
             return this->visitExpression(*e.as<PrefixExpression>().fOperand);
-        case Expression::kSwizzle_Kind:
+        case Expression::Kind::kSwizzle:
             return this->visitExpression(*e.as<Swizzle>().fBase);
-        case Expression::kTernary_Kind: {
+        case Expression::Kind::kTernary: {
             const TernaryExpression& t = e.as<TernaryExpression>();
             return this->visitExpression(*t.fTest) ||
                    this->visitExpression(*t.fIfTrue) ||
@@ -304,38 +304,38 @@ bool ProgramVisitor::visitExpression(const Expression& e) {
 }
 
 bool ProgramVisitor::visitStatement(const Statement& s) {
-    switch(s.fKind) {
-        case Statement::kBreak_Kind:
-        case Statement::kContinue_Kind:
-        case Statement::kDiscard_Kind:
-        case Statement::kNop_Kind:
+    switch(s.kind()) {
+        case Statement::Kind::kBreak:
+        case Statement::Kind::kContinue:
+        case Statement::Kind::kDiscard:
+        case Statement::Kind::kNop:
             // Leaf statements just return false
             return false;
-        case Statement::kBlock_Kind:
+        case Statement::Kind::kBlock:
             for (const std::unique_ptr<Statement>& blockStmt : s.as<Block>().fStatements) {
                 if (this->visitStatement(*blockStmt)) { return true; }
             }
             return false;
-        case Statement::kDo_Kind: {
+        case Statement::Kind::kDo: {
             const DoStatement& d = s.as<DoStatement>();
             return this->visitExpression(*d.fTest) || this->visitStatement(*d.fStatement); }
-        case Statement::kExpression_Kind:
+        case Statement::Kind::kExpression:
             return this->visitExpression(*s.as<ExpressionStatement>().fExpression);
-        case Statement::kFor_Kind: {
+        case Statement::Kind::kFor: {
             const ForStatement& f = s.as<ForStatement>();
             return (f.fInitializer && this->visitStatement(*f.fInitializer)) ||
                    (f.fTest && this->visitExpression(*f.fTest)) ||
                    (f.fNext && this->visitExpression(*f.fNext)) ||
                    this->visitStatement(*f.fStatement); }
-        case Statement::kIf_Kind: {
+        case Statement::Kind::kIf: {
             const IfStatement& i = s.as<IfStatement>();
             return this->visitExpression(*i.fTest) ||
                    this->visitStatement(*i.fIfTrue) ||
                    (i.fIfFalse && this->visitStatement(*i.fIfFalse)); }
-        case Statement::kReturn_Kind: {
+        case Statement::Kind::kReturn: {
             const ReturnStatement& r = s.as<ReturnStatement>();
             return r.fExpression && this->visitExpression(*r.fExpression); }
-        case Statement::kSwitch_Kind: {
+        case Statement::Kind::kSwitch: {
             const SwitchStatement& sw = s.as<SwitchStatement>();
             if (this->visitExpression(*sw.fValue)) { return true; }
             for (const auto& c : sw.fCases) {
@@ -345,15 +345,15 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
                 }
             }
             return false; }
-        case Statement::kVarDeclaration_Kind: {
+        case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& v = s.as<VarDeclaration>();
             for (const std::unique_ptr<Expression>& sizeExpr : v.fSizes) {
                 if (sizeExpr && this->visitExpression(*sizeExpr)) { return true; }
             }
             return v.fValue && this->visitExpression(*v.fValue); }
-        case Statement::kVarDeclarations_Kind:
+        case Statement::Kind::kVarDeclarations:
             return this->visitProgramElement(*s.as<VarDeclarationsStatement>().fDeclaration);
-        case Statement::kWhile_Kind: {
+        case Statement::Kind::kWhile: {
             const WhileStatement& w = s.as<WhileStatement>();
             return this->visitExpression(*w.fTest) || this->visitStatement(*w.fStatement); }
         default:
@@ -362,21 +362,21 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
 }
 
 bool ProgramVisitor::visitProgramElement(const ProgramElement& pe) {
-    switch(pe.fKind) {
-        case ProgramElement::kEnum_Kind:
-        case ProgramElement::kExtension_Kind:
-        case ProgramElement::kModifiers_Kind:
-        case ProgramElement::kSection_Kind:
+    switch(pe.kind()) {
+        case ProgramElement::Kind::kEnum:
+        case ProgramElement::Kind::kExtension:
+        case ProgramElement::Kind::kModifiers:
+        case ProgramElement::Kind::kSection:
             // Leaf program elements just return false by default
             return false;
-        case ProgramElement::kFunction_Kind:
+        case ProgramElement::Kind::kFunction:
             return this->visitStatement(*pe.as<FunctionDefinition>().fBody);
-        case ProgramElement::kInterfaceBlock_Kind:
+        case ProgramElement::Kind::kInterfaceBlock:
             for (const auto& e : pe.as<InterfaceBlock>().fSizes) {
                 if (this->visitExpression(*e)) { return true; }
             }
             return false;
-        case ProgramElement::kVar_Kind:
+        case ProgramElement::Kind::kVar:
             for (const auto& v : pe.as<VarDeclarations>().fVars) {
                 if (this->visitStatement(*v)) { return true; }
             }

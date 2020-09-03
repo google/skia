@@ -25,7 +25,7 @@ struct FunctionDefinition;
  * A function declaration (not a definition -- does not contain a body).
  */
 struct FunctionDeclaration : public Symbol {
-    static constexpr Kind kSymbolKind = kFunctionDeclaration_Kind;
+    static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
                         std::vector<const Variable*> parameters, const Type& returnType,
@@ -81,7 +81,7 @@ struct FunctionDeclaration : public Symbol {
         SkASSERT(arguments.size() == fParameters.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
-            if (fParameters[i]->fType.kind() == Type::kGeneric_Kind) {
+            if (fParameters[i]->fType.typeKind() == Type::TypeKind::kGeneric) {
                 std::vector<const Type*> types = fParameters[i]->fType.coercibleTypes();
                 if (genericIndex == -1) {
                     for (size_t j = 0; j < types.size(); j++) {
@@ -99,7 +99,7 @@ struct FunctionDeclaration : public Symbol {
                 outParameterTypes->push_back(&fParameters[i]->fType);
             }
         }
-        if (fReturnType.kind() == Type::kGeneric_Kind) {
+        if (fReturnType.typeKind() == Type::TypeKind::kGeneric) {
             if (genericIndex == -1) {
                 return false;
             }
