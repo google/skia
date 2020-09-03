@@ -30,6 +30,7 @@ private:
     const sk_sp<sksg::Transform>& getCameraTransform() const { return fCameraTransform; }
 
     friend class LayerBuilder;
+    friend class EffectBuilder;
 
     const SkSize                fSize;
 
