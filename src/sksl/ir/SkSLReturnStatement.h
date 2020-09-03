@@ -17,7 +17,7 @@ namespace SkSL {
  * A 'return' statement.
  */
 struct ReturnStatement : public Statement {
-    static constexpr Kind kStatementKind = kReturn_Kind;
+    static constexpr Kind kStatementKind = Kind::kReturn;
 
     ReturnStatement(int offset)
     : INHERITED(offset, kStatementKind) {}
