@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04cceb3b_54d23643",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-03T03:41:10Z",
+      "side": 1,
+      "message": "ugh, that\u0027s so satisfying that \u0027typedef\u0027 and \u0027using \u003d\u0027 are the same length.\n\nI didn\u0027t really read the CL.",
+      "revId": "2fd3c83ab9d1139b438ac4b2c60e87c18d902793",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
