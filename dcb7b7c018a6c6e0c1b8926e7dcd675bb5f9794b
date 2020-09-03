@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4192c790_e2ca6cb2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-03T14:16:01Z",
+      "side": 1,
+      "message": "Curious about your thoughts on this rather than aliasing sk_sp\u003c\u003e. I was surprised at how cleanly it dropped in, as opposed to the rewrites needed for sk_sp. I\u0027m not sure if winrt::com_ptr is practical -- it looks like it requires installing some additional components and setting up the project in a different mode. We have enough trouble with clients and Windows builds as it is.",
+      "revId": "dcb7b7c018a6c6e0c1b8926e7dcd675bb5f9794b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
