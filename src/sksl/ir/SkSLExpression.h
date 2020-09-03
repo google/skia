@@ -58,17 +58,26 @@ struct Expression : public IRNode {
     , fType(std::move(type)) {}
 
     /**
+     *  Use is<T> to check the type of an expression.
+     *  e.g. replace `e.fKind == Expression::kIntLiteral_Kind` with `e.is<IntLiteral>()`.
+     */
+    template <typename T>
+    bool is() const {
+        return this->fKind == T::kExpressionKind;
+    }
+
+    /**
      *  Use as<T> to downcast expressions: e.g. replace `(IntLiteral&) i` with `i.as<IntLiteral>()`.
      */
     template <typename T>
     const T& as() const {
-        SkASSERT(this->fKind == T::kExpressionKind);
+        SkASSERT(this->is<T>());
         return static_cast<const T&>(*this);
     }
 
     template <typename T>
     T& as() {
-        SkASSERT(this->fKind == T::kExpressionKind);
+        SkASSERT(this->is<T>());
         return static_cast<T&>(*this);
     }
 
