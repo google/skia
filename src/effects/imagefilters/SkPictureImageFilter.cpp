@@ -44,7 +44,7 @@ private:
     sk_sp<SkPicture>    fPicture;
     SkRect              fCropRect;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace

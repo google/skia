@@ -61,7 +61,7 @@ private:
     // us how many bits of stencil there are).
     GrGLuint fRenderbufferID;
 
-    typedef GrStencilAttachment INHERITED;
+    using INHERITED = GrStencilAttachment;
 };
 
 #endif

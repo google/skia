@@ -135,7 +135,7 @@ private:
     GrProcessorSet       fProcessorSet;
     GrProgramInfo*       fProgramInfo = nullptr;
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 /**
@@ -199,7 +199,7 @@ private:
     static constexpr int kVertsPerCubic = 4;
     static constexpr int kIndicesPerCubic = 6;
 
-    typedef BezierTestOp INHERITED;
+    using INHERITED = BezierTestOp;
 };
 
 
@@ -342,7 +342,7 @@ private:
         return conicCnt;
     }
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -402,7 +402,7 @@ private:
     static constexpr int kVertsPerCubic = 4;
     static constexpr int kIndicesPerCubic = 6;
 
-    typedef BezierTestOp INHERITED;
+    using INHERITED = BezierTestOp;
 };
 
 /**
@@ -497,7 +497,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new BezierConicEffects;)

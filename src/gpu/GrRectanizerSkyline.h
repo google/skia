@@ -58,7 +58,7 @@ private:
     // at x,y.
     void addSkylineLevel(int skylineIndex, int x, int y, int width, int height);
 
-    typedef GrRectanizer INHERITED;
+    using INHERITED = GrRectanizer;
 };
 
 #endif

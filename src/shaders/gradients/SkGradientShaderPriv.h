@@ -141,7 +141,7 @@ private:
 
     bool                                        fColorsAreOpaque;
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -84,7 +84,7 @@ protected:
 private:
     sk_sp<SkPicture> fPicture;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 // Exercise drawing a picture with a cull rect of non-zero top-left corner.
@@ -139,7 +139,7 @@ protected:
 private:
     sk_sp<SkPicture> fPicture;
 
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 DEF_GM(return new PictureGM;)

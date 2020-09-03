@@ -40,7 +40,7 @@ private:
     SkDEBUGCODE(mutable) GrVkDescriptorPool* fPool;
     GrVkDescriptorSetManager::Handle         fHandle;
 
-    typedef GrVkRecycledResource INHERITED;
+    using INHERITED = GrVkRecycledResource;
 };
 
 #endif

@@ -35,7 +35,7 @@ private:
 
     SkPaint fPaint;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace

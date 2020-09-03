@@ -143,7 +143,7 @@ private:
     mutable uint32_t fPinnedUniqueID = 0;
 #endif
 
-    typedef SkImage_Base INHERITED;
+    using INHERITED = SkImage_Base;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

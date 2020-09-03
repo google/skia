@@ -196,7 +196,7 @@ private:
     static constexpr SkColor kBackground = SK_ColorLTGRAY;
     SkPath fConcavePath;
     SkPath fConvexPath;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

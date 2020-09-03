@@ -167,7 +167,7 @@ private:
     static constexpr int kNumJoins = 3;
 
     SkTArray<SkPath> fPolygons;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

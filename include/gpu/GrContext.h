@@ -757,7 +757,7 @@ private:
     // TODO: have the GrClipStackClip use renderTargetContexts and rm this friending
     friend class GrContextPriv;
 
-    typedef GrRecordingContext INHERITED;
+    using INHERITED = GrRecordingContext;
 };
 
 #endif

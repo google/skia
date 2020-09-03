@@ -93,7 +93,7 @@ private:
     const SkSurfaceProps fProps;
     const SkIRect        fSubset;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 #endif

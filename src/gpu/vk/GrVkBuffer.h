@@ -75,7 +75,7 @@ protected:
     private:
         void onRecycle() const override { this->unref(); }
 
-        typedef GrVkRecycledResource INHERITED;
+        using INHERITED = GrVkRecycledResource;
     };
 
     // convenience routine for raw buffer creation
@@ -117,7 +117,7 @@ private:
     VkDeviceSize            fOffset;
     void*                   fMapPtr;
 
-    typedef SkNoncopyable INHERITED;
+    using INHERITED = SkNoncopyable;
 };
 
 #endif

@@ -42,7 +42,7 @@ private:
     UIViewController*    fViewController;
     MetalView*           fMetalView;
 
-    typedef MetalWindowContext INHERITED;
+    using INHERITED = MetalWindowContext;
 };
 
 MetalWindowContext_ios::MetalWindowContext_ios(const IOSWindowInfo& info,

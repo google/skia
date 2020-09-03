@@ -110,7 +110,7 @@ private:
     sk_sp<SkImage> fSrcImage;
     sk_sp<SkShader> fSrcImageShader;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM( return new CroppedRectsGM(); )

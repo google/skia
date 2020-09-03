@@ -80,7 +80,7 @@ private:
     MorphType fType;
     SkSize    fRadius;
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
@@ -221,7 +221,7 @@ private:
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
-    typedef GrFragmentProcessor INHERITED;
+    using INHERITED = GrFragmentProcessor;
 };
 
 GrGLSLFragmentProcessor* GrMorphologyEffect::onCreateGLSLInstance() const {

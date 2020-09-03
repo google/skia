@@ -66,7 +66,7 @@ private:
     SkString    fName;
     bool        fAA;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 //////////////////////////////////////////////////////////////////////////////

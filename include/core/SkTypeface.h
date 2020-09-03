@@ -429,6 +429,6 @@ private:
     mutable SkOnce      fBoundsOnce;
     bool                fIsFixedPitch;
 
-    typedef SkWeakRefCnt INHERITED;
+    using INHERITED = SkWeakRefCnt;
 };
 #endif

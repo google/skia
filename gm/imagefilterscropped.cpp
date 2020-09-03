@@ -172,7 +172,7 @@ protected:
 
 private:
     SkBitmap fCheckerboard;
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

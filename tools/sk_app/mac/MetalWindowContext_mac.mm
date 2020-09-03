@@ -31,7 +31,7 @@ public:
 private:
     NSView*              fMainView;
 
-    typedef MetalWindowContext INHERITED;
+    using INHERITED = MetalWindowContext;
 };
 
 MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info,

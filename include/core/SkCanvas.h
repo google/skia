@@ -2795,7 +2795,7 @@ private:
 
     std::unique_ptr<SkGlyphRunBuilder> fScratchGlyphRunBuilder;
 
-    typedef SkRefCnt INHERITED;
+    using INHERITED = SkRefCnt;
 };
 
 /** \class SkAutoCanvasRestore

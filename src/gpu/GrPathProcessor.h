@@ -41,7 +41,7 @@ private:
     const SkMatrix fViewMatrix;
     const SkMatrix fLocalMatrix;
 
-    typedef GrPrimitiveProcessor INHERITED;
+    using INHERITED = GrPrimitiveProcessor;
 };
 
 #endif

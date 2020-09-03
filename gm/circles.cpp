@@ -202,7 +202,7 @@ protected:
     }
 
 private:
-    typedef GM INHERITED;
+    using INHERITED = GM;
     SkTArray<SkPaint> fPaints;
     SkTArray<SkMatrix> fMatrices;
 };

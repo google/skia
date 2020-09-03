@@ -134,7 +134,7 @@ private:
     DrawType fDrawType;
     sk_sp<SkMaskFilter> fBlurFilters[kNumBlurs];
 
-    typedef         skiagm::GM INHERITED;
+    using INHERITED =         skiagm::GM;
 };
 
 const BlurIgnoreXformGM::BlurFlags BlurIgnoreXformGM::kBlurFlags[] = {

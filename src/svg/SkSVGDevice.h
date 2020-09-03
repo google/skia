@@ -63,7 +63,7 @@ private:
     std::unique_ptr<AutoElement>    fRootElement;
     SkTArray<ClipRec>               fClipStack;
 
-    typedef SkClipStackDevice INHERITED;
+    using INHERITED = SkClipStackDevice;
 };
 
 #endif // SkSVGDevice_DEFINED

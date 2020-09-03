@@ -77,7 +77,7 @@ struct PrefixExpression : public Expression {
     std::unique_ptr<Expression> fOperand;
     const Token::Kind fOperator;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

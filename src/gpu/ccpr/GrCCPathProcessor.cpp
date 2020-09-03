@@ -120,7 +120,7 @@ private:
     GrGLSLUniformHandler::UniformHandle fLocalMatrixUni;
     SkMatrix fLocalMatrix = SkMatrix::InvalidMatrix();
 
-    typedef GrGLSLGeometryProcessor INHERITED;
+    using INHERITED = GrGLSLGeometryProcessor;
 };
 
 void GrCCPathProcessor::getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder* b) const  {

@@ -97,7 +97,7 @@ private:
     int         fColorCount;
     SkPaint     fPaint;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 // Clamp

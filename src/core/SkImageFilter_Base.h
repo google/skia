@@ -414,7 +414,7 @@ private:
     CropRect fCropRect;
     uint32_t fUniqueID; // Globally unique
 
-    typedef SkImageFilter INHERITED;
+    using INHERITED = SkImageFilter;
 };
 
 static inline SkImageFilter_Base* as_IFB(SkImageFilter* filter) {

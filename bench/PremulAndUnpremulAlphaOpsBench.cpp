@@ -57,7 +57,7 @@ private:
     SkColorType fColorType;
     SkString fName;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 

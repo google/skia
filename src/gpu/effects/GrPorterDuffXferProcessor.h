@@ -64,7 +64,7 @@ private:
     SkBlendMode fBlendMode;
 
     friend class GrPorterDuffTest; // for TestGetXPOutputTypes()
-    typedef GrXPFactory INHERITED;
+    using INHERITED = GrXPFactory;
 };
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop

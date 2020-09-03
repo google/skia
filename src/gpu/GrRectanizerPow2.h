@@ -77,7 +77,7 @@ private:
         fNextStripY += rowHeight;
     }
 
-    typedef GrRectanizer INHERITED;
+    using INHERITED = GrRectanizer;
 };
 
 #endif

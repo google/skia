@@ -75,7 +75,7 @@ private:
     SkBitmap            fSrcBM;
     sk_sp<SkSurface>    fDstSurf;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH( return new CTConvertBench(kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,

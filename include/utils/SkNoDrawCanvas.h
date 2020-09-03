@@ -71,7 +71,7 @@ protected:
                               const SkMatrix[], const SkPaint*, SrcRectConstraint) override {}
 
 private:
-    typedef SkCanvasVirtualEnforcer<SkCanvas> INHERITED;
+    using INHERITED = SkCanvasVirtualEnforcer<SkCanvas>;
 };
 
 #endif // SkNoDrawCanvas_DEFINED

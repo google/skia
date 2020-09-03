@@ -68,6 +68,6 @@ private:
     GrMtlUniformHandler fUniformHandler;
     GrMtlVaryingHandler fVaryingHandler;
 
-    typedef GrGLSLProgramBuilder INHERITED;
+    using INHERITED = GrGLSLProgramBuilder;
 };
 #endif

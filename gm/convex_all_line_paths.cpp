@@ -405,7 +405,7 @@ private:
 
     bool fDoStrokeAndFill;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

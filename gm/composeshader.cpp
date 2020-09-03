@@ -241,7 +241,7 @@ private:
     sk_sp<SkShader> fAlpha8BitmapShader;
     sk_sp<SkShader> fLinearGradientShader;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 DEF_GM( return new ComposeShaderBitmapGM(false); )
 DEF_GM( return new ComposeShaderBitmapGM(true); )

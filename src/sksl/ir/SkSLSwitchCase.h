@@ -50,7 +50,7 @@ struct SwitchCase : public Statement {
     std::unique_ptr<Expression> fValue;
     std::vector<std::unique_ptr<Statement>> fStatements;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

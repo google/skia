@@ -23,7 +23,7 @@ private:
         return std::max(1, (int)(this->bits() / sizeof(char))) * this->width() * this->height();
     }
 
-    typedef GrStencilAttachment INHERITED;
+    using INHERITED = GrStencilAttachment;
 };
 
 #endif

@@ -25,7 +25,7 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
     sk_sp<GrGpu> fGpu;
-    typedef GrPathRenderer INHERITED;
+    using INHERITED = GrPathRenderer;
 };
 
 

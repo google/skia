@@ -64,7 +64,7 @@ struct ExternalFunctionCall : public Expression {
     const ExternalValue* fFunction;
     std::vector<std::unique_ptr<Expression>> fArguments;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

@@ -77,7 +77,7 @@ public:
         bool        fHasBeenSubmittedToQueueForWait;
         bool        fIsOwned;
 
-        typedef GrVkManagedResource INHERITED;
+        using INHERITED = GrVkManagedResource;
     };
 
     Resource* getResource() { return fResource; }
@@ -92,7 +92,7 @@ private:
 
     Resource* fResource;
 
-    typedef GrSemaphore INHERITED;
+    using INHERITED = GrSemaphore;
 };
 
 #endif

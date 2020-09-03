@@ -41,7 +41,7 @@ private:
     SkSVGLength        fX = SkSVGLength(0);
     SkSVGLength        fY = SkSVGLength(0);
 
-    typedef SkSVGTransformableNode INHERITED;
+    using INHERITED = SkSVGTransformableNode;
 };
 
 #endif // SkSVGUse_DEFINED

@@ -80,7 +80,7 @@ private:
     id<MTLDevice>        fDevice;
     id<MTLCommandQueue>  fQueue;
 
-    typedef sk_gpu_test::MtlTestContext INHERITED;
+    using INHERITED = sk_gpu_test::MtlTestContext;
 };
 
 }  // anonymous namespace

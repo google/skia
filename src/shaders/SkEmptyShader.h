@@ -45,7 +45,7 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkEmptyShader)
 
-    typedef SkShaderBase INHERITED;
+    using INHERITED = SkShaderBase;
 };
 
 #endif

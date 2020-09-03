@@ -138,7 +138,7 @@ private:
 
     friend class SkRawCodec;
 
-    typedef SkCodec INHERITED;
+    using INHERITED = SkCodec;
 };
 
 #endif

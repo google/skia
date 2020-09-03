@@ -107,7 +107,7 @@ protected:
     virtual void drawElement(SkCanvas*) = 0;
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 class PointSnapGM : public PixelSnapGM {
@@ -121,7 +121,7 @@ protected:
     }
 
 private:
-    typedef PixelSnapGM INHERITED;
+    using INHERITED = PixelSnapGM;
 };
 
 class LineSnapGM : public PixelSnapGM {
@@ -136,7 +136,7 @@ protected:
     }
 
 private:
-    typedef PixelSnapGM INHERITED;
+    using INHERITED = PixelSnapGM;
 };
 
 class RectSnapGM : public PixelSnapGM {
@@ -149,7 +149,7 @@ protected:
     }
 
 private:
-    typedef PixelSnapGM INHERITED;
+    using INHERITED = PixelSnapGM;
 };
 
 class ComboSnapGM : public PixelSnapGM {
@@ -186,7 +186,7 @@ protected:
     }
 
 private:
-    typedef PixelSnapGM INHERITED;
+    using INHERITED = PixelSnapGM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

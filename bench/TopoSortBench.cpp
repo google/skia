@@ -69,7 +69,7 @@ private:
     SkTArray<sk_sp<ToolUtils::TopoTestNode>> fGraph;
     SkRandom fRand;
 
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

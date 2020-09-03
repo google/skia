@@ -44,7 +44,7 @@ private:
     GrSurfaceProxyView fOriginal;
     uint32_t fUniqueID;
 
-    typedef GrTextureProducer INHERITED;
+    using INHERITED = GrTextureProducer;
 };
 
 #endif

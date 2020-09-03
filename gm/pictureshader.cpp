@@ -192,7 +192,7 @@ private:
     SkScalar    fSceneSize;
     bool        fUseLocalMatrixWrapper;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 DEF_GM(return new PictureShaderGM(50, 100);)

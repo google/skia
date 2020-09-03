@@ -84,7 +84,7 @@ public:
     friend bool operator!=(const char* s1, const String& s2);
 
 private:
-    typedef std::string INHERITED;
+    using INHERITED = std::string;
 };
 
 String operator+(const char* s1, const String& s2);

@@ -160,7 +160,7 @@ protected:
 
 private:
     bool fPowerOfTwoSize;
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 DEF_GM( return new TilingGM(true); )
 DEF_GM( return new TilingGM(false); )

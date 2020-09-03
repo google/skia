@@ -34,7 +34,7 @@ private:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const final;
     class Impl;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 // This processor draws pixel-aligned rectangles directly on top of every path in the atlas.

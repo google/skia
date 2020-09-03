@@ -71,7 +71,7 @@ private:
     bool           fStencilInsideMask;
     Buffer         fBuffer;
 
-    typedef GrOp INHERITED;
+    using INHERITED = GrOp;
 };
 
 GR_MAKE_BITFIELD_CLASS_OPS(GrClearOp::Buffer)

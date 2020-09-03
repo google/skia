@@ -383,7 +383,7 @@ bool HCodeGenerator::generateCode() {
                  "    SkString onDumpInfo() const override;\n"
                  "#endif\n"
                  "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n"
-                 "    typedef GrFragmentProcessor INHERITED;\n"
+                 "    using INHERITED = GrFragmentProcessor;\n"
                  "};\n");
     this->writeSection(kHeaderEndSection);
     this->writef("#endif\n");

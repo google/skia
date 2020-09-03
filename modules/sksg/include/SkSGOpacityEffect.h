@@ -35,7 +35,7 @@ protected:
 private:
     float fOpacity;
 
-    typedef EffectNode INHERITED;
+    using INHERITED = EffectNode;
 };
 
 } // namespace sksg

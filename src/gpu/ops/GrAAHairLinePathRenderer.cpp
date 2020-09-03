@@ -981,7 +981,7 @@ private:
     GrSimpleMesh*  fMeshes[3] = { nullptr };
     GrProgramInfo* fProgramInfos[3] = { nullptr };
 
-    typedef GrMeshDrawOp INHERITED;
+    using INHERITED = GrMeshDrawOp;
 };
 
 GR_MAKE_BITFIELD_OPS(AAHairlineOp::Program)

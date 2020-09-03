@@ -34,7 +34,7 @@ private:
     UniformHandle fKernelUni;
     UniformHandle fIncrementUni;
 
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 void GrGaussianConvolutionFragmentProcessor::Impl::emitCode(EmitArgs& args) {

@@ -80,7 +80,7 @@ private:
 
     GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
-    typedef GrGLSLFragmentProcessor INHERITED;
+    using INHERITED = GrGLSLFragmentProcessor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

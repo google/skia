@@ -96,7 +96,7 @@ protected:
 private:
     bool fUseCropRect;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 // Create a 'width' x 'height' SkSurface that matches the colorType of 'canvas' as
@@ -160,7 +160,7 @@ protected:
     }
 
 private:
-    typedef skiagm::GM INHERITED;
+    using INHERITED = skiagm::GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

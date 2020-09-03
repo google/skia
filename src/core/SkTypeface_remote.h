@@ -38,7 +38,7 @@ protected:
 
 private:
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
-    typedef SkScalerContext INHERITED;
+    using INHERITED = SkScalerContext;
 };
 
 class SkTypefaceProxy : public SkTypeface {
@@ -128,7 +128,7 @@ private:
     sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableManager;
 
 
-    typedef SkTypeface INHERITED;
+    using INHERITED = SkTypeface;
 };
 
 #endif  // SkRemoteTypeface_DEFINED

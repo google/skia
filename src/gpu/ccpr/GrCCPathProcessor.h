@@ -93,7 +93,7 @@ private:
 
     class Impl;
 
-    typedef GrGeometryProcessor INHERITED;
+    using INHERITED = GrGeometryProcessor;
 };
 
 inline void GrCCPathProcessor::Instance::set(

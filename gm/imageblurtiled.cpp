@@ -71,7 +71,7 @@ private:
     SkScalar fSigmaX;
     SkScalar fSigmaY;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

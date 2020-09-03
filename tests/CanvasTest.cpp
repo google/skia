@@ -449,7 +449,7 @@ protected:
     bool onFilter(SkPaint&) const override { return true; }
 
 private:
-    typedef SkPaintFilterCanvas INHERITED;
+    using INHERITED = SkPaintFilterCanvas;
 };
 
 } // anonymous namespace
@@ -617,7 +617,7 @@ private:
 
     ZeroBoundsImageFilter() : INHERITED(nullptr, 0, nullptr) {}
 
-    typedef SkImageFilter_Base INHERITED;
+    using INHERITED = SkImageFilter_Base;
 };
 
 sk_sp<SkFlattenable> ZeroBoundsImageFilter::CreateProc(SkReadBuffer& buffer) {

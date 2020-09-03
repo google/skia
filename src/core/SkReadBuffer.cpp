@@ -25,7 +25,7 @@ namespace {
         EmptyImageGenerator(const SkImageInfo& info) : INHERITED(info) { }
 
     private:
-        typedef SkImageGenerator INHERITED;
+        using INHERITED = SkImageGenerator;
     };
 
     static sk_sp<SkImage> MakeEmptyImage(int width, int height) {

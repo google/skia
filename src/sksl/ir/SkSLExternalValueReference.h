@@ -37,7 +37,7 @@ struct ExternalValueReference : public Expression {
 
     const ExternalValue* fValue;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 };
 
 }  // namespace SkSL

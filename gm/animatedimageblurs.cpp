@@ -138,7 +138,7 @@ private:
     SkRandom fRand;
     SkScalar fLastTime;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

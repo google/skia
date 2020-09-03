@@ -127,7 +127,7 @@ private:
     SkIRect fDeviceRestriction;
     bool    fDoAAClip;
 
-    typedef GM INHERITED;
+    using INHERITED = GM;
 };
 
 //////////////////////////////////////////////////////////////////////////////

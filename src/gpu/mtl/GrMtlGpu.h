@@ -278,7 +278,7 @@ private:
 
     bool fDisconnected;
 
-    typedef GrGpu INHERITED;
+    using INHERITED = GrGpu;
 };
 
 #endif

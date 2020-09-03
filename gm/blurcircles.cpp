@@ -67,7 +67,7 @@ private:
 
     sk_sp<SkMaskFilter> fBlurFilters[kNumBlurs];
 
-    typedef         skiagm::GM INHERITED;
+    using INHERITED =         skiagm::GM;
 };
 
 DEF_GM(return new BlurCirclesGM();)

@@ -90,7 +90,7 @@ private:
     static constexpr int kNumChars = 40;
     AnimatedChar fChars[kNumChars];
 
-    typedef Sample INHERITED;
+    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////

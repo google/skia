@@ -43,7 +43,7 @@ struct VarDeclarationsStatement : public Statement {
 
     std::unique_ptr<VarDeclarations> fDeclaration;
 
-    typedef Statement INHERITED;
+    using INHERITED = Statement;
 };
 
 }  // namespace SkSL

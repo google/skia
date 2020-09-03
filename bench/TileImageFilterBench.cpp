@@ -62,7 +62,7 @@ private:
     // Note: this is the tile size used for tiled rendering, not for the size
     // of the SkTileImageFilter source rect.
     int fTileSize;
-    typedef Benchmark INHERITED;
+    using INHERITED = Benchmark;
 };
 
 DEF_BENCH(return new TileImageFilterBench(0);)

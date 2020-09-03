@@ -46,7 +46,7 @@ struct BoolLiteral : public Expression {
 
     const bool fValue;
 
-    typedef Expression INHERITED;
+    using INHERITED = Expression;
 
 private:
     BoolLiteral(int offset, bool value, const Type* type)
