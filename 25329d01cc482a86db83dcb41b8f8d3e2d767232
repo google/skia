@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "23813813_440e9651",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-03T21:20:02Z",
+      "side": 1,
+      "message": "PS 10 has the first draft of the unit tests. They build on Windows, but do not pass yet; I will be tracking down the failures next, but wanted to capture what changed between patch sets (either modifying buggy test expectations, or fixing the actual GrClipStack code).",
+      "revId": "25329d01cc482a86db83dcb41b8f8d3e2d767232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

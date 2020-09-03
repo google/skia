@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "e8f4aebb_838dff1c",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-03T21:20:02Z",
+      "side": 1,
+      "message": "Effective test was moved into a unit test so deleted the GM",
+      "parentUuid": "0ba04780_ff339982",
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f398062f_ddcc1dbd",
         "filename": "gm/clip_error.cpp",
         "patchSetId": 9
@@ -84,6 +102,24 @@
       "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86b51ea3_730969ae",
+        "filename": "gm/clip_error.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-03T21:20:02Z",
+      "side": 1,
+      "message": "Effective test was moved into a unit test so deleted the GM",
+      "parentUuid": "f398062f_ddcc1dbd",
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
