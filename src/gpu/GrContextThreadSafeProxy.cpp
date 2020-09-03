@@ -14,6 +14,7 @@
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/ops/GrMagicCache.h"
 #include "src/image/SkSurface_Gpu.h"
 
 #ifdef SK_VULKAN
@@ -39,6 +40,7 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
     fCaps = std::move(caps);
     fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
+    fMagicCache = std::make_unique<GrMagicCache>();
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(
@@ -143,6 +145,7 @@ GrBackendFormat GrContextThreadSafeProxy::defaultBackendFormat(SkColorType skCol
 void GrContextThreadSafeProxy::abandonContext() {
     if (!fAbandoned.exchange(true)) {
         fTextBlobCache->freeAll();
+        fMagicCache->freeAll();
     }
 }
 
