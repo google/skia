@@ -35,6 +35,9 @@ static void test_success(skiatest::Reporter* r, const char* src) {
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
+    if (!program) {
+        SkDebugf("ERROR:\n%s\n", compiler.errorText().c_str());
+    }
 }
 
 DEF_TEST(SkSLConstVariableComparison, r) {
@@ -299,6 +302,71 @@ DEF_TEST(SkSLBinaryTypeMismatch, r) {
     test_failure(r,
                  "void main() { bool x = float2(0) != 0; }",
                  "error: 1: type mismatch: '!=' cannot operate on 'float2', 'int'\n1 error\n");
+
+    test_failure(r,
+                 "void main() { bool x = float2(0) < float2(1); }",
+                 "error: 1: type mismatch: '<' cannot operate on 'float2', 'float2'\n1 error\n");
+    test_failure(r,
+                 "void main() { bool x = float2(0) < 0.0; }",
+                 "error: 1: type mismatch: '<' cannot operate on 'float2', 'float'\n1 error\n");
+    test_failure(r,
+                 "void main() { bool x = 0.0 < float2(0); }",
+                 "error: 1: type mismatch: '<' cannot operate on 'float', 'float2'\n1 error\n");
+}
+
+DEF_TEST(SkSLBinaryTypeCoercion, r) {
+    auto test = [r](const char* leftType, const char* rightType, const char* resultSuffix) {
+        // First, use a float version of the result, to check we get the right "shape"
+        SkString src = SkStringPrintf(
+                "%s left; %s right;"
+                "void main() { float%s result = left * right; }",
+                leftType, rightType, resultSuffix);
+        test_success(r, src.c_str());
+
+        // Now, use a half version of the result, to check we always promote to the higher precision
+        src = SkStringPrintf(
+                "%s left; %s right;"
+                "void main() { half%s result = left * right; }",
+                leftType, rightType, resultSuffix);
+        SkString expectedError = SkStringPrintf(
+                "error: 1: expected 'half%s', but found 'float%s'\n1 error\n",
+                resultSuffix, resultSuffix);
+        test_failure(r, src.c_str(), expectedError.c_str());
+    };
+
+    // Scalar * Scalar -> Scalar
+    test("half", "float", "");
+    test("float", "half", "");
+
+    // Vector * Vector -> Vector
+    test("half4", "float4", "4");
+    test("float4", "half4", "4");
+
+    // Scalar * Vector -> Vector
+    test("half", "float4", "4");
+    test("float", "half4", "4");
+
+    // Vector * Scalar -> Vector
+    test("half4", "float", "4");
+    test("float4", "half", "4");
+
+    // Matrix * Vector -> Vector
+    test("half4x4", "float4", "4");
+    test("float4x4", "half4", "4");
+
+    // Vector * Matrix -> Vector
+    test("half4", "float4x4", "4");
+    test("float4", "half4x4", "4");
+
+    // Matrix * Matrix -> Matrix
+    test("half4x4", "float4x4", "4x4");
+    test("float4x4", "half4x4", "4x4");
+
+    // Matrix *= Vector, Vector *= Matrix (should succeed/fail depending on resulting dimensions)
+    test_success(r, "float4x4 fm; void main() { fm *= fm; }");
+    test_success(r, "float4x4 fm; float4 fv; void main() { fv *= fm; }");
+    test_failure(r, "float4x4 fm; float4 fv; void main() { fm *= fv; }",
+                 "error: 1: type mismatch: '*=' cannot operate on 'float4x4', 'float4'\n1 error\n");
 }
 
 DEF_TEST(SkSLCallNonFunction, r) {
