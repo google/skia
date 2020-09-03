@@ -35,6 +35,9 @@ static void test_success(skiatest::Reporter* r, const char* src) {
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
+    if (!program) {
+        SkDebugf("ERROR:\n%s\n", compiler.errorText().c_str());
+    }
 }
 
 DEF_TEST(SkSLConstVariableComparison, r) {
@@ -299,6 +302,36 @@ DEF_TEST(SkSLBinaryTypeMismatch, r) {
     test_failure(r,
                  "void main() { bool x = float2(0) != 0; }",
                  "error: 1: type mismatch: '!=' cannot operate on 'float2', 'int'\n1 error\n");
+}
+
+DEF_TEST(SkSLBinaryTypeCoercion, r) {
+#define DECLS "half h; float f; half4 hv; float4 fv; half4x4 hm; float4x4 fm;"
+
+    // Scalar * Scalar
+    test_success(r, DECLS "void main() {  h *  f; }");
+    test_success(r, DECLS "void main() {  f *  h; }");
+
+    // Vector * Vector
+    test_success(r, DECLS "void main() { hv * fv; }");
+    test_success(r, DECLS "void main() { fv * hv; }");
+
+    // Scalar * Vector
+    test_success(r, DECLS "void main() {  h * fv; }");
+    test_success(r, DECLS "void main() {  f * hv; }");
+
+    // Vector * Scalar
+    test_success(r, DECLS "void main() { hv * f; }");
+    test_success(r, DECLS "void main() { fv * h; }");
+
+    // Matrix * Vector
+    test_success(r, DECLS "void main() { hm * fv; }");
+    test_success(r, DECLS "void main() { fm * hv; }");
+
+    // Vector * Matrix
+    test_success(r, DECLS "void main() { hv * fm; }");
+    test_success(r, DECLS "void main() { fv * hm; }");
+
+#undef DECLS
 }
 
 DEF_TEST(SkSLCallNonFunction, r) {
