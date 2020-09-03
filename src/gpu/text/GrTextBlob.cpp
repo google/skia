@@ -210,6 +210,43 @@ void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> 
         quad[3] = {rb, color, {ar, ab}};  // R,B
     }
 }
+
+// Check for integer translate with the same 2x2 matrix.
+bool check_integer_translate(const GrTextBlob& blob, const SkMatrix& drawMatrix, SkPoint origin) {
+    const SkMatrix& initialMatrix = blob.initialMatrix();
+
+    if (initialMatrix.getScaleX() != drawMatrix.getScaleX() ||
+        initialMatrix.getScaleY() != drawMatrix.getScaleY() ||
+        initialMatrix.getSkewX()  != drawMatrix.getSkewX()  ||
+        initialMatrix.getSkewY()  != drawMatrix.getSkewY()) {
+        return false;
+    }
+
+    // TODO(herb): this is not needed for full pixel glyph choice, but is needed to adjust
+    //  the quads properly. Devise a system that regenerates the quads from original data
+    //  using the transform to allow this to be used in general.
+
+    // We can update the positions in the text blob without regenerating the whole
+    // blob, but only for integer translations.
+    // Calculate the translation in source space to a translation in device space by mapping
+    // (0, 0) through both the initial matrix and the draw matrix; take the difference.
+    SkPoint initialOrigin = blob.initialOrigin();
+    SkMatrix matrix{initialMatrix};
+    matrix.preTranslate(initialOrigin.x(), initialOrigin.y());
+    SkPoint initialDeviceOrigin{0, 0};
+    matrix.mapPoints(&initialDeviceOrigin, 1);
+    SkMatrix completeDrawMatrix{drawMatrix};
+    completeDrawMatrix.preTranslate(origin.x(), origin.y());
+    SkPoint drawDeviceOrigin{0, 0};
+    completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
+    SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
+
+    if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
+        return false;
+    }
+
+    return true;
+}
 }  // namespace
 
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
@@ -245,8 +282,10 @@ GrPathSubRun::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
 // -- GrPathSubRun ---------------------------------------------------------------------------------
 GrPathSubRun::GrPathSubRun(bool isAntiAliased,
                            const SkStrikeSpec& strikeSpec,
+                           const GrTextBlob& blob,
                            SkSpan<PathGlyph> paths)
-    : fIsAntiAliased{isAntiAliased}
+    : fBlob{blob}
+    , fIsAntiAliased{isAntiAliased}
     , fStrikeSpec{strikeSpec}
     , fPaths{paths} {}
 
@@ -305,10 +344,25 @@ void GrPathSubRun::draw(const GrClip* clip,
     }
 }
 
+// This is the odd one. Intuition would lead you to believe that this should just return true
+// because it can handle all cases. The original code forced the check_integer_translate() for
+// paths explicitly. This check is needed because if the blob was drawn large, and then small, the
+// path would be reused when the blob should be rendered with masks.
+// TODO(herb): rethink when paths can be reused.
+bool GrPathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+    const SkMatrix initialMatrix = fBlob.initialMatrix();
+    if (initialMatrix.hasPerspective() && !SkMatrixPriv::CheapEqual(initialMatrix, drawMatrix)) {
+        return false;
+    }
+
+    return check_integer_translate(fBlob, drawMatrix, drawOrigin);
+}
+
 auto GrPathSubRun::Make(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
         bool isAntiAliased,
         const SkStrikeSpec& strikeSpec,
+        const GrTextBlob& blob,
         SkArenaAlloc* alloc) -> GrSubRun* {
     PathGlyph* pathData = alloc->makeInitializedArray<PathGlyph>(
             drawables.size(),
@@ -318,7 +372,7 @@ auto GrPathSubRun::Make(
             });
 
     return alloc->make<GrPathSubRun>(
-            isAntiAliased, strikeSpec, SkMakeSpan(pathData, drawables.size()));
+            isAntiAliased, strikeSpec, blob, SkMakeSpan(pathData, drawables.size()));
 };
 
 // -- GrGlyphVector --------------------------------------------------------------------------------
@@ -469,6 +523,15 @@ void GrDirectMaskSubRun::draw(const GrClip* clip, const SkMatrixProvider& viewMa
     if (op != nullptr) {
         rtc->priv().addDrawOp(drawingClip, std::move(op));
     }
+}
+
+bool
+GrDirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+    if (drawMatrix.hasPerspective()) {
+        return false;
+    }
+
+    return check_integer_translate(*fBlob, drawMatrix, drawOrigin);
 }
 
 size_t GrDirectMaskSubRun::vertexStride() const {
@@ -658,6 +721,16 @@ void GrTransformedMaskSubRun::draw(const GrClip* clip,
     if (op != nullptr) {
         rtc->priv().addDrawOp(drawingClip, std::move(op));
     }
+}
+
+// If we are not scaling the cache entry to be larger, than a cache with smaller glyphs may be
+// better.
+bool GrTransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix,
+                                       SkPoint drawOrigin) {
+    if (fBlob->initialMatrix().getMaxScale() < 1) {
+        return false;
+    }
+    return true;
 }
 
 std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
@@ -914,6 +987,24 @@ void GrSDFTSubRun::draw(const GrClip* clip,
     }
 }
 
+bool GrSDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+    const SkMatrix& initialMatrix = fBlob->initialMatrix();
+    if (initialMatrix.hasPerspective() != drawMatrix.hasPerspective()) {
+        return false;
+    }
+
+    // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
+    // distance field being generated, so we have to regenerate in those cases
+    SkScalar newMaxScale = drawMatrix.getMaxScale();
+    SkScalar oldMaxScale = initialMatrix.getMaxScale();
+    SkScalar scaleAdjust = newMaxScale / oldMaxScale;
+    auto [maxMinScale, minMaxScale] = fBlob->scaleBounds();
+    if (scaleAdjust < maxMinScale || scaleAdjust > minMaxScale) {
+        return false;
+    }
+    return true;
+}
+
 void GrSDFTSubRun::testingOnly_packedGlyphIDToGrGlyph(GrStrikeCache *cache) {
     fGlyphs.packedGlyphIDToGrGlyph(cache);
 }
@@ -1021,14 +1112,9 @@ uint32_t GrTextBlob::Hash(const GrTextBlob::Key& key) { return SkOpts::hash(&key
 void GrTextBlob::addKey(const Key& key) {
     fKey = key;
 }
-bool GrTextBlob::hasDistanceField() const {
-    return SkToBool(fTextType & kHasDistanceField_TextType);
-}
-bool GrTextBlob::hasBitmap() const { return SkToBool(fTextType & kHasBitmap_TextType); }
+
 bool GrTextBlob::hasPerspective() const { return fInitialMatrix.hasPerspective(); }
 
-void GrTextBlob::setHasDistanceField() { fTextType |= kHasDistanceField_TextType; }
-void GrTextBlob::setHasBitmap() { fTextType |= kHasBitmap_TextType; }
 void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
     // we init fMaxMinScale and fMinMaxScale in the constructor
     fMaxMinScale = std::max(scaledMin, fMaxMinScale);
@@ -1053,63 +1139,12 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
         return false;
     }
 
-    if (fInitialMatrix.hasPerspective() != drawMatrix.hasPerspective()) {
-        return false;
-    }
-
-    /** This could be relaxed for blobs with only distance field glyphs. */
-    if (fInitialMatrix.hasPerspective() && !SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix)) {
-        return false;
-    }
-
-    // Mixed blobs must be regenerated.  We could probably figure out a way to do integer scrolls
-    // for mixed blobs if this becomes an issue.
-    if (this->hasBitmap() && this->hasDistanceField()) {
-        // Identical view matrices and we can reuse in all cases
-        return SkMatrixPriv::CheapEqual(fInitialMatrix, drawMatrix) && drawOrigin == fInitialOrigin;
-    }
-
-    if (this->hasBitmap()) {
-        if (fInitialMatrix.getScaleX() != drawMatrix.getScaleX() ||
-            fInitialMatrix.getScaleY() != drawMatrix.getScaleY() ||
-            fInitialMatrix.getSkewX() != drawMatrix.getSkewX() ||
-            fInitialMatrix.getSkewY() != drawMatrix.getSkewY()) {
-            return false;
-        }
-
-        // TODO(herb): this is not needed for full pixel glyph choice, but is needed to adjust
-        //  the quads properly. Devise a system that regenerates the quads from original data
-        //  using the transform to allow this to be used in general.
-
-        // We can update the positions in the text blob without regenerating the whole
-        // blob, but only for integer translations.
-        // Calculate the translation in source space to a translation in device space by mapping
-        // (0, 0) through both the initial matrix and the draw matrix; take the difference.
-        SkMatrix initialMatrix{fInitialMatrix};
-        initialMatrix.preTranslate(fInitialOrigin.x(), fInitialOrigin.y());
-        SkPoint initialDeviceOrigin{0, 0};
-        initialMatrix.mapPoints(&initialDeviceOrigin, 1);
-        SkMatrix completeDrawMatrix{drawMatrix};
-        completeDrawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-        SkPoint drawDeviceOrigin{0, 0};
-        completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
-        SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
-
-        if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
-            return false;
-        }
-    } else if (this->hasDistanceField()) {
-        // A scale outside of [blob.fMaxMinScale, blob.fMinMaxScale] would result in a different
-        // distance field being generated, so we have to regenerate in those cases
-        SkScalar newMaxScale = drawMatrix.getMaxScale();
-        SkScalar oldMaxScale = fInitialMatrix.getMaxScale();
-        SkScalar scaleAdjust = newMaxScale / oldMaxScale;
-        if (scaleAdjust < fMaxMinScale || scaleAdjust > fMinMaxScale) {
+    for (GrSubRun* subRun : this->subRunList()) {
+        if (!subRun->canReuse(paint, drawMatrix, drawOrigin)) {
             return false;
         }
     }
 
-    // If the blob is all paths, there is no reason to regenerate.
     return true;
 }
 
@@ -1122,7 +1157,6 @@ void GrTextBlob::addMultiMaskFormat(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
         const SkStrikeSpec& strikeSpec,
         SkPoint residual) {
-    this->setHasBitmap();
     if (drawables.empty()) { return; }
 
     auto glyphSpan = drawables.get<0>();
@@ -1174,10 +1208,10 @@ void GrTextBlob::processDeviceMasks(const SkZip<SkGlyphVariant, SkPoint>& drawab
 void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                                     const SkFont& runFont,
                                     const SkStrikeSpec& strikeSpec) {
-    this->setHasBitmap();
     GrSubRun* subRun = GrPathSubRun::Make(drawables,
                                           runFont.hasSomeAntiAliasing(),
                                           strikeSpec,
+                                          *this,
                                           &fAlloc);
     this->insertSubRun(subRun);
 }
@@ -1187,7 +1221,6 @@ void GrTextBlob::processSourceSDFT(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                                    const SkFont& runFont,
                                    SkScalar minScale,
                                    SkScalar maxScale) {
-    this->setHasDistanceField();
     this->setMinAndMaxScale(minScale, maxScale);
     GrSubRun* subRun = GrSDFTSubRun::Make(drawables, runFont, strikeSpec, this, &fAlloc);
     this->insertSubRun(subRun);
