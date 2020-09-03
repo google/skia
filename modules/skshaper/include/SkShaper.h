@@ -57,6 +57,7 @@ public:
     #endif
     #ifdef SK_SHAPER_CORETEXT_AVAILABLE
     static std::unique_ptr<SkShaper> MakeCoreText();
+    static std::unique_ptr<SkShaper> MakeCoreTextWithCTFramesetter();
     #endif
 
     static std::unique_ptr<SkShaper> Make(sk_sp<SkFontMgr> = nullptr);

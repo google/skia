@@ -27,7 +27,7 @@
 
 class SkShaper_CoreText : public SkShaper {
 public:
-    SkShaper_CoreText() {}
+    SkShaper_CoreText(bool useFramesetter) : fUseFramesetter(useFramesetter) {}
 private:
     void shape(const char* utf8, size_t utf8Bytes,
                const SkFont& srcFont,
@@ -51,10 +51,16 @@ private:
                const Feature*, size_t featureSize,
                SkScalar width,
                RunHandler*) const override;
+
+    bool fUseFramesetter;
 };
 
 std::unique_ptr<SkShaper> SkShaper::MakeCoreText() {
-    return std::make_unique<SkShaper_CoreText>();
+    return std::make_unique<SkShaper_CoreText>(false);
+}
+
+std::unique_ptr<SkShaper> SkShaper::MakeCoreTextWithCTFramesetter() {
+    return std::make_unique<SkShaper_CoreText>(true);
 }
 
 void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
@@ -96,24 +102,50 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
                        width, handler);
 }
 
-// CTFramesetter/CTFrame can do this, but require version 10.14
 class LineBreakIter {
-    CTTypesetterRef fTypesetter;
-    double          fWidth;
-    CFIndex         fStart;
+    // Automatic framesetting
+    SkUniqueCFRef<CTFrameRef> fFrame;
+    CFArrayRef      fLines = nullptr;
+    CFIndex         fLineIndex = 0;
+    CFIndex         fLineCount = 0;
+
+    // Manual framesetting
+    SkUniqueCFRef<CTTypesetterRef> fTypesetter;
+    double          fWidth = 0.0;
+    CFIndex         fStart = 0;
 
 public:
-    LineBreakIter(CTTypesetterRef ts, SkScalar width) : fTypesetter(ts), fWidth(width) {
-        fStart = 0;
+    LineBreakIter(SkUniqueCFRef<CTFrameRef> frame)
+        : fFrame(std::move(frame)),
+          fLines(CTFrameGetLines(frame.get())),
+          fLineCount(CFArrayGetCount(fLines)) {}
+
+    LineBreakIter(SkUniqueCFRef<CTTypesetterRef> ts, SkScalar width)
+        : fTypesetter(std::move(ts)),
+          fWidth(width) {}
+
+    CTLineRef nextLine() {
+        if (fFrame) {
+            if (fLineIndex >= fLineCount) {
+                return nullptr;
+            }
+            return (CTLineRef)CFArrayGetValueAtIndex(fLines, fLineIndex++);
+        } else {
+            CFRange stringRange {fStart, CTTypesetterSuggestLineBreak(fTypesetter.get(),
+                                                                      fStart, fWidth)};
+            if (stringRange.length == 0) {
+                return nullptr;
+            }
+            fStart += stringRange.length;
+            return CTTypesetterCreateLine(fTypesetter.get(), stringRange);
+        }
     }
 
-    SkUniqueCFRef<CTLineRef> nextLine() {
-        CFRange stringRange {fStart, CTTypesetterSuggestLineBreak(fTypesetter, fStart, fWidth)};
-        if (stringRange.length == 0) {
-            return nullptr;
+    // Lines only need releasing if we're manually typesetting.
+    void releaseLine(CTLineRef line) {
+        if (fTypesetter) {
+            CFRelease(line);
         }
-        fStart += stringRange.length;
-        return SkUniqueCFRef<CTLineRef>(CTTypesetterCreateLine(fTypesetter, stringRange));
     }
 };
 
@@ -147,11 +179,10 @@ static SkFont run_to_font(CTRunRef run, const SkFont& orig) {
 // kCTTrackingAttributeName not available until 10.12
 const CFStringRef kCTTracking_AttributeName = CFSTR("CTTracking");
 
-void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
-                              const SkFont& font,
-                              bool /* leftToRight */,
-                              SkScalar width,
-                              RunHandler* handler) const {
+static LineBreakIter make_line_iter(const char* utf8, size_t utf8Bytes,
+                                    const SkFont& font,
+                                    SkScalar width,
+                                    bool useFramesetter) {
     SkUniqueCFRef<CFStringRef> textString(
             CFStringCreateWithBytes(kCFAllocatorDefault, (const uint8_t*)utf8, utf8Bytes,
                                     kCFStringEncodingUTF8, false));
@@ -172,17 +203,39 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
     SkUniqueCFRef<CFAttributedStringRef> attrString(
             CFAttributedStringCreate(kCFAllocatorDefault, textString.get(), attr.get()));
 
-    SkUniqueCFRef<CTTypesetterRef> typesetter(
-            CTTypesetterCreateWithAttributedString(attrString.get()));
+    if (useFramesetter) {
+        SkUniqueCFRef<CTFramesetterRef> framesetter(
+                CTFramesetterCreateWithAttributedString(attrString.get()));
+        SkUniqueCFRef<CGPathRef> path(
+                CGPathCreateWithRect(CGRectMake(0, 0, width, CGFLOAT_MAX), nullptr));
 
+
+        SkUniqueCFRef<CTFrameRef> frame(
+                CTFramesetterCreateFrame(framesetter.get(),
+                                         CFRangeMake(0, CFStringGetLength(textString.get())),
+                                         path.get(),
+                                         nullptr));
+        return LineBreakIter(std::move(frame));
+    } else {
+        SkUniqueCFRef<CTTypesetterRef> typesetter(
+                CTTypesetterCreateWithAttributedString(attrString.get()));
+        return LineBreakIter(std::move(typesetter), width);
+    }
+}
+
+void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
+                              const SkFont& font,
+                              bool /* leftToRight */,
+                              SkScalar width,
+                              RunHandler* handler) const {
     // We have to compute RunInfos in a loop, and then reuse them in a 2nd loop,
     // so we store them in an array (we reuse the array's storage for each line).
     std::vector<SkFont> fontStorage;
     std::vector<SkShaper::RunHandler::RunInfo> infos;
 
-    LineBreakIter iter(typesetter.get(), width);
-    while (SkUniqueCFRef<CTLineRef> line = iter.nextLine()) {
-        CFArrayRef run_array = CTLineGetGlyphRuns(line.get());
+    LineBreakIter iter = make_line_iter(utf8, utf8Bytes, font, width, fUseFramesetter);
+    for (CTLineRef line = iter.nextLine(); line; iter.releaseLine(line), line = iter.nextLine()) {
+        CFArrayRef run_array = CTLineGetGlyphRuns(line);
         CFIndex runCount = CFArrayGetCount(run_array);
         if (runCount == 0) {
             continue;
