@@ -104,7 +104,7 @@ void GrGaussianConvolutionFragmentProcessor::Impl::GenKey(const GrProcessor& pro
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkFillIn1DGaussianKernel(float* kernel, float gaussianSigma, int radius) {
+static void fill_in_1D_gaussian_kernel(float* kernel, float gaussianSigma, int radius) {
     const float twoSigmaSqrd = 2.0f * gaussianSigma * gaussianSigma;
     int width = radius_to_width(radius);
     if (SkScalarNearlyZero(twoSigmaSqrd, SK_ScalarNearlyZero)) {
@@ -171,7 +171,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fDirection(direction) {
     this->registerChild(std::move(child), SkSL::SampleUsage::Explicit());
     SkASSERT(radius <= kMaxKernelRadius);
-    SkFillIn1DGaussianKernel(fKernel, gaussianSigma, fRadius);
+    fill_in_1D_gaussian_kernel(fKernel, gaussianSigma, fRadius);
     this->setUsesSampleCoordsDirectly();
 }
 

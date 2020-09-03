@@ -31,8 +31,6 @@ bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRec
 
 int SkCreateIntegralTable(float sixSigma, SkBitmap* table);
 
-void SkFillIn1DGaussianKernel(float* kernel, float gaussianSigma, int radius);
-
 extern void sk_register_blur_maskfilter_createproc();
 
 #endif
