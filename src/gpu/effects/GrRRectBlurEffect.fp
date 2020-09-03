@@ -35,6 +35,7 @@ uniform half blurRadius;
 
 @cpp {
     #include "include/gpu/GrRecordingContext.h"
+    #include "src/core/SkAutoMalloc.h"
     #include "src/core/SkBlurPriv.h"
     #include "src/core/SkGpuBlurUtils.h"
     #include "src/core/SkRRectPriv.h"
@@ -109,6 +110,136 @@ uniform half blurRadius;
         return rtc2->readSurfaceView();
     }
 
+    // TODO: merge w/ copy in SkGpuBlurUtils.cpp
+    static int sigma_radius(float sigma) {
+        SkASSERT(sigma >= 0);
+        return static_cast<int>(ceilf(sigma * 3.0f));
+    }
+
+    // Evaluate the vertical blur at the specified 'y' value given the location of the top of the
+    // rrect.
+    static uint8_t eval_V(float top, int y,
+                          const uint8_t* integral, int integralSize, float sixSigma) {
+        if (top < 0) {
+            return 0; // an empty column
+        }
+
+        float fT = (top - y - 0.5f) * (integralSize/sixSigma);
+        if (fT < 0) {
+            return 255;
+        } else if (fT >= integralSize-1) {
+            return 0;
+        }
+
+        int lower = (int) fT;
+        float frac = fT - lower;
+
+        SkASSERT(lower+1 < integralSize);
+
+        return integral[lower] * (1.0f-frac) + integral[lower+1] * frac;
+    }
+
+    // Apply a gaussian 'kernel' horizontally at the specified 'x', 'y' location.
+    static uint8_t eval_H(int x, int y, const std::vector<float>& topVec,
+                          const float* kernel, int kernelSize,
+                          const uint8_t* integral, int integralSize, float sixSigma) {
+        SkASSERT(0 <= x && x < (int) topVec.size());
+        SkASSERT(kernelSize % 2);
+
+        float accum = 0.0f;
+
+        int xSampleLoc = x - (kernelSize / 2);
+        for (int i = 0; i < kernelSize; ++i, ++xSampleLoc) {
+            if (xSampleLoc < 0 || xSampleLoc >= (int) topVec.size()) {
+                continue;
+            }
+
+            accum += kernel[i] * eval_V(topVec[xSampleLoc], y, integral, integralSize, sixSigma);
+        }
+
+        return accum + 0.5f;
+    }
+
+    // Create a cpu-side blurred-rrect mask that is close to the version the gpu would've produced.
+    // The match needs to be close bc the cpu- and gpu-generated version must be interchangeable.
+    static GrSurfaceProxyView create_mask_on_cpu(GrRecordingContext* context,
+                                                 const SkRRect& rrectToDraw,
+                                                 const SkISize& dimensions,
+                                                 float xformedSigma) {
+        int radius = sigma_radius(xformedSigma);
+        int kernelSize = 2*radius + 1;
+
+        SkASSERT(kernelSize %2);
+        SkASSERT(dimensions.width() % 2);
+        SkASSERT(dimensions.height() % 2);
+
+        SkVector radii = rrectToDraw.getSimpleRadii();
+        SkASSERT(SkScalarNearlyEqual(radii.fX, radii.fY));
+
+        const int halfWidthPlus1 = (dimensions.width() / 2) + 1;
+        const int halfHeightPlus1 = (dimensions.height() / 2) + 1;
+
+        std::unique_ptr<float[]> kernel(new float[kernelSize]);
+
+        SkFillIn1DGaussianKernel(kernel.get(), xformedSigma, radius);
+
+        SkBitmap integral;
+        if (!SkCreateIntegralTable(6*xformedSigma, &integral)) {
+            return {};
+        }
+
+        SkBitmap result;
+        if (!result.tryAllocPixels(SkImageInfo::MakeA8(dimensions.width(), dimensions.height()))) {
+            return {};
+        }
+
+        std::vector<float> topVec;
+        topVec.reserve(dimensions.width());
+        for (int x = 0; x < dimensions.width(); ++x) {
+            if (x < rrectToDraw.rect().fLeft || x > rrectToDraw.rect().fRight) {
+                topVec.push_back(-1);
+            } else {
+                if (x+0.5f < rrectToDraw.rect().fLeft + radii.fX) { // in the circular section
+                    float xDist = rrectToDraw.rect().fLeft + radii.fX - x - 0.5f;
+                    float h = sqrtf(radii.fX * radii.fX - xDist * xDist);
+                    SkASSERT(0 <= h && h < radii.fY);
+                    topVec.push_back(rrectToDraw.rect().fTop+radii.fX-h + 3*xformedSigma);
+                } else {
+                    topVec.push_back(rrectToDraw.rect().fTop + 3*xformedSigma);
+                }
+            }
+        }
+
+        for (int y = 0; y < halfHeightPlus1; ++y) {
+            uint8_t* scanline = result.getAddr8(0, y);
+
+            for (int x = 0; x < halfWidthPlus1; ++x) {
+                scanline[x] = eval_H(x, y, topVec,
+                                     kernel.get(), kernelSize,
+                                     integral.getAddr8(0, 0), integral.width(), 6*xformedSigma);
+                scanline[dimensions.width()-x-1] = scanline[x];
+            }
+
+            memcpy(result.getAddr8(0, dimensions.height()-y-1), scanline, result.rowBytes());
+        }
+
+        result.setImmutable();
+
+        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
+
+        sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(result,
+                                                                           GrMipmapped::kNo,
+                                                                           SkBackingFit::kExact,
+                                                                           SkBudgeted::kYes);
+        if (!proxy) {
+            return {};
+        }
+
+        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
+                                                                   GrColorType::kAlpha_8);
+        return {std::move(proxy), kBlurredRRectMaskOrigin, swizzle};
+    }
+
     static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
             GrRecordingContext* context,
             const SkRRect& rrectToDraw,
@@ -132,7 +263,12 @@ uniform half blurRadius;
             return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m);
         }
 
-        auto mask = create_mask_on_gpu(context, rrectToDraw, dimensions, xformedSigma);
+        GrSurfaceProxyView mask;
+        if (proxyProvider->isDDLProvider() == GrDDLProvider::kNo) {
+            mask = create_mask_on_gpu(context, rrectToDraw, dimensions, xformedSigma);
+        } else {
+            mask = create_mask_on_cpu(context, rrectToDraw, dimensions, xformedSigma);
+        }
         if (!mask) {
             return nullptr;
         }
