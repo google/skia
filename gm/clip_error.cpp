@@ -12,6 +12,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
