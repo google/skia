@@ -33,6 +33,24 @@
       "revId": "d9d635adb6d89501057ad97a82452bfde4db84ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9087db9_57c0218e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13844
+      },
+      "writtenOn": "2020-09-06T09:08:56Z",
+      "side": 1,
+      "message": "Thank you. I\u0027ll be on vacation for the next 2 weeks, so don\u0027t hurry with the review.",
+      "parentUuid": "4eeaced2_cd06ccd5",
+      "revId": "d9d635adb6d89501057ad97a82452bfde4db84ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
