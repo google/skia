@@ -1218,6 +1218,41 @@ private:
     Context fReleaseCtx;
 };
 
+
+enum class GrDstSampleType {
+    kNone, // The dst value will not be sampled in the shader
+    kAsTextureCopy, // The dst value will be sampled from a copy of the dst
+    // The types below require a texture barrier
+    kAsSelfTexture, // The dst value is sampled directly from the dst itself as a texture.
+    kAsInputAttachment, // The dst value is sampled directly from the dst as an input attachment.
+};
+
+// Returns true if the sampling of the dst color in the shader is done by reading the dst directly.
+// Anything that directly reads the dst will need a barrier between draws.
+static constexpr bool GrDstSampleTypeDirectlySamplesDst(GrDstSampleType type) {
+    switch (type) {
+        case GrDstSampleType::kAsSelfTexture:  // fall through
+        case GrDstSampleType::kAsInputAttachment:
+            return true;
+        case GrDstSampleType::kNone:  // fall through
+        case GrDstSampleType::kAsTextureCopy:
+            return false;
+    }
+    SkUNREACHABLE;
+}
+
+static constexpr bool GrDstSampleTypeUsesTexture(GrDstSampleType type) {
+    switch (type) {
+        case GrDstSampleType::kAsSelfTexture:  // fall through
+        case GrDstSampleType::kAsTextureCopy:
+            return true;
+        case GrDstSampleType::kNone:  // fall through
+        case GrDstSampleType::kAsInputAttachment:
+            return false;
+    }
+    SkUNREACHABLE;
+}
+
 #if defined(SK_DEBUG) || GR_TEST_UTILS || defined(SK_ENABLE_DUMP_GPU)
 static constexpr const char* GrBackendApiToStr(GrBackendApi api) {
     switch (api) {

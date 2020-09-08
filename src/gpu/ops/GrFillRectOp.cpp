@@ -207,7 +207,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrDstSampleType dstSampleType) override {
         const VertexSpec vertexSpec = this->vertexSpec();
 
         GrGeometryProcessor* gp = GrQuadPerEdgeAA::MakeProcessor(arena, vertexSpec);
@@ -215,14 +216,15 @@ private:
 
         fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                             std::move(appliedClip),
-                                                            dstProxyView, gp,
+                                                            dstProxyView, dstSampleType, gp,
                                                             vertexSpec.primitiveType());
     }
 
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           GrDstSampleType dstSampleType) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkASSERT(!fPrePreparedVertices);
@@ -233,7 +235,7 @@ private:
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         this->createProgramInfo(context->priv().caps(), arena, writeView,
-                                std::move(appliedClip), dstProxyView);
+                                std::move(appliedClip), dstProxyView, dstSampleType);
 
         context->priv().recordProgramInfo(fProgramInfo);
 

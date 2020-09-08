@@ -64,6 +64,7 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
                                  const GrSurfaceProxyView* writeView,
                                  GrAppliedClip&& appliedClip,
                                  const GrXferProcessor::DstProxyView& dstProxyView,
+                                 GrDstSampleType dstSampleType,
                                  GrGeometryProcessor* geomProc,
                                  SkBlendMode blendMode,
                                  GrPrimitiveType primitiveType,
@@ -82,8 +83,9 @@ GrProgramInfo* CreateProgramInfo(const GrCaps* caps,
 
     return GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
                                                        std::move(appliedClip), dstProxyView,
-                                                       geomProc, std::move(processors),
-                                                       primitiveType, flags, stencilSettings);
+                                                       dstSampleType, geomProc,
+                                                       std::move(processors), primitiveType, flags,
+                                                       stencilSettings);
 }
 
 

@@ -4456,6 +4456,13 @@ GrSwizzle GrGLCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
     return {};
 }
 
+GrDstSampleType GrGLCaps::onGetDstSampleTypeForProxy(const GrRenderTargetProxy* rt) const {
+    if (rt->asTextureProxy()) {
+        return GrDstSampleType::kAsSelfTexture;
+    }
+    return GrDstSampleType::kAsTextureCopy;
+}
+
 uint64_t GrGLCaps::computeFormatKey(const GrBackendFormat& format) const {
     auto glFormat = format.asGLFormat();
     return (uint64_t)(glFormat);

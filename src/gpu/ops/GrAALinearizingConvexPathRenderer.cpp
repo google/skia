@@ -203,7 +203,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrDstSampleType dstSampleType) override {
         GrGeometryProcessor* gp = create_lines_only_gp(arena,
                                                        fHelper.compatibleWithCoverageAsAlpha(),
                                                        fHelper.usesLocalCoords(),
@@ -215,7 +216,8 @@ private:
 
         fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                             std::move(appliedClip), dstProxyView,
-                                                            gp, GrPrimitiveType::kTriangles);
+                                                            dstSampleType, gp,
+                                                            GrPrimitiveType::kTriangles);
     }
 
     void recordDraw(Target* target,

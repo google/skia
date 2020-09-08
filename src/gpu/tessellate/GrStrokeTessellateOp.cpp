@@ -88,8 +88,9 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
 }
 
 void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView,
-                                        GrAppliedClip*, const GrXferProcessor::DstProxyView&) {
-}
+                                        GrAppliedClip*,
+                                        const GrXferProcessor::DstProxyView&,
+                                        GrDstSampleType dstSampleType) {}
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     GrStrokePatchBuilder builder(flushState, &fVertexChunks, fMatrixScale, fTotalCombinedVerbCnt);
@@ -107,6 +108,7 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     }
     initArgs.fCaps = &flushState->caps();
     initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
+    initArgs.fDstSampleType = flushState->drawOpArgs().dstSampleType();
     initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
