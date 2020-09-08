@@ -28,25 +28,25 @@ public:
 
     bool isCompatible(int numTextureSamplers) const;
 
-    ID3D12RootSignature* rootSignature() const { return fRootSignature.get(); }
+    ID3D12RootSignature* rootSignature() const { return fRootSignature.Get(); }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** Output a human-readable dump of this resource's information
     */
     void dumpInfo() const override {
         SkDebugf("GrD3DRootSignature: %p, numTextures: %d (%d refs)\n",
-                 fRootSignature.get(), fNumTextureSamplers, this->getRefCnt());
+                 fRootSignature.Get(), fNumTextureSamplers, this->getRefCnt());
     }
 #endif
 
 private:
-    GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int numTextureSamplers);
+    GrD3DRootSignature(ComPtr<ID3D12RootSignature> rootSig, int numTextureSamplers);
 
     // This will be called right before this class is destroyed and there is no reason to explicitly
-    // release the fRootSignature cause the gr_cp will handle that in the dtor.
+    // release the fRootSignature cause the ComPtr will handle that in the dtor.
     void freeGPUData() const override {}
 
-    gr_cp<ID3D12RootSignature> fRootSignature;
+    ComPtr<ID3D12RootSignature> fRootSignature;
     int fNumTextureSamplers;
 };
 

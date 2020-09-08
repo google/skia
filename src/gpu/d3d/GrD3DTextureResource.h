@@ -26,14 +26,14 @@ public:
             : fInfo(info)
             , fState(std::move(state))
             , fResource(new Resource(fInfo.fResource)) {
-        // gr_cp will implicitly ref the ID3D12Resource for us, so we don't need to worry about
+        // ComPtr will implicitly ref the ID3D12Resource for us, so we don't need to worry about
         // whether it's borrowed or not
     }
     virtual ~GrD3DTextureResource();
 
     ID3D12Resource* d3dResource() const {
         SkASSERT(fResource);
-        return fInfo.fResource.get();
+        return fInfo.fResource.Get();
     }
     DXGI_FORMAT dxgiFormat() const { return fInfo.fFormat; }
     GrBackendFormat getBackendFormat() const {
@@ -109,7 +109,7 @@ private:
             : fResource(nullptr) {
         }
 
-        Resource(const gr_cp<ID3D12Resource>& textureResource)
+        Resource(const ComPtr<ID3D12Resource>& textureResource)
             : fResource(textureResource) {
         }
 
@@ -117,14 +117,14 @@ private:
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
         void dumpInfo() const override {
-            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource.get(), this->getRefCnt());
+            SkDebugf("GrD3DTextureResource: %d (%d refs)\n", fResource.Get(), this->getRefCnt());
         }
 #endif
 
     private:
         void freeGPUData() const override;
 
-        mutable gr_cp<ID3D12Resource> fResource;
+        mutable ComPtr<ID3D12Resource> fResource;
 
         using INHERITED = GrTextureResource;
     };
