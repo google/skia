@@ -16,6 +16,29 @@
       "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6403900c_382707e4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2633,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T14:46:07Z",
+      "side": 1,
+      "message": "I don\u0027t know this code very well, but I get the impression that we should emit an error if !result-\u003eis\u003cVariableReference\u003e().",
+      "range": {
+        "startLine": 2633,
+        "startChar": 26,
+        "endLine": 2633,
+        "endChar": 57
+      },
+      "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
