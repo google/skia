@@ -44,7 +44,7 @@ public:
     };
     static constexpr int kDataTypeCnt = static_cast<int>(DataType::kLast) + 1;
 
-    class SupportedDataTypes {
+    class SK_API SupportedDataTypes {
     public:
         /** Defaults to nothing supported. */
         constexpr SupportedDataTypes() = default;
