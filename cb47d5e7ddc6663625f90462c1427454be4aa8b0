@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "df35832c_37026cca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T13:16:23Z",
+      "side": 1,
+      "message": "I sort of wish the typeKind() changes had been their own CL. AFAICS they stand alone and are a large change on their own merits.",
+      "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ef4e69c4_668bd955",
         "filename": "src/sksl/SkSLRehydrator.cpp",
         "patchSetId": 4
