@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "65503101_9eeb3eea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T13:05:28Z",
+      "side": 1,
+      "message": "Feels like a missed opportunity to update most of the call sites to var.is\u003cT\u003e() ... I think those CLs must have crossed in the mail :)",
+      "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef4e69c4_668bd955",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T13:05:28Z",
+      "side": 1,
+      "message": "👍",
+      "range": {
+        "startLine": 501,
+        "startChar": 19,
+        "endLine": 501,
+        "endChar": 49
+      },
+      "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "29c484c5_82cb3732",
         "filename": "src/sksl/ir/SkSLProgramElement.h",
         "patchSetId": 4
