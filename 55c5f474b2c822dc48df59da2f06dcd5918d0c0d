@@ -122,6 +122,24 @@
       "revId": "55c5f474b2c822dc48df59da2f06dcd5918d0c0d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d917c745_f03272c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-08T16:21:23Z",
+      "side": 1,
+      "message": "Layout is not affected at all.\nI will measure drawing time again (I have a set of tests) but unless I construct them specifically (10000 paint per one layout) I don\u0027t expect much difference - I tried it already. save/restore/translate didn\u0027t show any difference either - I tried that, too. \nThat explains why this entire performance investigation was unsuccessful for such a long time: it was not the real performance. I tried all these changes before but they didn\u0027t increase performance so I didn\u0027t check them in. When Jason explained to me this heuristic I figured it out.",
+      "parentUuid": "5ea03c37_7853900a",
+      "revId": "55c5f474b2c822dc48df59da2f06dcd5918d0c0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
