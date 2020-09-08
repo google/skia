@@ -2068,8 +2068,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
     auto funcCall = std::make_unique<FunctionCall>(offset, *returnType, function,
                                                    std::move(arguments));
     if (fCanInline && fInliner->isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
-        Inliner::InlinedCall inlinedCall = fInliner->inlineCall(std::move(funcCall),
-                                                                fSymbolTable.get());
+        Inliner::InlinedCall inlinedCall = fInliner->inlineCall(funcCall.get(), fSymbolTable.get());
         if (inlinedCall.fInlinedBody) {
             fExtraStatements.push_back(std::move(inlinedCall.fInlinedBody));
         }
