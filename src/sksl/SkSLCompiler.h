@@ -221,7 +221,10 @@ private:
                            bool* outUpdated,
                            bool* outNeedsRescan);
 
-    void scanCFG(FunctionDefinition& f);
+    /**
+     * Optimizes a function based on control flow analysis. Returns true if changes were made.
+     */
+    bool scanCFG(FunctionDefinition& f);
 
     Position position(int offset);
 
