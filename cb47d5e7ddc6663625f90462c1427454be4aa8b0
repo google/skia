@@ -109,6 +109,24 @@
       "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3455741a_29c873a6",
+        "filename": "src/sksl/ir/SkSLProgramElement.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T13:40:54Z",
+      "side": 1,
+      "message": "Oh yeah, those tradeoffs are bad; I agree with Ethan\u0027s judgment here.",
+      "parentUuid": "3bd77f0d_251f285b",
+      "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
