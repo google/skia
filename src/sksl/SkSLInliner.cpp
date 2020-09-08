@@ -585,6 +585,10 @@ bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThresho
         // Can't inline something if we don't actually have its definition.
         return false;
     }
+    if (functionCall.fFunction.fName == "main") {
+        // main() is not a candidate for inlining.
+        return false;
+    }
     const FunctionDefinition& functionDef = *functionCall.fFunction.fDefinition;
     if (inlineThreshold < INT_MAX) {
         if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
@@ -612,10 +616,10 @@ bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThresho
     return !hasReturnInBreakableConstruct;
 }
 
-void Inliner::analyze(Program& program) {
+bool Inliner::analyze(Program& program) {
     // A candidate function for inlining, containing everything that `inlineCall` needs.
     struct InlineCandidate {
-        SymbolTable* fSymbols;
+        std::shared_ptr<SymbolTable> fSymbols;
         std::unique_ptr<Statement>* fEnclosingStmt;
         std::unique_ptr<Expression>* fCandidateExpr;
     };
@@ -630,14 +634,14 @@ void Inliner::analyze(Program& program) {
         std::vector<InlineCandidate> fInlineCandidates;
         // A stack of the symbol tables; since most nodes don't have one, expected to be shallower
         // than the enclosing-statement stack.
-        std::vector<SymbolTable*> fSymbolTableStack;
+        std::vector<std::shared_ptr<SymbolTable>> fSymbolTableStack;
         // A stack of "enclosing" statements--these would be suitable for the inliner to use for
         // adding new instructions. Not all statements are suitable (e.g. a for-loop's initializer).
         // The inliner might replace a statement with a block containing the statement.
         std::vector<std::unique_ptr<Statement>*> fEnclosingStmtStack;
 
         void visit(Program& program) {
-            fSymbolTableStack.push_back(program.fSymbols.get());
+            fSymbolTableStack.push_back(program.fSymbols);
 
             for (ProgramElement& pe : program) {
                 this->visitProgramElement(&pe);
@@ -652,7 +656,7 @@ void Inliner::analyze(Program& program) {
                     // Absorb the symbols from the enum. (Enums affect the code below them as well,
                     // so this replaces the top of the symbol stack.)
                     Enum& enumElement = pe->as<Enum>();
-                    fSymbolTableStack.back() = enumElement.fSymbols.get();
+                    fSymbolTableStack.back() = enumElement.fSymbols;
                     break;
                 }
                 case ProgramElement::Kind::kFunction: {
@@ -689,7 +693,7 @@ void Inliner::analyze(Program& program) {
                 case Statement::Kind::kBlock: {
                     Block& block = (*stmt)->as<Block>();
                     if (block.fSymbols) {
-                        fSymbolTableStack.push_back(block.fSymbols.get());
+                        fSymbolTableStack.push_back(block.fSymbols);
                     }
 
                     for (std::unique_ptr<Statement>& blockStmt : block.fStatements) {
@@ -712,7 +716,7 @@ void Inliner::analyze(Program& program) {
                 case Statement::Kind::kFor: {
                     ForStatement& forStmt = (*stmt)->as<ForStatement>();
                     if (forStmt.fSymbols) {
-                        fSymbolTableStack.push_back(forStmt.fSymbols.get());
+                        fSymbolTableStack.push_back(forStmt.fSymbols);
                     }
 
                     // The initializer and loop body are candidates for inlining.
@@ -738,7 +742,7 @@ void Inliner::analyze(Program& program) {
                 case Statement::Kind::kSwitch: {
                     SwitchStatement& switchStmt = (*stmt)->as<SwitchStatement>();
                     if (switchStmt.fSymbols) {
-                        fSymbolTableStack.push_back(switchStmt.fSymbols.get());
+                        fSymbolTableStack.push_back(switchStmt.fSymbols);
                     }
 
                     this->visitExpression(&switchStmt.fValue);
@@ -875,32 +879,55 @@ void Inliner::analyze(Program& program) {
         }
     };
 
-    // TODO(johnstiles): the analyzer can detect inlinable functions; actually inlining them will
-    // be tackled in a followup CL.
-/*
     InlineCandidateAnalyzer analyzer;
     analyzer.visit(program);
 
-    std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, is safe>
-    for (InlineCandidate& candidate : analyzer.fInlineCandidates) {
+    // For each of our candidate function-call sites, check if it is actually safe to inline.
+    // Memoize our results so we don't check a function more than once
+    std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, is inlinable?>
+    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
         const FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
         const FunctionDeclaration* funcDecl = &funcCall.fFunction;
         if (inlinableMap.find(funcDecl) == inlinableMap.end()) {
-            bool isSafe = this->isSafeToInline(funcCall, fSettings->fInlineThreshold);
-            inlinableMap[funcDecl] = isSafe;
-
-            if (isSafe) {
-                printf("-> Inliner discovered valid candidate: %s\n",
-                       String(funcDecl->fName).c_str());
-            } else {
-                printf("   Inliner discovered bogus candidate: %s\n",
-                       String(funcDecl->fName).c_str());
-            }
+            int inlineThreshold = (funcDecl->fCallCount.load() > 1) ? fSettings->fInlineThreshold
+                                                                    : INT_MAX;
+            inlinableMap[funcDecl] = this->isSafeToInline(funcCall, inlineThreshold);
         }
     }
 
-    printf("  (DONE)\n\n");
-*/
+    // Inline the candidates where we've determined that it's safe to do so.
+    bool madeChanges = false;
+    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
+        FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
+        const FunctionDeclaration* funcDecl = &funcCall.fFunction;
+        if (!inlinableMap[funcDecl]) {
+            continue;
+        }
+
+        // Steal the function call out of the unique_ptr<Expression> that owns it now.
+        InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols.get());
+        if (inlinedCall.fInlinedBody) {
+            // Move the enclosing statement to the end of the unscoped Block containing the inlined
+            // function, then replace the enclosing statement with that Block.
+            // Before:
+            //     fInlinedBody = Block{ stmt1, stmt2, stmt3 }
+            //     fEnclosingStmt = stmt4
+            // After:
+            //     fInlinedBody = null
+            //     fEnclosingStmt = Block{ stmt1, stmt2, stmt3, stmt4 }
+            inlinedCall.fInlinedBody->fStatements.push_back(std::move(*candidate.fEnclosingStmt));
+            *candidate.fEnclosingStmt = std::move(inlinedCall.fInlinedBody);
+        }
+
+        // Replace the candidate function call with our replacement expression.
+        *candidate.fCandidateExpr = std::move(inlinedCall.fReplacementExpr);
+        madeChanges = true;
+
+        // Note that nothing was destroyed except for the FunctionCall. All other nodes should
+        // remain valid.
+    }
+
+    return madeChanges;
 }
 
 }  // namespace SkSL
