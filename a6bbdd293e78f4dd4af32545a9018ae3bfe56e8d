@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f8af46aa_82992f54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-08T16:43:40Z",
+      "side": 1,
+      "message": "This doesn\u0027t address mutual recursion. Is that a concern?",
+      "revId": "a6bbdd293e78f4dd4af32545a9018ae3bfe56e8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
