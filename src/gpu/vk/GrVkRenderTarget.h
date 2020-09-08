@@ -136,6 +136,12 @@ public:
                                                  GrVkRenderPass::AttachmentsDescriptor* desc,
                                                  GrVkRenderPass::AttachmentFlags* flags);
 
+    // So that we don't need to rewrite descriptor sets each time, we keep a cached input descriptor
+    // set on the the RT and simply reuse that descriptor set for this render target only, as long
+    // as the render target lives. This call will not ref the GrVkDescriptorSet so the caller must
+    // manually ref it if it wants to keep it alive.
+    const GrVkDescriptorSet* inputDescSet(GrVkGpu*);
+
     void addResources(GrVkCommandBuffer& commandBuffer, bool withStencil, bool needsXferBarrier);
 
     void addWrappedGrSecondaryCommandBuffer(std::unique_ptr<GrVkSecondaryCommandBuffer> cmdBuffer) {
@@ -245,6 +251,8 @@ private:
     GrVkResourceProvider::CompatibleRPHandle fCompatibleSelfDepRPHandle;
     // Same as above but taking the render target's stencil buffer into account
     GrVkResourceProvider::CompatibleRPHandle fCompatibleStencilSelfDepRPHandle;
+
+    const GrVkDescriptorSet* fCachedInputDescriptorSet = nullptr;
 
     // If this render target wraps an external VkCommandBuffer, then this handle will be that
     // VkCommandBuffer and not VK_NULL_HANDLE. In this case the render target will not be backed by

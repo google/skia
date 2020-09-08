@@ -76,7 +76,8 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
     // need to create a self dependency for that subpass so that we can use barriers. Finally, the
     // color attachment will need to be set to the GENERAL layout since it will be used for reading
     // and writing here.
-    SkASSERT(!needsSelfDependency || gpu->caps()->advancedBlendEquationSupport());
+    SkASSERT(!needsSelfDependency || gpu->caps()->advancedBlendEquationSupport() ||
+             gpu->caps()->textureBarrierSupport());
 
     uint32_t numAttachments = attachmentsDescriptor->fAttachmentCount;
     // Attachment descriptions to be set on the render pass
@@ -132,9 +133,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
 
                 dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
                 dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-                dependency.srcAccessMask =
-                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                        VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
+                dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                 dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
             } else {
                 SkASSERT(gpu->vkCaps().maxInputAttachmentDescriptors());
@@ -144,8 +143,7 @@ GrVkRenderPass* GrVkRenderPass::Create(GrVkGpu* gpu,
 
                 dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
                 dependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-                dependency.srcAccessMask =
-                        VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+                dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                 dependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
             }
         }

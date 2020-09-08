@@ -30,9 +30,17 @@ public:
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
         kInputDescSet = 2,
+
+        kLastDescSet = kInputDescSet,
+    };
+    static const int kDescSetCount = kLastDescSet + 1;
+
+    enum {
+        kUniformBinding = 0,
+        kInputBinding = 0,
     };
     enum {
-        kUniformBinding = 0
+        kDstInputAttachmentIndex = 0
     };
 
     struct VkUniformInfo : public UniformInfo {
@@ -91,6 +99,8 @@ private:
                              const char* name,
                              const GrShaderCaps*) override;
 
+    SamplerHandle addInputSampler(const GrSwizzle& swizzle, const char* name) override;
+
     int numSamplers() const { return fSamplers.count(); }
     const char* samplerVariable(SamplerHandle handle) const override {
         return fSamplers.item(handle.toIndex()).fVariable.c_str();
@@ -106,6 +116,15 @@ private:
         return fSamplers.item(u.toIndex()).fImmutableSampler;
     }
 
+    const char* inputSamplerVariable(SamplerHandle handle) const override {
+        SkASSERT(handle.toIndex() == 0);
+        return fInputUniform.fVariable.c_str();
+    }
+    GrSwizzle inputSamplerSwizzle(SamplerHandle handle) const override {
+        SkASSERT(handle.toIndex() == 0);
+        return fInputSwizzle;
+    }
+
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
     const VkUniformInfo& getUniformInfo(UniformHandle u) const {
@@ -115,6 +134,8 @@ private:
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
+    UniformInfo         fInputUniform;
+    GrSwizzle           fInputSwizzle;
 
     uint32_t            fCurrentUBOOffset;
 

@@ -162,22 +162,22 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         dsInpuBinding.stageFlags = visibility_to_vk_stage_flags(visibilities[0]);
         dsInpuBinding.pImmutableSamplers = nullptr;
 
-        VkDescriptorSetLayoutCreateInfo uniformLayoutCreateInfo;
-        memset(&uniformLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
-        uniformLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        uniformLayoutCreateInfo.pNext = nullptr;
-        uniformLayoutCreateInfo.flags = 0;
-        uniformLayoutCreateInfo.bindingCount = 1;
-        uniformLayoutCreateInfo.pBindings = &dsInpuBinding;
+        VkDescriptorSetLayoutCreateInfo inputLayoutCreateInfo;
+        memset(&inputLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
+        inputLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        inputLayoutCreateInfo.pNext = nullptr;
+        inputLayoutCreateInfo.flags = 0;
+        inputLayoutCreateInfo.bindingCount = 1;
+        inputLayoutCreateInfo.pBindings = &dsInpuBinding;
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
         // skia:8713
         __lsan::ScopedDisabler lsanDisabler;
 #endif
         VkResult result;
-        GR_VK_CALL_RESULT(gpu, result,
-                          CreateDescriptorSetLayout(
-                                  gpu->device(), &uniformLayoutCreateInfo, nullptr, descSetLayout));
+        GR_VK_CALL_RESULT(gpu, result, CreateDescriptorSetLayout(gpu->device(),
+                                                                 &inputLayoutCreateInfo,
+                                                                 nullptr, descSetLayout));
         if (result != VK_SUCCESS) {
             return false;
         }
