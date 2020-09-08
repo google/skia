@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42925743_4193c9fb",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-08T17:34:23Z",
+      "side": 1,
+      "message": "Here you draw with the x,y of the call when \"fState \u003c kDrawn\" was true, but that isn\u0027t being recorded and below no offsets are being made when drawing out of the picture, so if someone tries to re-draw at a different x,y they\u0027ll still get the old x,y? It seems that here maybe 0,0 should be passed in and the save/translate/restores still happen below?",
+      "revId": "b6030fb2c818ceea64469a613a8f3fe66cc32595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
