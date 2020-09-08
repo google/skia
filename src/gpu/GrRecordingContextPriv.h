@@ -57,6 +57,8 @@ public:
 
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
+    GrMagicCache* magicCache() { return fContext->magicCache(); }
+
     void moveRenderTasksToDDL(SkDeferredDisplayList*);
 
     /**
