@@ -91,6 +91,24 @@
       "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3bd77f0d_251f285b",
+        "filename": "src/sksl/ir/SkSLProgramElement.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-08T13:40:01Z",
+      "side": 1,
+      "message": "Added asserts. I like John\u0027s sentinel pattern, but unfortunately it leads to a lot of \"unhandled enumeration value in switch\" issues due to unhandled sentinels, so we either need to specifically add cases for the sentinels (ugly) or use a default (unsafe). Given how often we switch on these enums, and how rarely I expect we\u0027ll add new enum values, I personally feel like it\u0027s better to keep the switches clean.",
+      "parentUuid": "3112e15b_71b5c56b",
+      "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
