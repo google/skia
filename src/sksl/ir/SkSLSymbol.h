@@ -9,6 +9,7 @@
 #define SKSL_SYMBOL
 
 #include "src/sksl/ir/SkSLIRNode.h"
+#include "src/sksl/ir/SkSLProgramElement.h"
 
 namespace SkSL {
 
@@ -16,21 +17,29 @@ namespace SkSL {
  * Represents a symboltable entry.
  */
 struct Symbol : public IRNode {
-    enum Kind {
-        kFunctionDeclaration_Kind,
-        kUnresolvedFunction_Kind,
-        kType_Kind,
-        kVariable_Kind,
-        kField_Kind,
-        kExternal_Kind
+    enum class Kind {
+        kExternal = (int) ProgramElement::Kind::kLast + 1,
+        kField,
+        kFunctionDeclaration,
+        kType,
+        kUnresolvedFunction,
+        kVariable,
+
+        kFirst = kExternal,
+        kLast = kVariable
     };
 
     Symbol(int offset, Kind kind, StringFragment name)
-    : INHERITED(offset)
-    , fKind(kind)
-    , fName(name) {}
+    : INHERITED(offset, (int) kind)
+    , fName(name) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
 
     ~Symbol() override {}
+
+    Kind kind() const {
+        return (Kind) fKind;
+    }
 
     /**
      *  Use is<T> to check the type of a symbol.
@@ -38,7 +47,7 @@ struct Symbol : public IRNode {
      */
     template <typename T>
     bool is() const {
-        return this->fKind == T::kSymbolKind;
+        return this->kind() == T::kSymbolKind;
     }
 
     /**
@@ -56,7 +65,6 @@ struct Symbol : public IRNode {
         return static_cast<T&>(*this);
     }
 
-    Kind fKind;
     StringFragment fName;
 
     using INHERITED = IRNode;

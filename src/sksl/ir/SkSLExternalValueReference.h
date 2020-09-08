@@ -17,7 +17,7 @@ namespace SkSL {
  * Represents an identifier referring to an ExternalValue.
  */
 struct ExternalValueReference : public Expression {
-    static constexpr Kind kExpressionKind = kExternalValue_Kind;
+    static constexpr Kind kExpressionKind = Kind::kExternalValue;
 
     ExternalValueReference(int offset, const ExternalValue* ev)
     : INHERITED(offset, kExpressionKind, ev->type())
