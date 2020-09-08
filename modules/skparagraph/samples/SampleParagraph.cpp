@@ -2939,6 +2939,60 @@ private:
     using INHERITED = Sample;
 };
 
+class ParagraphView47 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph47"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+
+    canvas->clear(SK_ColorWHITE);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+
+    auto fontCollection = sk_make_sp<FontCollection>();
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+
+    TextStyle defaultStyle;
+    defaultStyle.setForegroundColor(paint);
+
+    ParagraphStyle paraStyle;
+    paraStyle.setTextStyle(defaultStyle);
+    paraStyle.setMaxLines(1);
+    paraStyle.setEllipsis(SkString("..."));
+
+    const char* hello = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do";
+    auto builder = ParagraphBuilder::make(paraStyle, fontCollection);
+    builder->addText(hello, strlen(hello));
+
+    auto paragraph = builder->Build();
+    paragraph->layout(100);
+    paragraph->paint(canvas, 200, 200);
+
+    paragraph->layout(200);
+    paragraph->paint(canvas, 200, 300);
+
+    ParagraphStyle paraStyle2;
+    paraStyle2.setTextStyle(defaultStyle);
+    paraStyle2.setMaxLines(1);
+    paraStyle.setEllipsis(SkString(""));
+
+    auto builder2 = ParagraphBuilder::make(paraStyle, fontCollection);
+    builder2->addText(hello, strlen(hello));
+
+    auto paragraph2 = builder2->Build();
+    paragraph2->layout(100);
+    paragraph2->paint(canvas, 200, 400);
+
+    paragraph2->layout(200);
+    paragraph2->paint(canvas, 200, 500);
+    canvas->restore();
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2986,3 +3040,4 @@ DEF_SAMPLE(return new ParagraphView43();)
 DEF_SAMPLE(return new ParagraphView44();)
 DEF_SAMPLE(return new ParagraphView45();)
 DEF_SAMPLE(return new ParagraphView46();)
+DEF_SAMPLE(return new ParagraphView47();)
