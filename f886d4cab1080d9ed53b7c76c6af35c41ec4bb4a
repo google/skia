@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58ac2185_896763c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-08T17:34:33Z",
+      "side": 1,
+      "message": "Okay so there definitely is a lot here, but a lot of the loc are plumbing the GrDstSampleType. The\nmain interesting changes are:\n\nGr*Caps.h/cpp\nGrRenderTargetContext.h/cpp\nGrOpsTask.h/cpp\nGrPipeline.h/cpp",
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
