@@ -321,7 +321,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrDstSampleType dstSampleType) override {
 
         DashCap capType = (this->cap() == SkPaint::kRound_Cap) ? kRound_DashCap : kNonRound_DashCap;
 
@@ -357,6 +358,7 @@ private:
                                                                    writeView,
                                                                    std::move(appliedClip),
                                                                    dstProxyView,
+                                                                   dstSampleType,
                                                                    gp,
                                                                    std::move(fProcessorSet),
                                                                    GrPrimitiveType::kTriangles,

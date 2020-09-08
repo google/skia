@@ -651,7 +651,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrDstSampleType dstSampleType) override {
         SkASSERT(fDesc);
 
         GrGeometryProcessor* gp;
@@ -674,7 +675,7 @@ private:
                 GrPipeline::InputFlags::kHWAntialias : GrPipeline::InputFlags::kNone;
 
         fDesc->fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
-                caps, arena, writeView, std::move(appliedClip), dstProxyView, gp,
+                caps, arena, writeView, std::move(appliedClip), dstProxyView, dstSampleType, gp,
                 GrProcessorSet::MakeEmptySet(), fDesc->fVertexSpec.primitiveType(),
                 pipelineFlags);
     }
@@ -682,7 +683,8 @@ private:
     void onPrePrepareDraws(GrRecordingContext* context,
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip* clip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) override {
+                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           GrDstSampleType dstSampleType) override {
         TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
         SkDEBUGCODE(this->validate();)
@@ -696,7 +698,7 @@ private:
         FillInVertices(*context->priv().caps(), this, fDesc, fDesc->fPrePreparedVertices);
 
         // This will call onCreateProgramInfo and register the created program with the DDL.
-        this->INHERITED::onPrePrepareDraws(context, writeView, clip, dstProxyView);
+        this->INHERITED::onPrePrepareDraws(context, writeView, clip, dstProxyView, dstSampleType);
     }
 
     static void FillInVertices(const GrCaps& caps, TextureOp* texOp, Desc* desc, char* vertexData) {

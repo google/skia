@@ -71,6 +71,7 @@ public:
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstProxyView fDstProxyView;
+        GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
         GrSwizzle fWriteSwizzle;
     };
 
@@ -123,20 +124,42 @@ public:
         }
     }
 
+    // This returns the the GrDstSampleType actually used by this GrPipeline and not the general
+    // GrDstSampleType used by the render pass that this is GrPipeline is used in. In other words,
+    // if this GrPipeline does read the dst then this returns the general GrDstSampleType, otherwise
+    // this returns GrDstSampleType::kNone.
+    GrDstSampleType localDstSampleType() const {
+            if (!this->dstProxyView()) {
+                return GrDstSampleType::kNone;
+            }
+            SkASSERT(fDstSampleType != GrDstSampleType::kNone);
+            return fDstSampleType;
+        }
+
+        // Helper functions to quickly know if this GrPipeline will access the dst as a texture or
+        // an input attachment.
+        bool usesDstTexture() const {
+            return this->dstProxyView() && GrDstSampleTypeUsesTexture(fDstSampleType);
+        }
+        bool usesInputAttachment() const {
+            return this->dstProxyView() && (fDstSampleType == GrDstSampleType::kAsInputAttachment);
+        }
+
     /**
      * This returns the GrSurfaceProxyView for the texture used to access the dst color. If the
      * GrXferProcessor does not use the dst color then the proxy on the GrSurfaceProxyView will be
      * nullptr.
      */
-    const GrSurfaceProxyView& dstProxyView() const {
-        return fDstProxyView;
-    }
+    const GrSurfaceProxyView& dstProxyView() const { return fDstProxyView; }
 
     /**
      * If the GrXferProcessor uses a texture to access the dst color, then this returns that
      * texture and the offset to the dst contents within that texture.
      */
     GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
+        if (!this->usesDstTexture()) {
+            return nullptr;
+        }
         if (offset) {
             *offset = fDstTextureOffset;
         }
@@ -195,7 +218,7 @@ public:
     }
 #endif
 
-    GrXferBarrierType xferBarrierType(GrTexture*, const GrCaps&) const;
+    GrXferBarrierType xferBarrierType(const GrCaps&) const;
 
     // Used by Vulkan and Metal to cache their respective pipeline objects
     void genKey(GrProcessorKeyBuilder*, const GrCaps&) const;
@@ -223,6 +246,10 @@ private:
 
     GrSurfaceProxyView fDstProxyView;
     SkIPoint fDstTextureOffset;
+    // This is the GrDstSampleType that is used for the render pass that this GrPipeline will be
+    // used in (i.e. if this GrPipeline does read the dst, it will do so using this
+    // GrDstSampleType).
+    GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
     GrWindowRectsState fWindowRectsState;
     const GrUserStencilSettings* fUserStencilSettings;
     Flags fFlags;

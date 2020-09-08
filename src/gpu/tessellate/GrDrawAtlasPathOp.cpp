@@ -144,8 +144,8 @@ GrOp::CombineResult GrDrawAtlasPathOp::onCombineIfPossible(
 void GrDrawAtlasPathOp::onPrePrepare(GrRecordingContext*,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip*,
-                                     const GrXferProcessor::DstProxyView&) {
-}
+                                     const GrXferProcessor::DstProxyView&,
+                                     GrDstSampleType dstSampleType) {}
 
 void GrDrawAtlasPathOp::onPrepare(GrOpFlushState* state) {
     size_t instanceStride = Instance::Stride(fUsesLocalCoords);
@@ -169,6 +169,7 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
     }
     initArgs.fCaps = &state->caps();
     initArgs.fDstProxyView = state->drawOpArgs().dstProxyView();
+    initArgs.fDstSampleType = state->drawOpArgs().dstSampleType();
     initArgs.fWriteSwizzle = state->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), state->detachAppliedClip());
 

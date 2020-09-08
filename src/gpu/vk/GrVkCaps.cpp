@@ -1627,6 +1627,13 @@ GrSwizzle GrVkCaps::getWriteSwizzle(const GrBackendFormat& format, GrColorType c
     return {};
 }
 
+GrDstSampleType GrVkCaps::onGetDstSampleTypeForProxy(const GrRenderTargetProxy* rt) const {
+    if (rt->supportsVkInputAttachment()) {
+        return GrDstSampleType::kAsInputAttachment;
+    }
+    return GrDstSampleType::kAsTextureCopy;
+}
+
 uint64_t GrVkCaps::computeFormatKey(const GrBackendFormat& format) const {
     VkFormat vkFormat;
     SkAssertResult(format.asVkFormat(&vkFormat));
@@ -1728,10 +1735,9 @@ GrProgramDesc GrVkCaps::makeDesc(GrRenderTarget* rt, const GrProgramInfo& progra
     // GrVkPipelineStateBuilder.cpp).
     b.add32(GrVkGpu::kShader_PersistentCacheKeyType);
 
-    // Currently we only support blend barriers with the advanced blend function. Thus we pass in
-    // nullptr for the texture.
-    auto barrierType = programInfo.pipeline().xferBarrierType(nullptr, *this);
-    bool usesXferBarriers = barrierType == kBlend_GrXferBarrierType;
+    auto barrierType = programInfo.pipeline().xferBarrierType(*this);
+    bool usesXferBarriers = barrierType == kBlend_GrXferBarrierType ||
+                            barrierType == kTexture_GrXferBarrierType;
 
     if (rt) {
         GrVkRenderTarget* vkRT = (GrVkRenderTarget*) rt;
