@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42c340b8_979f66ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-08T18:20:49Z",
+      "side": 1,
+      "message": "I guess I can\u0027t break the big CL up into smaller parts.",
+      "revId": "f5952f19e3ebc22ec8cd08804bab8708c10d1af5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
