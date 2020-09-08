@@ -265,7 +265,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
     switch (kind) {
         case Rehydrator::kEnum_Command: {
             StringFragment typeName = this->readString();
-            std::shared_ptr<SymbolTable> symbols = this->symbolTable();
+            std::shared_ptr<SymbolTable> symbols = this->symbolTable(/*inherit=*/false);
             for (auto& s : symbols->fOwnedSymbols) {
                 SkASSERT(s->fKind == Symbol::kVariable_Kind);
                 Variable& v = (Variable&) *s;
@@ -560,15 +560,15 @@ std::unique_ptr<Expression> Rehydrator::expression() {
     }
 }
 
-std::shared_ptr<SymbolTable> Rehydrator::symbolTable() {
+std::shared_ptr<SymbolTable> Rehydrator::symbolTable(bool inherit) {
     int command = this->readU8();
     if (command == kVoid_Command) {
         return nullptr;
     }
     SkASSERT(command == kSymbolTable_Command);
     uint16_t ownedCount = this->readU16();
-    std::shared_ptr<SymbolTable> result(new SymbolTable(fSymbolTable));
-    fSymbolTable = result;
+    std::shared_ptr<SymbolTable> table(inherit ? new SymbolTable(fSymbolTable)
+                                               : new SymbolTable(fErrors));
     std::vector<const Symbol*> ownedSymbols;
     ownedSymbols.reserve(ownedCount);
     for (int i = 0; i < ownedCount; ++i) {
@@ -580,10 +580,9 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable() {
     for (int i = 0; i < symbolCount; ++i) {
         StringFragment name = this->readString();
         int index = this->readU16();
-        fSymbolTable->addWithoutOwnership(name, ownedSymbols[index]);
+        table->addWithoutOwnership(name, ownedSymbols[index]);
     }
-    fSymbolTable = fSymbolTable->fParent;
-    return result;
+    return table;
 }
 
 }  // namespace SkSL

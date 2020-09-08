@@ -1263,7 +1263,8 @@ void IRGenerator::convertEnum(const ASTNode& e) {
                      ASTNode::TypeData(e.getString(), false, false));
     const Type* type = this->convertType(enumType);
     Modifiers modifiers(layout, Modifiers::kConst_Flag);
-    AutoSymbolTable table(this);
+    std::shared_ptr<SymbolTable> oldTable = fSymbolTable;
+    fSymbolTable.reset(new SymbolTable(&fErrors));
     for (auto iter = e.begin(); iter != e.end(); ++iter) {
         const ASTNode& child = *iter;
         SkASSERT(child.fKind == ASTNode::Kind::kEnumCase);
@@ -1271,10 +1272,12 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         if (child.begin() != child.end()) {
             value = this->convertExpression(*child.begin());
             if (!value) {
+                fSymbolTable = oldTable;
                 return;
             }
             if (!this->getConstantInt(*value, &currentValue)) {
                 fErrors.error(value->fOffset, "enum value must be a constant integer");
+                fSymbolTable = oldTable;
                 return;
             }
         }
@@ -1287,6 +1290,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     }
     fProgramElements->push_back(std::unique_ptr<ProgramElement>(
             new Enum(e.fOffset, e.getString(), fSymbolTable, fIsBuiltinCode)));
+    fSymbolTable = oldTable;
 }
 
 const Type* IRGenerator::convertType(const ASTNode& type) {
