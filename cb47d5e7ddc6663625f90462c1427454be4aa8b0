@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "29c484c5_82cb3732",
+        "filename": "src/sksl/ir/SkSLProgramElement.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-08T12:46:12Z",
+      "side": 1,
+      "message": "In each of these constructors (Statement/Expression/PE), maybe just add:\nSkASSERT(kind \u003e\u003d Kind::kFirst \u0026\u0026 kind \u003c\u003d Kind::kLast), as an extra guard (if someone forgets to update those markers when adding a new one)?",
+      "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
