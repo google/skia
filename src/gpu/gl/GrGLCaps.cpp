@@ -49,7 +49,8 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fRGBA8888PixelsOpsAreSlow = false;
     fPartialFBOReadIsSlow = false;
     fBindUniformLocationSupport = false;
-    fMipmapLevelAndLodControlSupport = false;
+    fMipmapLevelControlSupport = false;
+    fMipmapLodControlSupport = false;
     fRGBAToBGRAReadbackConversionsAreSlow = false;
     fUseBufferDataNullHint = false;
     fDoManualMipmapping = false;
@@ -277,10 +278,12 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } // no WebGL support
 
     if (GR_IS_GR_GL(standard)) {
-        fMipmapLevelAndLodControlSupport = true;
+        fMipmapLevelControlSupport = true;
+        fMipmapLodControlSupport = true;
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (version >= GR_GL_VER(3,0)) {
-            fMipmapLevelAndLodControlSupport = true;
+            fMipmapLevelControlSupport = true;
+            fMipmapLodControlSupport = true;
         }
     } // no WebGL support
 
@@ -3605,11 +3608,23 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     static constexpr bool isMAC = false;
 #endif
 
+#ifdef SK_BUILD_FOR_ANDROID
+    // Older versions of Android have problems with setting GL_TEXTURE_BASE_LEVEL or
+    // GL_TEXTURE_MAX_LEVEL on GL_TEXTURE_EXTERTNAL_OES textures. We just leave them as is and hope
+    // the client never changes them either.
+    fDontSetBaseOrMaxLevelForExternalTextures = true;
+    // PowerVR can crash setting the levels on Android up to Q for any texture?
+    // https://crbug.com/1123874
+    if (ctxInfo.vendor() == kImagination_GrGLVendor) {
+        fMipmapLevelControlSupport =  false;
+    }
+#endif
+
     // We support manual mip-map generation (via iterative downsampling draw calls). This fixes
     // bugs on some cards/drivers that produce incorrect mip-maps for sRGB textures when using
     // glGenerateMipmap. Our implementation requires mip-level sampling control. Additionally,
     // it can be much slower (especially on mobile GPUs), so we opt-in only when necessary:
-    if (fMipmapLevelAndLodControlSupport &&
+    if (fMipmapLevelControlSupport &&
         (contextOptions.fDoManualMipmapping ||
          (kIntel_GrGLVendor == ctxInfo.vendor()) ||
          (kNVIDIA_GrGLDriver == ctxInfo.driver() && isMAC) ||
@@ -3911,13 +3926,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
-#ifdef SK_BUILD_FOR_ANDROID
-    // Older versions of Android have problems with setting GL_TEXTURE_BASE_LEVEL or
-    // GL_TEXTURE_MAX_LEVEL on GL_TEXTURE_EXTERTNAL_OES textures. We just leave them as is and hope
-    // the client never changes them either.
-    fDontSetBaseOrMaxLevelForExternalTextures = true;
-#endif
-
     // PowerVRGX6250 drops every pixel if we modify the sample mask while color writes are disabled.
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
         fNeverDisableColorWrites = true;
@@ -4056,9 +4064,6 @@ void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fDontSetBaseOrMaxLevelForExternalTextures);
         SkASSERT(!fNeverDisableColorWrites);
         SkASSERT(!fShaderCaps->fCanOnlyUseSampleMaskWithStencil);
-    }
-    if (options.fDoManualMipmapping) {
-        fDoManualMipmapping = true;
     }
     if (options.fShaderCacheStrategy < GrContextOptions::ShaderCacheStrategy::kBackendBinary) {
         fProgramBinarySupport = false;

@@ -341,7 +341,11 @@ public:
     /// Are textures with GL_TEXTURE_RECTANGLE type supported.
     bool rectangleTextureSupport() const { return fRectangleTextureSupport; }
 
-    bool mipmapLevelAndLodControlSupport() const { return fMipmapLevelAndLodControlSupport; }
+    /// Can set the BASE and MAX mip map level.
+    bool mipmapLevelControlSupport() const { return fMipmapLevelControlSupport; }
+
+    /// Can set the MIN/MAX LOD value.
+    bool mipmapLodControlSupport() const { return fMipmapLodControlSupport; }
 
     bool doManualMipmapping() const { return fDoManualMipmapping; }
 
@@ -543,7 +547,8 @@ private:
     bool fPartialFBOReadIsSlow : 1;
     bool fBindUniformLocationSupport : 1;
     bool fRectangleTextureSupport : 1;
-    bool fMipmapLevelAndLodControlSupport : 1;
+    bool fMipmapLevelControlSupport : 1;
+    bool fMipmapLodControlSupport : 1;
     bool fRGBAToBGRAReadbackConversionsAreSlow : 1;
     bool fUseBufferDataNullHint                : 1;
     bool fClearTextureSupport : 1;
