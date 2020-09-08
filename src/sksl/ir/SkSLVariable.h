@@ -23,7 +23,7 @@ struct Expression;
  * read or write that storage location.
  */
 struct Variable : public Symbol {
-    static constexpr Kind kSymbolKind = kVariable_Kind;
+    static constexpr Kind kSymbolKind = Kind::kVariable;
 
     enum Storage {
         kGlobal_Storage,

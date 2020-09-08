@@ -18,8 +18,9 @@ namespace SkSL {
  * version of the program (all types determined, everything validated), ready for code generation.
  */
 struct IRNode {
-    IRNode(int offset)
-    : fOffset(offset) {}
+    IRNode(int offset, int kind)
+    : fOffset(offset)
+    , fKind(kind) {}
 
     virtual ~IRNode() {}
 
@@ -28,6 +29,9 @@ struct IRNode {
     // character offset of this element within the program being compiled, for error reporting
     // purposes
     int fOffset;
+
+protected:
+    int fKind;
 };
 
 }  // namespace SkSL

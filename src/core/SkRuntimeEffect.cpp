@@ -155,7 +155,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     // Go through program elements, pulling out information that we need
     for (const auto& elem : *program) {
         // Variables (uniform, varying, etc.)
-        if (elem.fKind == SkSL::ProgramElement::kVar_Kind) {
+        if (elem.kind() == SkSL::ProgramElement::Kind::kVar) {
             const auto& varDecls = static_cast<const SkSL::VarDeclarations&>(elem);
             for (const auto& varDecl : varDecls.fVars) {
                 const SkSL::Variable& var =
@@ -163,9 +163,10 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 
                 // Varyings (only used in conjunction with drawVertices)
                 if (var.fModifiers.fFlags & SkSL::Modifiers::kVarying_Flag) {
-                    varyings.push_back({var.fName, var.fType.kind() == SkSL::Type::kVector_Kind
-                                                           ? var.fType.columns()
-                                                           : 1});
+                    varyings.push_back({var.fName,
+                                       var.fType.typeKind() == SkSL::Type::TypeKind::kVector
+                                               ? var.fType.columns()
+                                               : 1});
                 }
                 // Fragment Processors (aka 'shader'): These are child effects
                 else if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
@@ -180,7 +181,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                     uni.fCount = 1;
 
                     const SkSL::Type* type = &var.fType;
-                    if (type->kind() == SkSL::Type::kArray_Kind) {
+                    if (type->typeKind() == SkSL::Type::TypeKind::kArray) {
                         uni.fFlags |= Uniform::kArray_Flag;
                         uni.fCount = type->columns();
                         type = &type->componentType();
@@ -213,7 +214,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             }
         }
         // Functions
-        else if (elem.fKind == SkSL::ProgramElement::kFunction_Kind) {
+        else if (elem.kind() == SkSL::ProgramElement::Kind::kFunction) {
             const auto& func = static_cast<const SkSL::FunctionDefinition&>(elem);
             const SkSL::FunctionDeclaration& decl = func.fDeclaration;
             if (decl.fName == "main") {

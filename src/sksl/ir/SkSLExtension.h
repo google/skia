@@ -16,7 +16,7 @@ namespace SkSL {
  * An extension declaration.
  */
 struct Extension : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kExtension_Kind;
+    static constexpr Kind kProgramElementKind = Kind::kExtension;
 
     Extension(int offset, String name)
     : INHERITED(offset, kProgramElementKind)

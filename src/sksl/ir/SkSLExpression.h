@@ -8,6 +8,7 @@
 #ifndef SKSL_EXPRESSION
 #define SKSL_EXPRESSION
 
+#include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <unordered_map>
@@ -24,27 +25,30 @@ typedef std::unordered_map<const Variable*, std::unique_ptr<Expression>*> Defini
  * Abstract supertype of all expressions.
  */
 struct Expression : public IRNode {
-    enum Kind {
-        kBinary_Kind,
-        kBoolLiteral_Kind,
-        kConstructor_Kind,
-        kExternalFunctionCall_Kind,
-        kExternalValue_Kind,
-        kIntLiteral_Kind,
-        kFieldAccess_Kind,
-        kFloatLiteral_Kind,
-        kFunctionReference_Kind,
-        kFunctionCall_Kind,
-        kIndex_Kind,
-        kNullLiteral_Kind,
-        kPrefix_Kind,
-        kPostfix_Kind,
-        kSetting_Kind,
-        kSwizzle_Kind,
-        kTernary_Kind,
-        kTypeReference_Kind,
-        kVariableReference_Kind,
-        kDefined_Kind
+    enum class Kind {
+        kBinary = (int) Statement::Kind::kLast + 1,
+        kBoolLiteral,
+        kConstructor,
+        kDefined,
+        kExternalFunctionCall,
+        kExternalValue,
+        kIntLiteral,
+        kFieldAccess,
+        kFloatLiteral,
+        kFunctionReference,
+        kFunctionCall,
+        kIndex,
+        kNullLiteral,
+        kPrefix,
+        kPostfix,
+        kSetting,
+        kSwizzle,
+        kTernary,
+        kTypeReference,
+        kVariableReference,
+
+        kFirst = kBinary,
+        kLast = kVariableReference
     };
 
     enum class Property {
@@ -53,9 +57,15 @@ struct Expression : public IRNode {
     };
 
     Expression(int offset, Kind kind, const Type& type)
-    : INHERITED(offset)
-    , fKind(kind)
-    , fType(std::move(type)) {}
+    : INHERITED(offset, (int) kind)
+    , fType(std::move(type)) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
+
+    Kind kind() const {
+        return (Kind) fKind;
+    }
 
     /**
      *  Use is<T> to check the type of an expression.
@@ -63,7 +73,7 @@ struct Expression : public IRNode {
      */
     template <typename T>
     bool is() const {
-        return this->fKind == T::kExpressionKind;
+        return this->kind() == T::kExpressionKind;
     }
 
     /**
@@ -179,7 +189,6 @@ struct Expression : public IRNode {
 
     virtual std::unique_ptr<Expression> clone() const = 0;
 
-    const Kind fKind;
     const Type& fType;
 
     using INHERITED = IRNode;

@@ -64,8 +64,8 @@ static int count_all_returns(const FunctionDefinition& funcDef) {
         }
 
         bool visitStatement(const Statement& stmt) override {
-            switch (stmt.fKind) {
-                case Statement::kReturn_Kind:
+            switch (stmt.kind()) {
+                case Statement::Kind::kReturn:
                     ++fNumReturns;
                     [[fallthrough]];
 
@@ -89,21 +89,21 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
         }
 
         bool visitStatement(const Statement& stmt) override {
-            switch (stmt.fKind) {
-                case Statement::kBlock_Kind: {
+            switch (stmt.kind()) {
+                case Statement::Kind::kBlock: {
                     // Check only the last statement of a block.
                     const auto& blockStmts = stmt.as<Block>().fStatements;
                     return (blockStmts.size() > 0) ? this->visitStatement(*blockStmts.back())
                                                    : false;
                 }
-                case Statement::kSwitch_Kind:
-                case Statement::kWhile_Kind:
-                case Statement::kDo_Kind:
-                case Statement::kFor_Kind:
+                case Statement::Kind::kSwitch:
+                case Statement::Kind::kWhile:
+                case Statement::Kind::kDo:
+                case Statement::Kind::kFor:
                     // Don't introspect switches or loop structures at all.
                     return false;
 
-                case Statement::kReturn_Kind:
+                case Statement::Kind::kReturn:
                     ++fNumReturns;
                     [[fallthrough]];
 
@@ -127,18 +127,18 @@ static int count_returns_in_breakable_constructs(const FunctionDefinition& funcD
         }
 
         bool visitStatement(const Statement& stmt) override {
-            switch (stmt.fKind) {
-                case Statement::kSwitch_Kind:
-                case Statement::kWhile_Kind:
-                case Statement::kDo_Kind:
-                case Statement::kFor_Kind: {
+            switch (stmt.kind()) {
+                case Statement::Kind::kSwitch:
+                case Statement::Kind::kWhile:
+                case Statement::Kind::kDo:
+                case Statement::Kind::kFor: {
                     ++fInsideBreakableConstruct;
                     bool result = this->INHERITED::visitStatement(stmt);
                     --fInsideBreakableConstruct;
                     return result;
                 }
 
-                case Statement::kReturn_Kind:
+                case Statement::Kind::kReturn:
                     fNumReturns += (fInsideBreakableConstruct > 0) ? 1 : 0;
                     [[fallthrough]];
 
@@ -166,7 +166,7 @@ static bool has_early_return(const FunctionDefinition& funcDef) {
 }
 
 static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
-    if (src->kind() == Type::kArray_Kind) {
+    if (src->typeKind() == Type::TypeKind::kArray) {
         return symbolTable.takeOwnershipOfSymbol(std::make_unique<Type>(*src));
     }
     return src;
@@ -199,8 +199,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         return args;
     };
 
-    switch (expression.fKind) {
-        case Expression::kBinary_Kind: {
+    switch (expression.kind()) {
+        case Expression::Kind::kBinary: {
             const BinaryExpression& b = expression.as<BinaryExpression>();
             return std::make_unique<BinaryExpression>(offset,
                                                       expr(b.fLeft),
@@ -208,59 +208,59 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
                                                       expr(b.fRight),
                                                       b.fType);
         }
-        case Expression::kBoolLiteral_Kind:
-        case Expression::kIntLiteral_Kind:
-        case Expression::kFloatLiteral_Kind:
-        case Expression::kNullLiteral_Kind:
+        case Expression::Kind::kBoolLiteral:
+        case Expression::Kind::kIntLiteral:
+        case Expression::Kind::kFloatLiteral:
+        case Expression::Kind::kNullLiteral:
             return expression.clone();
-        case Expression::kConstructor_Kind: {
+        case Expression::Kind::kConstructor: {
             const Constructor& constructor = expression.as<Constructor>();
             return std::make_unique<Constructor>(offset, constructor.fType,
                                                  argList(constructor.fArguments));
         }
-        case Expression::kExternalFunctionCall_Kind: {
+        case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
             return std::make_unique<ExternalFunctionCall>(offset, externalCall.fType,
                                                           externalCall.fFunction,
                                                           argList(externalCall.fArguments));
         }
-        case Expression::kExternalValue_Kind:
+        case Expression::Kind::kExternalValue:
             return expression.clone();
-        case Expression::kFieldAccess_Kind: {
+        case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = expression.as<FieldAccess>();
             return std::make_unique<FieldAccess>(expr(f.fBase), f.fFieldIndex, f.fOwnerKind);
         }
-        case Expression::kFunctionCall_Kind: {
+        case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
             return std::make_unique<FunctionCall>(offset, funcCall.fType, funcCall.fFunction,
                                                   argList(funcCall.fArguments));
         }
-        case Expression::kFunctionReference_Kind:
+        case Expression::Kind::kFunctionReference:
             return expression.clone();
-        case Expression::kIndex_Kind: {
+        case Expression::Kind::kIndex: {
             const IndexExpression& idx = expression.as<IndexExpression>();
             return std::make_unique<IndexExpression>(*fContext, expr(idx.fBase), expr(idx.fIndex));
         }
-        case Expression::kPrefix_Kind: {
+        case Expression::Kind::kPrefix: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
             return std::make_unique<PrefixExpression>(p.fOperator, expr(p.fOperand));
         }
-        case Expression::kPostfix_Kind: {
+        case Expression::Kind::kPostfix: {
             const PostfixExpression& p = expression.as<PostfixExpression>();
             return std::make_unique<PostfixExpression>(expr(p.fOperand), p.fOperator);
         }
-        case Expression::kSetting_Kind:
+        case Expression::Kind::kSetting:
             return expression.clone();
-        case Expression::kSwizzle_Kind: {
+        case Expression::Kind::kSwizzle: {
             const Swizzle& s = expression.as<Swizzle>();
             return std::make_unique<Swizzle>(*fContext, expr(s.fBase), s.fComponents);
         }
-        case Expression::kTernary_Kind: {
+        case Expression::Kind::kTernary: {
             const TernaryExpression& t = expression.as<TernaryExpression>();
             return std::make_unique<TernaryExpression>(offset, expr(t.fTest),
                                                        expr(t.fIfTrue), expr(t.fIfFalse));
         }
-        case Expression::kVariableReference_Kind: {
+        case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
             auto found = varMap->find(&v.fVariable);
             if (found != varMap->end()) {
@@ -300,26 +300,26 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         return nullptr;
     };
-    switch (statement.fKind) {
-        case Statement::kBlock_Kind: {
+    switch (statement.kind()) {
+        case Statement::Kind::kBlock: {
             const Block& b = statement.as<Block>();
             return std::make_unique<Block>(offset, stmts(b.fStatements), b.fSymbols, b.fIsScope);
         }
 
-        case Statement::kBreak_Kind:
-        case Statement::kContinue_Kind:
-        case Statement::kDiscard_Kind:
+        case Statement::Kind::kBreak:
+        case Statement::Kind::kContinue:
+        case Statement::Kind::kDiscard:
             return statement.clone();
 
-        case Statement::kDo_Kind: {
+        case Statement::Kind::kDo: {
             const DoStatement& d = statement.as<DoStatement>();
             return std::make_unique<DoStatement>(offset, stmt(d.fStatement), expr(d.fTest));
         }
-        case Statement::kExpression_Kind: {
+        case Statement::Kind::kExpression: {
             const ExpressionStatement& e = statement.as<ExpressionStatement>();
             return std::make_unique<ExpressionStatement>(expr(e.fExpression));
         }
-        case Statement::kFor_Kind: {
+        case Statement::Kind::kFor: {
             const ForStatement& f = statement.as<ForStatement>();
             // need to ensure initializer is evaluated first so that we've already remapped its
             // declarations by the time we evaluate test & next
@@ -327,14 +327,14 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             return std::make_unique<ForStatement>(offset, std::move(initializer), expr(f.fTest),
                                                   expr(f.fNext), stmt(f.fStatement), f.fSymbols);
         }
-        case Statement::kIf_Kind: {
+        case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
             return std::make_unique<IfStatement>(offset, i.fIsStatic, expr(i.fTest),
                                                  stmt(i.fIfTrue), stmt(i.fIfFalse));
         }
-        case Statement::kNop_Kind:
+        case Statement::Kind::kNop:
             return statement.clone();
-        case Statement::kReturn_Kind: {
+        case Statement::Kind::kReturn: {
             const ReturnStatement& r = statement.as<ReturnStatement>();
             if (r.fExpression) {
                 auto assignment = std::make_unique<ExpressionStatement>(
@@ -362,7 +362,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                 }
             }
         }
-        case Statement::kSwitch_Kind: {
+        case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
             std::vector<std::unique_ptr<SwitchCase>> cases;
             for (const auto& sc : ss.fCases) {
@@ -372,7 +372,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             return std::make_unique<SwitchStatement>(offset, ss.fIsStatic, expr(ss.fValue),
                                                      std::move(cases), ss.fSymbols);
         }
-        case Statement::kVarDeclaration_Kind: {
+        case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             std::vector<std::unique_ptr<Expression>> sizes;
             for (const auto& size : decl.fSizes) {
@@ -396,7 +396,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             return std::make_unique<VarDeclaration>(clone, std::move(sizes),
                                                     std::move(initialValue));
         }
-        case Statement::kVarDeclarations_Kind: {
+        case Statement::Kind::kVarDeclarations: {
             const VarDeclarations& decls = *statement.as<VarDeclarationsStatement>().fDeclaration;
             std::vector<std::unique_ptr<VarDeclaration>> vars;
             for (const auto& var : decls.fVars) {
@@ -406,7 +406,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             return std::unique_ptr<Statement>(new VarDeclarationsStatement(
                     std::make_unique<VarDeclarations>(offset, typePtr, std::move(vars))));
         }
-        case Statement::kWhile_Kind: {
+        case Statement::Kind::kWhile: {
             const WhileStatement& w = statement.as<WhileStatement>();
             return std::make_unique<WhileStatement>(offset, expr(w.fTest), stmt(w.fStatement));
         }
@@ -508,7 +508,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
 
-        if (arguments[i]->fKind == Expression::kVariableReference_Kind) {
+        if (arguments[i]->kind() == Expression::Kind::kVariableReference) {
             // The argument is just a variable, so we only need to copy it if it's an out parameter
             // or it's written to within the function.
             if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
@@ -549,7 +549,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         const Variable* p = function.fDeclaration.fParameters[i];
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
             SkASSERT(varMap.find(p) != varMap.end());
-            if (arguments[i]->fKind == Expression::kVariableReference_Kind &&
+            if (arguments[i]->kind() == Expression::Kind::kVariableReference &&
                 &arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
                 // We didn't create a temporary for this parameter, so there's nothing to copy back
                 // out.

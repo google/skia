@@ -16,7 +16,7 @@ namespace SkSL {
  * A section declaration (e.g. @body { body code here })..
  */
 struct Section : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kSection_Kind;
+    static constexpr Kind kProgramElementKind = Kind::kSection;
 
     Section(int offset, String name, String arg, String text)
     : INHERITED(offset, kProgramElementKind)

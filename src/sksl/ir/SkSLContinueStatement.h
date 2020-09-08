@@ -17,7 +17,7 @@ namespace SkSL {
  * A 'continue' statement.
  */
 struct ContinueStatement : public Statement {
-    static constexpr Kind kStatementKind = kContinue_Kind;
+    static constexpr Kind kStatementKind = Kind::kContinue;
 
     ContinueStatement(int offset)
     : INHERITED(offset, kStatementKind) {}

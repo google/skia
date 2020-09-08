@@ -17,7 +17,7 @@ namespace SkSL {
  * A lone expression being used as a statement.
  */
 struct ExpressionStatement : public Statement {
-    static constexpr Kind kStatementKind = kExpression_Kind;
+    static constexpr Kind kStatementKind = Kind::kExpression;
 
     ExpressionStatement(std::unique_ptr<Expression> expression)
     : INHERITED(expression->fOffset, kStatementKind)

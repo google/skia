@@ -19,7 +19,7 @@ namespace SkSL {
  * always eventually replaced by FunctionCalls in valid programs.
  */
 struct FunctionReference : public Expression {
-    static constexpr Kind kExpressionKind = kFunctionReference_Kind;
+    static constexpr Kind kExpressionKind = Kind::kFunctionReference;
 
     FunctionReference(const Context& context, int offset,
                       std::vector<const FunctionDeclaration*> function)

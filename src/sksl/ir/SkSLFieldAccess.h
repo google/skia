@@ -24,7 +24,7 @@ struct FieldAccess : public Expression {
         kAnonymousInterfaceBlock_OwnerKind
     };
 
-    static constexpr Kind kExpressionKind = kFieldAccess_Kind;
+    static constexpr Kind kExpressionKind = Kind::kFieldAccess;
 
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
                 OwnerKind ownerKind = kDefault_OwnerKind)

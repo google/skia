@@ -17,7 +17,7 @@ namespace SkSL {
  * Represents 'null'.
  */
 struct NullLiteral : public Expression {
-    static constexpr Kind kExpressionKind = kNullLiteral_Kind;
+    static constexpr Kind kExpressionKind = Kind::kNullLiteral;
 
     NullLiteral(const Context& context, int offset)
     : INHERITED(offset, kExpressionKind, *context.fNull_Type) {}

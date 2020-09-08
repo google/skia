@@ -54,21 +54,21 @@ void VariableReference::setRefKind(RefKind refKind) {
 std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& irGenerator,
                                                              const Expression* expr) {
     SkASSERT(expr->isCompileTimeConstant());
-    switch (expr->fKind) {
-        case Expression::kIntLiteral_Kind:
+    switch (expr->kind()) {
+        case Expression::Kind::kIntLiteral:
             return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
                                                               -1,
                                                               ((IntLiteral*) expr)->fValue));
-        case Expression::kFloatLiteral_Kind:
+        case Expression::Kind::kFloatLiteral:
             return std::unique_ptr<Expression>(new FloatLiteral(
                                                                irGenerator.fContext,
                                                                -1,
                                                                ((FloatLiteral*) expr)->fValue));
-        case Expression::kBoolLiteral_Kind:
+        case Expression::Kind::kBoolLiteral:
             return std::unique_ptr<Expression>(new BoolLiteral(irGenerator.fContext,
                                                                -1,
                                                                ((BoolLiteral*) expr)->fValue));
-        case Expression::kConstructor_Kind: {
+        case Expression::Kind::kConstructor: {
             const Constructor* c = (const Constructor*) expr;
             std::vector<std::unique_ptr<Expression>> args;
             for (const auto& arg : c->fArguments) {
@@ -77,7 +77,7 @@ std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& 
             return std::unique_ptr<Expression>(new Constructor(-1, c->fType,
                                                                std::move(args)));
         }
-        case Expression::kSetting_Kind: {
+        case Expression::Kind::kSetting: {
             const Setting* s = (const Setting*) expr;
             return std::unique_ptr<Expression>(new Setting(-1, s->fName,
                                                            copy_constant(irGenerator,
@@ -94,7 +94,8 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
         return nullptr;
     }
     if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
-        fVariable.fInitialValue->isCompileTimeConstant() && fType.kind() != Type::kArray_Kind) {
+        fVariable.fInitialValue->isCompileTimeConstant() &&
+        fType.typeKind() != Type::TypeKind::kArray) {
         return copy_constant(irGenerator, fVariable.fInitialValue);
     }
     auto exprIter = definitions.find(&fVariable);

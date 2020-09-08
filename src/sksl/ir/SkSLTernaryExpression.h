@@ -17,7 +17,7 @@ namespace SkSL {
  * A ternary expression (test ? ifTrue : ifFalse).
  */
 struct TernaryExpression : public Expression {
-    static constexpr Kind kExpressionKind = kTernary_Kind;
+    static constexpr Kind kExpressionKind = Kind::kTernary;
 
     TernaryExpression(int offset, std::unique_ptr<Expression> test,
                       std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)

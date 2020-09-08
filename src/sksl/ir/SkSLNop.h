@@ -17,7 +17,7 @@ namespace SkSL {
  * A no-op statement that does nothing.
  */
 struct Nop : public Statement {
-    static constexpr Kind kStatementKind = kNop_Kind;
+    static constexpr Kind kStatementKind = Kind::kNop;
 
     Nop()
     : INHERITED(-1, kStatementKind) {}
