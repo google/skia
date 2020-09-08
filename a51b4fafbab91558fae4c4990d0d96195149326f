@@ -46,6 +46,30 @@
       "revId": "a51b4fafbab91558fae4c4990d0d96195149326f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebf0d8e8_635c4ead",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-08T17:30:27Z",
+      "side": 1,
+      "message": "Yeah, I think this can just go away. The enum type is in the outer symbol table, and references to enum values are resolved (in the IR) via descending into the enum node, then looking up in that node\u0027s symbol table. (It\u0027s treated as a \"field\" reference).",
+      "parentUuid": "e5d54fd5_74de194a",
+      "range": {
+        "startLine": 680,
+        "startChar": 0,
+        "endLine": 683,
+        "endChar": 74
+      },
+      "revId": "a51b4fafbab91558fae4c4990d0d96195149326f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
