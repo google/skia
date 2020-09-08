@@ -84,7 +84,7 @@ public:
     void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
 
     void format(TextAlign align, SkScalar maxWidth);
-    SkRect paint(SkCanvas* canvas);
+    SkRect paint(SkCanvas* canvas, SkScalar x, SkScalar y);
 
     void createEllipsis(SkScalar maxWidth, const SkString& ellipsis, bool ltr);
 
@@ -121,10 +121,10 @@ private:
     std::unique_ptr<Run> shapeEllipsis(const SkString& ellipsis, Run* run);
     void justify(SkScalar maxWidth);
 
-    SkRect paintText(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintBackground(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    SkRect paintShadow(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
-    void paintDecorations(SkCanvas* canvas, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintText(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintBackground(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    SkRect paintShadow(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
+    void paintDecorations(SkCanvas* canvas, SkScalar x, SkScalar y, TextRange textRange, const TextStyle& style, const ClipContext& context) const;
 
     void shiftCluster(const Cluster* cluster, SkScalar shift, SkScalar prevShift);
 

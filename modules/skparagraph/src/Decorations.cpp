@@ -20,7 +20,7 @@ namespace skia {
 namespace textlayout {
 
 static const float kDoubleDecorationSpacing = 3.0f;
-void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline, SkPoint offset) {
+void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const TextLine::ClipContext& context, SkScalar baseline) {
     if (textStyle.getDecorationType() == TextDecoration::kNoDecoration) {
         return;
     }

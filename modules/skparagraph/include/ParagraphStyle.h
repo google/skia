@@ -122,7 +122,7 @@ private:
     SkScalar fHeight;
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
-    DrawOptions fDrawingOptions = DrawOptions::kReplay;
+    DrawOptions fDrawingOptions = DrawOptions::kDirect;
 };
 }  // namespace textlayout
 }  // namespace skia
