@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "492a45c8_f8e6ac68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-08T19:55:21Z",
+      "side": 1,
+      "message": "So I remember now why I rolled my own rather than use ComPtr. The ComPtr raw pointer copy constructor doesn\u0027t take ownership of the pointer, it refs it. It\u0027s easy enough to work around, but it\u0027s a slightly different interface. I\u0027m leaning towards using it anyway with an \"When in Rome\" attitude, but\nwe\u0027d have to remember to be careful of that.",
+      "revId": "b24e85dc3a29346ec0982405a04c6b3429d45f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
