@@ -1,0 +1,31 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004815988",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/315217?revision\u003d11",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c9d91bb1_0dba63b4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 13155
+      },
+      "writtenOn": "2020-09-08T16:33:42Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027they\u0027, \u0027them\u0027, or \u0027person\u0027; see https://developers.google.com/style/word-list#gender for more details.",
+      "range": {
+        "startLine": 13,
+        "startChar": 31,
+        "endLine": 13,
+        "endChar": 34
+      },
+      "revId": "a77fa1e21218da60806e7a67c5ae6e3cad9d8ede",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
