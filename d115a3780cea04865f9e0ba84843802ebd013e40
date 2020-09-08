@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14f26738_3437144c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-08T14:41:29Z",
+      "side": 1,
+      "message": "I think there might be more issues here, the parser handling of this feels pretty loose. In any case, this makes the fuzzer shader not compile.",
+      "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
