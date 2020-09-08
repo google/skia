@@ -195,9 +195,9 @@ func (b *taskBuilder) usesCCache() {
 // usesGit adds attributes to tasks which use git.
 func (b *taskBuilder) usesGit() {
 	b.cache(CACHES_GIT...)
-	if b.matchOs("Win") {
+	if b.matchOs("Win") || b.matchExtraConfig("Win") {
 		b.cipd(specs.CIPD_PKGS_GIT_WINDOWS_AMD64...)
-	} else if b.matchOs("Mac") {
+	} else if b.matchOs("Mac") || b.matchExtraConfig("Mac") {
 		b.cipd(specs.CIPD_PKGS_GIT_MAC_AMD64...)
 	} else {
 		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
