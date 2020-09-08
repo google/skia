@@ -111,6 +111,30 @@
       "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dde14bc3_2c271335",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2633,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-08T15:07:09Z",
+      "side": 1,
+      "message": "This is a lookup *within the enum namespace*. I.e. when we\u0027re starting with \"someEnumName.\", the next symbol should be converted solely within the context of \"someEnumName\". It\u0027s not, currently - it\u0027s also able to see higher-level symbols.",
+      "parentUuid": "ec923d89_97a08a3a",
+      "range": {
+        "startLine": 2633,
+        "startChar": 26,
+        "endLine": 2633,
+        "endChar": 57
+      },
+      "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
