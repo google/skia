@@ -53,7 +53,7 @@ GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
     }
 
     GrD3DDescriptorHeap::CPUHandle view =
-            gpu->resourceProvider().createDepthStencilView(info.fResource.get());
+            gpu->resourceProvider().createDepthStencilView(info.fResource.Get());
 
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(info.fResourceState));
     GrD3DStencilAttachment* stencil = new GrD3DStencilAttachment(gpu, format, resourceDesc,
