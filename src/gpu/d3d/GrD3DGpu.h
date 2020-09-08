@@ -40,8 +40,8 @@ public:
 
     GrD3DResourceProvider& resourceProvider() { return fResourceProvider; }
 
-    ID3D12Device* device() const { return fDevice.get(); }
-    ID3D12CommandQueue* queue() const { return fQueue.get(); }
+    ID3D12Device* device() const { return fDevice.Get(); }
+    ID3D12CommandQueue* queue() const { return fQueue.Get(); }
 
     GrD3DDirectCommandList* currentCommandList() const { return fCurrentDirectCommandList.get(); }
 
@@ -258,14 +258,14 @@ private:
                                                 GrD3DTextureResourceInfo* info,
                                                 GrProtected isProtected);
 
-    gr_cp<ID3D12Device> fDevice;
-    gr_cp<ID3D12CommandQueue> fQueue;
+    ComPtr<ID3D12Device> fDevice;
+    ComPtr<ID3D12CommandQueue> fQueue;
 
     GrD3DResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
     GrRingBuffer fConstantsRingBuffer;
 
-    gr_cp<ID3D12Fence> fFence;
+    ComPtr<ID3D12Fence> fFence;
     uint64_t fCurrentFenceValue = 0;
 
     std::unique_ptr<GrD3DDirectCommandList> fCurrentDirectCommandList;

@@ -45,9 +45,9 @@ private:
 
     sk_sp<GrD3DPipelineState> finalize();
 
-    bool loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID3DBlob> shaders[]);
+    bool loadHLSLFromCache(SkReadBuffer* reader, ComPtr<ID3DBlob> shaders[]);
 
-    gr_cp<ID3DBlob> compileD3DProgram(SkSL::Program::Kind kind,
+    ComPtr<ID3DBlob> compileD3DProgram(SkSL::Program::Kind kind,
                                       const SkSL::String& sksl,
                                       const SkSL::Program::Settings& settings,
                                       SkSL::Program::Inputs* outInputs,

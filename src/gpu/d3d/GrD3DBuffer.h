@@ -23,13 +23,13 @@ public:
 
     ID3D12Resource* d3dResource() const {
         SkASSERT(fD3DResource);
-        return fD3DResource.get();
+        return fD3DResource.Get();
     }
 
     void setResourceState(const GrD3DGpu* gpu, D3D12_RESOURCE_STATES newResourceState);
 
 protected:
-    GrD3DBuffer(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern, gr_cp<ID3D12Resource>,
+    GrD3DBuffer(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern, ComPtr<ID3D12Resource>,
                 D3D12_RESOURCE_STATES);
 
     void onAbandon() override;
@@ -52,7 +52,7 @@ private:
         return reinterpret_cast<GrD3DGpu*>(this->getGpu());
     }
 
-    gr_cp<ID3D12Resource> fD3DResource;
+    ComPtr<ID3D12Resource> fD3DResource;
     ID3D12Resource* fStagingBuffer = nullptr;
     size_t fStagingOffset = 0;
 
