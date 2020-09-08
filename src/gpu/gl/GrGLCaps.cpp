@@ -717,8 +717,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_WEBGL(standard)) {
         fSamplerObjectSupport = version >= GR_GL_VER(2,0);
     }
-    // Use of sampler objects on ANGLE may harm performance.
-    fUseSamplerObjects = fSamplerObjectSupport && ctxInfo.driver() != kANGLE_GrGLDriver;
+    // We currently use sampler objects whenever they are available.
+    fUseSamplerObjects = fSamplerObjectSupport;
 
     if (GR_IS_GR_GL_ES(standard)) {
         fTiledRenderingSupport = ctxInfo.hasExtension("GL_QCOM_tiled_rendering");
