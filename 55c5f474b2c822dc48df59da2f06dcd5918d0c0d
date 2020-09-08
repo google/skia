@@ -104,6 +104,24 @@
       "revId": "55c5f474b2c822dc48df59da2f06dcd5918d0c0d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5ea03c37_7853900a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-08T15:58:42Z",
+      "side": 1,
+      "message": "I\u0027m talking about timing what we do, regardless of flutter\u0027s outer heuristics.\n\ntime: layout\ntime: drawing\netc.",
+      "parentUuid": "d8e556cf_a4d9d785",
+      "revId": "55c5f474b2c822dc48df59da2f06dcd5918d0c0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
