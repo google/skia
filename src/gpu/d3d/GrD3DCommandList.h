@@ -100,8 +100,8 @@ private:
     static const int kInitialTrackedResourcesCount = 32;
 
 protected:
-    GrD3DCommandList(gr_cp<ID3D12CommandAllocator> allocator,
-                     gr_cp<ID3D12GraphicsCommandList> commandList);
+    GrD3DCommandList(ComPtr<ID3D12CommandAllocator> allocator,
+                     ComPtr<ID3D12GraphicsCommandList> commandList);
 
     // Add ref-counted resource that will be tracked and released when this command buffer finishes
     // execution
@@ -123,7 +123,7 @@ protected:
 
     void submitResourceBarriers();
 
-    gr_cp<ID3D12GraphicsCommandList> fCommandList;
+    ComPtr<ID3D12GraphicsCommandList> fCommandList;
 
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrManagedResource>> fTrackedResources;
     SkSTArray<kInitialTrackedResourcesCount, sk_sp<GrRecycledResource>> fTrackedRecycledResources;
@@ -137,7 +137,7 @@ protected:
 private:
     void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
 
-    gr_cp<ID3D12CommandAllocator> fAllocator;
+    ComPtr<ID3D12CommandAllocator> fAllocator;
 
     SkSTArray<4, D3D12_RESOURCE_BARRIER> fResourceBarriers;
 
@@ -194,8 +194,8 @@ public:
     void addSampledTextureRef(GrD3DTexture*);
 
 private:
-    GrD3DDirectCommandList(gr_cp<ID3D12CommandAllocator> allocator,
-                           gr_cp<ID3D12GraphicsCommandList> commandList);
+    GrD3DDirectCommandList(ComPtr<ID3D12CommandAllocator> allocator,
+                           ComPtr<ID3D12GraphicsCommandList> commandList);
 
     void onReset() override;
 
@@ -219,7 +219,7 @@ public:
     static std::unique_ptr<GrD3DCopyCommandList> Make(ID3D12Device* device);
 
 private:
-    GrD3DCopyCommandList(gr_cp<ID3D12CommandAllocator> allocator,
-                         gr_cp<ID3D12GraphicsCommandList> commandList);
+    GrD3DCopyCommandList(ComPtr<ID3D12CommandAllocator> allocator,
+                         ComPtr<ID3D12GraphicsCommandList> commandList);
 };
 #endif

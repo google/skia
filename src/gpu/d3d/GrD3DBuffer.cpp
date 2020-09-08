@@ -16,7 +16,7 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-static gr_cp<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
+static ComPtr<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
                                               size_t size,
                                               GrGpuBufferType intendedType,
                                               GrAccessPattern accessPattern,
@@ -61,7 +61,7 @@ static gr_cp<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
     bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
     bufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
-    ID3D12Resource* resource;
+    ComPtr<ID3D12Resource> resource;
     HRESULT hr = gpu->device()->CreateCommittedResource(
             &heapProperties,
             D3D12_HEAP_FLAG_NONE,
@@ -73,7 +73,7 @@ static gr_cp<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
         return nullptr;
     }
 
-    return gr_cp<ID3D12Resource>(resource);
+    return resource;
 }
 
 sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
@@ -82,8 +82,8 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
     D3D12_RESOURCE_STATES resourceState;
 
 
-    gr_cp<ID3D12Resource> resource = make_d3d_buffer(gpu, size, intendedType, accessPattern,
-                                                     &resourceState);
+    ComPtr<ID3D12Resource> resource = make_d3d_buffer(gpu, size, intendedType, accessPattern,
+                                                      &resourceState);
     if (!resource) {
         return nullptr;
     }
@@ -93,7 +93,7 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
 }
 
 GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
-                         GrAccessPattern accessPattern, gr_cp<ID3D12Resource> bufferResource,
+                         GrAccessPattern accessPattern, ComPtr<ID3D12Resource> bufferResource,
                          D3D12_RESOURCE_STATES resourceState)
     : INHERITED(gpu, size, intendedType, accessPattern)
     , fResourceState(resourceState)

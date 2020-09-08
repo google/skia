@@ -17,15 +17,15 @@ std::unique_ptr<GrD3DDescriptorHeap> GrD3DDescriptorHeap::Make(GrD3DGpu* gpu,
     heapDesc.NumDescriptors = numDescriptors;
     heapDesc.Flags = flags;
 
-    ID3D12DescriptorHeap* heap;
+    ComPtr<ID3D12DescriptorHeap> heap;
     gpu->device()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&heap));
 
     return std::unique_ptr<GrD3DDescriptorHeap>(
-            new GrD3DDescriptorHeap(std::move(gr_cp<ID3D12DescriptorHeap>(heap)),
+            new GrD3DDescriptorHeap(std::move(heap),
                                     gpu->device()->GetDescriptorHandleIncrementSize(type)));
 }
 
-GrD3DDescriptorHeap::GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>& heap,
+GrD3DDescriptorHeap::GrD3DDescriptorHeap(const ComPtr<ID3D12DescriptorHeap>& heap,
                                          unsigned int handleIncrementSize)
     : fHeap(heap)
     , fHandleIncrementSize(handleIncrementSize)

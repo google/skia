@@ -39,7 +39,7 @@ bool CreateD3DBackendContext(GrD3DBackendContext* ctx,
 #if defined(SK_ENABLE_D3D_DEBUG_LAYER)
     // Enable the D3D12 debug layer.
     {
-        gr_cp<ID3D12Debug> debugController;
+        ComPtr<ID3D12Debug> debugController;
         if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
         {
             debugController->EnableDebugLayer();
@@ -47,23 +47,23 @@ bool CreateD3DBackendContext(GrD3DBackendContext* ctx,
     }
 #endif
     // Create the device
-    gr_cp<IDXGIFactory4> factory;
+    ComPtr<IDXGIFactory4> factory;
     if (!SUCCEEDED(CreateDXGIFactory1(IID_PPV_ARGS(&factory)))) {
         return false;
     }
 
-    gr_cp<IDXGIAdapter1> hardwareAdapter;
-    get_hardware_adapter(factory.get(), &hardwareAdapter);
+    ComPtr<IDXGIAdapter1> hardwareAdapter;
+    get_hardware_adapter(factory.Get(), &hardwareAdapter);
 
-    gr_cp<ID3D12Device> device;
-    if (!SUCCEEDED(D3D12CreateDevice(hardwareAdapter.get(),
+    ComPtr<ID3D12Device> device;
+    if (!SUCCEEDED(D3D12CreateDevice(hardwareAdapter.Get(),
                                      D3D_FEATURE_LEVEL_11_0,
                                      IID_PPV_ARGS(&device)))) {
         return false;
     }
 
     // Create the command queue
-    gr_cp<ID3D12CommandQueue> queue;
+    ComPtr<ID3D12CommandQueue> queue;
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
     queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
     queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
