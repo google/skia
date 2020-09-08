@@ -2904,8 +2904,7 @@ protected:
 
     void onDrawContent(SkCanvas* canvas) override {
 
-        SkString text;
-        for (auto i = 0; i < 150; ++i) text.append("XXXXXXXXXX");
+        auto text = "XXXXXXXXXX\nYYYYYYYYYY\nZZZZZZZZZZ";
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -2914,7 +2913,8 @@ protected:
 
         ParagraphStyle paragraph_style;
 
-        auto draw = [&](DrawOptions options) {
+        auto column = width()/3;
+        auto draw = [&](DrawOptions options, SkScalar x) {
             paragraph_style.setDrawOptions(options);
             ParagraphBuilderImpl builder(paragraph_style, fontCollection);
             TextStyle text_style;
@@ -2922,16 +2922,17 @@ protected:
             text_style.setFontFamilies({SkString("Roboto")});
             text_style.setFontSize(20);
             builder.pushStyle(text_style);
-            builder.addText(text.c_str());
+            builder.addText(text);
             auto paragraph = builder.Build();
-            paragraph->layout(width() / 3);
-            paragraph->paint(canvas, 0, 0);
-            canvas->translate(width() / 3, 0);
+            paragraph->layout(column);
+            paragraph->paint(canvas, x, 000);
+            paragraph->paint(canvas, x, 200);
+            paragraph->paint(canvas, x, 400);
         };
 
-        draw(DrawOptions::kReplay);
-        draw(DrawOptions::kRecord);
-        draw(DrawOptions::kDirect);
+        draw(DrawOptions::kReplay, column*0);
+        draw(DrawOptions::kRecord, column*1);
+        draw(DrawOptions::kDirect, column*2);
     }
 
 private:
