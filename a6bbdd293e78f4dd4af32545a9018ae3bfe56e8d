@@ -34,6 +34,24 @@
       "revId": "a6bbdd293e78f4dd4af32545a9018ae3bfe56e8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "262618dc_cafcd6a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T16:50:39Z",
+      "side": 1,
+      "message": "Hmm...I suppose it could alternate inlining between one and the other and that would still cause an issue, since it wouldn\u0027t recognize the inlined body as a FunctionCall anymore. I will need to address that as well. Good thought. I don\u0027t think that would be a blocker for this CL but I\u0027ll need to think of how to address that case as well.",
+      "parentUuid": "b1dd7930_6c8dbb2a",
+      "revId": "a6bbdd293e78f4dd4af32545a9018ae3bfe56e8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
