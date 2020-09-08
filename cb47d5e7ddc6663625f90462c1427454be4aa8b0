@@ -56,6 +56,24 @@
       "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3112e15b_71b5c56b",
+        "filename": "src/sksl/ir/SkSLProgramElement.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T13:14:42Z",
+      "side": 1,
+      "message": "The enum values don\u0027t need to be perfectly packed; AFAICS we could just base everything on sentinel enums:\n\nenum Kind {\n  kStartSentinel \u003d LastIRNodeType::Kind::kEndSentinel,\n  kFoo,\n  kBar,\n  kEndSentinel,\n\n  kFirst \u003d kStartSentinel + 1,\n  kLast \u003d kEndSentinel - 1\n};\n\nNow someone adding a new Kind does not need to change any of the other lines.",
+      "parentUuid": "29c484c5_82cb3732",
+      "revId": "cb47d5e7ddc6663625f90462c1427454be4aa8b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
