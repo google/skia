@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b95a2076_121b607e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-08T20:18:13Z",
+      "side": 1,
+      "message": "Ethan, I rewrote convertTypeField per our chat - fixes the fuzzer bug and I think it\u0027s easier to follow?",
+      "revId": "6460044b3609ba5118805b92c5dc9031f76c3604",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
