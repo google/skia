@@ -70,6 +70,30 @@
       "revId": "6eadf137835b929a2e77c2beb7c9f159f6807ec3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47583638_9b02b4d1",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T16:45:28Z",
+      "side": 0,
+      "message": "Ohhh, I see, L585 restores it. I missed that.",
+      "parentUuid": "6d06b7b8_10e43648",
+      "range": {
+        "startLine": 571,
+        "startChar": 4,
+        "endLine": 571,
+        "endChar": 16
+      },
+      "revId": "6eadf137835b929a2e77c2beb7c9f159f6807ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
