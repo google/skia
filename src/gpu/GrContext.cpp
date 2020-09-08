@@ -30,6 +30,7 @@
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/effects/GrSkSLFP.h"
+#include "src/gpu/ops/GrMagicCache.h"
 #include "src/gpu/text/GrSDFTOptions.h"
 #include "src/gpu/text/GrStrikeCache.h"
 #include "src/gpu/text/GrTextBlobCache.h"
@@ -72,6 +73,7 @@ bool GrContext::init() {
     }
 
     SkASSERT(this->getTextBlobCache());
+    SkASSERT(this->threadSafeViewCache());
 
     if (fGpu) {
         fStrikeCache = std::make_unique<GrStrikeCache>();
@@ -201,6 +203,7 @@ void GrContext::purgeUnlockedResources(bool scratchResourcesOnly) {
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs
     this->getTextBlobCache()->purgeStaleBlobs();
+    this->threadSafeViewCache()->purgeStale();
 }
 
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
@@ -226,6 +229,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs
     this->getTextBlobCache()->purgeStaleBlobs();
+    this->threadSafeViewCache()->purgeStale();
 }
 
 void GrContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
@@ -395,6 +399,8 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     fResourceCache->dumpMemoryStatistics(traceMemoryDump);
     traceMemoryDump->dumpNumericValue("skia/gr_text_blob_cache", "size", "bytes",
                                       this->getTextBlobCache()->usedBytes());
+    traceMemoryDump->dumpNumericValue("skia/magic_cache", "size", "bytes",
+                                      this->threadSafeViewCache()->usedBytes());
 }
 
 //////////////////////////////////////////////////////////////////////////////
