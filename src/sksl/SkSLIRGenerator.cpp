@@ -2630,7 +2630,7 @@ std::unique_ptr<Expression> IRGenerator::findEnumRef(
             std::unique_ptr<Expression> result = convertIdentifier(ASTNode(&fFile->fNodes, offset,
                                                                          ASTNode::Kind::kIdentifier,
                                                                          field));
-            if (result) {
+            if (result && result->is<VariableReference>()) {
                 const Variable& v = result->as<VariableReference>().fVariable;
                 SkASSERT(v.fInitialValue);
                 result = std::make_unique<IntLiteral>(
