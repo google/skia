@@ -851,9 +851,9 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kSubpassLoad_SpecialIntrinsic: {
             SpvId img = this->writeExpression(*c.fArguments[0], out);
             std::vector<std::unique_ptr<Expression>> args;
-            args.emplace_back(new FloatLiteral(fContext, -1, 0.0));
-            args.emplace_back(new FloatLiteral(fContext, -1, 0.0));
-            Constructor ctor(-1, *fContext.fFloat2_Type, std::move(args));
+            args.emplace_back(new IntLiteral(fContext, -1, 0));
+            args.emplace_back(new IntLiteral(fContext, -1, 0));
+            Constructor ctor(-1, *fContext.fInt2_Type, std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (1 == c.fArguments.size()) {
                 this->writeInstruction(SpvOpImageRead,
