@@ -94,6 +94,30 @@
       "revId": "6eadf137835b929a2e77c2beb7c9f159f6807ec3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d888a1d3_649c5c07",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-08T19:15:48Z",
+      "side": 0,
+      "message": "Of course, I\u0027ve figured out that I was wrong, the calls to this-\u003esymbol() do require that we push/pop fSymbolTable here.",
+      "parentUuid": "47583638_9b02b4d1",
+      "range": {
+        "startLine": 571,
+        "startChar": 4,
+        "endLine": 571,
+        "endChar": 16
+      },
+      "revId": "6eadf137835b929a2e77c2beb7c9f159f6807ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
