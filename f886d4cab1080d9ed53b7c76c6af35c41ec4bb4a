@@ -66,6 +66,30 @@
     },
     {
       "key": {
+        "uuid": "f84fcb67_35cbf141",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-08T19:53:05Z",
+      "side": 1,
+      "message": "Okay that makes sense; if GrRenderTargetProxy had backend-specific subclasses then not having it on caps makes sense, but I think you have the right approach given that the proxy doesn\u0027t.",
+      "parentUuid": "d837cc9c_dd28f605",
+      "range": {
+        "startLine": 387,
+        "startChar": 20,
+        "endLine": 387,
+        "endChar": 44
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5fc7315_a686ca83",
         "filename": "src/gpu/GrPipeline.h",
         "patchSetId": 2
@@ -242,6 +266,30 @@
       "side": 1,
       "message": "So I started to actually write it that way, passing in a GrOpsTask creation time and just always calculating the GrDstSampleType in the GrRTC ctor. However, I don\u0027t want to set the GrOpsTask::fDstSampleType to non kNone, unless there is at least one op that actually needs it. If I set it always, it will force vulkan to always setup the VkRenderPass to handle input attachments and barriers inside the render pass. This is not optimal and I don\u0027t want to slow down everything else for the less that 1% of cases that use advanced blends.\n\nNow I suppose if there was a way to late set the GrDstSampleType off of the GrRenderTargetContext onto the GrOpsTask. I have no idea how this would happen cause I\u0027m pretty sure the GrOpsTask and GrRenderTargetContext don\u0027t really have this sort of late connection still.",
       "parentUuid": "f1842753_771b64aa",
+      "range": {
+        "startLine": 2063,
+        "startChar": 37,
+        "endLine": 2063,
+        "endChar": 51
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffc87f38_9afe9776",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2063,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-08T19:53:05Z",
+      "side": 1,
+      "message": "I had been imagining that GrOpsTask had two fields of GrDstSampleType: fCurrentDstSampleType and fSupportedDstSampleType. The latter could be be const, and is set at construction time with the value from the GrRenderTargetProxy (it wouldn\u0027t actually force anything to set up the attachments, it would just reflect what type is needed if we ever do get a dst proxy view).  The former starts out kNone at construction time, but then if a non-null dstProxyView is specified, it changes to equal fSupportedDstSampleType. This would then trigger the attachment creation.\n\nWhat do you think of that idea?",
+      "parentUuid": "5c41bfb2_1f7fdfe6",
       "range": {
         "startLine": 2063,
         "startChar": 37,
