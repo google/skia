@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c08b6ca1_f4cd3d93",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-08T20:32:06Z",
+      "side": 1,
+      "message": "static ?",
+      "revId": "76eb27cdfba89968a9b3f5b7a34e5b9a52b23c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "604fd29e_1eb72b77",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-08T20:32:06Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 here and before \u0027}\u0027 ?",
+      "range": {
+        "startLine": 530,
+        "startChar": 37,
+        "endLine": 530,
+        "endChar": 38
+      },
+      "revId": "76eb27cdfba89968a9b3f5b7a34e5b9a52b23c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ff32b41_8823a9f5",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-08T20:32:06Z",
+      "side": 1,
+      "message": "The other derived classes seem to take a GrTextBlob*, why not this one?",
+      "revId": "76eb27cdfba89968a9b3f5b7a34e5b9a52b23c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
