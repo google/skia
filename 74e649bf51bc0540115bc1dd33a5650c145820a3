@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "539aa615_5a21129b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-08T18:45:45Z",
+      "side": 1,
+      "message": "I think this looks good, but want Ethan to take a look, too.",
+      "revId": "74e649bf51bc0540115bc1dd33a5650c145820a3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
