@@ -22,6 +22,7 @@ class GrVkDescriptorSet;
 class GrVkGpu;
 class GrVkImageView;
 class GrVkPipeline;
+class GrVkRenderTarget;
 class GrVkSampler;
 class GrVkTexture;
 class GrVkUniformBuffer;
@@ -57,9 +58,16 @@ public:
      * This must be called after setAndBindUniforms() since that function invalidates texture
      * bindings.
      */
-    bool setAndBindTextures(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
+    bool setAndBindTextures(GrVkGpu*,
+                            const GrPrimitiveProcessor&,
+                            const GrPipeline&,
                             const GrSurfaceProxy* const primitiveProcessorTextures[],
                             GrVkCommandBuffer*);
+
+    bool setAndBindInputAttachment(GrVkGpu*,
+                                   GrVkRenderTarget* renderTarget,
+                                   const GrPipeline&,
+                                    GrVkCommandBuffer*);
 
     void bindPipeline(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
 

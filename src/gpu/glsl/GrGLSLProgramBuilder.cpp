@@ -58,6 +58,9 @@ bool GrGLSLProgramBuilder::emitAndInstallProcs() {
     SkString inputCoverage;
     this->emitAndInstallPrimProc(&inputColor, &inputCoverage);
     this->emitAndInstallFragProcs(&inputColor, &inputCoverage);
+    // The XP must be the last proc we emit so that the dst texture is the last sampler we add.
+    // This is needed for vulkan in the case we are using an input attachment. It allows us to
+    // assume the last sampler is the special input sampler.
     this->emitAndInstallXferProc(inputColor, inputCoverage);
     fGeometryProcessor->emitTransformCode(&fVS, this->uniformHandler());
 
@@ -255,13 +258,17 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     GrSurfaceOrigin dstTextureOrigin = kTopLeft_GrSurfaceOrigin;
 
     const GrSurfaceProxyView& dstView = this->pipeline().dstProxyView();
-    if (GrTextureProxy* dstTextureProxy = dstView.asTextureProxy()) {
-        // GrProcessor::TextureSampler sampler(dstTexture);
+    if (this->pipeline().usesDstTexture()) {
+        GrTextureProxy* dstTextureProxy = dstView.asTextureProxy();
+        SkASSERT(dstTextureProxy);
         const GrSwizzle& swizzle = dstView.swizzle();
         dstTextureSamplerHandle = this->emitSampler(dstTextureProxy->backendFormat(),
                                                     GrSamplerState(), swizzle, "DstTextureSampler");
         dstTextureOrigin = dstView.origin();
         SkASSERT(dstTextureProxy->textureType() != GrTextureType::kExternal);
+    } else if (this->pipeline().usesInputAttachment()) {
+        const GrSwizzle& swizzle = dstView.swizzle();
+        dstTextureSamplerHandle = this->emitInputSampler(swizzle, "DstTextureInput");
     }
 
     SkString finalInColor = colorIn.size() ? colorIn : SkString("float4(1)");
@@ -274,6 +281,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
                                        coverageIn.size() ? coverageIn.c_str() : "float4(1)",
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
+                                       this->pipeline().localDstSampleType(),
                                        dstTextureSamplerHandle,
                                        dstTextureOrigin,
                                        this->pipeline().writeSwizzle());
@@ -291,6 +299,11 @@ GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(
     ++fNumFragmentSamplers;
     return this->uniformHandler()->addSampler(backendFormat, state, swizzle, name,
                                               this->shaderCaps());
+}
+
+GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitInputSampler(const GrSwizzle& swizzle,
+                                                                           const char* name) {
+    return this->uniformHandler()->addInputSampler(swizzle, name);
 }
 
 bool GrGLSLProgramBuilder::checkSamplerCounts() {
