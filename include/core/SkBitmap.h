@@ -80,7 +80,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Bitmap_move_SkBitmap
     */
-    SkBitmap(SkBitmap&& src);
+    SkBitmap(SkBitmap&& src) noexcept;
 
     /** Decrements SkPixelRef reference count, if SkPixelRef is not nullptr.
     */
@@ -104,7 +104,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Bitmap_move_operator
     */
-    SkBitmap& operator=(SkBitmap&& src);
+    SkBitmap& operator=(SkBitmap&& src) noexcept;
 
     /** Swaps the fields of the two bitmaps.
 

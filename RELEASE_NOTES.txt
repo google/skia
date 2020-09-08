@@ -9,6 +9,8 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * Make SkBitmap move constructor and assign operator noexcept.
+
   * GPU backends now properly honor the SkFilterQuality when calling drawAtlas.
     https://review.skia.org/313081
 
