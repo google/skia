@@ -1207,6 +1207,22 @@ static void test_conservative_intersection(skiatest::Reporter* reporter) {
     verify_success(reporter, a, make_inset(a, 1.f, 1.f), kB, kB, kB, kB);
     verify_success(reporter, make_inset(b, 2.f, 2.f), b, kA, kA, kA, kA);
 
+    // A rectangle exactly matching the corners of the rrect bounds keeps the rrect radii,
+    // regardless of whether or not it's the 1st or 2nd arg to ConservativeIntersect.
+    SkRRect c = SkRRect::MakeRectXY({0.f, 0.f, 10.f, 10.f}, 2.f, 2.f);
+    SkRRect cT = SkRRect::MakeRect({0.f, 0.f, 10.f, 5.f});
+    verify_success(reporter, c, cT, kA, kA, kRect, kRect);
+    verify_success(reporter, cT, c, kB, kB, kRect, kRect);
+    SkRRect cB = SkRRect::MakeRect({0.f, 5.f, 10.f, 10.});
+    verify_success(reporter, c, cB, kRect, kRect, kA, kA);
+    verify_success(reporter, cB, c, kRect, kRect, kB, kB);
+    SkRRect cL = SkRRect::MakeRect({0.f, 0.f, 5.f, 10.f});
+    verify_success(reporter, c, cL, kA, kRect, kRect, kA);
+    verify_success(reporter, cL, c, kB, kRect, kRect, kB);
+    SkRRect cR = SkRRect::MakeRect({5.f, 0.f, 10.f, 10.f});
+    verify_success(reporter, c, cR, kRect, kA, kA, kRect);
+    verify_success(reporter, cR, c, kRect, kB, kB, kRect);
+
     // Failed intersection operations:
 
     // A and B's bounds do not intersect
