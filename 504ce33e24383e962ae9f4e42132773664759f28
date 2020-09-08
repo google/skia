@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f772c66f_fabb52ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-08T17:46:59Z",
+      "side": 1,
+      "message": "At least on some bots it seems like temporarily changing the GLSL version may have caused performance convergence.",
+      "revId": "504ce33e24383e962ae9f4e42132773664759f28",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
