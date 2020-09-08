@@ -1104,10 +1104,32 @@ ConcatCommand::ConcatCommand(const SkMatrix& matrix) : INHERITED(kConcat_OpType)
 
 void ConcatCommand::execute(SkCanvas* canvas) const { canvas->concat(fMatrix); }
 
+namespace {
+    void writeMatrixType(SkJSONWriter& writer, const SkMatrix& m) {
+        switch (m.getType()) {
+            case SkMatrix::kTranslate_Mask:
+                writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, " (translate)");
+                break;
+            case SkMatrix::kScale_Mask:
+                writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, " (scale)");
+                break;
+            case SkMatrix::kAffine_Mask:
+                writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, " (rotation or skew)");
+                break;
+            case SkMatrix::kPerspective_Mask:
+                writer.appendString(DEBUGCANVAS_ATTRIBUTE_SHORTDESC, " (perspective)");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void ConcatCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_MATRIX);
     MakeJsonMatrix(writer, fMatrix);
+    writeMatrixType(writer, fMatrix);
 }
 
 Concat44Command::Concat44Command(const SkM44& matrix) : INHERITED(kConcat44_OpType) {
@@ -2067,4 +2089,5 @@ void SetMatrixCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManag
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendName(DEBUGCANVAS_ATTRIBUTE_MATRIX);
     MakeJsonMatrix(writer, fMatrix);
+    writeMatrixType(writer, fMatrix);
 }
