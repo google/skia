@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e0848a2_f6e52868",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-08T15:43:45Z",
+      "side": 1,
+      "message": "Doesn\u0027t look like we need the pragmas in RT, but they\u0027re needed in TRT.",
+      "revId": "3c98ff7f85f38988fe299f6bb2f02cc571667189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
