@@ -16,6 +16,98 @@
       "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a9ad7e4_ebfc2739",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-08T18:45:44Z",
+      "side": 1,
+      "message": "Out of curiosity, why is this defined on GrCaps and not GrRenderTargetProxy, like:\n\n   GrRenderTargetProxy::getDstSampleType(const GrCaps\u0026);\n\nThe only cap that is checked appears to be texture barrier support, everything else uses functions defined on the render target proxy, although the logic does differ for each backend. Is that why it\u0027s on caps instead? To easily use per-backend logic?",
+      "range": {
+        "startLine": 387,
+        "startChar": 20,
+        "endLine": 387,
+        "endChar": 44
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5fc7315_a686ca83",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-08T18:45:44Z",
+      "side": 1,
+      "message": "nit: extra is",
+      "range": {
+        "startLine": 128,
+        "startChar": 57,
+        "endLine": 128,
+        "endChar": 60
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95d7e9cb_2cf6c60e",
+        "filename": "src/gpu/GrPipeline.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-08T18:45:44Z",
+      "side": 1,
+      "message": "nit: alignment",
+      "range": {
+        "startLine": 139,
+        "startChar": 8,
+        "endLine": 146,
+        "endChar": 9
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1842753_771b64aa",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2063,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-08T18:45:44Z",
+      "side": 1,
+      "message": "We pass the DstSampleType in addDrawOp every time, vs. when we create the GrOpsTask, because the GrRTC\u0027s dst sample type may change from kNone to something else as draws are collected, right?\n\nOnce it becomes non-kNone, will it change to something else ever? If so, do you like it better if we specify what the GrRTC\u0027s non-kNone dst sample type is when we make the GrOpsTask, and then it controls updating to that (from kNone) when we actually have a dst proxy view for a draw?",
+      "range": {
+        "startLine": 2063,
+        "startChar": 37,
+        "endLine": 2063,
+        "endChar": 51
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
