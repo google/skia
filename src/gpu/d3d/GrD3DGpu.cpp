@@ -53,8 +53,8 @@ GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptio
         , fOutstandingCommandLists(sizeof(OutstandingCommandList), kDefaultOutstandingAllocCnt)
         , fCompiler(new SkSL::Compiler()) {
     fCaps.reset(new GrD3DCaps(contextOptions,
-                              backendContext.fAdapter.Get(),
-                              backendContext.fDevice.Get()));
+                              backendContext.fAdapter.get(),
+                              backendContext.fDevice.get()));
 
     fCurrentDirectCommandList = fResourceProvider.findOrCreateDirectCommandList();
     SkASSERT(fCurrentDirectCommandList);
@@ -123,7 +123,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
 
     fResourceProvider.prepForSubmit();
 
-    GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.Get());
+    GrD3DDirectCommandList::SubmitResult result = fCurrentDirectCommandList->submit(fQueue.get());
     if (result == GrD3DDirectCommandList::SubmitResult::kFailure) {
         return false;
     } else if (result == GrD3DDirectCommandList::SubmitResult::kNoWork) {
@@ -775,7 +775,7 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex, int left, int top, int width, 
 }
 
 static bool check_resource_info(const GrD3DTextureResourceInfo& info) {
-    if (!info.fResource.Get()) {
+    if (!info.fResource.get()) {
         return false;
     }
     return true;
@@ -1235,7 +1235,7 @@ bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     if (!tex.getD3DTextureResourceInfo(&info)) {
         return false;
     }
-    ID3D12Resource* textureResource = info.fResource.Get();
+    ID3D12Resource* textureResource = info.fResource.get();
     if (!textureResource) {
         return false;
     }
@@ -1379,7 +1379,7 @@ void GrD3DGpu::waitSemaphore(GrSemaphore* semaphore) {
 }
 
 GrFence SK_WARN_UNUSED_RESULT GrD3DGpu::insertFence() {
-    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.Get(), ++fCurrentFenceValue));
+    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), ++fCurrentFenceValue));
     return fCurrentFenceValue;
 }
 

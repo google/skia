@@ -16,7 +16,7 @@
 #define VALIDATE() do {} while(false)
 #endif
 
-static ComPtr<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
+static gr_cp<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
                                               size_t size,
                                               GrGpuBufferType intendedType,
                                               GrAccessPattern accessPattern,
@@ -73,7 +73,7 @@ static ComPtr<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
         return nullptr;
     }
 
-    return ComPtr<ID3D12Resource>(resource);
+    return gr_cp<ID3D12Resource>(resource);
 }
 
 sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
@@ -82,8 +82,8 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
     D3D12_RESOURCE_STATES resourceState;
 
 
-    ComPtr<ID3D12Resource> resource = make_d3d_buffer(gpu, size, intendedType, accessPattern,
-                                                      &resourceState);
+    gr_cp<ID3D12Resource> resource = make_d3d_buffer(gpu, size, intendedType, accessPattern,
+                                                     &resourceState);
     if (!resource) {
         return nullptr;
     }
@@ -93,7 +93,7 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
 }
 
 GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
-                         GrAccessPattern accessPattern, ComPtr<ID3D12Resource> bufferResource,
+                         GrAccessPattern accessPattern, gr_cp<ID3D12Resource> bufferResource,
                          D3D12_RESOURCE_STATES resourceState)
     : INHERITED(gpu, size, intendedType, accessPattern)
     , fResourceState(resourceState)
