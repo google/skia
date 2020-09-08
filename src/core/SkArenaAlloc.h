@@ -8,6 +8,7 @@
 #ifndef SkArenaAlloc_DEFINED
 #define SkArenaAlloc_DEFINED
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
 
 #include <array>
@@ -170,7 +171,13 @@ private:
             this->ensureSpace(size, alignment);
             alignedOffset = (~reinterpret_cast<uintptr_t>(fCursor) + 1) & mask;
         }
-        return fCursor + alignedOffset;
+
+        char* object = fCursor + alignedOffset;
+
+        SkASSERT((reinterpret_cast<uintptr_t>(object) & (alignment - 1)) == 0);
+        SkASSERT(object + size <= fEnd);
+
+        return object;
     }
 
     char* allocObjectWithFooter(uint32_t sizeIncludingFooter, uint32_t alignment);
