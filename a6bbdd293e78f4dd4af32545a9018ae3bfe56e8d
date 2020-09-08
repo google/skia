@@ -16,6 +16,24 @@
       "revId": "a6bbdd293e78f4dd4af32545a9018ae3bfe56e8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1dd7930_6c8dbb2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T16:48:14Z",
+      "side": 1,
+      "message": "AFAICS the inliner will eventually turn mutual recursion into direct recursion, at which point the inlining will stop, so this should prevent spiraling out of control--is that not the case?",
+      "parentUuid": "f8af46aa_82992f54",
+      "revId": "a6bbdd293e78f4dd4af32545a9018ae3bfe56e8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
