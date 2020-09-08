@@ -45,7 +45,8 @@ private:
     void onPrePrepare(GrRecordingContext*,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) override;
+                      const GrXferProcessor::DstProxyView&,
+                      GrDstSampleType dstSampleType) override;
 
     struct Instance {
         constexpr static size_t Stride(bool usesLocalCoords) {

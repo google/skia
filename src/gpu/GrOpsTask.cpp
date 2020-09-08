@@ -362,6 +362,9 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr, GrRecordingContext::Arenas ar
         , fArenas(arenas)
         , fAuditTrail(auditTrail)
         SkDEBUGCODE(, fNumClips(0)) {
+    GrRenderTargetProxy* proxy = view.asRenderTargetProxy();
+    SkASSERT(proxy);
+    fDstSampleType = drawingMgr->getContext()->priv().caps()->getDstSampleTypeForProxy(proxy);
     this->addTarget(drawingMgr, std::move(view));
 }
 
@@ -411,12 +414,15 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
         return;
     }
 
+    GrDstSampleType dstSampleType = this->getDstSampleType();
+
     for (const auto& chain : fOpChains) {
         if (chain.shouldExecute()) {
             chain.head()->prePrepare(context,
                                      &fTargets[0],
                                      chain.appliedClip(),
-                                     chain.dstProxyView());
+                                     chain.dstProxyView(),
+                                     dstSampleType);
         }
     }
 }
@@ -435,6 +441,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
         return;
     }
 
+    GrDstSampleType dstSampleType = this->getDstSampleType();
+
     flushState->setSampledProxyArray(&fSampledProxies);
     // Loop over the ops that haven't yet been prepared.
     for (const auto& chain : fOpChains) {
@@ -445,7 +453,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           &fTargets[0],
                                           chain.appliedClip(),
-                                          chain.dstProxyView());
+                                          chain.dstProxyView(),
+                                          dstSampleType);
 
             flushState->setOpArgs(&opArgs);
 
@@ -578,6 +587,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     flushState->setOpsRenderPass(renderPass);
     renderPass->begin();
 
+    GrDstSampleType dstSampleType = this->getDstSampleType();
+
     // Draw all the generated geometry.
     for (const auto& chain : fOpChains) {
         if (!chain.shouldExecute()) {
@@ -590,7 +601,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         GrOpFlushState::OpArgs opArgs(chain.head(),
                                       &fTargets[0],
                                       chain.appliedClip(),
-                                      chain.dstProxyView());
+                                      chain.dstProxyView(),
+                                      dstSampleType);
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());

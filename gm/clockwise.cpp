@@ -162,11 +162,12 @@ private:
                                      SkArenaAlloc* arena,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) const {
+                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     GrDstSampleType dstSampleType) const {
         GrGeometryProcessor* geomProc = ClockwiseTestProcessor::Make(arena, fReadSkFragCoord);
 
         return sk_gpu_test::CreateProgramInfo(caps, arena, writeView,
-                                              std::move(appliedClip), dstProxyView,
+                                              std::move(appliedClip), dstProxyView, dstSampleType,
                                               geomProc, SkBlendMode::kPlus,
                                               GrPrimitiveType::kTriangleStrip);
     }
@@ -176,20 +177,22 @@ private:
                                        flushState->allocator(),
                                        flushState->writeView(),
                                        flushState->detachAppliedClip(),
-                                       flushState->dstProxyView());
+                                       flushState->dstProxyView(),
+                                       flushState->dstSampleType());
     }
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip* clip,
-                      const GrXferProcessor::DstProxyView& dstProxyView) final {
+                      const GrXferProcessor::DstProxyView& dstProxyView,
+                      GrDstSampleType dstSampleType) final {
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
         // This is equivalent to a GrOpFlushState::detachAppliedClip
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, writeView,
-                                               std::move(appliedClip), dstProxyView);
+                                               std::move(appliedClip), dstProxyView, dstSampleType);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }

@@ -41,8 +41,10 @@ protected:
                            SkArenaAlloc* arena,
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip&& appliedClip,
-                           const GrXferProcessor::DstProxyView& dstProxyView) {
-        this->onCreateProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView);
+                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           GrDstSampleType dstSampleType) {
+        this->onCreateProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView,
+                                  dstSampleType);
     }
 
     void createProgramInfo(Target* target);
@@ -103,7 +105,8 @@ protected:
     virtual void onPrePrepareDraws(GrRecordingContext*,
                                    const GrSurfaceProxyView* writeView,
                                    GrAppliedClip*,
-                                   const GrXferProcessor::DstProxyView&);
+                                   const GrXferProcessor::DstProxyView&,
+                                   GrDstSampleType dstSampleType);
 
 private:
     virtual GrProgramInfo* programInfo() = 0;
@@ -113,13 +116,15 @@ private:
                                      SkArenaAlloc*,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip&&,
-                                     const GrXferProcessor::DstProxyView&) = 0;
+                                     const GrXferProcessor::DstProxyView&,
+                                     GrDstSampleType) = 0;
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip* clip,
-                      const GrXferProcessor::DstProxyView& dstProxyView) final {
-        this->onPrePrepareDraws(context, writeView, clip, dstProxyView);
+                      const GrXferProcessor::DstProxyView& dstProxyView,
+                      GrDstSampleType dstSampleType) final {
+        this->onPrePrepareDraws(context, writeView, clip, dstProxyView, dstSampleType);
     }
     void onPrepare(GrOpFlushState* state) final;
 
@@ -217,6 +222,7 @@ public:
     virtual GrAppliedClip detachAppliedClip() = 0;
 
     virtual const GrXferProcessor::DstProxyView& dstProxyView() const = 0;
+    virtual GrDstSampleType dstSampleType() const = 0;
 
     virtual GrResourceProvider* resourceProvider() const = 0;
     uint32_t contextUniqueID() const { return this->resourceProvider()->contextUniqueID(); }

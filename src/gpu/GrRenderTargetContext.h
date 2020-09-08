@@ -717,6 +717,9 @@ private:
     bool fManagedOpsTask;
 
     int fNumStencilSamples = 0;
+
+    GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
+
 #if GR_TEST_UTILS
     bool fPreserveOpsOnFullClear_TestingOnly = false;
 #endif

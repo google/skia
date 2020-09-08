@@ -93,7 +93,8 @@ protected:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrDstSampleType dstSampleType) override {
         auto gp = this->makeGP(*caps, arena);
         if (!gp) {
             return;
@@ -103,7 +104,7 @@ protected:
 
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
                                                                    std::move(appliedClip),
-                                                                   dstProxyView, gp,
+                                                                   dstProxyView, dstSampleType, gp,
                                                                    std::move(fProcessorSet),
                                                                    GrPrimitiveType::kTriangles,
                                                                    flags);
