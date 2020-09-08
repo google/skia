@@ -235,6 +235,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return std::make_unique<FunctionCall>(offset, funcCall.fType, funcCall.fFunction,
                                                   argList(funcCall.fArguments));
         }
+        case Expression::kFunctionReference_Kind:
+            return expression.clone();
         case Expression::kIndex_Kind: {
             const IndexExpression& idx = expression.as<IndexExpression>();
             return std::make_unique<IndexExpression>(*fContext, expr(idx.fBase), expr(idx.fIndex));
