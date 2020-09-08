@@ -178,7 +178,7 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     return SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
 }
 
-SkPath SkPathBuilder::snapshot() {
+SkPath SkPathBuilder::snapshot() const {
     return this->make(sk_sp<SkPathRef>(new SkPathRef(fPts,
                                                      fVerbs,
                                                      fConicWeights,

@@ -12,7 +12,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -54,21 +54,22 @@ protected:
     SkISize onISize() override { return SkISize::Make(388, 780); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPath path;
-        path.moveTo(0,   50)
-            .quadTo(0,   0,   50,  0)
-            .lineTo(175, 0)
-            .quadTo(200, 0,   200, 25)
-            .lineTo(200, 150)
-            .quadTo(200, 200, 150, 200)
-            .lineTo(0,   200)
-            .close()
-            .moveTo(50,  50)
-            .lineTo(150, 50)
-            .lineTo(150, 125)
-            .quadTo(150, 150, 125, 150)
-            .lineTo(50,  150)
-            .close();
+        SkPath path = SkPathBuilder()
+                        .moveTo(0,   50)
+                        .quadTo(0,   0,   50,  0)
+                        .lineTo(175, 0)
+                        .quadTo(200, 0,   200, 25)
+                        .lineTo(200, 150)
+                        .quadTo(200, 200, 150, 200)
+                        .lineTo(0,   200)
+                        .close()
+                        .moveTo(50,  50)
+                        .lineTo(150, 50)
+                        .lineTo(150, 125)
+                        .quadTo(150, 150, 125, 150)
+                        .lineTo(50,  150)
+                        .close()
+                        .detach();
         if (fInvertDraw) {
             path.setFillType(SkPathFillType::kInverseEvenOdd);
         } else {
@@ -78,11 +79,9 @@ protected:
         pathPaint.setAntiAlias(true);
         pathPaint.setColor(gPathColor);
 
-        SkPath clipA;
-        clipA.addPoly({{10,  20}, {165, 22}, {70,  105}, {165, 177}, {-5,  180}}, false).close();
+        SkPath clipA = SkPath::Polygon({{10,  20}, {165, 22}, {70,  105}, {165, 177}, {-5,  180}}, true);
 
-        SkPath clipB;
-        clipB.addPoly({{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}, false).close();
+        SkPath clipB = SkPath::Polygon({{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}, true);
 
         SkFont font(ToolUtils::create_portable_typeface(), 20);
 
