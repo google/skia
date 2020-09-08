@@ -191,8 +191,8 @@ public:
     void spaceGlyphs();
     bool shapeTextIntoEndlessLine();
     void breakShapedTextIntoLines(SkScalar maxWidth);
-    void paintLinesIntoPicture();
-    void paintLines(SkCanvas* canvas);
+    void paintLinesIntoPicture(SkScalar x, SkScalar y);
+    void paintLines(SkCanvas* canvas, SkScalar x, SkScalar y);
 
     void updateTextAlign(TextAlign textAlign) override;
     void updateText(size_t from, SkString text) override;
