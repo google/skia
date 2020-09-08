@@ -1399,23 +1399,25 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
     }
 }
 
-void Compiler::scanCFG(FunctionDefinition& f) {
+bool Compiler::scanCFG(FunctionDefinition& f) {
+    bool madeChanges = false;
+
     CFG cfg = CFGGenerator().getCFG(f);
     this->computeDataFlow(&cfg);
 
     // check for unreachable code
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
-        if (i != cfg.fStart && !cfg.fBlocks[i].fEntrances.size() &&
-            cfg.fBlocks[i].fNodes.size()) {
+        const BasicBlock& block = cfg.fBlocks[i];
+        if (i != cfg.fStart && !block.fEntrances.size() && block.fNodes.size()) {
             int offset;
-            switch (cfg.fBlocks[i].fNodes[0].fKind) {
+            const BasicBlock::Node& node = block.fNodes[0];
+            switch (node.fKind) {
                 case BasicBlock::Node::kStatement_Kind:
-                    offset = (*cfg.fBlocks[i].fNodes[0].statement())->fOffset;
+                    offset = (*node.statement())->fOffset;
                     break;
                 case BasicBlock::Node::kExpression_Kind:
-                    offset = (*cfg.fBlocks[i].fNodes[0].expression())->fOffset;
-                    if ((*cfg.fBlocks[i].fNodes[0].expression())->kind() ==
-                        Expression::Kind::kBoolLiteral) {
+                    offset = (*node.expression())->fOffset;
+                    if ((*node.expression())->is<BoolLiteral>()) {
                         // Function inlining can generate do { ... } while(false) loops which always
                         // break, so the boolean condition is considered unreachable. Since not
                         // being able to reach a literal is a non-issue in the first place, we
@@ -1428,7 +1430,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
         }
     }
     if (fErrorCount) {
-        return;
+        return madeChanges;
     }
 
     // check for dead code & undefined variables, perform constant propagation
@@ -1452,8 +1454,9 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                 // have not been properly assigned. Kill it.
                 for (BasicBlock::Node& node : b.fNodes) {
                     if (node.fKind == BasicBlock::Node::kStatement_Kind &&
-                        (*node.statement())->kind() != Statement::Kind::kNop) {
-                        node.setStatement(std::unique_ptr<Statement>(new Nop()));
+                        !(*node.statement())->is<Nop>()) {
+                        node.setStatement(std::make_unique<Nop>());
+                        madeChanges = true;
                     }
                 }
                 continue;
@@ -1467,7 +1470,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                              &needsRescan);
                 } else {
                     this->simplifyStatement(definitions, b, &iter, &undefinedVariables, &updated,
-                                             &needsRescan);
+                                            &needsRescan);
                 }
                 if (needsRescan) {
                     break;
@@ -1475,6 +1478,7 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                 this->addDefinitions(*iter, &definitions);
             }
         }
+        madeChanges |= updated;
     } while (updated);
     SkASSERT(!needsRescan);
 
@@ -1495,21 +1499,22 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                         break;
                     case Statement::Kind::kSwitch:
                         if (s.as<SwitchStatement>().fIsStatic &&
-                             !(fFlags & kPermitInvalidStaticTests_Flag)) {
+                            !(fFlags & kPermitInvalidStaticTests_Flag)) {
                             this->error(s.fOffset, "static switch has non-static test");
                         }
                         ++iter;
                         break;
                     case Statement::Kind::kVarDeclarations: {
                         VarDeclarations& decls = *s.as<VarDeclarationsStatement>().fDeclaration;
-                        for (auto varIter = decls.fVars.begin(); varIter != decls.fVars.end();) {
-                            if ((*varIter)->kind() == Statement::Kind::kNop) {
-                                varIter = decls.fVars.erase(varIter);
-                            } else {
-                                ++varIter;
-                            }
-                        }
-                        if (!decls.fVars.size()) {
+                        decls.fVars.erase(
+                                std::remove_if(decls.fVars.begin(), decls.fVars.end(),
+                                               [&](const std::unique_ptr<Statement>& var) {
+                                                   bool nop = var->is<Nop>();
+                                                   madeChanges |= nop;
+                                                   return nop;
+                                               }),
+                                decls.fVars.end());
+                        if (decls.fVars.empty()) {
                             iter = b.fNodes.erase(iter);
                         } else {
                             ++iter;
@@ -1533,6 +1538,8 @@ void Compiler::scanCFG(FunctionDefinition& f) {
                                           "' can exit without returning a value"));
         }
     }
+
+    return madeChanges;
 }
 
 void Compiler::registerExternalValue(ExternalValue* value) {
