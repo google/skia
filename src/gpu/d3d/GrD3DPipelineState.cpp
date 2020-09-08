@@ -19,7 +19,7 @@
 #include "src/gpu/glsl/GrGLSLXferProcessor.h"
 
 GrD3DPipelineState::GrD3DPipelineState(
-        ComPtr<ID3D12PipelineState> pipelineState,
+        gr_cp<ID3D12PipelineState> pipelineState,
         sk_sp<GrD3DRootSignature> rootSignature,
         const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
         const UniformInfoArray& uniforms, uint32_t uniformSize,

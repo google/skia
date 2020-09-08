@@ -25,29 +25,29 @@ public:
         return (fIndexed == indexed && fSlot == slot);
     }
 
-    ID3D12CommandSignature* commandSignature() const { return fCommandSignature.Get(); }
+    ID3D12CommandSignature* commandSignature() const { return fCommandSignature.get(); }
 
 #ifdef SK_TRACE_MANAGED_RESOURCES
     /** Output a human-readable dump of this resource's information
     */
     void dumpInfo() const override {
         SkDebugf("GrD3DCommandSignature: %p, (%d refs)\n",
-                 fCommandSignature.Get(), this->getRefCnt());
+                 fCommandSignature.get(), this->getRefCnt());
     }
 #endif
 
 private:
-    GrD3DCommandSignature(ComPtr<ID3D12CommandSignature> commandSignature, ForIndexed indexed,
+    GrD3DCommandSignature(gr_cp<ID3D12CommandSignature> commandSignature, ForIndexed indexed,
                           unsigned int slot)
         : fCommandSignature(commandSignature)
         , fIndexed(indexed)
         , fSlot(slot) {}
 
     // This will be called right before this class is destroyed and there is no reason to explicitly
-    // release the fCommandSignature cause the ComPtr will handle that in the dtor.
+    // release the fCommandSignature cause the gr_cp will handle that in the dtor.
     void freeGPUData() const override {}
 
-    ComPtr<ID3D12CommandSignature> fCommandSignature;
+    gr_cp<ID3D12CommandSignature> fCommandSignature;
     ForIndexed fIndexed;
     unsigned int fSlot;
 };

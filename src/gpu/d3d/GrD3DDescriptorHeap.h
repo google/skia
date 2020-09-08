@@ -36,7 +36,7 @@ public:
 
     CPUHandle getCPUHandle(unsigned int index); // write-only if shader-visible
     GPUHandle getGPUHandle(unsigned int index);
-    ID3D12DescriptorHeap* descriptorHeap() const { return fHeap.Get(); }
+    ID3D12DescriptorHeap* descriptorHeap() const { return fHeap.get(); }
     size_t handleIncrementSize() { return fHandleIncrementSize; }
 
     size_t getIndex(const CPUHandle& handle) {
@@ -56,7 +56,7 @@ public:
     }
 
 protected:
-    GrD3DDescriptorHeap(const ComPtr<ID3D12DescriptorHeap>&, unsigned int handleIncrementSize);
+    GrD3DDescriptorHeap(const gr_cp<ID3D12DescriptorHeap>&, unsigned int handleIncrementSize);
 
     static uint32_t GenID() {
         static std::atomic<uint32_t> nextID{1};
@@ -67,7 +67,7 @@ protected:
         return id;
     }
 
-    ComPtr<ID3D12DescriptorHeap> fHeap;
+    gr_cp<ID3D12DescriptorHeap> fHeap;
     size_t fHandleIncrementSize;
     D3D12_CPU_DESCRIPTOR_HANDLE fCPUHeapStart;
     D3D12_GPU_DESCRIPTOR_HANDLE fGPUHeapStart;

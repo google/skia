@@ -23,7 +23,7 @@ public:
 
     ~GrD3DSemaphore() override {}
 
-    ID3D12Fence* fence() const { return fFenceInfo.fFence.Get(); }
+    ID3D12Fence* fence() const { return fFenceInfo.fFence.get(); }
     uint64_t value() const { return fFenceInfo.fValue; }
 
     GrBackendSemaphore backendSemaphore() const override;
