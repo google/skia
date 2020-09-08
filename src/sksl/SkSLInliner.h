@@ -19,6 +19,7 @@ struct Block;
 class Context;
 struct Expression;
 struct FunctionCall;
+struct FunctionDefinition;
 struct Statement;
 class SymbolTable;
 struct Variable;
@@ -36,9 +37,10 @@ public:
     void reset(const Context&, const Program::Settings&);
 
     /**
-     * Processes the passed-in FunctionCall expression. The FunctionCall expression should be
-     * replaced with `fReplacementExpr`. If non-null, `fInlinedBody` should be inserted immediately
-     * above the statement containing the inlined expression.
+     * Generates the inlined representation of the passed-in FunctionCall expression. The caller is
+     * responsible for replacing the FunctionCall with `fReplacementExpr`. The caller must also
+     * insert the `fInlinedBody` block immediately above the statement containing the inlined
+     * expression.
      */
     struct InlinedCall {
         std::unique_ptr<Block> fInlinedBody;
@@ -46,8 +48,12 @@ public:
     };
     InlinedCall inlineCall(FunctionCall*, SymbolTable*);
 
-    /** Checks whether inlining is viable for a FunctionCall. */
-    bool isSafeToInline(const FunctionCall&, int inlineThreshold);
+    /**
+     * Checks whether inlining is viable for a FunctionCall. The enclosing function is used to check
+     * for recursion; passing nullptr is allowed, but the runaway recursion check will be skipped.
+     */
+    bool isSafeToInline(const FunctionDefinition* enclosingFunction,
+                        const FunctionCall&, int inlineThreshold);
 
     /**
      * Analyzes a program to find candidate functions for inlining. Returns true if changes were
