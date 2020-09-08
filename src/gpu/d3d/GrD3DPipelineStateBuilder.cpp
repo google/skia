@@ -66,7 +66,7 @@ void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outp
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }
 
-static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
+static ComPtr<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
                                            const SkSL::String& hlsl,
                                            SkSL::Program::Kind kind) {
     const char* compileTarget = nullptr;
@@ -92,8 +92,8 @@ static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
     // SPRIV-cross does matrix multiplication expecting row major matrices
     compileFlags |= D3DCOMPILE_PACK_MATRIX_ROW_MAJOR;
 
-    gr_cp<ID3DBlob> shader;
-    gr_cp<ID3DBlob> errors;
+    ComPtr<ID3DBlob> shader;
+    ComPtr<ID3DBlob> errors;
     HRESULT hr = D3DCompile(hlsl.c_str(), hlsl.length(), nullptr, nullptr, nullptr, "main",
                             compileTarget, compileFlags, 0, &shader, &errors);
     if (!SUCCEEDED(hr)) {
@@ -103,7 +103,7 @@ static gr_cp<ID3DBlob> GrCompileHLSLShader(GrD3DGpu* gpu,
     return shader;
 }
 
-bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID3DBlob> shaders[]) {
+bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, ComPtr<ID3DBlob> shaders[]) {
 
     SkSL::String hlsl[kGrShaderTypeCount];
     SkSL::Program::Inputs inputs[kGrShaderTypeCount];
@@ -117,7 +117,7 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
             this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
         }
         shaders[shaderType] = GrCompileHLSLShader(fGpu, hlsl[shaderType], kind);
-        return shaders[shaderType].get();
+        return shaders[shaderType].Get();
     };
 
     return compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) &&
@@ -126,7 +126,7 @@ bool GrD3DPipelineStateBuilder::loadHLSLFromCache(SkReadBuffer* reader, gr_cp<ID
             compile(SkSL::Program::kGeometry_Kind, kGeometry_GrShaderType));
 }
 
-gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
+ComPtr<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
         SkSL::Program::Kind kind,
         const SkSL::String& sksl,
         const SkSL::Program::Settings& settings,
@@ -138,13 +138,13 @@ gr_cp<ID3DBlob> GrD3DPipelineStateBuilder::compileD3DProgram(
     if (!program) {
         errorHandler->compileError(sksl.c_str(),
                                    fGpu->shaderCompiler()->errorText().c_str());
-        return gr_cp<ID3DBlob>();
+        return ComPtr<ID3DBlob>();
     }
     *outInputs = program->fInputs;
     if (!fGpu->shaderCompiler()->toHLSL(*program, outHLSL)) {
         errorHandler->compileError(sksl.c_str(),
                                    fGpu->shaderCompiler()->errorText().c_str());
-        return gr_cp<ID3DBlob>();
+        return ComPtr<ID3DBlob>();
     }
 
     if (program->fInputs.fRTHeight) {
@@ -472,11 +472,11 @@ static D3D12_PRIMITIVE_TOPOLOGY_TYPE gr_primitive_type_to_d3d(GrPrimitiveType pr
     }
 }
 
-gr_cp<ID3D12PipelineState> create_pipeline_state(
+ComPtr<ID3D12PipelineState> create_pipeline_state(
         GrD3DGpu* gpu, const GrProgramInfo& programInfo, const sk_sp<GrD3DRootSignature>& rootSig,
-        gr_cp<ID3DBlob> vertexShader, gr_cp<ID3DBlob> geometryShader, gr_cp<ID3DBlob> pixelShader,
-        DXGI_FORMAT renderTargetFormat, DXGI_FORMAT depthStencilFormat,
-        unsigned int sampleQualityPattern) {
+        ComPtr<ID3DBlob> vertexShader, ComPtr<ID3DBlob> geometryShader,
+        ComPtr<ID3DBlob> pixelShader, DXGI_FORMAT renderTargetFormat,
+        DXGI_FORMAT depthStencilFormat, unsigned int sampleQualityPattern) {
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 
     psoDesc.pRootSignature = rootSig->rootSignature();
@@ -486,7 +486,7 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
     psoDesc.PS = { reinterpret_cast<UINT8*>(pixelShader->GetBufferPointer()),
                    pixelShader->GetBufferSize() };
 
-    if (geometryShader.get()) {
+    if (geometryShader.Get()) {
         psoDesc.GS = { reinterpret_cast<UINT8*>(geometryShader->GetBufferPointer()),
                        geometryShader->GetBufferSize() };
     }
@@ -527,7 +527,7 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
     psoDesc.CachedPSO = { nullptr, 0 };
     psoDesc.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-    gr_cp<ID3D12PipelineState> pipelineState;
+    ComPtr<ID3D12PipelineState> pipelineState;
     GR_D3D_CALL_ERRCHECK(gpu->device()->CreateGraphicsPipelineState(
             &psoDesc, IID_PPV_ARGS(&pipelineState)));
 
@@ -576,7 +576,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     }
 
     const GrPrimitiveProcessor& primProc = this->primitiveProcessor();
-    gr_cp<ID3DBlob> shaders[kGrShaderTypeCount];
+    ComPtr<ID3DBlob> shaders[kGrShaderTypeCount];
 
     if (kHLSL_Tag == shaderType && this->loadHLSLFromCache(&reader, shaders)) {
         // We successfully loaded and compiled HLSL
@@ -602,7 +602,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
         auto compile = [&](SkSL::Program::Kind kind, GrShaderType shaderType) {
             shaders[shaderType] = this->compileD3DProgram(kind, *sksl[shaderType], settings,
                                                           &inputs[shaderType], &hlsl[shaderType]);
-            return shaders[shaderType].get();
+            return shaders[shaderType].Get();
         };
 
         if (!compile(SkSL::Program::kVertex_Kind, kVertex_GrShaderType) ||
@@ -641,7 +641,7 @@ sk_sp<GrD3DPipelineState> GrD3DPipelineStateBuilder::finalize() {
     }
 
     const GrD3DRenderTarget* rt = static_cast<const GrD3DRenderTarget*>(fRenderTarget);
-    gr_cp<ID3D12PipelineState> pipelineState = create_pipeline_state(
+    ComPtr<ID3D12PipelineState> pipelineState = create_pipeline_state(
             fGpu, fProgramInfo, rootSig, std::move(shaders[kVertex_GrShaderType]),
             std::move(shaders[kGeometry_GrShaderType]), std::move(shaders[kFragment_GrShaderType]),
             rt->dxgiFormat(), rt->stencilDxgiFormat(), rt->sampleQualityPattern());
