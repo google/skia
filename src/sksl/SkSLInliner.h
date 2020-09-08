@@ -49,6 +49,9 @@ public:
     /** Checks whether inlining is viable for a FunctionCall. */
     bool isSafeToInline(const FunctionCall&, int inlineThreshold);
 
+    /** Analyzes a program to find candidate functions for inlining. */
+    void analyze(Program& program);
+
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, const Variable*>;
 
