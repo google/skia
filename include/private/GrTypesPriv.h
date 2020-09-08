@@ -349,8 +349,9 @@ enum GrSLType {
     kTexture2DRectSampler_GrSLType,
     kTexture2D_GrSLType,
     kSampler_GrSLType,
+    kInput_GrSLType,
 
-    kLast_GrSLType = kSampler_GrSLType
+    kLast_GrSLType = kInput_GrSLType
 };
 static const int kGrSLTypeCount = kLast_GrSLType + 1;
 
@@ -434,6 +435,7 @@ static constexpr bool GrSLTypeIsFloatType(GrSLType type) {
         case kUint2_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kInput_GrSLType:
             return false;
     }
     SkUNREACHABLE;
@@ -493,6 +495,7 @@ static constexpr int GrSLTypeVecLength(GrSLType type) {
         case kTexture2DRectSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kInput_GrSLType:
             return -1;
     }
     SkUNREACHABLE;
@@ -574,6 +577,7 @@ static constexpr bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kUShort4_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
+        case kInput_GrSLType:
             return false;
     }
     SkUNREACHABLE;
@@ -1217,7 +1221,6 @@ private:
     Callback fReleaseProc;
     Context fReleaseCtx;
 };
-
 
 enum class GrDstSampleType {
     kNone, // The dst value will not be sampled in the shader

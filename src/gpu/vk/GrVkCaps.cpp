@@ -65,6 +65,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fDynamicStateArrayGeometryProcessorTextureSupport = true;
 
+    fTextureBarrierSupport = true;
+
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
     this->init(contextOptions, vkInterface, physDev, features, physicalDeviceVersion, extensions,
@@ -586,7 +588,7 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
 
     fOversizedStencilSupport = true;
 
-    if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
+    if (false && extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
         this->supportsPhysicalDeviceProperties2()) {
 
         VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT blendProps;
