@@ -46,6 +46,30 @@
       "revId": "6eadf137835b929a2e77c2beb7c9f159f6807ec3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d06b7b8_10e43648",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T16:44:39Z",
+      "side": 0,
+      "message": "It looks like this would affect how ForStatements are rehydrated. Is that the intent?",
+      "parentUuid": "5095e40e_e035039f",
+      "range": {
+        "startLine": 571,
+        "startChar": 4,
+        "endLine": 571,
+        "endChar": 16
+      },
+      "revId": "6eadf137835b929a2e77c2beb7c9f159f6807ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
