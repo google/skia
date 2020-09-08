@@ -24,7 +24,7 @@ sk_sp<GrD3DCommandSignature> GrD3DCommandSignature::Make(GrD3DGpu* gpu, ForIndex
     commandSigDesc.pArgumentDescs = &argumentDesc;
     commandSigDesc.NodeMask = 0;
 
-    gr_cp<ID3D12CommandSignature> commandSig;
+    ComPtr<ID3D12CommandSignature> commandSig;
     HRESULT hr = gpu->device()->CreateCommandSignature(&commandSigDesc, nullptr,
                                                        IID_PPV_ARGS(&commandSig));
     if (!SUCCEEDED(hr)) {
