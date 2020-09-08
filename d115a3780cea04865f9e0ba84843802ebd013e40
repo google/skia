@@ -39,6 +39,30 @@
       "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db696aa3_94270b68",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2633,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-08T15:01:38Z",
+      "side": 1,
+      "message": "It\u0027s even worse than that, actually. Looks like the current code is broken and would allow you to do something like:\n\nsomeEnum.sk_FragCoord;\n\nbecause the symbol lookup for sk_FragCoord would fail and fall back to the parent, which does contain sk_FragCoord (and is a var), so it would actually pass this check.\n\nI think the core issue is that the symboltable for the enum fields is created with a parent (SkSLIRGenerator:1268). Seems like we should fix that first. Then there\u0027s no possibility of this lookup not resulting in a variable since there\u0027s no fallback case, and we can just assert that it\u0027s a VariableReference here.\n\nBrian, do you want me to put together a CL for that, or do you want to tackle it?",
+      "parentUuid": "6403900c_382707e4",
+      "range": {
+        "startLine": 2633,
+        "startChar": 26,
+        "endLine": 2633,
+        "endChar": 57
+      },
+      "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
