@@ -245,8 +245,10 @@ GrPathSubRun::PathGlyph::PathGlyph(const SkPath& path, SkPoint origin)
 // -- GrPathSubRun ---------------------------------------------------------------------------------
 GrPathSubRun::GrPathSubRun(bool isAntiAliased,
                            const SkStrikeSpec& strikeSpec,
+                           const GrTextBlob& blob,
                            SkSpan<PathGlyph> paths)
-    : fIsAntiAliased{isAntiAliased}
+    : fBlob{blob}
+    , fIsAntiAliased{isAntiAliased}
     , fStrikeSpec{strikeSpec}
     , fPaths{paths} {}
 
@@ -309,6 +311,7 @@ auto GrPathSubRun::Make(
         const SkZip<SkGlyphVariant, SkPoint>& drawables,
         bool isAntiAliased,
         const SkStrikeSpec& strikeSpec,
+        const GrTextBlob& blob,
         SkArenaAlloc* alloc) -> GrSubRun* {
     PathGlyph* pathData = alloc->makeInitializedArray<PathGlyph>(
             drawables.size(),
@@ -318,7 +321,7 @@ auto GrPathSubRun::Make(
             });
 
     return alloc->make<GrPathSubRun>(
-            isAntiAliased, strikeSpec, SkMakeSpan(pathData, drawables.size()));
+            isAntiAliased, strikeSpec, blob, SkMakeSpan(pathData, drawables.size()));
 };
 
 // -- GrGlyphVector --------------------------------------------------------------------------------
@@ -1178,6 +1181,7 @@ void GrTextBlob::processSourcePaths(const SkZip<SkGlyphVariant, SkPoint>& drawab
     GrSubRun* subRun = GrPathSubRun::Make(drawables,
                                           runFont.hasSomeAntiAliasing(),
                                           strikeSpec,
+                                          *this,
                                           &fAlloc);
     this->insertSubRun(subRun);
 }

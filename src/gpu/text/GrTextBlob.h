@@ -37,7 +37,6 @@ class SkSurfaceProps;
 class SkTextBlob;
 class SkTextBlobRunIterator;
 
-
 // A GrTextBlob contains a fully processed SkTextBlob, suitable for nearly immediate drawing
 // on the GPU.  These are initially created with valid positions and colors, but invalid
 // texture coordinates.
@@ -193,7 +192,10 @@ class GrPathSubRun final : public GrSubRun {
     struct PathGlyph;
 
 public:
-    GrPathSubRun(bool isAntiAliased, const SkStrikeSpec& strikeSpec, SkSpan<PathGlyph> paths);
+    GrPathSubRun(bool isAntiAliased,
+                 const SkStrikeSpec& strikeSpec,
+                 const GrTextBlob& blob,
+                 SkSpan<PathGlyph> paths);
 
     void draw(const GrClip* clip,
               const SkMatrixProvider& viewMatrix,
@@ -203,6 +205,7 @@ public:
     static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                           bool isAntiAliased,
                           const SkStrikeSpec& strikeSpec,
+                          const GrTextBlob& blob,
                           SkArenaAlloc* alloc);
 
 private:
@@ -212,6 +215,7 @@ private:
         SkPoint fOrigin;
     };
 
+    const GrTextBlob& fBlob;
     const bool fIsAntiAliased;
     const SkStrikeSpec fStrikeSpec;
     const SkSpan<const PathGlyph> fPaths;
