@@ -24,7 +24,7 @@ class GrD3DPipelineState : public GrManagedResource {
 public:
     using UniformInfoArray = GrD3DPipelineStateDataManager::UniformInfoArray;
 
-    GrD3DPipelineState(gr_cp<ID3D12PipelineState> pipelineState,
+    GrD3DPipelineState(ComPtr<ID3D12PipelineState> pipelineState,
                        sk_sp<GrD3DRootSignature> rootSignature,
                        const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
                        const UniformInfoArray& uniforms,
@@ -40,15 +40,15 @@ public:
     /** Output a human-readable dump of this resource's information
     */
     void dumpInfo() const override {
-        SkDebugf("GrD3DPipelineState: %p (%d refs)\n", fPipelineState.get(), this->getRefCnt());
+        SkDebugf("GrD3DPipelineState: %p (%d refs)\n", fPipelineState.Get(), this->getRefCnt());
     }
 #endif
 
     // This will be called right before this class is destroyed and there is no reason to explicitly
-    // release the fPipelineState cause the gr_cp will handle that in the dtor.
+    // release the fPipelineState cause the ComPtr will handle that in the dtor.
     void freeGPUData() const override {}
 
-    ID3D12PipelineState* pipelineState() const { return fPipelineState.get(); }
+    ID3D12PipelineState* pipelineState() const { return fPipelineState.Get(); }
     const sk_sp<GrD3DRootSignature>& rootSignature() const { return fRootSignature; }
 
     void setAndBindConstants(GrD3DGpu*, const GrRenderTarget*, const GrProgramInfo&);
@@ -107,7 +107,7 @@ private:
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrRenderTarget*, GrSurfaceOrigin);
 
-    gr_cp<ID3D12PipelineState> fPipelineState;
+    ComPtr<ID3D12PipelineState> fPipelineState;
     sk_sp<GrD3DRootSignature> fRootSignature;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
