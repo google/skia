@@ -180,4 +180,8 @@ DEF_TEST(ArenaAlloc, r) {
     REPORTER_ASSERT(r, created == 128);
     REPORTER_ASSERT(r, destroyed == 128);
 
+    {
+        SkArenaAlloc arena(4096);
+        arena.makeBytesAlignedTo(4081, 8);
+    }
 }

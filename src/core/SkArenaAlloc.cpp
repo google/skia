@@ -74,19 +74,14 @@ char* SkArenaAlloc::NextBlock(char* footerEnd) {
 
 void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
     constexpr uint32_t headerSize = sizeof(Footer) + sizeof(ptrdiff_t);
-    // The chrome c++ library we use does not define std::max_align_t.
-    // This must be conservative to add the right amount of extra memory to handle the alignment
-    // padding.
-    constexpr uint32_t alignof_max_align_t = 8;
     constexpr uint32_t maxSize = std::numeric_limits<uint32_t>::max();
     constexpr uint32_t overhead = headerSize + sizeof(Footer);
     AssertRelease(size <= maxSize - overhead);
     uint32_t objSizeAndOverhead = size + overhead;
-    if (alignment > alignof_max_align_t) {
-        uint32_t alignmentOverhead = alignment - 1;
-        AssertRelease(objSizeAndOverhead <= maxSize - alignmentOverhead);
-        objSizeAndOverhead += alignmentOverhead;
-    }
+
+    const uint32_t alignmentOverhead = alignment - 1;
+    AssertRelease(objSizeAndOverhead <= maxSize - alignmentOverhead);
+    objSizeAndOverhead += alignmentOverhead;
 
     uint32_t minAllocationSize = fNextHeapAlloc;
 
