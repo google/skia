@@ -135,6 +135,30 @@
       "revId": "dcb7b7c018a6c6e0c1b8926e7dcd675bb5f9794b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afcc834b_202604e1",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-08T15:15:55Z",
+      "side": 1,
+      "message": "That\u0027s true, though I could argue that if they\u0027re using GrD3DTypes.h we\u0027re already warning about name collisions. But to be more friendly, how about declaring \u0027using Microsoft::WRL::ComPtr;\u0027 and then we can use the shorter ComPtr form everywhere. It\u0027s also clearer that it\u0027s not a Skia type.",
+      "parentUuid": "c7ac8597_de935e89",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 11
+      },
+      "revId": "dcb7b7c018a6c6e0c1b8926e7dcd675bb5f9794b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
