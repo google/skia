@@ -118,4 +118,8 @@ private:
     }
 };
 
+#ifdef SK_BUILD_FOR_WIN
+#pragma warning(pop)
+#endif
+
 #endif
