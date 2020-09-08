@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ced57910_16a0ddca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-08T17:00:17Z",
+      "side": 1,
+      "message": "Does this really mean that Flutter more or less never paints from a Paragraph twice (I would think it would be possible to recover the recording time of the picture with a second drawing, though maybe not, since most of the caching will probably be in the glyph cache when drawing anyway).",
+      "revId": "257f6c46491fbdc634daeee96698f16d9bf302c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
