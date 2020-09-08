@@ -87,6 +87,30 @@
       "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec923d89_97a08a3a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2633,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T15:04:58Z",
+      "side": 1,
+      "message": "Actually… I guess I don\u0027t fully understand how enum symbol lookup works? The more I think about it, I\u0027m realizing I haven\u0027t had to mess with enums much yet at all.",
+      "parentUuid": "d20fa5dc_c332410a",
+      "range": {
+        "startLine": 2633,
+        "startChar": 26,
+        "endLine": 2633,
+        "endChar": 57
+      },
+      "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
