@@ -24,10 +24,12 @@ public:
          * Binding a descriptor set invalidates all higher index descriptor sets. We must bind
          * in the order of this enumeration. Samplers are after Uniforms because GrOps can specify
          * GP textures as dynamic state, meaning they get rebound for each draw in a pipeline while
-         * uniforms are bound once before all the draws.
+         * uniforms are bound once before all the draws. We bind input attachments after samplers
+         * so those also need to be rebound if we bind new samplers.
          */
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
+        kInputDescSet = 2,
     };
     enum {
         kUniformBinding = 0

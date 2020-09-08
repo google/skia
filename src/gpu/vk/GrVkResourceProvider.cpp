@@ -86,6 +86,10 @@ void GrVkResourceProvider::init() {
     fDescriptorSetManagers.emplace_back(dsm);
     SkASSERT(1 == fDescriptorSetManagers.count());
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
+    dsm = GrVkDescriptorSetManager::CreateInputManager(fGpu);
+    fDescriptorSetManagers.emplace_back(dsm);
+    SkASSERT(2 == fDescriptorSetManagers.count());
+    fInputDSHandle = GrVkDescriptorSetManager::Handle(1);
 }
 
 GrVkPipeline* GrVkResourceProvider::createPipeline(const GrProgramInfo& programInfo,
@@ -285,6 +289,11 @@ VkDescriptorSetLayout GrVkResourceProvider::getUniformDSLayout() const {
     return fDescriptorSetManagers[fUniformDSHandle.toIndex()]->layout();
 }
 
+VkDescriptorSetLayout GrVkResourceProvider::getInputDSLayout() const {
+    SkASSERT(fInputDSHandle.isValid());
+    return fDescriptorSetManagers[fInputDSHandle.toIndex()]->layout();
+}
+
 VkDescriptorSetLayout GrVkResourceProvider::getSamplerDSLayout(
         const GrVkDescriptorSetManager::Handle& handle) const {
     SkASSERT(handle.isValid());
@@ -295,6 +304,11 @@ const GrVkDescriptorSet* GrVkResourceProvider::getUniformDescriptorSet() {
     SkASSERT(fUniformDSHandle.isValid());
     return fDescriptorSetManagers[fUniformDSHandle.toIndex()]->getDescriptorSet(fGpu,
                                                                                 fUniformDSHandle);
+}
+
+const GrVkDescriptorSet* GrVkResourceProvider::getInputDescriptorSet() {
+    SkASSERT(fInputDSHandle.isValid());
+    return fDescriptorSetManagers[fInputDSHandle.toIndex()]->getDescriptorSet(fGpu, fInputDSHandle);
 }
 
 const GrVkDescriptorSet* GrVkResourceProvider::getSamplerDescriptorSet(
