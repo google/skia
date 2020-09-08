@@ -63,6 +63,30 @@
       "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d20fa5dc_c332410a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2633,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T15:03:38Z",
+      "side": 1,
+      "message": "I don\u0027t think enums would work if you do that? Enums are meant to extend symbol lookup for the rest of the block that they are in.",
+      "parentUuid": "db696aa3_94270b68",
+      "range": {
+        "startLine": 2633,
+        "startChar": 26,
+        "endLine": 2633,
+        "endChar": 57
+      },
+      "revId": "d115a3780cea04865f9e0ba84843802ebd013e40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
