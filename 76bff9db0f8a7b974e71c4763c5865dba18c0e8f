@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c761e7b_7e00b961",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-08T18:48:58Z",
+      "side": 1,
+      "message": "not surprisingly, the index argument here is an int and not a float...",
+      "range": {
+        "startLine": 853,
+        "startChar": 34,
+        "endLine": 853,
+        "endChar": 36
+      },
+      "revId": "76bff9db0f8a7b974e71c4763c5865dba18c0e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53eca95e_666fcb6b",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-08T18:48:58Z",
+      "side": 1,
+      "message": "all our other sksl blend functions expect a half and not a float. So until we have generics here need this be half",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 4
+      },
+      "revId": "76bff9db0f8a7b974e71c4763c5865dba18c0e8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
