@@ -435,7 +435,8 @@ private:
     void onPrePrepare(GrRecordingContext*,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) override {}
+                      const GrXferProcessor::DstProxyView&,
+                      GrDstSampleType dstSampleType) override {}
     void onPrepare(GrOpFlushState* state) override {
         fHelper = std::make_unique<DrawMeshHelper>(state);
         fPrepareFn(fHelper.get());

@@ -901,12 +901,14 @@ private:
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&) override;
+                             const GrXferProcessor::DstProxyView&,
+                             GrDstSampleType dstSampleType) override;
 
     void onPrePrepareDraws(GrRecordingContext*,
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&) override;
+                           const GrXferProcessor::DstProxyView&,
+                           GrDstSampleType dstSampleType) override;
 
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
@@ -1090,7 +1092,8 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
                                        SkArenaAlloc* arena,
                                        const GrSurfaceProxyView* writeView,
                                        GrAppliedClip&& appliedClip,
-                                       const GrXferProcessor::DstProxyView& dstProxyView) {
+                                       const GrXferProcessor::DstProxyView& dstProxyView,
+                                       GrDstSampleType dstSampleType) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
     SkMatrix invert;
     if (!this->viewMatrix().invert(&invert)) {
@@ -1107,7 +1110,8 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
     }
 
     auto pipeline = fHelper.createPipelineWithStencil(caps, arena, writeView->swizzle(),
-                                                      std::move(appliedClip), dstProxyView);
+                                                      std::move(appliedClip), dstProxyView,
+                                                      dstSampleType);
 
     if (fCharacterization & kLine_Program) {
         this->makeLineProgramInfo(*caps, arena, pipeline, writeView,
@@ -1127,7 +1131,8 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
 void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip* clip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     GrDstSampleType dstSampleType) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
     const GrCaps* caps = context->priv().caps();
 
@@ -1137,7 +1142,8 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
     // Conservatively predict which programs will be required
     fCharacterization = this->predictPrograms(caps);
 
-    this->createProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView);
+    this->createProgramInfo(caps, arena, writeView, std::move(appliedClip), dstProxyView,
+                            dstSampleType);
 
     context->priv().recordProgramInfo(fProgramInfos[0]);
     context->priv().recordProgramInfo(fProgramInfos[1]);

@@ -26,7 +26,8 @@ public:
                                                 SkArenaAlloc*,
                                                 GrSwizzle writeViewSwizzle,
                                                 GrAppliedClip&&,
-                                                const GrXferProcessor::DstProxyView&);
+                                                const GrXferProcessor::DstProxyView&,
+                                                GrDstSampleType);
 
     const GrPipeline* createPipelineWithStencil(GrOpFlushState* flushState);
 
@@ -35,6 +36,7 @@ public:
                                                 const GrSurfaceProxyView* writeViewSwizzle,
                                                 GrAppliedClip&&,
                                                 const GrXferProcessor::DstProxyView&,
+                                                GrDstSampleType,
                                                 GrGeometryProcessor*,
                                                 GrPrimitiveType);
 

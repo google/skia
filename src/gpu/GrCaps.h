@@ -383,6 +383,9 @@ public:
     bool driverDisableCCPR() const { return fDriverDisableCCPR; }
     bool driverDisableMSAACCPR() const { return fDriverDisableMSAACCPR; }
 
+    // Returns the support for directly sampling the destination in a shader.
+    GrDstSampleType canSampleDestinationInShader(const GrRenderTargetProxy*) const;
+
     /**
      * This is used to try to ensure a successful copy a dst in order to perform shader-based
      * blending.
@@ -570,6 +573,9 @@ private:
 
     virtual GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const = 0;
 
+    virtual GrDstSampleType onCanSampleDestinationInShader(const GrRenderTargetProxy*) const {
+        return GrDstSampleType::kAsTextureCopy;
+    }
 
     bool fSuppressPrints : 1;
     bool fWireframeMode  : 1;

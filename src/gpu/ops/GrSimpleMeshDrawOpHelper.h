@@ -129,6 +129,7 @@ public:
                                 GrSwizzle writeViewSwizzle,
                                 GrAppliedClip&&,
                                 const GrXferProcessor::DstProxyView&,
+                                GrDstSampleType,
                                 GrProcessorSet&&,
                                 GrPipeline::InputFlags pipelineFlags,
                                 const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
@@ -154,6 +155,7 @@ public:
                                             const GrSurfaceProxyView* writeView,
                                             GrAppliedClip&&,
                                             const GrXferProcessor::DstProxyView&,
+                                            GrDstSampleType,
                                             GrGeometryProcessor*,
                                             GrProcessorSet&&,
                                             GrPrimitiveType,
@@ -167,6 +169,7 @@ public:
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip&&,
                                      const GrXferProcessor::DstProxyView&,
+                                     GrDstSampleType,
                                      GrGeometryProcessor*,
                                      GrPrimitiveType);
 

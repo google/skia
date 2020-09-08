@@ -514,6 +514,8 @@ private:
 
     GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    GrDstSampleType onCanSampleDestinationInShader(const GrRenderTargetProxy*) const override;
+
     GrGLStandard fStandard = kNone_GrGLStandard;
 
     SkTArray<StencilFormat, true> fStencilFormats;

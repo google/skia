@@ -62,15 +62,6 @@ public:
             *this = other;
         }
 
-        DstProxyView(GrSurfaceProxyView view, const SkIPoint& offset)
-            : fProxyView(std::move(view)) {
-            if (fProxyView.proxy()) {
-                fOffset = offset;
-            } else {
-                fOffset.set(0, 0);
-            }
-        }
-
         DstProxyView& operator=(const DstProxyView& other) {
             fProxyView = other.fProxyView;
             fOffset = other.fOffset;
@@ -87,7 +78,7 @@ public:
         void setOffset(const SkIPoint& offset) { fOffset = offset; }
         void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
 
-        GrTextureProxy* proxy() const { return fProxyView.asTextureProxy(); }
+        GrSurfaceProxy* proxy() const { return fProxyView.proxy(); }
         const GrSurfaceProxyView& proxyView() const { return fProxyView; }
 
         void setProxyView(GrSurfaceProxyView view) {
@@ -98,8 +89,8 @@ public:
         }
 
     private:
-        GrSurfaceProxyView fProxyView;
-        SkIPoint           fOffset;
+        GrSurfaceProxyView       fProxyView;
+        SkIPoint                 fOffset;
     };
 
     /**
