@@ -16,6 +16,24 @@
       "revId": "b6030fb2c818ceea64469a613a8f3fe66cc32595",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3163efcb_3f8a2b5f",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-08T17:40:13Z",
+      "side": 1,
+      "message": "You are right. Thank you. It seems that I can remove save/translate/restore for direct drawing only (luckily, I need it only for direct drawing).",
+      "parentUuid": "42925743_4193c9fb",
+      "revId": "b6030fb2c818ceea64469a613a8f3fe66cc32595",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
