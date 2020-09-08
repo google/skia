@@ -103,7 +103,8 @@ public:
     void addDrawOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrDrawOp> op,
                    const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
-                   GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
+                   GrDstSampleType dstSampleType, GrTextureResolveManager textureResolveManager,
+                   const GrCaps& caps) {
         auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
                 GrSurfaceProxy* p, GrMipmapped mipmapped) {
             this->addSampledTexture(p);
@@ -113,13 +114,21 @@ public:
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
         if (dstProxyView.proxy()) {
-            this->addSampledTexture(dstProxyView.proxy());
+            if (GrDstSampleTypeUsesTexture(dstSampleType)) {
+                this->addSampledTexture(dstProxyView.proxy());
+            }
             addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
-            if (this->target(0).asTextureProxy() == dstProxyView.proxy()) {
+            if (this->target(0).proxy() == dstProxyView.proxy()) {
                 // Since we are sampling and drawing to the same surface we will need to use
                 // texture barriers.
+                SkASSERT(GrDstSampleTypeDirectlySamplesDst(dstSampleType));
                 fUsesXferBarriers |= true;
             }
+            SkASSERT(dstSampleType != GrDstSampleType::kNone);
+            SkASSERT(fDstSampleType == GrDstSampleType::kNone || fDstSampleType == dstSampleType);
+            SkASSERT(dstSampleType != GrDstSampleType::kAsInputAttachment ||
+                     dstProxyView.offset().isZero());
+            fDstSampleType = dstSampleType;
         }
 
         fUsesXferBarriers |= processorAnalysis.usesNonCoherentHWBlending();
@@ -321,6 +330,12 @@ private:
     int fLastClipNumAnalyticElements;
 
     bool fUsesXferBarriers = false;
+
+    // This tracks what type of dst sampling is done by ops in this GrOpsTask. For a given
+    // GrOpsTask, all ops should either be GrDstSampleType::kNone or one of kAsTexturecopy,
+    // kAsSelfTexture, or kAsInputAttachment. We should never get in a situation where we are using
+    // different dst sampling approaches (excluding kNone).
+    GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
 
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;

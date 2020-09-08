@@ -529,13 +529,14 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrDstSampleType dstSampleType) override {
         GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(arena, fFalloffView);
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
 
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
                                                                    std::move(appliedClip),
-                                                                   dstProxyView, gp,
+                                                                   dstProxyView, dstSampleType, gp,
                                                                    GrProcessorSet::MakeEmptySet(),
                                                                    GrPrimitiveType::kTriangles,
                                                                    GrPipeline::InputFlags::kNone,

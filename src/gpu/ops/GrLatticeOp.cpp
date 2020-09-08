@@ -197,7 +197,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrDstSampleType dstSampleType) override {
 
         auto gp = LatticeGP::Make(arena, fView, fColorSpaceXform, fFilter, fWideColor);
         if (!gp) {
@@ -206,7 +207,7 @@ private:
 
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps, arena, writeView,
                                                                    std::move(appliedClip),
-                                                                   dstProxyView, gp,
+                                                                   dstProxyView, dstSampleType, gp,
                                                                    fHelper.detachProcessorSet(),
                                                                    GrPrimitiveType::kTriangles,
                                                                    fHelper.pipelineFlags(),

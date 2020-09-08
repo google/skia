@@ -416,7 +416,8 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
             chain.head()->prePrepare(context,
                                      &fTargets[0],
                                      chain.appliedClip(),
-                                     chain.dstProxyView());
+                                     chain.dstProxyView(),
+                                     fDstSampleType);
         }
     }
 }
@@ -445,7 +446,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           &fTargets[0],
                                           chain.appliedClip(),
-                                          chain.dstProxyView());
+                                          chain.dstProxyView(),
+                                          fDstSampleType);
 
             flushState->setOpArgs(&opArgs);
 
@@ -590,7 +592,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         GrOpFlushState::OpArgs opArgs(chain.head(),
                                       &fTargets[0],
                                       chain.appliedClip(),
-                                      chain.dstProxyView());
+                                      chain.dstProxyView(),
+                                      fDstSampleType);
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());

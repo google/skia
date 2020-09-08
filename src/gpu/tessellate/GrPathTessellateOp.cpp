@@ -36,8 +36,8 @@ GrPathTessellateOp::FixedFunctionFlags GrPathTessellateOp::fixedFunctionFlags() 
 void GrPathTessellateOp::onPrePrepare(GrRecordingContext*,
                                       const GrSurfaceProxyView* writeView,
                                       GrAppliedClip*,
-                                      const GrXferProcessor::DstProxyView&) {
-}
+                                      const GrXferProcessor::DstProxyView&,
+                                      GrDstSampleType dstSampleType) {}
 
 void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
     int numVerbs = fPath.countVerbs();
@@ -603,6 +603,7 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
     }
     initArgs.fCaps = &flushState->caps();
     initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
+    initArgs.fDstSampleType = flushState->drawOpArgs().dstSampleType();
     initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
