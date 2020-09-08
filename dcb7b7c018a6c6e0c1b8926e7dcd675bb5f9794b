@@ -183,6 +183,30 @@
       "revId": "dcb7b7c018a6c6e0c1b8926e7dcd675bb5f9794b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d253efa_9ac89df5",
+        "filename": "include/gpu/d3d/GrD3DTypes.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-08T16:08:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6bd26f9c_794e5f6a",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 11
+      },
+      "revId": "dcb7b7c018a6c6e0c1b8926e7dcd675bb5f9794b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
