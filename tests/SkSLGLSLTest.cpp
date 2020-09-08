@@ -120,6 +120,7 @@ void main() {
         x = z;
     }
 
+
     sk_FragColor = vec4(x);
 }
 )__GLSL__");
@@ -1857,25 +1858,27 @@ DEF_TEST(SkSLGeometryShaders, r) {
          "EmitVertex();"
          "}",
          *SkSL::ShaderCapsFactory::NoGSInvocationsSupport(),
-         "#version 400\n"
-         "int sk_InvocationID;\n"
-         "layout (points) in ;\n"
-         "layout (line_strip, max_vertices = 4) out ;\n"
-         "void _invoke() {\n"
-         "    {\n"
-         "        gl_Position = gl_in[0].gl_Position + vec4(0.5, 0.0, 0.0, float(sk_InvocationID));\n"
-         "        EmitVertex();\n"
-         "    }\n"
-         "\n"
-         "    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(sk_InvocationID));\n"
-         "    EmitVertex();\n"
-         "}\n"
-         "void main() {\n"
-         "    for (sk_InvocationID = 0;sk_InvocationID < 2; sk_InvocationID++) {\n"
-         "        _invoke();\n"
-         "        EndPrimitive();\n"
-         "    }\n"
-         "}\n",
+         R"__GLSL__(#version 400
+int sk_InvocationID;
+layout (points) in ;
+layout (line_strip, max_vertices = 4) out ;
+void _invoke() {
+    {
+        gl_Position = gl_in[0].gl_Position + vec4(0.5, 0.0, 0.0, float(sk_InvocationID));
+        EmitVertex();
+    }
+
+
+    gl_Position = gl_in[0].gl_Position + vec4(-0.5, 0.0, 0.0, float(sk_InvocationID));
+    EmitVertex();
+}
+void main() {
+    for (sk_InvocationID = 0;sk_InvocationID < 2; sk_InvocationID++) {
+        _invoke();
+        EndPrimitive();
+    }
+}
+)__GLSL__",
          SkSL::Program::kGeometry_Kind);
     test(r,
          "layout(points, invocations = 2) in;"

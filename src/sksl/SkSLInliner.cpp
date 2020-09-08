@@ -416,7 +416,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     }
 }
 
-Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
+Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                          SymbolTable* symbolTableForCall) {
     // Inlining is more complicated here than in a typical compiler, because we have to have a
     // high-level IR and can't just drop statements into the middle of an expression or even use
@@ -432,11 +432,17 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
     SkASSERT(call);
     SkASSERT(this->isSafeToInline(*call, /*inlineThreshold=*/INT_MAX));
 
-    int offset = call->fOffset;
     std::vector<std::unique_ptr<Expression>>& arguments = call->fArguments;
+    const int offset = call->fOffset;
     const FunctionDefinition& function = *call->fFunction.fDefinition;
+    const bool hasEarlyReturn = has_early_return(function);
+
     InlinedCall inlinedCall;
-    std::vector<std::unique_ptr<Statement>> inlinedBody;
+    inlinedCall.fInlinedBody = std::make_unique<Block>(offset,
+                                                       std::vector<std::unique_ptr<Statement>>{},
+                                                       /*symbols=*/nullptr,
+                                                       /*isScope=*/false);
+    std::vector<std::unique_ptr<Statement>>& inlinedBody = inlinedCall.fInlinedBody->fStatements;
 
     auto makeInlineVar = [&](const String& baseName, const Type& type, Modifiers modifiers,
                              std::unique_ptr<Expression>* initialValue) -> const Variable* {
@@ -517,7 +523,6 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
     }
 
     const Block& body = function.fBody->as<Block>();
-    bool hasEarlyReturn = has_early_return(function);
     auto inlineBlock = std::make_unique<Block>(offset, std::vector<std::unique_ptr<Statement>>{});
     inlineBlock->fStatements.reserve(body.fStatements.size());
     for (const std::unique_ptr<Statement>& stmt : body.fStatements) {
@@ -534,8 +539,8 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
                 std::move(inlineBlock),
                 std::make_unique<BoolLiteral>(*fContext, offset, /*value=*/false)));
     } else {
-        // No early returns, so we can just dump the code in. We need to use a block so we don't get
-        // name conflicts with locals.
+        // No early returns, so we can just dump the code in. We still need to keep the block so we
+        // don't get name conflicts with locals.
         inlinedBody.push_back(std::move(inlineBlock));
     }
 
@@ -546,8 +551,8 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
             SkASSERT(varMap.find(p) != varMap.end());
             if (arguments[i]->fKind == Expression::kVariableReference_Kind &&
                 &arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
-                // we didn't create a temporary for this parameter, so there's nothing to copy back
-                // out
+                // We didn't create a temporary for this parameter, so there's nothing to copy back
+                // out.
                 continue;
             }
             auto varRef = std::make_unique<VariableReference>(offset, *varMap[p]);
@@ -568,19 +573,6 @@ Inliner::InlinedCall Inliner::inlineCall(std::unique_ptr<FunctionCall> call,
         // something non-null as a standin.
         inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(*fContext, offset,
                                                                      /*value=*/false);
-    }
-
-    switch (inlinedBody.size()) {
-        case 0:
-            break;
-        case 1:
-            inlinedCall.fInlinedBody = std::move(inlinedBody.front());
-            break;
-        default:
-            inlinedCall.fInlinedBody = std::make_unique<Block>(offset, std::move(inlinedBody),
-                                                               /*symbols=*/nullptr,
-                                                               /*isScope=*/false);
-            break;
     }
 
     return inlinedCall;

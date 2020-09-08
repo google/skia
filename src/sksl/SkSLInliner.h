@@ -15,6 +15,7 @@
 
 namespace SkSL {
 
+struct Block;
 class Context;
 struct Expression;
 struct FunctionCall;
@@ -40,10 +41,10 @@ public:
      * above the statement containing the inlined expression.
      */
     struct InlinedCall {
-        std::unique_ptr<Statement> fInlinedBody;
+        std::unique_ptr<Block> fInlinedBody;
         std::unique_ptr<Expression> fReplacementExpr;
     };
-    InlinedCall inlineCall(std::unique_ptr<FunctionCall>, SymbolTable*);
+    InlinedCall inlineCall(FunctionCall*, SymbolTable*);
 
     /** Checks whether inlining is viable for a FunctionCall. */
     bool isSafeToInline(const FunctionCall&, int inlineThreshold);
