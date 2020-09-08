@@ -116,8 +116,9 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fState >= kLineBroken &&
          fLines.size() == 1 && fLines.front().ellipsis() == nullptr) {
         // Most common case: one line of text (and one line is never justified, so no cluster shifts)
+        // We cannot mark it as kLineBroken because the new width can be bigger than the old width
         fWidth = floorWidth;
-        fState = kLineBroken;
+        fState = kMarked;
     } else if (fState >= kLineBroken && fOldWidth != floorWidth) {
         // We can use the results from SkShaper but have to do EVERYTHING ELSE again
         fState = kShaped;
