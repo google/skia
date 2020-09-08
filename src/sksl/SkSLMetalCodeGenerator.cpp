@@ -1153,6 +1153,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
                 fErrors.error(parentOffset,
                                 "offset of field '" + field.fName + "' must be at least " +
                                 to_string((int) currentOffset));
+                return;
             } else if (currentOffset < fieldOffset) {
                 this->write("char pad");
                 this->write(to_string(fPaddingCount++));
@@ -1166,9 +1167,15 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
                 fErrors.error(parentOffset,
                               "offset of field '" + field.fName + "' must be a multiple of " +
                               to_string((int) alignment));
+                return;
             }
         }
-        currentOffset += memoryLayout.size(*fieldType);
+        size_t fieldSize = memoryLayout.size(*fieldType);
+        if (fieldSize > static_cast<size_t>(std::numeric_limits<int>::max() - currentOffset)) {
+            fErrors.error(parentOffset, "field offset overflow");
+            return;
+        }
+        currentOffset += fieldSize;
         std::vector<int> sizes;
         while (fieldType->typeKind() == Type::TypeKind::kArray) {
             sizes.push_back(fieldType->columns());
@@ -1876,7 +1883,7 @@ bool MetalCodeGenerator::generateCode() {
     write_stringstream(fHeader, *rawOut);
     write_stringstream(fExtraFunctions, *rawOut);
     write_stringstream(body, *rawOut);
-    return true;
+    return 0 == fErrors.errorCount();
 }
 
 }  // namespace SkSL
