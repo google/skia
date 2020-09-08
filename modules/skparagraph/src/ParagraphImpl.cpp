@@ -212,16 +212,20 @@ void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
 
     if (fState < kDrawn) {
         // Record the picture anyway (but if we have some pieces in the cache they will be used)
-        this->paintLinesIntoPicture(x, y);
+        this->paintLinesIntoPicture(0, 0);
         fState = kDrawn;
     }
 
     if (fParagraphStyle.getDrawOptions() == DrawOptions::kReplay) {
         // Replay the recorded picture
+        canvas->save();
+        canvas->translate(x, y);
         fPicture->playback(canvas);
+        canvas->restore();
     } else {
         // Draw the picture
-        canvas->drawPicture(fPicture);
+        SkMatrix matrix = SkMatrix::Translate(x, y);
+        canvas->drawPicture(fPicture, &matrix, nullptr);
     }
 }
 
