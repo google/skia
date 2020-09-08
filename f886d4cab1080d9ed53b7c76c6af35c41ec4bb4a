@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "d837cc9c_dd28f605",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-08T19:44:22Z",
+      "side": 1,
+      "message": "Yeah it is to allow the backends to have different logic on what DstSampleType they use. Like we need to know that when on vulkan if the proxy doesn\u0027t have the input flag, but isn\u0027t a texture that we still can\u0027t use the GrDstSampleType::kSelfTexture. We could of course add more caps checks like doesSupportSelfTexture(), but I just worry once we try to start putting metal and d3d into this as well it will get real messy trying to write something in GrRenderTargetProxy that correctly checks and prioritizes approaches for each backend.",
+      "parentUuid": "4a9ad7e4_ebfc2739",
+      "range": {
+        "startLine": 387,
+        "startChar": 20,
+        "endLine": 387,
+        "endChar": 44
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a5fc7315_a686ca83",
         "filename": "src/gpu/GrPipeline.h",
         "patchSetId": 2
@@ -122,6 +146,30 @@
       "writtenOn": "2020-09-08T18:45:44Z",
       "side": 1,
       "message": "We pass the DstSampleType in addDrawOp every time, vs. when we create the GrOpsTask, because the GrRTC\u0027s dst sample type may change from kNone to something else as draws are collected, right?\n\nOnce it becomes non-kNone, will it change to something else ever? If so, do you like it better if we specify what the GrRTC\u0027s non-kNone dst sample type is when we make the GrOpsTask, and then it controls updating to that (from kNone) when we actually have a dst proxy view for a draw?",
+      "range": {
+        "startLine": 2063,
+        "startChar": 37,
+        "endLine": 2063,
+        "endChar": 51
+      },
+      "revId": "f886d4cab1080d9ed53b7c76c6af35c41ec4bb4a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c41bfb2_1f7fdfe6",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2063,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-08T19:44:22Z",
+      "side": 1,
+      "message": "So I started to actually write it that way, passing in a GrOpsTask creation time and just always calculating the GrDstSampleType in the GrRTC ctor. However, I don\u0027t want to set the GrOpsTask::fDstSampleType to non kNone, unless there is at least one op that actually needs it. If I set it always, it will force vulkan to always setup the VkRenderPass to handle input attachments and barriers inside the render pass. This is not optimal and I don\u0027t want to slow down everything else for the less that 1% of cases that use advanced blends.\n\nNow I suppose if there was a way to late set the GrDstSampleType off of the GrRenderTargetContext onto the GrOpsTask. I have no idea how this would happen cause I\u0027m pretty sure the GrOpsTask and GrRenderTargetContext don\u0027t really have this sort of late connection still.",
+      "parentUuid": "f1842753_771b64aa",
       "range": {
         "startLine": 2063,
         "startChar": 37,
