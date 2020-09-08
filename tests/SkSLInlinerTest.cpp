@@ -81,20 +81,49 @@ DEF_TEST(SkSLFunctionInlineKeywordOverridesThreshold, r) {
          "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
          "}"
          "void main() { int y = 0; tooBig(y); }",
-         "#version 400\n"
-         "void main() {\n"
-         "    int y = 0;\n"
-         "    {\n"
-         "        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n"
-         "        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n"
-         "        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n"
-         "        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n"
-         "        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n        ++y;\n"
-         "        ++y;\n        ++y;\n        ++y;\n        ++y;\n"
-         "    }\n"
-         "\n"
-         "}\n"
-         );
+         R"__GLSL__(#version 400
+void main() {
+    int y = 0;
+    {
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+        ++y;
+    }
+
+
+}
+)__GLSL__");
 }
 
 DEF_TEST(SkSLFunctionUnableToInlineReturnsInsideLoop, r) {
@@ -178,16 +207,18 @@ DEF_TEST(SkSLFunctionInlineWithInoutArgument, r) {
          "    outParameter(x);"
          "    sk_FragColor.x = x;"
          "}",
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    float x = 1.0;\n"
-         "    {\n"
-         "        x *= 2.0;\n"
-         "    }\n"
-         "\n"
-         "    sk_FragColor.x = x;\n"
-         "}\n");
+         R"__GLSL__(#version 400
+out vec4 sk_FragColor;
+void main() {
+    float x = 1.0;
+    {
+        x *= 2.0;
+    }
+
+
+    sk_FragColor.x = x;
+}
+)__GLSL__");
 }
 
 DEF_TEST(SkSLFunctionInlineWithNestedCall, r) {
