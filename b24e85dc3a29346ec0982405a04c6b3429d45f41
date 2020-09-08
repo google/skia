@@ -39,6 +39,30 @@
       "revId": "b24e85dc3a29346ec0982405a04c6b3429d45f41",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c979c4e8_9fbe688a",
+        "filename": "src/gpu/d3d/GrD3DDescriptorHeap.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-08T20:25:14Z",
+      "side": 1,
+      "message": "They override ComPtr::operator\u0026 to return the address of the internal raw pointer. It\u0027s a convenience for calls like this, but it is admittedly risky. msrt::com_ptr replaces it with a put() method (to correspond with get()).",
+      "parentUuid": "3c1043cd_c6d38eb7",
+      "range": {
+        "startLine": 21,
+        "startChar": 51,
+        "endLine": 21,
+        "endChar": 70
+      },
+      "revId": "b24e85dc3a29346ec0982405a04c6b3429d45f41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
