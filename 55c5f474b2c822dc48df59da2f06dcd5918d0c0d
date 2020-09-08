@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d972ffb9_03a23b2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-08T15:29:03Z",
+      "side": 1,
+      "message": "This is the change that does not affect the real performance but lets us to match TxtLib on the Flutter performance test. ",
+      "revId": "55c5f474b2c822dc48df59da2f06dcd5918d0c0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
