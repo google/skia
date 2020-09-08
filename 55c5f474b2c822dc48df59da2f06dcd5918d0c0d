@@ -68,6 +68,24 @@
       "revId": "55c5f474b2c822dc48df59da2f06dcd5918d0c0d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6c1202c8_19eaffc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-08T15:37:15Z",
+      "side": 1,
+      "message": "I measured the difference between direct paint/record paint and also with/without save/restore/translate. None of them made any difference. The only difference is in the flutter\u0027s test because they have the threshold for caching depending on approximateOpCount.",
+      "parentUuid": "993cfdb7_4f41b040",
+      "revId": "55c5f474b2c822dc48df59da2f06dcd5918d0c0d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
