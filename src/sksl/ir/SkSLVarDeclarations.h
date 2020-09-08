@@ -21,7 +21,7 @@ namespace SkSL {
  * instances.
  */
 struct VarDeclaration : public Statement {
-    static constexpr Kind kStatementKind = kVarDeclaration_Kind;
+    static constexpr Kind kStatementKind = Kind::kVarDeclaration;
 
     VarDeclaration(const Variable* var,
                    std::vector<std::unique_ptr<Expression>> sizes,
@@ -70,7 +70,7 @@ struct VarDeclaration : public Statement {
  * A variable declaration statement, which may consist of one or more individual variables.
  */
 struct VarDeclarations : public ProgramElement {
-    static constexpr Kind kProgramElementKind = kVar_Kind;
+    static constexpr Kind kProgramElementKind = Kind::kVar;
 
     VarDeclarations(int offset, const Type* baseType,
                     std::vector<std::unique_ptr<VarDeclaration>> vars)
@@ -97,8 +97,8 @@ struct VarDeclarations : public ProgramElement {
         }
         String result;
         for (const auto& var : fVars) {
-            if (var->fKind != Statement::kNop_Kind) {
-                SkASSERT(var->fKind == Statement::kVarDeclaration_Kind);
+            if (var->kind() != Statement::Kind::kNop) {
+                SkASSERT(var->kind() == Statement::Kind::kVarDeclaration);
                 result = ((const VarDeclaration&) *var).fVar->fModifiers.description();
                 break;
             }
@@ -106,10 +106,10 @@ struct VarDeclarations : public ProgramElement {
         result += fBaseType.description() + " ";
         String separator;
         for (const auto& rawVar : fVars) {
-            if (rawVar->fKind == Statement::kNop_Kind) {
+            if (rawVar->kind() == Statement::Kind::kNop) {
                 continue;
             }
-            SkASSERT(rawVar->fKind == Statement::kVarDeclaration_Kind);
+            SkASSERT(rawVar->kind() == Statement::Kind::kVarDeclaration);
             VarDeclaration& var = (VarDeclaration&) *rawVar;
             result += separator;
             separator = ", ";

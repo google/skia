@@ -97,7 +97,7 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
  * Represents a vector swizzle operation such as 'float2(1, 2, 3).zyx'.
  */
 struct Swizzle : public Expression {
-    static constexpr Kind kExpressionKind = kSwizzle_Kind;
+    static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
     Swizzle(const Context& context, std::unique_ptr<Expression> base, std::vector<int> components)
     : INHERITED(base->fOffset, kExpressionKind, get_type(context, *base, components.size()))
@@ -108,7 +108,7 @@ struct Swizzle : public Expression {
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (fBase->fKind == Expression::kConstructor_Kind) {
+        if (fBase->kind() == Expression::Kind::kConstructor) {
             Constructor& constructor = static_cast<Constructor&>(*fBase);
             if (constructor.isCompileTimeConstant()) {
                 // we're swizzling a constant vector, e.g. float4(1).x. Simplify it.
@@ -151,7 +151,7 @@ struct Swizzle : public Expression {
 
 private:
     Swizzle(const Type& type, std::unique_ptr<Expression> base, std::vector<int> components)
-    : INHERITED(base->fOffset, kSwizzle_Kind, type)
+    : INHERITED(base->fOffset, kExpressionKind, type)
     , fBase(std::move(base))
     , fComponents(std::move(components)) {
         SkASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
