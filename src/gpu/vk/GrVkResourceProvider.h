@@ -134,6 +134,11 @@ public:
     // when the caller needs the layout to create a VkPipelineLayout.
     VkDescriptorSetLayout getUniformDSLayout() const;
 
+    // Returns the compatible VkDescriptorSetLayout to use for input attachments. The caller does
+    // not own the VkDescriptorSetLayout and thus should not delete it. This function should be used
+    // when the caller needs the layout to create a VkPipelineLayout.
+    VkDescriptorSetLayout getInputDSLayout() const;
+
     // Returns the compatible VkDescriptorSetLayout to use for a specific sampler handle. The caller
     // does not own the VkDescriptorSetLayout and thus should not delete it. This function should be
     // used when the caller needs the layout to create a VkPipelineLayout.
@@ -148,6 +153,9 @@ public:
     // the caller.
     const GrVkDescriptorSet* getSamplerDescriptorSet(const GrVkDescriptorSetManager::Handle&);
 
+    // Returns a GrVkDescriptorSet that can be used for input attachments. The GrVkDescriptorSet
+    // is already reffed for the caller.
+    const GrVkDescriptorSet* getInputDescriptorSet();
 
     // Signals that the descriptor set passed it, which is compatible with the passed in handle,
     // can be reused by the next allocation request.
@@ -281,6 +289,7 @@ private:
     SkSTArray<4, std::unique_ptr<GrVkDescriptorSetManager>> fDescriptorSetManagers;
 
     GrVkDescriptorSetManager::Handle fUniformDSHandle;
+    GrVkDescriptorSetManager::Handle fInputDSHandle;
 
     std::recursive_mutex fBackgroundMutex;
 };

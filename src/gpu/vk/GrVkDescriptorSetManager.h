@@ -30,6 +30,7 @@ public:
     static GrVkDescriptorSetManager* CreateUniformManager(GrVkGpu* gpu);
     static GrVkDescriptorSetManager* CreateSamplerManager(GrVkGpu* gpu, VkDescriptorType type,
                                                           const GrVkUniformHandler&);
+    static GrVkDescriptorSetManager* CreateInputManager(GrVkGpu* gpu);
 
     ~GrVkDescriptorSetManager() {}
 

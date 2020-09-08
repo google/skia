@@ -39,6 +39,13 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
     return Create(gpu, type, visibilities, immutableSamplers);
 }
 
+GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateInputManager(GrVkGpu* gpu) {
+    SkSTArray<1, uint32_t> visibilities;
+    visibilities.push_back(kFragment_GrShaderFlag);
+    SkTArray<const GrVkSampler*> samplers;
+    return Create(gpu, VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, visibilities, samplers);
+}
+
 VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
     VkShaderStageFlags flags = 0;
 
@@ -106,8 +113,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         }
 
         *descCountPerSet = visibilities.count();
-    } else {
-        SkASSERT(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER == type);
+    } else if (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
         static constexpr int kUniformDescPerSet = 1;
         SkASSERT(kUniformDescPerSet == visibilities.count());
         // Create Uniform Buffer Descriptor
@@ -141,6 +147,42 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         }
 
         *descCountPerSet = kUniformDescPerSet;
+    } else {
+        SkASSERT(type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT);
+        static constexpr int kInputDescPerSet = 1;
+        SkASSERT(kInputDescPerSet == visibilities.count());
+
+        // Create Input Buffer Descriptor
+        VkDescriptorSetLayoutBinding dsInpuBinding;
+        memset(&dsInpuBinding, 0, sizeof(dsInpuBinding));
+        dsInpuBinding.binding = 0;
+        dsInpuBinding.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+        dsInpuBinding.descriptorCount = 1;
+        SkASSERT(visibilities[0] == kFragment_GrShaderFlag);
+        dsInpuBinding.stageFlags = visibility_to_vk_stage_flags(visibilities[0]);
+        dsInpuBinding.pImmutableSamplers = nullptr;
+
+        VkDescriptorSetLayoutCreateInfo uniformLayoutCreateInfo;
+        memset(&uniformLayoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
+        uniformLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        uniformLayoutCreateInfo.pNext = nullptr;
+        uniformLayoutCreateInfo.flags = 0;
+        uniformLayoutCreateInfo.bindingCount = 1;
+        uniformLayoutCreateInfo.pBindings = &dsInpuBinding;
+
+#if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
+        // skia:8713
+        __lsan::ScopedDisabler lsanDisabler;
+#endif
+        VkResult result;
+        GR_VK_CALL_RESULT(gpu, result,
+                          CreateDescriptorSetLayout(
+                                  gpu->device(), &uniformLayoutCreateInfo, nullptr, descSetLayout));
+        if (result != VK_SUCCESS) {
+            return false;
+        }
+
+        *descCountPerSet = kInputDescPerSet;
     }
     return true;
 }
