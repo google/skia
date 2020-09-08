@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e1aa3594_a9f360be",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T16:08:42Z",
+      "side": 0,
+      "message": "It doesn\u0027t look like anything is responsible for assigning fSymbolTable any more?",
+      "range": {
+        "startLine": 571,
+        "startChar": 4,
+        "endLine": 571,
+        "endChar": 16
+      },
+      "revId": "6eadf137835b929a2e77c2beb7c9f159f6807ec3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

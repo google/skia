@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2684288_a93e304a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T16:08:42Z",
+      "side": 1,
+      "message": "Prefer `fSymbolTable \u003d make_shared`\n\n(make_shared is actually more efficient--one call into the allocator instead of two)",
+      "range": {
+        "startLine": 1267,
+        "startChar": 4,
+        "endLine": 1267,
+        "endChar": 50
+      },
+      "revId": "05ddcd5049a3c142330ab294bffc08a2be42fc10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af8a9d36_9f771ffd",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-08T16:08:42Z",
+      "side": 1,
+      "message": "make_unique",
+      "range": {
+        "startLine": 570,
+        "startChar": 49,
+        "endLine": 570,
+        "endChar": 52
+      },
+      "revId": "05ddcd5049a3c142330ab294bffc08a2be42fc10",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
