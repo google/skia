@@ -1650,51 +1650,68 @@ bool Compiler::optimize(Program& program) {
         fIRGenerator->fSettings = &program.fSettings;
 
         // Scan and optimize based on the control-flow graph for each function.
-        for (ProgramElement& element : program) {
-            if (element.kind() == ProgramElement::Kind::kFunction) {
-                this->scanCFG(element.as<FunctionDefinition>());
-            }
-        }
+        while (fErrorCount == 0) {
+            bool madeChanges = false;
 
-        // Remove dead functions. We wait until after analysis so that we still report errors, even
-        // in unused code.
-        if (program.fSettings.fRemoveDeadFunctions) {
-            program.fElements.erase(
-                    std::remove_if(program.fElements.begin(),
-                                   program.fElements.end(),
-                                   [](const std::unique_ptr<ProgramElement>& pe) {
-                                       if (pe->kind() != ProgramElement::Kind::kFunction) {
-                                           return false;
-                                       }
-                                       const FunctionDefinition& fn = pe->as<FunctionDefinition>();
-                                       return fn.fDeclaration.fCallCount == 0 &&
-                                              fn.fDeclaration.fName != "main";
-                                   }),
-                    program.fElements.end());
-        }
-
-        if (program.fKind != Program::kFragmentProcessor_Kind) {
-            // Remove dead variables.
             for (ProgramElement& element : program) {
-                if (element.kind() == ProgramElement::Kind::kVar) {
-                    VarDeclarations& vars = element.as<VarDeclarations>();
-                    vars.fVars.erase(
-                            std::remove_if(vars.fVars.begin(), vars.fVars.end(),
-                                           [](const std::unique_ptr<Statement>& stmt) {
-                                               return stmt->as<VarDeclaration>().fVar->dead();
-                                           }),
-                            vars.fVars.end());
+                if (element.is<FunctionDefinition>()) {
+                    madeChanges |= this->scanCFG(element.as<FunctionDefinition>());
                 }
             }
 
-            // Remove empty variable declarations with no variables left inside of them.
-            program.fElements.erase(
-                    std::remove_if(program.fElements.begin(), program.fElements.end(),
-                                   [](const std::unique_ptr<ProgramElement>& element) {
-                                       return element->kind() == ProgramElement::Kind::kVar &&
-                                              element->as<VarDeclarations>().fVars.empty();
-                                   }),
-                    program.fElements.end());
+            // Remove dead functions. We wait until after analysis so that we still report errors,
+            // even in unused code.
+            if (program.fSettings.fRemoveDeadFunctions) {
+                program.fElements.erase(
+                        std::remove_if(program.fElements.begin(),
+                                       program.fElements.end(),
+                                       [&](const std::unique_ptr<ProgramElement>& element) {
+                                           if (!element->is<FunctionDefinition>()) {
+                                               return false;
+                                           }
+                                           const auto& fn = element->as<FunctionDefinition>();
+                                           bool dead = fn.fDeclaration.fCallCount == 0 &&
+                                                       fn.fDeclaration.fName != "main";
+                                           madeChanges |= dead;
+                                           return dead;
+                                       }),
+                        program.fElements.end());
+            }
+
+            if (program.fKind != Program::kFragmentProcessor_Kind) {
+                // Remove dead variables.
+                for (ProgramElement& element : program) {
+                    if (!element.is<VarDeclarations>()) {
+                        continue;
+                    }
+                    VarDeclarations& vars = element.as<VarDeclarations>();
+                    vars.fVars.erase(
+                            std::remove_if(vars.fVars.begin(), vars.fVars.end(),
+                                           [&](const std::unique_ptr<Statement>& stmt) {
+                                               bool dead = stmt->as<VarDeclaration>().fVar->dead();
+                                               madeChanges |= dead;
+                                               return dead;
+                                           }),
+                            vars.fVars.end());
+                }
+
+                // Remove empty variable declarations with no variables left inside of them.
+                program.fElements.erase(
+                        std::remove_if(program.fElements.begin(), program.fElements.end(),
+                                       [&](const std::unique_ptr<ProgramElement>& element) {
+                                           if (!element->is<VarDeclarations>()) {
+                                               return false;
+                                           }
+                                           bool dead = element->as<VarDeclarations>().fVars.empty();
+                                           madeChanges |= dead;
+                                           return dead;
+                                       }),
+                        program.fElements.end());
+            }
+
+            if (!madeChanges) {
+                break;
+            }
         }
     }
     return fErrorCount == 0;

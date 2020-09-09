@@ -2653,12 +2653,11 @@ DEF_TEST(SkSLDiscard, r) {
          "    sk_FragColor = half4(x);"
          "}",
          *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "void main() {\n"
-         "    float x;\n"
-         "    {\n"
-         "        x = 1.0;\n"
-         "        discard;\n"
-         "    }\n"
-         "}\n");
+         R"__GLSL__(#version 400
+void main() {
+    {
+        discard;
+    }
+}
+)__GLSL__");
 }
