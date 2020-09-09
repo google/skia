@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2b9e962e_a19bf671",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-09T11:35:24Z",
+      "side": 1,
+      "message": "anonymous namespace.",
+      "parentUuid": "c08b6ca1_f4cd3d93",
+      "revId": "76eb27cdfba89968a9b3f5b7a34e5b9a52b23c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "604fd29e_1eb72b77",
         "filename": "src/gpu/text/GrTextBlob.cpp",
         "patchSetId": 3
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "59632332_66d156b8",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-09T11:35:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "604fd29e_1eb72b77",
+      "range": {
+        "startLine": 530,
+        "startChar": 37,
+        "endLine": 530,
+        "endChar": 38
+      },
+      "revId": "76eb27cdfba89968a9b3f5b7a34e5b9a52b23c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ff32b41_8823a9f5",
         "filename": "src/gpu/text/GrTextBlob.h",
         "patchSetId": 3
@@ -56,6 +98,24 @@
       "revId": "76eb27cdfba89968a9b3f5b7a34e5b9a52b23c25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc315298_00fdb6cc",
+        "filename": "src/gpu/text/GrTextBlob.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-09T11:35:24Z",
+      "side": 1,
+      "message": "Because the atlas operations need to ref the blob to keep the subrun data alive. Paths don\u0027t need that.",
+      "parentUuid": "8ff32b41_8823a9f5",
+      "revId": "76eb27cdfba89968a9b3f5b7a34e5b9a52b23c25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
