@@ -33,6 +33,24 @@
       "revId": "e7742d30ed735b591c3842329141ade0f0f9fcba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d2108e4_ae9d2ace",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-09T14:06:28Z",
+      "side": 1,
+      "message": "Ok, cc\u0027ing some others who can follow up.",
+      "parentUuid": "46de7903_87ce2946",
+      "revId": "e7742d30ed735b591c3842329141ade0f0f9fcba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
