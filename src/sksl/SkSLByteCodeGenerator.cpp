@@ -1805,6 +1805,8 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
             break;
+        case Statement::Kind::kInlineMarker:
+            break;
         case Statement::Kind::kNop:
             break;
         case Statement::Kind::kReturn:
