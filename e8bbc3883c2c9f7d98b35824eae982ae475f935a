@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d776c9e6_77361b4d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-09T15:01:43Z",
+      "side": 1,
+      "message": "At the moment, the inliner is run within the IR generator, so it still needs to handle function references. But the later optimization passes don\u0027t. (The linked bug happened during CFG scan). Also, the two checkValid calls I removed were unnecessary - the resulting expressions will be in the final program, and caught by the extra pass. There is one more in coerce() that includes an early return, so if we don\u0027t keep checking there, we end up failing silently in the SkSLUsingInvalidValue test cases.",
+      "revId": "e8bbc3883c2c9f7d98b35824eae982ae475f935a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
