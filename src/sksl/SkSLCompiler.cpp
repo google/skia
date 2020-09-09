@@ -1452,6 +1452,21 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                 // addition to being dead code, it's broken - since control flow can't reach it, no
                 // prior variable definitions can reach it, and therefore variables might look to
                 // have not been properly assigned. Kill it.
+
+                // We need to do this in two steps. For any variable declarations, the node list
+                // will contain statement nodes for each VarDeclaration, and then a statement for
+                // the VarDeclarationsStatement. When we replace the VDS with a Nop, we delete the
+                // storage of the unique_ptr that the VD nodes are pointing to. So we remove those
+                // from the node list entirely, first.
+                b.fNodes.erase(
+                        std::remove_if(b.fNodes.begin(), b.fNodes.end(),
+                                       [](const BasicBlock::Node& node) {
+                                           return node.fKind == BasicBlock::Node::kStatement_Kind &&
+                                                  (*node.statement())->is<VarDeclaration>();
+                                       }),
+                        b.fNodes.end());
+
+                // Now replace any remaining statements in the block with Nops.
                 for (BasicBlock::Node& node : b.fNodes) {
                     if (node.fKind == BasicBlock::Node::kStatement_Kind &&
                         !(*node.statement())->is<Nop>()) {
