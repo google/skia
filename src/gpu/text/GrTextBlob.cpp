@@ -212,7 +212,7 @@ void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> 
 }
 
 // Check for integer translate with the same 2x2 matrix.
-bool check_integer_translate(const GrTextBlob& blob, const SkMatrix& drawMatrix, SkPoint origin) {
+bool check_integer_translate(const GrTextBlob& blob, const SkMatrix& drawMatrix) {
     const SkMatrix& initialMatrix = blob.initialMatrix();
 
     if (initialMatrix.getScaleX() != drawMatrix.getScaleX() ||
@@ -230,11 +230,7 @@ bool check_integer_translate(const GrTextBlob& blob, const SkMatrix& drawMatrix,
     // blob, but only for integer translations.
     // Calculate the translation in source space to a translation in device space by mapping
     // (0, 0) through both the initial matrix and the draw matrix; take the difference.
-    SkPoint initialDeviceOrigin = initialMatrix.mapXY(0, 0);
-    SkMatrix completeDrawMatrix{drawMatrix};
-    completeDrawMatrix.preTranslate(origin.x(), origin.y());
-    SkPoint drawDeviceOrigin = completeDrawMatrix.mapXY(0, 0);
-    SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
+    SkPoint translation = drawMatrix.mapXY(0, 0) - initialMatrix.mapXY(0, 0);
 
     if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
         return false;
@@ -242,13 +238,6 @@ bool check_integer_translate(const GrTextBlob& blob, const SkMatrix& drawMatrix,
 
     return true;
 }
-
-SkMatrix position_to_origin(const SkMatrix& m, SkPoint p) {
-    SkMatrix a{m};
-    a.preTranslate(p.x(), p.y());
-    return a;
-}
-
 }  // namespace
 
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
@@ -351,13 +340,13 @@ void GrPathSubRun::draw(const GrClip* clip,
 // paths explicitly. This check is needed because if the blob was drawn large, and then small, the
 // path would be reused when the blob should be rendered with masks.
 // TODO(herb): rethink when paths can be reused.
-bool GrPathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+bool GrPathSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     const SkMatrix initialMatrix = fBlob.initialMatrix();
     if (initialMatrix.hasPerspective() && !SkMatrixPriv::CheapEqual(initialMatrix, drawMatrix)) {
         return false;
     }
 
-    return check_integer_translate(fBlob, drawMatrix, drawOrigin);
+    return check_integer_translate(fBlob, drawMatrix);
 }
 
 auto GrPathSubRun::Make(
@@ -528,12 +517,12 @@ void GrDirectMaskSubRun::draw(const GrClip* clip, const SkMatrixProvider& viewMa
 }
 
 bool
-GrDirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+GrDirectMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     if (drawMatrix.hasPerspective()) {
         return false;
     }
 
-    return check_integer_translate(*fBlob, drawMatrix, drawOrigin);
+    return check_integer_translate(*fBlob, drawMatrix);
 }
 
 size_t GrDirectMaskSubRun::vertexStride() const {
@@ -727,8 +716,7 @@ void GrTransformedMaskSubRun::draw(const GrClip* clip,
 
 // If we are not scaling the cache entry to be larger, than a cache with smaller glyphs may be
 // better.
-bool GrTransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix,
-                                       SkPoint drawOrigin) {
+bool GrTransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     if (fBlob->initialMatrix().getMaxScale() < 1) {
         return false;
     }
@@ -989,7 +977,7 @@ void GrSDFTSubRun::draw(const GrClip* clip,
     }
 }
 
-bool GrSDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) {
+bool GrSDFTSubRun::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     const SkMatrix& initialMatrix = fBlob->initialMatrix();
     if (initialMatrix.hasPerspective() != drawMatrix.hasPerspective()) {
         return false;
@@ -1102,8 +1090,7 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList, const SkM
     void* allocation = ::operator new (allocationSize);
 
     SkColor initialLuminance = SkPaintPriv::ComputeLuminanceColor(glyphRunList.paint());
-    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{
-            arenaSize, drawMatrix, glyphRunList.origin(), initialLuminance}};
+    sk_sp<GrTextBlob> blob{new (allocation) GrTextBlob{arenaSize, drawMatrix, initialLuminance}};
 
     return blob;
 }
@@ -1123,9 +1110,7 @@ void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
     fMinMaxScale = std::min(scaledMax, fMinMaxScale);
 }
 
-bool GrTextBlob::canReuse(const SkPaint& paint,
-                          const SkMatrix& drawMatrix,
-                          SkPoint drawOrigin) {
+bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     // A singular matrix will create a GrTextBlob with no SubRuns, but unknown glyphs can
     // also cause empty runs. If there are no subRuns, and the matrix is complicated, then
     // regenerate.
@@ -1142,7 +1127,7 @@ bool GrTextBlob::canReuse(const SkPaint& paint,
     }
 
     for (GrSubRun* subRun : this->subRunList()) {
-        if (!subRun->canReuse(paint, drawMatrix, drawOrigin)) {
+        if (!subRun->canReuse(paint, drawMatrix)) {
             return false;
         }
     }
@@ -1188,10 +1173,9 @@ void GrTextBlob::addMultiMaskFormat(
 
 GrTextBlob::GrTextBlob(size_t allocSize,
                        const SkMatrix& drawMatrix,
-                       SkPoint origin,
                        SkColor initialLuminance)
         : fSize{allocSize}
-        , fInitialMatrix{position_to_origin(drawMatrix, origin)}
+        , fInitialMatrix{drawMatrix}
         , fInitialLuminance{initialLuminance}
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
 

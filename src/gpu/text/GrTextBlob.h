@@ -102,7 +102,7 @@ public:
         return {fMaxMinScale, fMinMaxScale};
     }
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin);
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix);
 
     const Key& key() const;
     size_t size() const;
@@ -117,10 +117,7 @@ public:
     const SkTInternalLList<GrSubRun>& subRunList() const { return fSubRunList; }
 
 private:
-    GrTextBlob(size_t allocSize,
-               const SkMatrix& drawMatrix,
-               SkPoint origin,
-               SkColor initialLuminance);
+    GrTextBlob(size_t allocSize, const SkMatrix& drawMatrix, SkColor initialLuminance);
 
     void insertSubRun(GrSubRun* subRun);
 
@@ -173,9 +170,7 @@ public:
 
     // Given an already cached subRun, can this subRun handle this combination paint, matrix, and
     // position.
-    virtual bool canReuse(const SkPaint& paint,
-                          const SkMatrix& drawMatrix,
-                          SkPoint drawOrigin) = 0;
+    virtual bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) = 0;
 
 private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrSubRun);
@@ -196,7 +191,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrRenderTargetContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
     static GrSubRun* Make(const SkZip<SkGlyphVariant, SkPoint>& drawables,
                           bool isAntiAliased,
@@ -304,7 +299,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrRenderTargetContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
     size_t vertexStride() const override;
 
@@ -370,7 +365,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrRenderTargetContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
     std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
     makeAtlasTextOp(const GrClip* clip,
@@ -437,7 +432,7 @@ public:
               const SkGlyphRunList& glyphRunList,
               GrRenderTargetContext* rtc) const override;
 
-    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix, SkPoint drawOrigin) override;
+    bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
     std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
     makeAtlasTextOp(const GrClip* clip,
