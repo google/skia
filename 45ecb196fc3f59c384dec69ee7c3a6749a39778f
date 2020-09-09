@@ -16,6 +16,24 @@
       "revId": "45ecb196fc3f59c384dec69ee7c3a6749a39778f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd496723_73e21a4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2020-09-09T15:49:58Z",
+      "side": 1,
+      "message": "I am just checking that, and I found my patch has some problems for noexceptness:\n- First, SKIA does not use noexcept. It has exceptions mostly disabled (only enabled in SkRawCodec) with -fno-exception. So the noexcept qualifier should be useless.\n- Second, my patch forgot to actually add noexcept to the SkBitmap.cc, and that may be the reason why it does not fail. Not sure why compiler did not catch that.\n\nSo the right solution, as SKIA is no noexcept aware, is fixing chrome side.\n\nAbout GCC: it is because of a behavior that is different in Clang and GCC. In Clang -fno-exception will not actually dump any error or warning for non matching noexcept declaration. GCC does, no matter if -fno-exception is set or not.\n\nI am abandoning this patch and moving to propose the change in Chromium side, default inheritance of move operator/constructor from Skia should NOT be noexcept.",
+      "parentUuid": "9f5cd262_80d3813c",
+      "revId": "45ecb196fc3f59c384dec69ee7c3a6749a39778f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
