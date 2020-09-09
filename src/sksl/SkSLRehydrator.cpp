@@ -231,7 +231,7 @@ const Symbol* Rehydrator::symbol() {
             const Type* type = this->type();
             Variable::Storage storage = (Variable::Storage) this->readU8();
             const Variable* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Variable>(/*offset=*/-1, m, name, *type, storage));
+                    std::make_unique<Variable>(/*offset=*/-1, m, name, type, storage));
             this->addSymbol(id, result);
             return result;
         }
@@ -461,7 +461,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             std::unique_ptr<Expression> right = this->expression();
             const Type* type = this->type();
             return std::unique_ptr<Expression>(new BinaryExpression(-1, std::move(left), op,
-                                                                    std::move(right), *type));
+                                                                    std::move(right), type));
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
@@ -475,7 +475,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
-            return std::unique_ptr<Expression>(new Constructor(-1, *type, std::move(args)));
+            return std::unique_ptr<Expression>(new Constructor(-1, type, std::move(args)));
         }
         case Rehydrator::kFieldAccess_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -489,7 +489,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return std::unique_ptr<Expression>(new FloatLiteral(fContext, -1, u.fFloat));
         }
         case Rehydrator::kFunctionCall_Command: {
-            const Type& type = *this->type();
+            const Type* type = this->type();
             const FunctionDeclaration* f = this->symbolRef<FunctionDeclaration>(
                                                                 Symbol::Kind::kFunctionDeclaration);
             uint8_t argCount = this->readU8();
