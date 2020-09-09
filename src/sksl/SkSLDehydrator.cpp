@@ -26,6 +26,7 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLInlineMarker.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLNullLiteral.h"
@@ -439,6 +440,12 @@ void Dehydrator::write(const Statement* s) {
                 this->write(i.fTest.get());
                 this->write(i.fIfTrue.get());
                 this->write(i.fIfFalse.get());
+                break;
+            }
+            case Statement::Kind::kInlineMarker: {
+                const InlineMarker& i = s->as<InlineMarker>();
+                this->writeU8(Rehydrator::kInlineMarker_Command);
+                this->writeId(i.fFuncDecl);
                 break;
             }
             case Statement::Kind::kNop:

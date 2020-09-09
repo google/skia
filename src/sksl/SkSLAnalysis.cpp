@@ -48,6 +48,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLInlineMarker.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLNullLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
@@ -308,6 +309,7 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
         case Statement::Kind::kBreak:
         case Statement::Kind::kContinue:
         case Statement::Kind::kDiscard:
+        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             // Leaf statements just return false
             return false;

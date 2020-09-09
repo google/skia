@@ -85,6 +85,8 @@ public:
         kIf_Command,
         // Expression base, Expression index
         kIndex_Command,
+        // FunctionDeclaration function
+        kInlineMarker_Command,
         // Variable* var, String typeName, String instanceName, uint8 sizeCount, Expression[] sizes
         kInterfaceBlock_Command,
         // int32 value

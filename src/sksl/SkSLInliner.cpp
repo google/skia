@@ -33,6 +33,7 @@
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
+#include "src/sksl/ir/SkSLInlineMarker.h"
 #include "src/sksl/ir/SkSLIntLiteral.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLayout.h"
@@ -332,6 +333,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             return std::make_unique<IfStatement>(offset, i.fIsStatic, expr(i.fTest),
                                                  stmt(i.fIfTrue), stmt(i.fIfFalse));
         }
+        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             return statement.clone();
         case Statement::Kind::kReturn: {
@@ -442,7 +444,15 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                        std::vector<std::unique_ptr<Statement>>{},
                                                        /*symbols=*/nullptr,
                                                        /*isScope=*/false);
+
     std::vector<std::unique_ptr<Statement>>& inlinedBody = inlinedCall.fInlinedBody->fStatements;
+    inlinedBody.reserve(1 +                 // Inline marker
+                        1 +                 // Result variable
+                        arguments.size() +  // Function arguments (passing in)
+                        arguments.size() +  // Function arguments (copy out-parameters back)
+                        1);                 // Inlined code (either as a Block or do-while loop)
+
+    inlinedBody.push_back(std::make_unique<InlineMarker>(call->fFunction));
 
     auto makeInlineVar = [&](const String& baseName, const Type& type, Modifiers modifiers,
                              std::unique_ptr<Expression>* initialValue) -> const Variable* {

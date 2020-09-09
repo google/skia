@@ -26,6 +26,7 @@ struct Statement : public IRNode {
         kExpression,
         kFor,
         kIf,
+        kInlineMarker,
         kNop,
         kReturn,
         kSwitch,

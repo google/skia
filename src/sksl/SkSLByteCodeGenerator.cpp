@@ -1805,8 +1805,6 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
             break;
-        case Statement::Kind::kNop:
-            break;
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
@@ -1818,6 +1816,9 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
             break;
         case Statement::Kind::kWhile:
             this->writeWhileStatement(s.as<WhileStatement>());
+            break;
+        case Statement::Kind::kInlineMarker:
+        case Statement::Kind::kNop:
             break;
         default:
             SkASSERT(false);

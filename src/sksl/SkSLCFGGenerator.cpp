@@ -672,6 +672,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             cfg.fCurrent = switchExit;
             break;
         }
+        case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
             break;
         default:
