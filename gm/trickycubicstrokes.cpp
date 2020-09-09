@@ -20,7 +20,7 @@
 
 static constexpr float kStrokeWidth = 30;
 static constexpr int kCellSize = 200;
-static constexpr int kNumCols = 4;
+static constexpr int kNumCols = 5;
 static constexpr int kNumRows = 4;
 
 enum class CellFillMode {
@@ -51,6 +51,10 @@ static const TrickyCubic kTrickyCubics[] = {
     {{{39,-39}, {40,-40}, {40,-40}, {0,0}}, CellFillMode::kStretch},  // Flat diagonal with 180
     {{{40, 40}, {0, 0}, {200, 200}, {0, 0}}, CellFillMode::kStretch},  // Diag with an internal 180
     {{{0,0}, {1e-2f,0}, {-1e-2f,0}, {0,0}}, CellFillMode::kCenter},  // Circle
+    {{{400.75f,100.05f}, {400.75f,100.05f}, {100.05f,300.95f}, {100.05f,300.95f}},
+     CellFillMode::kStretch},  // Flat line with no turns
+    {{{0.5f,0}, {0,0}, {20,0}, {10,0}}, CellFillMode::kStretch},  // Flat line with 2 180s
+    {{{10,0}, {0,0}, {10,0}, {10,0}}, CellFillMode::kStretch},  // Flat line with a 180
 };
 
 static SkRect calc_tight_cubic_bounds(const SkPoint P[4], int depth=5) {
