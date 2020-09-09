@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bfa9fe4_4bd274fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-09T18:29:56Z",
+      "side": 1,
+      "message": "WIP\n\nin particular -- is it OK to change asPath() to return a path?\n",
+      "revId": "50d0bd78bd424a686e545c0a5c81621aebcd3992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
