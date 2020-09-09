@@ -934,7 +934,7 @@ void IRGenerator::checkModifiers(int offset, const Modifiers& modifiers, int per
 void IRGenerator::convertFunction(const ASTNode& f) {
     AutoClear clear(&fReferencedIntrinsics);
     auto iter = f.begin();
-    const Type* returnType = this->convertType(*(iter++));
+    const Type* returnType = this->convertType(*(iter++), /*allowVoid=*/true);
     if (returnType == nullptr) {
         return;
     }
@@ -1295,10 +1295,10 @@ void IRGenerator::convertEnum(const ASTNode& e) {
     fSymbolTable = oldTable;
 }
 
-const Type* IRGenerator::convertType(const ASTNode& type) {
+const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
     ASTNode::TypeData td = type.getTypeData();
     const Symbol* result = (*fSymbolTable)[td.fName];
-    if (result && result->kind() == Symbol::Kind::kType) {
+    if (result && result->is<Type>()) {
         if (td.fIsNullable) {
             if (result->as<Type>() == *fContext.fFragmentProcessor_Type) {
                 if (type.begin() != type.end()) {
@@ -1309,6 +1309,16 @@ const Type* IRGenerator::convertType(const ASTNode& type) {
                         String(result->fName) + "?", Type::TypeKind::kNullable, result->as<Type>()));
             } else {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
+            }
+        }
+        if (result->as<Type>() == *fContext.fVoid_Type) {
+            if (!allowVoid) {
+                fErrors.error(type.fOffset, "type '" + td.fName + "' not allowed in this context");
+                return nullptr;
+            }
+            if (type.begin() != type.end()) {
+                fErrors.error(type.fOffset, "type '" + td.fName + "' may not be used in an array");
+                return nullptr;
             }
         }
         for (const auto& size : type) {
