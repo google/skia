@@ -25,6 +25,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         !caps.drawInstancedSupport() || !shaderCaps.floatIs32Bits() ||
         !defaultA8Format.isValid() || // This checks both texturable and renderable
         !caps.halfFloatVertexAttributeSupport()) {
+        SkDebugf("No caps!");
         return false;
     }
 
@@ -35,6 +36,7 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         if (coverageType) {
             *coverageType = CoverageType::kFP16_CoverageCount;
         }
+        SkDebugf("Enabled coverage counting!");
         return true;
     }
 
@@ -45,9 +47,11 @@ bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps, CoverageTyp
         if (coverageType) {
             *coverageType = CoverageType::kA8_Multisample;
         }
+        SkDebugf("Enabled MSAA!");
         return true;
     }
 
+    SkDebugf("Not opted in!");
     return false;
 }
 
