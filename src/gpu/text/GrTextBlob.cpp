@@ -230,15 +230,10 @@ bool check_integer_translate(const GrTextBlob& blob, const SkMatrix& drawMatrix,
     // blob, but only for integer translations.
     // Calculate the translation in source space to a translation in device space by mapping
     // (0, 0) through both the initial matrix and the draw matrix; take the difference.
-    SkPoint initialOrigin = blob.initialOrigin();
-    SkMatrix matrix{initialMatrix};
-    matrix.preTranslate(initialOrigin.x(), initialOrigin.y());
-    SkPoint initialDeviceOrigin{0, 0};
-    matrix.mapPoints(&initialDeviceOrigin, 1);
+    SkPoint initialDeviceOrigin = initialMatrix.mapXY(0, 0);
     SkMatrix completeDrawMatrix{drawMatrix};
     completeDrawMatrix.preTranslate(origin.x(), origin.y());
-    SkPoint drawDeviceOrigin{0, 0};
-    completeDrawMatrix.mapPoints(&drawDeviceOrigin, 1);
+    SkPoint drawDeviceOrigin = completeDrawMatrix.mapXY(0, 0);
     SkPoint translation = drawDeviceOrigin - initialDeviceOrigin;
 
     if (!SkScalarIsInt(translation.x()) || !SkScalarIsInt(translation.y())) {
@@ -247,6 +242,13 @@ bool check_integer_translate(const GrTextBlob& blob, const SkMatrix& drawMatrix,
 
     return true;
 }
+
+SkMatrix position_to_origin(const SkMatrix& m, SkPoint p) {
+    SkMatrix a{m};
+    a.preTranslate(p.x(), p.y());
+    return a;
+}
+
 }  // namespace
 
 // -- GrTextBlob::Key ------------------------------------------------------------------------------
@@ -1189,8 +1191,7 @@ GrTextBlob::GrTextBlob(size_t allocSize,
                        SkPoint origin,
                        SkColor initialLuminance)
         : fSize{allocSize}
-        , fInitialMatrix{drawMatrix}
-        , fInitialOrigin{origin}
+        , fInitialMatrix{position_to_origin(drawMatrix, origin)}
         , fInitialLuminance{initialLuminance}
         , fAlloc{SkTAddOffset<char>(this, sizeof(GrTextBlob)), allocSize, allocSize/2} { }
 
