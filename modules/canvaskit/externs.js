@@ -365,10 +365,19 @@ var CanvasKit = {
     // public API (from C++ bindings)
     height: function() {},
     width: function() {},
+
+    prototype: {
+      encodeToData: function() {},
+      makeShader: function() {},
+      makeShaderCubic: function() {},
+      makeShaderOptions: function() {},
+    }
     // private API
     _encodeToData: function() {},
     _encodeToDataWithFormat: function() {},
     _makeShader: function() {},
+    _makeShaderCubic: function() {},
+    _makeShaderOptions: function() {},
   },
 
   SkImageFilter: {
@@ -953,9 +962,6 @@ CanvasKit.SkSurface.prototype.flush = function() {};
 CanvasKit.SkSurface.prototype.requestAnimationFrame = function() {};
 CanvasKit.SkSurface.prototype.drawOnce = function() {};
 CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function() {};
-
-CanvasKit.SkImage.prototype.encodeToData = function() {};
-CanvasKit.SkImage.prototype.makeShader = function() {};
 
 CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function() {};
 

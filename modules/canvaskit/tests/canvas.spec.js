@@ -600,6 +600,41 @@ describe('Canvas Behavior', () => {
         img.delete();
     }, '/assets/mandrill_512.png');
 
+    // This should be a nice, clear image.
+    gm('makeImageShaderCubic_canvas', (canvas, fetchedByteBuffers) => {
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+
+        canvas.clear(CanvasKit.WHITE);
+        const paint = new CanvasKit.SkPaint();
+        const shader = img.makeShaderCubic(CanvasKit.TileMode.Decal, CanvasKit.TileMode.Clamp,
+                                           1/3 /*B*/, 1/3 /*C*/,
+                                           CanvasKit.SkMatrix.rotated(0.1));
+        paint.setShader(shader);
+
+        canvas.drawPaint(paint);
+        paint.delete();
+        img.delete();
+    }, '/assets/mandrill_512.png');
+
+    // This will look more blocky than the version above.
+    gm('makeImageShaderOptions_canvas', (canvas, fetchedByteBuffers) => {
+        const img = CanvasKit.MakeImageFromEncoded(fetchedByteBuffers[0]);
+        expect(img).toBeTruthy();
+
+        canvas.clear(CanvasKit.WHITE);
+        const paint = new CanvasKit.SkPaint();
+        const shader = img.makeShaderOptions(CanvasKit.TileMode.Decal, CanvasKit.TileMode.Clamp,
+                                             CanvasKit.SamplingMode.Nearest,
+                                             CanvasKit.MipmapMode.None,
+                                             CanvasKit.SkMatrix.rotated(0.1));
+        paint.setShader(shader);
+
+        canvas.drawPaint(paint);
+        paint.delete();
+        img.delete();
+    }, '/assets/mandrill_512.png');
+
     gm('drawvertices_canvas', (canvas) => {
         const paint = new CanvasKit.SkPaint();
         paint.setAntiAlias(true);
@@ -655,7 +690,8 @@ describe('Canvas Behavior', () => {
         const vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TrianglesStrip,
             points, textureCoordinates, null /* colors */, false /*isVolatile*/);
 
-        const shader = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
+        const shader = img.makeShaderOptions(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror,
+                                     CanvasKit.SamplingMode.Linear, CanvasKit.MipmapMode.Nearest);
         paint.setShader(shader);
         canvas.drawVertices(vertices, CanvasKit.BlendMode.Src, paint);
 
