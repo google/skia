@@ -99,7 +99,7 @@ private:
     std::unique_ptr<Expression> convertExpression(const ASTNode& expression);
     std::unique_ptr<ModifiersDeclaration> convertModifiersDeclaration(const ASTNode& m);
 
-    const Type* convertType(const ASTNode& type);
+    const Type* convertType(const ASTNode& type, bool allowVoid = false);
     std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
                                      std::vector<std::unique_ptr<Expression>> arguments);
