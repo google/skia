@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f5cd262_80d3813c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-09T15:42:20Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand what should be marked noexcept, particularly how far down this should go.  If SkBitmap\u0027s operator\u003d(SkBitmap\u0026\u0026) needs to be marked noexcept, does sk_sp\u003cT\u003e operator\u003d(sk_sp\u003cT\u003e\u0026\u0026) need to be noexcept too to move its sk_sp members?  What happens if an exception is thrown from a noexcept function?  What primitives can throw?  Can you allocate memory in noexcept functions?\n\nWe generally don\u0027t ever think about exceptions, so sorry if these are obvious questions.  And please anticipate that we continue to break this build without thinking about exceptions.\n\nWhy is this only a failure in GCC builds?",
+      "revId": "45ecb196fc3f59c384dec69ee7c3a6749a39778f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
