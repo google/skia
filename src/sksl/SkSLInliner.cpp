@@ -454,8 +454,16 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     inlinedBody.push_back(std::make_unique<InlineMarker>(call->fFunction));
 
-    auto makeInlineVar = [&](const String& baseName, const Type& type, Modifiers modifiers,
+    auto makeInlineVar = [&](const String& baseName, const Type* type, Modifiers modifiers,
                              std::unique_ptr<Expression>* initialValue) -> const Variable* {
+        // In some cases the optimizer leaves us with $floatLiteral and $intLiteral types. Fix
+        // those up now. TODO: investigate why these haven't been coerced to more appropriate types.
+        if (type == fContext->fFloatLiteral_Type.get()) {
+            type = fContext->fFloat_Type.get();
+        } else if (type == fContext->fIntLiteral_Type.get()) {
+            type = fContext->fInt_Type.get();
+        }
+
         // If the base name starts with an underscore, like "_coords", we can't append another
         // underscore, because some OpenGL platforms error out when they see two consecutive
         // underscores (anywhere in the string!). But in the general case, using the underscore as
@@ -480,7 +488,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
         // Add our new variable to the symbol table.
-        auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
+        auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, *type,
                                                  Variable::kLocal_Storage, initialValue->get());
         const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
 
@@ -499,7 +507,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
         // Add the new variable-declaration statement to our block of extra statements.
         inlinedBody.push_back(std::make_unique<VarDeclarationsStatement>(
-                std::make_unique<VarDeclarations>(offset, &type, std::move(variables))));
+                std::make_unique<VarDeclarations>(offset, type, std::move(variables))));
 
         return variableSymbol;
     };
@@ -509,7 +517,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
         resultVar = makeInlineVar(String(function.fDeclaration.fName),
-                                  function.fDeclaration.fReturnType, Modifiers{}, &noInitialValue);
+                                  &function.fDeclaration.fReturnType, Modifiers{}, &noInitialValue);
     }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
@@ -518,7 +526,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
 
-        if (arguments[i]->kind() == Expression::Kind::kVariableReference) {
+        if (arguments[i]->is<VariableReference>()) {
             // The argument is just a variable, so we only need to copy it if it's an out parameter
             // or it's written to within the function.
             if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
@@ -528,7 +536,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             }
         }
 
-        varMap[param] = makeInlineVar(String(param->fName), arguments[i]->fType, param->fModifiers,
+        varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->fType, param->fModifiers,
                                       &arguments[i]);
     }
 
