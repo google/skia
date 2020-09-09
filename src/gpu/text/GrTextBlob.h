@@ -49,9 +49,8 @@ class SkTextBlobRunIterator;
 //
 // In these classes, I'm trying to follow the convention about matrices and origins.
 // * draw Matrix|Origin    - describes the current draw command.
-// * initial Matrix|Origin - describes the matrix and origin the GrTextBlob was created with.
-// * current Matrix|Origin - describes the matrix and origin that are currently in the SubRun's
-//                           vertex data.
+// * initial Matrix - describes the combined initial matrix and origin the GrTextBlob was created
+//   with.
 //
 //
 class GrTextBlob final : public SkNVRefCnt<GrTextBlob>, public SkGlyphRunPainterInterface {
@@ -97,7 +96,6 @@ public:
     void addKey(const Key& key);
     bool hasPerspective() const;
     const SkMatrix& initialMatrix() const { return fInitialMatrix; }
-    SkPoint initialOrigin() const { return fInitialOrigin; }
 
     void setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax);
     std::tuple<SkScalar, SkScalar> scaleBounds() const {
@@ -144,15 +142,9 @@ private:
     // Overall size of this struct plus vertices and glyphs at the end.
     const size_t fSize;
 
-    // The initial view matrix. This is used for moving additional draws of this
-    // same text blob. We record the initial view matrix and initial offsets(x,y), because we
-    // record vertex bounds relative to these numbers.  When blobs are reused with new matrices,
-    // we need to return to source space so we can update the vertex bounds appropriately.
+    // The initial view matrix combined with the initial origin. Used to determine if a cached
+    // subRun can be used in this draw situation.
     const SkMatrix fInitialMatrix;
-
-    // Initial position of this blob. Used for calculating position differences when reusing this
-    // blob.
-    const SkPoint fInitialOrigin;
 
     const SkColor fInitialLuminance;
 
@@ -163,8 +155,6 @@ private:
     // maximum minimum scale, and minimum maximum scale, we can support before we need to regen
     SkScalar fMaxMinScale{-SK_ScalarMax};
     SkScalar fMinMaxScale{SK_ScalarMax};
-
-    uint8_t fTextType{0};
 
     SkTInternalLList<GrSubRun> fSubRunList;
     SkArenaAlloc fAlloc;
