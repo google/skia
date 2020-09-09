@@ -97,8 +97,7 @@ static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds)
 }
 
 static bool can_interchange_winding_and_even_odd_fill(const GrStyledShape& shape) {
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
     if (shape.style().hasNonDashPathEffect()) {
         return false;
     }
@@ -131,9 +130,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
     bool allowSameRRectButDiffStartAndDir = (aIsRRect && bIsRRect) && (aHasPE != bHasPE);
     // GrStyledShape will close paths with simple fill style.
     bool allowedClosednessDiff = (a.style().isSimpleFill() != b.style().isSimpleFill());
-    SkPath pathA, pathB;
-    a.asPath(&pathA);
-    b.asPath(&pathB);
+    SkPath pathA = a.asPath(),
+           pathB = b.asPath();
 
     // Having a dash path effect can allow 'a' but not 'b' to turn a inverse fill type into a
     // non-inverse fill type  (or vice versa).
@@ -406,9 +404,7 @@ public:
             , fUseCenter(useCenter) {}
 
     SkPath path() const override {
-        SkPath path;
-        SkPathPriv::CreateDrawArcPath(&path, fOval, fStartAngle, fSweepAngle, fUseCenter, false);
-        return path;
+        return SkPathPriv::CreateDrawArcPath(fOval, fStartAngle, fSweepAngle, fUseCenter, false);
     }
 
     GrStyledShape makeShape(const SkPaint& paint) const override {
@@ -570,8 +566,7 @@ public:
 private:
     static void CheckBounds(skiatest::Reporter* r, const GrStyledShape& shape,
                             const SkRect& bounds) {
-        SkPath path;
-        shape.asPath(&path);
+        SkPath path = shape.asPath();
         // If the bounds are empty, the path ought to be as well.
         if (bounds.fLeft > bounds.fRight || bounds.fTop > bounds.fBottom) {
             REPORTER_ASSERT(r, path.isEmpty());
@@ -608,9 +603,8 @@ private:
         // Applying the path effect and then the stroke should always be the same as applying
         // both in one go.
         REPORTER_ASSERT(r, fAppliedPEThenStrokeKey == fAppliedFullKey);
-        SkPath a, b;
-        fAppliedPEThenStroke->asPath(&a);
-        fAppliedFull->asPath(&b);
+        SkPath a = fAppliedPEThenStroke->asPath(),
+               b = fAppliedFull->asPath();
         // If the output of the path effect is a rrect then it is possible for a and b to be
         // different paths that fill identically. The reason is that fAppliedFull will do this:
         // base -> apply path effect -> rrect_as_path -> stroke -> stroked_rrect_as_path
@@ -624,14 +618,13 @@ private:
         }
         REPORTER_ASSERT(r, fAppliedFull->isEmpty() == fAppliedPEThenStroke->isEmpty());
 
-        SkPath path;
-        fBase->asPath(&path);
+        SkPath path = fBase->asPath();
         REPORTER_ASSERT(r, path.isEmpty() == fBase->isEmpty());
         REPORTER_ASSERT(r, path.getSegmentMasks() == fBase->segmentMask());
-        fAppliedPE->asPath(&path);
+        path = fAppliedPE->asPath();
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedPE->isEmpty());
         REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedPE->segmentMask());
-        fAppliedFull->asPath(&path);
+        path = fAppliedFull->asPath();
         REPORTER_ASSERT(r, path.isEmpty() == fAppliedFull->isEmpty());
         REPORTER_ASSERT(r, path.getSegmentMasks() == fAppliedFull->segmentMask());
 
@@ -645,28 +638,25 @@ private:
         CheckBounds(r, *fAppliedFull, styledBounds);
 
         // Check that the same path is produced when style is applied by GrStyledShape and GrStyle.
-        SkPath preStyle;
+        SkPath preStyle = fBase->asPath();
         SkPath postPathEffect;
         SkPath postAllStyle;
 
-        fBase->asPath(&preStyle);
         SkStrokeRec postPEStrokeRec(SkStrokeRec::kFill_InitStyle);
         if (fBase->style().applyPathEffectToPath(&postPathEffect, &postPEStrokeRec, preStyle,
                                                  scale)) {
             // run postPathEffect through GrStyledShape to get any geometry reductions that would
             // have occurred to fAppliedPE.
-            GrStyledShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr))
-                    .asPath(&postPathEffect);
+            postPathEffect = GrStyledShape(postPathEffect, GrStyle(postPEStrokeRec, nullptr))
+                                          .asPath();
 
-            SkPath testPath;
-            fAppliedPE->asPath(&testPath);
+            SkPath testPath = fAppliedPE->asPath();
             REPORTER_ASSERT(r, testPath == postPathEffect);
             REPORTER_ASSERT(r, postPEStrokeRec.hasEqualEffect(fAppliedPE->style().strokeRec()));
         }
         SkStrokeRec::InitStyle fillOrHairline;
         if (fBase->style().applyToPath(&postAllStyle, &fillOrHairline, preStyle, scale)) {
-            SkPath testPath;
-            fAppliedFull->asPath(&testPath);
+            SkPath testPath = fAppliedFull->asPath();
             if (fBase->style().hasPathEffect()) {
                 // Because GrStyledShape always does two-stage application when there is a path
                 // effect there may be a reduction/canonicalization step between the path effect and
@@ -676,7 +666,7 @@ private:
             } else {
                 // Make sure that postAllStyle sees any reductions/canonicalizations that
                 // GrStyledShape would apply.
-                GrStyledShape(postAllStyle, GrStyle(fillOrHairline)).asPath(&postAllStyle);
+                postAllStyle = GrStyledShape(postAllStyle, GrStyle(fillOrHairline)).asPath();
                 REPORTER_ASSERT(r, testPath == postAllStyle);
             }
 
@@ -716,9 +706,8 @@ void TestCase::testExpectations(skiatest::Reporter* reporter, SelfExpectations e
         }
     } else {
         REPORTER_ASSERT(reporter, fBaseKey == fAppliedPEKey);
-        SkPath a, b;
-        fBase->asPath(&a);
-        fAppliedPE->asPath(&b);
+        SkPath a = fBase->asPath(),
+               b = fAppliedPE->asPath();
         REPORTER_ASSERT(reporter, a == b);
         if (expectations.fStrokeApplies) {
             REPORTER_ASSERT(reporter, fBaseKey != fAppliedFullKey);
@@ -1313,10 +1302,9 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
 
     TestCase peCase(geo, pe, reporter);
 
-    SkPath a, b, c;
-    peCase.baseShape().asPath(&a);
-    peCase.appliedPathEffectShape().asPath(&b);
-    peCase.appliedFullStyleShape().asPath(&c);
+    SkPath a = peCase.baseShape().asPath(),
+           b = peCase.appliedPathEffectShape().asPath(),
+           c = peCase.appliedFullStyleShape().asPath();
     if (geo.isNonPath(pe)) {
         // RRect types can have a change in start index or direction after the PE is applied. This
         // is because once the PE is applied, GrStyledShape may canonicalize the dir and index since
@@ -1496,22 +1484,20 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
     // from closing it but after the effect fails we can (for the fill+pe case). This causes
     // different routes through GrStyledShape to have equivalent but different representations of
     // the path (closed or not) but that fill the same.
-    SkPath a;
-    SkPath b;
-    fillCase.appliedPathEffectShape().asPath(&a);
-    peCase.appliedPathEffectShape().asPath(&b);
+    SkPath a = fillCase.appliedPathEffectShape().asPath(),
+           b = peCase.appliedPathEffectShape().asPath();
     REPORTER_ASSERT(reporter, paths_fill_same(a, b));
 
-    fillCase.appliedFullStyleShape().asPath(&a);
-    peCase.appliedFullStyleShape().asPath(&b);
+    a = fillCase.appliedFullStyleShape().asPath();
+    b = peCase.appliedFullStyleShape().asPath();
     REPORTER_ASSERT(reporter, paths_fill_same(a, b));
 
-    strokeCase.appliedPathEffectShape().asPath(&a);
-    peStrokeCase.appliedPathEffectShape().asPath(&b);
+    a = strokeCase.appliedPathEffectShape().asPath();
+    b = peStrokeCase.appliedPathEffectShape().asPath();
     REPORTER_ASSERT(reporter, paths_fill_same(a, b));
 
-    strokeCase.appliedFullStyleShape().asPath(&a);
-    peStrokeCase.appliedFullStyleShape().asPath(&b);
+    a = strokeCase.appliedFullStyleShape().asPath();
+    b = peStrokeCase.appliedFullStyleShape().asPath();
     REPORTER_ASSERT(reporter, paths_fill_same(a, b));
 }
 

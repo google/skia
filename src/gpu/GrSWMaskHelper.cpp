@@ -80,8 +80,7 @@ void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matri
     SkSimpleMatrixProvider matrixProvider(translatedMatrix);
     fDraw.fMatrixProvider = &matrixProvider;
 
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
     if (SkRegion::kReplace_Op == op && 0xFF == alpha) {
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);

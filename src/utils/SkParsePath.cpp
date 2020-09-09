@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "include/core/SkPathBuilder.h"
 #include "include/utils/SkParse.h"
 #include "include/utils/SkParsePath.h"
 
@@ -73,7 +75,7 @@ static const char* find_scalar(const char str[], SkScalar* value,
 }
 
 bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
-    SkPath path;
+    SkPathBuilder path;
     SkPoint first = {0, 0};
     SkPoint c = {0, 0};
     SkPoint lastc = {0, 0};
@@ -174,9 +176,9 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                         && (data = find_scalar(data, &sweep, false, 0))
                         && (data = skip_sep(data))
                         && (data = find_points(data, &points[0], 1, relative, &c))) {
-                    path.arcTo(radii, angle, (SkPath::ArcSize) SkToBool(largeArc),
+                    path.arcTo(radii, angle, (SkPathBuilder::ArcSize) SkToBool(largeArc),
                             (SkPathDirection) !SkToBool(sweep), points[0]);
-                    path.getLastPt(&c);
+                    c = path.lastPoint();
                 }
                 } break;
             case 'Z':
@@ -197,8 +199,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
         }
         previousOp = op;
     }
-    // we're good, go ahead and swap in the result
-    result->swap(path);
+    *result = path.detach();
     return true;
 }
 

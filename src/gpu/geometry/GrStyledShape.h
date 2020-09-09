@@ -138,8 +138,8 @@ public:
     bool asNestedRects(SkRect rects[2]) const;
 
     /** Returns the unstyled geometry as a path. */
-    void asPath(SkPath* out) const {
-        fShape.asPath(out, fStyle.isSimpleFill());
+    SkPath asPath() const {
+        return fShape.asPath(fStyle.isSimpleFill());
     }
 
     /**
