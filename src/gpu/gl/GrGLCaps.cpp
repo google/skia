@@ -401,7 +401,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
 
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= k330_GrGLSLGeneration; // We use this value for GLSL ES 3.0.
-#if GR_TEST_UTILS
+#if 0
         // TODO(bsalomon): Revert this experiment to see if this affects ANGLE ES3 D3D11
         //  performance.
         if (ctxInfo.driver() == kANGLE_GrGLDriver) {
