@@ -641,11 +641,6 @@ bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThresho
             return false;
         }
     }
-    if (contains_recursive_call(functionCall.fFunction)) {
-        // We do not perform inlining on recursive calls to avoid an infinite death spiral of
-        // inlining.
-        return false;
-    }
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
         // can't inline functions that have an early return.
@@ -934,7 +929,8 @@ bool Inliner::analyze(Program& program) {
         if (inlinableMap.find(funcDecl) == inlinableMap.end()) {
             int inlineThreshold = (funcDecl->fCallCount.load() > 1) ? fSettings->fInlineThreshold
                                                                     : INT_MAX;
-            inlinableMap[funcDecl] = this->isSafeToInline(funcCall, inlineThreshold);
+            inlinableMap[funcDecl] = this->isSafeToInline(funcCall, inlineThreshold) &&
+                                     !contains_recursive_call(*funcDecl);
         }
     }
 
@@ -957,9 +953,9 @@ bool Inliner::analyze(Program& program) {
             continue;
         }
 
-        /*SkDebugf("Inlining function %s into enclosing %s\n",
+        SkDebugf("Inlining function %s into enclosing %s\n",
                  funcCall.description().c_str(),
-                 (*candidate.fEnclosingStmt)->description().c_str());*/
+                 (*candidate.fEnclosingStmt)->description().c_str());
 
         // Convert the function call to its inlined equivalent.
         InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols);
