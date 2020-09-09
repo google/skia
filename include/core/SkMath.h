@@ -48,10 +48,7 @@ static inline unsigned SkMul16ShiftRound(U16CPU a, U16CPU b, int shift) {
  *  Only valid if a and b are unsigned and <= 32767.
  */
 static inline U8CPU SkMulDiv255Round(U16CPU a, U16CPU b) {
-    SkASSERT(a <= 32767);
-    SkASSERT(b <= 32767);
-    unsigned prod = a*b + 128;
-    return (prod + (prod >> 8)) >> 8;
+    return SkMul16ShiftRound(a,b,8);
 }
 
 #endif
