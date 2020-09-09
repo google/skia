@@ -1847,6 +1847,11 @@ if (skia_enable_tools) {
     deps = [ ":skia" ]
   }
 
+  test_lib("experimental_aligned_dashes") {
+    sources = [ "experimental/aligned_dashing/SkAlignedDashPathEffect.cpp" ]
+    deps = [ ":skia" ]
+  }
+
   if (is_linux || is_mac) {
     test_app("skottie_tool") {
       deps = [ "modules/skottie:tool" ]
@@ -1866,6 +1871,7 @@ if (skia_enable_tools) {
     }
     public_deps = [ ":tool_utils" ]
     deps = [
+      ":experimental_aligned_dashes",
       ":experimental_svg_model",
       ":flags",
       ":gpu_tool_utils",
