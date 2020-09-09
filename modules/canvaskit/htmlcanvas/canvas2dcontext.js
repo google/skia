@@ -587,6 +587,9 @@ function CanvasRenderingContext2D(skcanvas) {
 
   this._imagePaint = function() {
     var iPaint = this._fillPaint();
+    // TODO(kjlubick) Remove this and instead make an image shader using makeSubset
+    // and some sampling/mipmap options. None == Nearest, Low/Medium = Linear, High
+    // is the CubicOptions with B and C = 1/3
     if (!this._imageSmoothingEnabled) {
       iPaint.setFilterQuality(CanvasKit.FilterQuality.None);
     } else {
