@@ -615,7 +615,6 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
         if (!next) {
             return nullptr;
         }
-        this->checkValid(*next);
     }
     ++iter;
     std::unique_ptr<Statement> statement = this->convertStatement(*iter);
@@ -731,7 +730,6 @@ std::unique_ptr<Statement> IRGenerator::convertExpressionStatement(const ASTNode
     if (!e) {
         return nullptr;
     }
-    this->checkValid(*e);
     return std::unique_ptr<Statement>(new ExpressionStatement(std::move(e)));
 }
 
@@ -2898,6 +2896,24 @@ void IRGenerator::convertProgram(Program::Kind kind,
 #endif
                 break;
         }
+    }
+
+    // Do a final pass looking for dangling FunctionReference or TypeReference expressions
+    class FindIllegalExpressions : public ProgramVisitor {
+    public:
+        FindIllegalExpressions(IRGenerator* generator) : fGenerator(generator) {}
+
+        bool visitExpression(const Expression& e) override {
+            fGenerator->checkValid(e);
+            return INHERITED::visitExpression(e);
+        }
+
+        IRGenerator* fGenerator;
+        using INHERITED = ProgramVisitor;
+        using INHERITED::visitProgramElement;
+    };
+    for (const auto& pe : *fProgramElements) {
+        FindIllegalExpressions{this}.visitProgramElement(*pe);
     }
 }
 
