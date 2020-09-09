@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "60d5773b_fd4734cc",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-09T20:07:43Z",
+      "side": 1,
+      "message": "pretranslate_by_origin ?",
+      "range": {
+        "startLine": 246,
+        "startChar": 9,
+        "endLine": 246,
+        "endChar": 27
+      },
+      "revId": "47587c1d93af102110ad6df767ad0190d7107360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
