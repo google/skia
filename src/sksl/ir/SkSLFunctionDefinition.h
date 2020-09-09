@@ -47,6 +47,9 @@ struct FunctionDefinition : public ProgramElement {
     // We track intrinsic functions we reference so that we can ensure that all of them end up
     // copied into the final output.
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
+    // We maintain a set of all the functions that have been inlined into this function body, to
+    // prevent runaway infinite recursion.
+    std::unordered_set<const FunctionDeclaration*> fInlinedFunctions;
     // This pointer may be null, and even when non-null is not guaranteed to remain valid for the
     // entire lifespan of this object. The parse tree's lifespan is normally controlled by
     // IRGenerator, so the IRGenerator being destroyed or being used to compile another file will

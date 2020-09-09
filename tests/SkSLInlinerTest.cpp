@@ -51,26 +51,59 @@ static void test(skiatest::Reporter* r, const GrShaderCaps& caps,
 }
 
 DEF_TEST(SkSLFunctionInlineThreshold, r) {
+    // We have to call the function twice here; otherwise, the inliner will want to inline it even
+    // if its size exceeds the threshold. (Inlining a large function that's only called once is
+    // still a net reduction in code size.)
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          "void tooBig(inout int x) {"
          "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
          "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
          "}"
-         "void main() { int x = 0; tooBig(x); }",
-         "#version 400\n"
-         "void tooBig(inout int x) {\n"
-         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
-         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
-         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
-         "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
-         "    ++x;\n    ++x;\n"
-         "}\n"
-         "void main() {\n"
-         "    int x = 0;\n"
-         "    tooBig(x);\n"
-         "}\n"
-         );
+         "void main() { int x = 0; tooBig(x); tooBig(x); }",
+         R"__GLSL__(#version 400
+void tooBig(inout int x) {
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+    ++x;
+}
+void main() {
+    int x = 0;
+    tooBig(x);
+    tooBig(x);
+}
+)__GLSL__");
 }
 
 DEF_TEST(SkSLFunctionInlineKeywordOverridesThreshold, r) {
@@ -241,47 +274,47 @@ DEF_TEST(SkSLFunctionInlineWithNestedCall, r) {
          "}",
 R"__GLSL__(#version 400
 out vec4 sk_FragColor;
-void foo(out float x) {
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    x = 42.0;
-}
 void main() {
     float _2_y = 0.0;
     {
-        foo(_2_y);
+        {
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            _2_y = 42.0;
+        }
+
     }
 
 
