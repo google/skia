@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcb38695_59c77863",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-09T17:57:16Z",
+      "side": 1,
+      "message": "Perf cluster from temporarily disabling shader integer support:\n\nhttps://perf.skia.org/e/?begin\u003d1599082305\u0026end\u003d1599673197\u0026keys\u003dX8ac1f71eda88886ee34848aa2582d4b7\u0026requestType\u003d0\u0026xbaroffset\u003d50583\n\nAFAICT GrShaderCaps::integerSupport() is only used by these GPs and CCPR (which is not enabled on these perf bots).\n\nNote that having an int varying causes us to tag the varying as flat, but note this comment:\nhttps://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/gl/GrGLCaps.cpp;l\u003d888;drc\u003d27e7f77212678b36b63b2896113024c22ea5e06d\n(!!!)\n\n",
+      "revId": "580a8e7080ce80f249eabeef641eb116df6628dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
