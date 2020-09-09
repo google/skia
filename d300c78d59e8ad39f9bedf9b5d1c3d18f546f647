@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f5b9faa2_d6beee5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-09T13:08:57Z",
+      "side": 1,
+      "message": "I\u0027m going to submit this, as it fixes the bug (and all other tests still pass). Just want to point out that I had to change the approach slightly - we do need the enum\u0027s table to have a parent while we\u0027re converting the enum declaration itself (so that initializers can refer to other constants, or to type names for constructor calls, etc...). So I push a new table like normal, but then \"orphanize\" it by resetting the parent pointer to null right before we construct the Enum element.",
+      "revId": "d300c78d59e8ad39f9bedf9b5d1c3d18f546f647",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
