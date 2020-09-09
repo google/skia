@@ -675,10 +675,10 @@ GrReducedClip::ClipResult GrReducedClip::addAnalyticRRect(const SkRRect& deviceS
         return ClipResult::kClipped;
     }
 
-    SkPath deviceSpacePath;
+    SkPathBuilder deviceSpacePath;
     deviceSpacePath.setIsVolatile(true);
     deviceSpacePath.addRRect(deviceSpaceRRect);
-    return this->addAnalyticPath(deviceSpacePath, invert, aa);
+    return this->addAnalyticPath(deviceSpacePath.detach(), invert, aa);
 }
 
 GrReducedClip::ClipResult GrReducedClip::addAnalyticPath(const SkPath& deviceSpacePath,

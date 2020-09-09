@@ -16,9 +16,18 @@
 class SK_API SkPathBuilder {
 public:
     SkPathBuilder();
+    SkPathBuilder(SkPathFillType);
+    SkPathBuilder(const SkPath&);
+    SkPathBuilder(const SkPathBuilder&) = default;
     ~SkPathBuilder();
 
-    SkPath snapshot();  // the builder is unchanged after returning this path
+    SkPathBuilder& operator=(const SkPath&);
+    SkPathBuilder& operator=(const SkPathBuilder&) = default;
+
+    SkPathFillType fillType() const { return fFillType; }
+    SkRect computeBounds() const;
+
+    SkPath snapshot() const;  // the builder is unchanged after returning this path
     SkPath detach();    // the builder is reset to empty after returning this path
 
     SkPathBuilder& setFillType(SkPathFillType ft) { fFillType = ft; return *this; }

@@ -20,7 +20,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkString.h"
@@ -62,6 +62,7 @@ DEF_MTNAME(SkMatrix)
 DEF_MTNAME(SkRRect)
 DEF_MTNAME(SkPath)
 DEF_MTNAME(SkPaint)
+DEF_MTNAME(SkPathBuilder)
 DEF_MTNAME(SkPathEffect)
 DEF_MTNAME(SkPicture)
 DEF_MTNAME(SkPictureRecorder)
@@ -530,7 +531,7 @@ static int lcanvas_drawPatch(lua_State* L) {
 }
 
 static int lcanvas_drawPath(lua_State* L) {
-    get_ref<SkCanvas>(L, 1)->drawPath(*get_obj<SkPath>(L, 2),
+    get_ref<SkCanvas>(L, 1)->drawPath(get_obj<SkPathBuilder>(L, 2)->snapshot(),
                                       *get_obj<SkPaint>(L, 3));
     return 0;
 }
@@ -879,19 +880,6 @@ static int lpaint_getPathEffect(lua_State* L) {
     return 0;
 }
 
-static int lpaint_getFillPath(lua_State* L) {
-    const SkPaint* paint = get_obj<SkPaint>(L, 1);
-    const SkPath* path = get_obj<SkPath>(L, 2);
-
-    SkPath fillpath;
-    paint->getFillPath(*path, &fillpath);
-
-    SkLua lua(L);
-    lua.pushPath(fillpath);
-
-    return 1;
-}
-
 static int lpaint_gc(lua_State* L) {
     get_obj<SkPaint>(L, 1)->~SkPaint();
     return 0;
@@ -923,7 +911,6 @@ static const struct luaL_Reg gSkPaint_Methods[] = {
     { "getShader", lpaint_getShader },
     { "setShader", lpaint_setShader },
     { "getPathEffect", lpaint_getPathEffect },
-    { "getFillPath", lpaint_getFillPath },
     { "__gc", lpaint_gc },
     { nullptr, nullptr }
 };
@@ -1243,7 +1230,7 @@ static const struct luaL_Reg gSkMatrix_Methods[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 static int lpath_getBounds(lua_State* L) {
-    SkLua(L).pushRect(get_obj<SkPath>(L, 1)->getBounds());
+    SkLua(L).pushRect(get_obj<SkPathBuilder>(L, 1)->computeBounds());
     return 1;
 }
 
@@ -1262,7 +1249,7 @@ static const char* fill_type_to_str(SkPathFillType fill) {
 }
 
 static int lpath_getFillType(lua_State* L) {
-    SkPathFillType fill = get_obj<SkPath>(L, 1)->getFillType();
+    SkPathFillType fill = get_obj<SkPathBuilder>(L, 1)->fillType();
     SkLua(L).pushString(fill_type_to_str(fill));
     return 1;
 }
@@ -1303,25 +1290,25 @@ static SkString segment_masks_to_str(uint32_t segmentMasks) {
 }
 
 static int lpath_getSegmentTypes(lua_State* L) {
-    uint32_t segMasks = get_obj<SkPath>(L, 1)->getSegmentMasks();
+    uint32_t segMasks = get_obj<SkPathBuilder>(L, 1)->snapshot().getSegmentMasks();
     SkLua(L).pushString(segment_masks_to_str(segMasks));
     return 1;
 }
 
 static int lpath_isConvex(lua_State* L) {
-    bool isConvex = get_obj<SkPath>(L, 1)->isConvex();
+    bool isConvex = get_obj<SkPathBuilder>(L, 1)->snapshot().isConvex();
     SkLua(L).pushBool(isConvex);
     return 1;
 }
 
 static int lpath_isEmpty(lua_State* L) {
-    lua_pushboolean(L, get_obj<SkPath>(L, 1)->isEmpty());
+    lua_pushboolean(L, get_obj<SkPathBuilder>(L, 1)->snapshot().isEmpty());
     return 1;
 }
 
 static int lpath_isRect(lua_State* L) {
     SkRect r;
-    bool pred = get_obj<SkPath>(L, 1)->isRect(&r);
+    bool pred = get_obj<SkPathBuilder>(L, 1)->snapshot().isRect(&r);
     int ret_count = 1;
     lua_pushboolean(L, pred);
     if (pred) {
@@ -1332,13 +1319,13 @@ static int lpath_isRect(lua_State* L) {
 }
 
 static int lpath_countPoints(lua_State* L) {
-    lua_pushinteger(L, get_obj<SkPath>(L, 1)->countPoints());
+    lua_pushinteger(L, get_obj<SkPathBuilder>(L, 1)->snapshot().countPoints());
     return 1;
 }
 
 static int lpath_getVerbs(lua_State* L) {
-    const SkPath* path = get_obj<SkPath>(L, 1);
-    SkPath::Iter iter(*path, false);
+    SkPath path = get_obj<SkPathBuilder>(L, 1)->snapshot();
+    SkPath::Iter iter(path, false);
     SkPoint pts[4];
 
     lua_newtable(L);
@@ -1376,40 +1363,40 @@ static int lpath_getVerbs(lua_State* L) {
 }
 
 static int lpath_reset(lua_State* L) {
-    get_obj<SkPath>(L, 1)->reset();
+    get_obj<SkPathBuilder>(L, 1)->reset();
     return 0;
 }
 
 static int lpath_moveTo(lua_State* L) {
-    get_obj<SkPath>(L, 1)->moveTo(lua2scalar(L, 2), lua2scalar(L, 3));
+    get_obj<SkPathBuilder>(L, 1)->moveTo(lua2scalar(L, 2), lua2scalar(L, 3));
     return 0;
 }
 
 static int lpath_lineTo(lua_State* L) {
-    get_obj<SkPath>(L, 1)->lineTo(lua2scalar(L, 2), lua2scalar(L, 3));
+    get_obj<SkPathBuilder>(L, 1)->lineTo(lua2scalar(L, 2), lua2scalar(L, 3));
     return 0;
 }
 
 static int lpath_quadTo(lua_State* L) {
-    get_obj<SkPath>(L, 1)->quadTo(lua2scalar(L, 2), lua2scalar(L, 3),
+    get_obj<SkPathBuilder>(L, 1)->quadTo(lua2scalar(L, 2), lua2scalar(L, 3),
                                   lua2scalar(L, 4), lua2scalar(L, 5));
     return 0;
 }
 
 static int lpath_cubicTo(lua_State* L) {
-    get_obj<SkPath>(L, 1)->cubicTo(lua2scalar(L, 2), lua2scalar(L, 3),
+    get_obj<SkPathBuilder>(L, 1)->cubicTo(lua2scalar(L, 2), lua2scalar(L, 3),
                                    lua2scalar(L, 4), lua2scalar(L, 5),
                                    lua2scalar(L, 6), lua2scalar(L, 7));
     return 0;
 }
 
 static int lpath_close(lua_State* L) {
-    get_obj<SkPath>(L, 1)->close();
+    get_obj<SkPathBuilder>(L, 1)->close();
     return 0;
 }
 
 static int lpath_gc(lua_State* L) {
-    get_obj<SkPath>(L, 1)->~SkPath();
+    get_obj<SkPathBuilder>(L, 1)->~SkPathBuilder();
     return 0;
 }
 
@@ -1824,7 +1811,7 @@ static int lsk_newPaint(lua_State* L) {
 }
 
 static int lsk_newPath(lua_State* L) {
-    push_new<SkPath>(L);
+    push_new<SkPathBuilder>(L);
     return 1;
 }
 
