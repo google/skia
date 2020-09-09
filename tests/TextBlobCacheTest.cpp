@@ -72,6 +72,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
         setup_always_evict_atlas(dContext);
+        // TODO: test the GrThreadSafeUniquelyKeyedProxyViewCache
         GrTextBlobTestingPeer::SetBudget(dContext->priv().getTextBlobCache(), 0);
     }
 
