@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "250399f6_54b5d799",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2913,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-09T18:27:07Z",
+      "side": 1,
+      "message": "It re-declares the base class function, but changes access modifiers to public (so I can call it here). Just because I don\u0027t have a Program yet, only a list of elements.",
+      "parentUuid": "fdfb317c_963f1e97",
+      "range": {
+        "startLine": 2913,
+        "startChar": 8,
+        "endLine": 2913,
+        "endChar": 45
+      },
+      "revId": "e8bbc3883c2c9f7d98b35824eae982ae475f935a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4c82c7e_b3ef2ba1",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 1
@@ -53,6 +77,30 @@
       "writtenOn": "2020-09-09T17:53:52Z",
       "side": 1,
       "message": "If fErrors already contains errors, do we want to run this pass?",
+      "range": {
+        "startLine": 2915,
+        "startChar": 4,
+        "endLine": 2917,
+        "endChar": 5
+      },
+      "revId": "e8bbc3883c2c9f7d98b35824eae982ae475f935a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ea37f66_b8b55c92",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2917,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-09T18:27:07Z",
+      "side": 1,
+      "message": "There\u0027s a (slim) chance we redundantly report the same error, but otherwise I\u0027d like to report as many as possible?",
+      "parentUuid": "b4c82c7e_b3ef2ba1",
       "range": {
         "startLine": 2915,
         "startChar": 4,
