@@ -747,6 +747,7 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
         }
         if (fCurrentFunction->fReturnType == *fContext.fVoid_Type) {
             fErrors.error(result->fOffset, "may not return a value from a void function");
+            return nullptr;
         } else {
             result = this->coerce(std::move(result), fCurrentFunction->fReturnType);
             if (!result) {
