@@ -15,6 +15,13 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 #include "src/gpu/glsl/GrGLSLVertexGeoBuilder.h"
 
+// Temporary hack to test perf on ANGLE D3D11 ES3 of using an integer varying on dev builds.
+#ifdef SK_BUILD_FOR_WIN
+#    define SK_FORCE_MULTITEX_ATLAS_IDX_VARYING_TO_FLOAT GR_TEST_UTILS
+#else
+#    define SK_FORCE_MULTITEX_ATLAS_IDX_VARYING_TO_FLOAT 0
+#endif
+
 static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                      int numTextureSamplers,
                                      const char* inTexCoordsName,
@@ -60,10 +67,14 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
     args.fVertBuilder->codeAppendf(
             "%s = unormTexCoords * %s;", uv->vsOut(), atlasDimensionsInvName);
 
-    args.fVaryingHandler->addVarying("TexIndex", texIdx, args.fShaderCaps->integerSupport()
-                                                                 ? Interpolation::kMustBeFlat
-                                                                 : Interpolation::kCanBeFlat);
-    args.fVertBuilder->codeAppendf("%s = texIdx;", texIdx->vsOut());
+    args.fVaryingHandler->addVarying("TexIndex", texIdx, GrSLTypeIsFloatType(texIdx->type())
+                                                                 ? Interpolation::kCanBeFlat
+                                                                 : Interpolation::kMustBeFlat);
+    const char* cast = "";
+    if (args.fShaderCaps->integerSupport() && GrSLTypeIsFloatType(texIdx->type())) {
+        cast = "float";
+    }
+    args.fVertBuilder->codeAppendf("%s = %s(texIdx);", texIdx->vsOut(), cast);
 
     if (st) {
         args.fVaryingHandler->addVarying("IntTextureCoords", st);
@@ -73,7 +84,7 @@ static void append_index_uv_varyings(GrGLSLPrimitiveProcessor::EmitArgs& args,
 
 static void append_multitexture_lookup(GrGLSLPrimitiveProcessor::EmitArgs& args,
                                        int numTextureSamplers,
-                                       const GrGLSLVarying &texIdx,
+                                       const GrGLSLVarying& texIdx,
                                        const char* coordName,
                                        const char* colorName) {
     SkASSERT(numTextureSamplers > 0);
