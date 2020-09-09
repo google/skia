@@ -39,6 +39,30 @@
       "revId": "86040496c7b0c4cdbd388939636d66abf7a77656",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec2d7599_2a97379c",
+        "filename": "src/gpu/tessellate/GrStencilPathShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-09T09:16:27Z",
+      "side": 1,
+      "message": "Personal preference I suppose. Writing out \"1024.0\" shouldn\u0027t lose precision, but trying to spell out the decimal representation an inverse power of 2 might not construct the exact floating point value that we want.",
+      "parentUuid": "f8340c73_3e967803",
+      "range": {
+        "startLine": 294,
+        "startChar": 66,
+        "endLine": 294,
+        "endChar": 70
+      },
+      "revId": "86040496c7b0c4cdbd388939636d66abf7a77656",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
