@@ -92,7 +92,7 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProx
 }
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
-    GrStrokePatchBuilder builder(flushState, &fVertexChunks, fMatrixScale, fTotalCombinedVerbCnt);
+    GrStrokePatchBuilder builder(flushState, &fPatchChunks, fMatrixScale, fTotalCombinedVerbCnt);
     for (auto& [path, stroke] : fPathStrokes) {
         builder.addPath(path, stroke);
     }
@@ -117,10 +117,10 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
     flushState->bindTextures(strokeShader, nullptr, pipeline);
 
-    for (const auto& chunk : fVertexChunks) {
-        if (chunk.fVertexBuffer) {
-            flushState->bindBuffers(nullptr, nullptr, std::move(chunk.fVertexBuffer));
-            flushState->draw(chunk.fVertexCount, chunk.fBaseVertex);
+    for (const auto& chunk : fPatchChunks) {
+        if (chunk.fPatchBuffer) {
+            flushState->bindBuffers(nullptr, nullptr, std::move(chunk.fPatchBuffer));
+            flushState->draw(chunk.fPatchCount, chunk.fBasePatch);
         }
     }
 }
