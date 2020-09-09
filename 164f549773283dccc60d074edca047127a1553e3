@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4e4a450b_60666c54",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-09T15:33:09Z",
+      "side": 1,
+      "message": "If we trust ourselves not to use recursion in the pre-includes, can we just drop these on the floor here?",
+      "revId": "164f549773283dccc60d074edca047127a1553e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c51ad48a_77335c78",
+        "filename": "src/sksl/ir/SkSLInlineMarker.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-09T15:33:09Z",
+      "side": 1,
+      "message": "nit: 2020, LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 29
+      },
+      "revId": "164f549773283dccc60d074edca047127a1553e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
