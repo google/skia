@@ -721,6 +721,7 @@ bool Inliner::analyze(Program& program) {
                 case Statement::Kind::kBreak:
                 case Statement::Kind::kContinue:
                 case Statement::Kind::kDiscard:
+                case Statement::Kind::kInlineMarker:
                 case Statement::Kind::kNop:
                     break;
 
@@ -913,27 +914,68 @@ bool Inliner::analyze(Program& program) {
         }
     };
 
-    // TODO(johnstiles): the analyzer can detect inlinable functions; actually inlining them will
-    // be tackled in a followup CL.
     InlineCandidateAnalyzer analyzer;
     analyzer.visit(program);
-/*
-    std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, safe-to-inline>
-    for (InlineCandidate& candidate : analyzer.fInlineCandidates) {
+
+    // For each of our candidate function-call sites, check if it is actually safe to inline.
+    // Memoize our results so we don't check a function more than once
+    std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, is inlinable?>
+    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
         const FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
         const FunctionDeclaration* funcDecl = &funcCall.fFunction;
         if (inlinableMap.find(funcDecl) == inlinableMap.end()) {
-            bool isSafe = this->isSafeToInline(funcCall, fSettings->fInlineThreshold);
-            inlinableMap[funcDecl] = isSafe;
-
-            if (isSafe) {
-                printf("-> Inliner discovered valid candidate: %s\n",
-                       String(funcDecl->fName).c_str());
-            }
+            int inlineThreshold = (funcDecl->fCallCount.load() > 1) ? fSettings->fInlineThreshold
+                                                                    : INT_MAX;
+            inlinableMap[funcDecl] = this->isSafeToInline(funcCall, inlineThreshold);
         }
     }
-*/
-    return false;
+
+    // Inline the candidates where we've determined that it's safe to do so.
+    std::unordered_set<const std::unique_ptr<Statement>*> enclosingStmtSet;
+    bool madeChanges = false;
+    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
+        FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
+        const FunctionDeclaration* funcDecl = &funcCall.fFunction;
+
+        // If we determined that this candidate was not actually inlinable, skip it.
+        if (!inlinableMap[funcDecl]) {
+            continue;
+        }
+
+        // Inlining two expressions using the same enclosing statement in the same inlining pass
+        // does not work properly. If this happens, skip it; we'll get it in the next pass.
+        auto [unusedIter, inserted] = enclosingStmtSet.insert(candidate.fEnclosingStmt);
+        if (!inserted) {
+            continue;
+        }
+
+        printf("Inlining function %s into enclosing %s\n",
+                funcCall.description().c_str(),
+                (*candidate.fEnclosingStmt)->description().c_str());
+
+        // Convert the function call to its inlined equivalent.
+        InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols);
+        if (inlinedCall.fInlinedBody) {
+            // Move the enclosing statement to the end of the unscoped Block containing the inlined
+            // function, then replace the enclosing statement with that Block.
+            // Before:
+            //     fInlinedBody = Block{ stmt1, stmt2, stmt3 }
+            //     fEnclosingStmt = stmt4
+            // After:
+            //     fInlinedBody = null
+            //     fEnclosingStmt = Block{ stmt1, stmt2, stmt3, stmt4 }
+            inlinedCall.fInlinedBody->fStatements.push_back(std::move(*candidate.fEnclosingStmt));
+            *candidate.fEnclosingStmt = std::move(inlinedCall.fInlinedBody);
+        }
+
+        // Replace the candidate function call with our replacement expression.
+        *candidate.fCandidateExpr = std::move(inlinedCall.fReplacementExpr);
+        madeChanges = true;
+
+        // Note that nothing was destroyed except for the FunctionCall. All other nodes should
+        // remain valid.
+    }
+    return madeChanges;
 }
 
 }  // namespace SkSL
