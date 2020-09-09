@@ -8,7 +8,7 @@
 #include "src/gpu/GrTestUtils.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/GrColorInfo.h"
@@ -168,36 +168,43 @@ const SkPath& TestPath(SkRandom* random) {
     if (!gOnce) {
         gOnce = true;
         // line
-        gPath[0].moveTo(0.f, 0.f);
-        gPath[0].lineTo(10.f, 10.f);
+        gPath[0] = SkPathBuilder().moveTo(0.f, 0.f)
+                                  .lineTo(10.f, 10.f)
+                                  .detach();
         // quad
-        gPath[1].moveTo(0.f, 0.f);
-        gPath[1].quadTo(10.f, 10.f, 20.f, 20.f);
+        gPath[1] = SkPathBuilder().moveTo(0.f, 0.f)
+                                  .quadTo(10.f, 10.f, 20.f, 20.f)
+                                  .detach();
         // conic
-        gPath[2].moveTo(0.f, 0.f);
-        gPath[2].conicTo(10.f, 10.f, 20.f, 20.f, 1.f);
+        gPath[2] = SkPathBuilder().moveTo(0.f, 0.f)
+                                  .conicTo(10.f, 10.f, 20.f, 20.f, 1.f)
+                                  .detach();
         // cubic
-        gPath[3].moveTo(0.f, 0.f);
-        gPath[3].cubicTo(10.f, 10.f, 20.f, 20.f, 30.f, 30.f);
+        gPath[3] = SkPathBuilder().moveTo(0.f, 0.f)
+                                  .cubicTo(10.f, 10.f, 20.f, 20.f, 30.f, 30.f)
+                                  .detach();
         // all three
-        gPath[4].moveTo(0.f, 0.f);
-        gPath[4].lineTo(10.f, 10.f);
-        gPath[4].quadTo(10.f, 10.f, 20.f, 20.f);
-        gPath[4].conicTo(10.f, 10.f, 20.f, 20.f, 1.f);
-        gPath[4].cubicTo(10.f, 10.f, 20.f, 20.f, 30.f, 30.f);
+        gPath[4] = SkPathBuilder().moveTo(0.f, 0.f)
+                                  .lineTo(10.f, 10.f)
+                                  .quadTo(10.f, 10.f, 20.f, 20.f)
+                                  .conicTo(10.f, 10.f, 20.f, 20.f, 1.f)
+                                  .cubicTo(10.f, 10.f, 20.f, 20.f, 30.f, 30.f)
+                                  .detach();
         // convex
-        gPath[5].moveTo(0.0f, 0.0f);
-        gPath[5].lineTo(10.0f, 0.0f);
-        gPath[5].lineTo(10.0f, 10.0f);
-        gPath[5].lineTo(0.0f, 10.0f);
-        gPath[5].close();
+        gPath[5] = SkPathBuilder().moveTo(0.0f, 0.0f)
+                                  .lineTo(10.0f, 0.0f)
+                                  .lineTo(10.0f, 10.0f)
+                                  .lineTo(0.0f, 10.0f)
+                                  .close()
+                                  .detach();
         // concave
-        gPath[6].moveTo(0.0f, 0.0f);
-        gPath[6].lineTo(5.0f, 5.0f);
-        gPath[6].lineTo(10.0f, 0.0f);
-        gPath[6].lineTo(10.0f, 10.0f);
-        gPath[6].lineTo(0.0f, 10.0f);
-        gPath[6].close();
+        gPath[6] = SkPathBuilder().moveTo(0.0f, 0.0f)
+                                  .lineTo(5.0f, 5.0f)
+                                  .lineTo(10.0f, 0.0f)
+                                  .lineTo(10.0f, 10.0f)
+                                  .lineTo(0.0f, 10.0f)
+                                  .close()
+                                  .detach();
     }
 
     return gPath[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gPath)))];
@@ -209,25 +216,25 @@ const SkPath& TestPathConvex(SkRandom* random) {
     if (!gOnce) {
         gOnce = true;
         // narrow rect
-        gPath[0].moveTo(-1.5f, -50.0f);
-        gPath[0].lineTo(-1.5f, -50.0f);
-        gPath[0].lineTo( 1.5f, -50.0f);
-        gPath[0].lineTo( 1.5f,  50.0f);
-        gPath[0].lineTo(-1.5f,  50.0f);
+        gPath[0] = SkPath::Polygon({{-1.5f, -50.0f},
+                                    {-1.5f, -50.0f},
+                                    { 1.5f, -50.0f},
+                                    { 1.5f,  50.0f},
+                                    {-1.5f,  50.0f}}, false);
         // degenerate
-        gPath[1].moveTo(-0.025f, -0.025f);
-        gPath[1].lineTo(-0.025f, -0.025f);
-        gPath[1].lineTo( 0.025f, -0.025f);
-        gPath[1].lineTo( 0.025f,  0.025f);
-        gPath[1].lineTo(-0.025f,  0.025f);
+        gPath[1] = SkPath::Polygon({{-0.025f, -0.025f},
+                                    {-0.025f, -0.025f},
+                                    { 0.025f, -0.025f},
+                                    { 0.025f,  0.025f},
+                                    {-0.025f,  0.025f}}, false);
         // clipped triangle
-        gPath[2].moveTo(-10.0f, -50.0f);
-        gPath[2].lineTo(-10.0f, -50.0f);
-        gPath[2].lineTo( 10.0f, -50.0f);
-        gPath[2].lineTo( 50.0f,  31.0f);
-        gPath[2].lineTo( 40.0f,  50.0f);
-        gPath[2].lineTo(-40.0f,  50.0f);
-        gPath[2].lineTo(-50.0f,  31.0f);
+        gPath[2] = SkPath::Polygon({{-10.0f, -50.0f},
+                                    {-10.0f, -50.0f},
+                                    { 10.0f, -50.0f},
+                                    { 50.0f,  31.0f},
+                                    { 40.0f,  50.0f},
+                                    {-40.0f,  50.0f},
+                                    {-50.0f,  31.0f}}, false);
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gPath); i++) {
             SkASSERT(gPath[i].isConvex());

@@ -207,8 +207,7 @@ protected:
                         canvas->save();
                     }
                     canvas->translate(x, y);
-                    SkPath closedClipPath;
-                    clip->asClosedPath(&closedClipPath);
+                    SkPath closedClipPath = clip->asClosedPath();
                     canvas->drawPath(closedClipPath, clipOutlinePaint);
                     clip->setOnCanvas(canvas, kIntersect_SkClipOp, SkToBool(aa));
                     canvas->scale(1.f, 1.8f);
@@ -240,7 +239,7 @@ private:
         void setOnCanvas(SkCanvas* canvas, SkClipOp op, bool aa) const {
             switch (fClipType) {
                 case kPath_ClipType:
-                    canvas->clipPath(fPath, op, aa);
+                    canvas->clipPath(fPathBuilder.snapshot(), op, aa);
                     break;
                 case kRect_ClipType:
                     canvas->clipRect(fRect, op, aa);
@@ -251,31 +250,29 @@ private:
             }
         }
 
-        void asClosedPath(SkPath* path) const {
+        SkPath asClosedPath() const {
             switch (fClipType) {
                 case kPath_ClipType:
-                    *path = fPath;
-                    path->close();
+                    return SkPathBuilder(fPathBuilder).close().detach();
                     break;
                 case kRect_ClipType:
-                    path->reset();
-                    path->addRect(fRect);
-                    break;
+                    return SkPath::Rect(fRect);
                 case kNone_ClipType:
                     SkDEBUGFAIL("Uninitialized Clip.");
                     break;
             }
+            return SkPath();
         }
 
         void setPath(const SkPath& path) {
             fClipType = kPath_ClipType;
-            fPath = path;
+            fPathBuilder = path;
         }
 
         void setRect(const SkRect& rect) {
             fClipType = kRect_ClipType;
             fRect = rect;
-            fPath.reset();
+            fPathBuilder.reset();
         }
 
         ClipType getType() const { return fClipType; }
@@ -283,7 +280,7 @@ private:
         void getBounds(SkRect* bounds) const {
             switch (fClipType) {
                 case kPath_ClipType:
-                    *bounds = fPath.getBounds();
+                    *bounds = fPathBuilder.computeBounds();
                     break;
                 case kRect_ClipType:
                     *bounds = fRect;
@@ -296,7 +293,7 @@ private:
 
     private:
         ClipType fClipType;
-        SkPath fPath;
+        SkPathBuilder fPathBuilder;
         SkRect fRect;
     };
 

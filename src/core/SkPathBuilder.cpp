@@ -18,6 +18,10 @@ SkPathBuilder::SkPathBuilder() {
     this->reset();
 }
 
+SkPathBuilder::SkPathBuilder(const SkPath& src) {
+    *this = src;
+}
+
 SkPathBuilder::~SkPathBuilder() {
 }
 
@@ -40,9 +44,31 @@ SkPathBuilder& SkPathBuilder::reset() {
     return *this;
 }
 
+SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
+    this->reset().setFillType(src.getFillType());
+
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(src)) {
+        switch (verb) {
+            case SkPathVerb::kMove:  this->moveTo(pts[0]); break;
+            case SkPathVerb::kLine:  this->lineTo(pts[1]); break;
+            case SkPathVerb::kQuad:  this->quadTo(pts[1], pts[2]); break;
+            case SkPathVerb::kConic: this->conicTo(pts[1], pts[2], w[0]); break;
+            case SkPathVerb::kCubic: this->cubicTo(pts[1], pts[2], pts[3]); break;
+            case SkPathVerb::kClose: this->close(); break;
+        }
+    }
+    return *this;
+}
+
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
     fPts.setReserve(  Sk32_sat_add(fPts.count(),   extraPtCount));
     fVerbs.setReserve(Sk32_sat_add(fVerbs.count(), extraVbCount));
+}
+
+SkRect SkPathBuilder::computeBounds() const {
+    SkRect bounds;
+    bounds.setBounds(fPts.begin(), fPts.count());
+    return bounds;
 }
 
 /*
@@ -178,7 +204,7 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     return SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
 }
 
-SkPath SkPathBuilder::snapshot() {
+SkPath SkPathBuilder::snapshot() const {
     return this->make(sk_sp<SkPathRef>(new SkPathRef(fPts,
                                                      fVerbs,
                                                      fConicWeights,
