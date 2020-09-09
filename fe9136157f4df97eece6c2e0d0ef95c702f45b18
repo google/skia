@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b668deee_611c2c95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T15:28:33Z",
+      "side": 1,
+      "message": "I definitely like this better, just some nits",
+      "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d71afe9_55544294",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T15:28:33Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 106,
+        "startChar": 64,
+        "endLine": 106,
+        "endChar": 65
+      },
+      "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9303ff1b_15c6add2",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T15:28:33Z",
+      "side": 1,
+      "message": "could just use a ternary for a one-liner?",
+      "range": {
+        "startLine": 196,
+        "startChar": 8,
+        "endLine": 199,
+        "endChar": 38
+      },
+      "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fda52a0c_396781e9",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2063,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T15:28:33Z",
+      "side": 1,
+      "message": "nit: extra space",
+      "range": {
+        "startLine": 2063,
+        "startChar": 37,
+        "endLine": 2063,
+        "endChar": 38
+      },
+      "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
