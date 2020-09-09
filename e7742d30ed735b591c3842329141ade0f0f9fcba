@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "981d8d01_cd6268b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-09T13:13:15Z",
+      "side": 1,
+      "message": "These are the only two uses of fInverseW. I think we should go ahead and remove it.",
+      "revId": "e7742d30ed735b591c3842329141ade0f0f9fcba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
