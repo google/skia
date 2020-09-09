@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92267d05_90b61d07",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-09T19:58:59Z",
+      "side": 1,
+      "message": "Note: mipmap options need the partner api in Image factories: where the client tells us up-front if a given image should have miplevels or not (those used to be lazily created, but no more).\n",
+      "revId": "8c598b6861e3f411f75ec51d19514a7ce7031ea5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
