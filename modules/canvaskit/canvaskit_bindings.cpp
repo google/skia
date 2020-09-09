@@ -655,7 +655,7 @@ class ShapedText {
 };
 
 void drawShapedText(SkCanvas& canvas, ShapedText st, SkScalar x,
-                    SkScalar y, SkPaint paint) {
+                    SkScalar y, const SkPaint& paint) {
     canvas.drawTextBlob(st.blob(), x, y, paint);
 }
 #endif //SK_NO_FONTS
@@ -1024,7 +1024,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers())
         .function("drawLine", select_overload<void (SkScalar, SkScalar, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawLine))
         .function("_drawOval", optional_override([](SkCanvas& self, uintptr_t /* float* */ fPtr,
-                                                    const SkPaint paint)->void {
+                                                    const SkPaint& paint)->void {
             const SkRect* oval = reinterpret_cast<const SkRect*>(fPtr);
             self.drawOval(*oval, paint);
         }))
@@ -1041,7 +1041,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawPicture", select_overload<void (const sk_sp<SkPicture>&)>(&SkCanvas::drawPicture))
         .function("_drawPoints", optional_override([](SkCanvas& self, SkCanvas::PointMode mode,
                                                      uintptr_t /* SkPoint* */ pptr,
-                                                     int count, SkPaint paint)->void {
+                                                     int count, SkPaint& paint)->void {
             const SkPoint* pts = reinterpret_cast<const SkPoint*>(pptr);
             self.drawPoints(mode, count, pts, paint);
         }))
@@ -1049,13 +1049,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.drawRRect(ptrToSkRRect(fPtr), paint);
         }))
         .function("_drawRect", optional_override([](SkCanvas& self, uintptr_t /* float* */ fPtr,
-                                                    const SkPaint paint)->void {
+                                                    const SkPaint& paint)->void {
             const SkRect* rect = reinterpret_cast<const SkRect*>(fPtr);
             self.drawRect(*rect, paint);
         }))
         .function("drawRect4f", optional_override([](SkCanvas& self, SkScalar left, SkScalar top,
                                                      SkScalar right, SkScalar bottom,
-                                                     const SkPaint paint)->void {
+                                                     const SkPaint& paint)->void {
             const SkRect rect = SkRect::MakeLTRB(left, top, right, bottom);
             self.drawRect(rect, paint);
         }))
