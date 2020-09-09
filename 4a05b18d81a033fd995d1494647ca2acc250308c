@@ -218,6 +218,30 @@
     },
     {
       "key": {
+        "uuid": "15234fca_b077766a",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89cd5b24_f71301ab",
+      "range": {
+        "startLine": 432,
+        "startChar": 9,
+        "endLine": 432,
+        "endChar": 22
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fba7063e_e63ae04a",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 8
@@ -329,6 +353,24 @@
     },
     {
       "key": {
+        "uuid": "8a5f3868_000c8b67",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0aa35f59_31ff1cf2",
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "39e486bc_681dafa6",
         "filename": "src/gpu/GrClipStack.h",
         "patchSetId": 8
@@ -375,6 +417,54 @@
     },
     {
       "key": {
+        "uuid": "54fb5a34_9ae3548e",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39e486bc_681dafa6",
+      "range": {
+        "startLine": 25,
+        "startChar": 20,
+        "endLine": 25,
+        "endChar": 40
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "311409e5_9e8eb537",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "804cbe51_60342043",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 18
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2cb9a1b_798e10cc",
         "filename": "src/gpu/GrClipStack.h",
         "patchSetId": 8
@@ -386,6 +476,30 @@
       "writtenOn": "2020-08-10T20:05:10Z",
       "side": 1,
       "message": "Why private inheritance and then this? Would has-a make more sense?",
+      "range": {
+        "startLine": 105,
+        "startChar": 7,
+        "endLine": 105,
+        "endChar": 59
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "648d9415_3323ad90",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "I had experimented with has-a, but so much of the cpp file was accessing the element fields of RawElement that the implementations read cleaner to me to be able to refer to them directly.",
+      "parentUuid": "b2cb9a1b_798e10cc",
       "range": {
         "startLine": 105,
         "startChar": 7,
@@ -421,6 +535,30 @@
     },
     {
       "key": {
+        "uuid": "572cc6d5_177cf715",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done; and fixed the other instances in this file.",
+      "parentUuid": "f61c6ed4_618c80a1",
+      "range": {
+        "startLine": 312,
+        "startChar": 10,
+        "endLine": 312,
+        "endChar": 11
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "18ed2af6_d90165bf",
         "filename": "src/gpu/geometry/GrShape.cpp",
         "patchSetId": 8
@@ -444,6 +582,30 @@
     },
     {
       "key": {
+        "uuid": "5c6b0f3a_07cd1eaa",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done, but had to remove the kLast \u003d kLine enum value since that confused some compilers about whether or not all cases were in the switch block",
+      "parentUuid": "18ed2af6_d90165bf",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 26
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "137a29d2_8ef1e1f8",
         "filename": "src/gpu/geometry/GrShape.h",
         "patchSetId": 8
@@ -458,6 +620,24 @@
       "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d69ba8a5_8c14c670",
+        "filename": "src/gpu/geometry/GrShape.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "137a29d2_8ef1e1f8",
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

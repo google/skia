@@ -146,6 +146,30 @@
     },
     {
       "key": {
+        "uuid": "0540a24a_729ab234",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fb519db_2a0cdac3",
+      "range": {
+        "startLine": 408,
+        "startChar": 0,
+        "endLine": 410,
+        "endChar": 0
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a1aeb4a_532e3a7a",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 9
@@ -166,6 +190,30 @@
       "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c39d0b3_d34a069b",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a1aeb4a_532e3a7a",
+      "range": {
+        "startLine": 446,
+        "startChar": 0,
+        "endLine": 457,
+        "endChar": 1
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -192,6 +240,30 @@
     },
     {
       "key": {
+        "uuid": "5020b318_d29731d5",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79b61ad7_70a0e810",
+      "range": {
+        "startLine": 567,
+        "startChar": 15,
+        "endLine": 567,
+        "endChar": 35
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ff780b02_c852e55d",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 9
@@ -212,6 +284,30 @@
       "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f811ab53_ad8f5f2c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff780b02_c852e55d",
+      "range": {
+        "startLine": 1080,
+        "startChar": 9,
+        "endLine": 1080,
+        "endChar": 10
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -238,6 +334,30 @@
     },
     {
       "key": {
+        "uuid": "e21afd9e_647fbd92",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1106,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df709737_fa74f90c",
+      "range": {
+        "startLine": 1106,
+        "startChar": 9,
+        "endLine": 1106,
+        "endChar": 10
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bec23ec8_535a834f",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 9
@@ -249,6 +369,30 @@
       "writtenOn": "2020-08-10T20:05:10Z",
       "side": 1,
       "message": "is there any potential efficiency gain in RawElement::Stack for a pop_back_n() method?",
+      "range": {
+        "startLine": 1107,
+        "startChar": 8,
+        "endLine": 1107,
+        "endChar": 29
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cad2039_57f1436c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:08:46Z",
+      "side": 1,
+      "message": "There may be some but the underlying implementation gets a little tricky when T isn\u0027t trivially destructible, or if the N*sizeof(T) crosses over an underlying block allocation boundary. Since there are usually relatively few elements (\u003c 10) I didn\u0027t think the complication was warranted.",
+      "parentUuid": "bec23ec8_535a834f",
       "range": {
         "startLine": 1107,
         "startChar": 8,
