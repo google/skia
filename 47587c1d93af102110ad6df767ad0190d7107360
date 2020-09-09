@@ -22,6 +22,30 @@
       "revId": "47587c1d93af102110ad6df767ad0190d7107360",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee5c1808_728f03c6",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-09T20:37:16Z",
+      "side": 1,
+      "message": "This is going away in the very next CL. I\u0027ll just check it in as is to take advantage of all the green bots.",
+      "parentUuid": "60d5773b_fd4734cc",
+      "range": {
+        "startLine": 246,
+        "startChar": 9,
+        "endLine": 246,
+        "endChar": 27
+      },
+      "revId": "47587c1d93af102110ad6df767ad0190d7107360",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
