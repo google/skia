@@ -489,8 +489,9 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
         blob = textBlobCache->find(key);
     }
 
-    const SkMatrix& drawMatrix(viewMatrix.localToDevice());
-    if (blob == nullptr || !blob->canReuse(blobPaint, drawMatrix, drawOrigin)) {
+    SkMatrix drawMatrix(viewMatrix.localToDevice());
+    drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
+    if (blob == nullptr || !blob->canReuse(blobPaint, drawMatrix)) {
         if (blob != nullptr) {
             // We have to remake the blob because changes may invalidate our masks.
             // TODO we could probably get away with reuse most of the time if the pointer is unique,
@@ -504,9 +505,14 @@ void GrRenderTargetContext::drawGlyphRunList(const GrClip* clip,
             textBlobCache->add(glyphRunList, blob);
         }
 
+        // TODO(herb): redo processGlyphRunList to handle shifted draw matrix.
         bool supportsSDFT = fContext->priv().caps()->shaderCaps()->supportsDistanceFieldText();
-        fGlyphPainter.processGlyphRunList(
-                glyphRunList, drawMatrix, fSurfaceProps, supportsSDFT, options, blob.get());
+        fGlyphPainter.processGlyphRunList(glyphRunList,
+                                          viewMatrix.localToDevice(), // Use unshifted matrix.
+                                          fSurfaceProps,
+                                          supportsSDFT,
+                                          options,
+                                          blob.get());
     }
 
     for (GrSubRun* subRun : blob->subRunList()) {
