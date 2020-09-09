@@ -94,32 +94,6 @@ static void test_floor(skiatest::Reporter* reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// test that SkMul16ShiftRound and SkMulDiv255Round return the same result
-static void test_muldivround(skiatest::Reporter* reporter) {
-#if 0
-    // this "complete" test is too slow, so we test a random sampling of it
-
-    for (int a = 0; a <= 32767; ++a) {
-        for (int b = 0; b <= 32767; ++b) {
-            unsigned prod0 = SkMul16ShiftRound(a, b, 8);
-            unsigned prod1 = SkMulDiv255Round(a, b);
-            SkASSERT(prod0 == prod1);
-        }
-    }
-#endif
-
-    SkRandom rand;
-    for (int i = 0; i < 10000; ++i) {
-        unsigned a = rand.nextU() & 0x7FFF;
-        unsigned b = rand.nextU() & 0x7FFF;
-
-        unsigned prod0 = SkMul16ShiftRound(a, b, 8);
-        unsigned prod1 = SkMulDiv255Round(a, b);
-
-        REPORTER_ASSERT(reporter, prod0 == prod1);
-    }
-}
-
 static float float_blend(int src, int dst, float unit) {
     return dst + (src - dst) * unit;
 }
@@ -536,7 +510,6 @@ DEF_TEST(Math, reporter) {
     // disable for now
     if (false) test_blend31();  // avoid bit rot, suppress warning
 
-    test_muldivround(reporter);
     test_clz(reporter);
     test_ctz(reporter);
 }
