@@ -232,9 +232,6 @@ BASE_SRCS_ALL = struct(
         "src/svg/**/*",  # Depends on xml, SkJpegCodec, and SkPngCodec.
         "src/xml/**/*",  # Avoid dragging in expat when not needed.
 
-        # Conflicting dependencies among Lua versions. See cl/107087297.
-        "src/utils/SkLua*",
-
         # Exclude all GL specific files
         "src/gpu/gl/*",
         "src/gpu/gl/builders/*",

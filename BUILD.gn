@@ -1847,39 +1847,6 @@ if (skia_enable_tools) {
     deps = [ ":skia" ]
   }
 
-  if (skia_use_lua) {
-    test_lib("lua") {
-      sources = [
-        "src/utils/SkLua.cpp",
-        "src/utils/SkLuaCanvas.cpp",
-      ]
-      deps = [
-        "modules/skshaper",
-        "//third_party/lua",
-      ]
-    }
-
-    test_app("lua_app") {
-      sources = [ "tools/lua/lua_app.cpp" ]
-      deps = [
-        ":lua",
-        ":skia",
-        "//third_party/lua",
-      ]
-    }
-
-    test_app("lua_pictures") {
-      sources = [ "tools/lua/lua_pictures.cpp" ]
-      deps = [
-        ":flags",
-        ":lua",
-        ":skia",
-        ":tool_utils",
-        "//third_party/lua",
-      ]
-    }
-  }
-
   if (is_linux || is_mac) {
     test_app("skottie_tool") {
       deps = [ "modules/skottie:tool" ]
@@ -1906,14 +1873,6 @@ if (skia_enable_tools) {
       "modules/skparagraph:samples",
       "modules/skshaper",
     ]
-
-    if (skia_use_lua) {
-      sources += [ "samplecode/SampleLua.cpp" ]
-      deps += [
-        ":lua",
-        "//third_party/lua",
-      ]
-    }
   }
   if (target_cpu != "wasm") {
     test_app("convert-to-nia") {
