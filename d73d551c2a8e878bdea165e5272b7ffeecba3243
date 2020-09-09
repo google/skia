@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca25b9c4_aeff0b76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-09T20:38:28Z",
+      "side": 1,
+      "message": "PTAL, this should be basically ready to go (pending any additional feedback) now that the unit tests are written and pass. \n\nPS 9 shows the initial definition of the tests.\nPS 10-14 shows the changes made to the unit tests and clip stack to make them pass (most of this was fixing expectations in the tests).\nPS 15 addresses Brian\u0027s feedback.\nPS 16 disables the flag so that when this lands, SkGpuDevice continues to extend SkClipStackDevice and GrClipStack is only used in these unit tests.\n\nLater CLs will enable GrClipStack on a special bot, then have it on for all our bots but no clients, then flutter, chrome, and eventually android.",
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
