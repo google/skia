@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    an SkRect (an array/Float32Array of 4 floats) and an optional boolean for
    determining clockwise or counter-clockwise directionality.
  - The order of `SkCanvas.saveLayer` arguments is slightly different (more consistent).
-   It is now `paint, bounds, backdrop, flags`
+   It is now `paint, bounds, backdrop, flags`.
 
 ### Changed
  - We now compile CanvasKit with emsdk 2.0.0 when testing and deploying to npm.
@@ -52,6 +52,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    already have their own representation of Rect. This is experimental because we don't know
    if it's faster/better under real-world use and because we don't want to commit to having these
    for all Rect APIs (and for similar types) until it has baked in a bit.
+ - `SkImage.makeShaderOptions` and `SkImage.makeShaderCubic` to replace deprecated FilterQuality.
+   To use Mipmaps, you will need to use `SkImage.makeCopyWithMipmaps`.
+
+### Deprecated
+ - `SkPaint.setFilterQuality`, `SkPaint.getFilterQuality`, `SkImage.makeShader`; The preferred
+   way to specify interpolation settings is with the newly added `makeShader*` methods.
 
 ## [0.17.3] - 2020-08-05
 

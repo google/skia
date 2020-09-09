@@ -902,9 +902,26 @@ CanvasKit.onRuntimeInitialized = function() {
     throw 'encodeToData expected to take 0 or 2 arguments. Got ' + arguments.length;
   }
 
+  // Deprecated: use makeShaderCubic or makeShaderOptions.
   CanvasKit.SkImage.prototype.makeShader = function(xTileMode, yTileMode, localMatrix) {
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
     return this._makeShader(xTileMode, yTileMode, localMatrixPtr);
+  }
+
+  // See CubicResampler in SkImage.h for more information on the cubicResampler params.
+  CanvasKit.SkImage.prototype.makeShaderCubic = function(xTileMode, yTileMode,
+                                                         cubicResamplerB, cubicResamplerC,
+                                                         localMatrix) {
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
+    return this._makeShaderCubic(xTileMode, yTileMode, cubicResamplerB,
+                                 cubicResamplerC, localMatrixPtr);
+  }
+
+  CanvasKit.SkImage.prototype.makeShaderOptions = function(xTileMode, yTileMode,
+                                                           sampleMode, mipmapMode,
+                                                           localMatrix) {
+    var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
+    return this._makeShaderOptions(xTileMode, yTileMode, sampleMode, mipmapMode, localMatrixPtr);
   }
 
   CanvasKit.SkImage.prototype.readPixels = function(imageInfo, srcX, srcY) {
