@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ecc099c_bfc68b71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8036
+      },
+      "writtenOn": "2020-09-09T07:10:48Z",
+      "side": 1,
+      "message": "PTAL! This should also fix the fragcoord.w on HLSL",
+      "revId": "23959157c80e404ddb57cd0d299a542667c93dec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
