@@ -151,16 +151,16 @@ bool SkWStream::writeStream(SkStream* stream, size_t length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size,
-                           size_t offset, size_t originalOffset)
+SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t endOffset, size_t startOffset,
+                                                       size_t currentOffset)
     : fFILE(std::move(file))
-    , fSize(size)
-    , fOffset(std::min(offset, fSize))
-    , fOriginalOffset(std::min(originalOffset, fSize))
+    , fEndOffset(endOffset)
+    , fStartOffset(std::min(startOffset, fEndOffset))
+    , fCurrentOffset(SkTPin(currentOffset, fStartOffset, fEndOffset))
 { }
 
-SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t size, size_t offset)
-    : SkFILEStream(std::move(file), size, offset, offset)
+SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t endOffset, size_t startOffset)
+    : SkFILEStream(std::move(file), endOffset, startOffset, startOffset)
 { }
 
 SkFILEStream::SkFILEStream(FILE* file)
@@ -168,7 +168,6 @@ SkFILEStream::SkFILEStream(FILE* file)
                    file ? sk_fgetsize(file) : 0,
                    file ? sk_ftell(file) : 0)
 { }
-
 
 SkFILEStream::SkFILEStream(const char path[])
     : SkFILEStream(path ? sk_fopen(path, kRead_SkFILE_Flag) : nullptr)
@@ -180,76 +179,78 @@ SkFILEStream::~SkFILEStream() {
 
 void SkFILEStream::close() {
     fFILE.reset();
-    fSize = 0;
-    fOffset = 0;
+    fEndOffset = 0;
+    fStartOffset = 0;
+    fCurrentOffset = 0;
 }
 
 size_t SkFILEStream::read(void* buffer, size_t size) {
-    if (size > fSize - fOffset) {
-        size = fSize - fOffset;
+    if (size > fEndOffset - fCurrentOffset) {
+        size = fEndOffset - fCurrentOffset;
     }
     size_t bytesRead = size;
     if (buffer) {
-        bytesRead = sk_qread(fFILE.get(), buffer, size, fOffset);
+        bytesRead = sk_qread(fFILE.get(), buffer, size, fCurrentOffset);
     }
     if (bytesRead == SIZE_MAX) {
         return 0;
     }
-    fOffset += bytesRead;
+    fCurrentOffset += bytesRead;
     return bytesRead;
 }
 
 bool SkFILEStream::isAtEnd() const {
-    if (fOffset == fSize) {
+    if (fCurrentOffset == fEndOffset) {
         return true;
     }
-    return fOffset >= sk_fgetsize(fFILE.get());
+    return fCurrentOffset >= sk_fgetsize(fFILE.get());
 }
 
 bool SkFILEStream::rewind() {
-    fOffset = fOriginalOffset;
+    fCurrentOffset = fStartOffset;
     return true;
 }
 
 SkStreamAsset* SkFILEStream::onDuplicate() const {
-    return new SkFILEStream(fFILE, fSize, fOriginalOffset, fOriginalOffset);
+    return new SkFILEStream(fFILE, fEndOffset, fStartOffset, fStartOffset);
 }
 
 size_t SkFILEStream::getPosition() const {
-    SkASSERT(fOffset >= fOriginalOffset);
-    return fOffset - fOriginalOffset;
+    SkASSERT(fCurrentOffset >= fStartOffset);
+    return fCurrentOffset - fStartOffset;
 }
 
 bool SkFILEStream::seek(size_t position) {
-    fOffset = std::min(SkSafeMath::Add(position, fOriginalOffset), fSize);
+    fCurrentOffset = std::min(SkSafeMath::Add(position, fStartOffset), fEndOffset);
     return true;
 }
 
 bool SkFILEStream::move(long offset) {
     if (offset < 0) {
-        if (offset == std::numeric_limits<long>::min()
-                || !SkTFitsIn<size_t>(-offset)
-                || (size_t) (-offset) >= this->getPosition()) {
-            fOffset = fOriginalOffset;
+        if (offset == std::numeric_limits<long>::min() ||
+            !SkTFitsIn<size_t>(-offset) ||
+            (size_t) (-offset) >= this->getPosition())
+        {
+            fCurrentOffset = fStartOffset;
         } else {
-            fOffset += offset;
+            fCurrentOffset += offset;
         }
     } else if (!SkTFitsIn<size_t>(offset)) {
-        fOffset = fSize;
+        fCurrentOffset = fEndOffset;
     } else {
-        fOffset = std::min(SkSafeMath::Add(fOffset, (size_t) offset), fSize);
+        fCurrentOffset = std::min(SkSafeMath::Add(fCurrentOffset, (size_t) offset), fEndOffset);
     }
 
-    SkASSERT(fOffset >= fOriginalOffset && fOffset <= fSize);
+    SkASSERT(fCurrentOffset >= fStartOffset && fCurrentOffset <= fEndOffset);
     return true;
 }
 
 SkStreamAsset* SkFILEStream::onFork() const {
-    return new SkFILEStream(fFILE, fSize, fOffset, fOriginalOffset);
+    return new SkFILEStream(fFILE, fEndOffset, fStartOffset, fCurrentOffset);
 }
 
 size_t SkFILEStream::getLength() const {
-    return fSize - fOriginalOffset;
+    return fEndOffset - fStartOffset;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
