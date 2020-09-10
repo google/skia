@@ -114,7 +114,7 @@ public:
             v->fFilter = nullptr;
             this->removeInternal(v);
         }
-        fImageFilterValues.remove(filter);
+        fImageFilterValues.remove1(filter);
     }
 
     SkDEBUGCODE(int count() const override { return fLookup.count(); })
@@ -123,7 +123,7 @@ private:
         if (v->fFilter) {
             if (auto* values = fImageFilterValues.find(v->fFilter)) {
                 if (values->size() == 1 && (*values)[0] == v) {
-                    fImageFilterValues.remove(v->fFilter);
+                    fImageFilterValues.remove1(v->fFilter);
                 } else {
                     for (auto it = values->begin(); it != values->end(); ++it) {
                         if (*it == v) {

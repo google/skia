@@ -203,7 +203,7 @@ static void trace_event_to_json(SkJSONWriter*                 writer,
         baseTypeResolver->set(traceEvent->fID, traceEvent->fName);
     } else if (TRACE_EVENT_PHASE_DELETE_OBJECT == traceEvent->fPhase) {
         SkASSERT(nullptr != baseTypeResolver->find(traceEvent->fID));
-        baseTypeResolver->remove(traceEvent->fID);
+        baseTypeResolver->remove1(traceEvent->fID);
     }
 
     writer->beginObject();

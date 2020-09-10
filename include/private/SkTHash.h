@@ -289,20 +289,20 @@ public:
     }
 
     // Remove the key/value entry in the table with this key.
-    void remove(const K& key) {
+    void remove1(const K& key) {
         SkASSERT(this->find(key));
         fTable.remove(key);
     }
 
     // Call fn on every key/value pair in the table.  You may mutate the value but not the key.
     template <typename Fn>  // f(K, V*) or f(const K&, V*)
-    void foreach(Fn&& fn) {
+    void foreach1(Fn&& fn) {
         fTable.foreach([&fn](Pair* p){ fn(p->key, &p->val); });
     }
 
     // Call fn on every key/value pair in the table.  You may not mutate anything.
     template <typename Fn>  // f(K, V), f(const K&, V), f(K, const V&) or f(const K&, const V&).
-    void foreach(Fn&& fn) const {
+    void foreach1(Fn&& fn) const {
         fTable.foreach([&fn](const Pair& p){ fn(p.key, p.val); });
     }
 

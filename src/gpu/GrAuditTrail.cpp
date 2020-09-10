@@ -82,7 +82,7 @@ void GrAuditTrail::opsCombined(const GrOp* consumer, const GrOp* consumed) {
     // remove the old node from our opsTask and clear the combinee's lookup
     // NOTE: because we can't change the shape of the oplist, we use a sentinel
     fOpsTask[consumedIndex].reset(nullptr);
-    fIDLookup.remove(consumed->uniqueID());
+    fIDLookup.remove1(consumed->uniqueID());
 }
 
 void GrAuditTrail::copyOutFromOpsTask(OpInfo* outOpInfo, int opsTaskID) {
@@ -131,7 +131,7 @@ void GrAuditTrail::fullReset() {
     fOpsTask.reset();
     fIDLookup.reset();
     // free all client ops
-    fClientIDLookup.foreach ([](const int&, Ops** ops) { delete *ops; });
+    fClientIDLookup.foreach1 ([](const int&, Ops** ops) { delete *ops; });
     fClientIDLookup.reset();
     fOpPool.reset();  // must be last, frees all of the memory
 }

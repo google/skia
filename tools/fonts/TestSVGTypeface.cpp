@@ -132,7 +132,7 @@ void TestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
 
 void TestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
     SkDEBUGCODE(unsigned glyphCount = this->countGlyphs());
-    fCMap.foreach ([=](const SkUnichar& c, const SkGlyphID& g) {
+    fCMap.foreach1 ([=](const SkUnichar& c, const SkGlyphID& g) {
         SkASSERT(g < glyphCount);
         glyphToUnicode[g] = c;
     });
@@ -628,7 +628,7 @@ void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
     out->writeText("  <cmap>\n");
     out->writeText("    <tableVersion version=\"0\"/>\n");
     out->writeText("    <cmap_format_4 platformID=\"3\" platEncID=\"1\" language=\"0\">\n");
-    fCMap.foreach ([&out, &hasNonBMP](const SkUnichar& c, const SkGlyphID& g) {
+    fCMap.foreach1 ([&out, &hasNonBMP](const SkUnichar& c, const SkGlyphID& g) {
         if (0xFFFF < c) {
             hasNonBMP = true;
             return;
@@ -644,7 +644,7 @@ void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
         out->writeText(
                 "    <cmap_format_12 platformID=\"3\" platEncID=\"10\" format=\"12\" "
                 "reserved=\"0\" length=\"1\" language=\"0\" nGroups=\"0\">\n");
-        fCMap.foreach ([&out](const SkUnichar& c, const SkGlyphID& g) {
+        fCMap.foreach1 ([&out](const SkUnichar& c, const SkGlyphID& g) {
             out->writeText("      <map code=\"0x");
             out->writeHexAsText(c, 6);
             out->writeText("\" name=\"glyf");
@@ -1409,7 +1409,7 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
 
     // The colors must be written in order, the 'index' is ignored by ttx.
     SkAutoTMalloc<SkColor> colorsInOrder(colors.count());
-    colors.foreach ([&colorsInOrder](const SkColor& c, const int* i) { colorsInOrder[*i] = c; });
+    colors.foreach1 ([&colorsInOrder](const SkColor& c, const int* i) { colorsInOrder[*i] = c; });
     out->writeText("  <CPAL>\n");
     out->writeText("    <version value=\"0\"/>\n");
     out->writeText("    <numPaletteEntries value=\"");
