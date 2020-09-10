@@ -63,6 +63,30 @@
       "revId": "b2e12a357ccf930504541969603b524b6a5ce798",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ddd577c5_f18820a3",
+        "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T14:51:35Z",
+      "side": 1,
+      "message": "Yeah. The other option is to use SkM44 - the constructor for that takes the elements in row order (so it looks correct in the mathematical sense), but it stores things in column-major memory order, so it aligns with SkSL/GLSL expectations.",
+      "parentUuid": "62447763_ac8a57cc",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 39
+      },
+      "revId": "b2e12a357ccf930504541969603b524b6a5ce798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
