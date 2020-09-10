@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e26a03d9_034fd1b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:49:30Z",
+      "side": 1,
+      "message": "Idea is to K.I.S.S. and only use an int varying if this produces a regression on a non-ANGLE environment.",
+      "revId": "61d52d5931bf94b1571979c9e011215bbf86d54f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
