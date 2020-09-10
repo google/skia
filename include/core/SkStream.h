@@ -308,7 +308,7 @@ public:
 
     /** Initialize the stream with an existing C FILE stream.
      *  The current position of the C FILE stream will be considered the
-     *  beginning of the SkFILEStream.
+     *  beginning of the SkFILEStream and the current seek end of the FILE will be the end.
      *  The C FILE stream will be closed in the destructor.
      */
     explicit SkFILEStream(FILE* file);
@@ -345,17 +345,18 @@ public:
     size_t getLength() const override;
 
 private:
-    explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset);
-    explicit SkFILEStream(std::shared_ptr<FILE>, size_t size, size_t offset, size_t originalOffset);
+    explicit SkFILEStream(std::shared_ptr<FILE>, size_t end, size_t start);
+    explicit SkFILEStream(std::shared_ptr<FILE>, size_t end, size_t start, size_t current);
 
     SkStreamAsset* onDuplicate() const override;
     SkStreamAsset* onFork() const override;
 
     std::shared_ptr<FILE> fFILE;
     // My own council will I keep on sizes and offsets.
-    size_t fSize;
-    size_t fOffset;
-    size_t fOriginalOffset;
+    // These are seek positions in the underling FILE, not offsets into the stream.
+    size_t fEnd;
+    size_t fStart;
+    size_t fCurrent;
 
     using INHERITED = SkStreamAsset;
 };
