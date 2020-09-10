@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "265f7599_36a6025f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-09-10T19:20:45Z",
+      "side": 1,
+      "message": "Need to list dep here because of AudioPlayer sample here:\nhttps://github.com/google/skia/blob/master/samplecode/SampleAudio.cpp#L26",
+      "revId": "607f643855afd5dc68887e3c410a8860372f1032",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
