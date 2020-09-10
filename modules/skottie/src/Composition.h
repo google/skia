@@ -24,9 +24,9 @@ public:
 
     sk_sp<sksg::RenderNode> build(const AnimationBuilder&);
 
-private:
     LayerBuilder* layerBuilder(int layer_index);
 
+private:
     const sk_sp<sksg::Transform>& getCameraTransform() const { return fCameraTransform; }
 
     friend class LayerBuilder;
