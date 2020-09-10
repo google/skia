@@ -135,6 +135,30 @@
     },
     {
       "key": {
+        "uuid": "273c40e6_b881c4bb",
+        "filename": "tests/SkSLErrorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-10T17:26:20Z",
+      "side": 1,
+      "message": "Yeah, but with not even checking things like \"the resulting thing is in fact a vector with the right number of columns\"... just seems like it\u0027s worth assigning the result somewhere for sanity.",
+      "parentUuid": "34aa736b_0dc0bce0",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 344,
+        "endChar": 1
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a417097d_531c3743",
         "filename": "tests/SkSLErrorTest.cpp",
         "patchSetId": 6
