@@ -39,6 +39,30 @@
       "revId": "b2e12a357ccf930504541969603b524b6a5ce798",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62447763_ac8a57cc",
+        "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-09-10T14:33:22Z",
+      "side": 1,
+      "message": "Thanks, makes sense.  Skia/SVG habits always push me to row-major, but if it\u0027s unnatural in *SL then let\u0027s update.  Done.",
+      "parentUuid": "50d8cf84_0c223242",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 39
+      },
+      "revId": "b2e12a357ccf930504541969603b524b6a5ce798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
