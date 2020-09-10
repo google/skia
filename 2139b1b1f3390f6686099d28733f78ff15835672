@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a5536b17_7e98d6a8",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-10T16:28:30Z",
+      "side": 1,
+      "message": "This and several comments below only make sense if you already know that inlining potentially creates and initializes local variables before the statement in which the expression is embedded; I feel like we should expound upon these to make it more clear to someone who doesn\u0027t already understand the issue.\n\nAnd in the particular case of do loops it actually seems like we *could* fix this by creating the local variable before the loop, but assigning it just before the test. (I\u0027m not saying we should do this in this CL, just pointing out that it seems like it should possible.)",
+      "range": {
+        "startLine": 746,
+        "startChar": 20,
+        "endLine": 746,
+        "endChar": 99
+      },
+      "revId": "2139b1b1f3390f6686099d28733f78ff15835672",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93ab4ec2_757e1d94",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 765,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-10T16:28:30Z",
+      "side": 1,
+      "message": "Clarify",
+      "range": {
+        "startLine": 764,
+        "startChar": 19,
+        "endLine": 765,
+        "endChar": 48
+      },
+      "revId": "2139b1b1f3390f6686099d28733f78ff15835672",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05efbc67_fb94b669",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-10T16:28:30Z",
+      "side": 1,
+      "message": "Clarify",
+      "range": {
+        "startLine": 812,
+        "startChar": 20,
+        "endLine": 812,
+        "endChar": 99
+      },
+      "revId": "2139b1b1f3390f6686099d28733f78ff15835672",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f46596c0_08bb7f4f",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-10T16:28:30Z",
+      "side": 1,
+      "message": "Clarify",
+      "range": {
+        "startLine": 848,
+        "startChar": 20,
+        "endLine": 849,
+        "endChar": 70
+      },
+      "revId": "2139b1b1f3390f6686099d28733f78ff15835672",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
