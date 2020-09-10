@@ -249,6 +249,30 @@
     },
     {
       "key": {
+        "uuid": "c533a4d7_ed6ae794",
+        "filename": "tests/SkSLErrorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T18:02:25Z",
+      "side": 1,
+      "message": "Yeah. I updated how these work to verify the shape of the results, and also to ensure that we\u0027re always promoting to half. I also added matrix*matrix cases.",
+      "parentUuid": "273c40e6_b881c4bb",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 344,
+        "endChar": 1
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a417097d_531c3743",
         "filename": "tests/SkSLErrorTest.cpp",
         "patchSetId": 6
