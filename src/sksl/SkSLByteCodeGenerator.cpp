@@ -696,10 +696,10 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
                       rType.typeKind() == Type::TypeKind::kMatrix);
     Token::Kind op;
     std::unique_ptr<LValue> lvalue;
-    if (is_assignment(b.fOperator)) {
+    if (Compiler::IsAssignment(b.fOperator)) {
         lvalue = this->getLValue(*b.fLeft);
         lvalue->load();
-        op = remove_assignment(b.fOperator);
+        op = Compiler::RemoveAssignment(b.fOperator);
     } else {
         this->writeExpression(*b.fLeft);
         op = b.fOperator;

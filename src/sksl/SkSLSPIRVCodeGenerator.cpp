@@ -2325,7 +2325,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 
     std::unique_ptr<LValue> lvalue;
     SpvId lhs;
-    if (is_assignment(b.fOperator)) {
+    if (Compiler::IsAssignment(b.fOperator)) {
         lvalue = this->getLValue(*b.fLeft, out);
         lhs = lvalue->load(out);
     } else {
@@ -2333,7 +2333,8 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         lhs = this->writeExpression(*b.fLeft, out);
     }
     SpvId rhs = this->writeExpression(*b.fRight, out);
-    SpvId result = this->writeBinaryExpression(b.fLeft->fType, lhs, remove_assignment(b.fOperator),
+    SpvId result = this->writeBinaryExpression(b.fLeft->fType, lhs,
+                                               Compiler::RemoveAssignment(b.fOperator),
                                                b.fRight->fType, rhs, b.fType, out);
     if (lvalue) {
         lvalue->store(result, out);

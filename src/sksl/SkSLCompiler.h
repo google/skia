@@ -173,9 +173,14 @@ public:
         return *fContext;
     }
 
-    static const char* OperatorName(Token::Kind token);
+    static const char* OperatorName(Token::Kind op);
 
-    static bool IsAssignment(Token::Kind token);
+    // Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
+    static bool IsAssignment(Token::Kind op);
+
+    // Given a compound assignment operator, returns the non-assignment version of the operator
+    // (e.g. '+=' becomes '+')
+    static Token::Kind RemoveAssignment(Token::Kind op);
 
     void processIncludeFile(Program::Kind kind, const char* path,
                             std::shared_ptr<SymbolTable> base,
