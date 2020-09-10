@@ -103,7 +103,7 @@ public:
     void addDrawOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrDrawOp> op,
                    const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
-                   GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
+                   GrTextureResolveManager textureResolveManager,const GrCaps& caps) {
         auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
                 GrSurfaceProxy* p, GrMipmapped mipmapped) {
             this->addSampledTexture(p);
@@ -113,16 +113,23 @@ public:
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
         if (dstProxyView.proxy()) {
-            this->addSampledTexture(dstProxyView.proxy());
+            if (GrDstSampleTypeUsesTexture(dstProxyView.dstSampleType())) {
+                this->addSampledTexture(dstProxyView.proxy());
+            }
             addDependency(dstProxyView.proxy(), GrMipmapped::kNo);
-            if (this->target(0).asTextureProxy() == dstProxyView.proxy()) {
+            if (this->target(0).proxy() == dstProxyView.proxy()) {
                 // Since we are sampling and drawing to the same surface we will need to use
                 // texture barriers.
-                fUsesXferBarriers |= true;
+                SkASSERT(GrDstSampleTypeDirectlySamplesDst(dstProxyView.dstSampleType()));
+                fRenderPassXferBarriers |= GrXferBarrierFlags::kTexture;
             }
+            SkASSERT(dstProxyView.dstSampleType() != GrDstSampleType::kAsInputAttachment ||
+                     dstProxyView.offset().isZero());
         }
 
-        fUsesXferBarriers |= processorAnalysis.usesNonCoherentHWBlending();
+        if (processorAnalysis.usesNonCoherentHWBlending()) {
+            fRenderPassXferBarriers |= GrXferBarrierFlags::kBlend;
+        }
 
         this->recordOp(std::move(op), processorAnalysis, clip.doesClip() ? &clip : nullptr,
                        &dstProxyView, caps);
@@ -320,7 +327,7 @@ private:
     SkIRect fLastDevClipBounds;
     int fLastClipNumAnalyticElements;
 
-    bool fUsesXferBarriers = false;
+    GrXferBarrierFlags fRenderPassXferBarriers = GrXferBarrierFlags::kNone;
 
     // For ops/opsTask we have mean: 5 stdDev: 28
     SkSTArray<25, OpChain> fOpChains;

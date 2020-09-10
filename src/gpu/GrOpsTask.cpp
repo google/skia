@@ -362,6 +362,8 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr, GrRecordingContext::Arenas ar
         , fArenas(arenas)
         , fAuditTrail(auditTrail)
         SkDEBUGCODE(, fNumClips(0)) {
+    GrRenderTargetProxy* proxy = view.asRenderTargetProxy();
+    SkASSERT(proxy);
     this->addTarget(drawingMgr, std::move(view));
 }
 
@@ -416,7 +418,8 @@ void GrOpsTask::onPrePrepare(GrRecordingContext* context) {
             chain.head()->prePrepare(context,
                                      &fTargets[0],
                                      chain.appliedClip(),
-                                     chain.dstProxyView());
+                                     chain.dstProxyView(),
+                                     fRenderPassXferBarriers);
         }
     }
 }
@@ -445,7 +448,8 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
             GrOpFlushState::OpArgs opArgs(chain.head(),
                                           &fTargets[0],
                                           chain.appliedClip(),
-                                          chain.dstProxyView());
+                                          chain.dstProxyView(),
+                                          fRenderPassXferBarriers);
 
             flushState->setOpArgs(&opArgs);
 
@@ -571,7 +575,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     GrOpsRenderPass* renderPass = create_render_pass(
             flushState->gpu(), proxy->peekRenderTarget(), stencil, this->target(0).origin(),
             fClippedContentBounds, fColorLoadOp, fLoadClearColor, stencilLoadOp, stencilStoreOp,
-            fSampledProxies, fUsesXferBarriers);
+            fSampledProxies, fRenderPassXferBarriers != GrXferBarrierFlags::kNone);
     if (!renderPass) {
         return false;
     }
@@ -590,7 +594,8 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
         GrOpFlushState::OpArgs opArgs(chain.head(),
                                       &fTargets[0],
                                       chain.appliedClip(),
-                                      chain.dstProxyView());
+                                      chain.dstProxyView(),
+                                      fRenderPassXferBarriers);
 
         flushState->setOpArgs(&opArgs);
         chain.head()->execute(flushState, chain.bounds());

@@ -32,10 +32,13 @@ GrPipeline::GrPipeline(const InitArgs& args,
 
     fXferProcessor = std::move(xferProcessor);
 
+    SkASSERT((args.fDstProxyView.dstSampleType() != GrDstSampleType::kNone) ==
+             SkToBool(args.fDstProxyView.proxy()));
     if (args.fDstProxyView.proxy()) {
         fDstProxyView = args.fDstProxyView.proxyView();
         fDstTextureOffset = args.fDstProxyView.offset();
     }
+    fDstSampleType = args.fDstProxyView.dstSampleType();
 }
 
 GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
@@ -61,9 +64,8 @@ GrPipeline::GrPipeline(const InitArgs& args, GrProcessorSet&& processors,
     }
 }
 
-GrXferBarrierType GrPipeline::xferBarrierType(GrTexture* texture, const GrCaps& caps) const {
-    auto proxy = fDstProxyView.proxy();
-    if (proxy && proxy->peekTexture() == texture) {
+GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
+    if (fDstProxyView.proxy() && GrDstSampleTypeDirectlySamplesDst(fDstSampleType)) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);
@@ -97,13 +99,22 @@ void GrPipeline::genKey(GrProcessorKeyBuilder* b, const GrCaps& caps) const {
 
     static constexpr uint32_t kBlendWriteShift = 1;
     static constexpr uint32_t kBlendCoeffShift = 5;
+    static constexpr uint32_t kBlendEquationShift = 5;
+    static constexpr uint32_t kDstSampleTypeInputShift = 1;
     static_assert(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
-    static_assert(kFirstAdvancedGrBlendEquation - 1 < 4);
+    static_assert(kLast_GrBlendEquation < (1 << kBlendEquationShift));
+    static_assert(kBlendWriteShift +
+                  2 * kBlendCoeffShift +
+                  kBlendEquationShift +
+                  kDstSampleTypeInputShift <= 32);
 
     uint32_t blendKey = blendInfo.fWriteColor;
     blendKey |= (blendInfo.fSrcBlend << kBlendWriteShift);
     blendKey |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
     blendKey |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
+    // Note that we use the general fDstSampleType here and not localDstSampleType()
+    blendKey |= ((fDstSampleType == GrDstSampleType::kAsInputAttachment)
+                 << (kBlendWriteShift + 2 * kBlendCoeffShift + kBlendEquationShift));
 
     b->add32(blendKey);
 }
@@ -120,7 +131,7 @@ void GrPipeline::visitProxies(const GrOp::VisitProxyFunc& func) const {
     for (auto& fp : fFragmentProcessors) {
         fp->visitProxies(func);
     }
-    if (fDstProxyView.asTextureProxy()) {
-        func(fDstProxyView.asTextureProxy(), GrMipmapped::kNo);
+    if (this->usesDstTexture()) {
+        func(fDstProxyView.proxy(), GrMipmapped::kNo);
     }
 }
