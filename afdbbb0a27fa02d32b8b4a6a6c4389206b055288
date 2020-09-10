@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "78b26b39_cd6e1e7c",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2041,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T21:09:11Z",
+      "side": 1,
+      "message": "Fixed now?",
+      "range": {
+        "startLine": 2041,
+        "startChar": 28,
+        "endLine": 2041,
+        "endChar": 52
+      },
+      "revId": "afdbbb0a27fa02d32b8b4a6a6c4389206b055288",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
