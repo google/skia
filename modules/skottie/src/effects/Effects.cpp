@@ -7,6 +7,8 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
+#include "modules/skottie/src/Composition.h"
+#include "modules/skottie/src/Layer.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "src/utils/SkJSON.h"
@@ -17,8 +19,11 @@
 namespace skottie {
 namespace internal {
 
-EffectBuilder::EffectBuilder(const AnimationBuilder* abuilder, const SkSize& layer_size)
+EffectBuilder::EffectBuilder(const AnimationBuilder* abuilder,
+                             const SkSize& layer_size,
+                             CompositionBuilder* cbuilder)
     : fBuilder(abuilder)
+    , fCompBuilder(cbuilder)
     , fLayerSize(layer_size) {}
 
 EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectValue& jeffect) const {
@@ -28,6 +33,7 @@ EffectBuilder::EffectBuilderT EffectBuilder::findBuilder(const skjson::ObjectVal
     } gBuilderInfo[] = {
         { "ADBE Brightness & Contrast 2", &EffectBuilder::attachBrightnessContrastEffect },
         { "ADBE Corner Pin"             , &EffectBuilder::attachCornerPinEffect          },
+        { "ADBE Displacement Map"       , &EffectBuilder::attachDisplacementMapEffect    },
         { "ADBE Drop Shadow"            , &EffectBuilder::attachDropShadowEffect         },
         { "ADBE Easy Levels2"           , &EffectBuilder::attachEasyLevelsEffect         },
         { "ADBE Fill"                   , &EffectBuilder::attachFillEffect               },
