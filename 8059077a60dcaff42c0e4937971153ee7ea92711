@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "805229f0_27d02bb0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T17:34:47Z",
+      "side": 1,
+      "message": "Yeah, next patch-set fixed that. It was sliding by the previous lack-of-checking for any operators when mixing vectors and scalars.",
+      "parentUuid": "8a7d35ac_19dffded",
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c1dfc6c_0a2391d4",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 6
@@ -39,6 +57,30 @@
       "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3fc495b_e2ebd2fe",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T17:34:47Z",
+      "side": 1,
+      "message": "Yeah, I was possibly going to go further and split out the switch stuff so that we just assign isLogical from a helper function like isAssignment. I\u0027ll clean this up further, in any case.",
+      "parentUuid": "2c1dfc6c_0a2391d4",
+      "range": {
+        "startLine": 1543,
+        "startChar": 4,
+        "endLine": 1544,
+        "endChar": 31
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "541eda19_87dc9ffe",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1650,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T17:34:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b14588f9_1295ead6",
+      "range": {
+        "startLine": 1650,
+        "startChar": 41,
+        "endLine": 1650,
+        "endChar": 42
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2126953c_a607dee4",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 6
@@ -85,6 +151,30 @@
       "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1a70293_7dd4d40b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1686,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T17:34:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2126953c_a607dee4",
+      "range": {
+        "startLine": 1686,
+        "startChar": 8,
+        "endLine": 1686,
+        "endChar": 11
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
