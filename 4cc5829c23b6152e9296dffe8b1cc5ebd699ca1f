@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "dc038019_6cb6049b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T15:57:05Z",
+      "side": 1,
+      "message": "Yup, that was easy. If we try to compare (eg) float2 vs. float2, SkSL complains. But if we do:\n\nhalf4 main(float2 p) {\n  bool b \u003d p \u003c 1.0;\n  return b ? half4(1) : half4(0);\n}\n\nSkSL accepts it, and we get an error from the GLSL compiler about the invalid operation.",
+      "parentUuid": "6e2fa816_9b489f54",
+      "revId": "4cc5829c23b6152e9296dffe8b1cc5ebd699ca1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2f72c22_7c8056f8",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 4
