@@ -26,6 +26,7 @@
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
+#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
@@ -72,6 +73,7 @@ bool GrContext::init() {
     }
 
     SkASSERT(this->getTextBlobCache());
+    SkASSERT(this->threadSafeViewCache());
 
     if (fGpu) {
         fStrikeCache = std::make_unique<GrStrikeCache>();
@@ -82,6 +84,7 @@ bool GrContext::init() {
 
     if (fResourceCache) {
         fResourceCache->setProxyProvider(this->proxyProvider());
+        fResourceCache->setThreadSafeViewCache(this->threadSafeViewCache());
     }
 
     fDidTestPMConversions = false;
@@ -201,6 +204,7 @@ void GrContext::purgeUnlockedResources(bool scratchResourcesOnly) {
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs
     this->getTextBlobCache()->purgeStaleBlobs();
+    this->threadSafeViewCache()->purgeStale();
 }
 
 void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
@@ -226,6 +230,7 @@ void GrContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
     // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
     // place to purge stale blobs
     this->getTextBlobCache()->purgeStaleBlobs();
+    this->threadSafeViewCache()->purgeStale();
 }
 
 void GrContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
@@ -395,6 +400,9 @@ void GrContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     fResourceCache->dumpMemoryStatistics(traceMemoryDump);
     traceMemoryDump->dumpNumericValue("skia/gr_text_blob_cache", "size", "bytes",
                                       this->getTextBlobCache()->usedBytes());
+    traceMemoryDump->dumpNumericValue("skia/gr_thread_save_uniquely_keyed_proxy_view_cache",
+                                      "size", "bytes",
+                                      this->threadSafeViewCache()->usedBytes());
 }
 
 //////////////////////////////////////////////////////////////////////////////

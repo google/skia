@@ -200,6 +200,8 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 void GrResourceCache::abandonAll() {
     AutoValidate av(this);
 
+//    nullptr->dropAllRefs();
+
     // We need to make sure to free any resources that were waiting on a free message but never
     // received one.
     fTexturesAwaitingUnref.reset();
@@ -236,10 +238,12 @@ void GrResourceCache::releaseAll() {
     // received one.
     fTexturesAwaitingUnref.reset();
 
-    SkASSERT(fProxyProvider); // better have called setProxyProvider
+    SkASSERT(fProxyProvider1); // better have called setProxyProvider
+    SkASSERT(fThreadSafeViewCache); // better have called setThreadSafeViewCache too
+
     // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
     // they also have a raw pointer back to this class (which is presumably going away)!
-    fProxyProvider->removeAllUniqueKeys();
+    fProxyProvider1->removeAllUniqueKeys();
 
     while (fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
@@ -503,10 +507,10 @@ void GrResourceCache::purgeAsNeeded() {
     SkTArray<GrUniqueKeyInvalidatedMessage> invalidKeyMsgs;
     fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
     if (invalidKeyMsgs.count()) {
-        SkASSERT(fProxyProvider);
+        SkASSERT(fProxyProvider1);
 
         for (int i = 0; i < invalidKeyMsgs.count(); ++i) {
-            fProxyProvider->processInvalidUniqueKey(invalidKeyMsgs[i].key(), nullptr,
+            fProxyProvider1->processInvalidUniqueKey(invalidKeyMsgs[i].key(), nullptr,
                                                     GrProxyProvider::InvalidateGPUResource::kYes);
             SkASSERT(!this->findAndRefUniqueResource(invalidKeyMsgs[i].key()));
         }
@@ -616,11 +620,11 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
         fMaxBytes = cachedByteCount;
     }
 }
+
 bool GrResourceCache::requestsFlush() const {
     return this->overBudget() && !fPurgeableQueue.count() &&
            fNumBudgetedResourcesFlushWillMakePurgeable > 0;
 }
-
 
 void GrResourceCache::insertDelayedTextureUnref(GrTexture* texture) {
     texture->ref();
@@ -634,7 +638,7 @@ void GrResourceCache::insertDelayedTextureUnref(GrTexture* texture) {
 
 void GrResourceCache::processFreedGpuResources() {
     if (!fTexturesAwaitingUnref.count()) {
-      return;
+        return;
     }
 
     SkTArray<GrTextureFreedMessage> msgs;
