@@ -2020,8 +2020,17 @@ ASTNode::ID Parser::suffix(ASTNode::ID base) {
             getNode(result).addChild(e);
             return result;
         }
-        case Token::Kind::TK_DOT: // fall through
         case Token::Kind::TK_COLONCOLON: {
+            int offset = this->peek().fOffset;
+            StringFragment text;
+            if (this->identifier(&text)) {
+                CREATE_NODE(result, offset, ASTNode::Kind::kScope, std::move(text));
+                getNode(result).addChild(base);
+                return result;
+            }
+            return ASTNode::ID::Invalid();
+        }
+        case Token::Kind::TK_DOT: {
             int offset = this->peek().fOffset;
             StringFragment text;
             if (this->identifier(&text)) {
