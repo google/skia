@@ -326,13 +326,13 @@ GrOpsRenderPass* GrVkGpu::getOpsRenderPass(
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-            bool usesXferBarriers) {
+            GrXferBarrierFlags renderPassXferBarriers) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass = std::make_unique<GrVkOpsRenderPass>(this);
     }
 
     if (!fCachedOpsRenderPass->set(rt, stencil, origin, bounds, colorInfo, stencilInfo,
-                                   sampledProxies, usesXferBarriers)) {
+                                   sampledProxies, renderPassXferBarriers)) {
         return nullptr;
     }
     return fCachedOpsRenderPass.get();
@@ -1939,13 +1939,16 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     GrVkRenderTarget::ReconstructAttachmentsDescriptor(this->vkCaps(), programInfo,
                                                        &attachmentsDescriptor, &attachmentFlags);
 
-    auto barrierType = programInfo.pipeline().xferBarrierType(*this->caps());
-    bool willReadDst =  barrierType == kBlend_GrXferBarrierType ||
-                        barrierType == kTexture_GrXferBarrierType;
+    GrVkRenderPass::SelfDependencyFlags selfDepFlags = GrVkRenderPass::SelfDependencyFlags::kNone;
+    if (programInfo.renderPassBarriers() & GrXferBarrierFlags::kBlend) {
+        selfDepFlags |= GrVkRenderPass::SelfDependencyFlags::kForNonCoherentAdvBlend;
+    }
+    if (programInfo.renderPassBarriers() & GrXferBarrierFlags::kTexture) {
+        selfDepFlags |= GrVkRenderPass::SelfDependencyFlags::kForInputAttachment;
+    }
+
     sk_sp<const GrVkRenderPass> renderPass(this->resourceProvider().findCompatibleRenderPass(
-                                                                         &attachmentsDescriptor,
-                                                                         attachmentFlags,
-                                                                         willReadDst));
+            &attachmentsDescriptor, attachmentFlags, selfDepFlags));
     if (!renderPass) {
         return false;
     }
