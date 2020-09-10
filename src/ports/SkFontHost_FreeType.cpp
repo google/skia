@@ -1489,10 +1489,14 @@ void SkScalerContext_FreeType::generateFontMetrics(SkFontMetrics* metrics) {
         ascent = -SkIntToScalar(face->size->metrics.ascender) / (yppem * 64.0f);
         descent = -SkIntToScalar(face->size->metrics.descender) / (yppem * 64.0f);
         leading = (SkIntToScalar(face->size->metrics.height) / (yppem * 64.0f)) + ascent - descent;
+
         xmin = 0.0f;
         xmax = SkIntToScalar(face->available_sizes[fStrikeIndex].width) / xppem;
         ymin = descent;
         ymax = ascent;
+        // The actual bitmaps may be any size and placed at any offset.
+        metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
+
         underlineThickness = 0;
         underlinePosition = 0;
         metrics->fFlags &= ~SkFontMetrics::kUnderlineThicknessIsValid_Flag;
