@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "069bf962_289b50a9",
+        "filename": "src/sksl/ir/SkSLConstructor.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T20:35:11Z",
+      "side": 1,
+      "message": "Simpler form, same checks:\n\n        Constructor\u0026 c \u003d other.as\u003cConstructor\u003e();\n        const Type\u0026 myType \u003d this-\u003etype();\n        const Type\u0026 otherType \u003d c.type();\n        SkASSERT(myType \u003d\u003d otherType);",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 41
+      },
+      "revId": "758c28ff25ce9aeecfc60c936e0d28779530e4e9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
