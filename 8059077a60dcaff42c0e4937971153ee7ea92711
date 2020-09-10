@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf9e8e0b_9670ad7a",
+        "filename": "tests/SkSLErrorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-10T17:05:46Z",
+      "side": 1,
+      "message": "None of these tests check to see what the result type is. Seems like it would be better to do something with the result as a sanity check.",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 344,
+        "endChar": 1
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
