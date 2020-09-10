@@ -548,7 +548,8 @@ if (skia_lex) {
   }
 }
 
-if (skia_compile_processors) {
+# `Compile Processors` and `Compile SkSL Tests` both rely on skslc.
+if (skia_compile_processors || skia_compile_sksl_tests) {
   executable("skslc") {
     defines = [ "SKSL_STANDALONE" ]
     sources = [ "src/sksl/SkSLMain.cpp" ]
@@ -558,21 +559,6 @@ if (skia_compile_processors) {
     deps = [
       ":run_sksllex",
       "//third_party/spirv-tools:spvtools",
-    ]
-  }
-
-  skia_gpu_processor_outputs = []
-  foreach(src, skia_gpu_processor_sources) {
-    dir = get_path_info(src, "dir")
-    name = get_path_info(src, "name")
-
-    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
-    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
-    skia_gpu_processor_outputs += [
-      "$target_out_dir/" +
-          rebase_path("$dir/generated/$name.h", target_out_dir),
-      # the script also modifies the corresponding .cpp file, but if we tell GN that it gets
-      # confused due to the same file being named by two different paths
     ]
   }
 
@@ -640,6 +626,26 @@ if (skia_compile_processors) {
     ]
     args += rebase_path(dehydrate_sksl_sources)
   }
+} else {
+  group("dehydrate_sksl") {
+  }
+}
+
+skia_gpu_processor_outputs = []
+if (skia_compile_processors) {
+  foreach(src, skia_gpu_processor_sources) {
+    dir = get_path_info(src, "dir")
+    name = get_path_info(src, "name")
+
+    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
+    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
+    skia_gpu_processor_outputs += [
+      "$target_out_dir/" +
+          rebase_path("$dir/generated/$name.h", target_out_dir),
+      # the script also modifies the corresponding .cpp file, but if we tell GN that it gets
+      # confused due to the same file being named by two different paths
+    ]
+  }
 
   action("compile_processors") {
     script = "gn/compile_processors.py"
@@ -658,10 +664,46 @@ if (skia_compile_processors) {
     args += rebase_path(skia_gpu_processor_sources)
   }
 } else {
-  skia_gpu_processor_outputs = []
   group("compile_processors") {
   }
-  group("dehydrate_sksl") {
+}
+
+if (skia_compile_sksl_tests) {
+  import("gn/sksl_tests.gni")
+  sksl_fp_tests_outputs = []
+  foreach(src, sksl_fp_tests_sources) {
+    dir = get_path_info(src, "dir")
+    name = get_path_info(src, "name")
+    sksl_fp_tests_outputs += [
+      "$target_out_dir/" + rebase_path("$dir/golden/$name.cpp", target_out_dir),
+      "$target_out_dir/" + rebase_path("$dir/golden/$name.h", target_out_dir),
+    ]
+  }
+
+  sksl_glsl_tests_outputs = []
+  foreach(src, sksl_glsl_tests_sources) {
+    dir = get_path_info(src, "dir")
+    name = get_path_info(src, "name")
+    sksl_glsl_tests_outputs +=
+        [ "$target_out_dir/" +
+          rebase_path("$dir/golden/$name.glsl", target_out_dir) ]
+  }
+
+  action("compile_sksl_tests") {
+    script = "gn/compile_sksl_tests.py"
+    deps = [
+      ":create_sksl_fp",
+      ":sksl_pre_includes",
+      ":skslc(//gn/toolchain:$host_toolchain)",
+    ]
+    sources = sksl_fp_tests_sources + sksl_glsl_tests_sources
+    outputs = sksl_fp_tests_outputs + sksl_glsl_tests_outputs
+    args = [ rebase_path(skslc_path) ]
+    args += rebase_path(sksl_fp_tests_sources)
+    args += rebase_path(sksl_glsl_tests_sources)
+  }
+} else {
+  group("compile_sksl_tests") {
   }
 }
 
@@ -669,6 +711,7 @@ optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
     ":compile_processors",
+    ":compile_sksl_tests",
     ":dehydrate_sksl",
     ":run_sksllex",
   ]
