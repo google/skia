@@ -16,6 +16,75 @@
       "revId": "50d0bd78bd424a686e545c0a5c81621aebcd3992",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f795af6_a664d738",
+        "filename": "include/core/SkPathBuilder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T00:00:18Z",
+      "side": 1,
+      "message": "I wonder if we\u0027d be better off defaulting to EvenOdd. For cases where it doesn\u0027t matter EvenOdd has the advantage of only requiring one bit (e.g. in a stencil buffer).\n\nTangent... I\u0027ve seen these described in other contexts as NonZero and Odd. I find that a little clearer since it describes the property of the winding number on the inside. If we have to keep the Inverse values they could be alternatively described as Zero and Even.",
+      "range": {
+        "startLine": 18,
+        "startChar": 51,
+        "endLine": 18,
+        "endChar": 59
+      },
+      "revId": "50d0bd78bd424a686e545c0a5c81621aebcd3992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "422535d9_a684d427",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3203,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T00:00:18Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 3203,
+        "startChar": 0,
+        "endLine": 3203,
+        "endChar": 42
+      },
+      "revId": "50d0bd78bd424a686e545c0a5c81621aebcd3992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ee1f6d8_47d83a63",
+        "filename": "src/gpu/geometry/GrStyledShape.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T00:00:18Z",
+      "side": 1,
+      "message": "this can go, right?",
+      "range": {
+        "startLine": 341,
+        "startChar": 4,
+        "endLine": 341,
+        "endChar": 28
+      },
+      "revId": "50d0bd78bd424a686e545c0a5c81621aebcd3992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
