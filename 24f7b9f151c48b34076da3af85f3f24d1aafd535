@@ -402,6 +402,30 @@
       "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fcab084_4dc836d9",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1107,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:27:46Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7cad2039_57f1436c",
+      "range": {
+        "startLine": 1107,
+        "startChar": 8,
+        "endLine": 1107,
+        "endChar": 29
+      },
+      "revId": "24f7b9f151c48b34076da3af85f3f24d1aafd535",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

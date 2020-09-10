@@ -536,6 +536,30 @@
     },
     {
       "key": {
+        "uuid": "aa582395_e223cc91",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:27:46Z",
+      "side": 1,
+      "message": "Why not public inheritance?",
+      "parentUuid": "648d9415_3323ad90",
+      "range": {
+        "startLine": 105,
+        "startChar": 7,
+        "endLine": 105,
+        "endChar": 59
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f61c6ed4_618c80a1",
         "filename": "src/gpu/geometry/GrShape.cpp",
         "patchSetId": 8
@@ -618,6 +642,30 @@
       "side": 1,
       "message": "Done, but had to remove the kLast \u003d kLine enum value since that confused some compilers about whether or not all cases were in the switch block",
       "parentUuid": "18ed2af6_d90165bf",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 26
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4922a8eb_b7b0cc8a",
+        "filename": "src/gpu/geometry/GrShape.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:27:46Z",
+      "side": 1,
+      "message": "That\u0027s quite surprising.",
+      "parentUuid": "5c6b0f3a_07cd1eaa",
       "range": {
         "startLine": 324,
         "startChar": 0,
