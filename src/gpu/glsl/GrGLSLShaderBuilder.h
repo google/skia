@@ -48,6 +48,9 @@ public:
                                      const char* coordName,
                                      GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
+    /** Appends a load of an input attachment into the shader code. */
+    void appendInputLoad(SamplerHandle);
+
     /** Adds a helper function to facilitate color gamut transformation, and produces code that
         returns the srcColor transformed into a new gamut (via multiplication by the xform from
         colorXformHelper). Premultiplied sources are also handled correctly (colorXformHelper

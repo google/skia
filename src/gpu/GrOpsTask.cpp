@@ -362,8 +362,6 @@ GrOpsTask::GrOpsTask(GrDrawingManager* drawingMgr, GrRecordingContext::Arenas ar
         , fArenas(arenas)
         , fAuditTrail(auditTrail)
         SkDEBUGCODE(, fNumClips(0)) {
-    GrRenderTargetProxy* proxy = view.asRenderTargetProxy();
-    SkASSERT(proxy);
     this->addTarget(drawingMgr, std::move(view));
 }
 
