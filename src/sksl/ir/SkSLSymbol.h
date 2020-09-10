@@ -35,6 +35,12 @@ struct Symbol : public IRNode {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    Symbol(int offset, Kind kind, StringFragment name, const Type* type)
+    : INHERITED(offset, (int) kind, type)
+    , fName(name) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
     ~Symbol() override {}
 
     Kind kind() const {

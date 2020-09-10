@@ -15,7 +15,7 @@
 namespace SkSL {
 
 VariableReference::VariableReference(int offset, const Variable& variable, RefKind refKind)
-: INHERITED(offset, kExpressionKind, variable.fType)
+: INHERITED(offset, kExpressionKind, &variable.type())
 , fVariable(variable)
 , fRefKind(refKind) {
     if (refKind != kRead_RefKind) {
@@ -74,7 +74,7 @@ std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& 
             for (const auto& arg : c->fArguments) {
                 args.push_back(copy_constant(irGenerator, arg.get()));
             }
-            return std::unique_ptr<Expression>(new Constructor(-1, c->fType,
+            return std::unique_ptr<Expression>(new Constructor(-1, &c->type(),
                                                                std::move(args)));
         }
         case Expression::Kind::kSetting: {
@@ -95,7 +95,7 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     }
     if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
         fVariable.fInitialValue->isCompileTimeConstant() &&
-        fType.typeKind() != Type::TypeKind::kArray) {
+        this->type().typeKind() != Type::TypeKind::kArray) {
         return copy_constant(irGenerator, fVariable.fInitialValue);
     }
     auto exprIter = definitions.find(&fVariable);
