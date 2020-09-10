@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f67107ab_4669ba4d",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3040,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-10T16:29:54Z",
+      "side": 1,
+      "message": "Indent? It seems ParagraphView47::onDrawContent also isn\u0027t indented.",
+      "range": {
+        "startLine": 3002,
+        "startChar": 0,
+        "endLine": 3040,
+        "endChar": 22
+      },
+      "revId": "6212c6786556579bc2804c436b4c2ad05c92dbef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e6dac32_bfca3ab5",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-10T16:29:54Z",
+      "side": 1,
+      "message": "I don\u0027t think this is what you want, since it will use the library global default SkFontMgr to do resolution (and that should be avoided as much as possible). I think you just want something like\n\n    for (const auto\u0026 manager : this-\u003egetFontManagerOrder()) {\n        sk_sp\u003cSkTypeface\u003e match(manager-\u003e-\u003elegacyMakeTypeface(nullptr, fontStyle));\n        if (match) {\n            return match;\n        }\n    }\n    return nullptr;\n\nmaybe call it defaultDefaultTypeface(const SkFontStyle\u0026) or something like that.",
+      "revId": "6212c6786556579bc2804c436b4c2ad05c92dbef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
