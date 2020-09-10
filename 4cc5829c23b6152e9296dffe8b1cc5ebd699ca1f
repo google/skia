@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "c0fad689_6f52e7d8",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T16:20:38Z",
+      "side": 1,
+      "message": "Added test cases and fixed this.",
+      "parentUuid": "dc038019_6cb6049b",
+      "revId": "4cc5829c23b6152e9296dffe8b1cc5ebd699ca1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2f72c22_7c8056f8",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 4
