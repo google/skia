@@ -20,7 +20,7 @@ struct BoolLiteral : public Expression {
     static constexpr Kind kExpressionKind = Kind::kBoolLiteral;
 
     BoolLiteral(const Context& context, int offset, bool value)
-    : INHERITED(offset, kExpressionKind, *context.fBool_Type)
+    : INHERITED(offset, kExpressionKind, context.fBool_Type.get())
     , fValue(value) {}
 
     String description() const override {
@@ -41,7 +41,7 @@ struct BoolLiteral : public Expression {
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &fType));
+        return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &this->type()));
     }
 
     const bool fValue;
@@ -50,7 +50,7 @@ struct BoolLiteral : public Expression {
 
 private:
     BoolLiteral(int offset, bool value, const Type* type)
-    : INHERITED(offset, kExpressionKind, *type)
+    : INHERITED(offset, kExpressionKind, type)
     , fValue(value) {}
 };
 

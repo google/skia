@@ -50,7 +50,7 @@ struct BinaryExpression : public Expression {
     static constexpr Kind kExpressionKind = Kind::kBinary;
 
     BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,
-                     std::unique_ptr<Expression> right, const Type& type)
+                     std::unique_ptr<Expression> right, const Type* type)
     : INHERITED(offset, kExpressionKind, type)
     , fLeft(std::move(left))
     , fOperator(op)
@@ -79,7 +79,7 @@ struct BinaryExpression : public Expression {
 
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new BinaryExpression(fOffset, fLeft->clone(), fOperator,
-                                                                fRight->clone(), fType));
+                                                                fRight->clone(), &this->type()));
     }
 
     String description() const override {

@@ -32,11 +32,10 @@ struct Variable : public Symbol {
         kParameter_Storage
     };
 
-    Variable(int offset, Modifiers modifiers, StringFragment name, const Type& type,
+    Variable(int offset, Modifiers modifiers, StringFragment name, const Type* type,
              Storage storage, Expression* initialValue = nullptr)
-    : INHERITED(offset, kSymbolKind, name)
+    : INHERITED(offset, kSymbolKind, name, type)
     , fModifiers(modifiers)
-    , fType(type)
     , fStorage(storage)
     , fInitialValue(initialValue)
     , fReadCount(0)
@@ -51,7 +50,7 @@ struct Variable : public Symbol {
     }
 
     String description() const override {
-        return fModifiers.description() + fType.fName + " " + fName;
+        return fModifiers.description() + this->type().fName + " " + fName;
     }
 
     bool dead() const {
@@ -66,7 +65,6 @@ struct Variable : public Symbol {
     }
 
     mutable Modifiers fModifiers;
-    const Type& fType;
     const Storage fStorage;
 
     const Expression* fInitialValue = nullptr;

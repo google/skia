@@ -20,7 +20,7 @@ namespace SkSL {
 struct ExternalFunctionCall : public Expression {
     static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
 
-    ExternalFunctionCall(int offset, const Type& type, const ExternalValue* function,
+    ExternalFunctionCall(int offset, const Type* type, const ExternalValue* function,
                          std::vector<std::unique_ptr<Expression>> arguments)
     : INHERITED(offset, kExpressionKind, type)
     , fFunction(function)
@@ -44,7 +44,7 @@ struct ExternalFunctionCall : public Expression {
             cloned.push_back(arg->clone());
         }
         return std::unique_ptr<Expression>(new ExternalFunctionCall(fOffset,
-                                                                    fType,
+                                                                    &this->type(),
                                                                     fFunction,
                                                                     std::move(cloned)));
     }
