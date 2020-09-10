@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6e2fa816_9b489f54",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T15:53:26Z",
+      "side": 1,
+      "message": "And now I\u0027m realizing there may be additional bugs here - we\u0027re not checking if the op is valid for vectors when doing the vector/scalar combos. Those implicitly operate as-if they\u0027re vector/vector, so we should be checking that. I\u0027ll see if I can concoct a broken case.",
+      "parentUuid": "a75ee636_518731dc",
+      "revId": "4cc5829c23b6152e9296dffe8b1cc5ebd699ca1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2f72c22_7c8056f8",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 4
