@@ -39,6 +39,24 @@
       "revId": "6212c6786556579bc2804c436b4c2ad05c92dbef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c4a1218_caa5ae53",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-10T16:57:24Z",
+      "side": 1,
+      "message": "good point.  I agree that you will want to use their provided FontManager and ask it for the default style.",
+      "parentUuid": "5e6dac32_bfca3ab5",
+      "revId": "6212c6786556579bc2804c436b4c2ad05c92dbef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
