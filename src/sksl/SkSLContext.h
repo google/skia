@@ -186,7 +186,7 @@ public:
                                      fBool3_Type.get(), fBool4_Type.get() }))
     , fSkCaps_Type(new Type("$sk_Caps"))
     , fFragmentProcessor_Type(fp_type(fInt_Type.get(), fBool_Type.get()))
-    , fDefined_Expression(new Defined(*fInvalid_Type)) {}
+    , fDefined_Expression(new Defined(fInvalid_Type.get())) {}
 
     static std::vector<const Type*> static_type(const Type& t) {
         return { &t, &t, &t, &t };
@@ -353,7 +353,7 @@ private:
     public:
         static constexpr Kind kExpressionKind = Kind::kDefined;
 
-        Defined(const Type& type)
+        Defined(const Type* type)
         : INHERITED(-1, kExpressionKind, type) {}
 
         bool hasProperty(Property property) const override {
@@ -365,7 +365,7 @@ private:
         }
 
         std::unique_ptr<Expression> clone() const override {
-            return std::unique_ptr<Expression>(new Defined(fType));
+            return std::unique_ptr<Expression>(new Defined(&this->type()));
         }
 
         using INHERITED = Expression;

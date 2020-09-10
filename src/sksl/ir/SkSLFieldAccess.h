@@ -28,7 +28,7 @@ struct FieldAccess : public Expression {
 
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
                 OwnerKind ownerKind = kDefault_OwnerKind)
-    : INHERITED(base->fOffset, kExpressionKind, *base->fType.fields()[fieldIndex].fType)
+    : INHERITED(base->fOffset, kExpressionKind, base->type().fields()[fieldIndex].fType)
     , fBase(std::move(base))
     , fFieldIndex(fieldIndex)
     , fOwnerKind(ownerKind) {}
@@ -43,7 +43,7 @@ struct FieldAccess : public Expression {
     }
 
     String description() const override {
-        return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
+        return fBase->description() + "." + fBase->type().fields()[fFieldIndex].fName;
     }
 
     std::unique_ptr<Expression> fBase;

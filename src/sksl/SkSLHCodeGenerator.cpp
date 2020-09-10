@@ -189,7 +189,7 @@ void HCodeGenerator::writeMake() {
         this->writef("    static std::unique_ptr<GrFragmentProcessor> Make(");
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            this->writef("%s%s %s", separator, ParameterType(fContext, param->fType,
+            this->writef("%s%s %s", separator, ParameterType(fContext, param->type(),
                                                              param->fModifiers.fLayout).c_str(),
                          String(param->fName).c_str());
             separator = ", ";
@@ -200,8 +200,8 @@ void HCodeGenerator::writeMake() {
                      fFullName.c_str());
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-            if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type ||
-                param->fType.nonnullable().typeKind() == Type::TypeKind::kSampler) {
+            if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type ||
+                param->type().nonnullable().typeKind() == Type::TypeKind::kSampler) {
                 this->writef("%sstd::move(%s)", separator, String(param->fName).c_str());
             } else {
                 this->writef("%s%s", separator, String(param->fName).c_str());
@@ -233,7 +233,7 @@ void HCodeGenerator::writeConstructor() {
     this->writef("    %s(", fFullName.c_str());
     const char* separator = "";
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        this->writef("%s%s %s", separator, ParameterType(fContext, param->fType,
+        this->writef("%s%s %s", separator, ParameterType(fContext, param->type(),
                                                          param->fModifiers.fLayout).c_str(),
                      String(param->fName).c_str());
         separator = ", ";
@@ -249,7 +249,7 @@ void HCodeGenerator::writeConstructor() {
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String nameString(param->fName);
         const char* name = nameString.c_str();
-        const Type& type = param->fType.nonnullable();
+        const Type& type = param->type().nonnullable();
         if (type.typeKind() == Type::TypeKind::kSampler) {
             this->writef("\n    , %s(std::move(%s)", FieldName(name).c_str(), name);
             for (const Section* s : fSectionAndParameterHelper.getSections(
@@ -274,10 +274,11 @@ void HCodeGenerator::writeConstructor() {
 
     int samplerCount = 0;
     for (const Variable* param : fSectionAndParameterHelper.getParameters()) {
-        if (param->fType.typeKind() == Type::TypeKind::kSampler) {
+        const Type& paramType = param->type();
+        if (paramType.typeKind() == Type::TypeKind::kSampler) {
             ++samplerCount;
-        } else if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
-            if (param->fType.typeKind() != Type::TypeKind::kNullable) {
+        } else if (paramType.nonnullable() == *fContext.fFragmentProcessor_Type) {
+            if (paramType.typeKind() != Type::TypeKind::kNullable) {
                 this->writef("        SkASSERT(%s);", String(param->fName).c_str());
             }
 
@@ -310,10 +311,10 @@ void HCodeGenerator::writeFields() {
     this->writeSection(kFieldsSection);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         String name = FieldName(String(param->fName).c_str());
-        if (param->fType.nonnullable() == *fContext.fFragmentProcessor_Type) {
+        if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type) {
             // Don't need to write any fields, FPs are held as children
         } else {
-            this->writef("    %s %s;\n", FieldType(fContext, param->fType,
+            this->writef("    %s %s;\n", FieldType(fContext, param->type(),
                                                    param->fModifiers.fLayout).c_str(),
                                          name.c_str());
         }
@@ -374,7 +375,7 @@ bool HCodeGenerator::generateCode() {
                                                 "GrProcessorKeyBuilder*) const override;\n"
                  "    bool onIsEqual(const GrFragmentProcessor&) const override;\n");
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        if (param->fType.typeKind() == Type::TypeKind::kSampler) {
+        if (param->type().typeKind() == Type::TypeKind::kSampler) {
             this->writef("    const TextureSampler& onTextureSampler(int) const override;");
             break;
         }
