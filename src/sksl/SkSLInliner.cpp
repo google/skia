@@ -166,6 +166,36 @@ static bool has_early_return(const FunctionDefinition& funcDef) {
     return returnCount > returnsAtEndOfControlFlow;
 }
 
+static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
+    class ContainsRecursiveCall : public ProgramVisitor {
+    public:
+        bool visit(const FunctionDeclaration& funcDecl) {
+            fFuncDecl = &funcDecl;
+            return funcDecl.fDefinition ? this->visitProgramElement(*funcDecl.fDefinition)
+                                        : false;
+        }
+
+        bool visitExpression(const Expression& expr) override {
+            if (expr.is<FunctionCall>() && expr.as<FunctionCall>().fFunction.matches(*fFuncDecl)) {
+                return true;
+            }
+            return INHERITED::visitExpression(expr);
+        }
+
+        bool visitStatement(const Statement& stmt) override {
+            if (stmt.is<InlineMarker>() && stmt.as<InlineMarker>().fFuncDecl->matches(*fFuncDecl)) {
+                return true;
+            }
+            return INHERITED::visitStatement(stmt);
+        }
+
+        const FunctionDeclaration* fFuncDecl;
+        using INHERITED = ProgramVisitor;
+    };
+
+    return ContainsRecursiveCall{}.visit(funcDecl);
+}
+
 static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
     if (src->typeKind() == Type::TypeKind::kArray) {
         return symbolTable.takeOwnershipOfSymbol(std::make_unique<Type>(*src));
@@ -603,6 +633,11 @@ bool Inliner::isSafeToInline(const FunctionCall& functionCall,
             // The function exceeds our maximum inline size and is not flagged 'inline'.
             return false;
         }
+    }
+    if (contains_recursive_call(functionCall.fFunction)) {
+        // We do not perform inlining on recursive calls to avoid an infinite death spiral of
+        // inlining.
+        return false;
     }
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
