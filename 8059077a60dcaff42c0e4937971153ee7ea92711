@@ -22,6 +22,30 @@
       "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34aa736b_0dc0bce0",
+        "filename": "tests/SkSLErrorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T17:23:07Z",
+      "side": 1,
+      "message": "These will all promote to float types. I could run each test twice - once to ensure that it works with the resulting type being the expected shape of floats, and again that it fails with the same shaped half type? Let me try that...",
+      "parentUuid": "bf9e8e0b_9670ad7a",
+      "range": {
+        "startLine": 320,
+        "startChar": 0,
+        "endLine": 344,
+        "endChar": 1
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
