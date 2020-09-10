@@ -2,6 +2,92 @@
   "comments": [
     {
       "key": {
+        "uuid": "8a7d35ac_19dffded",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T17:23:38Z",
+      "side": 1,
+      "message": "Apparently this broke modulo:\n\n\t../../../../../../skia/tests/SkSLInterpreterTest.cpp:140\t [SkSLInterpreterRemainder]: program\n\t../../../../../../skia/tests/SkSLInterpreterTest.cpp:76\terror: 1: type mismatch: \u0027%\u0027 cannot operate on \u0027int2\u0027, \u0027int\u0027\n",
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c1dfc6c_0a2391d4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T17:23:38Z",
+      "side": 1,
+      "message": "Let\u0027s give these default values of `false` (and remove any now-redundant `isLogical \u003d false` and `isValidMatrixOrVectorOp \u003d false` from the switch below). I think it\u0027s easier to reason about this code if we don\u0027t have to worry about the case where the switch fails to assign to them, and the cost of initializing them here is next to nothing.\n\nAlso, I think `isLogicalOp` would be a more consistent name than `isLogical`, but that\u0027s a super minor concern.",
+      "range": {
+        "startLine": 1543,
+        "startChar": 4,
+        "endLine": 1544,
+        "endChar": 31
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b14588f9_1295ead6",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1650,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T17:23:38Z",
+      "side": 1,
+      "message": "minor nit: just for consistency, maybe a break here?",
+      "range": {
+        "startLine": 1650,
+        "startChar": 41,
+        "endLine": 1650,
+        "endChar": 42
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2126953c_a607dee4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1686,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T17:23:38Z",
+      "side": 1,
+      "message": "nit: Let\u0027s just spell out `rightToLeftCost` and `leftToRightCost`.\n(Especially since we\u0027re spelling it out in the comments anyway, why not)",
+      "range": {
+        "startLine": 1686,
+        "startChar": 8,
+        "endLine": 1686,
+        "endChar": 11
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf9e8e0b_9670ad7a",
         "filename": "tests/SkSLErrorTest.cpp",
         "patchSetId": 6
@@ -42,6 +128,29 @@
         "startChar": 0,
         "endLine": 344,
         "endChar": 1
+      },
+      "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a417097d_531c3743",
+        "filename": "tests/SkSLErrorTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T17:23:38Z",
+      "side": 1,
+      "message": "Do we have a matching block of tests for a logical op? (Obviously there would be more failures but it\u0027s still useful to test)",
+      "range": {
+        "startLine": 320,
+        "startChar": 2,
+        "endLine": 349,
+        "endChar": 0
       },
       "revId": "8059077a60dcaff42c0e4937971153ee7ea92711",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
