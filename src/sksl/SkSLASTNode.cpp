@@ -170,6 +170,8 @@ String ASTNode::description() const {
                 return "return " + this->begin()->description() + ";";
             }
             return "return;";
+        case Kind::kScope:
+            return this->begin()->description() + "::" + getString();
         case Kind::kSection:
             return "@section { ... }";
         case Kind::kSwitchCase: {
