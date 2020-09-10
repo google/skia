@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "209fade8_ee48f339",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-09-10T20:23:49Z",
+      "side": 1,
+      "message": "I think so - either displacement sampling or even content sampling would probably benefit from bilerp.  Does Ganesh get some of that for free?  The geometry looks much smoother/uniform with the GPU backend in general.\n\nThe part that is flickering is the neutral grey outer ring of the gradient, which should yield 0 displacement.  Wonder if it ends up flipping between +/-epsilon for some reason...",
+      "parentUuid": "e1a2ebae_ec4c846e",
+      "revId": "f3f166ce97d93fda3e7d6584266c1340ed2d7782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da66970f_ef5e845d",
         "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
         "patchSetId": 14
@@ -30,6 +48,24 @@
       "writtenOn": "2020-09-10T15:47:28Z",
       "side": 1,
       "message": "As a longer term thing, anyone have thoughts on adding natively unpremul flow through sample() for non-RGBA data like this?  We\u0027re getting lucky here (or working around?) that d.w isn\u0027t zero, right?",
+      "revId": "f3f166ce97d93fda3e7d6584266c1340ed2d7782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dc689c9_f11fe456",
+        "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-09-10T20:23:49Z",
+      "side": 1,
+      "message": "Sounds like a good idea.  In this particular case we\u0027re sampling from a pre-rasterized picture shader tile under the hood, so it probably doesn\u0027t make much difference - but it could help with purely analytical shaders.\n\nI\u0027m assuming the unpremul intrinsic handles zero alpha and returns something \"sane\", right?  Regular displacement selectors are modulated back by alpha, so even if the unpremul result is garbage it should not matter.  But I\u0027m curious now what happens with the selector modes which force full coverage... they seem to work in testing, maybe we\u0027re just lucky with our unpremul/zero behavior choice.",
+      "parentUuid": "da66970f_ef5e845d",
       "revId": "f3f166ce97d93fda3e7d6584266c1340ed2d7782",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
