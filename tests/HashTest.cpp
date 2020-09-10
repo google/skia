@@ -14,7 +14,7 @@
 // Tests use of const foreach().  map.count() is of course the better way to do this.
 static int count(const SkTHashMap<int, double>& map) {
     int n = 0;
-    map.foreach([&n](int, double) { n++; });
+    map.foreach1([&n](int, double) { n++; });
     return n;
 }
 
@@ -30,7 +30,7 @@ DEF_TEST(HashMap, r) {
     REPORTER_ASSERT(r, found);
     REPORTER_ASSERT(r, *found == 4.0);
 
-    map.foreach([](int key, double* d){ *d = -key; });
+    map.foreach1([](int key, double* d){ *d = -key; });
     REPORTER_ASSERT(r, count(map) == 1);
 
     found = map.find(3);
@@ -56,7 +56,7 @@ DEF_TEST(HashMap, r) {
     REPORTER_ASSERT(r, map.count() == N);
 
     for (int i = 0; i < N/2; i++) {
-        map.remove(i);
+        map.remove1(i);
     }
     for (int i = 0; i < N; i++) {
         double* found = map.find(i);
@@ -77,7 +77,7 @@ DEF_TEST(HashMap, r) {
         REPORTER_ASSERT(r, refMap.count() == 1);
         REPORTER_ASSERT(r, !ref->unique());
 
-        refMap.remove(0);
+        refMap.remove1(0);
         REPORTER_ASSERT(r, refMap.count() == 0);
         REPORTER_ASSERT(r, ref->unique());
     }

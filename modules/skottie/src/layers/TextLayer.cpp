@@ -248,7 +248,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
 bool AnimationBuilder::resolveNativeTypefaces() {
     bool has_unresolved = false;
 
-    fFonts.foreach([&](const SkString& name, FontInfo* finfo) {
+    fFonts.foreach1([&](const SkString& name, FontInfo* finfo) {
         SkASSERT(finfo);
 
         if (finfo->fTypeface) {
@@ -347,7 +347,7 @@ bool AnimationBuilder::resolveEmbeddedTypefaces(const skjson::ArrayValue& jchars
         // If problematic, we can refactor as a two-level hashmap.
         if (!current_font || !current_font->matches(family, style)) {
             current_font = nullptr;
-            fFonts.foreach([&](const SkString& name, FontInfo* finfo) {
+            fFonts.foreach1([&](const SkString& name, FontInfo* finfo) {
                 if (finfo->matches(family, style)) {
                     current_font = finfo;
                     // TODO: would be nice to break early here...
@@ -379,7 +379,7 @@ bool AnimationBuilder::resolveEmbeddedTypefaces(const skjson::ArrayValue& jchars
 
     // Final pass to commit custom typefaces.
     auto has_unresolved = false;
-    fFonts.foreach([&has_unresolved](const SkString&, FontInfo* finfo) {
+    fFonts.foreach1([&has_unresolved](const SkString&, FontInfo* finfo) {
         if (finfo->fTypeface) {
             return; // already resolved
         }
