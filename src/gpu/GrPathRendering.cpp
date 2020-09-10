@@ -57,8 +57,7 @@ void GrPathRendering::drawPath(GrRenderTarget* renderTarget,
                                const GrStencilSettings& stencilPassSettings,
                                const GrPath* path) {
     fGpu->handleDirtyContext();
-    if (auto barrierType = programInfo.pipeline().xferBarrierType(renderTarget->asTexture(),
-                                                                  *fGpu->caps())) {
+    if (auto barrierType = programInfo.pipeline().xferBarrierType(*fGpu->caps())) {
         fGpu->xferBarrier(renderTarget, barrierType);
     }
     this->onDrawPath(stencilPassSettings, path);

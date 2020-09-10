@@ -36,8 +36,8 @@ GrPathTessellateOp::FixedFunctionFlags GrPathTessellateOp::fixedFunctionFlags() 
 void GrPathTessellateOp::onPrePrepare(GrRecordingContext*,
                                       const GrSurfaceProxyView* writeView,
                                       GrAppliedClip*,
-                                      const GrXferProcessor::DstProxyView&) {
-}
+                                      const GrXferProcessor::DstProxyView&,
+                                      GrXferBarrierFlags renderPassXferBarriers) {}
 
 void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
     int numVerbs = fPath.countVerbs();
@@ -544,7 +544,8 @@ void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
         SkASSERT(fTriangleBuffer);
         GrStencilTriangleShader stencilTriangleShader(fViewMatrix);
         GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
-                                              &stencilTriangleShader);
+                                              &stencilTriangleShader,
+                                              flushState->renderPassBarriers());
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
         flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
@@ -553,7 +554,8 @@ void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
     if (fStencilCubicsShader) {
         SkASSERT(fCubicBuffer);
         GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
-                                              fStencilCubicsShader);
+                                              fStencilCubicsShader,
+                                              flushState->renderPassBarriers());
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
         if (fIndirectDrawBuffer) {
             SkASSERT(fIndirectIndexBuffer);
@@ -652,7 +654,8 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
 
         GrFillTriangleShader fillTriangleShader(fViewMatrix, fColor);
         GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
-                                              &fillTriangleShader);
+                                              &fillTriangleShader,
+                                              flushState->renderPassBarriers());
         flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
         flushState->bindTextures(fillTriangleShader, nullptr, pipeline);
         flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
@@ -667,7 +670,8 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
             pipeline.setUserStencil(&kTestAndResetStencil);
             GrFillCubicHullShader fillCubicHullShader(fViewMatrix, fColor);
             GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
-                                                  &fillCubicHullShader);
+                                                  &fillCubicHullShader,
+                                                  flushState->renderPassBarriers());
             flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
             flushState->bindTextures(fillCubicHullShader, nullptr, pipeline);
 
@@ -685,7 +689,8 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
     pipeline.setUserStencil(&kTestAndResetStencil);
     GrFillBoundingBoxShader fillBoundingBoxShader(fViewMatrix, fColor, fPath.getBounds());
     GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline,
-                                          &fillBoundingBoxShader);
+                                          &fillBoundingBoxShader,
+                                          flushState->renderPassBarriers());
     flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
     flushState->bindTextures(fillBoundingBoxShader, nullptr, pipeline);
     flushState->bindBuffers(nullptr, nullptr, nullptr);

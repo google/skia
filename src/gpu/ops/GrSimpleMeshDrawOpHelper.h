@@ -144,7 +144,8 @@ public:
                                             const GrPipeline*,
                                             const GrSurfaceProxyView* writeView,
                                             GrGeometryProcessor*,
-                                            GrPrimitiveType);
+                                            GrPrimitiveType,
+                                            GrXferBarrierFlags renderPassXferBarriers);
 
     // Create a programInfo with the following properties:
     //     its primitive processor uses no textures
@@ -157,6 +158,7 @@ public:
                                             GrGeometryProcessor*,
                                             GrProcessorSet&&,
                                             GrPrimitiveType,
+                                            GrXferBarrierFlags renderPassXferBarriers,
                                             GrPipeline::InputFlags pipelineFlags
                                                                 = GrPipeline::InputFlags::kNone,
                                             const GrUserStencilSettings*
@@ -168,7 +170,8 @@ public:
                                      GrAppliedClip&&,
                                      const GrXferProcessor::DstProxyView&,
                                      GrGeometryProcessor*,
-                                     GrPrimitiveType);
+                                     GrPrimitiveType,
+                                     GrXferBarrierFlags renderPassXferBarriers);
 
     GrProcessorSet detachProcessorSet() {
         return fProcessors ? std::move(*fProcessors) : GrProcessorSet::MakeEmptySet();
