@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da66970f_ef5e845d",
+        "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-10T15:47:28Z",
+      "side": 1,
+      "message": "As a longer term thing, anyone have thoughts on adding natively unpremul flow through sample() for non-RGBA data like this?  We\u0027re getting lucky here (or working around?) that d.w isn\u0027t zero, right?",
+      "revId": "f3f166ce97d93fda3e7d6584266c1340ed2d7782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
