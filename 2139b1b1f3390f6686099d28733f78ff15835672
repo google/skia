@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cd033d5e_34786662",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T18:22:00Z",
+      "side": 1,
+      "message": "At first I was convinced that you were right here, but then I realized--what about `continue`? The continue statement needs to evaluate the whole test-expression. So hypothetically we only perform the inlining in a do-while loop that lacks continues.\n\nSame thing with `for` loops as well--if you don\u0027t use `continue`, a for loop could inline its test at the top and its increment at the bottom. Same for `while`.",
+      "parentUuid": "a5536b17_7e98d6a8",
+      "range": {
+        "startLine": 746,
+        "startChar": 20,
+        "endLine": 746,
+        "endChar": 99
+      },
+      "revId": "2139b1b1f3390f6686099d28733f78ff15835672",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "93ab4ec2_757e1d94",
         "filename": "src/sksl/SkSLInliner.cpp",
         "patchSetId": 24
