@@ -66,6 +66,30 @@
     },
     {
       "key": {
+        "uuid": "b6e9e8d0_0187783b",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-10T18:07:51Z",
+      "side": 1,
+      "message": "Derp. Yes that makes sense.",
+      "parentUuid": "e57dd7a1_392284c1",
+      "range": {
+        "startLine": 66,
+        "startChar": 37,
+        "endLine": 66,
+        "endChar": 43
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d41e2cb3_81cf69cf",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 8

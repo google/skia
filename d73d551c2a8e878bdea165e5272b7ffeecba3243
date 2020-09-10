@@ -16,6 +16,86 @@
       "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fba876e4_1637ccc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-10T18:07:51Z",
+      "side": 1,
+      "message": "lg to me after one more suggestion in the comments",
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "452eee6a_78f4d7c0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-10T18:07:51Z",
+      "side": 1,
+      "message": "We could account for AA bloat on \"b\" right here:\n\n  if (weShouldAccountForAABloatOnB) {\n      // Outset b\u0027s rect enough so that, once mapped to device space, it will contain all 4\n      // corners of any pixel whose center would have been contained inside the original \"b\".\n      b.outset(.5 * (SkScalarAbs(deviceToB.getScaleX()) + SkScalarAbs(deviceToB.getSkewY())),\n               .5 * (SkScalarAbs(deviceToB.getSkewX()) + SkScalarAbs(deviceToB.getScaleY()));\n  }",
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ec7917a_f12559d0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-10T18:07:51Z",
+      "side": 1,
+      "message": "I would like to see this go away in favor of the \"fwidth\" methods for outsetting AA bounds in my other 2 comments. Do you think that would work?\n\n(Also FYI, we also have SK_ScalarRoot2Over2)",
+      "range": {
+        "startLine": 455,
+        "startChar": 0,
+        "endLine": 456,
+        "endChar": 61
+      },
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e0507c9_1fc6e197",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-10T18:07:51Z",
+      "side": 1,
+      "message": "I think you could just outset by the \"fwidths\" of the inverse view matrix:\n\n  SkRect query \u003d e.fShape.bounds();\n  if (e.fAA \u003d\u003d GrAA::kYes || this-\u003eclipType() \u003d\u003d ClipState::kComplex) {\n      // Outset the query enough so that, once mapped to device space, it will contain all 4\n      // corners of any pixel whose center would have been contained inside the original query.\n      const SkMatrix\u0026 invM \u003d e.fDeviceToLocal;\n      query.outset(.5 * (SkScalarAbs(invM.getScaleX()) + SkScalarAbs(invM.getSkewY())),\n                   .5 * (SkScalarAbs(invM.getSkewX()) + SkScalarAbs(invM.getScaleY()));\n  }\n  // Now just check if fShape contains the new query bounds (accounting for the individual view \n  // matrices)",
+      "range": {
+        "startLine": 515,
+        "startChar": 8,
+        "endLine": 517,
+        "endChar": 72
+      },
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
