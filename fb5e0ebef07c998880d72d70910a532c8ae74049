@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3b69282_5a51924a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1591,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T15:50:42Z",
+      "side": 0,
+      "message": "This special case was unnecessary - it\u0027s covered by the general logic at the bottom (that handles all other scalar op-assignment cases).",
+      "range": {
+        "startLine": 1585,
+        "startChar": 0,
+        "endLine": 1591,
+        "endChar": 28
+      },
+      "revId": "fb5e0ebef07c998880d72d70910a532c8ae74049",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9f5380c_c6f92c9a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1644,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T15:50:42Z",
+      "side": 0,
+      "message": "Same here - this is no longer necessary.",
+      "range": {
+        "startLine": 1638,
+        "startChar": 0,
+        "endLine": 1644,
+        "endChar": 28
+      },
+      "revId": "fb5e0ebef07c998880d72d70910a532c8ae74049",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a75ee636_518731dc",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T15:50:42Z",
+      "side": 1,
+      "message": "This handles (vector op scalar)",
+      "revId": "4cc5829c23b6152e9296dffe8b1cc5ebd699ca1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2f72c22_7c8056f8",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1671,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T15:50:42Z",
+      "side": 1,
+      "message": "This symmetrically handles (scalar op vector), with the caveat that it\u0027s not allowed if the op does assignment.",
+      "revId": "4cc5829c23b6152e9296dffe8b1cc5ebd699ca1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "582f417d_5d13b86e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 1687,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T15:50:42Z",
+      "side": 1,
+      "message": "This block now handles the base-case logic for everything: Either both are scalars, or it\u0027s a valid vector/matrix op.\n\n(I\u0027m going to fix this line length, but don\u0027t want to move all my comments to the next PS).",
+      "revId": "4cc5829c23b6152e9296dffe8b1cc5ebd699ca1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
