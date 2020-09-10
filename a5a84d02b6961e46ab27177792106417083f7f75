@@ -16,6 +16,75 @@
       "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ef0b449e_8f0d467f",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T20:43:58Z",
+      "side": 1,
+      "message": "Do we need two?\n\n    IRNode(int offset, int kind, const Type* type \u003d nullptr)\n    : fOffset(offset)\n    , fKind(kind)\n    , fType(type) {}",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 20
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14f45cfd_78278e33",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T20:43:58Z",
+      "side": 1,
+      "message": "tiny nit, sorry: \n\n  type \u003d",
+      "range": {
+        "startLine": 115,
+        "startChar": 28,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19823ddd_97d59b33",
+        "filename": "src/sksl/ir/SkSLSymbol.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T20:43:58Z",
+      "side": 1,
+      "message": "See if we can use ` \u003d nullptr` here instead of having two constructors?",
+      "range": {
+        "startLine": 38,
+        "startChar": 53,
+        "endLine": 38,
+        "endChar": 72
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
