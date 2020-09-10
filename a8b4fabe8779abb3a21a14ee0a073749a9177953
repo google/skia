@@ -2,6 +2,80 @@
   "comments": [
     {
       "key": {
+        "uuid": "19a07006_bd81d159",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-10T13:19:42Z",
+      "side": 1,
+      "message": "Just needs more comments IMO\n",
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfdda18b_5bea5e6e",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-10T13:19:42Z",
+      "side": 1,
+      "message": "This needs more documentation somewhere. We used to reccomend setting a paint with a high filter quality for the problem of poor resolution from the default resizing setting. Is the default behavior unchanged? what is the new recommendation for how to do high quality resizing? is makeImageShaderCubic_canvas test an example of how to do it? if so let\u0027s point to that from the deprecation warning in the changelog and/or a comment on drawImage. If we had online API docs I would reccomend it there.",
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e378b4ce_469e4e59",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-10T13:19:42Z",
+      "side": 1,
+      "message": "what do B and C mean?",
+      "range": {
+        "startLine": 1313,
+        "startChar": 67,
+        "endLine": 1313,
+        "endChar": 68
+      },
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76a7e57c_82c4f3f6",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-10T13:19:42Z",
+      "side": 1,
+      "message": "please add a preceding comment explaining the purpose of this method.",
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e880da82_67e96f24",
         "filename": "modules/canvaskit/tests/canvas.spec.js",
         "patchSetId": 3
