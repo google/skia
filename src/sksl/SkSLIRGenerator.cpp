@@ -1365,6 +1365,8 @@ std::unique_ptr<Expression> IRGenerator::convertExpression(const ASTNode& expr) 
             return this->convertPostfixExpression(expr);
         case ASTNode::Kind::kPrefix:
             return this->convertPrefixExpression(expr);
+        case ASTNode::Kind::kScope:
+            return this->convertScopeExpression(expr);
         case ASTNode::Kind::kTernary:
             return this->convertTernaryExpression(expr);
         default:
@@ -2671,7 +2673,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
                     offset, v.fInitialValue->as<IntLiteral>().fValue, &type);
         } else {
             fErrors.error(offset,
-                          "type '" + type.fName + "' does not have a field named '" + field + "'");
+                          "type '" + type.fName + "' does not have a member named '" + field + "'");
         }
         fSymbolTable = old;
         return result;
@@ -2685,7 +2687,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
             return this->convertTypeField(offset, type, field);
         }
         fErrors.error(offset,
-                      "type '" + type.fName + "' does not have a field named '" + field + "'");
+                      "type '" + type.fName + "' does not have a member named '" + field + "'");
         return nullptr;
     }
 }
@@ -2736,10 +2738,6 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     if (base->fType == *fContext.fSkCaps_Type) {
         return this->getCap(fieldNode.fOffset, field);
     }
-    if (base->kind() == Expression::Kind::kTypeReference) {
-        return this->convertTypeField(base->fOffset, base->as<TypeReference>().fValue,
-                                      field);
-    }
     if (base->kind() == Expression::Kind::kExternalValue) {
         return this->convertField(std::move(base), field);
     }
@@ -2750,6 +2748,19 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
         default:
             return this->convertSwizzle(std::move(base), field);
     }
+}
+
+std::unique_ptr<Expression> IRGenerator::convertScopeExpression(const ASTNode& scopeNode) {
+    std::unique_ptr<Expression> base = this->convertExpression(*scopeNode.begin());
+    if (!base) {
+        return nullptr;
+    }
+    if (!base->is<TypeReference>()) {
+        fErrors.error(scopeNode.fOffset, "'::' must follow a type name");
+        return nullptr;
+    }
+    StringFragment member = scopeNode.getString();
+    return this->convertTypeField(base->fOffset, base->as<TypeReference>().fValue, member);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode& expression) {
