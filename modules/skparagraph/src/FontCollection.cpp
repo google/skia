@@ -85,6 +85,9 @@ std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<S
 
     if (typefaces.empty()) {
         sk_sp<SkTypeface> match = matchTypeface(fDefaultFamilyName, fontStyle);
+        if (!match) {
+            match = SkTypeface::MakeDefault();
+        }
         if (match) {
             typefaces.emplace_back(std::move(match));
         }
