@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da0b8b55_85f17880",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:21:46Z",
+      "side": 1,
+      "message": "TBH I\u0027m taking some of the math in the new shaders on faith. small nits inline.",
+      "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1eda77bf_8ab77641",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:21:46Z",
+      "side": 1,
+      "message": "Should we assert here that joinType is one of the join values? And prevJoinType in writeCubicSegment",
+      "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fc2d82d_cec7198b",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:21:46Z",
+      "side": 1,
+      "message": "update these comments (and at 33)?",
+      "range": {
+        "startLine": 41,
+        "startChar": 1,
+        "endLine": 43,
+        "endChar": 64
+      },
+      "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7769d512_022c20ea",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-10T20:21:46Z",
+      "side": 1,
+      "message": "patch?",
+      "range": {
+        "startLine": 93,
+        "startChar": 32,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
