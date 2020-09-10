@@ -69,6 +69,24 @@
       "revId": "f3f166ce97d93fda3e7d6584266c1340ed2d7782",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2a39a75_9c64fda2",
+        "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-10T21:05:54Z",
+      "side": 1,
+      "message": "This implementation does something like\n\n   c.rgb /\u003d max(c.a, 0.0001);\n\nto avoid dividing by zero, of course.",
+      "parentUuid": "5dc689c9_f11fe456",
+      "revId": "f3f166ce97d93fda3e7d6584266c1340ed2d7782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
