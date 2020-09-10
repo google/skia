@@ -1870,6 +1870,7 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":xml",
+      "modules/audioplayer",
       "modules/skparagraph:samples",
       "modules/skshaper",
     ]
