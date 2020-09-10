@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c88fcfbb_3a46b6c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T13:55:30Z",
+      "side": 1,
+      "message": "SkSL lgtm.",
+      "revId": "b2e12a357ccf930504541969603b524b6a5ce798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50d8cf84_0c223242",
+        "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-10T13:55:30Z",
+      "side": 1,
+      "message": "This caught me off guard. You don\u0027t need to change anything, but to explain what\u0027s happening here:\n\nSkSL works like GLSL - vector types are (mathematically) amorphous, they might be row vectors, or column vectors. So you can do (Matrix * Vector), which is common, or (Vector * Matrix), which is not so common. Seeing (V*M) usually sends up a red flag, because it suggests that your matrix is transposed from normal mathematical form...\n\nThis is made worse because GL uses column-major memory order for matrix uniforms, so it\u0027s easy to have a matrix in row-major order, upload it to GL, then \"fix\" it by multiplying on the left.(That\u0027s what\u0027s happening here). It\u0027s not wrong - it\u0027s just a little confusing. As long as you just do a single operation like this, it\u0027s not too bad - if you start working with multiple matrices, it\u0027s better to have them laid out correctly, or the multiplication order gets really confusing.",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 39
+      },
+      "revId": "b2e12a357ccf930504541969603b524b6a5ce798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
