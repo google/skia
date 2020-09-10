@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "e1a2ebae_ec4c846e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-10T15:56:02Z",
+      "side": 1,
+      "message": "Do we know why the CPU version is flickering so bad?  Is it a quality issue sampling the displacement map?",
+      "revId": "f3f166ce97d93fda3e7d6584266c1340ed2d7782",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da66970f_ef5e845d",
         "filename": "modules/skottie/src/effects/DisplacementMapEffect.cpp",
         "patchSetId": 14
