@@ -2993,6 +2993,58 @@ private:
     using INHERITED = Sample;
 };
 
+
+class ParagraphView48 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("Paragraph48"); }
+
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorGRAY);
+
+        // To reproduce the client problem set DEFAULT_FONT_FAMILY to something
+        // non-existing: "sans-serif1", for instance
+        SkPaint paint;
+        paint.setColor(SK_ColorRED);
+
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+
+        TextStyle defaultStyle;
+        defaultStyle.setForegroundColor(paint);
+
+        ParagraphStyle paraStyle;
+        paraStyle.setTextStyle(defaultStyle);
+
+        const char* hello = "👶 487";
+        auto builder = ParagraphBuilder::make(paraStyle, fontCollection);
+        builder->addText(hello, strlen(hello));
+
+        auto paragraph = builder->Build();
+        paragraph->layout(200);
+        paragraph->paint(canvas, 200, 200);
+
+        const char* hello2 = "487";
+        auto builder2 = ParagraphBuilder::make(paraStyle, fontCollection);
+        builder2->addText(hello2, strlen(hello2));
+
+        auto paragraph2 = builder2->Build();
+        paragraph2->layout(200);
+        paragraph2->paint(canvas, 200, 300);
+
+        const char* hello3 = " 👶 487";
+        auto builder3 = ParagraphBuilder::make(paraStyle, fontCollection);
+        builder3->addText(hello3, strlen(hello3));
+
+        auto paragraph3 = builder3->Build();
+        paragraph3->layout(200);
+        paragraph3->paint(canvas, 200, 400);
+        canvas->restore();
+    }
+
+private:
+    using INHERITED = Sample;
+};
+
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3041,3 +3093,4 @@ DEF_SAMPLE(return new ParagraphView44();)
 DEF_SAMPLE(return new ParagraphView45();)
 DEF_SAMPLE(return new ParagraphView46();)
 DEF_SAMPLE(return new ParagraphView47();)
+DEF_SAMPLE(return new ParagraphView48();)
