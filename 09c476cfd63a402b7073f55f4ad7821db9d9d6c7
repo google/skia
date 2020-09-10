@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb363727_3184e1e6",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1923,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-10T18:54:10Z",
+      "side": 1,
+      "message": "(Not for this CL, but...) these aren\u0027t GLSL operators.\n\nhttp://screen/4ckXvQmcBL3huPL",
+      "range": {
+        "startLine": 1921,
+        "startChar": 0,
+        "endLine": 1923,
+        "endChar": 56
+      },
+      "revId": "09c476cfd63a402b7073f55f4ad7821db9d9d6c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
