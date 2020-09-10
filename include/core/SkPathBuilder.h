@@ -15,8 +15,7 @@
 
 class SK_API SkPathBuilder {
 public:
-    SkPathBuilder();
-    SkPathBuilder(SkPathFillType);
+    SkPathBuilder(SkPathFillType = SkPathFillType::kWinding);
     SkPathBuilder(const SkPath&);
     SkPathBuilder(const SkPathBuilder&) = default;
     ~SkPathBuilder();

@@ -14,8 +14,9 @@
 // need SkDVector
 #include "src/pathops/SkPathOpsPoint.h"
 
-SkPathBuilder::SkPathBuilder() {
+SkPathBuilder::SkPathBuilder(SkPathFillType ft) {
     this->reset();
+    fFillType = ft;
 }
 
 SkPathBuilder::SkPathBuilder(const SkPath& src) {

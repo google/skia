@@ -406,9 +406,7 @@ public:
             , fUseCenter(useCenter) {}
 
     SkPath path() const override {
-        SkPath path;
-        SkPathPriv::CreateDrawArcPath(&path, fOval, fStartAngle, fSweepAngle, fUseCenter, false);
-        return path;
+        return SkPathPriv::CreateDrawArcPath(fOval, fStartAngle, fSweepAngle, fUseCenter, false);
     }
 
     GrStyledShape makeShape(const SkPaint& paint) const override {

@@ -435,8 +435,8 @@ void GrShape::asPath(SkPath* out, bool simpleFill) const {
             *out = fPath;
             return;
         case Type::kArc:
-            SkPathPriv::CreateDrawArcPath(out, fArc.fOval, fArc.fStartAngle, fArc.fSweepAngle,
-                                          fArc.fUseCenter, simpleFill);
+            *out = SkPathPriv::CreateDrawArcPath(fArc.fOval, fArc.fStartAngle, fArc.fSweepAngle,
+                                                 fArc.fUseCenter, simpleFill);
             // CreateDrawArcPath resets the output path and configures its fill type, so we just
             // have to ensure invertedness is correct.
             if (fInverted) {
