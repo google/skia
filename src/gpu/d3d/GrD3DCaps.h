@@ -208,6 +208,8 @@ private:
 
     StencilFormat fPreferredStencilFormat;
 
+    bool fRenderPassSupport : 1;
+
     using INHERITED = GrCaps;
 };
 
