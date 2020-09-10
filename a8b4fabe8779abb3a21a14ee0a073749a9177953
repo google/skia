@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e880da82_67e96f24",
+        "filename": "modules/canvaskit/tests/canvas.spec.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-10T12:06:52Z",
+      "side": 1,
+      "message": "@Mike Reed, this test no longer draws correctly on the CPU version of CanvasKit. Any ideas?",
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
