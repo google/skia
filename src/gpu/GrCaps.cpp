@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/GrCaps.h"
+
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/private/GrTypesPriv.h"
 #include "src/gpu/GrBackendUtils.h"
-#include "src/gpu/GrCaps.h"
+#include "src/gpu/GrRenderTargetProxy.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrSurfaceProxy.h"
 #include "src/gpu/GrWindowRectangles.h"
@@ -431,5 +433,13 @@ GrSwizzle GrCaps::getReadSwizzle(const GrBackendFormat& format, GrColorType colo
 
 bool GrCaps::isFormatCompressed(const GrBackendFormat& format) const {
     return GrBackendFormatToCompressionType(format) != SkImage::CompressionType::kNone;
+}
+
+GrDstSampleType GrCaps::getDstSampleTypeForProxy(const GrRenderTargetProxy* rt) const {
+    SkASSERT(rt);
+    if (this->textureBarrierSupport() && !rt->requiresManualMSAAResolve()) {
+        return this->onGetDstSampleTypeForProxy(rt);
+    }
+    return GrDstSampleType::kAsTextureCopy;
 }
 

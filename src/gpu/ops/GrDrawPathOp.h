@@ -57,7 +57,8 @@ private:
     void onPrePrepare(GrRecordingContext*,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) final {}
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) final {}
 
     void onPrepare(GrOpFlushState*) final {}
 
