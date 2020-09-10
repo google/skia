@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d8a27ef7_44ee907c",
+        "filename": "modules/skparagraph/samples/SampleParagraph.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3040,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-10T17:46:04Z",
+      "side": 1,
+      "message": "Sorry, copied the client code.",
+      "parentUuid": "f67107ab_4669ba4d",
+      "range": {
+        "startLine": 3002,
+        "startChar": 0,
+        "endLine": 3040,
+        "endChar": 22
+      },
+      "revId": "6212c6786556579bc2804c436b4c2ad05c92dbef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e6dac32_bfca3ab5",
         "filename": "modules/skparagraph/src/FontCollection.cpp",
         "patchSetId": 1
@@ -57,6 +81,24 @@
       "revId": "6212c6786556579bc2804c436b4c2ad05c92dbef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a4df33f_8a73cb9b",
+        "filename": "modules/skparagraph/src/FontCollection.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-10T17:46:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c4a1218_caa5ae53",
+      "revId": "6212c6786556579bc2804c436b4c2ad05c92dbef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
