@@ -29,8 +29,6 @@ namespace internal {
 
 namespace  {
 
-static constexpr size_t kNullLayerType =  3;
-
 struct MaskInfo {
     SkBlendMode       fBlendMode;      // used when masking with layers/blending
     sksg::Merge::Mode fMergeMode;      // used when clipping
@@ -304,12 +302,16 @@ private:
 
 } // namespace
 
-LayerBuilder::LayerBuilder(const skjson::ObjectValue& jlayer)
+LayerBuilder::LayerBuilder(const skjson::ObjectValue& jlayer, const SkSize& comp_size)
     : fJlayer(jlayer)
     , fIndex      (ParseDefault<int>(jlayer["ind"   ], -1))
     , fParentIndex(ParseDefault<int>(jlayer["parent"], -1))
     , fType       (ParseDefault<int>(jlayer["ty"    ], -1))
-    , fAutoOrient (ParseDefault<int>(jlayer["ao"    ],  0)) {
+    , fAutoOrient (ParseDefault<int>(jlayer["ao"    ],  0))
+    , fInfo{comp_size,
+            ParseDefault<float>(jlayer["ip"], 0.0f),
+            ParseDefault<float>(jlayer["op"], 0.0f)}
+{
 
     if (this->isCamera() || ParseDefault<int>(jlayer["ddd"], 0)) {
         fFlags |= Flags::kIs3D;
@@ -408,18 +410,6 @@ bool LayerBuilder::hasMotionBlur(const CompositionBuilder* cbuilder) const {
 sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& abuilder,
                                                       CompositionBuilder* cbuilder,
                                                       const LayerBuilder* prev_layer) {
-    AnimationBuilder::LayerInfo layer_info = {
-        cbuilder->fSize,
-        ParseDefault<float>(fJlayer["ip"], 0.0f),
-        ParseDefault<float>(fJlayer["op"], 0.0f),
-    };
-    if (SkScalarNearlyEqual(layer_info.fInPoint, layer_info.fOutPoint)) {
-        abuilder.log(Logger::Level::kError, nullptr,
-                     "Invalid layer in/out points: %f/%f.",
-                     layer_info.fInPoint, layer_info.fOutPoint);
-        return nullptr;
-    }
-
     const AnimationBuilder::AutoPropertyTracker apt(&abuilder, fJlayer);
 
     using LayerBuilder =
@@ -458,11 +448,7 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
         { nullptr                              ,                 0 },  // 'ty': 14 -> light
     };
 
-    // Treat all hidden layers as null.
-    const auto type = ParseDefault<bool>(fJlayer["hd"], false)
-            ? kNullLayerType
-            : SkToSizeT(fType);
-
+    const auto type = SkToSizeT(fType);
     if (type >= SK_ARRAY_COUNT(gLayerBuildInfo)) {
         return nullptr;
     }
@@ -477,7 +463,7 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
 
     // Build the layer content fragment.
     if (build_info.fBuilder) {
-        layer = (abuilder.*(build_info.fBuilder))(fJlayer, &layer_info);
+        layer = (abuilder.*(build_info.fBuilder))(fJlayer, &fInfo);
     }
 
     // Clip layers with explicit dimensions.
@@ -502,8 +488,8 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
 
     // Optional layer effects.
     if (const skjson::ArrayValue* jeffects = fJlayer["ef"]) {
-        layer = EffectBuilder(&abuilder, layer_info.fSize).attachEffects(*jeffects,
-                                                                         std::move(layer));
+        layer = EffectBuilder(&abuilder, fInfo.fSize, cbuilder)
+                .attachEffects(*jeffects, std::move(layer));
     }
 
     // Attach the transform after effects, when needed.
@@ -513,13 +499,20 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
 
     // Optional layer styles.
     if (const skjson::ArrayValue* jstyles = fJlayer["sy"]) {
-        layer = EffectBuilder(&abuilder, layer_info.fSize).attachStyles(*jstyles, std::move(layer));
+        layer = EffectBuilder(&abuilder, fInfo.fSize, cbuilder)
+                .attachStyles(*jstyles, std::move(layer));
     }
 
     // Optional layer opacity.
     // TODO: de-dupe this "ks" lookup with matrix above.
     if (const skjson::ObjectValue* jtransform = fJlayer["ks"]) {
         layer = abuilder.attachOpacity(*jtransform, std::move(layer));
+    }
+
+    // Stash the content tree in case it is needed for later mattes.
+    fContentTree = layer;
+    if (ParseDefault<bool>(fJlayer["hd"], false)) {
+        layer = nullptr;
     }
 
     const auto has_animators    = !abuilder.fCurrentAnimatorScope->empty();
@@ -530,8 +523,8 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     sk_sp<Animator> controller = sk_make_sp<LayerController>(ascope.release(),
                                                              layer,
                                                              force_seek_count,
-                                                             layer_info.fInPoint,
-                                                             layer_info.fOutPoint);
+                                                             fInfo.fInPoint,
+                                                             fInfo.fOutPoint);
 
     // Optional motion blur.
     if (layer && has_animators && this->hasMotionBlur(cbuilder)) {
@@ -545,9 +538,6 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     }
 
     abuilder.fCurrentAnimatorScope->push_back(std::move(controller));
-
-    // Stash the content tree in case it is needed for later mattes.
-    fContentTree = layer;
 
     if (ParseDefault<bool>(fJlayer["td"], false)) {
         // |layer| is a track matte.  We apply it as a mask to the next layer.
