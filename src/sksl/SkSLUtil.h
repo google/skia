@@ -410,13 +410,6 @@ bool type_to_grsltype(const Context& context, const Type& type, GrSLType* outTyp
 
 void write_stringstream(const StringStream& d, OutputStream& out);
 
-// Returns true if op is '=' or any compound assignment operator ('+=', '-=', etc.)
-bool is_assignment(Token::Kind op);
-
-// Given a compound assignment operator, returns the non-assignment version of the operator (e.g.
-// '+=' becomes '+')
-Token::Kind remove_assignment(Token::Kind op);
-
 NORETURN void sksl_abort();
 
 }  // namespace SkSL

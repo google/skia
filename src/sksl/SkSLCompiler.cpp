@@ -1890,8 +1890,8 @@ std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
     return nullptr;
 }
 
-const char* Compiler::OperatorName(Token::Kind kind) {
-    switch (kind) {
+const char* Compiler::OperatorName(Token::Kind op) {
+    switch (op) {
         case Token::Kind::TK_PLUS:         return "+";
         case Token::Kind::TK_MINUS:        return "-";
         case Token::Kind::TK_STAR:         return "*";
@@ -1931,7 +1931,7 @@ const char* Compiler::OperatorName(Token::Kind kind) {
         case Token::Kind::TK_MINUSMINUS:   return "--";
         case Token::Kind::TK_COMMA:        return ",";
         default:
-            ABORT("unsupported operator: %d\n", (int) kind);
+            ABORT("unsupported operator: %d\n", (int) op);
     }
 }
 
@@ -1955,6 +1955,25 @@ bool Compiler::IsAssignment(Token::Kind op) {
             return true;
         default:
             return false;
+    }
+}
+
+Token::Kind Compiler::RemoveAssignment(Token::Kind op) {
+    switch (op) {
+        case Token::Kind::TK_PLUSEQ:       return Token::Kind::TK_PLUS;
+        case Token::Kind::TK_MINUSEQ:      return Token::Kind::TK_MINUS;
+        case Token::Kind::TK_STAREQ:       return Token::Kind::TK_STAR;
+        case Token::Kind::TK_SLASHEQ:      return Token::Kind::TK_SLASH;
+        case Token::Kind::TK_PERCENTEQ:    return Token::Kind::TK_PERCENT;
+        case Token::Kind::TK_SHLEQ:        return Token::Kind::TK_SHL;
+        case Token::Kind::TK_SHREQ:        return Token::Kind::TK_SHR;
+        case Token::Kind::TK_BITWISEOREQ:  return Token::Kind::TK_BITWISEOR;
+        case Token::Kind::TK_BITWISEXOREQ: return Token::Kind::TK_BITWISEXOR;
+        case Token::Kind::TK_BITWISEANDEQ: return Token::Kind::TK_BITWISEAND;
+        case Token::Kind::TK_LOGICALOREQ:  return Token::Kind::TK_LOGICALOR;
+        case Token::Kind::TK_LOGICALXOREQ: return Token::Kind::TK_LOGICALXOR;
+        case Token::Kind::TK_LOGICALANDEQ: return Token::Kind::TK_LOGICALAND;
+        default: return op;
     }
 }
 
