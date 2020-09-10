@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "0fb0aabd_80cb9026",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-10T22:38:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d71afe9_55544294",
+      "range": {
+        "startLine": 106,
+        "startChar": 64,
+        "endLine": 106,
+        "endChar": 65
+      },
+      "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9303ff1b_15c6add2",
         "filename": "src/gpu/GrOpsTask.h",
         "patchSetId": 5
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "df16a776_c0a2bafd",
+        "filename": "src/gpu/GrOpsTask.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-10T22:38:30Z",
+      "side": 1,
+      "message": "This whole function is gone.",
+      "parentUuid": "9303ff1b_15c6add2",
+      "range": {
+        "startLine": 196,
+        "startChar": 8,
+        "endLine": 199,
+        "endChar": 38
+      },
+      "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fda52a0c_396781e9",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 5
@@ -85,6 +133,30 @@
       "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7636c3c0_db7346ce",
+        "filename": "src/gpu/GrRenderTargetContext.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 2063,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-10T22:38:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fda52a0c_396781e9",
+      "range": {
+        "startLine": 2063,
+        "startChar": 37,
+        "endLine": 2063,
+        "endChar": 38
+      },
+      "revId": "fe9136157f4df97eece6c2e0d0ef95c702f45b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

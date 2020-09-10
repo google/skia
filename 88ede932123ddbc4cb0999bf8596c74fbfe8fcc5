@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "805751c9_da0f71ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-10T22:38:30Z",
+      "side": 1,
+      "message": "Okay so I did a whole big rewrite of this CL and this should be reviewed again. You can diff from the last time and mostly you\u0027ll see the change in variable that is being plumbed everywhere, but you\u0027ll be able to see the diffs in the main files. The main changes are:\n\n1) GrPipeline now only knows what its own GrDstSampleType and not the render passes. I realized I don\u0027t need to key the GrPipeline for the render pass cause we already add the special VkRenderPass\ndependencies to the render passes key (which is part of the vulkan GrProgramDesc). GrDstSampleType is now part of the DstView\n2) In preparation for the follow up CL (since I already had to go through and remove all the GrDstSampleTypes from the createProgram calls) I now pass through a new set of flags to say what type of xfer barriers the render pass will use in it. Currently this just gets passed through to GrProgramInfo and the real use of it to create render passes is in the follow on change.",
+      "revId": "88ede932123ddbc4cb0999bf8596c74fbfe8fcc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
