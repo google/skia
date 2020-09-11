@@ -82,8 +82,6 @@ void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, GrVkBuffer::Type type,
     allocator->freeMemory(alloc.fBackendMemory);
 }
 
-const VkDeviceSize kMaxSmallImageSize = 256 * 1024;
-
 bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
                                          VkImage image,
                                          bool linearTiling,
@@ -96,8 +94,11 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
     GR_VK_CALL(gpu->vkInterface(), GetImageMemoryRequirements(gpu->device(), image, &memReqs));
 
     AllocationPropertyFlags propFlags;
-    if (memReqs.size > kMaxSmallImageSize ||
-               gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory()) {
+    // If we ever find that our allocator is not aggressive enough in using dedicated image
+    // memory we can add a size check here to force the use of dedicate memory. However for now,
+    // we let the allocators decide. The allocator can query the GPU for each image to see if the
+    // GPU recommends or requires the use of dedicated memory.
+    if (gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory()) {
         propFlags = AllocationPropertyFlags::kDedicatedAllocation;
     } else {
         propFlags = AllocationPropertyFlags::kNone;
