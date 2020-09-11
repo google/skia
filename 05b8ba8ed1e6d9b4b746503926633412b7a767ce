@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e8f7a5c_b48be882",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7838
+      },
+      "writtenOn": "2020-09-11T12:47:37Z",
+      "side": 1,
+      "message": "Mike, PTAL. Got a green run finally.",
+      "revId": "05b8ba8ed1e6d9b4b746503926633412b7a767ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
