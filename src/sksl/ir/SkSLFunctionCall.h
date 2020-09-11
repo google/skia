@@ -19,7 +19,7 @@ namespace SkSL {
 struct FunctionCall : public Expression {
     static constexpr Kind kExpressionKind = Kind::kFunctionCall;
 
-    FunctionCall(int offset, const Type& type, const FunctionDeclaration& function,
+    FunctionCall(int offset, const Type* type, const FunctionDeclaration& function,
                  std::vector<std::unique_ptr<Expression>> arguments)
     : INHERITED(offset, kExpressionKind, type)
     , fFunction(std::move(function))
@@ -49,7 +49,7 @@ struct FunctionCall : public Expression {
         for (const auto& arg : fArguments) {
             cloned.push_back(arg->clone());
         }
-        return std::unique_ptr<Expression>(new FunctionCall(fOffset, fType, fFunction,
+        return std::unique_ptr<Expression>(new FunctionCall(fOffset, &this->type(), fFunction,
                                                             std::move(cloned)));
     }
 

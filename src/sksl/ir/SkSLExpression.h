@@ -56,9 +56,8 @@ struct Expression : public IRNode {
         kContainsRTAdjust
     };
 
-    Expression(int offset, Kind kind, const Type& type)
-    : INHERITED(offset, (int) kind)
-    , fType(std::move(type)) {
+    Expression(int offset, Kind kind, const Type* type)
+    : INHERITED(offset, (int) kind, type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
@@ -156,7 +155,7 @@ struct Expression : public IRNode {
     }
 
     virtual int coercionCost(const Type& target) const {
-        return fType.coercionCost(target);
+        return this->type().coercionCost(target);
     }
 
     /**
@@ -188,8 +187,6 @@ struct Expression : public IRNode {
     }
 
     virtual std::unique_ptr<Expression> clone() const = 0;
-
-    const Type& fType;
 
     using INHERITED = IRNode;
 };

@@ -25,12 +25,12 @@ struct Field : public Symbol {
     static constexpr Kind kSymbolKind = Kind::kField;
 
     Field(int offset, const Variable& owner, int fieldIndex)
-    : INHERITED(offset, kSymbolKind, owner.fType.fields()[fieldIndex].fName)
+    : INHERITED(offset, kSymbolKind, owner.type().fields()[fieldIndex].fName)
     , fOwner(owner)
     , fFieldIndex(fieldIndex) {}
 
     String description() const override {
-        return fOwner.description() + "." + fOwner.fType.fields()[fFieldIndex].fName;
+        return fOwner.description() + "." + fOwner.type().fields()[fFieldIndex].fName;
     }
 
     const Variable& fOwner;

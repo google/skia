@@ -232,7 +232,7 @@ const Symbol* Rehydrator::symbol() {
             const Type* type = this->type();
             Variable::Storage storage = (Variable::Storage) this->readU8();
             const Variable* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Variable>(/*offset=*/-1, m, name, *type, storage));
+                    std::make_unique<Variable>(/*offset=*/-1, m, name, type, storage));
             this->addSymbol(id, result);
             return result;
         }
@@ -466,12 +466,12 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> right = this->expression();
             const Type* type = this->type();
-            return std::unique_ptr<Expression>(new BinaryExpression(-1, std::move(left), op,
-                                                                    std::move(right), *type));
+            return std::make_unique<BinaryExpression>(-1, std::move(left), op, std::move(right),
+                                                      type);
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
-            return std::unique_ptr<Expression>(new BoolLiteral(fContext, -1, value));
+            return std::make_unique<BoolLiteral>(fContext, -1, value);
         }
         case Rehydrator::kConstructor_Command: {
             const Type* type = this->type();
@@ -481,21 +481,21 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < argCount; ++i) {
                 args.push_back(this->expression());
             }
-            return std::unique_ptr<Expression>(new Constructor(-1, *type, std::move(args)));
+            return std::make_unique<Constructor>(-1, type, std::move(args));
         }
         case Rehydrator::kFieldAccess_Command: {
             std::unique_ptr<Expression> base = this->expression();
             int index = this->readU8();
             FieldAccess::OwnerKind ownerKind = (FieldAccess::OwnerKind) this->readU8();
-            return std::unique_ptr<Expression>(new FieldAccess(std::move(base), index, ownerKind));
+            return std::make_unique<FieldAccess>(std::move(base), index, ownerKind);
         }
         case Rehydrator::kFloatLiteral_Command: {
             FloatIntUnion u;
             u.fInt = this->readS32();
-            return std::unique_ptr<Expression>(new FloatLiteral(fContext, -1, u.fFloat));
+            return std::make_unique<FloatLiteral>(fContext, -1, u.fFloat);
         }
         case Rehydrator::kFunctionCall_Command: {
-            const Type& type = *this->type();
+            const Type* type = this->type();
             const FunctionDeclaration* f = this->symbolRef<FunctionDeclaration>(
                                                                 Symbol::Kind::kFunctionDeclaration);
             uint8_t argCount = this->readU8();
@@ -509,29 +509,28 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kIndex_Command: {
             std::unique_ptr<Expression> base = this->expression();
             std::unique_ptr<Expression> index = this->expression();
-            return std::unique_ptr<Expression>(new IndexExpression(fContext, std::move(base),
-                                                                   std::move(index)));
+            return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(index));
         }
         case Rehydrator::kIntLiteral_Command: {
             int value = this->readS32();
-            return std::unique_ptr<Expression>(new IntLiteral(fContext, -1, value));
+            return std::make_unique<IntLiteral>(fContext, -1, value);
         }
         case Rehydrator::kNullLiteral_Command:
-            return std::unique_ptr<Expression>(new NullLiteral(fContext, -1));
+            return std::make_unique<NullLiteral>(fContext, -1);
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return std::unique_ptr<Expression>(new PostfixExpression(std::move(operand), op));
+            return std::make_unique<PostfixExpression>(std::move(operand), op);
         }
         case Rehydrator::kPrefix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
-            return std::unique_ptr<Expression>(new PrefixExpression(op, std::move(operand)));
+            return std::make_unique<PrefixExpression>(op, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
             StringFragment name = this->readString();
             std::unique_ptr<Expression> value = this->expression();
-            return std::unique_ptr<Expression>(new Setting(-1, name, std::move(value)));
+            return std::make_unique<Setting>(-1, name, std::move(value));
         }
         case Rehydrator::kSwizzle_Command: {
             std::unique_ptr<Expression> base = this->expression();
@@ -541,21 +540,19 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < count; ++i) {
                 components.push_back(this->readU8());
             }
-            return std::unique_ptr<Expression>(new Swizzle(fContext, std::move(base),
-                                                           std::move(components)));
+            return std::make_unique<Swizzle>(fContext, std::move(base), std::move(components));
         }
         case Rehydrator::kTernary_Command: {
             std::unique_ptr<Expression> test = this->expression();
             std::unique_ptr<Expression> ifTrue = this->expression();
             std::unique_ptr<Expression> ifFalse = this->expression();
-            return std::unique_ptr<Expression>(new TernaryExpression(-1, std::move(test),
-                                                                     std::move(ifFalse),
-                                                                     std::move(ifTrue)));
+            return std::make_unique<TernaryExpression>(-1, std::move(test), std::move(ifFalse),
+                                                       std::move(ifTrue));
         }
         case Rehydrator::kVariableReference_Command: {
             const Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             VariableReference::RefKind refKind = (VariableReference::RefKind) this->readU8();
-            return std::unique_ptr<Expression>(new VariableReference(-1, *var, refKind));
+            return std::make_unique<VariableReference>(-1, *var, refKind);
         }
         case Rehydrator::kVoid_Command:
             return nullptr;
