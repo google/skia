@@ -77,8 +77,9 @@ void GrStrokePatchBuilder::writeCubicSegment(float prevJoinType, const SkPoint p
 
 void GrStrokePatchBuilder::writeJoin(float joinType, const SkPoint& prevControlPoint,
                                      const SkPoint& anchorPoint, const SkPoint& nextControlPoint) {
-    SkASSERT(joinType == Patch::kRoundJoinType || joinType == Patch::kMiterJoinType ||
-             joinType == Patch::kRoundJoinType || joinType == kDoubleSidedRoundJoinType);
+    SkASSERT(SkScalarAbs(joinType) == Patch::kRoundJoinType ||
+             SkScalarAbs(joinType) == Patch::kMiterJoinType ||
+             SkScalarAbs(joinType) == Patch::kBevelJoinType);
     if (Patch* joinPatch = this->reservePatch()) {
         joinPatch->fPts = {{prevControlPoint, anchorPoint, anchorPoint, nextControlPoint}};
         joinPatch->fPatchType = joinType;
