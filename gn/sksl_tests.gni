@@ -1,0 +1,11 @@
+# Copyright 2020 Google LLC
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_tests = get_path_info("../tests", "abspath")
+
+sksl_fp_tests_sources = [ "$_tests/sksl/fp/GrHelloWorld.fp" ]
+
+sksl_glsl_tests_sources = [ "$_tests/sksl/glsl/HelloWorld.sksl" ]
