@@ -52,6 +52,24 @@
       "revId": "54b527a37b96bebcc70238d6714efc28049496a4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb99af1d_d18443a0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T18:35:34Z",
+      "side": 1,
+      "message": "Circling back on speed impact from this change: our bots so no perf change, and Chrome has so far found just one page that slowed down, by 1.8%.",
+      "parentUuid": "8f0a6ad4_844ce69c",
+      "revId": "54b527a37b96bebcc70238d6714efc28049496a4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
