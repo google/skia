@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5438e56_dd3a2acc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T18:04:37Z",
+      "side": 1,
+      "message": "This is really a stop-gap, once the early inlining goes away, we don\u0027t need to worry about this.",
+      "revId": "2e98e0a9d3d6e946988d4347606c6c25d07f4217",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
