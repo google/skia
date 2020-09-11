@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb1f95eb_c2536252",
+        "filename": "src/gpu/vk/GrVkMemory.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-11T15:01:29Z",
+      "side": 1,
+      "message": "nit: \"GPU\"? Or make one on line above \"gpu\".",
+      "range": {
+        "startLine": 100,
+        "startChar": 7,
+        "endLine": 100,
+        "endChar": 10
+      },
+      "revId": "8d14802acb39bbd289f69196c8a4421a1ec96f0e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
