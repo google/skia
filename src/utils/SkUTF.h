@@ -6,6 +6,7 @@
 #include "include/core/SkTypes.h"
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 
 typedef int32_t SkUnichar;
 
@@ -69,6 +70,12 @@ SK_SPI size_t ToUTF16(SkUnichar uni, uint16_t utf16[2] = nullptr);
  *  If there is an error, -1 is returned and the dst[] buffer is undefined.
  */
 SK_SPI int UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t srcByteLength);
+
+/** Returns the number of resulting UTF8 values needed to convert the src utf16 sequence.
+ *  If dst is not null, it is filled with the corresponding values up to its capacity.
+ *  If there is an error, -1 is returned and the dst[] buffer is undefined.
+ */
+SK_SPI int UTF16ToUTF8(char dst[], int dstCapacity, const uint16_t src[], size_t srcLength);
 
 }  // namespace SkUTF
 
