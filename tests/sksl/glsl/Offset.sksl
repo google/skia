@@ -1,0 +1,18 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+struct Test {
+    layout(offset = 0) int x;
+    layout(offset = 4) int y;
+    int z;
+} test;
+
+void main() {
+    Test t;
+    t.x = 0;
+    sk_FragColor.r = half(t.x);
+}
