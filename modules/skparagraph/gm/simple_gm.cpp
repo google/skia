@@ -21,7 +21,7 @@
 #include "tools/ToolUtils.h"
 
 #include "modules/skparagraph/include/Paragraph.h"
-#include "modules/skparagraph/include/ParagraphBuilder.h"
+#include "modules/skparagraph/src/ParagraphBuilderImpl.h"
 
 static const char* gSpeach = "Five score years ago, a great American, in whose symbolic shadow we stand today, signed the Emancipation Proclamation. This momentous decree came as a great beacon light of hope to millions of Negro slaves who had been seared in the flames of withering injustice. It came as a joyous daybreak to end the long night of their captivity.";
 
@@ -57,7 +57,11 @@ public:
 
         auto collection = sk_make_sp<skia::textlayout::FontCollection>();
         collection->setDefaultFontManager(SkFontMgr::RefDefault());
-        auto builder = skia::textlayout::ParagraphBuilder::make(paraStyle, collection);
+        auto builder = skia::textlayout::ParagraphBuilderImpl::make(paraStyle, collection);
+        if (nullptr == builder) {
+            fPara = nullptr;
+            return;
+        }
 
         builder->addText(gSpeach, strlen(gSpeach));
 
@@ -81,6 +85,9 @@ protected:
     SkISize onISize() override { return SkISize::Make(412, 420); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        if (nullptr == fPara) {
+            return DrawResult::kSkip;
+        }
         const int loop = (this->getMode() == kGM_Mode) ? 1 : 50;
 
         int parity = 0;
