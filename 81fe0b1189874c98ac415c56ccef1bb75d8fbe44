@@ -22,6 +22,30 @@
       "revId": "81fe0b1189874c98ac415c56ccef1bb75d8fbe44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f22af5f0_9888284b",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T19:35:21Z",
+      "side": 1,
+      "message": "Moving to +1 to unblock since I thought about this some more and I am no longer sure of my original assertion.",
+      "parentUuid": "7f892a05_99066538",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 65
+      },
+      "revId": "81fe0b1189874c98ac415c56ccef1bb75d8fbe44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
