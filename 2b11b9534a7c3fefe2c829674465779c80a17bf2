@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bf42e61_3c277945",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T16:33:01Z",
+      "side": 1,
+      "message": "What do you think of removing the \"Offset\" part from all these names?  I\u0027m finding it just unnecessary noise when reading SkStream.cpp.",
+      "range": {
+        "startLine": 357,
+        "startChar": 0,
+        "endLine": 359,
+        "endChar": 26
+      },
+      "revId": "2b11b9534a7c3fefe2c829674465779c80a17bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52d7b75f_bfb9a479",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T16:33:01Z",
+      "side": 1,
+      "message": "Can we both pin these and assert they were in range?  I\u0027d think we\u0027d want to know when we pass nonsense?",
+      "range": {
+        "startLine": 158,
+        "startChar": 4,
+        "endLine": 159,
+        "endChar": 69
+      },
+      "revId": "2b11b9534a7c3fefe2c829674465779c80a17bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
