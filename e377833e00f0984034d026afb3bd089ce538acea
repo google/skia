@@ -33,6 +33,24 @@
       "revId": "e377833e00f0984034d026afb3bd089ce538acea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47d515eb_4c1a74b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-11T19:29:56Z",
+      "side": 1,
+      "message": "I think these are used to keep Android\u0027s gif decoder up to date (tracked in https://bugs.chromium.org/p/skia/issues/detail?id\u003d9654). I haven\u0027t changed it in a while, but Android is still not using Wuffs, so we might still need to update it.",
+      "parentUuid": "c4670516_35cb4ccd",
+      "revId": "e377833e00f0984034d026afb3bd089ce538acea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
