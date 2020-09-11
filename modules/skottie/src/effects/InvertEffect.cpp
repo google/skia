@@ -7,6 +7,7 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
+#include "include/effects/SkColorMatrix.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 #include "src/utils/SkJSON.h"
@@ -40,10 +41,12 @@ private:
     }
 
     void onSync() override {
+        enum class CS { kRGB, kHSL, kYIQ };
+
         struct STColorMatrix {
             std::array<float,4> scale,
                                 trans;
-            bool                hsla;
+            CS                  cs;
         };
 
         const auto stcm = [this]() -> STColorMatrix {
@@ -60,42 +63,66 @@ private:
                   kL_Channel =  8,
                   kS_Channel =  9,
 
-                  // kYIQ_Channel = ?,
-                  // kLum_Channel = ?,
-                  // kIPC_Channel = ?,
-                  // kQAC_Channel = ?,
+                kYIQ_Channel = 11,
+                  kY_Channel = 12,
+                  kI_Channel = 13,
+                  kQ_Channel = 14,
 
                   kA_Channel = 16,
             };
 
             switch (static_cast<uint8_t>(fChannel)) {
-            case   kR_Channel: return { {-1, 1, 1, 1}, {  1,0,0,0}, false}; // r' = 1 - r
-            case   kG_Channel: return { { 1,-1, 1, 1}, {  0,1,0,0}, false}; // g' = 1 - g
-            case   kB_Channel: return { { 1, 1,-1, 1}, {  0,0,1,0}, false}; // b' = 1 - b
-            case   kA_Channel: return { { 1, 1, 1,-1}, {  0,0,0,1}, false}; // a' = 1 - a
-            case kRGB_Channel: return { {-1,-1,-1, 1}, {  1,1,1,0}, false};
+            case   kR_Channel: return { {-1, 1, 1, 1}, {  1,0,0,0}, CS::kRGB }; // r' = 1 - r
+            case   kG_Channel: return { { 1,-1, 1, 1}, {  0,1,0,0}, CS::kRGB }; // g' = 1 - g
+            case   kB_Channel: return { { 1, 1,-1, 1}, {  0,0,1,0}, CS::kRGB }; // b' = 1 - b
+            case   kA_Channel: return { { 1, 1, 1,-1}, {  0,0,0,1}, CS::kRGB }; // a' = 1 - a
+            case kRGB_Channel: return { {-1,-1,-1, 1}, {  1,1,1,0}, CS::kRGB };
 
-            case   kH_Channel: return { {-1, 1, 1, 1}, {.5f,0,0,0},  true}; // h' = .5 - h
-            case   kS_Channel: return { { 1,-1, 1, 1}, {  0,1,0,0},  true}; // s' = 1 - s
-            case   kL_Channel: return { { 1, 1,-1, 1}, {  0,0,1,0},  true}; // l' = 1 - l
-            case kHLS_Channel: return { {-1,-1,-1, 1}, {.5f,1,1,0},  true};
+            case   kH_Channel: return { {-1, 1, 1, 1}, {.5f,0,0,0}, CS::kHSL }; // h' = .5 - h
+            case   kS_Channel: return { { 1,-1, 1, 1}, {  0,1,0,0}, CS::kHSL }; // s' = 1 - s
+            case   kL_Channel: return { { 1, 1,-1, 1}, {  0,0,1,0}, CS::kHSL }; // l' = 1 - l
+            case kHLS_Channel: return { {-1,-1,-1, 1}, {.5f,1,1,0}, CS::kHSL };
 
-                      default: return { { 1, 1, 1, 1}, {  0,0,0,0}, false};
+            case   kY_Channel: return { {-1, 1, 1, 1}, {  1,0,0,0}, CS::kYIQ }; // y' = 1 - y
+            case   kI_Channel: return { { 1,-1, 1, 1}, {  0,0,0,0}, CS::kYIQ }; // i' = -i
+            case   kQ_Channel: return { { 1, 1,-1, 1}, {  0,0,0,0}, CS::kYIQ }; // q' = -q
+            case kYIQ_Channel: return { {-1,-1,-1, 1}, {  1,0,0,0}, CS::kYIQ };
+
+                      default: return { { 1, 1, 1, 1}, {  0,0,0,0}, CS::kRGB };
             }
 
             SkUNREACHABLE;
         }();
 
-        const float m[] = {
+        SkColorMatrix m(
             stcm.scale[0],             0,             0,             0, stcm.trans[0],
                         0, stcm.scale[1],             0,             0, stcm.trans[1],
                         0,             0, stcm.scale[2],             0, stcm.trans[2],
-                        0,             0,             0, stcm.scale[3], stcm.trans[3],
+                        0,             0,             0, stcm.scale[3], stcm.trans[3]
 
-        };
+        );
 
-        fColorFilter->setColorFilter(stcm.hsla ? SkColorFilters::HSLAMatrix(m)
-                                               : SkColorFilters::Matrix(m));
+        if (stcm.cs == CS::kYIQ) {
+            // https://en.wikipedia.org/wiki/YIQ
+            static constexpr SkColorMatrix RGB2YIQ(
+                0.2990f,  0.5870f,  0.1140f, 0, 0,
+                0.5959f, -0.2746f, -0.3213f, 0, 0,
+                0.2115f, -0.5227f,  0.3112f, 0, 0,
+                      0,        0,        0, 1, 0
+            );
+            static constexpr SkColorMatrix YIQ2RGB(
+                      1,  0.9560f,  0.6190f, 0, 0,
+                      1, -0.2720f, -0.6470f, 0, 0,
+                      1, -1.1060f,  1.7030f, 0, 0,
+                      0,        0,        0, 1, 0
+            );
+
+            m.preConcat (RGB2YIQ);
+            m.postConcat(YIQ2RGB);
+        }
+
+        fColorFilter->setColorFilter(stcm.cs == CS::kHSL ? SkColorFilters::HSLAMatrix(m)
+                                                         : SkColorFilters::Matrix(m));
     }
 
     const sk_sp<sksg::ExternalColorFilter> fColorFilter;
