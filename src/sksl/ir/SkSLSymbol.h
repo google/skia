@@ -29,8 +29,8 @@ struct Symbol : public IRNode {
         kLast = kVariable
     };
 
-    Symbol(int offset, Kind kind, StringFragment name)
-    : INHERITED(offset, (int) kind)
+    Symbol(int offset, Kind kind, StringFragment name, const Type* type = nullptr)
+    : INHERITED(offset, (int) kind, type)
     , fName(name) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
