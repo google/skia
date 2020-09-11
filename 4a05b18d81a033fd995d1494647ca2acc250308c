@@ -560,6 +560,30 @@
     },
     {
       "key": {
+        "uuid": "a6b7199d_7459d5ca",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-11T18:10:09Z",
+      "side": 1,
+      "message": "I was being a bit pedantic there. Element is only ever exposed as a const\u0026 so its fields are immutable. There are internal uses of RawElement that are non-const but I don\u0027t want the callers to be able to modify the shape, etc. Since that\u0027s all really internal, I probably don\u0027t need to be so strict about enforcing these separations. That\u0027s also the reason why Mask, SaveRecord, and RawElement have getters for fields even though I could have just let every internal class access each other.",
+      "parentUuid": "aa582395_e223cc91",
+      "range": {
+        "startLine": 105,
+        "startChar": 7,
+        "endLine": 105,
+        "endChar": 59
+      },
+      "revId": "4a05b18d81a033fd995d1494647ca2acc250308c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f61c6ed4_618c80a1",
         "filename": "src/gpu/geometry/GrShape.cpp",
         "patchSetId": 8
