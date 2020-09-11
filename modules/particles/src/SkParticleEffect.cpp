@@ -133,7 +133,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
             }
         }
 
-        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, settings);
+        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, &settings);
         if (!program) {
             SkDebugf("%s\n", compiler.errorText().c_str());
             return;

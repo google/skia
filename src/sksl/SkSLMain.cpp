@@ -75,7 +75,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, &settings);
         if (!program || !compiler.toSPIRV(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
@@ -91,7 +91,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, &settings);
         if (!program || !compiler.toGLSL(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
@@ -107,7 +107,7 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, &settings);
         if (!program || !compiler.toMetal(*program, out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
@@ -124,7 +124,7 @@ int main(int argc, const char** argv) {
             exit(4);
         }
         settings.fReplaceSettings = false;
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, &settings);
         if (!program || !compiler.toH(*program, base_name(argv[1], "Gr", ".fp"), out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);
@@ -141,7 +141,7 @@ int main(int argc, const char** argv) {
             exit(4);
         }
         settings.fReplaceSettings = false;
-        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
+        std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, &settings);
         if (!program || !compiler.toCPP(*program, base_name(argv[1], "Gr", ".fp"), out)) {
             printf("%s", compiler.errorText().c_str());
             exit(3);

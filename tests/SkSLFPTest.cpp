@@ -20,7 +20,7 @@ static void test(skiatest::Reporter* r, const GrShaderCaps& caps, const char* sr
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                              SkSL::Program::kFragmentProcessor_Kind,
                                                              SkSL::String(src),
-                                                             settings);
+                                                             &settings);
     if (!program) {
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         return;
@@ -71,7 +71,7 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
                                                              SkSL::Program::kFragmentProcessor_Kind,
                                                              SkSL::String(src),
-                                                             settings);
+                                                             &settings);
     if (!compiler.errorCount()) {
         compiler.optimize(*program);
     }

@@ -23,7 +23,7 @@ DEF_TEST(crbug_ossfuzz_21688_interfaceblock, reporter) {
     settings.fCaps = caps.get();
     const char* const kProgramText = "testBlock {} x[2];";
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                                     kProgramText, settings);
+                                                                     kProgramText, &settings);
     REPORTER_ASSERT(reporter, program == nullptr);
     REPORTER_ASSERT(reporter, compiler.errorText().find(
                                     "interface block 'testBlock' must "

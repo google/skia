@@ -33,7 +33,7 @@ protected:
     void onDelayedSetup() override {
         SkSL::Compiler compiler;
         SkSL::Program::Settings settings;
-        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, fSrc, settings);
+        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, fSrc, &settings);
         SkASSERT(compiler.errorCount() == 0);
         fByteCode = compiler.toByteCode(*program);
         SkASSERT(compiler.errorCount() == 0);
