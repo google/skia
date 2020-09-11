@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75178c07_0be211d0",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-11T14:55:25Z",
+      "side": 1,
+      "message": "emscripten does not deal with polymorphism well. Return the concrete type ParagraphBuilderImpl here and on line 199",
+      "range": {
+        "startLine": 187,
+        "startChar": 33,
+        "endLine": 187,
+        "endChar": 49
+      },
+      "revId": "0f110588ff0076f450907e23e79c29ec4c23bd3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
