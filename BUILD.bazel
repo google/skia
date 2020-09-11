@@ -1,0 +1,8 @@
+cc_test(
+    name = "bazel_test",
+    srcs = [
+        "tools/bazel_test.cc",
+    ],
+    deps = ["@libpng//:libpng"],
+    size = "small",
+)
