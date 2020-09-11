@@ -16,6 +16,23 @@
       "revId": "e377833e00f0984034d026afb3bd089ce538acea",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d1a70746_5dd856c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-11T17:26:11Z",
+      "side": 1,
+      "message": "I see copy_git_directory.py in buildbot/go/android_skia_checkout/android_skia_checkout.go in RunGnToBp. Not sure what it\u0027s really used for though (or why it\u0027s here if it\u0027s only needed there).",
+      "revId": "e377833e00f0984034d026afb3bd089ce538acea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
