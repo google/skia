@@ -46,6 +46,30 @@
       "revId": "027f633cfcbbdb406b105954cd96b1ef847a2140",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfc2b3fe_bcda8e79",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:04:01Z",
+      "side": 1,
+      "message": "I just glanced at this, saw the asserts, and didn\u0027t realize you\u0027re still doing the replacement after the asserts. My bad.",
+      "parentUuid": "d4705159_19d4214c",
+      "range": {
+        "startLine": 489,
+        "startChar": 97,
+        "endLine": 490,
+        "endChar": 48
+      },
+      "revId": "027f633cfcbbdb406b105954cd96b1ef847a2140",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
