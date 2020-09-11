@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d46c46c0_beeae438",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 9300
+      },
+      "writtenOn": "2020-09-11T14:31:56Z",
+      "side": 1,
+      "message": "We\u0027re checking \"joinType \u003d\u003d Patch::kRoundJoinType\" twice here.  Did we intend to check for an additional type, or is this just a harmless redundancy?",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 0
+      },
+      "revId": "9d6f955f52e961556969ceff8798a79644f4706d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
