@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3284ec5_1f8760d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T17:30:27Z",
+      "side": 1,
+      "message": "\"Restrict\" kind of has a jargon meaning in C and C++ that\u0027s not related to this.  Can we come up with a different term?",
+      "revId": "96e063ebc257f112cea2744f1dc8cd959bcd65ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
