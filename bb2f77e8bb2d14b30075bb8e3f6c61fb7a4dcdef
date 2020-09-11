@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1aa4d803_e7dcde90",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T17:19:30Z",
+      "side": 1,
+      "message": "My only concern with this CL is the naming is now getting ... misleading. I don\u0027t know how entrenched these names are, but \"SkMipmapBuilder\" sounds like a thing that builds mipmaps. So I expect that I\u0027m passing some kind of functor or policy object. Instead, it allocates/owns mipmaps, and then I have to do the work of actually building them. The thing I\u0027m passing here really is a set of mipmaps.",
+      "revId": "bb2f77e8bb2d14b30075bb8e3f6c61fb7a4dcdef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
