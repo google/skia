@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0bd9428_d0444b2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-11T21:05:26Z",
+      "side": 1,
+      "message": "The interface changes make sense but I think I\u0027d like an explanation of the Vulkan bits on Monday.",
+      "revId": "5ff3ba9dc0c00a2f7e1418cbcf3e2adb8fa09774",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
