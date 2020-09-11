@@ -51,6 +51,11 @@ void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path) const {
     if (!fMatrixIsInvertible) {
         return;
     }
+#if defined(SK_FUZZING_RESTRICT_COMPLEXITY_GREATLY)
+    if (count > 100) {
+        return;
+    }
+#endif
 
     const SkMatrix& mat = this->getMatrix();
     SkPoint src, dst;

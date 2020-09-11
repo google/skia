@@ -3162,7 +3162,11 @@ void SkPathPriv::CreateDrawArcPath(SkPath* path, const SkRect& oval, SkScalar st
                                    SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect) {
     SkASSERT(!oval.isEmpty());
     SkASSERT(sweepAngle);
-
+#if defined(SK_FUZZING_RESTRICT_COMPLEXITY_GREATLY)
+    if (sweepAngle > 3600.0f || sweepAngle < -3600.0f) {
+        return;
+    }
+#endif
     path->reset();
     path->setIsVolatile(true);
     path->setFillType(SkPathFillType::kWinding);
