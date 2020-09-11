@@ -1,0 +1,10 @@
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
+
+new_git_repository(
+    name = "libpng",
+    remote = "https://skia.googlesource.com/third_party/libpng",
+    #tag = "v1.6.37",
+    commit = "a40189cf881e9f0db80511c382292a5604c3c3d1",
+    shallow_since = "1555265432 -0400",
+    build_file = "//bazel:libpng.bazel",
+)
