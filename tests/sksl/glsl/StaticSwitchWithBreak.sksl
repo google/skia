@@ -1,0 +1,18 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+void main() {
+    float x = 0.0;
+    switch (0) {
+        case 0:
+            x = 0.0;
+            break;
+        case 1:
+            x = 1.0;
+    }
+    sk_FragColor = half4(half(x));
+}
