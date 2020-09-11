@@ -408,7 +408,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
                 if (auto ri = image->makeRasterImage()) {
                     image = ri;
                 }
-                image = image->withMipmaps(builder.detach());
+                image = image->withMipmaps(builder);
                 SkASSERT(image);    // withMipmaps should never return null
             }
         }

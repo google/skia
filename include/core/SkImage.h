@@ -55,6 +55,17 @@ struct SkFilterOptions {
     SkMipmapMode    fMipmap;
 };
 
+class SkMipmapHolder {
+public:
+    ~SkMipmapHolder();
+
+    sk_sp<SkMipmap> detach();
+
+private:
+    SkMipmapHolder();
+    SkMipmap* fMM;
+};
+
 class SkMipmapBuilder {
 public:
     SkMipmapBuilder(const SkImageInfo&);
@@ -63,10 +74,10 @@ public:
     int countLevels() const;
     SkPixmap level(int index) const;
 
-    sk_sp<SkMipmap> detach();
-
 private:
     sk_sp<SkMipmap> fMM;
+    
+    friend class SkImage;
 };
 
 /** \class SkImage
@@ -1167,12 +1178,20 @@ public:
 
     /**
      *  Returns an image with the same "base" pixels as the this image, but with mipmap levels
-     *  as well. If this image already has mipmap levels, they will be replaced with new ones.
-     *
-     *  If data == nullptr, the mipmap levels are computed automatically.
-     *  If data != nullptr, then the caller has provided the data for each level.
+     *  as well, retrived from the builder.
+     *  Note: if the builder's starting ImageInfo does not match the dimensions of this image, or has unsupported
+     *  settings (e.g. colortype), then null will be returned.
      */
-    sk_sp<SkImage> withMipmaps(sk_sp<SkMipmap> data) const;
+    sk_sp<SkImage> withMipmaps(const SkMipmapBuilder&) const;
+
+    /**
+     *  Returns an image with the same "base" pixels as the this image, but with mipmap levels
+     *  as well, built automatically from the image.
+     */
+    sk_sp<SkImage> withMipmaps() const;
+
+    // Private alternative that takes internal SkMipmap data
+    sk_sp<SkImage> withMipmaps(sk_sp<SkMipmap>) const;
 
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
