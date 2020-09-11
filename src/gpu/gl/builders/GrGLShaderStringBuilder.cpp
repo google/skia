@@ -41,7 +41,7 @@ std::unique_ptr<SkSL::Program> GrSkSLtoGLSL(const GrGLContext& context,
 #else
     const SkSL::String& src = sksl;
 #endif
-    program = compiler->convertProgram(programKind, src, settings);
+    program = compiler->convertProgram(programKind, src, &settings);
     if (!program || !compiler->toGLSL(*program, glsl)) {
         errorHandler->compileError(src.c_str(), compiler->errorText().c_str());
         return nullptr;

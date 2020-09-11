@@ -1568,10 +1568,10 @@ const Symbol* Compiler::takeOwnership(std::unique_ptr<const Symbol> symbol) {
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
-                                                  const Program::Settings& settings) {
+                                                  const Program::Settings* settings) {
     fErrorText = "";
     fErrorCount = 0;
-    fInliner.reset(context(), settings);
+    fInliner.reset(context(), *settings);
     std::vector<std::unique_ptr<ProgramElement>>* inherited;
     std::vector<std::unique_ptr<ProgramElement>> elements;
     switch (kind) {
@@ -1579,20 +1579,20 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             inherited = &fVertexInclude;
             fIRGenerator->fSymbolTable = fVertexSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(settings, inherited);
             break;
         case Program::kFragment_Kind:
             inherited = &fFragmentInclude;
             fIRGenerator->fSymbolTable = fFragmentSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(settings, inherited);
             break;
         case Program::kGeometry_Kind:
             this->loadGeometryIntrinsics();
             inherited = &fGeometryInclude;
             fIRGenerator->fSymbolTable = fGeometrySymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(settings, inherited);
             break;
         case Program::kFragmentProcessor_Kind: {
 #if !SKSL_STANDALONE
@@ -1606,12 +1606,12 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             inherited = &fFPInclude;
             fIRGenerator->fSymbolTable = fFPSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(settings, inherited);
             break;
 #else
             inherited = nullptr;
             fIRGenerator->fSymbolTable = fGpuSymbolTable;
-            fIRGenerator->start(&settings, /*inherited=*/nullptr, /*builtin=*/true);
+            fIRGenerator->start(settings, /*inherited=*/nullptr, /*builtin=*/true);
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             std::ifstream in(SKSL_FP_INCLUDE);
             std::string stdText{std::istreambuf_iterator<char>(in),
@@ -1632,14 +1632,14 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             inherited = &fPipelineInclude;
             fIRGenerator->fSymbolTable = fPipelineSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(settings, inherited);
             break;
         case Program::kGeneric_Kind:
             this->loadInterpreterIntrinsics();
             inherited = &fInterpreterInclude;
             fIRGenerator->fSymbolTable = fInterpreterSymbolTable;
             fIRGenerator->fIntrinsics = fInterpreterIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(settings, inherited);
             break;
     }
     std::unique_ptr<String> textPtr(new String(std::move(text)));
@@ -1647,7 +1647,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     fIRGenerator->convertProgram(kind, textPtr->c_str(), textPtr->size(), &elements);
     auto result = std::make_unique<Program>(kind,
                                             std::move(textPtr),
-                                            settings,
+                                            *settings,
                                             fContext,
                                             inherited,
                                             std::move(elements),

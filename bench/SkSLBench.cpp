@@ -29,7 +29,7 @@ protected:
             std::unique_ptr<SkSL::Program> program = fCompiler.convertProgram(
                                                                       SkSL::Program::kFragment_Kind,
                                                                       fSrc,
-                                                                      fSettings);
+                                                                      &fSettings);
             if (!fCompiler.errorCount()) {
                 fCompiler.optimize(*program);
             } else {

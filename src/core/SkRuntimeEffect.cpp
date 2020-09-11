@@ -121,7 +121,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     settings.fInlineThreshold = compiler.getInlineThreshold();
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(sksl.c_str(), sksl.size()),
-                                            settings);
+                                            &settings);
     // TODO: Many errors aren't caught until we process the generated Program here. Catching those
     // in the IR generator would provide better errors messages (with locations).
     #define RETURN_FAILURE(...) return std::make_tuple(nullptr, SkStringPrintf(__VA_ARGS__))
@@ -311,7 +311,7 @@ bool SkRuntimeEffect::toPipelineStage(const GrShaderCaps* shaderCaps,
 
     auto program = compiler->convertProgram(SkSL::Program::kPipelineStage_Kind,
                                             SkSL::String(fSkSL.c_str(), fSkSL.size()),
-                                            settings);
+                                            &settings);
     if (!program) {
         errorHandler->compileError(fSkSL.c_str(), compiler->errorText().c_str());
         return false;
