@@ -56,6 +56,30 @@
       "revId": "88ede932123ddbc4cb0999bf8596c74fbfe8fcc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "476d5f7c_d25a8ab8",
+        "filename": "src/gpu/GrXferProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-11T13:35:48Z",
+      "side": 1,
+      "message": "Ugh it was aligned then the stupid auto formater messed it up. Leaving with the shifts cause that is what we have for a lot of other flags enums. I\u0027m not sure I\u0027ve seen us use binary anywhere. We do use hex in places.",
+      "parentUuid": "1a05bae0_37f94a1f",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 20
+      },
+      "revId": "88ede932123ddbc4cb0999bf8596c74fbfe8fcc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
