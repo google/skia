@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ef54353_40c42f3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-11T21:15:55Z",
+      "side": 1,
+      "message": "These seems like a really good direction. Would it makes sense to have subdirs in tests/sksl (and in tests/sksl/golden) for the input types (fp, sksl, ...)?",
+      "revId": "b54ab6223799bfdf49a2a8b98b0f2772302b0e71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
