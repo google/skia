@@ -20,7 +20,7 @@ struct ExternalValueReference : public Expression {
     static constexpr Kind kExpressionKind = Kind::kExternalValue;
 
     ExternalValueReference(int offset, const ExternalValue* ev)
-    : INHERITED(offset, kExpressionKind, ev->type())
+    : INHERITED(offset, kExpressionKind, &ev->type())
     , fValue(ev) {}
 
     bool hasProperty(Property property) const override {

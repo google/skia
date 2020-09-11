@@ -95,9 +95,9 @@ protected:
                 // Determine the type of call at this site, and merge it with the accumulated state
                 const Expression* lastArg = fc.fArguments.back().get();
 
-                if (lastArg->fType == *fContext.fFloat2_Type) {
+                if (lastArg->type() == *fContext.fFloat2_Type) {
                     fUsage.merge(SampleUsage::Explicit());
-                } else if (lastArg->fType == *fContext.fFloat3x3_Type) {
+                } else if (lastArg->type() == *fContext.fFloat3x3_Type) {
                     // Determine the type of matrix for this call site
                     if (lastArg->isConstantOrUniform()) {
                         if (lastArg->kind() == Expression::Kind::kVariableReference ||

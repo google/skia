@@ -13,14 +13,18 @@
 
 namespace SkSL {
 
+class Type;
+
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
  * version of the program (all types determined, everything validated), ready for code generation.
  */
-struct IRNode {
-    IRNode(int offset, int kind)
+class IRNode {
+public:
+    IRNode(int offset, int kind, const Type* type = nullptr)
     : fOffset(offset)
-    , fKind(kind) {}
+    , fKind(kind)
+    , fType(type) {}
 
     virtual ~IRNode() {}
 
@@ -30,8 +34,16 @@ struct IRNode {
     // purposes
     int fOffset;
 
+    const Type& type() const {
+        SkASSERT(fType);
+        return *fType;
+    }
+
 protected:
     int fKind;
+
+private:
+    const Type* fType;
 };
 
 }  // namespace SkSL

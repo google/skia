@@ -43,7 +43,7 @@ struct FunctionDeclaration : public Symbol {
         for (auto p : fParameters) {
             result += separator;
             separator = ", ";
-            result += p->fType.displayName();
+            result += p->type().displayName();
         }
         result += ")";
         return result;
@@ -57,7 +57,7 @@ struct FunctionDeclaration : public Symbol {
             return false;
         }
         for (size_t i = 0; i < fParameters.size(); i++) {
-            if (fParameters[i]->fType != f.fParameters[i]->fType) {
+            if (fParameters[i]->type() != f.fParameters[i]->type()) {
                 return false;
             }
         }
@@ -81,11 +81,12 @@ struct FunctionDeclaration : public Symbol {
         SkASSERT(arguments.size() == fParameters.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
-            if (fParameters[i]->fType.typeKind() == Type::TypeKind::kGeneric) {
-                std::vector<const Type*> types = fParameters[i]->fType.coercibleTypes();
+            const Type& parameterType = fParameters[i]->type();
+            if (parameterType.typeKind() == Type::TypeKind::kGeneric) {
+                std::vector<const Type*> types = parameterType.coercibleTypes();
                 if (genericIndex == -1) {
                     for (size_t j = 0; j < types.size(); j++) {
-                        if (arguments[i]->fType.canCoerceTo(*types[j])) {
+                        if (arguments[i]->type().canCoerceTo(*types[j])) {
                             genericIndex = j;
                             break;
                         }
@@ -96,7 +97,7 @@ struct FunctionDeclaration : public Symbol {
                 }
                 outParameterTypes->push_back(types[genericIndex]);
             } else {
-                outParameterTypes->push_back(&fParameters[i]->fType);
+                outParameterTypes->push_back(&parameterType);
             }
         }
         if (fReturnType.typeKind() == Type::TypeKind::kGeneric) {

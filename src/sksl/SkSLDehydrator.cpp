@@ -210,7 +210,7 @@ void Dehydrator::write(const Symbol& s) {
             this->writeId(&v);
             this->write(v.fModifiers);
             this->write(v.fName);
-            this->write(v.fType);
+            this->write(v.type());
             this->writeU8(v.fStorage);
             break;
         }
@@ -261,7 +261,7 @@ void Dehydrator::write(const Expression* e) {
                 this->write(b.fLeft.get());
                 this->writeU8((int) b.fOperator);
                 this->write(b.fRight.get());
-                this->write(b.fType);
+                this->write(b.type());
                 break;
             }
             case Expression::Kind::kBoolLiteral: {
@@ -273,7 +273,7 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kConstructor: {
                 const Constructor& c = e->as<Constructor>();
                 this->writeU8(Rehydrator::kConstructor_Command);
-                this->write(c.fType);
+                this->write(c.type());
                 this->writeU8(c.fArguments.size());
                 for (const auto& a : c.fArguments) {
                     this->write(a.get());
@@ -305,7 +305,7 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kFunctionCall: {
                 const FunctionCall& f = e->as<FunctionCall>();
                 this->writeU8(Rehydrator::kFunctionCall_Command);
-                this->write(f.fType);
+                this->write(f.type());
                 this->writeId(&f.fFunction);
                 this->writeU8(f.fArguments.size());
                 for (const auto& a : f.fArguments) {

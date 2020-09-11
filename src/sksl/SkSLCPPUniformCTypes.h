@@ -50,7 +50,7 @@ public:
                                          const Layout& layout);
 
     static const UniformCTypeMapper* Get(const Context& context, const Variable& variable) {
-        return Get(context, variable.fType, variable.fModifiers.fLayout);
+        return Get(context, variable.type(), variable.fModifiers.fLayout);
     }
 
     // The C++ type name that this mapper applies to

@@ -237,7 +237,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
                                                       expr(b.fLeft),
                                                       b.fOperator,
                                                       expr(b.fRight),
-                                                      b.fType);
+                                                      &b.type());
         }
         case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kIntLiteral:
@@ -246,12 +246,12 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expression.as<Constructor>();
-            return std::make_unique<Constructor>(offset, constructor.fType,
+            return std::make_unique<Constructor>(offset, &constructor.type(),
                                                  argList(constructor.fArguments));
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
-            return std::make_unique<ExternalFunctionCall>(offset, externalCall.fType,
+            return std::make_unique<ExternalFunctionCall>(offset, &externalCall.type(),
                                                           externalCall.fFunction,
                                                           argList(externalCall.fArguments));
         }
@@ -263,7 +263,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
-            return std::make_unique<FunctionCall>(offset, funcCall.fType, funcCall.fFunction,
+            return std::make_unique<FunctionCall>(offset, &funcCall.type(), funcCall.fFunction,
                                                   argList(funcCall.fArguments));
         }
         case Expression::Kind::kFunctionReference:
@@ -376,7 +376,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                                 VariableReference::kWrite_RefKind),
                             Token::Kind::TK_EQ,
                             expr(r.fExpression),
-                            returnVar->fType));
+                            &returnVar->type()));
                 if (haveEarlyReturns) {
                     std::vector<std::unique_ptr<Statement>> block;
                     block.push_back(std::move(assignment));
@@ -416,12 +416,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // its symbols
             std::unique_ptr<String> name(new String(old->fName));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
-            const Type* typePtr = copy_if_needed(&old->fType, *symbolTableForStatement);
+            const Type* typePtr = copy_if_needed(&old->type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
                                                old->fModifiers,
                                                namePtr->c_str(),
-                                               *typePtr,
+                                               typePtr,
                                                old->fStorage,
                                                initialValue.get()));
             (*varMap)[old] = clone;
@@ -521,7 +521,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
         // Add our new variable to the symbol table.
-        auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, *type,
+        auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
                                                  Variable::kLocal_Storage, initialValue->get());
         const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
 
@@ -569,8 +569,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             }
         }
 
-        varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->fType, param->fModifiers,
-                                      &arguments[i]);
+        varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->type(),
+                                      param->fModifiers, &arguments[i]);
     }
 
     const Block& body = function.fBody->as<Block>();
@@ -612,7 +612,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                        arguments[i]->clone(),
                                                        Token::Kind::TK_EQ,
                                                        std::move(varRef),
-                                                       arguments[i]->fType)));
+                                                       &arguments[i]->type())));
         }
     }
 

@@ -20,9 +20,9 @@ struct NullLiteral : public Expression {
     static constexpr Kind kExpressionKind = Kind::kNullLiteral;
 
     NullLiteral(const Context& context, int offset)
-    : INHERITED(offset, kExpressionKind, *context.fNull_Type) {}
+    : INHERITED(offset, kExpressionKind, context.fNull_Type.get()) {}
 
-    NullLiteral(int offset, const Type& type)
+    NullLiteral(int offset, const Type* type)
     : INHERITED(offset, kExpressionKind, type) {}
 
     String description() const override {
@@ -42,7 +42,7 @@ struct NullLiteral : public Expression {
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new NullLiteral(fOffset, fType));
+        return std::unique_ptr<Expression>(new NullLiteral(fOffset, &this->type()));
     }
 
     using INHERITED = Expression;

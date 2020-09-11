@@ -21,7 +21,7 @@ struct Setting : public Expression {
     static constexpr Kind kExpressionKind = Kind::kSetting;
 
     Setting(int offset, String name, std::unique_ptr<Expression> value)
-    : INHERITED(offset, kExpressionKind, value->fType)
+    : INHERITED(offset, kExpressionKind, &value->type())
     , fName(std::move(name))
     , fValue(std::move(value)) {
         SkASSERT(fValue->isCompileTimeConstant());

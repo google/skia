@@ -23,7 +23,7 @@ struct PrefixExpression : public Expression {
     static constexpr Kind kExpressionKind = Kind::kPrefix;
 
     PrefixExpression(Token::Kind op, std::unique_ptr<Expression> operand)
-    : INHERITED(operand->fOffset, kExpressionKind, operand->fType)
+    : INHERITED(operand->fOffset, kExpressionKind, &operand->type())
     , fOperand(std::move(operand))
     , fOperator(op) {}
 

@@ -237,7 +237,7 @@ Compiler::Compiler(Flags flags)
     fIRGenerator->fSymbolTable->add(
             skCapsName,
             std::make_unique<Variable>(/*offset=*/-1, Modifiers(), skCapsName,
-                                       *fContext->fSkCaps_Type, Variable::kGlobal_Storage));
+                                       fContext->fSkCaps_Type.get(), Variable::kGlobal_Storage));
 
     fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
@@ -660,12 +660,13 @@ static bool is_constant(const Expression& expr, T value) {
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expr.as<Constructor>();
             if (constructor.isCompileTimeConstant()) {
-                bool isFloat = constructor.fType.columns() > 1
-                                       ? constructor.fType.componentType().isFloat()
-                                       : constructor.fType.isFloat();
-                switch (constructor.fType.typeKind()) {
+                const Type& constructorType = constructor.type();
+                bool isFloat = constructorType.columns() > 1
+                                       ? constructorType.componentType().isFloat()
+                                       : constructorType.isFloat();
+                switch (constructorType.typeKind()) {
                     case Type::TypeKind::kVector:
-                        for (int i = 0; i < constructor.fType.columns(); ++i) {
+                        for (int i = 0; i < constructorType.columns(); ++i) {
                             if (isFloat) {
                                 if (constructor.getFVecComponent(i) != value) {
                                     return false;
@@ -765,7 +766,7 @@ static void delete_right(BasicBlock* b,
 /**
  * Constructs the specified type using a single argument.
  */
-static std::unique_ptr<Expression> construct(const Type& type, std::unique_ptr<Expression> v) {
+static std::unique_ptr<Expression> construct(const Type* type, std::unique_ptr<Expression> v) {
     std::vector<std::unique_ptr<Expression>> args;
     args.push_back(std::move(v));
     std::unique_ptr<Expression> result = std::make_unique<Constructor>(-1, type, std::move(args));
@@ -784,14 +785,14 @@ static void vectorize(BasicBlock* b,
                       bool* outNeedsRescan) {
     SkASSERT((*(*iter)->expression())->kind() == Expression::Kind::kBinary);
     SkASSERT(type.typeKind() == Type::TypeKind::kVector);
-    SkASSERT((*otherExpression)->fType.typeKind() == Type::TypeKind::kScalar);
+    SkASSERT((*otherExpression)->type().typeKind() == Type::TypeKind::kScalar);
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     if (!b->tryRemoveExpression(iter)) {
-        *target = construct(type, std::move(*otherExpression));
+        *target = construct(&type, std::move(*otherExpression));
         *outNeedsRescan = true;
     } else {
-        *target = construct(type, std::move(*otherExpression));
+        *target = construct(&type, std::move(*otherExpression));
         if (!b->tryInsertExpression(iter, target)) {
             *outNeedsRescan = true;
         }
@@ -807,7 +808,7 @@ static void vectorize_left(BasicBlock* b,
                            bool* outUpdated,
                            bool* outNeedsRescan) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
-    vectorize(b, iter, bin.fRight->fType, &bin.fLeft, outUpdated, outNeedsRescan);
+    vectorize(b, iter, bin.fRight->type(), &bin.fLeft, outUpdated, outNeedsRescan);
 }
 
 /**
@@ -819,7 +820,7 @@ static void vectorize_right(BasicBlock* b,
                             bool* outUpdated,
                             bool* outNeedsRescan) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
-    vectorize(b, iter, bin.fLeft->fType, &bin.fRight, outUpdated, outNeedsRescan);
+    vectorize(b, iter, bin.fLeft->type(), &bin.fRight, outUpdated, outNeedsRescan);
 }
 
 // Mark that an expression which we were writing to is no longer being written to
@@ -856,7 +857,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator, definitions);
         if (optimized) {
             *outUpdated = true;
-            optimized = fIRGenerator->coerce(std::move(optimized), expr->fType);
+            optimized = fIRGenerator->coerce(std::move(optimized), expr->type());
             SkASSERT(optimized);
             if (!try_replace_expression(&b, iter, &optimized)) {
                 *outNeedsRescan = true;
@@ -901,18 +902,20 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 delete_left(&b, iter, outUpdated, outNeedsRescan);
                 break;
             }
+            const Type& leftType = bin->fLeft->type();
+            const Type& rightType = bin->fRight->type();
             // collapse useless expressions like x * 1 or x + 0
-            if (((bin->fLeft->fType.typeKind() != Type::TypeKind::kScalar) &&
-                 (bin->fLeft->fType.typeKind() != Type::TypeKind::kVector)) ||
-                ((bin->fRight->fType.typeKind() != Type::TypeKind::kScalar) &&
-                 (bin->fRight->fType.typeKind() != Type::TypeKind::kVector))) {
+            if (((leftType.typeKind() != Type::TypeKind::kScalar) &&
+                 (leftType.typeKind() != Type::TypeKind::kVector)) ||
+                ((rightType.typeKind() != Type::TypeKind::kScalar) &&
+                 (rightType.typeKind() != Type::TypeKind::kVector))) {
                 break;
             }
             switch (bin->fOperator) {
                 case Token::Kind::TK_STAR:
                     if (is_constant(*bin->fLeft, 1)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kVector &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kScalar) {
+                        if (leftType.typeKind() == Type::TypeKind::kVector &&
+                            rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(1) * x -> float4(x)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -923,8 +926,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         }
                     }
                     else if (is_constant(*bin->fLeft, 0)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kScalar &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kVector &&
+                        if (leftType.typeKind() == Type::TypeKind::kScalar &&
+                            rightType.typeKind() == Type::TypeKind::kVector &&
                             !bin->fRight->hasSideEffects()) {
                             // 0 * float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
@@ -938,8 +941,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         }
                     }
                     else if (is_constant(*bin->fRight, 1)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kScalar &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kVector) {
+                        if (leftType.typeKind() == Type::TypeKind::kScalar &&
+                            rightType.typeKind() == Type::TypeKind::kVector) {
                             // x * float4(1) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -950,8 +953,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         }
                     }
                     else if (is_constant(*bin->fRight, 0)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kVector &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kScalar &&
+                        if (leftType.typeKind() == Type::TypeKind::kVector &&
+                            rightType.typeKind() == Type::TypeKind::kScalar &&
                             !bin->fLeft->hasSideEffects()) {
                             // float4(x) * 0 -> float4(0)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
@@ -967,8 +970,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     break;
                 case Token::Kind::TK_PLUS:
                     if (is_constant(*bin->fLeft, 0)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kVector &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kScalar) {
+                        if (leftType.typeKind() == Type::TypeKind::kVector &&
+                            rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(0) + x -> float4(x)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -978,8 +981,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
                     } else if (is_constant(*bin->fRight, 0)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kScalar &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kVector) {
+                        if (leftType.typeKind() == Type::TypeKind::kScalar &&
+                            rightType.typeKind() == Type::TypeKind::kVector) {
                             // x + float4(0) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -992,8 +995,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     break;
                 case Token::Kind::TK_MINUS:
                     if (is_constant(*bin->fRight, 0)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kScalar &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kVector) {
+                        if (leftType.typeKind() == Type::TypeKind::kScalar &&
+                            rightType.typeKind() == Type::TypeKind::kVector) {
                             // x - float4(0) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -1006,8 +1009,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     break;
                 case Token::Kind::TK_SLASH:
                     if (is_constant(*bin->fRight, 1)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kScalar &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kVector) {
+                        if (leftType.typeKind() == Type::TypeKind::kScalar &&
+                            rightType.typeKind() == Type::TypeKind::kVector) {
                             // x / float4(1) -> float4(x)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
@@ -1017,8 +1020,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     } else if (is_constant(*bin->fLeft, 0)) {
-                        if (bin->fLeft->fType.typeKind() == Type::TypeKind::kScalar &&
-                            bin->fRight->fType.typeKind() == Type::TypeKind::kVector &&
+                        if (leftType.typeKind() == Type::TypeKind::kScalar &&
+                            rightType.typeKind() == Type::TypeKind::kVector &&
                             !bin->fRight->hasSideEffects()) {
                             // 0 / float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
@@ -1064,7 +1067,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         case Expression::Kind::kSwizzle: {
             Swizzle& s = expr->as<Swizzle>();
             // detect identity swizzles like foo.rgba
-            if ((int) s.fComponents.size() == s.fBase->fType.columns()) {
+            if ((int) s.fComponents.size() == s.fBase->type().columns()) {
                 bool identity = true;
                 for (int i = 0; i < (int) s.fComponents.size(); ++i) {
                     if (s.fComponents[i] != i) {

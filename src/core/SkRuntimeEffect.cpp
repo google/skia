@@ -160,16 +160,17 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             for (const auto& varDecl : varDecls.fVars) {
                 const SkSL::Variable& var =
                         *(static_cast<const SkSL::VarDeclaration&>(*varDecl).fVar);
+                const SkSL::Type& varType = var.type();
 
                 // Varyings (only used in conjunction with drawVertices)
                 if (var.fModifiers.fFlags & SkSL::Modifiers::kVarying_Flag) {
                     varyings.push_back({var.fName,
-                                       var.fType.typeKind() == SkSL::Type::TypeKind::kVector
-                                               ? var.fType.columns()
+                                        varType.typeKind() == SkSL::Type::TypeKind::kVector
+                                               ? varType.columns()
                                                : 1});
                 }
                 // Fragment Processors (aka 'shader'): These are child effects
-                else if (&var.fType == ctx.fFragmentProcessor_Type.get()) {
+                else if (&varType == ctx.fFragmentProcessor_Type.get()) {
                     children.push_back(var.fName);
                     sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
                 }
@@ -180,7 +181,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                     uni.fFlags = 0;
                     uni.fCount = 1;
 
-                    const SkSL::Type* type = &var.fType;
+                    const SkSL::Type* type = &var.type();
                     if (type->typeKind() == SkSL::Type::TypeKind::kArray) {
                         uni.fFlags |= Uniform::kArray_Flag;
                         uni.fCount = type->columns();

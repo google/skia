@@ -34,10 +34,11 @@ String PipelineStageCodeGenerator::getTypeName(const Type& type) {
 
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
-        c.fArguments[0]->fType.typeKind() != Type::TypeKind::kSampler) {
+        c.fArguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
         SkASSERT(c.fArguments.size() <= 2);
-        SkASSERT("fragmentProcessor"  == c.fArguments[0]->fType.name() ||
-                 "fragmentProcessor?" == c.fArguments[0]->fType.name());
+        SkDEBUGCODE(const Type& arg0Type = c.fArguments[0]->type());
+        SkASSERT("fragmentProcessor"  == arg0Type.name() ||
+                 "fragmentProcessor?" == arg0Type.name());
         SkASSERT(c.fArguments[0]->kind() == Expression::Kind::kVariableReference);
         int index = 0;
         bool found = false;
@@ -48,7 +49,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     VarDeclaration& decl = raw->as<VarDeclaration>();
                     if (decl.fVar == &c.fArguments[0]->as<VariableReference>().fVariable) {
                         found = true;
-                    } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
+                    } else if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
                         ++index;
                     }
                 }
@@ -61,7 +62,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         size_t childCallIndex = fArgs->fFormatArgs.size();
         this->write(Compiler::kFormatArgPlaceholderStr);
         bool matrixCall = c.fArguments.size() == 2 &&
-                          c.fArguments[1]->fType.typeKind() == Type::TypeKind::kMatrix;
+                          c.fArguments[1]->type().typeKind() == Type::TypeKind::kMatrix;
         fArgs->fFormatArgs.push_back(Compiler::FormatArg(
                 matrixCall ? Compiler::FormatArg::Kind::kChildProcessorWithMatrix
                            : Compiler::FormatArg::Kind::kChildProcessor,
@@ -194,7 +195,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         result.fName = decl.fName;
         for (const Variable* v : decl.fParameters) {
             GrSLType paramSLType;
-            if (!type_to_grsltype(fContext, v->fType, &paramSLType)) {
+            if (!type_to_grsltype(fContext, v->type(), &paramSLType)) {
                 fErrors.error(v->fOffset, "unsupported parameter type");
                 return;
             }

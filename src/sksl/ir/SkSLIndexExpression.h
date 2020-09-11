@@ -46,10 +46,10 @@ struct IndexExpression : public Expression {
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-    : INHERITED(base->fOffset, kExpressionKind, index_type(context, base->fType))
+    : INHERITED(base->fOffset, kExpressionKind, &index_type(context, base->type()))
     , fBase(std::move(base))
     , fIndex(std::move(index)) {
-        SkASSERT(fIndex->fType == *context.fInt_Type || fIndex->fType == *context.fUInt_Type);
+        SkASSERT(fIndex->type() == *context.fInt_Type || fIndex->type() == *context.fUInt_Type);
     }
 
     bool hasProperty(Property property) const override {
@@ -58,7 +58,7 @@ struct IndexExpression : public Expression {
 
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
-                                                               &fType));
+                                                               &this->type()));
     }
 
     String description() const override {
@@ -73,7 +73,7 @@ struct IndexExpression : public Expression {
 private:
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
                     const Type* type)
-    : INHERITED(base->fOffset, Kind::kIndex, *type)
+    : INHERITED(base->fOffset, Kind::kIndex, type)
     , fBase(std::move(base))
     , fIndex(std::move(index)) {}
 };
