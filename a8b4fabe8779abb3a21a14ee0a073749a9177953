@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "a4c5dd90_348aedc6",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T13:45:24Z",
+      "side": 1,
+      "message": "They are the parameters from this paper: https://www.cs.utexas.edu/~fussell/courses/cs384g-fall2013/lectures/mitchell/Mitchell.pdf\n\nAlso explained visually/interactively here: https://www.desmos.com/calculator/ae4cpcbrem\n\nFigure 13 of the paper has a diagram explaining how the filter \"looks\" as a function of B and C, but it\u0027s very hand-wavy.",
+      "parentUuid": "e378b4ce_469e4e59",
+      "range": {
+        "startLine": 1313,
+        "startChar": 67,
+        "endLine": 1313,
+        "endChar": 68
+      },
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76a7e57c_82c4f3f6",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 3
