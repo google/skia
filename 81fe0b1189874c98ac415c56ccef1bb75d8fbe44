@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f892a05_99066538",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T19:19:01Z",
+      "side": 1,
+      "message": "Thinking about this some more... I don\u0027t think this is right?\n\nWhich is the cheaper conversion cost?\n  a \u003d Normal(100) + Narrowing(1)\n  b \u003d Normal(0) + Narrowing(2)\n\nThe current code would create\n  a \u003d Narrowing(101)\n  b \u003d Narrowing(2)\n\nI posit that it should be\n  a \u003d Narrowing(1)\n  b \u003d Narrowing(2)",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 65
+      },
+      "revId": "81fe0b1189874c98ac415c56ccef1bb75d8fbe44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
