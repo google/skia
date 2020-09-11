@@ -16,6 +16,24 @@
       "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d82cc689_1590611b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T15:01:06Z",
+      "side": 1,
+      "message": "1 - I had already planned to tackle error tests in the next CL so I\u0027ll give that a shot.\n\n2 - I\u0027ll investigate caps support. At the very least, it should be totally doable to support a set of hand-chosen caps combinations, and that\u0027s as good as our current tests.\n\n2.5 - If we end up with a reasonable number of caps combinations under test, sure, we could run every test on every caps permutation. Computationally it\u0027s easy. However I don\u0027t know if that actually supports the end goal of making changes easy to review. If we suddenly dump out 10 copies of each test into the CL diff, that seems toilsome for the reviewer. We might want to collapse down identical outputs.\n\n2.75 - Consolidating Metal tests with GLSL tests seems like an easy win. I\u0027m not sure I want to 100% commit to it until I look at it in depth though--I think Metal has some interesting requirements on its SkSL input as well (e.g. layout info is spelled out in more detail). But let\u0027s definitely give it a try.\n\n3 - GN supports that, right? SGTM.",
+      "parentUuid": "bae44a32_7544079c",
+      "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
