@@ -39,6 +39,30 @@
       "revId": "9d6f955f52e961556969ceff8798a79644f4706d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "904279a6_e2e9ff5a",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-11T17:59:24Z",
+      "side": 1,
+      "message": "Thanks for catching that. Yes, the second \"Round\" should have been Bevel. This should fix the broken bot. Last-minute assert modification before submitting ¯\\_(ツ)_/¯\n\nFix here: https://skia-review.googlesource.com/c/skia/+/316477",
+      "parentUuid": "d46c46c0_beeae438",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 0
+      },
+      "revId": "9d6f955f52e961556969ceff8798a79644f4706d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
