@@ -291,6 +291,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return std::make_unique<TernaryExpression>(offset, expr(t.fTest),
                                                        expr(t.fIfTrue), expr(t.fIfFalse));
         }
+        case Expression::Kind::kTypeReference:
+            return expression.clone();
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
             auto found = varMap->find(&v.fVariable);
