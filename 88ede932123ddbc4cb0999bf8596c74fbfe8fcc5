@@ -16,6 +16,46 @@
       "revId": "88ede932123ddbc4cb0999bf8596c74fbfe8fcc5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "642c25c1_452cf88f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-11T12:46:53Z",
+      "side": 1,
+      "message": "I like this new version; storing the dst sample type on the dst surface proxy seems appropriate and I like that the ops task only has to track the actual barrier flags, which are more cleanly represented now. Still LGTM",
+      "revId": "88ede932123ddbc4cb0999bf8596c74fbfe8fcc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a05bae0_37f94a1f",
+        "filename": "src/gpu/GrXferProcessor.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-11T12:46:53Z",
+      "side": 1,
+      "message": "Not sure how you feel about this, but we could right it as:\n\n   kNone    \u003d 0b00,\n   kTexture \u003d 0b01,\n   kBlend   \u003d 0b10\n\nIf you don\u0027t like binary literals, maybe just align the enum values to help readability?",
+      "range": {
+        "startLine": 36,
+        "startChar": 4,
+        "endLine": 38,
+        "endChar": 20
+      },
+      "revId": "88ede932123ddbc4cb0999bf8596c74fbfe8fcc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
