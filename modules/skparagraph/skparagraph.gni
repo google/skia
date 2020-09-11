@@ -31,8 +31,6 @@ skparagraph_sources = [
   "$_src/ParagraphImpl.cpp",
   "$_src/ParagraphImpl.h",
   "$_src/ParagraphStyle.cpp",
-  "$_src/ParagraphUtil.cpp",
-  "$_src/ParagraphUtil.h",
   "$_src/Run.cpp",
   "$_src/Run.h",
   "$_src/TextLine.cpp",

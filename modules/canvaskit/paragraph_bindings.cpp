@@ -183,21 +183,21 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("layout", &para::ParagraphImpl::layout);
 
     class_<para::ParagraphBuilderImpl>("ParagraphBuilder")
-        .class_function("_Make", optional_override([](SimpleParagraphStyle style,
-                                                     sk_sp<SkFontMgr> fontMgr)-> para::ParagraphBuilderImpl {
+        .class_function("_Make", optional_override([](SimpleParagraphStyle style, sk_sp<SkFontMgr> fontMgr)
+                        -> std::unique_ptr<para::ParagraphBuilderImpl> {
             auto fc = sk_make_sp<para::FontCollection>();
             fc->setDefaultFontManager(fontMgr);
             auto ps = toParagraphStyle(style);
-            para::ParagraphBuilderImpl pbi(ps, fc);
-            return pbi;
+            auto pb = para::ParagraphBuilderImpl::make(ps, fc);
+            return std::unique_ptr<para::ParagraphBuilderImpl>(static_cast<para::ParagraphBuilderImpl*>(pb.release()));
         }), allow_raw_pointers())
       .class_function("_MakeFromFontProvider", optional_override([](SimpleParagraphStyle style,
-                                                                    sk_sp<para::TypefaceFontProvider> fontProvider)-> para::ParagraphBuilderImpl {
+                      sk_sp<para::TypefaceFontProvider> fontProvider)-> std::unique_ptr<para::ParagraphBuilderImpl> {
             auto fc = sk_make_sp<para::FontCollection>();
             fc->setDefaultFontManager(fontProvider);
             auto ps = toParagraphStyle(style);
-            para::ParagraphBuilderImpl pbi(ps, fc);
-            return pbi;
+            auto pb = para::ParagraphBuilderImpl::make(ps, fc);
+            return std::unique_ptr<para::ParagraphBuilderImpl>(static_cast<para::ParagraphBuilderImpl*>(pb.release()));
       }), allow_raw_pointers())
         .function("addText", optional_override([](para::ParagraphBuilderImpl& self, std::string text) {
             return self.addText(text.c_str(), text.length());
