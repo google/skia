@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "075f641b_92f70d92",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T16:56:11Z",
+      "side": 1,
+      "message": "I know it feels awkward since it overlaps the method name, but CoercionCost is a better name for this struct. It doesn\u0027t encapsulate any actual information about the conversion other than its cost.",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 15
+      },
+      "revId": "9fb0d68c07c6910fa817ab2146532062212d3c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5871d34_c1b6a9e2",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T16:56:11Z",
+      "side": 1,
+      "message": "Feels weird to support:\n\n  ++x;\n\nBut not support any of:\n\n  x++;\n  x +\u003d 1;\n  x \u003d x + 1;\n\nWhere is this used below? Is it prohibitive to just use `++x.fCost` instead?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 0
+      },
+      "revId": "9fb0d68c07c6910fa817ab2146532062212d3c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26339b7d_9c149f9b",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T16:56:11Z",
+      "side": 1,
+      "message": "optional: Consider\n\n  return std::tie(fKind, fCost) \u003c std::tie(rhs.fKind, rhs.fCost);",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 33
+      },
+      "revId": "9fb0d68c07c6910fa817ab2146532062212d3c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
