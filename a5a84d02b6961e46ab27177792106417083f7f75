@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "04dd511a_833de0c9",
+        "filename": "src/sksl/SkSLPipelineStageCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "It might be a zero-argument call, so that would be unsafe. (We know a builtin sample has at least one argument.)",
+      "parentUuid": "7cdd886b_6cd73446",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 68
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "02b5411f_fe324c6b",
         "filename": "src/sksl/SkSLRehydrator.cpp",
         "patchSetId": 5
@@ -88,6 +112,30 @@
     },
     {
       "key": {
+        "uuid": "f0e1a1c0_da96e16f",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1109,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ef36bc8_9b1d80f1",
+      "range": {
+        "startLine": 1109,
+        "startChar": 0,
+        "endLine": 1109,
+        "endChar": 50
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8f7c043a_3fdfb40a",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 5
@@ -108,6 +156,30 @@
       "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2a8e75d_133551eb",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f7c043a_3fdfb40a",
+      "range": {
+        "startLine": 1128,
+        "startChar": 4,
+        "endLine": 1128,
+        "endChar": 50
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +206,30 @@
     },
     {
       "key": {
+        "uuid": "e527bd61_1e9b9ee2",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b5c9b86_72b3dc31",
+      "range": {
+        "startLine": 1148,
+        "startChar": 3,
+        "endLine": 1148,
+        "endChar": 50
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b5e4717_8ead5ea9",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 5
@@ -154,6 +250,30 @@
       "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5cb3a87_47180bbc",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b5e4717_8ead5ea9",
+      "range": {
+        "startLine": 1306,
+        "startChar": 4,
+        "endLine": 1306,
+        "endChar": 57
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -180,6 +300,30 @@
     },
     {
       "key": {
+        "uuid": "32374483_1611db0f",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1727,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ba915a6_61505383",
+      "range": {
+        "startLine": 1727,
+        "startChar": 39,
+        "endLine": 1727,
+        "endChar": 42
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ced52a4a_81f9ee17",
         "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
         "patchSetId": 5
@@ -200,6 +344,30 @@
       "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "faa40315_13b15496",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1815,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Technically it\u0027s only necessary when there are other cases after this one, but it doesn\u0027t make any difference to me. Done.",
+      "parentUuid": "ced52a4a_81f9ee17",
+      "range": {
+        "startLine": 1815,
+        "startChar": 12,
+        "endLine": 1815,
+        "endChar": 13
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -226,6 +394,30 @@
     },
     {
       "key": {
+        "uuid": "4b36d6c4_61d9db77",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Originally took a Type\u0026, so at one point I did... and I didn\u0027t think about it when switching to Type*. Fixed.",
+      "parentUuid": "ef0b449e_8f0d467f",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 20
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14f45cfd_78278e33",
         "filename": "src/sksl/ir/SkSLSwizzle.h",
         "patchSetId": 5
@@ -249,6 +441,30 @@
     },
     {
       "key": {
+        "uuid": "c9ef7626_25e6fd42",
+        "filename": "src/sksl/ir/SkSLSwizzle.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14f45cfd_78278e33",
+      "range": {
+        "startLine": 115,
+        "startChar": 28,
+        "endLine": 115,
+        "endChar": 33
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19823ddd_97d59b33",
         "filename": "src/sksl/ir/SkSLSymbol.h",
         "patchSetId": 5
@@ -269,6 +485,30 @@
       "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfa56d79_7e263f8c",
+        "filename": "src/sksl/ir/SkSLSymbol.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-11T14:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19823ddd_97d59b33",
+      "range": {
+        "startLine": 38,
+        "startChar": 53,
+        "endLine": 38,
+        "endChar": 72
+      },
+      "revId": "a5a84d02b6961e46ab27177792106417083f7f75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
