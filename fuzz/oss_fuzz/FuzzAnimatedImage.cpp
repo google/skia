@@ -36,7 +36,7 @@ bool FuzzAnimatedImage(sk_sp<SkData> bytes) {
     return true;
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 10240) {
         return 0;

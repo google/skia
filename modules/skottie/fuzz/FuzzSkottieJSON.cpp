@@ -20,7 +20,7 @@ void FuzzSkottieJSON(sk_sp<SkData> bytes) {
     animation->seek(0.1337f); // A "nothing up my sleeve" number
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     gSkFontMgr_DefaultFactory = &ToolUtils::MakePortableFontMgr;
     auto bytes = SkData::MakeWithoutCopy(data, size);

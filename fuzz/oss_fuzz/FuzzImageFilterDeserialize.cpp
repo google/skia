@@ -39,7 +39,7 @@ void FuzzImageFilterDeserialize(sk_sp<SkData> bytes) {
     }
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 10024) {
         return 0;

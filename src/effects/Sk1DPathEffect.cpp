@@ -175,7 +175,7 @@ void SkPath1DPathEffect::flatten(SkWriteBuffer& buffer) const {
 
 SkScalar SkPath1DPathEffect::next(SkPath* dst, SkScalar distance,
                                   SkPathMeasure& meas) const {
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_FUZZER)
     if (dst->countPoints() > 100000) {
         return fAdvance;
     }

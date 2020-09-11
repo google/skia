@@ -467,6 +467,10 @@
     #define SkAssertResult(cond)         if (cond) {} do {} while(false)
 #endif
 
+#if defined(SK_BUILD_FOR_LIBFUZZER) || defined(SK_BUILD_FOR_AFL_FUZZ)
+    #define SK_BUILD_FOR_FUZZER
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Fast type for unsigned 8 bits. Use for parameter passing and local
