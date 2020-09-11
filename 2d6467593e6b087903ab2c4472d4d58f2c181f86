@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "9452fc15_8decae16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-11T17:11:27Z",
+      "side": 1,
+      "message": "We are down to one define for runtime-guards. There is also one define for each of afl-fuzz and libfuzzer for their own eccentricities.",
+      "parentUuid": "a40d714a_efb2b7cf",
+      "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cda05fd_ed589cd3",
         "filename": "src/ports/SkDebug_stdio.cpp",
         "patchSetId": 4
@@ -122,6 +140,24 @@
       "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "929a1467_4d7725d2",
+        "filename": "src/ports/SkDebug_stdio.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-11T17:11:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cda05fd_ed589cd3",
+      "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
