@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4de42374_811e397d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2020-09-11T20:17:30Z",
+      "side": 1,
+      "message": "Added Leandro and Eric to CC for the Bazel and Bot/Recipe discussions respectively.",
+      "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

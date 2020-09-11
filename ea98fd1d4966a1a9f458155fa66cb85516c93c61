@@ -16,6 +16,24 @@
       "revId": "ea98fd1d4966a1a9f458155fa66cb85516c93c61",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6ddd78a_9d4cd610",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2020-09-11T20:17:30Z",
+      "side": 1,
+      "message": "Leandro is getting closer with using RBE for Bazel in infra-sk. Once we get it working on there it shouldn\u0027t be hard (famous last words) to write a recipe which just triggers the RBE build.",
+      "parentUuid": "af432492_f3d3fd0f",
+      "revId": "ea98fd1d4966a1a9f458155fa66cb85516c93c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
