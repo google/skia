@@ -6,6 +6,13 @@
 # Things are easiest for everyone if these source paths are absolute.
 _tests = get_path_info("../tests", "abspath")
 
-sksl_fp_tests_sources = [ "$_tests/sksl/GrHelloWorld.fp" ]
+sksl_fp_tests_sources = [
+  "$_tests/sksl/GrFPWithExplicitReturnAndSkOutColor.fp",
+  "$_tests/sksl/GrHelloWorld.fp",
+]
 
-sksl_glsl_tests_sources = [ "$_tests/sksl/HelloWorld.sksl" ]
+sksl_glsl_tests_sources = [
+  "$_tests/sksl/HelloWorld.sksl",
+  "$_tests/sksl/SkSLErrorOpenArray.sksl",
+  "$_tests/sksl/SkSLErrorUndefinedSymbol.sksl",
+]
