@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "3fb58113_9379896b",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T16:37:59Z",
+      "side": 1,
+      "message": "(Don\u0027t need this.)",
+      "range": {
+        "startLine": 321,
+        "startChar": 4,
+        "endLine": 321,
+        "endChar": 12
+      },
+      "revId": "648e0a7c614e5060db251fe69be9cb1b0dd8ca55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a43aa37_8f3c2a8a",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T16:37:59Z",
+      "side": 1,
+      "message": "Now that I\u0027m looking, what\u0027s with all these explicits?",
+      "range": {
+        "startLine": 355,
+        "startChar": 4,
+        "endLine": 355,
+        "endChar": 12
+      },
+      "revId": "648e0a7c614e5060db251fe69be9cb1b0dd8ca55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5fdbab4b_c601dd7b",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 2
