@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af432492_f3d3fd0f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T20:01:14Z",
+      "side": 1,
+      "message": "Was thinking I\u0027d try little baby steps here, if only to see if this would interfere with anything else like the G3 roll.\n\nDo we have any idea about Bazel bots?",
+      "revId": "ea98fd1d4966a1a9f458155fa66cb85516c93c61",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
