@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c4670516_35cb4ccd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T15:40:35Z",
+      "side": 1,
+      "message": "Looking at `git log -- gn/make_gm_gni.py gn/copy_git_directory.py`, looks like these scripts were written optimistically, but not really used?",
+      "revId": "e377833e00f0984034d026afb3bd089ce538acea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
