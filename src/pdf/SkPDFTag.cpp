@@ -8,64 +8,6 @@
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFTag.h"
 
-// Table 333 in PDF 32000-1:2008
-static const char* tag_name_from_type(SkPDF::DocumentStructureType type) {
-    switch (type) {
-        #define M(X) case SkPDF::DocumentStructureType::k ## X: return #X
-        M(Document);
-        M(Part);
-        M(Art);
-        M(Sect);
-        M(Div);
-        M(BlockQuote);
-        M(Caption);
-        M(TOC);
-        M(TOCI);
-        M(Index);
-        M(NonStruct);
-        M(Private);
-        M(H);
-        M(H1);
-        M(H2);
-        M(H3);
-        M(H4);
-        M(H5);
-        M(H6);
-        M(P);
-        M(L);
-        M(LI);
-        M(Lbl);
-        M(LBody);
-        M(Table);
-        M(TR);
-        M(TH);
-        M(TD);
-        M(THead);
-        M(TBody);
-        M(TFoot);
-        M(Span);
-        M(Quote);
-        M(Note);
-        M(Reference);
-        M(BibEntry);
-        M(Code);
-        M(Link);
-        M(Annot);
-        M(Ruby);
-        M(RB);
-        M(RT);
-        M(RP);
-        M(Warichu);
-        M(WT);
-        M(WP);
-        M(Figure);
-        M(Formula);
-        M(Form);
-        #undef M
-    }
-    SK_ABORT("bad tag");
-}
-
 // The struct parent tree consists of one entry per page, followed by
 // entries for individual struct tree nodes corresponding to
 // annotations.  Each entry is a key/value pair with an integer key
@@ -98,7 +40,6 @@ struct SkPDFTagNode {
     };
     SkTArray<MarkedContentInfo> fMarkedContent;
     int fNodeId;
-    SkPDF::DocumentStructureType fType;
     SkString fTypeString;
     SkString fAlt;
     SkString fLang;
@@ -224,7 +165,6 @@ void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
         nodeMap->set(nodeId, dst);
     }
     dst->fNodeId = node.fNodeId;
-    dst->fType = node.fType;
     dst->fTypeString = node.fTypeString;
     dst->fAlt = node.fAlt;
     dst->fLang = node.fLang;
@@ -334,11 +274,7 @@ SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference
     }
     node->fRef = ref;
     SkPDFDict dict("StructElem");
-    if (!node->fTypeString.isEmpty()) {
-        dict.insertName("S", node->fTypeString.c_str());
-    } else {
-        dict.insertName("S", tag_name_from_type(node->fType));
-    }
+    dict.insertName("S", node->fTypeString.isEmpty() ? "NonStruct" : node->fTypeString.c_str());
     if (!node->fAlt.isEmpty()) {
         dict.insertString("Alt", node->fAlt);
     }

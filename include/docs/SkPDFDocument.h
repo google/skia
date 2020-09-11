@@ -23,60 +23,6 @@ class SkPDFTagTree;
 
 namespace SkPDF {
 
-/** Table 333 in PDF 32000-1:2008 §14.8.4.2
-*/
-enum class DocumentStructureType {
-    kDocument,    //!< Document
-    kPart,        //!< Part
-    kArt,         //!< Article
-    kSect,        //!< Section
-    kDiv,         //!< Division
-    kBlockQuote,  //!< Block quotation
-    kCaption,     //!< Caption
-    kTOC,         //!< Table of Contents
-    kTOCI,        //!< Table of Contents Item
-    kIndex,       //!< Index
-    kNonStruct,   //!< Nonstructural element
-    kPrivate,     //!< Private element
-    kH,           //!< Heading
-    kH1,          //!< Heading level 1
-    kH2,          //!< Heading level 2
-    kH3,          //!< Heading level 3
-    kH4,          //!< Heading level 4
-    kH5,          //!< Heading level 5
-    kH6,          //!< Heading level 6
-    kP,           //!< Paragraph
-    kL,           //!< List
-    kLI,          //!< List item
-    kLbl,         //!< List item label
-    kLBody,       //!< List item body
-    kTable,       //!< Table
-    kTR,          //!< Table row
-    kTH,          //!< Table header cell
-    kTD,          //!< Table data cell
-    kTHead,       //!< Table header row group
-    kTBody,       //!< Table body row group
-    kTFoot,       //!< table footer row group
-    kSpan,        //!< Span
-    kQuote,       //!< Quotation
-    kNote,        //!< Note
-    kReference,   //!< Reference
-    kBibEntry,    //!< Bibliography entry
-    kCode,        //!< Code
-    kLink,        //!< Link
-    kAnnot,       //!< Annotation
-    kRuby,        //!< Ruby annotation
-    kRB,          //!< Ruby base text
-    kRT,          //!< Ruby annotation text
-    kRP,          //!< Ruby punctuation
-    kWarichu,     //!< Warichu annotation
-    kWT,          //!< Warichu text
-    kWP,          //!< Warichu punctuation
-    kFigure,      //!< Figure
-    kFormula,     //!< Formula
-    kForm,        //!< Form control (not like an HTML FORM element)
-};
-
 /** Attributes for nodes in the PDF tree. */
 class SK_API AttributeList : SkNoncopyable {
 public:
@@ -120,9 +66,6 @@ struct StructureElementNode {
     AttributeList fAttributes;
     SkString fAlt;
     SkString fLang;
-
-    // Deprecated. Use fTypeString instead.
-    DocumentStructureType fType = DocumentStructureType::kNonStruct;
 };
 
 /** Optional metadata to be passed into the PDF factory function.

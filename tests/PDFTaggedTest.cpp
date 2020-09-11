@@ -38,49 +38,49 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     // The document tag.
     auto root = std::make_unique<PDFTag>();
     root->fNodeId = 1;
-    root->fType = SkPDF::DocumentStructureType::kDocument;
+    root->fTypeString = "Document";
 
     // Heading.
     auto h1 = std::make_unique<PDFTag>();
     h1->fNodeId = 2;
-    h1->fType = SkPDF::DocumentStructureType::kH1;
+    h1->fTypeString = "H1";
     root->fChildVector.push_back(std::move(h1));
 
     // Initial paragraph.
     auto p = std::make_unique<PDFTag>();
     p->fNodeId = 3;
-    p->fType = SkPDF::DocumentStructureType::kP;
+    p->fTypeString = "P";
     root->fChildVector.push_back(std::move(p));
 
     // Hidden div. This is never referenced by marked content
     // so it should not appear in the resulting PDF.
     auto div = std::make_unique<PDFTag>();
     div->fNodeId = 4;
-    div->fType = SkPDF::DocumentStructureType::kDiv;
+    div->fTypeString = "Div";
     root->fChildVector.push_back(std::move(div));
 
     // A bulleted list of two items.
     auto l = std::make_unique<PDFTag>();
     l->fNodeId = 5;
-    l->fType = SkPDF::DocumentStructureType::kL;
+    l->fTypeString = "L";
 
     auto lm1 = std::make_unique<PDFTag>();
     lm1->fNodeId = 6;
-    lm1->fType = SkPDF::DocumentStructureType::kLbl;
+    lm1->fTypeString = "Lbl";
     l->fChildVector.push_back(std::move(lm1));
 
     auto li1 = std::make_unique<PDFTag>();
     li1->fNodeId = 7;
-    li1->fType = SkPDF::DocumentStructureType::kLI;
+    li1->fTypeString = "LI";
     l->fChildVector.push_back(std::move(li1));
 
     auto lm2 = std::make_unique<PDFTag>();
     lm2->fNodeId = 8;
-    lm2->fType = SkPDF::DocumentStructureType::kLbl;
+    lm2->fTypeString = "Lbl";
     l->fChildVector.push_back(std::move(lm2));
     auto li2 = std::make_unique<PDFTag>();
     li2->fNodeId = 9;
-    li2->fType = SkPDF::DocumentStructureType::kLI;
+    li2->fTypeString = "LI";
     l->fChildVector.push_back(std::move(li2));
 
     root->fChildVector.push_back(std::move(l));
@@ -88,13 +88,13 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     // Paragraph spanning two pages.
     auto p2 = std::make_unique<PDFTag>();
     p2->fNodeId = 10;
-    p2->fType = SkPDF::DocumentStructureType::kP;
+    p2->fTypeString = "P";
     root->fChildVector.push_back(std::move(p2));
 
     // Image with alt text.
     auto img = std::make_unique<PDFTag>();
     img->fNodeId = 11;
-    img->fType = SkPDF::DocumentStructureType::kFigure;
+    img->fTypeString = "Figure";
     img->fAlt = "Red box";
     root->fChildVector.push_back(std::move(img));
 
