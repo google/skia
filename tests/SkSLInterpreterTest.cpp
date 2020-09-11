@@ -26,9 +26,8 @@ void test(skiatest::Reporter* r, const char* src, float* in, float* expected,
           bool exactCompare = true) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                             SkSL::Program::kGeneric_Kind,
-                                                             SkSL::String(src), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
     if (program) {
         std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
@@ -70,8 +69,9 @@ void test(skiatest::Reporter* r, const char* src, float* in, float* expected,
 
 void vec_test(skiatest::Reporter* r, const char* src) {
     SkSL::Compiler compiler;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-            SkSL::Program::kGeneric_Kind, SkSL::String(src), SkSL::Program::Settings());
+    SkSL::Program::Settings settings;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src), settings);
     if (!program) {
         REPORT_FAILURE(r, "!program", SkString(compiler.errorText().c_str()));
         return;
@@ -134,9 +134,8 @@ void test(skiatest::Reporter* r, const char* src, float inR, float inG, float in
           float expectedR, float expectedG, float expectedB, float expectedA) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                             SkSL::Program::kGeneric_Kind,
-                                                             SkSL::String(src), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
     if (program) {
         std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
@@ -623,9 +622,8 @@ DEF_TEST(SkSLInterpreterCompound, r) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
     settings.fRemoveDeadFunctions = false;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                             SkSL::Program::kGeneric_Kind,
-                                                             SkSL::String(src), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
 
     std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
@@ -700,8 +698,9 @@ DEF_TEST(SkSLInterpreterCompound, r) {
 
 static void expect_failure(skiatest::Reporter* r, const char* src) {
     SkSL::Compiler compiler;
-    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
-                                           SkSL::Program::Settings());
+    SkSL::Program::Settings settings;
+    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                           SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
 
     auto byteCode = compiler.toByteCode(*program);
@@ -711,8 +710,9 @@ static void expect_failure(skiatest::Reporter* r, const char* src) {
 
 static void expect_run_failure(skiatest::Reporter* r, const char* src, float* in) {
     SkSL::Compiler compiler;
-    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, SkSL::String(src),
-                                           SkSL::Program::Settings());
+    SkSL::Program::Settings settings;
+    auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                           SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
 
     auto byteCode = compiler.toByteCode(*program);
@@ -765,9 +765,8 @@ DEF_TEST(SkSLInterpreterFunctions, r) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
     settings.fRemoveDeadFunctions = false;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
-                                                             SkSL::Program::kGeneric_Kind,
-                                                             SkSL::String(src), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kGeneric_Kind,
+                                                                     SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
 
     std::unique_ptr<SkSL::ByteCode> byteCode = compiler.toByteCode(*program);
