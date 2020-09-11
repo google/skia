@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "1e7b3490_aa36dc1f",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-11T17:18:32Z",
+      "side": 1,
+      "message": "I think I started doing this due to c++11 and copy-initialization from braced lists (see https://abseil.io/tips/142 ). Mostly I wanted to avoid not stating the name SkFILEStream and the user creating one in an opaque way like putting \"{file, 10}\" in an argument list. Of course, in the time since this was done originally, we generally now take std::unique_ptr\u003cSkStreamXXX\u003e most places and never take an SkFILEStream by value so it\u0027s probably a bit moot, but I do like the idea of enforcing the name being used since this class is going to implicitly take ownership of the FILE.",
+      "parentUuid": "0a43aa37_8f3c2a8a",
+      "range": {
+        "startLine": 355,
+        "startChar": 4,
+        "endLine": 355,
+        "endChar": 12
+      },
+      "revId": "648e0a7c614e5060db251fe69be9cb1b0dd8ca55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5fdbab4b_c601dd7b",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 2
@@ -59,6 +83,24 @@
       "writtenOn": "2020-09-11T16:36:57Z",
       "side": 1,
       "message": "This new stuff would probably fit in more naturally with the existing code if this constructor took a std::shared_ptr\u003cFILE\u003e that the other new constructor creates?",
+      "revId": "648e0a7c614e5060db251fe69be9cb1b0dd8ca55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b09da8e9_56df0197",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-11T17:18:32Z",
+      "side": 1,
+      "message": "So this signature is a bit of a hack, there is already a constructor which takes (std::shared_ptr\u003cFILE\u003e, size_t, size_t) with the middle one being \u0027endOffset\u0027 instead of \u0027size\u0027. So if we delay the creation of the shared_ptr I don\u0027t need to add an extra argument to differentiate. The real issue is that \u0027length\u0027 and \u0027offset\u0027 don\u0027t have semantically different types.",
+      "parentUuid": "5fdbab4b_c601dd7b",
       "revId": "648e0a7c614e5060db251fe69be9cb1b0dd8ca55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
