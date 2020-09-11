@@ -30,9 +30,7 @@ protected:
                                                                       SkSL::Program::kFragment_Kind,
                                                                       fSrc,
                                                                       fSettings);
-            if (!fCompiler.errorCount()) {
-                fCompiler.optimize(*program);
-            } else {
+            if (fCompiler.errorCount()) {
                 printf("%s\n", fCompiler.errorText().c_str());
                 SK_ABORT("shader compilation failed");
             }
