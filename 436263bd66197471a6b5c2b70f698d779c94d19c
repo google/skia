@@ -34,6 +34,24 @@
       "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce3ef40e_6307ffeb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T15:08:44Z",
+      "side": 1,
+      "message": "Sounds good. Yeah, the difficult-to-review tidal wave of diffs makes the all-permutations thing not sound real pleasant.\n\nAnd I didn\u0027t suggest this earlier, because it\u0027s probably going to be even more difficult to review, but we *could* do SkSL -\u003e SPIRV (via disassembled spirv). I don\u0027t know that it\u0027s going to be real helpful, though.\n\nI\u0027m still noodling on what output format we might support for runtime-effect tests. Currently those get parsed to IR, then converted to either byte-code (which I guess we could dump?), or to \"pipeline stage args\", which is basically a string with format specifiers in it. It\u0027s functionally an SkSL -\u003e SkSL round-trip. Nothing to worry about today, we\u0027ll get there.",
+      "parentUuid": "d82cc689_1590611b",
+      "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
