@@ -27,7 +27,7 @@ void FuzzSKP(sk_sp<SkData> bytes) {
     return;
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_INCLUDE_LIBFUZZER_ENTRYPOINTS)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     auto bytes = SkData::MakeWithoutCopy(data, size);
     FuzzSKP(bytes);
