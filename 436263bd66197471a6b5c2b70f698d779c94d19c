@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bae44a32_7544079c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T14:22:17Z",
+      "side": 1,
+      "message": "I *do* like the idea of using skslc to do this, but there are several things I\u0027d want to see, and they may be easier to solve if we implement this all inside DM\u0027s unit test framework (and use the programmatic compiler, SkOSFile::Iter, etc...):\n\n1) The error tests. For SkSL that doesn\u0027t compile, I\u0027d like the golden output file to be the error text from the compiler.\n\n2) Several of the GLSL tests use customized shader caps (to test workarounds). However we do this (skslc or in a unit test), I\u0027d like some minimal markup in the first line of the file (or based on the filename?) that lets us customize which caps are used. (This will be slightly cumbersome, don\u0027t need to support it right away, but I don\u0027t want to end up with our tests split in two sets with totally different systems).\n\n2.5) If we wanted to go nuts, we could basically build every GLSL input with every one of our test caps. That means we either end up with lots of golden files, or we do something like Chrome\u0027s layout tests, and only output the ones that produce different results. This may be difficult for people to reason about, though - so probably not a good idea?\n\n2.75) Independent of that, I think sharing the all/most of the corpus of SkSL we use for GLSL to also test other backends is a worthy goal - why not test the Metal backend with each of those input files, too?\n\n3) Minor: Can we just glob all files in certain directories, to really lower the barrier when adding new tests?",
+      "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
