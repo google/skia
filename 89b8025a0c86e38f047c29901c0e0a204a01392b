@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "129ef41a_9a6af3ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5920
+      },
+      "writtenOn": "2020-09-11T03:02:10Z",
+      "side": 1,
+      "message": "I forgot about DEPS when I made the comment in the bug. I think this may be easier and there was another ubsan fix in the chain.",
+      "revId": "89b8025a0c86e38f047c29901c0e0a204a01392b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
