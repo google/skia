@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "20447173_7f2281b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T15:27:12Z",
+      "side": 1,
+      "message": "What behavior will change?  Do we not define all these?\n\nBut yeah, I do prefer one flag as long as we can get away with it.  I\u0027ll always prefer the system that\u0027s simple enough to not need a doc over a well-documented complex system.\n\nMy hunch is no one will think to look to your new list of flags, and instead just copy and paste whichever of these defines is nearest to mind at the time.  If we can craft this so that picking the nearest define that looks related to fuzzing is actually the only and guaranteed correct choice, that can\u0027t go wrong.",
+      "parentUuid": "e29cf335_f0f1a7be",
+      "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cda05fd_ed589cd3",
         "filename": "src/ports/SkDebug_stdio.cpp",
         "patchSetId": 4
