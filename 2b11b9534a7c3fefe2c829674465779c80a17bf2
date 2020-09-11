@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d3c33357_473d6304",
+        "filename": "include/core/SkStream.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-11T18:05:52Z",
+      "side": 1,
+      "message": "Done. With the standard names start, end, and current just a comment stating that they\u0027re into the file and not the stream seems enough now.",
+      "parentUuid": "4bf42e61_3c277945",
+      "range": {
+        "startLine": 357,
+        "startChar": 0,
+        "endLine": 359,
+        "endChar": 26
+      },
+      "revId": "2b11b9534a7c3fefe2c829674465779c80a17bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52d7b75f_bfb9a479",
         "filename": "src/core/SkStream.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "2b11b9534a7c3fefe2c829674465779c80a17bf2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b31b23e_fd00e554",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-11T18:05:52Z",
+      "side": 1,
+      "message": "Done. Yeah, this is kinda a LOG(ERROR) than a LOG(FATAL), but should be fine...",
+      "parentUuid": "52d7b75f_bfb9a479",
+      "range": {
+        "startLine": 158,
+        "startChar": 4,
+        "endLine": 159,
+        "endChar": 69
+      },
+      "revId": "2b11b9534a7c3fefe2c829674465779c80a17bf2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
