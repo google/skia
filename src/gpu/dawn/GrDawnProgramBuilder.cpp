@@ -527,7 +527,16 @@ wgpu::BindGroup GrDawnProgram::setUniformData(GrDawnGpu* gpu, const GrRenderTarg
     SkIPoint offset;
     GrTexture* dstTexture = pipeline.peekDstTexture(&offset);
     fXferProcessor->setData(fDataManager, pipeline.getXferProcessor(), dstTexture, offset);
-    return fDataManager.uploadUniformBuffers(gpu, fBindGroupLayouts[0]);
+    UniformBindGroupKey key;
+    key.append(fDataManager.uniformBufferSize(), fDataManager.uniformData());
+    wgpu::BindGroup bindGroup;
+    if (wgpu::BindGroup* value = fUniformBindGroupCache.find(key)) {
+        bindGroup = *value;
+    } else {
+        bindGroup = fDataManager.uploadUniformBuffers(gpu, fBindGroupLayouts[0]);
+        fUniformBindGroupCache.insert(key, bindGroup);
+    }
+    return bindGroup;
 }
 
 wgpu::BindGroup GrDawnProgram::setTextures(GrDawnGpu* gpu,
