@@ -39,8 +39,6 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
         bool needsLocalOutColor = false;
 
         if (args.fDstTextureSamplerHandle.isValid()) {
-            bool flipY = kBottomLeft_GrSurfaceOrigin == args.fDstTextureOrigin;
-
             if (args.fInputCoverage) {
                 // We don't think any shaders actually output negative coverage, but just as a
                 // safety check for floating point precision errors we compare with <= here. We just
@@ -55,32 +53,39 @@ void GrGLSLXferProcessor::emitCode(const EmitArgs& args) {
                                          "    discard;"
                                          "}", args.fInputCoverage);
             }
+            if (GrDstSampleTypeUsesTexture(args.fDstSampleType)) {
+                bool flipY = kBottomLeft_GrSurfaceOrigin == args.fDstTextureOrigin;
 
-            const char* dstTopLeftName;
-            const char* dstCoordScaleName;
+                const char* dstTopLeftName;
+                const char* dstCoordScaleName;
 
-            fDstTopLeftUni = uniformHandler->addUniform(nullptr,
-                                                        kFragment_GrShaderFlag,
-                                                        kHalf2_GrSLType,
-                                                        "DstTextureUpperLeft",
-                                                        &dstTopLeftName);
-            fDstScaleUni = uniformHandler->addUniform(nullptr,
-                                                      kFragment_GrShaderFlag,
-                                                      kHalf2_GrSLType,
-                                                      "DstTextureCoordScale",
-                                                      &dstCoordScaleName);
+                fDstTopLeftUni = uniformHandler->addUniform(nullptr,
+                                                            kFragment_GrShaderFlag,
+                                                            kHalf2_GrSLType,
+                                                            "DstTextureUpperLeft",
+                                                            &dstTopLeftName);
+                fDstScaleUni = uniformHandler->addUniform(nullptr,
+                                                          kFragment_GrShaderFlag,
+                                                          kHalf2_GrSLType,
+                                                          "DstTextureCoordScale",
+                                                          &dstCoordScaleName);
 
-            fragBuilder->codeAppend("// Read color from copy of the destination.\n");
-            fragBuilder->codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s) * %s;",
-                                     dstTopLeftName, dstCoordScaleName);
+                fragBuilder->codeAppend("// Read color from copy of the destination.\n");
+                fragBuilder->codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s) * %s;",
+                                         dstTopLeftName, dstCoordScaleName);
 
-            if (flipY) {
-                fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
+                if (flipY) {
+                    fragBuilder->codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;");
+                }
+
+                fragBuilder->codeAppendf("half4 %s = ", dstColor);
+                fragBuilder->appendTextureLookup(args.fDstTextureSamplerHandle, "_dstTexCoord");
+                fragBuilder->codeAppend(";");
+            } else if (args.fDstSampleType == GrDstSampleType::kAsInputAttachment) {
+                fragBuilder->codeAppendf("half4 %s = ", dstColor);
+                fragBuilder->appendInputLoad(args.fDstTextureSamplerHandle);
+                fragBuilder->codeAppend(";");
             }
-
-            fragBuilder->codeAppendf("half4 %s = ", dstColor);
-            fragBuilder->appendTextureLookup(args.fDstTextureSamplerHandle, "_dstTexCoord");
-            fragBuilder->codeAppend(";");
         } else {
             needsLocalOutColor = args.fShaderCaps->requiresLocalOutputColorForFBFetch();
         }

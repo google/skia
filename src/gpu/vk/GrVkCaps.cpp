@@ -65,6 +65,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fDynamicStateArrayGeometryProcessorTextureSupport = true;
 
+    fTextureBarrierSupport = true;
+
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
     this->init(contextOptions, vkInterface, physDev, features, physicalDeviceVersion, extensions,
