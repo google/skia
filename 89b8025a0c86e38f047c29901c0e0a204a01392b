@@ -16,6 +16,23 @@
       "revId": "89b8025a0c86e38f047c29901c0e0a204a01392b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0843f218_555afaa2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-11T17:34:11Z",
+      "side": 1,
+      "message": "Thanks! Does Android need this update, too?",
+      "revId": "89b8025a0c86e38f047c29901c0e0a204a01392b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
