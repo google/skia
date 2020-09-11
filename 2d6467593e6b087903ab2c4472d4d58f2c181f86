@@ -16,6 +16,40 @@
       "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e24befec_d87bcd01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T15:07:11Z",
+      "side": 1,
+      "message": "Can we do all this with one define, e.g. SK_IS_FUZZING?",
+      "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cda05fd_ed589cd3",
+        "filename": "src/ports/SkDebug_stdio.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T15:07:11Z",
+      "side": 1,
+      "message": "Looking at SkTypes.h, I think we can also do this one as\n\n   #define SkDebugf(...) (void)\n\nor\n\n   -DSkDebugf(...)\u003d(void)\n\nThough not sure about the precise syntax of that last one.",
+      "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
