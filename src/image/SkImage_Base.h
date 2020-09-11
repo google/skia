@@ -24,6 +24,7 @@ class GrTexture;
 #include <new>
 
 class GrDirectContext;
+class GrImageContext;
 class GrSamplerState;
 class SkCachedData;
 struct SkYUVASizeInfo;
@@ -75,7 +76,7 @@ public:
                                                    ReadPixelsCallback,
                                                    ReadPixelsContext);
 
-    virtual GrContext* context() const { return nullptr; }
+    virtual GrImageContext* context() const { return nullptr; }
 
     /** this->context() try-casted to GrDirectContext. Useful for migrations – avoid otherwise! */
     GrDirectContext* directContext() const;
