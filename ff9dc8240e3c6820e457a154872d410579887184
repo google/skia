@@ -16,6 +16,24 @@
       "revId": "ff9dc8240e3c6820e457a154872d410579887184",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2141d39_bdc111ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 27
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T15:02:58Z",
+      "side": 1,
+      "message": "Thanks for the heads-up, I hadn\u0027t seen this. Reverted.",
+      "parentUuid": "f6c2905c_7e0dd118",
+      "revId": "ff9dc8240e3c6820e457a154872d410579887184",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
