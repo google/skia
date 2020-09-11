@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "664a2693_02dc29d5",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2139,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T19:14:11Z",
+      "side": 1,
+      "message": "Guessing you noticed later that the conversion is explicit? Regardless, got rid of the constructor and switched to ::Normal.",
+      "parentUuid": "fd51aaee_ee2811a6",
+      "range": {
+        "startLine": 2139,
+        "startChar": 11,
+        "endLine": 2139,
+        "endChar": 16
+      },
+      "revId": "04f00151480319c661d01cd45b91b31ec9f6d625",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2fb35ea_80ebb496",
         "filename": "src/sksl/ir/SkSLIntLiteral.h",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2020-09-11T18:54:04Z",
       "side": 1,
       "message": "Nothing to fix, just curious: an Int-\u003eFloat conversion is considered free? I would\u0027ve thought we would want to slightly prefer Int-\u003eInt over Int-\u003eFloat. There is a sacrifice in accuracy for sufficiently large int literals.",
+      "range": {
+        "startLine": 49,
+        "startChar": 56,
+        "endLine": 49,
+        "endChar": 72
+      },
+      "revId": "04f00151480319c661d01cd45b91b31ec9f6d625",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "209e97f8_c0062f73",
+        "filename": "src/sksl/ir/SkSLIntLiteral.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T19:14:11Z",
+      "side": 1,
+      "message": "Yes, it\u0027s considered free, only from literals. I don\u0027t know if changing that would create other problems? Note that int -\u003e float does have a cost.",
+      "parentUuid": "b2fb35ea_80ebb496",
       "range": {
         "startLine": 49,
         "startChar": 56,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7103f1a7_6342ba98",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T19:14:11Z",
+      "side": 1,
+      "message": "Sure, that\u0027s probably more consistent/clear.",
+      "parentUuid": "2cc79e35_45ce72eb",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 74
+      },
+      "revId": "04f00151480319c661d01cd45b91b31ec9f6d625",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fcb2d66f_ff04e3f2",
         "filename": "src/sksl/ir/SkSLType.h",
         "patchSetId": 8
@@ -91,6 +163,30 @@
       "revId": "04f00151480319c661d01cd45b91b31ec9f6d625",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e516dff_9d3a7fcb",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T19:14:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcb2d66f_ff04e3f2",
+      "range": {
+        "startLine": 35,
+        "startChar": 9,
+        "endLine": 35,
+        "endChar": 17
+      },
+      "revId": "04f00151480319c661d01cd45b91b31ec9f6d625",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
