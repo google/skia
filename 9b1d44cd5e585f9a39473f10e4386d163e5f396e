@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9e3fd3f_4f71bbb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T20:44:52Z",
+      "side": 1,
+      "message": "I think this lgtm as a start. One minor question: What if we just tie this to skia_compile_processors. It seems like everyone is going to have both or neither set, so it makes one less flag to remember, and reduces the complexity in BUILD.gn, right?",
+      "revId": "9b1d44cd5e585f9a39473f10e4386d163e5f396e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
