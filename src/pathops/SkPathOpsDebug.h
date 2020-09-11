@@ -32,7 +32,7 @@ struct SkDCubic;
 class SkTSect;
 
 // define this when running fuzz
-// #define IS_FUZZING_WITH_LIBFUZZER
+// #define SK_FUZZING_RESTRICT_COMPLEXITY
 
 // fake classes to fool msvs Visual Studio 2018 Immediate Window
 #define FakeClasses(a, b) \
