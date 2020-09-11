@@ -159,6 +159,12 @@ void GrD3DCaps::init(const GrContextOptions& contextOptions, IDXGIAdapter1* adap
     this->initFormatTable(adapterDesc, device);
     this->initStencilFormat(device);
 
+    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
+    GR_D3D_CALL_ERRCHECK(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5,
+                                                     sizeof(options5)));
+    fRenderPassSupport = (options5.RenderPassesTier != D3D12_RENDER_PASS_TIER_0);
+    SkDebugf("Renderpass support: %s\n", fRenderPassSupport ? "true" : "false");
+
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(adapterDesc.VendorId);
     }
