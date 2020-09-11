@@ -36,7 +36,8 @@ public:
                                                 GrAppliedClip&&,
                                                 const GrXferProcessor::DstProxyView&,
                                                 GrGeometryProcessor*,
-                                                GrPrimitiveType);
+                                                GrPrimitiveType,
+                                                GrXferBarrierFlags renderPassXferBarriers);
 
 
     // using declarations can't be templated, so this is a pass through function instead.

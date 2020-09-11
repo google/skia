@@ -129,8 +129,7 @@ void GrOpsRenderPass::bindPipeline(const GrProgramInfo& programInfo, const SkRec
 #endif
 
     fDrawPipelineStatus = DrawPipelineStatus::kOk;
-    fXferBarrierType = programInfo.pipeline().xferBarrierType(fRenderTarget->asTexture(),
-                                                              *this->gpu()->caps());
+    fXferBarrierType = programInfo.pipeline().xferBarrierType(*this->gpu()->caps());
 }
 
 void GrOpsRenderPass::setScissorRect(const SkIRect& scissor) {

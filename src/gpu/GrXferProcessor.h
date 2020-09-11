@@ -31,6 +31,15 @@ enum GrXferBarrierType {
 /** Should be able to treat kNone as false in boolean expressions */
 static_assert(SkToBool(kNone_GrXferBarrierType) == false);
 
+// Flag version of the above enum.
+enum class GrXferBarrierFlags {
+    kNone    = 0,
+    kTexture = 1 << 0,
+    kBlend   = 1 << 1,
+};
+
+GR_MAKE_BITFIELD_CLASS_OPS(GrXferBarrierFlags)
+
 /**
  * GrXferProcessor is responsible for implementing the xfer mode that blends the src color and dst
  * color, and for applying any coverage. It does this by emitting fragment shader code and
@@ -62,23 +71,17 @@ public:
             *this = other;
         }
 
-        DstProxyView(GrSurfaceProxyView view, const SkIPoint& offset)
-            : fProxyView(std::move(view)) {
-            if (fProxyView.proxy()) {
-                fOffset = offset;
-            } else {
-                fOffset.set(0, 0);
-            }
-        }
-
         DstProxyView& operator=(const DstProxyView& other) {
             fProxyView = other.fProxyView;
             fOffset = other.fOffset;
+            fDstSampleType = other.fDstSampleType;
             return *this;
         }
 
         bool operator==(const DstProxyView& that) const {
-            return fProxyView == that.fProxyView && fOffset == that.fOffset;
+            return fProxyView == that.fProxyView &&
+                   fOffset == that.fOffset &&
+                   fDstSampleType == that.fDstSampleType;
         }
         bool operator!=(const DstProxyView& that) const { return !(*this == that); }
 
@@ -87,7 +90,7 @@ public:
         void setOffset(const SkIPoint& offset) { fOffset = offset; }
         void setOffset(int ox, int oy) { fOffset.set(ox, oy); }
 
-        GrTextureProxy* proxy() const { return fProxyView.asTextureProxy(); }
+        GrSurfaceProxy* proxy() const { return fProxyView.proxy(); }
         const GrSurfaceProxyView& proxyView() const { return fProxyView; }
 
         void setProxyView(GrSurfaceProxyView view) {
@@ -97,9 +100,14 @@ public:
             }
         }
 
+        GrDstSampleType dstSampleType() const { return fDstSampleType; }
+
+        void setDstSampleType(GrDstSampleType dstSampleType) { fDstSampleType = dstSampleType; }
+
     private:
-        GrSurfaceProxyView fProxyView;
-        SkIPoint           fOffset;
+        GrSurfaceProxyView       fProxyView;
+        SkIPoint                 fOffset;
+        GrDstSampleType          fDstSampleType = GrDstSampleType::kNone;
     };
 
     /**

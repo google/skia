@@ -23,7 +23,8 @@ public:
                   const GrPipeline* pipeline,
                   const GrPrimitiveProcessor* primProc,
                   GrPrimitiveType primitiveType,
-                  uint8_t tessellationPatchVertexCount = 0)
+                  uint8_t tessellationPatchVertexCount,
+                  GrXferBarrierFlags renderPassXferBarriers)
             : fNumSamples(numSamples)
             , fNumStencilSamples(numStencilSamples)
             , fIsMixedSampled(pipeline->isStencilEnabled() && numStencilSamples > numSamples)
@@ -32,7 +33,8 @@ public:
             , fPipeline(pipeline)
             , fPrimProc(primProc)
             , fPrimitiveType(primitiveType)
-            , fTessellationPatchVertexCount(tessellationPatchVertexCount) {
+            , fTessellationPatchVertexCount(tessellationPatchVertexCount)
+            , fRenderPassXferBarriers(renderPassXferBarriers) {
         SkASSERT(this->numRasterSamples() > 0);
         SkASSERT((GrPrimitiveType::kPatches == fPrimitiveType) ==
                  (fTessellationPatchVertexCount > 0));
@@ -66,6 +68,8 @@ public:
         SkASSERT(GrPrimitiveType::kPatches == fPrimitiveType);
         return fTessellationPatchVertexCount;
     }
+
+    GrXferBarrierFlags renderPassBarriers() const { return fRenderPassXferBarriers; }
 
     uint16_t primitiveTypeKey() const {
         return ((uint16_t)fPrimitiveType << 8) | fTessellationPatchVertexCount;
@@ -101,6 +105,7 @@ private:
     GrProcessor::CustomFeatures           fRequestedFeatures;
     GrPrimitiveType                       fPrimitiveType;
     uint8_t                               fTessellationPatchVertexCount;  // GrPrimType::kPatches.
+    GrXferBarrierFlags                    fRenderPassXferBarriers;
 };
 
 #endif

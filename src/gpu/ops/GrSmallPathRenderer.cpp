@@ -165,14 +165,16 @@ private:
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&) override {
+                             const GrXferProcessor::DstProxyView&,
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         // TODO [PI]: implement
     }
 
     void onPrePrepareDraws(GrRecordingContext*,
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip*,
-                           const GrXferProcessor::DstProxyView&) override {
+                           const GrXferProcessor::DstProxyView&,
+                           GrXferBarrierFlags renderPassXferBarriers) override {
         // TODO [PI]: implement
     }
 

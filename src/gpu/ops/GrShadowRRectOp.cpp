@@ -529,7 +529,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         GrGeometryProcessor* gp = GrRRectShadowGeoProc::Make(arena, fFalloffView);
         SkASSERT(sizeof(CircleVertex) == gp->vertexStride());
 
@@ -538,6 +539,7 @@ private:
                                                                    dstProxyView, gp,
                                                                    GrProcessorSet::MakeEmptySet(),
                                                                    GrPrimitiveType::kTriangles,
+                                                                   renderPassXferBarriers,
                                                                    GrPipeline::InputFlags::kNone,
                                                                    &GrUserStencilSettings::kUnused);
     }

@@ -119,7 +119,8 @@ private:
                              SkArenaAlloc*,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&&,
-                             const GrXferProcessor::DstProxyView&) override;
+                             const GrXferProcessor::DstProxyView&,
+                             GrXferBarrierFlags renderPassXferBarriers) override;
 
     void onPrepareDraws(Target*) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
@@ -179,7 +180,8 @@ void TestRectOp::onCreateProgramInfo(const GrCaps* caps,
                                      SkArenaAlloc* arena,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     GrXferBarrierFlags renderPassXferBarriers) {
     fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps,
                                                                arena,
                                                                writeView,
@@ -188,6 +190,7 @@ void TestRectOp::onCreateProgramInfo(const GrCaps* caps,
                                                                &fGP,
                                                                std::move(fProcessorSet),
                                                                GrPrimitiveType::kTriangles,
+                                                               renderPassXferBarriers,
                                                                GrPipeline::InputFlags::kNone);
 }
 

@@ -188,7 +188,8 @@ void GrStencilAtlasOp::drawResolve(GrOpFlushState* flushState, const GrPipeline&
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
                               flushState->writeView()->origin(), &resolvePipeline, &primProc,
-                              GrPrimitiveType::kTriangleStrip);
+                              GrPrimitiveType::kTriangleStrip, 0,
+                              flushState->renderPassBarriers());
     flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
     flushState->setScissorRect(drawBounds);
     flushState->bindBuffers(nullptr, fResources->stencilResolveBuffer(), nullptr);

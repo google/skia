@@ -420,7 +420,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         GrGeometryProcessor* gp;
         {
             using namespace GrDefaultGeoProcFactory;
@@ -439,7 +440,8 @@ private:
 
         fProgramInfo =  fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                              std::move(appliedClip),
-                                                             dstProxyView, gp, this->primType());
+                                                             dstProxyView, gp, this->primType(),
+                                                             renderPassXferBarriers);
 
     }
 

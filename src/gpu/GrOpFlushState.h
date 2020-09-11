@@ -59,12 +59,14 @@ public:
     struct OpArgs {
         // TODO: why does OpArgs have the op we're going to pass it to as a member? Remove it.
         explicit OpArgs(GrOp* op, GrSurfaceProxyView* surfaceView, GrAppliedClip* appliedClip,
-                        const GrXferProcessor::DstProxyView& dstProxyView)
+                        const GrXferProcessor::DstProxyView& dstProxyView,
+                        GrXferBarrierFlags renderPassXferBarriers)
                 : fOp(op)
                 , fSurfaceView(surfaceView)
                 , fRenderTargetProxy(surfaceView->asRenderTargetProxy())
                 , fAppliedClip(appliedClip)
-                , fDstProxyView(dstProxyView) {
+                , fDstProxyView(dstProxyView)
+                , fRenderPassXferBarriers(renderPassXferBarriers) {
             SkASSERT(surfaceView->asRenderTargetProxy());
         }
 
@@ -77,6 +79,7 @@ public:
         GrAppliedClip* appliedClip() { return fAppliedClip; }
         const GrAppliedClip* appliedClip() const { return fAppliedClip; }
         const GrXferProcessor::DstProxyView& dstProxyView() const { return fDstProxyView; }
+        GrXferBarrierFlags renderPassBarriers() const { return fRenderPassXferBarriers; }
 
 #ifdef SK_DEBUG
         void validate() const {
@@ -91,6 +94,7 @@ public:
         GrRenderTargetProxy*          fRenderTargetProxy;
         GrAppliedClip*                fAppliedClip;
         GrXferProcessor::DstProxyView fDstProxyView;   // TODO: do we still need the dst proxy here?
+        GrXferBarrierFlags            fRenderPassXferBarriers;
     };
 
     void setOpArgs(OpArgs* opArgs) { fOpArgs = opArgs; }
@@ -151,6 +155,11 @@ public:
     const GrXferProcessor::DstProxyView& dstProxyView() const final {
         return this->drawOpArgs().dstProxyView();
     }
+
+    GrXferBarrierFlags renderPassBarriers() const final {
+        return this->drawOpArgs().renderPassBarriers();
+    }
+
     GrDeferredUploadTarget* deferredUploadTarget() final { return this; }
     const GrCaps& caps() const final;
     GrResourceProvider* resourceProvider() const final { return fResourceProvider; }

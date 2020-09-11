@@ -114,7 +114,8 @@ public:
         void onPrePrepare(GrRecordingContext*,
                           const GrSurfaceProxyView* writeView,
                           GrAppliedClip*,
-                          const GrXferProcessor::DstProxyView&) override {}
+                          const GrXferProcessor::DstProxyView&,
+                          GrXferBarrierFlags renderPassXferBarriers) override {}
 
         void onPrepare(GrOpFlushState*) override {}
 
@@ -361,7 +362,8 @@ private:
     void onPrePrepare(GrRecordingContext*,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) override {}
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* state, const SkRect& chainBounds) override {
         *fTestExecuteValue = 2;

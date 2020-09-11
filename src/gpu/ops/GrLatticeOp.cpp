@@ -197,7 +197,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrXferBarrierFlags renderPassXferBarriers) override {
 
         auto gp = LatticeGP::Make(arena, fView, fColorSpaceXform, fFilter, fWideColor);
         if (!gp) {
@@ -209,6 +210,7 @@ private:
                                                                    dstProxyView, gp,
                                                                    fHelper.detachProcessorSet(),
                                                                    GrPrimitiveType::kTriangles,
+                                                                   renderPassXferBarriers,
                                                                    fHelper.pipelineFlags(),
                                                                    &GrUserStencilSettings::kUnused);
     }

@@ -147,7 +147,8 @@ private:
     void onPrePrepare(GrRecordingContext*,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) override {}
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) override {}
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
         GrPipeline pipeline(fScissorTest, SkBlendMode::kSrc,
@@ -166,7 +167,8 @@ private:
                                   flushState->writeView()->origin(),
                                   &pipeline,
                                   geomProc,
-                                  GrPrimitiveType::kTriangleStrip);
+                                  GrPrimitiveType::kTriangleStrip, 0,
+                                  flushState->renderPassBarriers());
 
         flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
         for (int i = 0; i < 4; ++i) {

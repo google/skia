@@ -163,8 +163,9 @@ public:
      * ahead of time and when it has not been called).
      */
     void prePrepare(GrRecordingContext* context, GrSurfaceProxyView* dstView, GrAppliedClip* clip,
-                    const GrXferProcessor::DstProxyView& dstProxyView) {
-        this->onPrePrepare(context, dstView, clip, dstProxyView);
+                    const GrXferProcessor::DstProxyView& dstProxyView,
+                    GrXferBarrierFlags renderPassXferBarriers) {
+        this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers);
     }
 
     /**
@@ -296,7 +297,8 @@ private:
     virtual void onPrePrepare(GrRecordingContext*,
                               const GrSurfaceProxyView* writeView,
                               GrAppliedClip*,
-                              const GrXferProcessor::DstProxyView&) = 0;
+                              const GrXferProcessor::DstProxyView&,
+                              GrXferBarrierFlags renderPassXferBarriers) = 0;
     virtual void onPrepare(GrOpFlushState*) = 0;
     // If this op is chained then chainBounds is the union of the bounds of all ops in the chain.
     // Otherwise, this op's bounds.

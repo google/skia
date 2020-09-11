@@ -742,7 +742,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         SkMatrix invert;
         if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
             return;
@@ -755,7 +756,8 @@ private:
         fProgramInfo = fHelper.createProgramInfoWithStencil(caps, arena, writeView,
                                                             std::move(appliedClip),
                                                             dstProxyView, quadProcessor,
-                                                            GrPrimitiveType::kTriangles);
+                                                            GrPrimitiveType::kTriangles,
+                                                            renderPassXferBarriers);
     }
 
     void onPrepareDraws(Target* target) override {

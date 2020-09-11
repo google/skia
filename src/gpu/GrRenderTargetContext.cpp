@@ -2066,7 +2066,8 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
         willAddFn(op.get(), opsTask->uniqueID());
     }
     opsTask->addDrawOp(this->drawingManager(), std::move(op), analysis, std::move(appliedClip),
-                       dstProxyView,GrTextureResolveManager(this->drawingManager()), *this->caps());
+                       dstProxyView, GrTextureResolveManager(this->drawingManager()),
+                       *this->caps());
 }
 
 bool GrRenderTargetContext::setupDstProxyView(const GrOp& op,
@@ -2078,16 +2079,21 @@ bool GrRenderTargetContext::setupDstProxyView(const GrOp& op,
         return false;
     }
 
-    if (this->caps()->textureBarrierSupport() &&
-        !this->asSurfaceProxy()->requiresManualMSAAResolve()) {
-        if (this->asTextureProxy()) {
-            // The render target is a texture, so we can read from it directly in the shader. The XP
-            // will be responsible to detect this situation and request a texture barrier.
-            dstProxyView->setProxyView(this->readSurfaceView());
-            dstProxyView->setOffset(0, 0);
-            return true;
-        }
+    if (fDstSampleType == GrDstSampleType::kNone) {
+        fDstSampleType = this->caps()->getDstSampleTypeForProxy(this->asRenderTargetProxy());
     }
+    SkASSERT(fDstSampleType != GrDstSampleType::kNone);
+
+    if (GrDstSampleTypeDirectlySamplesDst(fDstSampleType)) {
+        // The render target is a texture or input attachment, so we can read from it directly in
+        // the shader. The XP will be responsible to detect this situation and request a texture
+        // barrier.
+        dstProxyView->setProxyView(this->readSurfaceView());
+        dstProxyView->setOffset(0, 0);
+        dstProxyView->setDstSampleType(fDstSampleType);
+        return true;
+    }
+    SkASSERT(fDstSampleType == GrDstSampleType::kAsTextureCopy);
 
     GrColorType colorType = this->colorInfo().colorType();
     // MSAA consideration: When there is support for reading MSAA samples in the shader we could
@@ -2121,6 +2127,7 @@ bool GrRenderTargetContext::setupDstProxyView(const GrOp& op,
 
     dstProxyView->setProxyView({std::move(copy), this->origin(), this->readSwizzle()});
     dstProxyView->setOffset(dstOffset);
+    dstProxyView->setDstSampleType(fDstSampleType);
     return true;
 }
 

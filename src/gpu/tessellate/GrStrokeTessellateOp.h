@@ -35,7 +35,8 @@ private:
                                       bool hasMixedSampledCoverage, GrClampType) override;
     CombineResult onCombineIfPossible(GrOp*, GrRecordingContext::Arenas*, const GrCaps&) override;
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) override;
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) override;
     void onPrepare(GrOpFlushState* state) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 

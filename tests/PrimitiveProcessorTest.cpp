@@ -64,7 +64,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         class GP : public GrGeometryProcessor {
         public:
             static GrGeometryProcessor* Make(SkArenaAlloc* arena, int numAttribs) {
@@ -134,6 +135,7 @@ private:
                                                                    gp,
                                                                    GrProcessorSet::MakeEmptySet(),
                                                                    GrPrimitiveType::kTriangles,
+                                                                   renderPassXferBarriers,
                                                                    GrPipeline::InputFlags::kNone);
     }
 

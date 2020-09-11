@@ -247,6 +247,7 @@ private:
 
     GrSwizzle onGetReadSwizzle(const GrBackendFormat&, GrColorType) const override;
 
+    GrDstSampleType onGetDstSampleTypeForProxy(const GrRenderTargetProxy*) const override;
 
     // ColorTypeInfo for a specific format
     struct ColorTypeInfo {

@@ -21,7 +21,8 @@ void GrMeshDrawOp::createProgramInfo(Target* target) {
                             target->allocator(),
                             target->writeView(),
                             target->detachAppliedClip(),
-                            target->dstProxyView());
+                            target->dstProxyView(),
+                            target->renderPassBarriers());
 }
 
 // This onPrepareDraws implementation assumes the derived Op only has a single programInfo -
@@ -29,14 +30,15 @@ void GrMeshDrawOp::createProgramInfo(Target* target) {
 void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip* clip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) {
+                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     GrXferBarrierFlags renderPassXferBarriers) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
     // This is equivalent to a GrOpFlushState::detachAppliedClip
     GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
     this->createProgramInfo(context->priv().caps(), arena, writeView,
-                            std::move(appliedClip), dstProxyView);
+                            std::move(appliedClip), dstProxyView, renderPassXferBarriers);
 
     // TODO: at this point we've created both the program info and desc in the recording context's
     // arena. In the DDL case, it would be cool if 'recordProgramInfo' could return the

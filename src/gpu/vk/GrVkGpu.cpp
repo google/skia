@@ -1939,10 +1939,9 @@ bool GrVkGpu::compile(const GrProgramDesc& desc, const GrProgramInfo& programInf
     GrVkRenderTarget::ReconstructAttachmentsDescriptor(this->vkCaps(), programInfo,
                                                        &attachmentsDescriptor, &attachmentFlags);
 
-    // Currently we only support blend barriers with the advanced blend function. Thus we pass in
-    // nullptr for the texture.
-    auto barrierType = programInfo.pipeline().xferBarrierType(nullptr, *this->caps());
-    bool willReadDst =  barrierType == kBlend_GrXferBarrierType;
+    auto barrierType = programInfo.pipeline().xferBarrierType(*this->caps());
+    bool willReadDst =  barrierType == kBlend_GrXferBarrierType ||
+                        barrierType == kTexture_GrXferBarrierType;
     sk_sp<const GrVkRenderPass> renderPass(this->resourceProvider().findCompatibleRenderPass(
                                                                          &attachmentsDescriptor,
                                                                          attachmentFlags,

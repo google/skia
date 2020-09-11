@@ -33,15 +33,22 @@ public:
     // GrPathShader.
     class ProgramInfo : public GrProgramInfo {
     public:
-        ProgramInfo(const GrSurfaceProxyView* view, const GrPipeline* pipeline,
-                    const GrPathShader* shader)
-                : ProgramInfo(view->asRenderTargetProxy(), view->origin(), pipeline, shader) {
+        ProgramInfo(const GrSurfaceProxyView* view,
+                    const GrPipeline* pipeline,
+                    const GrPathShader* shader,
+                    GrXferBarrierFlags renderPassXferBarriers)
+                : ProgramInfo(view->asRenderTargetProxy(), view->origin(), pipeline, shader,
+                              renderPassXferBarriers) {
         }
-        ProgramInfo(const GrRenderTargetProxy* proxy, GrSurfaceOrigin origin,
-                    const GrPipeline* pipeline, const GrPathShader* shader)
+        ProgramInfo(const GrRenderTargetProxy* proxy,
+                    GrSurfaceOrigin origin,
+                    const GrPipeline* pipeline,
+                    const GrPathShader* shader,
+                    GrXferBarrierFlags renderPassXferBarriers)
                 : GrProgramInfo(proxy->numSamples(), proxy->numStencilSamples(),
                                 proxy->backendFormat(), origin, pipeline, shader,
-                                shader->fPrimitiveType, shader->fTessellationPatchVertexCount) {
+                                shader->fPrimitiveType, shader->fTessellationPatchVertexCount,
+                                renderPassXferBarriers) {
         }
     };
 

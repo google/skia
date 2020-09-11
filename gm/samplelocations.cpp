@@ -244,7 +244,8 @@ private:
                                      SkArenaAlloc* arena,
                                      const GrSurfaceProxyView* writeView,
                                      GrAppliedClip&& appliedClip,
-                                     const GrXferProcessor::DstProxyView& dstProxyView) const {
+                                     const GrXferProcessor::DstProxyView& dstProxyView,
+                                     GrXferBarrierFlags renderPassXferBarriers) const {
         GrGeometryProcessor* geomProc = SampleLocationsTestProcessor::Make(arena, fGradType);
 
         GrPipeline::InputFlags flags = GrPipeline::InputFlags::kHWAntialias;
@@ -253,6 +254,7 @@ private:
                                               std::move(appliedClip), dstProxyView,
                                               geomProc, SkBlendMode::kSrcOver,
                                               GrPrimitiveType::kTriangleStrip,
+                                              renderPassXferBarriers,
                                               flags, &gStencilWrite);
     }
 
@@ -261,13 +263,15 @@ private:
                                        flushState->allocator(),
                                        flushState->writeView(),
                                        flushState->detachAppliedClip(),
-                                       flushState->dstProxyView());
+                                       flushState->dstProxyView(),
+                                       flushState->renderPassBarriers());
     }
 
     void onPrePrepare(GrRecordingContext* context,
                       const GrSurfaceProxyView* writeView,
                       GrAppliedClip* clip,
-                      const GrXferProcessor::DstProxyView& dstProxyView) final {
+                      const GrXferProcessor::DstProxyView& dstProxyView,
+                      GrXferBarrierFlags renderPassXferBarriers) final {
         // We're going to create the GrProgramInfo (and the GrPipeline and geometry processor
         // it relies on) in the DDL-record-time arena.
         SkArenaAlloc* arena = context->priv().recordTimeAllocator();
@@ -276,7 +280,8 @@ private:
         GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
 
         fProgramInfo = this->createProgramInfo(context->priv().caps(), arena, writeView,
-                                               std::move(appliedClip), dstProxyView);
+                                               std::move(appliedClip), dstProxyView,
+                                               renderPassXferBarriers);
 
         context->priv().recordProgramInfo(fProgramInfo);
     }

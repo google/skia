@@ -48,7 +48,8 @@ private:
 
     FixedFunctionFlags fixedFunctionFlags() const override;
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&) override;
+                      const GrXferProcessor::DstProxyView&,
+                      GrXferBarrierFlags renderPassXferBarriers) override;
     void onPrepare(GrOpFlushState* state) override;
 
     // Produces a non-overlapping triangulation of the path's inner polygon(s). The inner polygons

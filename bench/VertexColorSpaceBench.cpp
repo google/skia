@@ -174,7 +174,8 @@ private:
                              SkArenaAlloc* arena,
                              const GrSurfaceProxyView* writeView,
                              GrAppliedClip&& appliedClip,
-                             const GrXferProcessor::DstProxyView& dstProxyView) override {
+                             const GrXferProcessor::DstProxyView& dstProxyView,
+                             GrXferBarrierFlags renderPassXferBarriers) override {
         GrGeometryProcessor* gp = GP::Make(arena, fMode, fColorSpaceXform);
 
         fProgramInfo = GrSimpleMeshDrawOpHelper::CreateProgramInfo(caps,
@@ -185,6 +186,7 @@ private:
                                                                    gp,
                                                                    GrProcessorSet::MakeEmptySet(),
                                                                    GrPrimitiveType::kTriangleStrip,
+                                                                   renderPassXferBarriers,
                                                                    GrPipeline::InputFlags::kNone);
     }
 

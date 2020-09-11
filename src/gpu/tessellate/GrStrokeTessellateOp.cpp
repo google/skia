@@ -88,8 +88,9 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
 }
 
 void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView,
-                                        GrAppliedClip*, const GrXferProcessor::DstProxyView&) {
-}
+                                        GrAppliedClip*,
+                                        const GrXferProcessor::DstProxyView&,
+                                        GrXferBarrierFlags renderPassXferBarriers) {}
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     GrStrokePatchBuilder builder(flushState, &fPatchChunks, fMatrixScale, fTotalCombinedVerbCnt);
@@ -111,7 +112,8 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
     GrStrokeTessellateShader strokeShader(fMatrixScale, fMiterLimitOrZero, fViewMatrix, fColor);
-    GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader);
+    GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader,
+                                          flushState->renderPassBarriers());
 
     SkASSERT(chainBounds == this->bounds());
     flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
