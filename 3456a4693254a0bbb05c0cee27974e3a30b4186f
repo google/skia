@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f5ca178_81149c05",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T18:28:57Z",
+      "side": 1,
+      "message": "+reed FYI\n\nI know we\u0027ve gone back and forth about whether or not it makes sense to have these fuzzing-specific checks here, but after pondering it and the alternatives this morning I think it\u0027s not just not bad, and not just neutral, but actively good for us to see where we\u0027re choosing not to fuzz.  If we encounter bugs / crashes / exploits in these areas, it\u0027ll be nice to see why a fuzzer didn\u0027t find them, and I think this may prod us towards disabling these complex code paths unconditionally instead of just for fuzzers.",
+      "revId": "3456a4693254a0bbb05c0cee27974e3a30b4186f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "791be2d1_4cdf0e3a",
+        "filename": "site/dev/testing/fuzz.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T18:28:57Z",
+      "side": 1,
+      "message": "This define adds.... ?  😊\n\nMight mention it\u0027s set when either of the more specific defines are set?",
+      "range": {
+        "startLine": 85,
+        "startChar": 7,
+        "endLine": 85,
+        "endChar": 24
+      },
+      "revId": "3456a4693254a0bbb05c0cee27974e3a30b4186f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a9b79780_99f0647d",
+        "filename": "src/core/SkAAClip.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1549,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T18:28:57Z",
+      "side": 1,
+      "message": "I really, really like that we\u0027re upstreaming this sort of thing, so that we can see where our production code and fuzzed code differ.  I could see us wanting to promote some of these guards to production.",
+      "revId": "3456a4693254a0bbb05c0cee27974e3a30b4186f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
