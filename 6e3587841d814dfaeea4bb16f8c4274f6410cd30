@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "37a481e3_5cfe9569",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-11T00:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1eda77bf_8ab77641",
+      "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4fc2d82d_cec7198b",
         "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
         "patchSetId": 5
@@ -59,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "27e399eb_7309f697",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-11T00:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fc2d82d_cec7198b",
+      "range": {
+        "startLine": 41,
+        "startChar": 1,
+        "endLine": 43,
+        "endChar": 64
+      },
+      "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7769d512_022c20ea",
         "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
         "patchSetId": 5
@@ -79,6 +121,30 @@
       "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71b26088_7e459c34",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-11T00:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7769d512_022c20ea",
+      "range": {
+        "startLine": 93,
+        "startChar": 32,
+        "endLine": 93,
+        "endChar": 38
+      },
+      "revId": "6e3587841d814dfaeea4bb16f8c4274f6410cd30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
