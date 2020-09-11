@@ -1676,6 +1676,9 @@ bool Compiler::optimize(Program& program) {
                 }
             }
 
+            // Allow the inliner to analyze the program.
+            madeChanges |= fInliner.analyze(program);
+
             // Remove dead functions. We wait until after analysis so that we still report errors,
             // even in unused code.
             if (program.fSettings.fRemoveDeadFunctions) {
