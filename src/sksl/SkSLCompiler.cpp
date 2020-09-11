@@ -856,6 +856,8 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         std::unique_ptr<Expression> optimized = expr->constantPropagate(*fIRGenerator, definitions);
         if (optimized) {
             *outUpdated = true;
+            optimized = fIRGenerator->coerce(std::move(optimized), expr->fType);
+            SkASSERT(optimized);
             if (!try_replace_expression(&b, iter, &optimized)) {
                 *outNeedsRescan = true;
                 return;
