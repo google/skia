@@ -33,6 +33,24 @@
       "revId": "89b8025a0c86e38f047c29901c0e0a204a01392b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f82535c_40d0db42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5920
+      },
+      "writtenOn": "2020-09-11T17:49:43Z",
+      "side": 1,
+      "message": "\u003e Thanks! Does Android need this update, too?\n\nThanks for the review. Yes both chrome and android could use this for consistency. Usually I sync to released versions, but I\u0027ve gotten behind on that. I hope to make one in Q4.",
+      "parentUuid": "0843f218_555afaa2",
+      "revId": "89b8025a0c86e38f047c29901c0e0a204a01392b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
