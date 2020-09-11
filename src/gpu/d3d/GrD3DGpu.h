@@ -85,7 +85,7 @@ public:
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-            bool usesXferBarriers) override;
+            GrXferBarrierFlags renderPassXferBarriers) override;
 
     void addResourceBarriers(sk_sp<GrManagedResource> resource,
                              int numBarriers,
