@@ -313,6 +313,13 @@ public:
      */
     explicit SkFILEStream(FILE* file);
 
+    /** Initialize the stream with an existing C FILE stream.
+     *  The current position of the C FILE stream will be considered the
+     *  beginning of the SkFILEStream and size bytes later will be the end.
+     *  The C FILE stream will be closed in the destructor.
+     */
+    explicit SkFILEStream(FILE* file, size_t size);
+
     ~SkFILEStream() override;
 
     static std::unique_ptr<SkFILEStream> Make(const char path[]) {
@@ -345,6 +352,7 @@ public:
     size_t getLength() const override;
 
 private:
+    explicit SkFILEStream(FILE*, size_t size, size_t start);
     explicit SkFILEStream(std::shared_ptr<FILE>, size_t end, size_t start);
     explicit SkFILEStream(std::shared_ptr<FILE>, size_t end, size_t start, size_t current);
 
