@@ -22,6 +22,30 @@
       "revId": "bb2adeb420dea192b6ccd1a9181e62c53dc4fc18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e40fa719_3dcd6277",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T15:29:55Z",
+      "side": 1,
+      "message": "ok maybe split out the refactoring as a prequel CL?",
+      "parentUuid": "5c6e7e55_9dba182f",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 57
+      },
+      "revId": "bb2adeb420dea192b6ccd1a9181e62c53dc4fc18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
