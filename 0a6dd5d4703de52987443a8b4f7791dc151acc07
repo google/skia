@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "063f128e_34b292b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-11T17:50:46Z",
+      "side": 1,
+      "message": "This relanding only fixed the canvas kit bug.",
+      "revId": "0a6dd5d4703de52987443a8b4f7791dc151acc07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
