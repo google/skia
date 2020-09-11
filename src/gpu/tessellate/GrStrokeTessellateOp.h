@@ -56,7 +56,7 @@ private:
     GrProcessorSet fProcessors;
 
     // S=1 because we will almost always fit everything into one single chunk.
-    SkSTArray<1, GrStrokePatchBuilder::VertexChunk> fVertexChunks;
+    SkSTArray<1, GrStrokePatchBuilder::PatchChunk> fPatchChunks;
 
     friend class GrOpMemoryPool;  // For ctor.
 };
