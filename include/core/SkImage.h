@@ -1174,6 +1174,10 @@ public:
      */
     sk_sp<SkImage> withMipmaps(sk_sp<SkMipmap> data) const;
 
+    /** Same as passing nullptr
+     */
+    sk_sp<SkImage> withMipmaps() const;
+
     /** Returns SkImage backed by GPU texture associated with context. Returned SkImage is
         compatible with SkSurface created with dstColorSpace. The returned SkImage respects
         mipMapped setting; if mipMapped equals GrMipmapped::kYes, the backing texture
