@@ -69,7 +69,7 @@ id<MTLLibrary> GrGenerateMtlShaderLibrary(const GrMtlGpu* gpu,
     std::unique_ptr<SkSL::Program> program =
             gpu->shaderCompiler()->convertProgram(kind,
                                                   shaderString,
-                                                  settings);
+                                                  &settings);
 
     if (!program) {
         SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());

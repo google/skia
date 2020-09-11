@@ -19,7 +19,7 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
                                                     SkSL::Program::kPipelineStage_Kind,
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
-                                                    settings);
+                                                    &settings);
     SkSL::PipelineStageArgs args;
     if (!program || !compiler.toPipelineStage(*program, &args)) {
         return false;

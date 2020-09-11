@@ -15,7 +15,7 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                                     SkSL::String(src), settings);
+                                                                     SkSL::String(src), &settings);
     if (!compiler.errorCount()) {
         compiler.optimize(*program);
     }
@@ -33,7 +33,7 @@ static void test_success(skiatest::Reporter* r, const char* src) {
     sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
-                                                                     SkSL::String(src), settings);
+                                                                     SkSL::String(src), &settings);
     REPORTER_ASSERT(r, program);
     if (!program) {
         SkDebugf("ERROR:\n%s\n", compiler.errorText().c_str());

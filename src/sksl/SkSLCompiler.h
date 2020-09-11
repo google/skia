@@ -124,7 +124,7 @@ public:
     void registerExternalValue(ExternalValue* value);
 
     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
-                                            const Program::Settings& settings);
+                                            const Program::Settings* settings);
 
     bool optimize(Program& program);
 

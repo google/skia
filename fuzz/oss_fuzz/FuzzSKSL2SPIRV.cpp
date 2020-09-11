@@ -20,7 +20,7 @@ bool FuzzSKSL2SPIRV(sk_sp<SkData> bytes) {
                                                     SkSL::Program::kFragment_Kind,
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
-                                                    settings);
+                                                    &settings);
     if (!program || !compiler.toSPIRV(*program, &output)) {
         return false;
     }

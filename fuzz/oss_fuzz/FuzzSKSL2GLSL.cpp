@@ -20,7 +20,7 @@ bool FuzzSKSL2GLSL(sk_sp<SkData> bytes) {
                                                     SkSL::Program::kFragment_Kind,
                                                     SkSL::String((const char*) bytes->data(),
                                                                  bytes->size()),
-                                                    settings);
+                                                    &settings);
     if (!program || !compiler.toGLSL(*program, &output)) {
         return false;
     }
