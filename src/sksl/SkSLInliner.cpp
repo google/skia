@@ -492,10 +492,10 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
         // somewhere during compilation.
         if (type == fContext->fFloatLiteral_Type.get()) {
-            SkASSERT(!"found a $floatLiteral type while inlining");
+            SkDEBUGFAIL("found a $floatLiteral type while inlining");
             type = fContext->fFloat_Type.get();
         } else if (type == fContext->fIntLiteral_Type.get()) {
-            SkASSERT(!"found an $intLiteral type while inlining");
+            SkDEBUGFAIL("found an $intLiteral type while inlining");
             type = fContext->fInt_Type.get();
         }
 
