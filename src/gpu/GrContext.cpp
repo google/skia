@@ -272,19 +272,6 @@ size_t GrContext::ComputeImageSize(sk_sp<SkImage> image, GrMipmapped mipMapped, 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int GrContext::maxTextureSize() const { return this->caps()->maxTextureSize(); }
-
-int GrContext::maxRenderTargetSize() const { return this->caps()->maxRenderTargetSize(); }
-
-bool GrContext::colorTypeSupportedAsImage(SkColorType colorType) const {
-    GrBackendFormat format =
-            this->caps()->getDefaultBackendFormat(SkColorTypeToGrColorType(colorType),
-                                                  GrRenderable::kNo);
-    return format.isValid();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
                      bool deleteSemaphoresAfterWait) {
     if (!fGpu || fGpu->caps()->semaphoreSupport()) {
