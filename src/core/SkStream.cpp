@@ -165,6 +165,14 @@ SkFILEStream::SkFILEStream(std::shared_ptr<FILE> file, size_t end, size_t start)
     : SkFILEStream(std::move(file), end, start, start)
 { }
 
+SkFILEStream::SkFILEStream(FILE* file, size_t size, size_t start)
+    : SkFILEStream(std::shared_ptr<FILE>(file, sk_fclose), SkSafeMath::Add(start, size), start)
+{ }
+
+SkFILEStream::SkFILEStream(FILE* file, size_t size)
+    : SkFILEStream(file, size, file ? sk_ftell(file) : 0)
+{ }
+
 SkFILEStream::SkFILEStream(FILE* file)
     : SkFILEStream(std::shared_ptr<FILE>(file, sk_fclose),
                    file ? sk_fgetsize(file) : 0,
