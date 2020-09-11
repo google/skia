@@ -473,6 +473,9 @@ void Dehydrator::write(const Statement* s) {
                 }
                 break;
             }
+            case Statement::Kind::kSwitchCase:
+                SkASSERT(false);
+                break;
             case Statement::Kind::kVarDeclaration: {
                 const VarDeclaration& v = s->as<VarDeclaration>();
                 this->writeU8(Rehydrator::kVarDeclaration_Command);

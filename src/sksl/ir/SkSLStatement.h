@@ -30,6 +30,7 @@ struct Statement : public IRNode {
         kNop,
         kReturn,
         kSwitch,
+        kSwitchCase,
         kVarDeclaration,
         kVarDeclarations,
         kWhile,
