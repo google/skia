@@ -16,6 +16,24 @@
       "revId": "9b1d44cd5e585f9a39473f10e4386d163e5f396e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b26933a9_9def8cf6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T20:58:05Z",
+      "side": 1,
+      "message": "I\u0027m not sure that it would actually reduce complexity in BUILD.gn to remove the flag (other than one if check, I think you still have to do all the same work in the same way?).\n\nBut I think it would make sense to assume that setting `skia_compile_processors` implies `skia_compile_sksl_tests` unless you manually set it to false... I\u0027ll give that a try.",
+      "parentUuid": "d9e3fd3f_4f71bbb1",
+      "revId": "9b1d44cd5e585f9a39473f10e4386d163e5f396e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
