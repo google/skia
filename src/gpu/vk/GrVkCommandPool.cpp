@@ -12,9 +12,7 @@
 #include "src/gpu/vk/GrVkGpu.h"
 
 GrVkCommandPool* GrVkCommandPool::Create(GrVkGpu* gpu) {
-    VkCommandPoolCreateFlags cmdPoolCreateFlags =
-            VK_COMMAND_POOL_CREATE_TRANSIENT_BIT |
-            VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    VkCommandPoolCreateFlags cmdPoolCreateFlags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     if (gpu->protectedContext()) {
         cmdPoolCreateFlags |= VK_COMMAND_POOL_CREATE_PROTECTED_BIT;
     }
