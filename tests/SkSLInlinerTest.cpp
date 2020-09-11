@@ -1129,3 +1129,112 @@ void main() {
 }
 )__GLSL__");
 }
+
+DEF_TEST(SkSLFunctionMultipleInlinesOnOneLine, r) {
+    test(r,
+         *SkSL::ShaderCapsFactory::Default(),
+         R"__SkSL__(
+            uniform half val;
+            inline half BigX(half x) {
+                ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
+                --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
+                x = 123;
+                return x;
+            }
+            inline half BigY(half x) {
+                ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
+                --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
+                x = 456;
+                return x;
+            }
+            void main() {
+                sk_FragColor = BigX(BigY(val)).xxxx;
+            }
+         )__SkSL__",
+         R"__GLSL__(#version 400
+out vec4 sk_FragColor;
+uniform float val;
+void main() {
+    float _1_x = val;
+    {
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        ++_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        --_1_x;
+        _1_x = 456.0;
+    }
+
+    float _3_x = 456.0;
+    {
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        ++_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        --_3_x;
+        _3_x = 123.0;
+    }
+
+    sk_FragColor = vec4(123.0);
+
+}
+)__GLSL__");
+}
