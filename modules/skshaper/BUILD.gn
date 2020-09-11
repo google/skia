@@ -4,10 +4,7 @@
 # found in the LICENSE file.
 
 import("../../gn/skia.gni")
-
-declare_args() {
-  skia_enable_skshaper = true
-}
+import("skshaper.gni")
 
 if (skia_enable_skshaper) {
   config("public_config") {
@@ -27,7 +24,6 @@ if (skia_enable_skshaper) {
 
   component("skshaper") {
     check_includes = false
-    import("skshaper.gni")
     public_configs = [ ":public_config" ]
     public = skia_shaper_public
     deps = [ "../..:skia" ]
