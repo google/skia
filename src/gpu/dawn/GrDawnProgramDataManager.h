@@ -26,6 +26,7 @@ public:
     GrDawnProgramDataManager(const UniformInfoArray&, uint32_t uniformBufferSize);
 
     uint32_t uniformBufferSize() const { return fUniformSize; }
+    const void* uniformData() const { return fUniformData.get(); }
 
     wgpu::BindGroup uploadUniformBuffers(GrDawnGpu* gpu, wgpu::BindGroupLayout layout);
 
