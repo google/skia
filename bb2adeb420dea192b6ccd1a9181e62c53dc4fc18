@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c6e7e55_9dba182f",
+        "filename": "src/core/SkStream.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-11T14:10:29Z",
+      "side": 1,
+      "message": "This (along with the missing SkTPin added in the real constructor) is the only actually added code. The rest is a rename of fSize to fEndOffset (since that\u0027s what it really was, and the rename forced due to \u0027size\u0027 now meaning something else), fOriginalOffset to \u0027fStartOffset\u0027, and fOffset to fCurrentOffset. One more change was to change the initialization order to fEndOffset, fStartOffset, then fCurrentOffset so as to maintain the right invariant (fCurrentOffset should always be kept within the range of fStartOffset and fEndOffset, inclusive).",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 57
+      },
+      "revId": "bb2adeb420dea192b6ccd1a9181e62c53dc4fc18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
