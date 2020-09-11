@@ -1779,7 +1779,7 @@ protected:
         for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,
                         kBT2020_SkYUVColorSpace}) {
             split_into_yuv(fOrig.get(), cs, fPM);
-            auto img = SkImage::MakeFromYUVAPixmaps(canvas->getGrContext(), cs, fPM, indices,
+            auto img = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(), cs, fPM, indices,
                                                     fPM[0].info().dimensions(),
                                                     kTopLeft_GrSurfaceOrigin,
                                                     false, false, nullptr);

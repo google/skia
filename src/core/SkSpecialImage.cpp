@@ -354,8 +354,9 @@ public:
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
         sk_sp<SkImage> img =
-                sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(canvas->getGrContext()), this->uniqueID(),
-                                               fView, this->colorType(), fAlphaType, fColorSpace));
+                sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
+                                               this->uniqueID(), fView, this->colorType(),
+                                               fAlphaType, fColorSpace));
 
         canvas->drawImageRect(img, this->subset(),
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
