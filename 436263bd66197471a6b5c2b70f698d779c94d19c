@@ -87,6 +87,24 @@
       "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5af2376a_4725f3c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-11T20:21:24Z",
+      "side": 1,
+      "message": "Error reporting now works--PTAL followup CL at http://review.skia.org/316569",
+      "parentUuid": "923edcaf_5054eb94",
+      "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
