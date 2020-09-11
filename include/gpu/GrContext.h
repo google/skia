@@ -287,17 +287,17 @@ public:
     /**
      * Gets the maximum supported texture size.
      */
-    int maxTextureSize() const;
+    using GrRecordingContext::maxTextureSize;
 
     /**
      * Gets the maximum supported render target size.
      */
-    int maxRenderTargetSize() const;
+    using GrRecordingContext::maxRenderTargetSize;
 
     /**
      * Can a SkImage be created with the given color type.
      */
-    bool colorTypeSupportedAsImage(SkColorType) const;
+    using GrRecordingContext::colorTypeSupportedAsImage;
 
     /**
      * Can a SkSurface be created with the given color type. To check whether MSAA is supported
