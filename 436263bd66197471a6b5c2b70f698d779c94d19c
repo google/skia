@@ -52,6 +52,24 @@
       "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "923edcaf_5054eb94",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T15:13:40Z",
+      "side": 1,
+      "message": "\u003e 3 - GN supports that, right? SGTM.\n\nIn general, no.  Globbing was intentionally left out of GN.\nTo make it work you\u0027ll need to shell out to Python (grep glob gn/*).\n\n\u003e then converted to either byte-code (which I guess we could dump?)\n\nI do find those byte code dumps pretty readable.",
+      "parentUuid": "ce3ef40e_6307ffeb",
+      "revId": "436263bd66197471a6b5c2b70f698d779c94d19c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
