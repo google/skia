@@ -1,0 +1,22 @@
+/*
+ * Copyright 2020 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+void main() {
+    // Basic switch test.
+    float x;
+    switch (int(sqrt(1))) {
+        case 0:
+            x = 0.0;
+            break;
+        case 1:
+            x = 1.0;
+            break;
+        default:
+            x = 2.0;
+    }
+    sk_FragColor = half4(half(x));
+}
