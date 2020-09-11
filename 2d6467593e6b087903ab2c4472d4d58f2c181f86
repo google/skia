@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "e29cf335_f0f1a7be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-11T15:10:08Z",
+      "side": 1,
+      "message": "I could condense all the restrict defines into one. I did it this way first because I didn\u0027t want to change behavior while doing this backporting. If you prefer the single define for the restrictions, that\u0027s fine by me.",
+      "parentUuid": "e24befec_d87bcd01",
+      "revId": "2d6467593e6b087903ab2c4472d4d58f2c181f86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6cda05fd_ed589cd3",
         "filename": "src/ports/SkDebug_stdio.cpp",
         "patchSetId": 4
