@@ -16,6 +16,46 @@
       "revId": "96e063ebc257f112cea2744f1dc8cd959bcd65ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5fcee1d_132fadbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T17:36:46Z",
+      "side": 1,
+      "message": "Let me see maybe if I can make some concrete suggestions instead of just asking you to come up with what I like...\n\nDo you think this works?\n\nSkTypes.h\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n#if defined(SK_BUILD_FOR_LIBFUZZER) || defined(SK_BUILD_FOR_AFL_FUZZ)\n    #define SK_BUILD_FOR_FUZZER\n#endif\n\nand then have most of Skia code check\n\n   #if defined(SK_BUILD_FOR_FUZZER)\n\nwith certain places checking more precise SK_BUILD_FOR_LIBFUZZER or SK_BUILD_FOR_AFL_FUZZ?\n\n(And the build files setting one of SK_BUILD_FOR_LIBFUZZER, SK_BUILD_FOR_AFL_FUZZ, or SK_BUILD_FOR_FUZZER I guess if it\u0027s some third fuzzer system.)",
+      "revId": "96e063ebc257f112cea2744f1dc8cd959bcd65ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85972e8f_c9f65178",
+        "filename": "src/ports/SkDebug_stdio.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-11T17:36:46Z",
+      "side": 1,
+      "message": "Oh, I was suggesting we\u0027d do this externally, without changing this file.  SkTypes.h declares the function SkDebugf(), but only if it\u0027s not already #define\u0027d to something.  That lets us do the #define externally and ignore this whole function.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 14
+      },
+      "revId": "96e063ebc257f112cea2744f1dc8cd959bcd65ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
