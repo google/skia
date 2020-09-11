@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a7ff8825_d4fcda14",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T17:21:55Z",
+      "side": 1,
+      "message": "I debated this while writing it. I agree - I\u0027ll rename it.",
+      "parentUuid": "075f641b_92f70d92",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 15
+      },
+      "revId": "9fb0d68c07c6910fa817ab2146532062212d3c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5871d34_c1b6a9e2",
         "filename": "src/sksl/ir/SkSLType.h",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ef23d26c_179ba25b",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T17:21:55Z",
+      "side": 1,
+      "message": "No, it\u0027s only used in one spot, done.",
+      "parentUuid": "b5871d34_c1b6a9e2",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 0
+      },
+      "revId": "9fb0d68c07c6910fa817ab2146532062212d3c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "26339b7d_9c149f9b",
         "filename": "src/sksl/ir/SkSLType.h",
         "patchSetId": 6
@@ -68,6 +116,30 @@
       "revId": "9fb0d68c07c6910fa817ab2146532062212d3c3a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52761097_68a54c2e",
+        "filename": "src/sksl/ir/SkSLType.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-11T17:21:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26339b7d_9c149f9b",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 33
+      },
+      "revId": "9fb0d68c07c6910fa817ab2146532062212d3c3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
