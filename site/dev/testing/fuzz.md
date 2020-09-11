@@ -19,8 +19,8 @@ less machine- and platform- dependent:
     skia_enable_fontmgr_custom_embedded=false
     skia_enable_fontmgr_custom_empty=true
 
-All that is needed to reproduce a fuzz downloaded from ClusterFuzz, oss-fuzz or
-fuzzer.skia.org is to run something like:
+All that is needed to reproduce a fuzz downloaded from ClusterFuzz or oss-fuzz is to
+run something like:
 
     out/ASAN/fuzz -b /path/to/downloaded/testcase
 
@@ -69,3 +69,23 @@ Build Skia and your fuzzer entry point:
 Run your new fuzzer binary
 
     ./a.out
+
+
+Fuzzing Defines
+---------------
+There are some defines that can help guide a fuzzer to be more productive (e.g. avoid OOMs, avoid
+unnecessarily slow code).
+
+    // Recommended for fuzzing with afl-fuzz
+    SK_FUZZING_IGNORE_OOM
+
+    // Required for fuzzing with libfuzzer
+    SK_INCLUDE_LIBFUZZER_ENTRYPOINTS
+
+    // Recommended for fuzzing with libfuzzer (which is more sensitive to OOMs)
+    SK_FUZZING_RESTRICT_COMPLEXITY
+    SK_FUZZING_RESTRICT_MEMORY
+
+    // Recommended for fuzzing memory intensive and/or slow fuzzers
+    SK_FUZZING_RESTRICT_COMPLEXITY_GREATLY
+    SK_FUZZING_RESTRICT_MEMORY_GREATLY

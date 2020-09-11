@@ -22,6 +22,11 @@ DEF_FUZZ(PathMeasure, fuzz) {
     FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
     SkRect bounds = path.getBounds();
     SkScalar maxDim = std::max(bounds.width(), bounds.height());
+#if defined(SK_FUZZING_RESTRICT_COMPLEXITY)
+    if (maxDim > 1000000) {
+        return;
+    }
+#endif
     SkScalar resScale = maxDim / 1000;
     SkPathMeasure measure(path, bits & 1, resScale);
     SkPoint position;
