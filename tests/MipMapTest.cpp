@@ -228,7 +228,7 @@ DEF_TEST(image_mip_factory, reporter) {
     auto img = GetResourceAsImage("images/mandrill_128.png")->makeRasterImage();
 
     REPORTER_ASSERT(reporter, !img->hasMipmaps());
-    auto img1 = img->withMipmaps(nullptr);
+    auto img1 = img->withDefaultMipmaps();
     REPORTER_ASSERT(reporter, img.get() != img1.get());
     REPORTER_ASSERT(reporter, img1->hasMipmaps());
 
