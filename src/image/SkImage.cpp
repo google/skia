@@ -669,3 +669,7 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
     }
     return sk_ref_sp((const_cast<SkImage*>(this)));
 }
+
+sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
+    return this->withMipmaps(nullptr);
+}
