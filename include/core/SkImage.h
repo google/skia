@@ -25,6 +25,7 @@
 
 class SkData;
 class SkCanvas;
+class SkImage;
 class SkImageFilter;
 class SkImageGenerator;
 class SkMipmap;
@@ -63,10 +64,20 @@ public:
     int countLevels() const;
     SkPixmap level(int index) const;
 
-    sk_sp<SkMipmap> detach();
+    /**
+     *  If these levels are compatible with src, return a new Image that combines src's base level with
+     *  these levels as mip levels. If not compatible, this returns nullptr.
+     */
+    sk_sp<SkImage> attachTo(const SkImage* src);
+
+    sk_sp<SkImage> attachTo(sk_sp<SkImage> src) {
+        return this->attachTo(src.get());
+    }
 
 private:
     sk_sp<SkMipmap> fMM;
+
+    friend class SkImage;
 };
 
 /** \class SkImage
@@ -1167,12 +1178,14 @@ public:
 
     /**
      *  Returns an image with the same "base" pixels as the this image, but with mipmap levels
-     *  as well. If this image already has mipmap levels, they will be replaced with new ones.
-     *
-     *  If data == nullptr, the mipmap levels are computed automatically.
-     *  If data != nullptr, then the caller has provided the data for each level.
+     *  as well, retrived from the builder.
+     *  Note: if the builder's starting ImageInfo does not match the dimensions of this image, or has unsupported
+     *  settings (e.g. colortype), then null will be returned.
      */
-    sk_sp<SkImage> withMipmaps(sk_sp<SkMipmap> data) const;
+    sk_sp<SkImage> withMipmaps(const SkMipmapBuilder&) const;
+
+    // Private alternative that takes internal SkMipmap data
+    sk_sp<SkImage> withMipmaps(sk_sp<SkMipmap>) const;
 
     /**
      *  Returns an image with the same "base" pixels as the this image, but with mipmap levels
