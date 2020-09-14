@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "ec86a46a_77838d69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-14T16:16:50Z",
+      "side": 1,
+      "message": "In Vulkan terms, it\u0027s a descriptor set. It can point to uniform buffers, storage buffers, samplers, textures, etc. The Dawn backend uses one BindGroup for UBOs and one for samplers and textures. Right now, we create a new uniform BindGroup each time the the uniform values change. They\u0027re cached internally in Dawn, but still can be a perf bottleneck.",
+      "parentUuid": "e364d606_12e43371",
+      "revId": "82958e4eff67af00c05a330de5acebaec3f4f98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21c3e6cb_f84d629e",
         "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
         "patchSetId": 3
@@ -56,6 +74,30 @@
       "revId": "82958e4eff67af00c05a330de5acebaec3f4f98c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92efbaf5_5d46c540",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-14T16:16:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21c3e6cb_f84d629e",
+      "range": {
+        "startLine": 84,
+        "startChar": 100,
+        "endLine": 84,
+        "endChar": 103
+      },
+      "revId": "82958e4eff67af00c05a330de5acebaec3f4f98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
