@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4deb0377_73bd6952",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T14:27:52Z",
+      "side": 1,
+      "message": "I also have another change that goes back to exact way this was before my previous change for nvidia linux. As in there is a cap that forces dedicated allocations if the image allocation is above a specific size. But I want to land this version first to see if we go all the way to only using dedicated on nvidia linux what the perf effects are.",
+      "revId": "55e84cfb15292f54f0ad80e999ae79b90fa325d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
