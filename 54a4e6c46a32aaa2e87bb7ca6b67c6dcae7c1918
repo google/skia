@@ -52,6 +52,24 @@
       "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c34e5ab2_82cbc0c3",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-14T19:10:09Z",
+      "side": 1,
+      "message": "I would prefer to use drawImageAtCurrentFrame",
+      "parentUuid": "86c5c07e_c71f0dce",
+      "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
