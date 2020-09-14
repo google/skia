@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e04cc191_53e3761a",
+        "filename": "src/gpu/glsl/GrGLSL.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T16:35:17Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "658b7033_72d59df9",
+      "range": {
+        "startLine": 100,
+        "startChar": 20,
+        "endLine": 100,
+        "endChar": 32
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "230b7501_a0ebd1fd",
         "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
         "patchSetId": 11
@@ -140,6 +164,30 @@
       "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8e1b1c2_4681d09b",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T16:35:17Z",
+      "side": 1,
+      "message": "If the original Vk examples were C that would track :)",
+      "parentUuid": "6a31e66c_b5d3932b",
+      "range": {
+        "startLine": 165,
+        "startChar": 8,
+        "endLine": 166,
+        "endChar": 83
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -327,6 +375,30 @@
       "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93c21f88_7d311246",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T16:35:17Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "94a30924_e640967e",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 26
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
