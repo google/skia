@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "0cf36dc8_b8798998",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T14:03:58Z",
+      "side": 1,
+      "message": "I actually remember figuring this out about `is_constant` and trying to refactor it to be more broadly applicable for this code. I burned an hour or two on this idea and then decided it made more sense to just land a smaller fix for the issue I had in front of me instead of embarking on what was starting to look like a Big Rewrite. Your proposed cleanups SGTM.",
+      "parentUuid": "9f6e7e99_e5502d01",
+      "range": {
+        "startLine": 1350,
+        "startChar": 0,
+        "endLine": 1352,
+        "endChar": 51
+      },
+      "revId": "1085f9bd7ab30d3bb7fcac6fa1be44c6eb78d2a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13899d24_336d5f5b",
         "filename": "src/sksl/SkSLCompiler.h",
         "patchSetId": 1
