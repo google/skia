@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b438c784_8ec7a71c",
+        "filename": "commit-queue.cfg",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-09-14T15:38:18Z",
+      "side": 1,
+      "message": "All examples of location_regexp I have seen. Eg: https://chromium.googlesource.com/native_client/src/native_client/+/refs/heads/infra/config/commit-queue.cfg#195\nHave \".+/[+]/\" in front of it. I\u0027m not sure why. But FYI if this does not work.",
+      "revId": "ea9342790ae3d933f66a52f3add63677082bfdbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
