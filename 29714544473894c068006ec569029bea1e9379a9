@@ -16,6 +16,24 @@
       "revId": "29714544473894c068006ec569029bea1e9379a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de8352d0_7aa1dab7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-14T18:13:52Z",
+      "side": 1,
+      "message": "As far as I can tell, it has no impact at all. I added counters for the number of calls to scanCFG(FunctionDefinition), and the number of rescans. Across all GMs and all SkSL unit tests, the totals are identical. (For GMs: 30200 calls to scanCFG, and 2101 rescans. For unit tests: 3861 scanCFG, 26 rescan).",
+      "parentUuid": "c6b80ab1_dadae789",
+      "revId": "29714544473894c068006ec569029bea1e9379a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
