@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ee09cfd_bf3b969e",
+        "filename": "src/image/SkImage_GpuBase.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T14:06:11Z",
+      "side": 1,
+      "message": "Can\u0027t we just call \"fContext-\u003eabandoned\" here w/o needing to upgrade it to a recording context?",
+      "revId": "2aac8ad997c48bd98bb61f20a901ed62faef906d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
