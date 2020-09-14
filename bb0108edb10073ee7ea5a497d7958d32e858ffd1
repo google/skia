@@ -51,6 +51,24 @@
       "revId": "bb0108edb10073ee7ea5a497d7958d32e858ffd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6321805_6ba7a816",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-14T19:19:55Z",
+      "side": 1,
+      "message": "When we discussed the CanvasKit API back in March, there were requests to remove \"unnecessary\" ColorTypes. https://docs.google.com/document/d/15_8etjtXGT_pqZKbaCyXGM9el7BneT9yNKfxpsPgjsA/edit#\n\nThis CL is (finally) following up on that discussion.\n\nAs far as long-term API maintenance goes, I would err on the side of having to add something upon request rather than adding too much and not being able to unexpose stuff later.",
+      "parentUuid": "fda7206f_706ee86a",
+      "revId": "bb0108edb10073ee7ea5a497d7958d32e858ffd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
