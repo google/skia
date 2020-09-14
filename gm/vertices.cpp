@@ -302,7 +302,7 @@ DEF_SIMPLE_GM(vertices_data, canvas, 512, 256) {
         const char* gProg = R"(
             varying float4 vtx_color;
             half4 main(float2 p) {
-                return half4(vtx_color);
+                return vtx_color;
             }
         )";
         auto[effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
@@ -383,7 +383,7 @@ DEF_SIMPLE_GM(vertices_data_lerp, canvas, 256, 256) {
         half4 main(float2 p) {
             half4 col0 = sample(c0, p);
             half4 col1 = sample(c1, p);
-            return mix(col0, col1, half(vtx_lerp));
+            return mix(col0, col1, vtx_lerp);
         }
     )";
     auto [effect, errorText] = SkRuntimeEffect::Make(SkString(gProg));
@@ -584,7 +584,7 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 400) {
     const char* vectorProg = R"(
         varying float3 vtx_vec;
         half4 main(float2 p) {
-            return (half3(vtx_vec) * 0.5 + 0.5).rgb1;
+            return (vtx_vec * 0.5 + 0.5).rgb1;
         })";
 
     // raw, local vectors, normals, and positions should all look the same (no real transform)
@@ -614,7 +614,7 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 400) {
     const char* ctmPositionProg250 = R"(
         varying float3 vtx_pos;
         half4 main(float2 p) {
-            return ((half3(vtx_pos) - half3(250, 350, 0)) / 50 + 0.5).rgb1;
+            return ((vtx_pos - float3(250, 350, 0)) / 50 + 0.5).rgb1;
         }
     )";
     draw(250, 350, make_cone(Attr::Usage::kPosition, nullptr), ctmPositionProg250, 0.5f);
@@ -622,7 +622,7 @@ DEF_SIMPLE_GM(vertices_custom_matrices, canvas, 400, 400) {
     const char* ctmPositionProg350 = R"(
         varying float3 vtx_pos;
         half4 main(float2 p) {
-            return ((half3(vtx_pos) - half3(350, 350, 0)) / 50 + 0.5).rgb1;
+            return ((vtx_pos - float3(350, 350, 0)) / 50 + 0.5).rgb1;
         }
     )";
     canvas->saveLayer({ 300, 300, 400, 400 }, nullptr);
