@@ -16,6 +16,46 @@
       "revId": "82958e4eff67af00c05a330de5acebaec3f4f98c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e364d606_12e43371",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T15:38:33Z",
+      "side": 1,
+      "message": "In general this looks fine. Can you remind me what exactly a bind group is in Dawn? Like are we creating a different bind group for each uniform buffer or is it the data of the uniforms themselves? Like if I have the same GrDawnProgram but change a uniform value I get a new bindGroup?",
+      "revId": "82958e4eff67af00c05a330de5acebaec3f4f98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21c3e6cb_f84d629e",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T15:38:33Z",
+      "side": 1,
+      "message": "100 chars",
+      "range": {
+        "startLine": 84,
+        "startChar": 100,
+        "endLine": 84,
+        "endChar": 103
+      },
+      "revId": "82958e4eff67af00c05a330de5acebaec3f4f98c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
