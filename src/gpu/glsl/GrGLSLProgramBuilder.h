@@ -69,6 +69,14 @@ public:
         return this->uniformHandler()->samplerSwizzle(handle);
     }
 
+    const char* inputSamplerVariable(SamplerHandle handle) const {
+        return this->uniformHandler()->inputSamplerVariable(handle);
+    }
+
+    GrSwizzle inputSamplerSwizzle(SamplerHandle handle) const {
+        return this->uniformHandler()->inputSamplerSwizzle(handle);
+    }
+
     // Used to add a uniform for the RenderTarget width (used for sk_Width) without mangling
     // the name of the uniform inside of a stage.
     void addRTWidthUniform(const char* name);
@@ -157,6 +165,7 @@ private:
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     SamplerHandle emitSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                               const char* name);
+    SamplerHandle emitInputSampler(const GrSwizzle& swizzle, const char* name);
     bool checkSamplerCounts();
 
 #ifdef SK_DEBUG

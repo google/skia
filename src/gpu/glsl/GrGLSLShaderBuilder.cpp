@@ -112,6 +112,14 @@ void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
     }
 }
 
+void GrGLSLShaderBuilder::appendInputLoad(SamplerHandle samplerHandle) {
+    const char* input = fProgramBuilder->inputSamplerVariable(samplerHandle);
+    SkString load;
+    load.appendf("subpassLoad(%s)", input);
+    append_texture_swizzle(&load, fProgramBuilder->inputSamplerSwizzle(samplerHandle));
+    this->codeAppend(load.c_str());
+}
+
 void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
                                                 const char* srcColor,
                                                 GrGLSLColorSpaceXformHelper* colorXformHelper) {

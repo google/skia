@@ -108,11 +108,24 @@ protected:
 
 private:
     virtual const char * samplerVariable(SamplerHandle) const = 0;
-
     virtual GrSwizzle samplerSwizzle(SamplerHandle) const = 0;
+
+    virtual const char* inputSamplerVariable(SamplerHandle) const {
+        SkDEBUGFAIL("Trying to get input sampler from unsupported backend");
+        return nullptr;
+    }
+    virtual GrSwizzle inputSamplerSwizzle(SamplerHandle) const {
+        SkDEBUGFAIL("Trying to get input sampler swizzle from unsupported backend");
+        return {};
+    }
 
     virtual SamplerHandle addSampler(const GrBackendFormat&, GrSamplerState, const GrSwizzle&,
                                      const char* name, const GrShaderCaps*) = 0;
+
+    virtual SamplerHandle addInputSampler(const GrSwizzle& swizzle, const char* name) {
+        SkDEBUGFAIL("Trying to add input sampler to unsupported backend");
+        return {};
+    }
 
     virtual UniformHandle internalAddUniformArray(const GrFragmentProcessor* owner,
                                                   uint32_t visibility,
