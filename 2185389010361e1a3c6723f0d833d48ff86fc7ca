@@ -52,6 +52,24 @@
       "revId": "2185389010361e1a3c6723f0d833d48ff86fc7ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddaba907_98311d6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T13:54:24Z",
+      "side": 1,
+      "message": "1) Spoke to hcm@ and it seems fine to remove the copyright header; will do.",
+      "parentUuid": "a4fc382b_455e7ad5",
+      "revId": "2185389010361e1a3c6723f0d833d48ff86fc7ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
