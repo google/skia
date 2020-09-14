@@ -22,6 +22,30 @@
       "revId": "f8bb5ad3087b286fe81184cec34476a598a4410b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6ecee80_df153e20",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T13:26:50Z",
+      "side": 1,
+      "message": "Removed.\n\nIn the long term I think there is a lot of value in VLOG-style debug markers, especially when developing very complicated tech like an optimizing compiler, and I think Skia could benefit from adopting a similar technique. But in the short term, I agree that a commented-out printf is a pretty poor substitute :) \n\nhttp://go/logging#VLOG",
+      "parentUuid": "8e4eedda_b4a14903",
+      "range": {
+        "startLine": 1051,
+        "startChar": 0,
+        "endLine": 1054,
+        "endChar": 0
+      },
+      "revId": "f8bb5ad3087b286fe81184cec34476a598a4410b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
