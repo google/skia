@@ -52,7 +52,7 @@ for input in inputs:
             # The CPP generated an error. We didn't actually generate a header, but there might be
             # one from prior runs. Let's remove it for clarity.
             unlinkIfExists(target + ".h")
-    elif ext == ".sksl":
+    elif ext == ".sksl" or ext == ".vert":
         compile(skslc, input, target, ".glsl")
     else:
         print("### Unrecognized file type for " + input + ", skipped")
