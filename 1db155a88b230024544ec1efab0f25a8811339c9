@@ -22,6 +22,30 @@
       "revId": "1db155a88b230024544ec1efab0f25a8811339c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "796449ab_5c637c68",
+        "filename": "fuzz/oss_fuzz/FuzzImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-14T17:42:42Z",
+      "side": 1,
+      "message": "IS_FUZZING_WITH_LIBFUZZER was something I made up before I realized that Skia defines should have SK as a prefix. Thus, I would like to get rid of it entirely.",
+      "parentUuid": "7dcdf417_001232b4",
+      "range": {
+        "startLine": 31,
+        "startChar": 19,
+        "endLine": 31,
+        "endChar": 36
+      },
+      "revId": "1db155a88b230024544ec1efab0f25a8811339c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
