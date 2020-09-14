@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "a239170f_9a31db03",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-14T16:05:07Z",
+      "side": 1,
+      "message": "I\u0027ve moved the mixed AA/non-AA handling into shape_contains_rect now, but was able to just use GrQuadUtils::Outset to exactly compute the 0.5px outset in device space, even when there\u0027s perspective.",
+      "parentUuid": "452eee6a_78f4d7c0",
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ec7917a_f12559d0",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 16
@@ -76,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "0ba35a37_b6e9f94b",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-14T16:05:07Z",
+      "side": 1,
+      "message": "This is gone now",
+      "parentUuid": "0ec7917a_f12559d0",
+      "range": {
+        "startLine": 455,
+        "startChar": 0,
+        "endLine": 456,
+        "endChar": 61
+      },
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3e0507c9_1fc6e197",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 16
@@ -96,6 +138,30 @@
       "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f235d85e_2bd92e4e",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-14T16:05:07Z",
+      "side": 1,
+      "message": "This is no longer needed; the mixed AA is just passed into the shape_contains_rect function and GrRawElement::contains() is much simpler now.",
+      "parentUuid": "3e0507c9_1fc6e197",
+      "range": {
+        "startLine": 515,
+        "startChar": 8,
+        "endLine": 517,
+        "endChar": 72
+      },
+      "revId": "d73d551c2a8e878bdea165e5272b7ffeecba3243",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
