@@ -93,6 +93,9 @@ declare_args() {
   } else {
     skia_use_vulkan = false
   }
+
+  skia_build_fuzzers = false
+  skia_use_libfuzzer_defaults = true
 }
 
 declare_args() {

@@ -2687,3 +2687,349 @@ if (is_ios && skia_enable_skottie && !skia_enable_flutter_defines) {
     deps = [ "tools/skottie_ios_app" ]
   }
 }
+
+if (skia_build_fuzzers) {
+  template("libfuzzer_exe") {
+    output_dir = root_build_dir
+    executable(target_name) {
+      check_includes = false
+      forward_variables_from(invoker, "*", [ "is_shared_library" ])
+      configs += [ ":skia_private" ]
+      sources += [
+        "fuzz/Fuzz.cpp",
+        "fuzz/FuzzCommon.cpp",
+      ]
+      deps += [
+        ":flags",
+        ":gpu_tool_utils",
+        ":skia",
+      ]
+      defines = [ "SK_BUILD_FOR_LIBFUZZER" ]
+      if (skia_use_libfuzzer_defaults) {
+        cflags = [ "-fsanitize=fuzzer" ]
+        ldflags = [ "-fsanitize=fuzzer" ]
+      }
+      testonly = true
+    }
+  }
+
+  libfuzzer_exe("region_deserialize") {
+    sources = [ "fuzz/oss_fuzz/FuzzRegionDeserialize.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("image_filter_deserialize") {
+    include_dirs = [
+      "tools",
+      "tools/fonts",
+    ]
+    sources = [
+      "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp",
+      "tools/Resources.cpp",
+      "tools/fonts/TestFontMgr.cpp",
+      "tools/fonts/TestSVGTypeface.cpp",
+      "tools/fonts/TestTypeface.cpp",
+    ]
+    deps = [ ":experimental_svg_model" ]
+  }
+
+  libfuzzer_exe("region_set_path") {
+    sources = [ "fuzz/oss_fuzz/FuzzRegionSetPath.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("textblob_deserialize") {
+    include_dirs = [
+      "tools",
+      "tools/fonts",
+    ]
+    sources = [
+      "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
+      "tools/Resources.cpp",
+      "tools/fonts/TestFontMgr.cpp",
+      "tools/fonts/TestSVGTypeface.cpp",
+      "tools/fonts/TestTypeface.cpp",
+    ]
+    deps = [ ":experimental_svg_model" ]
+  }
+
+  libfuzzer_exe("path_deserialize") {
+    sources = [ "fuzz/oss_fuzz/FuzzPathDeserialize.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("image_decode") {
+    sources = [ "fuzz/oss_fuzz/FuzzImage.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("animated_image_decode") {
+    sources = [ "fuzz/oss_fuzz/FuzzAnimatedImage.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("api_create_ddl") {
+    include_dirs = [
+      "include",
+      "include/gpu",
+    ]
+    sources = [
+      "fuzz/FuzzCreateDDL.cpp",
+      "fuzz/oss_fuzz/FuzzAPICreateDDL.cpp",
+      "tools/Resources.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DebugLayerManager.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
+      "tools/fonts/TestFontMgr.cpp",
+      "tools/fonts/TestSVGTypeface.cpp",
+      "tools/fonts/TestTypeface.cpp",
+    ]
+    deps = [
+      ":experimental_svg_model",
+      "//third_party/libpng",
+    ]
+  }
+
+  libfuzzer_exe("api_draw_functions") {
+    sources = [
+      "fuzz/FuzzDrawFunctions.cpp",
+      "fuzz/oss_fuzz/FuzzDrawFunctions.cpp",
+    ]
+    deps = []
+  }
+
+  libfuzzer_exe("api_gradients") {
+    sources = [
+      "fuzz/FuzzGradients.cpp",
+      "fuzz/oss_fuzz/FuzzGradients.cpp",
+    ]
+    deps = []
+  }
+
+  libfuzzer_exe("api_image_filter") {
+    include_dirs = [
+      "tools",
+      "tools/debugger",
+    ]
+    sources = [
+      "fuzz/FuzzCanvas.cpp",
+      "fuzz/oss_fuzz/FuzzAPIImageFilter.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DebugLayerManager.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
+    ]
+    deps = [ "//third_party/libpng" ]
+  }
+
+  libfuzzer_exe("api_path_measure") {
+    sources = [
+      "fuzz/FuzzPathMeasure.cpp",
+      "fuzz/oss_fuzz/FuzzPathMeasure.cpp",
+    ]
+    deps = []
+  }
+
+  libfuzzer_exe("api_pathop") {
+    sources = [
+      "fuzz/FuzzPathop.cpp",
+      "fuzz/oss_fuzz/FuzzPathop.cpp",
+    ]
+    deps = []
+  }
+
+  libfuzzer_exe("api_raster_n32_canvas") {
+    include_dirs = [
+      "tools",
+      "tools/debugger",
+      "tools/fonts",
+    ]
+    sources = [
+      "fuzz/FuzzCanvas.cpp",
+      "fuzz/oss_fuzz/FuzzRasterN32Canvas.cpp",
+      "tools/Resources.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DebugLayerManager.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
+      "tools/fonts/TestFontMgr.cpp",
+      "tools/fonts/TestSVGTypeface.cpp",
+      "tools/fonts/TestTypeface.cpp",
+    ]
+    deps = [
+      ":experimental_svg_model",
+      "//third_party/libpng",
+    ]
+  }
+
+  libfuzzer_exe("api_mock_gpu_canvas") {
+    include_dirs = [
+      "tools",
+      "tools/debugger",
+      "tools/fonts",
+    ]
+    sources = [
+      "fuzz/FuzzCanvas.cpp",
+      "fuzz/oss_fuzz/FuzzMockGPUCanvas.cpp",
+      "tools/LsanSuppressions.cpp",
+      "tools/Resources.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DebugLayerManager.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
+      "tools/fonts/TestFontMgr.cpp",
+      "tools/fonts/TestSVGTypeface.cpp",
+      "tools/fonts/TestTypeface.cpp",
+    ]
+    deps = [
+      ":experimental_svg_model",
+      "//third_party/libpng",
+    ]
+  }
+
+  libfuzzer_exe("api_null_canvas") {
+    include_dirs = [
+      "tools",
+      "tools/debugger",
+      "tools/fonts",
+    ]
+    sources = [
+      "fuzz/FuzzCanvas.cpp",
+      "fuzz/oss_fuzz/FuzzNullCanvas.cpp",
+      "tools/Resources.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DebugLayerManager.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
+      "tools/fonts/TestFontMgr.cpp",
+      "tools/fonts/TestSVGTypeface.cpp",
+      "tools/fonts/TestTypeface.cpp",
+    ]
+    deps = [
+      ":experimental_svg_model",
+      "//third_party/libpng",
+    ]
+  }
+
+  libfuzzer_exe("api_svg_canvas") {
+    include_dirs = [
+      "include",
+      "include/svg",
+    ]
+    sources = [
+      "fuzz/FuzzCanvas.cpp",
+      "fuzz/oss_fuzz/FuzzAPISVGCanvas.cpp",
+      "tools/Resources.cpp",
+      "tools/UrlDataManager.cpp",
+      "tools/debugger/DebugCanvas.cpp",
+      "tools/debugger/DebugLayerManager.cpp",
+      "tools/debugger/DrawCommand.cpp",
+      "tools/debugger/JsonWriteBuffer.cpp",
+      "tools/fonts/TestFontMgr.cpp",
+      "tools/fonts/TestSVGTypeface.cpp",
+      "tools/fonts/TestTypeface.cpp",
+    ]
+    deps = [
+      ":experimental_svg_model",
+      "//third_party/libpng",
+    ]
+  }
+
+  libfuzzer_exe("png_encoder") {
+    sources = [
+      "fuzz/FuzzEncoders.cpp",
+      "fuzz/oss_fuzz/FuzzPNGEncoder.cpp",
+    ]
+    deps = []
+  }
+
+  libfuzzer_exe("jpeg_encoder") {
+    sources = [
+      "fuzz/FuzzEncoders.cpp",
+      "fuzz/oss_fuzz/FuzzJPEGEncoder.cpp",
+    ]
+    deps = []
+  }
+
+  libfuzzer_exe("webp_encoder") {
+    sources = [
+      "fuzz/FuzzEncoders.cpp",
+      "fuzz/oss_fuzz/FuzzWEBPEncoder.cpp",
+    ]
+    deps = []
+  }
+
+  libfuzzer_exe("skottie_json") {
+    sources = []
+    deps = [ "modules/skottie:fuzz" ]
+  }
+
+  libfuzzer_exe("skjson") {
+    sources = [ "fuzz/oss_fuzz/FuzzJSON.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("api_polyutils") {
+    sources = [
+      "fuzz/FuzzPolyUtils.cpp",
+      "fuzz/oss_fuzz/FuzzPolyUtils.cpp",
+    ]
+    deps = [ ":skia" ]
+  }
+
+  libfuzzer_exe("android_codec") {
+    sources = [ "fuzz/oss_fuzz/FuzzAndroidCodec.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("image_decode_incremental") {
+    sources = [ "fuzz/oss_fuzz/FuzzIncrementalImage.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("sksl2glsl") {
+    sources = [ "fuzz/oss_fuzz/FuzzSKSL2GLSL.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("sksl2spirv") {
+    sources = [ "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("sksl2metal") {
+    sources = [ "fuzz/oss_fuzz/FuzzSKSL2Metal.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("sksl2pipeline") {
+    sources = [ "fuzz/oss_fuzz/FuzzSKSL2Pipeline.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("skdescriptor_deserialize") {
+    sources = [ "fuzz/oss_fuzz/FuzzSkDescriptorDeserialize.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("svg_dom") {
+    sources = [ "fuzz/oss_fuzz/FuzzSVG.cpp" ]
+    deps = [ ":experimental_svg_model" ]
+  }
+
+  libfuzzer_exe("skruntimeeffect") {
+    sources = [ "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp" ]
+    deps = []
+  }
+
+  libfuzzer_exe("skp") {
+    sources = [ "fuzz/oss_fuzz/FuzzSKP.cpp" ]
+    deps = []
+  }
+}
