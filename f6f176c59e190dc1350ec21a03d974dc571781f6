@@ -63,6 +63,30 @@
       "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0342c7a_dfd71caa",
+        "filename": "WORKSPACE.bazel",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-14T14:08:26Z",
+      "side": 1,
+      "message": "Cool.  Long term, we\u0027ll want to figure out caching.  Maybe RBE handles enough of that for us?",
+      "parentUuid": "0fbf41ed_92f93221",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 1
+      },
+      "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
