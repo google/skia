@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d4758fd_972014de",
+        "filename": "src/gpu/glsl/GrGLSL.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:39:04Z",
+      "side": 1,
+      "message": "Why do we call it \u0027subpass\u0027 in SkSL but nowhere else? That\u0027s a bit confusing to me.",
+      "range": {
+        "startLine": 100,
+        "startChar": 20,
+        "endLine": 100,
+        "endChar": 32
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "230b7501_a0ebd1fd",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:39:04Z",
+      "side": 1,
+      "message": "tiny nit: only one blank line here please",
+      "range": {
+        "startLine": 121,
+        "startChar": 1,
+        "endLine": 123,
+        "endChar": 0
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d36ac3e1_8c52873b",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:39:04Z",
+      "side": 1,
+      "message": "optional tiny nit: Any reason not to just tell the compiler to make these structs blank to begin with (here and elsewhere in the CL)?\n\n    VkDescriptorSetLayoutCreateInfo inputLayoutCreateInfo \u003d {};\n\n(Although both will probably compile the same... optimizers are smart)",
+      "range": {
+        "startLine": 165,
+        "startChar": 8,
+        "endLine": 166,
+        "endChar": 83
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7e85f9a_4e8fc03a",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:39:04Z",
+      "side": 1,
+      "message": "Consider adding argument comments to tell the reader what these arguments are (particularly useful for the dynamic offsets, less necessary for descriptor-set count).\n\n  /*descriptorSetCount\u003d*/1, descriptorSet-\u003edescriptorSet(),\n  /*dynamicOffsetCount\u003d*/0, /*pDynamicOffsets\u003d*/nullptr,",
+      "range": {
+        "startLine": 232,
+        "startChar": 74,
+        "endLine": 232,
+        "endChar": 84
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f09f69f9_d4acc21b",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:39:04Z",
+      "side": 1,
+      "message": "constexpr",
+      "range": {
+        "startLine": 36,
+        "startChar": 11,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b326b5cf_dc4378b6",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:39:04Z",
+      "side": 1,
+      "message": "This is the same as kUniformBinding... seems like an error? If it\u0027s intentional, please comment. (Shouldn\u0027t this have caused a problem?)",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 26
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
