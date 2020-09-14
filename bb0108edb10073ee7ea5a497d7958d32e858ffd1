@@ -87,6 +87,23 @@
       "revId": "bb0108edb10073ee7ea5a497d7958d32e858ffd1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9597fff3_ec0d9825",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T19:30:20Z",
+      "side": 1,
+      "message": "for what it\u0027s worth i don\u0027t mind getting rid of these... it just seems pointless.",
+      "revId": "bb0108edb10073ee7ea5a497d7958d32e858ffd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
