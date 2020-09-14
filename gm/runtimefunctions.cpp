@@ -17,12 +17,12 @@ static const char* RUNTIME_FUNCTIONS_SRC = R"(
     uniform half4 gColor;
 
     half scale(float x) {
-        return half(x) / 255;
+        return x / 255;
     }
 
     half4 blackAndWhite(half4 raw) {
         half value = raw.r * 0.22 + raw.g * 0.67 + raw.b * 0.11;
-        return half4(half3(value), raw.a);
+        return half4(value.xxx, raw.a);
     }
 
     half4 main(float2 p) {
