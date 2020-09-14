@@ -16,6 +16,69 @@
       "revId": "5ff3ba9dc0c00a2f7e1418cbcf3e2adb8fa09774",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99e90966_006b8599",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T13:47:42Z",
+      "side": 1,
+      "message": "Just to be sure, we\u0027re not leaking memory here, right?",
+      "revId": "5ff3ba9dc0c00a2f7e1418cbcf3e2adb8fa09774",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b70ed91f_5b355f29",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T13:47:42Z",
+      "side": 1,
+      "message": "a renderpass or renderpasses ?",
+      "range": {
+        "startLine": 173,
+        "startChar": 19,
+        "endLine": 173,
+        "endChar": 29
+      },
+      "revId": "5ff3ba9dc0c00a2f7e1418cbcf3e2adb8fa09774",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ac0923b_73cad2ba",
+        "filename": "src/gpu/vk/GrVkRenderTarget.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T13:47:42Z",
+      "side": 1,
+      "message": "completely orthogonal ?",
+      "range": {
+        "startLine": 174,
+        "startChar": 41,
+        "endLine": 174,
+        "endChar": 59
+      },
+      "revId": "5ff3ba9dc0c00a2f7e1418cbcf3e2adb8fa09774",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
