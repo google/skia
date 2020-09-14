@@ -103,9 +103,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         return nullptr;
     }
 
-    // CONTEXT TODO: remove this use of 'backdoor' to create an SkImage. The issue is that
-    // SkImages still require a GrContext but the SkGpuDevice only holds a GrRecordingContext.
-    GrContext* context = fDevice->recordingContext()->priv().backdoor();
+    auto rContext = fDevice->recordingContext();
 
     if (!rtc->asSurfaceProxy()) {
         return nullptr;
@@ -119,7 +117,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         // want to ever retarget the SkSurface at another buffer we create. Force a copy now to
         // avoid copy-on-write.
         auto rect = subset ? *subset : SkIRect::MakeSize(rtc->dimensions());
-        srcView = GrSurfaceProxyView::Copy(context, std::move(srcView), rtc->mipmapped(), rect,
+        srcView = GrSurfaceProxyView::Copy(rContext, std::move(srcView), rtc->mipmapped(), rect,
                                            SkBackingFit::kExact, budgeted);
     }
 
@@ -129,7 +127,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
         // The renderTargetContext coming out of SkGpuDevice should always be exact and the
         // above copy creates a kExact surfaceContext.
         SkASSERT(srcView.proxy()->priv().isExact());
-        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID,
+        image = sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID,
                                         std::move(srcView), info.colorType(), info.alphaType(),
                                         info.refColorSpace());
     }
