@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c9efc64_d633a94f",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-14T15:30:31Z",
+      "side": 1,
+      "message": "Nobody is going to remember to delete this 😞 Though if you leak it, it\u0027s only a pointer right? Not a whole image buffer?",
+      "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
