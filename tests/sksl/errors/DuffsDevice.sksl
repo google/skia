@@ -1,0 +1,14 @@
+void main(inout int count) {
+    int n = (count + 7) / 8;
+    switch (count % 8) {
+    case 0: do { sk_FragColor.x += 0.01;
+    case 7:      sk_FragColor.x += 0.01;
+    case 6:      sk_FragColor.x += 0.01;
+    case 5:      sk_FragColor.x += 0.01;
+    case 4:      sk_FragColor.x += 0.01;
+    case 3:      sk_FragColor.x += 0.01;
+    case 2:      sk_FragColor.x += 0.01;
+    case 1:      sk_FragColor.x += 0.01;
+            } while (--n > 0);
+    }
+}
