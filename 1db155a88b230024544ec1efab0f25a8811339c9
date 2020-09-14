@@ -46,6 +46,30 @@
       "revId": "1db155a88b230024544ec1efab0f25a8811339c9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "791efbe4_2cddbda7",
+        "filename": "fuzz/oss_fuzz/FuzzImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-14T17:48:12Z",
+      "side": 1,
+      "message": "Ah, thanks for the explanation! I was assuming it had meaning e.g. in Chromium. Then yes, this sounds like the right path forward.",
+      "parentUuid": "796449ab_5c637c68",
+      "range": {
+        "startLine": 31,
+        "startChar": 19,
+        "endLine": 31,
+        "endChar": 36
+      },
+      "revId": "1db155a88b230024544ec1efab0f25a8811339c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
