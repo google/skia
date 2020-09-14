@@ -593,6 +593,14 @@ sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
     return nullptr;
 }
 
+sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                            const SkYUVAPixmaps& pixmaps,
+                                            GrMipMapped buildMips,
+                                            bool limitToMaxTextureSize,
+                                            sk_sp<SkColorSpace> imageColorSpace) {
+    return nullptr;
+}
+
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
         GrContext*, SkYUVColorSpace, const GrBackendTexture[3], GrSurfaceOrigin,
         const GrBackendTexture&, sk_sp<SkColorSpace>) {
