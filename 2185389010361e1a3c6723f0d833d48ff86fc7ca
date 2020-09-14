@@ -16,6 +16,24 @@
       "revId": "2185389010361e1a3c6723f0d833d48ff86fc7ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "00ae8fdc_152a3928",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T13:49:49Z",
+      "side": 1,
+      "message": "1) No problem from a tech perspective (PRESUBMIT.py allows this now)--do we want to check with hcm@ about the legal perspective? I don\u0027t really know if this should be considered \"source\" or \"test data\", etc.\n\n2) You\u0027re absolutely right. I\u0027ll make an error subdirectory.",
+      "parentUuid": "87a535d7_beddfbfb",
+      "revId": "2185389010361e1a3c6723f0d833d48ff86fc7ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
