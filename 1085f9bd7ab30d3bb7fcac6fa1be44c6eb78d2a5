@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9f6e7e99_e5502d01",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-14T13:54:25Z",
+      "side": 1,
+      "message": "I think it\u0027s orthogonal to your fix.\n\nThe issue is basically that there are two inconsistent definitions of \"what is this thing\u0027s constant value\". is_constant is looking for \"is this thing a specific literal number\", whereas getConstantInt is willing to consider not just literals, but also const variables. We were using one of these checks while compiling the switch, and the other while optimizing, and the inconsistency broke things.\n\nUnfortunately, we do actually have two different concepts going on here - is_constant specifically permits vectors where all of the values are the same scalar, to allow us to optimize scalar * 0 and vector * half4(0) using the same code - but it was only intended to make sense within the narrow scope of arithmetic optimization, and the similarity in naming led to its mistaken and broken use for checking case values.\n\nI plan to do two things in a followup CL: give is_constant a more descriptive name, so we don\u0027t accidentally use it where we shouldn\u0027t, and make it otherwise consistent with the behavior of getConstantInt (I imagine by having it internally call getConstantInt).",
+      "parentUuid": "42caf088_059bda0a",
+      "range": {
+        "startLine": 1350,
+        "startChar": 0,
+        "endLine": 1352,
+        "endChar": 51
+      },
+      "revId": "1085f9bd7ab30d3bb7fcac6fa1be44c6eb78d2a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "13899d24_336d5f5b",
         "filename": "src/sksl/SkSLCompiler.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "1085f9bd7ab30d3bb7fcac6fa1be44c6eb78d2a5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5819170_c4819d6a",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-14T13:54:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13899d24_336d5f5b",
+      "range": {
+        "startLine": 231,
+        "startChar": 4,
+        "endLine": 231,
+        "endChar": 36
+      },
+      "revId": "1085f9bd7ab30d3bb7fcac6fa1be44c6eb78d2a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
