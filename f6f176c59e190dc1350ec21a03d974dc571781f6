@@ -87,6 +87,30 @@
       "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fbd67981_d7eaabb4",
+        "filename": "WORKSPACE.bazel",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T14:11:35Z",
+      "side": 1,
+      "message": "bazel\u0027s got quite a lot of caching built-in.  what were you wondering about?  syncing the deps?",
+      "parentUuid": "c0342c7a_dfd71caa",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 1
+      },
+      "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
