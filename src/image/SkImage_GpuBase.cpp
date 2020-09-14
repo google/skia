@@ -14,6 +14,7 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkTLList.h"
 #include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -24,7 +25,7 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkReadPixelsRec.h"
 
-SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, SkISize size, uint32_t uniqueID,
+SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrImageContext> context, SkISize size, uint32_t uniqueID,
                                  SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> cs)
         : INHERITED(SkImageInfo::Make(size, ct, at, std::move(cs)), uniqueID)
         , fContext(std::move(context)) {}
@@ -32,7 +33,7 @@ SkImage_GpuBase::SkImage_GpuBase(sk_sp<GrContext> context, SkISize size, uint32_
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
-void SkImage_GpuBase::resetContext(sk_sp<GrContext> newContext) {
+void SkImage_GpuBase::resetContext(sk_sp<GrImageContext> newContext) {
     SkASSERT(fContext->priv().matches(newContext.get()));
     fContext = newContext;
 }
@@ -189,7 +190,8 @@ GrSurfaceProxyView SkImage_GpuBase::refView(GrRecordingContext* context,
         return {};
     }
 
-    GrTextureAdjuster adjuster(fContext.get(), *this->view(context), this->imageInfo().colorInfo(),
+
+    GrTextureAdjuster adjuster(context, *this->view(context), this->imageInfo().colorInfo(),
                                this->uniqueID());
     return adjuster.view(mipMapped);
 }
@@ -251,7 +253,7 @@ GrTexture* SkImage_GpuBase::getTexture() const {
 
 bool SkImage_GpuBase::onIsValid(GrRecordingContext* context) const {
     // The base class has already checked that 'context' isn't abandoned (if it's not nullptr)
-    if (fContext->abandoned()) {
+    if (fContext->priv().abandoned()) {
         return false;
     }
 

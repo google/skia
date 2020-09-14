@@ -19,6 +19,7 @@
 #include "src/gpu/GrClip.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
@@ -30,7 +31,7 @@
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
-SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrRecordingContext> context,
+SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
                                  SkISize size,
                                  uint32_t uniqueID,
                                  SkYUVColorSpace colorSpace,
@@ -39,8 +40,7 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrRecordingContext> context,
                                  const SkYUVAIndex yuvaIndices[4],
                                  GrSurfaceOrigin origin,
                                  sk_sp<SkColorSpace> imageColorSpace)
-        // CONTEXT TODO: rm this usage of the 'backdoor' to create an image
-        : INHERITED(sk_ref_sp(context->priv().backdoor()),
+        : INHERITED(std::move(context),
                     size,
                     uniqueID,
                     kAssumedColorType,
@@ -64,7 +64,7 @@ SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrRecordingContext> context,
 }
 
 // For onMakeColorSpace()
-SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrContext> context, const SkImage_GpuYUVA* image,
+SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context, const SkImage_GpuYUVA* image,
                                  sk_sp<SkColorSpace> targetCS)
         : INHERITED(std::move(context), image->dimensions(), kNeedNewImageUniqueID,
                     kAssumedColorType,
@@ -268,7 +268,8 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrContext* ctx,
                                        imageColorSpace);
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrContext* context, SkYUVColorSpace yuvColorSpace,
+sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                            SkYUVColorSpace yuvColorSpace,
                                             const SkPixmap yuvaPixmaps[],
                                             const SkYUVAIndex yuvaIndices[4], SkISize imageSize,
                                             GrSurfaceOrigin imageOrigin, bool buildMips,

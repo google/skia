@@ -409,7 +409,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage, reporter, contextIn
             for (auto budgeted : {SkBudgeted::kNo, SkBudgeted::kYes}) {
                 auto texImage = image->makeTextureImage(dContext, mipMapped, budgeted);
                 if (!texImage) {
-                    GrContext* imageContext = as_IB(image)->context();
+                    auto imageContext = as_IB(image)->context();
                     // We expect to fail if image comes from a different context
                     if (!image->isTextureBacked() || imageContext == dContext) {
                         ERRORF(reporter, "makeTextureImage failed.");
@@ -593,17 +593,17 @@ DEF_GPUTEST(AbandonedContextImage, reporter, options) {
         auto rsurf = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(100, 100));
 
         REPORTER_ASSERT(reporter, img->isValid(factory->get(type)));
-        REPORTER_ASSERT(reporter, img->isValid(rsurf->getCanvas()->getGrContext()));
+        REPORTER_ASSERT(reporter, img->isValid(rsurf->getCanvas()->recordingContext()));
 
         factory->get(type)->abandonContext();
         REPORTER_ASSERT(reporter, !img->isValid(factory->get(type)));
-        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->getGrContext()));
+        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->recordingContext()));
         // This shouldn't crash.
         rsurf->getCanvas()->drawImage(img, 0, 0);
 
         // Give up all other refs on the context.
         factory.reset(nullptr);
-        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->getGrContext()));
+        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->recordingContext()));
         // This shouldn't crash.
         rsurf->getCanvas()->drawImage(img, 0, 0);
     }

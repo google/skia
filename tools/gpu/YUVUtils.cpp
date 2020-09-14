@@ -75,7 +75,7 @@ bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext) {
         return true; // Have already made a YUV image valid for this context.
     }
     // Try to make a new YUV image for this context.
-    fYUVImage = SkImage::MakeFromYUVAPixmaps(rContext->priv().backdoor(),
+    fYUVImage = SkImage::MakeFromYUVAPixmaps(rContext,
                                              fPixmaps.yuvaInfo().yuvColorSpace(),
                                              fPixmaps.planes().data(),
                                              fComponents,
