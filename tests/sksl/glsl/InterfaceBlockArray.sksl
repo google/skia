@@ -1,0 +1,7 @@
+uniform testBlock {
+    float x;
+} test[2];
+
+void main() {
+    sk_FragColor = half4(half(test[1].x));
+}
