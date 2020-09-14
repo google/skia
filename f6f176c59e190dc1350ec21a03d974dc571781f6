@@ -111,6 +111,30 @@
       "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "615bb888_01d489f6",
+        "filename": "WORKSPACE.bazel",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-14T14:31:17Z",
+      "side": 1,
+      "message": "The current situation is complicated because we use isolate to ship the deps to the bots, the individual isolated files are cached.  Frankly, I don\u0027t know how much that saves us, so maybe the answer is just to start with the simple thing and see how Bazel does on its own.",
+      "parentUuid": "fbd67981_d7eaabb4",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 1
+      },
+      "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
