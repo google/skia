@@ -1500,6 +1500,10 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                 }
                 this->addDefinitions(*iter, &definitions);
             }
+
+            if (needsRescan) {
+                break;
+            }
         }
         madeChanges |= updated;
     } while (updated);
