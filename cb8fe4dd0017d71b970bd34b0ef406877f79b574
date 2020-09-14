@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "658b7033_72d59df9",
+        "filename": "src/gpu/glsl/GrGLSL.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T16:14:20Z",
+      "side": 1,
+      "message": "So the history here is that in SPIR-V this is a special type of variable, subpassInput, used for getting attachment pixels (different from sampling textures). It also has its own special sample call, subpassLoad which takes integer offsets instead of a normal coordinate. So we added these to SkSL many years ago now when SkSL\u0027s main function was translating into spirv and glsl. Though until now they haven\u0027t ever been used.\n\nSo I\u0027m simply using the things we have now for simplicity. Previously talking to ethan we talked how maybe it makes sense to rename the subpassLoad op to just a sample call that takes a subpassInput. And additionally we can rename subpassInput to whatever name matches more of what the rest of SkSL has evolved to. In the end we just need to be able to distinguish that variable type and the special type of sample.\n\nBut IMO that is all out of the scope of this specific change.",
+      "parentUuid": "6d4758fd_972014de",
+      "range": {
+        "startLine": 100,
+        "startChar": 20,
+        "endLine": 100,
+        "endChar": 32
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "230b7501_a0ebd1fd",
         "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
         "patchSetId": 11
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "14e2dd8c_d6d53492",
+        "filename": "src/gpu/glsl/GrGLSLShaderBuilder.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T16:14:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "230b7501_a0ebd1fd",
+      "range": {
+        "startLine": 121,
+        "startChar": 1,
+        "endLine": 123,
+        "endChar": 0
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d36ac3e1_8c52873b",
         "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
         "patchSetId": 11
@@ -59,6 +107,30 @@
       "writtenOn": "2020-09-14T15:39:04Z",
       "side": 1,
       "message": "optional tiny nit: Any reason not to just tell the compiler to make these structs blank to begin with (here and elsewhere in the CL)?\n\n    VkDescriptorSetLayoutCreateInfo inputLayoutCreateInfo \u003d {};\n\n(Although both will probably compile the same... optimizers are smart)",
+      "range": {
+        "startLine": 165,
+        "startChar": 8,
+        "endLine": 166,
+        "endChar": 83
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a31e66c_b5d3932b",
+        "filename": "src/gpu/vk/GrVkDescriptorSetManager.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T16:14:20Z",
+      "side": 1,
+      "message": "Just only legacy style we grabbed from original vulkan examples. I also don\u0027t know if \"\u003d {}\" worked in the version of c++ we were using when originally starting vulkan. Also we made sure to zero everything out cause in the beginning these structs kept changing on us as the spec was being written and changed. This doesn\u0027t happen any more so we really don\u0027t need to worry about defaulting everything unless we aren\u0027t setting every field.\n\nFor this specific use case we do set everything so I just removed the setting all to zero. We should go back and try to clean up a lot of this throughout our code at this point.",
+      "parentUuid": "d36ac3e1_8c52873b",
       "range": {
         "startLine": 165,
         "startChar": 8,
@@ -91,6 +163,30 @@
       "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe024291_153eb415",
+        "filename": "src/gpu/vk/GrVkPipelineState.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T16:14:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7e85f9a_4e8fc03a",
+      "range": {
+        "startLine": 232,
+        "startChar": 74,
+        "endLine": 232,
+        "endChar": 84
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "b20af576_5917c741",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T16:14:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f09f69f9_d4acc21b",
+      "range": {
+        "startLine": 36,
+        "startChar": 11,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b326b5cf_dc4378b6",
         "filename": "src/gpu/vk/GrVkUniformHandler.h",
         "patchSetId": 11
@@ -174,6 +294,30 @@
       "writtenOn": "2020-09-14T15:39:04Z",
       "side": 1,
       "message": "This is the same as kUniformBinding... seems like an error? If it\u0027s intentional, please comment. (Shouldn\u0027t this have caused a problem?)",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 40,
+        "endChar": 26
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94a30924_e640967e",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-14T16:14:20Z",
+      "side": 1,
+      "message": "Nope. They represent the binding within a set that we attach the specific descriptor. I add a general comment to the enum.",
+      "parentUuid": "b326b5cf_dc4378b6",
       "range": {
         "startLine": 40,
         "startChar": 8,
