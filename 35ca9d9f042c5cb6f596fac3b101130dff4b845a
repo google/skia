@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9e344c7c_aa8e16b4",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2647,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T16:31:52Z",
+      "side": 1,
+      "message": "Any reason to not move these all into the\n\n  if (skia_enable_tools) { ... }\n\nblock above that guards all the rest of test tools?  It\u0027d be a little simpler without skia_build_fuzzers and we\u0027d get better build coverage if we build them all the time right?",
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4bc7464_5ebec7a4",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2648,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T16:31:52Z",
+      "side": 1,
+      "message": "Might fit better with the existing test_app() name scheme to call this libfuzzer_app?\n\nCome to think of it, can we have this template use test_app() to handle the more generic parts of it, so the fuzzer-specific ones shine clearer?",
+      "range": {
+        "startLine": 2648,
+        "startChar": 22,
+        "endLine": 2648,
+        "endChar": 25
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f48cef01_01a23505",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2672,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T16:31:52Z",
+      "side": 1,
+      "message": "There\u0027s a bit of a common pattern here amongst these libfuzzer_exes.\n\nThink it makes sense to have Fuzz.cpp, FuzzCommon.cpp, :flags, :skia, and maybe :gpu_tool_utils all provided by the template, so that you\u0027d just have to write\n\n    libfuzzer_exe(\"region_deserialize\") {\n        sources \u003d [\"fuzz/oss_fuzz/FuzzRegionDeserialize.cpp\"]\n    }\n\nfor this one?",
+      "range": {
+        "startLine": 2664,
+        "startChar": 0,
+        "endLine": 2672,
+        "endChar": 5
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "588194a8_a286ad35",
+        "filename": "gn/skia.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T16:31:52Z",
+      "side": 1,
+      "message": "is_clang?",
+      "range": {
+        "startLine": 98,
+        "startChar": 32,
+        "endLine": 98,
+        "endChar": 36
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
