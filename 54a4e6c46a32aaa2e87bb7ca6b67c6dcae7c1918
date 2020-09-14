@@ -34,6 +34,24 @@
       "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86c5c07e_c71f0dce",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-14T17:40:49Z",
+      "side": 1,
+      "message": "Good catch Mike. What do y\u0027all think about also adding a drawImageAtCurrentFrame() method to the CK Canvas? That way we manage the memory for them (using smart pointers).",
+      "parentUuid": "d8584536_319ad82c",
+      "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
