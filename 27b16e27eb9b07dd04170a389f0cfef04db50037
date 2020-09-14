@@ -1,0 +1,220 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "04e52124_d6379e21",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 774,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 774,
+        "startChar": 0,
+        "endLine": 774,
+        "endChar": 113
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "62c1e95a_bf6ead65",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 775,
+        "startChar": 0,
+        "endLine": 775,
+        "endChar": 121
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "75019f69_010c3adf",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 115
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "623c643d_d9603506",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 128,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 105
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "315b56f3_f53403de",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 129,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 104
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "45ba5091_be041892",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 108
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "61857adf_a1cfa91f",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 205,
+        "startChar": 0,
+        "endLine": 205,
+        "endChar": 112
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004925851",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d4",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "f6c2ed75_af8ca8ed",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:00:27Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 445,
+        "startChar": 0,
+        "endLine": 445,
+        "endChar": 105
+      },
+      "revId": "27b16e27eb9b07dd04170a389f0cfef04db50037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
