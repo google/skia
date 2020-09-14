@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a11e65a2_389bb096",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-14T15:43:17Z",
+      "side": 1,
+      "message": "Oops, thought I had uploaded this last week. Anyway, PS10 changes the representation so that narrowing costs are always more expensive than normal costs. It also gets rid of the constructor, and funnels all creation through static factories, and never creates an Impossible that\u0027s more (or less) impossible than any other.",
+      "revId": "5afed525456b78a070ef5fd7f634a29f55cebe19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
