@@ -196,11 +196,63 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
     return ContainsRecursiveCall{}.visit(funcDecl);
 }
 
+static void ensure_scoped_blocks(Block* inlinedBody, Statement* parentStmt) {
+    if (parentStmt && (parentStmt->is<IfStatement>() || parentStmt->is<ForStatement>() ||
+                       parentStmt->is<DoStatement>() || parentStmt->is<WhileStatement>())) {
+        // Occasionally, IR generation can lead to Blocks containing multiple statements, but no
+        // scope. If this block is used as the statement for a do/for/if/while, this isn't actually
+        // possible to represent textually; a scope must be added for the generated code to match
+        // the intent. In the case of Blocks nested inside other Blocks, we add the scope to the
+        // outermost block if needed. Zero-statement blocks have similar issues--if we don't
+        // represent the Block textually somehow, we run the risk of accidentally absorbing the
+        // following statement into our loop--so we also add a scope to these.
+        for (Block* nestedBlock = inlinedBody;; ) {
+            if (nestedBlock->fIsScope) {
+                // We found an explicit scope; all is well.
+                return;
+            }
+            if (nestedBlock->fStatements.size() != 1) {
+                // We found a block with multiple (or zero) statements, but no scope? Let's add a
+                // scope to the outermost block.
+                inlinedBody->fIsScope = true;
+                return;
+            }
+            if (!nestedBlock->fStatements[0]->is<Block>()) {
+                // This block has exactly one thing inside, and it's not another block. No need to
+                // scope it.
+                return;
+            }
+            // We have to go deeper.
+            nestedBlock = &nestedBlock->fStatements[0]->as<Block>();
+        }
+    }
+}
+
 static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
     if (src->typeKind() == Type::TypeKind::kArray) {
         return symbolTable.takeOwnershipOfSymbol(std::make_unique<Type>(*src));
     }
     return src;
+}
+
+static Statement* find_parent_statement(const std::vector<std::unique_ptr<Statement>*>& stmtStack) {
+    SkASSERT(!stmtStack.empty());
+
+    // Walk the statement stack from back to front, ignoring the last element (which is the
+    // enclosing statement).
+    auto iter = stmtStack.rbegin();
+    ++iter;
+
+    // Anything counts as a parent statement other than a scopeless Block.
+    for (; iter != stmtStack.rend(); ++iter) {
+        Statement* stmt = (*iter)->get();
+        if (!stmt->is<Block>() || stmt->as<Block>().fIsScope) {
+            return stmt;
+        }
+    }
+
+    // There wasn't any parent statement to be found.
+    return nullptr;
 }
 
 }  // namespace
@@ -668,9 +720,10 @@ bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThresho
 bool Inliner::analyze(Program& program) {
     // A candidate function for inlining, containing everything that `inlineCall` needs.
     struct InlineCandidate {
-        SymbolTable* fSymbols;
-        std::unique_ptr<Statement>* fEnclosingStmt;
-        std::unique_ptr<Expression>* fCandidateExpr;
+        SymbolTable* fSymbols;                        // the SymbolTable of the candidate
+        Statement* fParentStmt;                       // the parent Statement of the enclosing stmt
+        std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
+        std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
     };
 
     // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
@@ -953,16 +1006,19 @@ bool Inliner::analyze(Program& program) {
 
         void addInlineCandidate(std::unique_ptr<Expression>* candidate) {
             fInlineCandidates.push_back(InlineCandidate{fSymbolTableStack.back(),
-                                                        fEnclosingStmtStack.back(), candidate});
+                                                        find_parent_statement(fEnclosingStmtStack),
+                                                        fEnclosingStmtStack.back(),
+                                                        candidate});
         }
     };
 
-    // TODO(johnstiles): the analyzer can detect inlinable functions; actually inlining them will
-    // be tackled in a followup CL.
     InlineCandidateAnalyzer analyzer;
     analyzer.visit(program);
+
+    // For each of our candidate function-call sites, check if it is actually safe to inline.
+    // Memoize our results so we don't check a function more than once.
     std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, safe-to-inline>
-    for (InlineCandidate& candidate : analyzer.fInlineCandidates) {
+    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
         const FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
         const FunctionDeclaration* funcDecl = &funcCall.fFunction;
         if (inlinableMap.find(funcDecl) == inlinableMap.end()) {
@@ -972,16 +1028,55 @@ bool Inliner::analyze(Program& program) {
                                                                     : INT_MAX;
             inlinableMap[funcDecl] = this->isSafeToInline(funcCall, inlineThreshold) &&
                                      !contains_recursive_call(*funcDecl);
-/*
-            if (inlinableMap[funcDecl]) {
-                printf("-> Inliner discovered valid candidate: %s\n",
-                       String(funcDecl->fName).c_str());
-            }
-*/
         }
     }
 
-    return false;
+    // Inline the candidates where we've determined that it's safe to do so.
+    std::unordered_set<const std::unique_ptr<Statement>*> enclosingStmtSet;
+    bool madeChanges = false;
+    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
+        FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
+        const FunctionDeclaration* funcDecl = &funcCall.fFunction;
+
+        // If we determined that this candidate was not actually inlinable, skip it.
+        if (!inlinableMap[funcDecl]) {
+            continue;
+        }
+
+        // Inlining two expressions using the same enclosing statement in the same inlining pass
+        // does not work properly. If this happens, skip it; we'll get it in the next pass.
+        auto [unusedIter, inserted] = enclosingStmtSet.insert(candidate.fEnclosingStmt);
+        if (!inserted) {
+            continue;
+        }
+
+        // Convert the function call to its inlined equivalent.
+        InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols);
+        if (inlinedCall.fInlinedBody) {
+            // Ensure that the inlined body has a scope if it needs one.
+            ensure_scoped_blocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt);
+
+            // Move the enclosing statement to the end of the unscoped Block containing the inlined
+            // function, then replace the enclosing statement with that Block.
+            // Before:
+            //     fInlinedBody = Block{ stmt1, stmt2, stmt3 }
+            //     fEnclosingStmt = stmt4
+            // After:
+            //     fInlinedBody = null
+            //     fEnclosingStmt = Block{ stmt1, stmt2, stmt3, stmt4 }
+            inlinedCall.fInlinedBody->fStatements.push_back(std::move(*candidate.fEnclosingStmt));
+            *candidate.fEnclosingStmt = std::move(inlinedCall.fInlinedBody);
+        }
+
+        // Replace the candidate function call with our replacement expression.
+        *candidate.fCandidateExpr = std::move(inlinedCall.fReplacementExpr);
+        madeChanges = true;
+
+        // Note that nothing was destroyed except for the FunctionCall. All other nodes should
+        // remain valid.
+    }
+
+    return madeChanges;
 }
 
 }  // namespace SkSL

@@ -1669,17 +1669,17 @@ bool Compiler::optimize(Program& program) {
         fIRGenerator->fKind = program.fKind;
         fIRGenerator->fSettings = &program.fSettings;
 
-        // Scan and optimize based on the control-flow graph for each function.
         while (fErrorCount == 0) {
             bool madeChanges = false;
 
+            // Scan and optimize based on the control-flow graph for each function.
             for (ProgramElement& element : program) {
                 if (element.is<FunctionDefinition>()) {
                     madeChanges |= this->scanCFG(element.as<FunctionDefinition>());
                 }
             }
 
-            // Allow the inliner to analyze the program.
+            // Perform inline-candidate analysis and inline any functions deemed suitable.
             madeChanges |= fInliner.analyze(program);
 
             // Remove dead functions. We wait until after analysis so that we still report errors,

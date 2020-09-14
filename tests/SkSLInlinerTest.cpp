@@ -57,7 +57,7 @@ DEF_TEST(SkSLFunctionInlineThreshold, r) {
          "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
          "    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;"
          "}"
-         "void main() { int x = 0; tooBig(x); }",
+         "void main() { int x = 0; tooBig(x); tooBig(x); }",
          "#version 400\n"
          "void tooBig(inout int x) {\n"
          "    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n    ++x;\n"
@@ -68,6 +68,7 @@ DEF_TEST(SkSLFunctionInlineThreshold, r) {
          "}\n"
          "void main() {\n"
          "    int x = 0;\n"
+         "    tooBig(x);\n"
          "    tooBig(x);\n"
          "}\n"
          );
@@ -241,47 +242,47 @@ DEF_TEST(SkSLFunctionInlineWithNestedCall, r) {
          "}",
 R"__GLSL__(#version 400
 out vec4 sk_FragColor;
-void foo(out float x) {
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    ++x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    --x;
-    x = 42.0;
-}
 void main() {
     float _2_y = 0.0;
     {
-        foo(_2_y);
+        {
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            ++_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            --_2_y;
+            _2_y = 42.0;
+        }
+
     }
 
 
@@ -1135,13 +1136,13 @@ DEF_TEST(SkSLFunctionMultipleInlinesOnOneLine, r) {
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
             uniform half val;
-            inline half BigX(half x) {
+            half BigX(half x) {
                 ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
                 --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
                 x = 123;
                 return x;
             }
-            inline half BigY(half x) {
+            half BigY(half x) {
                 ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
                 --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
                 x = 456;
@@ -1193,7 +1194,6 @@ void main() {
         --_1_x;
         _1_x = 456.0;
     }
-
     float _3_x = 456.0;
     {
         ++_3_x;
@@ -1232,8 +1232,8 @@ void main() {
         --_3_x;
         _3_x = 123.0;
     }
-
     sk_FragColor = vec4(123.0);
+
 
 }
 )__GLSL__");
