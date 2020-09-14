@@ -16,6 +16,24 @@
       "revId": "e4383b8f1e4d608fd1d7a52ad6c56f319cefd798",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8393cac8_ffec6c26",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-14T15:27:32Z",
+      "side": 0,
+      "message": "Gone",
+      "parentUuid": "bb411b09_d8dc8b1e",
+      "revId": "e4383b8f1e4d608fd1d7a52ad6c56f319cefd798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
