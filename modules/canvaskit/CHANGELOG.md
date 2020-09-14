@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    The same functionality can be had with the `CanvasKit.RRectXY` helper.
  - `SkPath.arcTo` which had been deprecated in favor of `SkPath.arcToOval`,
    `SkPath.arcToRotated`, `SkPath.arcToTangent`.
+ - `SkCanvas.drawAnimatedImage` has been removed in favor of calling
+   `SkAnimatedImage.getCurrentFrame` and then `SkCanvas.drawImage`.
 
 ### Added
  - `CanvasKit.LTRBiRect` and `CanvasKit.XYWHiRect` as helpers to create SkIRects.

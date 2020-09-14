@@ -1000,10 +1000,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      uintptr_t /* float* */ innerPtr, const SkPaint& paint) {
             self.drawDRRect(ptrToSkRRect(outerPtr), ptrToSkRRect(innerPtr), paint);
         }))
-        .function("drawAnimatedImage",  optional_override([](SkCanvas& self, sk_sp<SkAnimatedImage>& aImg,
-                                                             SkScalar x, SkScalar y)->void {
-            self.drawDrawable(aImg.get(), x, y);
-        }), allow_raw_pointers())
         .function("drawImage", select_overload<void (const sk_sp<SkImage>&, SkScalar, SkScalar, const SkPaint*)>(&SkCanvas::drawImage), allow_raw_pointers())
         .function("_drawImageNine", optional_override([](SkCanvas& self, const sk_sp<SkImage>& image,
                                                          uintptr_t /* int* */ centerPtr, uintptr_t /* float* */ dstPtr,
