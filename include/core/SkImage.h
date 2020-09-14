@@ -500,9 +500,9 @@ public:
         @return                       created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromYUVAPixmaps(
-            GrContext* context, SkYUVColorSpace yuvColorSpace, const SkPixmap yuvaPixmaps[],
-            const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
-            bool buildMips, bool limitToMaxTextureSize = false,
+            GrRecordingContext* context, SkYUVColorSpace yuvColorSpace,
+            const SkPixmap yuvaPixmaps[], const SkYUVAIndex yuvaIndices[4], SkISize imageSize,
+            GrSurfaceOrigin imageOrigin, bool buildMips, bool limitToMaxTextureSize = false,
             sk_sp<SkColorSpace> imageColorSpace = nullptr);
 
     /** To be deprecated.
