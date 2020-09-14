@@ -1688,7 +1688,8 @@ bool Compiler::optimize(Program& program) {
         }
 
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        madeChanges |= fInliner.analyze(program);
+        // TODO(johnstiles): Re-enable once Metal bug is fixed.
+        // madeChanges |= fInliner.analyze(program);
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
