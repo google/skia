@@ -53,20 +53,24 @@ public:
 
     GR_DEFINE_RESOURCE_HANDLE_CLASS(CompatibleRPHandle);
 
+    using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
+
     // Finds or creates a simple render pass that matches the target, increments the refcount,
     // and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle. If this is
     // non null it will be set to a handle that can be used in the furutre to quickly return a
     // compatible GrVkRenderPasses without the need inspecting a GrVkRenderTarget.
     const GrVkRenderPass* findCompatibleRenderPass(const GrVkRenderTarget& target,
                                                    CompatibleRPHandle* compatibleHandle,
-                                                   bool withStencil, bool needsSelfDependency);
+                                                   bool withStencil,
+                                                   SelfDependencyFlags selfDepFlags);
     const GrVkRenderPass* findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescriptor*,
                                                    GrVkRenderPass::AttachmentFlags,
-                                                   bool needsSelfDependency,
+                                                   SelfDependencyFlags selfDepFlags,
                                                    CompatibleRPHandle* compatibleHandle = nullptr);
 
     const GrVkRenderPass* findCompatibleExternalRenderPass(VkRenderPass,
                                                            uint32_t colorAttachmentIndex);
+
 
     // Finds or creates a render pass that matches the target and LoadStoreOps, increments the
     // refcount, and returns. The caller can optionally pass in a pointer to a CompatibleRPHandle.
@@ -78,7 +82,7 @@ public:
                                          const GrVkRenderPass::LoadStoreOps& stencilOps,
                                          CompatibleRPHandle* compatibleHandle,
                                          bool withStencil,
-                                         bool needsSelfDependency);
+                                         SelfDependencyFlags selfDepFlags);
 
     // The CompatibleRPHandle must be a valid handle previously set by a call to findRenderPass or
     // findCompatibleRenderPass.
@@ -236,7 +240,7 @@ private:
 
         bool isCompatible(const GrVkRenderPass::AttachmentsDescriptor&,
                           GrVkRenderPass::AttachmentFlags,
-                          bool needsSelfDependency) const;
+                          SelfDependencyFlags selfDepFlags) const;
 
         const GrVkRenderPass* getCompatibleRenderPass() const {
             // The first GrVkRenderpass should always exist since we create the basic load store

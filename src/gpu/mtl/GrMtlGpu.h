@@ -89,7 +89,7 @@ public:
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-            bool usesXferBarriers) override;
+            GrXferBarrierFlags renderPassXferBarriers) override;
 
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 

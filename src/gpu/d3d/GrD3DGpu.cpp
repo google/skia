@@ -107,7 +107,7 @@ GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
         const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-        bool usesXferBarriers) {
+        GrXferBarrierFlags renderPassXferBarriers) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass.reset(new GrD3DOpsRenderPass(this));
     }

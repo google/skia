@@ -2211,7 +2211,7 @@ GrOpsRenderPass* GrGLGpu::getOpsRenderPass(
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
         const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-        bool usesXferBarriers) {
+        GrXferBarrierFlags renderPassXferBarriers) {
     if (!fCachedOpsRenderPass) {
         fCachedOpsRenderPass = std::make_unique<GrGLOpsRenderPass>(this);
     }
