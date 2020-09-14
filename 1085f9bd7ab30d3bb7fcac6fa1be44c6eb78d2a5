@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42caf088_059bda0a",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T13:34:18Z",
+      "side": 1,
+      "message": "This concerns me because I just changed this code recently at \nhttp://review.skia.org/311636\nand it sounds like it\u0027s still causing trouble.\n\nWas my fix incorrect? At the time I remember `getConstantInt` didn\u0027t work because the swizzle+cast just wasn\u0027t folded to an int even though it looked like it could have been.",
+      "range": {
+        "startLine": 1350,
+        "startChar": 0,
+        "endLine": 1352,
+        "endChar": 51
+      },
+      "revId": "1085f9bd7ab30d3bb7fcac6fa1be44c6eb78d2a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13899d24_336d5f5b",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T13:34:18Z",
+      "side": 1,
+      "message": "Please add a very brief doc comment (right now it looks confusing because the \u0027scanCFG\u0027 comment sort of appears to be meant for \u0027optimize\u0027)",
+      "range": {
+        "startLine": 231,
+        "startChar": 4,
+        "endLine": 231,
+        "endChar": 36
+      },
+      "revId": "1085f9bd7ab30d3bb7fcac6fa1be44c6eb78d2a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
