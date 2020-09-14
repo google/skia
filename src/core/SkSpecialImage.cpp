@@ -316,8 +316,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
 static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, GrSurfaceProxyView view,
                                           SkColorType colorType, SkAlphaType alphaType,
                                           sk_sp<SkColorSpace> colorSpace) {
-    // CONTEXT TODO: remove this use of 'backdoor' to create an SkImage
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context->priv().backdoor()),
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
                                    kNeedNewImageUniqueID, std::move(view), colorType, alphaType,
                                    std::move(colorSpace));
 }
@@ -354,8 +353,9 @@ public:
         // than expected backing texture (unlikely) or the 'fit' of the SurfaceProxy needs
         // to be tightened (if it is deferred).
         sk_sp<SkImage> img =
-                sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(canvas->getGrContext()), this->uniqueID(),
-                                               fView, this->colorType(), fAlphaType, fColorSpace));
+                sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
+                                               this->uniqueID(), fView, this->colorType(),
+                                               fAlphaType, fColorSpace));
 
         canvas->drawImageRect(img, this->subset(),
                               dst, paint, SkCanvas::kStrict_SrcRectConstraint);
@@ -436,8 +436,7 @@ public:
         colorType = colorSpace && colorSpace->gammaIsLinear()
             ? kRGBA_F16_SkColorType : kRGBA_8888_SkColorType;
         SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-        // CONTEXT TODO: remove this use of 'backdoor' to create an SkSurface
-        return SkSurface::MakeRenderTarget(fContext->priv().backdoor(), SkBudgeted::kYes, info);
+        return SkSurface::MakeRenderTarget(fContext, SkBudgeted::kYes, info);
     }
 
 private:

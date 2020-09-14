@@ -237,10 +237,10 @@ private:
 };
 
 /**
- * Safely cast a possibly-null recording context to direct context.
+ * Safely cast a possibly-null base context to direct context.
  */
-static inline GrDirectContext* GrAsDirectContext(GrRecordingContext* recording) {
-    return recording ? recording->asDirectContext() : nullptr;
+static inline GrDirectContext* GrAsDirectContext(GrContext_Base* base) {
+    return base ? base->asDirectContext() : nullptr;
 }
 
 #endif

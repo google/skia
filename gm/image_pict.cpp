@@ -313,11 +313,8 @@ protected:
             return;
         }
 
-        // CONTEXT TODO: remove this use of the 'backdoor' to create an image
-        GrContext* tmp = canvas->recordingContext()->priv().backdoor();
-
         // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(tmp),
+        sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
                                                 image->uniqueID(), std::move(view),
                                                 image->colorType(), image->alphaType(),
                                                 image->refColorSpace()));

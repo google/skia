@@ -12,7 +12,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
 
@@ -120,8 +120,7 @@ static void draw_image(SkCanvas* canvas, sk_sp<SkImage> image, int x, int y) {
 
     bool isCompressed = false;
     if (image && image->isTextureBacked()) {
-        GrRecordingContext* rContext = ((SkImage_GpuBase*) image.get())->context();
-        const GrCaps* caps = rContext->priv().caps();
+        const GrCaps* caps = as_IB(image)->context()->priv().caps();
 
         GrTextureProxy* proxy = as_IB(image)->peekProxy();
         isCompressed = caps->isFormatCompressed(proxy->backendFormat());

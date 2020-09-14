@@ -24,7 +24,7 @@ class SkImage_GpuYUVA : public SkImage_GpuBase {
 public:
     friend class GrYUVAImageTextureMaker;
 
-    SkImage_GpuYUVA(sk_sp<GrRecordingContext>,
+    SkImage_GpuYUVA(sk_sp<GrImageContext>,
                     SkISize size,
                     uint32_t uniqueID,
                     SkYUVColorSpace,
@@ -86,7 +86,7 @@ public:
                                                  PromiseImageApiVersion);
 
 private:
-    SkImage_GpuYUVA(sk_sp<GrContext>, const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
+    SkImage_GpuYUVA(sk_sp<GrImageContext>, const SkImage_GpuYUVA* image, sk_sp<SkColorSpace>);
 
     void flattenToRGB(GrRecordingContext*) const;
 

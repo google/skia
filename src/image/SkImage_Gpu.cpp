@@ -29,6 +29,7 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrImageInfo.h"
 #include "src/gpu/GrImageTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -43,7 +44,7 @@
 #include "src/gpu/gl/GrGLTexture.h"
 #include "src/image/SkImage_Gpu.h"
 
-SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, GrSurfaceProxyView view,
+SkImage_Gpu::SkImage_Gpu(sk_sp<GrImageContext> context, uint32_t uniqueID, GrSurfaceProxyView view,
                          SkColorType ct, SkAlphaType at, sk_sp<SkColorSpace> colorSpace)
         : INHERITED(std::move(context), view.proxy()->backingStoreDimensions(), uniqueID,
                     ct, at, colorSpace)
@@ -196,8 +197,7 @@ static sk_sp<SkImage> new_wrapped_texture_common(GrRecordingContext* rContext,
 
     GrSwizzle swizzle = rContext->priv().caps()->getReadSwizzle(proxy->backendFormat(), colorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
-    auto grContext = rContext->priv().backdoor();
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(grContext), kNeedNewImageUniqueID, std::move(view),
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID, std::move(view),
                                    GrColorTypeToSkColorType(colorType), at, std::move(colorSpace));
 }
 
@@ -234,8 +234,7 @@ sk_sp<SkImage> SkImage::MakeFromCompressedTexture(GrRecordingContext* rContext,
     SkColorType ct = GrCompressionTypeToSkColorType(type);
 
     GrSurfaceProxyView view(std::move(proxy), origin, GrSwizzle::RGBA());
-    auto grContext = rContext->priv().backdoor();
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(grContext), kNeedNewImageUniqueID,  std::move(view),
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID,  std::move(view),
                                    ct, at, std::move(cs));
 }
 
@@ -351,10 +350,8 @@ sk_sp<SkImage> SkImage_Gpu::ConvertYUVATexturesToRGB(GrRecordingContext* rContex
 
     SkColorType ct = GrColorTypeToSkColorType(renderTargetContext->colorInfo().colorType());
     SkAlphaType at = GetAlphaTypeFromYUVAIndices(yuvaIndices);
-    // TODO: Remove this use of backdoor.
-    GrContext* backdoorGrCtx = rContext->priv().backdoor();
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(backdoorGrCtx), kNeedNewImageUniqueID,
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(rContext), kNeedNewImageUniqueID,
                                    renderTargetContext->readSurfaceView(), ct, at,
                                    renderTargetContext->colorInfo().refColorSpace());
 }
@@ -596,7 +593,7 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrRecordingContext* context,
     GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(backendFormat, grColorType);
     GrSurfaceProxyView view(std::move(proxy), origin, swizzle);
     // CONTEXT TODO: rm this usage of the 'backdoor' to create an image
-    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context->priv().backdoor()), kNeedNewImageUniqueID,
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context), kNeedNewImageUniqueID,
                                    std::move(view), colorType, alphaType, std::move(colorSpace));
 }
 

@@ -8,7 +8,7 @@
 #include "src/gpu/GrImageTextureMaker.h"
 
 #include "src/gpu/GrColorSpaceXform.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrImageContextPriv.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/effects/GrBicubicEffect.h"
