@@ -22,6 +22,29 @@
       "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1353f4d4_d2ee340e",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1758,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-14T17:16:38Z",
+      "side": 0,
+      "message": "These are only used for planar images AFAIK and so seem fine to go (unless that\u0027s something we see being useful in CK).",
+      "range": {
+        "startLine": 1753,
+        "startChar": 0,
+        "endLine": 1758,
+        "endChar": 83
+      },
+      "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

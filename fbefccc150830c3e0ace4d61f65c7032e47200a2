@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4f54bec3_220c375d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-14T17:16:38Z",
+      "side": 1,
+      "message": "I could see keeping BGRA and/or Gray8. But I really don\u0027t know how people are using CK.",
+      "revId": "fbefccc150830c3e0ace4d61f65c7032e47200a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
