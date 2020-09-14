@@ -396,6 +396,28 @@ public:
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
                                                  sk_sp<SkColorSpace> colorSpace = nullptr);
 
+    /** Creates an SkImage from YUV[A] planar textures.
+
+        @param context         GPU context
+        @param yuvColorSpace   How the YUV values are converted to RGB
+        @param yuvaTextures    array of (up to four) YUVA textures on GPU which contain the,
+                               possibly interleaved, YUVA planes
+        @param yuvaIndices     array indicating which texture in yuvaTextures, and channel
+                               in that texture, maps to each component of YUVA.
+        @param imageSize       size of the resulting image
+        @param imageOrigin     origin of the resulting image.
+        @param imageColorSpace range of colors of the resulting image; may be nullptr
+        @return                created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromYUVATextures(GrRecordingContext* context,
+                                               SkYUVColorSpace yuvColorSpace,
+                                               const GrBackendTexture yuvaTextures[],
+                                               const SkYUVAIndex yuvaIndices[4],
+                                               SkISize imageSize,
+                                               GrSurfaceOrigin imageOrigin,
+                                               sk_sp<SkColorSpace> imageColorSpace = nullptr,
+                                               bool copyToRGB = false);
+
     /** Creates an SkImage by flattening the specified YUVA planes into a single, interleaved RGBA
         image.
 

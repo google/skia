@@ -65,35 +65,11 @@ std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndData
     }
 }
 
-static int num_channels_in_plane(SkYUVAInfo::PlanarConfig config, int planeIdx) {
-  switch (config) {
-      case SkYUVAInfo::PlanarConfig::kY_U_V_444:
-          SkASSERT(planeIdx >= 0 && planeIdx < 3);
-          return 1;
-      case SkYUVAInfo::PlanarConfig::kY_U_V_422:
-          SkASSERT(planeIdx >= 0 && planeIdx < 3);
-          return 1;
-      case SkYUVAInfo::PlanarConfig::kY_U_V_420:
-          SkASSERT(planeIdx >= 0 && planeIdx < 3);
-          return 1;
-      case SkYUVAInfo::PlanarConfig::kY_U_V_440:
-          SkASSERT(planeIdx >= 0 && planeIdx < 3);
-          return 1;
-      case SkYUVAInfo::PlanarConfig::kY_U_V_411:
-          SkASSERT(planeIdx >= 0 && planeIdx < 3);
-          return 1;
-      case SkYUVAInfo::PlanarConfig::kY_U_V_410:
-          SkASSERT(planeIdx >= 0 && planeIdx < 3);
-          return 1;
-  }
-  return SK_MaxS32;
-};
-
 SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
                                    const SkColorType colorTypes[kMaxPlanes],
                                    const size_t rowBytes[kMaxPlanes])
         : fYUVAInfo(yuvaInfo) {
-    if (yuvaInfo.dimensions().isEmpty()) {
+    if (!yuvaInfo.isValid()) {
         *this = {};
         SkASSERT(!this->isValid());
         return;
@@ -111,10 +87,11 @@ SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
     for (size_t i = 0; i < static_cast<size_t>(n); ++i) {
         fRowBytes[i] = rowBytes[i];
         fPlaneInfos[i] = SkImageInfo::Make(planeDimensions[i], colorTypes[i], kPremul_SkAlphaType);
-        int numRequiredChannels = num_channels_in_plane(yuvaInfo.planarConfig(), i);
+        int numRequiredChannels = yuvaInfo.numChannelsInPlane(i);
+        SkASSERT(numRequiredChannels > 0);
         auto [numColorTypeChannels, colorTypeDataType] = NumChannelsAndDataType(colorTypes[i]);
         ok |= i == 0 || colorTypeDataType == fDataType;
-        ok |= numColorTypeChannels >= numRequiredChannels;
+        ok |= numRequiredChannels > 0 && numColorTypeChannels >= numRequiredChannels;
         ok |= fPlaneInfos[i].validRowBytes(fRowBytes[i]);
         fDataType = colorTypeDataType;
     }

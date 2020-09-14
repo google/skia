@@ -12,12 +12,15 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
 
+#include <tuple>
+
 /**
  * Specifies the structure of planes for a YUV image with optional alpha. The actual planar data
  * is not part of this structure and depending on usage is in external textures or pixmaps.
  */
 class SK_API SkYUVAInfo {
 public:
+    enum class YUVAChannel { kY, kU, kV, kA };
     /**
      * Specifies how YUV (and optionally A) are divided among planes. Planes are separated by
      * underscores in the enum value names. Within each plane the pixmap/texture channels are
@@ -38,6 +41,7 @@ public:
      * this expands.
      */
     enum class PlanarConfig {
+        kUnknown,
         kY_U_V_444,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
         kY_U_V_422,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
         kY_U_V_420,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
@@ -77,6 +81,19 @@ public:
 
     /** Does the PlanarConfig have alpha values? */
     static bool HasAlpha(PlanarConfig);
+
+    /**
+     * Returns how many of the Y, U,V, and/or A channels are in the ith plane or zero if
+     * PlanarConfig is kUnknown or i is outside of the range [0, NumPlanes(config)).
+     */
+    static int NumChannelsInPlane(SkYUVAInfo::PlanarConfig, int i);
+
+    /**
+     * Gets the index of the plane and channel index within the plane that contains the Y, U, V, or
+     * A channel or -1,-1 if the PlanarConfig is kUnknown or if the YUVAIndex is kA and the
+     * PlanarConfig does not have alpha.
+     */
+    static std::tuple<int, int> ChannelLocation(PlanarConfig, YUVAChannel);
 
     SkYUVAInfo() = default;
     SkYUVAInfo(const SkYUVAInfo&) = default;
@@ -122,6 +139,21 @@ public:
     }
 
     /**
+     * Gets the number of Y, U, V, and/or A channels in the ith plane or zero if this is invalid or
+     * i is outside of the range [0, this->numPlanes()).
+     */
+    int numChannelsInPlane(int i) const { return NumChannelsInPlane(fPlanarConfig, i); }
+
+    /**
+     * Gets the index of the plane and channel index within the plane that contains the Y, U, V, or
+    * A channel or -1,-1 if the PlanarConfig is kUnknown or if the YUVAIndex is kA and the
+    * PlanarConfig does not have alpha.
+    */
+    std::tuple<int, int> channelLocation(YUVAChannel channel) const {
+        return ChannelLocation(fPlanarConfig, channel);
+    }
+
+    /**
      * Given a per-plane row bytes, determine size to allocate for all planes. Optionally retrieves
      * the per-plane byte sizes in planeSizes if not null. If total size overflows will return
      * SIZE_MAX and set all planeSizes to SIZE_MAX.
@@ -134,10 +166,12 @@ public:
     bool operator==(const SkYUVAInfo& that) const;
     bool operator!=(const SkYUVAInfo& that) const { return !(*this == that); }
 
+    bool isValid() const { return fPlanarConfig != PlanarConfig::kUnknown; }
+
 private:
     SkISize fDimensions = {0, 0};
 
-    PlanarConfig fPlanarConfig = PlanarConfig::kY_U_V_444;
+    PlanarConfig fPlanarConfig = PlanarConfig::kUnknown;
 
     SkYUVColorSpace fYUVColorSpace = SkYUVColorSpace::kIdentity_SkYUVColorSpace;
 
