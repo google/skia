@@ -135,6 +135,30 @@
       "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20c9048d_9b82363b",
+        "filename": "WORKSPACE.bazel",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T14:36:39Z",
+      "side": 1,
+      "message": "Yeah, sgtm.  That\u0027s kind of why I\u0027m leaning towards new_git_repository() for now instead of new_local_repository() and working with what\u0027s synced by DEPS... I want to see how far we can get with Bazel as if nothing else were there to lean on.",
+      "parentUuid": "615bb888_01d489f6",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 1
+      },
+      "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

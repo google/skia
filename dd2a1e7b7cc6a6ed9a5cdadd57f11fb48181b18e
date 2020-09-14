@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d998f00e_ffd4cad7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T14:36:39Z",
+      "side": 1,
+      "message": "PS3 is a small tweak to move the build logic out of WORKSPACE.bazel into files under bazel/.  I figure this will be easier to grok as our dependencies and WORKSPACE.bazel grow.\n\nGonna get this landed now just to make sure it can, but none of these needs to be set in stone, and I\u0027m happy to follow up as much as any of you like.",
+      "revId": "dd2a1e7b7cc6a6ed9a5cdadd57f11fb48181b18e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
