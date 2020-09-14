@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "218c7d88_95ee89cc",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2647,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-14T18:16:08Z",
+      "side": 1,
+      "message": "We cannot currently build them with the version of clang we have. You can see the failures on PS 4 (e.g. \"ld.lld: error: undefined symbol: LLVMFuzzerTestOneInput\")\n\nWhile I do want us to be able to build the fuzzers on the CQ/CI eventually, I did not want to have to get that working before upstreaming these builds.",
+      "parentUuid": "9e344c7c_aa8e16b4",
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a4bc7464_5ebec7a4",
         "filename": "BUILD.gn",
         "patchSetId": 6
@@ -30,6 +48,30 @@
       "writtenOn": "2020-09-14T16:31:52Z",
       "side": 1,
       "message": "Might fit better with the existing test_app() name scheme to call this libfuzzer_app?\n\nCome to think of it, can we have this template use test_app() to handle the more generic parts of it, so the fuzzer-specific ones shine clearer?",
+      "range": {
+        "startLine": 2648,
+        "startChar": 22,
+        "endLine": 2648,
+        "endChar": 25
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b98a6d9c_e0942d03",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2648,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-14T18:16:08Z",
+      "side": 1,
+      "message": "IMO, test_app was getting a little too busy and I always wanted to have an executable output (e.g. not a library archive). I figured it would be easier to reason about if I stripped down the definition to the bare components. WDYT?",
+      "parentUuid": "a4bc7464_5ebec7a4",
       "range": {
         "startLine": 2648,
         "startChar": 22,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "8f84ac49_8a32769a",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2672,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-14T18:16:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f48cef01_01a23505",
+      "range": {
+        "startLine": 2664,
+        "startChar": 0,
+        "endLine": 2672,
+        "endChar": 5
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "588194a8_a286ad35",
         "filename": "gn/skia.gni",
         "patchSetId": 6
@@ -76,6 +142,30 @@
       "writtenOn": "2020-09-14T16:31:52Z",
       "side": 1,
       "message": "is_clang?",
+      "range": {
+        "startLine": 98,
+        "startChar": 32,
+        "endLine": 98,
+        "endChar": 36
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a85f497_efc30dbd",
+        "filename": "gn/skia.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-14T18:16:08Z",
+      "side": 1,
+      "message": "The defaults are meant to work for local development work but get overridden when we build using oss-fuzz.",
+      "parentUuid": "588194a8_a286ad35",
       "range": {
         "startLine": 98,
         "startChar": 32,
