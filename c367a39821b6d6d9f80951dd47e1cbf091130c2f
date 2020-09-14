@@ -53,6 +53,23 @@
     },
     {
       "key": {
+        "uuid": "7d2b1dcc_ddb1f0b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-14T23:22:23Z",
+      "side": 1,
+      "message": "Looks good with only one comment from my end.",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b8fe7b0_b52a3792",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -81,6 +98,29 @@
       "writtenOn": "2020-09-14T20:32:01Z",
       "side": 1,
       "message": "\u0027\\n\u0027 ?",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bd4acc4_874283a4",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-14T23:22:23Z",
+      "side": 1,
+      "message": "Would it be possible to only do this outsetter stuff for perspective? I think we will pass this test more often if we stick to the original bounding box rather that mapping to a looser device space box.\n\n  if (bToDevice.hasPerspective()) {\n      // outsetter stuff\n  } else {\n      // Outset in B\u0027s space. No need to map to device space.\n      r.outset(.5 * (SkScalarAbs(deviceToB.getScaleX()) + SkScalarAbs(deviceToB.getSkewY())),\n               .5 * (SkScalarAbs(deviceToB.getSkewX()) + SkScalarAbs(deviceToB.getScaleY()));\n  }\n\n(If you don\u0027t think it\u0027s worth the extra complexity then don\u0027t worry about it)",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 19
+      },
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
