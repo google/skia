@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97cb826a_9785f23d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-14T15:38:45Z",
+      "side": 1,
+      "message": "less is more, .... but\n\nLet\u0027s check in with external sources of interop and inspiration:\n\n- \u003ccanvas-2d\u003e\n- \u003cvideo\u003e\n- \u003cwebgl\u003e\n",
+      "revId": "fa228c09902bae289e734224fa64d2aacc7f4188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

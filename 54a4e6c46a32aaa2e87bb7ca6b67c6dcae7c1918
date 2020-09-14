@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b03bffc9_e8745810",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1742,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-14T15:38:45Z",
+      "side": 0,
+      "message": "This one has proved very useful (e.g. in Android) -- Can we keep it?",
+      "range": {
+        "startLine": 1742,
+        "startChar": 0,
+        "endLine": 1742,
+        "endChar": 60
+      },
+      "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
