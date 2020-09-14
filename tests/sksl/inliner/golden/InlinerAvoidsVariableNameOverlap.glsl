@@ -11,11 +11,9 @@ mediump vec4 main() {
             mediump vec2 _5_1_reusedName = _3_reusedName + vec2(3.0, 4.0);
             _4_0_InlineB = _5_1_reusedName;
         }
-
         _2_InlineA = _4_0_InlineB;
 
     }
-
     return _2_InlineA.xyxy;
 
 }
