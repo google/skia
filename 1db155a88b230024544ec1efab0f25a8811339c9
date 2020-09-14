@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7dcdf417_001232b4",
+        "filename": "fuzz/oss_fuzz/FuzzImage.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-14T17:35:14Z",
+      "side": 1,
+      "message": "Does it hurt to leave both of them here? I guess it\u0027s simpler to just use one. Maybe we should have somewhere say something like:\n\n  #ifdef IS_FUZZING_WITH_LIBFUZZER\n    #define SK_BUILD_FOR_LIBFUZZER\n  #endif\n\n?",
+      "range": {
+        "startLine": 31,
+        "startChar": 19,
+        "endLine": 31,
+        "endChar": 36
+      },
+      "revId": "1db155a88b230024544ec1efab0f25a8811339c9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
