@@ -16,6 +16,23 @@
       "revId": "b67f860bbe3720400ee5052e3c77e6900fa57d6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1fa04c5_0b843cfd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-14T15:50:44Z",
+      "side": 1,
+      "message": "... follow-up: I think the builder.make(image) is probably a better direction to go, in terms of sustainable API. There are ways to address the discoverability, if it turns out to be a problem. (ImageUtils namespace/header, etc...)",
+      "revId": "b67f860bbe3720400ee5052e3c77e6900fa57d6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
