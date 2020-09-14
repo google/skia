@@ -333,6 +333,13 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect
 
     SkStrokeRec rec(*this, resScale);
 
+#if defined(SK_BUILD_FOR_FUZZER)
+    // Prevent lines with small widths from timing out.
+    if (rec.getStyle() == SkStrokeRec::Style::kStroke_Style && rec.getWidth() < 0.001) {
+        return false;
+    }
+#endif
+
     const SkPath* srcPtr = &src;
     SkPath tmpPath;
 

@@ -15,7 +15,7 @@ void FuzzJSON(sk_sp<SkData> bytes) {
     dom.write(&wstream);
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     auto bytes = SkData::MakeWithoutCopy(data, size);
     FuzzJSON(bytes);

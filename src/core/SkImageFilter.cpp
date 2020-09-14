@@ -174,6 +174,12 @@ bool SkImageFilter_Base::Common::unflatten(SkReadBuffer& buffer, int expectedCou
         return false;
     }
 
+#if defined(SK_BUILD_FOR_FUZZER)
+    if (count > 4) {
+        return false;
+    }
+#endif
+
     SkASSERT(fInputs.empty());
     for (int i = 0; i < count; i++) {
         fInputs.push_back(buffer.readBool() ? buffer.readImageFilter() : nullptr);

@@ -213,6 +213,11 @@ void SkLayerDrawLooper::flatten(SkWriteBuffer& buffer) const {
 sk_sp<SkFlattenable> SkLayerDrawLooper::CreateProc(SkReadBuffer& buffer) {
     int count = buffer.readInt();
 
+#if defined(SK_BUILD_FOR_FUZZER)
+    if (count > 100) {
+        count = 100;
+    }
+#endif
     Builder builder;
     for (int i = 0; i < count; i++) {
         LayerInfo info;

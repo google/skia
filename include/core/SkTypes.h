@@ -420,6 +420,14 @@
 #define SK_API_AVAILABLE(...)
 #endif
 
+#if defined(SK_BUILD_FOR_LIBFUZZER) || defined(SK_BUILD_FOR_AFL_FUZZ)
+    #define SK_BUILD_FOR_FUZZER
+#endif
+
+#if defined(SK_BUILD_FOR_LIBFUZZER)
+    SK_API void SkDebugf(const char format[], ...) {}
+#endif
+
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.

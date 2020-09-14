@@ -74,7 +74,7 @@ bool FuzzSkRuntimeEffect(sk_sp<SkData> bytes) {
     return result;
 }
 
-#if defined(IS_FUZZING_WITH_LIBFUZZER)
+#if defined(SK_BUILD_FOR_LIBFUZZER)
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
     if (size > 3000) {
         return 0;
