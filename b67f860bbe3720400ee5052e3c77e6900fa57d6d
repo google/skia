@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65308fff_424aefaf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-14T15:48:46Z",
+      "side": 1,
+      "message": "Stream-of-consciousness:\n\nI\u0027m initially tempted to keep it like the other SkImage::makeXXX() things, because we have so many, and they\u0027re (theoretically) more discoverable. Except: They have grown out of control, and the pattern only works for a certain subset of operations (exactly one SkImage input, plus some other data). The external factory gets around that limitation, but (maybe) hurts API discoverability.\n\nAnd then I realize that we already have a third pattern that sort-of addresses both of these, which is static factories on SkImage. Would be consider something like:\n\nclass SkImage {\n  static sk_sp\u003cSkImage\u003e MakeWithMipmaps(sk_sp\u003cSkImage\u003e base, SkMipmapBuilder\u0026 mipmaps);\n}\n\n???",
+      "revId": "b67f860bbe3720400ee5052e3c77e6900fa57d6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
