@@ -33,6 +33,24 @@
       "revId": "31008c1fe545071931440e393a823b0859cfed60",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8e455bf_70f3b47b",
+        "filename": "gn/compile_sksl_tests.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T13:42:00Z",
+      "side": 1,
+      "message": "Removed; it was only there because `skia_compile_processors` did it.",
+      "parentUuid": "4d51647c_9316e87c",
+      "revId": "31008c1fe545071931440e393a823b0859cfed60",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
