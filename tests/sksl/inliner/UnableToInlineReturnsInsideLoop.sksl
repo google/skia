@@ -1,0 +1,11 @@
+inline void cantActuallyInline(inout int x) {
+    for (;;) {
+        ++x;
+        if (x > 10) return;
+    }
+}
+void main() {
+    int x = 0;
+    cantActuallyInline(x);
+}
+
