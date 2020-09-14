@@ -31,6 +31,7 @@ class SkMipmap;
 class SkPaint;
 class SkPicture;
 class SkSurface;
+class SkYUVAPixmaps;
 class GrBackendTexture;
 class GrContext;
 class GrDirectContext;
@@ -504,6 +505,12 @@ public:
             const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
             bool buildMips, bool limitToMaxTextureSize = false,
             sk_sp<SkColorSpace> imageColorSpace = nullptr);
+
+    static sk_sp<SkImage> MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                              const SkYUVAPixmaps& pixmaps,
+                                              GrMipMapped buildMips = GrMipmapped::kNo,
+                                              bool limitToMaxTextureSize = false,
+                                              sk_sp<SkColorSpace> imageColorSpace = nullptr);
 
     /** To be deprecated.
     */

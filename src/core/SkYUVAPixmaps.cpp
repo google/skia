@@ -216,9 +216,10 @@ SkYUVAPixmaps SkYUVAPixmaps::FromExternalMemory(const SkYUVAPixmapInfo& yuvaPixm
 
 SkYUVAPixmaps SkYUVAPixmaps::FromExternalPixmaps(const SkYUVAInfo& yuvaInfo,
                                                  const SkPixmap pixmaps[kMaxPlanes]) {
-    SkColorType colorTypes[kMaxPlanes];
-    size_t rowBytes[kMaxPlanes];
-    for (int i = 0; i < kMaxPlanes; ++i) {
+    SkColorType colorTypes[kMaxPlanes] = {};
+    size_t rowBytes[kMaxPlanes] = {};
+    int numPlanes = yuvaInfo.numPlanes();
+    for (int i = 0; i < numPlanes; ++i) {
         colorTypes[i] = pixmaps[i].colorType();
         rowBytes[i] = pixmaps[i].rowBytes();
     }
@@ -242,7 +243,7 @@ SkYUVAPixmaps::SkYUVAPixmaps(const SkYUVAInfo& yuvaInfo, const SkPixmap pixmaps[
     std::copy_n(pixmaps, kMaxPlanes, fPlanes.data());
 }
 
-bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndices[4]) {
+bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndices[4]) const {
     if (!this->isValid()) {
         return false;
     }
@@ -293,14 +294,12 @@ bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndic
     if (!ok) {
         return false;
     }
-    yuvaSizeInfo->fOrigin = fYUVAInfo.origin();
-    SkISize planeDimensions[SkYUVAInfo::kMaxPlanes];
-    int n = fYUVAInfo.planeDimensions(planeDimensions);
-    for (int i = 0; i < n; ++i) {
-        yuvaSizeInfo->fSizes[i] = fPlanes[i].dimensions();
-        yuvaSizeInfo->fWidthBytes[i] = fPlanes[i].rowBytes();
-        if (fPlanes[i].dimensions() != planeDimensions[i]) {
-            return false;
+    if (yuvaSizeInfo) {
+        yuvaSizeInfo->fOrigin = fYUVAInfo.origin();
+        int n = fYUVAInfo.numPlanes();
+        for (int i = 0; i < n; ++i) {
+            yuvaSizeInfo->fSizes[i] = fPlanes[i].dimensions();
+            yuvaSizeInfo->fWidthBytes[i] = fPlanes[i].rowBytes();
         }
     }
     return true;
