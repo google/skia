@@ -276,9 +276,12 @@ template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatu
     return nullptr;
 }
 
-void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
-                    uint32_t physicalDeviceVersion, const GrVkExtensions& extensions,
+void GrVkCaps::init(const GrContextOptions& contextOptions,
+                    const GrVkInterface* vkInterface,
+                    VkPhysicalDevice physDev,
+                    const VkPhysicalDeviceFeatures2& features,
+                    uint32_t physicalDeviceVersion,
+                    const GrVkExtensions& extensions,
                     GrProtected isProtected) {
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
@@ -339,11 +342,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
 #ifdef SK_BUILD_FOR_ANDROID
     // Currently Adreno devices are not supporting the QUEUE_FAMILY_FOREIGN_EXTENSION, so until they
     // do we don't explicitly require it here even the spec says it is required.
-    if (extensions.hasExtension(
-            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 2) &&
-       /* extensions.hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1) &&*/
-        this->supportsExternalMemory() &&
-        this->supportsBindMemory2()) {
+    if (extensions.hasExtension(VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
+                                2) &&
+        /* extensions.hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1) &&*/
+        this->supportsExternalMemory() && this->supportsBindMemory2()) {
         fSupportsAndroidHWBExternalMemory = true;
         fSupportsAHardwareBufferImages = true;
     }
@@ -364,8 +366,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     // will return a key of 0.
     fYcbcrInfos.push_back(GrVkYcbcrConversionInfo());
 
-    if ((isProtected == GrProtected::kYes) &&
-        (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0))) {
+    if ((isProtected == GrProtected::kYes) && (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0))) {
         fSupportsProtectedMemory = true;
         fAvoidUpdateBuffers = true;
         fShouldAlwaysUseDedicatedImageMemory = true;
@@ -412,6 +413,13 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         // (At least in our current round rect op.)
         fPreferTrianglesOverSampleMask = true;
     }
+
+#ifdef SK_BUILD_FOR_UNIX
+    if (kNvidia_VkVendor == properties.vendorID) {
+        // On nvidia linux we see a big perf regression when not using dedicated image allocations.
+        fShouldAlwaysUseDedicatedImageMemory = true;
+    }
+ #endif
 
     this->initFormatTable(vkInterface, physDev, properties);
     this->initStencilFormat(vkInterface, physDev);
