@@ -156,6 +156,115 @@
     },
     {
       "key": {
+        "uuid": "1053ac83_d73fe7f8",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T21:00:48Z",
+      "side": 1,
+      "message": "Can\u0027t this fail if there are too many edges? Does that matter here?",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61730c96_4707bc26",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T21:00:48Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 233,
+        "startChar": 22,
+        "endLine": 233,
+        "endChar": 25
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6021e43_4436e7bb",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T21:00:48Z",
+      "side": 1,
+      "message": "I don\u0027t think this comment is valid any more",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 52
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9add8154_60e39af5",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T21:00:48Z",
+      "side": 1,
+      "message": "magic #!",
+      "range": {
+        "startLine": 496,
+        "startChar": 59,
+        "endLine": 496,
+        "endChar": 61
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8523135f_f66e822e",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T21:00:48Z",
+      "side": 1,
+      "message": "Would \u0027avoiding\u0027 be better here ?",
+      "range": {
+        "startLine": 550,
+        "startChar": 85,
+        "endLine": 550,
+        "endChar": 93
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a0a1d700_71cded44",
         "filename": "src/gpu/GrClipStack.h",
         "patchSetId": 17
