@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87a535d7_beddfbfb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-14T13:22:27Z",
+      "side": 1,
+      "message": "Two things:\n\n1) Can we get away with not including a copyright header on the test case files?\n\n2) The GLSL ones have error in the name, but the FP test case doesn\u0027t. I think that tests that are expected to fail should either be named clearly, or we should put them all in some \"error\" subdirectory. We\u0027re trading off some amount of automated verification of results, so I want it to be easy for humans to notice when something isn\u0027t right.",
+      "revId": "2185389010361e1a3c6723f0d833d48ff86fc7ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
