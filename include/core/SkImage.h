@@ -31,6 +31,7 @@ class SkMipmap;
 class SkPaint;
 class SkPicture;
 class SkSurface;
+class SkYUVAPixmaps;
 class GrBackendTexture;
 class GrContext;
 class GrDirectContext;
@@ -504,6 +505,32 @@ public:
             const SkYUVAIndex yuvaIndices[4], SkISize imageSize, GrSurfaceOrigin imageOrigin,
             bool buildMips, bool limitToMaxTextureSize = false,
             sk_sp<SkColorSpace> imageColorSpace = nullptr);
+
+    /** Creates SkImage from SkYUVAPixmaps.
+
+        The image will remain planar with each plane converted to a texture using the passed
+        GrRecordingContext.
+
+        SkYUVAPixmaps has a SkYUVAInfo which specifies the transformation from YUV to RGB.
+        The SkColorSpace of the post YUV->RGB values is determined by imageColorSpace. This will
+        be the SkColorSpace reported by the image.
+
+        Currently, this is only supported using the GPU backend and will fail if context is nullptr.
+
+        @param context                GPU context
+        @param pixmaps                The planes as pixmaps with supported SkYUVAInfo that
+                                      specifies conversion to RGB.
+        @param buildMips              create internal YUVA textures as mip map if kYes. Will
+                                      be silently ignored if the context does not support mip maps.
+        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
+        @param imageColorSpace        range of colors of the resulting image; may be nullptr
+        @return                       created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                              const SkYUVAPixmaps& pixmaps,
+                                              GrMipMapped buildMips = GrMipmapped::kNo,
+                                              bool limitToMaxTextureSize = false,
+                                              sk_sp<SkColorSpace> imageColorSpace = nullptr);
 
     /** To be deprecated.
     */

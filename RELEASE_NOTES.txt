@@ -9,6 +9,12 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * Alternate SkImage::MakeFromYUVAPixmaps signature. Takes SkYUVAPixmaps, which specifies
+    planar configuration in a more structured manner. Currently limited to tri-planar
+    configurations without alpha but will be expanded. Older signature will become
+    deprecated when the new signature supports a broad range of planar configurations.
+    https://review.skia.org/316837
+
   * Switch to using Microsoft::WRL::ComPtr for wrapping D3D12 objects.
     https://review.skia.org/314957
 
