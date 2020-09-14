@@ -51,6 +51,24 @@
       "revId": "b67f860bbe3720400ee5052e3c77e6900fa57d6d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3fd7cd1_4b67dc24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-14T17:20:33Z",
+      "side": 1,
+      "message": "True - good point. One thing I just realized though - with the image-\u003ewithMipmaps variant, it\u0027s obvious how to write the \"just build and attach default mips\" version. With the builder object, not so much? Do we have a second \"DefaultMipmapBuilder\" that doesn\u0027t expose the pixmaps at all?",
+      "parentUuid": "591dbbd3_9d4240ca",
+      "revId": "b67f860bbe3720400ee5052e3c77e6900fa57d6d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
