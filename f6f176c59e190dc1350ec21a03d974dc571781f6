@@ -39,6 +39,30 @@
       "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fbf41ed_92f93221",
+        "filename": "WORKSPACE.bazel",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-14T13:33:18Z",
+      "side": 1,
+      "message": "Yeah, I think it could, so I figured I\u0027d check it out.  Kind of nice to be able to tell people `bazel build -c opt skia` and have that be the whole build step.\n\nIn general we\u0027ve got dependency options for local directories, git repositories, and http archives, all w/ or w/o their own Bazel builds, and somehow local linking is possible too I think.  Still working through how to express the build/prebuilt/skip tristate for each optional dependency.",
+      "parentUuid": "d2488473_159c19ed",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 1
+      },
+      "revId": "f6f176c59e190dc1350ec21a03d974dc571781f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
