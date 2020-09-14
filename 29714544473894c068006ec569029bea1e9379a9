@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6b80ab1_dadae789",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:46:58Z",
+      "side": 1,
+      "message": "Would be curious to know if this has a significant impact on the number of optimization passes that occur. Building the CFG graph is not cheap, so we should try to get as much use out of it as we can each go-around. Obviously in some cases we just need to stop, though. \n\nI wonder if it\u0027s worth separating out the concept of \"needs rescan\" from \"we can no longer process the current CFG safely and must bail out now\".",
+      "revId": "29714544473894c068006ec569029bea1e9379a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
