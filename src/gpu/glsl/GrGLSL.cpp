@@ -96,6 +96,8 @@ const char* GrGLSLTypeString(GrSLType t) {
             return "texture2D";
         case kSampler_GrSLType:
             return "sampler";
+        case kInput_GrSLType:
+            return "subpassInput";
     }
     SK_ABORT("Unknown shader var type.");
 }

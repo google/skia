@@ -65,6 +65,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fDynamicStateArrayGeometryProcessorTextureSupport = true;
 
+    fTextureBarrierSupport = true;
+
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
     this->init(contextOptions, vkInterface, physDev, features, physicalDeviceVersion, extensions,
@@ -516,6 +518,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
     if (kAMD_VkVendor == properties.vendorID) {
         fMaxVertexAttributes = std::min(fMaxVertexAttributes, 32);
+    }
+
+    // Adreno devices fail when trying to read the dest using an input attachment and texture
+    // barriers.
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        fTextureBarrierSupport = false;
     }
 
     ////////////////////////////////////////////////////////////////////////////

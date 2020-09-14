@@ -1904,14 +1904,22 @@ void GrVkGpu::querySampleLocations(GrRenderTarget* renderTarget,
 }
 
 void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType barrierType) {
-    SkASSERT(barrierType == kBlend_GrXferBarrierType);
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(rt);
+    VkPipelineStageFlags dstStage;
+    VkAccessFlags dstAccess;
+    if (barrierType == kBlend_GrXferBarrierType) {
+        dstStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
+    } else {
+        SkASSERT(barrierType == kTexture_GrXferBarrierType);
+        dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        dstAccess = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+    }
     VkImageMemoryBarrier barrier;
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
     barrier.pNext = nullptr;
-    barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
-                            VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
-    barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
+    barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    barrier.dstAccessMask = dstAccess;
     barrier.oldLayout = vkRT->currentLayout();
     barrier.newLayout = vkRT->currentLayout();
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -1919,7 +1927,7 @@ void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType barrierType) {
     barrier.image = vkRT->image();
     barrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, vkRT->mipLevels(), 0, 1};
     this->addImageMemoryBarrier(vkRT->resource(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-                                VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, true, &barrier);
+                                dstStage, true, &barrier);
 }
 
 void GrVkGpu::deleteBackendTexture(const GrBackendTexture& tex) {

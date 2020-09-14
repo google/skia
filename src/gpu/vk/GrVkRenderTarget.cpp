@@ -9,6 +9,7 @@
 
 #include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/vk/GrVkCommandBuffer.h"
+#include "src/gpu/vk/GrVkDescriptorSet.h"
 #include "src/gpu/vk/GrVkFramebuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImageView.h"
@@ -417,6 +418,43 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
     desc->fAttachmentCount = attachmentCount;
 }
 
+const GrVkDescriptorSet* GrVkRenderTarget::inputDescSet(GrVkGpu* gpu) {
+    SkASSERT(this->supportsInputAttachmentUsage());
+    SkASSERT(this->numSamples() <= 1);
+    if (fCachedInputDescriptorSet) {
+        return fCachedInputDescriptorSet;
+    }
+    fCachedInputDescriptorSet = gpu->resourceProvider().getInputDescriptorSet();
+
+    if (!fCachedInputDescriptorSet) {
+        return nullptr;
+    }
+
+    VkDescriptorImageInfo imageInfo;
+    memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
+    imageInfo.sampler = VK_NULL_HANDLE;
+    imageInfo.imageView = this->colorAttachmentView()->imageView();
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    VkWriteDescriptorSet writeInfo;
+    memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
+    writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeInfo.pNext = nullptr;
+    writeInfo.dstSet = *fCachedInputDescriptorSet->descriptorSet();
+    writeInfo.dstBinding = GrVkUniformHandler::kInputBinding;
+    writeInfo.dstArrayElement = 0;
+    writeInfo.descriptorCount = 1;
+    writeInfo.descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+    writeInfo.pImageInfo = &imageInfo;
+    writeInfo.pBufferInfo = nullptr;
+    writeInfo.pTexelBufferView = nullptr;
+
+    GR_VK_CALL(gpu->vkInterface(), UpdateDescriptorSets(gpu->device(), 1, &writeInfo, 0, nullptr));
+
+    return fCachedInputDescriptorSet;
+}
+
+
 GrVkRenderTarget::~GrVkRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
     SkASSERT(!fMSAAImage);
@@ -427,6 +465,8 @@ GrVkRenderTarget::~GrVkRenderTarget() {
         SkASSERT(!fCachedFramebuffers[i]);
         SkASSERT(!fCachedRenderPasses[i]);
     }
+
+    SkASSERT(!fCachedInputDescriptorSet);
 }
 
 void GrVkRenderTarget::addResources(GrVkCommandBuffer& commandBuffer, bool withStencil,
@@ -465,6 +505,11 @@ void GrVkRenderTarget::releaseInternalObjects() {
             fCachedRenderPasses[i]->unref();
             fCachedRenderPasses[i] = nullptr;
         }
+    }
+
+    if (fCachedInputDescriptorSet) {
+        fCachedInputDescriptorSet->recycle();
+        fCachedInputDescriptorSet = nullptr;
     }
 
     for (int i = 0; i < fGrSecondaryCommandBuffers.count(); ++i) {

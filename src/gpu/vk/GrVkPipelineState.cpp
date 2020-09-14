@@ -21,6 +21,7 @@
 #include "src/gpu/vk/GrVkImageView.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkPipeline.h"
+#include "src/gpu/vk/GrVkRenderTarget.h"
 #include "src/gpu/vk/GrVkSampler.h"
 #include "src/gpu/vk/GrVkTexture.h"
 #include "src/gpu/vk/GrVkUniformBuffer.h"
@@ -110,35 +111,34 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
                                            const GrSurfaceProxy* const primProcTextures[],
                                            GrVkCommandBuffer* commandBuffer) {
     SkASSERT(primProcTextures || !primProc.numTextureSamplers());
-
-    struct SamplerBindings {
-        GrSamplerState fState;
-        GrVkTexture* fTexture;
-    };
-    SkAutoSTMalloc<8, SamplerBindings> samplerBindings(fNumSamplers);
-    int currTextureBinding = 0;
-
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        SkASSERT(primProcTextures[i]->asTextureProxy());
-        const auto& sampler = primProc.textureSampler(i);
-        auto texture = static_cast<GrVkTexture*>(primProcTextures[i]->peekTexture());
-        samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
-    }
-
-    pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
-        GrSamplerState samplerState = te.samplerState();
-        auto* texture = static_cast<GrVkTexture*>(te.texture());
-        samplerBindings[currTextureBinding++] = {samplerState, texture};
-    });
-
-    if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
-        samplerBindings[currTextureBinding++] = {
-                GrSamplerState::Filter::kNearest, static_cast<GrVkTexture*>(dstTexture)};
-    }
-
-    // Get new descriptor set
-    SkASSERT(fNumSamplers == currTextureBinding);
     if (fNumSamplers) {
+        struct SamplerBindings {
+            GrSamplerState fState;
+            GrVkTexture* fTexture;
+        };
+        SkAutoSTMalloc<8, SamplerBindings> samplerBindings(fNumSamplers);
+        int currTextureBinding = 0;
+
+        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+            SkASSERT(primProcTextures[i]->asTextureProxy());
+            const auto& sampler = primProc.textureSampler(i);
+            auto texture = static_cast<GrVkTexture*>(primProcTextures[i]->peekTexture());
+            samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
+        }
+
+        pipeline.visitTextureEffects([&](const GrTextureEffect& te) {
+            GrSamplerState samplerState = te.samplerState();
+            auto* texture = static_cast<GrVkTexture*>(te.texture());
+            samplerBindings[currTextureBinding++] = {samplerState, texture};
+        });
+
+        if (GrTexture* dstTexture = pipeline.peekDstTexture()) {
+            samplerBindings[currTextureBinding++] = {GrSamplerState::Filter::kNearest,
+                                                     static_cast<GrVkTexture*>(dstTexture)};
+        }
+
+        // Get new descriptor set
+        SkASSERT(fNumSamplers == currTextureBinding);
         static const int kSamplerDSIdx = GrVkUniformHandler::kSamplerDescSet;
 
         if (fNumSamplers == 1) {
@@ -171,7 +171,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
                 sampler = fImmutableSamplers[i];
             } else {
                 sampler = gpu->resourceProvider().findOrCreateCompatibleSampler(
-                    state, texture->ycbcrConversionInfo());
+                        state, texture->ycbcrConversionInfo());
             }
             SkASSERT(sampler);
 
@@ -213,6 +213,27 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
                                           descriptorSet->descriptorSet(), 0, nullptr);
         commandBuffer->addRecycledResource(descriptorSet);
         descriptorSet->recycle();
+    }
+    return true;
+}
+
+bool GrVkPipelineState::setAndBindInputAttachment(GrVkGpu* gpu,
+                                                  GrVkRenderTarget* renderTarget,
+                                                  const GrPipeline& pipeline,
+                                                  GrVkCommandBuffer* commandBuffer) {
+    if (pipeline.usesInputAttachment()) {
+        SkASSERT(renderTarget->supportsInputAttachmentUsage());
+        const GrVkDescriptorSet* descriptorSet = renderTarget->inputDescSet(gpu);
+        if (!descriptorSet) {
+            return false;
+        }
+        commandBuffer->bindDescriptorSets(gpu, this, fPipeline->layout(),
+                                          GrVkUniformHandler::kInputDescSet, /*setCount=*/1,
+                                          descriptorSet->descriptorSet(),
+                                          /*dynamicOffsetCount=*/0, /*dynamicOffsets=*/nullptr);
+        // We don't add the input resource to the command buffer to track since the input will be
+        // the same as the color attachment which is already tracked on the command buffer.
+        commandBuffer->addRecycledResource(descriptorSet);
     }
     return true;
 }

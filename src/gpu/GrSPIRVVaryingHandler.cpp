@@ -74,6 +74,8 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 0;
         case kSampler_GrSLType:
              return 0;
+        case kInput_GrSLType:
+            return 0;
     }
     SK_ABORT("Unexpected type");
 }
