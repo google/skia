@@ -1748,21 +1748,13 @@ EMSCRIPTEN_BINDINGS(Skia) {
     enum_<SkColorType>("ColorType")
         .value("Alpha_8", SkColorType::kAlpha_8_SkColorType)
         .value("RGB_565", SkColorType::kRGB_565_SkColorType)
-        .value("ARGB_4444", SkColorType::kARGB_4444_SkColorType)
         .value("RGBA_8888", SkColorType::kRGBA_8888_SkColorType)
-        .value("RGB_888x", SkColorType::kRGB_888x_SkColorType)
         .value("BGRA_8888", SkColorType::kBGRA_8888_SkColorType)
         .value("RGBA_1010102", SkColorType::kRGBA_1010102_SkColorType)
         .value("RGB_101010x", SkColorType::kRGB_101010x_SkColorType)
         .value("Gray_8", SkColorType::kGray_8_SkColorType)
         .value("RGBA_F16", SkColorType::kRGBA_F16_SkColorType)
-        .value("RGBA_F32", SkColorType::kRGBA_F32_SkColorType)
-        .value("R8G8_unorm", SkColorType::kR8G8_unorm_SkColorType)
-        .value("A16_unorm", SkColorType::kA16_unorm_SkColorType)
-        .value("R16G16_unorm", SkColorType::kR16G16_unorm_SkColorType)
-        .value("A16_float", SkColorType::kA16_float_SkColorType)
-        .value("R16G16_float", SkColorType::kR16G16_float_SkColorType)
-        .value("R16G16B16A16_unorm", SkColorType::kR16G16B16A16_unorm_SkColorType);
+        .value("RGBA_F32", SkColorType::kRGBA_F32_SkColorType);
 
     enum_<SkPathFillType>("FillType")
         .value("Winding",           SkPathFillType::kWinding)
