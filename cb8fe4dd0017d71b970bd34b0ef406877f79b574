@@ -94,6 +94,52 @@
     },
     {
       "key": {
+        "uuid": "634f52ca_ba0bbd10",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:43:48Z",
+      "side": 1,
+      "message": "optional nit, your call: the absence of `const` or `constexpr` here made me question whether `nameVariable` is modifying this value, since it didn\u0027t really need to be a variable at all. NBD either way.",
+      "range": {
+        "startLine": 303,
+        "startChar": 4,
+        "endLine": 303,
+        "endChar": 8
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22b8858e_2fc9afbd",
+        "filename": "src/gpu/vk/GrVkUniformHandler.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:43:48Z",
+      "side": 1,
+      "message": "tiny nit: why a space here?",
+      "range": {
+        "startLine": 307,
+        "startChar": 52,
+        "endLine": 307,
+        "endChar": 53
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f09f69f9_d4acc21b",
         "filename": "src/gpu/vk/GrVkUniformHandler.h",
         "patchSetId": 11
@@ -133,6 +179,29 @@
         "startChar": 8,
         "endLine": 40,
         "endChar": 26
+      },
+      "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d82adfb1_76c89824",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T15:43:48Z",
+      "side": 1,
+      "message": "Please add a comment explaining the rationale behind this assert--what invariant is being enforced? It\u0027s not clear to me. (Here and in inputSamplerSwizzle)",
+      "range": {
+        "startLine": 120,
+        "startChar": 8,
+        "endLine": 120,
+        "endChar": 40
       },
       "revId": "cb8fe4dd0017d71b970bd34b0ef406877f79b574",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
