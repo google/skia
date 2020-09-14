@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e4eedda_b4a14903",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-14T00:53:36Z",
+      "side": 1,
+      "message": "Nit: I don\u0027t think there\u0027s much value in checking in commented out debug printfs.",
+      "range": {
+        "startLine": 1051,
+        "startChar": 0,
+        "endLine": 1054,
+        "endChar": 0
+      },
+      "revId": "f8bb5ad3087b286fe81184cec34476a598a4410b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
