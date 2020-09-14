@@ -135,7 +135,8 @@ def _CopyrightChecks(input_api, output_api, source_file_filter=None):
       r'Copyright (\([cC]\) )?%s \w+' % years_pattern)
 
   for affected_file in input_api.AffectedSourceFiles(source_file_filter):
-    if 'third_party' in affected_file.LocalPath():
+    if ('third_party/' in affected_file.LocalPath() or
+        'tests/sksl/' in affected_file.LocalPath()):
       continue
     contents = input_api.ReadFile(affected_file, 'rb')
     if not re.search(copyright_pattern, contents):
