@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc2de06e_867fe8a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-14T18:45:23Z",
+      "side": 1,
+      "message": "I spot checked a random sample of these manually and am prepared to take the rest on faith :-).",
+      "revId": "db2ae9228a7a4b0984c45a092714a9c8472dbcd2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
