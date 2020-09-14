@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9676df3_dc144aa2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-14T16:07:26Z",
+      "side": 1,
+      "message": "In PS 17, I updated how shape_contains_rect manages mixed AA settings between clip elements. The outset math was actually already implemented in GrQuadUtils, so I was able to just reuse that.\n\nI also investigated the performance regression of the Missouri seal SVG, and identified the need to cache device space paths on RawElement if it\u0027s used for a CCPR clip FP. The new clip stack was also being over aggressive on setting a constrained scissor, so we would end up preventing batching due to a different applied clip.",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
