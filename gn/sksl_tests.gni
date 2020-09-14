@@ -59,4 +59,5 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/VectorConstructors.sksl",
   "$_tests/sksl/glsl/VectorFolding.sksl",
   "$_tests/sksl/glsl/VertexID.vert",
+  "$_tests/sksl/inliner/InlinerAvoidsVariableNameOverlap.sksl",
 ]
