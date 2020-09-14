@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89d85306_c32acd7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-14T18:26:41Z",
+      "side": 1,
+      "message": "Generic vote to \"keep\" some of the extra colortypes...\n\n- nearly zero code-size cost / testing cost\n- allows clients to trying new things out -- making CK more valuable / attractive",
+      "revId": "bb0108edb10073ee7ea5a497d7958d32e858ffd1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
