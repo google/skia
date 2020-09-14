@@ -34,6 +34,24 @@
       "revId": "e4383b8f1e4d608fd1d7a52ad6c56f319cefd798",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ad4b2563_e557bb4e",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-14T16:03:36Z",
+      "side": 0,
+      "message": "It had to go back to support external getGrContext calls, but those will go away soon once Chrome rolls 316449 and I land the CL to get them over to -\u003erecordingContext.",
+      "parentUuid": "8393cac8_ffec6c26",
+      "revId": "e4383b8f1e4d608fd1d7a52ad6c56f319cefd798",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
