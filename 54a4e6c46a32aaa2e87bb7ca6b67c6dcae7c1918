@@ -16,6 +16,24 @@
       "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8584536_319ad82c",
+        "filename": "modules/canvaskit/tests/core.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-14T15:42:57Z",
+      "side": 1,
+      "message": "aImg.makeImageAtCurrentFrame() ? // \u0027make\u0027 to emphasize there is something to own/release?",
+      "parentUuid": "7c9efc64_d633a94f",
+      "revId": "54a4e6c46a32aaa2e87bb7ca6b67c6dcae7c1918",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
