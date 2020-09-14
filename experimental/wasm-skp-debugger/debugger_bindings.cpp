@@ -27,6 +27,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <map>
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
@@ -275,6 +276,36 @@ class SkpDebugPlayer {
       return toSimpleImageInfo(fImages[index]->imageInfo());
     }
 
+    // returns a JSON string representing commands where each image is referenced.
+    std::string imageUseInfoForFrame(int framenumber) {
+      std::map<int, std::vector<int>> m = frames[framenumber]->getImageIdToCommandMap(udm);
+
+      SkDynamicMemoryWStream stream;
+      SkJSONWriter writer(&stream, SkJSONWriter::Mode::kFast);
+      writer.beginObject(); // root
+      SkDebugf("writer.beginObject(); // root");
+
+      //writer.beginObject();  // map
+      for (auto it = m.begin(); it != m.end(); ++it) {
+        SkDebugf("writer.beginArray(%s);", std::to_string(it->first).c_str());
+        writer.beginArray(std::to_string(it->first).c_str());
+          for (const int commandId : it->second) {
+            SkDebugf("riter.appendU64((uint64_t)commandId);");
+            writer.appendU64((uint64_t)commandId);
+          }
+        SkDebugf("writer.endArray();");
+        writer.endArray();
+      }
+      //writer.endObject();  // map
+
+      SkDebugf("writer.endObject();");
+      writer.endObject(); // root
+      writer.flush();
+      auto skdata = stream.detachAsData();
+      std::string_view data_view(reinterpret_cast<const char*>(skdata->data()), skdata->size());
+      return std::string(data_view);
+    }
+
     // return a list of layer draw events that happened at the beginning of this frame.
     std::vector<DebugLayerManager::LayerSummary> getLayerSummaries() {
       return fLayerManager->summarizeLayers(fp);
@@ -480,6 +511,7 @@ EMSCRIPTEN_BINDINGS(my_module) {
     .function("getImageInfo",         &SkpDebugPlayer::getImageInfo)
     .function("getLayerSummaries",    &SkpDebugPlayer::getLayerSummaries)
     .function("getSize",              &SkpDebugPlayer::getSize)
+    .function("imageUseInfoForFrame", &SkpDebugPlayer::imageUseInfoForFrame)
     .function("jsonCommandList",      &SkpDebugPlayer::jsonCommandList, allow_raw_pointers())
     .function("lastCommandInfo",      &SkpDebugPlayer::lastCommandInfo)
     .function("loadSkp",              &SkpDebugPlayer::loadSkp, allow_raw_pointers())

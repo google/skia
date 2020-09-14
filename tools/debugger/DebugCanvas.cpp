@@ -596,3 +596,37 @@ void DebugCanvas::toggleCommand(int index, bool toggle) {
     SkASSERT(index < fCommandVector.count());
     fCommandVector[index]->setVisible(toggle);
 }
+
+const std::map<int, std::vector<int>> DebugCanvas::getImageIdToCommandMap(UrlDataManager& udm) {
+    // map from image ids to list of commands that reference them.
+    std::map<int, std::vector<int>> m;
+
+    for (int i = 0; i < this->getSize(); i++) {
+        const DrawCommand* command = this->getDrawCommandAt(i);
+        int imageIndex = -1;
+        // this is not an exaustive list of where images can be used, they show up in paints too.
+        switch (command->getOpType()) {
+            case DrawCommand::OpType::kDrawImage_OpType: {
+                imageIndex = static_cast<const DrawImageCommand*>(command)->imageId(udm);
+                break;
+            }
+            case DrawCommand::OpType::kDrawImageRect_OpType: {
+                imageIndex = static_cast<const DrawImageRectCommand*>(command)->imageId(udm);
+                break;
+            }
+            case DrawCommand::OpType::kDrawImageNine_OpType: {
+                imageIndex = static_cast<const DrawImageNineCommand*>(command)->imageId(udm);
+                break;
+            }
+            case DrawCommand::OpType::kDrawImageLattice_OpType: {
+                imageIndex = static_cast<const DrawImageLatticeCommand*>(command)->imageId(udm);
+                break;
+            }
+            default: break;
+        }
+        if (imageIndex >= 0) {
+            m[imageIndex].push_back(i);
+        }
+    }
+    return m;
+}
