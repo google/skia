@@ -634,13 +634,13 @@ void Compiler::computeDataFlow(CFG* cfg) {
  */
 static bool try_replace_expression(BasicBlock* b,
                                    std::vector<BasicBlock::Node>::iterator* iter,
-                                   std::unique_ptr<Expression>* newExpression) {
+                                   std::unique_ptr<Expression> newExpression) {
     std::unique_ptr<Expression>* target = (*iter)->expression();
     if (!b->tryRemoveExpression(iter)) {
-        *target = std::move(*newExpression);
+        *target = std::move(newExpression);
         return false;
     }
-    *target = std::move(*newExpression);
+    *target = std::move(newExpression);
     return b->tryInsertExpression(iter, target);
 }
 
@@ -649,14 +649,17 @@ static bool try_replace_expression(BasicBlock* b,
  * constant vector with all elements equal to the specified value.
  */
 template <typename T = double>
-static bool is_constant(const Expression& expr, T value) {
+static bool is_constant_scalar_or_vector(const Expression& expr, T value) {
     switch (expr.kind()) {
         case Expression::Kind::kIntLiteral:
             return expr.as<IntLiteral>().fValue == value;
-
         case Expression::Kind::kFloatLiteral:
             return expr.as<FloatLiteral>().fValue == value;
-
+        case Expression::Kind::kVariableReference: {
+            const Variable& var = expr.as<VariableReference>().fVariable;
+            return (var.fModifiers.fFlags & Modifiers::kConst_Flag) && var.fInitialValue &&
+                   is_constant_scalar_or_vector<T>(*var.fInitialValue, value);
+        }
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expr.as<Constructor>();
             if (constructor.isCompileTimeConstant()) {
@@ -681,7 +684,7 @@ static bool is_constant(const Expression& expr, T value) {
 
                     case Type::TypeKind::kScalar:
                         SkASSERT(constructor.fArguments.size() == 1);
-                        return is_constant<T>(*constructor.fArguments[0], value);
+                        return is_constant_scalar_or_vector<T>(*constructor.fArguments[0], value);
 
                     default:
                         return false;
@@ -859,7 +862,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             *outUpdated = true;
             optimized = fIRGenerator->coerce(std::move(optimized), expr->type());
             SkASSERT(optimized);
-            if (!try_replace_expression(&b, iter, &optimized)) {
+            if (!try_replace_expression(&b, iter, std::move(optimized))) {
                 *outNeedsRescan = true;
                 return;
             }
@@ -913,7 +916,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             }
             switch (bin->fOperator) {
                 case Token::Kind::TK_STAR:
-                    if (is_constant(*bin->fLeft, 1)) {
+                    if (is_constant_scalar_or_vector(*bin->fLeft, 1)) {
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(1) * x -> float4(x)
@@ -925,7 +928,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
-                    else if (is_constant(*bin->fLeft, 0)) {
+                    else if (is_constant_scalar_or_vector(*bin->fLeft, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector &&
                             !bin->fRight->hasSideEffects()) {
@@ -940,7 +943,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             }
                         }
                     }
-                    else if (is_constant(*bin->fRight, 1)) {
+                    else if (is_constant_scalar_or_vector(*bin->fRight, 1)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x * float4(1) -> float4(x)
@@ -952,7 +955,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
-                    else if (is_constant(*bin->fRight, 0)) {
+                    else if (is_constant_scalar_or_vector(*bin->fRight, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar &&
                             !bin->fLeft->hasSideEffects()) {
@@ -969,7 +972,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_PLUS:
-                    if (is_constant(*bin->fLeft, 0)) {
+                    if (is_constant_scalar_or_vector(*bin->fLeft, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(0) + x -> float4(x)
@@ -980,7 +983,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // float4(0) + float4(x) -> float4(x)
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
-                    } else if (is_constant(*bin->fRight, 0)) {
+                    } else if (is_constant_scalar_or_vector(*bin->fRight, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x + float4(0) -> float4(x)
@@ -994,7 +997,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_MINUS:
-                    if (is_constant(*bin->fRight, 0)) {
+                    if (is_constant_scalar_or_vector(*bin->fRight, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x - float4(0) -> float4(x)
@@ -1008,7 +1011,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_SLASH:
-                    if (is_constant(*bin->fRight, 1)) {
+                    if (is_constant_scalar_or_vector(*bin->fRight, 1)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x / float4(1) -> float4(x)
@@ -1019,7 +1022,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // float4(x) / float4(1) -> float4(x)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
-                    } else if (is_constant(*bin->fLeft, 0)) {
+                    } else if (is_constant_scalar_or_vector(*bin->fLeft, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector &&
                             !bin->fRight->hasSideEffects()) {
@@ -1036,25 +1039,25 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_PLUSEQ:
-                    if (is_constant(*bin->fRight, 0)) {
+                    if (is_constant_scalar_or_vector(*bin->fRight, 0)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_MINUSEQ:
-                    if (is_constant(*bin->fRight, 0)) {
+                    if (is_constant_scalar_or_vector(*bin->fRight, 0)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_STAREQ:
-                    if (is_constant(*bin->fRight, 1)) {
+                    if (is_constant_scalar_or_vector(*bin->fRight, 1)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_SLASHEQ:
-                    if (is_constant(*bin->fRight, 1)) {
+                    if (is_constant_scalar_or_vector(*bin->fRight, 1)) {
                         clear_write(*bin->fLeft);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
@@ -1077,7 +1080,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 }
                 if (identity) {
                     *outUpdated = true;
-                    if (!try_replace_expression(&b, iter, &s.fBase)) {
+                    if (!try_replace_expression(&b, iter, std::move(s.fBase))) {
                         *outNeedsRescan = true;
                         return;
                     }
@@ -1099,7 +1102,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 *outUpdated = true;
                 std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.fBase->clone(),
                                                                     std::move(final)));
-                if (!try_replace_expression(&b, iter, &replacement)) {
+                if (!try_replace_expression(&b, iter, std::move(replacement))) {
                     *outNeedsRescan = true;
                     return;
                 }
@@ -1346,7 +1349,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         defaultCase = c.get();
                         continue;
                     }
-                    if (is_constant<int64_t>(*s.fValue, c->fValue->getConstantInt())) {
+                    if (is_constant_scalar_or_vector<int64_t>(*s.fValue, c->fValue->getConstantInt())) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock));
