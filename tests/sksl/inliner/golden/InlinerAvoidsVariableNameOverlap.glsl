@@ -3,19 +3,19 @@ precision mediump float;
 precision mediump sampler2D;
 in mediump vec2 x;
 mediump vec4 main() {
-    mediump vec2 _1_InlineA;
+    mediump vec2 _2_InlineA;
     {
-        mediump vec2 reusedName = x + vec2(1.0, 2.0);
-        mediump vec2 _0_InlineB;
+        mediump vec2 _3_reusedName = x + vec2(1.0, 2.0);
+        mediump vec2 _4_0_InlineB;
         {
-            mediump vec2 reusedName = reusedName + vec2(3.0, 4.0);
-            _0_InlineB = reusedName;
+            mediump vec2 _5_1_reusedName = _3_reusedName + vec2(3.0, 4.0);
+            _4_0_InlineB = _5_1_reusedName;
         }
 
-        _1_InlineA = _0_InlineB;
+        _2_InlineA = _4_0_InlineB;
 
     }
 
-    return _1_InlineA.xyxy;
+    return _2_InlineA.xyxy;
 
 }

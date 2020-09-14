@@ -725,13 +725,13 @@ uniform vec4 color;
 void main() {
     vec4 _0_switchy;
     {
-        vec4 result;
+        vec4 _1_result;
         switch (int(color.x)) {
             case 0:
-                result = color.yyyy;
+                _1_result = color.yyyy;
         }
-        result = color.zzzz;
-        _0_switchy = result;
+        _1_result = color.zzzz;
+        _0_switchy = _1_result;
     }
 
     sk_FragColor = _0_switchy;
@@ -793,16 +793,16 @@ uniform vec4 color;
 void main() {
     vec4 _0_switchy;
     {
-        vec4 result;
+        vec4 _1_result;
         switch (int(color.x)) {
             case 1:
-                result = color.yyyy;
+                _1_result = color.yyyy;
                 break;
             default:
-                result = color.zzzz;
+                _1_result = color.zzzz;
                 break;
         }
-        _0_switchy = result;
+        _0_switchy = _1_result;
     }
 
     sk_FragColor = _0_switchy;
@@ -834,12 +834,12 @@ uniform vec4 color;
 void main() {
     vec4 _0_loopy;
     {
-        vec4 pix;
-        for (int x = 0;x < 5; ++x) {
-            if (x == int(color.w)) pix = color.yyyy;
+        vec4 _1_pix;
+        for (int _2_x = 0;_2_x < 5; ++_2_x) {
+            if (_2_x == int(color.w)) _1_pix = color.yyyy;
         }
-        pix = color.zzzz;
-        _0_loopy = pix;
+        _1_pix = color.zzzz;
+        _0_loopy = _1_pix;
     }
 
     sk_FragColor = _0_loopy;
@@ -873,88 +873,88 @@ DEF_TEST(SkSLFPInlinerManglesOverlappingNames, r) {
          /*expectedGLSL=*/R"__GLSL__(#version 400
 uniform vec4 color;
 vec4 main() {
-    float _2_fma;
-    float _3_a = color.x;
-    float _4_b = color.y;
-    float _5_c = color.z;
+    float _3_fma;
+    float _4_a = color.x;
+    float _5_b = color.y;
+    float _6_c = color.z;
     {
-        float _0_mul;
+        float _7_0_mul;
         {
-            _0_mul = _3_a * _4_b;
+            _7_0_mul = _4_a * _5_b;
         }
 
-        float _1_add;
+        float _8_1_add;
         {
-            float c = _0_mul + _5_c;
-            _1_add = c;
+            float _9_2_c = _7_0_mul + _6_c;
+            _8_1_add = _9_2_c;
         }
 
-        _2_fma = _1_add;
+        _3_fma = _8_1_add;
 
     }
 
-    float a = _2_fma;
-
-    float _6_fma;
-    float _7_a = color.y;
-    float _8_b = color.z;
-    float _9_c = color.w;
-    {
-        float _0_mul;
-        {
-            _0_mul = _7_a * _8_b;
-        }
-
-        float _1_add;
-        {
-            float c = _0_mul + _9_c;
-            _1_add = c;
-        }
-
-        _6_fma = _1_add;
-
-    }
-
-    float b = _6_fma;
+    float a = _3_fma;
 
     float _10_fma;
-    float _11_a = color.z;
-    float _12_b = color.w;
-    float _13_c = color.x;
+    float _11_a = color.y;
+    float _12_b = color.z;
+    float _13_c = color.w;
     {
-        float _0_mul;
+        float _14_0_mul;
         {
-            _0_mul = _11_a * _12_b;
+            _14_0_mul = _11_a * _12_b;
         }
 
-        float _1_add;
+        float _15_1_add;
         {
-            float c = _0_mul + _13_c;
-            _1_add = c;
+            float _16_2_c = _14_0_mul + _13_c;
+            _15_1_add = _16_2_c;
         }
 
-        _10_fma = _1_add;
+        _10_fma = _15_1_add;
 
     }
 
-    float c = _10_fma;
+    float b = _10_fma;
 
-    float _14_mul;
+    float _17_fma;
+    float _18_a = color.z;
+    float _19_b = color.w;
+    float _20_c = color.x;
     {
-        _14_mul = c * c;
+        float _21_0_mul;
+        {
+            _21_0_mul = _18_a * _19_b;
+        }
+
+        float _22_1_add;
+        {
+            float _23_2_c = _21_0_mul + _20_c;
+            _22_1_add = _23_2_c;
+        }
+
+        _17_fma = _22_1_add;
+
     }
 
-    float _15_mul;
+    float c = _17_fma;
+
+    float _24_mul;
     {
-        _15_mul = b * c;
+        _24_mul = c * c;
     }
 
-    float _16_mul;
+    float _25_mul;
     {
-        _16_mul = a * _15_mul;
+        _25_mul = b * c;
     }
 
-    return vec4(a, b, _14_mul, _16_mul);
+    float _26_mul;
+    {
+        _26_mul = a * _25_mul;
+    }
+
+    return vec4(a, b, _24_mul, _26_mul);
 
 }
 )__GLSL__");
@@ -1108,8 +1108,8 @@ void main() {
         {
             {
                 if (color.x > 0.0) {
-                    vec4 d = color * 0.5;
-                    _2_branchyAndBlocky = d.xxxx;
+                    vec4 _3_d = color * 0.5;
+                    _2_branchyAndBlocky = _3_d.xxxx;
                 } else {
                     {
                         {

@@ -55,6 +55,8 @@ public:
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, const Variable*>;
 
+    String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
+
     std::unique_ptr<Expression> inlineExpression(int offset,
                                                  VariableRewriteMap* varMap,
                                                  const Expression& expression);
