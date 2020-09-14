@@ -1,0 +1,31 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000004926047",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/313082?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ab5f76c0_3f2da1e5",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-14T19:11:02Z",
+      "side": 1,
+      "message": "Lines longer than 100 characters should be wrapped to improve readability; see https://source.android.com/setup/contribute/code-style#limit-line-length for more details.",
+      "range": {
+        "startLine": 278,
+        "startChar": 0,
+        "endLine": 278,
+        "endChar": 101
+      },
+      "revId": "5f824a5d2d1ae1a567ac59d88e1deaad367042c0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
