@@ -263,6 +263,28 @@ void Inliner::reset(const Context& context, const Program::Settings& settings) {
     fInlineVarCounter = 0;
 }
 
+String Inliner::uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable) {
+    // If the base name starts with an underscore, like "_coords", we can't append another
+    // underscore, because OpenGL disallows two consecutive underscores anywhere in the string. But
+    // in the general case, using the underscore as a splitter reads nicely enough that it's worth
+    // putting in this special case.
+    const char* splitter = baseName.startsWith("_") ? "" : "_";
+
+    // Append a unique numeric prefix to avoid name overlap. Check the symbol table to make sure
+    // we're not reusing an existing name. (Note that within a single compilation pass, this check
+    // isn't fully comprehensive, as code isn't always generated in top-to-bottom order.)
+    String uniqueName;
+    for (;;) {
+        uniqueName = String::printf("_%d%s%s", fInlineVarCounter++, splitter, baseName.c_str());
+        StringFragment frag{uniqueName.data(), uniqueName.length()};
+        if ((*symbolTable)[frag] == nullptr) {
+            break;
+        }
+    }
+
+    return uniqueName;
+}
+
 std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
                                                       VariableRewriteMap* varMap,
                                                       const Expression& expression) {
@@ -466,9 +488,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             }
             std::unique_ptr<Expression> initialValue = expr(decl.fValue);
             const Variable* old = decl.fVar;
-            // need to copy the var name in case the originating function is discarded and we lose
-            // its symbols
-            std::unique_ptr<String> name(new String(old->fName));
+            // We assign unique names to inlined variables--scopes hide most of the problems in this
+            // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
+            // names are important.
+            auto name = std::make_unique<String>(
+                    this->uniqueNameForInlineVar(String(old->fName), symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
             const Type* typePtr = copy_if_needed(&old->type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
@@ -551,25 +575,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             type = fContext->fInt_Type.get();
         }
 
-        // If the base name starts with an underscore, like "_coords", we can't append another
-        // underscore, because some OpenGL platforms error out when they see two consecutive
-        // underscores (anywhere in the string!). But in the general case, using the underscore as
-        // a splitter reads nicely enough that it's worth putting in this special case.
-        const char* splitter = baseName.startsWith("_") ? "_X" : "_";
-
-        // Append a unique numeric prefix to avoid name overlap. Check the symbol table to make sure
-        // we're not reusing an existing name. (Note that within a single compilation pass, this
-        // check isn't fully comprehensive, as code isn't always generated in top-to-bottom order.)
-        String uniqueName;
-        for (;;) {
-            uniqueName = String::printf("_%d%s%s", fInlineVarCounter++, splitter, baseName.c_str());
-            StringFragment frag{uniqueName.data(), uniqueName.length()};
-            if ((*symbolTableForCall)[frag] == nullptr) {
-                break;
-            }
-        }
-
-        // Add our new variable's name to the symbol table.
+        // Provide our new variable with a unique name, and add it to our symbol table.
+        String uniqueName = this->uniqueNameForInlineVar(baseName, symbolTableForCall);
         const String* namePtr = symbolTableForCall->takeOwnershipOfString(
                 std::make_unique<String>(std::move(uniqueName)));
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
