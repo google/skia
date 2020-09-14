@@ -1,0 +1,8 @@
+void main() {
+    float array[4] = float[4](1, 2, 3, 4);
+    short x = 0;
+    ushort y = 1;
+    int z = 2;
+    uint w = 3;
+    sk_FragColor = half4(half(array[x]), half(array[y]), half(array[z]), half(array[w]));
+}
