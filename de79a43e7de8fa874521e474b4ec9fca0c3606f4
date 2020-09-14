@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2908e23b_0dc1738b",
+        "filename": "tests/sksl/inliner/golden/InlinerAvoidsVariableNameOverlap.glsl",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T21:43:43Z",
+      "side": 1,
+      "message": "Oops",
+      "range": {
+        "startLine": 11,
+        "startChar": 25,
+        "endLine": 11,
+        "endChar": 48
+      },
+      "revId": "de79a43e7de8fa874521e474b4ec9fca0c3606f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
