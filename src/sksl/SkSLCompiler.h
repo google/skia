@@ -126,8 +126,6 @@ public:
     std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
                                             const Program::Settings& settings);
 
-    bool optimize(Program& program);
-
     bool toSPIRV(Program& program, OutputStream& out);
 
     bool toSPIRV(Program& program, String* out);
@@ -188,7 +186,6 @@ public:
                             std::shared_ptr<SymbolTable>* outSymbolTable);
 
 private:
-
     void loadGeometryIntrinsics();
 
     void loadInterpreterIntrinsics();
@@ -230,6 +227,11 @@ private:
      * Optimizes a function based on control flow analysis. Returns true if changes were made.
      */
     bool scanCFG(FunctionDefinition& f);
+
+    /**
+     * Optimize every function in the program.
+     */
+    bool optimize(Program& program);
 
     Position position(int offset);
 

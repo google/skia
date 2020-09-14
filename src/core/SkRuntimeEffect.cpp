@@ -129,9 +129,6 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     if (!program) {
         RETURN_FAILURE("%s", compiler->errorText().c_str());
     }
-    if (!compiler->optimize(*program)) {
-        RETURN_FAILURE("%s", compiler->errorText().c_str());
-    }
 
     bool hasMain = false;
     const bool usesSampleCoords = SkSL::Analysis::ReferencesSampleCoords(*program);

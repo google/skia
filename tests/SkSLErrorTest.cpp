@@ -16,9 +16,6 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
     settings.fCaps = caps.get();
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kFragment_Kind,
                                                                      SkSL::String(src), settings);
-    if (!compiler.errorCount()) {
-        compiler.optimize(*program);
-    }
     SkSL::String skError(error);
     if (compiler.errorText() != skError) {
         SkDebugf("SKSL ERROR:\n    source: %s\n    expected: %s    received: %s", src, error,
