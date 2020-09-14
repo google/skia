@@ -33,6 +33,46 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0a1d700_71cded44",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T20:15:47Z",
+      "side": 1,
+      "message": "\u0027\\n\u0027 ?",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b604160_c29ab20f",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-14T20:15:47Z",
+      "side": 1,
+      "message": "Do we need this here ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 21
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
