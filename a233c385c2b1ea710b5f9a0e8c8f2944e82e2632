@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef3e85b4_fb67aa19",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-14T22:32:39Z",
+      "side": 1,
+      "message": "Note: I changed \"_X\" to \"\" here because with the repeated rounds of inlining, the variable names got too quirky--\"_12_X_5_X_0_foo\" looked too distracting, and the X really wasn\u0027t needed for any purpose. Not that \"_12_5_0_foo\" is fantastic, but it\u0027s better.",
+      "range": {
+        "startLine": 271,
+        "startChar": 54,
+        "endLine": 271,
+        "endChar": 56
+      },
+      "revId": "a233c385c2b1ea710b5f9a0e8c8f2944e82e2632",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
