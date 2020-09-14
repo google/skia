@@ -1337,7 +1337,8 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         }
         case Statement::Kind::kSwitch: {
             SwitchStatement& s = stmt->as<SwitchStatement>();
-            if (s.fValue->isCompileTimeConstant()) {
+            int64_t switchValue;
+            if (fIRGenerator->getConstantInt(*s.fValue, &switchValue)) {
                 // switch is constant, replace it with the case that matches
                 bool found = false;
                 SwitchCase* defaultCase = nullptr;
@@ -1346,7 +1347,9 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         defaultCase = c.get();
                         continue;
                     }
-                    if (is_constant<int64_t>(*s.fValue, c->fValue->getConstantInt())) {
+                    int64_t caseValue;
+                    SkAssertResult(fIRGenerator->getConstantInt(*c->fValue, &caseValue));
+                    if (caseValue == switchValue) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
                         if (newBlock) {
                             (*iter)->setStatement(std::move(newBlock));
@@ -1659,82 +1662,82 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     if (fErrorCount) {
         return nullptr;
     }
+    if (settings.fOptimize && !this->optimize(*result)) {
+        return nullptr;
+    }
     return result;
 }
 
 bool Compiler::optimize(Program& program) {
     SkASSERT(!fErrorCount);
-    if (!program.fIsOptimized) {
-        program.fIsOptimized = true;
-        fIRGenerator->fKind = program.fKind;
-        fIRGenerator->fSettings = &program.fSettings;
+    fIRGenerator->fKind = program.fKind;
+    fIRGenerator->fSettings = &program.fSettings;
 
-        while (fErrorCount == 0) {
-            bool madeChanges = false;
+    while (fErrorCount == 0) {
+        bool madeChanges = false;
 
-            // Scan and optimize based on the control-flow graph for each function.
+        // Scan and optimize based on the control-flow graph for each function.
+        for (ProgramElement& element : program) {
+            if (element.is<FunctionDefinition>()) {
+                madeChanges |= this->scanCFG(element.as<FunctionDefinition>());
+            }
+        }
+
+        // Perform inline-candidate analysis and inline any functions deemed suitable.
+        madeChanges |= fInliner.analyze(program);
+
+        // Remove dead functions. We wait until after analysis so that we still report errors,
+        // even in unused code.
+        if (program.fSettings.fRemoveDeadFunctions) {
+            program.fElements.erase(
+                    std::remove_if(program.fElements.begin(),
+                                   program.fElements.end(),
+                                   [&](const std::unique_ptr<ProgramElement>& element) {
+                                       if (!element->is<FunctionDefinition>()) {
+                                           return false;
+                                       }
+                                       const auto& fn = element->as<FunctionDefinition>();
+                                       bool dead = fn.fDeclaration.fCallCount == 0 &&
+                                                   fn.fDeclaration.fName != "main";
+                                       madeChanges |= dead;
+                                       return dead;
+                                   }),
+                    program.fElements.end());
+        }
+
+        if (program.fKind != Program::kFragmentProcessor_Kind) {
+            // Remove dead variables.
             for (ProgramElement& element : program) {
-                if (element.is<FunctionDefinition>()) {
-                    madeChanges |= this->scanCFG(element.as<FunctionDefinition>());
+                if (!element.is<VarDeclarations>()) {
+                    continue;
                 }
-            }
-
-            // Perform inline-candidate analysis and inline any functions deemed suitable.
-            madeChanges |= fInliner.analyze(program);
-
-            // Remove dead functions. We wait until after analysis so that we still report errors,
-            // even in unused code.
-            if (program.fSettings.fRemoveDeadFunctions) {
-                program.fElements.erase(
-                        std::remove_if(program.fElements.begin(),
-                                       program.fElements.end(),
-                                       [&](const std::unique_ptr<ProgramElement>& element) {
-                                           if (!element->is<FunctionDefinition>()) {
-                                               return false;
-                                           }
-                                           const auto& fn = element->as<FunctionDefinition>();
-                                           bool dead = fn.fDeclaration.fCallCount == 0 &&
-                                                       fn.fDeclaration.fName != "main";
+                VarDeclarations& vars = element.as<VarDeclarations>();
+                vars.fVars.erase(
+                        std::remove_if(vars.fVars.begin(), vars.fVars.end(),
+                                       [&](const std::unique_ptr<Statement>& stmt) {
+                                           bool dead = stmt->as<VarDeclaration>().fVar->dead();
                                            madeChanges |= dead;
                                            return dead;
                                        }),
-                        program.fElements.end());
+                        vars.fVars.end());
             }
 
-            if (program.fKind != Program::kFragmentProcessor_Kind) {
-                // Remove dead variables.
-                for (ProgramElement& element : program) {
-                    if (!element.is<VarDeclarations>()) {
-                        continue;
-                    }
-                    VarDeclarations& vars = element.as<VarDeclarations>();
-                    vars.fVars.erase(
-                            std::remove_if(vars.fVars.begin(), vars.fVars.end(),
-                                           [&](const std::unique_ptr<Statement>& stmt) {
-                                               bool dead = stmt->as<VarDeclaration>().fVar->dead();
-                                               madeChanges |= dead;
-                                               return dead;
-                                           }),
-                            vars.fVars.end());
-                }
+            // Remove empty variable declarations with no variables left inside of them.
+            program.fElements.erase(
+                    std::remove_if(program.fElements.begin(), program.fElements.end(),
+                                   [&](const std::unique_ptr<ProgramElement>& element) {
+                                       if (!element->is<VarDeclarations>()) {
+                                           return false;
+                                       }
+                                       bool dead = element->as<VarDeclarations>().fVars.empty();
+                                       madeChanges |= dead;
+                                       return dead;
+                                   }),
+                    program.fElements.end());
+        }
 
-                // Remove empty variable declarations with no variables left inside of them.
-                program.fElements.erase(
-                        std::remove_if(program.fElements.begin(), program.fElements.end(),
-                                       [&](const std::unique_ptr<ProgramElement>& element) {
-                                           if (!element->is<VarDeclarations>()) {
-                                               return false;
-                                           }
-                                           bool dead = element->as<VarDeclarations>().fVars.empty();
-                                           madeChanges |= dead;
-                                           return dead;
-                                       }),
-                        program.fElements.end());
-            }
-
-            if (!madeChanges) {
-                break;
-            }
+        if (!madeChanges) {
+            break;
         }
     }
     return fErrorCount == 0;
@@ -1743,9 +1746,6 @@ bool Compiler::optimize(Program& program) {
 #if defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
-    if (!this->optimize(program)) {
-        return false;
-    }
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     fSource = program.fSource.get();
@@ -1784,9 +1784,6 @@ bool Compiler::toSPIRV(Program& program, String* out) {
 }
 
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
-    if (!this->optimize(program)) {
-        return false;
-    }
     fSource = program.fSource.get();
     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
@@ -1813,18 +1810,12 @@ bool Compiler::toHLSL(Program& program, String* out) {
 }
 
 bool Compiler::toMetal(Program& program, OutputStream& out) {
-    if (!this->optimize(program)) {
-        return false;
-    }
     MetalCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     return result;
 }
 
 bool Compiler::toMetal(Program& program, String* out) {
-    if (!this->optimize(program)) {
-        return false;
-    }
     StringStream buffer;
     bool result = this->toMetal(program, buffer);
     if (result) {
@@ -1835,9 +1826,6 @@ bool Compiler::toMetal(Program& program, String* out) {
 
 #if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
 bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
-    if (!this->optimize(program)) {
-        return false;
-    }
     fSource = program.fSource.get();
     CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
@@ -1846,9 +1834,6 @@ bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
 }
 
 bool Compiler::toH(Program& program, String name, OutputStream& out) {
-    if (!this->optimize(program)) {
-        return false;
-    }
     fSource = program.fSource.get();
     HCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
@@ -1861,9 +1846,6 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
-    if (!this->optimize(program)) {
-        return false;
-    }
     fSource = program.fSource.get();
     StringStream buffer;
     PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outArgs);
@@ -1878,9 +1860,6 @@ bool Compiler::toPipelineStage(Program& program, PipelineStageArgs* outArgs) {
 
 std::unique_ptr<ByteCode> Compiler::toByteCode(Program& program) {
 #if defined(SK_ENABLE_SKSL_INTERPRETER)
-    if (!this->optimize(program)) {
-        return nullptr;
-    }
     fSource = program.fSource.get();
     std::unique_ptr<ByteCode> result(new ByteCode());
     ByteCodeGenerator cg(fContext.get(), &program, this, result.get());

@@ -73,9 +73,6 @@ static void test_failure(skiatest::Reporter* r, const char* src, const char* err
                                                              SkSL::String(src),
                                                              settings);
     if (!compiler.errorCount()) {
-        compiler.optimize(*program);
-    }
-    if (!compiler.errorCount()) {
         SkSL::StringStream output;
         compiler.toH(*program, "Test", output);
     }
