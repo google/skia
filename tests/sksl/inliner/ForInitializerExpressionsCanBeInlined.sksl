@@ -1,0 +1,18 @@
+inline half4 initLoopVar() {
+    return half4(0.0625);
+}
+
+inline bool shouldLoop(half4 v) {
+    return v.x < 0.5;
+}
+
+inline half4 grow(half4 v) {
+    return v + half4(0.125);
+}
+
+void main() {
+    for (sk_FragColor = initLoopVar();
+         shouldLoop(sk_FragColor);
+         sk_FragColor = grow(sk_FragColor)) {
+    }
+}

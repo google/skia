@@ -1,0 +1,9 @@
+inline half basic(half x) {
+    return x * 2;
+}
+
+void main() {
+    sk_FragColor.x = basic(1);
+    half y = 2;
+    sk_FragColor.y = basic(y);
+}

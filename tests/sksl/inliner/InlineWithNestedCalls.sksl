@@ -1,0 +1,17 @@
+void foo(out half x) {
+    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
+    --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
+    x = 42;
+}
+
+half bar(half y) {
+    foo(y);
+    return y;
+}
+
+void main() {
+    half _1_y = 123; // the inliner shouldn't try to reuse this name
+    half z = 0;
+    bar(z);
+    sk_FragColor.x = z;
+}

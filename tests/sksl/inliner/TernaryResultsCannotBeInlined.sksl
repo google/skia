@@ -1,0 +1,17 @@
+uniform half4 color;
+half count = 0;
+
+inline half4 trueSide(half4 v) {
+    count += 1;
+    return half4(sin(v.x), sin(v.y), sin(v.z), sin(v.w));
+}
+
+inline half4 falseSide(half4 v) {
+    count += 1;
+    return half4(cos(v.y), cos(v.z), cos(v.w), cos(v.z));
+}
+
+void main() {
+    sk_FragColor = (color.x <= 0.5) ? trueSide(color) : falseSide(color);
+    sk_FragColor *= count;
+}
