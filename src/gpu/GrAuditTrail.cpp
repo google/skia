@@ -131,7 +131,7 @@ void GrAuditTrail::fullReset() {
     fOpsTask.reset();
     fIDLookup.reset();
     // free all client ops
-    fClientIDLookup.foreach ([](const int&, Ops** ops) { delete *ops; });
+    fClientIDLookup.foreach([](const int&, Ops** ops) { delete *ops; });
     fClientIDLookup.reset();
     fOpPool.reset();  // must be last, frees all of the memory
 }
