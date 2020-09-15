@@ -16,12 +16,6 @@
 
 namespace SkSL {
 
-// represents a swizzle component of constant 0, as in x.rgb0
-const int SKSL_SWIZZLE_0 = -2;
-
-// represents a swizzle component of constant 1, as in x.rgb1
-const int SKSL_SWIZZLE_1 = -1;
-
 /**
  * Given a type and a swizzle component count, returns the type that will result from swizzling. For
  * instance, swizzling a float3 with two components will result in a float2. It is possible to
@@ -140,7 +134,7 @@ struct Swizzle : public Expression {
     String description() const override {
         String result = fBase->description() + ".";
         for (int x : fComponents) {
-            result += "01xyzw"[x + 2];
+            result += "xyzw"[x];
         }
         return result;
     }

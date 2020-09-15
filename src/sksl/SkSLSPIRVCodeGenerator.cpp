@@ -1980,36 +1980,9 @@ SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out
         this->writeWord(this->getType(swizzle.type()), out);
         this->writeWord(result, out);
         this->writeWord(base, out);
-        SpvId other = base;
-        for (int c : swizzle.fComponents) {
-            if (c < 0) {
-                if (!fConstantZeroOneVector) {
-                    FloatLiteral zero(fContext, -1, 0);
-                    SpvId zeroId = this->writeFloatLiteral(zero);
-                    FloatLiteral one(fContext, -1, 1);
-                    SpvId oneId = this->writeFloatLiteral(one);
-                    SpvId type = this->getType(*fContext.fFloat2_Type);
-                    fConstantZeroOneVector = this->nextId();
-                    this->writeOpCode(SpvOpConstantComposite, 5, fConstantBuffer);
-                    this->writeWord(type, fConstantBuffer);
-                    this->writeWord(fConstantZeroOneVector, fConstantBuffer);
-                    this->writeWord(zeroId, fConstantBuffer);
-                    this->writeWord(oneId, fConstantBuffer);
-                }
-                other = fConstantZeroOneVector;
-                break;
-            }
-        }
-        this->writeWord(other, out);
-        int baseColumns = swizzle.fBase->type().columns();
+        this->writeWord(base, out);
         for (int component : swizzle.fComponents) {
-            if (component == SKSL_SWIZZLE_0) {
-                this->writeWord(baseColumns, out);
-            } else if (component == SKSL_SWIZZLE_1) {
-                this->writeWord(baseColumns + 1, out);
-            } else {
-                this->writeWord(component, out);
-            }
+            this->writeWord(component, out);
         }
     }
     return result;
