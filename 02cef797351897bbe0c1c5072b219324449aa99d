@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50d6de75_c20a64d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-15T01:35:02Z",
+      "side": 1,
+      "message": "you sure you want this?  Its the single biggest security risk in Skia.",
+      "revId": "02cef797351897bbe0c1c5072b219324449aa99d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
