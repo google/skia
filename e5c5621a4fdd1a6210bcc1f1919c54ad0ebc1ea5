@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c1783b0_52ef9922",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Will land this; any more follow up I can apply in another CL and before enable it on bots/platforms.",
+      "revId": "e5c5621a4fdd1a6210bcc1f1919c54ad0ebc1ea5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

@@ -121,6 +121,24 @@
     },
     {
       "key": {
+        "uuid": "a70f31f5_f2297570",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b8fe7b0_b52a3792",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c2df660_5ac81796",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -135,6 +153,24 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "38bd1390_c20c79ac",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c2df660_5ac81796",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -161,6 +197,30 @@
     },
     {
       "key": {
+        "uuid": "4bd40cb2_6a9cbd0e",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "I think I\u0027ll keep it as is; the outset code already has optimized cases for non-perspective.",
+      "parentUuid": "5bd4acc4_874283a4",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 19
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc4f3259_ae9dad66",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -181,6 +241,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c0d3d8f_5bb16b14",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc4f3259_ae9dad66",
+      "range": {
+        "startLine": 131,
+        "startChar": 77,
+        "endLine": 131,
+        "endChar": 87
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -207,6 +291,30 @@
     },
     {
       "key": {
+        "uuid": "582150e0_67dee9a7",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0950e681_ae89e291",
+      "range": {
+        "startLine": 136,
+        "startChar": 11,
+        "endLine": 136,
+        "endChar": 55
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "767204b4_b8794ebc",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -230,6 +338,30 @@
     },
     {
       "key": {
+        "uuid": "0f3165c8_b71d8f2d",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "767204b4_b8794ebc",
+      "range": {
+        "startLine": 177,
+        "startChar": 9,
+        "endLine": 177,
+        "endChar": 10
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1053ac83_d73fe7f8",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -244,6 +376,24 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b554553a_80059a4c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "It can, but will automatically return a GrFPFailure result so the calling code will just proceed to using an atlas or mask.",
+      "parentUuid": "1053ac83_d73fe7f8",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -270,6 +420,30 @@
     },
     {
       "key": {
+        "uuid": "e0e4a60a_7034182f",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61730c96_4707bc26",
+      "range": {
+        "startLine": 233,
+        "startChar": 22,
+        "endLine": 233,
+        "endChar": 25
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6021e43_4436e7bb",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -290,6 +464,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "990bd003_7e6c74b4",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6021e43_4436e7bb",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 52
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -316,6 +514,30 @@
     },
     {
       "key": {
+        "uuid": "bf1547b9_90d90216",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9add8154_60e39af5",
+      "range": {
+        "startLine": 496,
+        "startChar": 59,
+        "endLine": 496,
+        "endChar": 61
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8523135f_f66e822e",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -336,6 +558,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f79673f4_d654fa51",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8523135f_f66e822e",
+      "range": {
+        "startLine": 550,
+        "startChar": 85,
+        "endLine": 550,
+        "endChar": 93
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -362,6 +608,30 @@
     },
     {
       "key": {
+        "uuid": "64d1ca48_c6de84d5",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72da8fa2_769688e6",
+      "range": {
+        "startLine": 592,
+        "startChar": 89,
+        "endLine": 592,
+        "endChar": 91
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7900705f_8cf6cee3",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -379,6 +649,24 @@
     },
     {
       "key": {
+        "uuid": "bc172e94_f9f0df16",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7900705f_8cf6cee3",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b599b08_f324a907",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -393,6 +681,24 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1ee83c9_7cba852c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 874,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b599b08_f324a907",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -419,6 +725,30 @@
     },
     {
       "key": {
+        "uuid": "a0c8bc10_22656fd3",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 896,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70274038_a7732030",
+      "range": {
+        "startLine": 896,
+        "startChar": 27,
+        "endLine": 896,
+        "endChar": 28
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f8529764_999b5ee8",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -439,6 +769,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8009bc55_cb5c7c5c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 980,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8529764_999b5ee8",
+      "range": {
+        "startLine": 980,
+        "startChar": 29,
+        "endLine": 980,
+        "endChar": 32
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -465,6 +819,30 @@
     },
     {
       "key": {
+        "uuid": "ac05e7e4_5cad354c",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Updated to include what happens when CCPR is disabled (it goes up to 0.3%). NVPR doesn\u0027t affect clip generation.",
+      "parentUuid": "c172c3c6_188b0cc4",
+      "range": {
+        "startLine": 1102,
+        "startChar": 0,
+        "endLine": 1103,
+        "endChar": 55
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32ed13c6_3c09b5fd",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -485,6 +863,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0325458_3f2488bf",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1110,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32ed13c6_3c09b5fd",
+      "range": {
+        "startLine": 1110,
+        "startChar": 24,
+        "endLine": 1110,
+        "endChar": 36
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -523,6 +925,24 @@
     },
     {
       "key": {
+        "uuid": "e4dff785_b8c2d9d0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "In this case, since \u0027A\u0027 is the clip, kAOnly means that the draw fully covered the clip so must be clipped, which is the fallthrough case. I added a comment to clarify this.",
+      "parentUuid": "7304dda3_a3e07d73",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a8d8f25d_48356926",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -543,6 +963,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd339a5e_1dc7c4e0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8d8f25d_48356926",
+      "range": {
+        "startLine": 1332,
+        "startChar": 14,
+        "endLine": 1332,
+        "endChar": 15
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -569,6 +1013,30 @@
     },
     {
       "key": {
+        "uuid": "6097762b_b1bd4f57",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1351,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4ea3a13_2afc2616",
+      "range": {
+        "startLine": 1351,
+        "startChar": 43,
+        "endLine": 1351,
+        "endChar": 47
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c17f6338_a4182675",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -592,6 +1060,30 @@
     },
     {
       "key": {
+        "uuid": "27a0ec5c_f1ca2e5f",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1609,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c17f6338_a4182675",
+      "range": {
+        "startLine": 1609,
+        "startChar": 62,
+        "endLine": 1609,
+        "endChar": 68
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0a1d700_71cded44",
         "filename": "src/gpu/GrClipStack.h",
         "patchSetId": 17
@@ -606,6 +1098,24 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1775dcda_465afe33",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0a1d700_71cded44",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -632,6 +1142,30 @@
     },
     {
       "key": {
+        "uuid": "46daf8d2_955b1bb0",
+        "filename": "src/gpu/GrClipStack.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Nope!",
+      "parentUuid": "8b604160_c29ab20f",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 21
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6335ac5_198e3e7c",
         "filename": "src/gpu/SkGpuDevice.h",
         "patchSetId": 17
@@ -655,6 +1189,30 @@
     },
     {
       "key": {
+        "uuid": "3664aa04_7ba01ad6",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6335ac5_198e3e7c",
+      "range": {
+        "startLine": 30,
+        "startChar": 38,
+        "endLine": 30,
+        "endChar": 39
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6d156e58_e3c4aac0",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 17
@@ -669,6 +1227,24 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e28c675_60ccf4f7",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "I added a todo for the time being. The test case runner does do some restore checks, but not as extensive as the save policy, or what this new enum could describe.",
+      "parentUuid": "6d156e58_e3c4aac0",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -695,6 +1271,30 @@
     },
     {
       "key": {
+        "uuid": "064a763f_fd383cbc",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24873958_2362553e",
+      "range": {
+        "startLine": 536,
+        "startChar": 8,
+        "endLine": 536,
+        "endChar": 20
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c4bcb235_d9ffe996",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 17
@@ -718,6 +1318,30 @@
     },
     {
       "key": {
+        "uuid": "fb5b5085_648f70c6",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Integer coordinates with a pixel-aligned matrix can combine across aa and non-aa settings, but shouldn\u0027t when the local matrix isn\u0027t pixel aligned. Updated the comment to clarify, and fixed the test case argument to actually pass in an integer rect.",
+      "parentUuid": "c4bcb235_d9ffe996",
+      "range": {
+        "startLine": 587,
+        "startChar": 13,
+        "endLine": 587,
+        "endChar": 20
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de6be456_ad004f19",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 17
@@ -732,6 +1356,24 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d889334b_3bfe5ac3",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de6be456_ad004f19",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -752,6 +1394,24 @@
     },
     {
       "key": {
+        "uuid": "b228cec9_f03d14df",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70057ee9_1421efd4",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74aab811_5232b9d9",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 17
@@ -769,6 +1429,24 @@
     },
     {
       "key": {
+        "uuid": "50db331d_d20596b3",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74aab811_5232b9d9",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a41b4047_253efa9e",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 17
@@ -783,6 +1461,24 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edf1eaad_55233fbf",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "That\u0027s fair, I added individual cases as well.",
+      "parentUuid": "a41b4047_253efa9e",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -809,6 +1505,30 @@
     },
     {
       "key": {
+        "uuid": "6d45ce03_41a8e5f2",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c5a4f46_e36233c9",
+      "range": {
+        "startLine": 1148,
+        "startChar": 11,
+        "endLine": 1148,
+        "endChar": 13
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d50ce78c_d1a6c4aa",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 17
@@ -829,6 +1549,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cad530bb_4d46ca67",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d50ce78c_d1a6c4aa",
+      "range": {
+        "startLine": 1362,
+        "startChar": 39,
+        "endLine": 1362,
+        "endChar": 44
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -855,6 +1599,30 @@
     },
     {
       "key": {
+        "uuid": "c074840a_5d334544",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4dca4f19_082d4aef",
+      "range": {
+        "startLine": 1364,
+        "startChar": 11,
+        "endLine": 1364,
+        "endChar": 12
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "43309bef_14e064f9",
         "filename": "tests/GrClipStackTest.cpp",
         "patchSetId": 17
@@ -875,6 +1643,30 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5240e274_92c31aa6",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T18:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43309bef_14e064f9",
+      "range": {
+        "startLine": 1382,
+        "startChar": 11,
+        "endLine": 1382,
+        "endChar": 15
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
