@@ -34,12 +34,12 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* gr = canvas->getGrContext();
-        if (!gr) {
+        GrContext* rContext = canvas->recordingContext();
+        if (!rContext) {
             return;
         }
 
-        fDecoder.setGrContext(gr); // gr can change over time in viewer
+        fDecoder.setGrContext(rContext);  // context can change over time in viewer
 
         double timeStamp;
         auto img = fDecoder.nextImage(&timeStamp);
