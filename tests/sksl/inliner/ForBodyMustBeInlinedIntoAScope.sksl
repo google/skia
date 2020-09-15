@@ -1,0 +1,9 @@
+inline half4 adjust(half4 v) {
+    return v + half4(0.125);
+}
+
+void main() {
+    sk_FragColor = half4(0);
+    for (int x=0; x<4; ++x)
+        sk_FragColor = adjust(sk_FragColor);
+}

@@ -1,0 +1,9 @@
+inline void outParameter(inout half x) {
+    x *= 2;
+}
+
+void main() {
+    half x = 1;
+    outParameter(x);
+    sk_FragColor.x = x;
+}

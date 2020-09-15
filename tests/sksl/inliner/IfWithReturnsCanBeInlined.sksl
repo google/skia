@@ -1,0 +1,9 @@
+uniform half4 color;
+
+half4 branchy(half4 c) {
+    if (c.z == c.w) return c.yyyy; else return c.zzzz;
+}
+
+void main() {
+    sk_FragColor = branchy(color);
+}

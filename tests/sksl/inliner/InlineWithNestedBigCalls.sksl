@@ -1,0 +1,19 @@
+uniform half val;
+
+inline half BigX(half x) {
+    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
+    --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
+    x = 123;
+    return x;
+}
+
+inline half BigY(half x) {
+    ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x; ++x;
+    --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x; --x;
+    x = 456;
+    return x;
+}
+
+void main() {
+    sk_FragColor = BigX(BigY(val)).xxxx;
+}

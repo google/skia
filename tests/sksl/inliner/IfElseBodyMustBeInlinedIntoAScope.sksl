@@ -1,0 +1,14 @@
+uniform half4 color;
+
+inline half4 elseBody() {
+    return color + half4(0.125);
+}
+
+void main() {
+    half4 c = color;
+    if (c.x >= 0.5)
+        ;
+    else
+        c = elseBody();
+    sk_FragColor = c;
+}
