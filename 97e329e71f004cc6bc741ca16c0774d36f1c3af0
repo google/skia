@@ -22,6 +22,30 @@
       "revId": "97e329e71f004cc6bc741ca16c0774d36f1c3af0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5e59300_01f70aa6",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-15T21:07:39Z",
+      "side": 1,
+      "message": "This is just the start of several CLs. I\u0027m going to add bits for isEmpty, isColor, fitsInAtlas. This will make it so I only have to lookup the index information, and not do the indirection to the SkGlyph itself. I used this in SkDiffCanvas to great effect.",
+      "parentUuid": "c1fc6395_cc9a776b",
+      "range": {
+        "startLine": 32,
+        "startChar": 24,
+        "endLine": 32,
+        "endChar": 51
+      },
+      "revId": "97e329e71f004cc6bc741ca16c0774d36f1c3af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
