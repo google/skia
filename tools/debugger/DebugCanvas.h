@@ -19,6 +19,9 @@
 #include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
+#include <map>
+#include <vector>
+
 class GrAuditTrail;
 class SkNWayCanvas;
 class SkPicture;
@@ -126,6 +129,11 @@ public:
     void toJSONOpsTask(SkJSONWriter& writer, SkCanvas*);
 
     void detachCommands(SkTDArray<DrawCommand*>* dst) { fCommandVector.swap(*dst); }
+
+    /**
+        Returns a map from image IDs to command indices where they are used.
+     */
+    const std::map<int, std::vector<int>> getImageIdToCommandMap(UrlDataManager& udm);
 
 protected:
     void              willSave() override;
