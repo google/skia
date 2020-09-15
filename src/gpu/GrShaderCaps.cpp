@@ -15,14 +15,14 @@
 
 GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fGLSLGeneration = k330_GrGLSLGeneration;
-    fShaderDerivativeSupport = false;
+    fShaderDerivativeSupport = true;
     fGeometryShaderSupport = false;
     fGSInvocationsSupport = false;
     fPathRenderingSupport = false;
     fDstReadInShaderSupport = false;
     fDualSourceBlendingSupport = false;
     fIntegerSupport = false;
-    fFBFetchSupport = false;
+    fFBFetchSupport = true;
     fFBFetchNeedsCustomOutput = false;
     fUsesPrecisionModifiers = false;
     fCanUseAnyFunctionInShader = true;
@@ -45,18 +45,18 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMustWriteToFragColor = false;
     fNoDefaultPrecisionForExternalSamplers = false;
     fCanOnlyUseSampleMaskWithStencil = false;
-    fFlatInterpolationSupport = false;
+    fFlatInterpolationSupport = true;
     fPreferFlatInterpolation = false;
-    fNoPerspectiveInterpolationSupport = false;
-    fSampleMaskSupport = false;
-    fExternalTextureSupport = false;
+    fNoPerspectiveInterpolationSupport = true;
+    fSampleMaskSupport = true;
+    fExternalTextureSupport = true;
     fVertexIDSupport = false;
     fFPManipulationSupport = false;
     fFloatIs32Bits = true;
     fHalfIs32Bits = false;
     fHasLowFragmentPrecision = false;
     fColorSpaceMathNeedsFloat = false;
-    fBuiltinFMASupport = false;
+    fBuiltinFMASupport = true;
     fCanUseDoLoops = true;
 
     fVersionDeclString = nullptr;
