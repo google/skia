@@ -203,7 +203,7 @@ DEF_TEST(SkSLSwizzleDuplicateOutput, r) {
 DEF_TEST(SkSLSwizzleConstantOutput, r) {
     test_failure(r,
                  "void main() { float4 test = float4(1); test.xyz0 = float4(1); }",
-                 "error: 1: cannot write to a swizzle mask containing a constant\n1 error\n");
+                 "error: 1: cannot assign to this expression\n1 error\n");
 }
 
 DEF_TEST(SkSLSwizzleOnlyLiterals, r) {
