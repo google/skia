@@ -16,7 +16,7 @@ SkStreamBuffer::SkStreamBuffer(std::unique_ptr<SkStream> stream)
 {}
 
 SkStreamBuffer::~SkStreamBuffer() {
-    fMarkedData.foreach([](size_t, SkData** data) { (*data)->unref(); });
+    fMarkedData.foreach1([](size_t, SkData** data) { (*data)->unref(); });
 }
 
 const char* SkStreamBuffer::get() const {

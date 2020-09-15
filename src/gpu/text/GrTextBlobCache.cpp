@@ -56,7 +56,7 @@ void GrTextBlobCache::internalRemove(GrTextBlob* blob) {
     fBlobList.remove(blob);
     idEntry->removeBlob(blob);
     if (idEntry->fBlobs.empty()) {
-        fBlobIDCache.remove(id);
+        fBlobIDCache.remove1(id);
     }
 }
 
@@ -95,7 +95,7 @@ void GrTextBlobCache::internalPurgeStaleBlobs() {
         }
 
         // drop the idEntry itself (unrefs all blobs)
-        fBlobIDCache.remove(msg.fBlobID);
+        fBlobIDCache.remove1(msg.fBlobID);
     }
 }
 

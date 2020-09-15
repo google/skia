@@ -4004,7 +4004,7 @@ namespace skvm {
         // byte patterns on ARM or 32-byte patterns on x86, we only need to
         // align to 4 bytes, the element size and alignment requirement.
 
-        constants.foreach([&](int imm, A::Label* label) {
+        constants.foreach1([&](int imm, A::Label* label) {
             a->align(4);
             a->label(label);
             for (int i = 0; i < K; i++) {

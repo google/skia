@@ -65,7 +65,7 @@ public:
         SkASSERT(fMap.find(fLastKey));
         fLastKey = std::move(key);
         fLastValue = nullptr;
-        fMap.remove(fLastKey);
+        fMap.remove1(fLastKey);
     }
 
     // Clear the map.
