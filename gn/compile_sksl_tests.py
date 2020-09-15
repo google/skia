@@ -9,9 +9,9 @@ import os
 import subprocess
 import sys
 
-def unlinkIfExists(path):
+def makeEmptyFile(path):
     try:
-        os.unlink(path)
+        open(path, 'wb').close()
     except OSError:
         pass
 
@@ -47,12 +47,12 @@ for input in inputs:
                 continue
             else:
                 # The header generated an error; this counts as an overall failure for this test.
-                # Remove the passing CPP output since it's not relevant in a failure case.
-                unlinkIfExists(target + ".cpp")
+                # Blank out the passing CPP output since it's not relevant in a failure case.
+                makeEmptyFile(target + ".cpp")
         else:
-            # The CPP generated an error. We didn't actually generate a header, but there might be
-            # one from prior runs. Let's remove it for clarity.
-            unlinkIfExists(target + ".h")
+            # The CPP generated an error. We didn't actually generate a header at all, but Ninja
+            # expects an output file to exist or it won't reach steady-state.
+            makeEmptyFile(target + ".h")
     elif ext == ".sksl" or ext == ".vert":
         compile(skslc, input, target, ".glsl")
     else:
