@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f4c54c7_4f2482f1",
+        "filename": "src/sksl/ir/SkSLIRNode.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T19:28:36Z",
+      "side": 1,
+      "message": "Please add a comment to explain this invariant. Not really sure why it\u0027s here. We support copying an IRNode, but only if it has no children...?",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 48
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19ff0d36_27ae9386",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T19:28:36Z",
+      "side": 1,
+      "message": "(Doesn\u0027t need to be addressed today)\nI wonder if our homegrown constexpr Max still adds value... we do require a C++14 stdlib by now, don\u0027t we?",
+      "range": {
+        "startLine": 60,
+        "startChar": 20,
+        "endLine": 60,
+        "endChar": 23
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e227f3a_d4095287",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T19:28:36Z",
+      "side": 1,
+      "message": "Here and below\n\n    ) {",
+      "range": {
+        "startLine": 71,
+        "startChar": 31,
+        "endLine": 72,
+        "endChar": 9
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72f26337_81943a10",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T19:28:36Z",
+      "side": 1,
+      "message": "Here and below\n\nAre you intending to copy the data bytes? This copies the data pointer into fBytes.\n(Is this code used?)",
+      "range": {
+        "startLine": 73,
+        "startChar": 27,
+        "endLine": 73,
+        "endChar": 47
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "274c66f2_766c6644",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T19:28:36Z",
+      "side": 1,
+      "message": "Not sure this actually adds much value when callers can just use *expressionPointer(n), but NBD either way. It doesn\u0027t bother me to keep it.",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 5
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74eb8359_7eb093eb",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T19:28:36Z",
+      "side": 1,
+      "message": "Casting int to int? (Here and in neighboring functions)",
+      "range": {
+        "startLine": 94,
+        "startChar": 35,
+        "endLine": 94,
+        "endChar": 46
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2df355e0_77a9e998",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T19:28:36Z",
+      "side": 1,
+      "message": "Nothing to change--but man, this would be SUCH a good use case for small vectors, e.g. http://osscs/abseil/abseil-cpp/+/master:absl/container/inlined_vector.h\n\nIt\u0027s a pretty strong case for just porting over inlined vector into SkSL asap.",
+      "range": {
+        "startLine": 116,
+        "startChar": 4,
+        "endLine": 116,
+        "endChar": 45
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
