@@ -141,7 +141,7 @@ void IRGenerator::popSymbolTable() {
     fSymbolTable = fSymbolTable->fParent;
 }
 
-static void fill_caps(const SKSL_CAPS_CLASS& caps,
+static void fill_caps(const SkSL::ShaderCapsClass& caps,
                       std::unordered_map<String, Program::Settings::Value>* capsMap) {
 #define CAP(name) \
     capsMap->insert(std::make_pair(String(#name), Program::Settings::Value(caps.name())))
