@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1902135a_e77e65ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-15T21:15:30Z",
+      "side": 1,
+      "message": "be ",
+      "revId": "97e329e71f004cc6bc741ca16c0774d36f1c3af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c1fc6395_cc9a776b",
         "filename": "src/core/SkScalerCache.h",
         "patchSetId": 2
@@ -37,6 +54,30 @@
       "side": 1,
       "message": "This is just the start of several CLs. I\u0027m going to add bits for isEmpty, isColor, fitsInAtlas. This will make it so I only have to lookup the index information, and not do the indirection to the SkGlyph itself. I used this in SkDiffCanvas to great effect.",
       "parentUuid": "c1fc6395_cc9a776b",
+      "range": {
+        "startLine": 32,
+        "startChar": 24,
+        "endLine": 32,
+        "endChar": 51
+      },
+      "revId": "97e329e71f004cc6bc741ca16c0774d36f1c3af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa17e21c_aff16321",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-15T21:15:30Z",
+      "side": 1,
+      "message": "Ah, ok, sgtm.\n\nMaybe add a little reminder so you don\u0027t have to run over and look up the packing?\n\n  private:\n    static_assert(SkPackedGlyphID::kEndData \u003d\u003d 20);\n\n    uint32_t fIndexData : SkPackedGlyphID::kEndData;\n\n?",
+      "parentUuid": "d5e59300_01f70aa6",
       "range": {
         "startLine": 32,
         "startChar": 24,
