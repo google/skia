@@ -148,7 +148,7 @@ static void test_strokerec_equality(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, s1.hasEqualEffect(s2));
 
         s2.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 2.1f);
-        REPORTER_ASSERT(reporter, !s1.hasEqualEffect(s2));
+        REPORTER_ASSERT(reporter, s1.hasEqualEffect(s2));  // Miter limit not relevant to butt caps.
         s2.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kBevel_Join, 2.9f);
         REPORTER_ASSERT(reporter, !s1.hasEqualEffect(s2));
         s2.setStrokeParams(SkPaint::kRound_Cap, SkPaint::kRound_Join, 2.9f);
