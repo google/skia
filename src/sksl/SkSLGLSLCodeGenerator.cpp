@@ -862,13 +862,6 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
     }
 }
 
-void GLSLCodeGenerator::writeConstantSwizzle(const Swizzle& swizzle, const String& constants) {
-    this->writeType(swizzle.type());
-    this->write("(");
-    this->write(constants);
-    this->write(")");
-}
-
 void GLSLCodeGenerator::writeSwizzleMask(const Swizzle& swizzle, const String& mask) {
     this->writeExpression(*swizzle.fBase, kPostfix_Precedence);
     this->write(".");
@@ -947,11 +940,12 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     }
     switch (swizzle.fComponents.size()) {
         case 1:
-            if (constantBits == 1) {
-                this->write(constants);
-            }
-            else {
-                this->writeSwizzleMask(swizzle, mask);
+            switch (constantBits) {
+                case 0: // 0
+                    this->writeSwizzleMask(swizzle, mask);
+                    break;
+                default:
+                    SkASSERT(false);
             }
             break;
         case 2:
@@ -966,9 +960,6 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
                 case 2: // 10
                     this->writeSwizzleConstructor(swizzle, constants, mask,
                                                   SwizzleOrder::CONSTANTS_FIRST);
-                    break;
-                case 3: // 11
-                    this->writeConstantSwizzle(swizzle, constants);
                     break;
                 default:
                     SkASSERT(false);
@@ -995,9 +986,8 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
                 case 5: // 101
                     this->writeSwizzleConstructor(swizzle, constants, mask, "yxz");
                     break;
-                case 7: // 111
-                    this->writeConstantSwizzle(swizzle, constants);
-                    break;
+                default:
+                    SkASSERT(false);
             }
             break;
         case 4:
@@ -1041,9 +1031,8 @@ void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
                 case 13: // 1101
                     this->writeSwizzleConstructor(swizzle, constants, mask, "yzxw");
                     break;
-                case 15: // 1111
-                    this->writeConstantSwizzle(swizzle, constants);
-                    break;
+                default:
+                    SkASSERT(false);
             }
     }
 }

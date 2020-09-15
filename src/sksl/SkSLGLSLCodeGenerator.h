@@ -158,8 +158,6 @@ protected:
 
     virtual void writeFieldAccess(const FieldAccess& f);
 
-    void writeConstantSwizzle(const Swizzle& swizzle, const String& constants);
-
     void writeSwizzleMask(const Swizzle& swizzle, const String& mask);
 
     void writeSwizzleConstructor(const Swizzle& swizzle, const String& constants,
