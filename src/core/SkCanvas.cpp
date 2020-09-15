@@ -1578,10 +1578,11 @@ void SkCanvas::clipRect(const SkRect& rect, SkClipOp op, bool doAA) {
     }
     this->checkForDeferredSave();
     ClipEdgeStyle edgeStyle = doAA ? kSoft_ClipEdgeStyle : kHard_ClipEdgeStyle;
-    this->onClipRect(rect, op, edgeStyle);
+    this->onClipRect(rect.makeSorted(), op, edgeStyle);
 }
 
 void SkCanvas::onClipRect(const SkRect& rect, SkClipOp op, ClipEdgeStyle edgeStyle) {
+    SkASSERT(rect.isSorted());
     const bool isAA = kSoft_ClipEdgeStyle == edgeStyle;
 
     FOR_EACH_TOP_DEVICE(device->clipRect(rect, op, isAA));
