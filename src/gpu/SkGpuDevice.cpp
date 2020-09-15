@@ -130,7 +130,7 @@ SkGpuDevice::SkGpuDevice(GrRecordingContext* context,
                     renderTargetContext->surfaceProps())
         , fContext(SkRef(context))
         , fRenderTargetContext(std::move(renderTargetContext))
-#if SK_USE_NEW_GR_CLIP_STACK
+#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
         , fClip(SkIRect::MakeWH(fRenderTargetContext->width(),
                                 fRenderTargetContext->height()),
                 &this->asMatrixProvider(),
@@ -251,7 +251,11 @@ void SkGpuDevice::replaceRenderTargetContext(SkSurface::ContentChangeMode mode) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
+#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
+=======
 #if SK_USE_NEW_GR_CLIP_STACK
+>>>>>>> 81a942c1284776549466ec4dd74a29d71d6052a1
 
 void SkGpuDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
