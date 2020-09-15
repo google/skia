@@ -251,7 +251,7 @@ void SkGpuDevice::replaceRenderTargetContext(SkSurface::ContentChangeMode mode) 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if SK_USE_NEW_GR_CLIP_STACK
+#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
 
 void SkGpuDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
