@@ -289,6 +289,7 @@ bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndic
             yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
             yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
             yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[2], 0);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR; // arbitrary
             break;
     }
     if (!ok) {
