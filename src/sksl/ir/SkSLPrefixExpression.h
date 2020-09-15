@@ -48,6 +48,11 @@ struct PrefixExpression : public Expression {
                                                              -fOperand->as<FloatLiteral>().fValue));
 
         }
+        if (fOperand->kind() == Expression::Kind::kIntLiteral) {
+            return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
+                                                              fOffset,
+                                                              -fOperand->as<IntLiteral>().fValue));
+        }
         return nullptr;
     }
 
