@@ -24,7 +24,8 @@ def compile(skslc, input, target, extension):
     except subprocess.CalledProcessError as err:
         with open(target, 'wb') as dst:
             dst.write("### Compilation failed:\n\n")
-            dst.write(err.output)
+            dst.write("\n".join(err.output.splitlines()))
+            dst.write("\n")
         return False
 
 skslc = sys.argv[1]
