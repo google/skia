@@ -260,6 +260,20 @@ namespace SK_OPTS_NS {
                     CASE(Op::from_half):
                         r[d].f32 = skvx::from_half(skvx::cast<uint16_t>(r[x].i32));
                         break;
+
+                    CASE(Op:: add_q14x2):
+                    CASE(Op:: sub_q14x2):
+                    CASE(Op:: mul_q14x2):
+                    CASE(Op:: shl_q14x2):
+                    CASE(Op:: shr_q14x2):
+                    CASE(Op:: sra_q14x2):
+                    CASE(Op::  eq_q14x2):
+                    CASE(Op::  gt_q14x2):
+                    CASE(Op:: min_q14x2):
+                    CASE(Op:: max_q14x2):
+                    CASE(Op::uavg_q14x2):
+                    CASE(Op::umin_q14x2):
+                        SkUNREACHABLE;
                 #undef CASE
                 }
             }
