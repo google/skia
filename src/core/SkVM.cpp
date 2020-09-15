@@ -2016,8 +2016,18 @@ namespace skvm {
     void Assembler::vpsubd (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfa, dst,x,y); }
     void Assembler::vpmulld(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x40, dst,x,y); }
 
-    void Assembler::vpsubw (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xf9, dst,x,y); }
-    void Assembler::vpmullw(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xd5, dst,x,y); }
+    void Assembler::vpaddw   (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xfd, dst,x,y); }
+    void Assembler::vpsubw   (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xf9, dst,x,y); }
+    void Assembler::vpmullw  (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xd5, dst,x,y); }
+    void Assembler::vpavgw   (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xe3, dst,x,y); }
+    void Assembler::vpmulhrsw(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x0b, dst,x,y); }
+    void Assembler::vpminsw  (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xea, dst,x,y); }
+    void Assembler::vpmaxsw  (Ymm dst, Ymm x, Operand y) { this->op(0x66,  0x0f,0xee, dst,x,y); }
+    void Assembler::vpminuw  (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x3a, dst,x,y); }
+    void Assembler::vpmaxuw  (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x380f,0x3e, dst,x,y); }
+
+    void Assembler::vpabsw(Ymm dst, Operand x) { this->op(0x66,0x380f,0x1d, dst,x); }
+
 
     void Assembler::vpand (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xdb, dst,x,y); }
     void Assembler::vpor  (Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0xeb, dst,x,y); }
@@ -2050,7 +2060,9 @@ namespace skvm {
     void Assembler::vpunpckhdq(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x6a, dst,x,y); }
 
     void Assembler::vpcmpeqd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x76, dst,x,y); }
+    void Assembler::vpcmpeqw(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x75, dst,x,y); }
     void Assembler::vpcmpgtd(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x66, dst,x,y); }
+    void Assembler::vpcmpgtw(Ymm dst, Ymm x, Operand y) { this->op(0x66,0x0f,0x65, dst,x,y); }
 
 
     void Assembler::imm_byte_after_operand(const Operand& operand, int imm) {
@@ -2089,8 +2101,16 @@ namespace skvm {
         this->op(0x66,0x0f,0x72,(Ymm)4, dst,x);
         this->byte(imm);
     }
+    void Assembler::vpsllw(Ymm dst, Ymm x, int imm) {
+        this->op(0x66,0x0f,0x71,(Ymm)6, dst,x);
+        this->byte(imm);
+    }
     void Assembler::vpsrlw(Ymm dst, Ymm x, int imm) {
         this->op(0x66,0x0f,0x71,(Ymm)2, dst,x);
+        this->byte(imm);
+    }
+    void Assembler::vpsraw(Ymm dst, Ymm x, int imm) {
+        this->op(0x66,0x0f,0x71,(Ymm)4, dst,x);
         this->byte(imm);
     }
 

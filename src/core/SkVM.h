@@ -132,8 +132,17 @@ namespace skvm {
         void vpsubd (Ymm dst, Ymm x, Operand y);
         void vpmulld(Ymm dst, Ymm x, Operand y);
 
-        void vpsubw (Ymm dst, Ymm x, Operand y);
-        void vpmullw(Ymm dst, Ymm x, Operand y);
+        void vpaddw   (Ymm dst, Ymm x, Operand y);
+        void vpsubw   (Ymm dst, Ymm x, Operand y);
+        void vpmullw  (Ymm dst, Ymm x, Operand y);
+
+        void vpabsw   (Ymm dst, Operand x);
+        void vpavgw   (Ymm dst, Ymm x, Operand y);  // dst = (x+y+1)>>1, unsigned.
+        void vpmulhrsw(Ymm dst, Ymm x, Operand y);  // dst = (x*y + (1<<14)) >> 15, signed.
+        void vpminsw  (Ymm dst, Ymm x, Operand y);
+        void vpminuw  (Ymm dst, Ymm x, Operand y);
+        void vpmaxsw  (Ymm dst, Ymm x, Operand y);
+        void vpmaxuw  (Ymm dst, Ymm x, Operand y);
 
         void vaddps(Ymm dst, Ymm x, Operand y);
         void vsubps(Ymm dst, Ymm x, Operand y);
@@ -164,6 +173,8 @@ namespace skvm {
 
         void vpcmpeqd(Ymm dst, Ymm x, Operand y);
         void vpcmpgtd(Ymm dst, Ymm x, Operand y);
+        void vpcmpeqw(Ymm dst, Ymm x, Operand y);
+        void vpcmpgtw(Ymm dst, Ymm x, Operand y);
 
         void vcmpps   (Ymm dst, Ymm x, Operand y, int imm);
         void vcmpeqps (Ymm dst, Ymm x, Operand y) { this->vcmpps(dst,x,y,0); }
@@ -175,7 +186,10 @@ namespace skvm {
         void vpslld(Ymm dst, Ymm x, int imm);
         void vpsrld(Ymm dst, Ymm x, int imm);
         void vpsrad(Ymm dst, Ymm x, int imm);
+
+        void vpsllw(Ymm dst, Ymm x, int imm);
         void vpsrlw(Ymm dst, Ymm x, int imm);
+        void vpsraw(Ymm dst, Ymm x, int imm);
 
         void vpermq    (Ymm dst, Operand x, int imm);
         void vperm2f128(Ymm dst, Ymm x, Operand y, int imm);
