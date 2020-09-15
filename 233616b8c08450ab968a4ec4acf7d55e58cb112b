@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49b3105c_54b1e071",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-15T16:14:36Z",
+      "side": 1,
+      "message": "Does it strike you as bonkers that path.isRect() would return an unsorted rect?",
+      "range": {
+        "startLine": 1647,
+        "startChar": 12,
+        "endLine": 1647,
+        "endChar": 27
+      },
+      "revId": "233616b8c08450ab968a4ec4acf7d55e58cb112b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
