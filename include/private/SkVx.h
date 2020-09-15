@@ -355,28 +355,28 @@ SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec
     // Specializations inline here so they can generalize what types the apply to.
     // (This header is used in C++14 contexts, so we have to kind of fake constexpr if.)
 #if defined(__AVX__)
-    if /*constexpr*/ (N == 8 && sizeof(T) == 4) {
-        return unchecked_bit_pun<Vec<N,T>>(_mm256_blendv_ps(unchecked_bit_pun<__m256>(e),
-                                                            unchecked_bit_pun<__m256>(t),
-                                                            unchecked_bit_pun<__m256>(cond)));
+    if /*constexpr*/ (N*sizeof(T) == 32) {
+        return unchecked_bit_pun<Vec<N,T>>(_mm256_blendv_epi8(unchecked_bit_pun<__m256i>(e),
+                                                              unchecked_bit_pun<__m256i>(t),
+                                                              unchecked_bit_pun<__m256i>(cond)));
     }
 #endif
 #if defined(__SSE4_1__)
-    if /*constexpr*/ (N == 4 && sizeof(T) == 4) {
-        return unchecked_bit_pun<Vec<N,T>>(_mm_blendv_ps(unchecked_bit_pun<__m128>(e),
-                                                         unchecked_bit_pun<__m128>(t),
-                                                         unchecked_bit_pun<__m128>(cond)));
+    if /*constexpr*/ (N*sizeof(T) == 16) {
+        return unchecked_bit_pun<Vec<N,T>>(_mm_blendv_epi8(unchecked_bit_pun<__m128i>(e),
+                                                           unchecked_bit_pun<__m128i>(t),
+                                                           unchecked_bit_pun<__m128i>(cond)));
     }
 #endif
 #if defined(__ARM_NEON)
-    if /*constexpr*/ (N == 4 && sizeof(T) == 4) {
-        return unchecked_bit_pun<Vec<N,T>>(vbslq_f32(unchecked_bit_pun< uint32x4_t>(cond),
-                                                     unchecked_bit_pun<float32x4_t>(t),
-                                                     unchecked_bit_pun<float32x4_t>(e)));
+    if /*constexpr*/ (N*sizeof(T) == 16) {
+        return unchecked_bit_pun<Vec<N,T>>(vbslq_u8(unchecked_bit_pun<uint8x16_t>(cond),
+                                                    unchecked_bit_pun<uint8x16_t>(t),
+                                                    unchecked_bit_pun<uint8x16_t>(e)));
     }
 #endif
     // Recurse for large vectors to try to hit the specializations above.
-    if /*constexpr*/ (N > 4) {
+    if /*constexpr*/ (N*sizeof(T) > 16) {
         return join(if_then_else(cond.lo, t.lo, e.lo),
                     if_then_else(cond.hi, t.hi, e.hi));
     }
