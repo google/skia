@@ -674,6 +674,189 @@
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4bcb235_d9ffe996",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 587,
+        "startChar": 13,
+        "endLine": 587,
+        "endChar": 20
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de6be456_ad004f19",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "Any interest in duplicating this but w/ nonAA() ?",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70057ee9_1421efd4",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 668,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "Maybe one where the rrect \u0026 rect intersection yields neither a rrect nor a rect ?",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74aab811_5232b9d9",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "This test but with nonAA() ?",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a41b4047_253efa9e",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "I don\u0027t know if chaining these together is effectively testing each one",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c5a4f46_e36233c9",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "bigR, smR, bigRR, smRR ?",
+      "range": {
+        "startLine": 1148,
+        "startChar": 11,
+        "endLine": 1148,
+        "endChar": 13
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d50ce78c_d1a6c4aa",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "all ?",
+      "range": {
+        "startLine": 1362,
+        "startChar": 39,
+        "endLine": 1362,
+        "endChar": 44
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dca4f19_082d4aef",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1364,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "Maybe \u0027r\u0027, \u0027rr\u0027 and \u0027p\u0027 ?",
+      "range": {
+        "startLine": 1364,
+        "startChar": 11,
+        "endLine": 1364,
+        "endChar": 12
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43309bef_14e064f9",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1382,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T16:33:35Z",
+      "side": 1,
+      "message": "from rect ? \n\nHere and in below ?",
+      "range": {
+        "startLine": 1382,
+        "startChar": 11,
+        "endLine": 1382,
+        "endChar": 15
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
