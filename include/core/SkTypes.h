@@ -425,7 +425,7 @@
 #endif
 
 #if defined(SK_BUILD_FOR_LIBFUZZER)
-    SK_API void SkDebugf(const char format[], ...) {}
+    SK_API inline void SkDebugf(const char format[], ...) {}
 #endif
 
 /** Called internally if we hit an unrecoverable error.
