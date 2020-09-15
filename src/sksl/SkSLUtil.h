@@ -80,7 +80,7 @@ public:
         return fShaderDerivativeSupport;
     }
 
-    bool fUsesPrecisionModifiers = true;
+    bool fUsesPrecisionModifiers = false;
     bool usesPrecisionModifiers() const {
         return fUsesPrecisionModifiers;
     }

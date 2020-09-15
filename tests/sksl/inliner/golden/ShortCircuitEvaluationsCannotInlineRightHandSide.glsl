@@ -1,12 +1,10 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
-uniform mediump vec4 color;
-bool testA(mediump vec4 v) {
+out vec4 sk_FragColor;
+uniform vec4 color;
+bool testA(vec4 v) {
     return v.x <= 0.5;
 }
-bool testB(mediump vec4 v) {
+bool testB(vec4 v) {
     return v.x > 0.5;
 }
 void main() {

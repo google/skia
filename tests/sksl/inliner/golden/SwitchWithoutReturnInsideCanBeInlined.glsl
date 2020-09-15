@@ -1,12 +1,10 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
-uniform highp int value;
+out vec4 sk_FragColor;
+uniform int value;
 void main() {
-    mediump vec4 _0_switchy;
+    vec4 _0_switchy;
     {
-        mediump vec4 _1_result = vec4(1.0);
+        vec4 _1_result = vec4(1.0);
         switch (value) {
             case 0:
                 _1_result = vec4(0.5);
