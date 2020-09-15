@@ -200,10 +200,10 @@ var CanvasKit = {
   SkCanvas: {
     // public API (from C++ bindings)
     clipPath: function() {},
-    drawAnimatedImage: function() {},
     drawCircle: function() {},
     drawColorInt: function() {},
     drawImage: function() {},
+    drawImageAtCurrentFrame: function() {},
     drawLine: function() {},
     drawPaint: function() {},
     drawParagraph: function() {},
