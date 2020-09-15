@@ -37,6 +37,8 @@ static SkSL::String base_name(const char* fpPath, const char* prefix, const char
 //    /*#pragma settings Default Sharpen*/
 // The passed-in Settings object will be updated accordingly. Any number of options can be provided.
 static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Settings* settings) {
+    using Factory = SkSL::ShaderCapsFactory;
+
     // Find a matching comment and isolate the name portion.
     static constexpr char kPragmaSettings[] = "/*#pragma settings ";
     const char* settingsPtr = strstr(text.c_str(), kPragmaSettings);
@@ -54,20 +56,48 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
             for (;;) {
                 const size_t startingLength = settingsText.length();
 
+                if (settingsText.consumeSuffix(" AddAndTrueToLoopCondition")) {
+                    static auto s_addAndTrueCaps = Factory::AddAndTrueToLoopCondition();
+                    settings->fCaps = s_addAndTrueCaps.get();
+                }
+                if (settingsText.consumeSuffix(" CannotUseFractForNegativeValues")) {
+                    static auto s_negativeFractCaps = Factory::CannotUseFractForNegativeValues();
+                    settings->fCaps = s_negativeFractCaps.get();
+                }
+                if (settingsText.consumeSuffix(" CannotUseMinAndAbsTogether")) {
+                    static auto s_minAbsCaps = Factory::CannotUseMinAndAbsTogether();
+                    settings->fCaps = s_minAbsCaps.get();
+                }
                 if (settingsText.consumeSuffix(" Default")) {
-                    static auto s_defaultCaps = SkSL::ShaderCapsFactory::Default();
+                    static auto s_defaultCaps = Factory::Default();
                     settings->fCaps = s_defaultCaps.get();
                 }
+                if (settingsText.consumeSuffix(" EmulateAbsIntFunction")) {
+                    static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
+                    settings->fCaps = s_emulateAbsIntCaps.get();
+                }
+                if (settingsText.consumeSuffix(" MustForceNegatedAtanParamToFloat")) {
+                    static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
+                    settings->fCaps = s_negativeAtanCaps.get();
+                }
+                if (settingsText.consumeSuffix(" RemovePowWithConstantExponent")) {
+                    static auto s_powCaps = Factory::RemovePowWithConstantExponent();
+                    settings->fCaps = s_powCaps.get();
+                }
+                if (settingsText.consumeSuffix(" UnfoldShortCircuitAsTernary")) {
+                    static auto s_ternaryCaps = Factory::UnfoldShortCircuitAsTernary();
+                    settings->fCaps = s_ternaryCaps.get();
+                }
                 if (settingsText.consumeSuffix(" UsesPrecisionModifiers")) {
-                    static auto s_precisionCaps = SkSL::ShaderCapsFactory::UsesPrecisionModifiers();
+                    static auto s_precisionCaps = Factory::UsesPrecisionModifiers();
                     settings->fCaps = s_precisionCaps.get();
                 }
                 if (settingsText.consumeSuffix(" Version110")) {
-                    static auto s_version110Caps = SkSL::ShaderCapsFactory::Version110();
+                    static auto s_version110Caps = Factory::Version110();
                     settings->fCaps = s_version110Caps.get();
                 }
                 if (settingsText.consumeSuffix(" Version450Core")) {
-                    static auto s_version450CoreCaps = SkSL::ShaderCapsFactory::Version450Core();
+                    static auto s_version450CoreCaps = Factory::Version450Core();
                     settings->fCaps = s_version450CoreCaps.get();
                 }
                 if (settingsText.consumeSuffix(" ForceHighPrecision")) {
