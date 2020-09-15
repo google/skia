@@ -16,6 +16,23 @@
       "revId": "4f677c8aa05a2ce35f4ed517e12de9c6e5741acb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec9c8347_9f53ae34",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T21:31:04Z",
+      "side": 1,
+      "message": "SPIR-V validation error: Expected Constituents to be scalars or vectors of the same type as Result Type components\n  %56 \u003d OpCompositeConstruct %v3float %54 %55 %int_1\n\n../../../../../../skia/src/sksl/SkSLCompiler.cpp:1765: fatal error: \"assert(tools.Validate((const uint32_t*) data.c_str(), data.size() / 4))\"\n",
+      "revId": "4f677c8aa05a2ce35f4ed517e12de9c6e5741acb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
