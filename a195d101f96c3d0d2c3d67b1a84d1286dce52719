@@ -16,6 +16,24 @@
       "revId": "a195d101f96c3d0d2c3d67b1a84d1286dce52719",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e8b7f67_197e1955",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-15T20:44:26Z",
+      "side": 1,
+      "message": "Yep, follow up is here: https://skia-review.googlesource.com/c/skia/+/317236\n\nI was not fully preventing CCPR from being disabled, if it was explicitly enabled using command line flags.",
+      "parentUuid": "6e927570_4c4e827c",
+      "revId": "a195d101f96c3d0d2c3d67b1a84d1286dce52719",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
