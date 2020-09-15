@@ -1879,6 +1879,7 @@ DEF_TEST(GrClipStack_SimpleApply, r) {
 // Must disable CCPR in order to trigger SW mask generation when the clip stack is applied.
 static void only_allow_default(GrContextOptions* options) {
     options->fGpuPathRenderers = GpuPathRenderers::kNone;
+    options->fDisableCoverageCountingPaths = true;
 }
 
 DEF_GPUTEST_FOR_CONTEXTS(GrClipStack_SWMask,
