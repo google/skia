@@ -56,7 +56,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fHalfIs32Bits = false;
     fHasLowFragmentPrecision = false;
     fColorSpaceMathNeedsFloat = false;
-    fBuiltinFMASupport = false;
+    fBuiltinFMASupport = true;
     fCanUseDoLoops = true;
 
     fVersionDeclString = nullptr;

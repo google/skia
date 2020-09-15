@@ -1,7 +1,5 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
+out vec4 sk_FragColor;
 void main() {
     bool expr1 = gl_FragCoord.x > 0.0;
     bool expr2 = gl_FragCoord.y > 0.0;
