@@ -69,37 +69,6 @@ DEF_TEST(SkSLVersion, r) {
          "}\n");
 }
 
-DEF_TEST(SkSLUsesPrecisionModifiers, r) {
-    test(r,
-         "void main() { half x = 0.75; float y = 1; x++; y++;"
-         "sk_FragColor.rg = half2(x, half(y)); }",
-         *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    float x = 0.75;\n"
-         "    float y = 1.0;\n"
-         "    x++;\n"
-         "    y++;\n"
-         "    sk_FragColor.xy = vec2(x, y);\n"
-         "}\n");
-    test(r,
-         "void main() { half x = 0.75; float y = 1; x++; y++;"
-         "sk_FragColor.rg = half2(x, half(y)); }",
-         *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
-         "#version 400\n"
-         "precision mediump float;\n"
-         "precision mediump sampler2D;\n"
-         "out mediump vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    mediump float x = 0.75;\n"
-         "    highp float y = 1.0;\n"
-         "    x++;\n"
-         "    y++;\n"
-         "    sk_FragColor.xy = vec2(x, y);\n"
-         "}\n");
-}
-
 DEF_TEST(SkSLMinAbs, r) {
     test(r,
          "void main() {"
@@ -673,63 +642,6 @@ void main() {
          SkSL::Program::kGeometry_Kind);
 }
 
-DEF_TEST(SkSLTypePrecision, r) {
-    test(r,
-         "float f = 1;"
-         "half h = 2;"
-         "float d = 3;"
-         "float2 f2 = float2(1, 2);"
-         "half3 h3 = half3(1, 2, 3);"
-         "float4 d4 = float4(1, 2, 3, 4);"
-         "float2x2 f22 = float2x2(1, 2, 3, 4);"
-         "half2x4 h24 = half2x4(1, 2, 3, 4, 5, 6, 7, 8);"
-         "float4x2 d42 = float4x2(1, 2, 3, 4, 5, 6, 7, 8);"
-         "void main() {"
-         "sk_FragColor.r = half(f + h + d + f2.x + h3.x + d4.x + f22[0][0] + h24[0][0] + "
-                               "d42[0][0]);"
-         "}",
-         *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "float f = 1.0;\n"
-         "float h = 2.0;\n"
-         "float d = 3.0;\n"
-         "vec2 f2 = vec2(1.0, 2.0);\n"
-         "vec3 h3 = vec3(1.0, 2.0, 3.0);\n"
-         "vec4 d4 = vec4(1.0, 2.0, 3.0, 4.0);\n"
-         "mat2 f22 = mat2(1.0, 2.0, 3.0, 4.0);\n"
-         "mat2x4 h24 = mat2x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);\n"
-         "mat4x2 d42 = mat4x2(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);\n"
-         "void main() {\n"
-         "    sk_FragColor.x = (((((((f + h) + d) + f2.x) + h3.x) + d4.x) + "
-                               "f22[0][0]) + h24[0][0]) + d42[0][0];\n"
-         "}\n");
-    test(r,
-         "float f = 1;"
-         "half h = 2;"
-         "float2 f2 = float2(1, 2);"
-         "half3 h3 = half3(1, 2, 3);"
-         "float2x2 f22 = float2x2(1, 2, 3, 4);"
-         "half2x4 h24 = half2x4(1, 2, 3, 4, 5, 6, 7, 8);"
-         "void main() {"
-         "sk_FragColor.r = half(f + h + f2.x + h3.x + f22[0][0] + h24[0][0]);"
-         "}",
-         *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
-         "#version 400\n"
-         "precision mediump float;\n"
-         "precision mediump sampler2D;\n"
-         "out mediump vec4 sk_FragColor;\n"
-         "highp float f = 1.0;\n"
-         "mediump float h = 2.0;\n"
-         "highp vec2 f2 = vec2(1.0, 2.0);\n"
-         "mediump vec3 h3 = vec3(1.0, 2.0, 3.0);\n"
-         "highp mat2 f22 = mat2(1.0, 2.0, 3.0, 4.0);\n"
-         "mediump mat2x4 h24 = mat2x4(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0);\n"
-         "void main() {\n"
-         "    sk_FragColor.x = ((((f + h) + f2.x) + h3.x) + f22[0][0]) + h24[0][0];\n"
-         "}\n");
-}
-
 DEF_TEST(SkSLNumberConversions, r) {
     test(r,
          "short s = short(sqrt(1));"
@@ -823,39 +735,6 @@ DEF_TEST(SkSLNumberConversions, r) {
          "float(i2ui)) + float(us2ui)) + float(ui2ui)) + float(h2ui)) + float(f2ui)) + s2f) + "
          "i2f) + us2f) + ui2f) + h2f) + f2f;\n"
          "}\n");
-}
-
-DEF_TEST(SkSLForceHighPrecision, r) {
-    test(r,
-         "void main() {\n half x = half(sqrt(1));\n half4 y = half4(x);\n sk_FragColor = y;\n }",
-         *SkSL::ShaderCapsFactory::UsesPrecisionModifiers(),
-         "#version 400\n"
-         "precision mediump float;\n"
-         "precision mediump sampler2D;\n"
-         "out mediump vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    mediump float x = sqrt(1.0);\n"
-         "    mediump vec4 y = vec4(x);\n"
-         "    sk_FragColor = y;\n"
-         "}\n");
-    SkSL::Program::Settings settings;
-    settings.fForceHighPrecision = true;
-    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::UsesPrecisionModifiers();
-    settings.fCaps = caps.get();
-    SkSL::Program::Inputs inputs;
-    test(r,
-         "void main() { half x = half(sqrt(1)); half4 y = half4(x); sk_FragColor = y; }",
-         settings,
-         "#version 400\n"
-         "precision mediump float;\n"
-         "precision mediump sampler2D;\n"
-         "out mediump vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    highp float x = sqrt(1.0);\n"
-         "    highp vec4 y = vec4(x);\n"
-         "    sk_FragColor = y;\n"
-         "}\n",
-         &inputs);
 }
 
 DEF_TEST(SkSLNormalization, r) {
