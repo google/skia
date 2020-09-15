@@ -20,6 +20,14 @@ namespace SkSL {
 StandaloneShaderCaps standaloneCaps;
 #endif
 
+ShaderCapsPointer ShaderCapsFactory::MakeShaderCaps() {
+#ifdef SKSL_STANDALONE
+    return std::make_shared<StandaloneShaderCaps>();
+#else
+    return sk_make_sp<GrShaderCaps>(GrContextOptions());
+#endif
+}
+
 void sksl_abort() {
 #ifdef SKSL_STANDALONE
     abort();
