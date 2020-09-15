@@ -1,13 +1,11 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
-uniform mediump vec4 color;
+out vec4 sk_FragColor;
+uniform vec4 color;
 void main() {
-    mediump vec4 c = color;
+    vec4 c = color;
     if (c.x >= 0.5) {
     } else {
-        mediump vec4 _0_elseBody;
+        vec4 _0_elseBody;
         {
             _0_elseBody = color + vec4(0.125);
         }

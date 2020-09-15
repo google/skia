@@ -1,13 +1,11 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
+out vec4 sk_FragColor;
 struct A {
-    highp int x;
-    highp int y;
+    int x;
+    int y;
 } a1;
 struct B {
-    highp float x;
+    float x;
     float[2] y;
     layout (binding = 1) A z;
 } b1;
