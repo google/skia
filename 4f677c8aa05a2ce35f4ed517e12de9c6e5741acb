@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "080aa784_b85ac3dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-15T21:22:45Z",
+      "side": 1,
+      "message": "The more complex GLSL swizzle tests do have less-optimal output, but they\u0027re also testing pretty wild cases. The results are still correct.",
+      "revId": "4f677c8aa05a2ce35f4ed517e12de9c6e5741acb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
