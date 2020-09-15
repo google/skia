@@ -70,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "779535cd_fa9ace66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "c",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b8fe7b0_b52a3792",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -378,6 +395,161 @@
         "startChar": 27,
         "endLine": 896,
         "endChar": 28
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8529764_999b5ee8",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 980,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "it\u0027s ?",
+      "range": {
+        "startLine": 980,
+        "startChar": 29,
+        "endLine": 980,
+        "endChar": 32
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c172c3c6_188b0cc4",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "Did you try gathering these stats w/ CCPR \u0026 NVPR disabled ?",
+      "range": {
+        "startLine": 1102,
+        "startChar": 0,
+        "endLine": 1103,
+        "endChar": 55
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32ed13c6_3c09b5fd",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "empirically",
+      "range": {
+        "startLine": 1110,
+        "startChar": 24,
+        "endLine": 1110,
+        "endChar": 36
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7304dda3_a3e07d73",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "wdyt about just returning GrClip::Effect::kUnclipped here ? I don\u0027t know if falling through is actually buying us anything",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8d8f25d_48356926",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "Maybe make this an actual constant \u0026 put up with the others ?",
+      "range": {
+        "startLine": 1332,
+        "startChar": 14,
+        "endLine": 1332,
+        "endChar": 15
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4ea3a13_2afc2616",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1351,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "next ?",
+      "range": {
+        "startLine": 1351,
+        "startChar": 43,
+        "endLine": 1351,
+        "endChar": 47
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c17f6338_a4182675",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1609,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T14:33:50Z",
+      "side": 1,
+      "message": "mask\u0027s",
+      "range": {
+        "startLine": 1609,
+        "startChar": 62,
+        "endLine": 1609,
+        "endChar": 68
       },
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
