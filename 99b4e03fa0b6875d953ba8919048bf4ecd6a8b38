@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e61991a_edb924b0",
+        "filename": "include/core/SkTypes.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-15T13:56:03Z",
+      "side": 1,
+      "message": "Now that I\u0027m looking again, might be clearer to move this down a little?\n\n    #ifndef SkDebugf\n        SK_API void SkDebugf(const char format[], ...);\n    #endif\n    #if defined(SK_BUILD_FOR_LIBFUZZER)\n        SK_API inline void SkDebugf(const char format[], ...) {}\n    #endif",
+      "range": {
+        "startLine": 427,
+        "startChar": 0,
+        "endLine": 429,
+        "endChar": 6
+      },
+      "revId": "99b4e03fa0b6875d953ba8919048bf4ecd6a8b38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
