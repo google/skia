@@ -50,9 +50,9 @@ class GrShape {
 public:
     // The current set of types GrShape can represent directly
     enum class Type : uint8_t {
-        kEmpty, kPoint, kRect, kRRect, kPath, kArc, kLine, kLast = kLine
+        kEmpty, kPoint, kRect, kRRect, kPath, kArc, kLine
     };
-    static constexpr int kTypeCount = static_cast<int>(Type::kLast) + 1;
+    static constexpr int kTypeCount = static_cast<int>(Type::kLine) + 1;
 
     // The direction and start index used when a shape does not have a representable winding,
     // or when that information was discarded during simplification (kIgnoreWinding_Flag).
@@ -69,7 +69,7 @@ public:
     explicit GrShape(const GrArc& arc) { this->setArc(arc); }
     explicit GrShape(const GrLineSegment& line){ this->setLine(line); }
 
-    explicit GrShape(const GrShape& shape) { *this = shape; }
+    GrShape(const GrShape& shape) { *this = shape; }
 
     ~GrShape() { this->reset(); }
 
@@ -207,8 +207,10 @@ public:
     // path), even if the final simplification results in a point, line, or empty.
     bool simplify(unsigned flags = kAll_Flags);
 
-    // True if the given bounding box is completely inside the shape.
-    bool contains(const SkRect& rect) const;
+    // True if the given bounding box is completely inside the shape, if it's conservatively treated
+    // as a filled, closed shape.
+    bool conservativeContains(const SkRect& rect) const;
+    bool conservativeContains(const SkPoint& point) const;
 
     // True if the underlying geometry represents a closed shape, without the need for an
     // implicit close (note that if simplified earlier with 'simpleFill' = true, a shape that was
