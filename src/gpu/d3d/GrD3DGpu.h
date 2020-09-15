@@ -17,6 +17,7 @@
 #include "src/gpu/d3d/GrD3DCommandList.h"
 #include "src/gpu/d3d/GrD3DResourceProvider.h"
 
+class GrD3DAMDMemoryAllocator;
 struct GrD3DBackendContext;
 class GrD3DOpsRenderPass;
 struct GrD3DOptions;
@@ -42,6 +43,8 @@ public:
 
     ID3D12Device* device() const { return fDevice.Get(); }
     ID3D12CommandQueue* queue() const { return fQueue.Get(); }
+
+    GrD3DAMDMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
 
     GrD3DDirectCommandList* currentCommandList() const { return fCurrentDirectCommandList.get(); }
 
@@ -124,7 +127,8 @@ private:
         kSkip
     };
 
-    GrD3DGpu(GrDirectContext*, const GrContextOptions&, const GrD3DBackendContext&);
+    GrD3DGpu(GrDirectContext*, const GrContextOptions&, const GrD3DBackendContext&,
+             sk_sp<GrD3DAMDMemoryAllocator>);
 
     void destroyResources();
 
@@ -260,6 +264,8 @@ private:
 
     ComPtr<ID3D12Device> fDevice;
     ComPtr<ID3D12CommandQueue> fQueue;
+
+    sk_sp<GrD3DAMDMemoryAllocator> fMemoryAllocator;
 
     GrD3DResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;
