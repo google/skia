@@ -2371,3 +2371,27 @@ DEF_TEST(SkVM_args, r) {
         }
     });
 }
+
+DEF_TEST(SkVM_Q14x2, r) {
+    skvm::Builder b;
+    {
+        skvm::Arg dst = b.varying<int>(),
+                  src = b.varying<int>();
+
+        skvm::Q14x2 x = as_Q14x2(b.load32(src)),
+                    q = sra(x,2);
+
+        store32(dst, as_I32(x+q));
+    }
+    test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+        int dst[17], src[17];
+        for (int i = 0; i < 17; i++) {
+            skvm::Q14x2a val = i * (1/16.0f);
+            src[i] = val.imm;
+        }
+        program.eval(17, dst,src);
+        for (int i = 0; i < 17; i++) {
+            SkDebugf("%08x\n", dst[i]);
+        }
+    });
+}
