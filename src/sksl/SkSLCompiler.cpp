@@ -1090,11 +1090,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 Swizzle& base = s.fBase->as<Swizzle>();
                 std::vector<int> final;
                 for (int c : s.fComponents) {
-                    if (c == SKSL_SWIZZLE_0 || c == SKSL_SWIZZLE_1) {
-                        final.push_back(c);
-                    } else {
-                        final.push_back(base.fComponents[c]);
-                    }
+                    final.push_back(base.fComponents[c]);
                 }
                 *outUpdated = true;
                 std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.fBase->clone(),
