@@ -436,11 +436,11 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             switch (expr->kind()) {
                 case Expression::Kind::kBinary: {
                     BinaryExpression* b = &expr->as<BinaryExpression>();
-                    if (b->fOperator == Token::Kind::TK_EQ) {
-                        this->addDefinition(b->fLeft.get(), &b->fRight, definitions);
-                    } else if (Compiler::IsAssignment(b->fOperator)) {
+                    if (b->getOperator() == Token::Kind::TK_EQ) {
+                        this->addDefinition(&b->left(), &b->rightPointer(), definitions);
+                    } else if (Compiler::IsAssignment(b->getOperator())) {
                         this->addDefinition(
-                                      b->fLeft.get(),
+                                      &b->left(),
                                       (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                       definitions);
 
@@ -607,10 +607,10 @@ static bool is_dead(const Expression& lvalue) {
  * to a dead target and lack of side effects on the left hand side.
  */
 static bool dead_assignment(const BinaryExpression& b) {
-    if (!Compiler::IsAssignment(b.fOperator)) {
+    if (!Compiler::IsAssignment(b.getOperator())) {
         return false;
     }
-    return is_dead(*b.fLeft);
+    return is_dead(b.left());
 }
 
 void Compiler::computeDataFlow(CFG* cfg) {
@@ -705,14 +705,15 @@ static void delete_left(BasicBlock* b,
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     BinaryExpression& bin = (*target)->as<BinaryExpression>();
-    SkASSERT(!bin.fLeft->hasSideEffects());
+    std::unique_ptr<Expression>& right = bin.rightPointer();
+    SkASSERT(!bin.left().hasSideEffects());
     bool result;
-    if (bin.fOperator == Token::Kind::TK_EQ) {
-        result = b->tryRemoveLValueBefore(iter, bin.fLeft.get());
+    if (bin.getOperator() == Token::Kind::TK_EQ) {
+        result = b->tryRemoveLValueBefore(iter, &bin.left());
     } else {
-        result = b->tryRemoveExpressionBefore(iter, bin.fLeft.get());
+        result = b->tryRemoveExpressionBefore(iter, &bin.left());
     }
-    *target = std::move(bin.fRight);
+    *target = std::move(right);
     if (!result) {
         *outNeedsRescan = true;
         return;
@@ -723,7 +724,7 @@ static void delete_left(BasicBlock* b,
     }
     --(*iter);
     if ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
-        (*iter)->expression() != &bin.fRight) {
+        (*iter)->expression() != &right) {
         *outNeedsRescan = true;
         return;
     }
@@ -742,20 +743,21 @@ static void delete_right(BasicBlock* b,
     *outUpdated = true;
     std::unique_ptr<Expression>* target = (*iter)->expression();
     BinaryExpression& bin = (*target)->as<BinaryExpression>();
-    SkASSERT(!bin.fRight->hasSideEffects());
-    if (!b->tryRemoveExpressionBefore(iter, bin.fRight.get())) {
-        *target = std::move(bin.fLeft);
+    std::unique_ptr<Expression>& left = bin.leftPointer();
+    SkASSERT(!bin.right().hasSideEffects());
+    if (!b->tryRemoveExpressionBefore(iter, &bin.right())) {
+        *target = std::move(left);
         *outNeedsRescan = true;
         return;
     }
-    *target = std::move(bin.fLeft);
+    *target = std::move(left);
     if (*iter == b->fNodes.begin()) {
         *outNeedsRescan = true;
         return;
     }
     --(*iter);
     if (((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
-        (*iter)->expression() != &bin.fLeft)) {
+        (*iter)->expression() != &left)) {
         *outNeedsRescan = true;
         return;
     }
@@ -808,7 +810,7 @@ static void vectorize_left(BasicBlock* b,
                            bool* outUpdated,
                            bool* outNeedsRescan) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
-    vectorize(b, iter, bin.fRight->type(), &bin.fLeft, outUpdated, outNeedsRescan);
+    vectorize(b, iter, bin.right().type(), &bin.leftPointer(), outUpdated, outNeedsRescan);
 }
 
 /**
@@ -820,7 +822,7 @@ static void vectorize_right(BasicBlock* b,
                             bool* outUpdated,
                             bool* outNeedsRescan) {
     BinaryExpression& bin = (*(*iter)->expression())->as<BinaryExpression>();
-    vectorize(b, iter, bin.fLeft->type(), &bin.fRight, outUpdated, outNeedsRescan);
+    vectorize(b, iter, bin.left().type(), &bin.rightPointer(), outUpdated, outNeedsRescan);
 }
 
 // Mark that an expression which we were writing to is no longer being written to
@@ -902,8 +904,10 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 delete_left(&b, iter, outUpdated, outNeedsRescan);
                 break;
             }
-            const Type& leftType = bin->fLeft->type();
-            const Type& rightType = bin->fRight->type();
+            Expression& left = bin->left();
+            Expression& right = bin->right();
+            const Type& leftType = left.type();
+            const Type& rightType = right.type();
             // collapse useless expressions like x * 1 or x + 0
             if (((leftType.typeKind() != Type::TypeKind::kScalar) &&
                  (leftType.typeKind() != Type::TypeKind::kVector)) ||
@@ -911,9 +915,9 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                  (rightType.typeKind() != Type::TypeKind::kVector))) {
                 break;
             }
-            switch (bin->fOperator) {
+            switch (bin->getOperator()) {
                 case Token::Kind::TK_STAR:
-                    if (is_constant(*bin->fLeft, 1)) {
+                    if (is_constant(left, 1)) {
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(1) * x -> float4(x)
@@ -925,22 +929,22 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
-                    else if (is_constant(*bin->fLeft, 0)) {
+                    else if (is_constant(left, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector &&
-                            !bin->fRight->hasSideEffects()) {
+                            !right.hasSideEffects()) {
                             // 0 * float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // 0 * x -> 0
                             // float4(0) * x -> float4(0)
                             // float4(0) * float4(x) -> float4(0)
-                            if (!bin->fRight->hasSideEffects()) {
+                            if (!right.hasSideEffects()) {
                                 delete_right(&b, iter, outUpdated, outNeedsRescan);
                             }
                         }
                     }
-                    else if (is_constant(*bin->fRight, 1)) {
+                    else if (is_constant(right, 1)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x * float4(1) -> float4(x)
@@ -952,24 +956,24 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
                     }
-                    else if (is_constant(*bin->fRight, 0)) {
+                    else if (is_constant(right, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar &&
-                            !bin->fLeft->hasSideEffects()) {
+                            !left.hasSideEffects()) {
                             // float4(x) * 0 -> float4(0)
                             vectorize_right(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // x * 0 -> 0
                             // x * float4(0) -> float4(0)
                             // float4(x) * float4(0) -> float4(0)
-                            if (!bin->fLeft->hasSideEffects()) {
+                            if (!left.hasSideEffects()) {
                                 delete_left(&b, iter, outUpdated, outNeedsRescan);
                             }
                         }
                     }
                     break;
                 case Token::Kind::TK_PLUS:
-                    if (is_constant(*bin->fLeft, 0)) {
+                    if (is_constant(left, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kVector &&
                             rightType.typeKind() == Type::TypeKind::kScalar) {
                             // float4(0) + x -> float4(x)
@@ -980,7 +984,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // float4(0) + float4(x) -> float4(x)
                             delete_left(&b, iter, outUpdated, outNeedsRescan);
                         }
-                    } else if (is_constant(*bin->fRight, 0)) {
+                    } else if (is_constant(right, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x + float4(0) -> float4(x)
@@ -994,7 +998,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_MINUS:
-                    if (is_constant(*bin->fRight, 0)) {
+                    if (is_constant(right, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x - float4(0) -> float4(x)
@@ -1008,7 +1012,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     }
                     break;
                 case Token::Kind::TK_SLASH:
-                    if (is_constant(*bin->fRight, 1)) {
+                    if (is_constant(right, 1)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector) {
                             // x / float4(1) -> float4(x)
@@ -1019,43 +1023,43 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                             // float4(x) / float4(1) -> float4(x)
                             delete_right(&b, iter, outUpdated, outNeedsRescan);
                         }
-                    } else if (is_constant(*bin->fLeft, 0)) {
+                    } else if (is_constant(left, 0)) {
                         if (leftType.typeKind() == Type::TypeKind::kScalar &&
                             rightType.typeKind() == Type::TypeKind::kVector &&
-                            !bin->fRight->hasSideEffects()) {
+                            !right.hasSideEffects()) {
                             // 0 / float4(x) -> float4(0)
                             vectorize_left(&b, iter, outUpdated, outNeedsRescan);
                         } else {
                             // 0 / x -> 0
                             // float4(0) / x -> float4(0)
                             // float4(0) / float4(x) -> float4(0)
-                            if (!bin->fRight->hasSideEffects()) {
+                            if (!right.hasSideEffects()) {
                                 delete_right(&b, iter, outUpdated, outNeedsRescan);
                             }
                         }
                     }
                     break;
                 case Token::Kind::TK_PLUSEQ:
-                    if (is_constant(*bin->fRight, 0)) {
-                        clear_write(*bin->fLeft);
+                    if (is_constant(right, 0)) {
+                        clear_write(left);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_MINUSEQ:
-                    if (is_constant(*bin->fRight, 0)) {
-                        clear_write(*bin->fLeft);
+                    if (is_constant(right, 0)) {
+                        clear_write(left);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_STAREQ:
-                    if (is_constant(*bin->fRight, 1)) {
-                        clear_write(*bin->fLeft);
+                    if (is_constant(right, 1)) {
+                        clear_write(left);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
                 case Token::Kind::TK_SLASHEQ:
-                    if (is_constant(*bin->fRight, 1)) {
-                        clear_write(*bin->fLeft);
+                    if (is_constant(right, 1)) {
+                        clear_write(left);
                         delete_right(&b, iter, outUpdated, outNeedsRescan);
                     }
                     break;
