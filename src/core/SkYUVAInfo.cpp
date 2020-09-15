@@ -21,59 +21,86 @@ int SkYUVAInfo::PlaneDimensions(SkISize imageDimensions,
     auto down2 = [](int x) { return (x + 1)/2; };
     auto down4 = [](int x) { return (x + 3)/4; };
     switch (planarConfig) {
-        case SkYUVAInfo::PlanarConfig::kY_U_V_444:
+        case PlanarConfig::kY_U_V_444:
             planeDimensions[0] = planeDimensions[1] = planeDimensions[2] = {w, h};
             planeDimensions[3] = {0, 0};
             return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_422:
+        case PlanarConfig::kY_V_U_420:
+        case PlanarConfig::kY_U_V_422:
             planeDimensions[0] = {w, h};
             planeDimensions[1] = planeDimensions[2] = {down2(w), h};
             planeDimensions[3] = {0, 0};
             return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_420:
+        case PlanarConfig::kY_U_V_420:
             planeDimensions[0] = {w, h};
             planeDimensions[1] = planeDimensions[2] = {down2(w), down2(h)};
             planeDimensions[3] = {0, 0};
             return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_440:
+        case PlanarConfig::kY_U_V_440:
             planeDimensions[0] = {w, h};
             planeDimensions[1] = planeDimensions[2] = {w, down2(h)};
             planeDimensions[3] = {0, 0};
             return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_411:
+        case PlanarConfig::kY_U_V_411:
             planeDimensions[0] = {w, h};
             planeDimensions[1] = planeDimensions[2] = {down4(w), h};
             planeDimensions[3] = {0, 0};
             return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_410:
+        case PlanarConfig::kY_U_V_410:
             planeDimensions[0] = {w, h};
             planeDimensions[1] = planeDimensions[2] = {down4(w), down2(h)};
             planeDimensions[3] = {0, 0};
             return 3;
+
+        case PlanarConfig::kY_UV_420:
+        case PlanarConfig::kY_VU_420:
+            planeDimensions[0] = {w, h};
+            planeDimensions[1] = {down2(w), h};
+            planeDimensions[2] = planeDimensions[3] = {0, 0};
+            return 2;
+
+        case PlanarConfig::kYUVA_4444:
+        case PlanarConfig::kAVYU_4444:
+            planeDimensions[0] = {w, h};
+            planeDimensions[1] =  planeDimensions[2] = planeDimensions[3] = {0, 0};
+            return 1;
     }
     SkUNREACHABLE;
 }
 
 int SkYUVAInfo::NumPlanes(PlanarConfig planarConfig) {
     switch (planarConfig) {
-        case SkYUVAInfo::PlanarConfig::kY_U_V_444: return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_422: return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_420: return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_440: return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_411: return 3;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_410: return 3;
+        case PlanarConfig::kY_U_V_444: return 3;
+        case PlanarConfig::kY_U_V_422: return 3;
+        case PlanarConfig::kY_U_V_420: return 3;
+        case PlanarConfig::kY_V_U_420: return 3;
+        case PlanarConfig::kY_U_V_440: return 3;
+        case PlanarConfig::kY_U_V_411: return 3;
+        case PlanarConfig::kY_U_V_410: return 3;
+
+        case PlanarConfig::kY_UV_420:  return 2;
+        case PlanarConfig::kY_VU_420:  return 2;
+
+        case PlanarConfig::kYUVA_4444: return 1;
+        case PlanarConfig::kAVYU_4444: return 1;
     }
     SkUNREACHABLE;
 }
 
 bool SkYUVAInfo::HasAlpha(PlanarConfig planarConfig) {
     switch (planarConfig) {
-        case SkYUVAInfo::PlanarConfig::kY_U_V_444: return false;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_422: return false;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_420: return false;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_440: return false;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_411: return false;
-        case SkYUVAInfo::PlanarConfig::kY_U_V_410: return false;
+        case PlanarConfig::kY_U_V_444: return false;
+        case PlanarConfig::kY_U_V_422: return false;
+        case PlanarConfig::kY_U_V_420: return false;
+        case PlanarConfig::kY_V_U_420: return false;
+        case PlanarConfig::kY_U_V_440: return false;
+        case PlanarConfig::kY_U_V_411: return false;
+        case PlanarConfig::kY_U_V_410: return false;
+        case PlanarConfig::kY_UV_420:  return false;
+        case PlanarConfig::kY_VU_420:  return false;
+
+        case PlanarConfig::kYUVA_4444: return true;
+        case PlanarConfig::kAVYU_4444: return true;
     }
     SkUNREACHABLE;
 }

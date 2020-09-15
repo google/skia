@@ -25,17 +25,19 @@ void SkYUVAPixmapInfo::SupportedDataTypes::enableDataType(DataType type, int num
 
 SkYUVAPixmapInfo::SupportedDataTypes::SupportedDataTypes(const GrImageContext& context) {
 #if SK_SUPPORT_GPU
-    if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm8, 1),
-                                     GrRenderable::kNo).isValid()) {
-        this->enableDataType(DataType::kUnorm8, 1);
-    }
-    if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm16, 1),
-                                     GrRenderable::kNo).isValid()) {
-        this->enableDataType(DataType::kUnorm16, 1);
-    }
-    if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kFloat16, 1),
-                                     GrRenderable::kNo).isValid()) {
-        this->enableDataType(DataType::kFloat16, 1);
+    for (int n : {1, 2, 4}) {
+        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm8, n),
+                                         GrRenderable::kNo).isValid()) {
+            this->enableDataType(DataType::kUnorm8, n);
+        }
+        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm16, n),
+                                         GrRenderable::kNo).isValid()) {
+            this->enableDataType(DataType::kUnorm16, n);
+        }
+        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kFloat16, n),
+                                         GrRenderable::kNo).isValid()) {
+            this->enableDataType(DataType::kFloat16, n);
+        }
     }
 #endif
 }
@@ -43,15 +45,40 @@ SkYUVAPixmapInfo::SupportedDataTypes::SupportedDataTypes(const GrImageContext& c
 //////////////////////////////////////////////////////////////////////////////
 
 SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dataType, int numChannels) {
-    if (numChannels != 1) {
-        return kUnknown_SkColorType;
+    switch (numChannels) {
+        case 1:
+            switch (dataType) {
+                case DataType::kUnorm8:
+                    return kGray_8_SkColorType;
+                case DataType::kUnorm16:
+                    return kA16_unorm_SkColorType;
+                case DataType::kFloat16:
+                    return kA16_float_SkColorType;
+            }
+            SkUNREACHABLE;
+        case 2:
+            switch (dataType) {
+                case DataType::kUnorm8:
+                    return kR8G8_unorm_SkColorType;
+                case DataType::kUnorm16:
+                    return kR16G16_unorm_SkColorType;
+                case DataType::kFloat16:
+                    return kR16G16_float_SkColorType;
+            }
+            SkUNREACHABLE;
+        case 4:
+            switch (dataType) {
+                case DataType::kUnorm8:
+                    return kRGBA_8888_SkColorType;
+                case DataType::kUnorm16:
+                    return kR16G16B16A16_unorm_SkColorType;
+                case DataType::kFloat16:
+                    return kRGBA_F16_SkColorType;
+            }
+            SkUNREACHABLE;
+        default:
+            return kUnknown_SkColorType;
     }
-    switch (dataType) {
-        case DataType::kUnorm8:  return kGray_8_SkColorType;
-        case DataType::kUnorm16: return kA16_unorm_SkColorType;
-        case DataType::kFloat16: return kA16_float_SkColorType;
-    }
-    SkUNREACHABLE;
 }
 
 std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndDataType(
@@ -61,7 +88,18 @@ std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndData
         case kGray_8_SkColorType:    return {1, DataType::kUnorm8 };
         case kA16_unorm_SkColorType: return {1, DataType::kUnorm16};
         case kA16_float_SkColorType: return {1, DataType::kFloat16};
-        default:                     return {0, DataType::kUnorm8 };
+
+        case kR8G8_unorm_SkColorType:   return {2, DataType::kUnorm8  };
+        case kR16G16_unorm_SkColorType: return {2, DataType::kUnorm16 };
+        case kR16G16_float_SkColorType: return {2, DataType::kFloat16 };
+
+        // We could allow BGRA_8888 here, but then we'd have to decide if B the 0th or 2nd channel.
+        case kRGBA_8888_SkColorType:          return {4, DataType::kUnorm8  };
+        case kR16G16B16A16_unorm_SkColorType: return {4, DataType::kUnorm16 };
+        case kRGBA_F16_SkColorType:           return {4, DataType::kFloat16 };
+        case kRGBA_F16Norm_SkColorType:       return {4, DataType::kFloat16 };
+
+        default: return {0, DataType::kUnorm8 };
     }
 }
 
@@ -76,6 +114,9 @@ static int num_channels_in_plane(SkYUVAInfo::PlanarConfig config, int planeIdx) 
       case SkYUVAInfo::PlanarConfig::kY_U_V_420:
           SkASSERT(planeIdx >= 0 && planeIdx < 3);
           return 1;
+      case SkYUVAInfo::PlanarConfig::kY_V_U_420:
+          SkASSERT(planeIdx >= 0 && planeIdx < 3);
+          return 1;
       case SkYUVAInfo::PlanarConfig::kY_U_V_440:
           SkASSERT(planeIdx >= 0 && planeIdx < 3);
           return 1;
@@ -85,6 +126,18 @@ static int num_channels_in_plane(SkYUVAInfo::PlanarConfig config, int planeIdx) 
       case SkYUVAInfo::PlanarConfig::kY_U_V_410:
           SkASSERT(planeIdx >= 0 && planeIdx < 3);
           return 1;
+      case SkYUVAInfo::PlanarConfig::kY_UV_420:
+          SkASSERT(planeIdx >= 0 && planeIdx < 2);
+          return planeIdx == 0 ? 1 : 2;
+      case SkYUVAInfo::PlanarConfig::kY_VU_420:
+          SkASSERT(planeIdx >= 0 && planeIdx < 2);
+          return planeIdx == 0 ? 1 : 2;
+      case SkYUVAInfo::PlanarConfig::kYUVA_4444:
+          SkASSERT(planeIdx == 0);
+          return 4;
+      case SkYUVAInfo::PlanarConfig::kAVYU_4444:
+          SkASSERT(planeIdx == 0);
+          return 4;
   }
   return SK_MaxS32;
 };

@@ -97,14 +97,46 @@ enum YUVFormat {
 
 class YUVAPlanarConfig {
 public:
-    struct YUVALocation {
-        int fPlaneIdx = -1;
-        int fChannelIdx = -1;
-    };
-
     enum class YUVAChannel { kY, kU, kV, kA };
 
-    explicit YUVAPlanarConfig(const std::initializer_list<YUVALocation>& yuvaLocations);
+    static YUVAPlanarConfig Make(YUVFormat format) {
+        switch (format) {
+            case kP016_YUVFormat:  // These all share the same plane/channel indices.
+            case kP010_YUVFormat:
+            case kP016F_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 0}, {1, 0}, {1, 1}}, format);
+                return kConfig;
+            }
+            case kY416_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 1}, {0, 0}, {0, 2}, {0, 3}}, format);
+                return kConfig;
+            }
+            case kAYUV_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 0}, {0, 1}, {0, 2}, {0, 3}}, format);
+                return kConfig;
+            }
+            case kY410_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 1}, {0, 0}, {0, 2}, {0, 3}}, format);
+                return kConfig;
+            }
+            case kNV12_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 0}, {1, 0}, {1, 1}}, format);
+                return kConfig;
+            }
+            case kNV21_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 0}, {1, 1}, {1, 0}}, format);
+                return kConfig;
+            }
+            case kI420_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 0}, {1, 0}, {2, 0}}, format);
+                return kConfig;
+            }
+            case kYV12_YUVFormat: {
+                static const YUVAPlanarConfig kConfig({{0, 0}, {2, 0}, {1, 0}}, format);
+                return kConfig;
+            }
+        }
+    }
 
     constexpr int numPlanes() const { return fNumPlanes; }
 
@@ -144,42 +176,48 @@ public:
                         SkYUVAIndex indices[4]) const;
 
 private:
+    explicit YUVAPlanarConfig(std::initializer_list<YUVALocations> yuvaLocations, Format format) : fFormat(format) {
+        SkASSERT(yuvaLocations.size() == 3 || yuvaLocations.size() == 4);
+        uint32_t planeMask[5] = {};
+        int l = 0;
+        for (const auto& location : yuvaLocations) {
+            SkASSERT(location.fChannelIdx >= 0 && location.fChannelIdx <= 3);
+            SkASSERT(location.fPlaneIdx >= 0 && location.fPlaneIdx <= 3);
+            fLocations[l++] = location;
+            fNumPlanes = std::max(fNumPlanes, location.fPlaneIdx + 1);
+            int mask = 1 << location.fChannelIdx;
+            SkASSERT(!(planeMask[location.fPlaneIdx] & mask));
+            planeMask[location.fPlaneIdx] |= mask;
+        }
+
+        // Check that no plane is skipped and channel usage in each plane is tightly packed.
+        for (int i = 0; i < fNumPlanes; ++i) {
+            switch (planeMask[i]) {
+                case 0b0001: break;
+                case 0b0011: break;
+                case 0b0111: break;
+                case 0b1111: break;
+                default:     SK_ABORT("Illegal channel configuration. "
+                                      "Maximum of 4 channels per plane. "
+                                      "No skipped channels in any plane.");
+            }
+        }
+    }
+
     bool getYUVAIndices(const uint32_t channelMasks[],
                         int numPlanes,
                         bool externalAlphaPlane,
                         SkYUVAIndex indices[4]) const;
 
+    struct YUVALocation {
+        int fPlaneIdx = -1;
+        int fChannelIdx = -1;
+    };
+
+    YUVFormat fFormat;
     YUVALocation fLocations[4] = {};
     int fNumPlanes = 0;
 };
-
-YUVAPlanarConfig::YUVAPlanarConfig(const std::initializer_list<YUVALocation>& yuvaLocations) {
-    SkASSERT(yuvaLocations.size() == 3 || yuvaLocations.size() == 4);
-    uint32_t planeMask[5] = {};
-    int l = 0;
-    for (const auto& location : yuvaLocations) {
-        SkASSERT(location.fChannelIdx >= 0 && location.fChannelIdx <= 3);
-        SkASSERT(location.fPlaneIdx >= 0 && location.fPlaneIdx <= 3);
-        fLocations[l++] = location;
-        fNumPlanes = std::max(fNumPlanes, location.fPlaneIdx + 1);
-        int mask = 1 << location.fChannelIdx;
-        SkASSERT(!(planeMask[location.fPlaneIdx] & mask));
-        planeMask[location.fPlaneIdx] |= mask;
-    }
-
-    // Check that no plane is skipped and channel usage in each plane is tightly packed.
-    for (int i = 0; i < fNumPlanes; ++i) {
-        switch (planeMask[i]) {
-            case 0b0001: break;
-            case 0b0011: break;
-            case 0b0111: break;
-            case 0b1111: break;
-            default:     SK_ABORT("Illegal channel configuration. "
-                                  "Maximum of 4 channels per plane. "
-                                  "No skipped channels in any plane.");
-        }
-    }
-}
 
 bool YUVAPlanarConfig::ChannelIndexToChannel(uint32_t channelFlags,
                                              int channelIdx,
@@ -279,43 +317,6 @@ bool YUVAPlanarConfig::getYUVAIndices(const uint32_t planeChannelMasks[],
 }
 
 static const YUVAPlanarConfig& YUVAFormatPlanarConfig(YUVFormat format) {
-    switch (format) {
-        case kP016_YUVFormat:  // These all share the same plane/channel indices.
-        case kP010_YUVFormat:
-        case kP016F_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 0}, {1, 0}, {1, 1}});
-            return kConfig;
-        }
-        case kY416_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 1}, {0, 0}, {0, 2}, {0, 3}});
-            return kConfig;
-        }
-        case kAYUV_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 0}, {0, 1}, {0, 2}, {0, 3}});
-            return kConfig;
-        }
-        case kY410_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 1}, {0, 0}, {0, 2}, {0, 3}});
-            return kConfig;
-        }
-        case kNV12_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 0}, {1, 0}, {1, 1}});
-            return kConfig;
-        }
-        case kNV21_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 0}, {1, 1}, {1, 0}});
-            return kConfig;
-        }
-        case kI420_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 0}, {1, 0}, {2, 0}});
-            return kConfig;
-        }
-        case kYV12_YUVFormat: {
-            static const YUVAPlanarConfig kConfig({{0, 0}, {2, 0}, {1, 0}});
-            return kConfig;
-        }
-    }
-    SkUNREACHABLE;
 }
 
 static bool is_colorType_texturable(const GrCaps* caps, GrColorType ct) {
