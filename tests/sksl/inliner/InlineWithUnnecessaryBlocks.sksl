@@ -1,0 +1,11 @@
+uniform half4 color;
+
+half4 blocky(half4 c) {
+    {
+        return c;
+    }
+}
+
+void main() {
+    sk_FragColor = blocky(color);
+}
