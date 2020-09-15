@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLIRGenerator.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
@@ -66,7 +67,10 @@ int main(int argc, const char** argv) {
         printf("error reading '%s'\n", argv[1]);
         exit(2);
     }
+
+    SkSL::ShaderCapsPointer caps = SkSL::ShaderCapsFactory::Standalone();
     SkSL::Program::Settings settings;
+    settings.fCaps = caps.get();
     SkSL::String name(argv[2]);
     if (name.endsWith(".spirv")) {
         SkSL::FileOutputStream out(argv[2]);
