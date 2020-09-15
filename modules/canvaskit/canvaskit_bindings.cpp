@@ -1634,7 +1634,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers())
 #ifdef SK_GL
         .function("reportBackendTypeIsGPU", optional_override([](SkSurface& self) -> bool {
-            return self.getCanvas()->getGrContext() != nullptr;
+            return self.getCanvas()->recordingContext() != nullptr;
         }))
         .function("sampleCnt", optional_override([](SkSurface& self)->int {
             auto backendRT = self.getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
