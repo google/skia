@@ -1,9 +1,7 @@
 
-precision mediump float;
-precision mediump sampler2D;
 void main() {
-    highp float x = 1.0, y = 2.0;
-    highp int z = 3;
+    float x = 1.0, y = 2.0;
+    int z = 3;
     x = -6.0;
     y = -1.0;
     z = 8;

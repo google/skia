@@ -1,11 +1,9 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
+out vec4 sk_FragColor;
 uniform testBlock {
-    mediump float x;
+    float x;
     float[2] y;
-    layout (binding = 12) mediump mat3x2 z;
+    layout (binding = 12) mat3x2 z;
     bool w;
 };
 void main() {

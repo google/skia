@@ -1,9 +1,7 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
+out vec4 sk_FragColor;
 void main() {
-    highp float x;
+    float x;
     switch (int(sqrt(1.0))) {
         case 0:
             x = 0.0;

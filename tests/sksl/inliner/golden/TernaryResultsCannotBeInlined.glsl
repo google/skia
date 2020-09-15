@@ -1,14 +1,12 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
-uniform mediump vec4 color;
-mediump float count = 0.0;
-mediump vec4 trueSide(mediump vec4 v) {
+out vec4 sk_FragColor;
+uniform vec4 color;
+float count = 0.0;
+vec4 trueSide(vec4 v) {
     count += 1.0;
     return vec4(sin(v.x), sin(v.y), sin(v.z), sin(v.w));
 }
-mediump vec4 falseSide(mediump vec4 v) {
+vec4 falseSide(vec4 v) {
     count += 1.0;
     return vec4(cos(v.y), cos(v.z), cos(v.w), cos(v.z));
 }

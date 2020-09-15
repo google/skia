@@ -1,8 +1,6 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
-bool shouldLoop(mediump vec4 v) {
+out vec4 sk_FragColor;
+bool shouldLoop(vec4 v) {
     return v.x < 0.5;
 }
 void main() {

@@ -1,8 +1,6 @@
 
-precision mediump float;
-precision mediump sampler2D;
-out mediump vec4 sk_FragColor;
-uniform mediump vec4 color;
+out vec4 sk_FragColor;
+uniform vec4 color;
 void main() {
     bool _0_ifTest;
     {
