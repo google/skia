@@ -424,10 +424,6 @@
     #define SK_BUILD_FOR_FUZZER
 #endif
 
-#if defined(SK_BUILD_FOR_LIBFUZZER)
-    SK_API void SkDebugf(const char format[], ...) {}
-#endif
-
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.
@@ -436,6 +432,9 @@
 
 #ifndef SkDebugf
     SK_API void SkDebugf(const char format[], ...);
+#endif
+#if defined(SK_BUILD_FOR_LIBFUZZER)
+    SK_API inline void SkDebugf(const char format[], ...) {}
 #endif
 
 // SkASSERT, SkASSERTF and SkASSERT_RELEASE can be used as stand alone assertion expressions, e.g.
