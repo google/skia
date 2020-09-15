@@ -315,8 +315,26 @@ namespace skvm {
             case Op::shr_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
             case Op::sra_i32: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
 
-            case Op:: eq_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op:: gt_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::eq_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::gt_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
+
+            case Op::add_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::sub_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::mul_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
+            case Op::shl_q14x2: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+            case Op::shr_q14x2: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+            case Op::sra_q14x2: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+
+            case Op:: min_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op:: max_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::umin_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::uavg_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
+            case Op::eq_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::gt_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
 
             case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
             case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
@@ -441,8 +459,26 @@ namespace skvm {
                 case Op::shr_i32: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
                 case Op::sra_i32: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
 
-                case Op:: eq_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
-                case Op:: gt_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::eq_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::gt_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
+
+
+                case Op::add_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::sub_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::mul_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+
+                case Op::shl_q14x2: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
+                case Op::shr_q14x2: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
+                case Op::sra_q14x2: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
+
+                case Op:: min_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op:: max_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::umin_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::uavg_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+
+                case Op::eq_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::gt_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+
 
                 case Op::bit_and  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
                 case Op::bit_or   : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
@@ -3458,6 +3494,20 @@ namespace skvm {
                     // Make sure splat constants can be found by load_from_memory() or any().
                     (void)constants[immy];
                     break;
+
+                case Op:: add_q14x2:
+                case Op:: sub_q14x2:
+                case Op:: mul_q14x2:
+                case Op:: shl_q14x2:
+                case Op:: shr_q14x2:
+                case Op:: sra_q14x2:
+                case Op::  eq_q14x2:
+                case Op::  gt_q14x2:
+                case Op:: min_q14x2:
+                case Op:: max_q14x2:
+                case Op::uavg_q14x2:
+                case Op::umin_q14x2:
+                    return false; // TODO
 
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
