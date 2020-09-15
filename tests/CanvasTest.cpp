@@ -37,8 +37,10 @@
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
+#include "src/core/SkBigPicture.h"
 #include "src/core/SkClipOpPriv.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkRecord.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/utils/SkCanvasStack.h"
 #include "tests/Test.h"
@@ -52,6 +54,42 @@
 #include <utility>
 
 class SkReadBuffer;
+
+struct ClipRectVisitor {
+    skiatest::Reporter* r;
+
+    template <typename T>
+    SkRect operator()(const T&) {
+        REPORTER_ASSERT(r, false, "unexpected record");
+        return {1,1,0,0};
+    }
+
+    SkRect operator()(const SkRecords::ClipRect& op) {
+        return op.rect;
+    }
+};
+
+DEF_TEST(canvas_unsorted_clip, r) {
+    // Test that sorted and unsorted clip rects are forwarded
+    // to picture subclasses and/or devices sorted.
+    //
+    // We can't just test this with an SkCanvas on stack and
+    // SkCanvas::getLocalClipBounds(), as that only tests the raster device,
+    // which sorts these rects itself.
+    for (SkRect clip : {SkRect{0,0,5,5}, SkRect{5,5,0,0}}) {
+        SkPictureRecorder rec;
+        rec.beginRecording({0,0,10,10})
+            ->clipRect(clip);
+        sk_sp<SkPicture> pic = rec.finishRecordingAsPicture();
+
+        auto bp = (const SkBigPicture*)pic.get();
+        const SkRecord* record = bp->record();
+
+        REPORTER_ASSERT(r, record->count() == 1);
+        REPORTER_ASSERT(r, record->visit(0, ClipRectVisitor{r})
+                                .isSorted());
+    }
+}
 
 DEF_TEST(canvas_clipbounds, reporter) {
     SkCanvas canvas(10, 10);
