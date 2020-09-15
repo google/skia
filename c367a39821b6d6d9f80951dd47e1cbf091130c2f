@@ -505,6 +505,24 @@
     },
     {
       "key": {
+        "uuid": "f99c6a4c_2ef0fef0",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-15T18:22:54Z",
+      "side": 1,
+      "message": "Alternatively SkUREACHABLE doesn\u0027t require anything afterwards as the compiler recognizes that whatever is next will not execute.",
+      "parentUuid": "7304dda3_a3e07d73",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a8d8f25d_48356926",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
