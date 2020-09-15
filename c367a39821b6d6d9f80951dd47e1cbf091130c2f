@@ -87,6 +87,23 @@
     },
     {
       "key": {
+        "uuid": "ab49fef0_64517002",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T15:50:43Z",
+      "side": 1,
+      "message": "Almost there ...",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b8fe7b0_b52a3792",
         "filename": "src/gpu/GrClipStack.cpp",
         "patchSetId": 17
@@ -613,6 +630,46 @@
         "startChar": 38,
         "endLine": 30,
         "endChar": 39
+      },
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d156e58_e3c4aac0",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T15:50:43Z",
+      "side": 1,
+      "message": "Maybe not for this CL:\nRestorePolicy {\n  kNever,\n  kEveryOtherOp,\n  kEveryThirdOp\n};\n\nDunno - this would obviously mess up the order independence\n\n?",
+      "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24873958_2362553e",
+        "filename": "tests/GrClipStackTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-15T15:50:43Z",
+      "side": 1,
+      "message": "intersection",
+      "range": {
+        "startLine": 536,
+        "startChar": 8,
+        "endLine": 536,
+        "endChar": 20
       },
       "revId": "c367a39821b6d6d9f80951dd47e1cbf091130c2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
