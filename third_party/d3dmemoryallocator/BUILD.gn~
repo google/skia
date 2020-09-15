@@ -1,0 +1,29 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+config("vulkanmemoryallocator_public") {
+  include_dirs = [ "." ]
+}
+
+source_set("vulkanmemoryallocator") {
+  public_configs = [ ":vulkanmemoryallocator_public" ]
+
+  include_dirs = [
+    "../..",
+    "../../include/third_party/vulkan",
+  ]
+
+  sources = [
+    "GrVulkanMemoryAllocator.cpp",
+    "GrVulkanMemoryAllocator.h",
+  ]
+
+  # Warnings are just noise if we're not maintaining the code.
+  if (is_win) {
+    cflags = [ "/w" ]
+  } else {
+    cflags = [ "-w" ]
+  }
+}
