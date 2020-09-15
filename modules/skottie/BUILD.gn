@@ -69,6 +69,7 @@ if (skia_enable_skottie) {
       source_set("fuzz") {
         check_includes = false
         testonly = true
+        defines = [ "SK_BUILD_FOR_LIBFUZZER" ]
 
         configs += [ "../..:skia_private" ]
         include_dirs = [
