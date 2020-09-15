@@ -1,0 +1,5 @@
+/*#pragma settings Version450Core*/
+
+in float test;
+
+void main() { sk_FragColor.r = half(test); }
