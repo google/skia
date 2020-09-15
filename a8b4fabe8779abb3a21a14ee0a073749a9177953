@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "d5ba7353_9a56d4bc",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-15T17:28:43Z",
+      "side": 1,
+      "message": "Yes, The cubic method is \"high\" quality, the Filter options are more for the medium/low quality. I\u0027ll add some text to the Changelog entry.\n\nI don\u0027t know if/when the default value will change. That\u0027s a question for Mike Reed.",
+      "parentUuid": "bfdda18b_5bea5e6e",
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e378b4ce_469e4e59",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 3
@@ -83,6 +101,30 @@
     },
     {
       "key": {
+        "uuid": "40382d87_10de394d",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-15T17:28:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a4c5dd90_348aedc6",
+      "range": {
+        "startLine": 1313,
+        "startChar": 67,
+        "endLine": 1313,
+        "endChar": 68
+      },
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "76a7e57c_82c4f3f6",
         "filename": "modules/canvaskit/interface.js",
         "patchSetId": 3
@@ -97,6 +139,24 @@
       "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1145d56c_d41e635e",
+        "filename": "modules/canvaskit/interface.js",
+        "patchSetId": 3
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-15T17:28:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76a7e57c_82c4f3f6",
+      "revId": "a8b4fabe8779abb3a21a14ee0a073749a9177953",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
