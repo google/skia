@@ -26,6 +26,7 @@ class SkString;
 class SkTraceMemoryDump;
 class GrSingleOwner;
 class GrTexture;
+class GrThreadSafeUniquelyKeyedProxyViewCache;
 
 struct GrTextureFreedMessage {
     GrTexture* fTexture;
@@ -91,7 +92,7 @@ public:
     size_t getResourceBytes() const { return fBytes; }
 
     /**
-     * Returns the number of bytes held by unlocked reosources which are available for purging.
+     * Returns the number of bytes held by unlocked resources which are available for purging.
      */
     size_t getPurgeableBytes() const { return fPurgeableBytes; }
 
@@ -237,7 +238,10 @@ public:
     // Enumerates all cached resources and dumps their details to traceMemoryDump.
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-    void setProxyProvider(GrProxyProvider* proxyProvider) { fProxyProvider = proxyProvider; }
+    void setProxyProvider(GrProxyProvider* proxyProvider) { fProxyProvider1 = proxyProvider; }
+    void setThreadSafeViewCache(GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache) {
+        fThreadSafeViewCache = threadSafeViewCache;
+    }
 
 private:
     ///////////////////////////////////////////////////////////////////////////
@@ -322,7 +326,9 @@ private:
     typedef SkTDPQueue<GrGpuResource*, CompareTimestamp, AccessResourceIndex> PurgeableQueue;
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
-    GrProxyProvider*                    fProxyProvider = nullptr;
+    GrProxyProvider*                    fProxyProvider1 = nullptr;
+    GrThreadSafeUniquelyKeyedProxyViewCache* fThreadSafeViewCache = nullptr;
+
     // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
     // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
     // purgeable resources by this value, and thus is used to purge resources in LRU order.

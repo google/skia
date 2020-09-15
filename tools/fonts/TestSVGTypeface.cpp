@@ -132,7 +132,7 @@ void TestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
 
 void TestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
     SkDEBUGCODE(unsigned glyphCount = this->countGlyphs());
-    fCMap.foreach ([=](const SkUnichar& c, const SkGlyphID& g) {
+    fCMap.foreach([=](const SkUnichar& c, const SkGlyphID& g) {
         SkASSERT(g < glyphCount);
         glyphToUnicode[g] = c;
     });
