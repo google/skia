@@ -333,7 +333,7 @@ class ShowMipLevels3 : public skiagm::GM {
             auto surf = SkSurface::MakeRasterDirect(builder.level(i));
             surf->getCanvas()->drawColor(colors[i % SK_ARRAY_COUNT(colors)]);
         }
-        fImg = fImg->withMipmaps(builder.detach());
+        fImg = builder.attachTo(fImg.get());
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString*) override {

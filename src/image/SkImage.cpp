@@ -653,10 +653,6 @@ SkPixmap SkMipmapBuilder::level(int index) const {
     return pm;
 }
 
-sk_sp<SkMipmap> SkMipmapBuilder::detach() {
-    return std::move(fMM);
-}
-
 bool SkImage::hasMipmaps() const {
     return as_IB(this)->onPeekMips() != nullptr;
 }
@@ -672,4 +668,8 @@ sk_sp<SkImage> SkImage::withMipmaps(sk_sp<SkMipmap> mips) const {
 
 sk_sp<SkImage> SkImage::withDefaultMipmaps() const {
     return this->withMipmaps(nullptr);
+}
+
+sk_sp<SkImage> SkMipmapBuilder::attachTo(const SkImage* src) {
+    return src->withMipmaps(fMM);
 }
