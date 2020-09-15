@@ -8,11 +8,15 @@
 #ifndef SKSL_IRNODE
 #define SKSL_IRNODE
 
+#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLString.h"
 
+#include <vector>
+
 namespace SkSL {
 
+struct Expression;
 class Type;
 
 /**
@@ -21,12 +25,13 @@ class Type;
  */
 class IRNode {
 public:
-    IRNode(int offset, int kind, const Type* type = nullptr)
-    : fOffset(offset)
-    , fKind(kind)
-    , fType(type) {}
+    virtual ~IRNode();
 
-    virtual ~IRNode() {}
+    IRNode& operator=(const IRNode& other) {
+        fOffset = other.fOffset;
+        SkASSERT(other.fExpressionChildren.empty());
+        return *this;
+    }
 
     virtual String description() const = 0;
 
@@ -35,15 +40,83 @@ public:
     int fOffset;
 
     const Type& type() const {
-        SkASSERT(fType);
-        return *fType;
+        switch (fData.fKind) {
+            case NodeData::Kind::kType:
+                return *this->typeData();
+            case NodeData::Kind::kTypeToken:
+                return *this->typeTokenData().fType;
+            default:
+                SkUNREACHABLE;
+        }
     }
 
 protected:
+    struct TypeTokenData {
+        const Type* fType;
+        Token::Kind fToken;
+    };
+
+    struct NodeData {
+        char fBytes[Max(sizeof(Type*),
+                        sizeof(TypeTokenData))];
+
+        enum class Kind {
+            kType,
+            kTypeToken,
+        } fKind;
+
+        NodeData() = default;
+
+        NodeData(const Type* data)
+            : fKind(Kind::kType)
+        {
+            memcpy(fBytes, &data, sizeof(data));
+        }
+
+        NodeData(TypeTokenData data)
+            : fKind(Kind::kTypeToken)
+        {
+            memcpy(fBytes, &data, sizeof(data));
+        }
+    };
+
+    IRNode(int offset, int kind, const Type* data = nullptr);
+
+    IRNode(int offset, int kind, TypeTokenData data);
+
+    IRNode(const IRNode& other);
+
+    Expression& expressionChild(int index) const {
+        return *fExpressionChildren[(int) index];
+    }
+
+    std::unique_ptr<Expression>& expressionPointer(int index) {
+        return fExpressionChildren[(int) index];
+    }
+
+    const std::unique_ptr<Expression>& expressionPointer(int index) const {
+        return fExpressionChildren[(int) index];
+    }
+
+    Type* typeData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kType);
+        Type* result;
+        memcpy(&result, fData.fBytes, sizeof(result));
+        return result;
+    }
+
+    TypeTokenData typeTokenData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kTypeToken);
+        TypeTokenData result;
+        memcpy(&result, fData.fBytes, sizeof(result));
+        return result;
+    }
+
     int fKind;
+    std::vector<std::unique_ptr<Expression>> fExpressionChildren;
 
 private:
-    const Type* fType;
+    NodeData fData;
 };
 
 }  // namespace SkSL
