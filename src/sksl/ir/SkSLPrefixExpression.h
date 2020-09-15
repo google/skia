@@ -46,7 +46,6 @@ struct PrefixExpression : public Expression {
                                                              irGenerator.fContext,
                                                              fOffset,
                                                              -fOperand->as<FloatLiteral>().fValue));
-
         }
         return nullptr;
     }
