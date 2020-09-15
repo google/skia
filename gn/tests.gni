@@ -100,6 +100,7 @@ tests_sources = [
   "$_tests/GrAHardwareBufferTest.cpp",
   "$_tests/GrBlockAllocatorTest.cpp",
   "$_tests/GrCCPRTest.cpp",
+  "$_tests/GrClipStackTest.cpp",
   "$_tests/GrContextAbandonTest.cpp",
   "$_tests/GrContextFactoryTest.cpp",
   "$_tests/GrContextOOM.cpp",

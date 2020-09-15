@@ -757,7 +757,6 @@ SkRect SkRRectPriv::InnerBounds(const SkRRect& rr) {
     }
 
     SkASSERT(innerBounds.isSorted() && !innerBounds.isEmpty());
-    SkASSERT(rr.contains(innerBounds));
     return innerBounds;
 }
 

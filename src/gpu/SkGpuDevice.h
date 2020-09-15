@@ -13,8 +13,6 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrTypes.h"
-#include "src/core/SkClipStackDevice.h"
-#include "src/gpu/GrClipStackClip.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/SkGr.h"
 
@@ -27,11 +25,30 @@ class SkSpecialImage;
 class SkSurface;
 class SkVertices;
 
+#ifndef SK_USE_NEW_GR_CLIP_STACK
+// NOTE: If this is non-zero, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
+// using GrClipStack. When false, SkGpuDevice continues to extend SkClipStackDevice and uses
+// SkClipStack and GrClipStackClip to manage the clip stack.
+#define SK_USE_NEW_GR_CLIP_STACK 0
+#endif
+
+#if SK_USE_NEW_GR_CLIP_STACK
+    #include "src/core/SkDevice.h"
+    #include "src/gpu/GrClipStack.h"
+    #define BASE_DEVICE   SkBaseDevice
+    #define GR_CLIP_STACK GrClipStack
+#else
+    #include "src/core/SkClipStackDevice.h"
+    #include "src/gpu/GrClipStackClip.h"
+    #define BASE_DEVICE   SkClipStackDevice
+    #define GR_CLIP_STACK GrClipStackClip
+#endif
+
 /**
  *  Subclass of SkBaseDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SkGpuDevice : public SkClipStackDevice {
+class SkGpuDevice : public BASE_DEVICE  {
 public:
     enum InitContents {
         kClear_InitContents,
@@ -126,11 +143,50 @@ protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
 
+#if SK_USE_NEW_GR_CLIP_STACK
+    void onSave() override { fClip.save(); }
+    void onRestore() override { fClip.restore(); }
+
+    void onClipRect(const SkRect& rect, SkClipOp op, bool aa) override {
+        SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+        fClip.clipRect(this->localToDevice(), rect, GrAA(aa), op);
+    }
+    void onClipRRect(const SkRRect& rrect, SkClipOp op, bool aa) override {
+        SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+        fClip.clipRRect(this->localToDevice(), rrect, GrAA(aa), op);
+    }
+    void onClipPath(const SkPath& path, SkClipOp op, bool aa) override {
+        SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+        fClip.clipPath(this->localToDevice(), path, GrAA(aa), op);
+    }
+    void onClipShader(sk_sp<SkShader> shader) override {
+        fClip.clipShader(std::move(shader));
+    }
+    void onReplaceClip(const SkIRect& rect) override {
+        // Transform from "global/canvas" coordinates to relative to this device
+        SkIRect deviceRect = this->globalToDevice().mapRect(SkRect::Make(rect)).round();
+        fClip.replaceClip(deviceRect);
+    }
+    void onClipRegion(const SkRegion& globalRgn, SkClipOp op) override;
+    void onAsRgnClip(SkRegion*) const override;
+    ClipType onGetClipType() const override;
+    bool onClipIsAA() const override;
+
+    void onSetDeviceClipRestriction(SkIRect* mutableClipRestriction) override {
+        SkASSERT(mutableClipRestriction->isEmpty());
+    }
+    bool onClipIsWideOpen() const override {
+        return fClip.clipState() == GrClipStack::ClipState::kWideOpen;
+    }
+    SkIRect onDevClipBounds() const override { return fClip.getConservativeBounds(); }
+#endif
+
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
     sk_sp<GrRecordingContext> fContext;
     std::unique_ptr<GrRenderTargetContext> fRenderTargetContext;
-    GrClipStackClip  fClip;
+
+    GR_CLIP_STACK   fClip;
 
     enum Flags {
         kNeedClear_Flag = 1 << 0,  //!< Surface requires an initial clear
@@ -175,7 +231,10 @@ private:
 
     friend class GrAtlasTextContext;
     friend class SkSurface_Gpu;      // for access to surfaceProps
-    using INHERITED = SkClipStackDevice;
+    using INHERITED = BASE_DEVICE;
 };
+
+#undef BASE_DEVICE
+#undef GR_CLIP_STACK
 
 #endif

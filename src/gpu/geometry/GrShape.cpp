@@ -8,9 +8,10 @@
 #include "src/gpu/geometry/GrShape.h"
 
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkRRectPriv.h"
 
 GrShape& GrShape::operator=(const GrShape& shape) {
-    switch(shape.type()) {
+    switch (shape.type()) {
         case Type::kEmpty:
             this->reset();
             break;
@@ -32,8 +33,6 @@ GrShape& GrShape::operator=(const GrShape& shape) {
         case Type::kLine:
             this->setLine(shape.fLine);
             break;
-        default:
-            SkUNREACHABLE;
     }
 
     fStart = shape.fStart;
@@ -245,7 +244,7 @@ bool GrShape::simplify(unsigned flags) {
     // The type specific functions automatically fall through to the simpler shapes, so
     // we only need to start in the right place.
     bool wasClosed = false;
-    switch(fType) {
+    switch (fType) {
         case Type::kEmpty:
             // do nothing
             break;
@@ -282,8 +281,8 @@ bool GrShape::simplify(unsigned flags) {
     return wasClosed;
 }
 
-bool GrShape::contains(const SkRect& rect) const {
-    switch(this->type()) {
+bool GrShape::conservativeContains(const SkRect& rect) const {
+    switch (this->type()) {
         case Type::kEmpty:
         case Type::kPoint: // fall through since a point has 0 area
         case Type::kLine:  // fall through, "" (currently choosing not to test if 'rect' == line)
@@ -302,13 +301,29 @@ bool GrShape::contains(const SkRect& rect) const {
             } else {
                 return false;
             }
-        default:
-            SkUNREACHABLE;
     }
+    SkUNREACHABLE;
+}
+
+bool GrShape::conservativeContains(const SkPoint& point) const {
+    switch (this->type()) {
+        case Type::kEmpty:
+        case Type::kPoint: // fall through, currently choosing not to test if shape == point
+        case Type::kLine:  // fall through, ""
+        case Type::kArc:
+            return false;
+        case Type::kRect:
+            return fRect.contains(point.fX, point.fY);
+        case Type::kRRect:
+            return SkRRectPriv::ContainsPoint(fRRect, point);
+        case Type::kPath:
+            return fPath.contains(point.fX, point.fY);
+    }
+    SkUNREACHABLE;
 }
 
 bool GrShape::closed() const {
-    switch(this->type()) {
+    switch (this->type()) {
         case Type::kEmpty: // fall through
         case Type::kRect:  // fall through
         case Type::kRRect:
@@ -321,13 +336,12 @@ bool GrShape::closed() const {
         case Type::kPoint: // fall through
         case Type::kLine:
             return false;
-        default:
-            SkUNREACHABLE;
     }
+    SkUNREACHABLE;
 }
 
 bool GrShape::convex(bool simpleFill) const {
-    switch(this->type()) {
+    switch (this->type()) {
         case Type::kEmpty: // fall through
         case Type::kRect:  // fall through
         case Type::kRRect:
@@ -341,16 +355,15 @@ bool GrShape::convex(bool simpleFill) const {
         case Type::kPoint: // fall through
         case Type::kLine:
             return false;
-        default:
-            SkUNREACHABLE;
     }
+    SkUNREACHABLE;
 }
 
 SkRect GrShape::bounds() const {
     // Bounds where left == bottom or top == right can indicate a line or point shape. We return
     // inverted bounds for a truly empty shape.
     static constexpr SkRect kInverted = SkRect::MakeLTRB(1, 1, -1, -1);
-    switch(this->type()) {
+    switch (this->type()) {
         case Type::kEmpty:
             return kInverted;
         case Type::kPoint:
@@ -368,15 +381,14 @@ SkRect GrShape::bounds() const {
                                         fLine.fP2.fX, fLine.fP2.fY);
             b.sort();
             return b; }
-        default:
-            SkUNREACHABLE;
     }
+    SkUNREACHABLE;
 }
 
 uint32_t GrShape::segmentMask() const {
     // In order to match what a path would report, this has to inspect the shapes slightly
     // to reflect what they might simplify to.
-    switch(this->type()) {
+    switch (this->type()) {
         case Type::kEmpty:
             return 0;
         case Type::kRRect:
@@ -399,9 +411,8 @@ uint32_t GrShape::segmentMask() const {
         case Type::kLine:  // ""
         case Type::kRect:
             return SkPath::kLine_SegmentMask;
-        default:
-            SkUNREACHABLE;
     }
+    SkUNREACHABLE;
 }
 
 void GrShape::asPath(SkPath* out, bool simpleFill) const {
@@ -416,7 +427,7 @@ void GrShape::asPath(SkPath* out, bool simpleFill) const {
         }
     } // Else when we're already a path, that will assign the fill type directly to 'out'.
 
-    switch(this->type()) {
+    switch (this->type()) {
         case Type::kEmpty:
             return;
         case Type::kPoint:
@@ -447,7 +458,6 @@ void GrShape::asPath(SkPath* out, bool simpleFill) const {
             out->moveTo(fLine.fP1);
             out->lineTo(fLine.fP2);
             return;
-        default:
-            SkUNREACHABLE;
     }
+    SkUNREACHABLE;
 }

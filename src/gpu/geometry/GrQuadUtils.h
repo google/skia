@@ -46,6 +46,8 @@ namespace GrQuadUtils {
      */
     bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool computeLocal=true);
 
+    inline void Outset(const skvx::Vec<4, float>& edgeDistances, GrQuad* quad);
+
     class TessellationHelper {
     public:
         // Set the original device and (optional) local coordinates that are inset or outset
@@ -192,5 +194,11 @@ namespace GrQuadUtils {
     };
 
 }; // namespace GrQuadUtils
+
+void GrQuadUtils::Outset(const skvx::Vec<4, float>& edgeDistances, GrQuad* quad) {
+    TessellationHelper outsetter;
+    outsetter.reset(*quad, nullptr);
+    outsetter.outset(edgeDistances, quad, nullptr);
+}
 
 #endif
