@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5020075_c33c4181",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-15T18:44:46Z",
+      "side": 1,
+      "message": "Android migration is waiting for CQ here https://googleplex-android-review.git.corp.google.com/c/platform/frameworks/base/+/12597960",
+      "revId": "b3236793d6b027eb5bb2391153ba936fe2b205f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
