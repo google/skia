@@ -1181,6 +1181,38 @@ DEF_TEST(SkVM_Assembler, r) {
     });
 
     test_asm(r, [&](A& a) {
+        a.vpaddw   (A::ymm4, A::ymm3, A::ymm2);
+        a.vpavgw   (A::ymm4, A::ymm3, A::ymm2);
+        a.vpcmpeqw (A::ymm4, A::ymm3, A::ymm2);
+        a.vpcmpgtw (A::ymm4, A::ymm3, A::ymm2);
+
+        a.vpminsw  (A::ymm4, A::ymm3, A::ymm2);
+        a.vpmaxsw  (A::ymm4, A::ymm3, A::ymm2);
+        a.vpminuw  (A::ymm4, A::ymm3, A::ymm2);
+        a.vpmaxuw  (A::ymm4, A::ymm3, A::ymm2);
+
+        a.vpmulhrsw(A::ymm4, A::ymm3, A::ymm2);
+        a.vpabsw   (A::ymm4, A::ymm3);
+        a.vpsllw   (A::ymm4, A::ymm3, 12);
+        a.vpsraw   (A::ymm4, A::ymm3, 12);
+    },{
+        0xc5,     0xe5, 0xfd, 0xe2,
+        0xc5,     0xe5, 0xe3, 0xe2,
+        0xc5,     0xe5, 0x75, 0xe2,
+        0xc5,     0xe5, 0x65, 0xe2,
+
+        0xc5,     0xe5, 0xea, 0xe2,
+        0xc5,     0xe5, 0xee, 0xe2,
+        0xc4,0xe2,0x65, 0x3a, 0xe2,
+        0xc4,0xe2,0x65, 0x3e, 0xe2,
+
+        0xc4,0xe2,0x65, 0x0b, 0xe2,
+        0xc4,0xe2,0x7d, 0x1d, 0xe3,
+        0xc5,0xdd,0x71, 0xf3, 0x0c,
+        0xc5,0xdd,0x71, 0xe3, 0x0c,
+    });
+
+    test_asm(r, [&](A& a) {
         A::Label l;
         a.vcmpeqps (A::ymm0, A::ymm1, &l);      // vcmpeqps 0x1c(%rip), %ymm1, %ymm0
         a.vpcmpeqd (A::ymm0, A::ymm1, A::ymm2);
