@@ -1168,6 +1168,9 @@ namespace skvm {
     static inline I32   to_half(F32 x) { return x->  to_half(x); }
     static inline F32 from_half(I32 x) { return x->from_half(x); }
 
+    static inline Q14x2 as_Q14x2(I32   x) { return x->as_Q14x2(x); }
+    static inline I32   as_I32  (Q14x2 x) { return x->as_I32  (x); }
+
     static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
     static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }
     static inline F32 lerp(float lo, float hi, F32  t) { return  t->lerp(lo,hi,t); }
@@ -1188,6 +1191,7 @@ namespace skvm {
     static inline Q14x2        shl(Q14x2 x, int bits) { return x->shl(x, bits); }
     static inline Q14x2        shr(Q14x2 x, int bits) { return x->shr(x, bits); }
     static inline Q14x2        sra(Q14x2 x, int bits) { return x->sra(x, bits); }
+    static inline Q14x2 operator>>(Q14x2 x, int bits) { return x->sra(x, bits); }
 
     static inline I32 operator&(I32 x, I32a y) { return x->bit_and(x,y); }
     static inline I32 operator&(int x, I32  y) { return y->bit_and(x,y); }

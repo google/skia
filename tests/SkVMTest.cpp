@@ -2371,3 +2371,133 @@ DEF_TEST(SkVM_args, r) {
         }
     });
 }
+
+DEF_TEST(SkVM_Q14x2, r) {
+    // Some nice round Q14 test values, from 0.0 out to ±1.0 (0x4000, 0xc000) by 16ths (0x0400).
+    const uint32_t src[] = {
+        0x0000'0000, 0xfc00'0400, 0xf800'0800, 0xf400'0c00,
+        0xf000'1000, 0xec00'1400, 0xe800'1800, 0xe400'1c00,
+        0xe000'2000, 0xdc00'2400, 0xd800'2800, 0xd400'2c00,
+        0xd000'3000, 0xcc00'3400, 0xc800'3800, 0xc400'3c00, 0xc000'4000
+    };
+    for (int i = 0; i < 17; i++) {
+        // Just showing our work how we got those values.
+        int16_t x = i * (+1/16.0f) * 0x4000;
+        REPORTER_ASSERT(r, src[i] == (uint32_t)(x|-x<<16));
+    }
+
+    // These test cases are essentially mechanically generated to get coverage...
+    // I've spot checked here and there and things seem correct, but I wouldn't
+    // be surprised to find that there were bugs.  Using nice round numbers to
+    // avoid having to think about low-bit precision for now.
+    struct {
+        skvm::Q14x2 (*fn)(skvm::Q14x2);
+        uint32_t expected[17];
+    } cases[] = {
+        {[](skvm::Q14x2 x) { return x; },   // Just double checking the test harness works.
+         {0x00000000, 0xfc000400, 0xf8000800, 0xf4000c00,
+          0xf0001000, 0xec001400, 0xe8001800, 0xe4001c00,
+          0xe0002000, 0xdc002400, 0xd8002800, 0xd4002c00,
+          0xd0003000, 0xcc003400, 0xc8003800, 0xc4003c00, 0xc0004000}},
+
+        {[](skvm::Q14x2 x) { return x*x; }, // square ±1/16 (0x0400) -> 1/256 (0x0040), etc.
+         {0x00000000, 0x00400040, 0x01000100, 0x02400240,
+          0x04000400, 0x06400640, 0x09000900, 0x0c400c40,
+          0x10001000, 0x14401440, 0x19001900, 0x1e401e40,
+          0x24002400, 0x2a402a40, 0x31003100, 0x38403840, 0x40004000}},
+
+        {[](skvm::Q14x2 x) { return x>>1; },  // divide by 2
+         {0x00000000, 0xfe000200, 0xfc000400, 0xfa000600,
+          0xf8000800, 0xf6000a00, 0xf4000c00, 0xf2000e00,
+          0xf0001000, 0xee001200, 0xec001400, 0xea001600,
+          0xe8001800, 0xe6001a00, 0xe4001c00, 0xe2001e00, 0xe0002000}},
+
+        {[](skvm::Q14x2 x) { return shr(x,1); },  // logical shift by 1
+         {0x00000000, 0x7e000200, 0x7c000400, 0x7a000600,
+          0x78000800, 0x76000a00, 0x74000c00, 0x72000e00,
+          0x70001000, 0x6e001200, 0x6c001400, 0x6a001600,
+          0x68001800, 0x66001a00, 0x64001c00, 0x62001e00, 0x60002000}},
+
+        {[](skvm::Q14x2 x) { return x - (x>>2); },  // 3/4 x, version A
+         {0x00000000, 0xfd000300, 0xfa000600, 0xf7000900,
+          0xf4000c00, 0xf1000f00, 0xee001200, 0xeb001500,
+          0xe8001800, 0xe5001b00, 0xe2001e00, 0xdf002100,
+          0xdc002400, 0xd9002700, 0xd6002a00, 0xd3002d00, 0xd0003000}},
+
+        {[](skvm::Q14x2 x) { return (x>>1) + (x>>2); },  // 3/4 x, version B
+         {0x00000000, 0xfd000300, 0xfa000600, 0xf7000900,
+          0xf4000c00, 0xf1000f00, 0xee001200, 0xeb001500,
+          0xe8001800, 0xe5001b00, 0xe2001e00, 0xdf002100,
+          0xdc002400, 0xd9002700, 0xd6002a00, 0xd3002d00, 0xd0003000}},
+
+        {[](skvm::Q14x2 x) { return ((x>>2) + (x>>3))<<1; },  // 3/4 x, version C
+         {0x00000000, 0xfd000300, 0xfa000600, 0xf7000900,
+          0xf4000c00, 0xf1000f00, 0xee001200, 0xeb001500,
+          0xe8001800, 0xe5001b00, 0xe2001e00, 0xdf002100,
+          0xdc002400, 0xd9002700, 0xd6002a00, 0xd3002d00, 0xd0003000}},
+
+        // TODO: I'm not sure if this one is working correctly or not.  Should only work for >=0?
+        {[](skvm::Q14x2 x) { return unsigned_avg(x, x>>1); },  // 3/4 x, version D
+         {0x00000000, 0xfd000300, 0xfa000600, 0xf7000900,
+          0xf4000c00, 0xf1000f00, 0xee001200, 0xeb001500,
+          0xe8001800, 0xe5001b00, 0xe2001e00, 0xdf002100,
+          0xdc002400, 0xd9002700, 0xd6002a00, 0xd3002d00, 0xd0003000}},
+
+        {[](skvm::Q14x2 x) { return min(x, +0.5f); },  // clamp down to 0x2000, version A
+         {0x00000000, 0xfc000400, 0xf8000800, 0xf4000c00,
+          0xf0001000, 0xec001400, 0xe8001800, 0xe4001c00,
+          0xe0002000, 0xdc002000, 0xd8002000, 0xd4002000,
+          0xd0002000, 0xcc002000, 0xc8002000, 0xc4002000, 0xc0002000}},
+
+        {[](skvm::Q14x2 x) { return select(x < +0.5f, x, +0.5f); },  // clamp down to 0x2000, vB
+         {0x00000000, 0xfc000400, 0xf8000800, 0xf4000c00,
+          0xf0001000, 0xec001400, 0xe8001800, 0xe4001c00,
+          0xe0002000, 0xdc002000, 0xd8002000, 0xd4002000,
+          0xd0002000, 0xcc002000, 0xc8002000, 0xc4002000, 0xc0002000}},
+
+        {[](skvm::Q14x2 x) { return select(x == 1.0f, 0.5f, x); },
+         {0x00000000, 0xfc000400, 0xf8000800, 0xf4000c00,
+          0xf0001000, 0xec001400, 0xe8001800, 0xe4001c00,
+          0xe0002000, 0xdc002400, 0xd8002800, 0xd4002c00,
+          0xd0003000, 0xcc003400, 0xc8003800, 0xc4003c00, 0xc0002000}},
+
+        {[](skvm::Q14x2 x) { return max(x, -0.5f); },  // clamp up to 0xe000
+         {0x00000000, 0xfc000400, 0xf8000800, 0xf4000c00,
+          0xf0001000, 0xec001400, 0xe8001800, 0xe4001c00,
+          0xe0002000, 0xe0002400, 0xe0002800, 0xe0002c00,
+          0xe0003000, 0xe0003400, 0xe0003800, 0xe0003c00, 0xe0004000}},
+
+        // TODO: I had higher hopes for this op until I realized it clamps negative values
+        // to the upper limit, not zero.  Duh.  Might end up removing this.
+        {[](skvm::Q14x2 x) { return unsigned_min(x, 0.5f); },  // clamp around to [0,0x2000]
+         {0x00000000, 0x20000400, 0x20000800, 0x20000c00,
+          0x20001000, 0x20001400, 0x20001800, 0x20001c00,
+          0x20002000, 0x20002000, 0x20002000, 0x20002000,
+          0x20002000, 0x20002000, 0x20002000, 0x20002000, 0x20002000}},
+    };
+
+    for (const auto& test : cases) {
+        skvm::Builder b;
+        {
+            skvm::Arg dst = b.varying<uint32_t>(),
+                      src = b.varying<uint32_t>();
+
+            skvm::Q14x2 x = as_Q14x2(b.load32(src));
+            store32(dst, as_I32(test.fn(x)));
+        }
+
+        test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){
+            uint32_t dst[17];
+            program.eval(17, dst,src);
+            for (int i = 0; i < 17; i++) {
+                if (test.expected[16]) {
+                    REPORTER_ASSERT(r, test.expected[i] == dst[i]);
+                } else {
+                    if (i == 0 || i == 4 || i == 8 || i == 12) SkDebugf("\n");
+                    SkDebugf("0x%08x, ", dst[i]);
+                }
+            }
+        });
+    }
+
+}
