@@ -172,21 +172,12 @@ void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
     SkChopQuadAt(src, dst, 0.5f);
 }
 
-static std::tuple<Sk2f, Sk2f> transpose(const Sk2f& a, const Sk2f& b) {
-    float transposed[4];
-    a.store(transposed);
-    b.store(transposed + 2);
-    Sk2f xx, yy;
-    Sk2f::Load2(transposed, &xx, &yy);
-    return {xx, yy};
-}
-
 float dot(const Sk2f& a, const Sk2f& b) {
     Sk2f ab = a*b;
     return ab[0] + ab[1];
 }
 
-static float measure_angle_inside_vectors(const SkVector& a, const SkVector& b) {
+static float SkMeasureAngleInsideVectors(const SkVector& a, const SkVector& b) {
     if (a.isZero() || b.isZero()) {
         return 0;  // If these vectors came from tangents on a curve then the curve is a flat line.
     }
@@ -195,23 +186,23 @@ static float measure_angle_inside_vectors(const SkVector& a, const SkVector& b) 
     return SkScalarACos(SkTPin(cosTheta, -1.f, 1.f));
 }
 
-float SkMeasureQuadRotation(const SkPoint pts[3]) {
-    return measure_angle_inside_vectors(pts[1] - pts[0], pts[2] - pts[1]);
-}
-
-static Sk2f find_bisector(Sk2f a, Sk2f b) {
-    if (dot(a, b) <  0) {
+SkVector SkFindBisector(const SkVector& a, const SkVector& b) {
+    SkVector v[2];
+    if (a.dot(b) < 0) {
         // The two vectors are >90 degrees apart. Find the bisector of their normals instead. (After
         // 90 degrees, the normals start cancelling each other out. And when they reach 180 degrees
         // they cancel out to zero.)
-        a = {-a[1], +a[0]};
-        b = {+b[1], -b[0]};
+        v[0].set(-a.fY, +a.fX);
+        v[1].set(+b.fY, -b.fX);
+    } else {
+        v[0] = a;
+        v[1] = b;
     }
     // Return "normalize(a) + normalize(b)".
-    auto [xx, yy] = transpose(a, b);
-    // Use sqrt instead of rsqrt for better precision. The "Geometry" unit test fails otherwise.
-    Sk2f length = (xx*xx + yy*yy).sqrt();
-    return a/length[0] + b/length[1];
+    Sk2f xx, yy;
+    Sk2f::Load2(v, &xx, &yy);
+    Sk2f invLength = (xx*xx + yy*yy).rsqrt();
+    return v[0] * invLength[0] + v[1] * invLength[1];
 }
 
 void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
@@ -227,7 +218,7 @@ void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
     //
     //     n dot midtangent = 0
     //
-    Sk2f n = find_bisector(tan0, -tan1);
+    Sk2f n = from_point(SkFindBisector(to_point(tan0), to_point(-tan1)));
 
     // The midtangent can be found where (F' dot n) = 0:
     //
@@ -552,17 +543,17 @@ float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
     SkVector b = pts[2] - pts[1];
     SkVector c = pts[3] - pts[2];
     if (a.isZero()) {
-        return measure_angle_inside_vectors(b, c);
+        return SkMeasureAngleInsideVectors(b, c);
     }
     if (b.isZero()) {
-        return measure_angle_inside_vectors(a, c);
+        return SkMeasureAngleInsideVectors(a, c);
     }
     if (c.isZero()) {
-        return measure_angle_inside_vectors(a, b);
+        return SkMeasureAngleInsideVectors(a, b);
     }
     // Postulate: When no points are colocated and there are no inflection points in T=0..1, the
     // rotation is: 360 degrees, minus the angle [p0,p1,p2], minus the angle [p1,p2,p3].
-    return 2*SK_ScalarPI - measure_angle_inside_vectors(a,-b) - measure_angle_inside_vectors(b,-c);
+    return 2*SK_ScalarPI - SkMeasureAngleInsideVectors(a,-b) - SkMeasureAngleInsideVectors(b,-c);
 }
 
 void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
@@ -579,7 +570,7 @@ void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
     //
     //     n dot midtangent = 0
     //
-    Sk2f n = find_bisector(tan0, -tan1);
+    Sk2f n = from_point(SkFindBisector(to_point(tan0), to_point(-tan1)));
 
     // Find the T value at the midtangent. This is a simple quadratic equation:
     //
