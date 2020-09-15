@@ -34,6 +34,23 @@
       "revId": "45ecb196fc3f59c384dec69ee7c3a6749a39778f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c877a7a_886203ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13219
+      },
+      "writtenOn": "2020-09-15T18:11:41Z",
+      "side": 1,
+      "message": "Created https://chromium-review.googlesource.com/c/chromium/src/+/2411656 for the fix in pdf::Thumbnail",
+      "revId": "45ecb196fc3f59c384dec69ee7c3a6749a39778f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
