@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cb98fb5_4eebc412",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-15T23:22:07Z",
+      "side": 1,
+      "message": "PTAL http://review.skia.org/317247\n\nI tweaked the algorithm in IRGenerator::convertSwizzle to generate slightly smaller results; it no longer emits more than a single 0 or 1 as necessary, instead using the swizzle to synthesize however many 0s or 1s it needs. \n\nIt improves the output from the tests slightly IMO.\n",
+      "revId": "394e29ba34c15d4ab17e529e1acca17ab0353956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
