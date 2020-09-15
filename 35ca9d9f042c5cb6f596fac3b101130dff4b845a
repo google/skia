@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "f2b11399_a7a27e40",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2647,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-15T13:49:53Z",
+      "side": 1,
+      "message": "Done. Reworked skottie_json to be more clear.",
+      "parentUuid": "0c6d3bd6_90984fc4",
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a4bc7464_5ebec7a4",
         "filename": "BUILD.gn",
         "patchSetId": 6
@@ -114,6 +132,30 @@
       "side": 1,
       "message": "I don\u0027t think I follow... the output of your libfuzzer_exe template is always always an executable output not a library archive.",
       "parentUuid": "b98a6d9c_e0942d03",
+      "range": {
+        "startLine": 2648,
+        "startChar": 22,
+        "endLine": 2648,
+        "endChar": 25
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4f30a64_b74402d1",
+        "filename": "BUILD.gn",
+        "patchSetId": 6
+      },
+      "lineNbr": 2648,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-15T13:49:53Z",
+      "side": 1,
+      "message": "I renamed as you requested. I tried to use test_app directly (see PS 7), but I couldn\u0027t get it to work. I had trouble getting the sources/deps to not overwrite each other.",
+      "parentUuid": "9148bae5_72107d89",
       "range": {
         "startLine": 2648,
         "startChar": 22,
@@ -241,6 +283,30 @@
       "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09346a28_1e7d6e24",
+        "filename": "gn/skia.gni",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-15T13:49:53Z",
+      "side": 1,
+      "message": "Done.  I did not get these to build on Windows or Mac, so I made them linux only.",
+      "parentUuid": "200dce8e_8c195aef",
+      "range": {
+        "startLine": 98,
+        "startChar": 32,
+        "endLine": 98,
+        "endChar": 36
+      },
+      "revId": "35ca9d9f042c5cb6f596fac3b101130dff4b845a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
