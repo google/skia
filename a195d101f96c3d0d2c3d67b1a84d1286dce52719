@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6e927570_4c4e827c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-15T20:20:15Z",
+      "side": 1,
+      "message": "Might this be responsible for the breakage in Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_CCPR (https://chromium-swarm.appspot.com/task?id\u003d4eac1daf8e4ad310 / https://logs.chromium.org/logs/skia/4eac1daf8e4ad311/+/steps/dm/0/stdout):\n\nstart unit test  GrClipStack_SWMask\n../../../../../../skia/include/private/GrResourceKey.h:151: fatal error: \"assert(this-\u003eisValid())\"\n",
+      "revId": "a195d101f96c3d0d2c3d67b1a84d1286dce52719",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
