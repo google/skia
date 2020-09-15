@@ -25,7 +25,6 @@ public:
     static sk_sp<SkSurface> MakeWrappedRenderTarget(GrRecordingContext*,
                                                     std::unique_ptr<GrRenderTargetContext>);
 
-    GrContext* onGetContext_deprecated() override;
     GrRecordingContext* onGetRecordingContext() override;
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
