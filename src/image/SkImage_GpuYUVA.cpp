@@ -9,6 +9,7 @@
 #include <cstring>
 #include <type_traits>
 
+#include "include/core/SkYUVAPixmaps.h"
 #include "include/core/SkYUVASizeInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -290,10 +291,10 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 
     // Make proxies
     GrSurfaceProxyView tempViews[4];
+    int maxTextureSize = context->priv().caps()->maxTextureSize();
     for (int i = 0; i < numPixmaps; ++i) {
         const SkPixmap* pixmap = &yuvaPixmaps[i];
         SkAutoPixmapStorage resized;
-        int maxTextureSize = context->priv().caps()->maxTextureSize();
         int maxDim = std::max(yuvaPixmaps[i].width(), yuvaPixmaps[i].height());
         if (limitToMaxTextureSize && maxDim > maxTextureSize) {
             float scale = static_cast<float>(maxTextureSize) / maxDim;
@@ -312,7 +313,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
         bmp.installPixels(*pixmap);
         GrBitmapTextureMaker bitmapMaker(context, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
         GrMipmapped mipMapped = buildMips ? GrMipmapped::kYes : GrMipmapped::kNo;
-        GrSurfaceProxyView view;
         tempViews[i] = bitmapMaker.view(mipMapped);
         if (!tempViews[i]) {
             return nullptr;
@@ -321,7 +321,76 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
 
     return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context), imageSize, kNeedNewImageUniqueID,
                                        yuvColorSpace, tempViews, numPixmaps, yuvaIndices,
-                                       imageOrigin, imageColorSpace);
+                                       imageOrigin, std::move(imageColorSpace));
+}
+
+sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                            const SkYUVAPixmaps& pixmaps,
+                                            GrMipMapped buildMips,
+                                            bool limitToMaxTextureSize,
+                                            sk_sp<SkColorSpace> imageColorSpace) {
+    if (!context) {
+        return nullptr;  // until we impl this for raster backend
+    }
+
+    if (!pixmaps.isValid()) {
+        return nullptr;
+    }
+
+    SkYUVAIndex yuvaIndices[4];
+    if (!pixmaps.toLegacy(nullptr, yuvaIndices)) {
+        return nullptr;
+    }
+
+    // SkImage_GpuYUVA doesn't yet support different encoded origins.
+    if (pixmaps.yuvaInfo().origin() != kTopLeft_SkEncodedOrigin) {
+        return nullptr;
+    }
+
+    if (!context->priv().caps()->mipmapSupport()) {
+        buildMips = GrMipMapped::kNo;
+    }
+
+    // Make proxies
+    GrSurfaceProxyView tempViews[4];
+    int numPlanes = pixmaps.numPlanes();
+    int maxTextureSize = context->priv().caps()->maxTextureSize();
+    for (int i = 0; i < numPlanes; ++i) {
+        const SkPixmap* pixmap = &pixmaps.plane(i);
+        SkAutoPixmapStorage resized;
+        int maxDim = std::max(pixmap->width(), pixmap->height());
+        if (maxDim > maxTextureSize) {
+            if (!limitToMaxTextureSize) {
+                return nullptr;
+            }
+            float scale = static_cast<float>(maxTextureSize)/maxDim;
+            int newWidth  = std::min(static_cast<int>(pixmap->width() *scale), maxTextureSize);
+            int newHeight = std::min(static_cast<int>(pixmap->height()*scale), maxTextureSize);
+            SkImageInfo info = pixmap->info().makeWH(newWidth, newHeight);
+            if (!resized.tryAlloc(info) || !pixmap->scalePixels(resized, kLow_SkFilterQuality)) {
+                return nullptr;
+            }
+            pixmap = &resized;
+        }
+        // Turn the pixmap into a GrTextureProxy
+        SkBitmap bmp;
+        bmp.installPixels(*pixmap);
+        GrBitmapTextureMaker bitmapMaker(context, bmp, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+        tempViews[i] = bitmapMaker.view(buildMips);
+        if (!tempViews[i]) {
+            return nullptr;
+        }
+    }
+
+    return sk_make_sp<SkImage_GpuYUVA>(sk_ref_sp(context),
+                                       pixmaps.yuvaInfo().dimensions(),
+                                       kNeedNewImageUniqueID,
+                                       pixmaps.yuvaInfo().yuvColorSpace(),
+                                       tempViews,
+                                       numPlanes,
+                                       yuvaIndices,
+                                       kTopLeft_GrSurfaceOrigin,
+                                       std::move(imageColorSpace));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

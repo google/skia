@@ -232,7 +232,7 @@ public:
     /**
      * Conversion to legacy SkYUVA data structures.
      */
-    bool toLegacy(SkYUVASizeInfo*, SkYUVAIndex[4]);
+    bool toLegacy(SkYUVASizeInfo*, SkYUVAIndex[4]) const;
 
 private:
     SkYUVAPixmaps(const SkYUVAPixmapInfo&, sk_sp<SkData>);

@@ -9,6 +9,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkYUVAIndex.h"
+#include "include/core/SkYUVAPixmaps.h"
 
 static SkYUVColorSpace get_yuvspace(AVColorSpace space) {
     // this is pretty incomplete -- TODO: look to convert more AVColorSpaces
@@ -159,29 +160,23 @@ static int64_t skstream_seek_packet(void* ctx, int64_t pos, int whence) {
     return stream->seek(SkToSizeT(pos)) ? pos : -1;
 }
 
-static sk_sp<SkImage> make_yuv_420(GrContext* gr, int w, int h,
-                                   uint8_t* const data[], int const strides[],
-                                   SkYUVColorSpace yuv_space,
+static sk_sp<SkImage> make_yuv_420(GrRecordingContext* rContext,
+                                   int w, int h,
+                                   uint8_t* const data[],
+                                   int const strides[],
+                                   SkYUVColorSpace yuvSpace,
                                    sk_sp<SkColorSpace> cs) {
-    SkImageInfo info[3];
-    info[0] = SkImageInfo::Make(w, h, kGray_8_SkColorType, kOpaque_SkAlphaType);
-    info[1] = SkImageInfo::Make(w/2, h/2, kGray_8_SkColorType, kOpaque_SkAlphaType);
-    info[2] = SkImageInfo::Make(w/2, h/2, kGray_8_SkColorType, kOpaque_SkAlphaType);
+    SkYUVAInfo yuvaInfo({w, h}, SkYUVAInfo::PlanarConfig::kY_U_V_420, yuvSpace);
+    SkPixmap pixmaps[3];
+    pixmaps[0].reset(SkImageInfo::MakeA8(w, h), data[0], strides[0]);
+    w = (w + 1)/2;
+    h = (h + 1)/2;
+    pixmaps[1].reset(SkImageInfo::MakeA8(w, h), data[1], strides[1]);
+    pixmaps[2].reset(SkImageInfo::MakeA8(w, h), data[2], strides[2]);
+    auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pixmaps);
 
-    SkPixmap pm[4];
-    for (int i = 0; i < 3; ++i) {
-        pm[i] = SkPixmap(info[i], data[i], strides[i]);
-    }
-    pm[3].reset();  // no alpha
-
-    SkYUVAIndex indices[4];
-    indices[SkYUVAIndex::kY_Index] = {0, SkColorChannel::kR};
-    indices[SkYUVAIndex::kU_Index] = {1, SkColorChannel::kR};
-    indices[SkYUVAIndex::kV_Index] = {2, SkColorChannel::kR};
-    indices[SkYUVAIndex::kA_Index] = {-1, SkColorChannel::kR};
-
-    return SkImage::MakeFromYUVAPixmaps(gr, yuv_space, pm, indices, {w, h},
-                                        kTopLeft_GrSurfaceOrigin, false, false, cs);
+    return SkImage::MakeFromYUVAPixmaps(
+            rContext, yuvaPixmaps, GrMipMapped::kNo, false, std::move(cs));
 }
 
 // Init with illegal values, so our first compare will fail, forcing us to compute
@@ -222,8 +217,8 @@ sk_sp<SkImage> SkVideoDecoder::convertFrame(const AVFrame* frame) {
 
     switch (frame->format) {
         case AV_PIX_FMT_YUV420P:
-            if (auto image = make_yuv_420(fGr, frame->width, frame->height, frame->data,
-                                          frame->linesize, yuv_space, fCSCache.fCS)) {
+            if (auto image = make_yuv_420(fRecordingContext, frame->width, frame->height,
+                                          frame->data, frame->linesize, yuv_space, fCSCache.fCS)) {
                 return image;
             }
             break;
@@ -311,7 +306,7 @@ sk_sp<SkImage> SkVideoDecoder::nextImage(double* timeStamp) {
     return nullptr;
 }
 
-SkVideoDecoder::SkVideoDecoder(GrContext* gr) : fGr(gr) {}
+SkVideoDecoder::SkVideoDecoder(GrRecordingContext* rContext) : fRecordingContext(rContext) {}
 
 SkVideoDecoder::~SkVideoDecoder() {
     this->reset();

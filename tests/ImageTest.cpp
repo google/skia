@@ -1366,14 +1366,11 @@ DEF_TEST(Image_nonfinite_dst, reporter) {
 static sk_sp<SkImage> make_yuva_image(GrDirectContext* dContext) {
     SkAutoPixmapStorage pm;
     pm.alloc(SkImageInfo::Make(1, 1, kAlpha_8_SkColorType, kPremul_SkAlphaType));
-    const SkPixmap pmaps[] = {pm, pm, pm, pm};
-    SkYUVAIndex indices[] = {{0, SkColorChannel::kA},
-                             {1, SkColorChannel::kA},
-                             {2, SkColorChannel::kA},
-                             {3, SkColorChannel::kA}};
+    SkYUVAInfo yuvaInfo({1, 1}, SkYUVAInfo::PlanarConfig::kY_U_V_444, kJPEG_Full_SkYUVColorSpace);
+    const SkPixmap pmaps[] = {pm, pm, pm};
+    auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, pmaps);
 
-    return SkImage::MakeFromYUVAPixmaps(dContext, kJPEG_SkYUVColorSpace, pmaps, indices,
-                                        SkISize::Make(1, 1), kTopLeft_GrSurfaceOrigin, false);
+    return SkImage::MakeFromYUVAPixmaps(dContext, yuvaPixmaps);
 }
 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo) {
