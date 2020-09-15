@@ -21,9 +21,20 @@
 
 class SkScalerContext;
 
+// The value stored in fIndexForPackedGlyphID that is the index into fGlyphForIndex.
+class SkGlyphIndex {
+public:
+    SkGlyphIndex() : fIndexData{0} {}
+    SkGlyphIndex(size_t i) : fIndexData{SkTo<uint32_t>(i)} {}
+    operator int() const {return fIndexData;}
+
+private:
+    static_assert(SkPackedGlyphID::kEndData == 20);
+    uint32_t fIndexData : SkPackedGlyphID::kEndData;
+};
+
 // This class represents a strike: a specific combination of typeface, size, matrix, etc., and
 // holds the glyphs for that strike.
-
 class SkScalerCache {
 public:
     SkScalerCache(const SkDescriptor& desc,
@@ -86,7 +97,6 @@ public:
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
 private:
-    using SkGlyphIndex = int;
     std::tuple<SkGlyph*, size_t> makeGlyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
     template <typename Fn>

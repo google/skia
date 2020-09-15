@@ -40,13 +40,13 @@ SkScalerCache::SkScalerCache(
 std::tuple<SkGlyph*, size_t> SkScalerCache::makeGlyph(SkPackedGlyphID packedGlyphID) {
     size_t denseID = fGlyphForIndex.size();
     SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
-    fIndexForPackedGlyphID.set(packedGlyphID, denseID);
+    fIndexForPackedGlyphID.set(packedGlyphID, SkGlyphIndex{denseID});
     fGlyphForIndex.push_back(glyph);
     return {glyph, sizeof(SkGlyph)};
 }
 
 std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
-    int* denseID = fIndexForPackedGlyphID.find(packedGlyphID);
+    SkGlyphIndex* denseID = fIndexForPackedGlyphID.find(packedGlyphID);
 
     if (denseID != nullptr) {
         return {fGlyphForIndex[*denseID], 0};
@@ -114,7 +114,7 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
     SkAutoMutexExclusive lock{fMu};
     size_t delta = 0;
     size_t imageDelta = 0;
-    int* denseID = fIndexForPackedGlyphID.find(toID);
+    SkGlyphIndex* denseID = fIndexForPackedGlyphID.find(toID);
     SkGlyph* glyph;
     if (denseID != nullptr) {
         glyph = fGlyphForIndex[*denseID];
