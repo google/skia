@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c1fc6395_cc9a776b",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-15T20:52:42Z",
+      "side": 1,
+      "message": "This part feels superfluous?\n\nMaybe just\n\n    enum class SkGlyphIndex : int {};\n\n?",
+      "range": {
+        "startLine": 32,
+        "startChar": 24,
+        "endLine": 32,
+        "endChar": 51
+      },
+      "revId": "97e329e71f004cc6bc741ca16c0774d36f1c3af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
