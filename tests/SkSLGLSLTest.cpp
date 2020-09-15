@@ -1211,14 +1211,14 @@ DEF_TEST(SkSLSwizzleConstants, r) {
          "    sk_FragColor = vec4(v.x, 1.0, 1.0, 1.0);\n"
          "    sk_FragColor = vec4(v.xy, 1.0, 1.0);\n"
          "    sk_FragColor = vec4(vec2(v.x, 1), 1.0, 1.0);\n"
-         "    sk_FragColor = vec4(vec2(0, v.y), 1.0, 1.0);\n"
+         "    sk_FragColor = vec4(vec2(v.y, 0).yx, 1.0, 1.0);\n"
          "    sk_FragColor = vec4(v.xyz, 1.0);\n"
          "    sk_FragColor = vec4(vec3(v.xy, 1), 1.0);\n"
          "    sk_FragColor = vec4(vec3(v.xz, 0).xzy, 1.0);\n"
          "    sk_FragColor = vec4(vec3(v.x, 1, 0), 1.0);\n"
-         "    sk_FragColor = vec4(vec3(1, v.yz), 1.0);\n"
+         "    sk_FragColor = vec4(vec3(v.yz, 1).zxy, 1.0);\n"
          "    sk_FragColor = vec4(vec3(v.y, 0, 1).yxz, 1.0);\n"
-         "    sk_FragColor = vec4(vec3(1, 1, v.z), 1.0);\n"
+         "    sk_FragColor = vec4(vec3(v.z, 1, 1).yzx, 1.0);\n"
          "    sk_FragColor = v;\n"
          "    sk_FragColor = vec4(v.xyz, 1);\n"
          "    sk_FragColor = vec4(v.xyw, 0).xywz;\n"
@@ -1227,13 +1227,13 @@ DEF_TEST(SkSLSwizzleConstants, r) {
          "    sk_FragColor = vec4(v.xz, 0, 1).xzyw;\n"
          "    sk_FragColor = vec4(v.xw, 1, 1).xzwy;\n"
          "    sk_FragColor = vec4(v.x, 1, 0, 1);\n"
-         "    sk_FragColor = vec4(1, v.yzw);\n"
+         "    sk_FragColor = vec4(v.yzw, 1).wxyz;\n"
          "    sk_FragColor = vec4(v.yz, 0, 1).zxyw;\n"
          "    sk_FragColor = vec4(v.yw, 0, 1).zxwy;\n"
          "    sk_FragColor = vec4(v.y, 1, 1, 1).yxzw;\n"
-         "    sk_FragColor = vec4(0, 0, v.zw);\n"
+         "    sk_FragColor = vec4(v.zw, 0, 0).zwxy;\n"
          "    sk_FragColor = vec4(v.z, 0, 0, 1).yzxw;\n"
-         "    sk_FragColor = vec4(0, 1, 1, v.w);\n"
+         "    sk_FragColor = vec4(v.w, 0, 1, 1).yzwx;\n"
          "}\n",
          SkSL::Program::kFragment_Kind
          );
@@ -1258,9 +1258,9 @@ DEF_TEST(SkSLSwizzleOpt, r) {
          "void main() {\n"
          "    float v = sqrt(1.0);\n"
          "    sk_FragColor = vec4(v);\n"
-         "    sk_FragColor = vec4(0, vec4(v).zyx);\n"
-         "    sk_FragColor = vec4(0, 0, vec4(v).xw);\n"
-         "    sk_FragColor = vec4(1, 1, vec4(v).wx);\n"
+         "    sk_FragColor = vec4(vec4(v).xyz, 0).wzyx;\n"
+         "    sk_FragColor = vec4(vec4(v).xw, 0, 0).zwxy;\n"
+         "    sk_FragColor = vec4(vec4(vec4(v).xw, 0, 0).yx, 1, 1).zwxy;\n"
          "    sk_FragColor = vec4(vec4(v).zy, 1, 1);\n"
          "    sk_FragColor = vec4(v);\n"
          "    sk_FragColor = vec4(vec4(v).xx, 1.0, 1.0);\n"
@@ -1301,7 +1301,7 @@ DEF_TEST(SkSLSwizzleScalar, r) {
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    sk_FragColor = vec4(0, sqrt(4.0), 0, 1);\n"
+         "    sk_FragColor = vec4(sqrt(4.0), 0, 0, 1).yxzw;\n"
          "}\n");
     test(r,
          "void main() {"
@@ -1311,9 +1311,7 @@ DEF_TEST(SkSLSwizzleScalar, r) {
          "#version 400\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
-         "    float _tmpSwizzle0 = sqrt(4.0);\n"
-         "    sk_FragColor = vec4(0, _tmpSwizzle0, 0, _tmpSwizzle0);\n"
-         "\n"
+         "    sk_FragColor = vec4(vec2(sqrt(4.0)), 0, 0).zxwy;\n"
          "}\n");
 }
 

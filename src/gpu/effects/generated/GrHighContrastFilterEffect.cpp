@@ -108,7 +108,7 @@ color = clamp(color, 0.0, 1.0);
 @if (%s) {
     color.xyz = sqrt(color.xyz);
 }
-%s = half4(color.xyz, 1) * inColor.w;
+%s = half4(color.xyz, 1.0) * inColor.w;
 )SkSL",
                 _sample896.c_str(), (_outer.linearize ? "true" : "false"),
                 (_outer.grayscale ? "true" : "false"), (_outer.invertBrightness ? "true" : "false"),
