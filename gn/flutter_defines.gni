@@ -16,6 +16,7 @@ flutter_defines = [
 
   # Staging
   "SK_SUPPORT_LEGACY_MATRIX_FACTORIES",
+  "SK_DISABLE_NEW_GR_CLIP_STACK",
 
   # Fast low-precision software rendering isn't a priority for Flutter.
   "SK_DISABLE_LEGACY_SHADERCONTEXT",
