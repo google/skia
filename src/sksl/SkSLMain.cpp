@@ -33,6 +33,38 @@ static SkSL::String base_name(const char* fpPath, const char* prefix, const char
     return result;
 }
 
+// Given a string containing an SkSL program, searches for a caps comment in the following format:
+//    /*#pragma settings Default*/
+// and, if found, updates the passed-in Settings to honor those settings.
+static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Settings* settings) {
+    // Find a matching comment and isolate the name portion.
+    static constexpr char kPragmaSettings[] = "/*#pragma settings ";
+    const char* settingsPtr = strstr(text.c_str(), kPragmaSettings);
+    if (settingsPtr != nullptr) {
+        settingsPtr += strlen(kPragmaSettings);
+
+        const char* settingsEnd = strstr(settingsPtr, "*/");
+        if (settingsEnd != nullptr) {
+            SkSL::StringFragment settingsFrag{settingsPtr, size_t(settingsEnd - settingsPtr)};
+
+            // Apply settings as requested.
+            if (settingsFrag == "Default") {
+                static auto s_defaultCaps = SkSL::ShaderCapsFactory::Default();
+                settings->fCaps = s_defaultCaps.get();
+            } else if (settingsFrag == "UsesPrecisionModifiers") {
+                static auto s_precisionCaps = SkSL::ShaderCapsFactory::UsesPrecisionModifiers();
+                settings->fCaps = s_precisionCaps.get();
+            } else if (settingsFrag == "ForceHighPrecision") {
+                static auto s_precisionCaps = SkSL::ShaderCapsFactory::UsesPrecisionModifiers();
+                settings->fCaps = s_precisionCaps.get();
+                settings->fForceHighPrecision = true;
+            } else {
+                printf("Unrecognized settings type: %s\n", SkSL::String(settingsFrag).c_str());
+            }
+        }
+    }
+}
+
 /**
  * Very simple standalone executable to facilitate testing.
  */
@@ -60,17 +92,15 @@ int main(int argc, const char** argv) {
     }
 
     std::ifstream in(argv[1]);
-    std::string stdText((std::istreambuf_iterator<char>(in)),
-                        std::istreambuf_iterator<char>());
-    SkSL::String text(stdText.c_str());
+    SkSL::String text((std::istreambuf_iterator<char>(in)),
+                       std::istreambuf_iterator<char>());
     if (in.rdstate()) {
         printf("error reading '%s'\n", argv[1]);
         exit(2);
     }
 
-    SkSL::ShaderCapsPointer caps = SkSL::ShaderCapsFactory::Standalone();
     SkSL::Program::Settings settings;
-    settings.fCaps = caps.get();
+    detect_shader_settings(text, &settings);
     SkSL::String name(argv[2]);
     if (name.endsWith(".spirv")) {
         SkSL::FileOutputStream out(argv[2]);
