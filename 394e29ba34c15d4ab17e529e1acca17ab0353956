@@ -16,6 +16,24 @@
       "revId": "394e29ba34c15d4ab17e529e1acca17ab0353956",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ec53a77e_bc9492fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T15:03:20Z",
+      "side": 1,
+      "message": "NVM, comment was intended for different CL",
+      "parentUuid": "1cb98fb5_4eebc412",
+      "revId": "394e29ba34c15d4ab17e529e1acca17ab0353956",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
