@@ -6,11 +6,13 @@
 # Things are easiest for everyone if these source paths are absolute.
 _tests = get_path_info("../tests", "abspath")
 
+# Tests in sksl_fp_tests_sources will be compiled with --settings on.
 sksl_fp_tests_sources = [
   "$_tests/sksl/errors/GrBothExplicitReturnAndSkOutColor.fp",
   "$_tests/sksl/fp/GrHelloWorld.fp",
 ]
 
+# Tests in sksl_glsl_tests_sources will be compiled with --settings on.
 sksl_glsl_tests_sources = [
   "$_tests/sksl/errors/OpenArray.sksl",
   "$_tests/sksl/errors/UndefinedSymbol.sksl",
@@ -77,8 +79,6 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/TextureSharpen.sksl",
   "$_tests/sksl/glsl/TextureSharpenVersion110.sksl",
   "$_tests/sksl/glsl/TextureVersion110.sksl",
-  "$_tests/sksl/glsl/TypePrecisionDisabled.sksl",
-  "$_tests/sksl/glsl/TypePrecisionEnabled.sksl",
   "$_tests/sksl/glsl/UnusedVariables.sksl",
   "$_tests/sksl/glsl/UsesPrecisionModifiers.sksl",
   "$_tests/sksl/glsl/VectorConstructors.sksl",
@@ -117,4 +117,17 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/inliner/TernaryTestCanBeInlined.sksl",
   "$_tests/sksl/inliner/WhileBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/WhileTestCannotBeInlined.sksl",
+]
+
+# Tests in sksl_glsl_settings_tests_sources will be compiled twice, once with --settings and once
+# using --nosettings. In the latter mode, DefaultSettings is appended to the output filename.
+sksl_glsl_settings_tests_sources = [
+  "$_tests/sksl/glsl/TypePrecision.sksl",
+  "$_tests/sksl/workarounds/AbsInt.sksl",
+  "$_tests/sksl/workarounds/FractNegative.sksl",
+  "$_tests/sksl/workarounds/LoopCondition.sksl",
+  "$_tests/sksl/workarounds/MinAndAbsTogether.sksl",
+  "$_tests/sksl/workarounds/NegatedAtan.sksl",
+  "$_tests/sksl/workarounds/PowWithConstantExponent.sksl",
+  "$_tests/sksl/workarounds/TernaryShortCircuit.sksl",
 ]
