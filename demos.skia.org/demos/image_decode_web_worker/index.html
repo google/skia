@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<title>Image Decoding Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas {
+    border: 1px dashed grey;
+  }
+
+  .canvas-container {
+    float: left;
+  }
+</style>
+
+<body>
+  <h1>CanvasKit loading images in a webworker (using browser-based decoders)</h1>
+    <p>NOTE: this demo currently only works in chromium-based browsers, where
+    <a href="https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas#Browser_compatibility">
+      Offscreen Canvas
+    </a>
+    is supported.
+  </p>
+
+  <div class="canvas-container">
+    <h2>Decoding on main thread</h2>
+    <canvas id="main-thread-canvas" width=500 height=500></canvas>
+    <div>
+      <button id="load-button-main">Decode Image on Main Thread</button>
+      <button id="load-button-web">Decode Image with Web Worker</button>
+      <button id="clear-button">Clear Image</button>
+    </div>
+    <p>
+      Notice that decoding the image on the main thread pauses the circle animation until the
+     image is ready to be drawn, where as decoding it in a webworker does not have this pause
+     (or at least not as drastic a pause). You may want to reload the page, as browsers are
+     smart enough to not have to re-decode the image on subsequent requests.
+  </p>
+  </div>
+
+</body>
+<script type="text/javascript" src="https://particles.skia.org/static/canvaskit.js"></script>
+<script type="text/javascript" src="main.js"></script>
