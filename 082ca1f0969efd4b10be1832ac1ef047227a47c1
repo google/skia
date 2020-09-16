@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04982ae1_1049b0c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-16T20:24:51Z",
+      "side": 1,
+      "message": "Very neat.",
+      "revId": "082ca1f0969efd4b10be1832ac1ef047227a47c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1858ea70_1e91b462",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-16T20:24:51Z",
+      "side": 1,
+      "message": "I hate that it takes two templates to make this expansion work. Arrggggh.",
+      "range": {
+        "startLine": 489,
+        "startChar": 0,
+        "endLine": 497,
+        "endChar": 1
+      },
+      "revId": "082ca1f0969efd4b10be1832ac1ef047227a47c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
