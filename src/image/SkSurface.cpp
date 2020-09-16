@@ -72,10 +72,6 @@ SkSurface_Base::~SkSurface_Base() {
     }
 }
 
-GrContext* SkSurface_Base::onGetContext_deprecated() {
-    return nullptr;
-}
-
 GrRecordingContext* SkSurface_Base::onGetRecordingContext() {
     return nullptr;
 }
@@ -330,10 +326,6 @@ void SkSurface::writePixels(const SkBitmap& src, int x, int y) {
     if (src.peekPixels(&pm)) {
         this->writePixels(pm, x, y);
     }
-}
-
-GrContext* SkSurface::getContext() {
-    return asSB(this)->onGetContext_deprecated();
 }
 
 GrRecordingContext* SkSurface::recordingContext() {

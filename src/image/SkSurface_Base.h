@@ -20,7 +20,6 @@ public:
     SkSurface_Base(const SkImageInfo&, const SkSurfaceProps*);
     ~SkSurface_Base() override;
 
-    virtual GrContext* onGetContext_deprecated();
     virtual GrRecordingContext* onGetRecordingContext();
 
     virtual GrBackendTexture onGetBackendTexture(BackendHandleAccess);
