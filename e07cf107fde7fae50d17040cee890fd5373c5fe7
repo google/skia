@@ -22,6 +22,30 @@
       "revId": "e07cf107fde7fae50d17040cee890fd5373c5fe7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8577b45_baeb1099",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T19:27:22Z",
+      "side": 1,
+      "message": "That code is all gone now.",
+      "parentUuid": "f3f17247_64a8a012",
+      "range": {
+        "startLine": 944,
+        "startChar": 21,
+        "endLine": 944,
+        "endChar": 28
+      },
+      "revId": "e07cf107fde7fae50d17040cee890fd5373c5fe7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
