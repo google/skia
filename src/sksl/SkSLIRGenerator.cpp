@@ -1545,6 +1545,7 @@ static bool determine_binary_type(const Context& context,
                                   const Type** outRightType,
                                   const Type** outResultType) {
     bool isLogical = false;
+    bool isBitwise = false;
     bool validMatrixOrVectorOp = false;
     bool isAssignment = Compiler::IsAssignment(op);
 
@@ -1636,12 +1637,23 @@ static bool determine_binary_type(const Context& context,
             }
             validMatrixOrVectorOp = true;
             break;
+        case Token::Kind::TK_SHLEQ:
+        case Token::Kind::TK_SHREQ:
+        case Token::Kind::TK_BITWISEANDEQ:
+        case Token::Kind::TK_BITWISEOREQ:
+        case Token::Kind::TK_BITWISEXOREQ:
+        case Token::Kind::TK_SHL:
+        case Token::Kind::TK_SHR:
+        case Token::Kind::TK_BITWISEAND:
+        case Token::Kind::TK_BITWISEOR:
+        case Token::Kind::TK_BITWISEXOR:
+            isBitwise = true;
+            validMatrixOrVectorOp = true;
+            break;
         case Token::Kind::TK_PLUSEQ:
         case Token::Kind::TK_MINUSEQ:
         case Token::Kind::TK_SLASHEQ:
         case Token::Kind::TK_PERCENTEQ:
-        case Token::Kind::TK_SHLEQ:
-        case Token::Kind::TK_SHREQ:
         case Token::Kind::TK_PLUS:
         case Token::Kind::TK_MINUS:
         case Token::Kind::TK_SLASH:
@@ -1697,6 +1709,13 @@ static bool determine_binary_type(const Context& context,
     if ((left.typeKind() == Type::TypeKind::kScalar &&
          right.typeKind() == Type::TypeKind::kScalar) ||
         (leftIsVectorOrMatrix && validMatrixOrVectorOp)) {
+        if (isBitwise) {
+            const Type& leftNumberType(leftIsVectorOrMatrix ? left.componentType() : left);
+            const Type& rightNumberType(rightIsVectorOrMatrix ? right.componentType() : right);
+            if (!leftNumberType.isInteger() || !rightNumberType.isInteger()) {
+                return false;
+            }
+        }
         if (rightToLeftCost.isPossible(allowNarrowing) && rightToLeftCost < leftToRightCost) {
             // Right-to-Left conversion is possible and cheaper
             *outLeftType = &left;

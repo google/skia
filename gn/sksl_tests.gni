@@ -45,6 +45,9 @@ sksl_fp_tests_sources = [
 
 # Tests in sksl_glsl_tests_sources will be compiled with --settings on.
 sksl_glsl_tests_sources = [
+  "$_tests/sksl/errors/BitShiftFloat.sksl",
+  "$_tests/sksl/errors/BitShiftFloatMatrix.sksl",
+  "$_tests/sksl/errors/BitShiftFloatVector.sksl",
   "$_tests/sksl/errors/OpenArray.sksl",
   "$_tests/sksl/errors/UndefinedSymbol.sksl",
   "$_tests/sksl/glsl/ArrayConstructors.sksl",
