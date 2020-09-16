@@ -328,6 +328,30 @@
       "revId": "9a69616c7688f477ecf264110e182e2056aea269",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "90bcdcb8_efd316c3",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T15:09:05Z",
+      "side": 1,
+      "message": "Awesome! We also have our own Skia SkSTArrays as well, if you wanted to go that route. It solves the same problem with a slightly more idiosyncratic/less-STL-like API. It could make sense to migrate some of our low-level non-graphics-specific container classes into a shared location. Right now SkTArray.h is fairly tied up in other Skia headers but I don\u0027t see any reason why we couldn\u0027t disentangle it.\n\nhttp://osscs/skia/skia/+/master:include/private/SkTArray.h;l\u003d603?q\u003dSkSTArray",
+      "parentUuid": "d595ffca_ebc1d0b2",
+      "range": {
+        "startLine": 116,
+        "startChar": 4,
+        "endLine": 116,
+        "endChar": 45
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
