@@ -49,62 +49,6 @@ class SkTraceMemoryDump;
 
 class SK_API GrContext : public GrRecordingContext {
 public:
-#ifndef SK_DISABLE_LEGACY_CONTEXT_FACTORIES
-
-#ifdef SK_GL
-    /**
-     * Creates a GrContext for a backend context. If no GrGLInterface is provided then the result of
-     * GrGLMakeNativeInterface() is used if it succeeds.
-     */
-    static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>, const GrContextOptions&);
-    static sk_sp<GrContext> MakeGL(sk_sp<const GrGLInterface>);
-    static sk_sp<GrContext> MakeGL(const GrContextOptions&);
-    static sk_sp<GrContext> MakeGL();
-#endif
-
-#ifdef SK_VULKAN
-    /**
-     * The Vulkan context (VkQueue, VkDevice, VkInstance) must be kept alive until the returned
-     * GrContext is destroyed. This also means that any objects created with this GrContext (e.g.
-     * SkSurfaces, SkImages, etc.) must also be released as they may hold refs on the GrContext.
-     * Once all these objects and the GrContext are released, then it is safe to delete the vulkan
-     * objects.
-     */
-    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&, const GrContextOptions&);
-    static sk_sp<GrContext> MakeVulkan(const GrVkBackendContext&);
-#endif
-
-#ifdef SK_METAL
-    /**
-     * Makes a GrContext which uses Metal as the backend. The device parameter is an MTLDevice
-     * and queue is an MTLCommandQueue which should be used by the backend. These objects must
-     * have a ref on them which can be transferred to Ganesh which will release the ref when the
-     * GrContext is destroyed.
-     */
-    static sk_sp<GrContext> MakeMetal(void* device, void* queue, const GrContextOptions& options);
-    static sk_sp<GrContext> MakeMetal(void* device, void* queue);
-#endif
-
-#ifdef SK_DIRECT3D
-    /**
-     * Makes a GrContext which uses Direct3D as the backend. The Direct3D context
-     * must be kept alive until the returned GrContext is first destroyed or abandoned.
-     */
-    static sk_sp<GrContext> MakeDirect3D(const GrD3DBackendContext&,
-                                         const GrContextOptions& options);
-    static sk_sp<GrContext> MakeDirect3D(const GrD3DBackendContext&);
-#endif
-
-#ifdef SK_DAWN
-    static sk_sp<GrContext> MakeDawn(const wgpu::Device& device, const GrContextOptions& options);
-    static sk_sp<GrContext> MakeDawn(const wgpu::Device& device);
-#endif
-
-    static sk_sp<GrContext> MakeMock(const GrMockOptions*, const GrContextOptions&);
-    static sk_sp<GrContext> MakeMock(const GrMockOptions*);
-
-#endif // SK_DISABLE_LEGACY_CONTEXT_FACTORIES
-
     ~GrContext() override;
 
     // TODO: Remove this from public after migrating Chrome.
