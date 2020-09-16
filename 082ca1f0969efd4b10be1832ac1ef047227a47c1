@@ -63,6 +63,30 @@
       "revId": "082ca1f0969efd4b10be1832ac1ef047227a47c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22c794e5_c78ab17d",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-16T21:39:32Z",
+      "side": 1,
+      "message": "I think std::apply from the C++17 stdlib would make this easier.  :/",
+      "parentUuid": "93514f0f_a41592e9",
+      "range": {
+        "startLine": 489,
+        "startChar": 0,
+        "endLine": 497,
+        "endChar": 1
+      },
+      "revId": "082ca1f0969efd4b10be1832ac1ef047227a47c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
