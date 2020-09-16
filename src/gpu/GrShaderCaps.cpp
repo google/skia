@@ -183,5 +183,9 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     if (options.fSuppressTessellationShaders) {
         fMaxTessellationSegments = 0;
     }
+    if (options.fMaxTessellationSegmentsOverride > 0) {
+        fMaxTessellationSegments = std::min(options.fMaxTessellationSegmentsOverride,
+                                            fMaxTessellationSegments);
+    }
 #endif
 }
