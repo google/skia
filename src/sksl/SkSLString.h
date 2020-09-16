@@ -65,8 +65,9 @@ public:
     void appendf(const char* fmt, ...);
     void vappendf(const char* fmt, va_list va);
 
-    bool startsWith(const char* prefix) const;
-    bool endsWith(const char* suffix) const;
+    bool startsWith(const char prefix[]) const;
+    bool endsWith(const char suffix[]) const;
+    bool consumeSuffix(const char suffix[]);
 
     String operator+(const char* s) const;
     String operator+(const String& s) const;

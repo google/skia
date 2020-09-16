@@ -61,6 +61,18 @@ bool String::endsWith(const char suffix[]) const {
     return !strncmp(this->data() + this->size() - suffixLength, suffix, suffixLength);
 }
 
+bool String::consumeSuffix(const char suffix[]) {
+    size_t suffixLength = strlen(suffix);
+    if (this->length() < suffixLength) {
+        return false;
+    }
+    if (0 != strncmp(this->data() + this->size() - suffixLength, suffix, suffixLength)) {
+        return false;
+    }
+    this->resize(this->length() - suffixLength);
+    return true;
+}
+
 String String::operator+(const char* s) const {
     String result(*this);
     result.append(s);

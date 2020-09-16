@@ -263,7 +263,7 @@ void GrGLSLFragmentShaderBuilder::enableSecondaryOutput() {
 
     // If the primary output is declared, we must declare also the secondary output
     // and vice versa, since it is not allowed to use a built-in gl_FragColor and a custom
-    // output. The condition also co-incides with the condition in whici GLES SL 2.0
+    // output. The condition also co-incides with the condition in which GLES SL 2.0
     // requires the built-in gl_SecondaryFragColorEXT, where as 3.0 requires a custom output.
     if (caps.mustDeclareFragmentShaderOutput()) {
         fOutputs.emplace_back(DeclaredSecondaryColorOutputName(), kHalf4_GrSLType,

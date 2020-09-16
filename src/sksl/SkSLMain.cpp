@@ -33,6 +33,62 @@ static SkSL::String base_name(const char* fpPath, const char* prefix, const char
     return result;
 }
 
+// Given a string containing an SkSL program, searches for a #pragma settings comment, like so:
+//    /*#pragma settings Default Sharpen*/
+// The passed-in Settings object will be updated accordingly. Any number of options can be provided.
+static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Settings* settings) {
+    // Find a matching comment and isolate the name portion.
+    static constexpr char kPragmaSettings[] = "/*#pragma settings ";
+    const char* settingsPtr = strstr(text.c_str(), kPragmaSettings);
+    if (settingsPtr != nullptr) {
+        // Subtract one here in order to preserve the leading space, which is necessary to allow
+        // consumeSuffix to find the first item.
+        settingsPtr += strlen(kPragmaSettings) - 1;
+
+        const char* settingsEnd = strstr(settingsPtr, "*/");
+        if (settingsEnd != nullptr) {
+            SkSL::String settingsText{settingsPtr, size_t(settingsEnd - settingsPtr)};
+
+            // Apply settings as requested. Since they can come in any order, repeat until we've
+            // consumed them all.
+            for (;;) {
+                const size_t startingLength = settingsText.length();
+
+                if (settingsText.consumeSuffix(" Default")) {
+                    static auto s_defaultCaps = SkSL::ShaderCapsFactory::Default();
+                    settings->fCaps = s_defaultCaps.get();
+                }
+                if (settingsText.consumeSuffix(" UsesPrecisionModifiers")) {
+                    static auto s_precisionCaps = SkSL::ShaderCapsFactory::UsesPrecisionModifiers();
+                    settings->fCaps = s_precisionCaps.get();
+                }
+                if (settingsText.consumeSuffix(" Version110")) {
+                    static auto s_version110Caps = SkSL::ShaderCapsFactory::Version110();
+                    settings->fCaps = s_version110Caps.get();
+                }
+                if (settingsText.consumeSuffix(" Version450Core")) {
+                    static auto s_version450CoreCaps = SkSL::ShaderCapsFactory::Version450Core();
+                    settings->fCaps = s_version450CoreCaps.get();
+                }
+                if (settingsText.consumeSuffix(" ForceHighPrecision")) {
+                    settings->fForceHighPrecision = true;
+                }
+                if (settingsText.consumeSuffix(" Sharpen")) {
+                    settings->fSharpenTextures = true;
+                }
+
+                if (settingsText.empty()) {
+                    break;
+                }
+                if (settingsText.length() == startingLength) {
+                    printf("Unrecognized #pragma settings: %s\n", settingsText.c_str());
+                    exit(3);
+                }
+            }
+        }
+    }
+}
+
 /**
  * Very simple standalone executable to facilitate testing.
  */
@@ -60,17 +116,15 @@ int main(int argc, const char** argv) {
     }
 
     std::ifstream in(argv[1]);
-    std::string stdText((std::istreambuf_iterator<char>(in)),
-                        std::istreambuf_iterator<char>());
-    SkSL::String text(stdText.c_str());
+    SkSL::String text((std::istreambuf_iterator<char>(in)),
+                       std::istreambuf_iterator<char>());
     if (in.rdstate()) {
         printf("error reading '%s'\n", argv[1]);
         exit(2);
     }
 
-    SkSL::ShaderCapsPointer caps = SkSL::ShaderCapsFactory::Standalone();
     SkSL::Program::Settings settings;
-    settings.fCaps = caps.get();
+    detect_shader_settings(text, &settings);
     SkSL::String name(argv[2]);
     if (name.endsWith(".spirv")) {
         SkSL::FileOutputStream out(argv[2]);
