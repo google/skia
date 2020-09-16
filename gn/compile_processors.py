@@ -17,7 +17,6 @@ processors = sys.argv[4:]
 exeSuffix = '.exe' if sys.platform.startswith('win') else '';
 
 for p in processors:
-    print("Recompiling " + p + "...")
     try:
         if not os.path.isfile(clangFormat + exeSuffix):
             subprocess.check_call([sys.executable, fetchClangFormat]);
