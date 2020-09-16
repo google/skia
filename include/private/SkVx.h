@@ -327,11 +327,6 @@ SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<
 SIT bool any(const Vec<1,T>& x) { return x.val != 0; }
 SIT bool all(const Vec<1,T>& x) { return x.val != 0; }
 
-SIT T min(const Vec<1,T>& x) { return x.val; }
-SIT T max(const Vec<1,T>& x) { return x.val; }
-
-SIT Vec<1,T> min(const Vec<1,T>& x, const Vec<1,T>& y) { return std::min(x.val, y.val); }
-SIT Vec<1,T> max(const Vec<1,T>& x, const Vec<1,T>& y) { return std::max(x.val, y.val); }
 SIT Vec<1,T> pow(const Vec<1,T>& x, const Vec<1,T>& y) { return std::pow(x.val, y.val); }
 
 SIT Vec<1,T>  atan(const Vec<1,T>& x) { return std:: atan(x.val); }
@@ -351,6 +346,15 @@ SIT Vec<1,T>   rcp(const Vec<1,T>& x) { return 1 / x.val; }
 SIT Vec<1,T> rsqrt(const Vec<1,T>& x) { return rcp(sqrt(x)); }
 
 // All default N != 1 implementations just recurse on lo and hi halves.
+
+// Clang can reason about naive_if_then_else() and optimize through it better
+// than if_then_else(), so it's sometimes useful to call it directly when we
+// think an entire expression should optimize away, e.g. min()/max().
+SINT Vec<N,T> naive_if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
+    return bit_pun<Vec<N,T>>(( cond & bit_pun<Vec<N, M<T>>>(t)) |
+                             (~cond & bit_pun<Vec<N, M<T>>>(e)) );
+}
+
 SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
     // Specializations inline here so they can generalize what types the apply to.
     // (This header is used in C++14 contexts, so we have to kind of fake constexpr if.)
@@ -381,22 +385,12 @@ SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec
                     if_then_else(cond.hi, t.hi, e.hi));
     }
     // This default can lead to better code than the recursing onto scalars.
-    return bit_pun<Vec<N,T>>(( cond & bit_pun<Vec<N, M<T>>>(t)) |
-                             (~cond & bit_pun<Vec<N, M<T>>>(e)) );
+    return naive_if_then_else(cond, t, e);
 }
 
 SINT bool any(const Vec<N,T>& x) { return any(x.lo) || any(x.hi); }
 SINT bool all(const Vec<N,T>& x) { return all(x.lo) && all(x.hi); }
 
-SINT T min(const Vec<N,T>& x) { return std::min(min(x.lo), min(x.hi)); }
-SINT T max(const Vec<N,T>& x) { return std::max(max(x.lo), max(x.hi)); }
-
-SINT Vec<N,T> min(const Vec<N,T>& x, const Vec<N,T>& y) {
-    return join(min(x.lo, y.lo), min(x.hi, y.hi));
-}
-SINT Vec<N,T> max(const Vec<N,T>& x, const Vec<N,T>& y) {
-    return join(max(x.lo, y.lo), max(x.hi, y.hi));
-}
 SINT Vec<N,T> pow(const Vec<N,T>& x, const Vec<N,T>& y) {
     return join(pow(x.lo, y.lo), pow(x.hi, y.hi));
 }
@@ -432,8 +426,6 @@ SINTU Vec<N,M<T>> operator<=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) <= y; 
 SINTU Vec<N,M<T>> operator>=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) >= y; }
 SINTU Vec<N,M<T>> operator< (U x, const Vec<N,T>& y) { return Vec<N,T>(x) <  y; }
 SINTU Vec<N,M<T>> operator> (U x, const Vec<N,T>& y) { return Vec<N,T>(x) >  y; }
-SINTU Vec<N,T>           min(U x, const Vec<N,T>& y) { return min(Vec<N,T>(x), y); }
-SINTU Vec<N,T>           max(U x, const Vec<N,T>& y) { return max(Vec<N,T>(x), y); }
 SINTU Vec<N,T>           pow(U x, const Vec<N,T>& y) { return pow(Vec<N,T>(x), y); }
 
 // ... and same deal for vector/scalar operations.
@@ -450,8 +442,6 @@ SINTU Vec<N,M<T>> operator<=(const Vec<N,T>& x, U y) { return x <= Vec<N,T>(y); 
 SINTU Vec<N,M<T>> operator>=(const Vec<N,T>& x, U y) { return x >= Vec<N,T>(y); }
 SINTU Vec<N,M<T>> operator< (const Vec<N,T>& x, U y) { return x <  Vec<N,T>(y); }
 SINTU Vec<N,M<T>> operator> (const Vec<N,T>& x, U y) { return x >  Vec<N,T>(y); }
-SINTU Vec<N,T>           min(const Vec<N,T>& x, U y) { return min(x, Vec<N,T>(y)); }
-SINTU Vec<N,T>           max(const Vec<N,T>& x, U y) { return max(x, Vec<N,T>(y)); }
 SINTU Vec<N,T>           pow(const Vec<N,T>& x, U y) { return pow(x, Vec<N,T>(y)); }
 
 // The various op= operators, for vectors...
@@ -488,6 +478,21 @@ SI Vec<N,D> cast(const Vec<N,S>& src) {
     return join(cast<D>(src.lo), cast<D>(src.hi));
 #endif
 }
+
+// min/max match logic of std::min/std::max, which is important when NaN is involved.
+SIT  T min(const Vec<1,T>& x) { return x.val; }
+SIT  T max(const Vec<1,T>& x) { return x.val; }
+SINT T min(const Vec<N,T>& x) { return std::min(min(x.lo), min(x.hi)); }
+SINT T max(const Vec<N,T>& x) { return std::max(max(x.lo), max(x.hi)); }
+
+SINT Vec<N,T> min(const Vec<N,T>& x, const Vec<N,T>& y) { return naive_if_then_else(y < x, y, x); }
+SINT Vec<N,T> max(const Vec<N,T>& x, const Vec<N,T>& y) { return naive_if_then_else(x < y, y, x); }
+
+SINTU Vec<N,T> min(const Vec<N,T>& x, U y) { return min(x, Vec<N,T>(y)); }
+SINTU Vec<N,T> max(const Vec<N,T>& x, U y) { return max(x, Vec<N,T>(y)); }
+SINTU Vec<N,T> min(U x, const Vec<N,T>& y) { return min(Vec<N,T>(x), y); }
+SINTU Vec<N,T> max(U x, const Vec<N,T>& y) { return max(Vec<N,T>(x), y); }
+
 
 // Shuffle values from a vector pretty arbitrarily:
 //    skvx::Vec<4,float> rgba = {R,G,B,A};
@@ -704,12 +709,6 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
         SI Vec<4, float> rsqrt(const Vec<4, float>& x) { return 1.0f / sqrt(x); }
         SI Vec<2,double> rsqrt(const Vec<2,double>& x) { return 1.0f / sqrt(x); }
 
-        SI Vec<4,float> min(const Vec<4,float>& x, const Vec<4,float>& y) {
-            return to_vec<4,float>(wasm_f32x4_min(to_vext(x), to_vext(y)));
-        }
-        SI Vec<4,float> max(const Vec<4,float>& x, const Vec<4,float>& y) {
-            return to_vec<4,float>(wasm_f32x4_max(to_vext(x), to_vext(y)));
-        }
         SI Vec<4,float> sqrt(const Vec<4,float>& x) {
             return to_vec<4,float>(wasm_f32x4_sqrt(to_vext(x)));
         }
@@ -717,12 +716,6 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
             return to_vec<4,float>(wasm_f32x4_abs(to_vext(x)));
         }
 
-        SI Vec<2,double> min(const Vec<2,double>& x, const Vec<2,double>& y) {
-            return to_vec<2,double>(wasm_f64x2_min(to_vext(x), to_vext(y)));
-        }
-        SI Vec<2,double> max(const Vec<2,double>& x, const Vec<2,double>& y) {
-            return to_vec<2,double>(wasm_f64x2_max(to_vext(x), to_vext(y)));
-        }
         SI Vec<2,double> sqrt(const Vec<2,double>& x) {
             return to_vec<2,double>(wasm_f64x2_sqrt(to_vext(x)));
         }
@@ -735,21 +728,8 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
         SI bool all(const Vec<4, int32_t>& x) { return wasm_i32x4_all_true(to_vext(x)); }
         SI bool all(const Vec<4,uint32_t>& x) { return wasm_i32x4_all_true(to_vext(x)); }
 
-        SI Vec<4,int32_t> min(const Vec<4,int32_t>& x, const Vec<4,int32_t>& y) {
-            return to_vec<4,int32_t>(wasm_i32x4_min(to_vext(x), to_vext(y)));
-        }
-        SI Vec<4,int32_t> max(const Vec<4,int32_t>& x, const Vec<4,int32_t>& y) {
-            return to_vec<4,int32_t>(wasm_i32x4_max(to_vext(x), to_vext(y)));
-        }
         SI Vec<4,int32_t> abs(const Vec<4,int32_t>& x) {
             return to_vec<4,int32_t>(wasm_i32x4_abs(to_vext(x)));
-        }
-
-        SI Vec<4,uint32_t> min(const Vec<4,uint32_t>& x, const Vec<4,uint32_t>& y) {
-            return to_vec<4,uint32_t>(wasm_u32x4_min(to_vext(x), to_vext(y)));
-        }
-        SI Vec<4,uint32_t> max(const Vec<4,uint32_t>& x, const Vec<4,uint32_t>& y) {
-            return to_vec<4,uint32_t>(wasm_u32x4_max(to_vext(x), to_vext(y)));
         }
     #endif
 
