@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d35ca5cb_6027858e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-16T14:18:44Z",
+      "side": 1,
+      "message": "CL unblocking this on Chrome is at https://chromium-review.googlesource.com/c/chromium/src/+/2413532",
+      "revId": "96d3a9e6c9daa1809ffebefd650e08626fb31e51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
