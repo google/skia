@@ -13,18 +13,18 @@
 #endif
 
 GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
+                                               const SkISize& dimensions,
                                                const Format& format,
                                                const id<MTLTexture> stencilView)
-    : GrStencilAttachment(gpu, stencilView.width, stencilView.height, format.fStencilBits,
-                          stencilView.sampleCount)
+    : GrStencilAttachment(gpu, dimensions, format.fStencilBits,
+                          stencilView.sampleCount, GrProtected::kNo)
     , fFormat(format)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
-                                                       int width,
-                                                       int height,
+                                                       const SkISize& dimensions,,
                                                        int sampleCnt,
                                                        const Format& format) {
     MTLTextureDescriptor* desc =
@@ -40,7 +40,8 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;
     }
-    return new GrMtlStencilAttachment(gpu, format, [gpu->device() newTextureWithDescriptor:desc]);
+    return new GrMtlStencilAttachment(gpu, dimensions, format,
+                                      [gpu->device() newTextureWithDescriptor:desc]);
 }
 
 GrMtlStencilAttachment::~GrMtlStencilAttachment() {

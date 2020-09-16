@@ -499,8 +499,6 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
     if (!rt->wasDestroyed() && rt->canAttemptStencilAttachment()) {
         GrUniqueKey sbKey;
 
-        int width = rt->width();
-        int height = rt->height();
 #if 0
         if (this->caps()->oversizedStencilSupport()) {
             width  = SkNextPow2(width);
@@ -508,12 +506,12 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
         }
 #endif
         GrStencilAttachment::ComputeSharedStencilAttachmentKey(
-                width, height, numStencilSamples, &sbKey);
+                rt->dimensions(), numStencilSamples, &sbKey);
         auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
             stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(
-                    rt, width, height, numStencilSamples));
+                    rt, rt->dimensions(), numStencilSamples));
             if (!stencil) {
                 return false;
             }
