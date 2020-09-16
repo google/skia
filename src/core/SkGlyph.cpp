@@ -102,7 +102,12 @@ bool SkGlyph::setImage(SkArenaAlloc* alloc, const void* image) {
     return false;
 }
 
-bool SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
+size_t SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
+    // Since the code no longer tries to find replacement glyphs, the image should always be
+    // nullptr.
+    SkASSERT(fImage == nullptr);
+
+    // TODO(herb): remove "if" when we are sure there are no colliding glyphs.
     if (fImage == nullptr) {
         fAdvanceX = from.fAdvanceX;
         fAdvanceY = from.fAdvanceY;
@@ -114,9 +119,11 @@ bool SkGlyph::setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from) {
         fMaskFormat = from.fMaskFormat;
 
         // From glyph may not have an image because the glyph is too large.
-        return from.fImage != nullptr && this->setImage(alloc, from.image());
+        if (from.fImage != nullptr && this->setImage(alloc, from.image())) {
+            return this->imageSize();
+        }
     }
-    return false;
+    return 0;
 }
 
 size_t SkGlyph::rowBytes() const {

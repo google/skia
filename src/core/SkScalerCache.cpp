@@ -113,7 +113,6 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
         SkPackedGlyphID toID, const SkGlyph& from) {
     SkAutoMutexExclusive lock{fMu};
     size_t delta = 0;
-    size_t imageDelta = 0;
     SkGlyphIndex* denseID = fIndexForPackedGlyphID.find(toID);
     SkGlyph* glyph;
     if (denseID != nullptr) {
@@ -121,10 +120,8 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
     } else {
         std::tie(glyph, delta) = this->makeGlyph(toID);
     }
-    if (glyph->setMetricsAndImage(&fAlloc, from)) {
-        imageDelta= glyph->imageSize();
-    }
-    return {glyph, delta + imageDelta};
+    delta += glyph->setMetricsAndImage(&fAlloc, from);
+    return {glyph, delta};
 }
 
 std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::metrics(

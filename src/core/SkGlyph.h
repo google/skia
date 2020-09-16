@@ -211,11 +211,10 @@ public:
     bool setImage(SkArenaAlloc* alloc, SkScalerContext* scalerContext);
     bool setImage(SkArenaAlloc* alloc, const void* image);
 
-    // Merge the from glyph into this glyph using alloc to allocate image data. Return true if
-    // image data was allocated. If the image for this glyph has not been initialized, then copy
-    // the width, height, top, left, format, and image into this glyph making a copy of the image
-    // using the alloc.
-    bool setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from);
+    // Merge the from glyph into this glyph using alloc to allocate image data. Return the number
+    // of bytes allocated. Copy the width, height, top, left, format, and image into this glyph
+    // making a copy of the image using the alloc.
+    size_t setMetricsAndImage(SkArenaAlloc* alloc, const SkGlyph& from);
 
     // Returns true if the image has been set.
     bool setImageHasBeenCalled() const {
