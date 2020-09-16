@@ -80,7 +80,6 @@ public:
 
     ~SkGpuDevice() override {}
 
-    GrContext* context() const override;
     GrRecordingContext* recordingContext() const override { return fContext.get(); }
 
     // set all pixels to 0

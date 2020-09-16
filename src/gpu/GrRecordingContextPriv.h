@@ -73,10 +73,6 @@ public:
 
     GrAuditTrail* auditTrail() { return fContext->auditTrail(); }
 
-    // CONTEXT TODO: remove this backdoor
-    // In order to make progress we temporarily need a way to break CL impasses.
-    GrContext* backdoor();
-
 #if GR_TEST_UTILS
     // Used by tests that intentionally exercise codepaths that print warning messages, in order to
     // not confuse users with output that looks like a testing failure.
