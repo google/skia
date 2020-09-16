@@ -39,10 +39,6 @@ SkSurface_Gpu::SkSurface_Gpu(sk_sp<SkGpuDevice> device)
 SkSurface_Gpu::~SkSurface_Gpu() {
 }
 
-GrContext* SkSurface_Gpu::onGetContext_deprecated() {
-    return fDevice->context();
-}
-
 GrRecordingContext* SkSurface_Gpu::onGetRecordingContext() {
     return fDevice->recordingContext();
 }
