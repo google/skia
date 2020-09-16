@@ -9,6 +9,12 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * New optimized clip stack for GPU backends. Enabled by default but old behavior based on
+    SkClipStack can be restored by defining SK_DISABLE_NEW_GR_CLIP_STACK when building. It is not
+    compatible with SK_SUPPORT_DEPRECATED_CLIPOPS and we are targeting the removal of support for
+    the deprecated, expanding clip ops.
+    https://review.skia.org/317209
+
   * Alternate SkImage::MakeFromYUVAPixmaps signature. Takes SkYUVAPixmaps, which specifies
     planar configuration in a more structured manner. Currently limited to tri-planar
     configurations without alpha but will be expanded. Older signature will become
