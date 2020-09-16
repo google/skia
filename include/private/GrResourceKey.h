@@ -91,8 +91,9 @@ protected:
             SkDebugf("hash: %d ", this->hash());
             SkDebugf("domain: %d ", this->domain());
             SkDebugf("size: %dB ", this->internalSize());
-            for (size_t i = 0; i < this->internalSize(); ++i) {
-                SkDebugf("%d ", fKey[SkTo<int>(i)]);
+            size_t dataCount = this->internalSize() / sizeof(uint32_t) - kMetaDataCnt;
+            for (size_t i = 0; i < dataCount; ++i) {
+                SkDebugf("%d ", fKey[SkTo<int>(kMetaDataCnt+i)]);
             }
             SkDebugf("\n");
         }

@@ -15,6 +15,7 @@
 class GrAuditTrail;
 class GrBackendFormat;
 class GrDrawingManager;
+class GrThreadSafeUniquelyKeyedProxyViewCache;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrProgramDesc;
@@ -172,6 +173,9 @@ protected:
 
     GrTextBlobCache* getTextBlobCache();
     const GrTextBlobCache* getTextBlobCache() const;
+
+    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache();
+    const GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() const;
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
