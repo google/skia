@@ -1,0 +1,15 @@
+// Expect 10 errors (one per function)
+
+float2 x;
+
+void shr_eq() { x >>= 1; }
+void shl_eq() { x <<= 1; }
+void and_eq() { x &=  1; }
+void or_eq()  { x |=  1; }
+void xor_eq() { x ^=  1; }
+
+void shr() { x = x >> 1; }
+void shl() { x = x << 1; }
+void and() { x = x & 1; }
+void or()  { x = x | 1; }
+void xor() { x = x ^ 1; }
