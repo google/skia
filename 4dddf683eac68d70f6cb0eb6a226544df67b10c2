@@ -105,6 +105,24 @@
       "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76bdf78a_bc6aa3de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T15:22:54Z",
+      "side": 1,
+      "message": "So… I never managed to sort out why this doesn\u0027t trigger on the bots (despite some attempts), and I\u0027ve stopped working on ClangTidy too much, but I can say that this would still occasionally trigger on local ClangTidy builds.\n\nAre you OK with submitting this? Would like to clean out some of my idle CLs.",
+      "parentUuid": "e6949a19_d2967938",
+      "revId": "4dddf683eac68d70f6cb0eb6a226544df67b10c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
