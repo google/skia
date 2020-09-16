@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "82dbb665_7525c26e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2596,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T17:03:54Z",
+      "side": 1,
+      "message": "Just realized that it could even happen if I just said \"foo.xyzw\" directly, since we have early-outed in that case (no constants)",
+      "parentUuid": "436e30c9_950be8bb",
+      "range": {
+        "startLine": 2595,
+        "startChar": 4,
+        "endLine": 2596,
+        "endChar": 36
+      },
+      "revId": "e74279a4787dcf06b305055c7362171e05d05bdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2627703_b572ff57",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 8
