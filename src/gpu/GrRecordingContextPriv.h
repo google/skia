@@ -57,6 +57,10 @@ public:
 
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
+    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
+        return fContext->threadSafeViewCache();
+    }
+
     void moveRenderTasksToDDL(SkDeferredDisplayList*);
 
     /**

@@ -13,6 +13,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "src/gpu/GrBaseContextPriv.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/image/SkSurface_Gpu.h"
 
@@ -39,6 +40,7 @@ GrContextThreadSafeProxy::~GrContextThreadSafeProxy() = default;
 void GrContextThreadSafeProxy::init(sk_sp<const GrCaps> caps) {
     fCaps = std::move(caps);
     fTextBlobCache = std::make_unique<GrTextBlobCache>(fContextID);
+    fThreadSafeViewCache = std::make_unique<GrThreadSafeUniquelyKeyedProxyViewCache>();
 }
 
 SkSurfaceCharacterization GrContextThreadSafeProxy::createCharacterization(

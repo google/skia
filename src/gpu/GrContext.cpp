@@ -27,6 +27,7 @@
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
+#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
@@ -73,6 +74,7 @@ bool GrContext::init() {
     }
 
     SkASSERT(this->getTextBlobCache());
+    SkASSERT(this->threadSafeViewCache());
 
     if (fGpu) {
         fStrikeCache = std::make_unique<GrStrikeCache>();
@@ -83,6 +85,7 @@ bool GrContext::init() {
 
     if (fResourceCache) {
         fResourceCache->setProxyProvider(this->proxyProvider());
+        fResourceCache->setThreadSafeViewCache(this->threadSafeViewCache());
     }
 
     fDidTestPMConversions = false;
@@ -272,7 +275,6 @@ size_t GrContext::ComputeImageSize(sk_sp<SkImage> image, GrMipmapped mipMapped, 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
                      bool deleteSemaphoresAfterWait) {
     if (!fGpu || fGpu->caps()->semaphoreSupport()) {
