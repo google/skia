@@ -689,21 +689,59 @@ if (skia_compile_sksl_tests) {
           rebase_path("$dir/golden/$name.glsl", target_out_dir) ]
   }
 
+  sksl_glsl_settings_tests_outputs = []
+  foreach(src, sksl_glsl_settings_tests_sources) {
+    dir = get_path_info(src, "dir")
+    name = get_path_info(src, "name")
+    sksl_glsl_tests_outputs +=
+        [ "$target_out_dir/" +
+          rebase_path("$dir/golden/$name.glsl", target_out_dir) ]
+    sksl_glsl_settings_tests_outputs += [
+      "$target_out_dir/" +
+          rebase_path("$dir/golden/${name}DefaultSettings.glsl",
+                      target_out_dir),
+    ]
+  }
+
   action("compile_sksl_tests") {
+    # This action compiles SkSL tests with their settings enabled, i.e. in --settings mode.
     script = "gn/compile_sksl_tests.py"
     deps = [
       ":create_sksl_fp",
       ":sksl_pre_includes",
       ":skslc(//gn/toolchain:$host_toolchain)",
     ]
-    sources = sksl_fp_tests_sources + sksl_glsl_tests_sources
+    sources = sksl_fp_tests_sources + sksl_glsl_tests_sources +
+              sksl_glsl_settings_tests_sources
     outputs = sksl_fp_tests_outputs + sksl_glsl_tests_outputs
-    args = [ rebase_path(skslc_path) ]
+    args = [
+      rebase_path(skslc_path),
+      "--settings",
+    ]
     args += rebase_path(sksl_fp_tests_sources)
     args += rebase_path(sksl_glsl_tests_sources)
+    args += rebase_path(sksl_glsl_settings_tests_sources)
+  }
+  action("compile_sksl_tests_nosettings") {
+    # This action compiles SkSL tests with their settings disabled, i.e. in --nosettings mode.
+    script = "gn/compile_sksl_tests.py"
+    deps = [
+      ":create_sksl_fp",
+      ":sksl_pre_includes",
+      ":skslc(//gn/toolchain:$host_toolchain)",
+    ]
+    sources = sksl_glsl_settings_tests_sources
+    outputs = sksl_glsl_settings_tests_outputs
+    args = [
+      rebase_path(skslc_path),
+      "--nosettings",
+    ]
+    args += rebase_path(sksl_glsl_settings_tests_sources)
   }
 } else {
   group("compile_sksl_tests") {
+  }
+  group("compile_sksl_tests_nosettings") {
   }
 }
 
@@ -712,6 +750,7 @@ optional("gpu") {
   deps = [
     ":compile_processors",
     ":compile_sksl_tests",
+    ":compile_sksl_tests_nosettings",
     ":dehydrate_sksl",
     ":run_sksllex",
   ]
