@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70a03d3a_a498e4d9",
+        "filename": "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-16T15:25:57Z",
+      "side": 1,
+      "message": "Why `Entry*` here instead of `Entry`?",
+      "revId": "470a3bec29abd141e2a585bc9af743e318a85ccd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
