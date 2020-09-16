@@ -45,6 +45,7 @@ var DebuggerView = {
 		setCommandVisibility: function() {},
 		jsonCommandList: function() {},
 		lastCommandInfo: function() {},
+		imageUseInfoForFrame: function() {},
 	},
 
 	/**

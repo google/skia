@@ -1198,13 +1198,15 @@ bool DrawImageCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
+uint64_t DrawImageCommand::imageId(UrlDataManager& udm) const {
+    return udm.lookupImage(fImage.get());
+}
+
 void DrawImageCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
-
-
     if (urlDataManager.hasImageIndex()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
-        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+        writer.appendU64(imageId(urlDataManager));
     } else {
         writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
         flatten(*fImage, writer, urlDataManager);
@@ -1261,11 +1263,15 @@ bool DrawImageLatticeCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
+uint64_t DrawImageLatticeCommand::imageId(UrlDataManager& udm) const {
+    return udm.lookupImage(fImage.get());
+}
+
 void DrawImageLatticeCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
     if (urlDataManager.hasImageIndex()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
-        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+        writer.appendU64(imageId(urlDataManager));
     } else {
         writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
         flatten(*fImage, writer, urlDataManager);
@@ -1312,11 +1318,15 @@ bool DrawImageRectCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
+uint64_t DrawImageRectCommand::imageId(UrlDataManager& udm) const {
+    return udm.lookupImage(fImage.get());
+}
+
 void DrawImageRectCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
     if (urlDataManager.hasImageIndex()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
-        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+        writer.appendU64(imageId(urlDataManager));
     } else {
         writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
         flatten(*fImage, writer, urlDataManager);
@@ -1424,11 +1434,15 @@ bool DrawImageNineCommand::render(SkCanvas* canvas) const {
     return true;
 }
 
+uint64_t DrawImageNineCommand::imageId(UrlDataManager& udm) const {
+    return udm.lookupImage(fImage.get());
+}
+
 void DrawImageNineCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const {
     INHERITED::toJSON(writer, urlDataManager);
     if (urlDataManager.hasImageIndex()) {
         writer.appendName(DEBUGCANVAS_ATTRIBUTE_IMAGE_INDEX);
-        writer.appendU64((uint64_t)urlDataManager.lookupImage(fImage.get()));
+        writer.appendU64(imageId(urlDataManager));
     } else {
         writer.beginObject(DEBUGCANVAS_ATTRIBUTE_IMAGE);
         flatten(*fImage, writer, urlDataManager);

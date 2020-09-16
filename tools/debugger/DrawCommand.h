@@ -113,6 +113,7 @@ public:
     static bool flatten(const SkBitmap& bitmap,
                         SkJSONWriter&   writer,
                         UrlDataManager& urlDataManager);
+    OpType getOpType() const { return fOpType; }
 
 private:
     OpType fOpType;
@@ -255,6 +256,7 @@ public:
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+    uint64_t imageId(UrlDataManager& udb) const;
 
 private:
     sk_sp<const SkImage> fImage;
@@ -274,6 +276,7 @@ public:
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+    uint64_t imageId(UrlDataManager& udb) const;
 
 private:
     sk_sp<const SkImage> fImage;
@@ -293,6 +296,7 @@ public:
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+    uint64_t imageId(UrlDataManager& udb) const;
 
 private:
     sk_sp<const SkImage> fImage;
@@ -313,6 +317,7 @@ public:
     void execute(SkCanvas* canvas) const override;
     bool render(SkCanvas* canvas) const override;
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
+    uint64_t imageId(UrlDataManager& udm) const;
 
 private:
     sk_sp<const SkImage>        fImage;
