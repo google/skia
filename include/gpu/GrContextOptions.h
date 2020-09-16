@@ -263,6 +263,12 @@ struct SK_API GrContextOptions {
     bool fSuppressTessellationShaders = false;
 
     /**
+     * If greater than zero and less than the actual hardware limit, overrides the maximum number of
+     * tessellation segments supported by the caps.
+     */
+    int  fMaxTessellationSegmentsOverride = 0;
+
+    /**
      * Render everything in wireframe
      */
     bool fWireframeMode = false;

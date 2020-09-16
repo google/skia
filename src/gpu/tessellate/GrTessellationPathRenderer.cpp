@@ -39,14 +39,16 @@ bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return caps.drawInstancedSupport() && caps.shaderCaps()->vertexIDSupport();
 }
 
-GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps)
+GrTessellationPathRenderer::GrTessellationPathRenderer(const GrRecordingContext* ctx)
         : fAtlas(kAtlasAlpha8Type, GrDynamicAtlas::InternalMultisample::kYes, kAtlasInitialSize,
-                 std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()),
-                 caps, kAtlasAlgorithm) {
-    this->initAtlasFlags(caps);
+                 std::min(kMaxAtlasSize, ctx->priv().caps()->maxPreferredRenderTargetSize()),
+                 *ctx->priv().caps(), kAtlasAlgorithm) {
+    this->initAtlasFlags(ctx);
 }
 
-void GrTessellationPathRenderer::initAtlasFlags(const GrCaps& caps) {
+void GrTessellationPathRenderer::initAtlasFlags(const GrRecordingContext* ctx) {
+    const GrCaps& caps = *ctx->priv().caps();
+
     fStencilAtlasFlags = OpFlags::kStencilOnly | OpFlags::kDisableHWTessellation;
     fMaxAtlasPathWidth = fAtlas.maxAtlasSize() / 2;
 
@@ -90,8 +92,9 @@ void GrTessellationPathRenderer::initAtlasFlags(const GrCaps& caps) {
     if (det <= 0) {
         // maxTessellationSegments is too small for any path whose area == kMaxAtlasPathHeight^2.
         // (This is unexpected because the GL spec mandates a minimum of 64 segments.)
-        SkDebugf("WARNING: maxTessellationSegments seems too low. (%i)\n",
-                 caps.shaderCaps()->maxTessellationSegments());
+        ctx->priv().printWarningMessage(SkStringPrintf(
+                "WARNING: maxTessellationSegments seems too low. (%i)\n",
+                caps.shaderCaps()->maxTessellationSegments()).c_str());
         return;
     }
     float q = -.5f * (b - std::sqrt(det));  // Always positive.
