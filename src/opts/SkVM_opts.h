@@ -219,8 +219,8 @@ namespace SK_OPTS_NS {
                             for (int i = 0; i < K; i++) {
                                 SkDebugf("\t%2d: %08x (%g)\n", i, r[y].i32[i], r[y].f32[i]);
                             }
+                            SkASSERT(false);
                         }
-                        SkASSERT(all(r[x].i32));
                     #endif
                     break;
 
