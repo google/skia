@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "345df54b_327ddaac",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2586,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T17:10:06Z",
+      "side": 1,
+      "message": "This reserve is misleading - there are at most three args to the constructor, and the actual number isn\u0027t really correlated with the overall swizzle length. If we\u0027re just trying to limit re-alloc, a hard coded-three (with a constexpr named constant) seems better?",
+      "revId": "c900105eacda7e7d526f67c55bf4af1f81775e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
