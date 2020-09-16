@@ -16,6 +16,24 @@
       "revId": "470a3bec29abd141e2a585bc9af743e318a85ccd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63913b3a_8258a2fe",
+        "filename": "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-16T15:43:22Z",
+      "side": 1,
+      "message": "I\u0027ll have to revisit all this. As currently implemented GrUniqueKey isn\u0027t really meant to be copied around - each copy-ctor and assignment operator causes a malloc call. The \"Entry*\" was my attempt to just have one copy. This was foiled though by not being able have the key be a const\u0026 to it.\n\nI think, ultimately, I\u0027ll make my own wrapper around SkTHashTable.",
+      "parentUuid": "70a03d3a_a498e4d9",
+      "revId": "470a3bec29abd141e2a585bc9af743e318a85ccd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
