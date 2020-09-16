@@ -16,6 +16,52 @@
       "revId": "4a329948810bb30d7fe787ed334c24670ebdafda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11bb5d9a_33c623ed",
+        "filename": "src/sksl/SkSLASTNode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T15:01:47Z",
+      "side": 1,
+      "message": "Can we use std::max(initializer_list) instead?\n\nSee constructor#3 at https://en.cppreference.com/w/cpp/algorithm/max",
+      "range": {
+        "startLine": 265,
+        "startChar": 20,
+        "endLine": 276,
+        "endChar": 59
+      },
+      "revId": "4a329948810bb30d7fe787ed334c24670ebdafda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0e69a96_32bfe554",
+        "filename": "src/sksl/ir/SkSLIRNode.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T15:01:47Z",
+      "side": 1,
+      "message": "Doesn\u0027t copy fKind...?\n\nAlso, please document SkASSERT rationale briefly.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 26
+      },
+      "revId": "4a329948810bb30d7fe787ed334c24670ebdafda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
