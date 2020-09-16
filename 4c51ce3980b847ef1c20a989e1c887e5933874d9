@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "493eb581_49b51ca4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T14:02:40Z",
+      "side": 1,
+      "message": "PS2 should fix the Vulkan errors (needed to ensure the literals are the correct type).",
+      "revId": "4c51ce3980b847ef1c20a989e1c887e5933874d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
