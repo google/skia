@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4d0c672_0fd2de43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-16T18:22:16Z",
+      "side": 1,
+      "message": "With this change, we should be able to reland the GrClipStack enable CL.",
+      "revId": "1d618867ec3cccadb4b0d4031b7996d5450e2cc2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
