@@ -1,87 +1,80 @@
 
 uniform vec4 color;
 vec4 main() {
-    float _3_fma;
-    float _4_a = color.x;
-    float _5_b = color.y;
-    float _6_c = color.z;
+    float _1_fma;
+    float _2_a = color.x;
+    float _3_b = color.y;
+    float _4_c = color.z;
     {
-        float _7_0_mul;
+        float _5_0_mul;
         {
-            _7_0_mul = _4_a * _5_b;
+            _5_0_mul = _2_a * _3_b;
         }
-
-        float _8_1_add;
+        float _17_add;
         {
-            float _9_2_c = _7_0_mul + _6_c;
-            _8_1_add = _9_2_c;
+            float _18_c = _5_0_mul + _4_c;
+            _17_add = _18_c;
         }
+        _1_fma = _17_add;
 
-        _3_fma = _8_1_add;
 
     }
+    float a = _1_fma;
 
-    float a = _3_fma;
-
-    float _10_fma;
-    float _11_a = color.y;
-    float _12_b = color.z;
-    float _13_c = color.w;
+    float _6_fma;
+    float _7_a = color.y;
+    float _8_b = color.z;
+    float _9_c = color.w;
     {
-        float _14_0_mul;
+        float _10_0_mul;
         {
-            _14_0_mul = _11_a * _12_b;
+            _10_0_mul = _7_a * _8_b;
         }
-
-        float _15_1_add;
+        float _19_add;
         {
-            float _16_2_c = _14_0_mul + _13_c;
-            _15_1_add = _16_2_c;
+            float _20_c = _10_0_mul + _9_c;
+            _19_add = _20_c;
         }
+        _6_fma = _19_add;
 
-        _10_fma = _15_1_add;
 
     }
+    float b = _6_fma;
 
-    float b = _10_fma;
-
-    float _17_fma;
-    float _18_a = color.z;
-    float _19_b = color.w;
-    float _20_c = color.x;
+    float _11_fma;
+    float _12_a = color.z;
+    float _13_b = color.w;
+    float _14_c = color.x;
     {
-        float _21_0_mul;
+        float _15_0_mul;
         {
-            _21_0_mul = _18_a * _19_b;
+            _15_0_mul = _12_a * _13_b;
         }
-
-        float _22_1_add;
+        float _21_add;
         {
-            float _23_2_c = _21_0_mul + _20_c;
-            _22_1_add = _23_2_c;
+            float _22_c = _15_0_mul + _14_c;
+            _21_add = _22_c;
         }
+        _11_fma = _21_add;
 
-        _17_fma = _22_1_add;
 
     }
+    float c = _11_fma;
 
-    float c = _17_fma;
-
+    float _16_mul;
+    {
+        _16_mul = c * c;
+    }
+    float _23_mul;
+    {
+        _23_mul = b * c;
+    }
     float _24_mul;
     {
-        _24_mul = c * c;
+        _24_mul = a * _23_mul;
     }
+    return vec4(a, b, _16_mul, _24_mul);
 
-    float _25_mul;
-    {
-        _25_mul = b * c;
-    }
 
-    float _26_mul;
-    {
-        _26_mul = a * _25_mul;
-    }
-
-    return vec4(a, b, _24_mul, _26_mul);
 
 }
