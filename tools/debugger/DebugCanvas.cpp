@@ -107,7 +107,7 @@ DebugCanvas::DebugCanvas(int width, int height)
     SkASSERT(!large.roundOut().isEmpty());
 #endif
     // call the base class' version to avoid adding a draw command
-    this->INHERITED::onClipRect(large, kReplace_SkClipOp, kHard_ClipEdgeStyle);
+    this->INHERITED::onClipRect(large, SkClipOp::kIntersect, kHard_ClipEdgeStyle);
 }
 
 DebugCanvas::DebugCanvas(SkIRect bounds)
