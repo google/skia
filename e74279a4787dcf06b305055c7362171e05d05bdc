@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "436e30c9_950be8bb",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2596,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T16:59:15Z",
+      "side": 1,
+      "message": "That\u0027s how I interpreted it (although no reason to remove it from the optimizer, as it could hypothetically occur in other ways I\u0027d think?)\n\nDone at http://review.skia.org/317378\n\nNBD if we decide it\u0027s fine to let the optimizer do it.",
+      "parentUuid": "757810be_189981f4",
+      "range": {
+        "startLine": 2595,
+        "startChar": 4,
+        "endLine": 2596,
+        "endChar": 36
+      },
+      "revId": "e74279a4787dcf06b305055c7362171e05d05bdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2627703_b572ff57",
         "filename": "tests/SkSLGLSLTest.cpp",
         "patchSetId": 8
