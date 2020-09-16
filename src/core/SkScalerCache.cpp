@@ -112,11 +112,14 @@ std::tuple<const void*, size_t> SkScalerCache::prepareImage(SkGlyph* glyph) {
 std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
         SkPackedGlyphID toID, const SkGlyph& from) {
     SkAutoMutexExclusive lock{fMu};
-    size_t delta = 0;
+    // TODO(herb): remove finding the glyph when we are sure there are no glyph collisions.
     SkGlyphIndex* denseID = fIndexForPackedGlyphID.find(toID);
+    size_t delta = 0;
     SkGlyph* glyph;
     if (denseID != nullptr) {
         glyph = fGlyphForIndex[*denseID];
+        // Since there is no search for replacement glyphs, this glyph should not exist yet.
+        SkDEBUGFAIL("This implies adding to an existing glyph. This should not happen.");
     } else {
         std::tie(glyph, delta) = this->makeGlyph(toID);
     }
