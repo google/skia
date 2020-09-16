@@ -1,0 +1,9 @@
+/*#pragma settings UsesPrecisionModifiers*/
+
+void main() {
+    half x = 0.75;
+    float y = 1;
+    x++;
+    y++;
+    sk_FragColor.rg = half2(x, half(y));
+}
