@@ -3795,7 +3795,7 @@ namespace skvm {
                 case Op::mul_q14x2:
                     if (in_reg(x)) { a->vpmulhrsw(dst(x), r(x), any(y)); }
                     else           { a->vpmulhrsw(dst(y), r(y), any(x)); }
-                                     a->vpsllw(dst(), dst(), 1);
+                                     a->vpaddw(dst(), dst(), dst());  // << 1
                                      break;
 
                 case Op::sub_i32:   a->vpsubd(dst(x), r(x), any(y)); break;
