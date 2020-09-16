@@ -3521,20 +3521,6 @@ namespace skvm {
                     (void)constants[immy];
                     break;
 
-                case Op:: add_q14x2:
-                case Op:: sub_q14x2:
-                case Op:: mul_q14x2:
-                case Op:: shl_q14x2:
-                case Op:: shr_q14x2:
-                case Op:: sra_q14x2:
-                case Op::  eq_q14x2:
-                case Op::  gt_q14x2:
-                case Op:: min_q14x2:
-                case Op:: max_q14x2:
-                case Op::uavg_q14x2:
-                case Op::umin_q14x2:
-                    return false; // TODO
-
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
                     a->vptest (r(x), &constants[0xffffffff]);
@@ -3795,12 +3781,25 @@ namespace skvm {
                     if (in_reg(x)) { a->vpaddd(dst(x), r(x), any(y)); }
                     else           { a->vpaddd(dst(y), r(y), any(x)); }
                                      break;
+
+                case Op::add_q14x2:
+                    if (in_reg(x)) { a->vpaddw(dst(x), r(x), any(y)); }
+                    else           { a->vpaddw(dst(y), r(y), any(x)); }
+                                     break;
+
                 case Op::mul_i32:
                     if (in_reg(x)) { a->vpmulld(dst(x), r(x), any(y)); }
                     else           { a->vpmulld(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::sub_i32: a->vpsubd(dst(x), r(x), any(y)); break;
+                case Op::mul_q14x2:
+                    if (in_reg(x)) { a->vpmulhrsw(dst(x), r(x), any(y)); }
+                    else           { a->vpmulhrsw(dst(y), r(y), any(x)); }
+                                     a->vpsllw(dst(), dst(), 1);
+                                     break;
+
+                case Op::sub_i32:   a->vpsubd(dst(x), r(x), any(y)); break;
+                case Op::sub_q14x2: a->vpsubw(dst(x), r(x), any(y)); break;
 
                 case Op::bit_and:
                     if (in_reg(x)) { a->vpand(dst(x), r(x), any(y)); }
@@ -3822,16 +3821,46 @@ namespace skvm {
                     else              { a->vpblendvb(dst(x), r(z), any(y), r(x)); }
                                         break;
 
+                case Op::min_q14x2:
+                    if (in_reg(x)) { a->vpminsw(dst(x), r(x), any(y)); }
+                    else           { a->vpminsw(dst(y), r(y), any(x)); }
+                                     break;
+
+                case Op::max_q14x2:
+                    if (in_reg(x)) { a->vpmaxsw(dst(x), r(x), any(y)); }
+                    else           { a->vpmaxsw(dst(y), r(y), any(x)); }
+                                     break;
+
+                case Op::umin_q14x2:
+                    if (in_reg(x)) { a->vpminuw(dst(x), r(x), any(y)); }
+                    else           { a->vpminuw(dst(y), r(y), any(x)); }
+                                     break;
+
+                case Op::uavg_q14x2:
+                    if (in_reg(x)) { a->vpavgw(dst(x), r(x), any(y)); }
+                    else           { a->vpavgw(dst(y), r(y), any(x)); }
+                                     break;
+
                 case Op::shl_i32: a->vpslld(dst(x), r(x), immy); break;
                 case Op::shr_i32: a->vpsrld(dst(x), r(x), immy); break;
                 case Op::sra_i32: a->vpsrad(dst(x), r(x), immy); break;
+
+                case Op::shl_q14x2: a->vpsllw(dst(x), r(x), immy); break;
+                case Op::shr_q14x2: a->vpsrlw(dst(x), r(x), immy); break;
+                case Op::sra_q14x2: a->vpsraw(dst(x), r(x), immy); break;
 
                 case Op::eq_i32:
                     if (in_reg(x)) { a->vpcmpeqd(dst(x), r(x), any(y)); }
                     else           { a->vpcmpeqd(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::gt_i32: a->vpcmpgtd(dst(), r(x), any(y)); break;
+                case Op::eq_q14x2:
+                    if (in_reg(x)) { a->vpcmpeqw(dst(x), r(x), any(y)); }
+                    else           { a->vpcmpeqw(dst(y), r(y), any(x)); }
+                                     break;
+
+                case Op::gt_i32:   a->vpcmpgtd(dst(), r(x), any(y)); break;
+                case Op::gt_q14x2: a->vpcmpgtw(dst(), r(x), any(y)); break;
 
                 case Op::eq_f32:
                     if (in_reg(x)) { a->vcmpeqps(dst(x), r(x), any(y)); }
