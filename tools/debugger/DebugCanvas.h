@@ -19,6 +19,9 @@
 #include "tools/debugger/DebugLayerManager.h"
 #include "tools/debugger/DrawCommand.h"
 
+#include <map>
+#include <vector>
+
 class GrAuditTrail;
 class SkNWayCanvas;
 class SkPicture;
@@ -103,7 +106,7 @@ public:
         Returns the draw command at the given index.
         @param index  The index of the command
      */
-    DrawCommand* getDrawCommandAt(int index);
+    DrawCommand* getDrawCommandAt(int index) const;
 
     /**
         Returns length of draw command vector.
@@ -126,6 +129,11 @@ public:
     void toJSONOpsTask(SkJSONWriter& writer, SkCanvas*);
 
     void detachCommands(SkTDArray<DrawCommand*>* dst) { fCommandVector.swap(*dst); }
+
+    /**
+        Returns a map from image IDs to command indices where they are used.
+     */
+    std::map<int, std::vector<int>> getImageIdToCommandMap(UrlDataManager& udm) const;
 
 protected:
     void              willSave() override;
