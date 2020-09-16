@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2627703_b572ff57",
+        "filename": "tests/SkSLGLSLTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T16:02:23Z",
+      "side": 1,
+      "message": "This no longer looks correct, we\u0027re initializing a vec4 with three things.",
+      "range": {
+        "startLine": 1264,
+        "startChar": 23,
+        "endLine": 1264,
+        "endChar": 44
+      },
+      "revId": "e74279a4787dcf06b305055c7362171e05d05bdc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
