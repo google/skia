@@ -2592,9 +2592,6 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     //   scalar.x0x0 -> type4(type2(x), 0).xyxy
     //   vector.y111 -> type4(vector.y, 1).xyyy
     //   vector.z10x -> type4(vector.zx, 1, 0).xzwy
-    //
-    // For our most common use cases ('.xyz0', '.xyz1'), this can produce an identity swizzle, which
-    // will be optimized away later.
     const Type* numberType = baseType.isNumber() ? &baseType : &baseType.componentType();
     std::vector<int> swizzleComponents;
     swizzleComponents.reserve(fields.fLength);
@@ -2633,7 +2630,18 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                                          &numberType->toCompound(fContext, constantFieldIdx, 1),
                                          std::move(constructorArgs));
 
-    return std::make_unique<Swizzle>(fContext, std::move(expr), std::move(swizzleComponents));
+    // For some of our most common use cases ('.xyz0', '.xyz1'), we will now have an identity
+    // swizzle; in those cases we can just return the constructor without the swizzle attached.
+    for (size_t i = 0; i < swizzleComponents.size(); ++i) {
+        if (swizzleComponents[i] != int(i)) {
+            // The swizzle has an effect, so apply it.
+            return std::make_unique<Swizzle>(fContext, std::move(expr),
+                                             std::move(swizzleComponents));
+        }
+    }
+
+    // The swizzle was a no-op; return the constructor expression directly.
+    return expr;
 }
 
 std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
