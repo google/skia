@@ -1,0 +1,9 @@
+void main() {
+    int x = 0;
+    int y = 0;
+    int z = 0;
+    if (sk_Caps.externalTextureSupport) x = 1;
+    if (sk_Caps.fbFetchSupport) y = 1;
+    if (sk_Caps.canUseAnyFunctionInShader) z = 1;
+    sk_FragColor.rgb = half3(x, y, z);
+}
