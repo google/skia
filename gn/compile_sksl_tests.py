@@ -9,6 +9,10 @@ import os
 import subprocess
 import sys
 
+skslc = sys.argv[1]
+settings = sys.argv[2]
+inputs = sys.argv[3:]
+
 def makeEmptyFile(path):
     try:
         open(path, 'wb').close()
@@ -18,7 +22,7 @@ def makeEmptyFile(path):
 def compile(skslc, input, target, extension):
     target += extension
     try:
-        subprocess.check_output([skslc, input, target], stderr=subprocess.STDOUT)
+        subprocess.check_output([skslc, input, target, settings], stderr=subprocess.STDOUT)
         return True
 
     except subprocess.CalledProcessError as err:
@@ -28,8 +32,9 @@ def compile(skslc, input, target, extension):
             dst.write("\n")
         return False
 
-skslc = sys.argv[1]
-inputs = sys.argv[2:]
+
+if settings != "--settings" and settings != "--nosettings":
+    sys.exit("### Expected --settings or --nosettings")
 
 for input in inputs:
     noExt, ext = os.path.splitext(input)
@@ -37,7 +42,11 @@ for input in inputs:
     targetDir = os.path.join(head, "golden")
     if not os.path.isdir(targetDir):
         os.mkdir(targetDir)
+
     target = os.path.join(targetDir, tail)
+    if settings == "--nosettings":
+        target += "DefaultSettings"
+
     if ext == ".fp":
         # First, compile the CPP. If we get an error, stop here.
         if compile(skslc, input, target, ".cpp"):
