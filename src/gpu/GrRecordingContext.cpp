@@ -165,10 +165,6 @@ void GrRecordingContextPriv::addOnFlushCallbackObject(GrOnFlushCallbackObject* o
     fContext->addOnFlushCallbackObject(onFlushCBObject);
 }
 
-GrContext* GrRecordingContextPriv::backdoor() {
-    return (GrContext*) fContext;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_ENABLE_DUMP_GPU
