@@ -258,9 +258,9 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kBinary: {
                 const BinaryExpression& b = e->as<BinaryExpression>();
                 this->writeU8(Rehydrator::kBinary_Command);
-                this->write(b.fLeft.get());
-                this->writeU8((int) b.fOperator);
-                this->write(b.fRight.get());
+                this->write(&b.left());
+                this->writeU8((int) b.getOperator());
+                this->write(&b.right());
                 this->write(b.type());
                 break;
             }
