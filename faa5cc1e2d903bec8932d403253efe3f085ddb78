@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "809cd97d_1c4d48e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T19:12:27Z",
+      "side": 1,
+      "message": "It\u0027s worth pointing out that many of these are now different, at least on backends where float and half are different - we\u0027re often promoting things to float, rather than doing math in half. Ultimately, though - this is a step towards what clients will use as we allow user SkSL to look more like GLSL.",
+      "revId": "faa5cc1e2d903bec8932d403253efe3f085ddb78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
