@@ -354,7 +354,7 @@ SIT Vec<1,T> rsqrt(const Vec<1,T>& x) { return rcp(sqrt(x)); }
 SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
     // Specializations inline here so they can generalize what types the apply to.
     // (This header is used in C++14 contexts, so we have to kind of fake constexpr if.)
-#if defined(__AVX__)
+#if defined(__AVX2__)
     if /*constexpr*/ (N*sizeof(T) == 32) {
         return unchecked_bit_pun<Vec<N,T>>(_mm256_blendv_epi8(unchecked_bit_pun<__m256i>(e),
                                                               unchecked_bit_pun<__m256i>(t),
