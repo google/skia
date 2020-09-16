@@ -9,6 +9,11 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * New SkSurfaceProps::Default function will return a pointer to a default-constructed
+    SkSurfaceProps instance.  This is intended to be used when calling APIs that take an
+    "const SkSurfaceProps*" parameter (e.g., SkSurface::MakeRasterDirect).
+    https://review.skia.org/316376
+
   * New optimized clip stack for GPU backends. Enabled by default but old behavior based on
     SkClipStack can be restored by defining SK_DISABLE_NEW_GR_CLIP_STACK when building. It is not
     compatible with SK_SUPPORT_DEPRECATED_CLIPOPS and we are targeting the removal of support for
