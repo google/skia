@@ -33,6 +33,12 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
     fUniquelyKeyedProxyViews.reset();
 }
 
+void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllUniqueRefs() {
+    SkAutoSpinlock lock{fSpinLock};
+
+
+}
+
 GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::find(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
