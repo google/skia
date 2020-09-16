@@ -3,7 +3,4 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-fuchsia_defines = [
-  # Staging
-  "SK_DISABLE_NEW_GR_CLIP_STACK",
-]
+fuchsia_defines = []

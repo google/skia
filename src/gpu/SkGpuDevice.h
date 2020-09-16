@@ -25,17 +25,14 @@ class SkSpecialImage;
 class SkSurface;
 class SkVertices;
 
-// NOTE: when not defined, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
+#ifndef SK_USE_NEW_GR_CLIP_STACK
+// NOTE: If this is non-zero, SkGpuDevice extends SkBaseDevice directly and manages its clip stack
 // using GrClipStack. When false, SkGpuDevice continues to extend SkClipStackDevice and uses
 // SkClipStack and GrClipStackClip to manage the clip stack.
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-    // For staging purposes, disable this for Android Framework and Google3
-    #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined(SK_BUILD_FOR_GOOGLE3)
-        #define SK_DISABLE_NEW_GR_CLIP_STACK
-    #endif
+#define SK_USE_NEW_GR_CLIP_STACK 0
 #endif
 
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
+#if SK_USE_NEW_GR_CLIP_STACK
     #include "src/core/SkDevice.h"
     #include "src/gpu/GrClipStack.h"
     #define BASE_DEVICE   SkBaseDevice
@@ -146,7 +143,7 @@ protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
 
-#if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
+#if SK_USE_NEW_GR_CLIP_STACK
     void onSave() override { fClip.save(); }
     void onRestore() override { fClip.restore(); }
 
