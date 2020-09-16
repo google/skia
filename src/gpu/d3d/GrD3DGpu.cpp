@@ -14,6 +14,7 @@
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/d3d/GrD3DAMDMemoryAllocator.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
@@ -30,7 +31,13 @@
 
 sk_sp<GrGpu> GrD3DGpu::Make(const GrD3DBackendContext& backendContext,
                             const GrContextOptions& contextOptions, GrDirectContext* direct) {
-    return sk_sp<GrGpu>(new GrD3DGpu(direct, contextOptions, backendContext));
+    // For now we use the AMD allocator. In the future we may support a more general interface.
+    sk_sp<GrD3DMemoryAllocator> allocator = GrD3DAMDMemoryAllocator::Make(
+            backendContext.fAdapter.Get(), backendContext.fDevice.Get());
+    if (!allocator) {
+        return nullptr;
+    }
+    return sk_sp<GrGpu>(new GrD3DGpu(direct, contextOptions, backendContext, allocator));
 }
 
 // This constant determines how many OutstandingCommandLists are allocated together as a block in
@@ -43,10 +50,12 @@ static const int kDefaultOutstandingAllocCnt = 8;
 constexpr int kConstantAlignment = 256;
 
 GrD3DGpu::GrD3DGpu(GrDirectContext* direct, const GrContextOptions& contextOptions,
-                   const GrD3DBackendContext& backendContext)
+                   const GrD3DBackendContext& backendContext,
+                   sk_sp<GrD3DMemoryAllocator> allocator)
         : INHERITED(direct)
         , fDevice(backendContext.fDevice)
         , fQueue(backendContext.fQueue)
+        , fMemoryAllocator(std::move(allocator))
         , fResourceProvider(this)
         , fStagingBufferManager(this)
         , fConstantsRingBuffer(this, 128 * 1024, kConstantAlignment, GrGpuBufferType::kVertex)

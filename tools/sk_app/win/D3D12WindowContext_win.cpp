@@ -137,6 +137,7 @@ void D3D12WindowContext::initializeContext() {
 void D3D12WindowContext::setupSurfaces(int width, int height) {
     // set up base resource info
     GrD3DTextureResourceInfo info(nullptr,
+                                  nullptr,
                                   D3D12_RESOURCE_STATE_PRESENT,
                                   DXGI_FORMAT_R8G8B8A8_UNORM,
                                   1,
