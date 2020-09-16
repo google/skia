@@ -8,7 +8,6 @@ void main() {
             _0_blocky = color;
         }
     }
-
     sk_FragColor = _0_blocky;
 
 }

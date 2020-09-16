@@ -6,7 +6,6 @@ void main() {
     {
         if (color.z == color.w) _0_branchy = color.yyyy; else _0_branchy = color.zzzz;
     }
-
     sk_FragColor = _0_branchy;
 
 }
