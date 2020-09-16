@@ -16,6 +16,24 @@
       "revId": "c900105eacda7e7d526f67c55bf4af1f81775e84",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb3019aa_275a335a",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 2586,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T17:24:21Z",
+      "side": 1,
+      "message": "It\u0027s not ENTIRELY misleading! fields.fLength does set a reasonable upper bound; for a two-element swizzle, the maximum size of `shuffleComponents` will never exceed 2 (it can\u0027t contain two constants). However, I agree that 3 is also a sane upper bound with a better outcome in the common case, so I will change it. (min(fields.fLength, 3) is an even tighter bound but not worth the complexity.)",
+      "parentUuid": "345df54b_327ddaac",
+      "revId": "c900105eacda7e7d526f67c55bf4af1f81775e84",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
