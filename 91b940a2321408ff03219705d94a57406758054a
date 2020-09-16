@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2090acde_0378e1dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T19:51:43Z",
+      "side": 1,
+      "message": "If no one objects, this is the one odd GN action that produces output during a successful build (vs. ninja\u0027s behavior of just churning on one line).",
+      "revId": "91b940a2321408ff03219705d94a57406758054a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
