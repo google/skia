@@ -295,7 +295,7 @@ static CanvasTest kCanvasTests[] = {
         c->clipPath(make_path_from_rect(SkRect{0, 0, 2, 1}));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
-        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}), kReplace_SkClipOp);
+        c->clipRegion(make_region_from_irect(SkIRect{0, 0, 2, 1}));
     },
     [](SkCanvas* c, skiatest::Reporter* r) {
         c->clear(kColor);
