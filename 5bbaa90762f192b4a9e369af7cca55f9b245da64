@@ -16,6 +16,24 @@
       "revId": "5bbaa90762f192b4a9e369af7cca55f9b245da64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c652375_39d62cd0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-16T15:15:36Z",
+      "side": 1,
+      "message": "Yeah, IMO the overall structure here is probably more complex than it needs to be. Especially when you look at how SkSL actually uses the caps (it loads them into a string-keyed unordered_map? http://osscs/skia/skia/+/master:src/sksl/SkSLIRGenerator.cpp;l\u003d144?q\u003dfill_caps )\n\nBut nothing seems problematic enough to justify a refactor; everything works and seems to make sense even if there are some redundant parts.",
+      "parentUuid": "fb4aa79f_05476b27",
+      "revId": "5bbaa90762f192b4a9e369af7cca55f9b245da64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
