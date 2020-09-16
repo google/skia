@@ -87,6 +87,30 @@
       "revId": "97e329e71f004cc6bc741ca16c0774d36f1c3af0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "840e1d86_76d3c595",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-16T13:53:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa17e21c_aff16321",
+      "range": {
+        "startLine": 32,
+        "startChar": 24,
+        "endLine": 32,
+        "endChar": 51
+      },
+      "revId": "97e329e71f004cc6bc741ca16c0774d36f1c3af0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
