@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65c2d97d_a4b0f5ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T14:04:01Z",
+      "side": 1,
+      "message": "Yeah, I realized this morning that I could do something like this, and also that it wouldn\u0027t be hard to avoid vectorizing scalars, too. I think it\u0027s just a question of trade-offs - how often do we use constant swizzles that aren\u0027t .xyz0/.xyz1 ?",
+      "revId": "1916842e1d972496d6bf014c8c6f68118f93986b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
