@@ -266,8 +266,6 @@ namespace SK_OPTS_NS {
                         r[d].f32 = skvx::from_half(skvx::cast<uint16_t>(r[x].i32));
                         break;
 
-                    // TODO: make sure these q14x2 ops have good codegen
-
                     CASE(Op::add_q14x2): r[d].i16x2 = r[x].i16x2 + r[y].i16x2; break;
                     CASE(Op::sub_q14x2): r[d].i16x2 = r[x].i16x2 - r[y].i16x2; break;
 
@@ -291,8 +289,8 @@ namespace SK_OPTS_NS {
                                                            0x4000)>>15 )<<1;
                         break;
 
-                    // TODO: this op exists only so it can be implemented as pavgw / vrhadd.u16
-                    // without expanding up to 32-bit.
+                    // Happily, Clang can see through this one and generates perfect code
+                    // using vpavgw without any help from us!
                     CASE(Op::uavg_q14x2):
                         r[d].u16x2 = skvx::cast<uint16_t>( (skvx::cast<int>(r[x].u16x2) +
                                                             skvx::cast<int>(r[y].u16x2) + 1)>>1 );
