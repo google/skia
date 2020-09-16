@@ -85,9 +85,8 @@ public:
         return fUsesPrecisionModifiers;
     }
 
-    bool fMustDeclareFragmentShaderOutput = true;
     bool mustDeclareFragmentShaderOutput() const {
-        return fMustDeclareFragmentShaderOutput;
+        return fGLSLGeneration > k110_GrGLSLGeneration;
     }
 
     bool fFBFetchSupport = true;
