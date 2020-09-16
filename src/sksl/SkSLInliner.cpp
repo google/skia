@@ -308,9 +308,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kBinary: {
             const BinaryExpression& b = expression.as<BinaryExpression>();
             return std::make_unique<BinaryExpression>(offset,
-                                                      expr(b.leftPointer()),
-                                                      b.getOperator(),
-                                                      expr(b.rightPointer()),
+                                                      expr(b.fLeft),
+                                                      b.fOperator,
+                                                      expr(b.fRight),
                                                       &b.type());
         }
         case Expression::Kind::kBoolLiteral:
@@ -938,7 +938,7 @@ bool Inliner::analyze(Program& program) {
 
                 case Expression::Kind::kBinary: {
                     BinaryExpression& binaryExpr = (*expr)->as<BinaryExpression>();
-                    this->visitExpression(&binaryExpr.leftPointer());
+                    this->visitExpression(&binaryExpr.fLeft);
 
                     // Logical-and and logical-or binary expressions do not inline the right side,
                     // because that would invalidate short-circuiting. That is, when evaluating
@@ -948,11 +948,10 @@ bool Inliner::analyze(Program& program) {
                     // It is illegal for side-effects from x() or y() to occur. The simplest way to
                     // enforce that rule is to avoid inlining the right side entirely. However, it
                     // is safe for other types of binary expression to inline both sides.
-                    Token::Kind op = binaryExpr.getOperator();
-                    bool shortCircuitable = (op == Token::Kind::TK_LOGICALAND ||
-                                             op == Token::Kind::TK_LOGICALOR);
+                    bool shortCircuitable = (binaryExpr.fOperator == Token::Kind::TK_LOGICALAND ||
+                                             binaryExpr.fOperator == Token::Kind::TK_LOGICALOR);
                     if (!shortCircuitable) {
-                        this->visitExpression(&binaryExpr.rightPointer());
+                        this->visitExpression(&binaryExpr.fRight);
                     }
                     break;
                 }

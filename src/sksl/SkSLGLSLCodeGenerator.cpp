@@ -913,33 +913,31 @@ GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind
 
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
-    const Expression& left = b.left();
-    const Expression& right = b.right();
-    Token::Kind op = b.getOperator();
     if (fProgram.fSettings.fCaps->unfoldShortCircuitAsTernary() &&
-            (op == Token::Kind::TK_LOGICALAND || op == Token::Kind::TK_LOGICALOR)) {
+            (b.fOperator == Token::Kind::TK_LOGICALAND ||
+             b.fOperator == Token::Kind::TK_LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
         return;
     }
 
-    Precedence precedence = GetBinaryPrecedence(op);
+    Precedence precedence = GetBinaryPrecedence(b.fOperator);
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
     bool positionWorkaround = fProgramKind == Program::Kind::kVertex_Kind &&
-                              Compiler::IsAssignment(op) &&
-                              left.kind() == Expression::Kind::kFieldAccess &&
-                              is_sk_position((FieldAccess&) left) &&
-                              !right.containsRTAdjust() &&
+                              Compiler::IsAssignment(b.fOperator) &&
+                              b.fLeft->kind() == Expression::Kind::kFieldAccess &&
+                              is_sk_position((FieldAccess&) *b.fLeft) &&
+                              !b.fRight->containsRTAdjust() &&
                               !fProgram.fSettings.fCaps->canUseFragCoord();
     if (positionWorkaround) {
         this->write("sk_FragCoord_Workaround = (");
     }
-    this->writeExpression(left, precedence);
+    this->writeExpression(*b.fLeft, precedence);
     this->write(" ");
-    this->write(Compiler::OperatorName(op));
+    this->write(Compiler::OperatorName(b.fOperator));
     this->write(" ");
-    this->writeExpression(right, precedence);
+    this->writeExpression(*b.fRight, precedence);
     if (positionWorkaround) {
         this->write(")");
     }
@@ -957,20 +955,20 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     // Transform:
     // a && b  =>   a ? b : false
     // a || b  =>   a ? true : b
-    this->writeExpression(b.left(), kTernary_Precedence);
+    this->writeExpression(*b.fLeft, kTernary_Precedence);
     this->write(" ? ");
-    if (b.getOperator() == Token::Kind::TK_LOGICALAND) {
-        this->writeExpression(b.right(), kTernary_Precedence);
+    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
+        this->writeExpression(*b.fRight, kTernary_Precedence);
     } else {
         BoolLiteral boolTrue(fContext, -1, true);
         this->writeBoolLiteral(boolTrue);
     }
     this->write(" : ");
-    if (b.getOperator() == Token::Kind::TK_LOGICALAND) {
+    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
         BoolLiteral boolFalse(fContext, -1, false);
         this->writeBoolLiteral(boolFalse);
     } else {
-        this->writeExpression(b.right(), kTernary_Precedence);
+        this->writeExpression(*b.fRight, kTernary_Precedence);
     }
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
