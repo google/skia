@@ -120,6 +120,7 @@ tests_sources = [
   "$_tests/GrTBlockListTest.cpp",
   "$_tests/GrTestingBackendTextureUploadTest.cpp",
   "$_tests/GrTextureMipMapInvalidationTest.cpp",
+  "$_tests/GrThreadSafeViewCacheTest.cpp",
   "$_tests/GrUploadPixelsTests.cpp",
   "$_tests/GradientTest.cpp",
   "$_tests/HSVRoundTripTest.cpp",
