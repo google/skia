@@ -2484,10 +2484,10 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
 }
 
 // Swizzles are complicated due to constant components. The most difficult case is a mask like
-// '.x00w'. A naive approach might turn that into 'float4(base.x, 0, 0, base.w)', but that evaluates
-// 'base' twice. We instead group the swizzle mask ('xw') and constants ('0, 0') together and use a
+// '.x1w0'. A naive approach might turn that into 'float4(base.x, 1, base.w, 0)', but that evaluates
+// 'base' twice. We instead group the swizzle mask ('xw') and constants ('1, 0') together and use a
 // secondary swizzle to put them back into the right order, so in this case we end up with
-// 'float4(base.xw, 0, 0).xzwy'.
+// 'float4(base.xw, 1, 0).xzyw'.
 std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expression> base,
                                                         StringFragment fields) {
     const int offset = base->fOffset;
@@ -2503,12 +2503,12 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     }
 
     std::vector<int> maskComponents;
-    std::vector<int> constants;
+    maskComponents.reserve(fields.fLength);
     for (size_t i = 0; i < fields.fLength; i++) {
         switch (fields[i]) {
             case '0':
             case '1':
-                constants.push_back(fields[i] - '0');
+                // Skip over constant fields for now.
                 break;
             case 'x':
             case 'r':
@@ -2569,44 +2569,71 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         expr = std::make_unique<Swizzle>(fContext, std::move(base), maskComponents);
     }
 
-    // If there are no constants, we're done
-    if (constants.empty()) {
+    // If we have processed the entire swizzle, we're done.
+    if (maskComponents.size() == fields.fLength) {
         return expr;
     }
 
     // Now we create a constructor that has the correct number of elements for the final swizzle,
-    // with all fields at the start, and all constants at the end:
-    //   scalar.x0x0 -> type4(type2(x), 0, 0)
-    //   vector.z10x -> type4(vector.zx, 1, 0)
+    // with all fields at the start. It's not finished yet; constants we need will be added below.
+    //   scalar.x0x0 -> type4(type2(x), ...)
+    //   vector.y111 -> type4(vector.y, ...)
+    //   vector.z10x -> type4(vector.zx, ...)
     //
-    // NOTE: We could create simpler IR in some cases by reordering here, if all fields are packed
+    // We could create simpler IR in some cases by reordering here, if all fields are packed
     // contiguously. The benefits are minor, so skip the optimization to keep the algorithm simple.
+    // The constructor will have at most three arguments: { base value, constant 0, constant 1 }
     std::vector<std::unique_ptr<Expression>> constructorArgs;
+    constructorArgs.reserve(3);
     constructorArgs.push_back(std::move(expr));
+
+    // Apply another swizzle to shuffle the constants into the correct place. Any constant values we
+    // need are also tacked on to the end of the constructor.
+    //   scalar.x0x0 -> type4(type2(x), 0).xyxy
+    //   vector.y111 -> type4(vector.y, 1).xyyy
+    //   vector.z10x -> type4(vector.zx, 1, 0).xzwy
+    //
+    // For our most common use cases ('.xyz0', '.xyz1'), this can produce an identity swizzle, which
+    // will be optimized away later.
     const Type* numberType = baseType.isNumber() ? &baseType : &baseType.componentType();
-    for (int constant : constants) {
-        constructorArgs.push_back(this->coerce(
-                std::make_unique<IntLiteral>(fContext, offset, constant), *numberType));
-    }
+    std::vector<int> swizzleComponents;
+    swizzleComponents.reserve(fields.fLength);
+    int maskFieldIdx = 0;
+    int constantFieldIdx = maskComponents.size();
+    int constantZeroIdx = -1, constantOneIdx = -1;
 
-    expr = std::make_unique<Constructor>(offset,
-                                         &numberType->toCompound(fContext, fields.fLength, 1),
-                                         std::move(constructorArgs));
-
-    // Now, we apply another swizzle to shuffle the constants into the correct place. For common
-    // uses ('.xyz0', '.xyz1'), this produces an identity swizzle, which is optimized away later.
-    std::vector<int> shuffleComponents;
-    int curFieldIdx = 0,
-        curConstIdx = maskComponents.size();
     for (size_t i = 0; i < fields.fLength; i++) {
-        if (fields[i] == '0' || fields[i] == '1') {
-            shuffleComponents.push_back(curConstIdx++);
-        } else {
-            shuffleComponents.push_back(curFieldIdx++);
+        switch (fields[i]) {
+            case '0':
+                if (constantZeroIdx == -1) {
+                    // Synthesize a 'zero' argument at the end of the constructor.
+                    auto literal = std::make_unique<IntLiteral>(fContext, offset, /*value=*/0);
+                    constructorArgs.push_back(this->coerce(std::move(literal), *numberType));
+                    constantZeroIdx = constantFieldIdx++;
+                }
+                swizzleComponents.push_back(constantZeroIdx);
+                break;
+            case '1':
+                if (constantOneIdx == -1) {
+                    // Synthesize a 'one' argument at the end of the constructor.
+                    auto literal = std::make_unique<IntLiteral>(fContext, offset, /*value=*/1);
+                    constructorArgs.push_back(this->coerce(std::move(literal), *numberType));
+                    constantOneIdx = constantFieldIdx++;
+                }
+                swizzleComponents.push_back(constantOneIdx);
+                break;
+            default:
+                // The non-constant fields are already in the expected order.
+                swizzleComponents.push_back(maskFieldIdx++);
+                break;
         }
     }
 
-    return std::make_unique<Swizzle>(fContext, std::move(expr), std::move(shuffleComponents));
+    expr = std::make_unique<Constructor>(offset,
+                                         &numberType->toCompound(fContext, constantFieldIdx, 1),
+                                         std::move(constructorArgs));
+
+    return std::make_unique<Swizzle>(fContext, std::move(expr), std::move(swizzleComponents));
 }
 
 std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
