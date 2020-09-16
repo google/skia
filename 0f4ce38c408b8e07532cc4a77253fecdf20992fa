@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16731ecc_37d05309",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T17:32:43Z",
+      "side": 1,
+      "message": "I don\u0027t think I\u0027d land this unless we decide we can remove the corresponding code in the optimizer. (Which we probably can?) The only time that other code will matter now is when a swizzle-of-swizzle creates an identity result: foo.bgra.bgra, but I\u0027m going to claim that never happens in practice, and I don\u0027t really care if it does.",
+      "revId": "0f4ce38c408b8e07532cc4a77253fecdf20992fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
