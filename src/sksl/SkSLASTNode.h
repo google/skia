@@ -12,10 +12,14 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
-#include <algorithm>
 #include <vector>
 
 namespace SkSL {
+
+// std::max isn't constexpr in some compilers
+static constexpr size_t Max(size_t a, size_t b) {
+    return a > b ? a : b;
+}
 
 /**
  * Represents a node in the abstract syntax tree (AST). The AST is based directly on the parse tree;
@@ -263,18 +267,18 @@ struct ASTNode {
     };
 
     struct NodeData {
-        char fBytes[std::max(sizeof(Token),
-                    std::max(sizeof(StringFragment),
-                    std::max(sizeof(bool),
-                    std::max(sizeof(SKSL_INT),
-                    std::max(sizeof(SKSL_FLOAT),
-                    std::max(sizeof(Modifiers),
-                    std::max(sizeof(TypeData),
-                    std::max(sizeof(FunctionData),
-                    std::max(sizeof(ParameterData),
-                    std::max(sizeof(VarData),
-                    std::max(sizeof(InterfaceBlockData),
-                             sizeof(SectionData))))))))))))];
+        char fBytes[Max(sizeof(Token),
+                    Max(sizeof(StringFragment),
+                    Max(sizeof(bool),
+                    Max(sizeof(SKSL_INT),
+                    Max(sizeof(SKSL_FLOAT),
+                    Max(sizeof(Modifiers),
+                    Max(sizeof(TypeData),
+                    Max(sizeof(FunctionData),
+                    Max(sizeof(ParameterData),
+                    Max(sizeof(VarData),
+                    Max(sizeof(InterfaceBlockData),
+                        sizeof(SectionData))))))))))))];
 
         enum class Kind {
             kToken,
