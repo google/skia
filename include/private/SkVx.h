@@ -324,9 +324,6 @@ SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<
                              (~cond & bit_pun<Vec<1, M<T>>>(e)) );
 }
 
-SIT bool any(const Vec<1,T>& x) { return x.val != 0; }
-SIT bool all(const Vec<1,T>& x) { return x.val != 0; }
-
 SIT Vec<1,T> pow(const Vec<1,T>& x, const Vec<1,T>& y) { return std::pow(x.val, y.val); }
 
 // All default N != 1 implementations just recurse on lo and hi halves.
@@ -372,8 +369,39 @@ SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec
     return naive_if_then_else(cond, t, e);
 }
 
-SINT bool any(const Vec<N,T>& x) { return any(x.lo) || any(x.hi); }
-SINT bool all(const Vec<N,T>& x) { return all(x.lo) && all(x.hi); }
+SIT  bool any(const Vec<1,T>& x) { return x.val != 0; }
+SINT bool any(const Vec<N,T>& x) {
+#if defined(__wasm_simd128__)
+    if constexpr (N == 4 && sizeof(T) == 4) {
+        return wasm_i32x4_any_true(unchecked_bit_pun<VExt<4,int>>(x));
+    }
+#endif
+    return any(x.lo)
+        || any(x.hi);
+}
+
+SIT  bool all(const Vec<1,T>& x) { return x.val != 0; }
+SINT bool all(const Vec<N,T>& x) {
+#if defined(__AVX2__)
+    if /*constexpr*/ (N*sizeof(T) == 32) {
+        return _mm256_testc_si256(unchecked_bit_pun<__m256i>(x),
+                                  _mm256_set1_epi32(-1));
+    }
+#endif
+#if defined(__SSE4_1__)
+    if /*constexpr*/ (N*sizeof(T) == 16) {
+        return _mm_testc_si128(unchecked_bit_pun<__m128i>(x),
+                               _mm_set1_epi32(-1));
+    }
+#endif
+#if defined(__wasm_simd128__)
+    if /*constexpr*/ (N == 4 && sizeof(T) == 4) {
+        return wasm_i32x4_all_true(unchecked_bit_pun<VExt<4,int>>(x));
+    }
+#endif
+    return all(x.lo)
+        && all(x.hi);
+}
 
 SINT Vec<N,T> pow(const Vec<N,T>& x, const Vec<N,T>& y) {
     return join(pow(x.lo, y.lo), pow(x.hi, y.hi));
@@ -695,13 +723,6 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
                                                    bit_pun<float32x4_t>(x),
                                                    bit_pun<float32x4_t>(y)));
         }
-    #endif
-
-    #if defined __wasm_simd128__
-        SI bool any(const Vec<4, int32_t>& x) { return wasm_i32x4_any_true(to_vext(x)); }
-        SI bool any(const Vec<4,uint32_t>& x) { return wasm_i32x4_any_true(to_vext(x)); }
-        SI bool all(const Vec<4, int32_t>& x) { return wasm_i32x4_all_true(to_vext(x)); }
-        SI bool all(const Vec<4,uint32_t>& x) { return wasm_i32x4_all_true(to_vext(x)); }
     #endif
 
 #endif // !defined(SKNX_NO_SIMD)
