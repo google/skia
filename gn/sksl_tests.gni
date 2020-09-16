@@ -12,6 +12,8 @@ sksl_fp_tests_sources = [
 ]
 
 sksl_glsl_tests_sources = [
+  "$_tests/sksl/errors/BitShiftFloat.sksl",
+  "$_tests/sksl/errors/BitShiftFloatVector.sksl",
   "$_tests/sksl/errors/OpenArray.sksl",
   "$_tests/sksl/errors/UndefinedSymbol.sksl",
   "$_tests/sksl/glsl/ArrayConstructors.sksl",

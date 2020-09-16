@@ -1,0 +1,1 @@
+void main() { float2 x = float2(6); x >>= 1; }
