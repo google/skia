@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "54cfb77e_d7cdf4b8",
+        "filename": "src/sksl/ir/SkSLIRNode.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-16T14:32:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f4c54c7_4f2482f1",
+      "range": {
+        "startLine": 27,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 48
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19ff0d36_27ae9386",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "9a69616c7688f477ecf264110e182e2056aea269",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a201b76_7c0c0e4b",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-16T14:32:16Z",
+      "side": 1,
+      "message": "Let\u0027s see what happens!",
+      "parentUuid": "19ff0d36_27ae9386",
+      "range": {
+        "startLine": 60,
+        "startChar": 20,
+        "endLine": 60,
+        "endChar": 23
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7800b8ae_e17d33ff",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-16T14:32:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5e227f3a_d4095287",
+      "range": {
+        "startLine": 71,
+        "startChar": 31,
+        "endLine": 72,
+        "endChar": 9
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "72f26337_81943a10",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "9a69616c7688f477ecf264110e182e2056aea269",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "674b0a7e_d2ef1503",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-16T14:32:16Z",
+      "side": 1,
+      "message": "This is intended. The field this is replacing was a Type\u0026, so all we need is the pointer.",
+      "parentUuid": "72f26337_81943a10",
+      "range": {
+        "startLine": 73,
+        "startChar": 27,
+        "endLine": 73,
+        "endChar": 47
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "3ff26eb2_3e0d7fb9",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-16T14:32:16Z",
+      "side": 1,
+      "message": "expressionPointer is going to go away (we won\u0027t be using std::unique_ptr for children as soon as I\u0027m done with this rearchitecture), so down the road we will only have expressionChild. I wanted to write to the final API as much as possible to reduce the pain of that CL.",
+      "parentUuid": "274c66f2_766c6644",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 5
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74eb8359_7eb093eb",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 4
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "556c84b3_8672c3b4",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-16T14:32:16Z",
+      "side": 1,
+      "message": "Parameter was originally an enum, forgot to remove the cast when I changed it. Good catch.",
+      "parentUuid": "74eb8359_7eb093eb",
+      "range": {
+        "startLine": 94,
+        "startChar": 35,
+        "endLine": 94,
+        "endChar": 46
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2df355e0_77a9e998",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 4
@@ -160,6 +304,30 @@
       "revId": "9a69616c7688f477ecf264110e182e2056aea269",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d595ffca_ebc1d0b2",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-16T14:32:16Z",
+      "side": 1,
+      "message": "Nice! I was concerned about the allocations here and had planned to look into a std::vector alternative, and that looks like exactly what I wanted.",
+      "parentUuid": "2df355e0_77a9e998",
+      "range": {
+        "startLine": 116,
+        "startChar": 4,
+        "endLine": 116,
+        "endChar": 45
+      },
+      "revId": "9a69616c7688f477ecf264110e182e2056aea269",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
