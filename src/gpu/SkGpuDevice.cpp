@@ -110,12 +110,6 @@ sk_sp<SkGpuDevice> SkGpuDevice::Make(GrRecordingContext* context, SkBudgeted bud
     return sk_sp<SkGpuDevice>(new SkGpuDevice(context, std::move(renderTargetContext), flags));
 }
 
-GrContext* SkGpuDevice::context() const {
-    // CONTEXT TODO: remove this use of 'backdoor'. Short term, we need to use it to support the
-    // SkCanvas::getGrContext and SkSurface::getContext calls.
-    return fContext->priv().backdoor();
-}
-
 static SkImageInfo make_info(GrRenderTargetContext* context, bool opaque) {
     SkColorType colorType = GrColorTypeToSkColorType(context->colorInfo().colorType());
     return SkImageInfo::Make(context->width(), context->height(), colorType,
