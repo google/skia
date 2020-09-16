@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "516ed0e2_4cf99af8",
+        "filename": "gm/widebuttcaps.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-16T02:42:19Z",
+      "side": 1,
+      "message": "This is all preexisting code. I guess the simple reformatting tricked Gerrit.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 70,
+        "endChar": 1
+      },
+      "revId": "cdd5c66b60a2f1cb7e62c99de11420abffd7ff1e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
