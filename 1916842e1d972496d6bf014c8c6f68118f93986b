@@ -16,6 +16,24 @@
       "revId": "1916842e1d972496d6bf014c8c6f68118f93986b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5710498_1aa9ed93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-16T14:05:13Z",
+      "side": 1,
+      "message": "... although I\u0027ll say that this doesn\u0027t increase the complexity much, so it\u0027s probably worth it to have some version of this and not have the redundant literals in the list.",
+      "parentUuid": "65c2d97d_a4b0f5ed",
+      "revId": "1916842e1d972496d6bf014c8c6f68118f93986b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
