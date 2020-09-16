@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a6944cb_f4913e5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-16T16:06:04Z",
+      "side": 1,
+      "message": "Because this CL turns on the GrClipStack vs. the old GrClipStackClip+GrReducedClip logic, gold diffs are expected. Looking at the gm, svg, and skp changes, I do not see anything out of the ordinary. In general I would classify them into three categories:\n1. Rects and round rects being combined differently, changing them from a mask to a CCPR atlas or analytic shader (this is particularly true for the vk-ddl bots, the webpage skps, and complex clip gms)\n2. Having fewer total clip elements, so path clips are more likely to fit into the CCPR atlas vs. needing a mask (the svg diffs and complex path gms)\n3. Stencil mask issues with the Dawn backend, but it appears these problems already existed and this stack just changes what masks are generated.\n\nThe flutter canary failure appears to be an asset timeout and it doesn\u0027t seem like this change causes issues (it shouldn\u0027t since flutter should have GrClipStack still disabled). Android and Google3 canaries work with it being explicitly disabled. The chromium canary failures appear to be unrelated to skia as well, and the rest of its layout test bots show no issues (also expected, since the chromium CL to update SkUserConfig has landed).",
+      "revId": "25967b98affbccf035e51e1b52ee8e9ff29f87bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
