@@ -1888,11 +1888,6 @@ GrRenderTargetContext* SkCanvas::internal_private_accessTopLayerRenderTargetCont
     return dev ? dev->accessRenderTargetContext() : nullptr;
 }
 
-GrContext* SkCanvas::getGrContext() {
-    SkBaseDevice* device = this->getTopDevice();
-    return device ? device->context() : nullptr;
-}
-
 GrRecordingContext* SkCanvas::recordingContext() {
     SkBaseDevice* device = this->getTopDevice();
     return device ? device->recordingContext() : nullptr;

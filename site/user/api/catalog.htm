@@ -5248,13 +5248,13 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawVertices_2"
 },
-    "SkCanvas_getGrContext": {
-    "code": "void draw(SkCanvas* canvas) {\n    if (canvas->getGrContext()) {\n         canvas->clear(SK_ColorRED);\n    } else {\n         canvas->clear(SK_ColorBLUE);\n    }\n}\n",
+    "SkCanvas_recordingContext": {
+    "code": "void draw(SkCanvas* canvas) {\n    if (canvas->recordingContext()) {\n         canvas->clear(SK_ColorRED);\n    } else {\n         canvas->clear(SK_ColorBLUE);\n    }\n}\n",
     "width": 256,
     "height": 256,
     "hash": "c4ea949e5fa5a0630dcb6b0204bd498f",
     "file": "SkCanvas_Reference",
-    "name": "SkCanvas::getGrContext"
+    "name": "SkCanvas::recordingContext"
 },
     "SkCanvas_readPixels": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->clear(SK_ColorBLUE);\n    SkPaint paint;\n    canvas->drawCircle(32, 32, 28, paint);\n    SkImageInfo info = SkImageInfo::Make(64, 64, kBGRA_8888_SkColorType, kPremul_SkAlphaType);\n    sk_sp<SkData> data(SkData::MakeUninitialized(info.minRowBytes() * info.height()));\n    sk_bzero(data->writable_data(), info.minRowBytes() * info.height());\n    for (int x : { 32, -32 } ) {\n        for (int y : { 32, -32 } ) {\n            canvas->readPixels(info, data->writable_data(), info.minRowBytes(), x, y);\n        }\n    }\n    sk_sp<SkImage> image = SkImage::MakeRasterData(info, data, info.minRowBytes());\n    canvas->drawImage(image, 0, 0);\n}",
