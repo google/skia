@@ -39,6 +39,30 @@
       "revId": "082ca1f0969efd4b10be1832ac1ef047227a47c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "93514f0f_a41592e9",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-16T20:27:17Z",
+      "side": 1,
+      "message": "Yeah... unfortunately we need that inference from make_index_sequence\u003cN\u003e to index_sequence\u003c0,1,2,..,N-1\u003e.  Will take another whack at getting it all in one....",
+      "parentUuid": "1858ea70_1e91b462",
+      "range": {
+        "startLine": 489,
+        "startChar": 0,
+        "endLine": 497,
+        "endChar": 1
+      },
+      "revId": "082ca1f0969efd4b10be1832ac1ef047227a47c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
