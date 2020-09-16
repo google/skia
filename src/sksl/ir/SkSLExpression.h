@@ -57,12 +57,7 @@ struct Expression : public IRNode {
     };
 
     Expression(int offset, Kind kind, const Type* type)
-        : INHERITED(offset, (int) kind, type) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
-
-    Expression(int offset, Kind kind, TypeTokenData data)
-        : INHERITED(offset, (int) kind, data) {
+    : INHERITED(offset, (int) kind, type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 

@@ -808,14 +808,11 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
 
 void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence) {
-    const Expression& left = b.left();
-    const Expression& right = b.right();
-    const Type& leftType = left.type();
-    const Type& rightType = right.type();
-    Token::Kind op = b.getOperator();
-    Precedence precedence = GetBinaryPrecedence(b.getOperator());
+    const Type& leftType = b.fLeft->type();
+    const Type& rightType = b.fRight->type();
+    Precedence precedence = GetBinaryPrecedence(b.fOperator);
     bool needParens = precedence >= parentPrecedence;
-    switch (op) {
+    switch (b.fOperator) {
         case Token::Kind::TK_EQEQ:
             if (leftType.typeKind() == Type::TypeKind::kVector) {
                 this->write("all");
@@ -834,21 +831,22 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (needParens) {
         this->write("(");
     }
-    if (Compiler::IsAssignment(op) &&
-        Expression::Kind::kVariableReference == left.kind() &&
-        Variable::kParameter_Storage == left.as<VariableReference>().fVariable.fStorage &&
-        left.as<VariableReference>().fVariable.fModifiers.fFlags & Modifiers::kOut_Flag) {
+    if (Compiler::IsAssignment(b.fOperator) &&
+        Expression::Kind::kVariableReference == b.fLeft->kind() &&
+        Variable::kParameter_Storage == ((VariableReference&) *b.fLeft).fVariable.fStorage &&
+        (((VariableReference&) *b.fLeft).fVariable.fModifiers.fFlags & Modifiers::kOut_Flag)) {
         // writing to an out parameter. Since we have to turn those into pointers, we have to
         // dereference it here.
         this->write("*");
     }
-    if (op == Token::Kind::TK_STAREQ && leftType.typeKind() == Type::TypeKind::kMatrix &&
+    if (b.fOperator == Token::Kind::TK_STAREQ &&
+        leftType.typeKind() == Type::TypeKind::kMatrix &&
         rightType.typeKind() == Type::TypeKind::kMatrix) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
-    this->writeExpression(left, precedence);
-    if (op != Token::Kind::TK_EQ && Compiler::IsAssignment(op) &&
-        left.kind() == Expression::Kind::kSwizzle && !left.hasSideEffects()) {
+    this->writeExpression(*b.fLeft, precedence);
+    if (b.fOperator != Token::Kind::TK_EQ && Compiler::IsAssignment(b.fOperator) &&
+        b.fLeft->kind() == Expression::Kind::kSwizzle && !b.fLeft->hasSideEffects()) {
         // This doesn't compile in Metal:
         // float4 x = float4(1);
         // x.xy *= float2x2(...);
@@ -856,16 +854,16 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         // but switching it to x.xy = x.xy * float2x2(...) fixes it. We perform this tranformation
         // as long as the LHS has no side effects, and hope for the best otherwise.
         this->write(" = ");
-        this->writeExpression(left, kAssignment_Precedence);
+        this->writeExpression(*b.fLeft, kAssignment_Precedence);
         this->write(" ");
-        String opName = Compiler::OperatorName(op);
-        SkASSERT(opName.endsWith("="));
-        this->write(opName.substr(0, opName.size() - 1).c_str());
+        String op = Compiler::OperatorName(b.fOperator);
+        SkASSERT(op.endsWith("="));
+        this->write(op.substr(0, op.size() - 1).c_str());
         this->write(" ");
     } else {
-        this->write(String(" ") + Compiler::OperatorName(op) + " ");
+        this->write(String(" ") + Compiler::OperatorName(b.fOperator) + " ");
     }
-    this->writeExpression(right, precedence);
+    this->writeExpression(*b.fRight, precedence);
     if (needParens) {
         this->write(")");
     }
@@ -1732,8 +1730,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             return this->requirements(e->as<Swizzle>().fBase.get());
         case Expression::Kind::kBinary: {
             const BinaryExpression& bin = e->as<BinaryExpression>();
-            return this->requirements(&bin.left()) |
-                   this->requirements(&bin.right());
+            return this->requirements(bin.fLeft.get()) |
+                   this->requirements(bin.fRight.get());
         }
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = e->as<IndexExpression>();
