@@ -2302,11 +2302,14 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const Type& leftType, SpvId lhs,
 }
 
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
+    const Expression& left = b.left();
+    const Expression& right = b.right();
+    Token::Kind op = b.getOperator();
     // handle cases where we don't necessarily evaluate both LHS and RHS
-    switch (b.fOperator) {
+    switch (op) {
         case Token::Kind::TK_EQ: {
-            SpvId rhs = this->writeExpression(*b.fRight, out);
-            this->getLValue(*b.fLeft, out)->store(rhs, out);
+            SpvId rhs = this->writeExpression(right, out);
+            this->getLValue(left, out)->store(rhs, out);
             return rhs;
         }
         case Token::Kind::TK_LOGICALAND:
@@ -2319,17 +2322,16 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 
     std::unique_ptr<LValue> lvalue;
     SpvId lhs;
-    if (Compiler::IsAssignment(b.fOperator)) {
-        lvalue = this->getLValue(*b.fLeft, out);
+    if (Compiler::IsAssignment(op)) {
+        lvalue = this->getLValue(left, out);
         lhs = lvalue->load(out);
     } else {
         lvalue = nullptr;
-        lhs = this->writeExpression(*b.fLeft, out);
+        lhs = this->writeExpression(left, out);
     }
-    SpvId rhs = this->writeExpression(*b.fRight, out);
-    SpvId result = this->writeBinaryExpression(b.fLeft->type(), lhs,
-                                               Compiler::RemoveAssignment(b.fOperator),
-                                               b.fRight->type(), rhs, b.type(), out);
+    SpvId rhs = this->writeExpression(right, out);
+    SpvId result = this->writeBinaryExpression(left.type(), lhs, Compiler::RemoveAssignment(op),
+                                               right.type(), rhs, b.type(), out);
     if (lvalue) {
         lvalue->store(result, out);
     }
@@ -2337,17 +2339,17 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
 }
 
 SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStream& out) {
-    SkASSERT(a.fOperator == Token::Kind::TK_LOGICALAND);
+    SkASSERT(a.getOperator() == Token::Kind::TK_LOGICALAND);
     BoolLiteral falseLiteral(fContext, -1, false);
     SpvId falseConstant = this->writeBoolLiteral(falseLiteral);
-    SpvId lhs = this->writeExpression(*a.fLeft, out);
+    SpvId lhs = this->writeExpression(a.left(), out);
     SpvId rhsLabel = this->nextId();
     SpvId end = this->nextId();
     SpvId lhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
     this->writeInstruction(SpvOpBranchConditional, lhs, rhsLabel, end, out);
     this->writeLabel(rhsLabel, out);
-    SpvId rhs = this->writeExpression(*a.fRight, out);
+    SpvId rhs = this->writeExpression(a.right(), out);
     SpvId rhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpBranch, end, out);
     this->writeLabel(end, out);
@@ -2358,17 +2360,17 @@ SpvId SPIRVCodeGenerator::writeLogicalAnd(const BinaryExpression& a, OutputStrea
 }
 
 SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream& out) {
-    SkASSERT(o.fOperator == Token::Kind::TK_LOGICALOR);
+    SkASSERT(o.getOperator() == Token::Kind::TK_LOGICALOR);
     BoolLiteral trueLiteral(fContext, -1, true);
     SpvId trueConstant = this->writeBoolLiteral(trueLiteral);
-    SpvId lhs = this->writeExpression(*o.fLeft, out);
+    SpvId lhs = this->writeExpression(o.left(), out);
     SpvId rhsLabel = this->nextId();
     SpvId end = this->nextId();
     SpvId lhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
     this->writeInstruction(SpvOpBranchConditional, lhs, end, rhsLabel, out);
     this->writeLabel(rhsLabel, out);
-    SpvId rhs = this->writeExpression(*o.fRight, out);
+    SpvId rhs = this->writeExpression(o.right(), out);
     SpvId rhsBlock = fCurrentBlock;
     this->writeInstruction(SpvOpBranch, end, out);
     this->writeLabel(end, out);
