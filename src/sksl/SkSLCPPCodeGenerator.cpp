@@ -70,45 +70,42 @@ String CPPCodeGenerator::getTypeName(const Type& type) {
 
 void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                              Precedence parentPrecedence) {
-    const Expression& left = b.left();
-    const Expression& right = b.right();
-    Token::Kind op = b.getOperator();
-    if (op == Token::Kind::TK_PERCENT) {
+    if (b.fOperator == Token::Kind::TK_PERCENT) {
         // need to use "%%" instead of "%" b/c the code will be inside of a printf
-        Precedence precedence = GetBinaryPrecedence(op);
+        Precedence precedence = GetBinaryPrecedence(b.fOperator);
         if (precedence >= parentPrecedence) {
             this->write("(");
         }
-        this->writeExpression(left, precedence);
+        this->writeExpression(*b.fLeft, precedence);
         this->write(" %% ");
-        this->writeExpression(right, precedence);
+        this->writeExpression(*b.fRight, precedence);
         if (precedence >= parentPrecedence) {
             this->write(")");
         }
-    } else if (left.kind() == Expression::Kind::kNullLiteral ||
-               right.kind() == Expression::Kind::kNullLiteral) {
+    } else if (b.fLeft->kind() == Expression::Kind::kNullLiteral ||
+               b.fRight->kind() == Expression::Kind::kNullLiteral) {
         const Variable* var;
-        if (left.kind() != Expression::Kind::kNullLiteral) {
-            var = &left.as<VariableReference>().fVariable;
+        if (b.fLeft->kind() != Expression::Kind::kNullLiteral) {
+            var = &b.fLeft->as<VariableReference>().fVariable;
         } else {
-            var = &right.as<VariableReference>().fVariable;
+            var = &b.fRight->as<VariableReference>().fVariable;
         }
         SkASSERT(var->type().typeKind() == Type::TypeKind::kNullable &&
                  var->type().componentType() == *fContext.fFragmentProcessor_Type);
         this->write("%s");
-        const char* prefix = "";
-        switch (op) {
+        const char* op = "";
+        switch (b.fOperator) {
             case Token::Kind::TK_EQEQ:
-                prefix = "!";
+                op = "!";
                 break;
             case Token::Kind::TK_NEQ:
-                prefix = "";
+                op = "";
                 break;
             default:
                 SkASSERT(false);
         }
         int childIndex = this->getChildFPIndex(*var);
-        fFormatArgs.push_back(String(prefix) + "_outer.childProcessor(" + to_string(childIndex) +
+        fFormatArgs.push_back(String(op) + "_outer.childProcessor(" + to_string(childIndex) +
                               ") ? \"true\" : \"false\"");
     } else {
         INHERITED::writeBinaryExpression(b, parentPrecedence);
