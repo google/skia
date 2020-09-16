@@ -144,6 +144,25 @@ bool CreateBackendTexture(GrDirectContext* dContext,
     return backendTex->isValid();
 }
 
+bool CreateBackendTexture(GrDirectContext* dContext,
+                          GrBackendTexture* backendTex,
+                          const SkBitmap& bm) {
+    bool finishedBECreate = false;
+    auto markFinished = [](void* context) {
+        *(bool*)context = true;
+    };
+
+    *backendTex = dContext->createBackendTexture(bm.pixmap(), GrRenderable::kNo, GrProtected::kNo,
+                                                 markFinished, &finishedBECreate);
+    if (backendTex->isValid()) {
+        dContext->submit();
+        while (!finishedBECreate) {
+            dContext->checkAsyncWorkCompletion();
+        }
+    }
+    return backendTex->isValid();
+}
+
 void DeleteBackendTexture(GrDirectContext* dContext, const GrBackendTexture& backendTex) {
     dContext->flush();
     dContext->submit(true);
