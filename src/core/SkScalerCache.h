@@ -26,12 +26,25 @@ class SkScalerContext;
 class SkGlyphDigest {
 public:
     SkGlyphDigest() : fIndex{0} {}
-    SkGlyphDigest(size_t i) : fIndex{SkTo<uint32_t>(i)} {}
-    int index() const {return fIndex;}
+    SkGlyphDigest(size_t i, const SkGlyph& glyph)
+        : fIndex{SkTo<uint32_t>(i)}
+        , fIsEmpty(glyph.isEmpty())
+        , fIsColor(glyph.isColor())
+        , fCanDrawAsMask{SkStrikeForGPU::CanDrawAsMask(glyph)}
+        , fCanDrawAsSDFT{SkStrikeForGPU::CanDrawAsSDFT(glyph)} {}
+    int index()          const {return fIndex;        }
+    bool isEmpty()       const {return fIsEmpty;      }
+    bool isColor()       const {return fIsColor;      }
+    bool canDrawAsMask() const {return fCanDrawAsMask;}
+    bool canDrawAsSDFT() const {return fCanDrawAsSDFT;}
 
 private:
     static_assert(SkPackedGlyphID::kEndData == 20);
     uint32_t fIndex : SkPackedGlyphID::kEndData;
+    uint32_t fIsEmpty       : 1;
+    uint32_t fIsColor       : 1;
+    uint32_t fCanDrawAsMask : 1;
+    uint32_t fCanDrawAsSDFT : 1;
 };
 
 // This class represents a strike: a specific combination of typeface, size, matrix, etc., and
@@ -105,8 +118,10 @@ private:
     // advances using a scaler.
     std::tuple<SkGlyph*, size_t> glyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
+    std::tuple<SkGlyphDigest, size_t> digest(SkPackedGlyphID) SK_REQUIRES(fMu);
+
     // Generate the glyph digest information and update structures to add the glyph.
-    void addGlyph(SkGlyph* glyph) SK_REQUIRES(fMu);
+    SkGlyphDigest addGlyph(SkGlyph* glyph) SK_REQUIRES(fMu);
 
     std::tuple<const void*, size_t> prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
 
