@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f38836a5_f7599a0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-17T20:48:17Z",
+      "side": 1,
+      "message": "Ran across this in PIX. Didn\u0027t fix my issue, but certainly bad. Otherwise, if we switch back to this root signature, it\u0027ll think that the tables are already set when they\u0027re not.",
+      "revId": "7fece22540da38c5e69e7591898979b049fea8a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
