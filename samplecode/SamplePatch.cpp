@@ -31,10 +31,13 @@
 
 namespace {
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
-    SkBitmap bm;
-    decode_file(GetResourceAsData("images/dog.jpg"), &bm);
-    *size = SkIPoint{bm.width(), bm.height()};
-    return bm.makeShader();
+    auto img = GetResourceAsImage("images/dog.jpg");
+    *size = { img->width(), img->height() };
+    return img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
+    {
+        SkSamplingMode::kLinear,
+        SkMipmapMode::kLinear,
+    });
 }
 
 static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
