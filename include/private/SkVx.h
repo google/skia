@@ -487,14 +487,13 @@ SIN Vec<N,float> fma(const Vec<N,float>& x, const Vec<N,float>& y, const Vec<N,f
 }
 
 template <int N, typename T, typename Fn, std::size_t... I>
-SI auto map_(const skvx::Vec<N,T>& x, Fn&& fn,
-             std::index_sequence<I...>) -> skvx::Vec<N, decltype(fn(x[0]))> {
+SI auto map(const skvx::Vec<N,T>& x, Fn&& fn,
+            std::index_sequence<I...> ix = {}) -> skvx::Vec<N, decltype(fn(x[0]))> {
+    if /*constexpr*/ (ix.size() == 0) {
+        // When called as map(x, fn), bootstrap the index_sequence we want (0,1,...,N-1).
+        return map(x, fn, std::make_index_sequence<N>{});
+    }
     return { fn(x[I])... };
-}
-
-template <int N, typename T, typename Fn>
-SI auto map(const skvx::Vec<N,T>& x, Fn&& fn) -> skvx::Vec<N, decltype(fn(x[0]))> {
-    return map_(x, fn, std::make_index_sequence<N>{});
 }
 
 SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map(x,  atanf); }
