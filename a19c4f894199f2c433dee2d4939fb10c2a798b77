@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20392992_c364bd45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-17T20:00:41Z",
+      "side": 1,
+      "message": "I have a mild preference for passing SkISize by value just because it\u0027s less visually busy and perf isn\u0027t going to be an issue (if there even is a difference) for any of these functions. But extremely optional.",
+      "revId": "a19c4f894199f2c433dee2d4939fb10c2a798b77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
