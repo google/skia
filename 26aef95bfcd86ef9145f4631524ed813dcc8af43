@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c7bed9c_fd6ee8ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-17T20:41:13Z",
+      "side": 1,
+      "message": "I\u0027m curious what Ethan has to say, but this lgtm.",
+      "revId": "26aef95bfcd86ef9145f4631524ed813dcc8af43",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
