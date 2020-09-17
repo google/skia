@@ -56,32 +56,35 @@ std::unique_ptr<Expression> VariableReference::copy_constant(const IRGenerator& 
     SkASSERT(expr->isCompileTimeConstant());
     switch (expr->kind()) {
         case Expression::Kind::kIntLiteral:
-            return std::unique_ptr<Expression>(new IntLiteral(irGenerator.fContext,
-                                                              -1,
-                                                              ((IntLiteral*) expr)->fValue));
+            return std::make_unique<IntLiteral>(irGenerator.fContext,
+                                                expr->fOffset,
+                                                expr->as<IntLiteral>().fValue);
         case Expression::Kind::kFloatLiteral:
-            return std::unique_ptr<Expression>(new FloatLiteral(
-                                                               irGenerator.fContext,
-                                                               -1,
-                                                               ((FloatLiteral*) expr)->fValue));
+            return std::make_unique<FloatLiteral>(irGenerator.fContext,
+                                                  expr->fOffset,
+                                                  expr->as<FloatLiteral>().fValue);
         case Expression::Kind::kBoolLiteral:
-            return std::unique_ptr<Expression>(new BoolLiteral(irGenerator.fContext,
-                                                               -1,
-                                                               ((BoolLiteral*) expr)->fValue));
+            return std::make_unique<BoolLiteral>(irGenerator.fContext,
+                                                 expr->fOffset,
+                                                 expr->as<BoolLiteral>().fValue);
+        case Expression::Kind::kPrefix: {
+            const PrefixExpression& prefix = expr->as<PrefixExpression>();
+            return std::make_unique<PrefixExpression>(
+                    prefix.fOperator, copy_constant(irGenerator, prefix.fOperand.get()));
+        }
         case Expression::Kind::kConstructor: {
-            const Constructor* c = (const Constructor*) expr;
+            const Constructor& c = expr->as<Constructor>();
             std::vector<std::unique_ptr<Expression>> args;
-            for (const auto& arg : c->fArguments) {
+            args.reserve(c.fArguments.size());
+            for (const auto& arg : c.fArguments) {
                 args.push_back(copy_constant(irGenerator, arg.get()));
             }
-            return std::unique_ptr<Expression>(new Constructor(-1, &c->type(),
-                                                               std::move(args)));
+            return std::make_unique<Constructor>(c.fOffset, &c.type(), std::move(args));
         }
         case Expression::Kind::kSetting: {
-            const Setting* s = (const Setting*) expr;
-            return std::unique_ptr<Expression>(new Setting(-1, s->fName,
-                                                           copy_constant(irGenerator,
-                                                                         s->fValue.get())));
+            const Setting& s = expr->as<Setting>();
+            return std::make_unique<Setting>(s.fOffset, s.fName,
+                                             copy_constant(irGenerator, s.fValue.get()));
         }
         default:
             ABORT("unsupported constant\n");
