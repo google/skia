@@ -16,6 +16,23 @@
       "revId": "58873eecf35adddbf66b5080f674c78d290c104d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "102443ef_52b90516",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T20:58:30Z",
+      "side": 1,
+      "message": "(There\u0027s no public API change here.)",
+      "revId": "58873eecf35adddbf66b5080f674c78d290c104d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
