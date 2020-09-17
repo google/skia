@@ -75,7 +75,7 @@ bool GrShape::simplifyPath(unsigned flags) {
         // Convert to rrect indexing since oval is not represented explicitly
         this->simplifyRRect(SkRRect::MakeOval(rect), dir, start * 2, flags);
         return true;
-    } else if (SkPathPriv::IsSimpleClosedRect(fPath, &rect, &dir, &start)) {
+    } else if (SkPathPriv::IsSimpleRect(fPath, (flags & kSimpleFill_Flag), &rect, &dir, &start)) {
         // When there is a path effect we restrict rect detection to the narrower API that
         // gives us the starting position. Otherwise, we will retry with the more aggressive
         // isRect().

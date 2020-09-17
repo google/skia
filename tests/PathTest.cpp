@@ -2231,19 +2231,20 @@ static void test_isRect(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !path1.isRect(nullptr));
 }
 
-static void check_simple_closed_rect(skiatest::Reporter* reporter, const SkPath& path,
-                                     const SkRect& rect, SkPathDirection dir, unsigned start) {
+static void check_simple_rect(skiatest::Reporter* reporter, const SkPath& path, bool isClosed,
+                              const SkRect& rect, SkPathDirection dir, unsigned start) {
     SkRect r = SkRect::MakeEmpty();
     SkPathDirection d = SkPathDirection::kCCW;
     unsigned s = ~0U;
 
-    REPORTER_ASSERT(reporter, SkPathPriv::IsSimpleClosedRect(path, &r, &d, &s));
+    REPORTER_ASSERT(reporter, SkPathPriv::IsSimpleRect(path, false, &r, &d, &s) == isClosed);
+    REPORTER_ASSERT(reporter, SkPathPriv::IsSimpleRect(path, true, &r, &d, &s));
     REPORTER_ASSERT(reporter, r == rect);
     REPORTER_ASSERT(reporter, d == dir);
     REPORTER_ASSERT(reporter, s == start);
 }
 
-static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
+static void test_is_closed_rect(skiatest::Reporter* reporter) {
     using std::swap;
     SkRect r = SkRect::MakeEmpty();
     SkPathDirection d = SkPathDirection::kCCW;
@@ -2256,18 +2257,21 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
         for (auto dir : {SkPathDirection::kCCW, SkPathDirection::kCW}) {
             SkPath path;
             path.addRect(testRect, dir, start);
-            check_simple_closed_rect(reporter, path, testRect, dir, start);
+            check_simple_rect(reporter, path, true, testRect, dir, start);
             path.close();
-            check_simple_closed_rect(reporter, path, testRect, dir, start);
+            check_simple_rect(reporter, path, true, testRect, dir, start);
             SkPath path2 = path;
             path2.lineTo(10, 10);
-            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path2, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true, &r, &d, &s));
             path2 = path;
             path2.moveTo(10, 10);
-            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path2, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true, &r, &d, &s));
             path2 = path;
             path2.addRect(testRect, dir, start);
-            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path2, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true, &r, &d, &s));
             // Make the path by hand, manually closing it.
             path2.reset();
             SkPoint firstPt = {0.f, 0.f};
@@ -2285,27 +2289,31 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
                 }
             }
             // We haven't closed it yet...
-            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path2, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true, &r, &d, &s));
             // ... now we do and test again.
             path2.lineTo(firstPt);
-            check_simple_closed_rect(reporter, path2, testRect, dir, start);
+            check_simple_rect(reporter, path2, false, testRect, dir, start);
             // A redundant close shouldn't cause a failure.
             path2.close();
-            check_simple_closed_rect(reporter, path2, testRect, dir, start);
+            check_simple_rect(reporter, path2, true, testRect, dir, start);
             // Degenerate point and line rects are not allowed
             path2.reset();
             path2.addRect(emptyRect, dir, start);
-            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path2, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true, &r, &d, &s));
             SkRect degenRect = testRect;
             degenRect.fLeft = degenRect.fRight;
             path2.reset();
             path2.addRect(degenRect, dir, start);
-            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path2, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true, &r, &d, &s));
             degenRect = testRect;
             degenRect.fTop = degenRect.fBottom;
             path2.reset();
             path2.addRect(degenRect, dir, start);
-            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path2, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false, &r, &d, &s));
+            REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true, &r, &d, &s));
             // An inverted rect makes a rect path, but changes the winding dir and start point.
             SkPathDirection swapDir = (dir == SkPathDirection::kCW)
                                             ? SkPathDirection::kCCW
@@ -2316,12 +2324,12 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
             swap(swapRect.fLeft, swapRect.fRight);
             path2.reset();
             path2.addRect(swapRect, dir, start);
-            check_simple_closed_rect(reporter, path2, testRect, swapDir, kXSwapStarts[start]);
+            check_simple_rect(reporter, path2, true, testRect, swapDir, kXSwapStarts[start]);
             swapRect = testRect;
             swap(swapRect.fTop, swapRect.fBottom);
             path2.reset();
             path2.addRect(swapRect, dir, start);
-            check_simple_closed_rect(reporter, path2, testRect, swapDir, kYSwapStarts[start]);
+            check_simple_rect(reporter, path2, true, testRect, swapDir, kYSwapStarts[start]);
         }
     }
     // down, up, left, close
@@ -2334,7 +2342,8 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
     SkPathDirection  dir;
     unsigned start;
     path.close();
-    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true, &rect, &dir, &start));
     // right, left, up, close
     path.reset();
     path.moveTo(1, 1);
@@ -2342,7 +2351,8 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
     path.lineTo(1, 1);
     path.lineTo(1, 0);
     path.close();
-    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true, &rect, &dir, &start));
     // parallelogram with horizontal edges
     path.reset();
     path.moveTo(1, 0);
@@ -2350,7 +2360,8 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
     path.lineTo(2, 1);
     path.lineTo(0, 1);
     path.close();
-    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true, &rect, &dir, &start));
     // parallelogram with vertical edges
     path.reset();
     path.moveTo(0, 1);
@@ -2358,7 +2369,8 @@ static void test_is_simple_closed_rect(skiatest::Reporter* reporter) {
     path.lineTo(1, 2);
     path.lineTo(1, 0);
     path.close();
-    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleClosedRect(path, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false, &rect, &dir, &start));
+    REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true, &rect, &dir, &start));
 
 }
 
@@ -4908,7 +4920,7 @@ DEF_TEST(Paths, reporter) {
     test_operatorEqual(reporter);
     test_isLine(reporter);
     test_isRect(reporter);
-    test_is_simple_closed_rect(reporter);
+    test_is_closed_rect(reporter);
     test_isNestedFillRects(reporter);
     test_zero_length_paths(reporter);
     test_direction(reporter);

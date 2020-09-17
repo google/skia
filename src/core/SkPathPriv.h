@@ -81,12 +81,12 @@ public:
     }
 
     /**
-     * This returns true for a rect that begins and ends at the same corner and has either a move
-     * followed by four lines or a move followed by 3 lines and a close. None of the parameters are
-     * optional. This does not permit degenerate line or point rectangles.
+     * This returns true for a rect that has a move followed by 3 or 4 lines and a close. If
+     * 'isSimpleFill' is true, an uncloseed rect will also be accepted as long as it starts and
+     * ends at the same corner. This does not permit degenerate line or point rectangles.
      */
-    static bool IsSimpleClosedRect(const SkPath& path, SkRect* rect, SkPathDirection* direction,
-                                   unsigned* start);
+    static bool IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rect,
+                             SkPathDirection* direction, unsigned* start);
 
     /**
      * Creates a path from arc params using the semantics of SkCanvas::drawArc. This function
