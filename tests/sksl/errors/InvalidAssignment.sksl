@@ -1,0 +1,6 @@
+uniform int a;
+const int b;
+
+void assign_to_literal() { 1 = 2; }
+void assign_to_uniform() { a = 0; }
+void assign_to_const()   { b = 0; }

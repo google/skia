@@ -1,0 +1,4 @@
+void main() {
+    float2x2 x = float2x2(1);
+    float y = x.y;
+}

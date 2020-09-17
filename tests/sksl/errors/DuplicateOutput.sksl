@@ -1,0 +1,1 @@
+layout (location=0, index=0) out half4 duplicateOutput;

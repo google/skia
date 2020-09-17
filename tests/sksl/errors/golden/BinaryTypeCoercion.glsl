@@ -1,0 +1,23 @@
+### Compilation failed:
+
+error: 11: type mismatch: '=' cannot operate on 'half', 'float'
+error: 12: type mismatch: '=' cannot operate on 'half', 'float'
+error: 13: type mismatch: '*=' cannot operate on 'half', 'float'
+error: 18: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 19: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 20: type mismatch: '*=' cannot operate on 'half4', 'float4'
+error: 24: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 25: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 30: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 31: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 32: type mismatch: '*=' cannot operate on 'half4', 'float'
+error: 36: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 37: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 42: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 43: type mismatch: '=' cannot operate on 'half4', 'float4'
+error: 44: type mismatch: '*=' cannot operate on 'half4', 'float4x4'
+error: 49: type mismatch: '=' cannot operate on 'half4x4', 'float4x4'
+error: 50: type mismatch: '=' cannot operate on 'half4x4', 'float4x4'
+error: 51: type mismatch: '*=' cannot operate on 'half4x4', 'float4x4'
+error: 55: type mismatch: '*=' cannot operate on 'float4x4', 'float4'
+20 errors

@@ -1,0 +1,6 @@
+// Ensure eliminated branch of static if / ternary is still checked for errors.
+
+void error_in_dead_else_body()          { if (true) {} else x = 5; }
+void error_in_dead_if_body()            { if (false) x = 5; }
+void error_in_dead_ternary_true_expr()  { true ? 5 : x; }
+void error_in_dead_ternary_false_expr() { false ? x : 5; }

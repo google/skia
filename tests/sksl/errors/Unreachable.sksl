@@ -1,0 +1,7 @@
+void return_after_return()                { return; return; }
+void call_after_return()                  { return; call_after_return(); }
+void code_after_continue()                { for (;;) { continue; int x = 1; } }
+void code_after_if_else_both_sided_exit() { if (true) return; else discard; return; }
+
+// Not detected today
+void code_after_infinite_loop()           { for (;;) {} return; }

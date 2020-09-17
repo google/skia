@@ -1,1 +1,3 @@
-void main(inout float4 color) { color.r[ = ( color.g ); }
+void main(inout float4 color) {
+    color.r[ = ( color.g );
+}

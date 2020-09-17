@@ -1,0 +1,7 @@
+float foo(float x) {
+    return x * x;
+}
+
+void main() {
+    float x = foo(true);
+}
