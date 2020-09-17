@@ -8,11 +8,16 @@
 #ifndef SKSL_IRNODE
 #define SKSL_IRNODE
 
+#include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLString.h"
 
+#include <algorithm>
+#include <vector>
+
 namespace SkSL {
 
+struct Expression;
 class Type;
 
 /**
@@ -21,12 +26,19 @@ class Type;
  */
 class IRNode {
 public:
-    IRNode(int offset, int kind, const Type* type = nullptr)
-    : fOffset(offset)
-    , fKind(kind)
-    , fType(type) {}
+    virtual ~IRNode();
 
-    virtual ~IRNode() {}
+    IRNode& operator=(const IRNode& other) {
+        // Need to have a copy assignment operator because Type requires it, but can't use the
+        // default version until we finish migrating away from std::unique_ptr children. For now,
+        // just assert that there are no children (we could theoretically clone them, but we never
+        // actually copy nodes containing children).
+        SkASSERT(other.fExpressionChildren.empty());
+        fKind = other.fKind;
+        fOffset = other.fOffset;
+        fData = other.fData;
+        return *this;
+    }
 
     virtual String description() const = 0;
 
@@ -35,15 +47,85 @@ public:
     int fOffset;
 
     const Type& type() const {
-        SkASSERT(fType);
-        return *fType;
+        switch (fData.fKind) {
+            case NodeData::Kind::kType:
+                return *this->typeData();
+            case NodeData::Kind::kTypeToken:
+                return *this->typeTokenData().fType;
+            default:
+                SkUNREACHABLE;
+        }
     }
 
 protected:
+    struct TypeTokenData {
+        const Type* fType;
+        Token::Kind fToken;
+    };
+
+    struct NodeData {
+        char fBytes[std::max({sizeof(Type*),
+                              sizeof(TypeTokenData)})];
+
+        enum class Kind {
+            kType,
+            kTypeToken,
+        } fKind;
+
+        NodeData() = default;
+
+        NodeData(const Type* data)
+            : fKind(Kind::kType) {
+            memcpy(fBytes, &data, sizeof(data));
+        }
+
+        NodeData(TypeTokenData data)
+            : fKind(Kind::kTypeToken) {
+            memcpy(fBytes, &data, sizeof(data));
+        }
+    };
+
+    IRNode(int offset, int kind, const Type* data = nullptr);
+
+    IRNode(int offset, int kind, TypeTokenData data);
+
+    IRNode(const IRNode& other);
+
+    Expression& expressionChild(int index) const {
+        SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
+        return *fExpressionChildren[index];
+    }
+
+    std::unique_ptr<Expression>& expressionPointer(int index) {
+        SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
+        return fExpressionChildren[index];
+    }
+
+    const std::unique_ptr<Expression>& expressionPointer(int index) const {
+        SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
+        return fExpressionChildren[index];
+    }
+
+    int expressionChildCount() const {
+        return fExpressionChildren.size();
+    }
+
+    const Type* typeData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kType);
+        return *reinterpret_cast<const Type* const*>(fData.fBytes);
+    }
+
+    const TypeTokenData& typeTokenData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kTypeToken);
+        return *reinterpret_cast<const TypeTokenData*>(fData.fBytes);
+    }
+
     int fKind;
 
-private:
-    const Type* fType;
+    NodeData fData;
+
+    std::vector<std::unique_ptr<Expression>> fExpressionChildren;
+
 };
 
 }  // namespace SkSL
