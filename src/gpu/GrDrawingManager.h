@@ -113,6 +113,9 @@ public:
 
 #if GR_TEST_UTILS
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
+    GrPathRendererChain::Options testingOnly_getOptionsForPathRendererChain() {
+        return fOptionsForPathRendererChain;
+    }
 #endif
 
     GrRenderTask* getLastRenderTask(const GrSurfaceProxy*) const;

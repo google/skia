@@ -39,14 +39,16 @@ bool GrTessellationPathRenderer::IsSupported(const GrCaps& caps) {
     return caps.drawInstancedSupport() && caps.shaderCaps()->vertexIDSupport();
 }
 
-GrTessellationPathRenderer::GrTessellationPathRenderer(const GrCaps& caps)
+GrTessellationPathRenderer::GrTessellationPathRenderer(const GrRecordingContext* rContext)
         : fAtlas(kAtlasAlpha8Type, GrDynamicAtlas::InternalMultisample::kYes, kAtlasInitialSize,
-                 std::min(kMaxAtlasSize, caps.maxPreferredRenderTargetSize()),
-                 caps, kAtlasAlgorithm) {
-    this->initAtlasFlags(caps);
+                 std::min(kMaxAtlasSize, rContext->priv().caps()->maxPreferredRenderTargetSize()),
+                 *rContext->priv().caps(), kAtlasAlgorithm) {
+    this->initAtlasFlags(rContext);
 }
 
-void GrTessellationPathRenderer::initAtlasFlags(const GrCaps& caps) {
+void GrTessellationPathRenderer::initAtlasFlags(const GrRecordingContext* rContext) {
+    const GrCaps& caps = *rContext->priv().caps();
+
     fStencilAtlasFlags = OpFlags::kStencilOnly | OpFlags::kDisableHWTessellation;
     fMaxAtlasPathWidth = fAtlas.maxAtlasSize() / 2;
 
@@ -86,15 +88,16 @@ void GrTessellationPathRenderer::initAtlasFlags(const GrCaps& caps) {
     // float a = 1;  // 'a' is always 1 in our specific equation.
     float b = -s*s*s*s / (4*k*k);  // Always negative.
     float c = h*h*h*h;  // Always positive.
-    float det = b*b - 4*1*c;
-    if (det <= 0) {
+    float discr = b*b - 4*1*c;
+    if (discr <= 0) {
         // maxTessellationSegments is too small for any path whose area == kMaxAtlasPathHeight^2.
         // (This is unexpected because the GL spec mandates a minimum of 64 segments.)
-        SkDebugf("WARNING: maxTessellationSegments seems too low. (%i)\n",
-                 caps.shaderCaps()->maxTessellationSegments());
+        rContext->priv().printWarningMessage(SkStringPrintf(
+                "WARNING: maxTessellationSegments seems too low. (%i)\n",
+                caps.shaderCaps()->maxTessellationSegments()).c_str());
         return;
     }
-    float q = -.5f * (b - std::sqrt(det));  // Always positive.
+    float q = -.5f * (b - std::sqrt(discr));  // Always positive.
     // The two roots represent the width^2 and height^2 of the tallest rectangle that is limited by
     // GrWangsFormula::worst_case_cubic().
     float r0 = q;  // Always positive.

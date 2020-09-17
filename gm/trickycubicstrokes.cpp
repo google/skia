@@ -16,12 +16,19 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkGeometry.h"
+#include "src/gpu/GrDrawingManager.h"
+#include "src/gpu/GrRecordingContextPriv.h"
+#include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 static constexpr float kStrokeWidth = 30;
 static constexpr int kCellSize = 200;
 static constexpr int kNumCols = 5;
 static constexpr int kNumRows = 4;
+static constexpr int kTestWidth = kNumCols * kCellSize;
+static constexpr int kTestHeight = kNumRows * kCellSize;
 
 enum class CellFillMode {
     kStretch,
@@ -35,6 +42,7 @@ struct TrickyCubic {
     float fScale = 1;
 };
 
+// This is a compilation of cubics that have given strokers grief. Feel free to add more.
 static const TrickyCubic kTrickyCubics[] = {
     {{{122, 737}, {348, 553}, {403, 761}, {400, 760}}, 4, CellFillMode::kStretch},
     {{{244, 520}, {244, 518}, {1141, 634}, {394, 688}}, 4, CellFillMode::kStretch},
@@ -87,46 +95,26 @@ enum class FillMode {
     kScale
 };
 
-// This is a compilation of cubics that have given strokers grief. Feel free to add more.
-class TrickyCubicStrokesGM : public skiagm::GM {
-public:
-    TrickyCubicStrokesGM() {}
+static void draw_test(SkCanvas* canvas, const SkColor strokeColor) {
+    SkPaint strokePaint;
+    strokePaint.setAntiAlias(true);
+    strokePaint.setStrokeWidth(kStrokeWidth);
+    strokePaint.setColor(strokeColor);
+    strokePaint.setStyle(SkPaint::kStroke_Style);
 
-protected:
+    canvas->clear(SK_ColorBLACK);
 
-    SkString onShortName() override {
-        return SkString("trickycubicstrokes");
-    }
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kTrickyCubics); ++i) {
+        auto [originalPts, numPts, fillMode, scale] = kTrickyCubics[i];
 
-    SkISize onISize() override {
-        return SkISize::Make(kNumCols * kCellSize, kNumRows * kCellSize);
-    }
-
-    void onOnceBeforeDraw() override {
-        fStrokePaint.setAntiAlias(true);
-        fStrokePaint.setStrokeWidth(kStrokeWidth);
-        fStrokePaint.setColor(SK_ColorGREEN);
-        fStrokePaint.setStyle(SkPaint::kStroke_Style);
-    }
-
-    void onDraw(SkCanvas* canvas) override {
-        canvas->clear(SK_ColorBLACK);
-
-        for (size_t i = 0; i < SK_ARRAY_COUNT(kTrickyCubics); ++i) {
-            const auto& trickyCubic = kTrickyCubics[i];
-            SkPoint p[7];
-            memcpy(p, trickyCubic.fPoints, sizeof(SkPoint) * 4);
-            for (int j = 0; j < 4; ++j) {
-                p[j] *= trickyCubic.fScale;
-            }
-            this->drawStroke(canvas, p, trickyCubic.fNumPts, i, trickyCubic.fFillMode);
+        SkASSERT(numPts <= 4);
+        SkPoint p[4];
+        memcpy(p, originalPts, sizeof(SkPoint) * numPts);
+        for (int j = 0; j < numPts; ++j) {
+            p[j] *= scale;
         }
-    }
 
-    void drawStroke(SkCanvas* canvas, const SkPoint p[], int numPts, int cellID,
-                    CellFillMode fillMode) {
-        auto cellRect = SkRect::MakeXYWH((cellID % kNumCols) * kCellSize,
-                                         (cellID / kNumCols) * kCellSize,
+        auto cellRect = SkRect::MakeXYWH((i % kNumCols) * kCellSize, (i / kNumCols) * kCellSize,
                                          kCellSize, kCellSize);
 
         SkRect strokeBounds;
@@ -151,7 +139,7 @@ protected:
 
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(matrix);
-        fStrokePaint.setStrokeWidth(kStrokeWidth / matrix.getMaxScale());
+        strokePaint.setStrokeWidth(kStrokeWidth / matrix.getMaxScale());
         SkPath path = SkPath().moveTo(p[0]);
         if (numPts == 4) {
             path.cubicTo(p[1], p[2], p[3]);
@@ -159,12 +147,54 @@ protected:
             SkASSERT(numPts == 3);
             path.quadTo(p[1], p[2]);
         }
-        canvas->drawPath(path, fStrokePaint);
+        canvas->drawPath(path, strokePaint);
+    }
+}
+
+DEF_SIMPLE_GM(trickycubicstrokes, canvas, kTestWidth, kTestHeight) {
+    draw_test(canvas, SK_ColorGREEN);
+}
+
+class TrickyCubicStrokes_tess_segs_5 : public skiagm::GpuGM {
+    SkString onShortName() override {
+        return SkString("trickycubicstrokes_tess_segs_5");
     }
 
-private:
-    SkPaint fStrokePaint;
-    using INHERITED = GM;
+    SkISize onISize() override {
+        return SkISize::Make(kTestWidth, kTestHeight);
+    }
+
+    void modifyGrContextOptions(GrContextOptions* options) override {
+        // Pick a very small, odd (and better yet, prime) number of segments.
+        //
+        // - Odd because it makes the tessellation strip asymmetric, which will be important to test
+        //   for future plans that involve drawing in reverse order.
+        //
+        // - >=4 because the tessellator code will just assume we have enough to combine a miter
+        //   join and line in a single patch. (Requires 4 segments. Spec required minimum is 64.)
+        options->fMaxTessellationSegmentsOverride = 5;
+        // Only allow the tessellation path renderer.
+        options->fGpuPathRenderers = (GpuPathRenderers)((int)options->fGpuPathRenderers &
+                                                        (int)GpuPathRenderers::kTessellation);
+    }
+
+    DrawResult onDraw(GrRecordingContext* context, GrRenderTargetContext*, SkCanvas* canvas,
+                      SkString* errorMsg) override {
+        if (!context->priv().caps()->shaderCaps()->tessellationSupport() ||
+            !GrTessellationPathRenderer::IsSupported(*context->priv().caps())) {
+            errorMsg->set("Tessellation not supported.");
+            return DrawResult::kSkip;
+        }
+        auto opts = context->priv().drawingManager()->testingOnly_getOptionsForPathRendererChain();
+        if (!(opts.fGpuPathRenderers & GpuPathRenderers::kTessellation)) {
+            errorMsg->set("GrTessellationPathRenderer disabled.");
+            return DrawResult::kSkip;
+        }
+        // Suppress a tessellator warning message that caps.maxTessellationSegments is too small.
+        GrRecordingContextPriv::AutoSuppressWarningMessages aswm(context);
+        draw_test(canvas, SK_ColorRED);
+        return DrawResult::kOk;
+    }
 };
 
-DEF_GM( return new TrickyCubicStrokesGM; )
+DEF_GM( return new TrickyCubicStrokes_tess_segs_5; )
