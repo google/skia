@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "73ff4b47_0280f68c",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-17T21:17:06Z",
+      "side": 1,
+      "message": "This comment when put together with the nearly-identical comment on L189 is confusing to me. I am not math-savvy enough to remember what it means if the dot- and cross-product are both negative. It might help if the positive dot-product case was commented as well?",
+      "range": {
+        "startLine": 194,
+        "startChar": 10,
+        "endLine": 195,
+        "endChar": 99
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c61c003d_fa103c41",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-17T21:17:06Z",
+      "side": 1,
+      "message": "By renaming \"bisector\" to \"n\" it\u0027s no longer clear what \"nx\" and \"ny\" are?",
+      "range": {
+        "startLine": 220,
+        "startChar": 66,
+        "endLine": 220,
+        "endChar": 68
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2eea5621_3c906869",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-17T21:17:06Z",
+      "side": 1,
+      "message": "Let\u0027s make this static const (or static constexpr if that\u0027s an option).\nOtherwise the compiler is going to make a stack copy that adds no value.",
+      "range": {
+        "startLine": 578,
+        "startChar": 4,
+        "endLine": 578,
+        "endChar": 9
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ded54ba_95a22556",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-17T21:17:06Z",
+      "side": 1,
+      "message": "Is this part of the robustness improvement?",
+      "range": {
+        "startLine": 600,
+        "startChar": 14,
+        "endLine": 600,
+        "endChar": 17
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
