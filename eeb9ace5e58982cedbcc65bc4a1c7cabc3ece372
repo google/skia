@@ -56,6 +56,30 @@
       "revId": "eeb9ace5e58982cedbcc65bc4a1c7cabc3ece372",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9502c740_970ccf5f",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T15:35:06Z",
+      "side": 1,
+      "message": "This file is in include/private, #included into our public headers, and so must use C++14 only.",
+      "parentUuid": "21aa991f_72d0f121",
+      "range": {
+        "startLine": 492,
+        "startChar": 7,
+        "endLine": 492,
+        "endChar": 20
+      },
+      "revId": "eeb9ace5e58982cedbcc65bc4a1c7cabc3ece372",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
