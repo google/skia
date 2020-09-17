@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0308173_577aab58",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-17T20:01:08Z",
+      "side": 1,
+      "message": "At this point, could we just get rid of copy_constant entirely, and call clone() at the call sites? The two in VariableReference are already checking that the argument is a compile-time-constant, so the assert isn\u0027t useful (and Settings values are always constant, but we could add the check there to be more explicit). I think seeing calls to clone() would make it clearer what\u0027s happening, and having the utility function live in VariableReference further obscures the point.",
+      "revId": "02989f4ef515f208d856a22421ff7b2b38fd6721",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
