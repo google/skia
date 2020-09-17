@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "927a41c1_c8ae3701",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-17T02:29:50Z",
+      "side": 1,
+      "message": "remove the image-\u003ewith variant, since it couldn\u0027t resolve sk_sp\u003cSkMipmap\u003e. Now the builder\nitself returns the new image.\n\nptal",
+      "revId": "6947a9fa13d7a770bfb3603d1a7f18089ea7f44d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
