@@ -16,6 +16,46 @@
       "revId": "eeb9ace5e58982cedbcc65bc4a1c7cabc3ece372",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b333013a_da0d4123",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-17T15:34:02Z",
+      "side": 1,
+      "message": "Nice, but terrible. As in fear of God terrible.",
+      "revId": "eeb9ace5e58982cedbcc65bc4a1c7cabc3ece372",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "21aa991f_72d0f121",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-17T15:34:02Z",
+      "side": 1,
+      "message": "You should be able to use constexpr here. It\u0027s c++17 syntax.",
+      "range": {
+        "startLine": 492,
+        "startChar": 7,
+        "endLine": 492,
+        "endChar": 20
+      },
+      "revId": "eeb9ace5e58982cedbcc65bc4a1c7cabc3ece372",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
