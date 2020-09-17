@@ -304,6 +304,8 @@ void GrD3DDirectCommandList::setGraphicsRootSignature(const sk_sp<GrD3DRootSigna
         fCommandList->SetGraphicsRootSignature(rootSig->rootSignature());
         this->addResource(rootSig);
         fCurrentRootSignature = rootSig.get();
+        // need to reset the current descriptor tables as well
+        sk_bzero(fCurrentRootDescriptorTable, sizeof(fCurrentRootDescriptorTable));
     }
 }
 
