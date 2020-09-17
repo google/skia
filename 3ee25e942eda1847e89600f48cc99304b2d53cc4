@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "793cc108_adb32c6a",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T21:02:34Z",
+      "side": 0,
+      "message": "Sorry, I forgot... Is this -Wtautological-value-range-compare?\n\nIf so, the warning you\u0027re seeing here is a false positive and the warning has been fixed in later revisions of Clang.  You\u0027d better build with -Wno-tautological-value-range-compare while we wait for the fix to percolate through various toolchains like emsdk and Chrome\u0027s clang.",
+      "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
