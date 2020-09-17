@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04068443_1d62257e",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T19:46:26Z",
+      "side": 1,
+      "message": "Should this fill out false for the new fields?",
+      "revId": "e97a9399f744042f0121201e3d025b0d3b9385db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
