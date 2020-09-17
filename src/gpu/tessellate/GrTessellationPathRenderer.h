@@ -45,7 +45,7 @@ public:
 
     static bool IsSupported(const GrCaps&);
 
-    GrTessellationPathRenderer(const GrCaps&);
+    GrTessellationPathRenderer(const GrRecordingContext*);
     const char* name() const final { return "GrTessellationPathRenderer"; }
     StencilSupport onGetStencilSupport(const GrStyledShape& shape) const override {
         // TODO: Single-pass (e.g., convex) paths can have full support.
@@ -58,7 +58,7 @@ public:
                   int numOpsTaskIDs) override;
 
 private:
-    void initAtlasFlags(const GrCaps&);
+    void initAtlasFlags(const GrRecordingContext*);
     SkPath* getAtlasUberPath(SkPathFillType fillType, bool antialias) {
         int idx = (int)antialias << 1;
         idx |= (int)fillType & 1;
