@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "593f85dd_3792484e",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-17T18:02:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e826a5ac_0ee390ee",
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b451e285_d645974d",
         "filename": "src/core/SkScalerCache.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7967659_81d54f05",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-17T18:02:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b451e285_d645974d",
+      "range": {
+        "startLine": 54,
+        "startChar": 11,
+        "endLine": 54,
+        "endChar": 19
+      },
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "5c8a3599_3a512c88",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-17T18:02:29Z",
+      "side": 1,
+      "message": "I jumped the gun here. I already have the renaming ready to go in the next CL.",
+      "parentUuid": "e766b890_4b06bd0f",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 23
+      },
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "629b2e2f_83d8550e",
         "filename": "src/core/SkScalerCache.cpp",
         "patchSetId": 2
@@ -79,6 +145,24 @@
       "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d6129d2_31aed52d",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-17T18:02:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "629b2e2f_83d8550e",
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
