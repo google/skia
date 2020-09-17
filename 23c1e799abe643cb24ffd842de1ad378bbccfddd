@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "451c324d_2f391906",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-17T13:08:17Z",
+      "side": 1,
+      "message": "Nice that you were able to test this without making ginormous paths.",
+      "revId": "23c1e799abe643cb24ffd842de1ad378bbccfddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
