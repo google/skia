@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e826a5ac_0ee390ee",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T17:41:51Z",
+      "side": 1,
+      "message": "(void)this-\u003e\n\n?",
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b451e285_d645974d",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T17:41:51Z",
+      "side": 1,
+      "message": "Can probably just call it index?  It\u0027s not replacing an old index or anything.",
+      "range": {
+        "startLine": 54,
+        "startChar": 11,
+        "endLine": 54,
+        "endChar": 19
+      },
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e766b890_4b06bd0f",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T17:41:51Z",
+      "side": 1,
+      "message": "I think this is a sign we want to rename the type SkGlyphDigest.",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 23
+      },
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "629b2e2f_83d8550e",
+        "filename": "src/core/SkScalerCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T17:41:51Z",
+      "side": 1,
+      "message": "(void)this-\u003e  ?\n\nDoes\u0027t seem like anyone\u0027s using the returned digest?  Maybe just leave addGlyph() returning void until the CL where something does want it?",
+      "revId": "94d3bdbed7a3acd1d2bba5bf559705d1cb981282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
