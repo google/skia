@@ -16,6 +16,41 @@
       "revId": "6947a9fa13d7a770bfb3603d1a7f18089ea7f44d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e38128e5_ea3bed19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-17T16:08:35Z",
+      "side": 1,
+      "message": "Looks okay. I think it\u0027s strange that the default mipmaps API is on image, and the custom mipmap API is external. There\u0027s an argument that it\u0027s okay, because the latter is a power-user feature, and I can live with that.",
+      "parentUuid": "927a41c1_c8ae3701",
+      "revId": "6947a9fa13d7a770bfb3603d1a7f18089ea7f44d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f46499cc_f868a621",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-17T16:08:35Z",
+      "side": 1,
+      "message": "nit: line length",
+      "revId": "6947a9fa13d7a770bfb3603d1a7f18089ea7f44d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
