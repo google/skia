@@ -16,6 +16,24 @@
       "revId": "02989f4ef515f208d856a22421ff7b2b38fd6721",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "47b2ae57_1f6d5c88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-17T20:04:45Z",
+      "side": 1,
+      "message": "This does work (I tried it) and the only thing you really lose is the ABORT if the expression is of an unexpected kind. I wasn\u0027t sure if that ABORT was worth saving. What do you think?",
+      "parentUuid": "a0308173_577aab58",
+      "revId": "02989f4ef515f208d856a22421ff7b2b38fd6721",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
