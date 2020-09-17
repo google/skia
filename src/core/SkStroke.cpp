@@ -642,7 +642,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckCubicLinear(const SkPoint cubic
     if (degenerateAB & degenerateBC & degenerateCD) {
         return kPoint_ReductionType;
     }
-    if (degenerateAB + degenerateBC + degenerateCD == 2) {
+    if ((int)degenerateAB + (int)degenerateBC + (int)degenerateCD == 2) {
         return kLine_ReductionType;
     }
     if (!cubic_in_line(cubic)) {

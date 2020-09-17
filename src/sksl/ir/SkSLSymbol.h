@@ -35,6 +35,9 @@ struct Symbol : public IRNode {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    Symbol(const Symbol&) = default;
+    Symbol& operator=(const Symbol&) = default;
+
     ~Symbol() override {}
 
     Kind kind() const {
