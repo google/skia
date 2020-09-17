@@ -151,43 +151,37 @@ namespace SK_OPTS_NS {
                     //     - memcpy() loads the gather base and into a pointer of the right type.
                     // After all that we have an ordinary (uniform) pointer `ptr` to load from,
                     // and we then gather from it using the varying indices in r[x].
-                    STRIDE_1(Op::gather8):
-                        for (int i = 0; i < K; i++) {
-                            const uint8_t* ptr;
-                            memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
-                            r[d].i32[i] = (i==0) ? ptr[ r[x].i32[i] ] : 0;
-                        } break;
-                    STRIDE_1(Op::gather16):
-                        for (int i = 0; i < K; i++) {
-                            const uint16_t* ptr;
-                            memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
-                            r[d].i32[i] = (i==0) ? ptr[ r[x].i32[i] ] : 0;
-                        } break;
-                    STRIDE_1(Op::gather32):
-                        for (int i = 0; i < K; i++) {
-                            const int* ptr;
-                            memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
-                            r[d].i32[i] = (i==0) ? ptr[ r[x].i32[i] ] : 0;
-                        } break;
+                    STRIDE_1(Op::gather8): {
+                        const uint8_t* ptr;
+                        memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
+                        r[d].i32 = ptr[ r[x].i32[0] ];
+                    } break;
+                    STRIDE_1(Op::gather16): {
+                        const uint16_t* ptr;
+                        memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
+                        r[d].i32 = ptr[ r[x].i32[0] ];
+                    } break;
+                    STRIDE_1(Op::gather32): {
+                        const int* ptr;
+                        memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
+                        r[d].i32 = ptr[ r[x].i32[0] ];
+                    } break;
 
-                    STRIDE_K(Op::gather8):
-                        for (int i = 0; i < K; i++) {
-                            const uint8_t* ptr;
-                            memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
-                            r[d].i32[i] = ptr[ r[x].i32[i] ];
-                        } break;
-                    STRIDE_K(Op::gather16):
-                        for (int i = 0; i < K; i++) {
-                            const uint16_t* ptr;
-                            memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
-                            r[d].i32[i] = ptr[ r[x].i32[i] ];
-                        } break;
-                    STRIDE_K(Op::gather32):
-                        for (int i = 0; i < K; i++) {
-                            const int* ptr;
-                            memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
-                            r[d].i32[i] = ptr[ r[x].i32[i] ];
-                        } break;
+                    STRIDE_K(Op::gather8): {
+                        const uint8_t* ptr;
+                        memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
+                        r[d].i32 = map(r[x].i32, [&](int ix) { return (int)ptr[ix]; });
+                    } break;
+                    STRIDE_K(Op::gather16): {
+                        const uint16_t* ptr;
+                        memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
+                        r[d].i32 = map(r[x].i32, [&](int ix) { return (int)ptr[ix]; });
+                    } break;
+                    STRIDE_K(Op::gather32): {
+                        const int* ptr;
+                        memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
+                        r[d].i32 = map(r[x].i32, [&](int ix) { return ptr[ix]; });
+                    } break;
 
                 #undef STRIDE_1
                 #undef STRIDE_K
