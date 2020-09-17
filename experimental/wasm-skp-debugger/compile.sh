@@ -73,7 +73,7 @@ echo "Compiling bitcode"
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
-    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
+    \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_NEW_GR_CLIP_STACK\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
     ${EXTRA_CFLAGS}
