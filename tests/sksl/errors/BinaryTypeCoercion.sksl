@@ -1,0 +1,64 @@
+half H = 1.0;
+float F = 1.0;
+half4 H4 = half4(1.0);
+float4 F4 = float4(1.0);
+half4x4 H4x4 = half4x4(1.0);
+float4x4 F4x4 = float4x4(1.0);
+
+void scalar_times_scalar() {
+    F = F * H;  // OK
+    F = H * F;  // OK
+    H = F * H;  // disallowed
+    H = H * F;  // disallowed
+    F *= H;     // OK
+    H *= F;     // disallowed
+}
+
+void vector_times_vector() {
+    F4 = F4 * H4;  // OK
+    F4 = H4 * F4;  // OK
+    H4 = F4 * H4;  // disallowed
+    H4 = H4 * F4;  // disallowed
+}
+
+void scalar_times_vector() {
+    F4 = F * H4;  // OK
+    F4 = H * F4;  // OK
+    H4 = F * H4;  // disallowed
+    H4 = H * F4;  // disallowed
+}
+
+void vector_times_scalar() {
+    F4 = F4 * H;  // OK
+    F4 = H4 * F;  // OK
+    H4 = F4 * H;  // disallowed
+    H4 = H4 * F;  // disallowed
+}
+
+void matrix_times_vector() {
+    F4 = F4x4 * H4;  // OK
+    F4 = H4x4 * F4;  // OK
+    H4 = F4x4 * H4;  // disallowed
+    H4 = H4x4 * F4;  // disallowed
+}
+
+
+void vector_times_matrix() {
+    F4 = F4 * H4x4;  // OK
+    F4 = H4 * F4x4;  // OK
+    H4 = F4 * H4x4;  // disallowed
+    H4 = H4 * F4x4;  // disallowed
+}
+
+void matrix_times_matrix() {
+    F4x4 = F4x4 * H4x4;  // OK
+    F4x4 = H4x4 * F4x4;  // OK
+    H4x4 = F4x4 * H4x4;  // disallowed
+    H4x4 = H4x4 * F4x4;  // disallowed
+}
+
+void dimensions() {
+    F4x4 *= F4x4; // OK
+    F4   *= F4x4; // OK
+    F4x4 *= F4;   // disallowed
+}

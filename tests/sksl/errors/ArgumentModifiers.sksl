@@ -1,0 +1,4 @@
+void test(int x);
+void test(out int x) {}
+
+void main() {}
