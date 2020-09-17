@@ -395,7 +395,7 @@ DEF_TEST(SkSLInvalidUnary, r) {
                  "struct foo { } bar; void main() { foo x = -bar; }",
                  "error: 1: '-' cannot operate on 'foo'\n1 error\n");
     test_success(r,
-                 "void main() { float2 x = float2(1, 1); x = +x; x = -x; }");
+                 "void main() { half2 x = half2(1); x = +x; x = -x; sk_FragColor.rg = x; }");
 }
 
 DEF_TEST(SkSLInvalidAssignment, r) {
