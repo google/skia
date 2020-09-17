@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd3b68ac_060b766d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T15:06:17Z",
+      "side": 1,
+      "message": "Herb, if you wouldn\u0027t mind, can you take a peek at the diff on the reland (https://skia-review.googlesource.com/c/skia/+/317551/1..2)?  I\u0027ve switched from a function pointer to allowing any functor.  I\u0027m hoping this 1) fixes the CFI issue Chrome\u0027s seeing, and 2) allows passing lambdas with closures in a future CL.",
+      "revId": "7bbc4246701457a250eea89209297946ca06ef35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
