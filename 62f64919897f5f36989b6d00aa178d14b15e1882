@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba53c5ff_0afda175",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T17:08:21Z",
+      "side": 1,
+      "message": "I\u0027ve tested this locally running viz_unittests with this patched on top of head Skia in the same way I noted on the attached bug... looks ok.  I\u0027m curious to see if linux_chromium_cfi_rel_ng is useful or not, so I\u0027m going to tack it on to the required trybots and let the CQ do its thing.",
+      "revId": "62f64919897f5f36989b6d00aa178d14b15e1882",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
