@@ -1,0 +1,1 @@
+void var_decl()         { int x; int y = x; }

@@ -1,0 +1,3 @@
+void main() {
+    while (float3(1)) {}
+}

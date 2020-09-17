@@ -1,0 +1,15 @@
+uniform float u = 1;
+const float f = 1;
+const int i = 1;
+
+// OK
+void switch_test_const_int_var()   { switch (i) { case 1: break; } }
+
+// Disallowed
+void switch_test_float2()          { switch (float2(1)) { case 1: break; } }
+void switch_test_const_float_var() { switch (f) { case 1: break; } }
+void switch_case_float2()          { switch (1) { case float2(1): break; } }
+void switch_case_float()           { switch (1) { case 0.5: break; } }
+void switch_case_integral_float()  { switch (1) { case 1.0: break; } }
+void switch_case_uniform()         { switch (1) { case u: break; } }
+void switch_case_const_float_var() { switch (1) { case f: break; } }
