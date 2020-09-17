@@ -33,6 +33,23 @@
       "revId": "9b9f1df0c72c5ac154793951599d58d395c8df73",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fcc430e5_b61e2205",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-17T13:12:09Z",
+      "side": 1,
+      "message": "lgtm... that name is a mouthful, though. IMHO, something like GrThreadSafeProxyCache would be clear enough. Also, we might want to start to introduce some terminology around context \"families\", \"groups\" or whatever we like best. Then we could have an understanding that anything that spans a family is implicitly thread safe.",
+      "revId": "9b9f1df0c72c5ac154793951599d58d395c8df73",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
