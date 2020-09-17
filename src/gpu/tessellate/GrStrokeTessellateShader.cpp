@@ -445,6 +445,7 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
 
         // Tessellate a quad strip with enough segments for all 3 curve sections combined.
         float numTotalCombinedSegments = tcsTessArgs[0].x + tcsTessArgs[1].x + tcsTessArgs[2].x;
+        numTotalCombinedSegments = min(numTotalCombinedSegments, kMaxTessellationSegments);
         gl_TessLevelInner[0] = numTotalCombinedSegments;
         gl_TessLevelInner[1] = 2.0;
         gl_TessLevelOuter[0] = 2.0;
