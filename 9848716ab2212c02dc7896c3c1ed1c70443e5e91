@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4e1913bb_066c739a",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-17T21:22:29Z",
+      "side": 1,
+      "message": "If a.dot(b) \u003e\u003d 0 (the first case) then they\u0027re \u003c\u003d 90 degrees apart. So I don\u0027t understand this comment either.",
+      "parentUuid": "73ff4b47_0280f68c",
+      "range": {
+        "startLine": 194,
+        "startChar": 10,
+        "endLine": 195,
+        "endChar": 99
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c61c003d_fa103c41",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 6
