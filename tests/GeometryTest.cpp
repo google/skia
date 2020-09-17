@@ -416,11 +416,22 @@ static void test_chop_cubic_at_midtangent(skiatest::Reporter* reporter, const Sk
         SkChopCubicAtMidTangent(mapped, chopped);
         float leftRotation = SkMeasureNonInflectCubicRotation(chopped);
         float rightRotation = SkMeasureNonInflectCubicRotation(chopped+3);
+        if (cubicType == SkCubicType::kLineOrPoint &&
+            (SkScalarNearlyEqual(fullRotation, 2*SK_ScalarPI, kTolerance) ||
+             SkScalarNearlyEqual(fullRotation, 0, kTolerance))) {
+            // 0- and 360-degree flat lines don't have single points of midtangent.
+            // (tangent == midtangent at every point on these curves except the cusp points.)
+            // Instead verify the promise from SkChopCubicAtMidTangent that neither side will rotate
+            // more than 180 degrees.
+            SkASSERT(std::abs(leftRotation) - kTolerance <= SK_ScalarPI);
+            SkASSERT(std::abs(rightRotation) - kTolerance <= SK_ScalarPI);
+            continue;
+        }
         float expectedChoppedRotation = fullRotation/2;
         if (cubicType == SkCubicType::kLocalCusp ||
             (cubicType == SkCubicType::kLineOrPoint &&
              SkScalarNearlyEqual(fullRotation, SK_ScalarPI, kTolerance))) {
-            // If we chop a cubic at an exact cusp, we lose 180 degrees of rotation.
+            // If we chop a cubic at a cusp, we lose 180 degrees of rotation.
             expectedChoppedRotation = (fullRotation - SK_ScalarPI)/2;
         }
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(leftRotation, expectedChoppedRotation,
