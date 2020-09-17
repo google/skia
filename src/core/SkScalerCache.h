@@ -97,14 +97,15 @@ public:
     SkScalerContext* getScalerContext() const { return fScalerContext.get(); }
 
 private:
-    std::tuple<SkGlyph*, size_t> makeGlyph(SkPackedGlyphID) SK_REQUIRES(fMu);
-
     template <typename Fn>
     size_t commonFilterLoop(SkDrawableGlyphBuffer* drawables, Fn&& fn) SK_REQUIRES(fMu);
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
     std::tuple<SkGlyph*, size_t> glyph(SkPackedGlyphID) SK_REQUIRES(fMu);
+
+    // Generate the glyph index information and update structures to add the glyph.
+    void addGlyph(SkGlyph* glyph) SK_REQUIRES(fMu);
 
     std::tuple<const void*, size_t> prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
 
