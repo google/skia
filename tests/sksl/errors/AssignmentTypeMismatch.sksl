@@ -1,0 +1,3 @@
+void vardecl_assign_float_to_int()   { int x = 1.0; }
+void statement_assign_float_to_int() { int x; x = 1.0; }
+void times_equals_int3_by_float()    { int3 x = int3(0); x *= 1.0; }

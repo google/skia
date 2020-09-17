@@ -1,0 +1,1 @@
+uniform foo { out int x; };

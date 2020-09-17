@@ -1,0 +1,2 @@
+void fragcoord() { float x = gl_FragCoord.x; }
+void fragcolor() { float r = gl_FragColor.r; }

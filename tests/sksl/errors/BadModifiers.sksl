@@ -1,0 +1,11 @@
+const in out uniform flat noperspective readonly writeonly coherent volatile restrict buffer
+sk_has_side_effects __pixel_localEXT __pixel_local_inEXT __pixel_local_outEXT varying inline
+void func1() {}
+
+void func2(const in out uniform flat noperspective readonly writeonly coherent volatile restrict
+           buffer sk_has_side_effects __pixel_localEXT __pixel_local_inEXT __pixel_local_outEXT
+           varying inline float test) {}
+
+const in out uniform flat noperspective readonly writeonly coherent volatile restrict buffer
+sk_has_side_effects __pixel_localEXT __pixel_local_inEXT __pixel_local_outEXT varying inline
+float var;

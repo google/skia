@@ -1,0 +1,1 @@
+void binary_expr()      { bool x; if (true && (false || x)) return; }
