@@ -16,6 +16,24 @@
       "revId": "e97a9399f744042f0121201e3d025b0d3b9385db",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7c4b156_9571733f",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-17T21:18:28Z",
+      "side": 1,
+      "message": "This is only here to satisfy the hashmap. Added a comment and made it default.",
+      "parentUuid": "04068443_1d62257e",
+      "revId": "e97a9399f744042f0121201e3d025b0d3b9385db",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
