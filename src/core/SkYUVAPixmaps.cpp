@@ -25,17 +25,23 @@ void SkYUVAPixmapInfo::SupportedDataTypes::enableDataType(DataType type, int num
 
 SkYUVAPixmapInfo::SupportedDataTypes::SupportedDataTypes(const GrImageContext& context) {
 #if SK_SUPPORT_GPU
-    if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm8, 1),
-                                     GrRenderable::kNo).isValid()) {
-        this->enableDataType(DataType::kUnorm8, 1);
+    for (int n : {1, 2, 4}) {
+        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm8, n),
+                                         GrRenderable::kNo).isValid()) {
+            this->enableDataType(DataType::kUnorm8, n);
+        }
+        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm16, n),
+                                         GrRenderable::kNo).isValid()) {
+            this->enableDataType(DataType::kUnorm16, n);
+        }
+        if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kFloat16, n),
+                                         GrRenderable::kNo).isValid()) {
+            this->enableDataType(DataType::kFloat16, n);
+        }
     }
-    if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm16, 1),
+    if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kUnorm10_Unorm2, 4),
                                      GrRenderable::kNo).isValid()) {
-        this->enableDataType(DataType::kUnorm16, 1);
-    }
-    if (context.defaultBackendFormat(DefaultColorTypeForDataType(DataType::kFloat16, 1),
-                                     GrRenderable::kNo).isValid()) {
-        this->enableDataType(DataType::kFloat16, 1);
+        this->enableDataType(DataType::kUnorm10_Unorm2, 4);
     }
 #endif
 }
@@ -43,15 +49,46 @@ SkYUVAPixmapInfo::SupportedDataTypes::SupportedDataTypes(const GrImageContext& c
 //////////////////////////////////////////////////////////////////////////////
 
 SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dataType, int numChannels) {
-    if (numChannels != 1) {
-        return kUnknown_SkColorType;
+    switch (numChannels) {
+        case 1:
+            switch (dataType) {
+                case DataType::kUnorm8:
+                    return kGray_8_SkColorType;
+                case DataType::kUnorm16:
+                    return kA16_unorm_SkColorType;
+                case DataType::kFloat16:
+                    return kA16_float_SkColorType;
+                case DataType::kUnorm10_Unorm2:
+                    return kUnknown_SkColorType;
+            }
+            SkUNREACHABLE;
+        case 2:
+            switch (dataType) {
+                case DataType::kUnorm8:
+                    return kR8G8_unorm_SkColorType;
+                case DataType::kUnorm16:
+                    return kR16G16_unorm_SkColorType;
+                case DataType::kFloat16:
+                    return kR16G16_float_SkColorType;
+                case DataType::kUnorm10_Unorm2:
+                    return kUnknown_SkColorType;
+            }
+            SkUNREACHABLE;
+        case 4:
+            switch (dataType) {
+                case DataType::kUnorm8:
+                    return kRGBA_8888_SkColorType;
+                case DataType::kUnorm16:
+                    return kR16G16B16A16_unorm_SkColorType;
+                case DataType::kFloat16:
+                    return kRGBA_F16_SkColorType;
+                case DataType::kUnorm10_Unorm2:
+                    return kRGBA_1010102_SkColorType;
+            }
+            SkUNREACHABLE;
+        default:
+            return kUnknown_SkColorType;
     }
-    switch (dataType) {
-        case DataType::kUnorm8:  return kGray_8_SkColorType;
-        case DataType::kUnorm16: return kA16_unorm_SkColorType;
-        case DataType::kFloat16: return kA16_float_SkColorType;
-    }
-    SkUNREACHABLE;
 }
 
 std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndDataType(
@@ -61,7 +98,21 @@ std::tuple<int, SkYUVAPixmapInfo::DataType> SkYUVAPixmapInfo::NumChannelsAndData
         case kGray_8_SkColorType:    return {1, DataType::kUnorm8 };
         case kA16_unorm_SkColorType: return {1, DataType::kUnorm16};
         case kA16_float_SkColorType: return {1, DataType::kFloat16};
-        default:                     return {0, DataType::kUnorm8 };
+
+        case kR8G8_unorm_SkColorType:   return {2, DataType::kUnorm8  };
+        case kR16G16_unorm_SkColorType: return {2, DataType::kUnorm16 };
+        case kR16G16_float_SkColorType: return {2, DataType::kFloat16 };
+
+        // We could allow BGRA_8888 here, but then we'd have to decide if B the 0th or 2nd channel.
+        case kRGBA_8888_SkColorType:          return {4, DataType::kUnorm8  };
+        case kR16G16B16A16_unorm_SkColorType: return {4, DataType::kUnorm16 };
+        case kRGBA_F16_SkColorType:           return {4, DataType::kFloat16 };
+        case kRGBA_F16Norm_SkColorType:       return {4, DataType::kFloat16 };
+
+        // Above comment applies for kBGRA_1010102
+        case kRGBA_1010102_SkColorType: return {4, DataType::kUnorm10_Unorm2 };
+
+        default: return {0, DataType::kUnorm8 };
     }
 }
 
@@ -76,6 +127,9 @@ static int num_channels_in_plane(SkYUVAInfo::PlanarConfig config, int planeIdx) 
       case SkYUVAInfo::PlanarConfig::kY_U_V_420:
           SkASSERT(planeIdx >= 0 && planeIdx < 3);
           return 1;
+      case SkYUVAInfo::PlanarConfig::kY_V_U_420:
+          SkASSERT(planeIdx >= 0 && planeIdx < 3);
+          return 1;
       case SkYUVAInfo::PlanarConfig::kY_U_V_440:
           SkASSERT(planeIdx >= 0 && planeIdx < 3);
           return 1;
@@ -85,6 +139,32 @@ static int num_channels_in_plane(SkYUVAInfo::PlanarConfig config, int planeIdx) 
       case SkYUVAInfo::PlanarConfig::kY_U_V_410:
           SkASSERT(planeIdx >= 0 && planeIdx < 3);
           return 1;
+      case SkYUVAInfo::PlanarConfig::kY_U_V_A_4204:
+      case SkYUVAInfo::PlanarConfig::kY_V_U_A_4204:
+          SkASSERT(planeIdx >= 0 && planeIdx < 4);
+          return 1;
+      case SkYUVAInfo::PlanarConfig::kY_UV_420:
+          SkASSERT(planeIdx >= 0 && planeIdx < 2);
+          return planeIdx == 0 ? 1 : 2;
+      case SkYUVAInfo::PlanarConfig::kY_VU_420:
+          SkASSERT(planeIdx >= 0 && planeIdx < 2);
+          return planeIdx == 0 ? 1 : 2;
+      case SkYUVAInfo::PlanarConfig::kY_UV_A_4204:
+      case SkYUVAInfo::PlanarConfig::kY_VU_A_4204:
+          SkASSERT(planeIdx >= 0 && planeIdx < 3);
+          return planeIdx == 1 ? 2 : 1;
+      case SkYUVAInfo::PlanarConfig::kYUV_444:
+          SkASSERT(planeIdx == 0);
+          return 3;
+      case SkYUVAInfo::PlanarConfig::kUYV_444:
+          SkASSERT(planeIdx == 0);
+          return 3;
+      case SkYUVAInfo::PlanarConfig::kYUVA_4444:
+          SkASSERT(planeIdx == 0);
+          return 4;
+      case SkYUVAInfo::PlanarConfig::kUYVA_4444:
+          SkASSERT(planeIdx == 0);
+          return 4;
   }
   return SK_MaxS32;
 };
@@ -113,9 +193,9 @@ SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
         fPlaneInfos[i] = SkImageInfo::Make(planeDimensions[i], colorTypes[i], kPremul_SkAlphaType);
         int numRequiredChannels = num_channels_in_plane(yuvaInfo.planarConfig(), i);
         auto [numColorTypeChannels, colorTypeDataType] = NumChannelsAndDataType(colorTypes[i]);
-        ok |= i == 0 || colorTypeDataType == fDataType;
-        ok |= numColorTypeChannels >= numRequiredChannels;
-        ok |= fPlaneInfos[i].validRowBytes(fRowBytes[i]);
+        ok &= i == 0 || colorTypeDataType == fDataType;
+        ok &= numColorTypeChannels >= numRequiredChannels;
+        ok &= fPlaneInfos[i].validRowBytes(fRowBytes[i]);
         fDataType = colorTypeDataType;
     }
     if (!ok) {
@@ -130,10 +210,10 @@ SkYUVAPixmapInfo::SkYUVAPixmapInfo(const SkYUVAInfo& yuvaInfo,
                                    DataType dataType,
                                    const size_t rowBytes[kMaxPlanes]) {
     SkColorType colorTypes[kMaxPlanes] = {};
-    int n = yuvaInfo.numPlanes();
-    for (int i = 0; i < n; ++i) {
-        // Currently all PlanarConfigs have 1 channel per plane.
-        colorTypes[i] = DefaultColorTypeForDataType(dataType, 1);
+    int numPlanes = yuvaInfo.numPlanes();
+    for (int i = 0; i < numPlanes; ++i) {
+        int numChannels = num_channels_in_plane(yuvaInfo.planarConfig(), i);
+        colorTypes[i] = DefaultColorTypeForDataType(dataType, numChannels);
     }
     *this = SkYUVAPixmapInfo(yuvaInfo, colorTypes, rowBytes);
 }
@@ -251,20 +331,20 @@ bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndic
     auto getIthChannel = [&ok](SkColorType ct, int idx) -> SkColorChannel {
       switch (SkColorTypeChannelFlags(ct)) {
           case kAlpha_SkColorChannelFlag:
-              ok |= idx == 0;
+              ok &= idx == 0;
               return SkColorChannel::kA;
           case kGray_SkColorChannelFlag:
           case kRed_SkColorChannelFlag:
-              ok |= idx == 0;
+              ok &= idx == 0;
               return SkColorChannel::kR;
           case kRG_SkColorChannelFlags:
-              ok |= idx < 2;
+              ok &= idx < 2;
               return static_cast<SkColorChannel>(idx);
           case kRGB_SkColorChannelFlags:
-              ok |= idx < 3;
+              ok &= idx < 3;
               return static_cast<SkColorChannel>(idx);
           case kRGBA_SkColorChannelFlags:
-              ok |= idx < 4;
+              ok &= idx < 4;
               return static_cast<SkColorChannel>(idx);
           default:
               ok = false;
@@ -289,7 +369,117 @@ bool SkYUVAPixmaps::toLegacy(SkYUVASizeInfo* yuvaSizeInfo, SkYUVAIndex yuvaIndic
             yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
             yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
             yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[2], 0);
-            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR; // arbitrary
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
+            break;
+        case SkYUVAInfo::PlanarConfig::kY_V_U_420:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  2;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[2], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
+            break;
+        case SkYUVAInfo::PlanarConfig::kY_U_V_A_4204:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  2;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex =  3;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[2], 0);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[3], 0);
+            break;
+        case SkYUVAInfo::PlanarConfig::kY_V_U_A_4204:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  2;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex =  3;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[2], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[3], 0);
+            break;
+        case SkYUVAInfo::PlanarConfig::kY_UV_420:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 1);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
+            break;
+        case SkYUVAInfo::PlanarConfig::kY_VU_420:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 1);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
+            break;
+        case SkYUVAInfo::PlanarConfig::kY_UV_A_4204:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex =  2;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 1);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[2], 0);
+            break;
+        case SkYUVAInfo::PlanarConfig::kY_VU_A_4204:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  1;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex =  2;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[1], 1);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[1], 0);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[2], 0);
+            break;
+        case SkYUVAInfo::PlanarConfig::kYUV_444:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 1);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
+            break;
+        case SkYUVAInfo::PlanarConfig::kUYV_444:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex = -1;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 1);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = SkColorChannel::kR;  // arbitrary
+            break;
+        case SkYUVAInfo::PlanarConfig::kYUVA_4444:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 1);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[0], 3);
+            break;
+        case SkYUVAInfo::PlanarConfig::kUYVA_4444:
+            yuvaIndices[SkYUVAIndex::kY_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kU_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kV_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kA_Index].fIndex =  0;
+            yuvaIndices[SkYUVAIndex::kY_Index].fChannel = getIthChannel(cts[0], 1);
+            yuvaIndices[SkYUVAIndex::kU_Index].fChannel = getIthChannel(cts[0], 0);
+            yuvaIndices[SkYUVAIndex::kV_Index].fChannel = getIthChannel(cts[0], 2);
+            yuvaIndices[SkYUVAIndex::kA_Index].fChannel = getIthChannel(cts[0], 3);
             break;
     }
     if (!ok) {

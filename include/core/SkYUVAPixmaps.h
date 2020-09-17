@@ -36,11 +36,12 @@ public:
      * planes.
      **/
     enum class DataType {
-        kUnorm8,   ///< 8 bit unsigned normalized
-        kUnorm16,  ///< 16 bit unsigned normalized
-        kFloat16,  ///< 16 bit (half) floating point
+        kUnorm8,         ///< 8 bit unsigned normalized
+        kUnorm16,        ///< 16 bit unsigned normalized
+        kFloat16,        ///< 16 bit (half) floating point
+        kUnorm10_Unorm2, ///< 10 bit unorm for Y, U, and V. 2 bit unorm for alpha (if present).
 
-        kLast = kFloat16
+        kLast = kUnorm10_Unorm2
     };
     static constexpr int kDataTypeCnt = static_cast<int>(DataType::kLast) + 1;
 

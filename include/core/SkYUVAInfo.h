@@ -38,12 +38,28 @@ public:
      * this expands.
      */
     enum class PlanarConfig {
-        kY_U_V_444,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_422,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_420,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_440,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_411,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_410,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
+        kY_U_V_444,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_422,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_420,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_V_U_420,    ///< Plane 0: Y, Plane 1: V,  Plane 2: U
+        kY_U_V_440,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_411,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_410,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+
+        kY_U_V_A_4204, ///< Plane 0: Y, Plane 1: U,  Plane 2: V, Plane 3: A
+        kY_V_U_A_4204, ///< Plane 0: Y, Plane 1: V,  Plane 2: U, Plane 3: A
+
+        kY_UV_420,     ///< Plane 0: Y, Plane 1: UV
+        kY_VU_420,     ///< Plane 0: Y, Plane 1: VU
+
+        kY_UV_A_4204,  ///< Plane 0: Y, Plane 1: UV, Plane 2: A
+        kY_VU_A_4204,  ///< Plane 0: Y, Plane 1: VU, Plane 2: A
+
+        kYUV_444,      ///< Plane 0: YUV
+        kUYV_444,      ///< Plane 0: UYV
+
+        kYUVA_4444,    ///< Plane 0: YUVA
+        kUYVA_4444,    ///< Plane 0: UYVA
     };
 
     /**
