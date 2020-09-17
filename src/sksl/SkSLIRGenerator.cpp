@@ -1597,7 +1597,7 @@ static bool determine_binary_type(const Context& context,
         case Token::Kind::TK_STAR:
             if (is_matrix_multiply(left, right)) {
                 // determine final component type
-                if (determine_binary_type(context, allowNarrowing, Token::Kind::TK_STAR,
+                if (determine_binary_type(context, allowNarrowing, op,
                                           left.componentType(), right.componentType(),
                                           outLeftType, outRightType, outResultType)) {
                     *outLeftType = &(*outResultType)->toCompound(context, left.columns(),
