@@ -69,8 +69,7 @@ struct VariableReference : public Expression {
         return fVariable.fName;
     }
 
-    static std::unique_ptr<Expression> copy_constant(const IRGenerator& irGenerator,
-                                                     const Expression* expr);
+    static std::unique_ptr<Expression> copy_constant(const Expression* expr);
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
