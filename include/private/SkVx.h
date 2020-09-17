@@ -329,6 +329,22 @@ SIT bool all(const Vec<1,T>& x) { return x.val != 0; }
 
 SIT Vec<1,T> pow(const Vec<1,T>& x, const Vec<1,T>& y) { return std::pow(x.val, y.val); }
 
+SIT Vec<1,T>  atan(const Vec<1,T>& x) { return std:: atan(x.val); }
+SIT Vec<1,T>  ceil(const Vec<1,T>& x) { return std:: ceil(x.val); }
+SIT Vec<1,T> floor(const Vec<1,T>& x) { return std::floor(x.val); }
+SIT Vec<1,T> trunc(const Vec<1,T>& x) { return std::trunc(x.val); }
+SIT Vec<1,T> round(const Vec<1,T>& x) { return std::round(x.val); }
+SIT Vec<1,T>  sqrt(const Vec<1,T>& x) { return std:: sqrt(x.val); }
+SIT Vec<1,T>   abs(const Vec<1,T>& x) { return std::  abs(x.val); }
+SIT Vec<1,T>   sin(const Vec<1,T>& x) { return std::  sin(x.val); }
+SIT Vec<1,T>   cos(const Vec<1,T>& x) { return std::  cos(x.val); }
+SIT Vec<1,T>   tan(const Vec<1,T>& x) { return std::  tan(x.val); }
+
+SIT Vec<1,int> lrint(const Vec<1,T>& x) { return (int)std::lrint(x.val); }
+
+SIT Vec<1,T>   rcp(const Vec<1,T>& x) { return 1 / x.val; }
+SIT Vec<1,T> rsqrt(const Vec<1,T>& x) { return rcp(sqrt(x)); }
+
 // All default N != 1 implementations just recurse on lo and hi halves.
 
 // Clang can reason about naive_if_then_else() and optimize through it better
@@ -378,6 +394,23 @@ SINT bool all(const Vec<N,T>& x) { return all(x.lo) && all(x.hi); }
 SINT Vec<N,T> pow(const Vec<N,T>& x, const Vec<N,T>& y) {
     return join(pow(x.lo, y.lo), pow(x.hi, y.hi));
 }
+
+SINT Vec<N,T>  atan(const Vec<N,T>& x) { return join( atan(x.lo),  atan(x.hi)); }
+SINT Vec<N,T>  ceil(const Vec<N,T>& x) { return join( ceil(x.lo),  ceil(x.hi)); }
+SINT Vec<N,T> floor(const Vec<N,T>& x) { return join(floor(x.lo), floor(x.hi)); }
+SINT Vec<N,T> trunc(const Vec<N,T>& x) { return join(trunc(x.lo), trunc(x.hi)); }
+SINT Vec<N,T> round(const Vec<N,T>& x) { return join(round(x.lo), round(x.hi)); }
+SINT Vec<N,T>  sqrt(const Vec<N,T>& x) { return join( sqrt(x.lo),  sqrt(x.hi)); }
+SINT Vec<N,T>   abs(const Vec<N,T>& x) { return join(  abs(x.lo),   abs(x.hi)); }
+SINT Vec<N,T>   sin(const Vec<N,T>& x) { return join(  sin(x.lo),   sin(x.hi)); }
+SINT Vec<N,T>   cos(const Vec<N,T>& x) { return join(  cos(x.lo),   cos(x.hi)); }
+SINT Vec<N,T>   tan(const Vec<N,T>& x) { return join(  tan(x.lo),   tan(x.hi)); }
+
+SINT Vec<N,int> lrint(const Vec<N,T>& x) { return join(lrint(x.lo), lrint(x.hi)); }
+
+SINT Vec<N,T>   rcp(const Vec<N,T>& x) { return join(  rcp(x.lo),   rcp(x.hi)); }
+SINT Vec<N,T> rsqrt(const Vec<N,T>& x) { return join(rsqrt(x.lo), rsqrt(x.hi)); }
+
 
 // Scalar/vector operations just splat the scalar to a vector...
 SINTU Vec<N,T>    operator+ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) +  y; }
@@ -486,48 +519,9 @@ SIN Vec<N,float> fma(const Vec<N,float>& x, const Vec<N,float>& y, const Vec<N,f
                 fma(x.hi, y.hi, z.hi));
 }
 
-template <int N, typename T, typename R, std::size_t... I>
-SI skvx::Vec<N,R> map_(const skvx::Vec<N,T>& x, R (*fn)(T), std::index_sequence<I...>) {
-    return { fn(x[I])... };
+SIN Vec<N,float> fract(const Vec<N,float>& x) {
+    return x - floor(x);
 }
-
-template <int N, typename T, typename R>
-SI skvx::Vec<N,R> map(const skvx::Vec<N,T>& x, R (*fn)(T)) {
-    return map_(x, fn, std::make_index_sequence<N>{});
-}
-
-SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map(x,  atanf); }
-SIN Vec<N,float>  ceil(const Vec<N,float>& x) { return map(x,  ceilf); }
-SIN Vec<N,float> floor(const Vec<N,float>& x) { return map(x, floorf); }
-SIN Vec<N,float> trunc(const Vec<N,float>& x) { return map(x, truncf); }
-SIN Vec<N,float> round(const Vec<N,float>& x) { return map(x, roundf); }
-SIN Vec<N,float>  sqrt(const Vec<N,float>& x) { return map(x,  sqrtf); }
-SIN Vec<N,float>   abs(const Vec<N,float>& x) { return map(x,  fabsf); }
-SIN Vec<N,float>   sin(const Vec<N,float>& x) { return map(x,   sinf); }
-SIN Vec<N,float>   cos(const Vec<N,float>& x) { return map(x,   cosf); }
-SIN Vec<N,float>   tan(const Vec<N,float>& x) { return map(x,   tanf); }
-
-SI Vec<1,int> lrint(const Vec<1,float>& x) {
-    return (int)lrintf(x.val);
-}
-SIN Vec<N,int> lrint(const Vec<N,float>& x) {
-#if defined(__AVX__)
-    if /*constexpr*/ (N == 8) {
-        return unchecked_bit_pun<Vec<N,int>>(_mm256_cvtps_epi32(unchecked_bit_pun<__m256>(x)));
-    }
-#endif
-#if defined(__SSE__)
-    if /*constexpr*/ (N == 4) {
-        return unchecked_bit_pun<Vec<N,int>>(_mm_cvtps_epi32(unchecked_bit_pun<__m128>(x)));
-    }
-#endif
-    return join(lrint(x.lo),
-                lrint(x.hi));
-}
-
-SIN Vec<N,float>   rcp(const Vec<N,float>& x) { return 1/x; }
-SIN Vec<N,float> rsqrt(const Vec<N,float>& x) { return rcp(sqrt(x)); }
-SIN Vec<N,float> fract(const Vec<N,float>& x) { return x - floor(x); }
 
 // The default cases for to_half/from_half are borrowed from skcms,
 // and assume inputs are finite and treat/flush denorm half floats as/to zero.
@@ -644,27 +638,45 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
     // Platform-specific specializations and overloads can now drop in here.
 
     #if defined(__AVX__)
+        SI Vec<8,float> sqrt(const Vec<8,float>& x) {
+            return bit_pun<Vec<8,float>>(_mm256_sqrt_ps(bit_pun<__m256>(x)));
+        }
         SI Vec<8,float> rsqrt(const Vec<8,float>& x) {
             return bit_pun<Vec<8,float>>(_mm256_rsqrt_ps(bit_pun<__m256>(x)));
         }
         SI Vec<8,float> rcp(const Vec<8,float>& x) {
             return bit_pun<Vec<8,float>>(_mm256_rcp_ps(bit_pun<__m256>(x)));
         }
+        SI Vec<8,int> lrint(const Vec<8,float>& x) {
+            return bit_pun<Vec<8,int>>(_mm256_cvtps_epi32(bit_pun<__m256>(x)));
+        }
     #endif
 
     #if defined(__SSE__)
+        SI Vec<4,float> sqrt(const Vec<4,float>& x) {
+            return bit_pun<Vec<4,float>>(_mm_sqrt_ps(bit_pun<__m128>(x)));
+        }
         SI Vec<4,float> rsqrt(const Vec<4,float>& x) {
             return bit_pun<Vec<4,float>>(_mm_rsqrt_ps(bit_pun<__m128>(x)));
         }
         SI Vec<4,float> rcp(const Vec<4,float>& x) {
             return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
         }
+        SI Vec<4,int> lrint(const Vec<4,float>& x) {
+            return bit_pun<Vec<4,int>>(_mm_cvtps_epi32(bit_pun<__m128>(x)));
+        }
 
+        SI Vec<2,float>  sqrt(const Vec<2,float>& x) {
+            return shuffle<0,1>( sqrt(shuffle<0,1,0,1>(x)));
+        }
         SI Vec<2,float> rsqrt(const Vec<2,float>& x) {
             return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x)));
         }
         SI Vec<2,float>   rcp(const Vec<2,float>& x) {
             return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x)));
+        }
+        SI Vec<2,int> lrint(const Vec<2,float>& x) {
+            return shuffle<0,1>(lrint(shuffle<0,1,0,1>(x)));
         }
     #endif
 
@@ -689,11 +701,36 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
         }
     #endif
 
+    // WASM SIMD compatible operations which are not automatically compiled to SIMD commands
+    // by emscripten:
     #if defined __wasm_simd128__
+        SI Vec<4, float> rcp  (const Vec<4, float>& x) { return 1.0f / x; }
+        SI Vec<2,double> rcp  (const Vec<2,double>& x) { return 1.0f / x; }
+        SI Vec<4, float> rsqrt(const Vec<4, float>& x) { return 1.0f / sqrt(x); }
+        SI Vec<2,double> rsqrt(const Vec<2,double>& x) { return 1.0f / sqrt(x); }
+
+        SI Vec<4,float> sqrt(const Vec<4,float>& x) {
+            return to_vec<4,float>(wasm_f32x4_sqrt(to_vext(x)));
+        }
+        SI Vec<4,float> abs(const Vec<4,float>& x) {
+            return to_vec<4,float>(wasm_f32x4_abs(to_vext(x)));
+        }
+
+        SI Vec<2,double> sqrt(const Vec<2,double>& x) {
+            return to_vec<2,double>(wasm_f64x2_sqrt(to_vext(x)));
+        }
+        SI Vec<2,double> abs(const Vec<2,double>& x) {
+            return to_vec<2,double>(wasm_f64x2_abs(to_vext(x)));
+        }
+
         SI bool any(const Vec<4, int32_t>& x) { return wasm_i32x4_any_true(to_vext(x)); }
         SI bool any(const Vec<4,uint32_t>& x) { return wasm_i32x4_any_true(to_vext(x)); }
         SI bool all(const Vec<4, int32_t>& x) { return wasm_i32x4_all_true(to_vext(x)); }
         SI bool all(const Vec<4,uint32_t>& x) { return wasm_i32x4_all_true(to_vext(x)); }
+
+        SI Vec<4,int32_t> abs(const Vec<4,int32_t>& x) {
+            return to_vec<4,int32_t>(wasm_i32x4_abs(to_vext(x)));
+        }
     #endif
 
 #endif // !defined(SKNX_NO_SIMD)
