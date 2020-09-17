@@ -235,8 +235,7 @@ DEF_TEST(image_mip_factory, reporter) {
     SkMipmapBuilder builder(img->imageInfo());
     fill_in_mips(&builder, img);
 
-    auto img2 = img->withMipmaps(builder.detach());
-    REPORTER_ASSERT(reporter, !builder.detach());
+    auto img2 = builder.attachTo(img);
     REPORTER_ASSERT(reporter, img.get()  != img2.get());
     REPORTER_ASSERT(reporter, img1.get() != img2.get());
     REPORTER_ASSERT(reporter, img2->hasMipmaps());
@@ -248,7 +247,7 @@ DEF_TEST(image_mip_mismatch, reporter) {
     auto check_fails = [reporter](sk_sp<SkImage> img, const SkImageInfo& info) {
         SkMipmapBuilder builder(info);
         fill_in_mips(&builder, img);
-        auto img2 = img->withMipmaps(builder.detach());
+        auto img2 = builder.attachTo(img);
         // if withMipmaps() succeeds, it returns a new image, otherwise it returns the original
         REPORTER_ASSERT(reporter, img.get() == img2.get());
     };
