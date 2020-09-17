@@ -34,6 +34,24 @@
       "revId": "02989f4ef515f208d856a22421ff7b2b38fd6721",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55a0a6bf_38a1d36a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-17T20:24:03Z",
+      "side": 1,
+      "message": "I don\u0027t think it is - if anything it\u0027s just an opportunity to have more spurious ABORT bugs, right? Like, if this had never been written this way, the unary negation thing wouldn\u0027t have happened. It\u0027s one less list of expression types and special cases that need to be kept in sync in our \"what\u0027s really considered a constant\" game of whack-a-mole.",
+      "parentUuid": "47b2ae57_1f6d5c88",
+      "revId": "02989f4ef515f208d856a22421ff7b2b38fd6721",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
