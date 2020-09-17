@@ -18,6 +18,7 @@ class CompositionBuilder;
 class LayerBuilder final {
 public:
     LayerBuilder(const skjson::ObjectValue& jlayer, const SkSize& comp_size);
+    LayerBuilder(const LayerBuilder&) = default;
     ~LayerBuilder();
 
     int index() const { return fIndex; }

@@ -380,7 +380,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
-    -s STRICT=1 \
     -s INITIAL_MEMORY=128MB \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
