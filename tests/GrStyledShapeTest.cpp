@@ -466,7 +466,7 @@ public:
         SkRect rect;
         unsigned start;
         SkPathDirection dir;
-        if (SkPathPriv::IsSimpleClosedRect(fPath, &rect, &dir, &start)) {
+        if (SkPathPriv::IsSimpleRect(fPath, false, &rect, &dir, &start)) {
             return RectGeo(rect).strokeAndFillIsConvertedToFill(paint);
         }
         return false;
