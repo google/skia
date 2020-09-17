@@ -266,7 +266,7 @@ bool ProgramVisitor::visitExpression(const Expression& e) {
             return false;
         case Expression::Kind::kBinary: {
             const BinaryExpression& b = e.as<BinaryExpression>();
-            return this->visitExpression(*b.fLeft) || this->visitExpression(*b.fRight); }
+            return this->visitExpression(b.left()) || this->visitExpression(b.right()); }
         case Expression::Kind::kConstructor: {
             const Constructor& c = e.as<Constructor>();
             for (const auto& arg : c.fArguments) {
@@ -314,8 +314,10 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             // Leaf statements just return false
             return false;
         case Statement::Kind::kBlock:
-            for (const std::unique_ptr<Statement>& blockStmt : s.as<Block>().fStatements) {
-                if (this->visitStatement(*blockStmt)) { return true; }
+            for (Statement& stmt : s.as<Block>()) {
+                if (this->visitStatement(stmt)) {
+                    return true;
+                }
             }
             return false;
         case Statement::Kind::kDo: {

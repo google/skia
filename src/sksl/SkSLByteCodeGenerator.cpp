@@ -681,28 +681,29 @@ void ByteCodeGenerator::writeTypedInstruction(const Type& type,
 }
 
 bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool discard) {
-    if (b.fOperator == Token::Kind::TK_EQ) {
-        std::unique_ptr<LValue> lvalue = this->getLValue(*b.fLeft);
-        this->writeExpression(*b.fRight);
+    const Expression& left = b.left();
+    const Expression& right = b.right();
+    Token::Kind op = b.getOperator();
+    if (op == Token::Kind::TK_EQ) {
+        std::unique_ptr<LValue> lvalue = this->getLValue(left);
+        this->writeExpression(right);
         lvalue->store(discard);
         discard = false;
         return discard;
     }
-    const Type& lType = b.fLeft->type();
-    const Type& rType = b.fRight->type();
+    const Type& lType = left.type();
+    const Type& rType = right.type();
     bool lVecOrMtx = (lType.typeKind() == Type::TypeKind::kVector ||
                       lType.typeKind() == Type::TypeKind::kMatrix);
     bool rVecOrMtx = (rType.typeKind() == Type::TypeKind::kVector ||
                       rType.typeKind() == Type::TypeKind::kMatrix);
-    Token::Kind op;
     std::unique_ptr<LValue> lvalue;
-    if (Compiler::IsAssignment(b.fOperator)) {
-        lvalue = this->getLValue(*b.fLeft);
+    if (Compiler::IsAssignment(op)) {
+        lvalue = this->getLValue(left);
         lvalue->load();
-        op = Compiler::RemoveAssignment(b.fOperator);
+        op = Compiler::RemoveAssignment(op);
     } else {
-        this->writeExpression(*b.fLeft);
-        op = b.fOperator;
+        this->writeExpression(left);
         if (!lVecOrMtx && rVecOrMtx) {
             for (int i = SlotCount(rType); i > 1; --i) {
                 this->write(ByteCodeInstruction::kDup, 1);
@@ -718,7 +719,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             this->write(ByteCodeInstruction::kMaskPush);
             this->write(ByteCodeInstruction::kBranchIfAllFalse);
             DeferredLocation falseLocation(this);
-            this->writeExpression(*b.fRight);
+            this->writeExpression(right);
             this->write(ByteCodeInstruction::kAndB, 1);
             falseLocation.set();
             this->write(ByteCodeInstruction::kMaskPop);
@@ -731,7 +732,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
             this->write(ByteCodeInstruction::kMaskPush);
             this->write(ByteCodeInstruction::kBranchIfAllFalse);
             DeferredLocation falseLocation(this);
-            this->writeExpression(*b.fRight);
+            this->writeExpression(right);
             this->write(ByteCodeInstruction::kOrB, 1);
             falseLocation.set();
             this->write(ByteCodeInstruction::kMaskPop);
@@ -741,13 +742,13 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         case Token::Kind::TK_SHR: {
             SkASSERT(count == 1 && (tc == SkSL::TypeCategory::kSigned ||
                                     tc == SkSL::TypeCategory::kUnsigned));
-            if (!b.fRight->isCompileTimeConstant()) {
-                fErrors.error(b.fRight->fOffset, "Shift amounts must be constant");
+            if (!right.isCompileTimeConstant()) {
+                fErrors.error(right.fOffset, "Shift amounts must be constant");
                 return false;
             }
-            int64_t shift = b.fRight->getConstantInt();
+            int64_t shift = right.getConstantInt();
             if (shift < 0 || shift > 31) {
-                fErrors.error(b.fRight->fOffset, "Shift amount out of range");
+                fErrors.error(right.fOffset, "Shift amount out of range");
                 return false;
             }
 
@@ -765,7 +766,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
         default:
             break;
     }
-    this->writeExpression(*b.fRight);
+    this->writeExpression(right);
     if (lVecOrMtx && !rVecOrMtx) {
         for (int i = SlotCount(lType); i > 1; --i) {
             this->write(ByteCodeInstruction::kDup, 1);
@@ -1030,13 +1031,19 @@ static bool is_generic_type(const Type* type, const Type* generic) {
 }
 
 void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
+    SkDebugf("intrinsic call: %s\n", c.description().c_str());
     auto found = fIntrinsics.find(c.fFunction.fName);
     if (found == fIntrinsics.end()) {
         fErrors.error(c.fOffset, String::printf("Unsupported intrinsic: '%s'",
                                                 String(c.fFunction.fName).c_str()));
         return;
     }
+    SkDebugf("found!\n");
     Intrinsic intrin = found->second;
+    SkDebugf("is_special: %d\n", intrin.is_special);
+    if (intrin.is_special) {
+        SkDebugf("special: %d\n", intrin.special);
+    }
 
     const auto& args = c.fArguments;
     const size_t nargs = args.size();
@@ -1053,7 +1060,9 @@ void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
         }
     };
 
+    printf("about to branch...\n");
     if (intrin.is_special && intrin.special == SpecialIntrinsic::kSample) {
+        printf("past that check\n");
         // Sample is very special, the first argument is an FP, which can't be pushed to the stack.
         if (nargs > 2 || args[0]->type() != *fContext.fFragmentProcessor_Type ||
             (nargs == 2 && (args[1]->type() != *fContext.fFloat2_Type &&
@@ -1642,8 +1651,8 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
 }
 
 void ByteCodeGenerator::writeBlock(const Block& b) {
-    for (const auto& s : b.fStatements) {
-        this->writeStatement(*s);
+    for (const Statement& stmt : b) {
+        this->writeStatement(stmt);
     }
 }
 

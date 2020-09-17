@@ -16,19 +16,130 @@ namespace SkSL {
 /**
  * A block of multiple statements functioning as a single statement.
  */
-struct Block : public Statement {
+class Block : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kBlock;
 
     Block(int offset, std::vector<std::unique_ptr<Statement>> statements,
           const std::shared_ptr<SymbolTable> symbols = nullptr, bool isScope = true)
-    : INHERITED(offset, kStatementKind)
-    , fSymbols(std::move(symbols))
-    , fStatements(std::move(statements))
-    , fIsScope(isScope) {}
+    : INHERITED(offset, kStatementKind, BlockData{std::move(symbols), isScope},
+                std::move(statements)) {}
+
+    class iterator {
+    public:
+        Statement& operator*() {
+            return **fIter;
+        }
+
+        iterator& operator++() {
+            ++fIter;
+            return *this;
+        }
+
+        bool operator==(const iterator& other) const {
+            return fIter == other.fIter;
+        }
+
+        bool operator!=(const iterator& other) const {
+            return !(*this == other);
+        }
+
+    private:
+        using inner = std::vector<std::unique_ptr<Statement>>::iterator;
+
+        iterator(inner iter)
+        : fIter(iter) {}
+
+        inner fIter;
+
+        friend class Block;
+    };
+
+    class const_iterator {
+    public:
+        Statement& operator*() {
+            return **fIter;
+        }
+
+        const_iterator& operator++() {
+            ++fIter;
+            return *this;
+        }
+
+        bool operator==(const const_iterator& other) const {
+            return fIter == other.fIter;
+        }
+
+        bool operator!=(const const_iterator& other) const {
+            return !(*this == other);
+        }
+
+    private:
+        using inner = std::vector<std::unique_ptr<Statement>>::const_iterator;
+
+        const_iterator(inner iter)
+        : fIter(iter) {}
+
+        inner fIter;
+
+        friend class Block;
+    };
+
+    iterator begin() {
+        return iterator(fStatementChildren.begin());
+    }
+
+    iterator end() {
+        return iterator(fStatementChildren.end());
+    }
+
+    const_iterator begin() const {
+        return const_iterator(fStatementChildren.begin());
+    }
+
+    const_iterator end() const {
+        return const_iterator(fStatementChildren.end());
+    }
+
+    int childCount() const {
+        return this->statementChildCount();
+    }
+
+    Statement& child(int index) const {
+        return this->statementChild(index);
+    }
+
+    std::unique_ptr<Statement>& childPointer(int index) {
+        return this->statementPointer(index);
+    }
+
+    const std::unique_ptr<Statement>& childPointer(int index) const {
+        return this->statementPointer(index);
+    }
+
+    void reserve(int count) {
+        fStatementChildren.reserve(count);
+    }
+
+    void addChild(std::unique_ptr<Statement> child) {
+        fStatementChildren.push_back(std::move(child));
+    }
+
+    bool isScope() const {
+        return this->blockData().fIsScope;
+    }
+
+    void setIsScope(bool isScope) {
+        this->blockData().fIsScope = isScope;
+    }
+
+    std::shared_ptr<SymbolTable> symbolTable() const {
+        return this->blockData().fSymbolTable;
+    }
 
     bool isEmpty() const override {
-        for (const auto& s : fStatements) {
-            if (!s->isEmpty()) {
+        for (int i = 0; i < this->statementChildCount(); ++i) {
+            if (!this->statementChild(i).isEmpty()) {
                 return false;
             }
         }
@@ -37,32 +148,25 @@ struct Block : public Statement {
 
     std::unique_ptr<Statement> clone() const override {
         std::vector<std::unique_ptr<Statement>> cloned;
-        for (const auto& s : fStatements) {
-            cloned.push_back(s->clone());
+        for (int i = 0; i < this->statementChildCount(); ++i) {
+            cloned.push_back(this->statementChild(i).clone());
         }
-        return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), fSymbols,
-                                                    fIsScope));
+        BlockData data = this->blockData();
+        return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), data.fSymbolTable,
+                                                    data.fIsScope));
     }
 
     String description() const override {
         String result("{");
-        for (size_t i = 0; i < fStatements.size(); i++) {
+        for (int i = 0; i < this->statementChildCount(); ++i) {
             result += "\n";
-            result += fStatements[i]->description();
+            result += this->statementChild(i).description();
         }
         result += "\n}\n";
         return result;
     }
 
-    // it's important to keep fStatements defined after (and thus destroyed before) fSymbols,
-    // because destroying statements can modify reference counts in symbols
-    const std::shared_ptr<SymbolTable> fSymbols;
-    std::vector<std::unique_ptr<Statement>> fStatements;
-    // if isScope is false, this is just a group of statements rather than an actual language-level
-    // block. This allows us to pass around multiple statements as if they were a single unit, with
-    // no semantic impact.
-    bool fIsScope;
-
+private:
     using INHERITED = Statement;
 };
 
