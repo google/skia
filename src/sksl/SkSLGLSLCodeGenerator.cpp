@@ -913,31 +913,33 @@ GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind
 
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
+    const Expression& left = b.left();
+    const Expression& right = b.right();
+    Token::Kind op = b.getOperator();
     if (fProgram.fSettings.fCaps->unfoldShortCircuitAsTernary() &&
-            (b.fOperator == Token::Kind::TK_LOGICALAND ||
-             b.fOperator == Token::Kind::TK_LOGICALOR)) {
+            (op == Token::Kind::TK_LOGICALAND || op == Token::Kind::TK_LOGICALOR)) {
         this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
         return;
     }
 
-    Precedence precedence = GetBinaryPrecedence(b.fOperator);
+    Precedence precedence = GetBinaryPrecedence(op);
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
     bool positionWorkaround = fProgramKind == Program::Kind::kVertex_Kind &&
-                              Compiler::IsAssignment(b.fOperator) &&
-                              b.fLeft->kind() == Expression::Kind::kFieldAccess &&
-                              is_sk_position((FieldAccess&) *b.fLeft) &&
-                              !b.fRight->containsRTAdjust() &&
+                              Compiler::IsAssignment(op) &&
+                              left.kind() == Expression::Kind::kFieldAccess &&
+                              is_sk_position((FieldAccess&) left) &&
+                              !right.containsRTAdjust() &&
                               !fProgram.fSettings.fCaps->canUseFragCoord();
     if (positionWorkaround) {
         this->write("sk_FragCoord_Workaround = (");
     }
-    this->writeExpression(*b.fLeft, precedence);
+    this->writeExpression(left, precedence);
     this->write(" ");
-    this->write(Compiler::OperatorName(b.fOperator));
+    this->write(Compiler::OperatorName(op));
     this->write(" ");
-    this->writeExpression(*b.fRight, precedence);
+    this->writeExpression(right, precedence);
     if (positionWorkaround) {
         this->write(")");
     }
@@ -955,20 +957,20 @@ void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpres
     // Transform:
     // a && b  =>   a ? b : false
     // a || b  =>   a ? true : b
-    this->writeExpression(*b.fLeft, kTernary_Precedence);
+    this->writeExpression(b.left(), kTernary_Precedence);
     this->write(" ? ");
-    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
-        this->writeExpression(*b.fRight, kTernary_Precedence);
+    if (b.getOperator() == Token::Kind::TK_LOGICALAND) {
+        this->writeExpression(b.right(), kTernary_Precedence);
     } else {
         BoolLiteral boolTrue(fContext, -1, true);
         this->writeBoolLiteral(boolTrue);
     }
     this->write(" : ");
-    if (b.fOperator == Token::Kind::TK_LOGICALAND) {
+    if (b.getOperator() == Token::Kind::TK_LOGICALAND) {
         BoolLiteral boolFalse(fContext, -1, false);
         this->writeBoolLiteral(boolFalse);
     } else {
-        this->writeExpression(*b.fRight, kTernary_Precedence);
+        this->writeExpression(b.right(), kTernary_Precedence);
     }
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
@@ -1079,7 +1081,12 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
-    this->writeStatements(f.fBody->as<Block>().fStatements);
+    for (const Statement& stmt : f.fBody->as<Block>()) {
+        if (!stmt.isEmpty()) {
+            this->writeStatement(stmt);
+            this->writeLine();
+        }
+    }
 
     fIndentation--;
     this->writeLine("}");
@@ -1341,22 +1348,19 @@ void GLSLCodeGenerator::writeStatement(const Statement& s) {
     }
 }
 
-void GLSLCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statement>>& statements) {
-    for (const auto& s : statements) {
-        if (!s->isEmpty()) {
-            this->writeStatement(*s);
-            this->writeLine();
-        }
-    }
-}
-
 void GLSLCodeGenerator::writeBlock(const Block& b) {
-    if (b.fIsScope) {
+    bool isScope = b.isScope();
+    if (isScope) {
         this->writeLine("{");
         fIndentation++;
     }
-    this->writeStatements(b.fStatements);
-    if (b.fIsScope) {
+    for (const Statement& stmt : b) {
+        if (!stmt.isEmpty()) {
+            this->writeStatement(stmt);
+            this->writeLine();
+        }
+    }
+    if (isScope) {
         fIndentation--;
         this->write("}");
     }

@@ -179,8 +179,6 @@ protected:
 
     void writeStatement(const Statement& s);
 
-    void writeStatements(const std::vector<std::unique_ptr<Statement>>& statements);
-
     void writeBlock(const Block& b);
 
     virtual void writeIfStatement(const IfStatement& stmt);
