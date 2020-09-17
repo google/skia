@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ec508bd_e2b29402",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T18:15:44Z",
+      "side": 1,
+      "message": "// The value stored in fDigestForPackedGlyphID.\n// index() is the index into fGlyphForIndex.",
+      "revId": "72e12cd55caf3191dd432b34aed14d95193c6084",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0be7fa37_21a60f6b",
+        "filename": "src/core/SkScalerCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-17T18:15:44Z",
+      "side": 1,
+      "message": "as long as?",
+      "range": {
+        "startLine": 137,
+        "startChar": 32,
+        "endLine": 137,
+        "endChar": 34
+      },
+      "revId": "72e12cd55caf3191dd432b34aed14d95193c6084",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
