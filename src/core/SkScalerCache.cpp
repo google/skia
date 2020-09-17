@@ -37,24 +37,28 @@ SkScalerCache::SkScalerCache(
 }
 
 std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
+    auto [digest, size] = this->digest(packedGlyphID);
+    return {fGlyphForIndex[digest.index()], size};
+}
+
+std::tuple<SkGlyphDigest, size_t> SkScalerCache::digest(SkPackedGlyphID packedGlyphID) {
     SkGlyphDigest* digest = fDigestForPackedGlyphID.find(packedGlyphID);
 
     if (digest != nullptr) {
-        return {fGlyphForIndex[digest->index()], 0};
+        return {*digest, 0};
     }
 
     SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
     fScalerContext->getMetrics(glyph);
-    this->addGlyph(glyph);
-
-    return {glyph, sizeof(SkGlyph)};
+    return {this->addGlyph(glyph), sizeof(SkGlyph)};
 }
 
-void SkScalerCache::addGlyph(SkGlyph* glyph) {
+SkGlyphDigest SkScalerCache::addGlyph(SkGlyph* glyph) {
     size_t index = fGlyphForIndex.size();
-    SkGlyphDigest digest = SkGlyphDigest{index};
+    SkGlyphDigest digest = SkGlyphDigest{index, glyph->isEmpty()};
     fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
     fGlyphForIndex.push_back(glyph);
+    return digest;
 }
 
 std::tuple<const SkPath*, size_t> SkScalerCache::preparePath(SkGlyph* glyph) {
@@ -122,7 +126,7 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
     } else {
         SkGlyph* glyph = fAlloc.make<SkGlyph>(toID);
         size_t delta = glyph->setMetricsAndImage(&fAlloc, from);
-        this->addGlyph(glyph);
+        (void)this->addGlyph(glyph);
         return {glyph, sizeof(SkGlyph) + delta};
     }
 }
