@@ -669,8 +669,6 @@ void GrVkPipeline::SetDynamicBlendConstantState(GrVkGpu* gpu,
         floatColors[1] = blendConst.fG;
         floatColors[2] = blendConst.fB;
         floatColors[3] = blendConst.fA;
-    } else {
-        memset(floatColors, 0, 4 * sizeof(float));
+        cmdBuffer->setBlendConstants(gpu, floatColors);
     }
-    cmdBuffer->setBlendConstants(gpu, floatColors);
 }
