@@ -1,0 +1,55 @@
+half H = 1.0;
+float F = 1.0;
+half4 H4 = half4(1.0);
+float4 F4 = float4(1.0);
+half4x4 H4x4 = half4x4(1.0);
+float4x4 F4x4 = float4x4(1.0);
+
+void scalar_times_scalar_ok_1()         { F = F * H; }
+void scalar_times_scalar_ok_2()         { F = H * F; }
+void scalar_times_scalar_ok_3()         { F *= H;    }
+void scalar_times_scalar_disallowed_1() { H = F * H; }
+void scalar_times_scalar_disallowed_2() { H = H * F; }
+void scalar_times_scalar_disallowed_3() { H *= F;    }
+
+void vector_times_vector_ok_1()         { F4 = F4 * H4; }
+void vector_times_vector_ok_2()         { F4 = H4 * F4; }
+void vector_times_vector_ok_3()         { F4 *= H4;     }
+void vector_times_vector_disallowed_1() { H4 = F4 * H4; }
+void vector_times_vector_disallowed_2() { H4 = H4 * F4; }
+void vector_times_vector_disallowed_3() { H4 *= F4;     }
+
+void scalar_times_vector_ok_1()         { F4 = F * H4; }
+void scalar_times_vector_ok_2()         { F4 = H * F4; }
+void scalar_times_vector_disallowed_1() { H4 = F * H4; }
+void scalar_times_vector_disallowed_2() { H4 = H * F4; }
+
+void vector_times_scalar_ok_1()         { F4 = F4 * H; }
+void vector_times_scalar_ok_2()         { F4 = H4 * F; }
+void vector_times_scalar_ok_3()         { F4 *= H;     }
+void vector_times_scalar_disallowed_1() { H4 = F4 * H; }
+void vector_times_scalar_disallowed_2() { H4 = H4 * F; }
+void vector_times_scalar_disallowed_3() { H4 *= F;     }
+
+void matrix_times_vector_ok_1()         { F4 = F4x4 * H4; }
+void matrix_times_vector_ok_2()         { F4 = H4x4 * F4; }
+void matrix_times_vector_disallowed_1() { H4 = F4x4 * H4; }
+void matrix_times_vector_disallowed_2() { H4 = H4x4 * F4; }
+
+void vector_times_matrix_ok_1()         { F4 = F4 * H4x4; }
+void vector_times_matrix_ok_2()         { F4 = H4 * F4x4; }
+void vector_times_matrix_ok_3()         { F4 *= H4x4;     }
+void vector_times_matrix_disallowed_1() { H4 = F4 * H4x4; }
+void vector_times_matrix_disallowed_2() { H4 = H4 * F4x4; }
+void vector_times_matrix_disallowed_3() { H4 *= F4x4;     }
+
+void matrix_times_matrix_ok_1()         { F4x4 = F4x4 * H4x4; }
+void matrix_times_matrix_ok_2()         { F4x4 = H4x4 * F4x4; }
+void matrix_times_matrix_ok_3()         { F4x4 *= H4x4;       }
+void matrix_times_matrix_disallowed_1() { H4x4 = F4x4 * H4x4; }
+void matrix_times_matrix_disallowed_2() { H4x4 = H4x4 * F4x4; }
+void matrix_times_matrix_disallowed_3() { H4x4 *= F4x4;       }
+
+void dimensions_ok_1()                  { F4x4 *= F4x4; }
+void dimensions_ok_2()                  { F4   *= F4x4; }
+void dimensions_disallowed_1()          { F4x4 *= F4;   }

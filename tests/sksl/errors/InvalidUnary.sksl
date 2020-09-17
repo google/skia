@@ -1,0 +1,9 @@
+struct Foo {} bar;
+
+void preincrement_matrix()  { float4x4 x = float4x4(1); ++x; }
+void predecrement_vector()  { float3 x = float3(1); --x; }
+void postincrement_matrix() { float4x4 x = float4x4(1); x++; }
+void postdecrement_vector() { float3 x = float3(1); x--; }
+void not_integer()          { int x = !12; }
+void positive_struct()      { Foo x = +bar; }
+void negative_struct()      { Foo x = -bar; }

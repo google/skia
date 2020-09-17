@@ -1,0 +1,2 @@
+void outside_for()   { for (;;) {} continue; }
+void inside_switch() { switch (1) { default: continue; } }

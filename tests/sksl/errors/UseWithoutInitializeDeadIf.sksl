@@ -1,0 +1,1 @@
+void dead_if()          { int x; if (5 == 2) x = 3; x++; }
