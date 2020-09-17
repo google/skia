@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "aba93b3a_ef8addb3",
+        "filename": "gm/trickycubicstrokes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-17T18:20:21Z",
+      "side": 1,
+      "message": "copypasta? ¯\\_(ツ)_/¯",
+      "parentUuid": "ce289937_e1a9771a",
+      "range": {
+        "startLine": 110,
+        "startChar": 18,
+        "endLine": 110,
+        "endChar": 19
+      },
+      "revId": "23c1e799abe643cb24ffd842de1ad378bbccfddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "de6c1821_cca24cea",
         "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
         "patchSetId": 3
@@ -62,6 +86,30 @@
       "revId": "23c1e799abe643cb24ffd842de1ad378bbccfddd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5453547_b9f52e74",
+        "filename": "src/gpu/tessellate/GrTessellationPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-17T18:20:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de6c1821_cca24cea",
+      "range": {
+        "startLine": 42,
+        "startChar": 81,
+        "endLine": 42,
+        "endChar": 84
+      },
+      "revId": "23c1e799abe643cb24ffd842de1ad378bbccfddd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

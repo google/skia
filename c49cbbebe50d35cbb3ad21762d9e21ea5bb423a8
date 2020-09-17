@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4c26fdb2_933eba9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-17T18:20:21Z",
+      "side": 1,
+      "message": "Addressed comments. Also switched the stroke color to RED for the \"tess_segs_5\" tests. I think I prefer that over yellow.",
+      "revId": "c49cbbebe50d35cbb3ad21762d9e21ea5bb423a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
