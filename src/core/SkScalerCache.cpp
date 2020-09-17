@@ -37,10 +37,10 @@ SkScalerCache::SkScalerCache(
 }
 
 std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID) {
-    SkGlyphIndex* denseID = fIndexForPackedGlyphID.find(packedGlyphID);
+    SkGlyphDigest* digest = fDigestForPackedGlyphID.find(packedGlyphID);
 
-    if (denseID != nullptr) {
-        return {fGlyphForIndex[*denseID], 0};
+    if (digest != nullptr) {
+        return {fGlyphForIndex[digest->index()], 0};
     }
 
     SkGlyph* glyph = fAlloc.make<SkGlyph>(packedGlyphID);
@@ -52,8 +52,8 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::glyph(SkPackedGlyphID packedGlyphID)
 
 void SkScalerCache::addGlyph(SkGlyph* glyph) {
     size_t index = fGlyphForIndex.size();
-    SkGlyphIndex digest = SkGlyphIndex{index};
-    fIndexForPackedGlyphID.set(glyph->getPackedID(), digest);
+    SkGlyphDigest digest = SkGlyphDigest{index};
+    fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
     fGlyphForIndex.push_back(glyph);
 }
 
@@ -80,7 +80,7 @@ const SkDescriptor& SkScalerCache::getDescriptor() const {
 
 int SkScalerCache::countCachedGlyphs() const {
     SkAutoMutexExclusive lock(fMu);
-    return fIndexForPackedGlyphID.count();
+    return fDigestForPackedGlyphID.count();
 }
 
 std::tuple<SkSpan<const SkGlyph*>, size_t> SkScalerCache::internalPrepare(
@@ -112,13 +112,13 @@ std::tuple<SkGlyph*, size_t> SkScalerCache::mergeGlyphAndImage(
         SkPackedGlyphID toID, const SkGlyph& from) {
     SkAutoMutexExclusive lock{fMu};
     // TODO(herb): remove finding the glyph when we are sure there are no glyph collisions.
-    SkGlyphIndex* denseID = fIndexForPackedGlyphID.find(toID);
-    if (denseID != nullptr) {
+    SkGlyphDigest* digest = fDigestForPackedGlyphID.find(toID);
+    if (digest != nullptr) {
         // Since there is no search for replacement glyphs, this glyph should not exist yet.
         SkDEBUGFAIL("This implies adding to an existing glyph. This should not happen.");
 
         // Just return what we have. The invariants have already been cast in stone.
-        return {fGlyphForIndex[*denseID], 0};
+        return {fGlyphForIndex[digest->index()], 0};
     } else {
         SkGlyph* glyph = fAlloc.make<SkGlyph>(toID);
         size_t delta = glyph->setMetricsAndImage(&fAlloc, from);
@@ -263,7 +263,7 @@ void SkScalerCache::dump() const {
     SkFontStyle style = face->fontStyle();
     msg.printf("cache typeface:%x %25s:(%d,%d,%d)\n %s glyphs:%3d",
                face->uniqueID(), name.c_str(), style.weight(), style.width(), style.slant(),
-               rec.dump().c_str(), fIndexForPackedGlyphID.count());
+               rec.dump().c_str(), fDigestForPackedGlyphID.count());
     SkDebugf("%s\n", msg.c_str());
 }
 

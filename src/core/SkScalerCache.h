@@ -21,16 +21,17 @@
 
 class SkScalerContext;
 
-// The value stored in fIndexForPackedGlyphID that is the index into fGlyphForIndex.
-class SkGlyphIndex {
+// The value stored in fDigestForPackedGlyphID.
+// index() is the index into fGlyphForIndex.
+class SkGlyphDigest {
 public:
-    SkGlyphIndex() : fIndexData{0} {}
-    SkGlyphIndex(size_t i) : fIndexData{SkTo<uint32_t>(i)} {}
-    operator int() const {return fIndexData;}
+    SkGlyphDigest() : fIndex{0} {}
+    SkGlyphDigest(size_t i) : fIndex{SkTo<uint32_t>(i)} {}
+    int index() const {return fIndex;}
 
 private:
     static_assert(SkPackedGlyphID::kEndData == 20);
-    uint32_t fIndexData : SkPackedGlyphID::kEndData;
+    uint32_t fIndex : SkPackedGlyphID::kEndData;
 };
 
 // This class represents a strike: a specific combination of typeface, size, matrix, etc., and
@@ -104,7 +105,7 @@ private:
     // advances using a scaler.
     std::tuple<SkGlyph*, size_t> glyph(SkPackedGlyphID) SK_REQUIRES(fMu);
 
-    // Generate the glyph index information and update structures to add the glyph.
+    // Generate the glyph digest information and update structures to add the glyph.
     void addGlyph(SkGlyph* glyph) SK_REQUIRES(fMu);
 
     std::tuple<const void*, size_t> prepareImage(SkGlyph* glyph) SK_REQUIRES(fMu);
@@ -130,11 +131,12 @@ private:
 
     mutable SkMutex fMu;
 
-    // Map from a combined GlyphID and sub-pixel position to a SkGlyphIndex. The actual glyph is
-    // stored in the fAlloc. The pointer to the glyph is stored fIndex. This structure provides
-    // an unchanging SkGlyph pointer as long as the strike is alive, and fGlyphForIndex provides a
-    // dense index for glyphs.
-    SkTHashMap<SkPackedGlyphID, SkGlyphIndex> fIndexForPackedGlyphID SK_GUARDED_BY(fMu);
+    // Map from a combined GlyphID and sub-pixel position to a SkGlyphDigest. The actual glyph is
+    // stored in the fAlloc. The pointer to the glyph is stored fGlyphForIndex. The
+    // SkGlyphDigest's fIndex field stores the index. This pointer provides an unchanging
+    // reference to the SkGlyph as long as the strike is alive, and fGlyphForIndex
+    // provides a dense index for glyphs.
+    SkTHashMap<SkPackedGlyphID, SkGlyphDigest> fDigestForPackedGlyphID SK_GUARDED_BY(fMu);
     std::vector<SkGlyph*> fGlyphForIndex SK_GUARDED_BY(fMu);
 
     // so we don't grow our arrays a lot
