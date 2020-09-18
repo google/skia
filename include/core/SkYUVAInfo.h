@@ -38,12 +38,28 @@ public:
      * this expands.
      */
     enum class PlanarConfig {
-        kY_U_V_444,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_422,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_420,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_440,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_411,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
-        kY_U_V_410,  ///< Plane 0: Y, Plane 1: U, Plane 2: V
+        kY_U_V_444,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_422,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_420,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_V_U_420,    ///< Plane 0: Y, Plane 1: V,  Plane 2: U
+        kY_U_V_440,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_411,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+        kY_U_V_410,    ///< Plane 0: Y, Plane 1: U,  Plane 2: V
+
+        kY_U_V_A_4204, ///< Plane 0: Y, Plane 1: U,  Plane 2: V, Plane 3: A
+        kY_V_U_A_4204, ///< Plane 0: Y, Plane 1: V,  Plane 2: U, Plane 3: A
+
+        kY_UV_420,     ///< Plane 0: Y, Plane 1: UV
+        kY_VU_420,     ///< Plane 0: Y, Plane 1: VU
+
+        kY_UV_A_4204,  ///< Plane 0: Y, Plane 1: UV, Plane 2: A
+        kY_VU_A_4204,  ///< Plane 0: Y, Plane 1: VU, Plane 2: A
+
+        kYUV_444,      ///< Plane 0: YUV
+        kUYV_444,      ///< Plane 0: UYV
+
+        kYUVA_4444,    ///< Plane 0: YUVA
+        kUYVA_4444,    ///< Plane 0: UYVA
     };
 
     /**
@@ -73,7 +89,13 @@ public:
                                SkISize planeDimensions[kMaxPlanes]);
 
     /** Number of planes for a given PlanarConfig. */
-    static int NumPlanes(PlanarConfig);
+    static constexpr int NumPlanes(PlanarConfig);
+
+    /**
+     * Number of Y, U, V, A channels in the ith plane for a given PlanarConfig (or 0 if i is
+     * invalid).
+     */
+    static constexpr int NumChannelsInPlane(PlanarConfig, int i);
 
     /** Does the PlanarConfig have alpha values? */
     static bool HasAlpha(PlanarConfig);
@@ -131,6 +153,8 @@ public:
 
     int numPlanes() const { return NumPlanes(fPlanarConfig); }
 
+    int numChannelsInPlane(int i) const { return NumChannelsInPlane(fPlanarConfig, i); }
+
     bool operator==(const SkYUVAInfo& that) const;
     bool operator!=(const SkYUVAInfo& that) const { return !(*this == that); }
 
@@ -150,5 +174,70 @@ private:
     Siting fSitingX = Siting::kCentered;
     Siting fSitingY = Siting::kCentered;
 };
+
+constexpr int SkYUVAInfo::NumPlanes(PlanarConfig planarConfig) {
+    switch (planarConfig) {
+        case PlanarConfig::kY_U_V_444:    return 3;
+        case PlanarConfig::kY_U_V_422:    return 3;
+        case PlanarConfig::kY_U_V_420:    return 3;
+        case PlanarConfig::kY_V_U_420:    return 3;
+        case PlanarConfig::kY_U_V_440:    return 3;
+        case PlanarConfig::kY_U_V_411:    return 3;
+        case PlanarConfig::kY_U_V_410:    return 3;
+
+        case PlanarConfig::kY_U_V_A_4204: return 4;
+        case PlanarConfig::kY_V_U_A_4204: return 4;
+
+        case PlanarConfig::kY_UV_420:     return 2;
+        case PlanarConfig::kY_VU_420:     return 2;
+
+        case PlanarConfig::kY_UV_A_4204:  return 3;
+        case PlanarConfig::kY_VU_A_4204:  return 3;
+
+        case PlanarConfig::kYUV_444:      return 1;
+        case PlanarConfig::kUYV_444:      return 1;
+        case PlanarConfig::kYUVA_4444:    return 1;
+        case PlanarConfig::kUYVA_4444:    return 1;
+    }
+    SkUNREACHABLE;
+}
+
+constexpr int SkYUVAInfo::NumChannelsInPlane(PlanarConfig config, int i) {
+    switch (config) {
+        case SkYUVAInfo::PlanarConfig::kY_U_V_444:
+        case SkYUVAInfo::PlanarConfig::kY_U_V_422:
+        case SkYUVAInfo::PlanarConfig::kY_U_V_420:
+        case SkYUVAInfo::PlanarConfig::kY_V_U_420:
+        case SkYUVAInfo::PlanarConfig::kY_U_V_440:
+        case SkYUVAInfo::PlanarConfig::kY_U_V_411:
+        case SkYUVAInfo::PlanarConfig::kY_U_V_410:
+            return i >= 0 && i < 3 ? 1 : 0;
+        case SkYUVAInfo::PlanarConfig::kY_U_V_A_4204:
+        case SkYUVAInfo::PlanarConfig::kY_V_U_A_4204:
+            return i >= 0 && i < 4 ? 1 : 0;
+        case SkYUVAInfo::PlanarConfig::kY_UV_420:
+        case SkYUVAInfo::PlanarConfig::kY_VU_420:
+            switch (i) {
+                case 0:  return 1;
+                case 1:  return 2;
+                default: return 0;
+            }
+        case SkYUVAInfo::PlanarConfig::kY_UV_A_4204:
+        case SkYUVAInfo::PlanarConfig::kY_VU_A_4204:
+            switch (i) {
+                case 0:  return 1;
+                case 1:  return 2;
+                case 2:  return 1;
+                default: return 0;
+            }
+        case SkYUVAInfo::PlanarConfig::kYUV_444:
+        case SkYUVAInfo::PlanarConfig::kUYV_444:
+            return i == 0 ? 3 : 0;
+        case SkYUVAInfo::PlanarConfig::kYUVA_4444:
+        case SkYUVAInfo::PlanarConfig::kUYVA_4444:
+            return i == 0 ? 4 : 0;
+    }
+    return 0;
+}
 
 #endif
