@@ -8,13 +8,14 @@ module.exports = function(config) {
   config.files.unshift(
     // pattern is a path relative to google3 root referring to any file
     // provided by a target in the data attribute of the js_library of the test.
-    { pattern: 'third_party/skia/HEAD/modules/canvaskit/minimal_skottie_wasm/minimal_skottie_cc.wasm', included:false, served:true},
-    { pattern: 'third_party/skia/HEAD/modules/canvaskit/minimal_skottie_wasm/minimal_skottie_cc.js', included:true, served:false},
-    { pattern: 'third_party/skia/HEAD/modules/canvaskit/tests/assets/animated_gif.json', included:false, served:true},
+    { pattern: 'third_party/skia/HEAD/modules/canvaskit/tests/util.js', included:true, served:false},
+    { pattern: 'third_party/skia/HEAD/modules/canvaskit/canvaskit_wasm/canvaskit_cc.wasm', included:false, served:true},
+    { pattern: 'third_party/skia/HEAD/modules/canvaskit/canvaskit_wasm/canvaskit_cc.js', included:true, served:false},
+    { pattern: 'third_party/skia/HEAD/modules/canvaskit/tests/assets/*', included:false, served:true},
   );
 
   // proxies have the following form
   // {'/dir-to-serve/': '/base/dir-relative-to-google3-root'}
-  config.proxies['/canvaskit/'] = '/base/third_party/skia/HEAD/modules/canvaskit/minimal_skottie_wasm/';
+  config.proxies['/canvaskit/'] = '/base/third_party/skia/HEAD/modules/canvaskit/canvaskit_wasm/';
   config.proxies['/assets/'] = '/base/third_party/skia/HEAD/modules/canvaskit/tests/assets/';
 };
