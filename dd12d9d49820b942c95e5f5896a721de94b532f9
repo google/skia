@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "950ca8bf_7515ec3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T12:42:01Z",
+      "side": 1,
+      "message": "It may have been lost in the Gold flood of flaky images, but it does look like this CL changed how lossy webps look:\n\nhttps://gold.skia.org/search?blame\u003ddd12d9d49820b942c95e5f5896a721de94b532f9\u0026fdiffmax\u003d-1\u0026fref\u003dfalse\u0026frgbamax\u003d255\u0026frgbamin\u003d0\u0026head\u003dtrue\u0026include\u003dfalse\u0026limit\u003d50\u0026master\u003dfalse\u0026match\u003dname\u0026metric\u003dcombined\u0026neg\u003dfalse\u0026offset\u003d0\u0026pos\u003dfalse\u0026query\u003dsource_type%3Dgm\u0026sort\u003ddesc\u0026unt\u003dtrue\n\nDid how we set up a lossy encode change across this upgrade?",
+      "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
