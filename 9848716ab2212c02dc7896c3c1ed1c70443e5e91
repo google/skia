@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "222d6905_7b3f8bcf",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T01:30:10Z",
+      "side": 1,
+      "message": "Derp. I meant \u003c-90. Thanks catching that.\n\ndot \u003e 0 means: abs(theta) \u003c 90\ncross \u003e 0 means: theta \u003e 0",
+      "parentUuid": "4e1913bb_066c739a",
+      "range": {
+        "startLine": 194,
+        "startChar": 10,
+        "endLine": 195,
+        "endChar": 99
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c61c003d_fa103c41",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 6
@@ -69,6 +93,30 @@
       "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4b0a7bb_4d98f579",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T01:30:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c61c003d_fa103c41",
+      "range": {
+        "startLine": 220,
+        "startChar": 66,
+        "endLine": 220,
+        "endChar": 68
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -95,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "aa469b10_7200fffa",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T01:30:10Z",
+      "side": 1,
+      "message": "Done.\n\nLooks like Sk4f can\u0027t be constexpr",
+      "parentUuid": "2eea5621_3c906869",
+      "range": {
+        "startLine": 578,
+        "startChar": 4,
+        "endLine": 578,
+        "endChar": 9
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ded54ba_95a22556",
         "filename": "src/core/SkGeometry.cpp",
         "patchSetId": 6
@@ -115,6 +187,30 @@
       "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8841118c_0e84076f",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T01:30:10Z",
+      "side": 1,
+      "message": "Good catch! I forgot that because of how we formulated this equation, discr can only be zero if the curve is a flat line.\n\nThis also gives a better solution for catching the flat line case above.",
+      "parentUuid": "5ded54ba_95a22556",
+      "range": {
+        "startLine": 600,
+        "startChar": 14,
+        "endLine": 600,
+        "endChar": 17
+      },
+      "revId": "9848716ab2212c02dc7896c3c1ed1c70443e5e91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
