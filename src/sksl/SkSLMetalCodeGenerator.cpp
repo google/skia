@@ -808,11 +808,14 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
 
 void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                                Precedence parentPrecedence) {
-    const Type& leftType = b.fLeft->type();
-    const Type& rightType = b.fRight->type();
-    Precedence precedence = GetBinaryPrecedence(b.fOperator);
+    const Expression& left = b.left();
+    const Expression& right = b.right();
+    const Type& leftType = left.type();
+    const Type& rightType = right.type();
+    Token::Kind op = b.getOperator();
+    Precedence precedence = GetBinaryPrecedence(b.getOperator());
     bool needParens = precedence >= parentPrecedence;
-    switch (b.fOperator) {
+    switch (op) {
         case Token::Kind::TK_EQEQ:
             if (leftType.typeKind() == Type::TypeKind::kVector) {
                 this->write("all");
@@ -831,22 +834,21 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (needParens) {
         this->write("(");
     }
-    if (Compiler::IsAssignment(b.fOperator) &&
-        Expression::Kind::kVariableReference == b.fLeft->kind() &&
-        Variable::kParameter_Storage == ((VariableReference&) *b.fLeft).fVariable.fStorage &&
-        (((VariableReference&) *b.fLeft).fVariable.fModifiers.fFlags & Modifiers::kOut_Flag)) {
+    if (Compiler::IsAssignment(op) &&
+        Expression::Kind::kVariableReference == left.kind() &&
+        Variable::kParameter_Storage == left.as<VariableReference>().fVariable.fStorage &&
+        left.as<VariableReference>().fVariable.fModifiers.fFlags & Modifiers::kOut_Flag) {
         // writing to an out parameter. Since we have to turn those into pointers, we have to
         // dereference it here.
         this->write("*");
     }
-    if (b.fOperator == Token::Kind::TK_STAREQ &&
-        leftType.typeKind() == Type::TypeKind::kMatrix &&
+    if (op == Token::Kind::TK_STAREQ && leftType.typeKind() == Type::TypeKind::kMatrix &&
         rightType.typeKind() == Type::TypeKind::kMatrix) {
         this->writeMatrixTimesEqualHelper(leftType, rightType, b.type());
     }
-    this->writeExpression(*b.fLeft, precedence);
-    if (b.fOperator != Token::Kind::TK_EQ && Compiler::IsAssignment(b.fOperator) &&
-        b.fLeft->kind() == Expression::Kind::kSwizzle && !b.fLeft->hasSideEffects()) {
+    this->writeExpression(left, precedence);
+    if (op != Token::Kind::TK_EQ && Compiler::IsAssignment(op) &&
+        left.kind() == Expression::Kind::kSwizzle && !left.hasSideEffects()) {
         // This doesn't compile in Metal:
         // float4 x = float4(1);
         // x.xy *= float2x2(...);
@@ -854,16 +856,16 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         // but switching it to x.xy = x.xy * float2x2(...) fixes it. We perform this tranformation
         // as long as the LHS has no side effects, and hope for the best otherwise.
         this->write(" = ");
-        this->writeExpression(*b.fLeft, kAssignment_Precedence);
+        this->writeExpression(left, kAssignment_Precedence);
         this->write(" ");
-        String op = Compiler::OperatorName(b.fOperator);
-        SkASSERT(op.endsWith("="));
-        this->write(op.substr(0, op.size() - 1).c_str());
+        String opName = Compiler::OperatorName(op);
+        SkASSERT(opName.endsWith("="));
+        this->write(opName.substr(0, opName.size() - 1).c_str());
         this->write(" ");
     } else {
-        this->write(String(" ") + Compiler::OperatorName(b.fOperator) + " ");
+        this->write(String(" ") + Compiler::OperatorName(op) + " ");
     }
-    this->writeExpression(*b.fRight, precedence);
+    this->writeExpression(right, precedence);
     if (needParens) {
         this->write(")");
     }
@@ -1068,7 +1070,12 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     StringStream buffer;
     fOut = &buffer;
     fIndentation++;
-    this->writeStatements(((Block&) *f.fBody).fStatements);
+    for (const Statement& stmt : f.fBody->as<Block>()) {
+        if (!stmt.isEmpty()) {
+            this->writeStatement(stmt);
+            this->writeLine();
+        }
+    }
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
@@ -1290,22 +1297,19 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
     }
 }
 
-void MetalCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statement>>& statements) {
-    for (const auto& s : statements) {
-        if (!s->isEmpty()) {
-            this->writeStatement(*s);
-            this->writeLine();
-        }
-    }
-}
-
 void MetalCodeGenerator::writeBlock(const Block& b) {
-    if (b.fIsScope) {
+    bool isScope = b.isScope();
+    if (isScope) {
         this->writeLine("{");
         fIndentation++;
     }
-    this->writeStatements(b.fStatements);
-    if (b.fIsScope) {
+    for (const Statement& stmt : b) {
+        if (!stmt.isEmpty()) {
+            this->writeStatement(stmt);
+            this->writeLine();
+        }
+    }
+    if (isScope) {
         fIndentation--;
         this->write("}");
     }
@@ -1730,8 +1734,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             return this->requirements(e->as<Swizzle>().fBase.get());
         case Expression::Kind::kBinary: {
             const BinaryExpression& bin = e->as<BinaryExpression>();
-            return this->requirements(bin.fLeft.get()) |
-                   this->requirements(bin.fRight.get());
+            return this->requirements(&bin.left()) |
+                   this->requirements(&bin.right());
         }
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = e->as<IndexExpression>();
@@ -1777,8 +1781,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
     switch (s->kind()) {
         case Statement::Kind::kBlock: {
             Requirements result = kNo_Requirements;
-            for (const auto& child : s->as<Block>().fStatements) {
-                result |= this->requirements(child.get());
+            for (const Statement& child : s->as<Block>()) {
+                result |= this->requirements(&child);
             }
             return result;
         }
