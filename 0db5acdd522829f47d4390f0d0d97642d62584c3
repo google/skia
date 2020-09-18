@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c02f9345_d91a86db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-18T20:20:39Z",
+      "side": 1,
+      "message": "I\u0027ve added freetype sources to wasm builds of skia, to assist merckhung@\n\nI\u0027ve cleaned up the canvaskit google3 build rules in google3 cl/332073924",
+      "revId": "0db5acdd522829f47d4390f0d0d97642d62584c3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
