@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98b5f4ac_47babcaf",
+        "filename": "tests/sksl/inliner/InlinerWrapsEarlyReturnsWithDoWhileBlock.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-18T20:47:42Z",
+      "side": 1,
+      "message": "I\u0027m confused. Don\u0027t both versions of this use Default settings? What\u0027s the logic that disables inlining in DefaultSettings? Is that just a decision that we make (that I missed)?",
+      "range": {
+        "startLine": 1,
+        "startChar": 19,
+        "endLine": 1,
+        "endChar": 26
+      },
+      "revId": "cef56ec56d7df1bbff320828c0f2471a06699230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
