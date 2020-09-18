@@ -47,7 +47,6 @@ public:
     {
         _0_unpremul = half4(inputColor.xyz / max(inputColor.w, 9.9999997473787516e-05), inputColor.w);
     }
-
     inputColor = _0_unpremul;
 
 }
