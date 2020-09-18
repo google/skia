@@ -84,6 +84,10 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
                     static auto s_powCaps = Factory::RemovePowWithConstantExponent();
                     settings->fCaps = s_powCaps.get();
                 }
+                if (settingsText.consumeSuffix(" ShaderDerivativeExtensionString")) {
+                    static auto s_derivativeCaps = Factory::ShaderDerivativeExtensionString();
+                    settings->fCaps = s_derivativeCaps.get();
+                }
                 if (settingsText.consumeSuffix(" UnfoldShortCircuitAsTernary")) {
                     static auto s_ternaryCaps = Factory::UnfoldShortCircuitAsTernary();
                     settings->fCaps = s_ternaryCaps.get();
@@ -99,6 +103,9 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
                 if (settingsText.consumeSuffix(" Version450Core")) {
                     static auto s_version450CoreCaps = Factory::Version450Core();
                     settings->fCaps = s_version450CoreCaps.get();
+                }
+                if (settingsText.consumeSuffix(" FlipY")) {
+                    settings->fFlipY = true;
                 }
                 if (settingsText.consumeSuffix(" ForceHighPrecision")) {
                     settings->fForceHighPrecision = true;

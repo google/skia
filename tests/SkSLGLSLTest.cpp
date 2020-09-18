@@ -49,63 +49,6 @@ static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& cap
     test(r, src, settings, expected, &inputs, kind);
 }
 
-DEF_TEST(SkSLDerivatives, r) {
-    test(r,
-         "void main() { sk_FragColor.r = half(dFdx(1)); }",
-         *SkSL::ShaderCapsFactory::Default(),
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    sk_FragColor.x = dFdx(1.0);\n"
-         "}\n");
-    test(r,
-         "void main() { sk_FragColor.r = 1; }",
-         *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
-         "#version 400\n"
-         "precision mediump float;\n"
-         "precision mediump sampler2D;\n"
-         "out mediump vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    sk_FragColor.x = 1.0;\n"
-         "}\n");
-    test(r,
-         "void main() { sk_FragColor.r = half(dFdx(1)); }",
-         *SkSL::ShaderCapsFactory::ShaderDerivativeExtensionString(),
-         "#version 400\n"
-         "#extension GL_OES_standard_derivatives : require\n"
-         "precision mediump float;\n"
-         "precision mediump sampler2D;\n"
-         "out mediump vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    sk_FragColor.x = dFdx(1.0);\n"
-         "}\n");
-
-    SkSL::Program::Settings settings;
-    settings.fFlipY = false;
-    auto caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
-    SkSL::Program::Inputs inputs;
-    test(r,
-         "void main() { sk_FragColor.r = half(dFdx(1)), sk_FragColor.g = half(dFdy(1)); }",
-         settings,
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    (sk_FragColor.x = dFdx(1.0) , sk_FragColor.y = dFdy(1.0));\n"
-         "}\n",
-         &inputs);
-    settings.fFlipY = true;
-    test(r,
-         "void main() { sk_FragColor.r = half(dFdx(1)), sk_FragColor.g = half(dFdy(1)); }",
-         settings,
-         "#version 400\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    (sk_FragColor.x = dFdx(1.0) , sk_FragColor.y = -dFdy(1.0));\n"
-         "}\n",
-         &inputs);
-}
-
 DEF_TEST(SkSLFragCoord, r) {
     SkSL::Program::Settings settings;
     settings.fFlipY = true;
