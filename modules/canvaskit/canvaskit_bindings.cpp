@@ -160,7 +160,7 @@ sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
     // setup GrContext
     auto interface = GrGLMakeNativeInterface();
     // setup contexts
-    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
+    sk_sp<GrContext> grContext(GrDirectContext::MakeGL(interface));
     return grContext;
 }
 
