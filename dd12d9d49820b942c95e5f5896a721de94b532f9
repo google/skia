@@ -52,6 +52,24 @@
       "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f755307_3ab9c9c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5920
+      },
+      "writtenOn": "2020-09-18T20:32:43Z",
+      "side": 1,
+      "message": "\u003e In encode-color-types-webp-lossy , we use a quality of 80 and webp_config.method of 3. It sounds like this diff is to be expected then?\n\u003e \n\nThe diff looks pretty large, the change I pointed out was for method \u003e 4. Can we extract the source so I can take a closer look?\n\n\u003e For encode-platform, we *should* be using the platform\u0027s decoders. It\u0027s odd that this CL changed that one at all...",
+      "parentUuid": "863a34ca_cbce1a2b",
+      "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
