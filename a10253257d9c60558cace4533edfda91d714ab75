@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca82ca4f_744ac814",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T14:49:03Z",
+      "side": 1,
+      "message": "this part is unlikely to be relevant",
+      "range": {
+        "startLine": 265,
+        "startChar": 19,
+        "endLine": 265,
+        "endChar": 25
+      },
+      "revId": "a10253257d9c60558cace4533edfda91d714ab75",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

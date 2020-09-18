@@ -141,6 +141,24 @@
       "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c87d132f_5d2efd20",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T14:49:03Z",
+      "side": 0,
+      "message": "Oh right... yeah, that other one was legit.  This one\u0027s bogus.",
+      "parentUuid": "5d0a032c_57d15447",
+      "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
