@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed246727_50a1f3d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-18T19:28:22Z",
+      "side": 1,
+      "message": "I Encountered problems running the karma tests in google3\nAll assets are matched and included so new ones don\u0027t have to be explicitly listed",
+      "revId": "51b5f3927d9af505382ea712fd43f39a8827a2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
