@@ -87,6 +87,30 @@
       "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5e8b27d_7f984a5a",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T16:23:02Z",
+      "side": 1,
+      "message": "yeah, i guess try a trybot?  if we can\u0027t keep strict anywhere, no big deal, but it\u0027d be nice to if possible.",
+      "parentUuid": "6769e4c3_016300c0",
+      "range": {
+        "startLine": 387,
+        "startChar": 11,
+        "endLine": 387,
+        "endChar": 17
+      },
+      "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
