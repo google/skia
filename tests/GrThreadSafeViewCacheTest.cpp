@@ -99,7 +99,25 @@ public:
 
     SkCanvas* liveCanvas() { return fDst ? fDst->getCanvas() : nullptr; }
     SkCanvas* ddlCanvas1() { return fRecorder1 ? fRecorder1->getCanvas() : nullptr; }
+    sk_sp<SkDeferredDisplayList> snap1() {
+        if (fRecorder1) {
+            sk_sp<SkDeferredDisplayList> tmp = fRecorder1->detach();
+            fRecorder1 = nullptr;
+            return tmp;
+        }
+
+        return nullptr;
+    }
     SkCanvas* ddlCanvas2() { return fRecorder2 ? fRecorder2->getCanvas() : nullptr; }
+    sk_sp<SkDeferredDisplayList> snap2() {
+        if (fRecorder2) {
+            sk_sp<SkDeferredDisplayList> tmp = fRecorder2->detach();
+            fRecorder2 = nullptr;
+            return tmp;
+        }
+
+        return nullptr;
+    }
 
     GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
         return fDContext->priv().threadSafeViewCache();
@@ -137,7 +155,8 @@ public:
                          nullptr);
     }
 
-    // TODO: make a static version and pass in rContext & resourceCache
+    // Besides checking that the number of refs and cache hits and misses are as expected, this
+    // method also validates that the unique key doesn't appear in any of the other caches.
     bool checkView(SkCanvas* canvas, int wh, int hits, int misses, int numRefs) {
         if (fStats.fCacheHits != hits || fStats.fCacheMisses != misses) {
             return false;
@@ -146,7 +165,6 @@ public:
         GrUniqueKey key;
         create_key(&key, wh);
 
-        GrRecordingContext* rContext = canvas->recordingContext();
         auto threadSafeViewCache = this->threadSafeViewCache();
 
         GrSurfaceProxyView view = threadSafeViewCache->find(key);
@@ -156,7 +174,8 @@ public:
             return false;
         }
 
-        {
+        if (canvas) {
+            GrRecordingContext* rContext = canvas->recordingContext();
             GrProxyProvider* recordingProxyProvider = rContext->priv().proxyProvider();
             sk_sp<GrTextureProxy> result = recordingProxyProvider->findProxyByUniqueKey(key);
             if (result) {
@@ -354,3 +373,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
     }
 }
 
+// Case 6: check on dropping refs
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    helper.checkView(nullptr, kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+
+    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    ddl1 = nullptr;
+    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 1);
+
+    ddl2 = nullptr;
+    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 0);
+
+    // The cache still has its ref
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 0);
+}

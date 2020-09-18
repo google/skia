@@ -9,6 +9,7 @@
 #define GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
 
 #include "include/private/SkSpinlock.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
@@ -58,13 +59,37 @@ private:
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
 
         // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        const GrUniqueKey  fKey;
+        GrUniqueKey        fKey;
         GrSurfaceProxyView fView;
+        Entry*             fNext = nullptr;
 
         // for SkTDynamicHash
         static const GrUniqueKey& GetKey(const Entry& e) { return e.fKey; }
         static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
+
+    Entry* getEntry(const GrUniqueKey& key, const GrSurfaceProxyView& view) {
+        Entry* newEntry;
+        if (fFreeEntryList) {
+            newEntry = fFreeEntryList;
+            fFreeEntryList = newEntry->fNext;
+            newEntry->fNext = nullptr;
+
+            newEntry->fKey = key;
+            newEntry->fView = view;
+        } else {
+            newEntry = fEntryAllocator.make<Entry>(key, view);
+        }
+
+        return newEntry;
+    }
+
+    void recycleEntry(Entry* dead) {
+        dead->fKey.reset();
+        dead->fView.reset();
+        dead->fNext = fFreeEntryList;
+        fFreeEntryList = dead;
+    }
 
     GrSurfaceProxyView internalAdd(const GrUniqueKey&,
                                    const GrSurfaceProxyView&)  SK_REQUIRES(fSpinLock);
@@ -72,6 +97,13 @@ private:
     mutable SkSpinlock fSpinLock;
 
     SkTDynamicHash<Entry, GrUniqueKey> fUniquelyKeyedProxyViews  SK_GUARDED_BY(fSpinLock);
+
+    // TODO: empirically determine this from the skps
+    static const int kInitialArenaSize = 64 * sizeof(Entry);
+
+    char                         fStorage[kInitialArenaSize];
+    SkArenaAlloc                 fEntryAllocator{fStorage, kInitialArenaSize, kInitialArenaSize};
+    Entry*                       fFreeEntryList = nullptr;
 };
 
 #endif // GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED

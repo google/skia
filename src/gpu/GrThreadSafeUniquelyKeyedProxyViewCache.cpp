@@ -10,7 +10,7 @@
 GrThreadSafeUniquelyKeyedProxyViewCache::GrThreadSafeUniquelyKeyedProxyViewCache() {}
 
 GrThreadSafeUniquelyKeyedProxyViewCache::~GrThreadSafeUniquelyKeyedProxyViewCache() {
-    fUniquelyKeyedProxyViews.foreach([](Entry* v) { delete v; });
+    fUniquelyKeyedProxyViews.foreach([this](Entry* v) { this->recycleEntry(v); });
 }
 
 #if GR_TEST_UTILS
@@ -30,7 +30,7 @@ int GrThreadSafeUniquelyKeyedProxyViewCache::count() const {
 void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
     SkAutoSpinlock lock{fSpinLock};
 
-    fUniquelyKeyedProxyViews.foreach([](Entry* v) { delete v; });
+    fUniquelyKeyedProxyViews.foreach([this](Entry* v) { this->recycleEntry(v); });
     fUniquelyKeyedProxyViews.reset();
 }
 
@@ -58,8 +58,7 @@ GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::internalAdd(
                                                                 const GrSurfaceProxyView& view) {
     Entry* tmp = fUniquelyKeyedProxyViews.find(key);
     if (!tmp) {
-        // TODO: block allocate here?
-        tmp = new Entry(key, view);
+        tmp = this->getEntry(key, view);
         fUniquelyKeyedProxyViews.add(tmp);
     }
 
