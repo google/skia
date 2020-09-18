@@ -1178,13 +1178,13 @@ static void move_all_but_break(std::unique_ptr<Statement>& stmt,
             Block& block = static_cast<Block&>(*stmt);
 
             std::vector<std::unique_ptr<Statement>> blockStmts;
-            blockStmts.reserve(block.fStatements.size());
-            for (std::unique_ptr<Statement>& statementInBlock : block.fStatements) {
-                move_all_but_break(statementInBlock, &blockStmts);
+            blockStmts.reserve(block.childCount());
+            for (int i = 0; i < block.childCount(); ++i) {
+                move_all_but_break(block.childPointer(i), &blockStmts);
             }
 
             target->push_back(std::make_unique<Block>(block.fOffset, std::move(blockStmts),
-                                                      block.fSymbols, block.fIsScope));
+                                                      block.symbolTable(), block.isScope()));
             break;
         }
 

@@ -604,8 +604,8 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fOut = &buffer;
     if (decl.fName == "main") {
         fInMain = true;
-        for (const auto& s : f.fBody->as<Block>().fStatements) {
-            this->writeStatement(*s);
+        for (const Statement& s : f.fBody->as<Block>()) {
+            this->writeStatement(s);
             this->writeLine();
         }
         fInMain = false;
@@ -617,15 +617,15 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->addExtraEmitCodeLine("SkString " + decl.fName + "_name;");
         String args = "const GrShaderVar " + decl.fName + "_args[] = { ";
         const char* separator = "";
-        for (const auto& param : decl.fParameters) {
+        for (const Variable* param : decl.fParameters) {
             args += String(separator) + "GrShaderVar(\"" + param->fName + "\", " +
                     glsltype_string(fContext, param->type()) + ")";
             separator = ", ";
         }
         args += "};";
         this->addExtraEmitCodeLine(args.c_str());
-        for (const auto& s : f.fBody->as<Block>().fStatements) {
-            this->writeStatement(*s);
+        for (const Statement& s : f.fBody->as<Block>()) {
+            this->writeStatement(s);
             this->writeLine();
         }
 
