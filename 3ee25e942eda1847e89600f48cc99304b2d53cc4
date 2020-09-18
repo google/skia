@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "623e458a_6ad3b8b8",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T14:42:58Z",
+      "side": 0,
+      "message": "This is the issue I\u0027m running into:\n\nhttps://github.com/emscripten-core/emscripten/issues/12118\n\nI\u0027ve tried adding -lGL to various spots but still no luck.",
+      "parentUuid": "717918ee_ec1ffd95",
+      "range": {
+        "startLine": 383,
+        "startChar": 7,
+        "endLine": 383,
+        "endChar": 13
+      },
+      "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "793cc108_adb32c6a",
         "filename": "src/core/SkStroke.cpp",
         "patchSetId": 2
@@ -99,6 +123,24 @@
       "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d0a032c_57d15447",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T14:42:58Z",
+      "side": 0,
+      "message": "Derp. The warning we fixed with SkTFitsIn\u003c\u003e was also tautological-value-range-compare. I don\u0027t know why I assumed you were talking about that one. Done!",
+      "parentUuid": "fe05f89c_95f45e92",
+      "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
