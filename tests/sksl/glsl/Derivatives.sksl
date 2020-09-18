@@ -1,0 +1,5 @@
+/*#pragma settings ShaderDerivativeExtensionString*/
+
+void main() {
+    sk_FragColor.x = half(dFdx(1));
+}
