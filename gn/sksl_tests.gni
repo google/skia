@@ -240,6 +240,7 @@ sksl_glsl_settings_tests_sources = [
   "$_tests/sksl/glsl/Derivatives.sksl",
   "$_tests/sksl/glsl/DerivativesFlipY.sksl",
   "$_tests/sksl/glsl/TypePrecision.sksl",
+  "$_tests/sksl/inliner/InlinerCanBeDisabled.sksl",
   "$_tests/sksl/workarounds/AbsInt.sksl",
   "$_tests/sksl/workarounds/FractNegative.sksl",
   "$_tests/sksl/workarounds/FragCoords.sksl",
