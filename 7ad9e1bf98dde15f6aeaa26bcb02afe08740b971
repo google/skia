@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c316a62d_14ee5098",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-18T19:58:28Z",
+      "side": 1,
+      "message": "Here\u0027s a CL that fixes the msaa performance issue around aa rect stencil masks by using coverage FPs instead.\n\nThe gold diffs all appear fine, if not higher quality because it avoids low precision coverage gradients from limited sample counts. The one outlier that I see so far is complexclip_aa on the vkmsaa8 config for the Quadro P400, where it now looks worse.\n\nI\u0027ll investigate that more, but my theory behind this change was that since it was a clip\u0027s coverage we were computing, we could actually just always use the FP, even in MSAA. It\u0027ll run once per fragment and affect the alpha value that may or may not then be combined with sample coverage. But sample coverage will be based solely on the draw\u0027s geometry (right?), so that combo should be valid.",
+      "revId": "7ad9e1bf98dde15f6aeaa26bcb02afe08740b971",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
