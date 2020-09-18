@@ -34,6 +34,7 @@ describe('Skottie behavior', () => {
             console.warn('Skipping test because not compiled with skottie');
             return;
         }
+        expect(promises[1]).not.toBe('NOT FOUND');
         const animation = CanvasKit.MakeManagedAnimation(promises[1], {
             'flightAnim.gif': promises[0],
         });
@@ -63,6 +64,7 @@ describe('Skottie behavior', () => {
             console.warn('Skipping test because not compiled with skottie');
             return;
         }
+        expect(promises[0]).not.toBe('NOT FOUND');
         const bounds = CanvasKit.LTRBRect(0, 0, 500, 500);
         canvas.clear(CanvasKit.WHITE);
 
