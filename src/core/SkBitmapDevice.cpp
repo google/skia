@@ -19,6 +19,7 @@
 #include "src/core/SkGlyphRun.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMatrixUtils.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkStrikeCache.h"
@@ -554,7 +555,7 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
     BDDraw(this).drawVertices(vertices, bmode, paint);
 }
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkPaint& origPaint) {
     SkASSERT(!origPaint.getImageFilter());
     SkASSERT(!origPaint.getMaskFilter());
 
@@ -563,17 +564,25 @@ void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPain
 
     // hack to test coverage
     SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
+    SkMatrix srcToDst = device->getRelativeTransform(*this);
     if (src->fCoverage) {
         SkDraw draw;
-        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+        SkSimpleMatrixProvider matrixProvider(srcToDst);
         draw.fDst = fBitmap.pixmap();
         draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();
         paint.writable()->setShader(src->fBitmap.makeShader());
-        draw.drawBitmap(*src->fCoverage,
-                        SkMatrix::Translate(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
+        draw.drawBitmap(*src->fCoverage, SkMatrix::I(), nullptr, *paint);
     } else {
-        BDDraw(this).drawSprite(src->fBitmap, x, y, *paint);
+        // Since we're already overriding drawDevice, no sense in wrapping the bitmap and then
+        // unwrapping it drawSpecial for this trivial case.
+        if (SkTreatAsSprite(srcToDst, src->fBitmap.dimensions(), *paint)) {
+            int x = (int) srcToDst.getTranslateX();
+            int y = (int) srcToDst.getTranslateY();
+            BDDraw(this).drawSprite(src->fBitmap, x, y, *paint);
+        } else {
+            this->INHERITED::drawDevice(device, *paint);
+        }
     }
 }
 
@@ -590,13 +599,25 @@ void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& paint) {
+void SkBitmapDevice::drawSpecial(const SkMatrix& xform, SkSpecialImage* src,
+                                 int x, int y, const SkPaint& paint) {
     SkASSERT(!src->isTextureBacked());
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
 
     SkBitmap resultBM;
     if (src->getROPixels(&resultBM)) {
-        BDDraw(this).drawSprite(resultBM, x, y, paint);
+        if (SkTreatAsSprite(xform, resultBM.dimensions(), paint)) {
+            x += (int) xform.getTranslateX();
+            y += (int) xform.getTranslateY();
+            BDDraw(this).drawSprite(resultBM, x, y, paint);
+        } else {
+            SkDraw draw;
+            SkSimpleMatrixProvider matrixProvider(xform);
+            draw.fDst = fBitmap.pixmap();
+            draw.fMatrixProvider = &matrixProvider;
+            draw.fRC = &fRCStack.rc();
+            draw.drawBitmap(resultBM, SkMatrix::Translate(x, y), nullptr, paint);
+        }
     }
 }
 

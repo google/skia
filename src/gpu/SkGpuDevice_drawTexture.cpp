@@ -12,6 +12,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMatrixUtils.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrBlurUtils.h"
@@ -651,17 +652,24 @@ void draw_tiled_bitmap(GrRecordingContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint) {
+void SkGpuDevice::drawSpecial(const SkMatrix& xform,
+                              SkSpecialImage* special,
+                              int x, int y,
+                              const SkPaint& paint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
     SkASSERT(special->isTextureBacked());
 
     SkRect src = SkRect::Make(special->subset());
-    SkRect dst = SkRect::MakeXYWH(left, top, special->width(), special->height());
+    SkRect dst = SkRect::MakeXYWH(x, y, special->width(), special->height());
     SkMatrix srcToDst = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
-    // TODO (michaelludwig): Once drawSpecial uses arbitrary transforms between two SkGpuDevices,
-    // always using kNearest may not be the right choice anymore.
-    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest);
+    // Intentionally ignore the paint's filter quality, since special image blits are generally
+    // outside of the user's control or knowledge. Instead use kNearest when the xform is an
+    // integer translation and bilerp otherwise (it won't have mipmaps, and we want to avoid the
+    // extra overhead of bicubic filtering).
+    GrSamplerState::Filter filter = SkTreatAsSprite(xform, special->subset().size(), paint) ?
+                                            GrSamplerState::Filter::kNearest :
+                                            GrSamplerState::Filter::kLinear;
 
     GrColorInfo colorInfo(SkColorTypeToGrColorType(special->colorType()),
                           special->alphaType(), sk_ref_sp(special->getColorSpace()));
@@ -670,11 +678,11 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     GrTextureAdjuster texture(fContext.get(), std::move(view), colorInfo, special->uniqueID());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
-    SkOverrideDeviceMatrixProvider identity(this->asMatrixProvider(), SkMatrix::I());
+    SkOverrideDeviceMatrixProvider matrixProvider(this->asMatrixProvider(), xform);
     draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                          identity, paint, &texture, src, dst, nullptr, srcToDst, GrAA::kNo,
+                          matrixProvider, paint, &texture, src, dst, nullptr, srcToDst, GrAA::kNo,
                           GrQuadAAFlags::kNone, SkCanvas::kStrict_SrcRectConstraint,
-                          sampler, false);
+                          {GrSamplerState::WrapMode::kClamp, filter}, false);
 }
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
