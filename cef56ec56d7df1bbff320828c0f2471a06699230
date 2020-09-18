@@ -46,6 +46,30 @@
       "revId": "cef56ec56d7df1bbff320828c0f2471a06699230",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6850d5dc_aa788de8",
+        "filename": "tests/sksl/inliner/InlinerWrapsEarlyReturnsWithDoWhileBlock.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-18T20:59:46Z",
+      "side": 1,
+      "message": "Ah, right - and we don\u0027t inline in standalone mode. Got it.",
+      "parentUuid": "de201434_ccf08506",
+      "range": {
+        "startLine": 1,
+        "startChar": 19,
+        "endLine": 1,
+        "endChar": 26
+      },
+      "revId": "cef56ec56d7df1bbff320828c0f2471a06699230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
