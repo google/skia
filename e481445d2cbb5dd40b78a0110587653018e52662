@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d5882d2_68abab67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T15:08:46Z",
+      "side": 1,
+      "message": "Added a comment with the bug for STRICT\u003d1.\n\nDo we want to turn it off for now? Or just have me disable it locally until the bug is fixed?",
+      "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
