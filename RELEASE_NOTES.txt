@@ -15,12 +15,6 @@ Milestone 87
     the deprecated, expanding clip ops.
     https://review.skia.org/317209
 
-  * Alternate SkImage::MakeFromYUVAPixmaps signature. Takes SkYUVAPixmaps, which specifies
-    planar configuration in a more structured manner. Currently limited to tri-planar
-    configurations without alpha but will be expanded. Older signature will become
-    deprecated when the new signature supports a broad range of planar configurations.
-    https://review.skia.org/316837
-
   * Switch to using Microsoft::WRL::ComPtr for wrapping D3D12 objects.
     https://review.skia.org/314957
 
@@ -32,11 +26,14 @@ Milestone 87
     Valid signatures are now 'half4 main()' or 'half4 main(float2 coord)'.
     https://review.skia.org/310756
 
-  * New YUVA planar interface in SkCodec. Chroma subsampling is specified in more structured way.
-    Doesn't assume 8bit planar values.
+  * New YUVA planar specifications for SkCodec, SkImageGenerator, SkImage::MakeFromYUVAPixmaps.
+    Chroma subsampling is specified in more structured way. SkCodec and SkImageGenerator
+    don't assume 3 planes with 8bit planar values. Old APIs are deprecated.
     https://review.skia.org/309658
     https://review.skia.org/312886
     https://review.skia.org/314276
+    https://review.skia.org/316837
+    https://review.skia.org/317097
 
   * Added VkImageUsageFlags to GrVkImageInfo struct.
 
