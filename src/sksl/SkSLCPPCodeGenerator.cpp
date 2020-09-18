@@ -70,42 +70,45 @@ String CPPCodeGenerator::getTypeName(const Type& type) {
 
 void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                              Precedence parentPrecedence) {
-    if (b.fOperator == Token::Kind::TK_PERCENT) {
+    const Expression& left = b.left();
+    const Expression& right = b.right();
+    Token::Kind op = b.getOperator();
+    if (op == Token::Kind::TK_PERCENT) {
         // need to use "%%" instead of "%" b/c the code will be inside of a printf
-        Precedence precedence = GetBinaryPrecedence(b.fOperator);
+        Precedence precedence = GetBinaryPrecedence(op);
         if (precedence >= parentPrecedence) {
             this->write("(");
         }
-        this->writeExpression(*b.fLeft, precedence);
+        this->writeExpression(left, precedence);
         this->write(" %% ");
-        this->writeExpression(*b.fRight, precedence);
+        this->writeExpression(right, precedence);
         if (precedence >= parentPrecedence) {
             this->write(")");
         }
-    } else if (b.fLeft->kind() == Expression::Kind::kNullLiteral ||
-               b.fRight->kind() == Expression::Kind::kNullLiteral) {
+    } else if (left.kind() == Expression::Kind::kNullLiteral ||
+               right.kind() == Expression::Kind::kNullLiteral) {
         const Variable* var;
-        if (b.fLeft->kind() != Expression::Kind::kNullLiteral) {
-            var = &b.fLeft->as<VariableReference>().fVariable;
+        if (left.kind() != Expression::Kind::kNullLiteral) {
+            var = &left.as<VariableReference>().fVariable;
         } else {
-            var = &b.fRight->as<VariableReference>().fVariable;
+            var = &right.as<VariableReference>().fVariable;
         }
         SkASSERT(var->type().typeKind() == Type::TypeKind::kNullable &&
                  var->type().componentType() == *fContext.fFragmentProcessor_Type);
         this->write("%s");
-        const char* op = "";
-        switch (b.fOperator) {
+        const char* prefix = "";
+        switch (op) {
             case Token::Kind::TK_EQEQ:
-                op = "!";
+                prefix = "!";
                 break;
             case Token::Kind::TK_NEQ:
-                op = "";
+                prefix = "";
                 break;
             default:
                 SkASSERT(false);
         }
         int childIndex = this->getChildFPIndex(*var);
-        fFormatArgs.push_back(String(op) + "_outer.childProcessor(" + to_string(childIndex) +
+        fFormatArgs.push_back(String(prefix) + "_outer.childProcessor(" + to_string(childIndex) +
                               ") ? \"true\" : \"false\"");
     } else {
         INHERITED::writeBinaryExpression(b, parentPrecedence);
@@ -601,8 +604,8 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fOut = &buffer;
     if (decl.fName == "main") {
         fInMain = true;
-        for (const auto& s : f.fBody->as<Block>().fStatements) {
-            this->writeStatement(*s);
+        for (const Statement& s : f.fBody->as<Block>()) {
+            this->writeStatement(s);
             this->writeLine();
         }
         fInMain = false;
@@ -614,15 +617,15 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->addExtraEmitCodeLine("SkString " + decl.fName + "_name;");
         String args = "const GrShaderVar " + decl.fName + "_args[] = { ";
         const char* separator = "";
-        for (const auto& param : decl.fParameters) {
+        for (const Variable* param : decl.fParameters) {
             args += String(separator) + "GrShaderVar(\"" + param->fName + "\", " +
                     glsltype_string(fContext, param->type()) + ")";
             separator = ", ";
         }
         args += "};";
         this->addExtraEmitCodeLine(args.c_str());
-        for (const auto& s : f.fBody->as<Block>().fStatements) {
-            this->writeStatement(*s);
+        for (const Statement& s : f.fBody->as<Block>()) {
+            this->writeStatement(s);
             this->writeLine();
         }
 
