@@ -319,6 +319,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 2, /*misses*/ 1, /*refs*/ 3);
+//    add helper::getDDL1()
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
@@ -398,3 +399,42 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
 
     helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 0);
 }
+
+// Case 7: check that dropAllRefs() and dropAllUniqueRefs work as expected
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    helper.checkView(nullptr, kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+
+    helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    helper.checkView(nullptr, 2*kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+
+    helper.threadSafeViewCache()->dropAllUniqueRefs();
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+
+    ddl1 = nullptr;
+
+    helper.threadSafeViewCache()->dropAllUniqueRefs();
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    helper.checkView(nullptr, 2*kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+
+    helper.threadSafeViewCache()->dropAllRefs();
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+
+    ddl2 = nullptr;
+}
+
+// Case 8: check on MRU behavior of the cache
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache8, reporter, ctxInfo) {
+
+}
+
+// add flush & readback of gpu-draw & ddl draws and check that rendering is correct ?
+//      - would need to add op-creation for this
+// drop all refs and clear resource cache - this cache should also be cleared
+// ? add consistent() call to the cache that checks in resource cache & proxy cache ?
