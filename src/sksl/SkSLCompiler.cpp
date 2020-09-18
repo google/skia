@@ -106,7 +106,7 @@ Compiler::Compiler(Flags flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
     auto symbols = std::make_shared<SymbolTable>(this);
-    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), &fInliner, symbols, *this);
+    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), symbols, *this);
     #define ADD_TYPE(t) symbols->addWithoutOwnership(fContext->f ## t ## _Type->fName, \
                                                      fContext->f ## t ## _Type.get())
     ADD_TYPE(Void);
