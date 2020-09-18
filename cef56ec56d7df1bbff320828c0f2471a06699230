@@ -22,6 +22,30 @@
       "revId": "cef56ec56d7df1bbff320828c0f2471a06699230",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de201434_ccf08506",
+        "filename": "tests/sksl/inliner/InlinerWrapsEarlyReturnsWithDoWhileBlock.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-18T20:58:35Z",
+      "side": 1,
+      "message": "skslc doesn\u0027t take Default settings in --nosettings mode; it takes `Standalone` settings. `Default` actually changes a few flags (and has always).",
+      "parentUuid": "98b5f4ac_47babcaf",
+      "range": {
+        "startLine": 1,
+        "startChar": 19,
+        "endLine": 1,
+        "endChar": 26
+      },
+      "revId": "cef56ec56d7df1bbff320828c0f2471a06699230",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
