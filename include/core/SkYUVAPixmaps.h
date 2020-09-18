@@ -36,11 +36,12 @@ public:
      * planes.
      **/
     enum class DataType {
-        kUnorm8,   ///< 8 bit unsigned normalized
-        kUnorm16,  ///< 16 bit unsigned normalized
-        kFloat16,  ///< 16 bit (half) floating point
+        kUnorm8,          ///< 8 bit unsigned normalized
+        kUnorm16,         ///< 16 bit unsigned normalized
+        kFloat16,         ///< 16 bit (half) floating point
+        kUnorm10_Unorm2,  ///< 10 bit unorm for Y, U, and V. 2 bit unorm for alpha (if present).
 
-        kLast = kFloat16
+        kLast = kUnorm10_Unorm2
     };
     static constexpr int kDataTypeCnt = static_cast<int>(DataType::kLast) + 1;
 
@@ -52,16 +53,14 @@ public:
         /** Init based on texture formats supported by the context. */
         SupportedDataTypes(const GrImageContext&);
 
-        /** All combinations of PlanarConfig and DataType are supported. */
-        static constexpr SupportedDataTypes All() {
-            SupportedDataTypes combinations;
-            combinations.fDataTypeSupport = std::bitset<kDataTypeCnt>(~(0ULL));
-            return combinations;
-        }
+        /** All legal combinations of PlanarConfig and DataType are supported. */
+        static constexpr SupportedDataTypes All();
 
-        constexpr bool supported(PlanarConfig, DataType type) const {
-            return fDataTypeSupport[static_cast<size_t>(type)];
-        }
+        /**
+         * Checks whether there is a supported combination of color types for planes structured
+         * as indicated by PlanarConfig with channel data types as indicated by DataType.
+         */
+        constexpr bool supported(PlanarConfig, DataType) const;
 
         /**
          * Update to add support for pixmaps with numChannel channels where each channel is
@@ -70,17 +69,15 @@ public:
         void enableDataType(DataType, int numChannels);
 
     private:
-        // Because all of our PlanarConfigs are currently single channel per-plane, we just need to
-        // keep track of whether each data type is supported (implicitly as a single channel plane).
-        // As we add multi-channel per-plane PlanarConfigs this will have to change.
-        std::bitset<kDataTypeCnt> fDataTypeSupport = {};
+        // The bit for DataType dt with n channels is at index kDataTypeCnt*(n-1) + dt.
+        std::bitset<kDataTypeCnt*4> fDataTypeSupport = {};
     };
 
     /**
      * Gets the default SkColorType to use with numChannels channels, each represented as DataType.
      * Returns kUnknown_SkColorType if no such color type.
      */
-    static SkColorType DefaultColorTypeForDataType(DataType dataType, int numChannels);
+    static constexpr SkColorType DefaultColorTypeForDataType(DataType dataType, int numChannels);
 
     /**
      * If the SkColorType is supported for YUVA pixmaps this will return the number of YUVA channels
@@ -242,5 +239,81 @@ private:
     std::array<SkPixmap, kMaxPlanes> fPlanes = {};
     sk_sp<SkData> fData;
 };
+
+//////////////////////////////////////////////////////////////////////////////
+
+constexpr SkYUVAPixmapInfo::SupportedDataTypes SkYUVAPixmapInfo::SupportedDataTypes::All() {
+    using ULL = unsigned long long; // bitset cons. takes this.
+    ULL bits = 0;
+    for (ULL c = 1; c <= 4; ++c) {
+        for (ULL dt = 0; dt <= ULL(kDataTypeCnt); ++dt) {
+            if (DefaultColorTypeForDataType(static_cast<DataType>(dt),
+                                            static_cast<int>(c)) != kUnknown_SkColorType) {
+                bits |= ULL(1) << (dt + static_cast<ULL>(kDataTypeCnt)*(c - 1));
+            }
+        }
+    }
+    SupportedDataTypes combinations;
+    combinations.fDataTypeSupport = bits;
+    return combinations;
+}
+
+constexpr bool SkYUVAPixmapInfo::SupportedDataTypes::supported(PlanarConfig config,
+                                                               DataType type) const {
+    int n = SkYUVAInfo::NumPlanes(config);
+    for (int i = 0; i < n; ++i) {
+        auto c = static_cast<size_t>(SkYUVAInfo::NumChannelsInPlane(config, i));
+        SkASSERT(c >= 1 && c <= 4);
+        if (!fDataTypeSupport[static_cast<size_t>(type) +
+                              (c - 1)*static_cast<size_t>(kDataTypeCnt)]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+constexpr SkColorType SkYUVAPixmapInfo::DefaultColorTypeForDataType(DataType dataType,
+                                                                    int numChannels) {
+    switch (numChannels) {
+        case 1:
+            switch (dataType) {
+                case DataType::kUnorm8:         return kGray_8_SkColorType;
+                case DataType::kUnorm16:        return kA16_unorm_SkColorType;
+                case DataType::kFloat16:        return kA16_float_SkColorType;
+                case DataType::kUnorm10_Unorm2: return kUnknown_SkColorType;
+            }
+            break;
+        case 2:
+            switch (dataType) {
+                case DataType::kUnorm8:         return kR8G8_unorm_SkColorType;
+                case DataType::kUnorm16:        return kR16G16_unorm_SkColorType;
+                case DataType::kFloat16:        return kR16G16_float_SkColorType;
+                case DataType::kUnorm10_Unorm2: return kUnknown_SkColorType;
+            }
+            break;
+        case 3:
+            // None of these are tightly packed. The intended use case is for interleaved YUVA
+            // planes where we're forcing opaqueness by ignoring the alpha values.
+            // There are "x" rather than "A" variants for Unorm8 and Unorm10_Unorm2 but we don't
+            // choose them because 1) there is no inherent advantage and 2) there is better support
+            // in the GPU backend for the "A" versions.
+            switch (dataType) {
+                case DataType::kUnorm8:         return kRGBA_8888_SkColorType;
+                case DataType::kUnorm16:        return kR16G16B16A16_unorm_SkColorType;
+                case DataType::kFloat16:        return kRGBA_F16_SkColorType;
+                case DataType::kUnorm10_Unorm2: return kRGBA_1010102_SkColorType;
+            }
+            break;
+        case 4:
+            switch (dataType) {
+                case DataType::kUnorm8:         return kRGBA_8888_SkColorType;
+                case DataType::kUnorm16:        return kR16G16B16A16_unorm_SkColorType;
+                case DataType::kFloat16:        return kRGBA_F16_SkColorType;
+                case DataType::kUnorm10_Unorm2: return kRGBA_1010102_SkColorType;
+            }
+            break;
+    }
+    return kUnknown_SkColorType;
+}
 
 #endif
