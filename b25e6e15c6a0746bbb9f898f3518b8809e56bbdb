@@ -16,6 +16,24 @@
       "revId": "b25e6e15c6a0746bbb9f898f3518b8809e56bbdb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5f3d84d_92c47a71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-18T13:36:05Z",
+      "side": 1,
+      "message": "Yeah, there were some other, similar diffs that I caught in a first round and triaged. It\u0027s entirely expected, given the precision change of some intermediate values.",
+      "parentUuid": "ec99d6e8_1fd8b232",
+      "revId": "b25e6e15c6a0746bbb9f898f3518b8809e56bbdb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
