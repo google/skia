@@ -262,6 +262,11 @@ set -e
 
 echo "Compiling bitcode"
 
+# With emsdk 2.0.0 on Mac, we get a false positive on tautological-value-range-compare. This has
+# been fixed in later revisions of Clang. Disable the warning while we wait for the fix to
+# percolate through the emsdk toolchain.
+EXTRA_CFLAGS+="\"-Wno-tautological-value-range-compare\""
+
 # Inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_bindings.sh
 ./bin/gn gen ${BUILD_DIR} \
   --args="cc=\"${EMCC}\" \
@@ -380,7 +385,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
-    -s STRICT=1 \
     -s INITIAL_MEMORY=128MB \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
