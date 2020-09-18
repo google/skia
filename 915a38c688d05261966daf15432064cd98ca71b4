@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b72d99b_5b3d8836",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T13:27:09Z",
+      "side": 1,
+      "message": "Thought you might be interested to see the perf effect here:\n\nhttps://perf.skia.org/e/?begin\u003d1600103197\u0026end\u003d1600176173\u0026keys\u003dX9c849657930c5d78a3ab6f410917ec51\u0026num_commits\u003d50\u0026request_type\u003d1\u0026xbaroffset\u003d50674\n\nIt\u0027s pretty clear to see a few things step down when turning on inlining, and back up again when turning it off.",
+      "revId": "915a38c688d05261966daf15432064cd98ca71b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
