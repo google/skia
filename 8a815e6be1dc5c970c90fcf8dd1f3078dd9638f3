@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "625a8a69_edf9b9cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-18T13:33:55Z",
+      "side": 1,
+      "message": "Again, I didn\u0027t look at too many of these. I\u0027ve come to realize that with the error tests, it\u0027s really tricky. I guess that once we\u0027re at steady-state, it\u0027ll be fine (the diffs will be much easier to review than the initial checkin), but right now, my process is basically: Look at the .sksl, count up how many cases are supposed to fail, look at the .glsl, make sure the error count matches. But especially when there are a mix of success and failure tests, or when there are multiple failures on one line (the BadModifiers test), it requires a very detailed eye.",
+      "revId": "8a815e6be1dc5c970c90fcf8dd1f3078dd9638f3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
