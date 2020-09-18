@@ -62,7 +62,7 @@ for input in inputs:
             # The CPP generated an error. We didn't actually generate a header at all, but Ninja
             # expects an output file to exist or it won't reach steady-state.
             makeEmptyFile(target + ".h")
-    elif ext == ".sksl" or ext == ".vert":
+    elif ext == ".sksl" or ext == ".vert" or ext == ".geom":
         compile(skslc, input, target, ".glsl")
     else:
         print("### Unrecognized file type for " + input + ", skipped")

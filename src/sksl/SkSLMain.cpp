@@ -76,9 +76,25 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
                     static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
                     settings->fCaps = s_emulateAbsIntCaps.get();
                 }
+                if (settingsText.consumeSuffix(" GeometryShaderExtensionString")) {
+                    static auto s_geometryExtCaps = Factory::GeometryShaderExtensionString();
+                    settings->fCaps = s_geometryExtCaps.get();
+                }
+                if (settingsText.consumeSuffix(" GeometryShaderSupport")) {
+                    static auto s_geometryShaderCaps = Factory::GeometryShaderSupport();
+                    settings->fCaps = s_geometryShaderCaps.get();
+                }
+                if (settingsText.consumeSuffix(" GSInvocationsExtensionString")) {
+                    static auto s_gsInvocationCaps = Factory::GSInvocationsExtensionString();
+                    settings->fCaps = s_gsInvocationCaps.get();
+                }
                 if (settingsText.consumeSuffix(" MustForceNegatedAtanParamToFloat")) {
                     static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
                     settings->fCaps = s_negativeAtanCaps.get();
+                }
+                if (settingsText.consumeSuffix(" NoGSInvocationsSupport")) {
+                    static auto s_noGSInvocations = Factory::NoGSInvocationsSupport();
+                    settings->fCaps = s_noGSInvocations.get();
                 }
                 if (settingsText.consumeSuffix(" RemovePowWithConstantExponent")) {
                     static auto s_powCaps = Factory::RemovePowWithConstantExponent();
