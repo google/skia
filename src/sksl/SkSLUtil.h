@@ -286,6 +286,7 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
+        result->fCanUseDoLoops = true;
         return result;
     }
 
