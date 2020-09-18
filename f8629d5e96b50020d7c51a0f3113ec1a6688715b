@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "552a5200_aea50005",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3122,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-18T13:26:27Z",
+      "side": 1,
+      "message": "Seeing all this stuff makes me wonder if we should just break this up into IsSimpleRectForFill() and IsSimpleRectForStroke(). The Fill version wouldn\u0027t take direction or start, since who cares if you\u0027re filling.\n\nAlso fine to land as is.",
+      "revId": "f8629d5e96b50020d7c51a0f3113ec1a6688715b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
