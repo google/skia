@@ -16,6 +16,29 @@
       "revId": "51b5f3927d9af505382ea712fd43f39a8827a2f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "881cc827_6a588a63",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-18T19:33:02Z",
+      "side": 1,
+      "message": "I\u0027m not quite sure where this value comes from - is returned by something?",
+      "range": {
+        "startLine": 37,
+        "startChar": 37,
+        "endLine": 37,
+        "endChar": 48
+      },
+      "revId": "51b5f3927d9af505382ea712fd43f39a8827a2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
