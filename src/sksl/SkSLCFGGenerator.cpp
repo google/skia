@@ -52,36 +52,41 @@ void CFG::addExit(BlockId from, BlockId to) {
 }
 
 #ifdef SK_DEBUG
-void CFG::dump() {
+void CFG::dump() const {
     for (size_t i = 0; i < fBlocks.size(); i++) {
-        printf("Block %d\n-------\nBefore: ", (int) i);
-        const char* separator = "";
-        for (auto iter = fBlocks[i].fBefore.begin(); iter != fBlocks[i].fBefore.end(); iter++) {
-            printf("%s%s = %s", separator, iter->first->description().c_str(),
-                   iter->second ? (*iter->second)->description().c_str() : "<undefined>");
-            separator = ", ";
-        }
-        printf("\nEntrances: ");
-        separator = "";
-        for (BlockId b : fBlocks[i].fEntrances) {
-            printf("%s%d", separator, (int) b);
-            separator = ", ";
-        }
-        printf("\n");
-        for (size_t j = 0; j < fBlocks[i].fNodes.size(); j++) {
-            BasicBlock::Node& n = fBlocks[i].fNodes[j];
-            printf("Node %d (%p): %s\n", (int) j, &n, n.fKind == BasicBlock::Node::kExpression_Kind
-                                                         ? (*n.expression())->description().c_str()
-                                                         : (*n.statement())->description().c_str());
-        }
-        printf("Exits: ");
-        separator = "";
-        for (BlockId b : fBlocks[i].fExits) {
-            printf("%s%d", separator, (int) b);
-            separator = ", ";
-        }
-        printf("\n\n");
+        printf("Block %zu\n-------\n", i);
+        fBlocks[i].dump();
     }
+}
+
+void BasicBlock::dump() const {
+    printf("Before: [");
+    const char* separator = "";
+    for (auto iter = fBefore.begin(); iter != fBefore.end(); iter++) {
+        printf("%s%s = %s", separator, iter->first->description().c_str(),
+               iter->second ? (*iter->second)->description().c_str() : "<undefined>");
+        separator = ", ";
+    }
+    printf("]\nEntrances: [");
+    separator = "";
+    for (BlockId b : fEntrances) {
+        printf("%s%zu", separator, b);
+        separator = ", ";
+    }
+    printf("]\n");
+    for (size_t j = 0; j < fNodes.size(); j++) {
+        const BasicBlock::Node& n = fNodes[j];
+        printf("Node %zu (%p): %s\n", j, &n, n.fKind == BasicBlock::Node::kExpression_Kind
+                                                     ? (*n.expression())->description().c_str()
+                                                     : (*n.statement())->description().c_str());
+    }
+    printf("Exits: [");
+    separator = "";
+    for (BlockId b : fExits) {
+        printf("%s%zu", separator, b);
+        separator = ", ";
+    }
+    printf("]\n\n");
 }
 #endif
 
@@ -493,7 +498,7 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
 }
 
 static bool is_true(Expression& expr) {
-    return expr.kind() == Expression::Kind::kBoolLiteral && expr.as<BoolLiteral>().fValue;
+    return expr.is<BoolLiteral>() && expr.as<BoolLiteral>().fValue;
 }
 
 void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
