@@ -9,7 +9,7 @@
 #define GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
 
 #include "include/private/SkSpinlock.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
 // Ganesh creates a lot of utility textures (e.g., blurred-rrect masks) that need to be shared
@@ -36,6 +36,44 @@
 //   an entry in this cache, however, doesn't guarantee that there is a corresponding entry in
 //              the resource cache - although the entry here should be able to generate that entry
 //              (i.e., be a lazy proxy)
+//
+//----------------------------------------------------------------------------------------
+//
+// For testing:
+//    Create DDLs all needing the same texture - check that only one wins - and that there is some duplicate work
+//    Create a gpu version & check that all DDLs use it - with no duplicate work
+//    Create a texture w/ a DDL and then make a live use of it - check that the DDL version wins
+//       - in the above, each mask should have the correct # of refs for the # of DDLs
+//
+//    Need to test out the flushing behavior:
+//      generate a bunch of masks to fill up memory
+//      flush the resource cache and ensure the corresponding entries in the cache are cleared
+//
+//      do the above but have some locked up in DDLs - so they survive the flush
+//
+//      do the above but have them all non-instantiated (in DDLs) so they all survive the flush
+//
+// Concern:
+//    It seems like the interaction between the resource cache and the thread-safe view cache
+//    is going to be very fraught. In particular, when the resource cache is purging we have to
+//    ensure that there are no race conditions w/ any recording threads.
+//
+//    In that case it seems like we need to figure out we're going to nuke a resource, then
+//    try to nuke it's entry here first. If that succeeds then we can delete the resource otherwise
+//    some thread locked it in the interim so we need to let the resource live. (Test this case!)
+//
+// Qs:
+//    It seems like the proxies in this cache shouldn't appear in any of the DDL nor Direct
+//    contexts' proxy-caches. That way there will only be one source of truth. A related question
+//    is, if that is the case, should all the uniquely keyed proxies just be stored here? It does
+//    seem like that would have some problems w/ the higgledy-piggledy nature of the unique keys in
+//    the normal caches and w/ the lack of a 1-1 correspondence between the proxy and the actual
+//    resource (i.e., there can be unique-ly keyed resources that lack a proxy).
+//
+// More:
+//    Add gpu stats about SW vs. HW mask generation
+//    Make sure we're not reffing/un-reffing too much by passing GrSurfaceProxyViews around
+//
 class GrThreadSafeUniquelyKeyedProxyViewCache {
 public:
     GrThreadSafeUniquelyKeyedProxyViewCache();
@@ -43,11 +81,11 @@ public:
 
 #if GR_TEST_UTILS
     int numEntries() const  SK_EXCLUDES(fSpinLock);
-    size_t approxBytesUsed() const   SK_EXCLUDES(fSpinLock);
+    int count() const  SK_EXCLUDES(fSpinLock);
 #endif
 
-    void dropAllRefs() SK_EXCLUDES(fSpinLock);
-    void dropAllUniqueRefs() SK_EXCLUDES(fSpinLock);
+    void dropAllRefs()  SK_EXCLUDES(fSpinLock);
+    void dropAllUniqueRefs()  SK_EXCLUDES(fSpinLock);
 
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
@@ -58,8 +96,12 @@ private:
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
 
         // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        GrUniqueKey        fKey;
+        const GrUniqueKey  fKey;
         GrSurfaceProxyView fView;
+
+        // for SkTDynamicHash
+        static const GrUniqueKey& GetKey(const Entry& e) { return e.fKey; }
+        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
 
     GrSurfaceProxyView internalAdd(const GrUniqueKey&,
@@ -67,12 +109,14 @@ private:
 
     mutable SkSpinlock fSpinLock;
 
-    struct KeyHash {
-        uint32_t operator()(const GrUniqueKey& key) { return key.hash(); }
-    };
+//    struct KeyHash {
+//        uint32_t operator()(const GrUniqueKey& key) { return key.hash(); }
+//    };
 
     // TODO: it sure would be cool if the key could be a const& to the version stored in 'Entry'
-    SkTHashMap<GrUniqueKey, Entry*, KeyHash> fUniquelyKeyedProxyViews  SK_GUARDED_BY(fSpinLock);
+//    SkTHashMap<GrUniqueKey, Entry*, KeyHash> fUniquelyKeyedProxyViews  SK_GUARDED_BY(fSpinLock);
+
+    SkTDynamicHash<Entry, GrUniqueKey> fUniquelyKeyedProxyViews  SK_GUARDED_BY(fSpinLock);
 };
 
 #endif // GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
