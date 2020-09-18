@@ -1,11 +1,22 @@
-
+#version 400
 out vec4 sk_FragColor;
 uniform vec4 color;
-vec4 returny(vec4 c) {
-    if (c.x > c.y) return c.xxxx;
-    if (c.y > c.z) return c.yyyy;
-    return c.zzzz;
-}
 void main() {
-    sk_FragColor = returny(color);
+    vec4 _0_returny;
+    do {
+        if (color.x > color.y) {
+            _0_returny = color.xxxx;
+            break;
+        }
+        if (color.y > color.z) {
+            _0_returny = color.yyyy;
+            break;
+        }
+        {
+            _0_returny = color.zzzz;
+            break;
+        }
+    } while (false);
+    sk_FragColor = _0_returny;
+
 }
