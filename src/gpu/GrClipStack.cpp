@@ -125,6 +125,15 @@ static bool shape_contains_rect(
     if (!mixedAAMode && aToDevice == bToDevice) {
         // A and B are in the same coordinate space, so don't bother mapping
         return a.conservativeContains(b);
+    } else if (bToDevice.isIdentity() && aToDevice.isScaleTranslate()) {
+        // Optimize the common case of draws (B, with identity matrix) and axis-aligned shapes,
+        // instead of checking the four corners separately.
+        SkRect bInA = b;
+        if (mixedAAMode) {
+            bInA.outset(0.5f, 0.5f);
+        }
+        SkAssertResult(deviceToA.mapRect(&bInA));
+        return a.conservativeContains(bInA);
     }
 
     // Test each corner for contains; since a is convex, if all 4 corners of b's bounds are
