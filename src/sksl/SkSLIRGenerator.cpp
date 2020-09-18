@@ -104,34 +104,15 @@ public:
     IRGenerator* fIR;
 };
 
-class AutoDisableInline {
-public:
-    AutoDisableInline(IRGenerator* ir, bool canInline = false)
-    : fIR(ir) {
-        fOldCanInline = ir->fCanInline;
-        fIR->fCanInline &= canInline;
-    }
-
-    ~AutoDisableInline() {
-        fIR->fCanInline = fOldCanInline;
-    }
-
-    IRGenerator* fIR;
-    bool fOldCanInline;
-};
-
-IRGenerator::IRGenerator(const Context* context, Inliner* inliner,
-                         std::shared_ptr<SymbolTable> symbolTable, ErrorReporter& errorReporter)
+IRGenerator::IRGenerator(const Context* context, std::shared_ptr<SymbolTable> symbolTable,
+                         ErrorReporter& errorReporter)
         : fContext(*context)
-        , fInliner(inliner)
         , fCurrentFunction(nullptr)
         , fRootSymbolTable(symbolTable)
         , fSymbolTable(symbolTable)
         , fLoopLevel(0)
         , fSwitchLevel(0)
-        , fErrors(errorReporter) {
-    SkASSERT(fInliner);
-}
+        , fErrors(errorReporter) {}
 
 void IRGenerator::pushSymbolTable() {
     fSymbolTable.reset(new SymbolTable(std::move(fSymbolTable)));
@@ -513,42 +494,6 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
     return std::make_unique<ModifiersDeclaration>(modifiers);
 }
 
-static void ensure_scoped_blocks(Statement* stmt) {
-    // No changes necessary if this statement isn't actually a block.
-    if (stmt->kind() != Statement::Kind::kBlock) {
-        return;
-    }
-
-    Block& block = stmt->as<Block>();
-
-    // Occasionally, IR generation can lead to Blocks containing multiple statements, but no scope.
-    // If this block is used as the statement for a while/if/for, this isn't actually possible to
-    // represent textually; a scope must be added for the generated code to match the intent. In the
-    // case of Blocks nested inside other Blocks, we add the scope to the outermost block if needed.
-    // Zero-statement blocks have similar issues--if we don't represent the Block textually somehow,
-    // we run the risk of accidentally absorbing the following statement into our loop--so we also
-    // add a scope to these.
-    for (Block* nestedBlock = &block;; ) {
-        if (nestedBlock->fIsScope) {
-            // We found an explicit scope; all is well.
-            return;
-        }
-        if (nestedBlock->fStatements.size() != 1) {
-            // We found a block with multiple (or zero) statements, but no scope? Let's add a scope
-            // to the outermost block.
-            block.fIsScope = true;
-            return;
-        }
-        if (nestedBlock->fStatements[0]->kind() != Statement::Kind::kBlock) {
-            // This block has exactly one thing inside, and it's not another block. No need to scope
-            // it.
-            return;
-        }
-        // We have to go deeper.
-        nestedBlock = &nestedBlock->fStatements[0]->as<Block>();
-    }
-}
-
 std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
     SkASSERT(n.fKind == ASTNode::Kind::kIf);
     auto iter = n.begin();
@@ -561,14 +506,12 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
     if (!ifTrue) {
         return nullptr;
     }
-    ensure_scoped_blocks(ifTrue.get());
     std::unique_ptr<Statement> ifFalse;
     if (iter != n.end()) {
         ifFalse = this->convertStatement(*(iter++));
         if (!ifFalse) {
             return nullptr;
         }
-        ensure_scoped_blocks(ifFalse.get());
     }
     if (test->kind() == Expression::Kind::kBoolLiteral) {
         // static boolean value, fold down to a single branch
@@ -600,17 +543,14 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     ++iter;
     std::unique_ptr<Expression> test;
     if (*iter) {
-        AutoDisableInline disableInline(this);
         test = this->coerce(this->convertExpression(*iter), *fContext.fBool_Type);
         if (!test) {
             return nullptr;
         }
-
     }
     ++iter;
     std::unique_ptr<Expression> next;
     if (*iter) {
-        AutoDisableInline disableInline(this);
         next = this->convertExpression(*iter);
         if (!next) {
             return nullptr;
@@ -621,7 +561,6 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     if (!statement) {
         return nullptr;
     }
-    ensure_scoped_blocks(statement.get());
     return std::make_unique<ForStatement>(f.fOffset, std::move(initializer), std::move(test),
                                           std::move(next), std::move(statement), fSymbolTable);
 }
@@ -629,12 +568,9 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
 std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     SkASSERT(w.fKind == ASTNode::Kind::kWhile);
     AutoLoopLevel level(this);
-    std::unique_ptr<Expression> test;
     auto iter = w.begin();
-    {
-        AutoDisableInline disableInline(this);
-        test = this->coerce(this->convertExpression(*(iter++)), *fContext.fBool_Type);
-    }
+    std::unique_ptr<Expression> test = this->coerce(this->convertExpression(*(iter++)),
+                                                    *fContext.fBool_Type);
     if (!test) {
         return nullptr;
     }
@@ -642,7 +578,6 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     if (!statement) {
         return nullptr;
     }
-    ensure_scoped_blocks(statement.get());
     return std::make_unique<WhileStatement>(w.fOffset, std::move(test), std::move(statement));
 }
 
@@ -654,12 +589,8 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
     if (!statement) {
         return nullptr;
     }
-    ensure_scoped_blocks(statement.get());
-    std::unique_ptr<Expression> test;
-    {
-        AutoDisableInline disableInline(this);
-        test = this->coerce(this->convertExpression(*(iter++)), *fContext.fBool_Type);
-    }
+    std::unique_ptr<Expression> test =
+            this->coerce(this->convertExpression(*(iter++)), *fContext.fBool_Type);
     if (!test) {
         return nullptr;
     }
@@ -1943,14 +1874,7 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
         return nullptr;
     }
     Token::Kind op = expression.getToken().fKind;
-    std::unique_ptr<Expression> right;
-    {
-        // Can't inline the right side of a short-circuiting boolean, because our inlining
-        // approach runs things out of order.
-        AutoDisableInline disableInline(this, /*canInline=*/(op != Token::Kind::TK_LOGICALAND &&
-                                                             op != Token::Kind::TK_LOGICALOR));
-        right = this->convertExpression(*(iter++));
-    }
+    std::unique_ptr<Expression> right = this->convertExpression(*(iter++));
     if (!right) {
         return nullptr;
     }
@@ -2005,18 +1929,13 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
     if (!test) {
         return nullptr;
     }
-    std::unique_ptr<Expression> ifTrue;
-    std::unique_ptr<Expression> ifFalse;
-    {
-        AutoDisableInline disableInline(this);
-        ifTrue = this->convertExpression(*(iter++));
-        if (!ifTrue) {
-            return nullptr;
-        }
-        ifFalse = this->convertExpression(*(iter++));
-        if (!ifFalse) {
-            return nullptr;
-        }
+    std::unique_ptr<Expression> ifTrue = this->convertExpression(*(iter++));
+    if (!ifTrue) {
+        return nullptr;
+    }
+    std::unique_ptr<Expression> ifFalse = this->convertExpression(*(iter++));
+    if (!ifFalse) {
+        return nullptr;
     }
     const Type* trueType;
     const Type* falseType;
@@ -2123,17 +2042,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
     }
 
-    auto funcCall = std::make_unique<FunctionCall>(offset, returnType, function,
-                                                   std::move(arguments));
-    if (fCanInline && fInliner->isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
-        Inliner::InlinedCall inlinedCall = fInliner->inlineCall(funcCall.get(), fSymbolTable.get());
-        if (inlinedCall.fInlinedBody) {
-            fExtraStatements.push_back(std::move(inlinedCall.fInlinedBody));
-        }
-        return std::move(inlinedCall.fReplacementExpr);
-    }
-
-    return std::move(funcCall);
+    return std::make_unique<FunctionCall>(offset, returnType, function, std::move(arguments));
 }
 
 /**

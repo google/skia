@@ -7,7 +7,6 @@ void main() {
         {
             _0_adjust = sk_FragColor + vec4(0.125);
         }
-
         sk_FragColor = _0_adjust;
     }
 }
