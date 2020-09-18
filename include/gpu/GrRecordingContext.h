@@ -15,6 +15,7 @@
 class GrAuditTrail;
 class GrBackendFormat;
 class GrDrawingManager;
+class GrThreadSafeUniquelyKeyedProxyViewCache;
 class GrOnFlushCallbackObject;
 class GrOpMemoryPool;
 class GrProgramDesc;
