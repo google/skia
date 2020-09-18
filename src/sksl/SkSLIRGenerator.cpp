@@ -529,23 +529,23 @@ static void ensure_scoped_blocks(Statement* stmt) {
     // we run the risk of accidentally absorbing the following statement into our loop--so we also
     // add a scope to these.
     for (Block* nestedBlock = &block;; ) {
-        if (nestedBlock->fIsScope) {
+        if (nestedBlock->isScope()) {
             // We found an explicit scope; all is well.
             return;
         }
-        if (nestedBlock->fStatements.size() != 1) {
+        if (nestedBlock->childCount() != 1) {
             // We found a block with multiple (or zero) statements, but no scope? Let's add a scope
             // to the outermost block.
-            block.fIsScope = true;
+            block.setIsScope(true);
             return;
         }
-        if (nestedBlock->fStatements[0]->kind() != Statement::Kind::kBlock) {
+        if (nestedBlock->child(0).kind() != Statement::Kind::kBlock) {
             // This block has exactly one thing inside, and it's not another block. No need to scope
             // it.
             return;
         }
         // We have to go deeper.
-        nestedBlock = &nestedBlock->fStatements[0]->as<Block>();
+        nestedBlock = &nestedBlock->child(0).as<Block>();
     }
 }
 
@@ -1122,7 +1122,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             body = this->applyInvocationIDWorkaround(std::move(body));
         }
         if (Program::kVertex_Kind == fKind && funcData.fName == "main" && fRTAdjust) {
-            body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
+            body->addChild(this->getNormalizeSkPositionCode());
         }
         auto result = std::make_unique<FunctionDefinition>(f.fOffset, *decl, std::move(body),
                                                            std::move(fReferencedIntrinsics));
