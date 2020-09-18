@@ -88,6 +88,10 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
                     static auto s_gsInvocationCaps = Factory::GSInvocationsExtensionString();
                     settings->fCaps = s_gsInvocationCaps.get();
                 }
+                if (settingsText.consumeSuffix(" IncompleteShortIntPrecision")) {
+                    static auto s_incompleteShortIntCaps = Factory::IncompleteShortIntPrecision();
+                    settings->fCaps = s_incompleteShortIntCaps.get();
+                }
                 if (settingsText.consumeSuffix(" MustForceNegatedAtanParamToFloat")) {
                     static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
                     settings->fCaps = s_negativeAtanCaps.get();
@@ -99,6 +103,10 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
                 if (settingsText.consumeSuffix(" RemovePowWithConstantExponent")) {
                     static auto s_powCaps = Factory::RemovePowWithConstantExponent();
                     settings->fCaps = s_powCaps.get();
+                }
+                if (settingsText.consumeSuffix(" RewriteDoWhileLoops")) {
+                    static auto s_rewriteLoopCaps = Factory::RewriteDoWhileLoops();
+                    settings->fCaps = s_rewriteLoopCaps.get();
                 }
                 if (settingsText.consumeSuffix(" ShaderDerivativeExtensionString")) {
                     static auto s_derivativeCaps = Factory::ShaderDerivativeExtensionString();

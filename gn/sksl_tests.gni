@@ -140,6 +140,7 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/Height.sksl",
   "$_tests/sksl/glsl/HelloWorld.sksl",
   "$_tests/sksl/glsl/Hex.sksl",
+  "$_tests/sksl/glsl/IncompleteShortIntPrecision.sksl",
   "$_tests/sksl/glsl/InstanceID.vert",
   "$_tests/sksl/glsl/IntFolding.sksl",
   "$_tests/sksl/glsl/InterfaceBlockAnonymous.sksl",
@@ -160,6 +161,7 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/SampleMask.sksl",
   "$_tests/sksl/glsl/ScopedSymbol.sksl",
   "$_tests/sksl/glsl/ShortCircuitBoolFolding.sksl",
+  "$_tests/sksl/glsl/ShortIntPrecision.sksl",
   "$_tests/sksl/glsl/StackingVectorCasts.sksl",
   "$_tests/sksl/glsl/StaticIf.sksl",
   "$_tests/sksl/glsl/StaticSwitch.sksl",
@@ -239,5 +241,6 @@ sksl_glsl_settings_tests_sources = [
   "$_tests/sksl/workarounds/MinAndAbsTogether.sksl",
   "$_tests/sksl/workarounds/NegatedAtan.sksl",
   "$_tests/sksl/workarounds/PowWithConstantExponent.sksl",
+  "$_tests/sksl/workarounds/RewriteDoWhileLoops.sksl",
   "$_tests/sksl/workarounds/TernaryShortCircuit.sksl",
 ]
