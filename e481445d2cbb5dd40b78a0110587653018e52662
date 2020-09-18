@@ -16,6 +16,29 @@
       "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2c39002_936250bd",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-18T15:44:43Z",
+      "side": 1,
+      "message": "lgtm, given this breaks the mac compile for now.",
+      "range": {
+        "startLine": 387,
+        "startChar": 11,
+        "endLine": 387,
+        "endChar": 17
+      },
+      "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
