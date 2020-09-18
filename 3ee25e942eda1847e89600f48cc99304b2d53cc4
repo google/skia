@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "717918ee_ec1ffd95",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T12:34:36Z",
+      "side": 0,
+      "message": "https://github.com/emscripten-core/emscripten/blob/edfe99de4e2e4738c17bb99a71d4d8d6628c1ae2/src/settings.js#L882\n\nI would prefer to keep -s STRICT\u003d1 if possible.",
+      "parentUuid": "0940013c_5cb84b5f",
+      "range": {
+        "startLine": 383,
+        "startChar": 7,
+        "endLine": 383,
+        "endChar": 13
+      },
+      "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "793cc108_adb32c6a",
         "filename": "src/core/SkStroke.cpp",
         "patchSetId": 2
