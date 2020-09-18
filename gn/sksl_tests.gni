@@ -123,6 +123,7 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/ConstVariableComparison.sksl",
   "$_tests/sksl/glsl/ConstantIf.sksl",
   "$_tests/sksl/glsl/Control.sksl",
+  "$_tests/sksl/glsl/DeadDoWhileLoop.sksl",
   "$_tests/sksl/glsl/DeadLoopVariable.sksl",
   "$_tests/sksl/glsl/DependentInitializers.sksl",
   "$_tests/sksl/glsl/DerivativesUnused.sksl",
