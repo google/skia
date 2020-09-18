@@ -16,6 +16,24 @@
       "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "279f65f2_12690d4e",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T01:35:53Z",
+      "side": 0,
+      "message": "Is that still necessary if the compile is successful as-is? I like the look of SkTFitsIn\u003c\u003e better, and hopefully the fixed clang percolates soon enough.",
+      "parentUuid": "793cc108_adb32c6a",
+      "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
