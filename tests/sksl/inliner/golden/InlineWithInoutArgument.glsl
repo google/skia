@@ -6,6 +6,5 @@ void main() {
         x *= 2.0;
     }
 
-
     sk_FragColor.x = x;
 }
