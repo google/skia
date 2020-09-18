@@ -57,6 +57,24 @@
       "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe05f89c_95f45e92",
+        "filename": "src/core/SkStroke.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T12:28:33Z",
+      "side": 0,
+      "message": "I\u0027m not sure we\u0027re talking about the same thing.  Are you seeing a warning here that falsely claims degenerateAB + degenerateBC + degenerateCD can\u0027t be 2?\n\nIf you\u0027re seeing a warning here building with emsdk, you\u0027ll want to set Wno-tautological-value-range-compare to disable the buggy warning until emsdk updates Clang.  We recently used to have to do this to build with Chromium\u0027s toolchain, but syncing to head now it\u0027s no longer necessary.",
+      "parentUuid": "279f65f2_12690d4e",
+      "revId": "3ee25e942eda1847e89600f48cc99304b2d53cc4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
