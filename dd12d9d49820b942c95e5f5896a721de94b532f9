@@ -16,6 +16,24 @@
       "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3618fd74_b6728abb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5920
+      },
+      "writtenOn": "2020-09-18T19:09:26Z",
+      "side": 1,
+      "message": "\u003e It may have been lost in the Gold flood of flaky images, but it does look like this CL changed how lossy webps look:\n\u003e \n\u003e https://gold.skia.org/search?blame\u003ddd12d9d49820b942c95e5f5896a721de94b532f9\u0026fdiffmax\u003d-1\u0026fref\u003dfalse\u0026frgbamax\u003d255\u0026frgbamin\u003d0\u0026head\u003dtrue\u0026include\u003dfalse\u0026limit\u003d50\u0026master\u003dfalse\u0026match\u003dname\u0026metric\u003dcombined\u0026neg\u003dfalse\u0026offset\u003d0\u0026pos\u003dfalse\u0026query\u003dsource_type%3Dgm\u0026sort\u003ddesc\u0026unt\u003dtrue\n\u003e \n\u003e Did how we set up a lossy encode change across this upgrade?\n\nIt\u0027s possible, one example [1]. What are the settings used in the test?\n\n[1] https://chromium.googlesource.com/webm/libwebp/+/a99078c1cf683bf41198bb36b500ef989e4f36c9",
+      "parentUuid": "950ca8bf_7515ec3e",
+      "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
