@@ -7,7 +7,7 @@ vars = {
 deps = {
   "buildtools"                            : "https://chromium.googlesource.com/chromium/buildtools.git@505de88083136eefd056e5ee4ca0f01fe9b33de8",
   "common"                                : "https://skia.googlesource.com/common.git@9737551d7a52c3db3262db5856e6bcd62c462b92",
-  "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@0a8a3ea25b362f321d600e13b6a1b80fb8696b2b",
+  "third_party/externals/angle2"          : "https://chromium.googlesource.com/angle/angle.git@8d4331eeb5eaac598fe0fc681e12549ec99d7aff",
   # Dawn requires jinja2 and markupsafe for the code generator, and glslang and shaderc for SPIRV compilation.
   # When the Dawn revision is updated these should be updated from the Dawn DEPS as well.
   "third_party/externals/dawn"            : "https://dawn.googlesource.com/dawn.git@d6498a41ab4e01926b05dd567e5209dd5c6a61ca",
