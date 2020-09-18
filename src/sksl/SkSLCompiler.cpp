@@ -351,16 +351,14 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* path,
         fIRGenerator->fSymbolTable = std::move(base);
     }
     Program::Settings settings;
+    settings.fInline = false;
 #if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
     GrContextOptions opts;
     GrShaderCaps caps(opts);
     settings.fCaps = &caps;
 #endif
-    SkASSERT(fIRGenerator->fCanInline);
-    fIRGenerator->fCanInline = false;
     fIRGenerator->start(&settings, nullptr, true);
     fIRGenerator->convertProgram(kind, source->c_str(), source->length(), outElements);
-    fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
     }
@@ -1683,7 +1681,9 @@ bool Compiler::optimize(Program& program) {
         }
 
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        madeChanges |= fInliner.analyze(program);
+        if (program.fSettings.fInline) {
+            madeChanges |= fInliner.analyze(program);
+        }
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
