@@ -262,6 +262,10 @@ set -e
 
 echo "Compiling bitcode"
 
+# With emsdk 2.0.0 we get a false positive on tautological-value-range-compare. This appears to be
+# fixed in the emsdk 2.0.4 toolchain. Disable the warning while we maintain support for 2.0.0.
+EXTRA_CFLAGS+="\"-Wno-tautological-value-range-compare\""
+
 # Inspired by https://github.com/Zubnix/skia-wasm-port/blob/master/build_bindings.sh
 ./bin/gn gen ${BUILD_DIR} \
   --args="cc=\"${EMCC}\" \
@@ -328,6 +332,14 @@ export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 
 echo "Generating final wasm"
 
+# Disable '-s STRICT=1' outside of Linux until
+# https://github.com/emscripten-core/emscripten/issues/12118 is resovled.
+STRICTNESS="-s STRICT=1"
+if [[ `uname` != "Linux" ]]; then
+  echo "Disabling '-s STRICT=1'. See: https://github.com/emscripten-core/emscripten/issues/12118"
+  STRICTNESS=""
+fi
+
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.
@@ -380,8 +392,8 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s FILESYSTEM=0 \
     -s MODULARIZE=1 \
     -s NO_EXIT_RUNTIME=1 \
-    -s STRICT=1 \
     -s INITIAL_MEMORY=128MB \
     -s WARN_UNALIGNED=1 \
     -s WASM=1 \
+    $STRICTNESS \
     -o $BUILD_DIR/canvaskit.js

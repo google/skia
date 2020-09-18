@@ -34,6 +34,7 @@ enum GrDriverBugWorkaroundType {
 class SK_API GrDriverBugWorkarounds {
  public:
   GrDriverBugWorkarounds();
+  GrDriverBugWorkarounds(const GrDriverBugWorkarounds&) = default;
   explicit GrDriverBugWorkarounds(const std::vector<int32_t>& workarounds);
 
   GrDriverBugWorkarounds& operator=(const GrDriverBugWorkarounds&) = default;
