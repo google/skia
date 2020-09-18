@@ -10,7 +10,7 @@
 GrThreadSafeUniquelyKeyedProxyViewCache::GrThreadSafeUniquelyKeyedProxyViewCache() {}
 
 GrThreadSafeUniquelyKeyedProxyViewCache::~GrThreadSafeUniquelyKeyedProxyViewCache() {
-    fUniquelyKeyedProxyViews.foreach([](const GrUniqueKey&k, Entry** v) { delete *v; });
+    fUniquelyKeyedProxyViews.foreach([](Entry* v) { delete v; });
 }
 
 #if GR_TEST_UTILS
@@ -20,23 +20,24 @@ int GrThreadSafeUniquelyKeyedProxyViewCache::numEntries() const {
     return fUniquelyKeyedProxyViews.count();
 }
 
-size_t GrThreadSafeUniquelyKeyedProxyViewCache::approxBytesUsed() const {
+int GrThreadSafeUniquelyKeyedProxyViewCache::count() const {
     SkAutoSpinlock lock{fSpinLock};
 
-    return fUniquelyKeyedProxyViews.approxBytesUsed();
+    return fUniquelyKeyedProxyViews.count();
 }
 #endif
 
 void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
     SkAutoSpinlock lock{fSpinLock};
 
+    fUniquelyKeyedProxyViews.foreach([](Entry* v) { delete v; });
     fUniquelyKeyedProxyViews.reset();
 }
 
 void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllUniqueRefs() {
     SkAutoSpinlock lock{fSpinLock};
 
-    fUniquelyKeyedProxyViews.foreach([](const GrUniqueKey&k, Entry** v) {
+    fUniquelyKeyedProxyViews.foreach([](Entry* v) {
                                         // problematic
                                     });
 }
@@ -44,9 +45,9 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllUniqueRefs() {
 GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::find(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
-    Entry** tmp = fUniquelyKeyedProxyViews.find(const_cast<GrUniqueKey&>(key));
+    Entry* tmp = fUniquelyKeyedProxyViews.find(key);
     if (tmp) {
-        return (*tmp)->fView;
+        return tmp->fView;
     }
 
     return {};
@@ -55,14 +56,14 @@ GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::find(const GrUniqueK
 GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::internalAdd(
                                                                 const GrUniqueKey& key,
                                                                 const GrSurfaceProxyView& view) {
-    Entry** tmp = fUniquelyKeyedProxyViews.find(const_cast<GrUniqueKey&>(key));
+    Entry* tmp = fUniquelyKeyedProxyViews.find(key);
     if (!tmp) {
         // TODO: block allocate here?
-        Entry* newT = new Entry(key, view);
-        tmp = fUniquelyKeyedProxyViews.set(newT->fKey, newT);
+        tmp = new Entry(key, view);
+        fUniquelyKeyedProxyViews.add(tmp);
     }
 
-    return (*tmp)->fView;
+    return tmp->fView;
 }
 
 GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::add(const GrUniqueKey& key,

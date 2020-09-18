@@ -85,8 +85,6 @@ public:
 
         SkBitmap tmp = create_up_arrow_bitmap(kImageWH);
         SkAssertResult(CreateBackendTexture(fDContext, &fBETex, tmp));
-
-        fThreadSafeViewCache = std::make_unique<GrThreadSafeUniquelyKeyedProxyViewCache>();
     }
 
     ~TestHelper() {
@@ -95,9 +93,7 @@ public:
 
     Stats* stats() { return &fStats; }
 
-    int numCacheEntries() const {
-        return fThreadSafeViewCache->numEntries();
-    }
+    int numCacheEntries() const { return this->threadSafeViewCache()->numEntries(); }
 
     GrDirectContext* dContext() { return fDContext; }
 
@@ -106,7 +102,11 @@ public:
     SkCanvas* ddlCanvas2() { return fRecorder2 ? fRecorder2->getCanvas() : nullptr; }
 
     GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
-        return fThreadSafeViewCache.get();
+        return fDContext->priv().threadSafeViewCache();
+    }
+
+    const GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() const {
+        return fDContext->priv().threadSafeViewCache();
     }
 
     // Add a draw on 'canvas' that will introduce a ref on the 'wh' view
@@ -137,6 +137,7 @@ public:
                          nullptr);
     }
 
+    // TODO: make a static version and pass in rContext & resourceCache
     bool checkView(SkCanvas* canvas, int wh, int hits, int misses, int numRefs) {
         if (fStats.fCacheHits != hits || fStats.fCacheMisses != misses) {
             return false;
@@ -196,8 +197,6 @@ private:
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
-
-    std::unique_ptr<GrThreadSafeUniquelyKeyedProxyViewCache> fThreadSafeViewCache;
 
     sk_sp<SkSurface> fDst;
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
@@ -337,3 +336,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 2);
 }
+
+// Case 5: ensure that expanding the map works
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    auto threadSafeViewCache = helper.threadSafeViewCache();
+
+    int size = 16;
+    helper.accessCachedView(helper.ddlCanvas1(), size);
+
+    int initialCount = threadSafeViewCache->count();
+
+    while (initialCount == threadSafeViewCache->count()) {
+        size *= 2;
+        helper.accessCachedView(helper.ddlCanvas1(), size);
+    }
+}
+

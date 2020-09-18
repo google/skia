@@ -9,7 +9,7 @@
 #define GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
 
 #include "include/private/SkSpinlock.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTDynamicHash.h"
 #include "src/gpu/GrSurfaceProxyView.h"
 
 // Ganesh creates a lot of utility textures (e.g., blurred-rrect masks) that need to be shared
@@ -43,11 +43,11 @@ public:
 
 #if GR_TEST_UTILS
     int numEntries() const  SK_EXCLUDES(fSpinLock);
-    size_t approxBytesUsed() const   SK_EXCLUDES(fSpinLock);
+    int count() const  SK_EXCLUDES(fSpinLock);
 #endif
 
-    void dropAllRefs() SK_EXCLUDES(fSpinLock);
-    void dropAllUniqueRefs() SK_EXCLUDES(fSpinLock);
+    void dropAllRefs()  SK_EXCLUDES(fSpinLock);
+    void dropAllUniqueRefs()  SK_EXCLUDES(fSpinLock);
 
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
@@ -58,8 +58,12 @@ private:
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
 
         // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        GrUniqueKey        fKey;
+        const GrUniqueKey  fKey;
         GrSurfaceProxyView fView;
+
+        // for SkTDynamicHash
+        static const GrUniqueKey& GetKey(const Entry& e) { return e.fKey; }
+        static uint32_t Hash(const GrUniqueKey& key) { return key.hash(); }
     };
 
     GrSurfaceProxyView internalAdd(const GrUniqueKey&,
@@ -67,12 +71,7 @@ private:
 
     mutable SkSpinlock fSpinLock;
 
-    struct KeyHash {
-        uint32_t operator()(const GrUniqueKey& key) { return key.hash(); }
-    };
-
-    // TODO: it sure would be cool if the key could be a const& to the version stored in 'Entry'
-    SkTHashMap<GrUniqueKey, Entry*, KeyHash> fUniquelyKeyedProxyViews  SK_GUARDED_BY(fSpinLock);
+    SkTDynamicHash<Entry, GrUniqueKey> fUniquelyKeyedProxyViews  SK_GUARDED_BY(fSpinLock);
 };
 
 #endif // GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
