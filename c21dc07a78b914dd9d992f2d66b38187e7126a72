@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42bd42e5_9182e2c6",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-18T15:55:53Z",
+      "side": 0,
+      "message": "This was never used.",
+      "revId": "c21dc07a78b914dd9d992f2d66b38187e7126a72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68048707_fac10ee6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-18T15:55:53Z",
+      "side": 1,
+      "message": "In a follow-up CL, I\u0027d like to use the same symbol table inheritance approach to start excluding certain types from other program kinds. (And to add the GLSL aliases to runtime sksl).",
+      "revId": "4244bcc13ffe88b86dce7d9a84f0c449bec438a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
