@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "6cea1662_fd1c8150",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-18T13:31:25Z",
+      "side": 1,
+      "message": "This makes sense to me; the major gold diffs appear to just be bringing the widebuttcaps GM inline with how raster handles the strokes.",
+      "revId": "f8629d5e96b50020d7c51a0f3113ec1a6688715b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "552a5200_aea50005",
         "filename": "src/core/SkPath.cpp",
         "patchSetId": 1
