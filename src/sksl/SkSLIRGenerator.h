@@ -186,7 +186,6 @@ private:
     const Variable* fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;
     int fTmpSwizzleCounter;
-    bool fCanInline = true;
     // true if we are currently processing one of the built-in SkSL include files
     bool fIsBuiltinCode;
 
