@@ -105,10 +105,11 @@ Compiler::Compiler(Flags flags)
 , fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
-    auto symbols = std::make_shared<SymbolTable>(this);
-    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), &fInliner, symbols, *this);
-    #define ADD_TYPE(t) symbols->addWithoutOwnership(fContext->f ## t ## _Type->fName, \
-                                                     fContext->f ## t ## _Type.get())
+    fRootSymbolTable = std::make_shared<SymbolTable>(this);
+    fIRGenerator =
+            std::make_unique<IRGenerator>(fContext.get(), &fInliner, fRootSymbolTable, *this);
+    #define ADD_TYPE(t) fRootSymbolTable->addWithoutOwnership(fContext->f ## t ## _Type->fName, \
+                                                              fContext->f ## t ## _Type.get())
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Float2);
@@ -231,46 +232,44 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(Texture2D);
 
     StringFragment fpAliasName("shader");
-    symbols->addWithoutOwnership(fpAliasName, fContext->fFragmentProcessor_Type.get());
+    fRootSymbolTable->addWithoutOwnership(fpAliasName, fContext->fFragmentProcessor_Type.get());
 
     StringFragment skCapsName("sk_Caps");
-    fIRGenerator->fSymbolTable->add(
+    fRootSymbolTable->add(
             skCapsName,
             std::make_unique<Variable>(/*offset=*/-1, Modifiers(), skCapsName,
                                        fContext->fSkCaps_Type.get(), Variable::kGlobal_Storage));
 
     fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
-    std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
 #if SKSL_STANDALONE
-    this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, symbols, &gpuIntrinsics,
-                             &fGpuSymbolTable);
+    this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, fRootSymbolTable,
+                             &gpuIntrinsics, &fGpuSymbolTable);
     this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, fGpuSymbolTable,
                              &fVertexInclude, &fVertexSymbolTable);
     this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, fGpuSymbolTable,
                              &fFragmentInclude, &fFragmentSymbolTable);
 #else
     {
-        Rehydrator rehydrator(fContext.get(), symbols, this, SKSL_INCLUDE_sksl_gpu,
-                          SKSL_INCLUDE_sksl_gpu_LENGTH);
+        Rehydrator rehydrator(fContext.get(), fRootSymbolTable, this, SKSL_INCLUDE_sksl_gpu,
+                              SKSL_INCLUDE_sksl_gpu_LENGTH);
         fGpuSymbolTable = rehydrator.symbolTable();
         gpuIntrinsics = rehydrator.elements();
     }
     {
         Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_vert,
-                          SKSL_INCLUDE_sksl_vert_LENGTH);
+                              SKSL_INCLUDE_sksl_vert_LENGTH);
         fVertexSymbolTable = rehydrator.symbolTable();
         fVertexInclude = rehydrator.elements();
     }
     {
         Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_frag,
-                          SKSL_INCLUDE_sksl_frag_LENGTH);
+                              SKSL_INCLUDE_sksl_frag_LENGTH);
         fFragmentSymbolTable = rehydrator.symbolTable();
         fFragmentInclude = rehydrator.elements();
     }
 #endif
     grab_intrinsics(&gpuIntrinsics, fGPUIntrinsics.get());
-    grab_intrinsics(&interpIntrinsics, fInterpreterIntrinsics.get());
 }
 
 Compiler::~Compiler() {}
@@ -314,20 +313,21 @@ void Compiler::loadInterpreterIntrinsics() {
     if (fInterpreterSymbolTable) {
         return;
     }
-    this->loadPipelineIntrinsics();
+    std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
     #if !SKSL_STANDALONE
         {
-            Rehydrator rehydrator(fContext.get(), fPipelineSymbolTable, this,
+            Rehydrator rehydrator(fContext.get(), fRootSymbolTable, this,
                                   SKSL_INCLUDE_sksl_interp,
                                   SKSL_INCLUDE_sksl_interp_LENGTH);
             fInterpreterSymbolTable = rehydrator.symbolTable();
-            fInterpreterInclude = rehydrator.elements();
+            interpIntrinsics = rehydrator.elements();
         }
     #else
         this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INCLUDE,
-                                 fIRGenerator->fSymbolTable, &fInterpreterInclude,
+                                 fIRGenerator->fSymbolTable, &interpIntrinsics,
                                  &fInterpreterSymbolTable);
     #endif
+    grab_intrinsics(&interpIntrinsics, fInterpreterIntrinsics.get());
 }
 
 void Compiler::processIncludeFile(Program::Kind kind, const char* path,
@@ -1642,10 +1642,10 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             break;
         case Program::kGeneric_Kind:
             this->loadInterpreterIntrinsics();
-            inherited = &fInterpreterInclude;
+            inherited = nullptr;
             fIRGenerator->fSymbolTable = fInterpreterSymbolTable;
             fIRGenerator->fIntrinsics = fInterpreterIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(&settings, /*inherited=*/nullptr);
             break;
     }
     std::unique_ptr<String> textPtr(new String(std::move(text)));
