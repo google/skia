@@ -37,6 +37,22 @@ static inline skvx::Vec<N,int16_t> mul_q14(const skvx::Vec<N,int16_t>& x,
                                 skvx::cast<int>(y) + 0x4000)>>15 ) <<1;
 }
 
+template <int N>
+static inline skvx::Vec<N,int> gather32(const int* ptr, const skvx::Vec<N,int>& ix) {
+#if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
+    if constexpr (N == 8) {
+        return skvx::bit_pun<skvx::Vec<N,int>>(
+                _mm256_i32gather_epi32(ptr, skvx::bit_pun<__m256i>(ix), 4));
+    }
+#endif
+    // Try to recurse on specializations, falling back on standard scalar map()-based impl.
+    if constexpr (N > 8) {
+        return join(gather32(ptr, ix.lo),
+                    gather32(ptr, ix.hi));
+    }
+    return map(ix, [&](int i) { return ptr[i]; });
+}
+
 namespace SK_OPTS_NS {
 
     inline void interpret_skvm(const skvm::InterpreterInstruction insts[], const int ninsts,
@@ -180,7 +196,7 @@ namespace SK_OPTS_NS {
                     STRIDE_K(Op::gather32): {
                         const int* ptr;
                         memcpy(&ptr, (const uint8_t*)args[immy] + immz, sizeof(ptr));
-                        r[d].i32 = map(r[x].i32, [&](int ix) { return ptr[ix]; });
+                        r[d].i32 = gather32(ptr, r[x].i32);
                     } break;
 
                 #undef STRIDE_1
