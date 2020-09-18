@@ -39,6 +39,30 @@
       "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "935d1a59_d2a0243b",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-18T15:46:58Z",
+      "side": 1,
+      "message": "If it only breaks the Mac build, let\u0027s guard it by uname being Darwin?  That way we can stay strict on Linux?",
+      "parentUuid": "c2c39002_936250bd",
+      "range": {
+        "startLine": 387,
+        "startChar": 11,
+        "endLine": 387,
+        "endChar": 17
+      },
+      "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
