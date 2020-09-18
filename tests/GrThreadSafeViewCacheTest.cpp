@@ -85,8 +85,6 @@ public:
 
         SkBitmap tmp = create_up_arrow_bitmap(kImageWH);
         SkAssertResult(CreateBackendTexture(fDContext, &fBETex, tmp));
-
-        fThreadSafeViewCache = std::make_unique<GrThreadSafeUniquelyKeyedProxyViewCache>();
     }
 
     ~TestHelper() {
@@ -95,9 +93,7 @@ public:
 
     Stats* stats() { return &fStats; }
 
-    int numCacheEntries() const {
-        return fThreadSafeViewCache->numEntries();
-    }
+    int numCacheEntries() const { return this->threadSafeViewCache()->numEntries(); }
 
     GrDirectContext* dContext() { return fDContext; }
 
@@ -106,7 +102,11 @@ public:
     SkCanvas* ddlCanvas2() { return fRecorder2 ? fRecorder2->getCanvas() : nullptr; }
 
     GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
-        return fThreadSafeViewCache.get();
+        return fDContext->priv().threadSafeViewCache();
+    }
+
+    const GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() const {
+        return fDContext->priv().threadSafeViewCache();
     }
 
     // Add a draw on 'canvas' that will introduce a ref on the 'wh' view
@@ -137,6 +137,7 @@ public:
                          nullptr);
     }
 
+    // TODO: make a static version and pass in rContext & resourceCache
     bool checkView(SkCanvas* canvas, int wh, int hits, int misses, int numRefs) {
         if (fStats.fCacheHits != hits || fStats.fCacheMisses != misses) {
             return false;
@@ -196,8 +197,6 @@ private:
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
-
-    std::unique_ptr<GrThreadSafeUniquelyKeyedProxyViewCache> fThreadSafeViewCache;
 
     sk_sp<SkSurface> fDst;
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
@@ -280,9 +279,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    //REPORTER_ASSERT(reporter, is_lazy(first));
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
+    //REPORTER_ASSERT(reporter, first == second);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
@@ -295,12 +296,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
     helper.checkView(helper.liveCanvas(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    //REPORTER_ASSERT(reporter, is_instantiated(first));
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 2, /*misses*/ 1, /*refs*/ 3);
+//    add helper::getDDL1()
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
@@ -313,9 +316,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    //REPORTER_ASSERT(reporter, is_lazy(first));
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
     helper.checkView(helper.liveCanvas(), kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
+    //REPORTER_ASSERT(reporter, first == second);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
@@ -328,12 +333,38 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    //REPORTER_ASSERT(reporter, is_lazy(first));
 
     static const bool kFailLookup = true;
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH, kFailLookup);
     helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 0, /*misses*/ 2, /*refs*/ 2);
+    //REPORTER_ASSERT(reporter, first == second);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 2);
 }
+
+// Case 5: ensure that expanding the map works
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    auto threadSafeViewCache = helper.threadSafeViewCache();
+
+    int size = 16;
+    helper.accessCachedView(helper.ddlCanvas1(), size);
+
+    size_t initialCount = threadSafeViewCache->count();
+
+    while (initialCount == threadSafeViewCache->count()) {
+        size *= 2;
+        helper.accessCachedView(helper.ddlCanvas1(), size);
+    }
+}
+
+// Assert, in gpu case, that the resource also has the unique key
+// assert, in all cases, that the key is not findable in the normal cache
+// add flush & readback of gpu-draw & ddl draws and check that rendering is correct ?
+//      - would need to add op-creation for this
+// drop all refs and clear resource cache - this cache should also be cleared
+// ? add consistent() call to the cache that checks in resource cache & proxy cache ?
