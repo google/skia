@@ -62,11 +62,10 @@ namespace SK_OPTS_NS {
         using namespace skvm;
 
         // We'll operate in SIMT style, knocking off K-size chunks from n while possible.
-        // We noticed quad-pumping is slower than single-pumping and both were slower than double.
     #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
-        constexpr int K = 16;
+        constexpr int K = 32;  // 1024-bit: 4 ymm or 2 zmm at a time
     #else
-        constexpr int K = 8;
+        constexpr int K = 8;   // 256-bit: 2 xmm, 2 v-registers, etc.
     #endif
         using I32 = skvx::Vec<K, int>;
         using F32 = skvx::Vec<K, float>;
@@ -236,7 +235,9 @@ namespace SK_OPTS_NS {
 
                     CASE(Op::index): {
                         const int iota[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,
-                                            16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31};
+                                            16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
+                                            32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,
+                                            48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63 };
                         static_assert(K <= SK_ARRAY_COUNT(iota), "");
 
                         r[d].i32 = n - I32::Load(iota);
