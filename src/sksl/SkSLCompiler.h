@@ -235,10 +235,12 @@ private:
 
     Position position(int offset);
 
+    std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fGpuSymbolTable;
     std::unique_ptr<IRIntrinsicMap> fGPUIntrinsics;
+    std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
     std::unique_ptr<IRIntrinsicMap> fInterpreterIntrinsics;
-    std::unique_ptr<ASTFile> fGpuIncludeSource;
+
     std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
@@ -247,8 +249,6 @@ private:
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
     std::vector<std::unique_ptr<ProgramElement>> fPipelineInclude;
     std::shared_ptr<SymbolTable> fPipelineSymbolTable;
-    std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fInterpreterInclude;
     std::vector<std::unique_ptr<ProgramElement>> fFPInclude;
     std::shared_ptr<SymbolTable> fFPSymbolTable;
 
