@@ -63,6 +63,30 @@
       "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6769e4c3_016300c0",
+        "filename": "modules/canvaskit/compile.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-18T16:20:04Z",
+      "side": 1,
+      "message": "On https://github.com/emscripten-core/emscripten/issues/12118 they say it repros on Windows. Given that we have the issue on different OSes I\u0027d be hesitant to limit by OS, but we might be able to get away with keeping STRICT on linux only?",
+      "parentUuid": "935d1a59_d2a0243b",
+      "range": {
+        "startLine": 387,
+        "startChar": 11,
+        "endLine": 387,
+        "endChar": 17
+      },
+      "revId": "e481445d2cbb5dd40b78a0110587653018e52662",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
