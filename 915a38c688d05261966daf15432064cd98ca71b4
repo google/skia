@@ -34,6 +34,24 @@
       "revId": "915a38c688d05261966daf15432064cd98ca71b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5c266a94_16d2b04b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-18T14:03:39Z",
+      "side": 1,
+      "message": "Wow, thanks for the lead--this is a great find!\nIt\u0027s inlining blend_dst_in like this.\n\n            vec4 _19_blend_src_in;\n            do {\n                {\n                    _19_blend_src_in \u003d _9_dst * outputColor_Stage0.w;\n                    break;\n                }\n            } while (false);\n            _8_blend_dst_in \u003d _19_blend_src_in;\n\nWhich I\u0027m sure is not going to be handled well by all drivers.\n\nRoot cause--blend_(src|dst)_in have a workaround caps bit. This workaround is NOT enabled--it eventually optimizes away to nothing--but before it is optimized away, the inliner is asked to inline that code, and it needs the do-while block to handle control flow. After it\u0027s optimized away, the vestigial do-while block is left behind--the optimizer doesn\u0027t have any smarts to recognize and kill unnecessary do-whiles.\n\nI have ideas for a proper fix but it\u0027ll take a bit of rework. In the short term I can probably stop the bleeding by implementing the workaround differently.\n\nFiled as http://skbug.com/10737",
+      "parentUuid": "aa702f71_0a474076",
+      "revId": "915a38c688d05261966daf15432064cd98ca71b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
