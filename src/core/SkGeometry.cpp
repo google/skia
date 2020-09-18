@@ -172,21 +172,7 @@ void SkChopQuadAtHalf(const SkPoint src[3], SkPoint dst[5]) {
     SkChopQuadAt(src, dst, 0.5f);
 }
 
-static std::tuple<Sk2f, Sk2f> transpose(const Sk2f& a, const Sk2f& b) {
-    float transposed[4];
-    a.store(transposed);
-    b.store(transposed + 2);
-    Sk2f xx, yy;
-    Sk2f::Load2(transposed, &xx, &yy);
-    return {xx, yy};
-}
-
-float dot(const Sk2f& a, const Sk2f& b) {
-    Sk2f ab = a*b;
-    return ab[0] + ab[1];
-}
-
-static float measure_angle_inside_vectors(const SkVector& a, const SkVector& b) {
+float SkMeasureAngleInsideVectors(SkVector a, SkVector b) {
     if (a.isZero() || b.isZero()) {
         return 0;  // If these vectors came from tangents on a curve then the curve is a flat line.
     }
@@ -195,52 +181,55 @@ static float measure_angle_inside_vectors(const SkVector& a, const SkVector& b) 
     return SkScalarACos(SkTPin(cosTheta, -1.f, 1.f));
 }
 
-float SkMeasureQuadRotation(const SkPoint pts[3]) {
-    return measure_angle_inside_vectors(pts[1] - pts[0], pts[2] - pts[1]);
-}
-
-static Sk2f find_bisector(Sk2f a, Sk2f b) {
-    if (dot(a, b) <  0) {
-        // The two vectors are >90 degrees apart. Find the bisector of their normals instead. (After
-        // 90 degrees, the normals start cancelling each other out. And when they reach 180 degrees
-        // they cancel out to zero.)
-        a = {-a[1], +a[0]};
-        b = {+b[1], -b[0]};
+SkVector SkFindBisector(SkVector a, SkVector b) {
+    std::array<SkVector, 2> v;
+    if (a.dot(b) >= 0) {
+        // a,b are within +/-90 degrees apart.
+        v = {a, b};
+    } else if (a.cross(b) >= 0) {
+        // a,b are >90 degrees apart. Find the bisector of their interior normals instead. (Above 90
+        // degrees, the original vectors start cancelling each other out which eventually becomes
+        // unstable.)
+        v[0].set(-a.fY, +a.fX);
+        v[1].set(+b.fY, -b.fX);
+    } else {
+        // a,b are <-90 degrees apart. Find the bisector of their interior normals instead. (Below
+        // -90 degrees, the original vectors start cancelling each other out which eventually
+        // becomes unstable.)
+        v[0].set(+a.fY, -a.fX);
+        v[1].set(-b.fY, +b.fX);
     }
-    // Return "normalize(a) + normalize(b)".
-    auto [xx, yy] = transpose(a, b);
-    // Use sqrt instead of rsqrt for better precision. The "Geometry" unit test fails otherwise.
-    Sk2f length = (xx*xx + yy*yy).sqrt();
-    return a/length[0] + b/length[1];
+    // Return "normalize(v[0]) + normalize(v[1])".
+    Sk2f x0_x1, y0_y1;
+    Sk2f::Load2(v.data(), &x0_x1, &y0_y1);
+    Sk2f invLengths = (x0_x1 * x0_x1 + y0_y1 * y0_y1).rsqrt();
+    x0_x1 *= invLengths;
+    y0_y1 *= invLengths;
+    return SkPoint{x0_x1[0] + x0_x1[1], y0_y1[0] + y0_y1[1]};
 }
 
 void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
-    Sk2f p0 = from_point(src[0]);
-    Sk2f p1 = from_point(src[1]);
-    Sk2f p2 = from_point(src[2]);
-
-    Sk2f tan0 = p1 - p0;
-    Sk2f tan1 = p2 - p1;
-
     // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
     // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
     //
     //     n dot midtangent = 0
     //
-    Sk2f n = find_bisector(tan0, -tan1);
+    SkVector tan0 = src[1] - src[0];
+    SkVector tan1 = src[2] - src[1];
+    SkVector bisector = SkFindBisector(tan0, -tan1);
 
-    // The midtangent can be found where (F' dot n) = 0:
+    // The midtangent can be found where (F' dot bisector) = 0:
     //
-    //   0 = (F'(T) dot n) = |2*T 1| * |p0 - 2*p1 + p2| * |nx|
-    //                                 |-2*p0 + 2*p1  |   |ny|
+    //   0 = (F'(T) dot bisector) = |2*T 1| * |p0 - 2*p1 + p2| * |bisector.x|
+    //                                        |-2*p0 + 2*p1  |   |bisector.y|
     //
     //                     = |2*T 1| * |tan1 - tan0| * |nx|
     //                                 |2*tan0     |   |ny|
     //
-    //                     = 2*T * ((tan1 - tan0) dot n) + (2*tan0 dot n)
+    //                     = 2*T * ((tan1 - tan0) dot bisector) + (2*tan0 dot bisector)
     //
-    //   T = (tan0 dot n) / ((tan0 - tan1) dot n)
-    float T = dot(tan0, n) / dot(tan0 - tan1, n);
+    //   T = (tan0 dot bisector) / ((tan0 - tan1) dot bisector)
+    float T = tan0.dot(bisector) / (tan0 - tan1).dot(bisector);
     if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=nan will take this branch.
         T = .5;  // The quadratic was a line or near-line. Just chop at .5.
     }
@@ -552,60 +541,90 @@ float SkMeasureNonInflectCubicRotation(const SkPoint pts[4]) {
     SkVector b = pts[2] - pts[1];
     SkVector c = pts[3] - pts[2];
     if (a.isZero()) {
-        return measure_angle_inside_vectors(b, c);
+        return SkMeasureAngleInsideVectors(b, c);
     }
     if (b.isZero()) {
-        return measure_angle_inside_vectors(a, c);
+        return SkMeasureAngleInsideVectors(a, c);
     }
     if (c.isZero()) {
-        return measure_angle_inside_vectors(a, b);
+        return SkMeasureAngleInsideVectors(a, b);
     }
     // Postulate: When no points are colocated and there are no inflection points in T=0..1, the
     // rotation is: 360 degrees, minus the angle [p0,p1,p2], minus the angle [p1,p2,p3].
-    return 2*SK_ScalarPI - measure_angle_inside_vectors(a,-b) - measure_angle_inside_vectors(b,-c);
+    return 2*SK_ScalarPI - SkMeasureAngleInsideVectors(a,-b) - SkMeasureAngleInsideVectors(b,-c);
+}
+
+static Sk4f fma(const Sk4f& f, float m, const Sk4f& a) {
+    return SkNx_fma(f, Sk4f(m), a);
 }
 
 void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
-    Sk2f p0 = from_point(src[0]);
-    Sk2f p1 = from_point(src[1]);
-    Sk2f p2 = from_point(src[2]);
-    Sk2f p3 = from_point(src[3]);
-
-    Sk2f tan0 = (p0 == p1).allTrue() ? p2 - p0 : p1 - p0;
-    Sk2f tan1 = (p2 == p3).allTrue() ? p3 - p1 : p3 - p2;
-
     // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
     // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
     //
-    //     n dot midtangent = 0
+    //     bisector dot midtangent == 0
     //
-    Sk2f n = find_bisector(tan0, -tan1);
+    SkVector tan0 = (src[0] == src[1]) ? src[2] - src[0] : src[1] - src[0];
+    SkVector tan1 = (src[2] == src[3]) ? src[3] - src[1] : src[3] - src[2];
+    SkVector bisector = SkFindBisector(tan0, -tan1);
 
     // Find the T value at the midtangent. This is a simple quadratic equation:
     //
-    //     midtangent dot n = 0, or:
+    //     midtangent dot bisector == 0, or using a tangent matrix C' in power basis form:
     //
     //                   |C'x  C'y|
-    //     |T^2  T  1| * |.    .  | * |nx| = 0
-    //                   |.    .  |   |ny|
+    //     |T^2  T  1| * |.    .  | * |bisector.x| == 0
+    //                   |.    .  |   |bisector.y|
     //
-    // The coeffs for the quadratic equation we need to solve are therefore C' * n.
-    float a = dot(p3 + (p1 - p2)*3 - p0, n);
-    float b = dot(p0 - p1*2 + p2, n) * 2;
-    float c = dot(p1 - p0, n);
+    // The coeffs for the quadratic equation we need to solve are therefore:  C' * bisector
+    static const Sk4f kM[4] = {Sk4f(-1,  2, -1,  0),
+                               Sk4f( 3, -4,  1,  0),
+                               Sk4f(-3,  2,  0,  0)};
+    Sk4f C_x = fma(kM[0], src[0].fX,
+               fma(kM[1], src[1].fX,
+               fma(kM[2], src[2].fX, Sk4f(src[3].fX, 0,0,0))));
+    Sk4f C_y = fma(kM[0], src[0].fY,
+               fma(kM[1], src[1].fY,
+               fma(kM[2], src[2].fY, Sk4f(src[3].fY, 0,0,0))));
+    Sk4f coeffs = C_x * bisector.x() + C_y * bisector.y();
 
     // Now solve the quadratic for T.
     float T = 0;
+    float a=coeffs[0], b=coeffs[1], c=coeffs[2];
     float discr = b*b - 4*a*c;
     if (discr > 0) {  // This will only be false if the curve is a line.
         // Quadratic formula from Numerical Recipes in C:
         float q = -.5f * (b + copysignf(std::sqrt(discr), b));
-        // The roots are q/a and c/q. Pick the one closer to T=.5.
-        float r = .5f*q*a;
-        T = std::abs(q*q - r) < std::abs(a*c - r) ? q/a : c/q;
+        // The roots are q/a and c/q. Pick the midtangent closer to T=.5.
+        float qa_5 = .5f*q*a;
+        if (a != 0 || q != 0) {
+            T = std::abs(q*q - qa_5) < std::abs(a*c - qa_5) ? q/a : c/q;
+        }
+    } else {
+        // This is a 0- or 360-degree flat line. It doesn't have single points of midtangent.
+        // (tangent == midtangent at every point on the curve except the cusp points.)
+        // Chop in between both cusps instead, if any. There can be up to two cusps on a flat line,
+        // both where the tangent is perpendicular to the starting tangent:
+        //
+        //     tangent dot tan0 == 0
+        //
+        coeffs = C_x * tan0.x() + C_y * tan0.y();
+        a = coeffs[0];
+        b = coeffs[1];
+        if (a != 0) {
+            // We want the point in between both cusps. The midpoint of:
+            //
+            //     (-b +/- sqrt(b^2 - 4*a*c)) / (2*a)
+            //
+            // Is equal to:
+            //
+            //     -b / (2*a)
+            T = -b / (2*a);
+        }
     }
-    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=nan will take this branch.
-        T = .5;  // The cubic was a line or near-line. Just chop at .5.
+    if (!(T > 0 && T < 1)) {  // Use "!(positive_logic)" so T=NaN will take this branch.
+        // Either the curve is a flat line with no rotation or FP precision failed us. Chop at .5.
+        T = .5;
     }
 
     SkChopCubicAt(src, dst, T);
