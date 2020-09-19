@@ -120,10 +120,8 @@ struct Program {
         // Functions smaller than this (measured in IR nodes) will be inlined. Default is arbitrary.
         // Set to 0 to disable inlining entirely.
         int fInlineThreshold = 50;
-        // True to enable optimization passes.
+        // true to enable optimization passes
         bool fOptimize = true;
-        // True to enable the inliner.
-        bool fInline = true;
         // If true, implicit conversions to lower precision numeric types are allowed
         // (eg, float to half)
         bool fAllowNarrowingConversions = false;

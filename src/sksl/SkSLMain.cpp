@@ -146,9 +146,6 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
                 if (settingsText.consumeSuffix(" ForceHighPrecision")) {
                     settings->fForceHighPrecision = true;
                 }
-                if (settingsText.consumeSuffix(" NoInline")) {
-                    settings->fInline = false;
-                }
                 if (settingsText.consumeSuffix(" Sharpen")) {
                     settings->fSharpenTextures = true;
                 }
