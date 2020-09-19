@@ -166,14 +166,14 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
     switch (expr->kind()) {
         case Expression::Kind::kBinary: {
             BinaryExpression& b = expr->as<BinaryExpression>();
-            if (b.fOperator == Token::Kind::TK_EQ) {
-                if (!this->tryRemoveLValueBefore(iter, b.fLeft.get())) {
+            if (b.getOperator() == Token::Kind::TK_EQ) {
+                if (!this->tryRemoveLValueBefore(iter, &b.left())) {
                     return false;
                 }
-            } else if (!this->tryRemoveExpressionBefore(iter, b.fLeft.get())) {
+            } else if (!this->tryRemoveExpressionBefore(iter, &b.left())) {
                 return false;
             }
-            if (!this->tryRemoveExpressionBefore(iter, b.fRight.get())) {
+            if (!this->tryRemoveExpressionBefore(iter, &b.right())) {
                 return false;
             }
             SkASSERT((*iter)->expression()->get() == expr);
@@ -267,11 +267,12 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
     switch ((*expr)->kind()) {
         case Expression::Kind::kBinary: {
             BinaryExpression& b = expr->get()->as<BinaryExpression>();
-            if (!this->tryInsertExpression(iter, &b.fRight)) {
+            if (!this->tryInsertExpression(iter, &b.rightPointer())) {
                 return false;
             }
+
             ++(*iter);
-            if (!this->tryInsertExpression(iter, &b.fLeft)) {
+            if (!this->tryInsertExpression(iter, &b.leftPointer())) {
                 return false;
             }
             ++(*iter);
@@ -319,16 +320,17 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
     switch ((*e)->kind()) {
         case Expression::Kind::kBinary: {
             BinaryExpression& b = e->get()->as<BinaryExpression>();
-            switch (b.fOperator) {
+            Token::Kind op = b.getOperator();
+            switch (op) {
                 case Token::Kind::TK_LOGICALAND: // fall through
                 case Token::Kind::TK_LOGICALOR: {
                     // this isn't as precise as it could be -- we don't bother to track that if we
                     // early exit from a logical and/or, we know which branch of an 'if' we're going
                     // to hit -- but it won't make much difference in practice.
-                    this->addExpression(cfg, &b.fLeft, constantPropagate);
+                    this->addExpression(cfg, &b.leftPointer(), constantPropagate);
                     BlockId start = cfg.fCurrent;
                     cfg.newBlock();
-                    this->addExpression(cfg, &b.fRight, constantPropagate);
+                    this->addExpression(cfg, &b.rightPointer(), constantPropagate);
                     cfg.newBlock();
                     cfg.addExit(start, cfg.fCurrent);
                     cfg.fBlocks[cfg.fCurrent].fNodes.push_back({
@@ -340,8 +342,8 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                     break;
                 }
                 case Token::Kind::TK_EQ: {
-                    this->addExpression(cfg, &b.fRight, constantPropagate);
-                    this->addLValue(cfg, &b.fLeft);
+                    this->addExpression(cfg, &b.rightPointer(), constantPropagate);
+                    this->addLValue(cfg, &b.leftPointer());
                     cfg.fBlocks[cfg.fCurrent].fNodes.push_back({
                         BasicBlock::Node::kExpression_Kind,
                         constantPropagate,
@@ -351,8 +353,8 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
                     break;
                 }
                 default:
-                    this->addExpression(cfg, &b.fLeft, !Compiler::IsAssignment(b.fOperator));
-                    this->addExpression(cfg, &b.fRight, constantPropagate);
+                    this->addExpression(cfg, &b.leftPointer(), !Compiler::IsAssignment(op));
+                    this->addExpression(cfg, &b.rightPointer(), constantPropagate);
                     cfg.fBlocks[cfg.fCurrent].fNodes.push_back({
                         BasicBlock::Node::kExpression_Kind,
                         constantPropagate,
