@@ -21,12 +21,7 @@ class Type;
  */
 class IRNode {
 public:
-    IRNode(int offset, int kind, const Type* type = nullptr)
-    : fOffset(offset)
-    , fKind(kind)
-    , fType(type) {}
-
-    virtual ~IRNode() {}
+    virtual ~IRNode();
 
     virtual String description() const = 0;
 
@@ -35,15 +30,32 @@ public:
     int fOffset;
 
     const Type& type() const {
-        SkASSERT(fType);
-        return *fType;
+        return *this->typeData();
     }
 
 protected:
+    struct TypeTokenData {
+        const Type* fType;
+    };
+
+    struct NodeData {
+        TypeTokenData fData;
+
+        NodeData(const Type* data) {
+            fData.fType = data;
+        }
+    };
+
+    IRNode(int offset, int kind, const Type* data = nullptr);
+
+    const Type* typeData() const {
+        return fData.fData.fType;
+    }
+
     int fKind;
 
 private:
-    const Type* fType;
+    NodeData fData;
 };
 
 }  // namespace SkSL
