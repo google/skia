@@ -16,6 +16,24 @@
       "revId": "db42bf2140c5626af554837144ce2c6a8acfbef4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8bfb1fd_cbbe8f51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-21T19:58:36Z",
+      "side": 1,
+      "message": "I haven\u0027t ever had to work with skottie or wasm before so I\u0027m super naive. How did you regress it to this CL and/or how can I test this locally?",
+      "parentUuid": "a77d99c6_c7e49cb2",
+      "revId": "db42bf2140c5626af554837144ce2c6a8acfbef4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
