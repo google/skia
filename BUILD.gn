@@ -696,11 +696,10 @@ if (skia_compile_sksl_tests) {
     sksl_glsl_tests_outputs +=
         [ "$target_out_dir/" +
           rebase_path("$dir/golden/$name.glsl", target_out_dir) ]
-    sksl_glsl_settings_tests_outputs += [
-      "$target_out_dir/" +
-          rebase_path("$dir/golden/${name}DefaultSettings.glsl",
-                      target_out_dir),
-    ]
+    sksl_glsl_settings_tests_outputs +=
+        [ "$target_out_dir/" +
+          rebase_path("$dir/golden/${name}StandaloneSettings.glsl",
+                      target_out_dir) ]
   }
 
   action("compile_sksl_tests") {

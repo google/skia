@@ -45,7 +45,7 @@ for input in inputs:
 
     target = os.path.join(targetDir, tail)
     if settings == "--nosettings":
-        target += "DefaultSettings"
+        target += "StandaloneSettings"
 
     if ext == ".fp":
         # First, compile the CPP. If we get an error, stop here.
