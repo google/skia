@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7685fb05_6344e2e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-21T21:46:47Z",
+      "side": 1,
+      "message": "lgtm. Just waiting to make sure no unexpected gold diffs show up. (I wouldn\u0027t expect any).",
+      "revId": "c986792d5e228ec5660d4a81a1101f0f392ccdf1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
