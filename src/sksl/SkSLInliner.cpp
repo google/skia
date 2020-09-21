@@ -57,10 +57,10 @@
 namespace SkSL {
 namespace {
 
-static int count_all_returns(const FunctionDefinition& funcDef) {
-    class CountAllReturns : public ProgramVisitor {
+static bool contains_returns_above_limit(const FunctionDefinition& funcDef, int limit) {
+    class CountReturnsWithLimit : public ProgramVisitor {
     public:
-        CountAllReturns(const FunctionDefinition& funcDef) {
+        CountReturnsWithLimit(const FunctionDefinition& funcDef, int limit) : fLimit(limit) {
             this->visitProgramElement(funcDef);
         }
 
@@ -68,7 +68,7 @@ static int count_all_returns(const FunctionDefinition& funcDef) {
             switch (stmt.kind()) {
                 case Statement::Kind::kReturn:
                     ++fNumReturns;
-                    [[fallthrough]];
+                    return (fNumReturns > fLimit) || INHERITED::visitStatement(stmt);
 
                 default:
                     return INHERITED::visitStatement(stmt);
@@ -76,10 +76,11 @@ static int count_all_returns(const FunctionDefinition& funcDef) {
         }
 
         int fNumReturns = 0;
+        int fLimit = 0;
         using INHERITED = ProgramVisitor;
     };
 
-    return CountAllReturns{funcDef}.fNumReturns;
+    return CountReturnsWithLimit{funcDef, limit}.fNumReturns > limit;
 }
 
 static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDef) {
@@ -157,13 +158,8 @@ static int count_returns_in_breakable_constructs(const FunctionDefinition& funcD
 }
 
 static bool has_early_return(const FunctionDefinition& funcDef) {
-    int returnCount = count_all_returns(funcDef);
-    if (returnCount == 0) {
-        return false;
-    }
-
     int returnsAtEndOfControlFlow = count_returns_at_end_of_control_flow(funcDef);
-    return returnCount > returnsAtEndOfControlFlow;
+    return contains_returns_above_limit(funcDef, returnsAtEndOfControlFlow);
 }
 
 static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
