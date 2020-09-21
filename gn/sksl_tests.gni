@@ -235,7 +235,7 @@ sksl_glsl_tests_sources = [
 ]
 
 # Tests in sksl_glsl_settings_tests_sources will be compiled twice, once with --settings and once
-# using --nosettings. In the latter mode, DefaultSettings is appended to the output filename.
+# using --nosettings. In the latter mode, StandaloneSettings is appended to the output filename.
 sksl_glsl_settings_tests_sources = [
   "$_tests/sksl/blend/BlendClear.sksl",
   "$_tests/sksl/blend/BlendColor.sksl",
