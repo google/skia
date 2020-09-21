@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "58fb15eb_0941aff6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-21T16:46:34Z",
+      "side": 1,
+      "message": "Chromium canary also looks good and it\u0027s been running over 2 hours now. Landing.",
+      "revId": "470928c9b4945b1800c829c766e65ae5b94c233c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
