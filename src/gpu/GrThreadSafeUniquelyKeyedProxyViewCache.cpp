@@ -7,6 +7,8 @@
 
 #include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
 
+#include "src/gpu/GrResourceCache.h"
+
 GrThreadSafeUniquelyKeyedProxyViewCache::GrThreadSafeUniquelyKeyedProxyViewCache()
     : fFreeEntryList(nullptr) {
 }
@@ -22,6 +24,7 @@ int GrThreadSafeUniquelyKeyedProxyViewCache::numEntries() const {
     return fUniquelyKeyedProxyViewMap.count();
 }
 
+// sigh - needs to be approxBytes
 int GrThreadSafeUniquelyKeyedProxyViewCache::count() const {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -40,21 +43,26 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
     // TODO: should we empty out the fFreeEntryList and reset fEntryAllocator?
 }
 
-void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllUniqueRefs() {
+void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllUniqueRefs(GrResourceCache* resourceCache) {
     SkAutoSpinlock lock{fSpinLock};
 
-    Entry* cur = fUniquelyKeyedProxyViewList.head();
-    Entry* next = cur ? cur->fNext : nullptr;
+    // Iterate from LRU to MRU
+    Entry* cur = fUniquelyKeyedProxyViewList.tail();
+    Entry* prev = cur ? cur->fPrev : nullptr;
 
     while (cur) {
+        if (resourceCache && !resourceCache->overBudget()) {
+            return;
+        }
+
         if (cur->fView.proxy()->unique()) {
             fUniquelyKeyedProxyViewMap.remove(cur->fKey);
             fUniquelyKeyedProxyViewList.remove(cur);
             this->recycleEntry(cur);
         }
 
-        cur = next;
-        next = cur ? cur->fNext : nullptr;
+        cur = prev;
+        prev = cur ? cur->fPrev : nullptr;
     }
 }
 
