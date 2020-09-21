@@ -49,7 +49,7 @@
 
   const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
 
-  const loadLegoJSON = fetch(cdn + 'lego_loader.json').then((response) => response.text());
+  const loadLegoJSON = fetch('test.json').then((response) => response.text());
   const loadDrinksJSON = fetch(cdn + 'drinks.json').then((response) => response.text());
   const loadConfettiJSON = fetch(cdn + 'confetti.json').then((response) => response.text());
   const loadOnboardingJSON = fetch(cdn + 'onboarding.json').then((response) => response.text());
@@ -178,10 +178,8 @@
       let seek = ((Date.now() - firstFrame) / duration) % 1.0;
       let damage = animation.seek(seek);
 
-      if (damage[rectRight] > damage[rectLeft] && damage[rectBottom] > damage[rectTop]) {
         canvas.clear(CanvasKit.WHITE);
         animation.render(canvas, bounds);
-      }
       surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
