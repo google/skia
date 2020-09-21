@@ -314,10 +314,9 @@ half4 blend_modulate(half4 src, half4 dst) { return src*dst; }
 half4 blend_screen(half4 src, half4 dst) { return src + (1 - src)*dst; }
 
 half _blend_overlay_component(half sc, half sa, half dc, half da) {
-    if (2*dc <= da) {
-        return 2*sc*dc;
-    }
-    return sa*da - 2*(da - dc)*(sa - sc);
+    return (2*dc <= da)
+            ? 2*sc*dc
+            : sa*da - 2*(da - dc)*(sa - sc);
 }
 
 half4 blend_overlay(half4 src, half4 dst) {
@@ -342,11 +341,9 @@ half4 blend_lighten(half4 src, half4 dst) {
 }
 
 half _guarded_divide(half n, half d) {
-    @if (sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck) {
-        return n/(d + 0.00000001);
-    } else {
-        return n/d;
-    }
+    return sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
+            ? n/(d + 0.00000001)
+            : n/d;
 }
 
 half _color_dodge_component(half sc, half sa, half dc, half da) {
@@ -355,10 +352,11 @@ half _color_dodge_component(half sc, half sa, half dc, half da) {
     } else {
         half d = sa - sc;
         if (d == 0) {
-             return sa*da + sc*(1 - da) + dc*(1 - sa);
+            return sa*da + sc*(1 - da) + dc*(1 - sa);
+        } else {
+            d = min(da, _guarded_divide(dc*sa, d));
+            return d*sa + sc*(1 - da) + dc*(1 - sa);
         }
-        d = min(da, _guarded_divide(dc*sa, d));
-        return d*sa + sc*(1 - da) + dc*(1 - sa);
     }
 }
 
@@ -374,9 +372,10 @@ half _color_burn_component(half sc, half sa, half dc, half da) {
         return sa*da + sc*(1 - da) + dc*(1 - sa);
     } else if (sc == 0) {
         return dc*(1 - sa);
+    } else {
+        half d = max(0, da - _guarded_divide((da - dc)*sa, sc));
+        return d*sa + sc*(1 - da) + dc*(1 - sa);
     }
-    half d = max(0, da - _guarded_divide((da - dc)*sa, sc));
-    return d*sa + sc*(1 - da) + dc*(1 - sa);
 }
 
 half4 blend_color_burn(half4 src, half4 dst) {
@@ -398,18 +397,16 @@ half _soft_light_component(half sc, half sa, half dc, half da) {
         half DaCub = DaSqd*da;
         return _guarded_divide(DaSqd*(sc - dc*(3*sa - 6*sc - 1)) + 12*da*DSqd*(sa - 2*sc)
                                - 16*DCub * (sa - 2*sc) - DaCub*sc, DaSqd);
+    } else {
+        return dc*(sa - 2*sc + 1) + sc - sqrt(da*dc)*(sa - 2*sc) - da*sc;
     }
-    return dc*(sa - 2*sc + 1) + sc - sqrt(da*dc)*(sa - 2*sc) - da*sc;
 }
 
 half4 blend_soft_light(half4 src, half4 dst) {
-    if (dst.a == 0) {
-        return src;
-    }
-    return half4(_soft_light_component(src.r, src.a, dst.r, dst.a),
-                 _soft_light_component(src.g, src.a, dst.g, dst.a),
-                 _soft_light_component(src.b, src.a, dst.b, dst.a),
-                 src.a + (1 - src.a)*dst.a);
+    return (dst.a == 0) ? src : half4(_soft_light_component(src.r, src.a, dst.r, dst.a),
+                                      _soft_light_component(src.g, src.a, dst.g, dst.a),
+                                      _soft_light_component(src.b, src.a, dst.b, dst.a),
+                                      src.a + (1 - src.a)*dst.a);
 }
 
 half4 blend_difference(half4 src, half4 dst) {
@@ -436,10 +433,9 @@ half3 _blend_set_color_luminance(half3 hueSatColor, half alpha, half3 lumColor) 
     if (minComp < 0 && lum != minComp) {
         result = lum + (result - lum) * lum/(lum - minComp);
     }
-    if (maxComp > alpha && maxComp != lum) {
-        return lum + ((result - lum) * (alpha - lum))/(maxComp - lum);
-    }
-    return result;
+    return (maxComp > alpha && maxComp != lum)
+        ? lum + ((result - lum) * (alpha - lum))/(maxComp - lum)
+        : result;
 }
 
 half _blend_color_saturation(half3 color) {
@@ -447,10 +443,9 @@ half _blend_color_saturation(half3 color) {
 }
 
 half3 _blend_set_color_saturation_helper(half3 minMidMax, half sat) {
-    if (minMidMax.r < minMidMax.b) {
-        return half3(0, sat*(minMidMax.g - minMidMax.r)/(minMidMax.b - minMidMax.r), sat);
-    }
-    return half3(0);
+    return (minMidMax.r < minMidMax.b)
+            ? half3(0, sat*(minMidMax.g - minMidMax.r)/(minMidMax.b - minMidMax.r), sat)
+            : half3(0);
 }
 
 half3 _blend_set_color_saturation(half3 hueLumColor, half3 satColor) {
@@ -576,7 +571,7 @@ half4 blend(SkBlendMode mode, half4 src, half4 dst) {
 }
 
 // The max() guards against division by zero when the incoming color is transparent black
-half4 unpremul(half4 color) { return half4(color.rgb / max(color.a, 0.0001), color.a); }
+half4 unpremul(half4 color)         { return half4(color.rgb / max(color.a, 0.0001), color.a); }
 float4 unpremul_float(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
 
 float2 proj(float3 p) { return p.xy / p.z; }
