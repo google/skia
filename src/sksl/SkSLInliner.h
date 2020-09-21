@@ -46,6 +46,9 @@ public:
     };
     InlinedCall inlineCall(FunctionCall*, SymbolTable*);
 
+    /** Adds a scope to inlined bodies returned by `inlineCall`, if one is required. */
+    void ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt);
+
     /** Checks whether inlining is viable for a FunctionCall. */
     bool isSafeToInline(const FunctionCall&, int inlineThreshold);
 
