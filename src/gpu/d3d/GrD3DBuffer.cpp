@@ -20,7 +20,8 @@ static ComPtr<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
                                               size_t size,
                                               GrGpuBufferType intendedType,
                                               GrAccessPattern accessPattern,
-                                              D3D12_RESOURCE_STATES* resourceState) {
+                                              D3D12_RESOURCE_STATES* resourceState,
+                                              sk_sp<GrD3DAlloc>* alloc) {
     D3D12_HEAP_TYPE heapType;
     if (accessPattern == kStatic_GrAccessPattern) {
         SkASSERT(intendedType != GrGpuBufferType::kXferCpuToGpu &&
@@ -41,13 +42,6 @@ static ComPtr<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
         }
     }
 
-    D3D12_HEAP_PROPERTIES heapProperties = {};
-    heapProperties.Type = heapType;
-    heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-    heapProperties.CreationNodeMask = 1;
-    heapProperties.VisibleNodeMask = 1;
-
     D3D12_RESOURCE_DESC bufferDesc = {};
     bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     bufferDesc.Alignment = 0;  // default alignment
@@ -62,14 +56,14 @@ static ComPtr<ID3D12Resource> make_d3d_buffer(GrD3DGpu* gpu,
     bufferDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
     ComPtr<ID3D12Resource> resource;
-    HRESULT hr = gpu->device()->CreateCommittedResource(
-            &heapProperties,
-            D3D12_HEAP_FLAG_NONE,
-            &bufferDesc,
-            *resourceState,
-            nullptr,
-            IID_PPV_ARGS(&resource));
-    if (!SUCCEEDED(hr)) {
+    resource = gpu->memoryAllocator()->createResource(
+        heapType,
+        &bufferDesc,
+        *resourceState,
+        alloc,
+        nullptr,
+        IID_PPV_ARGS(&resource));
+    if (!resource) {
         return nullptr;
     }
 
@@ -82,22 +76,25 @@ sk_sp<GrD3DBuffer> GrD3DBuffer::Make(GrD3DGpu* gpu, size_t size, GrGpuBufferType
     D3D12_RESOURCE_STATES resourceState;
 
 
+    sk_sp<GrD3DAlloc> alloc;
     ComPtr<ID3D12Resource> resource = make_d3d_buffer(gpu, size, intendedType, accessPattern,
-                                                      &resourceState);
+                                                      &resourceState, &alloc);
     if (!resource) {
         return nullptr;
     }
 
     return sk_sp<GrD3DBuffer>(new GrD3DBuffer(gpu, size, intendedType, accessPattern,
-                                              std::move(resource), resourceState));
+                                              std::move(resource), std::move(alloc),
+                                              resourceState));
 }
 
 GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedType,
                          GrAccessPattern accessPattern, ComPtr<ID3D12Resource> bufferResource,
-                         D3D12_RESOURCE_STATES resourceState)
+                         sk_sp<GrD3DAlloc> alloc, D3D12_RESOURCE_STATES resourceState)
     : INHERITED(gpu, size, intendedType, accessPattern)
     , fResourceState(resourceState)
-    , fD3DResource(std::move(bufferResource)) {
+    , fD3DResource(std::move(bufferResource))
+    , fAlloc(std::move(alloc)) {
     this->registerWithCache(SkBudgeted::kYes);
 
     // TODO: persistently map UPLOAD resources?
