@@ -16,6 +16,115 @@
       "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b6b4dd1_e620f0eb",
+        "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-21T18:39:38Z",
+      "side": 1,
+      "message": "Is using standard allocation different from today when we use d3d\u0027s \"default allocator\"? Like are we making use of sub alloc\u0027ed heaps yet or do we need the flags to do that?",
+      "range": {
+        "startLine": 34,
+        "startChar": 6,
+        "endLine": 34,
+        "endChar": 66
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1eed5843_958c1c47",
+        "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-21T18:39:38Z",
+      "side": 1,
+      "message": "one line?",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 44
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2e2aceb_f380d4c0",
+        "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-21T18:39:38Z",
+      "side": 1,
+      "message": "can this be all one line?",
+      "range": {
+        "startLine": 40,
+        "startChar": 3,
+        "endLine": 41,
+        "endChar": 38
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "209d41ad_8b396819",
+        "filename": "src/gpu/d3d/GrD3DBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-21T18:39:38Z",
+      "side": 1,
+      "message": "extra \\n",
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "effa635e_5edc0c5d",
+        "filename": "src/gpu/d3d/GrD3DTypesPriv.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-21T18:39:38Z",
+      "side": 1,
+      "message": "Why is this now needed here? I don\u0027t see any thing added here or includes removed from headers.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 33
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
