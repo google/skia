@@ -486,18 +486,17 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
 }
 
 GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
-        const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
+        const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
     SkASSERT(numStencilSamples == rt->numSamples());
-    SkASSERT(width >= rt->width());
-    SkASSERT(height >= rt->height());
+    SkASSERT(dimensions.width() >= rt->width());
+    SkASSERT(dimensions.height() >= rt->height());
 
     int samples = rt->numSamples();
 
     const GrMtlCaps::StencilFormat& sFmt = this->mtlCaps().preferredStencilFormat();
 
     GrMtlStencilAttachment* stencil(GrMtlStencilAttachment::Create(this,
-                                                                   width,
-                                                                   height,
+                                                                   dimensions,
                                                                    samples,
                                                                    sFmt));
     fStats.incStencilAttachmentCreates();

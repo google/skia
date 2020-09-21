@@ -13,26 +13,24 @@
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
 GrDawnStencilAttachment::GrDawnStencilAttachment(GrDawnGpu* gpu,
-                                                 int width,
-                                                 int height,
+                                                 SkISize dimensions,
                                                  int bits,
                                                  int samples,
                                                  wgpu::Texture texture,
                                                  wgpu::TextureView view)
-    : INHERITED(gpu, width, height, bits, samples)
+    : INHERITED(gpu, dimensions, bits, samples, GrProtected::kNo)
     , fTexture(texture)
     , fView(view) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
-                                                         int width,
-                                                         int height,
+                                                         SkISize dimensions,
                                                          int sampleCnt) {
     wgpu::TextureDescriptor desc;
     desc.usage = wgpu::TextureUsage::OutputAttachment;
-    desc.size.width = width;
-    desc.size.height = height;
+    desc.size.width = dimensions.width();
+    desc.size.height = dimensions.height();
     desc.size.depth = 1;
     desc.format = wgpu::TextureFormat::Depth24PlusStencil8;
     wgpu::Texture texture = gpu->device().CreateTexture(&desc);
@@ -43,7 +41,7 @@ GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
     if (!view) {
         return nullptr;
     }
-    return new GrDawnStencilAttachment(gpu, width, height, 8, sampleCnt, texture, view);
+    return new GrDawnStencilAttachment(gpu, dimensions, 8, sampleCnt, texture, view);
 }
 
 GrDawnStencilAttachment::~GrDawnStencilAttachment() {

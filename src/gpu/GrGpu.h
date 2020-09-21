@@ -691,7 +691,7 @@ public:
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
     // the GrStencilAttachment.
     virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(
-            const GrRenderTarget*, int width, int height, int numStencilSamples) = 0;
+            const GrRenderTarget*, SkISize dimensions, int numStencilSamples) = 0;
 
     void handleDirtyContext() {
         if (fResetBits) {

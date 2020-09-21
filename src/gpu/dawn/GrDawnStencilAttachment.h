@@ -16,11 +16,13 @@ class GrDawnGpu;
 
 class GrDawnStencilAttachment : public GrStencilAttachment {
 public:
-    static GrDawnStencilAttachment* Create(GrDawnGpu* gpu, int width, int height,
-                                           int sampleCnt);
+    static GrDawnStencilAttachment* Create(GrDawnGpu* gpu, SkISize dimensions, int sampleCnt);
 
     ~GrDawnStencilAttachment() override;
     wgpu::TextureView view() const { return fView; }
+    GrBackendFormat backendFormat() const override {
+        return GrBackendFormat::MakeDawn(wgpu::TextureFormat::Depth24PlusStencil8);
+    }
 
 protected:
     void onRelease() override;
@@ -29,7 +31,7 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    GrDawnStencilAttachment(GrDawnGpu* gpu, int width, int height, int bits, int samples,
+    GrDawnStencilAttachment(GrDawnGpu* gpu, SkISize dimensions, int bits, int samples,
                             wgpu::Texture texture, wgpu::TextureView view);
 
     GrDawnGpu* getDawnGpu() const;

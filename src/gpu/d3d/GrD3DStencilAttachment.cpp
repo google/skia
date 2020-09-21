@@ -10,28 +10,29 @@
 #include "src/gpu/d3d/GrD3DGpu.h"
 
 GrD3DStencilAttachment::GrD3DStencilAttachment(GrD3DGpu* gpu,
+                                               SkISize dimensions,
                                                const Format& format,
                                                const D3D12_RESOURCE_DESC& desc,
                                                const GrD3DTextureResourceInfo& info,
                                                sk_sp<GrD3DResourceState> state,
                                                const GrD3DDescriptorHeap::CPUHandle& view)
-    : GrStencilAttachment(gpu, desc.Width, desc.Height, format.fStencilBits,
-                          desc.SampleDesc.Count)
-    , GrD3DTextureResource(info, state)
-    , fView(view) {
+        : GrStencilAttachment(gpu, dimensions, format.fStencilBits,
+                              desc.SampleDesc.Count, GrProtected::kNo)
+        , GrD3DTextureResource(info, state)
+        , fView(view)
+        , fFormat(format.fInternalFormat) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
-                                                     int width,
-                                                     int height,
+                                                     SkISize dimensions,
                                                      int sampleCnt,
                                                      const Format& format) {
     D3D12_RESOURCE_DESC resourceDesc = {};
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resourceDesc.Alignment = 0;  // default alignment
-    resourceDesc.Width = width;
-    resourceDesc.Height = height;
+    resourceDesc.Width = dimensions.width();
+    resourceDesc.Height = dimensions.height();
     resourceDesc.DepthOrArraySize = 1;
     resourceDesc.MipLevels = 1;
     resourceDesc.Format = format.fInternalFormat;
@@ -56,8 +57,9 @@ GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
             gpu->resourceProvider().createDepthStencilView(info.fResource.Get());
 
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(info.fResourceState));
-    GrD3DStencilAttachment* stencil = new GrD3DStencilAttachment(gpu, format, resourceDesc,
-                                                                 info, std::move(state), view);
+    GrD3DStencilAttachment* stencil = new GrD3DStencilAttachment(gpu, dimensions, format,
+                                                                 resourceDesc, info,
+                                                                 std::move(state), view);
     return stencil;
 }
 

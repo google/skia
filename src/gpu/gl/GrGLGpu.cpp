@@ -1720,9 +1720,9 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
 }
 
 GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
-        const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
-    SkASSERT(width >= rt->width());
-    SkASSERT(height >= rt->height());
+        const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
+    SkASSERT(dimensions.width() >= rt->width());
+    SkASSERT(dimensions.height() >= rt->height());
 
     GrGLStencilAttachment::IDDesc sbDesc;
 
@@ -1743,13 +1743,14 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
     // version on a GL that doesn't have an MSAA extension.
     if (numStencilSamples > 1) {
         if (!this->renderbufferStorageMSAA(*fGLContext, numStencilSamples, sFmt.fInternalFormat,
-                                           width, height)) {
+                                           dimensions.width(), dimensions.height())) {
             GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
             return nullptr;
         }
     } else {
-        GrGLenum error = GL_ALLOC_CALL(
-                RenderbufferStorage(GR_GL_RENDERBUFFER, sFmt.fInternalFormat, width, height));
+        GrGLenum error = GL_ALLOC_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, sFmt.fInternalFormat,
+                                                           dimensions.width(),
+                                                           dimensions.height()));
         if (error != GR_GL_NO_ERROR) {
             GL_CALL(DeleteRenderbuffers(1, &sbDesc.fRenderbufferID));
             return nullptr;
@@ -1762,8 +1763,7 @@ GrStencilAttachment* GrGLGpu::createStencilAttachmentForRenderTarget(
     get_stencil_rb_sizes(this->glInterface(), &format);
     GrGLStencilAttachment* stencil = new GrGLStencilAttachment(this,
                                                                sbDesc,
-                                                               width,
-                                                               height,
+                                                               dimensions,
                                                                numStencilSamples,
                                                                format);
     return stencil;

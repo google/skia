@@ -287,12 +287,9 @@ sk_sp<GrRenderTarget> GrDawnGpu::onWrapBackendTextureAsRenderTarget(const GrBack
 }
 
 GrStencilAttachment* GrDawnGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                       int width,
-                                                                       int height,
+                                                                       SkISize dimensions,
                                                                        int numStencilSamples) {
-    GrDawnStencilAttachment* stencil(GrDawnStencilAttachment::Create(this,
-                                                                     width,
-                                                                     height,
+    GrDawnStencilAttachment* stencil(GrDawnStencilAttachment::Create(this, dimensions,
                                                                      numStencilSamples));
     fStats.incStencilAttachmentCreates();
     return stencil;

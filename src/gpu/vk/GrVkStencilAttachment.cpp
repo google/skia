@@ -14,12 +14,13 @@
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
 GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
+                                             SkISize dimensions,
                                              const Format& format,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImageInfo& info,
                                              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                              const GrVkImageView* stencilView)
-    : GrStencilAttachment(gpu, desc.fWidth, desc.fHeight, format.fStencilBits, desc.fSamples)
+        : GrStencilAttachment(gpu, dimensions, format.fStencilBits, desc.fSamples, info.fProtected)
     , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
@@ -27,15 +28,14 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
 }
 
 GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
-                                                     int width,
-                                                     int height,
+                                                     SkISize dimensions,
                                                      int sampleCnt,
                                                      const Format& format) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = format.fInternalFormat;
-    imageDesc.fWidth = width;
-    imageDesc.fHeight = height;
+    imageDesc.fWidth = dimensions.width();
+    imageDesc.fHeight = dimensions.height();
     imageDesc.fLevels = 1;
     imageDesc.fSamples = sampleCnt;
     imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
@@ -59,7 +59,7 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
 
     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
         info.fImageLayout, info.fCurrentQueueFamily));
-    GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, format, imageDesc,
+    GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, dimensions, format, imageDesc,
                                                                info, std::move(mutableState),
                                                                imageView);
     imageView->unref();

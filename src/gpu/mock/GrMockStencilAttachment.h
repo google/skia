@@ -13,10 +13,12 @@
 
 class GrMockStencilAttachment : public GrStencilAttachment {
 public:
-    GrMockStencilAttachment(GrMockGpu* gpu, int width, int height, int bits, int sampleCnt)
-            : INHERITED(gpu, width, height, bits, sampleCnt) {
+    GrMockStencilAttachment(GrMockGpu* gpu, SkISize dimensions, int bits, int sampleCnt)
+            : INHERITED(gpu, dimensions, bits, sampleCnt, GrProtected::kNo) {
         this->registerWithCache(SkBudgeted::kYes);
     }
+
+    GrBackendFormat backendFormat() const override { return GrBackendFormat(); }
 
 private:
     size_t onGpuMemorySize() const override {
