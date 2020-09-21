@@ -66,6 +66,30 @@
     },
     {
       "key": {
+        "uuid": "08c73149_4214d333",
+        "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-21T20:11:04Z",
+      "side": 1,
+      "message": "Got it, thanks.",
+      "parentUuid": "ba5d13d1_fda97516",
+      "range": {
+        "startLine": 34,
+        "startChar": 6,
+        "endLine": 34,
+        "endChar": 66
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1eed5843_958c1c47",
         "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.h",
         "patchSetId": 8
