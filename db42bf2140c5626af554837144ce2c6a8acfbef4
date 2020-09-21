@@ -34,6 +34,24 @@
       "revId": "db42bf2140c5626af554837144ce2c6a8acfbef4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e48b6d17_5a6e2ecd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-09-21T20:09:49Z",
+      "side": 1,
+      "message": "It\u0027s a PITA... let me add some notes to https://bugs.chromium.org/p/skia/issues/detail?id\u003d10745",
+      "parentUuid": "c8bfb1fd_cbbe8f51",
+      "revId": "db42bf2140c5626af554837144ce2c6a8acfbef4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
