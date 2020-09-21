@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d3110e3_f79af810",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-21T15:37:39Z",
+      "side": 1,
+      "message": "we could do \"bToDevice.isIdentity() \u0026\u0026 !aToDevice.hasPerspective()\", and then:\n\n- map bInA\n- outset bInA by the fwidth\n\nif we want to catch a few more cases here than just a scale/translate matrix",
+      "revId": "945df9038f864b7340adeaaa7c140efb68be4591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
