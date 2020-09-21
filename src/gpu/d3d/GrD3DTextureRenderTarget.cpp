@@ -100,10 +100,10 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
                                           static_cast<D3D12_RESOURCE_STATES>(info.fResourceState)));
 
     const GrD3DDescriptorHeap::CPUHandle shaderResourceView =
-            gpu->resourceProvider().createShaderResourceView(info.fResource.Get());
+            gpu->resourceProvider().createShaderResourceView(info.fResource.get());
 
     const GrD3DDescriptorHeap::CPUHandle renderTargetView =
-            gpu->resourceProvider().createRenderTargetView(info.fResource.Get());
+            gpu->resourceProvider().createRenderTargetView(info.fResource.get());
 
     if (sampleCnt > 1) {
         GrD3DTextureResourceInfo msInfo;
@@ -114,7 +114,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeNewTextureRenderTa
                 GrD3DTextureResource::CreateMSAA(gpu, dimensions, sampleCnt, info, clearColor);
 
         const GrD3DDescriptorHeap::CPUHandle msaaRenderTargetView =
-                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.Get());
+                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
 
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, budgeted, dimensions, sampleCnt, info, std::move(state), shaderResourceView,
@@ -144,10 +144,10 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
                                                        : GrMipmapStatus::kNotAllocated;
 
     const GrD3DDescriptorHeap::CPUHandle shaderResourceView =
-            gpu->resourceProvider().createShaderResourceView(info.fResource.Get());
+            gpu->resourceProvider().createShaderResourceView(info.fResource.get());
 
     const GrD3DDescriptorHeap::CPUHandle renderTargetView =
-            gpu->resourceProvider().createRenderTargetView(info.fResource.Get());
+            gpu->resourceProvider().createRenderTargetView(info.fResource.get());
 
     if (sampleCnt > 1) {
         GrD3DTextureResourceInfo msInfo;
@@ -158,7 +158,7 @@ sk_sp<GrD3DTextureRenderTarget> GrD3DTextureRenderTarget::MakeWrappedTextureRend
                 GrD3DTextureResource::CreateMSAA(gpu, dimensions, sampleCnt, info, clearColor);
 
         const GrD3DDescriptorHeap::CPUHandle msaaRenderTargetView =
-                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.Get());
+                gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
 
         GrD3DTextureRenderTarget* trt = new GrD3DTextureRenderTarget(
                 gpu, dimensions, sampleCnt, info, std::move(state), shaderResourceView,

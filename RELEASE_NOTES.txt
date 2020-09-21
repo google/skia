@@ -15,9 +15,6 @@ Milestone 87
     the deprecated, expanding clip ops.
     https://review.skia.org/317209
 
-  * Switch to using Microsoft::WRL::ComPtr for wrapping D3D12 objects.
-    https://review.skia.org/314957
-
   * GPU backends now properly honor the SkFilterQuality when calling drawAtlas.
     https://review.skia.org/313081
 
