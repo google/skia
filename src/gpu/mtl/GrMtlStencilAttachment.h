@@ -24,10 +24,14 @@ public:
         bool fPacked;
     };
 
-    static GrMtlStencilAttachment* Create(GrMtlGpu* gpu, int width, int height,
+    static GrMtlStencilAttachment* Create(GrMtlGpu* gpu, SkISize dimensions,
                                           int sampleCnt, const Format& format);
 
     ~GrMtlStencilAttachment() override;
+
+    GrBackendFormat backendFormat() const override {
+        return GrBackendFormat::MakeMtl(fStencilView.pixelFormat);
+    }
 
     MTLPixelFormat mtlFormat() const { return fFormat.fInternalFormat; }
 
@@ -41,6 +45,7 @@ private:
     size_t onGpuMemorySize() const override;
 
     GrMtlStencilAttachment(GrMtlGpu* gpu,
+                           SkISize dimensions,
                            const Format& format,
                            const id<MTLTexture> stencilView);
 

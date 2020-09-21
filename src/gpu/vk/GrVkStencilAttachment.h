@@ -22,10 +22,12 @@ public:
         int  fStencilBits;
     };
 
-    static GrVkStencilAttachment* Create(GrVkGpu* gpu, int width, int height,
-                                         int sampleCnt, const Format& format);
+    static GrVkStencilAttachment* Create(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
+                                         const Format& format);
 
     ~GrVkStencilAttachment() override;
+
+    GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
     const GrManagedResource* imageResource() const { return this->resource(); }
     const GrVkImageView* stencilView() const { return fStencilView; }
@@ -38,6 +40,7 @@ private:
     size_t onGpuMemorySize() const override;
 
     GrVkStencilAttachment(GrVkGpu* gpu,
+                          SkISize dimensions,
                           const Format& format,
                           const GrVkImage::ImageDesc&,
                           const GrVkImageInfo&,

@@ -146,7 +146,7 @@ private:
     }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
-            const GrRenderTarget*, int width, int height, int numStencilSamples) override;
+            const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,

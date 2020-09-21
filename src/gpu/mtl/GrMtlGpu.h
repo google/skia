@@ -237,7 +237,7 @@ private:
                               size_t imageBytes, size_t rowBytes);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
-            const GrRenderTarget*, int width, int height, int numStencilSamples) override;
+            const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
 
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
                                            SkISize dimensions,

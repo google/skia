@@ -10,19 +10,17 @@
 #define GrStencilAttachment_DEFINED
 
 #include "src/core/SkClipStack.h"
-#include "src/gpu/GrGpuResource.h"
+#include "src/gpu/GrSurface.h"
 
 class GrRenderTarget;
 class GrResourceKey;
 
-class GrStencilAttachment : public GrGpuResource {
+class GrStencilAttachment : public GrSurface {
 public:
     ~GrStencilAttachment() override {
         // TODO: allow SB to be purged and detach itself from rts
     }
 
-    int width() const { return fWidth; }
-    int height() const { return fHeight; }
     int bits() const { return fBits; }
     int numSamples() const { return fSampleCnt; }
 
@@ -31,14 +29,13 @@ public:
 
     // We create a unique stencil buffer at each width, height and sampleCnt and share it for
     // all render targets that require a stencil with those params.
-    static void ComputeSharedStencilAttachmentKey(int width, int height, int sampleCnt,
+    static void ComputeSharedStencilAttachmentKey(SkISize dimensions, int sampleCnt,
                                                   GrUniqueKey* key);
 
 protected:
-    GrStencilAttachment(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
-            : INHERITED(gpu)
-            , fWidth(width)
-            , fHeight(height)
+    GrStencilAttachment(GrGpu* gpu, SkISize dimensions, int bits, int sampleCnt,
+                        GrProtected isProtected)
+            : INHERITED(gpu, dimensions, isProtected)
             , fBits(bits)
             , fSampleCnt(sampleCnt) {
     }
@@ -46,13 +43,11 @@ protected:
 private:
     const char* getResourceType() const override { return "Stencil"; }
 
-    int fWidth;
-    int fHeight;
     int fBits;
     int fSampleCnt;
     bool fHasPerformedInitialClear = false;
 
-    using INHERITED = GrGpuResource;
+    using INHERITED = GrSurface;
 };
 
 #endif

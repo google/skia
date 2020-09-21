@@ -949,16 +949,15 @@ sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType 
 }
 
 GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
-        const GrRenderTarget* rt, int width, int height, int numStencilSamples) {
+        const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
     SkASSERT(numStencilSamples == rt->numSamples() || this->caps()->mixedSamplesSupport());
-    SkASSERT(width >= rt->width());
-    SkASSERT(height >= rt->height());
+    SkASSERT(dimensions.width() >= rt->width());
+    SkASSERT(dimensions.height() >= rt->height());
 
     const GrD3DCaps::StencilFormat& sFmt = this->d3dCaps().preferredStencilFormat();
 
     GrD3DStencilAttachment* stencil(GrD3DStencilAttachment::Make(this,
-                                                                 width,
-                                                                 height,
+                                                                 dimensions,
                                                                  numStencilSamples,
                                                                  sFmt));
     fStats.incStencilAttachmentCreates();

@@ -103,7 +103,7 @@ public:
 #endif
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
-            const GrRenderTarget*, int width, int height, int numStencilSamples) override;
+            const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
 
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrStencilAttachment*,

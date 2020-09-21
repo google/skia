@@ -13,24 +13,24 @@
 #endif
 
 GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
+                                               SkISize dimensions,
                                                const Format& format,
                                                const id<MTLTexture> stencilView)
-    : GrStencilAttachment(gpu, stencilView.width, stencilView.height, format.fStencilBits,
-                          stencilView.sampleCount)
+    : GrStencilAttachment(gpu, dimensions, format.fStencilBits,
+                          stencilView.sampleCount, GrProtected::kNo)
     , fFormat(format)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
-                                                       int width,
-                                                       int height,
+                                                       SkISize dimensions,
                                                        int sampleCnt,
                                                        const Format& format) {
     MTLTextureDescriptor* desc =
         [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format.fInternalFormat
-                                                           width:width
-                                                          height:height
+                                                           width:dimensions.width()
+                                                          height:dimensions.height()
                                                        mipmapped:NO];
     if (@available(macOS 10.11, iOS 9.0, *)) {
         desc.storageMode = MTLStorageModePrivate;
@@ -40,7 +40,8 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;
     }
-    return new GrMtlStencilAttachment(gpu, format, [gpu->device() newTextureWithDescriptor:desc]);
+    return new GrMtlStencilAttachment(gpu, dimensions, format,
+                                      [gpu->device() newTextureWithDescriptor:desc]);
 }
 
 GrMtlStencilAttachment::~GrMtlStencilAttachment() {
