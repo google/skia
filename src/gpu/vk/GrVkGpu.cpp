@@ -1791,6 +1791,9 @@ void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
     // can also be used for general dst flags since we don't know exactly what the client
     // plans on using the image for.
     VkImageLayout newLayout = newInfo.getImageLayout();
+    if (newLayout == VK_IMAGE_LAYOUT_UNDEFINED) {
+        newLayout = image->currentLayout();
+    }
     VkPipelineStageFlags dstStage = GrVkImage::LayoutToPipelineSrcStageFlags(newLayout);
     VkAccessFlags dstAccess = GrVkImage::LayoutToSrcAccessMask(newLayout);
 

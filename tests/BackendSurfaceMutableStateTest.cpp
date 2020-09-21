@@ -113,6 +113,13 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == info.fImageLayout);
     REPORTER_ASSERT(reporter, gpu->queueIndex() == info.fCurrentQueueFamily);
 
+    // Make sure passing in VK_IMAGE_LAYOUT_UNDEFINED does not change the layout
+    GrBackendSurfaceMutableState noopState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_IGNORED);
+    dContext->setBackendTextureState(backendTex, noopState);
+    REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == info.fImageLayout);
+    REPORTER_ASSERT(reporter, gpu->queueIndex() == info.fCurrentQueueFamily);
+
     // To test queue transitions, we don't have any other valid queue available so instead we try
     // to transition to external queue.
     if (gpu->vkCaps().supportsExternalMemory()) {
@@ -127,7 +134,9 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest, reporter, ctxIn
 
         dContext->submit();
 
-        GrBackendSurfaceMutableState externalState2(VK_IMAGE_LAYOUT_GENERAL, initQueue);
+        // Go back to the initial queue. Also we should stay in VK_IMAGE_LAYOUT_GENERAL since we
+        // are passing in VK_IMAGE_LAYOUT_UNDEFINED
+        GrBackendSurfaceMutableState externalState2(VK_IMAGE_LAYOUT_UNDEFINED, initQueue);
         dContext->setBackendTextureState(backendTex, externalState2);
 
         REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
