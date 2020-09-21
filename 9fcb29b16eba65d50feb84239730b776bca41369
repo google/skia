@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13e9580a_4d6a640f",
+        "filename": "third_party/d3dmemoryallocator/LICENSE",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-21T20:45:01Z",
+      "side": 1,
+      "message": "Just want to double check that this file is right.",
+      "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
