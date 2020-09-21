@@ -17,8 +17,8 @@
 #include <utility>
 
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
 #include "include/gpu/GrContextOptions.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -55,7 +55,7 @@ namespace {
 #define ATRACE_CALL()
 
 struct SkottieRunner {
-    sk_sp<GrContext> mGrContext;
+    sk_sp<GrDirectContext> mDContext;
 };
 
 static JavaVM* sJVM = nullptr;
@@ -79,13 +79,13 @@ Java_org_skia_skottie_SkottieRunner_nCreateProxy(JNIEnv *env, jclass clazz) {
 
     GrContextOptions options;
     options.fDisableDistanceFieldPaths = true;
-    sk_sp<GrContext> grContext = GrContext::MakeGL(std::move(glInterface), options);
-    if (!grContext.get()) {
+    sk_sp<GrDirectContext> dContext = GrDirectContext::MakeGL(std::move(glInterface), options);
+    if (!dContext.get()) {
         return 0;
     }
 
     SkottieRunner* skottie = new SkottieRunner();
-    skottie->mGrContext = grContext;
+    skottie->mDContext = std::move(dContext);
 
     return (jlong) skottie;
 }
@@ -97,9 +97,9 @@ Java_org_skia_skottie_SkottieRunner_nDeleteProxy(JNIEnv *env, jclass clazz, jlon
         return;
     }
     SkottieRunner* skottie = reinterpret_cast<SkottieRunner*>(nativeProxy);
-    if (skottie->mGrContext) {
-        skottie->mGrContext->releaseResourcesAndAbandonContext();
-        skottie->mGrContext.reset();
+    if (skottie->mDContext) {
+        skottie->mDContext->releaseResourcesAndAbandonContext();
+        skottie->mDContext.reset();
     }
     delete skottie;
 }
@@ -186,9 +186,9 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
     }
     SkottieAnimation* skottieAnimation = reinterpret_cast<SkottieAnimation*>(nativeProxy);
 
-    auto grContext = skottieAnimation->mRunner->mGrContext;
+    auto dContext = skottieAnimation->mRunner->mDContext.get();
 
-    if (!grContext) {
+    if (!dContext) {
         return false;
     }
 
@@ -217,7 +217,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimationImpl_nDrawFrame(JNIEnv 
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
 
     sk_sp<SkSurface> renderTarget(SkSurface::MakeFromBackendRenderTarget(
-            grContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, colorType,
+            dContext, backendRT, kBottomLeft_GrSurfaceOrigin, colorType,
             nullptr, &props));
 
     auto canvas = renderTarget->getCanvas();
