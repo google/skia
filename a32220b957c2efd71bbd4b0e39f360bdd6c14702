@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "ba5d13d1_fda97516",
+        "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-21T20:07:54Z",
+      "side": 1,
+      "message": "The \"standard\" allocation method is to create a large heap and suballocate from it using CreatePlacedResource. If there\u0027s no room, it\u0027ll create a new one. The flags control whether you stay within budget, or whether you only suballocate from what\u0027s already allocated, or whether you skip suballocation entirely and use CreateCommittedResource. I\u0027ve updated the comment.",
+      "parentUuid": "4b6b4dd1_e620f0eb",
+      "range": {
+        "startLine": 34,
+        "startChar": 6,
+        "endLine": 34,
+        "endChar": 66
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1eed5843_958c1c47",
         "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.h",
         "patchSetId": 8
@@ -62,6 +86,30 @@
       "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d62ab1be_28bff47a",
+        "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-21T20:07:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1eed5843_958c1c47",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 44
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "d640735f_ec475c6c",
+        "filename": "src/gpu/d3d/GrD3DAMDMemoryAllocator.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-21T20:07:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2e2aceb_f380d4c0",
+      "range": {
+        "startLine": 40,
+        "startChar": 3,
+        "endLine": 41,
+        "endChar": 38
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "209d41ad_8b396819",
         "filename": "src/gpu/d3d/GrD3DBuffer.h",
         "patchSetId": 8
@@ -102,6 +174,24 @@
       "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17ed9d7f_ef5c452b",
+        "filename": "src/gpu/d3d/GrD3DBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-21T20:07:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "209d41ad_8b396819",
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -125,6 +215,30 @@
       "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9a441be_92063553",
+        "filename": "src/gpu/d3d/GrD3DTypesPriv.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-21T20:07:54Z",
+      "side": 1,
+      "message": "Leftover from a previous change, removed.",
+      "parentUuid": "effa635e_5edc0c5d",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 33
+      },
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
