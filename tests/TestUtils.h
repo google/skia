@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#ifndef TestUtils_DEFINED
+#define TestUtils_DEFINED
+
 #include "include/core/SkBitmap.h"
 #include "src/gpu/GrDataUtils.h"
 #include "tests/Test.h"
@@ -110,3 +113,5 @@ void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
                                   GrSurfaceProxy* proxy,
                                   int32_t expectedProxyRefs,
                                   int32_t expectedBackingRefs);
+
+#endif

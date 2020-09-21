@@ -332,11 +332,11 @@ public:
     /**
      * Call to ensure all drawing to the context has been flushed and submitted to the underlying 3D
      * API. This is equivalent to calling GrContext::flush with a default GrFlushInfo followed by
-     * GrContext::submit.
+     * GrContext::submit(syncCpu).
      */
-    void flushAndSubmit() {
+    void flushAndSubmit(bool syncCpu = false) {
         this->flush(GrFlushInfo());
-        this->submit();
+        this->submit(syncCpu);
     }
 
     /**
