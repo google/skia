@@ -81,6 +81,14 @@ struct BasicBlock {
         std::unique_ptr<Statement>* fStatement;
     };
 
+    static Node MakeStatement(std::unique_ptr<Statement>* s) {
+        return {Node::kStatement_Kind, /*fConstantPropagation=*/false, /*fExpression=*/nullptr, s};
+    }
+
+    static Node MakeExpression(std::unique_ptr<Expression>* e, bool constantPropagation) {
+        return {Node::kExpression_Kind, constantPropagation, e, /*fStatement=*/nullptr};
+    }
+
     /**
      * Attempts to remove the expression (and its subexpressions) pointed to by the iterator. If the
      * expression can be cleanly removed, returns true and updates the iterator to point to the
@@ -149,6 +157,9 @@ private:
     // just check to see if it has any entrances. This does require a bit of care in the order in
     // which we set the CFG up.
     void addExit(BlockId from, BlockId to);
+
+    // Convenience method to return the CFG's current block.
+    BasicBlock& currentBlock() { return fBlocks[fCurrent]; }
 
     friend class CFGGenerator;
 };
