@@ -28,6 +28,7 @@ struct SK_API GrD3DBackendContext {
     ComPtr<IDXGIAdapter1> fAdapter;
     ComPtr<ID3D12Device> fDevice;
     ComPtr<ID3D12CommandQueue> fQueue;
+    sk_sp<GrD3DMemoryAllocator> fMemoryAllocator;
     GrProtected fProtectedContext = GrProtected::kNo;
 };
 
