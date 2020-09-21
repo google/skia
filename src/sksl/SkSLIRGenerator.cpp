@@ -642,6 +642,12 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     if (!statement) {
         return nullptr;
     }
+    if (test->is<BoolLiteral>()) {
+        if (!test->as<BoolLiteral>().fValue) {
+            // `while (false) { anything }` is a no-op.
+            return std::make_unique<Nop>();
+        }
+    }
     ensure_scoped_blocks(statement.get());
     return std::make_unique<WhileStatement>(w.fOffset, std::move(test), std::move(statement));
 }
