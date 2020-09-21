@@ -12,7 +12,6 @@
 #include "src/gpu/glsl/GrGLSLVarying.h"
 
 void GrGLSLVertexGeoBuilder::emitNormalizedSkPosition(SkString* out, const char* devPos,
-                                                      const char* rtAdjustName,
                                                       GrSLType devPosType) {
     if (this->getProgramBuilder()->snapVerticesToPixelCenters()) {
         if (kFloat3_GrSLType == devPosType) {
@@ -75,9 +74,8 @@ void GrGLSLGeometryBuilder::configure(InputType inputType, OutputType outputType
                              kOut_InterfaceQualifier);
 }
 
-void GrGLSLGeometryBuilder::emitVertex(SkString* out, const char* devPos, const char* rtAdjustName,
-                                       GrSLType devPosType) {
-    this->emitNormalizedSkPosition(out, devPos, rtAdjustName, devPosType);
+void GrGLSLGeometryBuilder::emitVertex(SkString* out, const char* devPos, GrSLType devPosType) {
+    this->emitNormalizedSkPosition(out, devPos, devPosType);
     out->append("EmitVertex();");
 }
 

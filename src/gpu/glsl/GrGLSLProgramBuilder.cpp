@@ -83,8 +83,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
     }
     fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(
             nullptr, rtAdjustVisibility, kFloat4_GrSLType, SkSL::Compiler::RTADJUST_NAME);
-    const char* rtAdjustName =
-        this->uniformHandler()->getUniformCStr(fUniformHandles.fRTAdjustmentUni);
 
     // Enclose custom code in a block to avoid namespace conflicts
     SkString openBrace;
@@ -117,7 +115,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
                                            proc,
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
-                                           rtAdjustName,
                                            texSamplers.get(),
                                            &transformHandler);
     fGeometryProcessor->emitCode(args);

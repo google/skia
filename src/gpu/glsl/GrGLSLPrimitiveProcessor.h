@@ -70,7 +70,6 @@ public:
                  const GrPrimitiveProcessor& gp,
                  const char* outputColor,
                  const char* outputCoverage,
-                 const char* rtAdjustName,
                  const SamplerHandle* texSamplers,
                  FPCoordTransformHandler* transformHandler)
             : fVertBuilder(vertBuilder)
@@ -82,7 +81,6 @@ public:
             , fGP(gp)
             , fOutputColor(outputColor)
             , fOutputCoverage(outputCoverage)
-            , fRTAdjustName(rtAdjustName)
             , fTexSamplers(texSamplers)
             , fFPCoordTransformHandler(transformHandler) {}
         GrGLSLVertexBuilder* fVertBuilder;
@@ -94,7 +92,6 @@ public:
         const GrPrimitiveProcessor& fGP;
         const char* fOutputColor;
         const char* fOutputCoverage;
-        const char* fRTAdjustName;
         const SamplerHandle* fTexSamplers;
         FPCoordTransformHandler* fFPCoordTransformHandler;
     };
