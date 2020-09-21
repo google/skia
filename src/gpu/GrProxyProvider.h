@@ -61,7 +61,7 @@ public:
 
     /**
      * A helper that uses findOrCreateProxyByUniqueKey() to find a proxy and if found creates a view
-     *a view for the found proxy using the passed in origin and color type. It is assumed that if
+     * a view for the found proxy using the passed in origin and color type. It is assumed that if
      * the proxy is renderable then it was created by GrRenderTargetContext::MakeWithFallback and
      * the fallback color type will be used to create the view.
      */
