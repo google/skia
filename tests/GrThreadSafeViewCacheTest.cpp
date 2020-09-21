@@ -69,6 +69,9 @@ public:
 
         int fNumSWCreations = 0;
         int fNumHWCreations = 0;
+
+        bool fSmWrapped = false;
+        bool fLgWrapped = false;
     };
 
     TestHelper(GrDirectContext* dContext) : fDContext(dContext) {
@@ -84,11 +87,15 @@ public:
         fRecorder2 = std::make_unique<SkDeferredDisplayListRecorder>(characterization);
 
         SkBitmap tmp = create_up_arrow_bitmap(kImageWH);
-        SkAssertResult(CreateBackendTexture(fDContext, &fBETex, tmp));
+        SkAssertResult(CreateBackendTexture(fDContext, &fSmBETex, tmp));
+
+        tmp = create_up_arrow_bitmap(2*kImageWH);
+        SkAssertResult(CreateBackendTexture(fDContext, &fLgBETex, tmp));
     }
 
     ~TestHelper() {
-        DeleteBackendTexture(fDContext, fBETex);
+        DeleteBackendTexture(fDContext, fSmBETex);
+        DeleteBackendTexture(fDContext, fLgBETex);
     }
 
     Stats* stats() { return &fStats; }
@@ -133,8 +140,10 @@ public:
                           bool failLookup = false) {
         GrRecordingContext* rContext = canvas->recordingContext();
 
+//        SkASSERT(wh == kImageWH || wh == 2*kImageWH);
+
         auto view = AccessCachedView(rContext, this->threadSafeViewCache(),
-                                     fBETex, wh, failLookup, &fStats);
+                                     wh, failLookup, &fStats);
         SkASSERT(view);
 
         auto rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
@@ -206,13 +215,19 @@ public:
         return true;
     }
 
+    size_t gpuSize(int wh) const {
+        return GrSurface::ComputeSize(*fDContext->priv().caps(), fSmBETex.getBackendFormat(),
+                                      {wh, wh}, 1, GrMipMapped::kNo, false);
+    }
+
+
 private:
     static GrSurfaceProxyView AccessCachedView(GrRecordingContext*,
                                                GrThreadSafeUniquelyKeyedProxyViewCache*,
-                                               GrBackendTexture, int wh,
+                                               int wh,
                                                bool failLookup, Stats*);
     static GrSurfaceProxyView CreateViewOnCpu(GrRecordingContext*, int wh, Stats*);
-    static GrSurfaceProxyView CreateViewOnGpu(GrDirectContext*, GrBackendTexture, int wh, Stats*);
+    static GrSurfaceProxyView CreateViewOnGpu(GrDirectContext*, int wh, Stats*);
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
@@ -221,7 +236,8 @@ private:
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder1;
     std::unique_ptr<SkDeferredDisplayListRecorder> fRecorder2;
 
-    GrBackendTexture fBETex;
+    GrBackendTexture fSmBETex;
+    GrBackendTexture fLgBETex;
 };
 
 GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
@@ -244,17 +260,31 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
 }
 
 GrSurfaceProxyView TestHelper::CreateViewOnGpu(GrDirectContext* dContext,
-                                               GrBackendTexture beTex,
                                                int wh,
                                                Stats* stats) {
-    SkASSERT(!stats->fNumHWCreations); // we had better not do this more than once
-
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+
+#if 0
+    bool small = wh == kImageWH;
+
+    if (small) {
+        SkASSERT(!stats->fSmWrapped);
+        stats->fSmWrapped = true;
+    } else {
+        SkASSERT(!stats->fLgWrapped);
+        stats->fLgWrapped = true;;
+    }
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(beTex,
                                                                     kBorrow_GrWrapOwnership,
                                                                     GrWrapCacheable::kNo,
                                                                     kRead_GrIOType);
+#else
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(create_up_arrow_bitmap(wh),
+                                                                       GrMipmapped::kNo,
+                                                                       SkBackingFit::kExact,
+                                                                       SkBudgeted::kYes);
+#endif
     GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                 GrColorType::kRGBA_8888);
     ++stats->fNumHWCreations;
@@ -266,7 +296,6 @@ GrSurfaceProxyView TestHelper::CreateViewOnGpu(GrDirectContext* dContext,
 GrSurfaceProxyView TestHelper::AccessCachedView(
                                     GrRecordingContext* rContext,
                                     GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache,
-                                    GrBackendTexture beTex,
                                     int wh,
                                     bool failLookup,
                                     Stats* stats) {
@@ -283,7 +312,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
 
     GrSurfaceProxyView view;
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
-        view = CreateViewOnGpu(dContext, beTex, wh, stats);
+        view = CreateViewOnGpu(dContext, wh, stats);
     } else {
         view = CreateViewOnCpu(rContext, wh, stats);
     }
@@ -297,10 +326,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
-    helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
-    helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
@@ -312,13 +343,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
-    helper.checkView(helper.liveCanvas(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
-    helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
-    helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 2, /*misses*/ 1, /*refs*/ 3);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
+                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
@@ -330,10 +364,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
-    helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
-    helper.checkView(helper.liveCanvas(), kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
@@ -345,11 +381,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
-    helper.checkView(helper.ddlCanvas1(), kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
 
     static const bool kFailLookup = true;
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH, kFailLookup);
-    helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 0, /*misses*/ 2, /*refs*/ 2);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
@@ -379,51 +417,188 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    helper.checkView(nullptr, kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
-    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 2);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
     ddl1 = nullptr;
-    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 1));
 
     ddl2 = nullptr;
-    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 0);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0));
 
     // The cache still has its ref
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
-    helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 0);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0));
 }
 
-// Case 7: check that dropAllRefs() and dropAllUniqueRefs work as expected
+// Case 7: check that invoking dropAllRefs and dropAllUniqueRefs directly works as expected
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
-    helper.checkView(nullptr, kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
 
     helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
-    helper.checkView(nullptr, 2*kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
-    helper.threadSafeViewCache()->dropAllUniqueRefs();
+    helper.threadSafeViewCache()->dropAllUniqueRefs1(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
     ddl1 = nullptr;
 
-    helper.threadSafeViewCache()->dropAllUniqueRefs();
+    helper.threadSafeViewCache()->dropAllUniqueRefs1(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
-    helper.checkView(nullptr, 2*kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+    REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
 
-    helper.threadSafeViewCache()->dropAllRefs();
+    helper.threadSafeViewCache()->dropAllRefs1();
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 
     ddl2 = nullptr;
 }
+
+// Case 8: This checks that GrContext::abandonContext works as expected wrt the thread
+//         safe cache. This simulates the case where we have one DDL that has finished
+//         recording but one still recording when the abandonContext fires.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache8, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+
+    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
+                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
+
+    ctxInfo.directContext()->abandonContext(); // This should exercise dropAllRefs
+
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+
+    ddl1 = nullptr;
+    ddl2 = nullptr;
+}
+
+// Case 9: This checks that GrContext::releaseResourcesAndAbandonContext works as expected wrt
+//         the thread safe cache/This simulates the case where we have one DDL that has finished
+//         recording but one still recording when the releaseResourcesAndAbandonContext fires.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache9, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+
+    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
+                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
+
+    ctxInfo.directContext()->releaseResourcesAndAbandonContext(); // This should hit dropAllRefs
+
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+
+    ddl1 = nullptr;
+    ddl2 = nullptr;
+}
+
+// Case 10: This checks that the GrContext::purgeUnlockedResources(size_t) variant works as
+//          expected wrt the thread safe cache. It, in particular, tests out the MRU behavior
+//          of the shared cache.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+    TestHelper helper(dContext);
+
+    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+
+    helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1));
+
+    helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), 2*kImageWH,
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 2));
+
+    dContext->flush();
+    dContext->submit(true);
+
+    // This should clear out everything but the textures locked in the thread-safe cache
+    dContext->purgeUnlockedResources(false);
+
+    ddl1 = nullptr;
+    ddl2 = nullptr;
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0));
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0));
+
+    // Regardless of which image is MRU, this should force the other out
+    size_t desiredBytes = helper.gpuSize(2*kImageWH) + helper.gpuSize(kImageWH)/2;
+
+    GrResourceCache* cache = dContext->priv().getResourceCache();
+    size_t currentBytes= cache->getResourceBytes();
+
+    SkASSERT(currentBytes >= desiredBytes);
+    size_t amountToPurge = currentBytes - desiredBytes;
+
+    // The 2*kImageWH texture should be MRU.
+    dContext->purgeUnlockedResources(amountToPurge, true);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0));
+}
+
+// add flush & readback of gpu-draw & ddl draws and check that rendering is correct ?
+//      - would need to add op-creation for this
+// drop all refs and clear resource cache - this cache should also be cleared
+// ? add consistent() call to the cache that checks in resource cache & proxy cache ?
