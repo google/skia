@@ -78,30 +78,27 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& f = element->as<FunctionDefinition>();
                 SkASSERT(f.fDeclaration.fBuiltin);
-                String key = f.fDeclaration.description();
-                SkASSERT(target->find(key) == target->end());
-                (*target)[key] = IRIntrinsic{std::move(element), /*fAlreadyIncluded=*/false};
+                target->insertOrDie(f.fDeclaration.description(), std::move(element));
                 iter = src->erase(iter);
                 break;
             }
             case ProgramElement::Kind::kEnum: {
                 Enum& e = element->as<Enum>();
-                StringFragment name = e.fTypeName;
-                SkASSERT(target->find(name) == target->end());
-                (*target)[name] = IRIntrinsic{std::move(element), /*fAlreadyIncluded=*/false};
+                target->insertOrDie(e.fTypeName, std::move(element));
                 iter = src->erase(iter);
                 break;
             }
             default:
-                printf("unsupported include file element\n");
-                SkASSERT(false);
+                // Unsupported element, leave it in the list.
+                ++iter;
+                break;
         }
     }
 }
 
 Compiler::Compiler(Flags flags)
-: fGPUIntrinsics(std::make_unique<IRIntrinsicMap>())
-, fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>())
+: fGPUIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
+, fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
 , fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
@@ -270,6 +267,7 @@ Compiler::Compiler(Flags flags)
     }
 #endif
     grab_intrinsics(&gpuIntrinsics, fGPUIntrinsics.get());
+    SkASSERT(gpuIntrinsics.empty());
 }
 
 Compiler::~Compiler() {}
@@ -328,6 +326,7 @@ void Compiler::loadInterpreterIntrinsics() {
                                  &fInterpreterSymbolTable);
     #endif
     grab_intrinsics(&interpIntrinsics, fInterpreterIntrinsics.get());
+    SkASSERT(interpIntrinsics.empty());
 }
 
 void Compiler::processIncludeFile(Program::Kind kind, const char* path,
@@ -1609,9 +1608,12 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                 fFPSymbolTable = rehydrator.symbolTable();
                 fFPInclude = rehydrator.elements();
             }
+            fFPIntrinsics = std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get());
+            grab_intrinsics(&fFPInclude, fFPIntrinsics.get());
+
             inherited = &fFPInclude;
             fIRGenerator->fSymbolTable = fFPSymbolTable;
-            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
+            fIRGenerator->fIntrinsics = fFPIntrinsics.get();
             fIRGenerator->start(&settings, inherited);
             break;
 #else

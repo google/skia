@@ -39,11 +39,46 @@ struct FunctionCall;
 /**
  * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.
  */
-struct IRIntrinsic {
-    std::unique_ptr<ProgramElement> fIntrinsic;
-    bool fAlreadyIncluded = false;
+class IRIntrinsicMap {
+public:
+    IRIntrinsicMap(IRIntrinsicMap* parent) : fParent(parent) {}
+
+    void insertOrDie(String key, std::unique_ptr<ProgramElement> element) {
+        SkASSERT(fIntrinsics.find(key) == fIntrinsics.end());
+        fIntrinsics[key] = Intrinsic{std::move(element), false};
+    }
+
+    // Only returns an intrinsic that isn't already marked as included, and then marks it.
+    const ProgramElement* findAndInclude(String key) {
+        auto iter = fIntrinsics.find(key);
+        if (iter == fIntrinsics.end()) {
+            return fParent ? fParent->findAndInclude(key) : nullptr;
+        }
+        if (iter->second.fAlreadyIncluded) {
+            return nullptr;
+        }
+        iter->second.fAlreadyIncluded = true;
+        return iter->second.fIntrinsic.get();
+    }
+
+    void resetAlreadyIncluded() {
+        for (auto& pair : fIntrinsics) {
+            pair.second.fAlreadyIncluded = false;
+        }
+        if (fParent) {
+            fParent->resetAlreadyIncluded();
+        }
+    }
+
+private:
+    struct Intrinsic {
+        std::unique_ptr<ProgramElement> fIntrinsic;
+        bool fAlreadyIncluded = false;
+    };
+
+    std::unordered_map<String, Intrinsic> fIntrinsics;
+    IRIntrinsicMap* fParent = nullptr;
 };
-using IRIntrinsicMap = std::unordered_map<String, IRIntrinsic>;
 
 /**
  * Performs semantic analysis on an abstract syntax tree (AST) and produces the corresponding
@@ -181,7 +216,6 @@ private:
     int fSwitchLevel;
     ErrorReporter& fErrors;
     int fInvocations;
-    std::vector<std::unique_ptr<ProgramElement>>* fInherited;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
     const Variable* fSkPerVertex = nullptr;
     const Variable* fRTAdjust;
