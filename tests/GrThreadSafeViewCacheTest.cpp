@@ -319,6 +319,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     helper.checkView(helper.ddlCanvas2(), kImageWH, /*hits*/ 2, /*misses*/ 1, /*refs*/ 3);
+//    add helper::getDDL1()
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
@@ -427,3 +428,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
 
     ddl2 = nullptr;
 }
+
+// Case 8: check on MRU behavior of the cache
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache8, reporter, ctxInfo) {
+
+}
+
+// add flush & readback of gpu-draw & ddl draws and check that rendering is correct ?
+//      - would need to add op-creation for this
+// drop all refs and clear resource cache - this cache should also be cleared
+// ? add consistent() call to the cache that checks in resource cache & proxy cache ?
