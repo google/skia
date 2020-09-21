@@ -112,6 +112,10 @@ struct BasicBlock {
     bool tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter,
                              std::unique_ptr<Expression>* expr);
 
+#ifdef SK_DEBUG
+    void dump() const;
+#endif
+
     std::vector<Node> fNodes;
     std::set<BlockId> fEntrances;
     std::set<BlockId> fExits;
@@ -124,7 +128,9 @@ struct CFG {
     BlockId fExit;
     std::vector<BasicBlock> fBlocks;
 
-    void dump();
+#ifdef SK_DEBUG
+    void dump() const;
+#endif
 
 private:
     BlockId fCurrent;

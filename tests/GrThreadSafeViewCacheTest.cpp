@@ -398,3 +398,32 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
 
     helper.checkView(nullptr, kImageWH, /*hits*/ 1, /*misses*/ 1, /*refs*/ 0);
 }
+
+// Case 7: check that dropAllRefs() and dropAllUniqueRefs work as expected
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    helper.checkView(nullptr, kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+
+    helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+    helper.checkView(nullptr, 2*kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+
+    helper.threadSafeViewCache()->dropAllUniqueRefs();
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+
+    ddl1 = nullptr;
+
+    helper.threadSafeViewCache()->dropAllUniqueRefs();
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    helper.checkView(nullptr, 2*kImageWH, /*hits*/ 0, /*misses*/ 1, /*refs*/ 1);
+
+    helper.threadSafeViewCache()->dropAllRefs();
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+
+    ddl2 = nullptr;
+}
