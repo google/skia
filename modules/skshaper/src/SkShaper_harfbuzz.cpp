@@ -35,7 +35,6 @@
 #include <hb.h>
 #include <hb-icu.h>
 #include <hb-ot.h>
-#include <unicode/uscript.h>
 #include <cstring>
 #include <memory>
 #include <type_traits>
@@ -378,16 +377,18 @@ private:
     SkBidiIterator::Level fLevel;
 };
 
-class HbIcuScriptRunIterator final : public SkShaper::ScriptRunIterator {
+class SkUnicodeHbScriptRunIterator final: public SkShaper::ScriptRunIterator {
 public:
-    HbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes)
-        : fCurrent(utf8), fBegin(utf8), fEnd(fCurrent + utf8Bytes)
+    SkUnicodeHbScriptRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes)
+        : fUnicode(unicode)
+        , fCurrent(utf8), fBegin(utf8), fEnd(fCurrent + utf8Bytes)
         , fCurrentScript(HB_SCRIPT_UNKNOWN)
     {}
-    static hb_script_t hb_script_from_icu(SkUnichar u) {
+    hb_script_t hb_script_from_icu(SkUnichar u) {
+        SkUnicode::ScriptID scriptId;
+        fUnicode->getScript(u, &scriptId);
         UErrorCode status = U_ZERO_ERROR;
         UScriptCode scriptCode = uscript_getScript(u, &status);
-
         if (U_FAILURE (status)) {
             return HB_SCRIPT_UNKNOWN;
         }
@@ -428,6 +429,7 @@ public:
         return SkSetFourByteTag(HB_UNTAG(fCurrentScript));
     }
 private:
+    SkUnicode* fUnicode;
     char const * fCurrent;
     char const * const fBegin;
     char const * const fEnd;
@@ -1397,12 +1399,13 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
     auto unicode = SkUnicode::Make();
-    std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
-        SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
-                                               utf8,
-                                               utf8Bytes,
-                                               bidiLevel);
-    return bidi;
+    if (!unicode) {
+        return nullptr;
+    }
+    return SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
+                                                  utf8,
+                                                  utf8Bytes,
+                                                  bidiLevel);
 }
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
@@ -1435,7 +1438,16 @@ SkShaper::MakeSkUnicodeBidiRunIterator(SkUnicode* unicode, const char* utf8, siz
 
 std::unique_ptr<SkShaper::ScriptRunIterator>
 SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
-    return std::make_unique<HbIcuScriptRunIterator>(utf8, utf8Bytes);
+    auto unicode = SkUnicode::Make();
+    if (!unicode) {
+        return nullptr;
+    }
+    return SkShaper::MakeSkUnicodeHbScriptRunIterator(unicode.get(), utf8, utf8Bytes);
+}
+
+std::unique_ptr<SkShaper::ScriptRunIterator>
+SkShaper::MakeSkUnicodeHbScriptRunIterator(SkUnicode* unicode, const char* utf8, size_t utf8Bytes) {
+    return std::make_unique<SkUnicodeHbScriptRunIterator>(unicode, utf8, utf8Bytes);
 }
 
 std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fontmgr) {

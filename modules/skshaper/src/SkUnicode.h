@@ -110,6 +110,7 @@ class SKUNICODE_API SkUnicode {
         virtual bool isControl(SkUnichar utf8) = 0;
         virtual bool isWhitespace(SkUnichar utf8) = 0;
         virtual SkString convertUtf16ToUtf8(const std::u16string& utf16) = 0;
+        virtual bool getScript(SkUnichar u, ScriptID* sid) = 0;
 
         // Iterators (used in SkShaper)
         virtual std::unique_ptr<SkBidiIterator> makeBidiIterator
