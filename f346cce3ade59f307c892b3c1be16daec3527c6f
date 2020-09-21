@@ -52,6 +52,29 @@
       "revId": "f346cce3ade59f307c892b3c1be16daec3527c6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a57ca80_95501bf9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-21T18:05:02Z",
+      "side": 1,
+      "message": "Doing this in the IRGenerator is way less powerful than doing it later in the optimizer, because optimization may (possibly after several passes of inlining and constant propagation) turn a not-obviously-literal value into a literal value.",
+      "range": {
+        "startLine": 612,
+        "startChar": 4,
+        "endLine": 617,
+        "endChar": 5
+      },
+      "revId": "f346cce3ade59f307c892b3c1be16daec3527c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
