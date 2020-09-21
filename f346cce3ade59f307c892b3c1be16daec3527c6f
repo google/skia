@@ -34,6 +34,24 @@
       "revId": "f346cce3ade59f307c892b3c1be16daec3527c6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f580edd8_e1ea9eb8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-21T18:04:11Z",
+      "side": 1,
+      "message": "Yeah, my gut says this won\u0027t come up. (I\u0027ve been trying to come up with an example as well, and can\u0027t). do-while(false) is a relatively common construct, but while(false) seems pathological. I\u0027d skip it.",
+      "parentUuid": "2a69e6c5_66d45ea1",
+      "revId": "f346cce3ade59f307c892b3c1be16daec3527c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
