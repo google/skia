@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9beeabf_002612db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-21T17:53:27Z",
+      "side": 1,
+      "message": "This seems fine, but is it ever likely to come up? (if(false) certainly does, thanks to static-if tests, etc...).",
+      "revId": "f346cce3ade59f307c892b3c1be16daec3527c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
