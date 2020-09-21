@@ -71,8 +71,10 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
     #elif defined(SK_BUILD_FOR_WIN)
         return SkEncodeImageWithWIC(&buf, src, type, quality) ? buf.detachAsData() : nullptr;
     #elif defined(SK_ENABLE_NDK_IMAGES)
+        SkDebugf("encode_data - using NDK\n");
         return SkEncodeImageWithNDK(&buf, src, type, quality) ? buf.detachAsData() : nullptr;
     #else
+        SkDebugf("encode_data - NOT using NDK\n");
         switch (type) {
             case SkEncodedImageFormat::kPNG: {
                 bool success = SkPngEncoder::Encode(&buf, src, SkPngEncoder::Options());
