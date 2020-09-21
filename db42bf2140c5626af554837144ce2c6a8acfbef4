@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a77d99c6_c7e49cb2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-09-21T19:24:03Z",
+      "side": 1,
+      "message": "Looks like this broke https://skottie-internal.skia.org/b1877ee5a787b8f5bd11369fe3c087ec?h\u003d480\u0026l\u003dtrue\u0026w\u003d480\n\nNot sure what\u0027s going on, the SKP is trivial (I can share).  WebGL caps issue?",
+      "revId": "db42bf2140c5626af554837144ce2c6a8acfbef4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
