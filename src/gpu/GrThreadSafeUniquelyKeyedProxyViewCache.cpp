@@ -22,6 +22,7 @@ int GrThreadSafeUniquelyKeyedProxyViewCache::numEntries() const {
     return fUniquelyKeyedProxyViewMap.count();
 }
 
+// sigh - needs to be approxBytes
 int GrThreadSafeUniquelyKeyedProxyViewCache::count() const {
     SkAutoSpinlock lock{fSpinLock};
 
