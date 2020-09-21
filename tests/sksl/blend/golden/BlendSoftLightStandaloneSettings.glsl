@@ -3,38 +3,39 @@ uniform vec4 src, dst;
 float _guarded_divide(float n, float d) {
     return n / d;
 }
-float _soft_light_component(float sc, float sa, float dc, float da) {
-    if (2.0 * sc <= sa) {
+float _soft_light_component(vec2 s, vec2 d) {
+    if (2.0 * s.x <= s.y) {
         float _1_guarded_divide;
-        float _2_n = (dc * dc) * (sa - 2.0 * sc);
+        float _2_n = (d.x * d.x) * (s.y - 2.0 * s.x);
+        float _3_d = d.y;
         {
-            _1_guarded_divide = _2_n / da;
+            _1_guarded_divide = _2_n / _3_d;
         }
-        return (_1_guarded_divide + (1.0 - da) * sc) + dc * ((-sa + 2.0 * sc) + 1.0);
+        return (_1_guarded_divide + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
 
-    } else if (4.0 * dc <= da) {
-        float DSqd = dc * dc;
-        float DCub = DSqd * dc;
-        float DaSqd = da * da;
-        float DaCub = DaSqd * da;
-        float _3_guarded_divide;
-        float _4_n = ((DaSqd * (sc - dc * ((3.0 * sa - 6.0 * sc) - 1.0)) + ((12.0 * da) * DSqd) * (sa - 2.0 * sc)) - (16.0 * DCub) * (sa - 2.0 * sc)) - DaCub * sc;
+    } else if (4.0 * d.x <= d.y) {
+        float DSqd = d.x * d.x;
+        float DCub = DSqd * d.x;
+        float DaSqd = d.y * d.y;
+        float DaCub = DaSqd * d.y;
+        float _4_guarded_divide;
+        float _5_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
         {
-            _3_guarded_divide = _4_n / DaSqd;
+            _4_guarded_divide = _5_n / DaSqd;
         }
-        return _3_guarded_divide;
+        return _4_guarded_divide;
 
     } else {
-        return ((dc * ((sa - 2.0 * sc) + 1.0) + sc) - sqrt(da * dc) * (sa - 2.0 * sc)) - da * sc;
+        return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
     }
 }
 vec4 blend_soft_light(vec4 src, vec4 dst) {
-    return dst.w == 0.0 ? src : vec4(_soft_light_component(src.x, src.w, dst.x, dst.w), _soft_light_component(src.y, src.w, dst.y, dst.w), _soft_light_component(src.z, src.w, dst.z, dst.w), src.w + (1.0 - src.w) * dst.w);
+    return dst.w == 0.0 ? src : vec4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
 vec4 main() {
     vec4 _0_blend_soft_light;
     {
-        _0_blend_soft_light = dst.w == 0.0 ? src : vec4(_soft_light_component(src.x, src.w, dst.x, dst.w), _soft_light_component(src.y, src.w, dst.y, dst.w), _soft_light_component(src.z, src.w, dst.z, dst.w), src.w + (1.0 - src.w) * dst.w);
+        _0_blend_soft_light = dst.w == 0.0 ? src : vec4(_soft_light_component(src.xw, dst.xw), _soft_light_component(src.yw, dst.yw), _soft_light_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     }
 
     return _0_blend_soft_light;
