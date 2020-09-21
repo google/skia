@@ -34,7 +34,7 @@ protected:
 
         // Geometry shader.
         GrGLSLVaryingHandler* varyingHandler = args.fVaryingHandler;
-        this->emitGeometryShader(proc, varyingHandler, args.fGeomBuilder, args.fRTAdjustName);
+        this->emitGeometryShader(proc, varyingHandler, args.fGeomBuilder);
         varyingHandler->emitAttributes(proc);
         varyingHandler->setNoPerspective();
         SkASSERT(!*args.fFPCoordTransformHandler);
@@ -49,7 +49,7 @@ protected:
 
     void emitGeometryShader(
             const GrGSCoverageProcessor& proc, GrGLSLVaryingHandler* varyingHandler,
-            GrGLSLGeometryBuilder* g, const char* rtAdjust) const {
+            GrGLSLGeometryBuilder* g) const {
         int numInputPoints = proc.numInputPoints();
         SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
@@ -101,7 +101,7 @@ protected:
             }
             fShader->emitVaryings(varyingHandler, GrGLSLVarying::Scope::kGeoToFrag, &fnBody,
                                   "vertexpos", coverage, cornerCoverage, wind.c_str());
-            g->emitVertex(&fnBody, "vertexpos", rtAdjust);
+            g->emitVertex(&fnBody, "vertexpos");
             return fnBody;
         }().c_str(), &emitVertexFn);
 
