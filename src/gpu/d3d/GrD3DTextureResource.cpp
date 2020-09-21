@@ -61,7 +61,7 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
         return false;
     }
 
-    info->fResource.Attach(resource);
+    info->fResource.reset(resource);
     info->fResourceState = initialState;
     info->fFormat = desc.Format;
     info->fLevelCount = desc.MipLevels;
@@ -134,5 +134,5 @@ void GrD3DTextureResource::setResourceRelease(sk_sp<GrRefCntedCallback> releaseH
 
 void GrD3DTextureResource::Resource::freeGPUData() const {
     this->invokeReleaseProc();
-    fResource.Reset();  // Release our ref to the resource
+    fResource.reset();  // Release our ref to the resource
 }

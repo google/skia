@@ -69,8 +69,8 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
     rootDesc.pStaticSamplers = nullptr;
     rootDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-    ComPtr<ID3DBlob> rootSigBinary;
-    ComPtr<ID3DBlob> error;
+    gr_cp<ID3DBlob> rootSigBinary;
+    gr_cp<ID3DBlob> error;
     // TODO: D3D Static Function
     HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1_0,
                                              &rootSigBinary, &error);
@@ -81,7 +81,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
         return nullptr;
     }
 
-    ComPtr<ID3D12RootSignature> rootSig;
+    gr_cp<ID3D12RootSignature> rootSig;
 
     hr = gpu->device()->CreateRootSignature(0, rootSigBinary->GetBufferPointer(),
                                             rootSigBinary->GetBufferSize(), IID_PPV_ARGS(&rootSig));
@@ -94,7 +94,7 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
                                                             numTextureSamplers));
 }
 
-GrD3DRootSignature::GrD3DRootSignature(ComPtr<ID3D12RootSignature> rootSig, int  numTextureSamplers)
+GrD3DRootSignature::GrD3DRootSignature(gr_cp<ID3D12RootSignature> rootSig, int  numTextureSamplers)
         : fRootSignature(std::move(rootSig))
         , fNumTextureSamplers(numTextureSamplers) {
 }

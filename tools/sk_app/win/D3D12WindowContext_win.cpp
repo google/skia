@@ -40,7 +40,7 @@ public:
     void setupSurfaces(int width, int height);
 
     bool isValid() override {
-        return fDevice.Get() != nullptr;
+        return fDevice.get() != nullptr;
     }
 
     sk_sp<SkSurface> getBackbufferSurface() override;
@@ -52,16 +52,16 @@ private:
     static constexpr int kNumFrames = 2;
 
     HWND fWindow;
-    ComPtr<ID3D12Device> fDevice;
-    ComPtr<ID3D12CommandQueue> fQueue;
-    ComPtr<IDXGISwapChain3> fSwapChain;
-    ComPtr<ID3D12Resource> fBuffers[kNumFrames];
+    gr_cp<ID3D12Device> fDevice;
+    gr_cp<ID3D12CommandQueue> fQueue;
+    gr_cp<IDXGISwapChain3> fSwapChain;
+    gr_cp<ID3D12Resource> fBuffers[kNumFrames];
     sk_sp<SkSurface> fSurfaces[kNumFrames];
 
     // Synchronization objects.
     unsigned int fBufferIndex;
     HANDLE fFenceEvent;
-    ComPtr<ID3D12Fence> fFence;
+    gr_cp<ID3D12Fence> fFence;
     uint64_t fFenceValues[kNumFrames];
 };
 
@@ -94,7 +94,7 @@ void D3D12WindowContext::initializeContext() {
     UINT dxgiFactoryFlags = 0;
     SkDEBUGCODE(dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;)
 
-    ComPtr<IDXGIFactory4> factory;
+    gr_cp<IDXGIFactory4> factory;
     GR_D3D_CALL_ERRCHECK(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
 
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
@@ -106,9 +106,9 @@ void D3D12WindowContext::initializeContext() {
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapChainDesc.SampleDesc.Count = 1;
 
-    ComPtr<IDXGISwapChain1> swapChain;
+    gr_cp<IDXGISwapChain1> swapChain;
     GR_D3D_CALL_ERRCHECK(factory->CreateSwapChainForHwnd(
-            fQueue.Get(), fWindow, &swapChainDesc, nullptr, nullptr, &swapChain));
+            fQueue.get(), fWindow, &swapChainDesc, nullptr, nullptr, &swapChain));
 
     // We don't support fullscreen transitions.
     GR_D3D_CALL_ERRCHECK(factory->MakeWindowAssociation(fWindow, DXGI_MWA_NO_ALT_ENTER));
@@ -164,16 +164,16 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
 
 void D3D12WindowContext::destroyContext() {
     CloseHandle(fFenceEvent);
-    fFence.Reset();
+    fFence.reset(nullptr);
 
     for (int i = 0; i < kNumFrames; ++i) {
-        fSurfaces[i].reset();
-        fBuffers[i].Reset();
+        fSurfaces[i].reset(nullptr);
+        fBuffers[i].reset(nullptr);
     }
 
-    fSwapChain.Reset();
-    fQueue.Reset();
-    fDevice.Reset();
+    fSwapChain.reset(nullptr);
+    fQueue.reset(nullptr);
+    fDevice.reset(nullptr);
 }
 
 sk_sp<SkSurface> D3D12WindowContext::getBackbufferSurface() {
@@ -203,7 +203,7 @@ void D3D12WindowContext::swapBuffers() {
     GR_D3D_CALL_ERRCHECK(fSwapChain->Present(1, 0));
 
     // Schedule a Signal command in the queue.
-    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.Get(), fFenceValues[fBufferIndex]));
+    GR_D3D_CALL_ERRCHECK(fQueue->Signal(fFence.get(), fFenceValues[fBufferIndex]));
 }
 
 void D3D12WindowContext::resize(int width, int height) {
@@ -218,8 +218,8 @@ void D3D12WindowContext::resize(int width, int height) {
             GR_D3D_CALL_ERRCHECK(fFence->SetEventOnCompletion(fFenceValues[i], fFenceEvent));
             WaitForSingleObjectEx(fFenceEvent, INFINITE, FALSE);
         }
-        fSurfaces[i].reset();
-        fBuffers[i].Reset();
+        fSurfaces[i].reset(nullptr);
+        fBuffers[i].reset(nullptr);
     }
 
     GR_D3D_CALL_ERRCHECK(fSwapChain->ResizeBuffers(0, width, height,
