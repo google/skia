@@ -195,9 +195,7 @@ void IRGenerator::start(const Program::Settings* settings,
         }
     }
     SkASSERT(fIntrinsics);
-    for (auto& pair : *fIntrinsics) {
-        pair.second.fAlreadyIncluded = false;
-    }
+    fIntrinsics->markNotIncluded();
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
@@ -2028,10 +2026,8 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
-    auto found = fIntrinsics->find(function.description());
-    if (found != fIntrinsics->end() && !found->second.fAlreadyIncluded) {
-        found->second.fAlreadyIncluded = true;
-        FunctionDefinition& original = found->second.fIntrinsic->as<FunctionDefinition>();
+    if (auto found = fIntrinsics->findAndInclude(function.description())) {
+        const FunctionDefinition& original = found->as<FunctionDefinition>();
         for (const FunctionDeclaration* f : original.fReferencedIntrinsics) {
             this->copyIntrinsicIfNeeded(*f);
         }
@@ -2679,11 +2675,8 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
         return result;
     } else {
         // No Enum element? Check the intrinsics, clone it into the program, try again.
-        auto found = fIntrinsics->find(type.fName);
-        if (found != fIntrinsics->end()) {
-            SkASSERT(!found->second.fAlreadyIncluded);
-            found->second.fAlreadyIncluded = true;
-            fProgramElements->push_back(found->second.fIntrinsic->clone());
+        if (auto found = fIntrinsics->findAndInclude(type.fName)) {
+            fProgramElements->push_back(found->clone());
             return this->convertTypeField(offset, type, field);
         }
         fErrors.error(offset,

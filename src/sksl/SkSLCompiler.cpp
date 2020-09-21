@@ -78,17 +78,13 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& f = element->as<FunctionDefinition>();
                 SkASSERT(f.fDeclaration.fBuiltin);
-                String key = f.fDeclaration.description();
-                SkASSERT(target->find(key) == target->end());
-                (*target)[key] = IRIntrinsic{std::move(element), /*fAlreadyIncluded=*/false};
+                target->insert(f.fDeclaration.description(), std::move(element));
                 iter = src->erase(iter);
                 break;
             }
             case ProgramElement::Kind::kEnum: {
                 Enum& e = element->as<Enum>();
-                StringFragment name = e.fTypeName;
-                SkASSERT(target->find(name) == target->end());
-                (*target)[name] = IRIntrinsic{std::move(element), /*fAlreadyIncluded=*/false};
+                target->insert(e.fTypeName, std::move(element));
                 iter = src->erase(iter);
                 break;
             }
@@ -100,8 +96,8 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
 }
 
 Compiler::Compiler(Flags flags)
-: fGPUIntrinsics(std::make_unique<IRIntrinsicMap>())
-, fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>())
+: fGPUIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
+, fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
 , fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
@@ -1609,6 +1605,11 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                 fFPSymbolTable = rehydrator.symbolTable();
                 fFPInclude = rehydrator.elements();
             }
+            // NEXT: Add FP intrinsics, parented to GPU intrinsics. Re-run my unit test to ensure
+            // we clone the enum correctly. Wrap up the symbolTable + intrinsicMap + elementList
+            // in a "Library" object, to automate all of the parenting? The "inherited" thing is
+            // still important because it gets baked into the program, so we can't scatter elements
+            // at multiple levels. Bleh.
             inherited = &fFPInclude;
             fIRGenerator->fSymbolTable = fFPSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();

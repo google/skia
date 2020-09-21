@@ -9,7 +9,6 @@
 #define SKSL_COMPILER
 
 #include <set>
-#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include "src/sksl/SkSLASTFile.h"
@@ -47,8 +46,7 @@ namespace SkSL {
 class ByteCode;
 class ExternalValue;
 class IRGenerator;
-struct IRIntrinsic;
-using IRIntrinsicMap = std::unordered_map<String, IRIntrinsic>;
+class IRIntrinsicMap;
 struct PipelineStageArgs;
 
 /**
