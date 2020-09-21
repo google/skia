@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aa94dec_b6e58e4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-21T16:51:27Z",
+      "side": 1,
+      "message": "This gives us a moderate speedup, changing the average slowdown vs. Vulkan to 19.0% vs the previous 28.8%. Most SKPs are around 10% slowdown. The tiger is better, but still about 1.5x slower.",
+      "revId": "a32220b957c2efd71bbd4b0e39f360bdd6c14702",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
