@@ -1,34 +1,28 @@
 #version 400
 uniform vec4 src, dst;
-float _blend_overlay_component(float sc, float sa, float dc, float da) {
-    return 2.0 * dc <= da ? (2.0 * sc) * dc : sa * da - (2.0 * (da - dc)) * (sa - sc);
+float _blend_overlay_component(vec2 s, vec2 d) {
+    return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
 }
 vec4 blend_overlay(vec4 src, vec4 dst) {
     float _1_blend_overlay_component;
-    float _2_sc = src.x;
-    float _3_sa = src.w;
-    float _4_dc = dst.x;
-    float _5_da = dst.w;
+    vec2 _2_s = src.xw;
+    vec2 _3_d = dst.xw;
     {
-        _1_blend_overlay_component = 2.0 * _4_dc <= _5_da ? (2.0 * _2_sc) * _4_dc : _3_sa * _5_da - (2.0 * (_5_da - _4_dc)) * (_3_sa - _2_sc);
+        _1_blend_overlay_component = 2.0 * _3_d.x <= _3_d.y ? (2.0 * _2_s.x) * _3_d.x : _2_s.y * _3_d.y - (2.0 * (_3_d.y - _3_d.x)) * (_2_s.y - _2_s.x);
     }
-    float _6_blend_overlay_component;
-    float _7_sc = src.y;
-    float _8_sa = src.w;
-    float _9_dc = dst.y;
-    float _10_da = dst.w;
+    float _4_blend_overlay_component;
+    vec2 _5_s = src.yw;
+    vec2 _6_d = dst.yw;
     {
-        _6_blend_overlay_component = 2.0 * _9_dc <= _10_da ? (2.0 * _7_sc) * _9_dc : _8_sa * _10_da - (2.0 * (_10_da - _9_dc)) * (_8_sa - _7_sc);
+        _4_blend_overlay_component = 2.0 * _6_d.x <= _6_d.y ? (2.0 * _5_s.x) * _6_d.x : _5_s.y * _6_d.y - (2.0 * (_6_d.y - _6_d.x)) * (_5_s.y - _5_s.x);
     }
-    float _11_blend_overlay_component;
-    float _12_sc = src.z;
-    float _13_sa = src.w;
-    float _14_dc = dst.z;
-    float _15_da = dst.w;
+    float _7_blend_overlay_component;
+    vec2 _8_s = src.zw;
+    vec2 _9_d = dst.zw;
     {
-        _11_blend_overlay_component = 2.0 * _14_dc <= _15_da ? (2.0 * _12_sc) * _14_dc : _13_sa * _15_da - (2.0 * (_15_da - _14_dc)) * (_13_sa - _12_sc);
+        _7_blend_overlay_component = 2.0 * _9_d.x <= _9_d.y ? (2.0 * _8_s.x) * _9_d.x : _8_s.y * _9_d.y - (2.0 * (_9_d.y - _9_d.x)) * (_8_s.y - _8_s.x);
     }
-    vec4 result = vec4(_1_blend_overlay_component, _6_blend_overlay_component, _11_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
+    vec4 result = vec4(_1_blend_overlay_component, _4_blend_overlay_component, _7_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
 
 
 
