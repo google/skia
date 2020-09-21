@@ -976,6 +976,10 @@ public:
         object to be prepped for that use. A finishedProc or semaphore on the GrFlushInfo will also
         include the work for any requested state change.
 
+        If the backend API is Vulkan, the caller can set the GrBackendSurfaceMutableState's
+        VkImageLayout to VK_IMAGE_LAYOUT_UNDEFINED or queueFamilyIndex to VK_QUEUE_FAMILY_IGNORED to
+        tell Skia to not change those respective states.
+
         If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
         submitted to the gpu during the next submit call (it is possible Skia failed to create a
         subset of the semaphores). The client should not wait on these semaphores until after submit
