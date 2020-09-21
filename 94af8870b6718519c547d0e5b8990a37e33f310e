@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3b9d6d6_86a0bebc",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-21T18:37:29Z",
+      "side": 1,
+      "message": "line",
+      "range": {
+        "startLine": 645,
+        "startChar": 33,
+        "endLine": 645,
+        "endChar": 34
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee196512_234ae3b7",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-21T18:37:29Z",
+      "side": 1,
+      "message": "grapheme\n\nthese should at least be named so it\u0027s obvious what\u0027s here. I wouldn\u0027t even mind (in fact it would be nice) if they were different types (SkUnicodeLineBreak, SkUnicodeGraphemeBreak, etc, could derive from an abstract SkUnicodeBreak if needed). That icu uses the same type with a enum to pick the kind of iterator is an implementation detail based on which data to run the same underlying algorithm over. The interfaces look the same, but the actual output between them isn\u0027t really the same. It would be nice to ensure they can\u0027t be mixed.",
+      "range": {
+        "startLine": 646,
+        "startChar": 33,
+        "endLine": 646,
+        "endChar": 34
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3610995e_177e8c45",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1007,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-21T18:37:29Z",
+      "side": 1,
+      "message": "I see that the idea is to set the same text on fLineBreakIterator and fGraphemeBreakIterator, but this is rather unfortunate. I think a UText like thing is required of the SkUnicode interface for this sort of thing, and would be helpful in the future anyway.",
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72fb16bf_b7268a65",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-21T18:37:29Z",
+      "side": 1,
+      "message": "I understand this is trying to factor setting multiple iterators to the same bit of text, but it\u0027s really ugly at the call site (oh, I\u0027m setting the text on \u0027this\u0027... and also \u0027those\u0027!?).\n\nI think the issue here is not having a UText like abstraction, which is useful for lots of things that SkShaper doesn\u0027t currently really support but really should, like the input text not necessarily being contiguous (most editors generally don\u0027t have all their text in a contiguous backing).",
+      "range": {
+        "startLine": 70,
+        "startChar": 29,
+        "endLine": 70,
+        "endChar": 73
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5abc71c_5cedb0aa",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-21T18:37:29Z",
+      "side": 1,
+      "message": "I know it isn\u0027t part of this change in particular, but since it\u0027s being used here, is there a good reason to call this \u0027UBreakType\u0027 and not \u0027BreakType\u0027? It\u0027s already in the SkUnicode class, so it seems a bit redundant to stick a \u0027U\u0027 on here if it\u0027s supposed to mean \u0027Unicode\u0027, and it makes things just a bit longer and provides just a little bit more to think about when looking at the name.",
+      "range": {
+        "startLine": 96,
+        "startChar": 19,
+        "endLine": 96,
+        "endChar": 20
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
