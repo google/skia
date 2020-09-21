@@ -1148,7 +1148,11 @@ static void start_keepalive() {
 }
 
 int main(int argc, char** argv) {
-    CommandLineFlags::Parse(argc, argv);
+    std::unique_ptr<const char*[]> copy(new const char*[argc + 2]);
+    memcpy(copy.get(), argv, argc * sizeof(char*));
+    copy.get()[argc] = "--match";
+    copy.get()[argc + 1] = "tablebench";
+    CommandLineFlags::Parse(argc + 2, copy.get());
 
     initializeEventTracingForTools();
 
