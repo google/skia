@@ -129,8 +129,7 @@ public:
 
     static std::unique_ptr<GrRenderTargetContext> MakeFromBackendRenderTarget(
             GrRecordingContext*, GrColorType, sk_sp<SkColorSpace>, const GrBackendRenderTarget&,
-            GrSurfaceOrigin, const SkSurfaceProps*, ReleaseProc releaseProc,
-            ReleaseContext releaseCtx);
+            GrSurfaceOrigin, const SkSurfaceProps*, sk_sp<GrRefCntedCallback> releaseHelper);
 
     static std::unique_ptr<GrRenderTargetContext> MakeFromVulkanSecondaryCB(
             GrRecordingContext*, const SkImageInfo&, const GrVkDrawableInfo&,
