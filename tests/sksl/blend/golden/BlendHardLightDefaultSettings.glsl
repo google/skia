@@ -1,13 +1,31 @@
 
 uniform vec4 src, dst;
-float _blend_overlay_component(float sc, float sa, float dc, float da) {
-    if (2.0 * dc <= da) {
-        return (2.0 * sc) * dc;
-    }
-    return sa * da - (2.0 * (da - dc)) * (sa - sc);
+float _blend_overlay_component(vec2 s, vec2 d) {
+    return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
 }
 vec4 blend_overlay(vec4 src, vec4 dst) {
-    vec4 result = vec4(_blend_overlay_component(src.x, src.w, dst.x, dst.w), _blend_overlay_component(src.y, src.w, dst.y, dst.w), _blend_overlay_component(src.z, src.w, dst.z, dst.w), src.w + (1.0 - src.w) * dst.w);
+    float _1_blend_overlay_component;
+    vec2 _2_s = src.xw;
+    vec2 _3_d = dst.xw;
+    {
+        _1_blend_overlay_component = 2.0 * _3_d.x <= _3_d.y ? (2.0 * _2_s.x) * _3_d.x : _2_s.y * _3_d.y - (2.0 * (_3_d.y - _3_d.x)) * (_2_s.y - _2_s.x);
+    }
+    float _4_blend_overlay_component;
+    vec2 _5_s = src.yw;
+    vec2 _6_d = dst.yw;
+    {
+        _4_blend_overlay_component = 2.0 * _6_d.x <= _6_d.y ? (2.0 * _5_s.x) * _6_d.x : _5_s.y * _6_d.y - (2.0 * (_6_d.y - _6_d.x)) * (_5_s.y - _5_s.x);
+    }
+    float _7_blend_overlay_component;
+    vec2 _8_s = src.zw;
+    vec2 _9_d = dst.zw;
+    {
+        _7_blend_overlay_component = 2.0 * _9_d.x <= _9_d.y ? (2.0 * _8_s.x) * _9_d.x : _8_s.y * _9_d.y - (2.0 * (_9_d.y - _9_d.x)) * (_8_s.y - _8_s.x);
+    }
+    vec4 result = vec4(_1_blend_overlay_component, _4_blend_overlay_component, _7_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
+
+
+
     result.xyz += dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
     return result;
 }
