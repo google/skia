@@ -378,7 +378,7 @@ static int get_programs_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
 #ifdef SK_BUILD_FOR_IOS
         maxTreeLevels = 2;
 #endif
-#ifdef SK_BUILD_FOR_ANDROID
+#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_GL)
         GrGLGpu* gpu = static_cast<GrGLGpu*>(ctxInfo.directContext()->priv().getGpu());
         // Tecno Spark 3 Pro with Power VR Rogue GE8300 will fail shader compiles with
         // no message if the shader is particularly long.
