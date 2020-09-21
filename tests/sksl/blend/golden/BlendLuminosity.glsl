@@ -21,10 +21,7 @@ vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     if (minComp < 0.0 && lum != minComp) {
         result = lum + ((result - lum) * lum) / (lum - minComp);
     }
-    if (maxComp > alpha && maxComp != lum) {
-        return lum + ((result - lum) * (alpha - lum)) / (maxComp - lum);
-    }
-    return result;
+    return maxComp > alpha && maxComp != lum ? lum + ((result - lum) * (alpha - lum)) / (maxComp - lum) : result;
 }
 vec4 blend_luminosity(vec4 src, vec4 dst) {
     float alpha = dst.w * src.w;
