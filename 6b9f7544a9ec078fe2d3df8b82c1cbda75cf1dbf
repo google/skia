@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b3d176a_652df3f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-21T14:11:58Z",
+      "side": 1,
+      "message": "Android is migrated, we should go green on this run.",
+      "revId": "6b9f7544a9ec078fe2d3df8b82c1cbda75cf1dbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
