@@ -112,6 +112,7 @@ std::pair<GrD3DTextureResourceInfo, sk_sp<GrD3DResourceState>> GrD3DTextureResou
 GrD3DTextureResource::~GrD3DTextureResource() {
     // Should have been reset() before
     SkASSERT(!fResource);
+    SkASSERT(!fInfo.fResource);
 }
 
 void GrD3DTextureResource::prepareForPresent(GrD3DGpu* gpu) {
@@ -124,6 +125,7 @@ void GrD3DTextureResource::releaseResource(GrD3DGpu* gpu) {
         fResource->removeOwningTexture();
         fResource.reset(nullptr);
     }
+    fInfo.fResource = nullptr;
 }
 
 void GrD3DTextureResource::setResourceRelease(sk_sp<GrRefCntedCallback> releaseHelper) {
