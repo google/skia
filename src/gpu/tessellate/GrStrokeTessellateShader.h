@@ -61,9 +61,8 @@ public:
         constexpr static float kMiterJoinType = 3;
         constexpr static float kRoundJoinType = 4;
 
+        SkPoint fPrevControlPoint;
         std::array<SkPoint, 4> fPts;
-        float fPatchType;
-        float fStrokeRadius;
     };
 
     // 'matrixScale' is used to set up an appropriate number of tessellation triangles. It should be
@@ -73,18 +72,20 @@ public:
     // be miter joins.
     //
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(float matrixScale, float miterLimit, const SkMatrix& viewMatrix,
-                             SkPMColor4f color)
+    GrStrokeTessellateShader(const SkStrokeRec& stroke, float matrixScale,
+                             const SkMatrix& viewMatrix, SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
                            GrPrimitiveType::kPatches, 1)
+            , fStroke(stroke)
             , fMatrixScale(matrixScale)
-            , fMiterLimit(miterLimit)
             , fColor(color) {
+        SkASSERT(!fStroke.isHairlineStyle());  // No hairline support yet.
         constexpr static Attribute kInputPointAttribs[] = {
+                {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
                 {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                {"inputArgs", kFloat2_GrVertexAttribType, kFloat2_GrSLType}};
+                {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
         this->setVertexAttributes(kInputPointAttribs, SK_ARRAY_COUNT(kInputPointAttribs));
+        SkASSERT(this->vertexStride() == sizeof(Patch));
     }
 
 private:
@@ -103,8 +104,8 @@ private:
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 
+    const SkStrokeRec fStroke;
     const float fMatrixScale;
-    const float fMiterLimit;
     const SkPMColor4f fColor;
 
     class Impl;
