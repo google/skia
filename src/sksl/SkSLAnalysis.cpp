@@ -266,7 +266,7 @@ bool ProgramVisitor::visitExpression(const Expression& e) {
             return false;
         case Expression::Kind::kBinary: {
             const BinaryExpression& b = e.as<BinaryExpression>();
-            return this->visitExpression(*b.fLeft) || this->visitExpression(*b.fRight); }
+            return this->visitExpression(b.left()) || this->visitExpression(b.right()); }
         case Expression::Kind::kConstructor: {
             const Constructor& c = e.as<Constructor>();
             for (const auto& arg : c.fArguments) {
