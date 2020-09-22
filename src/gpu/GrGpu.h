@@ -635,13 +635,15 @@ public:
 
     virtual bool setBackendTextureState(const GrBackendTexture&,
                                         const GrBackendSurfaceMutableState&,
-                                        sk_sp<GrRefCntedCallback> finishedCallback) {
+                                        sk_sp<GrRefCntedCallback> finishedCallback,
+                                        GrBackendSurfaceMutableState* previousState) {
         return false;
     }
 
     virtual bool setBackendRenderTargetState(const GrBackendRenderTarget&,
                                              const GrBackendSurfaceMutableState&,
-                                             sk_sp<GrRefCntedCallback> finishedCallback) {
+                                             sk_sp<GrRefCntedCallback> finishedCallback,
+                                             GrBackendSurfaceMutableState* previousState) {
         return false;
     }
 

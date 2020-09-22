@@ -687,20 +687,25 @@ public:
      * called (e.g updateBackendTexture and flush). If finishedProc is not null then it will be
      * called with finishedContext after the state transition is known to have occurred on the GPU.
      *
+     * See GrBackendSurfaceMutableState to see what state can be set via this call.
+     *
      * If the backend API is Vulkan, the caller can set the GrBackendSurfaceMutableState's
      * VkImageLayout to VK_IMAGE_LAYOUT_UNDEFINED or queueFamilyIndex to VK_QUEUE_FAMILY_IGNORED to
      * tell Skia to not change those respective states.
      *
-     * See GrBackendSurfaceMutableState to see what state can be set via this call.
+     * If previousState is not null and this returns true, then Skia will have filled in
+     * previousState to have the values of the state before this call.
      */
     bool setBackendTextureState(const GrBackendTexture&,
                                 const GrBackendSurfaceMutableState&,
                                 GrGpuFinishedProc finishedProc = nullptr,
-                                GrGpuFinishedContext finishedContext = nullptr);
+                                GrGpuFinishedContext finishedContext = nullptr,
+                                GrBackendSurfaceMutableState* previousState = nullptr);
     bool setBackendRenderTargetState(const GrBackendRenderTarget&,
                                      const GrBackendSurfaceMutableState&,
                                      GrGpuFinishedProc finishedProc = nullptr,
-                                     GrGpuFinishedContext finishedContext = nullptr);
+                                     GrGpuFinishedContext finishedContext = nullptr,
+                                     GrBackendSurfaceMutableState* previousState = nullptr);
 
     void deleteBackendTexture(GrBackendTexture);
 
