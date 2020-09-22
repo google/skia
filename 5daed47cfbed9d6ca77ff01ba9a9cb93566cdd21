@@ -16,6 +16,24 @@
       "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6580b14_b43ad068",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9563
+      },
+      "writtenOn": "2020-09-22T19:06:01Z",
+      "side": 1,
+      "message": "Hm, so you\u0027re right that the client could just do this directly. Nonetheless, I sort of think that this optional parameter really shouldn\u0027t be optional for Vulkan. It\u0027s very essential for the export/import interop, so I think it would make sense if Skia\u0027s API were more biased to forcing you to do the correct transitions.\n\nThat said, can the client correctly get the state when the new state is passed into flush() ? like at https://source.chromium.org/chromium/chromium/src/+/master:components/viz/service/display_embedder/output_presenter.cc;l\u003d114;drc\u003dee9e7e404e5a3f75a3ca0489aaf80490f625ca27;bpv\u003d0;bpt\u003d1\n\nHere, I think that getting the oldState might require flush(), getState(), flush(new_state). Maybe the double-flush could be avoided.",
+      "parentUuid": "5ca7b007_226111f8",
+      "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
