@@ -178,6 +178,17 @@ namespace {
         };
     }
 
+    // Notes only where this differs from build_program().
+    static bool build_q14_program(skvm::Builder* p, const Params& params,
+                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
+        uniforms->base    = p->uniform();
+        skvm::Arg dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
+        (void)dst_ptr;
+
+        return false;
+    }
+
+
     static void build_program(skvm::Builder* p, const Params& params,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
         // First two arguments are always uniforms and the destination buffer.
@@ -597,14 +608,24 @@ namespace {
                     return p;
                 }
             }
+
             // We don't really _need_ to rebuild fUniforms here.
             // It's just more natural to have effects unconditionally emit them,
             // and more natural to rebuild fUniforms than to emit them into a dummy buffer.
             // fUniforms should reuse the exact same memory, so this is very cheap.
+            // TODO: this may now be required, switching from f32 uniforms to q14 uniforms.
             SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
             fUniforms.buf.resize(kBlitterUniformsCount);
+
+            Params params = fParams.withCoverage(coverage);
             skvm::Builder builder;
-            build_program(&builder, fParams.withCoverage(coverage), &fUniforms, &fAlloc);
+            if (!build_q14_program(&builder, params, &fUniforms, &fAlloc)) {
+                builder.~Builder();
+                new (&builder) skvm::Builder;
+                fUniforms.buf.resize(kBlitterUniformsCount);
+
+                build_program(&builder, params, &fUniforms, &fAlloc);
+            }
             SkASSERTF(fUniforms.buf.size() == prev,
                       "%zu, prev was %zu", fUniforms.buf.size(), prev);
 

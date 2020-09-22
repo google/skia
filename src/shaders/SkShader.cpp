@@ -195,16 +195,20 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
     return false;
 }
 
+// Shader subclasses should always act as if the destination were premul or opaque.
+// SkVMBlitter handles all the coordination of unpremul itself, via premul.
+static SkColorInfo hide_unpremul(SkColorInfo info) {
+    if (info.alphaType() == kUnpremul_SkAlphaType) {
+        return info.makeAlphaType(kPremul_SkAlphaType);
+    }
+    return info;
+}
+
 skvm::Color SkShaderBase::program(skvm::Builder* p,
                                   skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                   const SkMatrixProvider& matrices, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    // Shader subclasses should always act as if the destination were premul or opaque.
-    // SkVMBlitter handles all the coordination of unpremul itself, via premul.
-    SkColorInfo tweaked = dst.alphaType() == kUnpremul_SkAlphaType
-                           ? dst.makeAlphaType(kPremul_SkAlphaType)
-                           : dst;
 
     // Force opaque alpha for all opaque shaders.
     //
@@ -218,10 +222,32 @@ skvm::Color SkShaderBase::program(skvm::Builder* p,
     // shader program hash and blitter Key.  This makes it safe for us to use
     // that bit to make decisions when constructing an SkVMBlitter, like doing
     // SrcOver -> Src strength reduction.
-    if (auto color = this->onProgram(p, device,local, paint, matrices,localM, quality,tweaked,
-                                     uniforms,alloc)) {
+    if (skvm::Color color = this->onProgram(p,
+                                            device, local, paint,
+                                            matrices, localM,
+                                            quality, hide_unpremul(dst),
+                                            uniforms, alloc)) {
         if (this->isOpaque()) {
             color.a = p->splat(1.0f);
+        }
+        return color;
+    }
+    return {};
+}
+
+// The same flow as the f32 program() above.
+skvm::ColorQ SkShaderBase::program(skvm::Builder* p,
+                                   skvm::CoordQ device, skvm::CoordQ local, skvm::ColorQ paint,
+                                   const SkMatrixProvider& matrices, const SkMatrix* localM,
+                                   SkFilterQuality quality, const SkColorInfo& dst,
+                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    if (skvm::ColorQ color = this->onProgram(p,
+                                             device, local, paint,
+                                             matrices, localM,
+                                             quality, hide_unpremul(dst),
+                                             uniforms, alloc)) {
+        if (this->isOpaque()) {
+            color.a = p->splat_Q14(1.0f);
         }
         return color;
     }
@@ -233,7 +259,16 @@ skvm::Color SkShaderBase::onProgram(skvm::Builder*,
                                     const SkMatrixProvider&, const SkMatrix* localM,
                                     SkFilterQuality quality, const SkColorInfo& dst,
                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    // SkDebugf("cannot onProgram %s\n", this->getTypeName());
+    // SkDebugf("cannot %s::onProgram(f32)\n", this->getTypeName());
+    return {};
+}
+
+skvm::ColorQ SkShaderBase::onProgram(skvm::Builder*,
+                                     skvm::CoordQ device, skvm::CoordQ local, skvm::ColorQ paint,
+                                     const SkMatrixProvider&, const SkMatrix* localM,
+                                     SkFilterQuality quality, const SkColorInfo& dst,
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    // SkDebugf("cannot %s::onProgram(q14)\n", this->getTypeName());
     return {};
 }
 

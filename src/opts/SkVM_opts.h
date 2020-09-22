@@ -307,24 +307,24 @@ namespace SK_OPTS_NS {
                         r[d].f32 = skvx::from_half(skvx::cast<uint16_t>(r[x].i32));
                         break;
 
-                    CASE(Op::add_q14x2): r[d].i16x2 = r[x].i16x2 + r[y].i16x2; break;
-                    CASE(Op::sub_q14x2): r[d].i16x2 = r[x].i16x2 - r[y].i16x2; break;
-                    CASE(Op::mul_q14x2): r[d].i16x2 = mul_q14(r[x].i16x2, r[y].i16x2); break;
+                    CASE(Op::add_q14): r[d].i16x2 = r[x].i16x2 + r[y].i16x2; break;
+                    CASE(Op::sub_q14): r[d].i16x2 = r[x].i16x2 - r[y].i16x2; break;
+                    CASE(Op::mul_q14): r[d].i16x2 = mul_q14(r[x].i16x2, r[y].i16x2); break;
 
-                    CASE(Op::shl_q14x2): r[d].i16x2 = r[x].i16x2 << immy; break;
-                    CASE(Op::sra_q14x2): r[d].i16x2 = r[x].i16x2 >> immy; break;
-                    CASE(Op::shr_q14x2): r[d].u16x2 = r[x].u16x2 >> immy; break;
+                    CASE(Op::shl_q14): r[d].i16x2 = r[x].i16x2 << immy; break;
+                    CASE(Op::sra_q14): r[d].i16x2 = r[x].i16x2 >> immy; break;
+                    CASE(Op::shr_q14): r[d].u16x2 = r[x].u16x2 >> immy; break;
 
-                    CASE(Op::eq_q14x2): r[d].i16x2 = r[x].i16x2 == r[y].i16x2; break;
-                    CASE(Op::gt_q14x2): r[d].i16x2 = r[x].i16x2 >  r[y].i16x2; break;
+                    CASE(Op::eq_q14): r[d].i16x2 = r[x].i16x2 == r[y].i16x2; break;
+                    CASE(Op::gt_q14): r[d].i16x2 = r[x].i16x2 >  r[y].i16x2; break;
 
-                    CASE(Op:: min_q14x2): r[d].i16x2 = min(r[x].i16x2, r[y].i16x2); break;
-                    CASE(Op:: max_q14x2): r[d].i16x2 = max(r[x].i16x2, r[y].i16x2); break;
-                    CASE(Op::umin_q14x2): r[d].u16x2 = min(r[x].u16x2, r[y].u16x2); break;
+                    CASE(Op:: min_q14): r[d].i16x2 = min(r[x].i16x2, r[y].i16x2); break;
+                    CASE(Op:: max_q14): r[d].i16x2 = max(r[x].i16x2, r[y].i16x2); break;
+                    CASE(Op::umin_q14): r[d].u16x2 = min(r[x].u16x2, r[y].u16x2); break;
 
                     // Happily, Clang can see through this one and generates perfect code
                     // using vpavgw without any help from us!
-                    CASE(Op::uavg_q14x2):
+                    CASE(Op::uavg_q14):
                         r[d].u16x2 = skvx::cast<uint16_t>( (skvx::cast<int>(r[x].u16x2) +
                                                             skvx::cast<int>(r[y].u16x2) + 1)>>1 );
                         break;
