@@ -29,32 +29,32 @@ struct Constructor : public Expression {
     static constexpr Kind kExpressionKind = Kind::kConstructor;
 
     Constructor(int offset, const Type* type, std::vector<std::unique_ptr<Expression>> arguments)
-    : INHERITED(offset, kExpressionKind, type)
-    , fArguments(std::move(arguments)) {}
+            : INHERITED(offset, kExpressionKind, type)
+            , fArguments(std::move(arguments)) {}
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (fArguments.size() == 1 && fArguments[0]->kind() == Expression::Kind::kIntLiteral) {
+        if (fArguments.size() == 1 && fArguments[0]->is<IntLiteral>()) {
+            const Context& context = irGenerator.fContext;
             const Type& type = this->type();
+            int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
+
             if (type.isFloat()) {
                 // promote float(1) to 1.0
-                int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
-                return std::unique_ptr<Expression>(new FloatLiteral(irGenerator.fContext,
-                                                                    fOffset,
-                                                                    intValue));
+                return std::make_unique<FloatLiteral>(context, fOffset, intValue);
             } else if (type.isInteger()) {
                 // promote uint(1) to 1u
-                int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
-                return std::unique_ptr<Expression>(new IntLiteral(fOffset,
-                                                                  intValue,
-                                                                  &type));
+                return std::make_unique<IntLiteral>(fOffset, intValue, &type);
+            } else if (&type == context.fBool_Type.get()) {
+                // promote bool(k) to true/false
+                return std::make_unique<BoolLiteral>(context, fOffset, intValue != 0);
             }
         }
         return nullptr;
     }
 
     bool hasProperty(Property property) const override {
-        for (const auto& arg : fArguments) {
+        for (const std::unique_ptr<Expression>& arg: fArguments) {
             if (arg->hasProperty(property)) {
                 return true;
             }
@@ -64,19 +64,19 @@ struct Constructor : public Expression {
 
     std::unique_ptr<Expression> clone() const override {
         std::vector<std::unique_ptr<Expression>> cloned;
-        for (const auto& arg : fArguments) {
+        cloned.reserve(fArguments.size());
+        for (const std::unique_ptr<Expression>& arg: fArguments) {
             cloned.push_back(arg->clone());
         }
-        return std::unique_ptr<Expression>(new Constructor(fOffset, &this->type(),
-                                                           std::move(cloned)));
+        return std::make_unique<Constructor>(fOffset, &this->type(), std::move(cloned));
     }
 
     String description() const override {
         String result = this->type().description() + "(";
-        String separator;
-        for (size_t i = 0; i < fArguments.size(); i++) {
+        const char* separator = "";
+        for (const std::unique_ptr<Expression>& arg: fArguments) {
             result += separator;
-            result += fArguments[i]->description();
+            result += arg->description();
             separator = ", ";
         }
         result += ")";
@@ -84,8 +84,8 @@ struct Constructor : public Expression {
     }
 
     bool isCompileTimeConstant() const override {
-        for (size_t i = 0; i < fArguments.size(); i++) {
-            if (!fArguments[i]->isCompileTimeConstant()) {
+        for (const std::unique_ptr<Expression>& arg: fArguments) {
+            if (!arg->isCompileTimeConstant()) {
                 return false;
             }
         }
@@ -93,8 +93,8 @@ struct Constructor : public Expression {
     }
 
     bool isConstantOrUniform() const override {
-        for (size_t i = 0; i < fArguments.size(); i++) {
-            if (!fArguments[i]->isConstantOrUniform()) {
+        for (const std::unique_ptr<Expression>& arg: fArguments) {
+            if (!arg->isConstantOrUniform()) {
                 return false;
             }
         }
