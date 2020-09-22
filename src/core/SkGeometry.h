@@ -72,10 +72,17 @@ inline float SkMeasureQuadRotation(const SkPoint pts[3]) {
     return SkMeasureAngleInsideVectors(pts[1] - pts[0], pts[2] - pts[1]);
 }
 
+/** Given a src quadratic bezier, returns the T value whose tangent angle is halfway between the
+    tangents at p0 and p3.
+*/
+float SkFindQuadMidTangent(const SkPoint src[4]);
+
 /** Given a src quadratic bezier, chop it at the tangent whose angle is halfway between the
     tangents at p0 and p2. The new quads are returned in dst[0..2] and dst[2..4].
 */
-void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]);
+inline void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
+    SkChopQuadAt(src, dst, SkFindQuadMidTangent(src));
+}
 
 /** Given the 3 coefficients for a quadratic bezier (either X or Y values), look
     for extrema, and return the number of t-values that are found that represent
@@ -158,6 +165,11 @@ void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]);
 */
 float SkMeasureNonInflectCubicRotation(const SkPoint[4]);
 
+/** Given a src cubic bezier, returns the T value whose tangent angle is halfway between the
+    tangents at p0 and p3.
+*/
+float SkFindCubicMidTangent(const SkPoint src[4]);
+
 /** Given a src cubic bezier, chop it at the tangent whose angle is halfway between the
     tangents at p0 and p3. The new cubics are returned in dst[0..3] and dst[3..6].
 
@@ -166,7 +178,9 @@ float SkMeasureNonInflectCubicRotation(const SkPoint[4]);
     If this is the case then we simply chop at a point which guarantees neither side rotates more
     than 180 degrees.
 */
-void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]);
+inline void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
+    SkChopCubicAt(src, dst, SkFindCubicMidTangent(src));
+}
 
 /** Given the 4 coefficients for a cubic bezier (either X or Y values), look
     for extrema, and return the number of t-values that are found that represent
