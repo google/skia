@@ -39,6 +39,8 @@ static SkPixelGeometry compute_default_geometry() {
     }
 }
 
+const SkSurfaceProps SkSurfaceProps::kDefaultProps{};
+
 SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
 
 SkSurfaceProps::SkSurfaceProps(InitType) : fFlags(0), fPixelGeometry(compute_default_geometry()) {}

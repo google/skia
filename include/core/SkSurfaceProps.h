@@ -56,6 +56,7 @@ public:
     /** Deprecated alias used by Chromium. Will be removed. */
     static const Flags kUseDistanceFieldFonts_Flag = kUseDeviceIndependentFonts_Flag;
 
+    SkSurfaceProps();
     SkSurfaceProps(uint32_t flags, SkPixelGeometry);
 
     enum InitType {
@@ -65,6 +66,10 @@ public:
     SkSurfaceProps(uint32_t flags, InitType);
     SkSurfaceProps(const SkSurfaceProps&);
     SkSurfaceProps& operator=(const SkSurfaceProps&);
+
+    // Returns a pointer to a default-constructed SkSurfaceProps; useful to prevent having to
+    // create a temporary variable when calling APIs that take a pointer.
+    static const SkSurfaceProps* Default() { return &kDefaultProps; }
 
     uint32_t flags() const { return fFlags; }
     SkPixelGeometry pixelGeometry() const { return fPixelGeometry; }
@@ -81,7 +86,7 @@ public:
         return !(*this == that);
     }
 private:
-    SkSurfaceProps();
+    static const SkSurfaceProps kDefaultProps;
 
     uint32_t        fFlags;
     SkPixelGeometry fPixelGeometry;
