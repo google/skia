@@ -52,6 +52,24 @@
       "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc53fca9_456763b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9563
+      },
+      "writtenOn": "2020-09-22T20:17:06Z",
+      "side": 1,
+      "message": "I see. If there\u0027s really no difference between flush(newState) and flush+setState; then I don\u0027t feel strongly.",
+      "parentUuid": "eed25bf8_414f9a44",
+      "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
