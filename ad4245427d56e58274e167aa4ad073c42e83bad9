@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a79f1b5_6622d523",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-22T15:04:19Z",
+      "side": 1,
+      "message": "Looks like we add a temporary in a couple cases, but remove quite a few in others. Seems like a win overall.",
+      "revId": "ad4245427d56e58274e167aa4ad073c42e83bad9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
