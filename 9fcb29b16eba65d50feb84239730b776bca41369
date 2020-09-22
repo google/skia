@@ -34,6 +34,24 @@
       "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ebfd8be_b344571a",
+        "filename": "third_party/d3dmemoryallocator/LICENSE",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-22T19:39:02Z",
+      "side": 1,
+      "message": "Greg, do you remember why we did that? Maybe it was to shut up Flutter\u0027s license script. I suppose it is just covering the BUILD.gn since there is a LICENSE.txt in the src/ subdir with the actual third party code.",
+      "parentUuid": "d9db6ff9_42601d8c",
+      "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
