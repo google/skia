@@ -34,6 +34,24 @@
       "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eed25bf8_414f9a44",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-22T20:10:25Z",
+      "side": 1,
+      "message": "We could make it not optional (once we update Chromes uses to pass it in of course) if we think that is best. The reason I didn\u0027t make it required is that for non vulkan to vulkan transfers (gl \u003c-\u003e vulkan, AHB-\u003evulkan, etc.) it has generally not been required to have the src layout. Now I know some of those there has been confusion in the past and it isn\u0027t clear what to do, like when importing a AHB from foreign vs external what to use for the first srcLayout to make sure contents are preserved. Additionally, once we start integrating our other backends like GL, D3D, and Metal and want to use this API, it is not obvious they any of them would need to know previous state. So making it required and putting the burden on everything doesn\u0027t seem necessary at this time.\n\nI feel like I\u0027d rather not directly support this level of state changing directly with SkSurface::flush, but could be convinced otherwise. If the client is at a point where they are worrying about this level of detail they will need a GrBackendTexture regardless and can call the GrContext version. FWIW there is no difference in the code that gets produced by doing flush(newState) vs flush() \u0026 setState(newState). IMO I would rather the client use the second to be very specific about what they\u0027re trying to do here.",
+      "parentUuid": "d6580b14_b43ad068",
+      "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
