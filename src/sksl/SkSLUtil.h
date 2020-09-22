@@ -169,7 +169,7 @@ public:
         return fIntegerSupport;
     }
 
-    bool fBuiltinFMASupport = true;
+    bool fBuiltinFMASupport = false;
     bool builtinFMASupport() const {
         return fBuiltinFMASupport;
     }
