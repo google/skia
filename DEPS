@@ -52,6 +52,7 @@ deps = {
 recursedeps = [
   "common",
   "../src",
+  "third_party/externals/swiftshader",
 ]
 
 gclient_gn_args_from = 'src'
