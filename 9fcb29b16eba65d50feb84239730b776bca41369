@@ -142,6 +142,24 @@
       "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dad91293_c1175678",
+        "filename": "third_party/d3dmemoryallocator/LICENSE",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-22T20:34:41Z",
+      "side": 1,
+      "message": "I did that, but the Housekeeper bot wasn\u0027t passing it.",
+      "parentUuid": "bd7df0de_5ba3a63c",
+      "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
