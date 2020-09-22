@@ -7,6 +7,8 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkMathPriv.h"
@@ -19,6 +21,12 @@
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrProxyProvider.h"
+#include "src/gpu/GrRenderTarget.h"
+#include "src/gpu/SkGpuDevice.h"
+#include "tests/Test.h"
+#include "tests/TestUtils.h"
+#include "tools/ToolUtils.h"
+#include "tools/gpu/BackendSurfaceFactory.h"
 
 #include <initializer_list>
 
@@ -462,21 +470,13 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
         return;
     }
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
-        GrBackendTexture backendTex;
-        CreateBackendTexture(dContext, &backendTex, DEV_W, DEV_H, kRGBA_8888_SkColorType,
-                             SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
-                             GrProtected::kNo);
-        if (!backendTex.isValid()) {
-            continue;
-        }
         SkColorType colorType = kN32_SkColorType;
-        sk_sp<SkSurface> surface(SkSurface::MakeFromBackendTextureAsRenderTarget(
-                dContext, backendTex, origin, sampleCnt, colorType, nullptr, nullptr));
+        auto surface = MakeBackendRenderTargetSurface(dContext, {DEV_W, DEV_H}, sampleCnt, origin,
+                                                      colorType);
         if (surface) {
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);
         }
-        dContext->deleteBackendTexture(backendTex);
     }
 }
 
