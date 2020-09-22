@@ -70,9 +70,12 @@ public:
 
     void dropAllRefs()  SK_EXCLUDES(fSpinLock);
 
-    // Drop uniquely held refs subject to some requirement (e.g., budget, time last accessed).
-    // A null parameter means drop all uniquely held refs
+    // Drop uniquely held refs until under the resource cache's budget.
+    // A null parameter means drop all uniquely held refs.
     void dropUniqueRefs(GrResourceCache* resourceCache)  SK_EXCLUDES(fSpinLock);
+
+    // Drop uniquely held refs that were last accessed before 'purgeTime'
+    void dropUniqueRefsOlderThan(GrStdSteadyClock::time_point purgeTime)  SK_EXCLUDES(fSpinLock);
 
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
@@ -83,8 +86,9 @@ private:
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
 
         // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        GrUniqueKey        fKey;
-        GrSurfaceProxyView fView;
+        GrUniqueKey                  fKey;
+        GrSurfaceProxyView           fView;
+        GrStdSteadyClock::time_point fLastAccess;
 
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
 
