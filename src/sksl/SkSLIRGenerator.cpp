@@ -2032,7 +2032,25 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
     if (found != fIntrinsics->end() && !found->second.fAlreadyIncluded) {
         found->second.fAlreadyIncluded = true;
         FunctionDefinition& original = found->second.fIntrinsic->as<FunctionDefinition>();
-        for (const FunctionDeclaration* f : original.fReferencedIntrinsics) {
+
+        // Sort the referenced intrinsics into a consistent order; otherwise our output will become
+        // non-deterministic.
+        std::vector<const FunctionDeclaration*> intrinsics(original.fReferencedIntrinsics.begin(),
+                                                           original.fReferencedIntrinsics.end());
+        std::sort(intrinsics.begin(), intrinsics.end(),
+                  [](const FunctionDeclaration* a, const FunctionDeclaration* b) {
+                      if (a->fBuiltin != b->fBuiltin) {
+                          return a->fBuiltin < b->fBuiltin;
+                      }
+                      if (a->fOffset != b->fOffset) {
+                          return a->fOffset < b->fOffset;
+                      }
+                      if (a->fName != b->fName) {
+                          return a->fName < b->fName;
+                      }
+                      return a->description() < b->description();
+                  });
+        for (const FunctionDeclaration* f : intrinsics) {
             this->copyIntrinsicIfNeeded(*f);
         }
         fProgramElements->push_back(original.clone());
