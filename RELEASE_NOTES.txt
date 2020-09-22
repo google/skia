@@ -9,6 +9,10 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * Add new optional parameter to GrContext::setBackend[Texture/RenderTarget]State which can
+    be used to return the previous GrBackendSurfaceMutableState before the requested change.
+    https://review.skia.org/318698
+
   * New optimized clip stack for GPU backends. Enabled by default but old behavior based on
     SkClipStack can be restored by defining SK_DISABLE_NEW_GR_CLIP_STACK when building. It is not
     compatible with SK_SUPPORT_DEPRECATED_CLIPOPS and we are targeting the removal of support for
