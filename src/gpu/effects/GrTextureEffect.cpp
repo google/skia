@@ -479,8 +479,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                 case ShaderMode::kRepeat_Nearest_None:
                 case ShaderMode::kRepeat_Linear_None:
                     fb->codeAppendf(
-                            "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + "
-                            "%s.%s;",
+                            "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + %s.%s;",
                             coordSwizzle, coordSwizzle, subsetName, subsetStartSwizzle, subsetName,
                             subsetStopSwizzle, subsetName, subsetStartSwizzle, subsetName,
                             subsetStartSwizzle);
@@ -514,10 +513,8 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     // sample taken using subsetCoord and a sample at extraCoord.
                     fb->codeAppend("float hw = w/2;");
                     fb->codeAppend("float n = mod(d - hw, w2);");
-                    fb->codeAppendf(
-                            "%s = saturate(half(mix(n, w2 - n, step(w, n)) - hw + "
-                            "0.5));",
-                            coordWeight);
+                    fb->codeAppendf("%s = saturate(half(mix(n, w2 - n, step(w, n)) - hw + 0.5));",
+                                    coordWeight);
                     fb->codeAppend("}");
                     break;
                 case ShaderMode::kMirrorRepeat:
@@ -558,14 +555,17 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         bool mipmapRepeatY = m[1] == ShaderMode::kRepeat_Nearest_Mipmap ||
                              m[1] == ShaderMode::kRepeat_Linear_Mipmap;
 
+        if (mipmapRepeatX || mipmapRepeatY) {
+            fb->codeAppend("float2 extraRepeatCoord;");
+        }
         if (mipmapRepeatX) {
-            fb->codeAppend("float extraRepeatCoordX; half repeatCoordWeightX;");
-            extraRepeatCoordX   = "extraRepeatCoordX";
+            fb->codeAppend("half repeatCoordWeightX;");
+            extraRepeatCoordX   = "extraRepeatCoord.x";
             repeatCoordWeightX  = "repeatCoordWeightX";
         }
         if (mipmapRepeatY) {
-            fb->codeAppend("float extraRepeatCoordY; half repeatCoordWeightY;");
-            extraRepeatCoordY   = "extraRepeatCoordY";
+            fb->codeAppend("half repeatCoordWeightY;");
+            extraRepeatCoordY   = "extraRepeatCoord.y";
             repeatCoordWeightY  = "repeatCoordWeightY";
         }
 
@@ -574,17 +574,22 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         subsetCoord(te.fShaderModes[0], "x", "x", "z", extraRepeatCoordX, repeatCoordWeightX);
         subsetCoord(te.fShaderModes[1], "y", "y", "w", extraRepeatCoordY, repeatCoordWeightY);
         fb->codeAppend("float2 clampedCoord;");
-        clampCoord(useClamp[0], "x", "x", "z");
-        clampCoord(useClamp[1], "y", "y", "w");
-
-        // Additional clamping for the extra coords for kRepeat with mip maps.
-        if (mipmapRepeatX) {
-            fb->codeAppendf("extraRepeatCoordX = clamp(extraRepeatCoordX, %s.x, %s.z);", clampName,
-                            clampName);
+        if (useClamp[0] == useClamp[1]) {
+            clampCoord(useClamp[0], "xy", "xy", "zw");
+        } else {
+            clampCoord(useClamp[0], "x", "x", "z");
+            clampCoord(useClamp[1], "y", "y", "w");
         }
-        if (mipmapRepeatY) {
-            fb->codeAppendf("extraRepeatCoordY = clamp(extraRepeatCoordY, %s.y, %s.w);", clampName,
-                            clampName);
+        // Additional clamping for the extra coords for kRepeat with mip maps.
+        if (mipmapRepeatX && mipmapRepeatY) {
+            fb->codeAppendf("extraRepeatCoord = clamp(extraRepeatCoord, %s.xy, %s.zw);",
+                            clampName, clampName);
+        } else if (mipmapRepeatX) {
+            fb->codeAppendf("extraRepeatCoord.x = clamp(extraRepeatCoord.x, %s.x, %s.z);",
+                            clampName, clampName);
+        } else if (mipmapRepeatY) {
+            fb->codeAppendf("extraRepeatCoord.y = clamp(extraRepeatCoord.y, %s.y, %s.w);",
+                            clampName, clampName);
         }
 
         // Do the 2 or 4 texture reads for kRepeatMipMap and then apply the weight(s)
@@ -597,18 +602,18 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "       mix(%s, %s, repeatCoordWeightX),"
                     "       repeatCoordWeightY);",
                     read("clampedCoord").c_str(),
-                    read("float2(extraRepeatCoordX, clampedCoord.y)").c_str(),
-                    read("float2(clampedCoord.x, extraRepeatCoordY)").c_str(),
-                    read("float2(extraRepeatCoordX, extraRepeatCoordY)").c_str());
+                    read("float2(extraRepeatCoord.x, clampedCoord.y)").c_str(),
+                    read("float2(clampedCoord.x, extraRepeatCoord.y)").c_str(),
+                    read("float2(extraRepeatCoord.x, extraRepeatCoord.y)").c_str());
 
         } else if (mipmapRepeatX) {
             fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightX);",
                             read("clampedCoord").c_str(),
-                            read("float2(extraRepeatCoordX, clampedCoord.y)").c_str());
+                            read("float2(extraRepeatCoord.x, clampedCoord.y)").c_str());
         } else if (mipmapRepeatY) {
             fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightY);",
                             read("clampedCoord").c_str(),
-                            read("float2(clampedCoord.x, extraRepeatCoordY)").c_str());
+                            read("float2(clampedCoord.x, extraRepeatCoord.y)").c_str());
         } else {
             fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
         }
@@ -685,15 +690,22 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         // Do hard-edge shader transition to border color for kClampToBorderNearest at the
         // subset boundaries. Snap the input coordinates to nearest neighbor (with an
         // epsilon) before comparing to the subset rect to avoid GPU interpolation errors
-        if (m[0] == ShaderMode::kClampToBorder_Nearest) {
+        if (m[0] == ShaderMode::kClampToBorder_Nearest &&
+            m[1] == ShaderMode::kClampToBorder_Nearest) {
+            fb->codeAppendf(
+                    "float2 snappedXY = floor(inCoord + float2(0.001)) + float2(0.5);"
+                    "if (any(lessThan(snappedXY, %s.xy)) || any(greaterThan(snappedXY, %s.zw))) {"
+                    "    textureColor = %s;"
+                    "}",
+                    subsetName, subsetName, borderName);
+        } else if (m[0] == ShaderMode::kClampToBorder_Nearest) {
             fb->codeAppendf(
                     "float snappedX = floor(inCoord.x + 0.001) + 0.5;"
                     "if (snappedX < %s.x || snappedX > %s.z) {"
                     "    textureColor = %s;"
                     "}",
                     subsetName, subsetName, borderName);
-        }
-        if (m[1] == ShaderMode::kClampToBorder_Nearest) {
+        } else if (m[1] == ShaderMode::kClampToBorder_Nearest) {
             fb->codeAppendf(
                     "float snappedY = floor(inCoord.y + 0.001) + 0.5;"
                     "if (snappedY < %s.y || snappedY > %s.w) {"
@@ -701,6 +713,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "}",
                     subsetName, subsetName, borderName);
         }
+
         fb->codeAppendf("%s = textureColor;", args.fOutputColor);
     }
 }
