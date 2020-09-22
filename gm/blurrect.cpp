@@ -245,6 +245,9 @@ namespace skiagm {
 
 // Compares actual blur rects with reference masks created by the GM. Animates sigma in viewer.
 class BlurRectCompareGM : public GM {
+public:
+    BlurRectCompareGM(bool rotate = true) : fRotate(rotate) {}
+
 protected:
     SkString onShortName() override { return SkString("blurrect_compare"); }
 
@@ -305,15 +308,17 @@ protected:
                         }
                         auto pad = PadForSigma(sigma);
                         canvas->drawImage(img, -pad, -pad, &paint);
-#if 0  // Uncomment to hairline stroke around blurred rect in red on top of the blur result.
-       // The rect is defined at integer coords. We inset by 1/2 pixel so our stroke lies on top
-       // of the edge pixels.
-                        SkPaint stroke;
-                        stroke.setColor(SK_ColorRED);
-                        stroke.setStrokeWidth(0.f);
-                        stroke.setStyle(SkPaint::kStroke_Style);
-                        canvas->drawRect(SkRect::MakeWH(w, h).makeInset(0.5, 0.5), stroke);
-#endif
+                        // Uncomment to hairline stroke around blurred rect in red on top of the
+                        // blur result. The rect is defined at integer coords. We inset by 1/2 pixel
+                        // so our stroke lies on top of the edge pixels. Doesn't work well for
+                        // rotation variation.
+                        if (0) {
+                            SkPaint stroke;
+                            stroke.setColor(SK_ColorRED);
+                            stroke.setStrokeWidth(0.f);
+                            stroke.setStyle(SkPaint::kStroke_Style);
+                            canvas->drawRect(SkRect::MakeWH(w, h).makeInset(0.5, 0.5), stroke);
+                        }
                         canvas->translate(w + kMargin, 0.f);
                     }
                     canvas->restore();
@@ -404,6 +409,20 @@ private:
         }
     }
 
+    SkISize getRotationOffscreenPad(int w, int h) {
+        if (!fRotate) {
+            return {0, 0};
+        }
+        auto origRect = SkRect::MakeWH(w, h);
+        SkMatrix m;
+        m.setRotate(kAngle, w/2, h/2);
+        SkRect devBounds;
+        m.mapRect(&devBounds, origRect);
+        SkVector diff = {(devBounds.width()  - origRect.width() )/2.f,
+                         (devBounds.height() - origRect.height())/2.f};
+        return {SkScalarCeilToInt(diff.fX), SkScalarCeilToInt(diff.fY)};
+    }
+
     void prepareActualMasks(SkCanvas* canvas) {
         for (size_t sigmaIdx = 0; sigmaIdx < kNumSigmas; ++sigmaIdx) {
             auto sigma = kSigmas[sigmaIdx] + fSigmaAnimationBoost;
@@ -411,23 +430,29 @@ private:
                 auto h = kSizes[heightIdx];
                 for (size_t widthIdx = 0; widthIdx < kNumSizes; ++widthIdx) {
                     auto w = kSizes[widthIdx];
-                    auto pad = PadForSigma(sigma);
-                    auto ii = SkImageInfo::MakeA8(w + 2 * pad, h + 2 * pad);
+                    int sigmaPad = PadForSigma(sigma);
+                    SkISize rotationPad = this->getRotationOffscreenPad(w, h);
+                    SkISize pad{sigmaPad + rotationPad.fWidth, sigmaPad + rotationPad.fHeight};
+
+                    auto ii = SkImageInfo::MakeA8(w + 2 * pad.fWidth, h + 2 * pad.fHeight);
                     auto surf = canvas->makeSurface(ii);
-                    if (!surf) {
+                    if (!surf || true) {
                         // Some GPUs don't have renderable A8 :(
                         surf = canvas->makeSurface(ii.makeColorType(kRGBA_8888_SkColorType));
                         if (!surf) {
                             return;
                         }
                     }
-                    auto rect = SkRect::MakeXYWH(pad, pad, w, h);
+                    auto rectToDraw = SkRect::MakeXYWH(pad.fWidth, pad.fHeight, w, h);
                     SkPaint paint;
                     // Color doesn't matter if we're rendering to A8 but does if we promoted to
                     // RGBA above.
                     paint.setColor(SK_ColorWHITE);
                     paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma));
-                    surf->getCanvas()->drawRect(rect, paint);
+                    if (fRotate) {
+                        surf->getCanvas()->rotate(kAngle, rectToDraw.centerX(), rectToDraw.centerY());
+                    }
+                    surf->getCanvas()->drawRect(rectToDraw, paint);
                     fActualMasks[sigmaIdx][heightIdx][widthIdx] = surf->makeImageSnapshot();
                 }
             }
@@ -470,12 +495,20 @@ private:
                     paint.setColorFilter(std::move(greenifyCF));
                     surf->getCanvas()->drawImage(a, 0, 0, &paint);
                     paint.setBlendMode(SkBlendMode::kDifference);
+                    if (fRotate) {
+                        SkISize offset = this->getRotationOffscreenPad(kSizes[widthIdx], kSizes[heightIdx]);
+                        surf->getCanvas()->translate(offset.fWidth, offset.fHeight);
+                        surf->getCanvas()->rotate(kAngle, r->width()/2.f, r->height()/2.f);
+                        paint.setFilterQuality(kLow_SkFilterQuality);
+                    }
                     surf->getCanvas()->drawImage(r, 0, 0, &paint);
                     d = surf->makeImageSnapshot();
                 }
             }
         }
     }
+
+    static constexpr SkScalar kAngle = 30.f;
 
     // Per side padding around mask images for a sigma. Make this overly generous to ensure bugs
     // related to big blurs are fully visible.
@@ -493,6 +526,7 @@ private:
     // These are used only when animating.
     float fSigmaAnimationBoost = 0;
     bool fRecalcMasksForAnimation = false;
+    bool fRotate = false;
 };
 
 // Delete these when C++17.

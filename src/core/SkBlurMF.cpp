@@ -695,9 +695,11 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         return false;
     }
 
+#if 0
     if (!viewMatrix.isScaleTranslate()) {
         return false;
     }
+#endif
 
     // TODO: we could handle blurred stroked circles
     if (!shape.style().isSimpleFill()) {
@@ -715,24 +717,26 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
         return false;
     }
 
-    SkRRect devRRect;
-    if (!srcRRect.transform(viewMatrix, &devRRect)) {
-        return false;
-    }
-
-    if (!SkRRectPriv::AllCornersCircular(devRRect)) {
-        return false;
-    }
+    //SkRRect devRRect;
+    //if (!srcRRect.transform(viewMatrix, &devRRect)) {
+//        return false;
+//    }
 
     std::unique_ptr<GrFragmentProcessor> fp;
 
-    if (devRRect.isRect() || SkRRectPriv::IsCircle(devRRect)) {
-        if (devRRect.isRect()) {
+    bool canBeRect = srcRRect.isRect() && viewMatrix.preservesRightAngles();
+    bool canBeCircle = SkRRectPriv::IsCircle(srcRRect) && viewMatrix.isSimilarity();
+    if (canBeRect || canBeCircle) {
+        if (canBeRect) {
             fp = GrRectBlurEffect::Make(
                     /*inputFP=*/nullptr, context, *context->priv().caps()->shaderCaps(),
-                    devRRect.rect(), xformedSigma);
+                    srcRRect.rect(), viewMatrix, xformedSigma);
         } else {
-            fp = GrCircleBlurFragmentProcessor::Make(/*inputFP=*/nullptr, context, devRRect.rect(),
+            SkPoint center = {srcRRect.getBounds().centerX(), srcRRect.getBounds().centerY()};
+            viewMatrix.mapPoints(&center, 1);
+            SkScalar radius = viewMatrix.mapVector(0, srcRRect.width()/2.f).length();
+            SkRect devBounds = SkRect::MakeXYWH(center.x(), center.y(), 0, 0).makeOutset(radius, radius);
+            fp = GrCircleBlurFragmentProcessor::Make(/*inputFP=*/nullptr, context, devBounds,
                                                      xformedSigma);
         }
 
@@ -748,13 +752,20 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrRecordingContext* context,
             // When we're ignoring the CTM the padding added to the source rect also needs to ignore
             // the CTM. The matrix passed in here is guaranteed to be just scale and translate so we
             // can just grab the X and Y scales off the matrix and pre-undo the scale.
-            outsetX /= SkScalarAbs(viewMatrix.getScaleX());
-            outsetY /= SkScalarAbs(viewMatrix.getScaleY());
+            //outsetX /= SkScalarAbs(viewMatrix.getScaleX());
+            //outsetY /= SkScalarAbs(viewMatrix.getScaleY());
         }
         srcProxyRect.outset(outsetX, outsetY);
 
         renderTargetContext->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
         return true;
+    }
+    SkRRect devRRect;
+    if (!srcRRect.transform(viewMatrix, &devRRect)) {
+        return false;
+    }
+    if (!viewMatrix.isScaleTranslate() || !SkRRectPriv::AllCornersCircular(devRRect)) {
+        return false;
     }
 
     fp = GrRRectBlurEffect::Make(/*inputFP=*/nullptr, context, fSigma, xformedSigma,

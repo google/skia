@@ -71,20 +71,26 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                      GrRecordingContext* context,
                                                      const GrShaderCaps& caps,
-                                                     const SkRect& rect,
-                                                     float sigma) {
-        SkASSERT(rect.isSorted());
+                                                     const SkRect& srcRect,
+                                                     const SkMatrix& viewMatrix,
+                                                     float transformedSigma) {
+        SkASSERT(viewMatrix.preservesRightAngles());
+        SkASSERT(srcRect.isSorted());
+        SkMatrix invVM;
+        if (!viewMatrix.invert(&invVM)) {
+            return nullptr;
+        }
         if (!caps.floatIs32Bits()) {
             // We promote the math that gets us into the Gaussian space to full float when the rect
             // coords are large. If we don't have full float then fail. We could probably clip the
             // rect to an outset device bounds instead.
-            if (SkScalarAbs(rect.fLeft) > 16000.f || SkScalarAbs(rect.fTop) > 16000.f ||
-                SkScalarAbs(rect.fRight) > 16000.f || SkScalarAbs(rect.fBottom) > 16000.f) {
+            if (SkScalarAbs(srcRect.fLeft) > 16000.f || SkScalarAbs(srcRect.fTop) > 16000.f ||
+                SkScalarAbs(srcRect.fRight) > 16000.f || SkScalarAbs(srcRect.fBottom) > 16000.f) {
                 return nullptr;
             }
         }
 
-        const float sixSigma = 6 * sigma;
+        const float sixSigma = 6 * transformedSigma;
         std::unique_ptr<GrFragmentProcessor> integral = MakeIntegralFP(context, sixSigma);
         if (!integral) {
             return nullptr;
@@ -95,36 +101,41 @@ public:
         // inset the rect so that the edge of the inset rect corresponds to t = 0 in the texture.
         // It actually simplifies things a bit in the !isFast case, too.
         float threeSigma = sixSigma / 2;
-        SkRect insetRect = {rect.fLeft + threeSigma, rect.fTop + threeSigma,
-                            rect.fRight - threeSigma, rect.fBottom - threeSigma};
+        SkRect insetRect = {srcRect.fLeft + threeSigma, srcRect.fTop + threeSigma,
+                            srcRect.fRight - threeSigma, srcRect.fBottom - threeSigma};
 
         // In our fast variant we find the nearest horizontal and vertical edges and for each
         // do a lookup in the integral texture for each and multiply them. When the rect is
         // less than 6 sigma wide then things aren't so simple and we have to consider both the
         // left and right edge of the rectangle (and similar in y).
-        bool isFast = insetRect.isSorted();
+        bool isFast = insetRect.isSorted() && false;
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrRectBlurEffect(std::move(inputFP), insetRect, std::move(integral), isFast,
-                                     GrSamplerState::Filter::kLinear));
+                new GrRectBlurEffect(std::move(inputFP), insetRect, !viewMatrix.isIdentity(), invVM,
+                                     std::move(integral), isFast));
     }
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
     bool usesExplicitReturn() const override;
     SkRect rect;
+    bool applyInvVM;
+    SkMatrix invVM;
     bool isFast;
 
 private:
     GrRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                      SkRect rect,
+                     bool applyInvVM,
+                     SkMatrix invVM,
                      std::unique_ptr<GrFragmentProcessor> integral,
-                     bool isFast,
-                     GrSamplerState samplerParams)
+                     bool isFast)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
                                                     : kAll_OptimizationFlags) &
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
+            , applyInvVM(applyInvVM)
+            , invVM(invVM)
             , isFast(isFast) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(integral);

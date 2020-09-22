@@ -352,6 +352,12 @@ public:
         return fMat[index];
     }
 
+    SkScalar rc(int r, int c) const {
+        SkASSERT(r >= 0 && r <= 2);
+        SkASSERT(c >= 0 && c <= 2);
+        return fMat[r*3 + c];
+    }
+
     /** Returns scale factor multiplied by x-axis input, contributing to x-axis output.
         With mapPoints(), scales SkPoint along the x-axis.
 
