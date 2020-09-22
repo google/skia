@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "d9f65799_b28625ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-22T20:31:05Z",
+      "side": 1,
+      "message": "Maybe overkill but in my local version of this I updated the assert9 function in MatrixTest.cpp to read:\n\n static void assert9(skiatest::Reporter* reporter, const SkMatrix\u0026 m,\n                     SkScalar a, SkScalar b, SkScalar c,\n                     SkScalar d, SkScalar e, SkScalar f,\n                     SkScalar g, SkScalar h, SkScalar i) {\n     SkScalar buffer[9];\n     m.get9(buffer);\n     REPORTER_ASSERT(reporter, buffer[0] \u003d\u003d a);\n     REPORTER_ASSERT(reporter, buffer[1] \u003d\u003d b);\n     REPORTER_ASSERT(reporter, buffer[2] \u003d\u003d c);\n     REPORTER_ASSERT(reporter, buffer[3] \u003d\u003d d);\n     REPORTER_ASSERT(reporter, buffer[4] \u003d\u003d e);\n     REPORTER_ASSERT(reporter, buffer[5] \u003d\u003d f);\n     REPORTER_ASSERT(reporter, buffer[6] \u003d\u003d g);\n     REPORTER_ASSERT(reporter, buffer[7] \u003d\u003d h);\n     REPORTER_ASSERT(reporter, buffer[8] \u003d\u003d i);\n\n     REPORTER_ASSERT(reporter, m.rc(0, 0) \u003d\u003d a);\n     REPORTER_ASSERT(reporter, m.rc(0, 1) \u003d\u003d b);\n     REPORTER_ASSERT(reporter, m.rc(0, 2) \u003d\u003d c);\n     REPORTER_ASSERT(reporter, m.rc(1, 0) \u003d\u003d d);\n     REPORTER_ASSERT(reporter, m.rc(1, 1) \u003d\u003d e);\n     REPORTER_ASSERT(reporter, m.rc(1, 2) \u003d\u003d f);\n     REPORTER_ASSERT(reporter, m.rc(2, 0) \u003d\u003d g);\n     REPORTER_ASSERT(reporter, m.rc(2, 1) \u003d\u003d h);\n     REPORTER_ASSERT(reporter, m.rc(2, 2) \u003d\u003d i);\n }\n\n\n",
+      "revId": "3f99c5e69aa18f07ae697ea8065df756161bd6b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20c7af2b_bc850f4b",
         "filename": "include/core/SkM44.h",
         "patchSetId": 2
