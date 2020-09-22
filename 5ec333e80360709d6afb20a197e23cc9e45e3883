@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8587a9ce_479d623c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-22T15:27:17Z",
+      "side": 1,
+      "message": "blocked on: https://chromium-review.googlesource.com/c/chromium/src/+/2423062/",
+      "revId": "5ec333e80360709d6afb20a197e23cc9e45e3883",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1be782ae_a1c59de0",
         "filename": "src/gpu/GrDDLContext.cpp",
         "patchSetId": 10
