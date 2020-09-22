@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ca7b007_226111f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-22T18:41:08Z",
+      "side": 1,
+      "message": "Okay so this change adds the optional param to the GrContext calls for the previous state and adds getters to GrBackendSurfaceMutableState. My only hesitation with this CL is that it isn\u0027t adding anything the client couldn\u0027t do today.\n\nThe general flow of calls with this change would be (when exporting from skia to another vulkan context):\n1) flush all the GrContext/SkSurfaces that are needed to happen before the state change.\n2) Call GrContext::setBackendTextureState with the newState and a struct to get the previousState.\n3) Call getImageLayout and getQueueFamilyIndex on the previousState to use when importing to another vulkan context.\n\nNow today the client can get the information in 3) by just calling the equivalent functions on GrBackendTexture before doing 2). So the only real advantage of this CL is that the caller doesn\u0027t have to remember to get the info off the GrBackendTexture before making the call and instead let all the work happen in one place.\n\nIf we think the client wants to hang on the previous GrBackendSurfaceMutableState as in API agnostic struct longer, we could also add a getter for that on GrBackendTexture (which it currently doesn\u0027t have). So the fact that the client now has a GrBackendSurfaceMutableState object isn\u0027t really an advantage that is unique to doing this change.\n\nWhat are your thoughts on this API?",
+      "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
