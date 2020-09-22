@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9385e34a_c315b3c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-22T20:32:08Z",
+      "side": 1,
+      "message": "The coverage FP use in MSAA led to some good perf improvements: https://perf.skia.org/e/?begin\u003d1600728121\u0026end\u003d1600797670\u0026keys\u003dXcf03c6f478baf8bec327a0f42d13f3a6\u0026num_commits\u003d50\u0026request_type\u003d1\u0026xbaroffset\u003d50822 but did not fully address the gmail site regressions for all devices. I am guessing that the other larger perf wins that were detected were from skipping stencil rendering for round rects, etc.\n\nWe could call it good enough, since these really were artificial scenarios with a scale factor, but if we don\u0027t want to do that, this CL brings back the policy of all non-AA axis-aligned rects as scissors, regardless of whether or not MSAA can be disabled.",
+      "revId": "7b4dd45651c44bffbffaf9eef17c05053a2c0c83",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
