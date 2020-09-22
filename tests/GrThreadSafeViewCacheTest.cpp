@@ -16,6 +16,8 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
+#include <thread>
+
 static constexpr int kImageWH = 32;
 static constexpr auto kImageOrigin = kBottomLeft_GrSurfaceOrigin;
 
@@ -652,4 +654,40 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache12, reporter, ctxInfo) {
     dContext->performDeferredCleanup(std::chrono::milliseconds(0));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+}
+
+// Case 13: Test out the 'msNotUsed' parameter to GrContext::performDeferredCleanup.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+
+    TestHelper helper(dContext);
+
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    auto firstTime = GrStdSteadyClock::now();
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+    helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), 2*kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
+    sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
+
+    ddl1 = nullptr;
+    ddl2 = nullptr;
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+
+    auto secondTime = GrStdSteadyClock::now();
+
+    auto msecs = std::chrono::duration_cast<std::chrono::milliseconds>(secondTime - firstTime);
+    dContext->performDeferredCleanup(msecs);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
 }

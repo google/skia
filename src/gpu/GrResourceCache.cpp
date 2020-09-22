@@ -580,6 +580,8 @@ void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
 }
 
 void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point purgeTime) {
+    fThreadSafeViewCache->dropUniqueRefsOlderThan(purgeTime);
+
     while (fPurgeableQueue.count()) {
         const GrStdSteadyClock::time_point resourceTime =
                 fPurgeableQueue.peek()->cacheAccess().timeWhenResourceBecamePurgeable();

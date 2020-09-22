@@ -66,6 +66,31 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefs(GrResourceCache* re
     }
 }
 
+void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefsOlderThan(
+        GrStdSteadyClock::time_point purgeTime) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    // Iterate from LRU to MRU
+    Entry* cur = fUniquelyKeyedProxyViewList.tail();
+    Entry* prev = cur ? cur->fPrev : nullptr;
+
+    while (cur) {
+        if (cur->fLastAccess >= purgeTime) {
+            // This entry and all the remaining ones in the list will be newer than 'purgeTime'
+            return;
+        }
+
+        if (cur->fView.proxy()->unique()) {
+            fUniquelyKeyedProxyViewMap.remove(cur->fKey);
+            fUniquelyKeyedProxyViewList.remove(cur);
+            this->recycleEntry(cur);
+        }
+
+        cur = prev;
+        prev = cur ? cur->fPrev : nullptr;
+    }
+}
+
 GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::find(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -73,6 +98,7 @@ GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::find(const GrUniqueK
     if (tmp) {
         SkASSERT(fUniquelyKeyedProxyViewList.isInList(tmp));
         // make the sought out entry the MRU
+        tmp->fLastAccess = GrStdSteadyClock::now();
         fUniquelyKeyedProxyViewList.remove(tmp);
         fUniquelyKeyedProxyViewList.addToHead(tmp);
         return tmp->fView;
@@ -97,7 +123,9 @@ GrThreadSafeUniquelyKeyedProxyViewCache::getEntry(const GrUniqueKey& key,
         entry = fEntryAllocator.make<Entry>(key, view);
     }
 
-    fUniquelyKeyedProxyViewList.addToHead(entry);  // make 'entry' the MRU
+    // make 'entry' the MRU
+    entry->fLastAccess = GrStdSteadyClock::now();
+    fUniquelyKeyedProxyViewList.addToHead(entry);
     fUniquelyKeyedProxyViewMap.add(entry);
     return entry;
 }
