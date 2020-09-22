@@ -627,18 +627,19 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
 
-        if (arguments[i]->is<VariableReference>()) {
-            // The argument is just a variable, so we only need to copy it if it's an out parameter
-            // or it's written to within the function.
-            if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
-                !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
-                varMap[param] = &arguments[i]->as<VariableReference>().fVariable;
+        if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
+            !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
+            if (arguments[i]->is<VariableReference>()) {
+                // The argument is just a variable, so we only need to copy it if it's an out parameter
+                // or it's written to within the function.
+                varMap[param].fInnerVariable = arguments[i]->as<VariableReference>().clone();
                 continue;
             }
         }
 
-        varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->type(),
-                                      param->fModifiers, &arguments[i]);
+        const Variable* var = makeInlineVar(String(param->fName), &arguments[i]->type(),
+                                            param->fModifiers, &arguments[i]);
+        varMap[param].fInnerVariable = std::make_unique<VariableReference>(offset, *var);
     }
 
     const Block& body = function.fBody->as<Block>();
