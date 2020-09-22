@@ -48,6 +48,45 @@
 //    to purge the requested amount of resources fails, uniquely held resources in this cache
 //    will be dropped in LRU to MRU order until the cache is under budget. Note that this
 //    prioritizes the survival of resources in this cache over those just in the resource cache.
+//
+//    For the 'scratchResourcesOnly' variant of GrContext::purgeUnlockedResources, this cache
+//    won't be modified in the scratch-only case unless the resource cache is over budget (in
+//    which case it will purge uniquely-held resources in LRU to MRU order to get
+//    back under budget). In the non-scratch-only case, all uniquely held resources in this cache
+//    will be released prior to the resource cache being cleared out.
+//
+//    For GrContext::setResourceCacheLimit, if an initial pass through the resource cache doesn't
+//    reach the budget, uniquely held resources in this cache will be released in LRU to MRU order.
+
+//----------------------------------------------------------------------------------------
+//
+// For testing:
+//    Create DDLs all needing the same texture - check that only one wins - and that there is some duplicate work
+//    Create a gpu version & check that all DDLs use it - with no duplicate work
+//    Create a texture w/ a DDL and then make a live use of it - check that the DDL version wins
+//       - in the above, each mask should have the correct # of refs for the # of DDLs
+//
+//    Need to test out the flushing behavior:
+//      generate a bunch of masks to fill up memory
+//      flush the resource cache and ensure the corresponding entries in the cache are cleared
+//
+//      do the above but have some locked up in DDLs - so they survive the flush
+//
+//      do the above but have them all non-instantiated (in DDLs) so they all survive the flush
+//
+// Concern:
+//    It seems like the interaction between the resource cache and the thread-safe view cache
+//    is going to be very fraught. In particular, when the resource cache is purging we have to
+//    ensure that there are no race conditions w/ any recording threads.
+//
+//    In that case it seems like we need to figure out we're going to nuke a resource, then
+//    try to nuke it's entry here first. If that succeeds then we can delete the resource otherwise
+//    some thread locked it in the interim so we need to let the resource live. (Test this case!)
+//
+// More:
+//    Add gpu stats about SW vs. HW mask generation
+//    Make sure we're not reffing/un-reffing too much by passing GrSurfaceProxyViews around
+//
 class GrThreadSafeUniquelyKeyedProxyViewCache {
 public:
     GrThreadSafeUniquelyKeyedProxyViewCache();
@@ -60,7 +99,10 @@ public:
 #endif
 
     void dropAllRefs()  SK_EXCLUDES(fSpinLock);
-    void dropAllUniqueRefs(GrResourceCache* resourceCache)  SK_EXCLUDES(fSpinLock);
+
+    // Drop uniquely held refs subject to some requirement (e.g., budget, time last accessed).
+    // A null parameter means drop all unique held refs
+    void dropUniqueRefs(GrResourceCache* resourceCache)  SK_EXCLUDES(fSpinLock);
 
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
