@@ -131,6 +131,8 @@ public:
                           bool failLookup = false) {
         GrRecordingContext* rContext = canvas->recordingContext();
 
+//        SkASSERT(wh == kImageWH || wh == 2*kImageWH);
+
         auto view = AccessCachedView(rContext, this->threadSafeViewCache(),
                                      wh, failLookup, &fStats);
         SkASSERT(view);
@@ -380,9 +382,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
     int size = 16;
     helper.accessCachedView(helper.ddlCanvas1(), size);
 
-    int initialCount = threadSafeViewCache->count();
+    size_t initialSize = threadSafeViewCache->approxBytesUsedForHash();
 
-    while (initialCount == threadSafeViewCache->count()) {
+    while (initialSize == threadSafeViewCache->approxBytesUsedForHash()) {
         size *= 2;
         helper.accessCachedView(helper.ddlCanvas1(), size);
     }
@@ -435,12 +437,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
-    helper.threadSafeViewCache()->dropAllUniqueRefs(nullptr);
+    helper.threadSafeViewCache()->dropUniqueRefs(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
     ddl1 = nullptr;
 
-    helper.threadSafeViewCache()->dropAllUniqueRefs(nullptr);
+    helper.threadSafeViewCache()->dropUniqueRefs(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
                                                /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
@@ -581,3 +583,80 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
                                                /*hits*/ 2, /*misses*/ 2, /*refs*/ 0));
 }
+
+// Case 11: This checks that scratch-only variant of GrContext::purgeUnlockedResources works as
+//          expected wrt the thread safe cache.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache11, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+
+    TestHelper helper(dContext);
+
+    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+
+    helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
+
+    dContext->flush();
+    dContext->submit(true);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
+
+    // This shouldn't remove anything from the cache
+    dContext->purgeUnlockedResources(true);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+
+    dContext->purgeUnlockedResources(false);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+}
+
+// Case 12: Test out purges caused by resetting the cache budget
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache12, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+
+    TestHelper helper(dContext);
+
+    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+
+    helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1));
+
+    dContext->flush();
+    dContext->submit(true);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1));
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 0));
+
+    dContext->setResourceCacheLimit(0);
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+
+    ddl1 = nullptr;
+
+    dContext->performDeferredCleanup(std::chrono::milliseconds(0));
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
+}
+
+// add flush & readback of gpu-draw & ddl draws and check that rendering is correct ?
+//      - would need to add op-creation for this
+// drop all refs and clear resource cache - this cache should also be cleared
+// ? add consistent() call to the cache that checks in resource cache & proxy cache ?

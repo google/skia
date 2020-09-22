@@ -24,10 +24,10 @@ int GrThreadSafeUniquelyKeyedProxyViewCache::numEntries() const {
     return fUniquelyKeyedProxyViewMap.count();
 }
 
-int GrThreadSafeUniquelyKeyedProxyViewCache::count() const {
+int GrThreadSafeUniquelyKeyedProxyViewCache::approxBytesUsedForHash() const {
     SkAutoSpinlock lock{fSpinLock};
 
-    return fUniquelyKeyedProxyViewMap.count();
+    return fUniquelyKeyedProxyViewMap.approxBytesUsed();
 }
 #endif
 
@@ -42,7 +42,8 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
     // TODO: should we empty out the fFreeEntryList and reset fEntryAllocator?
 }
 
-void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllUniqueRefs(GrResourceCache* resourceCache) {
+// TODO: add an atomic flag so we know when it is worthwhile to iterate
+void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefs(GrResourceCache* resourceCache) {
     SkAutoSpinlock lock{fSpinLock};
 
     // Iterate from LRU to MRU
