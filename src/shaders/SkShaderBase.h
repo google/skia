@@ -213,10 +213,18 @@ public:
     }
 
     SK_WARN_UNUSED_RESULT
-    skvm::Color program(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device, skvm::Coord local, skvm::Color paint,
                         const SkMatrixProvider&, const SkMatrix* localM,
                         SkFilterQuality quality, const SkColorInfo& dst,
                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
+
+    SK_WARN_UNUSED_RESULT
+    skvm::ColorQ14 programQ14(skvm::Builder*,
+                              skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                              const SkMatrixProvider&, const SkMatrix* localM,
+                              SkFilterQuality quality, const SkColorInfo& dst,
+                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
@@ -254,6 +262,12 @@ private:
                                   const SkMatrixProvider&, const SkMatrix* localM,
                                   SkFilterQuality quality, const SkColorInfo& dst,
                                   skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
+
+    virtual skvm::ColorQ14 onProgramQ14(skvm::Builder*,
+                                        skvm::Coord device, skvm::Coord local, skvm::Color paint,
+                                        const SkMatrixProvider&, const SkMatrix* localM,
+                                        SkFilterQuality quality, const SkColorInfo& dst,
+                                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
     using INHERITED = SkShader;
 };

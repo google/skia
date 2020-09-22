@@ -803,6 +803,9 @@ namespace skvm {
         Q14x2 min(Q14x2, Q14x2);  Q14x2 min(Q14x2a x, Q14x2a y) { return min(_(x), _(y)); }
         Q14x2 max(Q14x2, Q14x2);  Q14x2 max(Q14x2a x, Q14x2a y) { return max(_(x), _(y)); }
 
+        Q14x2 clamp(Q14x2  x, Q14x2  lo, Q14x2  hi) { return max(lo, min(x, hi)); }
+        Q14x2 clamp(Q14x2a x, Q14x2a lo, Q14x2a hi) { return clamp(_(x), _(lo), _(hi)); }
+
         Q14x2 shl(Q14x2, int bits);
         Q14x2 shr(Q14x2, int bits);
         Q14x2 sra(Q14x2, int bits);
@@ -813,6 +816,12 @@ namespace skvm {
         I32 lte(Q14x2, Q14x2);  I32 lte(Q14x2a x, Q14x2a y) { return lte(_(x), _(y)); }
         I32 gt (Q14x2, Q14x2);  I32 gt (Q14x2a x, Q14x2a y) { return gt (_(x), _(y)); }
         I32 gte(Q14x2, Q14x2);  I32 gte(Q14x2a x, Q14x2a y) { return gte(_(x), _(y)); }
+
+#if 0
+        Q14x2 bit_and(Q14x2 x, Q14x2 y) { return as_Q14x2(bit_and(as_I32(x), as_I32(y))); }
+        Q14x2 bit_or (Q14x2 x, Q14x2 y) { return as_Q14x2(bit_or (as_I32(x), as_I32(y))); }
+        Q14x2 bit_xor(Q14x2 x, Q14x2 y) { return as_Q14x2(bit_xor(as_I32(x), as_I32(y))); }
+#endif
 
         Q14x2 unsigned_avg(Q14x2  x, Q14x2  y);  // (x+y+1)>>1
         Q14x2 unsigned_avg(Q14x2a x, Q14x2a y) { return unsigned_avg(_(x), _(y)); }
@@ -1206,6 +1215,16 @@ namespace skvm {
     static inline I32& operator|=(I32& x, I32a y) { return (x = x | y); }
     static inline I32& operator^=(I32& x, I32a y) { return (x = x ^ y); }
 
+#if 0
+    static inline Q14x2 operator&(Q14x2 x, Q14x2 y) { return x->bit_and(x,y); }
+    static inline Q14x2 operator|(Q14x2 x, Q14x2 y) { return x->bit_or (x,y); }
+    static inline Q14x2 operator^(Q14x2 x, Q14x2 y) { return x->bit_xor(x,y); }
+
+    static inline Q14x2& operator&=(Q14x2& x, Q14x2 y) { return (x = x & y); }
+    static inline Q14x2& operator|=(Q14x2& x, Q14x2 y) { return (x = x | y); }
+    static inline Q14x2& operator^=(Q14x2& x, Q14x2 y) { return (x = x ^ y); }
+#endif
+
     static inline I32   select(I32 cond, I32a   t, I32a   f) { return cond->select(cond,t,f); }
     static inline F32   select(I32 cond, F32a   t, F32a   f) { return cond->select(cond,t,f); }
     static inline Q14x2 select(I32 cond, Q14x2a t, Q14x2a f) { return cond->select(cond,t,f); }
@@ -1255,6 +1274,29 @@ namespace skvm {
             return poly(x, x*a+b, rest...);
         }
     }
+
+
+    static inline Q14x2 pair(Q14x2 l, Q14x2 h) {
+        return as_Q14x2( as_I32(l) |
+                        (as_I32(h) << 16));
+    }
+    static inline Q14x2 pair(Q14x2 l, float h) {
+        return as_Q14x2(as_I32(l) |
+                        l->splat(Q14x2a{h}.imm & 0xffff'0000));
+    }
+    static inline Q14x2 pair(float l, Q14x2 h) {
+        return as_Q14x2(h->splat(Q14x2a{l}.imm & 0x0000'ffff) |
+                        (as_I32(h) << 16));
+    }
+
+    static inline Q14x2 dup(Q14x2 l) { return pair(l,l); }
+    static inline Q14x2 lo (Q14x2 x) { return as_Q14x2(as_I32(x) & x->splat(0xffff)); }
+    static inline Q14x2 hi (Q14x2 x) { return as_Q14x2(shr(as_I32(x), 16)); }
+
+    static inline Q14x2 clamp(Q14x2 x, Q14x2a lo, Q14x2a hi) { return  x->clamp(x,lo,hi); }
+    static inline Q14x2 clamp(float x, Q14x2  lo, Q14x2a hi) { return lo->clamp(x,lo,hi); }
+    static inline Q14x2 clamp(float x, float  lo, Q14x2  hi) { return hi->clamp(x,lo,hi); }
+
 }  // namespace skvm
 
 #endif//SkVM_DEFINED

@@ -178,6 +178,53 @@ namespace {
         };
     }
 
+    // build_program_q14() largely tracks build_program(); notes only where they differ.
+    static bool build_program_q14(skvm::Builder* p, const Params& params,
+                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
+        uniforms->base    = p->uniform();
+        skvm::Arg dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
+
+        skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))
+                     - p->index(),
+                  dy = p->uniform32(uniforms->base, offsetof(BlitterUniforms, y));
+        skvm::Coord device = {to_f32(dx) + 0.5f,
+                              to_f32(dy) + 0.5f},
+                    local = device;
+
+        // TODO: pass both F32 and Q14, with an is-valid-Q14 bit for each of r,g,b?
+        skvm::Color paint = {
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
+        };
+
+        skvm::ColorQ14 src = as_SB(params.shader)->programQ14(p, device,local, paint,
+                                                              params.matrices, nullptr,
+                                                              params.quality, params.dst,
+                                                              uniforms, alloc);
+        if (!src) {
+            return false;
+        }
+
+        if (params.coverage == Coverage::Mask3D) {
+            return false;   // TODO
+        }
+
+        bool src_in_gamut = false;
+        if (!src_in_gamut
+                && params.dst.alphaType() == kPremul_SkAlphaType
+                && SkColorTypeIsNormalized(params.dst.colorType())) {
+            skvm::Q14x2 aa = clamp(dup(hi(src.ga)), 0.0f, 1.0f);
+            src.rb = clamp(src.rb, 0.0f, aa);
+            src.ga = clamp(src.ga, 0.0f, aa);
+            src_in_gamut = true;
+        }
+
+        return false;
+    }
+
+
     static void build_program(skvm::Builder* p, const Params& params,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
         // First two arguments are always uniforms and the destination buffer.
@@ -604,7 +651,13 @@ namespace {
             SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
             fUniforms.buf.resize(kBlitterUniformsCount);
             skvm::Builder builder;
-            build_program(&builder, fParams.withCoverage(coverage), &fUniforms, &fAlloc);
+            if (!build_program_q14(&builder,
+                                   fParams.withCoverage(coverage), &fUniforms, &fAlloc)) {
+                builder.~Builder();
+                new (&builder) skvm::Builder;
+                build_program(&builder,
+                              fParams.withCoverage(coverage), &fUniforms, &fAlloc);
+            }
             SkASSERTF(fUniforms.buf.size() == prev,
                       "%zu, prev was %zu", fUniforms.buf.size(), prev);
 
