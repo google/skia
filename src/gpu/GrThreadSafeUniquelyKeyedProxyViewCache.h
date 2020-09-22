@@ -38,6 +38,16 @@
 //   an entry in this cache, however, doesn't guarantee that there is a corresponding entry in
 //              the resource cache - although the entry here should be able to generate that entry
 //              (i.e., be a lazy proxy)
+//
+// Wrt interactions w/ GrContext/GrResourceCache purging, we have:
+//
+//    Both GrContext::abandonContext and GrContext::releaseResourcesAndAbandonContext will cause
+//    all the refs held in this cache to be dropped prior to clearing out the resource cache.
+//
+//    For the size_t-variant of GrContext::purgeUnlockedResources, after an initial attempt
+//    to purge the requested amount of resources fails, uniquely held resources in this cache
+//    will be dropped in LRU to MRU order until the cache is under budget. Note that this
+//    prioritizes the survival of resources in this cache over those just in the resource cache.
 class GrThreadSafeUniquelyKeyedProxyViewCache {
 public:
     GrThreadSafeUniquelyKeyedProxyViewCache();
@@ -45,7 +55,8 @@ public:
 
 #if GR_TEST_UTILS
     int numEntries() const  SK_EXCLUDES(fSpinLock);
-    int count() const  SK_EXCLUDES(fSpinLock);
+
+    size_t approxBytesUsedForHash() const  SK_EXCLUDES(fSpinLock);
 #endif
 
     void dropAllRefs()  SK_EXCLUDES(fSpinLock);

@@ -380,9 +380,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
     int size = 16;
     helper.accessCachedView(helper.ddlCanvas1(), size);
 
-    int initialCount = threadSafeViewCache->count();
+    size_t initialSize = threadSafeViewCache->approxBytesUsedForHash();
 
-    while (initialCount == threadSafeViewCache->count()) {
+    while (initialSize == threadSafeViewCache->approxBytesUsedForHash()) {
         size *= 2;
         helper.accessCachedView(helper.ddlCanvas1(), size);
     }
