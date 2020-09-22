@@ -12,6 +12,7 @@
 #include <unordered_map>
 
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
 
@@ -56,6 +57,23 @@ public:
     bool analyze(Program& program);
 
 private:
+    struct VariableExpression {
+        std::unique_ptr<Expression> cloneWithRefKind(VariableReference::RefKind refKind) const {
+            fInnerVariable->setRefKind(refKind);
+            return fOuterExpression ? fOuterExpression->clone() : fInnerVariable->clone();
+        }
+        const Type& type() const {
+            return fOuterExpression ? fOuterExpression->type() : fInnerVariable->type();
+        }
+
+        // All VariableExpressions are expected to bottom out at a variable.
+        std::unique_ptr<VariableReference> fInnerVariable;
+
+        // fOuterExpression applies an expression to the fInnerVariable (e.g. a Swizzle). This can
+        // be null if the variable needs no adjustment.
+        std::unique_ptr<Expression> fOuterExpression;
+    };
+
     using VariableRewriteMap = std::unordered_map<const Variable*, const Variable*>;
 
     String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
@@ -66,7 +84,7 @@ private:
     std::unique_ptr<Statement> inlineStatement(int offset,
                                                VariableRewriteMap* varMap,
                                                SymbolTable* symbolTableForStatement,
-                                               const Variable* returnVar,
+                                               const VariableExpression& resultExpr,
                                                bool haveEarlyReturns,
                                                const Statement& statement);
 
