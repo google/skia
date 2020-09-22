@@ -79,10 +79,12 @@ public:
 
     bool setBackendTextureState(const GrBackendTexture&,
                                 const GrBackendSurfaceMutableState&,
+                                GrBackendSurfaceMutableState* previousState,
                                 sk_sp<GrRefCntedCallback> finishedCallback) override;
 
     bool setBackendRenderTargetState(const GrBackendRenderTarget&,
                                      const GrBackendSurfaceMutableState&,
+                                     GrBackendSurfaceMutableState* previousState,
                                      sk_sp<GrRefCntedCallback> finishedCallback) override;
 
     void deleteBackendTexture(const GrBackendTexture&) override;
@@ -215,7 +217,8 @@ private:
     bool setBackendSurfaceState(GrVkImageInfo info,
                                 sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
                                 SkISize dimensions,
-                                const GrVkSharedImageInfo& newInfo);
+                                const GrVkSharedImageInfo& newInfo,
+                                GrBackendSurfaceMutableState* previousState);
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
                                      const GrBackendFormat&,
