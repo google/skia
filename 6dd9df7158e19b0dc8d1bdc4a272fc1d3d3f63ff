@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2b43014_0f38901e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-22T19:37:08Z",
+      "side": 1,
+      "message": "This method name is a bit deceptive since I originally assumed STL behavior based on \"insert.\" \nCan we rename `insert` to `insertOrDie` (see http://osscs/chromium/chromium/src/+/master:third_party/protobuf/src/google/protobuf/stubs/map_util.h;l\u003d338?q\u003dinsertordie ) or something similar?",
+      "range": {
+        "startLine": 81,
+        "startChar": 24,
+        "endLine": 81,
+        "endChar": 30
+      },
+      "revId": "6dd9df7158e19b0dc8d1bdc4a272fc1d3d3f63ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "829c333a_ae2bf641",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-22T19:37:08Z",
+      "side": 1,
+      "message": "for a future CL: Just noticed that this loop is continually erasing off the front of a vector. This seems unnecessarily expensive.\n\nWe could make it much cheaper by nulling out entries as we go, and then using remove_if to nuke the nulls afterwards. Or by parsing the vector backwards (this has some edge-case ramifications, specifically if the vector contains multiple entries with the same key)\n\nFortunately this is once per convertProgram so it\u0027s not a big deal.",
+      "range": {
+        "startLine": 82,
+        "startChar": 16,
+        "endLine": 82,
+        "endChar": 40
+      },
+      "revId": "6dd9df7158e19b0dc8d1bdc4a272fc1d3d3f63ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83f8bf9a_c72f2c12",
+        "filename": "src/sksl/SkSLIRGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-22T19:37:08Z",
+      "side": 1,
+      "message": "Consider `clearAlreadyIncluded` or `resetAlreadyIncluded` for a more descriptive name?",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 24
+      },
+      "revId": "6dd9df7158e19b0dc8d1bdc4a272fc1d3d3f63ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
