@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "803bac12_7c9492e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-22T13:45:11Z",
+      "side": 1,
+      "message": "This is all handled inside the compiler now, as far as I can tell. Looks like leftover logic from an earlier iteration?",
+      "revId": "88417fc37490e824b93c8c4e895c1f2665433532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
