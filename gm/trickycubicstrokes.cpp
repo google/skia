@@ -164,15 +164,17 @@ class TrickyCubicStrokes_tess_segs_5 : public skiagm::GpuGM {
         return SkISize::Make(kTestWidth, kTestHeight);
     }
 
+    // Pick a very small, odd (and better yet, prime) number of segments.
+    //
+    // - Odd because it makes the tessellation strip asymmetric, which will be important to test for
+    //   future plans that involve drawing in reverse order.
+    //
+    // - >=4 because the tessellator code will just assume we have enough to combine a miter join
+    //   and line in a single patch. (Requires 4 segments. Spec required minimum is 64.)
+    static constexpr int kMaxTessellationSegmentsOverride = 5;
+
     void modifyGrContextOptions(GrContextOptions* options) override {
-        // Pick a very small, odd (and better yet, prime) number of segments.
-        //
-        // - Odd because it makes the tessellation strip asymmetric, which will be important to test
-        //   for future plans that involve drawing in reverse order.
-        //
-        // - >=4 because the tessellator code will just assume we have enough to combine a miter
-        //   join and line in a single patch. (Requires 4 segments. Spec required minimum is 64.)
-        options->fMaxTessellationSegmentsOverride = 5;
+        options->fMaxTessellationSegmentsOverride = kMaxTessellationSegmentsOverride;
         // Only allow the tessellation path renderer.
         options->fGpuPathRenderers = (GpuPathRenderers)((int)options->fGpuPathRenderers &
                                                         (int)GpuPathRenderers::kTessellation);
@@ -189,6 +191,12 @@ class TrickyCubicStrokes_tess_segs_5 : public skiagm::GpuGM {
         if (!(opts.fGpuPathRenderers & GpuPathRenderers::kTessellation)) {
             errorMsg->set("GrTessellationPathRenderer disabled.");
             return DrawResult::kSkip;
+        }
+        if (context->priv().caps()->shaderCaps()->maxTessellationSegments() !=
+            kMaxTessellationSegmentsOverride) {
+            errorMsg->set("modifyGrContextOptions did not affect maxTessellationSegments. "
+                          "(Are you running viewer? If so use '--maxTessellationSegments 5'.)");
+            return DrawResult::kFail;
         }
         // Suppress a tessellator warning message that caps.maxTessellationSegments is too small.
         GrRecordingContextPriv::AutoSuppressWarningMessages aswm(context);
