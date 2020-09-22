@@ -3,32 +3,32 @@ uniform vec4 src, dst;
 float _guarded_divide(float n, float d) {
     return n / d;
 }
-float _color_dodge_component(float sc, float sa, float dc, float da) {
-    if (dc == 0.0) {
-        return sc * (1.0 - da);
+float _color_dodge_component(vec2 s, vec2 d) {
+    if (d.x == 0.0) {
+        return s.x * (1.0 - d.y);
     } else {
-        float d = sa - sc;
-        if (d == 0.0) {
-            return (sa * da + sc * (1.0 - da)) + dc * (1.0 - sa);
+        float delta = s.y - s.x;
+        if (delta == 0.0) {
+            return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         } else {
             float _1_guarded_divide;
-            float _2_n = dc * sa;
+            float _2_n = d.x * s.y;
             {
-                _1_guarded_divide = _2_n / d;
+                _1_guarded_divide = _2_n / delta;
             }
-            d = min(da, _1_guarded_divide);
+            delta = min(d.y, _1_guarded_divide);
 
-            return (d * sa + sc * (1.0 - da)) + dc * (1.0 - sa);
+            return (delta * s.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);
         }
     }
 }
 vec4 blend_color_dodge(vec4 src, vec4 dst) {
-    return vec4(_color_dodge_component(src.x, src.w, dst.x, dst.w), _color_dodge_component(src.y, src.w, dst.y, dst.w), _color_dodge_component(src.z, src.w, dst.z, dst.w), src.w + (1.0 - src.w) * dst.w);
+    return vec4(_color_dodge_component(src.xw, dst.xw), _color_dodge_component(src.yw, dst.yw), _color_dodge_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
 vec4 main() {
     vec4 _0_blend_color_dodge;
     {
-        _0_blend_color_dodge = vec4(_color_dodge_component(src.x, src.w, dst.x, dst.w), _color_dodge_component(src.y, src.w, dst.y, dst.w), _color_dodge_component(src.z, src.w, dst.z, dst.w), src.w + (1.0 - src.w) * dst.w);
+        _0_blend_color_dodge = vec4(_color_dodge_component(src.xw, dst.xw), _color_dodge_component(src.yw, dst.yw), _color_dodge_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     }
 
     return _0_blend_color_dodge;
