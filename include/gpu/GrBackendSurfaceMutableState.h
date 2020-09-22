@@ -26,13 +26,21 @@
  */
 class GrBackendSurfaceMutableState {
 public:
+    GrBackendSurfaceMutableState() {}
+
 #ifdef SK_VULKAN
     GrBackendSurfaceMutableState(VkImageLayout layout, uint32_t queueFamilyIndex)
             : fVkState(layout, queueFamilyIndex)
-            , fBackend(GrBackend::kVulkan) {}
+            , fBackend(GrBackend::kVulkan)
+            , fIsValid(true) {}
 #endif
 
-    GrBackendSurfaceMutableState& operator=(const GrBackendSurfaceMutableState& that) {
+    GrBackendSurfaceMutableState(const GrBackendSurfaceMutableState& that)
+            : fBackend(that.fBackend)
+            , fIsValid(that.fIsValid) {
+        if (!fIsValid) {
+            return;
+        }
         switch (fBackend) {
             case GrBackend::kVulkan:
 #ifdef SK_VULKAN
@@ -40,18 +48,58 @@ public:
                 fVkState = that.fVkState;
 #endif
                 break;
-
             default:
                 (void)that;
                 SkUNREACHABLE;
         }
-        fBackend = that.fBackend;
+    }
+
+    GrBackendSurfaceMutableState& operator=(const GrBackendSurfaceMutableState& that) {
+        if (this != &that) {
+            this->~GrBackendSurfaceMutableState();
+            new (this) GrBackendSurfaceMutableState(that);
+        }
         return *this;
     }
+
+#ifdef SK_VULKAN
+    // If this class is not Vulkan backed it will return value of VK_IMAGE_LAYOUT_UNDEFINED.
+    // Otherwise it will return the VkImageLayout.
+    VkImageLayout getVkImageLayout() const {
+        if (this->isValid() && fBackend != GrBackendApi::kVulkan) {
+            return VK_IMAGE_LAYOUT_UNDEFINED;
+        }
+        return fVkState.getImageLayout();
+    }
+
+    // If this class is not Vulkan backed it will return value of VK_QUEUE_FAMILY_IGNORED.
+    // Otherwise it will return the VkImageLayout.
+    uint32_t getQueueFamilyIndex() const {
+        if (this->isValid() && fBackend != GrBackendApi::kVulkan) {
+            return VK_QUEUE_FAMILY_IGNORED;
+        }
+        return fVkState.getQueueFamilyIndex();
+    }
+#endif
+
+    // Returns true if the backend mutable state has been initialized.
+    bool isValid() const { return fIsValid; }
+
+    GrBackendApi backend() const { return fBackend; }
 
 private:
     friend class GrBackendSurfaceMutableStateImpl;
     friend class GrVkGpu;
+
+#ifdef SK_VULKAN
+    void setVulkanState(VkImageLayout layout, uint32_t queueFamilyIndex) {
+        SkASSERT(!this->isValid() || fBackend == GrBackendApi::kVulkan);
+        fVkState.setImageLayout(layout);
+        fVkState.setQueueFamilyIndex(queueFamilyIndex);
+        fBackend = GrBackendApi::kVulkan;
+        fIsValid = true;
+    }
+#endif
 
     union {
         char fDummy;
@@ -60,7 +108,8 @@ private:
 #endif
     };
 
-    GrBackend fBackend;
+    GrBackend fBackend = GrBackendApi::kMock;
+    bool fIsValid = false;
 };
 
 #endif
