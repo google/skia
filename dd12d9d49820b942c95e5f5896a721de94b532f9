@@ -70,6 +70,24 @@
       "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8923837_3674f3e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-09-22T13:29:17Z",
+      "side": 1,
+      "message": "\u003e \u003e In encode-color-types-webp-lossy , we use a quality of 80 and webp_config.method of 3. It sounds like this diff is to be expected then?\n\u003e \u003e \n\u003e \n\u003e The diff looks pretty large, the change I pointed out was for method \u003e 4. Can we extract the source so I can take a closer look?\n\nDo you mean the calls into libwebp? Here\u0027s what this looks like:\n\n  static int stream_writer(const uint8_t* data, size_t data_size,                                     \n                           const WebPPicture* const picture) {                                        \n    SkWStream* const stream \u003d (SkWStream*)picture-\u003ecustom_ptr;                                           \n    return stream-\u003ewrite(data, data_size) ? 1 : 0;                                                       \n  }                                                                                                      \n\n...\n    WebPConfig webp_config;                                                                            \n    if (!WebPConfigPreset(\u0026webp_config, WEBP_PRESET_DEFAULT, 80)) {                         \n        return false;                                                                                  \n    }                                                                                                  \n                                                                                                       \n    WebPPicture pic;                                                                                   \n    WebPPictureInit(\u0026pic);                                                                             \n    SkAutoTCallVProc\u003cWebPPicture, WebPPictureFree\u003e autoPic(\u0026pic);                                      \n    pic.width \u003d pixmap.width();                                                                        \n    pic.height \u003d pixmap.height();\n    pic.writer \u003d stream_writer; \n    webp_config.lossless \u003d 0;\n    webp_config.method \u003d 3;                                                                     \n    pic.use_argb \u003d 0;\n\n    sk_sp\u003cSkData\u003e icc \u003d icc_from_color_space(pixmap.info());                                        \n    SkDynamicMemoryWStream tmp;                                                                     \n    pic.custom_ptr \u003d \u0026tmp; \n\n    const SkPixmap* src \u003d \u0026pixmap;\n    WebPPictureImportProc importProc \u003d WebPPictureImportRGBA;\n    if (!importProc(\u0026pic, reinterpret_cast\u003cconst uint8_t*\u003e(src-\u003eaddr()),\n                    src-\u003erowBytes())) {    \n        return false;                                                                           \n    }                                                                                           \n    if (!WebPEncode(\u0026webp_config, \u0026pic)) {                                                          \n        return false;                                                                               \n    }                                                                                               \n\n    // Use the mux to insert the ICC profile.\n\nThen we use libwebp to decode.\n\n\u003e \n\u003e \u003e For encode-platform, we *should* be using the platform\u0027s decoders. It\u0027s odd that this CL changed that one at all...\n\nCorrection - we should be using the platform\u0027s *encoders*. And I just confirmed by looking at the logs from https://skia-review.googlesource.com/c/skia/+/318208 that we are. But this GM is still using the version of libwebp from the DEPS roll to decode.",
+      "parentUuid": "2f755307_3ab9c9c6",
+      "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
