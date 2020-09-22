@@ -33,6 +33,58 @@
       "revId": "19bf7a8414acc6b88fda55a2df404eacbf8ecc77",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f28e0f0b_38ade990",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-22T19:57:00Z",
+      "side": 1,
+      "message": "Sorry, was out last week.",
+      "parentUuid": "f38e3447_123976e7",
+      "revId": "19bf7a8414acc6b88fda55a2df404eacbf8ecc77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf0d8c6d_f4413fe1",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-22T19:57:00Z",
+      "side": 1,
+      "message": "So currently (most of) the SkSurface constructors take SkSurfaceProps* so that one can pass in nullptr to mean \u0027use the globals\u0027, which arguably wasn\u0027t needed, it could have taken a SkSurfaceProps\u0026 and required the user to call SkSurfaceProps(kLegacyFontHost_InitType) to create a temporary to pass in (since that\u0027s what is happening when passing nullptr anyway).\n\nIf we remove the Skia globals then either the SkSurface constructors continue to take SkSurfaceProps* and nullptr means \u0027Default\u0027 (no flags unknown/flat pixel geometry) instead, or the SkSurface constructors would be migrated to take SkSurfaceProps\u0026 and one could pass \u0027SkSurfaceProps()\u0027. I suppose what I\u0027m getting at here is that we only need this \u0027Default\u0027 thing because we want a pointer and not a reference (and want to avoid as_lvalue or forcing a name to make an lvalue just so we can take the address of the thing).\n\nIn any even I think it\u0027s probably nicer to just have this return \u0027const SkSurfaceProps\u0026\u0027 and let the callers take the address of it. Even though that\u0027s an extra bit at each use site, it points out that the SkSurface constructors are a little weird.\n\nAlso, it would be really nice if this were all constexpr.",
+      "revId": "19bf7a8414acc6b88fda55a2df404eacbf8ecc77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fda9e410_f9ddd625",
+        "filename": "src/image/SkSurface.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-22T19:57:00Z",
+      "side": 1,
+      "message": "Does this produce a static initializer? We\u0027re not really allowed to have any (or at least add any) in Skia. Needs to be constexpr or initialized at runtime.\n\nhttps://chromium.googlesource.com/chromium/src.git/+/master/docs/static_initializers.md",
+      "revId": "19bf7a8414acc6b88fda55a2df404eacbf8ecc77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
