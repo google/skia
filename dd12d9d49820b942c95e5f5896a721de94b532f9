@@ -88,6 +88,24 @@
       "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3f243c6_60e79462",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5920
+      },
+      "writtenOn": "2020-09-22T17:43:40Z",
+      "side": 1,
+      "message": "\u003e \u003e \u003e In encode-color-types-webp-lossy , we use a quality of 80 and webp_config.method of 3. It sounds like this diff is to be expected then?\n\u003e \u003e \u003e \n\u003e \u003e \n\u003e \u003e The diff looks pretty large, the change I pointed out was for method \u003e 4. Can we extract the source so I can take a closer look?\n\u003e \n\u003e Do you mean the calls into libwebp? Here\u0027s what this looks like:\n\u003e \n\u003e [...]\n\nSorry I meant the source image as png/tif/bmp so I could try the encode/decode loop outside the test.\n\n\u003e \n\u003e Then we use libwebp to decode.\n\u003e \n\u003e \u003e \n\u003e \u003e \u003e For encode-platform, we *should* be using the platform\u0027s decoders. It\u0027s odd that this CL changed that one at all...\n\u003e \n\u003e Correction - we should be using the platform\u0027s *encoders*. And I just confirmed by looking at the logs from https://skia-review.googlesource.com/c/skia/+/318208 that we are. But this GM is still using the version of libwebp from the DEPS roll to decode.\n\nOK so to test this with an image we\u0027d use the old encoder version and the new decoder to get the final result, right? It looks like this was an Android/ARM only issue or was it consistent across platforms and architectures?",
+      "parentUuid": "b8923837_3674f3e9",
+      "revId": "dd12d9d49820b942c95e5f5896a721de94b532f9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
