@@ -24,10 +24,10 @@ int GrThreadSafeUniquelyKeyedProxyViewCache::numEntries() const {
     return fUniquelyKeyedProxyViewMap.count();
 }
 
-int GrThreadSafeUniquelyKeyedProxyViewCache::count() const {
+size_t GrThreadSafeUniquelyKeyedProxyViewCache::approxBytesUsedForHash() const {
     SkAutoSpinlock lock{fSpinLock};
 
-    return fUniquelyKeyedProxyViewMap.count();
+    return fUniquelyKeyedProxyViewMap.approxBytesUsed();
 }
 #endif
 

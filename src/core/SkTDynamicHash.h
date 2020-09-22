@@ -37,6 +37,8 @@ public:
 
     int count() const { return fTable.count(); }
 
+    size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
+
     T* find(const Key& key) const { return fTable.findOrNull(key); }
 
     void add(T* entry) { fTable.set(entry); }
