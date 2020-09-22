@@ -1,0 +1,31 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005092061",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/317243?revision\u003d14",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "209ffe3a_5119b972",
+        "filename": "third_party/d3dmemoryallocator/src/D3D12MemAlloc.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 5194,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-22T18:51:04Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 5194,
+        "startChar": 67,
+        "endLine": 5194,
+        "endChar": 73
+      },
+      "revId": "a615dc035af9414547ee08fc1b38ab9092f8155f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
