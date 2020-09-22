@@ -390,12 +390,12 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
 std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                     VariableRewriteMap* varMap,
                                                     SymbolTable* symbolTableForStatement,
-                                                    const Variable* returnVar,
+                                                    const Expression* resultExpr,
                                                     bool haveEarlyReturns,
                                                     const Statement& statement) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
-            return this->inlineStatement(offset, varMap, symbolTableForStatement, returnVar,
+            return this->inlineStatement(offset, varMap, symbolTableForStatement, resultExpr,
                                          haveEarlyReturns, *s);
         }
         return nullptr;
@@ -452,13 +452,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             const ReturnStatement& r = statement.as<ReturnStatement>();
             if (r.fExpression) {
                 auto assignment = std::make_unique<ExpressionStatement>(
-                        std::make_unique<BinaryExpression>(
-                            offset,
-                            std::make_unique<VariableReference>(offset, *returnVar,
-                                                                VariableReference::kWrite_RefKind),
-                            Token::Kind::TK_EQ,
-                            expr(r.fExpression),
-                            &returnVar->type()));
+                        std::make_unique<BinaryExpression>(offset,
+                                                           resultExpr->clone(),
+                                                           Token::Kind::TK_EQ,
+                                                           expr(r.fExpression),
+                                                           &resultExpr->type()));
                 if (haveEarlyReturns) {
                     std::vector<std::unique_ptr<Statement>> block;
                     block.push_back(std::move(assignment));
@@ -613,11 +611,16 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     };
 
     // Create a variable to hold the result in the extra statements (excepting void).
-    const Variable* resultVar = nullptr;
+    std::unique_ptr<Expression> resultExprForRead, resultExprForWrite;
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
-        resultVar = makeInlineVar(String(function.fDeclaration.fName),
-                                  &function.fDeclaration.fReturnType, Modifiers{}, &noInitialValue);
+        const Variable* var = makeInlineVar(String(function.fDeclaration.fName),
+                                            &function.fDeclaration.fReturnType,
+                                            Modifiers{}, &noInitialValue);
+        resultExprForRead = std::make_unique<VariableReference>(offset, *var,
+                                                                VariableReference::kRead_RefKind);
+        resultExprForWrite = std::make_unique<VariableReference>(offset, *var,
+                                                                 VariableReference::kWrite_RefKind);
     }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
@@ -644,8 +647,9 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     auto inlineBlock = std::make_unique<Block>(offset, std::vector<std::unique_ptr<Statement>>{});
     inlineBlock->fStatements.reserve(body.fStatements.size());
     for (const std::unique_ptr<Statement>& stmt : body.fStatements) {
-        inlineBlock->fStatements.push_back(this->inlineStatement(
-                offset, &varMap, symbolTableForCall, resultVar, hasEarlyReturn, *stmt));
+        inlineBlock->fStatements.push_back(
+                this->inlineStatement(offset, &varMap, symbolTableForCall, resultExprForWrite.get(),
+                                      hasEarlyReturn, *stmt));
     }
     if (hasEarlyReturn) {
         // Since we output to backends that don't have a goto statement (which would normally be
@@ -685,7 +689,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         // Return a reference to the result variable as our replacement expression.
-        inlinedCall.fReplacementExpr = std::make_unique<VariableReference>(offset, *resultVar);
+        inlinedCall.fReplacementExpr = std::move(resultExprForRead);
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.

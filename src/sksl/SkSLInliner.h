@@ -66,7 +66,7 @@ private:
     std::unique_ptr<Statement> inlineStatement(int offset,
                                                VariableRewriteMap* varMap,
                                                SymbolTable* symbolTableForStatement,
-                                               const Variable* returnVar,
+                                               const Expression* resultExpr,
                                                bool haveEarlyReturns,
                                                const Statement& statement);
 
