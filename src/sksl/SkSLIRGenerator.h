@@ -176,7 +176,7 @@ private:
     std::vector<std::unique_ptr<Statement>> fExtraStatements;
     // Symbols which have definitions in the include files.
     IRIntrinsicMap* fIntrinsics = nullptr;
-    std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
+    std::vector<const FunctionDeclaration*> fReferencedIntrinsics;
     int fLoopLevel;
     int fSwitchLevel;
     ErrorReporter& fErrors;

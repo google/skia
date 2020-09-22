@@ -27,7 +27,7 @@ struct FunctionDefinition : public ProgramElement {
     FunctionDefinition(int offset,
                        const FunctionDeclaration& declaration,
                        std::unique_ptr<Statement> body,
-                       std::unordered_set<const FunctionDeclaration*> referencedIntrinsics = {})
+                       std::vector<const FunctionDeclaration*> referencedIntrinsics = {})
         : INHERITED(offset, kProgramElementKind)
         , fDeclaration(declaration)
         , fBody(std::move(body))
@@ -46,7 +46,7 @@ struct FunctionDefinition : public ProgramElement {
     std::unique_ptr<Statement> fBody;
     // We track intrinsic functions we reference so that we can ensure that all of them end up
     // copied into the final output.
-    std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
+    std::vector<const FunctionDeclaration*> fReferencedIntrinsics;
     // This pointer may be null, and even when non-null is not guaranteed to remain valid for the
     // entire lifespan of this object. The parse tree's lifespan is normally controlled by
     // IRGenerator, so the IRGenerator being destroyed or being used to compile another file will

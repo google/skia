@@ -530,12 +530,8 @@ void Dehydrator::write(const ProgramElement& e) {
             this->writeU16(this->symbolId(&f.fDeclaration));
             this->write(f.fBody.get());
             this->writeU8(f.fReferencedIntrinsics.size());
-            std::set<uint16_t> ordered;
             for (const FunctionDeclaration* ref : f.fReferencedIntrinsics) {
-                ordered.insert(this->symbolId(ref));
-            }
-            for (uint16_t ref : ordered) {
-                this->writeU16(ref);
+                this->writeU16(this->symbolId(ref));
             }
             break;
         }

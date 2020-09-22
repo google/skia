@@ -2044,7 +2044,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
     if (function.fBuiltin) {
         if (function.fDefinition) {
-            fReferencedIntrinsics.insert(&function);
+            fReferencedIntrinsics.push_back(&function);
         }
         if (!fIsBuiltinCode) {
             this->copyIntrinsicIfNeeded(function);
