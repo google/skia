@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0390ed47_cf2cd0fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-22T19:43:22Z",
+      "side": 1,
+      "message": "I hate it, but the real issue is that this method has five out parameters which should probably be gathered up into a struct.",
+      "revId": "bb90e1ee140c48d00b8d7ada254e24c62ca36413",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
