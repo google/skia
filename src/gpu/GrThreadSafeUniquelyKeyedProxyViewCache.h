@@ -49,7 +49,7 @@ public:
 #endif
 
     void dropAllRefs()  SK_EXCLUDES(fSpinLock);
-    void dropAllUniqueRefs()  SK_EXCLUDES(fSpinLock);
+    void dropAllUniqueRefs(GrResourceCache* resourceCache)  SK_EXCLUDES(fSpinLock);
 
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
