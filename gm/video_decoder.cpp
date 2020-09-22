@@ -34,7 +34,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        GrContext* rContext = canvas->recordingContext();
+        auto* rContext = canvas->recordingContext();
         if (!rContext) {
             return;
         }
