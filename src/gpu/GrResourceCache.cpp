@@ -530,7 +530,7 @@ void GrResourceCache::purgeAsNeeded() {
     }
 
     if (stillOverbudget) {
-        fThreadSafeViewCache->dropAllUniqueRefs(); // Is there a less nuclear option?
+        fThreadSafeViewCache->dropAllUniqueRefs(this);
 
         while (stillOverbudget && fPurgeableQueue.count()) {
             GrGpuResource* resource = fPurgeableQueue.peek();
@@ -546,7 +546,7 @@ void GrResourceCache::purgeAsNeeded() {
 void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
     // In the scratch-only mode we could just drop the ones that are uniquely held and would
     // be converted to scratch textures
-    fThreadSafeViewCache->dropAllUniqueRefs();
+    fThreadSafeViewCache->dropAllUniqueRefs(nullptr);
 
     if (!scratchResourcesOnly) {
         // We could disable maintaining the heap property here, but it would add a lot of
