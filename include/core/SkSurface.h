@@ -307,7 +307,7 @@ public:
                                instantiated; may not be nullptr
         @return                created SkSurface, or nullptr
      */
-    static sk_sp<SkSurface> MakeFromCAMetalLayer(GrContext* context,
+    static sk_sp<SkSurface> MakeFromCAMetalLayer(GrRecordingContext* context,
                                                  GrMTLHandle layer,
                                                  GrSurfaceOrigin origin,
                                                  int sampleCnt,
@@ -334,7 +334,7 @@ public:
                                fonts; may be nullptr
         @return                created SkSurface, or nullptr
      */
-    static sk_sp<SkSurface> MakeFromMTKView(GrContext* context,
+    static sk_sp<SkSurface> MakeFromMTKView(GrRecordingContext* context,
                                             GrMTLHandle mtkView,
                                             GrSurfaceOrigin origin,
                                             int sampleCnt,

@@ -12,7 +12,7 @@
 class SkSurface;
 template <typename T> class sk_sp;
 
-sk_sp<SkSurface> SkMtkViewToSurface(MTKView*, GrContext*);
+sk_sp<SkSurface> SkMtkViewToSurface(MTKView*, GrRecordingContext*);
 
 GrContextHolder SkMetalDeviceToGrContext(id<MTLDevice>, id<MTLCommandQueue>);
 
