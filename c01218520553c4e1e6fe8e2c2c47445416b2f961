@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8bbebe33_7359f41d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-22T13:29:40Z",
+      "side": 1,
+      "message": "The GM diffs are because the backdrop filter compositing code now goes through drawSpecial instead of drawImageRect, and has the opportunity to be treated as a sprite then.",
+      "revId": "c01218520553c4e1e6fe8e2c2c47445416b2f961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
