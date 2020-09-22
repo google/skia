@@ -156,7 +156,18 @@ private:
         Intrinsic(ByteCodeInstruction i) : Intrinsic(i, i, i) {}
         Intrinsic(ByteCodeInstruction f,
                   ByteCodeInstruction s,
-                  ByteCodeInstruction u) : is_special(false), inst_f(f), inst_s(s), inst_u(u) {}
+                  ByteCodeInstruction u) {
+            // workaround: this was previously just ": is_special(false), inst_f(f), inst_s(s),
+            // inst_u(u) {}", but valgrind was complaining about accessing uninitialized memory in
+            // some cases. Not 100% sure whether it's a clang bug or a valgrind false positive, but
+            // but it appears to have something to do with the padding bytes in this struct, as
+            // manually zeroing them out fixes the issue.
+            memset(this, 0, sizeof(*this));
+            is_special = false;
+            inst_f = f;
+            inst_s = s;
+            inst_u = u;
+        }
 
         bool                is_special;
         SpecialIntrinsic    special;
