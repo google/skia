@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
@@ -18,7 +18,7 @@
  * The DDL Context is the one in effect during DDL Recording. It isn't backed by a GrGPU and
  * cannot allocate any GPU resources.
  */
-class GrDDLContext final : public GrContext {
+class GrDDLContext final : public GrRecordingContext {
 public:
     GrDDLContext(sk_sp<GrContextThreadSafeProxy> proxy)
         : INHERITED(std::move(proxy)) {
@@ -31,21 +31,7 @@ public:
         INHERITED::abandonContext();
     }
 
-    void releaseResourcesAndAbandonContext() override {
-        SkASSERT(0); // abandoning in a DDL Recorder doesn't make a whole lot of sense
-        INHERITED::releaseResourcesAndAbandonContext();
-    }
-
-    void freeGpuResources() override {
-        // freeing resources in a DDL Recorder doesn't make a whole lot of sense but some of
-        // our tests do it anyways
-    }
-
 private:
-    // TODO: Here we're pretending this isn't derived from GrContext. Switch this to be derived from
-    // GrRecordingContext!
-    GrDirectContext* asDirectContext() override { return nullptr; }
-
     bool init() override {
         if (!INHERITED::init()) {
             return false;
@@ -56,16 +42,6 @@ private:
         this->setupDrawingManager(true, true);
 
         return true;
-    }
-
-    GrAtlasManager* onGetAtlasManager() override {
-        SkASSERT(0);   // the DDL Recorders should never invoke this
-        return nullptr;
-    }
-
-    GrSmallPathAtlasMgr* onGetSmallPathAtlasMgr() override {
-        SkASSERT(0);  // DDL recorders should never invoke this
-        return nullptr;
     }
 
     // Add to the set of unique program infos required by this DDL
@@ -149,7 +125,7 @@ private:
 
     ProgramInfoMap fProgramInfoMap;
 
-    using INHERITED = GrContext;
+    using INHERITED = GrRecordingContext;
 };
 
 sk_sp<GrRecordingContext> GrRecordingContextPriv::MakeDDL(sk_sp<GrContextThreadSafeProxy> proxy) {
