@@ -16,6 +16,24 @@
       "revId": "ad4245427d56e58274e167aa4ad073c42e83bad9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d9f0be6_a81e87aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-22T15:05:59Z",
+      "side": 1,
+      "message": "Yeah, guarded_divide is our Achilles heel here I think. I\u0027ll try to make a more thorough fix for swizzle pass-through in the inliner.",
+      "parentUuid": "2a79f1b5_6622d523",
+      "revId": "ad4245427d56e58274e167aa4ad073c42e83bad9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
