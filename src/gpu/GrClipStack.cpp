@@ -540,7 +540,10 @@ void GrClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA
         return;
     }
 
-    if (forceAA) {
+    // Except for axis-aligned clip rects, upgrade to AA when forced. We skip axis-aligned clip
+    // rects because a non-AA axis aligned rect can always be set as just a scissor test or window
+    // rect, avoiding an expensive stencil mask generation.
+    if (forceAA && !(fShape.isRect() && fLocalToDevice.isScaleTranslate())) {
         fAA = GrAA::kYes;
     }
 

@@ -1605,27 +1605,36 @@ DEF_TEST(GrClipStack_ForceAA, r) {
     SkPath nonAAPath = make_octagon({2.f, 10.f, 16.f, 20.f});
     cs.clipPath(SkMatrix::I(), nonAAPath, GrAA::kNo, SkClipOp::kIntersect);
 
-    // Non-AA can combine with AA that wouldn't normally have combined
+    // Non-AA rects remain non-AA so they can be applied as a scissor
     SkRect nonAARect = {4.5f, 5.f, 17.25f, 18.23f};
     cs.clipRect(SkMatrix::I(), nonAARect, GrAA::kNo, SkClipOp::kIntersect);
 
     // The stack reports elements newest first, but the non-AA rect op was combined in place with
     // the first aa rect, so we should see nonAAPath as AA, and then the intersection of rects.
-    SkRect expectedRect = aaRect;
-    SkAssertResult(expectedRect.intersect(nonAARect));
     auto elements = cs.begin();
 
-    const GrClipStack::Element& aaPath = *elements;
-    REPORTER_ASSERT(r, aaPath.fShape.path() == nonAAPath, "Expected path element");
-    REPORTER_ASSERT(r, aaPath.fAA == GrAA::kYes, "Path element not promoted to AA");
+    const GrClipStack::Element& nonAARectElement = *elements;
+    REPORTER_ASSERT(r, nonAARectElement.fShape.isRect(), "Expected rect element");
+    REPORTER_ASSERT(r, nonAARectElement.fAA == GrAA::kNo,
+                    "Axis-aligned non-AA rect ignores forceAA");
+    REPORTER_ASSERT(r, nonAARectElement.fShape.rect() == nonAARect,
+                    "Mixed AA rects should not combine");
 
     ++elements;
-    const GrClipStack::Element& rect = *elements;
-    REPORTER_ASSERT(r, rect.fShape.rect() == expectedRect, "Mixed AA rects did not combine");
-    REPORTER_ASSERT(r, rect.fAA == GrAA::kYes, "Rect elements not promoted to AA");
+    const GrClipStack::Element& aaPathElement = *elements;
+    REPORTER_ASSERT(r, aaPathElement.fShape.isPath(), "Expected path element");
+    REPORTER_ASSERT(r, aaPathElement.fShape.path() == nonAAPath, "Wrong path element");
+    REPORTER_ASSERT(r, aaPathElement.fAA == GrAA::kYes, "Path element not promoted to AA");
 
     ++elements;
-    REPORTER_ASSERT(r, !(elements != cs.end()), "Expected only two clip elements");
+    const GrClipStack::Element& aaRectElement = *elements;
+    REPORTER_ASSERT(r, aaRectElement.fShape.isRect(), "Expected rect element");
+    REPORTER_ASSERT(r, aaRectElement.fShape.rect() == aaRect,
+                    "Mixed AA rects should not combine");
+    REPORTER_ASSERT(r, aaRectElement.fAA == GrAA::kYes, "Rect element stays AA");
+
+    ++elements;
+    REPORTER_ASSERT(r, !(elements != cs.end()), "Expected only three clip elements");
 }
 
 // Tests preApply works as expected for device rects, rrects, and reports clipped-out, etc. as
