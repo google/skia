@@ -16,6 +16,24 @@
       "revId": "945df9038f864b7340adeaaa7c140efb68be4591",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f98c8f2_e60468d9",
+        "filename": "src/gpu/GrClipStack.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-22T13:33:47Z",
+      "side": 1,
+      "message": "Let\u0027s leave that for later. The challenge with doing rotation/skew matrices + fwidth is that bInA as a rect is the bounding box of the tighter quad. While we may get some queries faster this way if they are sufficiently smaller than the clip itself, we would still then want to fall through to the quad code to check the tighter quad bound corners against A.",
+      "parentUuid": "1d3110e3_f79af810",
+      "revId": "945df9038f864b7340adeaaa7c140efb68be4591",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
