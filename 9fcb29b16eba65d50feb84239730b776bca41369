@@ -88,6 +88,24 @@
       "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a462df43_48ec2918",
+        "filename": "third_party/d3dmemoryallocator/LICENSE",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-22T20:18:22Z",
+      "side": 1,
+      "message": "For Vulkan I didn\u0027t use external cause that means using a DEP to pull it in. And when first added we had to slightly modify the vma_alloc.h file to remove an include to make things work for us. Not sure if that is still required or not.",
+      "parentUuid": "370318e0_112b15cb",
+      "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
