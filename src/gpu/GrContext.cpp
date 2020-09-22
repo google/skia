@@ -754,6 +754,7 @@ GrBackendTexture GrContext::createCompressedBackendTexture(int width, int height
 
 bool GrContext::setBackendTextureState(const GrBackendTexture& backendTexture,
                                        const GrBackendSurfaceMutableState& state,
+                                       GrBackendSurfaceMutableState* previousState,
                                        GrGpuFinishedProc finishedProc,
                                        GrGpuFinishedContext finishedContext) {
     sk_sp<GrRefCntedCallback> callback;
@@ -769,7 +770,7 @@ bool GrContext::setBackendTextureState(const GrBackendTexture& backendTexture,
         return false;
     }
 
-    return fGpu->setBackendTextureState(backendTexture, state, std::move(callback));
+    return fGpu->setBackendTextureState(backendTexture, state, previousState, std::move(callback));
 }
 
 bool GrContext::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
@@ -824,6 +825,7 @@ bool GrContext::updateCompressedBackendTexture(const GrBackendTexture& backendTe
 
 bool GrContext::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
                                             const GrBackendSurfaceMutableState& state,
+                                            GrBackendSurfaceMutableState* previousState,
                                             GrGpuFinishedProc finishedProc,
                                             GrGpuFinishedContext finishedContext) {
     sk_sp<GrRefCntedCallback> callback;
@@ -839,7 +841,8 @@ bool GrContext::setBackendRenderTargetState(const GrBackendRenderTarget& backend
         return false;
     }
 
-    return fGpu->setBackendRenderTargetState(backendRenderTarget, state, std::move(callback));
+    return fGpu->setBackendRenderTargetState(backendRenderTarget, state, previousState,
+                                             std::move(callback));
 }
 
 void GrContext::deleteBackendTexture(GrBackendTexture backendTex) {
