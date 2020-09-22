@@ -31,7 +31,7 @@
 #ifdef SK_GL
 #include "include/core/SkImageInfo.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -214,7 +214,6 @@ SkImageInfo toSkImageInfo(const SimpleImageInfo& sii) {
 }
 
 #ifdef SK_GL
-// TODO: Migrate this to GrDirectContext.
 sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
 {
     EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
@@ -222,10 +221,10 @@ sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
         printf("failed to make webgl context current %d\n", r);
         return nullptr;
     }
-    // setup GrDirectContext
+    // setup GrContext
     auto interface = GrGLMakeNativeInterface();
     // setup contexts
-    sk_sp<GrContext> grContext(GrDirectContext::MakeGL(interface));
+    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
     return grContext;
 }
 
