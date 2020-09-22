@@ -58,23 +58,33 @@ public:
 
 private:
     struct VariableExpression {
+        Expression& expr() const {
+            return fOuterExpression ? *fOuterExpression : *fInnerVariable;
+        }
         std::unique_ptr<Expression> cloneWithRefKind(VariableReference::RefKind refKind) const {
-            fInnerVariable->setRefKind(refKind);
-            return fOuterExpression ? fOuterExpression->clone() : fInnerVariable->clone();
+            if (fInnerVariable) {
+                fInnerVariable->as<VariableReference>().setRefKind(refKind);
+            }
+            return expr().clone();
         }
         const Type& type() const {
-            return fOuterExpression ? fOuterExpression->type() : fInnerVariable->type();
+            return expr().type();
         }
 
-        // All VariableExpressions are expected to bottom out at a variable.
-        std::unique_ptr<VariableReference> fInnerVariable;
+        // This is the inner VariableReference of the outer expression; null if there's no variable.
+        // (e.g. an expression that is actually just an IntLiteral will have null here)
+        Expression* fInnerVariable = nullptr;
 
-        // fOuterExpression applies an expression to the fInnerVariable (e.g. a Swizzle). This can
-        // be null if the variable needs no adjustment.
+        // fOuterExpression is an expression wrapping the fInnerVariable (e.g. a Swizzle), for
+        // simple cases, it's just the VariableReference itself.
         std::unique_ptr<Expression> fOuterExpression;
+
+        // Indicates whether this VariableExpression needs to be copied back from its temp copy to
+        // the original variable. Should only be set for out parameters.
+        bool fShouldCopyBack = false;
     };
 
-    using VariableRewriteMap = std::unordered_map<const Variable*, const Variable*>;
+    using VariableRewriteMap = std::unordered_map<const Variable*, VariableExpression>;
 
     String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
 

@@ -375,9 +375,10 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
-            auto found = varMap->find(&v.fVariable);
-            if (found != varMap->end()) {
-                return std::make_unique<VariableReference>(offset, *found->second, v.fRefKind);
+            auto varExprIter = varMap->find(&v.fVariable);
+            if (varExprIter != varMap->end()) {
+                const VariableExpression& varExpr = varExprIter->second;
+                return varExpr.cloneWithRefKind(v.fRefKind);
             }
             return v.clone();
         }
@@ -507,7 +508,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                typePtr,
                                                old->fStorage,
                                                initialValue.get()));
-            (*varMap)[old] = clone;
+
+            VariableExpression& varExpr = (*varMap)[old];
+            varExpr.fOuterExpression = std::make_unique<VariableReference>(offset, *clone);
+            varExpr.fInnerVariable = varExpr.fOuterExpression.get();
+
             return std::make_unique<VarDeclaration>(clone, std::move(sizes),
                                                     std::move(initialValue));
         }
@@ -568,7 +573,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     inlinedBody.push_back(std::make_unique<InlineMarker>(call->fFunction));
 
     auto makeInlineVar = [&](const String& baseName, const Type* type, Modifiers modifiers,
-                             std::unique_ptr<Expression>* initialValue) -> const Variable* {
+                             std::unique_ptr<Expression>* initialValue) -> VariableExpression {
         // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
         // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
         // somewhere during compilation.
@@ -608,17 +613,19 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlinedBody.push_back(std::make_unique<VarDeclarationsStatement>(
                 std::make_unique<VarDeclarations>(offset, type, std::move(variables))));
 
-        return variableSymbol;
+        VariableExpression varExpr;
+        varExpr.fOuterExpression = std::make_unique<VariableReference>(offset, *variableSymbol);
+        varExpr.fInnerVariable = varExpr.fOuterExpression.get();
+        return varExpr;
     };
 
     // Create a variable to hold the result in the extra statements (excepting void).
     VariableExpression resultExpr;
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
-        const Variable* var = makeInlineVar(String(function.fDeclaration.fName),
-                                            &function.fDeclaration.fReturnType,
-                                            Modifiers{}, &noInitialValue);
-        resultExpr.fInnerVariable = std::make_unique<VariableReference>(offset, *var);
+        resultExpr = makeInlineVar(String(function.fDeclaration.fName),
+                                   &function.fDeclaration.fReturnType,
+                                   Modifiers{}, &noInitialValue);
     }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
@@ -626,19 +633,40 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     VariableRewriteMap varMap;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
+        std::unique_ptr<Expression>& argument = arguments[i];
+        bool isOutParam = param->fModifiers.fFlags & Modifiers::kOut_Flag;
+        bool variableIsNeverWritten = !Analysis::StatementWritesToVariable(*function.fBody, *param);
 
-        if (arguments[i]->is<VariableReference>()) {
-            // The argument is just a variable, so we only need to copy it if it's an out parameter
-            // or it's written to within the function.
-            if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
-                !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
-                varMap[param] = &arguments[i]->as<VariableReference>().fVariable;
+        SkASSERT(varMap.find(param) == varMap.end());
+        VariableExpression& varExpression = varMap[param];
+
+        if (isOutParam || variableIsNeverWritten) {
+            if (argument->is<VariableReference>()) {
+                // There's no need to make a copy of this variable. We can just reuse it as-is.
+                varExpression.fOuterExpression = argument->as<VariableReference>().clone();
+                varExpression.fInnerVariable = varExpression.fOuterExpression.get();
                 continue;
             }
         }
 
-        varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->type(),
-                                      param->fModifiers, &arguments[i]);
+        if (variableIsNeverWritten &&
+            (argument->is<FloatLiteral>() || argument->is<IntLiteral>())) {
+            // This variable is just a literal value and is never written to.
+            varExpression.fOuterExpression = argument->clone();
+            continue;
+        }
+
+        if (variableIsNeverWritten && argument->is<Swizzle>()) {
+            const Swizzle& swizzle = argument->as<Swizzle>();
+            if (swizzle.fBase->is<VariableReference>()) {
+                varExpression.fOuterExpression = argument->clone();
+                continue;
+            }
+        }
+
+        varExpression = makeInlineVar(String(param->fName), &argument->type(),
+                                      param->fModifiers, &argument);
+        varExpression.fShouldCopyBack = isOutParam;
     }
 
     const Block& body = function.fBody->as<Block>();
@@ -665,31 +693,27 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     // Copy the values of `out` parameters into their destinations.
     for (size_t i = 0; i < arguments.size(); ++i) {
-        const Variable* p = function.fDeclaration.fParameters[i];
-        if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
-            SkASSERT(varMap.find(p) != varMap.end());
-            if (arguments[i]->kind() == Expression::Kind::kVariableReference &&
-                &arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
-                // We didn't create a temporary for this parameter, so there's nothing to copy back
-                // out.
-                continue;
-            }
-            auto varRef = std::make_unique<VariableReference>(offset, *varMap[p]);
-            inlinedBody.push_back(std::make_unique<ExpressionStatement>(
-                    std::make_unique<BinaryExpression>(offset,
-                                                       arguments[i]->clone(),
-                                                       Token::Kind::TK_EQ,
-                                                       std::move(varRef),
-                                                       &arguments[i]->type())));
+        const Variable* param = function.fDeclaration.fParameters[i];
+        const std::unique_ptr<Expression>& argument = arguments[i];
+
+        SkASSERT(varMap.find(param) != varMap.end());
+        VariableExpression& varExpression = varMap[param];
+
+        if (varExpression.fShouldCopyBack) {
+            inlinedBody.push_back(
+                    std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
+                            offset,
+                            argument->clone(),
+                            Token::Kind::TK_EQ,
+                            varExpression.cloneWithRefKind(VariableReference::kRead_RefKind),
+                            &argument->type())));
         }
     }
 
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         // Return a reference to the result variable as our replacement expression.
-        resultExpr.fInnerVariable->setRefKind(VariableReference::kRead_RefKind);
-        inlinedCall.fReplacementExpr = resultExpr.fOuterExpression
-                                               ? std::move(resultExpr.fOuterExpression)
-                                               : std::move(resultExpr.fInnerVariable);
+        inlinedCall.fReplacementExpr =
+                resultExpr.cloneWithRefKind(VariableReference::kRead_RefKind);
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.
