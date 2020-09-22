@@ -6,6 +6,7 @@
  */
 
 #include "src/gpu/GrGpuResourcePriv.h"
+#include "src/gpu/d3d/GrD3DAMDMemoryAllocator.h"
 #include "src/gpu/d3d/GrD3DGpu.h"
 #include "src/gpu/d3d/GrD3DTextureResource.h"
 
@@ -42,26 +43,17 @@ bool GrD3DTextureResource::InitTextureResourceInfo(GrD3DGpu* gpu, const D3D12_RE
     // number of levels supported and use that -- we don't support that.
     SkASSERT(desc.MipLevels > 0);
 
-    ID3D12Resource* resource = nullptr;
-
-    D3D12_HEAP_PROPERTIES heapProperties = {};
-    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-    heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-    heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-    heapProperties.CreationNodeMask = 1;
-    heapProperties.VisibleNodeMask = 1;
-    HRESULT hr = gpu->device()->CreateCommittedResource(
-        &heapProperties,
-        D3D12_HEAP_FLAG_NONE,
+    info->fResource = gpu->memoryAllocator()->createResource(
+        D3D12_HEAP_TYPE_DEFAULT,
         &desc,
         initialState,
+        &info->fAlloc,
         clearValue,
-        IID_PPV_ARGS(&resource));
-    if (!SUCCEEDED(hr)) {
+        IID_PPV_ARGS(&info->fResource));
+    if (!info->fResource) {
         return false;
     }
 
-    info->fResource.reset(resource);
     info->fResourceState = initialState;
     info->fFormat = desc.Format;
     info->fLevelCount = desc.MipLevels;
