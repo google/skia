@@ -51,6 +51,24 @@
       "revId": "d9d635adb6d89501057ad97a82452bfde4db84ef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6112e29_55d4864a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13844
+      },
+      "writtenOn": "2020-09-22T12:45:58Z",
+      "side": 1,
+      "message": "I\u0027m back from vacation. May I please remind you the patch review.",
+      "parentUuid": "d9087db9_57c0218e",
+      "revId": "d9d635adb6d89501057ad97a82452bfde4db84ef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
