@@ -208,7 +208,7 @@ SkVector SkFindBisector(SkVector a, SkVector b) {
     return SkPoint{x0_x1[0] + x0_x1[1], y0_y1[0] + y0_y1[1]};
 }
 
-void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
+float SkFindQuadMidTangent(const SkPoint src[3]) {
     // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
     // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
     //
@@ -234,7 +234,7 @@ void SkChopQuadAtMidTangent(const SkPoint src[3], SkPoint dst[5]) {
         T = .5;  // The quadratic was a line or near-line. Just chop at .5.
     }
 
-    SkChopQuadAt(src, dst, T);
+    return T;
 }
 
 /** Quad'(t) = At + B, where
@@ -558,7 +558,7 @@ static Sk4f fma(const Sk4f& f, float m, const Sk4f& a) {
     return SkNx_fma(f, Sk4f(m), a);
 }
 
-void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
+float SkFindCubicMidTangent(const SkPoint src[4]) {
     // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
     // midtangent. The bisector of tan0 and -tan1 is orthogonal to the midtangent:
     //
@@ -627,7 +627,7 @@ void SkChopCubicAtMidTangent(const SkPoint src[4], SkPoint dst[7]) {
         T = .5;
     }
 
-    SkChopCubicAt(src, dst, T);
+    return T;
 }
 
 static void flatten_double_cubic_extrema(SkScalar coords[14]) {
