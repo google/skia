@@ -183,6 +183,7 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/Switch.sksl",
   "$_tests/sksl/glsl/SwitchContainingDeadCode.sksl",
   "$_tests/sksl/glsl/SwitchWithFallthrough.sksl",
+  "$_tests/sksl/glsl/SwizzleBoolConstants.sksl",
   "$_tests/sksl/glsl/SwizzleConstants.sksl",
   "$_tests/sksl/glsl/SwizzleLTRB.sksl",
   "$_tests/sksl/glsl/SwizzleOpt.sksl",
