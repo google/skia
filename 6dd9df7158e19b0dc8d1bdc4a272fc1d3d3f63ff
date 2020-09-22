@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9f065749_39a626b3",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-22T19:47:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2b43014_0f38901e",
+      "range": {
+        "startLine": 81,
+        "startChar": 24,
+        "endLine": 81,
+        "endChar": 30
+      },
+      "revId": "6dd9df7158e19b0dc8d1bdc4a272fc1d3d3f63ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "829c333a_ae2bf641",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "a9eb4596_d4671a79",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-22T19:47:16Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m hoping that eventually I get to move all elements into the map, at which point this can just std::move() the pointers, then discard the vector.",
+      "parentUuid": "829c333a_ae2bf641",
+      "range": {
+        "startLine": 82,
+        "startChar": 16,
+        "endLine": 82,
+        "endChar": 40
+      },
+      "revId": "6dd9df7158e19b0dc8d1bdc4a272fc1d3d3f63ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83f8bf9a_c72f2c12",
         "filename": "src/sksl/SkSLIRGenerator.h",
         "patchSetId": 4
@@ -68,6 +116,30 @@
       "revId": "6dd9df7158e19b0dc8d1bdc4a272fc1d3d3f63ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef15990c_27a8b19f",
+        "filename": "src/sksl/SkSLIRGenerator.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-22T19:47:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83f8bf9a_c72f2c12",
+      "range": {
+        "startLine": 64,
+        "startChar": 9,
+        "endLine": 64,
+        "endChar": 24
+      },
+      "revId": "6dd9df7158e19b0dc8d1bdc4a272fc1d3d3f63ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
