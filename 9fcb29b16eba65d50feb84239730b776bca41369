@@ -106,6 +106,24 @@
       "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40fed437_6adf5424",
+        "filename": "third_party/d3dmemoryallocator/LICENSE",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-22T20:24:04Z",
+      "side": 1,
+      "message": "Using DEPS in this case might be better as I had to change the formatting (there were carriage returns and whitespace) to get it through the Housekeeper. Tricium and Lint are also not happy.",
+      "parentUuid": "a462df43_48ec2918",
+      "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
