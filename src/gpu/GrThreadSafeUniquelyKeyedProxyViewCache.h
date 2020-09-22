@@ -57,6 +57,36 @@
 //
 //    For GrContext::setResourceCacheLimit, if an initial pass through the resource cache doesn't
 //    reach the budget, uniquely held resources in this cache will be released in LRU to MRU order.
+//
+//----------------------------------------------------------------------------------------
+//
+// For testing:
+//    Create DDLs all needing the same texture - check that only one wins - and that there is some duplicate work
+//    Create a gpu version & check that all DDLs use it - with no duplicate work
+//    Create a texture w/ a DDL and then make a live use of it - check that the DDL version wins
+//       - in the above, each mask should have the correct # of refs for the # of DDLs
+//
+//    Need to test out the flushing behavior:
+//      generate a bunch of masks to fill up memory
+//      flush the resource cache and ensure the corresponding entries in the cache are cleared
+//
+//      do the above but have some locked up in DDLs - so they survive the flush
+//
+//      do the above but have them all non-instantiated (in DDLs) so they all survive the flush
+//
+// Concern:
+//    It seems like the interaction between the resource cache and the thread-safe view cache
+//    is going to be very fraught. In particular, when the resource cache is purging we have to
+//    ensure that there are no race conditions w/ any recording threads.
+//
+//    In that case it seems like we need to figure out we're going to nuke a resource, then
+//    try to nuke it's entry here first. If that succeeds then we can delete the resource otherwise
+//    some thread locked it in the interim so we need to let the resource live. (Test this case!)
+//
+// More:
+//    Add gpu stats about SW vs. HW mask generation
+//    Make sure we're not reffing/un-reffing too much by passing GrSurfaceProxyViews around
+//
 class GrThreadSafeUniquelyKeyedProxyViewCache {
 public:
     GrThreadSafeUniquelyKeyedProxyViewCache();
@@ -70,9 +100,12 @@ public:
 
     void dropAllRefs()  SK_EXCLUDES(fSpinLock);
 
-    // Drop uniquely held refs subject to some requirement (e.g., budget, time last accessed).
-    // A null parameter means drop all uniquely held refs
+    // Drop uniquely held refs until under the resource cache's budget.
+    // A null parameter means drop all uniquely held refs.
     void dropUniqueRefs(GrResourceCache* resourceCache)  SK_EXCLUDES(fSpinLock);
+
+    // Drop uniquely held refs that were last accessed before 'purgeTime'
+    void dropUniqueRefsOlderThan(GrStdSteadyClock::time_point purgeTime)  SK_EXCLUDES(fSpinLock);
 
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
@@ -83,8 +116,9 @@ private:
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
 
         // Note: the unique key is stored here bc it is never attached to a proxy or a GrTexture
-        GrUniqueKey        fKey;
-        GrSurfaceProxyView fView;
+        GrUniqueKey                  fKey;
+        GrSurfaceProxyView           fView;
+        GrStdSteadyClock::time_point fLastAccess;
 
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
 
