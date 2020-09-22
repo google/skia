@@ -162,12 +162,13 @@ public:
     {}
 
     /**
-     *  Parameters are treated as row-major.
+     *  The constructor parameters are in row-major order.
      */
     constexpr SkM44(SkScalar m0, SkScalar m4, SkScalar m8,  SkScalar m12,
                     SkScalar m1, SkScalar m5, SkScalar m9,  SkScalar m13,
                     SkScalar m2, SkScalar m6, SkScalar m10, SkScalar m14,
                     SkScalar m3, SkScalar m7, SkScalar m11, SkScalar m15)
+        // fMat is column-major order in memory.
         : fMat{m0,  m1,  m2,  m3,
                m4,  m5,  m6,  m7,
                m8,  m9,  m10, m11,

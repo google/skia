@@ -93,6 +93,16 @@ static void assert9(skiatest::Reporter* reporter, const SkMatrix& m,
     REPORTER_ASSERT(reporter, buffer[6] == g);
     REPORTER_ASSERT(reporter, buffer[7] == h);
     REPORTER_ASSERT(reporter, buffer[8] == i);
+
+    REPORTER_ASSERT(reporter, m.rc(0, 0) == a);
+    REPORTER_ASSERT(reporter, m.rc(0, 1) == b);
+    REPORTER_ASSERT(reporter, m.rc(0, 2) == c);
+    REPORTER_ASSERT(reporter, m.rc(1, 0) == d);
+    REPORTER_ASSERT(reporter, m.rc(1, 1) == e);
+    REPORTER_ASSERT(reporter, m.rc(1, 2) == f);
+    REPORTER_ASSERT(reporter, m.rc(2, 0) == g);
+    REPORTER_ASSERT(reporter, m.rc(2, 1) == h);
+    REPORTER_ASSERT(reporter, m.rc(2, 2) == i);
 }
 
 static void test_set9(skiatest::Reporter* reporter) {
