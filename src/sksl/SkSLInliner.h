@@ -58,15 +58,18 @@ public:
 
 private:
     struct VariableExpression {
+        Expression& expr() const {
+            return fOuterExpression ? *fOuterExpression : *fInnerVariable;
+        }
         std::unique_ptr<Expression> cloneWithRefKind(VariableReference::RefKind refKind) const {
             fInnerVariable->setRefKind(refKind);
-            return fOuterExpression ? fOuterExpression->clone() : fInnerVariable->clone();
+            return expr().clone();
         }
         const Type& type() const {
-            return fOuterExpression ? fOuterExpression->type() : fInnerVariable->type();
+            return expr().type();
         }
 
-        // All VariableExpressions are expected to bottom out at a variable.
+        // All VariableExpressions are required to bottom out at a variable.
         std::unique_ptr<VariableReference> fInnerVariable;
 
         // fOuterExpression applies an expression to the fInnerVariable (e.g. a Swizzle). This can
@@ -74,7 +77,7 @@ private:
         std::unique_ptr<Expression> fOuterExpression;
     };
 
-    using VariableRewriteMap = std::unordered_map<const Variable*, const Variable*>;
+    using VariableRewriteMap = std::unordered_map<const Variable*, VariableExpression>;
 
     String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
 
