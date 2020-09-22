@@ -70,6 +70,24 @@
       "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "370318e0_112b15cb",
+        "filename": "third_party/d3dmemoryallocator/LICENSE",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-22T19:56:19Z",
+      "side": 1,
+      "message": "I could set this up differently and put it in externals since it doesn\u0027t appear I need a GrDirect3DMemoryAllocator.",
+      "parentUuid": "9e54c165_4fe9bfc6",
+      "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
