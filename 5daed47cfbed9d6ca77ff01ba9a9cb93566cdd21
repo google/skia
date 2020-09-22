@@ -70,6 +70,24 @@
       "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e57eead7_1037df7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-22T20:31:27Z",
+      "side": 1,
+      "message": "Yeah that was a big change we made recently to separate the idea of flushing and submitting. Now the end result of a flush is just recording commands into a VkCommandBuffer. Same with setState just records a new command into the command buffer. So in both paths you just end up with the state change being the last thing in the command buffer (until you flush or record something else before submitting of course).",
+      "parentUuid": "cc53fca9_456763b2",
+      "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
