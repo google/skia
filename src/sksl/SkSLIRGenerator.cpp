@@ -1209,10 +1209,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
 bool IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
     switch (value.kind()) {
         case Expression::Kind::kIntLiteral:
-            *out = static_cast<const IntLiteral&>(value).fValue;
+            *out = value.as<IntLiteral>().fValue;
             return true;
         case Expression::Kind::kVariableReference: {
-            const Variable& var = static_cast<const VariableReference&>(value).fVariable;
+            const Variable& var = value.as<VariableReference>().fVariable;
             return (var.fModifiers.fFlags & Modifiers::kConst_Flag) &&
                    var.fInitialValue &&
                    this->getConstantInt(*var.fInitialValue, out);
@@ -1928,13 +1928,13 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     const Type* rightType;
     const Type* resultType;
     const Type* rawLeftType;
-    if (left->kind() == Expression::Kind::kIntLiteral && right->type().isInteger()) {
+    if (left->is<IntLiteral>() && right->type().isInteger()) {
         rawLeftType = &right->type();
     } else {
         rawLeftType = &left->type();
     }
     const Type* rawRightType;
-    if (right->kind() == Expression::Kind::kIntLiteral && left->type().isInteger()) {
+    if (right->is<IntLiteral>() && left->type().isInteger()) {
         rawRightType = &left->type();
     } else {
         rawRightType = &right->type();
@@ -2210,28 +2210,24 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
     if (type == argType) {
         return std::move(args[0]);
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->kind() == Expression::Kind::kFloatLiteral) {
+    if (type.isFloat() && args.size() == 1 && args[0]->is<FloatLiteral>()) {
         double value = args[0]->as<FloatLiteral>().fValue;
-        return std::unique_ptr<Expression>(new FloatLiteral(offset, value, &type));
+        return std::make_unique<FloatLiteral>(offset, value, &type);
     }
-    if (type.isFloat() && args.size() == 1 && args[0]->kind() == Expression::Kind::kIntLiteral) {
+    if (type.isFloat() && args.size() == 1 && args[0]->is<IntLiteral>()) {
         int64_t value = args[0]->as<IntLiteral>().fValue;
-        return std::unique_ptr<Expression>(new FloatLiteral(offset, (double) value, &type));
+        return std::make_unique<FloatLiteral>(offset, (double)value, &type);
     }
-    if (args[0]->kind() == Expression::Kind::kIntLiteral && (type == *fContext.fInt_Type ||
-        type == *fContext.fUInt_Type)) {
-        return std::unique_ptr<Expression>(new IntLiteral(offset,
-                                                          args[0]->as<IntLiteral>().fValue,
-                                                          &type));
+    if (args[0]->is<IntLiteral>() && (type == *fContext.fInt_Type ||
+                                      type == *fContext.fUInt_Type)) {
+        return std::make_unique<IntLiteral>(offset, args[0]->as<IntLiteral>().fValue, &type);
     }
     if (argType == *fContext.fBool_Type) {
         std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, offset, 0));
         std::unique_ptr<IntLiteral> one(new IntLiteral(fContext, offset, 1));
-        return std::unique_ptr<Expression>(
-                                     new TernaryExpression(offset, std::move(args[0]),
-                                                           this->coerce(std::move(one), type),
-                                                           this->coerce(std::move(zero),
-                                                                        type)));
+        return std::make_unique<TernaryExpression>(offset, std::move(args[0]),
+                                                   this->coerce(std::move(one), type),
+                                                   this->coerce(std::move(zero), type));
     }
     if (!argType.isNumber()) {
         fErrors.error(offset, "invalid argument to '" + type.displayName() +
@@ -2239,7 +2235,7 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
                               argType.displayName() + "')");
         return nullptr;
     }
-    return std::unique_ptr<Expression>(new Constructor(offset, &type, std::move(args)));
+    return std::make_unique<Constructor>(offset, &type, std::move(args));
 }
 
 static int component_count(const Type& type) {
@@ -2592,18 +2588,24 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
         switch (fields[i]) {
             case '0':
                 if (constantZeroIdx == -1) {
-                    // Synthesize a 'zero' argument at the end of the constructor.
-                    auto literal = std::make_unique<IntLiteral>(fContext, offset, /*value=*/0);
-                    constructorArgs.push_back(this->coerce(std::move(literal), *numberType));
+                    // Synthesize a 'type(0)' argument at the end of the constructor.
+                    auto zero = std::make_unique<Constructor>(
+                            offset, numberType, std::vector<std::unique_ptr<Expression>>{});
+                    zero->fArguments.push_back(std::make_unique<IntLiteral>(fContext, offset,
+                                                                            /*fValue=*/0));
+                    constructorArgs.push_back(std::move(zero));
                     constantZeroIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantZeroIdx);
                 break;
             case '1':
                 if (constantOneIdx == -1) {
-                    // Synthesize a 'one' argument at the end of the constructor.
-                    auto literal = std::make_unique<IntLiteral>(fContext, offset, /*value=*/1);
-                    constructorArgs.push_back(this->coerce(std::move(literal), *numberType));
+                    // Synthesize a 'type(1)' argument at the end of the constructor.
+                    auto one = std::make_unique<Constructor>(
+                            offset, numberType, std::vector<std::unique_ptr<Expression>>{});
+                    one->fArguments.push_back(std::make_unique<IntLiteral>(fContext, offset,
+                                                                           /*fValue=*/1));
+                    constructorArgs.push_back(std::move(one));
                     constantOneIdx = constantFieldIdx++;
                 }
                 swizzleComponents.push_back(constantOneIdx);
