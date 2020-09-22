@@ -16,6 +16,23 @@
       "revId": "88417fc37490e824b93c8c4e895c1f2665433532",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cfd47ca7_914b13ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-22T13:49:55Z",
+      "side": 1,
+      "message": "Nifty",
+      "revId": "88417fc37490e824b93c8c4e895c1f2665433532",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
