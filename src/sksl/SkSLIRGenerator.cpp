@@ -2032,7 +2032,32 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
     if (found != fIntrinsics->end() && !found->second.fAlreadyIncluded) {
         found->second.fAlreadyIncluded = true;
         FunctionDefinition& original = found->second.fIntrinsic->as<FunctionDefinition>();
-        for (const FunctionDeclaration* f : original.fReferencedIntrinsics) {
+
+        // Sort the referenced intrinsics into a consistent order; otherwise our output will become
+        // non-deterministic.
+        std::vector<const FunctionDeclaration*> intrinsics(original.fReferencedIntrinsics.begin(),
+                                                           original.fReferencedIntrinsics.end());
+        std::sort(intrinsics.begin(), intrinsics.end(),
+                  [](const FunctionDeclaration* a, const FunctionDeclaration* b) {
+                      if (a->fName != b->fName) {
+                          return a->fName < b->fName;
+                      }
+                      if (a->fParameters.size() != b->fParameters.size()) {
+                          return a->fParameters.size() < b->fParameters.size();
+                      }
+                      for (size_t index = 0; index < a->fParameters.size(); ++index) {
+                          if (&a->fParameters[index]->type() != &b->fParameters[index]->type()) {
+                              return a->fParameters[index]->type().fName <
+                                     b->fParameters[index]->type().fName;
+                          }
+                      }
+                      // We can't find a difference between these two function declarations.
+                      // This shouldn't happen; take the nuclear option and stringize it all.
+                      SkDEBUGFAILF("[A] %s\n[B] %s\n", a->description().c_str(),
+                                                       b->description().c_str());
+                      return a->description() < b->description();
+                  });
+        for (const FunctionDeclaration* f : intrinsics) {
             this->copyIntrinsicIfNeeded(*f);
         }
         fProgramElements->push_back(original.clone());
