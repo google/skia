@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "726bb92c_42b25105",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-23T17:06:38Z",
+      "side": 1,
+      "message": "The dependencies are in and this is ready to go",
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
