@@ -1565,11 +1565,11 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
 }
 
 void Compiler::registerExternalValue(ExternalValue* value) {
-    fIRGenerator->fRootSymbolTable->addWithoutOwnership(value->fName, value);
+    fRootSymbolTable->addWithoutOwnership(value->fName, value);
 }
 
 const Symbol* Compiler::takeOwnership(std::unique_ptr<const Symbol> symbol) {
-    return fIRGenerator->fRootSymbolTable->takeOwnershipOfSymbol(std::move(symbol));
+    return fRootSymbolTable->takeOwnershipOfSymbol(std::move(symbol));
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
