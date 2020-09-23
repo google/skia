@@ -1210,6 +1210,26 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .constructor<sk_sp<SkTypeface>>()
         .constructor<sk_sp<SkTypeface>, SkScalar>()
         .constructor<sk_sp<SkTypeface>, SkScalar, SkScalar, SkScalar>()
+        .function("_getGlyphBounds", optional_override([](SkFont& self) -> bool {
+            // TODO(kjlubick)
+            return false;
+        }))
+        .function("_getGlyphIDs", optional_override([](SkFont& self, uintptr_t /* char* */ sptr,
+                                                       size_t strLen, size_t expectedCodePoints,
+                                                       uintptr_t /* SkGlyphID* */ iPtr) -> int {
+            char* str = reinterpret_cast<char*>(sptr);
+            SkGlyphID* glyphIDs = reinterpret_cast<SkGlyphID*>(iPtr);
+
+            int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
+                                                     glyphIDs, expectedCodePoints);
+            if (actualCodePoints != expectedCodePoints) {
+                SkDebugf("Actually %d glyphs, expected only %d\n",
+                         actualCodePoints, expectedCodePoints);
+                return -1;
+            }
+
+            return actualCodePoints;
+        }))
         .function("getScaleX", &SkFont::getScaleX)
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)

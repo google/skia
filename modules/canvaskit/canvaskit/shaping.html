@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<title>WIP Shaping in JS Demo</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas {
+    border: 1px dashed #AAA;
+  }
+
+  #input {
+    height: 300px;
+  }
+
+</style>
+
+<h2> (Really Bad) Shaping in JS </h2>
+<textarea id=input></textarea>
+<canvas id=shaped_text width=300 height=300></canvas>
+
+<script type="text/javascript" src="/node_modules/canvaskit/bin/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  var CanvasKit = null;
+  var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+
+  const ckLoaded = CanvasKitInit({locateFile: (file) => '/node_modules/canvaskit/bin/'+file});
+  const loadFont = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
+
+  // Examples requiring external resources.
+  Promise.all([ckLoaded, loadFont]).then((results) => {
+    ShapingJS(...results);
+  });
+
+  function ShapingJS(CanvasKit, fontData) {
+    if (!CanvasKit || !fontData) {
+      return;
+    }
+
+    const surface = CanvasKit.MakeCanvasSurface('shaped_text');
+    if (!surface) {
+      console.error('Could not make surface');
+      return;
+    }
+
+    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const typeface = fontMgr.MakeTypefaceFromData(fontData);
+
+    const paint = new CanvasKit.SkPaint();
+
+    paint.setColor(CanvasKit.BLUE);
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+    const textPaint = new CanvasKit.SkPaint();
+    const textFont = new CanvasKit.SkFont(typeface, 20);
+
+    const ids = textFont.getGlyphIDs("abcdefghæ");
+    console.log(ids);
+
+    const drawFrame = (canvas) => {
+      canvas.clear(CanvasKit.WHITE);
+      canvas.drawText('a + e = ae (no ligature)',
+        5, 30, textPaint, textFont);
+      canvas.drawText('a + e = æ (hard-coded ligature)',
+        5, 50, textPaint, textFont);
+
+      canvas.drawRect(CanvasKit.LTRBRect(10, 80, 280, 290), paint);
+
+      surface.requestAnimationFrame(drawFrame)
+    };
+    surface.requestAnimationFrame(drawFrame);
+  }
+</script>
