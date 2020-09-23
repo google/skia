@@ -1112,9 +1112,8 @@ void GrTextBlob::setMinAndMaxScale(SkScalar scaledMin, SkScalar scaledMax) {
 
 bool GrTextBlob::canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) {
     // A singular matrix will create a GrTextBlob with no SubRuns, but unknown glyphs can
-    // also cause empty runs. If there are no subRuns, and the matrix is complicated, then
-    // regenerate.
-    if (fSubRunList.isEmpty() && !fInitialMatrix.rectStaysRect()) {
+    // also cause empty runs. If there are no subRuns, then regenerate.
+    if (fSubRunList.isEmpty()) {
         return false;
     }
 
