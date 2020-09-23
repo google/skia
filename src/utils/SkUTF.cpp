@@ -285,20 +285,26 @@ int SkUTF::UTF8ToUTF16(uint16_t dst[], int dstCapacity, const char src[], size_t
 }
 
 int SkUTF::UTF16ToUTF8(char dst[], int dstCapacity, const uint16_t src[], size_t srcLength) {
-
     if (!dst) {
         dstCapacity = 0;
     }
 
     int dstLength = 0;
     const char* endDst = dst + dstCapacity;
-    for (size_t i = 0; i < srcLength; ++i) {
+    const uint16_t* endSrc = src + srcLength;
+    while (src < endSrc) {
+        SkUnichar uni = NextUTF16(&src, endSrc);
+        if (uni < 0) {
+            return -1;
+        }
+
         char utf8[SkUTF::kMaxBytesInUTF8Sequence];
-        size_t count = ToUTF8(src[i], utf8);
+        size_t count = ToUTF8(uni, utf8);
         if (count == 0) {
             return -1;
         }
         dstLength += count;
+
         if (dst) {
             const char* elems = utf8;
             while (dst < endDst && count > 0) {
