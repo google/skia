@@ -33,6 +33,29 @@
       "revId": "6174e4107329a6d8ad7bd792e775b2414a01a1d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ce3eae1_485fee2c",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-23T18:31:45Z",
+      "side": 1,
+      "message": "This looks fine to me, but this only affects the new GrClipStack. When SK_DISABLE_NEW_GR_CLIP_STACK is defined, SkGpuDevice extends SkClipStackDevice and onClipPath is defined there. \n\nBy default the new stack isn\u0027t disabled, so that probably doesn\u0027t matter for your purposes, since we\u0027ll see this on bot and local runs.\n\nInternally, GrClipStack doesn\u0027t have any special behavior for volatile paths yet, except if a path renderer takes advantage of it.",
+      "range": {
+        "startLine": 251,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 6
+      },
+      "revId": "6174e4107329a6d8ad7bd792e775b2414a01a1d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
