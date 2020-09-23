@@ -29,6 +29,9 @@ layout(key) bool highp = abs(rect.x) > 16000 || abs(rect.y) > 16000 ||
 layout(when= highp) uniform float4 rectF;
 layout(when=!highp) uniform half4  rectH;
 
+layout(key) in bool applyInvVM;
+layout(when=applyInvVM) in uniform float3x3 invVM;
+
 // Effect that is a LUT for integral of normal distribution. The value at x:[0,6*sigma] is the
 // integral from -inf to (3*sigma - x). I.e. x is mapped from [0, 6*sigma] to [3*sigma to -3*sigma].
 // The flip saves a reversal in the shader.
@@ -41,10 +44,6 @@ layout(key) in bool isFast;
 @optimizationFlags {
     (inputFP ? ProcessorOptimizationFlags(inputFP.get()) : kAll_OptimizationFlags) &
             kCompatibleWithCoverageAsAlpha_OptimizationFlag
-}
-
-@constructorParams {
-    GrSamplerState samplerParams
 }
 
 @samplerParams(integral) {
@@ -94,19 +93,52 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
      static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                       GrRecordingContext* context,
                                                       const GrShaderCaps& caps,
-                                                      const SkRect& rect, float sigma) {
-         SkASSERT(rect.isSorted());
+                                                      const SkRect& srcRect,
+                                                      const SkMatrix& viewMatrix,
+                                                      float transformedSigma) {
+         SkASSERT(viewMatrix.preservesRightAngles());
+         SkASSERT(srcRect.isSorted());
+
+         SkMatrix invM;
+         SkRect rect;
+         if (viewMatrix.isScaleTranslate()) {
+             invM = SkMatrix::I();
+             // We can do everything in device space when there is no rotation.
+             SkAssertResult(viewMatrix.mapRect(&rect, srcRect));
+         } else {
+             // The view matrix may scale, perhaps anisotropically. But we want to apply our device
+             // space "transformedSigma" to the delta of frag coord from the rect edges. Factor out
+             // the scaling to define a space that is purely rotation/translation from device space
+             // (and scale from src space) We'll meet in the middle: pre-scale the src rect to be in
+             // this space and then apply the inverse of the rotation/translation portion to the
+             // frag coord.
+             SkMatrix m;
+             SkSize scale;
+             if (!viewMatrix.decomposeScale(&scale, &m)) {
+                 return nullptr;
+             }
+             if (!m.invert(&invM)) {
+                 return nullptr;
+             }
+             rect = {srcRect.left()   * scale.width(),
+                     srcRect.top()    * scale.height(),
+                     srcRect.right()  * scale.width(),
+                     srcRect.bottom() * scale.height()};
+         }
+
          if (!caps.floatIs32Bits()) {
              // We promote the math that gets us into the Gaussian space to full float when the rect
              // coords are large. If we don't have full float then fail. We could probably clip the
              // rect to an outset device bounds instead.
-             if (SkScalarAbs(rect.fLeft)  > 16000.f || SkScalarAbs(rect.fTop)    > 16000.f ||
-                 SkScalarAbs(rect.fRight) > 16000.f || SkScalarAbs(rect.fBottom) > 16000.f) {
+             if (SkScalarAbs(rect.fLeft)   > 16000.f ||
+                 SkScalarAbs(rect.fTop)    > 16000.f ||
+                 SkScalarAbs(rect.fRight)  > 16000.f ||
+                 SkScalarAbs(rect.fBottom) > 16000.f) {
                     return nullptr;
              }
          }
 
-         const float sixSigma = 6 * sigma;
+         const float sixSigma = 6 * transformedSigma;
          std::unique_ptr<GrFragmentProcessor> integral = MakeIntegralFP(context, sixSigma);
          if (!integral) {
              return nullptr;
@@ -117,24 +149,32 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
          // inset the rect so that the edge of the inset rect corresponds to t = 0 in the texture.
          // It actually simplifies things a bit in the !isFast case, too.
          float threeSigma = sixSigma / 2;
-         SkRect insetRect = {rect.fLeft   + threeSigma,
-                             rect.fTop    + threeSigma,
-                             rect.fRight  - threeSigma,
-                             rect.fBottom - threeSigma};
+         SkRect insetRect = {rect.left()   + threeSigma,
+                             rect.top()    + threeSigma,
+                             rect.right()  - threeSigma,
+                             rect.bottom() - threeSigma};
 
          // In our fast variant we find the nearest horizontal and vertical edges and for each
          // do a lookup in the integral texture for each and multiply them. When the rect is
          // less than 6 sigma wide then things aren't so simple and we have to consider both the
          // left and right edge of the rectangle (and similar in y).
          bool isFast = insetRect.isSorted();
-         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(
-                    std::move(inputFP), insetRect, std::move(integral),
-                    isFast, GrSamplerState::Filter::kLinear));
+         return std::unique_ptr<GrFragmentProcessor>(new GrRectBlurEffect(std::move(inputFP),
+                                                                          insetRect,
+                                                                          !invM.isIdentity(),
+                                                                          invM,
+                                                                          std::move(integral),
+                                                                          isFast));
      }
 }
 
 void main() {
     half xCoverage, yCoverage;
+    float2 pos = sk_FragCoord.xy;
+    @if (applyInvVM) {
+        // It'd be great if we could lift this to the VS.
+        pos = (invVM*float3(pos,1)).xy;
+    }
     @if (isFast) {
         // Get the smaller of the signed distance from the frag coord to the left and right
         // edges and similar for y.
@@ -143,11 +183,9 @@ void main() {
         // extending outward 6 * sigma from the inset rect.
         half2 xy;
         @if (highp) {
-            xy = max(half2(rectF.LT - sk_FragCoord.xy),
-                     half2(sk_FragCoord.xy - rectF.RB));
+            xy = max(half2(rectF.LT - pos), half2(pos - rectF.RB));
        } else {
-            xy = max(half2(rectH.LT - sk_FragCoord.xy),
-                     half2(sk_FragCoord.xy - rectH.RB));
+            xy = max(half2(rectH.LT - pos), half2(pos - rectH.RB));
         }
         xCoverage = sample(integral, half2(xy.x, 0.5)).a;
         yCoverage = sample(integral, half2(xy.y, 0.5)).a;
@@ -169,11 +207,11 @@ void main() {
         // also factored in.
         half4 rect;
         @if (highp) {
-            rect.LT = half2(rectF.LT - sk_FragCoord.xy);
-            rect.RB = half2(sk_FragCoord.xy - rectF.RB);
+            rect.LT = half2(rectF.LT - pos);
+            rect.RB = half2(pos - rectF.RB);
         } else {
-            rect.LT = half2(rectH.LT - sk_FragCoord.xy);
-            rect.RB = half2(sk_FragCoord.xy - rectH.RB);
+            rect.LT = half2(rectH.LT - pos);
+            rect.RB = half2(pos - rectH.RB);
         }
         xCoverage = 1 - sample(integral, half2(rect.L, 0.5)).a
                       - sample(integral, half2(rect.R, 0.5)).a;
@@ -190,9 +228,13 @@ void main() {
 }
 
 @test(data) {
-    float sigma = data->fRandom->nextRangeF(3,8);
-    float width = data->fRandom->nextRangeF(200,300);
-    float height = data->fRandom->nextRangeF(200,300);
+    float sigma = data->fRandom->nextRangeF(3, 8);
+    int x = data->fRandom->nextRangeF(1, 200);
+    int y = data->fRandom->nextRangeF(1, 200);
+    float width = data->fRandom->nextRangeF(200, 300);
+    float height = data->fRandom->nextRangeF(200, 300);
+    SkMatrix vm = GrTest::TestMatrixPreservesRightAngles(data->fRandom);
+    auto rect = SkRect::MakeXYWH(x, y, width, height);
     return GrRectBlurEffect::Make(data->inputFP(), data->context(), *data->caps()->shaderCaps(),
-                                  SkRect::MakeWH(width, height), sigma);
+                                  rect, vm, sigma);
 }
