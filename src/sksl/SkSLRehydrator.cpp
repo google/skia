@@ -231,8 +231,8 @@ const Symbol* Rehydrator::symbol() {
             StringFragment name = this->readString();
             const Type* type = this->type();
             Variable::Storage storage = (Variable::Storage) this->readU8();
-            const Variable* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Variable>(/*offset=*/-1, m, name, type, storage));
+            const Variable* result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
+                    /*offset=*/-1, m, name, type, /*builtin=*/true, storage));
             this->addSymbol(id, result);
             return result;
         }

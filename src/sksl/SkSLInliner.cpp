@@ -496,6 +496,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
+            //
+            // re: builtin - We might be inlining within a pre-include, but in that case, the
+            // resulting IR will be dehydrated and rehydrated, which will reset the builtin flag.
             auto name = std::make_unique<String>(
                     this->uniqueNameForInlineVar(String(old->fName), symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
@@ -505,6 +508,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                old->fModifiers,
                                                namePtr->c_str(),
                                                typePtr,
+                                               /*builtin=*/false,
                                                old->fStorage,
                                                initialValue.get()));
             (*varMap)[old] = clone;
@@ -588,7 +592,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
         // Add our new variable to the symbol table.
         auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
-                                                 Variable::kLocal_Storage, initialValue->get());
+                                                 /*builtin=*/false, Variable::kLocal_Storage,
+                                                 initialValue->get());
         const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
