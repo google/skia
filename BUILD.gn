@@ -853,7 +853,10 @@ optional("gpu") {
 
   if (skia_use_direct3d) {
     public_defines += [ "SK_DIRECT3D" ]
-    deps += [ "//third_party/spirv-cross:spirv_cross" ]
+    deps += [
+      "//third_party/d3d12allocator",
+      "//third_party/spirv-cross:spirv_cross",
+    ]
     sources += skia_direct3d_sources
     if (skia_enable_direct3d_debug_layer) {
       public_defines += [ "SK_ENABLE_D3D_DEBUG_LAYER" ]
