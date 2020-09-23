@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "88ea7c58_81027058",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-09-23T19:09:53Z",
+      "side": 1,
+      "message": "Flutter mac \u0026 ios builds passed, G3 canary failure is unrelated",
+      "revId": "9da17512de0490894c31d8e5de8a9f32c37488f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
