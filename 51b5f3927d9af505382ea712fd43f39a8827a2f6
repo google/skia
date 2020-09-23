@@ -39,6 +39,30 @@
       "revId": "51b5f3927d9af505382ea712fd43f39a8827a2f6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6572f20_7a8b7c72",
+        "filename": "modules/canvaskit/tests/skottie.spec.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-23T14:12:17Z",
+      "side": 1,
+      "message": "Seems to come from the google3 karma runner\u0027s file server when you don\u0027t have data included in the build rule",
+      "parentUuid": "881cc827_6a588a63",
+      "range": {
+        "startLine": 37,
+        "startChar": 37,
+        "endLine": 37,
+        "endChar": 48
+      },
+      "revId": "51b5f3927d9af505382ea712fd43f39a8827a2f6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
