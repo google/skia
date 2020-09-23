@@ -16,6 +16,23 @@
       "revId": "6174e4107329a6d8ad7bd792e775b2414a01a1d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "831e9ec7_7007009b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-23T18:10:17Z",
+      "side": 1,
+      "message": "SkPath.h change lgtm",
+      "revId": "6174e4107329a6d8ad7bd792e775b2414a01a1d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
