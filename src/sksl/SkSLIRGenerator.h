@@ -114,6 +114,7 @@ private:
      * settings.
      */
     void start(const Program::Settings* settings,
+               std::shared_ptr<SymbolTable> baseSymbolTable,
                std::vector<std::unique_ptr<ProgramElement>>* inherited,
                bool isBuiltinCode = false);
 

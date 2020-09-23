@@ -334,22 +334,14 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* path,
                                   std::vector<std::unique_ptr<ProgramElement>>* outElements,
                                   std::shared_ptr<SymbolTable>* outSymbolTable) {
     std::ifstream in(path);
-    std::string stdText{std::istreambuf_iterator<char>(in),
-                        std::istreambuf_iterator<char>()};
+    std::unique_ptr<String> text = std::make_unique<String>(std::istreambuf_iterator<char>(in),
+                                                            std::istreambuf_iterator<char>());
     if (in.rdstate()) {
         printf("error reading %s\n", path);
         abort();
     }
-    if (!base) {
-        base = fIRGenerator->fSymbolTable;
-    }
-    SkASSERT(base);
-    const String* source = base->takeOwnershipOfString(std::make_unique<String>(stdText.c_str()));
+    const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
     fSource = source;
-    std::shared_ptr<SymbolTable> old = fIRGenerator->fSymbolTable;
-    if (base) {
-        fIRGenerator->fSymbolTable = std::move(base);
-    }
     Program::Settings settings;
 #if !defined(SKSL_STANDALONE) & SK_SUPPORT_GPU
     GrContextOptions opts;
@@ -358,7 +350,7 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* path,
 #endif
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
-    fIRGenerator->start(&settings, nullptr, true);
+    fIRGenerator->start(&settings, base ? base : fRootSymbolTable, nullptr, true);
     fIRGenerator->convertProgram(kind, source->c_str(), source->length(), outElements);
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
@@ -369,7 +361,7 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* path,
 #ifdef SK_DEBUG
     fSource = nullptr;
 #endif
-    fIRGenerator->fSymbolTable = std::move(old);
+    fIRGenerator->finish();
 }
 
 // add the definition created by assigning to the lvalue to the definition set
@@ -1582,22 +1574,19 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     switch (kind) {
         case Program::kVertex_Kind:
             inherited = &fVertexInclude;
-            fIRGenerator->fSymbolTable = fVertexSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(&settings, fVertexSymbolTable, inherited);
             break;
         case Program::kFragment_Kind:
             inherited = &fFragmentInclude;
-            fIRGenerator->fSymbolTable = fFragmentSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(&settings, fFragmentSymbolTable, inherited);
             break;
         case Program::kGeometry_Kind:
             this->loadGeometryIntrinsics();
             inherited = &fGeometryInclude;
-            fIRGenerator->fSymbolTable = fGeometrySymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(&settings, fGeometrySymbolTable, inherited);
             break;
         case Program::kFragmentProcessor_Kind: {
 #if !SKSL_STANDALONE
@@ -1612,14 +1601,13 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             grab_intrinsics(&fFPInclude, fFPIntrinsics.get());
 
             inherited = &fFPInclude;
-            fIRGenerator->fSymbolTable = fFPSymbolTable;
             fIRGenerator->fIntrinsics = fFPIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(&settings, fFPSymbolTable, inherited);
             break;
 #else
             inherited = nullptr;
-            fIRGenerator->fSymbolTable = fGpuSymbolTable;
-            fIRGenerator->start(&settings, /*inherited=*/nullptr, /*builtin=*/true);
+            fIRGenerator->start(&settings, fGpuSymbolTable, /*inherited=*/nullptr,
+                                /*builtin=*/true);
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             std::ifstream in(SKSL_FP_INCLUDE);
             std::string stdText{std::istreambuf_iterator<char>(in),
@@ -1628,7 +1616,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                 printf("error reading %s\n", SKSL_FP_INCLUDE);
                 abort();
             }
-            const String* source = fGpuSymbolTable->takeOwnershipOfString(
+            const String* source = fRootSymbolTable->takeOwnershipOfString(
                                                          std::make_unique<String>(stdText.c_str()));
             fIRGenerator->convertProgram(kind, source->c_str(), source->length(), &elements);
             fIRGenerator->fIsBuiltinCode = false;
@@ -1638,16 +1626,14 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
         case Program::kPipelineStage_Kind:
             this->loadPipelineIntrinsics();
             inherited = &fPipelineInclude;
-            fIRGenerator->fSymbolTable = fPipelineSymbolTable;
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, inherited);
+            fIRGenerator->start(&settings, fPipelineSymbolTable, inherited);
             break;
         case Program::kGeneric_Kind:
             this->loadInterpreterIntrinsics();
             inherited = nullptr;
-            fIRGenerator->fSymbolTable = fInterpreterSymbolTable;
             fIRGenerator->fIntrinsics = fInterpreterIntrinsics.get();
-            fIRGenerator->start(&settings, /*inherited=*/nullptr);
+            fIRGenerator->start(&settings, fInterpreterSymbolTable, /*inherited=*/nullptr);
             break;
     }
     std::unique_ptr<String> textPtr(new String(std::move(text)));
@@ -1661,6 +1647,7 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                             std::move(elements),
                                             fIRGenerator->fSymbolTable,
                                             fIRGenerator->fInputs);
+    fIRGenerator->finish();
     if (fErrorCount) {
         return nullptr;
     }
