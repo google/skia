@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c2bc5b7b_2d94945a",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-23T19:33:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3b9d6d6_86a0bebc",
+      "range": {
+        "startLine": 645,
+        "startChar": 33,
+        "endLine": 645,
+        "endChar": 34
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee196512_234ae3b7",
         "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
         "patchSetId": 15
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "46fc2b37_6c6f6014",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-23T19:33:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee196512_234ae3b7",
+      "range": {
+        "startLine": 646,
+        "startChar": 33,
+        "endLine": 646,
+        "endChar": 34
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3610995e_177e8c45",
         "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
         "patchSetId": 15
@@ -62,6 +110,24 @@
       "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2b5190d_59b4d21b",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1007,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-23T19:33:43Z",
+      "side": 1,
+      "message": "Yes, I tried to do it without UText like but I guess we need to make it right from the beginning.",
+      "parentUuid": "3610995e_177e8c45",
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "ba93ba4f_57a6726b",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-23T19:33:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72fb16bf_b7268a65",
+      "range": {
+        "startLine": 70,
+        "startChar": 29,
+        "endLine": 70,
+        "endChar": 73
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e5abc71c_5cedb0aa",
         "filename": "modules/skshaper/src/SkUnicode.h",
         "patchSetId": 15
@@ -108,6 +198,30 @@
       "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92159bf9_3ae309aa",
+        "filename": "modules/skshaper/src/SkUnicode.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-23T19:33:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5abc71c_5cedb0aa",
+      "range": {
+        "startLine": 96,
+        "startChar": 19,
+        "endLine": 96,
+        "endChar": 20
+      },
+      "revId": "94af8870b6718519c547d0e5b8990a37e33f310e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
