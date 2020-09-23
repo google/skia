@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "52d632c3_f7d9c890",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-23T18:45:30Z",
+      "side": 1,
+      "message": "lgtm % Michael\u0027s comment",
+      "revId": "6174e4107329a6d8ad7bd792e775b2414a01a1d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ce3eae1_485fee2c",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 1
