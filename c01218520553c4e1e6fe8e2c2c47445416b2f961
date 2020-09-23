@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "cf2c726d_ac813878",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-23T17:35:51Z",
+      "side": 1,
+      "message": "We don\u0027t necessarily have to, the translate could just be a pre-translate that callers have to apply before hand. However, most use cases that call drawSpecial have some extra offset that represents the top-left corner of the image in the localcoord system that the unmodified local-to-device matrix represents. \n\nThe first draft I actually had it just take the matrix, forgot to apply the pre-translation offsets for image filter results and everything looked funky 😊\n\nWhat do others think on the signature?",
+      "parentUuid": "2d06157e_bc884f53",
+      "revId": "c01218520553c4e1e6fe8e2c2c47445416b2f961",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6382513a_2a0cf886",
         "filename": "src/core/SkDevice.h",
         "patchSetId": 1
