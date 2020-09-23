@@ -126,6 +126,8 @@ private:
     void pushSymbolTable();
     void popSymbolTable();
 
+    const Symbol* getSymbol(StringFragment name);
+
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
     std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTNode& decl,
                                                             Variable::Storage storage);
@@ -204,6 +206,7 @@ private:
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
+    std::shared_ptr<SymbolTable> fProgramSymbolTable;
     std::shared_ptr<SymbolTable> fSymbolTable;
     // additional statements that need to be inserted before the one that convertStatement is
     // currently working on
@@ -211,6 +214,7 @@ private:
     // Symbols which have definitions in the include files.
     IRIntrinsicMap* fIntrinsics = nullptr;
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
+    std::unordered_map<const Variable*, const Variable*> fVariableRemapper;
     int fLoopLevel;
     int fSwitchLevel;
     ErrorReporter& fErrors;
