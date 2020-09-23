@@ -5,13 +5,12 @@
 
 #include <memory>
 
-class GrDirectContext;
+class GrContext;
 
-// A struct to take ownership of a GrDirectContext.
-struct GrDirectContextRelease { void operator()(GrDirectContext*); };
-using GrContextHolder = std::unique_ptr<GrDirectContext, GrDirectContextRelease>;
+// A struct to take ownership of a GrContext.
+struct GrContextRelease { void operator()(GrContext*); };
+using GrContextHolder = std::unique_ptr<GrContext, GrContextRelease>;
 
-// Wrapper around GrDirectContext::MakeGL
+// Wrapper around GrContext::MakeGL
 GrContextHolder SkMakeGLContext();
-
 #endif  // GrContextHolder_DEFINED
