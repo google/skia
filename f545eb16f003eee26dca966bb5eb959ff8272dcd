@@ -16,6 +16,24 @@
       "revId": "f545eb16f003eee26dca966bb5eb959ff8272dcd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "210c13f2_b331f476",
+        "filename": "include/gpu/GrBackendSurfaceMutableState.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-23T18:22:52Z",
+      "side": 1,
+      "message": "We can\u0027t because there isn\u0027t a default construction for the union. This ctor actually leaves the values in the union uninitialized but that is fine cause all access are guarded by the valid check.",
+      "parentUuid": "e02950e8_dc7ffeaf",
+      "revId": "f545eb16f003eee26dca966bb5eb959ff8272dcd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
