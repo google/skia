@@ -124,16 +124,18 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
         settings.fRemoveDeadFunctions = false;
 
         SkTArray<std::unique_ptr<SkParticleExternalValue>> externalValues;
+        std::vector<SkSL::ExternalValue*> valuesToRegister;
 
         for (const auto& binding : fBindings) {
             if (binding) {
                 auto value = binding->toValue(compiler);
-                compiler.registerExternalValue(value.get());
+                valuesToRegister.push_back(value.get());
                 externalValues.push_back(std::move(value));
             }
         }
 
-        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, settings);
+        auto program = compiler.convertProgram(SkSL::Program::kGeneric_Kind, code, settings,
+                                               &valuesToRegister);
         if (!program) {
             SkDebugf("%s\n", compiler.errorText().c_str());
             return;
