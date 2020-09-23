@@ -269,6 +269,11 @@ struct SK_API GrContextOptions {
     int  fMaxTessellationSegmentsOverride = 0;
 
     /**
+     * If true, then all paths are processed as if "setIsVolatile" had been called.
+     */
+    bool fAllPathsVolatile = false;
+
+    /**
      * Render everything in wireframe
      */
     bool fWireframeMode = false;

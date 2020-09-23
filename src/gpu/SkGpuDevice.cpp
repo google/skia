@@ -247,6 +247,17 @@ void SkGpuDevice::replaceRenderTargetContext(SkSurface::ContentChangeMode mode) 
 
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
 
+void SkGpuDevice::onClipPath(const SkPath& path, SkClipOp op, bool aa) {
+#if GR_TEST_UTILS
+    if (fContext->priv().options().fAllPathsVolatile && !path.isVolatile()) {
+        this->onClipPath(SkPath(path).setIsVolatile(true), op, aa);
+        return;
+    }
+#endif
+    SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
+    fClip.clipPath(this->localToDevice(), path, GrAA(aa), op);
+}
+
 void SkGpuDevice::onClipRegion(const SkRegion& globalRgn, SkClipOp op) {
     SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
 
@@ -641,6 +652,12 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
 }
 
 void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool pathIsMutable) {
+#if GR_TEST_UTILS
+    if (fContext->priv().options().fAllPathsVolatile && !origSrcPath.isVolatile()) {
+        this->drawPath(SkPath(origSrcPath).setIsVolatile(true), paint, true);
+        return;
+    }
+#endif
     ASSERT_SINGLE_OWNER
     if (!origSrcPath.isInverseFillType() && !paint.getPathEffect()) {
         SkPoint points[2];
@@ -925,7 +942,12 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, SkBlendMode mode, con
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
-
+#if GR_TEST_UTILS
+    if (fContext->priv().options().fAllPathsVolatile && !path.isVolatile()) {
+        this->drawShadow(SkPath(path).setIsVolatile(true), rec);
+        return;
+    }
+#endif
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawShadow", fContext.get());
 

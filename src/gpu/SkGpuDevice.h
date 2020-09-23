@@ -157,10 +157,7 @@ protected:
         SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
         fClip.clipRRect(this->localToDevice(), rrect, GrAA(aa), op);
     }
-    void onClipPath(const SkPath& path, SkClipOp op, bool aa) override {
-        SkASSERT(op == SkClipOp::kIntersect || op == SkClipOp::kDifference);
-        fClip.clipPath(this->localToDevice(), path, GrAA(aa), op);
-    }
+    void onClipPath(const SkPath& path, SkClipOp op, bool aa) override;
     void onClipShader(sk_sp<SkShader> shader) override {
         fClip.clipShader(std::move(shader));
     }
