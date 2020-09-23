@@ -9,6 +9,12 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * Add support for external allocator for Direct3D 12 backend.
+    Defines base classes for an allocation associated with a backend texture and a
+    a memory allocator to create such allocations.
+    Adds memory allocator to backend context.
+    https://review.skia.org/317243
+
   * Add new optional parameter to GrContext::setBackend[Texture/RenderTarget]State which can
     be used to return the previous GrBackendSurfaceMutableState before the requested change.
     https://review.skia.org/318698
