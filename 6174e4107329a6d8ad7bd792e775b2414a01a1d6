@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91efcf70_5e9f8aad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-23T17:57:39Z",
+      "side": 1,
+      "message": "Adding Michael to make sure this interacts well with the new clip stack, and Mike for the public API signoff",
+      "revId": "6174e4107329a6d8ad7bd792e775b2414a01a1d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
