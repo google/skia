@@ -71,9 +71,27 @@ public:
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> inputFP,
                                                      GrRecordingContext* context,
                                                      const GrShaderCaps& caps,
-                                                     const SkRect& rect,
-                                                     float sigma) {
-        SkASSERT(rect.isSorted());
+                                                     const SkRect& srcRect,
+                                                     const SkMatrix& viewMatrix,
+                                                     float transformedSigma) {
+        SkASSERT(viewMatrix.preservesRightAngles());
+        SkASSERT(srcRect.isSorted());
+        // The view matrix may scale, perhaps anisotropically. But we want to apply our device
+        // space  "transformedSigma" to the delta of frag coord from the rect edges. Factor out the
+        // scaling to define a space that is purely rotation/translation from device space (and
+        // scale from src space) We'll meet in the middle: we'll pre-scale our rect to be in this
+        // space and then apply the inverse of the rot+trans portion to the frag coord.
+        SkMatrix m;
+        SkSize scale;
+        if (!viewMatrix.decomposeScale(&scale, &m)) {
+            return nullptr;
+        }
+        SkMatrix invM;
+        if (!m.invert(&invM)) {
+            return nullptr;
+        }
+        SkRect rect = {srcRect.left() * scale.width(), srcRect.top() * scale.height(),
+                       srcRect.right() * scale.width(), srcRect.bottom() * scale.height()};
         if (!caps.floatIs32Bits()) {
             // We promote the math that gets us into the Gaussian space to full float when the rect
             // coords are large. If we don't have full float then fail. We could probably clip the
@@ -84,7 +102,7 @@ public:
             }
         }
 
-        const float sixSigma = 6 * sigma;
+        const float sixSigma = 6 * transformedSigma;
         std::unique_ptr<GrFragmentProcessor> integral = MakeIntegralFP(context, sixSigma);
         if (!integral) {
             return nullptr;
@@ -95,8 +113,8 @@ public:
         // inset the rect so that the edge of the inset rect corresponds to t = 0 in the texture.
         // It actually simplifies things a bit in the !isFast case, too.
         float threeSigma = sixSigma / 2;
-        SkRect insetRect = {rect.fLeft + threeSigma, rect.fTop + threeSigma,
-                            rect.fRight - threeSigma, rect.fBottom - threeSigma};
+        SkRect insetRect = {rect.left() + threeSigma, rect.top() + threeSigma,
+                            rect.right() - threeSigma, rect.bottom() - threeSigma};
 
         // In our fast variant we find the nearest horizontal and vertical edges and for each
         // do a lookup in the integral texture for each and multiply them. When the rect is
@@ -104,27 +122,32 @@ public:
         // left and right edge of the rectangle (and similar in y).
         bool isFast = insetRect.isSorted();
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrRectBlurEffect(std::move(inputFP), insetRect, std::move(integral), isFast,
-                                     GrSamplerState::Filter::kLinear));
+                new GrRectBlurEffect(std::move(inputFP), insetRect, !viewMatrix.isIdentity(), invM,
+                                     std::move(integral), isFast));
     }
     GrRectBlurEffect(const GrRectBlurEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "RectBlurEffect"; }
     bool usesExplicitReturn() const override;
     SkRect rect;
+    bool applyInvVM;
+    SkMatrix invVM;
     bool isFast;
 
 private:
     GrRectBlurEffect(std::unique_ptr<GrFragmentProcessor> inputFP,
                      SkRect rect,
+                     bool applyInvVM,
+                     SkMatrix invVM,
                      std::unique_ptr<GrFragmentProcessor> integral,
-                     bool isFast,
-                     GrSamplerState samplerParams)
+                     bool isFast)
             : INHERITED(kGrRectBlurEffect_ClassID,
                         (OptimizationFlags)(inputFP ? ProcessorOptimizationFlags(inputFP.get())
                                                     : kAll_OptimizationFlags) &
                                 kCompatibleWithCoverageAsAlpha_OptimizationFlag)
             , rect(rect)
+            , applyInvVM(applyInvVM)
+            , invVM(invVM)
             , isFast(isFast) {
         this->registerChild(std::move(inputFP), SkSL::SampleUsage::PassThrough());
         SkASSERT(integral);
