@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "69bb4859_61b2a288",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-23T18:24:21Z",
+      "side": 1,
+      "message": "Yes and no. The tessellation control shader has 4/6 the invocations, but the vertex shader is what does the heavy lifting and its invocations are halved.",
+      "parentUuid": "3e7e8e5a_0deac302",
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d3d4b91_2b0a2e30",
         "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
         "patchSetId": 8
@@ -59,6 +77,30 @@
     },
     {
       "key": {
+        "uuid": "46f620a7_a9ca9f3a",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-23T18:24:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d3d4b91_2b0a2e30",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 19
+      },
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a4e1e78_c4557067",
         "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
         "patchSetId": 8
@@ -73,6 +115,24 @@
       "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29abd42f_a1195f1b",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-23T18:24:21Z",
+      "side": 1,
+      "message": "No. When it\u0027s kUnknown and we can\u0027t early out, we chop right then and change it to kYes.",
+      "parentUuid": "8a4e1e78_c4557067",
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -96,6 +156,30 @@
       "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5370afbe_00529ea5",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-23T18:24:21Z",
+      "side": 1,
+      "message": "My preferred style is to not align variable names in a block :-)",
+      "parentUuid": "16647883_e9675dc3",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
