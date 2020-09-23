@@ -16,6 +16,86 @@
       "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e7e8e5a_0deac302",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-23T18:07:07Z",
+      "side": 1,
+      "message": "Looks solid to me, but I definitely didn\u0027t follow too deeply into the math updates. While the vertex shader invocations are halved, the GPU workload is actually changing from a factor of 6 (\"2\" VS * \"3\" TS) to 4 (\"1\" VS * \"4\" TS), right?",
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4d3d4b91_2b0a2e30",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-23T18:07:07Z",
+      "side": 1,
+      "message": "// Defined by the StrokeRec provided at construnction time\n?",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 19
+      },
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a4e1e78_c4557067",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-23T18:07:07Z",
+      "side": 1,
+      "message": "Does this need a kNo that\u0027s different from kUnknown?",
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16647883_e9675dc3",
+        "filename": "src/gpu/tessellate/GrStrokePatchBuilder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-23T18:07:07Z",
+      "side": 1,
+      "message": "nit: may as well align with the above floats.",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 9
+      },
+      "revId": "d5605679ae7cb56caae56b9787fa029fba2c9b34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
