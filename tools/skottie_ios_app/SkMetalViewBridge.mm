@@ -12,8 +12,8 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 
-sk_sp<SkSurface> SkMtkViewToSurface(MTKView* mtkView, GrContext* grContext) {
-    if (!grContext ||
+sk_sp<SkSurface> SkMtkViewToSurface(MTKView* mtkView, GrRecordingContext* rContext) {
+    if (!rContext ||
         MTLPixelFormatDepth32Float_Stencil8 != [mtkView depthStencilPixelFormat] ||
         MTLPixelFormatBGRA8Unorm != [mtkView colorPixelFormat]) {
         return nullptr;
@@ -25,15 +25,15 @@ sk_sp<SkSurface> SkMtkViewToSurface(MTKView* mtkView, GrContext* grContext) {
     const SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
     int sampleCount = (int)[mtkView sampleCount];
 
-    return SkSurface::MakeFromMTKView(grContext, (__bridge GrMTLHandle)mtkView, origin, sampleCount,
+    return SkSurface::MakeFromMTKView(rContext, (__bridge GrMTLHandle)mtkView, origin, sampleCount,
                                       colorType, colorSpace, &surfaceProps);
 }
 
 GrContextHolder SkMetalDeviceToGrContext(id<MTLDevice> device, id<MTLCommandQueue> queue) {
     GrContextOptions grContextOptions;  // set different options here.
-    return GrContextHolder(GrContext::MakeMetal((__bridge void*)device,
-                                                (__bridge void*)queue,
-                                                grContextOptions).release());
+    return GrContextHolder(GrDirectContext::MakeMetal((__bridge void*)device,
+                                                      (__bridge void*)queue,
+                                                      grContextOptions).release());
 }
 
 void SkMtkViewConfigForSkia(MTKView* mtkView) {

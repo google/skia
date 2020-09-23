@@ -14,6 +14,7 @@
 #include "include/core/SkTime.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/mtl/GrMtlTypes.h"
 
 #import <Metal/Metal.h>
@@ -41,7 +42,7 @@ static void draw_example(SkSurface* surface, const SkPaint& paint, double rotati
 ////////////////////////////////////////////////////////////////////////////////
 
 @interface AppViewDelegate : NSObject <MTKViewDelegate>
-@property (assign, nonatomic) GrContext* grContext;  // non-owning pointer.
+@property (assign, nonatomic) GrDirectContext* grContext;  // non-owning pointer.
 @property (assign, nonatomic) id<MTLCommandQueue> metalQueue;
 @end
 
