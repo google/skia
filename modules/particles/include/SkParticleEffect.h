@@ -17,12 +17,12 @@
 #include "modules/particles/include/SkParticleData.h"
 
 #include <memory>
+#include <vector>
 
 class SkCanvas;
 class SkFieldVisitor;
 class SkParticleBinding;
 class SkParticleDrawable;
-class SkParticleExternalValue;
 
 namespace skresources {
     class ResourceProvider;
@@ -30,6 +30,7 @@ namespace skresources {
 
 namespace SkSL {
     class ByteCode;
+    class ExternalValue;
 }  // namespace SkSL
 
 class SkParticleEffectParams : public SkRefCnt {
@@ -129,7 +130,7 @@ private:
     // Cached
     struct Program {
         std::unique_ptr<SkSL::ByteCode> fByteCode;
-        SkTArray<std::unique_ptr<SkParticleExternalValue>> fExternalValues;
+        std::vector<std::unique_ptr<SkSL::ExternalValue>> fExternalValues;
     };
 
     Program fEffectProgram;
