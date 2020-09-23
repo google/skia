@@ -16,6 +16,24 @@
       "revId": "c3dcefb71a6c83d029577a3bffd9b47e74d73bf8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8c5358e_0a26a449",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-23T23:52:57Z",
+      "side": 1,
+      "message": "My personal motivation is that I would like to have benchmarking for tessellated path rendering on the S20 and Pixel4. Do you think we need to add normal runs to those bots as well?",
+      "parentUuid": "c7429ddf_53fea274",
+      "revId": "c3dcefb71a6c83d029577a3bffd9b47e74d73bf8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
