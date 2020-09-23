@@ -43,14 +43,18 @@ def skpbench_steps(api):
   api.file.ensure_directory(
       'makedirs perf_dir', api.flavor.host_dirs.perf_data_dir)
 
+  num_samples = 8
   if 'Android' in api.vars.builder_name:
     app = api.vars.build_dir.join('skpbench')
     _adb(api, 'push skpbench', 'push', app, api.flavor.device_dirs.bin_dir)
+    num_samples = 4
 
   skpbench_dir = api.vars.workdir.join('skia', 'tools', 'skpbench')
   table = api.path.join(api.vars.swarming_out_dir, 'table')
 
-  if 'Vulkan' in api.vars.builder_name:
+  if 'AllPathsVolatile' in api.vars.builder_name:
+    config = "glmsaa%i" % num_samples
+  elif 'Vulkan' in api.vars.builder_name:
     config = 'vk'
   else:
     config = 'gles'
@@ -59,6 +63,7 @@ def skpbench_steps(api):
         api.path.join(api.flavor.device_dirs.bin_dir, 'skpbench'),
         '--resultsfile', table,
         '--config', config,
+        '--internalSamples', str(num_samples),
         # TODO(dogben): Track down what's causing bots to die.
         '-v5']
   if 'DDL' in api.vars.builder_name:
@@ -80,6 +85,14 @@ def skpbench_steps(api):
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
   elif 'Mskp' in api.vars.builder_name:
     skpbench_args += [api.flavor.device_dirs.mskp_dir]
+  elif 'AllPathsVolatile' in api.vars.builder_name:
+    skpbench_args += [
+        # nvpr takes every path when enabled, which isn't always the best choice
+        # for volatile paths.
+        '--pr', '~nvpr',
+        '--allPathsVolatile',
+        api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),
+        api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
   else:
     skpbench_args += [api.flavor.device_dirs.skp_dir]
 
@@ -145,9 +158,13 @@ TEST_BUILDERS = [
    'Android_Skpbench_Mskp'),
   ('Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Release-All-'
    'Android_CCPR_Skpbench'),
+  ('Perf-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-'
+   'Android_AllPathsVolatile_Skpbench'),
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan_Skpbench',
   ('Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-'
    'Vulkan_Skpbench_DDLTotal_9x9'),
+  ('Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-'
+   'AllPathsVolatile_Skpbench'),
 ]
 
 
