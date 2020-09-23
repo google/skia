@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9585d632_65aadeca",
+        "filename": "modules/particles/src/SkParticleEffect.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-23T21:28:23Z",
+      "side": 1,
+      "message": "Not sure if bindings are often null, but consider\n  \n  externalValues.reserve(fBindings.size());",
+      "range": {
+        "startLine": 126,
+        "startChar": 58,
+        "endLine": 126,
+        "endChar": 72
+      },
+      "revId": "c15c2517623eb85ece9d9a4cfa44f7940fa6f83c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44a217a0_db9b7f73",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-23T21:28:23Z",
+      "side": 1,
+      "message": "The ownership semantics of `externalValues` are quirky; we should document them here IMO (despite presence of unique_ptr, we do not take ownership; caller is still responsible for keeping them alive)",
+      "range": {
+        "startLine": 118,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 4
+      },
+      "revId": "c15c2517623eb85ece9d9a4cfa44f7940fa6f83c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffff3e45_655d88c5",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-23T21:28:23Z",
+      "side": 1,
+      "message": "We don\u0027t mutate the vector, right? Can this be `const std::vector\u003c...\u003e*`?",
+      "range": {
+        "startLine": 123,
+        "startChar": 12,
+        "endLine": 123,
+        "endChar": 15
+      },
+      "revId": "c15c2517623eb85ece9d9a4cfa44f7940fa6f83c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
