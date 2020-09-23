@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c44d9f67_35ead17d",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-23T20:43:36Z",
+      "side": 1,
+      "message": "This is a bit frightening. If we have a generic type it should actually be generic.\n\nThere are two ways to go about this. The first is to make SkText something which one could wrap in a UText. This is difficult. The second option is to not share the UText (just create two UTexts backed by the same char*).\n\nIn this second case we don\u0027t need SkText yet (though we should probably have something like it in the future which can wrap non-contiguous text input). Just have setText here create a new UText (it doesn\u0027t even need to be new\u0027ed, it could be embedded here in the type and initialized here). The UText doesn\u0027t take ownership of or make a copy of the data, so there isn\u0027t really much overhead (and less than calling \u0027new\u0027 a bunch).",
+      "range": {
+        "startLine": 161,
+        "startChar": 30,
+        "endLine": 161,
+        "endChar": 54
+      },
+      "revId": "bb51267f645ca07697e704822f0a4bd0e072fecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
