@@ -117,12 +117,14 @@ public:
     Compiler& operator=(const Compiler&) = delete;
 
     /**
-     * Registers an ExternalValue as a top-level symbol which is visible in the global namespace.
+     * If externalValues is supplied, those values are registered in the symbol table of the
+     * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
      */
-    void registerExternalValue(ExternalValue* value);
-
-    std::unique_ptr<Program> convertProgram(Program::Kind kind, String text,
-                                            const Program::Settings& settings);
+    std::unique_ptr<Program> convertProgram(
+            Program::Kind kind,
+            String text,
+            const Program::Settings& settings,
+            const std::vector<std::unique_ptr<ExternalValue>>* externalValues = nullptr);
 
     bool toSPIRV(Program& program, OutputStream& out);
 
@@ -149,11 +151,6 @@ public:
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
     bool toPipelineStage(Program& program, PipelineStageArgs* outArgs);
 #endif
-
-    /**
-     * Takes ownership of the given symbol. It will be destroyed when the compiler is destroyed.
-     */
-    const Symbol* takeOwnership(std::unique_ptr<const Symbol> symbol);
 
     void error(int offset, String msg) override;
 

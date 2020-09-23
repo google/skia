@@ -1556,16 +1556,13 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
     return madeChanges;
 }
 
-void Compiler::registerExternalValue(ExternalValue* value) {
-    fRootSymbolTable->addWithoutOwnership(value->fName, value);
-}
+std::unique_ptr<Program> Compiler::convertProgram(
+        Program::Kind kind,
+        String text,
+        const Program::Settings& settings,
+        const std::vector<std::unique_ptr<ExternalValue>>* externalValues) {
+    SkASSERT(!externalValues || (kind == Program::kGeneric_Kind));
 
-const Symbol* Compiler::takeOwnership(std::unique_ptr<const Symbol> symbol) {
-    return fRootSymbolTable->takeOwnershipOfSymbol(std::move(symbol));
-}
-
-std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String text,
-                                                  const Program::Settings& settings) {
     fErrorText = "";
     fErrorCount = 0;
     fInliner.reset(context(), settings);
@@ -1635,6 +1632,13 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
             fIRGenerator->fIntrinsics = fInterpreterIntrinsics.get();
             fIRGenerator->start(&settings, fInterpreterSymbolTable, /*inherited=*/nullptr);
             break;
+    }
+    if (externalValues) {
+        // Add any external values to the symbol table. IRGenerator::start() has pushed a table, so
+        // we're only making these visible to the current Program.
+        for (const auto& ev : *externalValues) {
+            fIRGenerator->fSymbolTable->addWithoutOwnership(ev->fName, ev.get());
+        }
     }
     std::unique_ptr<String> textPtr(new String(std::move(text)));
     fSource = textPtr.get();
