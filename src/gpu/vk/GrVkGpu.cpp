@@ -1816,7 +1816,8 @@ void set_layout_and_queue_from_mutable_state(GrVkGpu* gpu, GrVkImage* image,
 bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
                                      sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
                                      SkISize dimensions,
-                                     const GrVkSharedImageInfo& newInfo) {
+                                     const GrVkSharedImageInfo& newInfo,
+                                     GrBackendSurfaceMutableState* previousState) {
     sk_sp<GrVkTexture> texture = GrVkTexture::MakeWrappedTexture(
             this, dimensions, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType, info,
             std::move(currentState));
@@ -1824,32 +1825,39 @@ bool GrVkGpu::setBackendSurfaceState(GrVkImageInfo info,
     if (!texture) {
         return false;
     }
+    if (previousState) {
+        previousState->setVulkanState(texture->currentLayout(),
+                                      texture->currentQueueFamilyIndex());
+    }
     set_layout_and_queue_from_mutable_state(this, texture.get(), newInfo);
     return true;
 }
 
 bool GrVkGpu::setBackendTextureState(const GrBackendTexture& backendTeture,
                                      const GrBackendSurfaceMutableState& newState,
+                                     GrBackendSurfaceMutableState* previousState,
                                      sk_sp<GrRefCntedCallback> finishedCallback) {
     GrVkImageInfo info;
     SkAssertResult(backendTeture.getVkImageInfo(&info));
     sk_sp<GrBackendSurfaceMutableStateImpl> currentState = backendTeture.getMutableState();
     SkASSERT(currentState);
-    SkASSERT(newState.fBackend == GrBackend::kVulkan);
+    SkASSERT(newState.isValid() && newState.fBackend == GrBackend::kVulkan);
     return this->setBackendSurfaceState(info, std::move(currentState), backendTeture.dimensions(),
-                                        newState.fVkState);
+                                        newState.fVkState, previousState);
 }
 
 bool GrVkGpu::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
                                           const GrBackendSurfaceMutableState& newState,
-                                         sk_sp<GrRefCntedCallback> finishedCallback) {
+                                          GrBackendSurfaceMutableState* previousState,
+                                          sk_sp<GrRefCntedCallback> finishedCallback) {
     GrVkImageInfo info;
     SkAssertResult(backendRenderTarget.getVkImageInfo(&info));
     sk_sp<GrBackendSurfaceMutableStateImpl> currentState = backendRenderTarget.getMutableState();
     SkASSERT(currentState);
     SkASSERT(newState.fBackend == GrBackend::kVulkan);
     return this->setBackendSurfaceState(info, std::move(currentState),
-                                        backendRenderTarget.dimensions(), newState.fVkState);
+                                        backendRenderTarget.dimensions(), newState.fVkState,
+                                        previousState);
 }
 
 void GrVkGpu::querySampleLocations(GrRenderTarget* renderTarget,
