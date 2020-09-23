@@ -175,6 +175,56 @@ private:
     uint32_t fID;
 };
 
+class SkGlyphRect;
+namespace skglyph {
+SkGlyphRect rect_union(SkGlyphRect, SkGlyphRect);
+SkGlyphRect rect_intersection(SkGlyphRect, SkGlyphRect);
+}  // namespace skglyph
+
+// SkGlyphRect encodes rectangles with coordinates on [-32767, 32767]. It is specialized for
+// rectangle union and intersection operations.
+class SkGlyphRect {
+public:
+    SkGlyphRect(int16_t left, int16_t top, int16_t right, int16_t bottom)
+            : fRect{left, top, (int16_t)-right, (int16_t)-bottom} {
+        SkDEBUGCODE(const int32_t min = std::numeric_limits<int16_t>::min());
+        SkASSERT(left != min && top != min && right != min && bottom != min);
+    }
+    bool empty() const {
+        return fRect[0] >= -fRect[2] || fRect[1] >= -fRect[3];
+    }
+    SkRect rect() const {
+        return SkRect::MakeLTRB(fRect[0], fRect[1], -fRect[2], -fRect[3]);
+    }
+    SkIRect iRect() const {
+        return SkIRect::MakeLTRB(fRect[0], fRect[1], -fRect[2], -fRect[3]);
+    }
+    friend SkGlyphRect skglyph::rect_union(SkGlyphRect, SkGlyphRect);
+    friend SkGlyphRect skglyph::rect_intersection(SkGlyphRect, SkGlyphRect);
+
+private:
+    using Storage = skvx::Vec<4, int16_t>;
+    SkGlyphRect(Storage rect) : fRect{rect} { }
+    Storage fRect;
+};
+
+namespace skglyph {
+inline SkGlyphRect empty_rect() {
+    constexpr int16_t max = std::numeric_limits<int16_t>::max();
+    return {max,  max, -max, -max};
+}
+inline SkGlyphRect full_rect() {
+    constexpr int16_t max = std::numeric_limits<int16_t>::max();
+    return {-max,  -max, max, max};
+}
+inline SkGlyphRect rect_union(SkGlyphRect a, SkGlyphRect b) {
+    return skvx::min(a.fRect, b.fRect);
+}
+inline SkGlyphRect rect_intersection(SkGlyphRect a, SkGlyphRect b) {
+    return skvx::max(a.fRect, b.fRect);
+}
+}  // namespace skglyph
+
 struct SkGlyphPrototype;
 
 class SkGlyph {
