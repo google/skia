@@ -106,6 +106,24 @@
       "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9d7fd92_6982315c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-23T19:54:39Z",
+      "side": 1,
+      "message": "Yeah I\u0027m still in the air about whether it should be optional or not. For this first landing we need it to be optional or we\u0027ll break current users. But I did reorder the optional params so that it is the first one to make it easier to make it required if we decide to do that.",
+      "parentUuid": "4c0dc614_d1cbce6d",
+      "revId": "5daed47cfbed9d6ca77ff01ba9a9cb93566cdd21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
