@@ -160,6 +160,24 @@
       "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "719a5dbc_e612e9ab",
+        "filename": "third_party/d3dmemoryallocator/LICENSE",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-09-23T17:43:30Z",
+      "side": 1,
+      "message": "Okay, updated with DEPS, PTAL.",
+      "parentUuid": "dad91293_c1175678",
+      "revId": "9fcb29b16eba65d50feb84239730b776bca41369",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
