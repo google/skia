@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b424924d_f54aeaf9",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-23T19:16:31Z",
+      "side": 0,
+      "message": "This was always fRootSymbolTable at this point, just to be clear about the transformation here.",
+      "range": {
+        "startLine": 344,
+        "startChar": 29,
+        "endLine": 344,
+        "endChar": 41
+      },
+      "revId": "6756afabb6870a40477d77c360e56acce38efa72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
