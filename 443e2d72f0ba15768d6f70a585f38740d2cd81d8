@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1038be5_d19f7e68",
+        "filename": "tests/GrTextBlobTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-23T19:44:15Z",
+      "side": 1,
+      "message": "super nit: extra space",
+      "range": {
+        "startLine": 20,
+        "startChar": 19,
+        "endLine": 20,
+        "endChar": 20
+      },
+      "revId": "443e2d72f0ba15768d6f70a585f38740d2cd81d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fce1ba0f_aee74326",
+        "filename": "tests/GrTextBlobTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-23T19:44:15Z",
+      "side": 1,
+      "message": "Can we use\n    ToolUtils::create_portable_typeface(\"Mono\", SkFontStyle());\n\nhere? Since the actual typeface doesn\u0027t matter (that much), it would seem a good idea to use a built in one that we know has the requisite number of glyphs and such and isn\u0027t some random system font.",
+      "revId": "443e2d72f0ba15768d6f70a585f38740d2cd81d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
