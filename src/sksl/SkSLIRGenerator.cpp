@@ -163,9 +163,11 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
 }
 
 void IRGenerator::start(const Program::Settings* settings,
+                        std::shared_ptr<SymbolTable> baseSymbolTable,
                         std::vector<std::unique_ptr<ProgramElement>>* inherited,
                         bool isBuiltinCode) {
     fSettings = settings;
+    fSymbolTable = std::move(baseSymbolTable);
     fIsBuiltinCode = isBuiltinCode;
     fCapsMap.clear();
     if (settings->fCaps) {
@@ -2867,7 +2869,6 @@ void IRGenerator::convertProgram(Program::Kind kind,
     if (fErrors.errorCount()) {
         return;
     }
-    this->pushSymbolTable(); // this is popped by Compiler upon completion
     SkASSERT(fFile);
     for (const auto& decl : fFile->root()) {
         switch (decl.fKind) {
