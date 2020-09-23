@@ -9,7 +9,6 @@
 #include <emscripten/bind.h>
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/ModifierKey.h"
 #include "tools/viewer/SKPSlide.h"
