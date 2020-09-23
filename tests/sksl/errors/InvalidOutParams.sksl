@@ -1,11 +1,7 @@
-void inc1(out half x)  { x++; }
-void inc4(out half4 x) { x += half4(1); }
+void inc1(out float x)  { x++; }
+void inc4(out float4 x) { x += half4(1); }
 
-void main() {
-    inc4(half4(0));
-
-    half4 value = half4(0);
-    inc4(value.zzzz);
-
-    inc1(sqrt(2));
-}
+void test_a() { inc1(0); }
+void test_b() { inc4(float4(0)); }
+void test_c() { inc1(sqrt(1)); }
+void test_d() { float4 value = float4(0); inc1(value.z); }
