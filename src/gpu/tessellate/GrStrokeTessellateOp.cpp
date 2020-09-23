@@ -20,28 +20,21 @@ static SkPMColor4f get_paint_constant_blended_color(const GrPaint& paint) {
 }
 
 GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
-                                           const SkPath& path, const SkStrokeRec& stroke,
+                                           const SkStrokeRec& stroke, const SkPath& path,
                                            GrPaint&& paint)
         : GrDrawOp(ClassID())
-        , fPathStrokes(path, stroke)
-        , fTotalCombinedVerbCnt(path.countVerbs())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
         , fMatrixScale(fViewMatrix.getMaxScale())
+        , fStroke(stroke)
         , fColor(get_paint_constant_blended_color(paint))
-        , fProcessors(std::move(paint)) {
+        , fProcessors(std::move(paint))
+        , fPaths(path)
+        , fTotalCombinedVerbCnt(path.countVerbs()) {
     SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples support yet.
     SkASSERT(fMatrixScale >= 0);
-    if (stroke.getJoin() == SkPaint::kMiter_Join) {
-        float miter = stroke.getMiter();
-        if (miter <= 0) {
-            fPathStrokes.head().fStroke.setStrokeParams(stroke.getCap(), SkPaint::kBevel_Join, 0);
-        } else {
-            fMiterLimitOrZero = miter;
-        }
-    }
-    SkRect devBounds = fPathStrokes.head().fPath.getBounds();
-    float inflationRadius = fPathStrokes.head().fStroke.getInflationRadius();
+    SkRect devBounds = path.getBounds();
+    float inflationRadius = fStroke.getInflationRadius();
     devBounds.outset(inflationRadius, inflationRadius);
     viewMatrix.mapRect(&devBounds, devBounds);
     this->setBounds(devBounds, HasAABloat(GrAAType::kCoverage == fAAType), IsHairline::kNo);
@@ -71,17 +64,12 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
     if (fColor != op->fColor ||
         fViewMatrix != op->fViewMatrix ||
         fAAType != op->fAAType ||
-        ((fMiterLimitOrZero * op->fMiterLimitOrZero != 0) &&  // Are both non-zero?
-         fMiterLimitOrZero != op->fMiterLimitOrZero) ||
+        !fStroke.hasEqualEffect(op->fStroke) ||
         fProcessors != op->fProcessors) {
         return CombineResult::kCannotCombine;
     }
 
-    fPathStrokes.concat(std::move(op->fPathStrokes), arenas->recordTimeAllocator());
-    if (op->fMiterLimitOrZero != 0) {
-        SkASSERT(fMiterLimitOrZero == 0 || fMiterLimitOrZero == op->fMiterLimitOrZero);
-        fMiterLimitOrZero = op->fMiterLimitOrZero;
-    }
+    fPaths.concat(std::move(op->fPaths), arenas->recordTimeAllocator());
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
 
     return CombineResult::kMerged;
@@ -93,9 +81,10 @@ void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProx
                                         GrXferBarrierFlags renderPassXferBarriers) {}
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
-    GrStrokePatchBuilder builder(flushState, &fPatchChunks, fMatrixScale, fTotalCombinedVerbCnt);
-    for (auto& [path, stroke] : fPathStrokes) {
-        builder.addPath(path, stroke);
+    GrStrokePatchBuilder builder(flushState, &fPatchChunks, fMatrixScale, fStroke,
+                                 fTotalCombinedVerbCnt);
+    for (const SkPath& path : fPaths) {
+        builder.addPath(path);
     }
 }
 
@@ -111,7 +100,7 @@ void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& c
     initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
     GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
 
-    GrStrokeTessellateShader strokeShader(fMatrixScale, fMiterLimitOrZero, fViewMatrix, fColor);
+    GrStrokeTessellateShader strokeShader(fStroke, fMatrixScale, fViewMatrix, fColor);
     GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader,
                                           flushState->renderPassBarriers());
 

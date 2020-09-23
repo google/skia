@@ -252,8 +252,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         path.transform(*args.fViewMatrix, &devPath);
         SkStrokeRec devStroke = args.fShape->style().strokeRec();
         devStroke.setStrokeStyle(1);
-        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, SkMatrix::I(), devPath,
-                                                       devStroke, std::move(args.fPaint));
+        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, SkMatrix::I(), devStroke,
+                                                       devPath, std::move(args.fPaint));
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -261,8 +261,8 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!args.fShape->style().isSimpleFill()) {
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
         SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
-        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, *args.fViewMatrix, path,
-                                                       stroke, std::move(args.fPaint));
+        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, *args.fViewMatrix, stroke,
+                                                       path, std::move(args.fPaint));
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
