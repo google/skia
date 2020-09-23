@@ -30,7 +30,7 @@ public:
 
 protected:
     GrD3DBuffer(GrD3DGpu*, size_t size, GrGpuBufferType, GrAccessPattern, gr_cp<ID3D12Resource>,
-                D3D12_RESOURCE_STATES);
+                sk_sp<GrD3DAlloc>, D3D12_RESOURCE_STATES);
 
     void onAbandon() override;
     void onRelease() override;
@@ -53,6 +53,7 @@ private:
     }
 
     gr_cp<ID3D12Resource> fD3DResource;
+    sk_sp<GrD3DAlloc> fAlloc;
     ID3D12Resource* fStagingBuffer = nullptr;
     size_t fStagingOffset = 0;
 

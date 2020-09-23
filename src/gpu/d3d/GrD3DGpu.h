@@ -43,6 +43,8 @@ public:
     ID3D12Device* device() const { return fDevice.get(); }
     ID3D12CommandQueue* queue() const { return fQueue.get(); }
 
+    GrD3DMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
+
     GrD3DDirectCommandList* currentCommandList() const { return fCurrentDirectCommandList.get(); }
 
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
@@ -124,7 +126,8 @@ private:
         kSkip
     };
 
-    GrD3DGpu(GrDirectContext*, const GrContextOptions&, const GrD3DBackendContext&);
+    GrD3DGpu(GrDirectContext*, const GrContextOptions&, const GrD3DBackendContext&,
+             sk_sp<GrD3DMemoryAllocator>);
 
     void destroyResources();
 
@@ -260,6 +263,8 @@ private:
 
     gr_cp<ID3D12Device> fDevice;
     gr_cp<ID3D12CommandQueue> fQueue;
+
+    sk_sp<GrD3DMemoryAllocator> fMemoryAllocator;
 
     GrD3DResourceProvider fResourceProvider;
     GrStagingBufferManager fStagingBufferManager;

@@ -25,7 +25,7 @@ public:
     GrD3DTextureResource(const GrD3DTextureResourceInfo& info, sk_sp<GrD3DResourceState> state)
             : fInfo(info)
             , fState(std::move(state))
-            , fResource(new Resource(fInfo.fResource)) {
+            , fResource(new Resource(fInfo.fResource, info.fAlloc)) {
         // gr_cp will implicitly ref the ID3D12Resource for us, so we don't need to worry about
         // whether it's borrowed or not
     }
@@ -106,11 +106,14 @@ private:
     class Resource : public GrTextureResource {
     public:
         explicit Resource()
-            : fResource(nullptr) {
+            : fResource(nullptr)
+            , fAlloc(nullptr) {
         }
 
-        Resource(const gr_cp<ID3D12Resource>& textureResource)
-            : fResource(textureResource) {
+        Resource(const gr_cp<ID3D12Resource>& textureResource,
+                 const sk_sp<GrD3DAlloc>& alloc)
+            : fResource(textureResource)
+            , fAlloc(alloc) {
         }
 
         ~Resource() override {}
@@ -125,6 +128,7 @@ private:
         void freeGPUData() const override;
 
         mutable gr_cp<ID3D12Resource> fResource;
+        mutable sk_sp<GrD3DAlloc> fAlloc;
 
         using INHERITED = GrTextureResource;
     };
