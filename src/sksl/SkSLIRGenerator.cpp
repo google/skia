@@ -125,7 +125,6 @@ IRGenerator::IRGenerator(const Context* context, Inliner* inliner,
         : fContext(*context)
         , fInliner(inliner)
         , fCurrentFunction(nullptr)
-        , fRootSymbolTable(symbolTable)
         , fSymbolTable(symbolTable)
         , fLoopLevel(0)
         , fSwitchLevel(0)

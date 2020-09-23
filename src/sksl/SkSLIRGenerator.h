@@ -204,7 +204,6 @@ private:
     std::unique_ptr<ASTFile> fFile;
     const FunctionDeclaration* fCurrentFunction;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
-    std::shared_ptr<SymbolTable> fRootSymbolTable;
     std::shared_ptr<SymbolTable> fSymbolTable;
     // additional statements that need to be inserted before the one that convertStatement is
     // currently working on
