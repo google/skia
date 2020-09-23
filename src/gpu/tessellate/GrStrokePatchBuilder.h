@@ -103,14 +103,15 @@ private:
     // Variables related to the stroke parameters.
     const SkStrokeRec fStroke;
     float fNumRadialSegmentsPerRadian;
-    // These values contain worst-case numbers of parametric segments our hardware can support for
-    // the current stroke radius, in the event that there are also enough radial segments to rotate
-    // 180 and 360 degrees respectively. These are used for "quick accepts" that allow us to send
-    // almost all curves directly to the hardware without having to chop or think any further.
-    float fMaxParametricSegments180;
-    float fMaxParametricSegments360;
-    float fMaxParametricSegments180_withJoin;
-    float fMaxParametricSegments360_withJoin;
+    // These values contain worst-case numbers of parametric segments, raised to the 4th power, that
+    // our hardware can support for the current stroke radius. They assume curve rotations of 180
+    // and 360 degrees respectively. These are used for "quick accepts" that allow us to send almost
+    // all curves directly to the hardware without having to chop. We raise to the 4th power because
+    // the "pow4" variants of Wang's formula are the quickest to evaluate.
+    float fMaxParametricSegments180_pow4;
+    float fMaxParametricSegments360_pow4;
+    float fMaxParametricSegments180_pow4_withJoin;
+    float fMaxParametricSegments360_pow4_withJoin;
     float fMaxCombinedSegments_withJoin;
     bool fSoloRoundJoinAlwaysFitsInPatch;
 
