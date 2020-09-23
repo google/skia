@@ -30,6 +30,7 @@ static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings,
         *inputs = program->fInputs;
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
         REPORTER_ASSERT(r, output != "");
+        //SkDebugf("GLSL output:\n\n%s", output.c_str());
     }
 }
 
