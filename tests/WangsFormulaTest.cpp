@@ -258,7 +258,6 @@ DEF_TEST(WangsFormula_worst_case_cubic, r) {
         float actual = GrWangsFormula::cubic(kIntolerance, pts);
         REPORTER_ASSERT(r, worst >= actual);
         REPORTER_ASSERT(r, std::ceil(std::log2(std::max(1.f, worst))) == worst_log2);
-        SkASSERT(std::ceil(std::log2(std::max(1.f, worst))) == worst_log2);
     };
     SkRandom rand;
     for (int i = 0; i < 100; ++i) {

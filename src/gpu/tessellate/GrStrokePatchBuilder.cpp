@@ -46,7 +46,12 @@ static float num_combined_segments(float numParametricSegments, float numRadialS
 static float num_parametric_segments(float numCombinedSegments, float numRadialSegments) {
     // numCombinedSegments = numParametricSegments + numRadialSegments - 1.
     // (See num_combined_segments()).
-    return numCombinedSegments + 1 - numRadialSegments;
+    return std::max(numCombinedSegments + 1 - numRadialSegments, 0.f);
+}
+
+static float pow4(float x) {
+    float xx = x*x;
+    return xx*xx;
 }
 
 GrStrokePatchBuilder::GrStrokePatchBuilder(GrMeshDrawOp::Target* target,
@@ -74,12 +79,15 @@ GrStrokePatchBuilder::GrStrokePatchBuilder(GrMeshDrawOp::Target* target,
     // send almost all curves directly to the hardware without having to chop.
     float numRadialSegments180 = std::max(std::ceil(
             SK_ScalarPI * fNumRadialSegmentsPerRadian), 1.f);
-    fMaxParametricSegments180 = num_parametric_segments(fMaxTessellationSegments,
-                                                        numRadialSegments180);
+    float maxParametricSegments180 = num_parametric_segments(fMaxTessellationSegments,
+                                                             numRadialSegments180);
+    fMaxParametricSegments180_pow4 = pow4(maxParametricSegments180);
+
     float numRadialSegments360 = std::max(std::ceil(
             2*SK_ScalarPI * fNumRadialSegmentsPerRadian), 1.f);
-    fMaxParametricSegments360 = num_parametric_segments(fMaxTessellationSegments,
-                                                        numRadialSegments360);
+    float maxParametricSegments360 = num_parametric_segments(fMaxTessellationSegments,
+                                                             numRadialSegments360);
+    fMaxParametricSegments360_pow4 = pow4(maxParametricSegments360);
 
     // Now calculate the worst-case numbers of parametric segments if we are to integrate a join
     // into the same patch as the curve.
@@ -98,8 +106,10 @@ GrStrokePatchBuilder::GrStrokePatchBuilder(GrMeshDrawOp::Target* target,
     }
     // Subtract an extra 1 off the end because when we integrate a join, the tessellator has to add
     // a redundant edge between the join and curve.
-    fMaxParametricSegments180_withJoin = fMaxParametricSegments180 - maxNumSegmentsInJoin - 1;
-    fMaxParametricSegments360_withJoin = fMaxParametricSegments360 - maxNumSegmentsInJoin - 1;
+    fMaxParametricSegments180_pow4_withJoin = pow4(std::max(
+            maxParametricSegments180 - maxNumSegmentsInJoin - 1, 0.f));
+    fMaxParametricSegments360_pow4_withJoin = pow4(std::max(
+            maxParametricSegments360 - maxNumSegmentsInJoin - 1, 0.f));
     fMaxCombinedSegments_withJoin = fMaxTessellationSegments - maxNumSegmentsInJoin - 1;
     fSoloRoundJoinAlwaysFitsInPatch = (numRadialSegments180 <= fMaxTessellationSegments);
 
@@ -215,15 +225,15 @@ void GrStrokePatchBuilder::quadraticTo(const SkPoint p[3], JoinType prevJoinType
     //
     // An informal survey of skottie animations and gms revealed that even with a bare minimum of 64
     // tessellation segments, 99.9%+ of quadratics take this early out.
-    float numParametricSegments = GrWangsFormula::quadratic(fLinearizationIntolerance, p);
-    if (numParametricSegments <= fMaxParametricSegments180_withJoin &&
+    float numParametricSegments_pow4 = GrWangsFormula::quadratic_pow4(fLinearizationIntolerance, p);
+    if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
         this->cubicToRaw(prevJoinType, asCubic);
         return;
     }
 
-    if (numParametricSegments <= fMaxParametricSegments180 || maxDepth == 0) {
-        if (numParametricSegments > fMaxParametricSegments180_withJoin ||
+    if (numParametricSegments_pow4 <= fMaxParametricSegments180_pow4 || maxDepth == 0) {
+        if (numParametricSegments_pow4 > fMaxParametricSegments180_pow4_withJoin ||
             prevJoinType == JoinType::kCusp) {
             // Either there aren't enough guaranteed segments to include the join in the quadratic's
             // patch, or we need a cusp. Emit a standalone patch for the join.
@@ -238,6 +248,7 @@ void GrStrokePatchBuilder::quadraticTo(const SkPoint p[3], JoinType prevJoinType
     // actual rotation.
     float numRadialSegments = SkMeasureQuadRotation(p) * fNumRadialSegmentsPerRadian;
     numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
+    float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
     numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
     float numCombinedSegments = num_combined_segments(numParametricSegments, numRadialSegments);
     if (numCombinedSegments > fMaxTessellationSegments) {
@@ -300,19 +311,19 @@ void GrStrokePatchBuilder::cubicTo(const SkPoint p[4], JoinType prevJoinType,
     //
     // An informal survey of skottie animations revealed that with a bare minimum of 64 tessellation
     // segments, 95% of cubics take this early out.
-    float numParametricSegments = GrWangsFormula::cubic(fLinearizationIntolerance, p);
-    if (numParametricSegments <= fMaxParametricSegments360_withJoin &&
+    float numParametricSegments_pow4 = GrWangsFormula::cubic_pow4(fLinearizationIntolerance, p);
+    if (numParametricSegments_pow4 <= fMaxParametricSegments360_pow4_withJoin &&
         prevJoinType != JoinType::kCusp) {
         this->cubicToRaw(prevJoinType, p);
         return;
     }
 
-    float maxParametricSegments = (convex180Status == Convex180Status::kYes) ?
-            fMaxParametricSegments180 : fMaxParametricSegments360;
-    if (numParametricSegments <= maxParametricSegments || maxDepth == 0) {
-        float maxParametricSegments_withJoin = (convex180Status == Convex180Status::kYes) ?
-                fMaxParametricSegments180_withJoin : fMaxParametricSegments360_withJoin;
-        if (numParametricSegments > maxParametricSegments_withJoin ||
+    float maxParametricSegments_pow4 = (convex180Status == Convex180Status::kYes) ?
+            fMaxParametricSegments180_pow4 : fMaxParametricSegments360_pow4;
+    if (numParametricSegments_pow4 <= maxParametricSegments_pow4 || maxDepth == 0) {
+        float maxParametricSegments_pow4_withJoin = (convex180Status == Convex180Status::kYes) ?
+                fMaxParametricSegments180_pow4_withJoin : fMaxParametricSegments360_pow4_withJoin;
+        if (numParametricSegments_pow4 > maxParametricSegments_pow4_withJoin ||
             prevJoinType == JoinType::kCusp) {
             // Either there aren't enough guaranteed segments to include the join in the cubic's
             // patch, or we need a cusp. Emit a standalone patch for the join.
@@ -352,6 +363,7 @@ void GrStrokePatchBuilder::cubicTo(const SkPoint p[4], JoinType prevJoinType,
     // its actual rotation.
     float numRadialSegments = SkMeasureNonInflectCubicRotation(p) * fNumRadialSegmentsPerRadian;
     numRadialSegments = std::max(std::ceil(numRadialSegments), 1.f);
+    float numParametricSegments = GrWangsFormula::root4(numParametricSegments_pow4);
     numParametricSegments = std::max(std::ceil(numParametricSegments), 1.f);
     float numCombinedSegments = num_combined_segments(numParametricSegments, numRadialSegments);
     if (numCombinedSegments > fMaxTessellationSegments) {
