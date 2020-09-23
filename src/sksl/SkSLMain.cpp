@@ -309,13 +309,6 @@ int main(int argc, const char** argv) {
         std::vector<std::unique_ptr<SkSL::ProgramElement>> elements;
         compiler.processIncludeFile(kind, argv[1], nullptr, &elements, &symbols);
         SkSL::Dehydrator dehydrator;
-        for (int i = symbols->fParent->fOwnedSymbols.size() - 1; i >= 0; --i) {
-            symbols->fOwnedSymbols.insert(symbols->fOwnedSymbols.begin(),
-                                          std::move(symbols->fParent->fOwnedSymbols[i]));
-        }
-        for (const auto& p : *symbols->fParent) {
-            symbols->addWithoutOwnership(p.first, p.second);
-        }
         dehydrator.write(*symbols);
         dehydrator.write(elements);
         SkSL::String baseName = base_name(argv[1], "", ".sksl");
