@@ -337,9 +337,11 @@ public:
         GPU surface SkPath draws are affected by volatile for some shadows and concave geometries.
 
         @param isVolatile  true if caller will alter SkPath after drawing
+        @return            reference to SkPath
     */
-    void setIsVolatile(bool isVolatile) {
+    SkPath& setIsVolatile(bool isVolatile) {
         fIsVolatile = isVolatile;
+        return *this;
     }
 
     /** Tests if line between SkPoint pair is degenerate.
