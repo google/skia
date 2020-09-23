@@ -133,6 +133,8 @@ public:
                           bool failLookup = false) {
         GrRecordingContext* rContext = canvas->recordingContext();
 
+//        SkASSERT(wh == kImageWH || wh == 2*kImageWH);
+
         auto view = AccessCachedView(rContext, this->threadSafeViewCache(),
                                      wh, failLookup, &fStats);
         SkASSERT(view);
@@ -691,3 +693,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
                                                /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
 }
+
+// add flush & readback of gpu-draw & ddl draws and check that rendering is correct ?
+//      - would need to add op-creation for this
