@@ -668,7 +668,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         const Variable* p = function.fDeclaration.fParameters[i];
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
             SkASSERT(varMap.find(p) != varMap.end());
-            if (arguments[i]->kind() == Expression::Kind::kVariableReference &&
+            if (arguments[i]->is<VariableReference>() &&
                 &arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
                 // We didn't create a temporary for this parameter, so there's nothing to copy back
                 // out.
