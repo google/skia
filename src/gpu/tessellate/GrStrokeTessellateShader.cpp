@@ -34,8 +34,10 @@ private:
         args.fVaryingHandler->emitAttributes(shader);
 
         auto* uniHandler = args.fUniformHandler;
-        fTessControlArgsUniform = uniHandler->addUniform(nullptr, kTessControl_GrShaderFlag,
-                                                         kFloat2_GrSLType, "tessControlArgs",
+        fTessControlArgsUniform = uniHandler->addUniform(nullptr,
+                                                         kTessControl_GrShaderFlag |
+                                                         kTessEvaluation_GrShaderFlag,
+                                                         kFloat4_GrSLType, "tessControlArgs",
                                                          nullptr);
         if (!shader.viewMatrix().isIdentity()) {
             fTranslateUniform = uniHandler->addUniform(nullptr, kTessEvaluation_GrShaderFlag,
@@ -59,8 +61,6 @@ private:
         auto* v = args.fVertBuilder;
         v->defineConstantf("float", "kParametricEpsilon", "1.0 / (%i * 128)",
                            args.fShaderCaps->maxTessellationSegments());  // 1/128 of a segment.
-        v->defineConstantf("float", "kStandardCubicType", "%.0f", Patch::kStandardCubicType);
-        // Declare outputs to the tessellation control shader.
         v->declareGlobal(GrShaderVar("vsPts01", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsPts23", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsPts45", kFloat4_GrSLType, TypeModifier::Out));
@@ -68,18 +68,28 @@ private:
         v->declareGlobal(GrShaderVar("vsPts89", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsTans01", kFloat4_GrSLType, TypeModifier::Out));
         v->declareGlobal(GrShaderVar("vsTans23", kFloat4_GrSLType, TypeModifier::Out));
-        v->declareGlobal(GrShaderVar("vsTurnDirsAndPatchType", kHalf4_GrSLType, TypeModifier::Out));
-        v->declareGlobal(GrShaderVar("vsStrokeRadius", kFloat_GrSLType, TypeModifier::Out));
+        v->declareGlobal(GrShaderVar("vsPrevJoinTangent", kFloat2_GrSLType, TypeModifier::Out));
         v->codeAppendf(R"(
         // Unpack the control points.
         float4x2 P = float4x2(inputPts01, inputPts23);
-        half patchType = half(inputArgs.x);
+        float2 prevJoinTangent = P[0] - inputPrevCtrlPt;
 
         // Find the beginning and ending tangents. It's imperative that we compute these tangents
         // form the original input points or else the seams might crack.
-        // (This works for now because P0=P1=P2 and/or P1=P2=P3 are both illegal.)
         float2 tan0 = (P[1] == P[0]) ? P[2] - P[0] : P[1] - P[0];
         float2 tan1 = (P[3] == P[2]) ? P[3] - P[1] : P[3] - P[2];
+        if (tan1 == float2(0)) {
+            // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only.
+            P[1] = P[2] = P[3] = P[0];  // Colocate all the curve's points.
+            // This will disable the (colocated) curve sections by making their tangents equal.
+            tan1 = tan0;
+        }
+        if (tan0 == float2(0)) {
+            // [p0, p0, p0, p3] is a reserved pattern that means this patch is a cusp point.
+            P[3] = P[0];  // Colocate all the points on the cusp.
+            // This will disable the join section by making its tangents equal.
+            tan0 = prevJoinTangent;
+        }
 
         // Find the cubic's power basis coefficient matrix "C":
         //
@@ -162,17 +172,11 @@ private:
         // just found, then subdivide uniformly in parametric space if needed.
         float2 chopT = roots;
         if (chopT[0] <= kParametricEpsilon) {
-            if (chopT[1] <= kParametricEpsilon) {
-                chopT[1] = 2/3.0;
-            }
-            chopT[0] = chopT[1];
-        }
+            chopT = (chopT[1] <= kParametricEpsilon) ? float2(2/3.0) : chopT.tt;
+        }  // chopT's are now both > 0.
         if (chopT[1] >= 1 - kParametricEpsilon) {
-            if (chopT[0] >= 1 - kParametricEpsilon) {
-                chopT[0] = 1/3.0;
-            }
-            chopT[1] = chopT[0];
-        }
+            chopT = (chopT[0] >= 1 - kParametricEpsilon) ? float2(1/3.0) : chopT.ss;
+        }  // Now, 0 < chopT's < 1.
         if (chopT[0] == chopT[1]) {
             // The chop points are colocated. Split the larger section in half.
             if (chopT[0] > .5) {
@@ -181,9 +185,10 @@ private:
                 chopT[1] = fma(chopT[1], .5, .5);
             }
         }
-        if (patchType != kStandardCubicType) {
-            // The patch is actually a flat line or join. Don't chop it into sections after all.
+        if (P[0] == P[1] && P[2] == P[3]) {
+            // The curve is either a flat line or a point. Don't chop it into sections after all.
             chopT = float2(0);
+            midtangent = float2(0);
         }
 
         // Chop the curve at T0.
@@ -194,63 +199,50 @@ private:
         float2 bcd = mix(bc, cd, chopT[0]);
         float2 abcd = mix(abc, bcd, chopT[0]);
 
-        // Chop the curve in reverse at T1.
-        float2 wz = mix(P[2], P[3], chopT[1]);
-        float2 zy = mix(P[1], P[2], chopT[1]);
-        float2 yx = mix(P[0], P[1], chopT[1]);
-        float2 wzy = mix(zy, wz, chopT[1]);
-        float2 zyx = mix(yx, zy, chopT[1]);
-        float2 wzyx = mix(zyx, wzy, chopT[1]);
+        // Chop the curve at T1.
+        float2 xy = mix(P[0], P[1], chopT[1]);
+        float2 yz = mix(P[1], P[2], chopT[1]);
+        float2 zw = mix(P[2], P[3], chopT[1]);
+        float2 xyz = mix(xy, yz, chopT[1]);
+        float2 yzw = mix(yz, zw, chopT[1]);
+        float2 xyzw = mix(xyz, yzw, chopT[1]);
 
         // Find tangents at the chop points.
         float2 innerTan0 = (chopT[0] != 0) ? bcd - abc : tan0;
-        float2 innerTan1 = (chopT[1] != 0) ? wzy - zyx : tan0;
+        float2 innerTan1 = (chopT[1] != 0) ? yzw - xyz : tan0;
 
-        // Figure out which direction the curve turns as T approaches infinity.
-        float inflectValAtInf = (I[0] != 0) ? I[0] : (I[1] != 0) ? I[1] : I[2];
-        half turnDirAtInf = (inflectValAtInf >= 0) ? +1 : -1;
-        half3 turnDirs;  // Will hold the turn directions for each section we just chopped.
-
-        if (patchType != kStandardCubicType) {
-            // The patch is a flat line or join. We didn't actually subdivide it.
-            innerTan0 = innerTan1 = tan0;
-            // The input points for joins aren't actually a cubic, but the math still works out that
-            // we can use the inflection function to decide which direction the join turns.
-            turnDirs = half3(-turnDirAtInf);
-        } else if (midtangent != float2(0)) {
+        if (midtangent != float2(0)) {
             // The curve did not inflect so we chopped at midtangent. The parametric definition of
             // tangent can be undefined at points that divide rotation in half, so use midtangent
             // instead at these locations.
+            //
+            // Start by finding which direction the curve turns. Since it does not inflect, it will
+            // always turn in the same direction, which is also equal to the sign of the inflection
+            // function as it approaches infinity.
+            float inflectSignAtInf = (I[0] != 0) ? I[0] : I[2];
+            float2x2 derivative2AtChops = transpose(float2x2(3*chopT, 1,1) * float2x2(C));
             if (chopT[0] == roots[0] || chopT[0] == roots[1]) {
-                float2 secondDerivate = float2(3*chopT[0], 1) * float2x2(C);
-                float midtangentTurn = determinant(float2x2(midtangent, secondDerivate));
-                innerTan0 = (midtangentTurn * turnDirAtInf >= 0) ? +midtangent : -midtangent;
+                // Point midtangent in the same direction that the curve is turning at chopT[0].
+                float midtangentTurn = determinant(float2x2(midtangent, derivative2AtChops[0]));
+                innerTan0 = (midtangentTurn * inflectSignAtInf >= 0) ? +midtangent : -midtangent;
             }
             if (chopT[1] == roots[0] || chopT[1] == roots[1]) {
-                float2 secondDerivate = float2(3*chopT[1], 1) * float2x2(C);
-                float midtangentTurn = determinant(float2x2(midtangent, secondDerivate));
-                innerTan1 = (midtangentTurn * turnDirAtInf >= 0) ? +midtangent : -midtangent;
+                // Point midtangent in the same direction that the curve is turning at chopT[1].
+                float midtangentTurn = determinant(float2x2(midtangent, derivative2AtChops[1]));
+                innerTan1 = (midtangentTurn * inflectSignAtInf >= 0) ? +midtangent : -midtangent;
             }
-            // Non-inflecting curves always turn in the same direction.
-            turnDirs = half3(turnDirAtInf);
-        } else {
-            // We just chopped at inflection points so it is most stable to actually evaluate the
-            // inflection function at the center of each section.
-            float3 turnT = mix(float3(0, chopT), float3(chopT, 1), .5);
-            turnDirs = half3(sign(float3x3(turnT*turnT, turnT, 1,1,1) * I));
         }
 
         // Package arguments for the tessellation control stage.
         vsPts01 = float4(P[0], ab);
         vsPts23 = float4(abc, abcd);
         vsPts45 = float4(mix(abcd, bcd, (chopT[1] - chopT[0]) / (1 - chopT[0])),
-                       mix(zyx, wzyx, chopT[0] / chopT[1]));
-        vsPts67 = float4(wzyx, wzy);
-        vsPts89 = float4(wz, P[3]);
+                         mix(xyz, xyzw, (chopT[1] != 0) ? chopT[0] / chopT[1] : 0));
+        vsPts67 = float4(xyzw, yzw);
+        vsPts89 = float4(zw, P[3]);
         vsTans01 = float4(tan0, innerTan0);
         vsTans23 = float4(innerTan1, tan1);
-        vsTurnDirsAndPatchType = half4(turnDirs, patchType);
-        vsStrokeRadius = inputArgs.y;
+        vsPrevJoinTangent = (prevJoinTangent == float2(0)) ? tan0 : prevJoinTangent;
         )");
 
         // The fragment shader just outputs a uniform color.
@@ -261,9 +253,23 @@ private:
     void setData(const GrGLSLProgramDataManager& pdman,
                  const GrPrimitiveProcessor& primProc) override {
         const auto& shader = primProc.cast<GrStrokeTessellateShader>();
-        // tessControlArgs.x is the tolerance in pixels.
-        pdman.set2f(fTessControlArgsUniform, 1 / (kLinearizationIntolerance * shader.fMatrixScale),
-                    shader.fMiterLimit);
+        float numSegmentsInJoin;
+        switch (shader.fStroke.getJoin()) {
+            case SkPaint::kBevel_Join:
+                numSegmentsInJoin = 1;
+                break;
+            case SkPaint::kMiter_Join:
+                numSegmentsInJoin = (shader.fStroke.getMiter() > 0) ? 2 : 1;
+                break;
+            case SkPaint::kRound_Join:
+                numSegmentsInJoin = 0;  // Use the rotation to calculate the number of segments.
+                break;
+        }
+        pdman.set4f(fTessControlArgsUniform,
+                shader.fStroke.getWidth() * .5,  // uStrokeRadius.
+                numSegmentsInJoin,  // uNumSegmentsInJoin
+                kLinearizationIntolerance * shader.fMatrixScale,  // uIntolerance in path space.
+                1/(shader.fStroke.getMiter()*shader.fStroke.getMiter()));  // uMiterLimitPowMinus2.
         const SkMatrix& m = shader.viewMatrix();
         if (!m.isIdentity()) {
             pdman.set2f(fTranslateUniform, m.getTranslateX(), m.getTranslateY());
@@ -285,20 +291,20 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     auto impl = static_cast<const GrStrokeTessellateShader::Impl*>(glslPrimProc);
 
     SkString code(versionAndExtensionDecls);
-    // Run 3 invocations: 1 for each section that the vertex shader chopped the curve into.
-    code.append("layout(vertices = 3) out;\n");
+    // Run 4 invocations: 1 for the previous join plus 1 for each section that the vertex shader
+    // chopped the curve into.
+    code.append("layout(vertices = 4) out;\n");
 
     code.appendf("const float kPI = 3.141592653589793238;\n");
     code.appendf("const float kMaxTessellationSegments = %i;\n",
                  shaderCaps.maxTessellationSegments());
-    code.appendf("const float kStandardCubicType = %f;\n", Patch::kStandardCubicType);
-    code.appendf("const float kMiterJoinType = %.0f;\n", Patch::kMiterJoinType);
-    code.appendf("const float kBevelJoinType = %.0f;\n", Patch::kBevelJoinType);
 
     const char* tessControlArgsName = impl->getTessControlArgsUniformName(uniformHandler);
-    code.appendf("uniform vec2 %s;\n", tessControlArgsName);
-    code.appendf("#define uTolerance %s.x\n", tessControlArgsName);
-    code.appendf("#define uMiterLimit %s.y\n", tessControlArgsName);
+    code.appendf("uniform vec4 %s;\n", tessControlArgsName);
+    code.appendf("#define uStrokeRadius %s.x\n", tessControlArgsName);
+    code.appendf("#define uNumSegmentsInJoin %s.y\n", tessControlArgsName);
+    code.appendf("#define uIntolerance %s.z\n", tessControlArgsName);
+    code.appendf("#define uMiterLimitPowMinus2 %s.w\n", tessControlArgsName);
 
     code.append(R"(
     in vec4 vsPts01[];
@@ -308,14 +314,13 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
     in vec4 vsPts89[];
     in vec4 vsTans01[];
     in vec4 vsTans23[];
-    in mediump vec4 vsTurnDirsAndPatchType[];
-    in float vsStrokeRadius[];
+    in vec2 vsPrevJoinTangent[];
 
     out vec4 tcsPts01[];
     out vec4 tcsPt2Tan0[];
     out vec4 tcsTessArgs[];
     patch out vec4 tcsEndPtEndTan;
-    patch out vec4 tcsStrokeArgs;
+    patch out vec3 tcsJoinArgs;
 
     // The built-in atan() is undefined when x==0. This method relieves that restriction, but also
     // can return values larger than 2*kPI. This shouldn't matter for our purposes.
@@ -332,35 +337,37 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         // Unpack the input arguments from the vertex shader.
         mat4x2 P;
         mat2 tangents;
-        mediump float turnDir;
         if (gl_InvocationID == 0) {
+            // This is the join section of the patch.
+            P = mat4x2(vsPts01[0].xyxy, vsPts01[0].xyxy);
+            tangents = mat2(vsPrevJoinTangent[0], vsTans01[0].xy);
+        } else if (gl_InvocationID == 1) {
+            // This is the first curve section of the patch.
             P = mat4x2(vsPts01[0], vsPts23[0]);
             tangents = mat2(vsTans01[0]);
-            turnDir = vsTurnDirsAndPatchType[0].x;
-        } else if (gl_InvocationID == 1) {
+        } else if (gl_InvocationID == 2) {
+            // This is the second curve section of the patch.
             P = mat4x2(vsPts23[0].zw, vsPts45[0], vsPts67[0].xy);
             tangents = mat2(vsTans01[0].zw, vsTans23[0].xy);
-            turnDir = vsTurnDirsAndPatchType[0].y;
         } else {
+            // This is the third curve section of the patch.
             P = mat4x2(vsPts67[0], vsPts89[0]);
             tangents = mat2(vsTans23[0]);
-            turnDir = vsTurnDirsAndPatchType[0].z;
         }
-        mediump float patchType = vsTurnDirsAndPatchType[0].w;
-        float strokeRadius = vsStrokeRadius[0];
 
         // Calculate the number of evenly spaced (in the parametric sense) segments to chop this
         // section of the curve into. (See GrWangsFormula::cubic() for more documentation on this
         // formula.) The final tessellated strip will be a composition of these parametric segments
         // as well as radial segments.
         float numParametricSegments = sqrt(
-                .75/uTolerance * length(max(abs(P[2] - P[1]*2.0 + P[0]),
-                                            abs(P[3] - P[2]*2.0 + P[1]))));
-        numParametricSegments = max(ceil(numParametricSegments), 1);
-        if (patchType != kStandardCubicType) {
-            // Joins and flat lines don't need parametric segments.
+                .75*uIntolerance * length(max(abs(P[2] - P[1]*2.0 + P[0]),
+                                              abs(P[3] - P[2]*2.0 + P[1]))));
+        if (P[0] == P[1] && P[2] == P[3]) {
+            // This is how the patch builder articulates lineTos but Wang's formula returns
+            // >>1 segment in this scenario. Assign 1 parametric segment.
             numParametricSegments = 1;
         }
+        numParametricSegments = max(ceil(numParametricSegments), 1);
 
         // Determine the curve's start angle.
         float angle0 = atan2(tangents[0]);
@@ -371,43 +378,37 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         vec2 tan1norm = normalize(tangents[1]);
         float cosTheta = dot(tan1norm, tan0norm);
         float rotation = acos(clamp(cosTheta, -1, +1));
-        // Adjust sign of rotation to match the direction the curve turns.
-        rotation *= turnDir;
+        // Adjust sign of rotation to match the direction the curve turns. Since at this point the
+        // curve cannot rotate >180 degrees, `cross(tan0, tan1)' is all we need to know.
+        if (determinant(tangents) < 0) {
+            rotation = -rotation;
+        }
 
         // Calculate the number of evenly spaced radial segments to chop this section of the curve
         // into. Radial segments divide the curve's rotation into even steps. The final tessellated
         // strip will be a composition of both parametric and radial segments.
-        float numRadialSegments = abs(rotation) / (2 * acos(max(1 - uTolerance/strokeRadius, -1)));
+        float radialTolerance = 1 / (uStrokeRadius * uIntolerance);
+        float numRadialSegments = abs(rotation) / (2 * acos(max(1 - radialTolerance, -1)));
         numRadialSegments = max(ceil(numRadialSegments), 1);
 
-        // Set up joins.
-        float innerStrokeRadius = 0;  // Used for miter joins.
-        vec2 strokeOutsetClamp = vec2(-1, 1);
-        float joinType = abs(patchType);
-        if (joinType >= kBevelJoinType) {
-            innerStrokeRadius = strokeRadius;  // A non-zero innerStrokeRadius designates a join.
-            if (joinType == kMiterJoinType) {
-                // Miter join. Draw a fan with 2 segments and lengthen the interior radius
-                // so it reaches the miter point.
-                // (Or draw a 1-segment fan if we exceed the miter limit.)
-                float miterRatio = 1.0 / cos(.5 * rotation);
-                numRadialSegments = (miterRatio <= uMiterLimit) ? 2.0 : 1.0;
-                innerStrokeRadius = strokeRadius * miterRatio;
-            } else if (joinType == kBevelJoinType) {
-                // Bevel join. Make a fan with only one segment.
-                numRadialSegments = 1;
+        if (gl_InvocationID == 0) {
+            // Set up joins.
+            numParametricSegments = 1;  // Joins don't have parametric segments.
+            numRadialSegments = (uNumSegmentsInJoin == 0) ? numRadialSegments : uNumSegmentsInJoin;
+            float innerStrokeRadius = uStrokeRadius;
+            if (uNumSegmentsInJoin == 2) {
+                // Miter join: extend the middle radius to either the miter point or the bevel edge.
+                float x = fma(cosTheta, .5, .5);
+                innerStrokeRadius *= (x >= uMiterLimitPowMinus2) ? inversesqrt(x) : sqrt(x);
             }
-            if (length(tan0norm - tan1norm) * strokeRadius < uTolerance) {
-                // The join angle is too tight to guarantee there won't be cracks on the interior
-                // side of the junction. In case our join was intended to go on the exterior side
-                // only, switch to a double sided bevel that ties all 4 incoming vertices together
-                // like a bowtie. The join angle is so tight that bevels, miters, and rounds will
-                // all look the same anyway.
-                numRadialSegments = 1;
-            } else if (patchType > 0) {
-                // This join is single-sided. Clamp it to the outer side of the junction.
+            vec2 strokeOutsetClamp = vec2(-1, 1);
+            if (distance(tan0norm, tan1norm) > radialTolerance) {
+                // Clamp the join to the exterior side of its junction. We only do this if the join
+                // angle is large enough to guarantee there won't be cracks on the interior side of
+                // the junction.
                 strokeOutsetClamp = (rotation > 0) ? vec2(-1,0) : vec2(0,1);
             }
+            tcsJoinArgs = vec3(innerStrokeRadius, strokeOutsetClamp);
         }
 
         // The first and last edges are shared by both the parametric and radial sets of edges, so
@@ -427,31 +428,45 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         //
         float numCombinedSegments = numParametricSegments + numRadialSegments - 1;
 
+        if (P[0] == P[3] && tangents[0] == tangents[1]) {
+            // The vertex shader intentionally disabled our section. Set numCombinedSegments to 0.
+            numCombinedSegments = 0;
+        }
+
         // Pack the arguments for the evaluation stage.
         tcsPts01[gl_InvocationID] = vec4(P[0], P[1]);
         tcsPt2Tan0[gl_InvocationID] = vec4(P[2], tangents[0]);
         tcsTessArgs[gl_InvocationID] = vec4(numCombinedSegments, numParametricSegments, angle0,
                                             rotation / numRadialSegments);
-        if (gl_InvocationID == 2) {
+        if (gl_InvocationID == 3) {
             tcsEndPtEndTan = vec4(P[3], tangents[1]);
-            tcsStrokeArgs = vec4(strokeRadius, innerStrokeRadius, strokeOutsetClamp);
-        } else if (patchType != kStandardCubicType) {
-            // We don't actually chop flat lines or joins. Disable their 0th & 1st curve sections by
-            // marking their number of segments as 0.
-            tcsTessArgs[gl_InvocationID].x = 0;
         }
 
         barrier();
 
-        // Tessellate a quad strip with enough segments for all 3 curve sections combined.
-        float numTotalCombinedSegments = tcsTessArgs[0].x + tcsTessArgs[1].x + tcsTessArgs[2].x;
-        numTotalCombinedSegments = min(numTotalCombinedSegments, kMaxTessellationSegments);
-        gl_TessLevelInner[0] = numTotalCombinedSegments;
-        gl_TessLevelInner[1] = 2.0;
-        gl_TessLevelOuter[0] = 2.0;
-        gl_TessLevelOuter[1] = numTotalCombinedSegments;
-        gl_TessLevelOuter[2] = 2.0;
-        gl_TessLevelOuter[3] = numTotalCombinedSegments;
+        if (gl_InvocationID == 0) {
+            // Tessellate a quad strip with enough segments for the join plus all 3 curve sections
+            // combined.
+            float numTotalCombinedSegments = tcsTessArgs[0].x + tcsTessArgs[1].x +
+                                             tcsTessArgs[2].x + tcsTessArgs[3].x;
+
+            if (tcsTessArgs[0].x != 0 && tcsTessArgs[0].x != numTotalCombinedSegments) {
+                // We are tessellating a quad strip with both a single-sided join and a double-sided
+                // stroke. Add one more edge to the join. This new edge will fall parallel with the
+                // first edge of the stroke, eliminating artifacts on the transition from single
+                // sided to double.
+                ++tcsTessArgs[gl_InvocationID].x;
+                ++numTotalCombinedSegments;
+            }
+
+            numTotalCombinedSegments = min(numTotalCombinedSegments, kMaxTessellationSegments);
+            gl_TessLevelInner[0] = numTotalCombinedSegments;
+            gl_TessLevelInner[1] = 2.0;
+            gl_TessLevelOuter[0] = 2.0;
+            gl_TessLevelOuter[1] = numTotalCombinedSegments;
+            gl_TessLevelOuter[2] = 2.0;
+            gl_TessLevelOuter[3] = numTotalCombinedSegments;
+        }
     }
     )");
 
@@ -472,6 +487,10 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
 
     code.appendf("const float kPI = 3.141592653589793238;\n");
 
+    const char* tessControlArgsName = impl->getTessControlArgsUniformName(uniformHandler);
+    code.appendf("uniform vec4 %s;\n", tessControlArgsName);
+    code.appendf("#define uStrokeRadius %s.x\n", tessControlArgsName);
+
     if (!this->viewMatrix().isIdentity()) {
         const char* translateName = impl->getTranslateUniformName(uniformHandler);
         code.appendf("uniform vec2 %s;\n", translateName);
@@ -486,7 +505,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
     in vec4 tcsPt2Tan0[];
     in vec4 tcsTessArgs[];
     patch in vec4 tcsEndPtEndTan;
-    patch in vec4 tcsStrokeArgs;
+    patch in vec3 tcsJoinArgs;
 
     uniform vec4 sk_RTAdjust;
 
@@ -495,7 +514,8 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         // run orthogonal to the curve and make a strip of "numTotalCombinedSegments" quads.
         // Determine which discrete edge belongs to this invocation. An edge can either come from a
         // parametric segment or a radial one.
-        float numTotalCombinedSegments = tcsTessArgs[0].x + tcsTessArgs[1].x + tcsTessArgs[2].x;
+        float numTotalCombinedSegments = tcsTessArgs[0].x + tcsTessArgs[1].x + tcsTessArgs[2].x +
+                                         tcsTessArgs[3].x;
         float totalEdgeID = round(gl_TessCoord.x * numTotalCombinedSegments);
 
         // Furthermore, the vertex shader may have chopped the curve into 3 different sections.
@@ -504,20 +524,31 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         mat4x2 P;
         vec2 tan0;
         vec3 tessellationArgs;
-        if (localEdgeID >= tcsTessArgs[0].x + tcsTessArgs[1].x) {
-            localEdgeID -= tcsTessArgs[0].x + tcsTessArgs[1].x;
-            P = mat4x2(tcsPts01[2], tcsPt2Tan0[2].xy, tcsEndPtEndTan.xy);
-            tan0 = tcsPt2Tan0[2].zw;
-            tessellationArgs = tcsTessArgs[2].yzw;
-        } else if (localEdgeID >= tcsTessArgs[0].x) {
-            localEdgeID -= tcsTessArgs[0].x;
-            P = mat4x2(tcsPts01[1], tcsPt2Tan0[1].xy, tcsPts01[2].xy);
-            tan0 = tcsPt2Tan0[1].zw;
-            tessellationArgs = tcsTessArgs[1].yzw;
-        } else {
+        float strokeRadius = uStrokeRadius;
+        vec2 strokeOutsetClamp = vec2(-1, 1);
+        if (localEdgeID < tcsTessArgs[0].x || tcsTessArgs[0].x == numTotalCombinedSegments) {
+            // Our edge belongs to the join preceding the curve.
             P = mat4x2(tcsPts01[0], tcsPt2Tan0[0].xy, tcsPts01[1].xy);
             tan0 = tcsPt2Tan0[0].zw;
             tessellationArgs = tcsTessArgs[0].yzw;
+            strokeRadius = (localEdgeID == 1) ? tcsJoinArgs.x : strokeRadius;
+            strokeOutsetClamp = tcsJoinArgs.yz;
+        } else if ((localEdgeID -= tcsTessArgs[0].x) < tcsTessArgs[1].x) {
+            // Our edge belongs to the first curve section.
+            P = mat4x2(tcsPts01[1], tcsPt2Tan0[1].xy, tcsPts01[2].xy);
+            tan0 = tcsPt2Tan0[1].zw;
+            tessellationArgs = tcsTessArgs[1].yzw;
+        } else if ((localEdgeID -= tcsTessArgs[1].x) < tcsTessArgs[2].x) {
+            // Our edge belongs to the second curve section.
+            P = mat4x2(tcsPts01[2], tcsPt2Tan0[2].xy, tcsPts01[3].xy);
+            tan0 = tcsPt2Tan0[2].zw;
+            tessellationArgs = tcsTessArgs[2].yzw;
+        } else {
+            // Our edge belongs to the third curve section.
+            localEdgeID -= tcsTessArgs[2].x;
+            P = mat4x2(tcsPts01[3], tcsPt2Tan0[3].xy, tcsEndPtEndTan.xy);
+            tan0 = tcsPt2Tan0[3].zw;
+            tessellationArgs = tcsTessArgs[3].yzw;
         }
         float numParametricSegments = tessellationArgs.x;
         float angle0 = tessellationArgs.y;
@@ -540,7 +571,7 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
         //           |                 1|
         //
         mat3x2 C_s = mat3x2(C_[0], C_[1] * numParametricSegments,
-                            C_[2] * numParametricSegments * numParametricSegments);
+                            C_[2] * (numParametricSegments * numParametricSegments));
 
         // Run an O(log N) search to determine the highest parametric edge that is located on or
         // before the localEdgeID. A local edge ID is determined by the sum of complete parametric
@@ -636,31 +667,19 @@ SkString GrStrokeTessellateShader::getTessEvaluationShaderGLSL(
             tangent = bcd - abc;
         }
 
-        float strokeRadius = tcsStrokeArgs.x;
-        float innerStrokeRadius = tcsStrokeArgs.y;
-        vec2 strokeOutsetClamp = tcsStrokeArgs.zw;
-
         if (localEdgeID == 0) {
             // The first local edge of each section uses the provided P[0] and tan0. This ensures
             // continuous rotation across chops made by the vertex shader as well as crack-free
             // seaming between patches.
             position = P[0];
             tangent = tan0;
-        } else if (gl_TessCoord.x == 1) {
+        }
+
+        if (gl_TessCoord.x == 1) {
             // The final edge of the quad strip always uses the provided endPt and endTan. This
             // ensures crack-free seaming between patches.
             position = tcsEndPtEndTan.xy;
             tangent = tcsEndPtEndTan.zw;
-        } else if (innerStrokeRadius != 0) {
-            // Miter joins use a larger radius for the internal vertex in order to reach the miter
-            // point.
-            strokeRadius = innerStrokeRadius;
-        }
-
-        // If innerStrokeRadius != 0 then this patch is a join.
-        if (innerStrokeRadius != 0) {
-            // ... Aaaand nevermind again if we are a join. Those all rotate around P[1].
-            position = P[1];
         }
 
         // Determine how far to outset our vertex orthogonally from the curve.
