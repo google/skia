@@ -1,0 +1,19 @@
+uniform half4 inColor;
+
+half4 flip(half4 v) {
+    return v.wzyx;
+}
+
+void mutating_flip(out half4 v) {
+    v = v.wzyx;
+}
+
+void main() {
+    half4 color = inColor;
+
+    sk_FragColor = color.xyzy.wzyx;
+    sk_FragColor = flip(color.xyzy);
+
+    mutating_flip(color);
+    sk_FragColor = color;
+}

@@ -1,0 +1,11 @@
+void inc1(out half x)  { x++; }
+void inc4(out half4 x) { x += half4(1); }
+
+void main() {
+    inc4(half4(0));
+
+    half4 value = half4(0);
+    inc4(value.zzzz);
+
+    inc1(sqrt(2));
+}
