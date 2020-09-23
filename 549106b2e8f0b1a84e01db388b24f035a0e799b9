@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b83091f7_0ac56568",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-23T19:42:11Z",
+      "side": 1,
+      "message": "LGTM, the next step would be to test switching from the older Sk2f code in SkNx.h to skvx::Vec\u003c2, float\u003e in SkVx.h. It ends up being very easy to port over to the new autovector types that Mike wrote.",
+      "revId": "549106b2e8f0b1a84e01db388b24f035a0e799b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
