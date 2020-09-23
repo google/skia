@@ -177,6 +177,8 @@ void IRGenerator::start(const Program::Settings* settings,
                                        Program::Settings::Value(true)));
     }
     this->pushSymbolTable();
+    fProgramSymbolTable = fSymbolTable;
+    fVariableRemapper.clear();
     fInvocations = -1;
     fInputs.reset();
     fSkPerVertex = nullptr;
@@ -198,6 +200,48 @@ void IRGenerator::start(const Program::Settings* settings,
     fIntrinsics->resetAlreadyIncluded();
 }
 
+const Symbol* IRGenerator::getSymbol(StringFragment name) {
+    const Symbol* symbol = (*fSymbolTable)[name];
+
+    // Variables defined in the pre-includes need to be cloned into the Program.
+    if (symbol && symbol->is<Variable>() && symbol->as<Variable>().fBuiltin) {
+        const Variable& sharedVar = symbol->as<Variable>();
+
+        // SkASSERT(sharedDecls), once all pre-includes are converted?
+
+        if (auto sharedDecls = fIntrinsics->findAndInclude(sharedVar.fName)) {
+            // Clone the VarDeclarations ProgramElement that declares this variable
+            auto clonedDecls = sharedDecls->clone();
+            SkASSERT(clonedDecls->is<VarDeclarations>());
+            VarDeclarations& varDecls = clonedDecls->as<VarDeclarations>();
+            SkASSERT(varDecls.fVars.size() == 1);
+            VarDeclaration& varDecl = varDecls.fVars.front()->as<VarDeclaration>();
+
+            // Now clone the Variable, and add the clone to the Program's symbol table.
+            // Any initial value expression was cloned as part of the VarDeclarations, so we're
+            // pointing at a Program-owned expression.
+            const Variable* clonedVar =
+                    fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
+                            sharedVar.fOffset, sharedVar.fModifiers, sharedVar.fName,
+                            &sharedVar.type(),
+                            /*builtin=*/false, sharedVar.fStorage, varDecl.fValue.get()));
+
+            // Go back and update the VarDeclaration to point at the local copy of the Variable.
+            varDecl.fVar = clonedVar;
+
+            // Remember this new re-mapping... Ugh, how does this work if we already have another
+            // reference in something that got cloned?
+            fVariableRemapper.insert(std::make_pair(&sharedVar, clonedVar));
+
+            // Add the VarDeclarations to this Program, and return the new, local variable.
+            fProgramElements->push_back(std::move(clonedDecls));
+            return clonedVar;
+        }
+    }
+
+    return symbol;
+}
+
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
@@ -212,6 +256,7 @@ std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragm
 void IRGenerator::finish() {
     this->popSymbolTable();
     fSettings = nullptr;
+    fProgramSymbolTable = nullptr;
 }
 
 std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& statement) {
@@ -441,7 +486,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             }
         }
         auto var = std::make_unique<Variable>(varDecl.fOffset, modifiers, varData.fName, type,
-                                              storage);
+                                              fIsBuiltinCode, storage);
         if (var->fName == Compiler::RTADJUST_NAME) {
             SkASSERT(!fRTAdjust);
             SkASSERT(var->type() == *fContext.fFloat4_Type);
@@ -952,8 +997,9 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             return;
         }
         StringFragment name = pd.fName;
-        const Variable* var = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
-                param.fOffset, pd.fModifiers, name, type, Variable::kParameter_Storage));
+        const Variable* var = fSymbolTable->takeOwnershipOfSymbol(
+                std::make_unique<Variable>(param.fOffset, pd.fModifiers, name, type,
+                                           fIsBuiltinCode, Variable::kParameter_Storage));
         parameters.push_back(var);
     }
 
@@ -1185,6 +1231,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                        id.fModifiers,
                                        id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
                                        type,
+                                       fIsBuiltinCode,
                                        Variable::kGlobal_Storage));
     if (foundRTAdjust) {
         fRTAdjustInterfaceBlock = var;
@@ -1253,9 +1300,10 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         }
         value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
         ++currentValue;
-        fSymbolTable->add(child.getString(),
-                          std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), type,
-                                                     Variable::kGlobal_Storage, value.get()));
+        fSymbolTable->add(
+                child.getString(),
+                std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), type,
+                                           fIsBuiltinCode, Variable::kGlobal_Storage, value.get()));
         fSymbolTable->takeOwnershipOfIRNode(std::move(value));
     }
     // Now we orphanize the Enum's symbol table, so that future lookups in it are strict
@@ -2112,7 +2160,8 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
     auto funcCall = std::make_unique<FunctionCall>(offset, returnType, function,
                                                    std::move(arguments));
     if (fCanInline && fInliner->isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
-        Inliner::InlinedCall inlinedCall = fInliner->inlineCall(funcCall.get(), fSymbolTable.get());
+        Inliner::InlinedCall inlinedCall =
+                fInliner->inlineCall(funcCall.get(), fSymbolTable.get(), fIsBuiltinCode);
         if (inlinedCall.fInlinedBody) {
             fExtraStatements.push_back(std::move(inlinedCall.fInlinedBody));
         }
