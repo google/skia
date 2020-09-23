@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "261bb8d3_0483fd4e",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-23T14:40:13Z",
+      "side": 1,
+      "message": "^",
+      "revId": "0f1198d05588cd9cab9bc7c2b56ee560ce68ef40",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
