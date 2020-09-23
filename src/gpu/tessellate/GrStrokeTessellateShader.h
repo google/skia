@@ -10,6 +10,7 @@
 
 #include "src/gpu/tessellate/GrPathShader.h"
 
+#include "include/core/SkStrokeRec.h"
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 #include <array>
 
@@ -39,31 +40,20 @@ class GrGLSLUniformHandler;
 class GrStrokeTessellateShader : public GrPathShader {
 public:
     // The vertex array bound for this shader should contain a vector of Patch structs. A Patch is
-    // either a "cubic" (single stroked bezier curve with butt caps) or a "join". A set of
-    // coincident cubic patches with join patches in between will render a complete stroke.
+    // a join followed by a cubic stroke.
     struct Patch {
-        // A value of 0 in fPatchType means this patch is a normal stroked cubic.
-        constexpr static float kStandardCubicType = 0;
-
-        // A value of 1 in fPatchType means this patch is a flat line.
-        constexpr static float kFlatLineType = 1;
-
-        // An absolute value >=2 in fPatchType means that this patch is a join. A positive value
-        // means the join geometry should only go on the outer side of the junction point (spec
-        // behavior for standard joins), and a negative value means the join geometry should be
-        // double-sided.
+        // A join calculates its starting angle using fPrevControlPoint.
+        SkPoint fPrevControlPoint;
+        // fPts define the cubic stroke as well as the ending angle of the previous join.
         //
-        // If a patch is a join, fPts[0] must equal the control point coming into the junction,
-        // fPts[1] and fPts[2] must both equal the junction point, and fPts[3] must equal the
-        // control point going out. It's imperative for a join's control points match the control
-        // points of their adjoining cubics exactly or else the seams might crack.
-        constexpr static float kBevelJoinType = 2;
-        constexpr static float kMiterJoinType = 3;
-        constexpr static float kRoundJoinType = 4;
-
+        // If fPts[0] == fPrevControlPoint, then no join is emitted.
+        //
+        // fPts=[p0, p3, p3, p3] is a reserved pattern that means this patch is a join only, whose
+        // start and end tangents are (fPts[0] - fPrevControlPoint) and (fPts[3] - fPts[0]).
+        //
+        // fPts=[p0, p0, p0, p3] is a reserved pattern that means this patch is a cusp point
+        // anchored on p0 and rotating from (fPts[0] - fPrevControlPoint) to (fPts[3] - fPts[0]).
         std::array<SkPoint, 4> fPts;
-        float fPatchType;
-        float fStrokeRadius;
     };
 
     // 'matrixScale' is used to set up an appropriate number of tessellation triangles. It should be
@@ -73,18 +63,20 @@ public:
     // be miter joins.
     //
     // 'viewMatrix' is applied to the geometry post tessellation. It cannot have perspective.
-    GrStrokeTessellateShader(float matrixScale, float miterLimit, const SkMatrix& viewMatrix,
-                             SkPMColor4f color)
+    GrStrokeTessellateShader(const SkStrokeRec& stroke, float matrixScale,
+                             const SkMatrix& viewMatrix, SkPMColor4f color)
             : GrPathShader(kTessellate_GrStrokeTessellateShader_ClassID, viewMatrix,
                            GrPrimitiveType::kPatches, 1)
+            , fStroke(stroke)
             , fMatrixScale(matrixScale)
-            , fMiterLimit(miterLimit)
             , fColor(color) {
+        SkASSERT(!fStroke.isHairlineStyle());  // No hairline support yet.
         constexpr static Attribute kInputPointAttribs[] = {
+                {"inputPrevCtrlPt", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
                 {"inputPts01", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
-                {"inputArgs", kFloat2_GrVertexAttribType, kFloat2_GrSLType}};
+                {"inputPts23", kFloat4_GrVertexAttribType, kFloat4_GrSLType}};
         this->setVertexAttributes(kInputPointAttribs, SK_ARRAY_COUNT(kInputPointAttribs));
+        SkASSERT(this->vertexStride() == sizeof(Patch));
     }
 
 private:
@@ -103,8 +95,8 @@ private:
                                          const GrGLSLUniformHandler&,
                                          const GrShaderCaps&) const override;
 
+    const SkStrokeRec fStroke;
     const float fMatrixScale;
-    const float fMiterLimit;
     const SkPMColor4f fColor;
 
     class Impl;

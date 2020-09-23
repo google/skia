@@ -10,6 +10,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkStrokeRec.h"
 #include "include/private/SkTArray.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
@@ -43,19 +44,8 @@ public:
     // pushed to the array. (See GrStrokeTessellateShader.)
     //
     // All points are multiplied by 'matrixScale' before being written to the GPU buffer.
-    GrStrokePatchBuilder(GrMeshDrawOp::Target* target, SkTArray<PatchChunk>* patchChunkArray,
-                         float matrixScale, int totalCombinedVerbCnt)
-            : fTarget(target)
-            , fPatchChunkArray(patchChunkArray)
-            , fMaxTessellationSegments(target->caps().shaderCaps()->maxTessellationSegments())
-            , fLinearizationIntolerance(matrixScale *
-                                        GrTessellationPathRenderer::kLinearizationIntolerance) {
-        // Pre-allocate at least enough vertex space for one stroke in 3 to split, and for 8 caps.
-        int strokePreallocCount = totalCombinedVerbCnt * 4/3;
-        int capPreallocCount = 8;
-        int joinPreallocCount = strokePreallocCount + capPreallocCount;
-        this->allocPatchChunkAtLeast(strokePreallocCount + capPreallocCount + joinPreallocCount);
-    }
+    GrStrokePatchBuilder(GrMeshDrawOp::Target*, SkTArray<PatchChunk>*, float matrixScale,
+                         const SkStrokeRec&, int totalCombinedVerbCnt);
 
     // "Releases" the target to be used externally again by putting back any unused pre-allocated
     // vertices.
@@ -64,23 +54,43 @@ public:
                                  sizeof(GrStrokeTessellateShader::Patch));
     }
 
-    void addPath(const SkPath&, const SkStrokeRec&);
+    void addPath(const SkPath&);
 
 private:
-    void allocPatchChunkAtLeast(int minPatchAllocCount);
+    enum class JoinType {
+        kFromStroke,  // The shader will use the join type defined in our fStrokeRec.
+        kCusp,  // Double sided round join.
+        kNone
+    };
+
+    // Is a cubic curve convex, and does it rotate no more than 180 degrees?
+    enum class Convex180Status : bool {
+        kUnknown,
+        kYes
+    };
+
+    void moveTo(SkPoint);
+    void moveTo(SkPoint, SkPoint lastControlPoint);
+    void lineTo(SkPoint, JoinType prevJoinType = JoinType::kFromStroke);
+    void quadraticTo(const SkPoint[3], JoinType prevJoinType = JoinType::kFromStroke,
+                     int maxDepth = -1);
+    void cubicTo(const SkPoint[4], JoinType prevJoinType = JoinType::kFromStroke,
+                 Convex180Status = Convex180Status::kUnknown, int maxDepth = -1);
+    void joinTo(JoinType joinType, const SkPoint nextCubic[]) {
+        const SkPoint& nextCtrlPt = (nextCubic[1] == nextCubic[0]) ? nextCubic[2] : nextCubic[1];
+        // The caller should have culled out cubics where p0==p1==p2 by this point.
+        SkASSERT(nextCtrlPt != nextCubic[0]);
+        this->joinTo(joinType, nextCtrlPt);
+    }
+    void joinTo(JoinType, SkPoint nextControlPoint, int maxDepth = -1);
+    void close();
+    void cap();
+
+    void cubicToRaw(JoinType prevJoinType, const SkPoint pts[4]);
+    void joinToRaw(JoinType, SkPoint nextControlPoint);
+
     GrStrokeTessellateShader::Patch* reservePatch();
-
-    void writeCubicSegment(float prevJoinType, const SkPoint pts[4], float cubicType);
-    void writeJoin(float joinType, const SkPoint& prevControlPoint, const SkPoint& anchorPoint,
-                   const SkPoint& nextControlPoint);
-    void writeSquareCap(const SkPoint& endPoint, const SkPoint& controlPoint);
-    void writeCaps(SkPaint::Cap);
-
-    void moveTo(const SkPoint&);
-    void lineTo(float prevJoinType, const SkPoint&, const SkPoint&);
-    void quadraticTo(float prevJoinType, const SkPoint[3], int maxDepth = -1);
-    void cubicTo(float prevJoinType, const SkPoint[4], int maxDepth = -1, bool mightInflect = true);
-    void close(SkPaint::Cap);
+    void allocPatchChunkAtLeast(int minPatchAllocCount);
 
     // These are raw pointers whose lifetimes are controlled outside this class.
     GrMeshDrawOp::Target* const fTarget;
@@ -90,24 +100,28 @@ private:
     // GrTessellationPathRenderer::kIntolerance adjusted for the matrix scale.
     const float fLinearizationIntolerance;
 
-    // Variables related to the patch chunk that we are currently filling.
-    int fCurrChunkPatchCapacity;
-    int fCurrChunkMinPatchAllocCount;
-    GrStrokeTessellateShader::Patch* fCurrChunkPatchData;
-
-    // Variables related to the path that we are currently iterating.
-    float fCurrStrokeRadius;
-    float fCurrStrokeJoinType;  // See GrStrokeTessellateShader for join type definitions.
-    float fNumRadialSegmentsPerRad;
+    // Variables related to the stroke parameters.
+    const SkStrokeRec fStroke;
+    float fNumRadialSegmentsPerRadian;
     // These values contain worst-case numbers of parametric segments our hardware can support for
     // the current stroke radius, in the event that there are also enough radial segments to rotate
     // 180 and 360 degrees respectively. These are used for "quick accepts" that allow us to send
     // almost all curves directly to the hardware without having to chop or think any further.
     float fMaxParametricSegments180;
     float fMaxParametricSegments360;
+    float fMaxParametricSegments180_withJoin;
+    float fMaxParametricSegments360_withJoin;
+    float fMaxCombinedSegments_withJoin;
+    bool fSoloRoundJoinAlwaysFitsInPatch;
+
+    // Variables related to the vertex chunk that we are currently filling.
+    int fCurrChunkPatchCapacity;
+    int fCurrChunkMinPatchAllocCount;
+    GrStrokeTessellateShader::Patch* fCurrChunkPatchData;
 
     // Variables related to the specific contour that we are currently iterating.
-    bool fHasPreviousSegment = false;
+    bool fHasLastControlPoint = false;
+    SkDEBUGCODE(bool fHasCurrentPoint = false;)
     SkPoint fCurrContourStartPoint;
     SkPoint fCurrContourFirstControlPoint;
     SkPoint fLastControlPoint;

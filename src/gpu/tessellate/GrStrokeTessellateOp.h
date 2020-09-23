@@ -26,7 +26,7 @@ private:
     //
     // Patches can overlap, so until a stencil technique is implemented, the provided paint must be
     // a constant blended color.
-    GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkPath&, const SkStrokeRec&, GrPaint&&);
+    GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkStrokeRec&, const SkPath&, GrPaint&&);
 
     const char* name() const override { return "GrStrokeTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
@@ -40,21 +40,15 @@ private:
     void onPrepare(GrOpFlushState* state) override;
     void onExecute(GrOpFlushState*, const SkRect& chainBounds) override;
 
-    struct PathStroke {
-        PathStroke(const SkPath& path, const SkStrokeRec& stroke) : fPath(path), fStroke(stroke) {}
-        SkPath fPath;
-        SkStrokeRec fStroke;
-    };
-
-    GrSTArenaList<PathStroke> fPathStrokes;
-    int fTotalCombinedVerbCnt;
-
     const GrAAType fAAType;
-    SkMatrix fViewMatrix;
-    float fMatrixScale;
-    float fMiterLimitOrZero = 0;  // Zero if there is not a stroke with a miter join type.
+    const SkMatrix fViewMatrix;
+    const float fMatrixScale;
+    const SkStrokeRec fStroke;
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;
+
+    GrSTArenaList<SkPath> fPaths;
+    int fTotalCombinedVerbCnt;
 
     // S=1 because we will almost always fit everything into one single chunk.
     SkSTArray<1, GrStrokePatchBuilder::PatchChunk> fPatchChunks;
