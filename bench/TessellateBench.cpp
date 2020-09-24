@@ -147,10 +147,14 @@ private:
         }
         for (int i = 0; i < loops; ++i) {
             fOp.fTriangleBuffer.reset();
-            fOp.fDoStencilTriangleBuffer = false;
+            fOp.fTriangleVertexCount = 0;
+            fOp.fSharedStencilPipeline = nullptr;
+            fOp.fStencilTrianglesProgram = nullptr;
             fOp.fDoFillTriangleBuffer = false;
             fOp.fCubicBuffer.reset();
-            fOp.fStencilCubicsShader = nullptr;
+            fOp.fCubicVertexCount = 0;
+            // Make fStencilTrianglesProgram non-null to keep assertions happy.
+            fOp.fStencilCubicsProgram = (GrProgramInfo*)-1;
             this->runBench(&fTarget, &fOp);
             fTarget.resetAllocator();
         }
@@ -175,13 +179,16 @@ private:
             GrMeshDrawOp::Target* TARGET, GrPathTessellateOp* op)
 
 DEF_PATH_TESS_BENCH(prepareMiddleOutStencilGeometry, make_cubic_path(), SkMatrix::I(), target, op) {
+    // Make fStencilTrianglesProgram non-null so we benchmark the tessellation path with separate
+    // triangles.
+    op->fStencilTrianglesProgram = (GrProgramInfo*)-1;
     op->prepareMiddleOutTrianglesAndCubics(target);
 }
 
 DEF_PATH_TESS_BENCH(prepareMiddleOutStencilGeometry_indirect, make_cubic_path(), SkMatrix::I(),
                     target, op) {
     GrResolveLevelCounter resolveLevelCounter;
-    op->prepareMiddleOutTrianglesAndCubics(target, &resolveLevelCounter, true);
+    op->prepareMiddleOutTrianglesAndCubics(target, &resolveLevelCounter);
 }
 
 DEF_PATH_TESS_BENCH(prepareIndirectOuterCubics, make_cubic_path(), SkMatrix::I(), target, op) {
