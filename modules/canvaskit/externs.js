@@ -59,8 +59,8 @@ var CanvasKit = {
   MakeSkVertices: function() {},
   MakeSurface: function() {},
   MakeWebGLCanvasSurface: function() {},
-  /** @return {TypedArray} */
   Malloc: function() {},
+  MallocGlyphIDs: function() {},
   Free: function() {},
   computeTonalColors: function() {},
   currentContext: function() {},
@@ -336,7 +336,17 @@ var CanvasKit = {
     setSkewX: function() {},
     setSubpixel: function() {},
     setTypeface: function() {},
+
+    prototype: {
+      getGlyphBounds: function() {},
+      getGlyphIDs: function() {},
+      getGlyphWidths: function() {},
+      getWidths: function() {},
+    },
+
     // private API (from C++ bindings)
+    _getGlyphIDs: function() {},
+    _getGlyphWidthBounds: function() {},
     _getWidths: function() {},
   },
 
@@ -633,11 +643,15 @@ var CanvasKit = {
 
   SkTextBlob: {
     // public API (both C++ and JS bindings)
+    MakeFromGlyphs: function() {},
     MakeFromRSXform: function() {},
+    MakeFromRSXformGlyphs: function() {},
     MakeFromText: function() {},
     MakeOnPath: function() {},
     // private API (from C++ bindings)
+    _MakeFromGlyphs: function() {},
     _MakeFromRSXform: function() {},
+    _MakeFromRSXformGlyphs: function() {},
     _MakeFromText: function() {},
   },
 
@@ -958,8 +972,6 @@ CanvasKit.SkImage.prototype.encodeToData = function() {};
 CanvasKit.SkImage.prototype.makeShader = function() {};
 
 CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function() {};
-
-CanvasKit.SkFont.prototype.getWidths = function() {};
 
 CanvasKit.RSXFormBuilder.prototype.build = function() {};
 CanvasKit.RSXFormBuilder.prototype.delete = function() {};
