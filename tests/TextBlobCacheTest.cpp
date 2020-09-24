@@ -67,7 +67,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
                                   bool stressTest) {
     // setup surface
     uint32_t flags = 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
 
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
