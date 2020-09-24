@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2c872832_97cde549",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-24T15:55:44Z",
+      "side": 1,
+      "message": "Also at ps19 it seems things are in general running out of memory, so seems to be leaking something?",
+      "revId": "0b2e3248326e46cca60b445545ceaa1245654583",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2cf4d7fb_021d34b7",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 919,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-24T15:55:44Z",
+      "side": 1,
+      "message": "No need for this block anymore since UErrorCode and UText are now scoped in setText.",
+      "range": {
+        "startLine": 919,
+        "startChar": 12,
+        "endLine": 919,
+        "endChar": 13
+      },
+      "revId": "0b2e3248326e46cca60b445545ceaa1245654583",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6130164_61624f85",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 19
+      },
+      "lineNbr": 1009,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-24T15:55:44Z",
+      "side": 1,
+      "message": "Note that since this is no longer scoping the UErrorCode or UText there\u0027s no need for the extra block and indentation here (it is now being provided by setText).",
+      "range": {
+        "startLine": 1009,
+        "startChar": 4,
+        "endLine": 1009,
+        "endChar": 5
+      },
+      "revId": "0b2e3248326e46cca60b445545ceaa1245654583",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
