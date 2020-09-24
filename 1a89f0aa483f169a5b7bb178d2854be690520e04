@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4093d865_a782d72b",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-24T16:46:52Z",
+      "side": 1,
+      "message": "odd name (to me). Seems like that array maps chars to glyphs, so I might call it\n\nglyphIDsByChar[]\n\nor\n\ncharToGlyph[]",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 21
+      },
+      "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d92c9959_1b4c83dd",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 7
