@@ -22,6 +22,30 @@
       "revId": "e2067645ef0fa7aa3706071047d40886d25e89f4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe2f9b74_a9d5195f",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-24T02:14:43Z",
+      "side": 1,
+      "message": "Thanks for letting me know. Fix here: https://skia-review.googlesource.com/c/skia/+/319197",
+      "parentUuid": "5b464b61_b5f8bce4",
+      "range": {
+        "startLine": 23,
+        "startChar": 21,
+        "endLine": 23,
+        "endChar": 54
+      },
+      "revId": "e2067645ef0fa7aa3706071047d40886d25e89f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

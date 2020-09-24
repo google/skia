@@ -52,6 +52,24 @@
       "revId": "549106b2e8f0b1a84e01db388b24f035a0e799b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "71e36693_a15f0fe0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-24T02:14:43Z",
+      "side": 1,
+      "message": "Ok good to know. I though SkNx was on the way to being deprecated in favor of skvx. Is this not true?\n\nI also have hopes of using simd on wasm. Would it be worth it to add a SkNx_wasm.h?",
+      "parentUuid": "c020f768_b09c506e",
+      "revId": "549106b2e8f0b1a84e01db388b24f035a0e799b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
