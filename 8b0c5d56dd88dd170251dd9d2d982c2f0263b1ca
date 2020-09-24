@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c64d86e_054f84be",
+        "filename": "src/gpu/tessellate/GrPathTessellateOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-24T12:57:09Z",
+      "side": 1,
+      "message": "Is there anyway to jam this in the recordTimeAllocator ?",
+      "revId": "8b0c5d56dd88dd170251dd9d2d982c2f0263b1ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d1d9ac8_4d389b91",
+        "filename": "src/gpu/tessellate/GrPathTessellateOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-24T12:57:09Z",
+      "side": 1,
+      "message": "If this can\u0027t go in the record time arena, wdyt about having the DDL own it and let it be deleted w/ the DDL? Deleting it here would mess up replayability.",
+      "revId": "8b0c5d56dd88dd170251dd9d2d982c2f0263b1ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
