@@ -12,7 +12,6 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/SkNoncopyable.h"
 #include "src/gpu/GrGpuResource.h"
-#include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrSurface.h"
 #include "src/gpu/GrTexture.h"
 

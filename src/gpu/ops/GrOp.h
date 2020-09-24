@@ -13,7 +13,6 @@
 #include "include/core/SkString.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrGpuResource.h"
-#include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/GrXferProcessor.h"
 #include <atomic>
