@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "9e5bd786_dc83e0cf",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-24T17:47:15Z",
+      "side": 1,
+      "message": "Yep. When copying them for _q14 versions I noticed they had a big odd chunk of whitespace that I couldn\u0027t bear to copy or leave in place.",
+      "parentUuid": "a4bd21ee_1dabe6c1",
+      "range": {
+        "startLine": 502,
+        "startChar": 27,
+        "endLine": 502,
+        "endChar": 45
+      },
+      "revId": "1ebc1d8e87ce0c41e17a432da0c4508b334c526e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4a3a1780_ae85adbe",
         "filename": "src/core/SkVM.h",
         "patchSetId": 2
@@ -53,6 +77,30 @@
       "writtenOn": "2020-09-24T17:40:50Z",
       "side": 1,
       "message": "wonder if we should round here (as we might if we were scaling to a byte)?\n\nalso, maybe assert that f can fit in 2.14 in debug builds?",
+      "range": {
+        "startLine": 506,
+        "startChar": 39,
+        "endLine": 506,
+        "endChar": 47
+      },
+      "revId": "1ebc1d8e87ce0c41e17a432da0c4508b334c526e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "809b9d29_80f35323",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-24T17:47:15Z",
+      "side": 1,
+      "message": "Yeah, we may want to round here and in to_f32(Q14), but I\u0027m not sure yet.  If we do it really needs to be a round-round, keeping negative values in mind.  (There\u0027s also a cheaper path to convert float \u003c-\u003e q14 for positive values that I\u0027m not quite sure how it\u0027d do rounding yet, and I want to keep that door open.)\n\nWe do assert f can fit in 2.14 here, through forwarding the float constructor to the int one, and that using SkTo\u003cint16_t\u003e.",
+      "parentUuid": "4a3a1780_ae85adbe",
       "range": {
         "startLine": 506,
         "startChar": 39,
