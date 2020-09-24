@@ -213,7 +213,11 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
+#ifdef SK_LEGACY_SURFACE_PROPS
         : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
+#else
+        : INHERITED(bitmap.info(), SkSurfaceProps())
+#endif
         , fBitmap(bitmap)
         , fRCStack(bitmap.width(), bitmap.height())
         , fGlyphPainter(this->surfaceProps(),
@@ -224,7 +228,11 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
 }
 
 SkBitmapDevice* SkBitmapDevice::Create(const SkImageInfo& info) {
+#ifdef SK_LEGACY_SURFACE_PROPS
     return Create(info, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType));
+#else
+    return Create(info, SkSurfaceProps());
+#endif
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
