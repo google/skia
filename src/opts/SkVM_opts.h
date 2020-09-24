@@ -68,21 +68,18 @@ namespace SK_OPTS_NS {
         constexpr int K = 8;   // 256-bit: 2 xmm, 2 v-registers, etc.
     #endif
         using I32 = skvx::Vec<K, int>;
+        using I16 = skvx::Vec<K, int16_t>;
         using F32 = skvx::Vec<K, float>;
         using U64 = skvx::Vec<K, uint64_t>;
         using U32 = skvx::Vec<K, uint32_t>;
         using U16 = skvx::Vec<K, uint16_t>;
         using  U8 = skvx::Vec<K, uint8_t>;
-
-        using I16x2 = skvx::Vec<2*K,  int16_t>;
-        using U16x2 = skvx::Vec<2*K, uint16_t>;
-
         union Slot {
             F32   f32;
             I32   i32;
             U32   u32;
-            I16x2 i16x2;
-            U16x2 u16x2;
+            I16   i16;
+            U16   u16;
         };
 
         Slot                     few_regs[16];
@@ -307,27 +304,41 @@ namespace SK_OPTS_NS {
                         r[d].f32 = skvx::from_half(skvx::cast<uint16_t>(r[x].i32));
                         break;
 
-                    CASE(Op::add_q14x2): r[d].i16x2 = r[x].i16x2 + r[y].i16x2; break;
-                    CASE(Op::sub_q14x2): r[d].i16x2 = r[x].i16x2 - r[y].i16x2; break;
-                    CASE(Op::mul_q14x2): r[d].i16x2 = mul_q14(r[x].i16x2, r[y].i16x2); break;
+                    CASE(Op::splat_q14): r[d].i16 = immy; break;
 
-                    CASE(Op::shl_q14x2): r[d].i16x2 = r[x].i16x2 << immy; break;
-                    CASE(Op::sra_q14x2): r[d].i16x2 = r[x].i16x2 >> immy; break;
-                    CASE(Op::shr_q14x2): r[d].u16x2 = r[x].u16x2 >> immy; break;
+                    CASE(Op::add_q14): r[d].i16 = r[x].i16 + r[y].i16; break;
+                    CASE(Op::sub_q14): r[d].i16 = r[x].i16 - r[y].i16; break;
+                    CASE(Op::mul_q14): r[d].i16 = mul_q14(r[x].i16, r[y].i16); break;
 
-                    CASE(Op::eq_q14x2): r[d].i16x2 = r[x].i16x2 == r[y].i16x2; break;
-                    CASE(Op::gt_q14x2): r[d].i16x2 = r[x].i16x2 >  r[y].i16x2; break;
+                    CASE(Op::shl_q14): r[d].i16 = r[x].i16 << immy; break;
+                    CASE(Op::sra_q14): r[d].i16 = r[x].i16 >> immy; break;
+                    CASE(Op::shr_q14): r[d].u16 = r[x].u16 >> immy; break;
 
-                    CASE(Op:: min_q14x2): r[d].i16x2 = min(r[x].i16x2, r[y].i16x2); break;
-                    CASE(Op:: max_q14x2): r[d].i16x2 = max(r[x].i16x2, r[y].i16x2); break;
-                    CASE(Op::umin_q14x2): r[d].u16x2 = min(r[x].u16x2, r[y].u16x2); break;
+                    CASE(Op::eq_q14): r[d].i16 = r[x].i16 == r[y].i16; break;
+                    CASE(Op::gt_q14): r[d].i16 = r[x].i16 >  r[y].i16; break;
+
+                    CASE(Op::min_q14): r[d].i16 = min(r[x].i16, r[y].i16); break;
+                    CASE(Op::max_q14): r[d].i16 = max(r[x].i16, r[y].i16); break;
+
+                    CASE(Op::bit_and_q14):   r[d].i16 = r[x].i16 &  r[y].i16; break;
+                    CASE(Op::bit_or_q14 ):   r[d].i16 = r[x].i16 |  r[y].i16; break;
+                    CASE(Op::bit_xor_q14):   r[d].i16 = r[x].i16 ^  r[y].i16; break;
+                    CASE(Op::bit_clear_q14): r[d].i16 = r[x].i16 & ~r[y].i16; break;
+
+                    CASE(Op::select_q14):
+                        r[d].i16 = skvx::if_then_else(r[x].i16, r[y].i16, r[z].i16);
+                        break;
 
                     // Happily, Clang can see through this one and generates perfect code
                     // using vpavgw without any help from us!
-                    CASE(Op::uavg_q14x2):
-                        r[d].u16x2 = skvx::cast<uint16_t>( (skvx::cast<int>(r[x].u16x2) +
-                                                            skvx::cast<int>(r[y].u16x2) + 1)>>1 );
+                    CASE(Op::uavg_q14):
+                        r[d].u16 = skvx::cast<uint16_t>( (skvx::cast<int>(r[x].u16) +
+                                                          skvx::cast<int>(r[y].u16) + 1)>>1 );
                         break;
+
+                    CASE(Op::to_q14):   r[d].i16 = skvx::cast<int16_t>(r[x].i32); break;
+                    CASE(Op::from_q14): r[d].i32 = skvx::cast<int32_t>(r[x].i16); break;
+
                 #undef CASE
                 }
             }
