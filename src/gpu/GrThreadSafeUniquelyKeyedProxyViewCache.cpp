@@ -42,7 +42,8 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
     // TODO: should we empty out the fFreeEntryList and reset fEntryAllocator?
 }
 
-// TODO: add an atomic flag so we know when it is worthwhile to iterate
+// TODO: If iterating becomes too expensive switch to using something like GrIORef for the
+// GrSurfaceProxy
 void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefs(GrResourceCache* resourceCache) {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -158,4 +159,32 @@ GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::add(const GrUniqueKe
     SkAutoSpinlock lock{fSpinLock};
 
     return this->internalAdd(key, view);
+}
+
+GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::findOrAdd(const GrUniqueKey& key,
+                                                                      const GrSurfaceProxyView& v) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
+    if (tmp) {
+        SkASSERT(fUniquelyKeyedProxyViewList.isInList(tmp));
+        // make the sought out entry the MRU
+        tmp->fLastAccess = GrStdSteadyClock::now();
+        fUniquelyKeyedProxyViewList.remove(tmp);
+        fUniquelyKeyedProxyViewList.addToHead(tmp);
+        return tmp->fView;
+    }
+
+    return this->internalAdd(key, v);
+}
+
+void GrThreadSafeUniquelyKeyedProxyViewCache::remove(const GrUniqueKey& key) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
+    if (tmp) {
+        fUniquelyKeyedProxyViewMap.remove(key);
+        fUniquelyKeyedProxyViewList.remove(tmp);
+        this->recycleEntry(tmp);
+    }
 }
