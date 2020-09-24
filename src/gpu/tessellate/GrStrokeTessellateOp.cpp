@@ -8,6 +8,7 @@
 #include "src/gpu/tessellate/GrStrokeTessellateOp.h"
 
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/tessellate/GrStrokePatchBuilder.h"
 #include "src/gpu/tessellate/GrStrokeTessellateShader.h"
 
@@ -75,12 +76,40 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
     return CombineResult::kMerged;
 }
 
-void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView* writeView,
-                                        GrAppliedClip*,
-                                        const GrXferProcessor::DstProxyView&,
-                                        GrXferBarrierFlags renderPassXferBarriers) {}
+void GrStrokeTessellateOp::onPrePrepare(GrRecordingContext* context,
+                                        const GrSurfaceProxyView* writeView, GrAppliedClip* clip,
+                                        const GrXferProcessor::DstProxyView& dstProxyView,
+                                        GrXferBarrierFlags renderPassXferBarriers) {
+    this->prePrepareColorProgram(context->priv().recordTimeAllocator(), writeView, std::move(*clip),
+                                 dstProxyView, renderPassXferBarriers, *context->priv().caps());
+    context->priv().recordProgramInfo(fColorProgram);
+}
+
+void GrStrokeTessellateOp::prePrepareColorProgram(SkArenaAlloc* arena,
+                                                  const GrSurfaceProxyView* writeView,
+                                                  GrAppliedClip&& clip,
+                                                  const GrXferProcessor::DstProxyView& dstProxyView,
+                                                  GrXferBarrierFlags renderPassXferBarriers,
+                                                  const GrCaps& caps) {
+    auto* strokeShader = arena->make<GrStrokeTessellateShader>(fStroke, fMatrixScale, fViewMatrix,
+                                                               fColor);
+    auto pipelineFlags = GrPipeline::InputFlags::kNone;
+    if (GrAAType::kNone != fAAType) {
+        pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+        SkASSERT(writeView->asRenderTargetProxy()->numSamples() > 1);  // No mixed samples yet.
+        SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples yet.
+    }
+    fColorProgram = GrPathShader::MakeProgramInfo(strokeShader, arena, writeView, pipelineFlags,
+                                                  std::move(fProcessors), std::move(clip),
+                                                  dstProxyView, renderPassXferBarriers, caps);
+}
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
+    if (!fColorProgram) {
+        this->prePrepareColorProgram(flushState->allocator(), flushState->writeView(),
+                                     flushState->detachAppliedClip(), flushState->dstProxyView(),
+                                     flushState->renderPassBarriers(), flushState->caps());
+    }
     GrStrokePatchBuilder builder(flushState, &fPatchChunks, fMatrixScale, fStroke,
                                  fTotalCombinedVerbCnt);
     for (const SkPath& path : fPaths) {
@@ -89,25 +118,11 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
 }
 
 void GrStrokeTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
-    GrPipeline::InitArgs initArgs;
-    if (GrAAType::kNone != fAAType) {
-        initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
-        SkASSERT(flushState->proxy()->numSamples() > 1);  // No mixed samples yet.
-        SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples yet.
-    }
-    initArgs.fCaps = &flushState->caps();
-    initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
-    initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
-    GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
-
-    GrStrokeTessellateShader strokeShader(fStroke, fMatrixScale, fViewMatrix, fColor);
-    GrPathShader::ProgramInfo programInfo(flushState->writeView(), &pipeline, &strokeShader,
-                                          flushState->renderPassBarriers());
-
+    SkASSERT(fColorProgram);
     SkASSERT(chainBounds == this->bounds());
-    flushState->bindPipelineAndScissorClip(programInfo, this->bounds());
-    flushState->bindTextures(strokeShader, nullptr, pipeline);
 
+    flushState->bindPipelineAndScissorClip(*fColorProgram, this->bounds());
+    flushState->bindTextures(fColorProgram->primProc(), nullptr, fColorProgram->pipeline());
     for (const auto& chunk : fPatchChunks) {
         if (chunk.fPatchBuffer) {
             flushState->bindBuffers(nullptr, nullptr, std::move(chunk.fPatchBuffer));

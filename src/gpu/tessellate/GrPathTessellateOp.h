@@ -12,6 +12,7 @@
 #include "src/gpu/tessellate/GrTessellationPathRenderer.h"
 
 class GrAppliedHardClip;
+class GrEagerVertexAllocator;
 class GrStencilPathShader;
 class GrResolveLevelCounter;
 
@@ -47,10 +48,24 @@ private:
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override;
+
     void onPrePrepare(GrRecordingContext*, const GrSurfaceProxyView*, GrAppliedClip*,
-                      const GrXferProcessor::DstProxyView&,
-                      GrXferBarrierFlags renderPassXferBarriers) override;
-    void onPrepare(GrOpFlushState* state) override;
+                      const GrXferProcessor::DstProxyView&, GrXferBarrierFlags) override;
+
+    struct PrePrepareArgs {
+        SkArenaAlloc* fArena;
+        const GrSurfaceProxyView* fWriteView;
+        const GrAppliedClip* fClip;
+        const GrXferProcessor::DstProxyView* fDstProxfView;
+        GrXferBarrierFlags fXferBarrierFlags;
+        const GrCaps* fCaps;
+        GrEagerVertexAllocator* fInnerTriangleAllocator;
+    };
+
+    // Chooses the rendering method we will use and creates the corresponding stencil programs up
+    // front.
+    // TODO: This will eventually create the fill programs also.
+    void prePreparePrograms(const PrePrepareArgs&);
 
     // Produces a non-overlapping triangulation of the path's inner polygon(s). The inner polygons
     // connect the endpoints of each verb. (i.e., they are the path that would result from
@@ -60,7 +75,13 @@ private:
     // Returns false if the inner triangles do not form a simple polygon (e.g., self intersection,
     // double winding). Non-simple polygons would need to split edges in order to avoid overlap,
     // and this is not an option as it would introduce T-junctions with the outer cubics.
-    bool prepareNonOverlappingInnerTriangles(GrMeshDrawOp::Target*, int* numCountedCurves);
+    bool prePrepareInnerPolygonTriangulation(const PrePrepareArgs&, int* numCountedCurves);
+
+    void prePrepareStencilTrianglesProgram(const PrePrepareArgs&);
+    template<typename ShaderType> void prePrepareStencilCubicsProgram(const PrePrepareArgs&);
+    void prePrepareSharedStencilPipeline(const PrePrepareArgs&);
+
+    void onPrepare(GrOpFlushState*) override;
 
     // Produces a "Red Book" style triangulation of the SkPath's inner polygon(s) using a
     // "middle-out" topology (See GrMiddleOutPolygonTriangulator), and then prepares outer cubics in
@@ -71,11 +92,11 @@ private:
     // prepares the outer cubics as indirect draws. Otherwise they are prepared as hardware
     // tessellation patches.
     //
-    // If drawTrianglesAsIndirectCubicDraw is true, then the resolveLevel counter must be non-null,
-    // and we express the inner triangles as an indirect cubic draw and sneak them in alongside the
-    // other cubic draws.
-    void prepareMiddleOutTrianglesAndCubics(GrMeshDrawOp::Target*, GrResolveLevelCounter* = nullptr,
-                                            bool drawTrianglesAsIndirectCubicDraw = false);
+    // If fStencilTrianglesProgram is null, then the resolveLevel counter must be non-null, and we
+    // express the inner triangles as an indirect cubic draw and sneak them in alongside the other
+    // cubic draws.
+    void prepareMiddleOutTrianglesAndCubics(GrMeshDrawOp::Target*,
+                                            GrResolveLevelCounter* = nullptr);
 
     // Prepares a list of indirect draw commands and instance data for the path's "outer cubics",
     // converting any quadratics to cubics. An outer cubic is an independent, 4-point closed contour
@@ -117,37 +138,42 @@ private:
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;
 
+    // This is filled off thread and then uploaded to fTriangleBuffer when using DDL.
+    const SkPoint* fOffThreadInnerTriangulation = nullptr;
     sk_sp<const GrBuffer> fTriangleBuffer;
     int fBaseTriangleVertex;
-    int fTriangleVertexCount;
+    int fTriangleVertexCount = 0;
+
+    // This same GrPipeline is used by all programInfos in the stencil step.
+    const GrPipeline* fSharedStencilPipeline = nullptr;
 
     // These switches specify how the above fTriangleBuffer should be drawn (if at all).
     //
-    // If stencil=true and fill=false:
+    // If stencil and !fill:
     //
     //     We just stencil the triangles (with cubics) during the stencil step. The path gets filled
     //     later using a simple bounding box if needed.
     //
-    // If stencil=true and fill=true:
+    // If stencil and fill:
     //
     //     We still stencil the triangles and cubics normally, but during the *fill* step we fill
     //     the triangles plus local convex hulls around each cubic instead of a bounding box.
     //
-    // If stencil=false and fill=true:
+    // If !stencil and fill:
     //
     //     This means that fTriangleBuffer contains non-overlapping geometry that can be filled
     //     directly to the final render target. We only need to stencil *curves*, and during the
     //     fill step we draw the triangles directly with a stencil test that accounts for curves
     //     (see drawCoverPass()), and then finally fill the curves with local convex hulls.
-    bool fDoStencilTriangleBuffer = false;
+    const GrProgramInfo* fStencilTrianglesProgram = nullptr;
     bool fDoFillTriangleBuffer = false;
 
     // The cubic buffer defines either standalone cubics or wedges. These are stencilled by
     // tessellation shaders, and may also be used do fill local convex hulls around each cubic.
     sk_sp<const GrBuffer> fCubicBuffer;
     int fBaseCubicVertex;
-    int fCubicVertexCount;
-    GrStencilPathShader* fStencilCubicsShader = nullptr;
+    int fCubicVertexCount = 0;
+    const GrProgramInfo* fStencilCubicsProgram = nullptr;
 
     // If fIndirectDrawBuffer is non-null, then we issue an indexed-indirect draw instead of using
     // hardware tessellation. This is oftentimes faster than tessellation, and other times it serves
