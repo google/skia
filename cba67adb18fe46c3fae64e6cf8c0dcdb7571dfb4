@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba2c0b1d_f9c65b04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-24T15:44:06Z",
+      "side": 1,
+      "message": "The shaping.html looks like https://screencast.googleplex.com/cast/NTcwMzA0NTYwODM3NDI3MnwxOWMyNjljYS1iZg",
+      "revId": "cba67adb18fe46c3fae64e6cf8c0dcdb7571dfb4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
