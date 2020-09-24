@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b464b61_b5f8bce4",
+        "filename": "src/gpu/tessellate/GrWangsFormula.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-24T00:58:43Z",
+      "side": 1,
+      "message": "I think this is why those -Rome- bots are failing.  sk_float_rsqrt() will give different results on different processors, even given the same gross architecture.",
+      "range": {
+        "startLine": 23,
+        "startChar": 21,
+        "endLine": 23,
+        "endChar": 54
+      },
+      "revId": "e2067645ef0fa7aa3706071047d40886d25e89f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
