@@ -92,6 +92,18 @@ public:
         bool fStyle = false;
         bool fFilterQuality = false;
     };
+    struct SkSurfacePropsFields {
+        bool fFlags = false;
+        bool fPixelGeometry = false;
+    };
+    struct DisplayFields {
+        bool fColorType = false;
+        bool fColorSpace = false;
+        bool fMSAASampleCount = false;
+        bool fGrContextOptions = false;
+        SkSurfacePropsFields fSurfaceProps;
+        bool fDisableVsync = false;
+    };
 private:
     enum class ColorMode {
         kLegacy,                // 8888, no color management
@@ -190,11 +202,18 @@ private:
 
     SkTArray<std::function<void(void)>> fDeferredActions;
 
+    // fPaint contains override values, fPaintOverrides controls if overrides are applied.
     SkPaint fPaint;
     SkPaintFields fPaintOverrides;
+
+    // fFont contains override values, fFontOverrides controls if overrides are applied.
     SkFont fFont;
     SkFontFields fFontOverrides;
-    bool fPixelGeometryOverrides = false;
+
+    // fDisplay contains default values (fWindow.fRequestedDisplayParams contains the overrides),
+    // fDisplayOverrides controls if overrides are applied.
+    sk_app::DisplayParams fDisplay;
+    DisplayFields fDisplayOverrides;
 
     struct CachedShader {
         bool                fHovered = false;

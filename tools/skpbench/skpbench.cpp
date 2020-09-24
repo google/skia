@@ -590,7 +590,7 @@ int main(int argc, char** argv) {
             SkImageInfo::Make(width, height, config->getColorType(), config->getAlphaType(),
                               sk_ref_sp(config->getColorSpace()));
     uint32_t flags = config->getUseDIText() ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
     sk_sp<SkSurface> surface =
         SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, config->getSamples(), &props);
     if (!surface) {

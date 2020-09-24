@@ -316,7 +316,11 @@ public:
                                           SkScalerContextEffects* effects) {
         SkPaint paint;
         return MakeRecAndEffects(
+#ifdef SK_LEGACY_SURFACE_PROPS
                 font, paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+#else
+                font, paint, SkSurfaceProps(),
+#endif
                 SkScalerContextFlags::kNone, SkMatrix::I(), rec, effects);
     }
 

@@ -16,7 +16,11 @@ static inline SkSurfaceProps SkSurfacePropsCopyOrDefault(const SkSurfaceProps* p
     if (props) {
         return *props;
     } else {
+#ifdef SK_LEGACY_SURFACE_PROPS
         return SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+#else
+        return SkSurfaceProps();
+#endif
     }
 }
 
