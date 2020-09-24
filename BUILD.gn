@@ -732,12 +732,23 @@ if (skia_compile_sksl_tests) {
     lang = "--glsl"
     settings = "--nosettings"
   }
+  compile_sksl("metal_tests") {
+    sources = sksl_metal_tests_sources
+    outputPatterns = [ [
+          "/golden/",
+          ".metal",
+        ] ]
+    lang = "--metal"
+    settings = "--settings"
+  }
 } else {
   group("compile_sksl_fp_tests") {
   }
   group("compile_sksl_glsl_tests") {
   }
   group("compile_sksl_glsl_nosettings_tests") {
+  }
+  group("compile_sksl_metal_tests") {
   }
 }
 
@@ -748,6 +759,7 @@ optional("gpu") {
     ":compile_sksl_fp_tests",
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",
+    ":compile_sksl_metal_tests",
     ":dehydrate_sksl",
     ":run_sksllex",
   ]
