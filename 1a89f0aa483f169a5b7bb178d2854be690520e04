@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "b3e72eb0_765cdf4d",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-24T17:33:09Z",
+      "side": 1,
+      "message": "Sure. By the phrase \"ByGlyph\" implies (to me) the the input is a glyph, which it is not in this case, right?\n\nDo you find charToGlyph or mapCharToGlyph confusing names?",
+      "parentUuid": "d196b184_9d2df84f",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 21
+      },
+      "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d92c9959_1b4c83dd",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 7
