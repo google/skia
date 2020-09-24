@@ -8,7 +8,7 @@
 #ifndef GrDirectContext_DEFINED
 #define GrDirectContext_DEFINED
 
-#include "include/private/GrContext.h"
+#include "include/gpu/GrContext.h"
 
 class GrAtlasManager;
 class GrSmallPathAtlasMgr;
