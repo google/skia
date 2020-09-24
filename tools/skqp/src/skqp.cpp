@@ -289,7 +289,7 @@ std::tuple<SkQP::RenderOutcome, std::string> SkQP::evaluateGM(SkQP::SkiaBackend 
     const int h = size.height();
     const SkImageInfo info =
         SkImageInfo::Make(w, h, skqp::kColorType, kPremul_SkAlphaType, nullptr);
-    const SkSurfaceProps props(0, SkSurfaceProps::kLegacyFontHost_InitType);
+    const SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(
             testCtx->makeContext(context_options(gm.get())).get(),
