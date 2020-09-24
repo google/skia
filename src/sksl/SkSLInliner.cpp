@@ -375,9 +375,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
-            auto found = varMap->find(&v.fVariable);
+            auto found = varMap->find(v.fVariable);
             if (found != varMap->end()) {
-                return std::make_unique<VariableReference>(offset, *found->second, v.fRefKind);
+                return std::make_unique<VariableReference>(offset, found->second, v.fRefKind);
             }
             return v.clone();
         }
@@ -618,7 +618,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         const Variable* var = makeInlineVar(String(function.fDeclaration.fName),
                                             &function.fDeclaration.fReturnType,
                                             Modifiers{}, &noInitialValue);
-        resultExpr.fInnerVariable = std::make_unique<VariableReference>(offset, *var);
+        resultExpr.fInnerVariable = std::make_unique<VariableReference>(offset, var);
     }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
@@ -632,7 +632,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             // or it's written to within the function.
             if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
                 !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
-                varMap[param] = &arguments[i]->as<VariableReference>().fVariable;
+                varMap[param] = arguments[i]->as<VariableReference>().fVariable;
                 continue;
             }
         }
@@ -669,12 +669,12 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
             SkASSERT(varMap.find(p) != varMap.end());
             if (arguments[i]->is<VariableReference>() &&
-                &arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
+                arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
                 // We didn't create a temporary for this parameter, so there's nothing to copy back
                 // out.
                 continue;
             }
-            auto varRef = std::make_unique<VariableReference>(offset, *varMap[p]);
+            auto varRef = std::make_unique<VariableReference>(offset, varMap[p]);
             inlinedBody.push_back(std::make_unique<ExpressionStatement>(
                     std::make_unique<BinaryExpression>(offset,
                                                        arguments[i]->clone(),

@@ -369,7 +369,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
                              DefinitionMap* definitions) {
     switch (lvalue->kind()) {
         case Expression::Kind::kVariableReference: {
-            const Variable& var = lvalue->as<VariableReference>().fVariable;
+            const Variable& var = *lvalue->as<VariableReference>().fVariable;
             if (var.fStorage == Variable::kLocal_Storage) {
                 (*definitions)[&var] = expr;
             }
@@ -549,7 +549,7 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
             if (node.fKind == BasicBlock::Node::kStatement_Kind) {
                 SkASSERT(node.statement());
                 const Statement* s = node.statement()->get();
-                if (s->kind() == Statement::Kind::kVarDeclarations) {
+                if (s->is<VarDeclarationsStatement>()) {
                     const VarDeclarationsStatement* vd = &s->as<VarDeclarationsStatement>();
                     for (const auto& decl : vd->fDeclaration->fVars) {
                         if (decl->kind() == Statement::Kind::kVarDeclaration) {
@@ -569,7 +569,7 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
 static bool is_dead(const Expression& lvalue) {
     switch (lvalue.kind()) {
         case Expression::Kind::kVariableReference:
-            return lvalue.as<VariableReference>().fVariable.dead();
+            return lvalue.as<VariableReference>().fVariable->dead();
         case Expression::Kind::kSwizzle:
             return is_dead(*lvalue.as<Swizzle>().fBase);
         case Expression::Kind::kFieldAccess:
@@ -865,14 +865,14 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     switch (expr->kind()) {
         case Expression::Kind::kVariableReference: {
             const VariableReference& ref = expr->as<VariableReference>();
-            const Variable& var = ref.fVariable;
+            const Variable* var = ref.fVariable;
             if (ref.refKind() != VariableReference::kWrite_RefKind &&
                 ref.refKind() != VariableReference::kPointer_RefKind &&
-                var.fStorage == Variable::kLocal_Storage && !definitions[&var] &&
-                (*undefinedVariables).find(&var) == (*undefinedVariables).end()) {
-                (*undefinedVariables).insert(&var);
+                var->fStorage == Variable::kLocal_Storage && !definitions[var] &&
+                (*undefinedVariables).find(var) == (*undefinedVariables).end()) {
+                (*undefinedVariables).insert(var);
                 this->error(expr->fOffset,
-                            "'" + var.fName + "' has not been assigned");
+                            "'" + var->fName + "' has not been assigned");
             }
             break;
         }

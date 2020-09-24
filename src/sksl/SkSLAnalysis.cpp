@@ -66,8 +66,8 @@ namespace {
 static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
     const FunctionDeclaration& f = fc.fFunction;
     return f.fBuiltin && f.fName == "sample" && fc.fArguments.size() >= 1 &&
-            fc.fArguments[0]->kind() == Expression::Kind::kVariableReference &&
-            &((VariableReference&) *fc.fArguments[0]).fVariable == &fp;
+           fc.fArguments[0]->is<VariableReference>() &&
+           fc.fArguments[0]->as<VariableReference>().fVariable == &fp;
 }
 
 // Visitor that determines the merged SampleUsage for a given child 'fp' in the program.
@@ -137,9 +137,9 @@ public:
     BuiltinVariableVisitor(int builtin) : fBuiltin(builtin) {}
 
     bool visitExpression(const Expression& e) override {
-        if (e.kind() == Expression::Kind::kVariableReference) {
+        if (e.is<VariableReference>()) {
             const VariableReference& var = e.as<VariableReference>();
-            return var.fVariable.fModifiers.fLayout.fBuiltin == fBuiltin;
+            return var.fVariable->fModifiers.fLayout.fBuiltin == fBuiltin;
         }
         return this->INHERITED::visitExpression(e);
     }
@@ -189,11 +189,11 @@ public:
     }
 
     bool visitExpression(const Expression& e) override {
-        if (e.kind() == Expression::Kind::kVariableReference) {
+        if (e.is<VariableReference>()) {
             const VariableReference& ref = e.as<VariableReference>();
-            if (&ref.fVariable == fVar && (ref.fRefKind == VariableReference::kWrite_RefKind ||
-                                           ref.fRefKind == VariableReference::kReadWrite_RefKind ||
-                                           ref.fRefKind == VariableReference::kPointer_RefKind)) {
+            if (ref.fVariable == fVar && (ref.fRefKind == VariableReference::kWrite_RefKind ||
+                                          ref.fRefKind == VariableReference::kReadWrite_RefKind ||
+                                          ref.fRefKind == VariableReference::kPointer_RefKind)) {
                 return true;
             }
         }

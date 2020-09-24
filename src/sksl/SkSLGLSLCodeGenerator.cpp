@@ -782,7 +782,7 @@ void GLSLCodeGenerator::writeFragCoord() {
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
+    switch (ref.fVariable->fModifiers.fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             if (fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
                 this->write("sk_FragColor");
@@ -825,7 +825,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write(fProgram.fSettings.fCaps->fbFetchColorName());
             break;
         default:
-            this->write(ref.fVariable.fName);
+            this->write(ref.fVariable->fName);
     }
 }
 

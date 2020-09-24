@@ -1558,7 +1558,7 @@ SpvStorageClass_ get_storage_class(const Modifiers& modifiers) {
 SpvStorageClass_ get_storage_class(const Expression& expr) {
     switch (expr.kind()) {
         case Expression::Kind::kVariableReference: {
-            const Variable& var = ((VariableReference&) expr).fVariable;
+            const Variable& var = *expr.as<VariableReference>().fVariable;
             if (var.fStorage != Variable::kGlobal_Storage) {
                 return SpvStorageClassFunction;
             }
@@ -1569,9 +1569,9 @@ SpvStorageClass_ get_storage_class(const Expression& expr) {
             return result;
         }
         case Expression::Kind::kFieldAccess:
-            return get_storage_class(*((FieldAccess&) expr).fBase);
+            return get_storage_class(*expr.as<FieldAccess>().fBase);
         case Expression::Kind::kIndex:
-            return get_storage_class(*((IndexExpression&) expr).fBase);
+            return get_storage_class(*expr.as<IndexExpression>().fBase);
         default:
             return SpvStorageClassFunction;
     }
@@ -1721,7 +1721,7 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
     switch (expr.kind()) {
         case Expression::Kind::kVariableReference: {
             SpvId typeId;
-            const Variable& var = ((VariableReference&) expr).fVariable;
+            const Variable& var = *expr.as<VariableReference>().fVariable;
             if (var.fModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
                 typeId = this->getType(Type("sk_in", Type::TypeKind::kArray,
                                             var.type().componentType(), fSkInCount));
@@ -1828,12 +1828,12 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
 
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
     SpvId result = this->nextId();
-    auto entry = fVariableMap.find(&ref.fVariable);
+    auto entry = fVariableMap.find(ref.fVariable);
     SkASSERT(entry != fVariableMap.end());
     SpvId var = entry->second;
-    this->writeInstruction(SpvOpLoad, this->getType(ref.fVariable.type()), result, var, out);
-    this->writePrecisionModifier(ref.fVariable.type(), result);
-    if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
+    this->writeInstruction(SpvOpLoad, this->getType(ref.fVariable->type()), result, var, out);
+    this->writePrecisionModifier(ref.fVariable->type(), result);
+    if (ref.fVariable->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
         (fProgram.fSettings.fFlipY || fProgram.fSettings.fInverseW)) {
         // The x component never changes, so just grab it
         SpvId xId = this->nextId();
@@ -1940,7 +1940,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 
         return adjusted;
     }
-    if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
+    if (ref.fVariable->fModifiers.fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
         !fProgram.fSettings.fFlipY) {
         // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia, we use
         // the default convention of "counter-clockwise face is front".
