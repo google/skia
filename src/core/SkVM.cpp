@@ -286,7 +286,8 @@ namespace skvm {
             case Op::uniform16: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
             case Op::uniform32: write(o, V{id}, "=", op, Arg{immy}, Hex{immz}, fs(id)...); break;
 
-            case Op::splat:  write(o, V{id}, "=", op, Splat{immy}, fs(id)...); break;
+            case Op::splat:     write(o, V{id}, "=", op, Splat{immy}, fs(id)...); break;
+            case Op::splat_q14: write(o, V{id}, "=", op, Splat{immy}, fs(id)...); break;
 
             case Op::add_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
             case Op::sub_f32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
@@ -319,30 +320,37 @@ namespace skvm {
             case Op::gt_i32: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
 
 
-            case Op::add_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::sub_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::mul_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::add_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::sub_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::mul_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
 
-            case Op::shl_q14x2: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::shr_q14x2: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
-            case Op::sra_q14x2: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+            case Op::shl_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+            case Op::shr_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
+            case Op::sra_q14: write(o, V{id}, "=", op, V{x}, Shift{immy}, fs(id)...); break;
 
-            case Op:: min_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op:: max_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::umin_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::uavg_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op:: min_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op:: max_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::uavg_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
 
-            case Op::eq_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
-            case Op::gt_q14x2: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::eq_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::gt_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
 
+            case Op::bit_and_q14  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::bit_or_q14   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::bit_xor_q14  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::bit_clear_q14: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
 
-            case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
-            case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...      ); break;
+            case Op::from_q14: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
+            case Op::  to_q14: write(o, V{id}, "=", op, V{x}, fs(id)...); break;
 
-            case Op::select:  write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
-            case Op::pack:    write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
+            case Op::bit_and  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::bit_or   : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::bit_xor  : write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+            case Op::bit_clear: write(o, V{id}, "=", op, V{x}, V{y}, fs(id)...); break;
+
+            case Op::select:     write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
+            case Op::select_q14: write(o, V{id}, "=", op, V{x}, V{y}, V{z}, fs(id)...); break;
+            case Op::pack:  write(o, V{id}, "=", op, V{x}, V{y}, Shift{immz}, fs(id)...); break;
 
             case Op::ceil:      write(o, V{id}, "=", op, V{x}, fs(id)...); break;
             case Op::floor:     write(o, V{id}, "=", op, V{x}, fs(id)...); break;
@@ -430,7 +438,8 @@ namespace skvm {
                 case Op::uniform16: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
                 case Op::uniform32: write(o, R{d}, "=", op, Arg{immy}, Hex{immz}); break;
 
-                case Op::splat:  write(o, R{d}, "=", op, Splat{immy}); break;
+                case Op::splat:     write(o, R{d}, "=", op, Splat{immy}); break;
+                case Op::splat_q14: write(o, R{d}, "=", op, Splat{immy}); break;
 
 
                 case Op::add_f32: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
@@ -463,30 +472,37 @@ namespace skvm {
                 case Op::gt_i32: write(o, R{d}, "=", op, R{x}, R{y}); break;
 
 
-                case Op::add_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
-                case Op::sub_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
-                case Op::mul_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::add_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::sub_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::mul_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
 
-                case Op::shl_q14x2: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
-                case Op::shr_q14x2: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
-                case Op::sra_q14x2: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
+                case Op::shl_q14: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
+                case Op::shr_q14: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
+                case Op::sra_q14: write(o, R{d}, "=", op, R{x}, Shift{immy}); break;
 
-                case Op:: min_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
-                case Op:: max_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
-                case Op::umin_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
-                case Op::uavg_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op:: min_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op:: max_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::uavg_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
 
-                case Op::eq_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
-                case Op::gt_q14x2: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::eq_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::gt_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
 
+                case Op::bit_and_q14  : write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::bit_or_q14   : write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::bit_xor_q14  : write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::bit_clear_q14: write(o, R{d}, "=", op, R{x}, R{y}); break;
 
-                case Op::bit_and  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
-                case Op::bit_or   : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
-                case Op::bit_xor  : write(o, R{d}, "=", op, R{x}, R{y}      ); break;
-                case Op::bit_clear: write(o, R{d}, "=", op, R{x}, R{y}      ); break;
+                case Op::from_q14: write(o, R{d}, "=", op, R{x}); break;
+                case Op::  to_q14: write(o, R{d}, "=", op, R{x}); break;
 
-                case Op::select:  write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
-                case Op::pack:    write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
+                case Op::bit_and  : write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::bit_or   : write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::bit_xor  : write(o, R{d}, "=", op, R{x}, R{y}); break;
+                case Op::bit_clear: write(o, R{d}, "=", op, R{x}, R{y}); break;
+
+                case Op::select:     write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
+                case Op::select_q14: write(o, R{d}, "=", op, R{x}, R{y}, R{z}); break;
+                case Op::pack: write(o, R{d}, "=", op,   R{x}, R{y}, Shift{immz}); break;
 
                 case Op::ceil:      write(o, R{d}, "=", op, R{x}); break;
                 case Op::floor:     write(o, R{d}, "=", op, R{x}); break;
@@ -764,13 +780,8 @@ namespace skvm {
         return {this, push(Op::uniform32, NA,NA,NA, ptr.ix, offset)};
     }
 
-    // The two splat() functions are just syntax sugar over splatting a 4-byte bit pattern.
-    I32 Builder::splat(int   n) { return {this, push(Op::splat, NA,NA,NA, n) }; }
-    F32 Builder::splat(float f) {
-        int bits;
-        memcpy(&bits, &f, 4);
-        return {this, push(Op::splat, NA,NA,NA, bits)};
-    }
+    I32 Builder::splat    (int n) { return {this, push(Op::splat    , NA,NA,NA, n) }; }
+    Q14 Builder::splat_q14(int n) { return {this, push(Op::splat_q14, NA,NA,NA, n) }; }
 
     bool fma_supported() {
         static const bool supported =
@@ -1014,30 +1025,43 @@ namespace skvm {
         return {this, this->push(Op::max_f32, x.id, y.id)};
     }
 
-    // TODO: constant propagation and strength reduction for all these Q14x2 ops
-    Q14x2 Builder::add(Q14x2 x, Q14x2 y) { return {this, this->push(Op::add_q14x2, x.id, y.id)}; }
-    Q14x2 Builder::sub(Q14x2 x, Q14x2 y) { return {this, this->push(Op::sub_q14x2, x.id, y.id)}; }
-    Q14x2 Builder::mul(Q14x2 x, Q14x2 y) { return {this, this->push(Op::mul_q14x2, x.id, y.id)}; }
+    // TODO: constant propagation and strength reduction for all these Q14 ops
+    Q14 Builder::add(Q14 x, Q14 y) { return {this, this->push(Op::add_q14, x.id, y.id)}; }
+    Q14 Builder::sub(Q14 x, Q14 y) { return {this, this->push(Op::sub_q14, x.id, y.id)}; }
+    Q14 Builder::mul(Q14 x, Q14 y) { return {this, this->push(Op::mul_q14, x.id, y.id)}; }
 
-    Q14x2 Builder::shl(Q14x2 x, int k) { return {this, this->push(Op::shl_q14x2, x.id,NA,NA,k)}; }
-    Q14x2 Builder::shr(Q14x2 x, int k) { return {this, this->push(Op::shr_q14x2, x.id,NA,NA,k)}; }
-    Q14x2 Builder::sra(Q14x2 x, int k) { return {this, this->push(Op::sra_q14x2, x.id,NA,NA,k)}; }
+    Q14 Builder::shl(Q14 x, int k) { return {this, this->push(Op::shl_q14, x.id,NA,NA,k)}; }
+    Q14 Builder::shr(Q14 x, int k) { return {this, this->push(Op::shr_q14, x.id,NA,NA,k)}; }
+    Q14 Builder::sra(Q14 x, int k) { return {this, this->push(Op::sra_q14, x.id,NA,NA,k)}; }
 
-    I32 Builder:: eq(Q14x2 x, Q14x2 y) { return {this, this->push(Op::eq_q14x2, x.id, y.id)}; }
-    I32 Builder::gt (Q14x2 x, Q14x2 y) { return {this, this->push(Op::gt_q14x2, x.id, y.id)}; }
-    I32 Builder::lt (Q14x2 x, Q14x2 y) { return  gt(y,x); }
-    I32 Builder::neq(Q14x2 x, Q14x2 y) { return ~eq(x,y); }
-    I32 Builder::gte(Q14x2 x, Q14x2 y) { return ~lt(x,y); }
-    I32 Builder::lte(Q14x2 x, Q14x2 y) { return ~gt(x,y); }
+    Q14 Builder:: eq(Q14 x, Q14 y) { return {this, this->push(Op::eq_q14, x.id, y.id)}; }
+    Q14 Builder::gt (Q14 x, Q14 y) { return {this, this->push(Op::gt_q14, x.id, y.id)}; }
+    Q14 Builder::lt (Q14 x, Q14 y) { return  gt(y,x); }
+    Q14 Builder::neq(Q14 x, Q14 y) { return ~eq(x,y); }
+    Q14 Builder::gte(Q14 x, Q14 y) { return ~lt(x,y); }
+    Q14 Builder::lte(Q14 x, Q14 y) { return ~gt(x,y); }
 
-    Q14x2 Builder::min(Q14x2 x, Q14x2 y) { return {this, this->push(Op::min_q14x2, x.id, y.id)}; }
-    Q14x2 Builder::max(Q14x2 x, Q14x2 y) { return {this, this->push(Op::max_q14x2, x.id, y.id)}; }
+    Q14 Builder::min(Q14 x, Q14 y) { return {this, this->push(Op::min_q14, x.id, y.id)}; }
+    Q14 Builder::max(Q14 x, Q14 y) { return {this, this->push(Op::max_q14, x.id, y.id)}; }
 
-    Q14x2 Builder::unsigned_avg(Q14x2 x, Q14x2 y) {
-        return {this, this->push(Op::uavg_q14x2, x.id, y.id)};
+    Q14 Builder::bit_and  (Q14 x, Q14 y) { return {this, this->push(Op::bit_and_q14  ,x.id,y.id)}; }
+    Q14 Builder::bit_or   (Q14 x, Q14 y) { return {this, this->push(Op::bit_or_q14   ,x.id,y.id)}; }
+    Q14 Builder::bit_xor  (Q14 x, Q14 y) { return {this, this->push(Op::bit_xor_q14  ,x.id,y.id)}; }
+    Q14 Builder::bit_clear(Q14 x, Q14 y) { return {this, this->push(Op::bit_clear_q14,x.id,y.id)}; }
+
+    Q14 Builder::select(Q14 cond, Q14 t, Q14 f) {
+        return {this, this->push(Op::select_q14, cond.id, t.id, f.id)};
     }
-    Q14x2 Builder::unsigned_min(Q14x2 x, Q14x2 y) {
-        return {this, this->push(Op::umin_q14x2, x.id, y.id)};
+
+    Q14 Builder::to_q14(I32 x) { return {this, this->push(Op::  to_q14, x.id) }; }
+    I32 Builder::to_i32(Q14 x) { return {this, this->push(Op::from_q14, x.id) }; }
+
+    // TODO: open question in general whether float -> q14 should round() or trunc().
+    Q14 Builder::to_q14(F32 x) { return to_q14(trunc(x * 16384.0f)); }
+    F32 Builder::to_f32(Q14 x) { return to_f32(to_i32(x)) * (1/16384.0f); }
+
+    Q14 Builder::unsigned_avg(Q14 x, Q14 y) {
+        return {this, this->push(Op::uavg_q14, x.id, y.id)};
     }
 
     I32 Builder::add(I32 x, I32 y) {
@@ -3521,6 +3545,16 @@ namespace skvm {
                     (void)constants[immy];
                     break;
 
+                case Op::splat_q14:
+                case Op::select_q14:
+                case Op::bit_and_q14:
+                case Op::bit_or_q14:
+                case Op::bit_xor_q14:
+                case Op::bit_clear_q14:
+                case Op::from_q14:
+                case Op::  to_q14:
+                    return false;  // TODO
+
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
                     a->vptest (r(x), &constants[0xffffffff]);
@@ -3782,7 +3816,7 @@ namespace skvm {
                     else           { a->vpaddd(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::add_q14x2:
+                case Op::add_q14:
                     if (in_reg(x)) { a->vpaddw(dst(x), r(x), any(y)); }
                     else           { a->vpaddw(dst(y), r(y), any(x)); }
                                      break;
@@ -3792,14 +3826,14 @@ namespace skvm {
                     else           { a->vpmulld(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::mul_q14x2:
+                case Op::mul_q14:
                     if (in_reg(x)) { a->vpmulhrsw(dst(x), r(x), any(y)); }
                     else           { a->vpmulhrsw(dst(y), r(y), any(x)); }
                                      a->vpaddw(dst(), dst(), dst());  // << 1
                                      break;
 
-                case Op::sub_i32:   a->vpsubd(dst(x), r(x), any(y)); break;
-                case Op::sub_q14x2: a->vpsubw(dst(x), r(x), any(y)); break;
+                case Op::sub_i32: a->vpsubd(dst(x), r(x), any(y)); break;
+                case Op::sub_q14: a->vpsubw(dst(x), r(x), any(y)); break;
 
                 case Op::bit_and:
                     if (in_reg(x)) { a->vpand(dst(x), r(x), any(y)); }
@@ -3821,22 +3855,17 @@ namespace skvm {
                     else              { a->vpblendvb(dst(x), r(z), any(y), r(x)); }
                                         break;
 
-                case Op::min_q14x2:
+                case Op::min_q14:
                     if (in_reg(x)) { a->vpminsw(dst(x), r(x), any(y)); }
                     else           { a->vpminsw(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::max_q14x2:
+                case Op::max_q14:
                     if (in_reg(x)) { a->vpmaxsw(dst(x), r(x), any(y)); }
                     else           { a->vpmaxsw(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::umin_q14x2:
-                    if (in_reg(x)) { a->vpminuw(dst(x), r(x), any(y)); }
-                    else           { a->vpminuw(dst(y), r(y), any(x)); }
-                                     break;
-
-                case Op::uavg_q14x2:
+                case Op::uavg_q14:
                     if (in_reg(x)) { a->vpavgw(dst(x), r(x), any(y)); }
                     else           { a->vpavgw(dst(y), r(y), any(x)); }
                                      break;
@@ -3845,22 +3874,22 @@ namespace skvm {
                 case Op::shr_i32: a->vpsrld(dst(x), r(x), immy); break;
                 case Op::sra_i32: a->vpsrad(dst(x), r(x), immy); break;
 
-                case Op::shl_q14x2: a->vpsllw(dst(x), r(x), immy); break;
-                case Op::shr_q14x2: a->vpsrlw(dst(x), r(x), immy); break;
-                case Op::sra_q14x2: a->vpsraw(dst(x), r(x), immy); break;
+                case Op::shl_q14: a->vpsllw(dst(x), r(x), immy); break;
+                case Op::shr_q14: a->vpsrlw(dst(x), r(x), immy); break;
+                case Op::sra_q14: a->vpsraw(dst(x), r(x), immy); break;
 
                 case Op::eq_i32:
                     if (in_reg(x)) { a->vpcmpeqd(dst(x), r(x), any(y)); }
                     else           { a->vpcmpeqd(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::eq_q14x2:
+                case Op::eq_q14:
                     if (in_reg(x)) { a->vpcmpeqw(dst(x), r(x), any(y)); }
                     else           { a->vpcmpeqw(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::gt_i32:   a->vpcmpgtd(dst(), r(x), any(y)); break;
-                case Op::gt_q14x2: a->vpcmpgtw(dst(), r(x), any(y)); break;
+                case Op::gt_i32: a->vpcmpgtd(dst(), r(x), any(y)); break;
+                case Op::gt_q14: a->vpcmpgtw(dst(), r(x), any(y)); break;
 
                 case Op::eq_f32:
                     if (in_reg(x)) { a->vcmpeqps(dst(x), r(x), any(y)); }
