@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d92c9959_1b4c83dd",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-24T16:02:24Z",
+      "side": 1,
+      "message": "Are you really getting these in as utf8? It\u0027s just surprising to see this here since I would expect WTF-16? I see that you\u0027re converting, though I\u0027m not sure that\u0027s really needed, unless you really want to verify that everything is all valid codepoints up front. Anyhow, just wanted to let you know that may just be unnecessary overhead.",
+      "range": {
+        "startLine": 1229,
+        "startChar": 66,
+        "endLine": 1229,
+        "endChar": 87
+      },
+      "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
