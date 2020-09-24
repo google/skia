@@ -60,6 +60,12 @@
 //
 //    For GrContext::performDeferredCleanup, any uniquely held resources that haven't been accessed
 //    w/in 'msNotUsed' will be released from this cache prior to the resource cache being cleaned.
+//----------------------------------------------------------------------------------------
+//
+// More:
+//    Add gpu stats about SW vs. HW mask generation
+//    Make sure we're not reffing/un-reffing too much by passing GrSurfaceProxyViews around
+//
 class GrThreadSafeUniquelyKeyedProxyViewCache {
 public:
     GrThreadSafeUniquelyKeyedProxyViewCache();
@@ -83,6 +89,10 @@ public:
     GrSurfaceProxyView find(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
     GrSurfaceProxyView add(const GrUniqueKey&, const GrSurfaceProxyView&)  SK_EXCLUDES(fSpinLock);
+
+    GrSurfaceProxyView findOrAdd(const GrUniqueKey&, const GrSurfaceProxyView&)  SK_EXCLUDES(fSpinLock);
+
+    void remove(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
 private:
     struct Entry {

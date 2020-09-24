@@ -11,6 +11,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkTInternalLList.h"
+#include "src/gpu/GrNonAtomicRef.h"
 #include "src/gpu/ccpr/GrCCAtlas.h"
 #include "src/gpu/ccpr/GrCCPathProcessor.h"
 #include "src/gpu/geometry/GrStyledShape.h"
