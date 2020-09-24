@@ -1,6 +1,0 @@
-void main() {
-    half2 x = half2(1);
-    x = +x;
-    x = -x;
-    sk_FragColor.rg = x;
-}

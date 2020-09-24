@@ -1,3 +1,0 @@
-void main() {
-    sk_FragColor = half4(half(sk_ClipDistance[0]));
-}

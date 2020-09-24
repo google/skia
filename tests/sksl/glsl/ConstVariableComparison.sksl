@@ -1,5 +1,0 @@
-void main() {
-  const float4 a = float4(0);
-  const float4 b = float4(1);
-  if (a == b) { discard; }
-}

@@ -1,3 +1,0 @@
-void main() {
-    sk_FragColor = sk_FragColor.BRTL;
-}

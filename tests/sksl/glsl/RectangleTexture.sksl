@@ -1,8 +1,0 @@
-uniform sampler2D test2D;
-uniform sampler2D test2DRect;
-
-void main() {
-    sk_FragColor = sample(test2D, float2(0.5));
-    sk_FragColor = sample(test2DRect, float2(0.5));
-    sk_FragColor = sample(test2DRect, float3(0.5));
-}

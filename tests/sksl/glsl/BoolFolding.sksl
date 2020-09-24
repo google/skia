@@ -1,8 +1,0 @@
-void main() {
-    sk_FragColor.r = 1 == 1 || 2 == 8 ? 1 : -1;
-    sk_FragColor.r = 1 > 1 || 2 == 8 ? 2 : -2;
-    sk_FragColor.r = 1 == 1 && 2 <= 8 ? 3 : -3;
-    sk_FragColor.r = 1 == 2 && 2 == 8 ? 4 : -4;
-    sk_FragColor.r = 1 == 1 ^^ 1 != 1 ? 5 : -5;
-    sk_FragColor.r = 1 == 1 ^^ 1 == 1 ? 6 : -6;
-}
