@@ -12,6 +12,7 @@
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace SkSL {
