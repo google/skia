@@ -50,7 +50,7 @@ struct Statement : public IRNode {
 
     /**
      *  Use is<T> to check the type of a statement.
-     *  e.g. replace `s.fKind == Statement::kReturn_Kind` with `s.is<ReturnStatement>()`.
+     *  e.g. replace `s.kind() == Statement::Kind::kReturn` with `s.is<ReturnStatement>()`.
      */
     template <typename T>
     bool is() const {
