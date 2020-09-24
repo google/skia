@@ -33,6 +33,24 @@
       "revId": "68e175abc3cbbac31b451eec67c79d295192e11c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c61a393_f46e0b6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-24T19:48:10Z",
+      "side": 1,
+      "message": "CheckGeneratedFiles\n\nhttps://task-scheduler.skia.org/task/swC2HrpYbW6YgwUTpH2C\n\nhttps://logs.chromium.org/logs/skia/4ed9e0d19ac7d911/+/steps/ninja/0/stdout",
+      "parentUuid": "6e4d0144_88c430ea",
+      "revId": "68e175abc3cbbac31b451eec67c79d295192e11c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
