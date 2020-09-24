@@ -22,6 +22,30 @@
       "revId": "bb51267f645ca07697e704822f0a4bd0e072fecf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5659bae6_584705be",
+        "filename": "modules/skshaper/src/SkUnicode_icu.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-24T15:02:42Z",
+      "side": 1,
+      "message": "I tried really hard to avoid two UTexts :)... Anyway - you are right, it\u0027s probably the best option for now.",
+      "parentUuid": "c44d9f67_35ead17d",
+      "range": {
+        "startLine": 161,
+        "startChar": 30,
+        "endLine": 161,
+        "endChar": 54
+      },
+      "revId": "bb51267f645ca07697e704822f0a4bd0e072fecf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
