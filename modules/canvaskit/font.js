@@ -12,12 +12,88 @@ CanvasKit._extraInitializations.push(function() {
       var strPtr = CanvasKit._malloc(strLen + 1);
       stringToUTF8(str, strPtr, strLen + 1);
       this._drawSimpleText(strPtr, strLen, x, y, font, paint);
+      CanvasKit._free(strPtr);
     } else {
       this._drawShapedText(str, x, y, paint);
     }
   }
 
-  // Returns an array of the widths of the glyphs in this string.
+  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by SkFont.getGlyphIDs.
+  // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
+  // The return value will be a Float32Array that is 4 times as long as the input array. For each
+  // glyph, there will be 4 floats for left, top, right, bottom (relative to 0, 0) for that glyph.
+  CanvasKit.SkFont.prototype.getGlyphBounds = function(glyphs, paint, optionalOutputArray) {
+    var glyphPtr = copy1dArray(glyphs, 'HEAPU16');
+    var bytesPerRect = 4 * 4;
+    var rectPtr = CanvasKit._malloc(glyphs.length * bytesPerRect);
+    this._getGlyphWidthBounds(glyphPtr, glyphs.length, nullptr, rectPtr, paint || null);
+
+    var rects = new Float32Array(CanvasKit.HEAPU8.buffer, rectPtr, glyphs.length * 4);
+    freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);
+    if (optionalOutputArray) {
+      optionalOutputArray.set(rects);
+      CanvasKit._free(rectPtr);
+      return optionalOutputArray;
+    }
+    var rv = Float32Array.from(rects);
+    CanvasKit._free(rectPtr);
+    return rv;
+  };
+
+  CanvasKit.SkFont.prototype.getGlyphIDs = function(str, numGlyphIDs, optionalOutputArray) {
+    if (!numGlyphIDs) {
+      numGlyphIDs = str.length;
+    }
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    // Add 1 for null terminator
+    var strBytes = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strBytes);
+    stringToUTF8(str, strPtr, strBytes); // This includes the null terminator
+
+    var bytesPerGlyph = 2;
+    var glyphPtr = CanvasKit._malloc(numGlyphIDs * bytesPerGlyph);
+    // We don't need to compute the id for the null terminator, so subtract 1.
+    var actualIDs = this._getGlyphIDs(strPtr, strBytes - 1, numGlyphIDs, glyphPtr);
+    CanvasKit._free(strPtr);
+    if (actualIDs < 0) {
+      SkDebug('Could not get glyphIDs');
+      CanvasKit._free(glyphPtr);
+      return null;
+    }
+    var glyphs = new Uint16Array(CanvasKit.HEAPU8.buffer, glyphPtr, actualIDs);
+    if (optionalOutputArray) {
+      optionalOutputArray.set(glyphs);
+      CanvasKit._free(glyphPtr);
+      return optionalOutputArray;
+    }
+    var rv = Uint32Array.from(glyphs);
+    CanvasKit._free(glyphPtr);
+    return rv;
+  };
+
+  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by SkFont.getGlyphIDs.
+  // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
+  // The return value will be a Float32Array that has one width per input glyph.
+  CanvasKit.SkFont.prototype.getGlyphWidths = function(glyphs, paint, optionalOutputArray) {
+    var glyphPtr = copy1dArray(glyphs, 'HEAPU16');
+    var bytesPerWidth = 4;
+    var widthPtr = CanvasKit._malloc(glyphs.length * bytesPerWidth);
+    this._getGlyphWidthBounds(glyphPtr, glyphs.length, widthPtr, nullptr, paint || null);
+
+    var widths = new Float32Array(CanvasKit.HEAPU8.buffer, widthPtr, glyphs.length);
+    freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);
+    if (optionalOutputArray) {
+      optionalOutputArray.set(widths);
+      CanvasKit._free(widthPtr);
+      return optionalOutputArray;
+    }
+    var rv = Float32Array.from(widths);
+    CanvasKit._free(widthPtr);
+    return rv;
+  };
+
+    // Returns an array of the widths of the glyphs in this string.
   CanvasKit.SkFont.prototype.getWidths = function(str) {
     // add 1 for null terminator
     var codePoints = str.length + 1;
@@ -65,13 +141,13 @@ CanvasKit._extraInitializations.push(function() {
     var sizes = [];
     for (var i = 0; i < fonts.length; i++) {
       var data = new Uint8Array(fonts[i]);
-      var dptr = copy1dArray(data, "HEAPU8");
+      var dptr = copy1dArray(data, 'HEAPU8');
       dPtrs.push(dptr);
       sizes.push(data.byteLength);
     }
     // Pointers are 32 bit unsigned ints
-    var datasPtr = copy1dArray(dPtrs, "HEAPU32");
-    var sizesPtr = copy1dArray(sizes, "HEAPU32");
+    var datasPtr = copy1dArray(dPtrs, 'HEAPU32');
+    var sizesPtr = copy1dArray(sizes, 'HEAPU32');
     var fm = CanvasKit.SkFontMgr._fromData(datasPtr, sizesPtr, fonts.length);
     // The SkFontMgr has taken ownership of the bytes we allocated in the for loop.
     CanvasKit._free(datasPtr);
@@ -83,7 +159,7 @@ CanvasKit._extraInitializations.push(function() {
   CanvasKit.SkFontMgr.prototype.MakeTypefaceFromData = function(fontData) {
     var data = new Uint8Array(fontData);
 
-    var fptr = copy1dArray(data, "HEAPU8");
+    var fptr = copy1dArray(data, 'HEAPU8');
     var font = this._makeTypefaceFromData(fptr, data.byteLength);
     if (!font) {
       SkDebug('Could not decode font data');
@@ -164,7 +240,7 @@ CanvasKit._extraInitializations.push(function() {
     return retVal;
   }
 
-  CanvasKit.SkTextBlob.MakeFromRSXform = function(str, rsxBuilder, font) {
+  CanvasKit.SkTextBlob.MakeFromRSXform = function(str, rsxBuilderOrArray, font) {
     // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
     // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
     // Add 1 for null terminator
@@ -172,18 +248,57 @@ CanvasKit._extraInitializations.push(function() {
     var strPtr = CanvasKit._malloc(strLen);
     // Add 1 for the null terminator.
     stringToUTF8(str, strPtr, strLen);
-    var rptr = rsxBuilder.build();
 
-    var blob = CanvasKit.SkTextBlob._MakeFromRSXform(strPtr, strLen - 1, rptr, font);
+    var rPtr = nullptr;
+    if (rsxBuilderOrArray.build) {
+      rPtr = rsxBuilderOrArray.build();
+    } else {
+      rPtr = copy1dArray(rsxBuilderOrArray, 'HEAPF32');
+    }
+
+    var blob = CanvasKit.SkTextBlob._MakeFromRSXform(strPtr, strLen - 1, rPtr, font);
+    CanvasKit._free(strPtr);
     if (!blob) {
       SkDebug('Could not make textblob from string "' + str + '"');
       return null;
     }
+    return blob;
+  }
 
-    var origDelete = blob.delete.bind(blob);
-    blob.delete = function() {
-      CanvasKit._free(strPtr);
-      origDelete();
+  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by SkFont.getGlyphIDs.
+  // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
+  CanvasKit.SkTextBlob.MakeFromRSXformGlyphs = function(glyphs, rsxBuilderOrArray, font) {
+    // Currently on the C++ side, glyph ids are 16bit, but there is an effort to change that.
+    var glyphPtr = copy1dArray(glyphs, 'HEAPU16');
+    var bytesPerGlyph = 2;
+
+    var rPtr = nullptr;
+    if (rsxBuilderOrArray.build) {
+      rPtr = rsxBuilderOrArray.build();
+    } else {
+      rPtr = copy1dArray(rsxBuilderOrArray, 'HEAPF32');
+    }
+
+    var blob = CanvasKit.SkTextBlob._MakeFromRSXformGlyphs(glyphPtr, glyphs.length * bytesPerGlyph, rPtr, font);
+    freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);
+    if (!blob) {
+      SkDebug('Could not make textblob from glyphs "' + glyphs + '"');
+      return null;
+    }
+    return blob;
+  }
+
+  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by SkFont.getGlyphIDs.
+  // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
+  CanvasKit.SkTextBlob.MakeFromGlyphs = function(glyphs, font) {
+    // Currently on the C++ side, glyph ids are 16bit, but there is an effort to change that.
+    var glyphPtr = copy1dArray(glyphs, 'HEAPU16');
+    var bytesPerGlyph = 2;
+    var blob = CanvasKit.SkTextBlob._MakeFromGlyphs(glyphPtr, glyphs.length * bytesPerGlyph, font);
+    freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);
+    if (!blob) {
+      SkDebug('Could not make textblob from glyphs "' + glyphs + '"');
+      return null;
     }
     return blob;
   }
@@ -198,16 +313,17 @@ CanvasKit._extraInitializations.push(function() {
     stringToUTF8(str, strPtr, strLen);
 
     var blob = CanvasKit.SkTextBlob._MakeFromText(strPtr, strLen - 1, font);
+    CanvasKit._free(strPtr);
     if (!blob) {
       SkDebug('Could not make textblob from string "' + str + '"');
       return null;
     }
-
-    var origDelete = blob.delete.bind(blob);
-    blob.delete = function() {
-      CanvasKit._free(strPtr);
-      origDelete();
-    }
     return blob;
+  }
+
+  // A helper to return the right type for GlyphIDs stored internally. When that changes, this
+  // will also be changed, which will help avoid future breakages.
+  CanvasKit.MallocGlyphIDs = function(numGlyphIDs) {
+    return CanvasKit.Malloc(Uint16Array, numGlyphIDs);
   }
 });
