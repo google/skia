@@ -22,6 +22,30 @@
       "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e0a5a85_38d5b980",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-24T16:37:24Z",
+      "side": 1,
+      "message": "Emscripten provides some helpers for converting to UTF-8. I used those in the beginning, and I sort of like it because it helps convince me that the bytes are correct when I pass them from JS to WASM. I\u0027m happy to be wrong here, but so far nobody has complained too much about the overhead.",
+      "parentUuid": "d92c9959_1b4c83dd",
+      "range": {
+        "startLine": 1229,
+        "startChar": 66,
+        "endLine": 1229,
+        "endChar": 87
+      },
+      "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
