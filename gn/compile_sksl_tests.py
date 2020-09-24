@@ -10,8 +10,9 @@ import subprocess
 import sys
 
 skslc = sys.argv[1]
-settings = sys.argv[2]
-inputs = sys.argv[3:]
+lang = sys.argv[2]
+settings = sys.argv[3]
+inputs = sys.argv[4:]
 
 def makeEmptyFile(path):
     try:
@@ -32,9 +33,8 @@ def compile(skslc, input, target, extension):
             dst.write("\n")
         return False
 
-
 if settings != "--settings" and settings != "--nosettings":
-    sys.exit("### Expected --settings or --nosettings")
+    sys.exit("### Expected --settings or --nosettings, got " + settings)
 
 for input in inputs:
     noExt, ext = os.path.splitext(input)
@@ -47,7 +47,7 @@ for input in inputs:
     if settings == "--nosettings":
         target += "StandaloneSettings"
 
-    if ext == ".fp":
+    if lang == "--fp":
         # First, compile the CPP. If we get an error, stop here.
         if compile(skslc, input, target, ".cpp"):
             # Next, compile the header.
@@ -62,7 +62,7 @@ for input in inputs:
             # The CPP generated an error. We didn't actually generate a header at all, but Ninja
             # expects an output file to exist or it won't reach steady-state.
             makeEmptyFile(target + ".h")
-    elif ext == ".sksl" or ext == ".vert" or ext == ".geom":
+    elif lang == "--glsl":
         compile(skslc, input, target, ".glsl")
     else:
-        print("### Unrecognized file type for " + input + ", skipped")
+        sys.exit("### Expected one of: --fp --glsl, got " + lang)

@@ -6,8 +6,7 @@
 # Things are easiest for everyone if these source paths are absolute.
 _tests = get_path_info("../tests", "abspath")
 
-# Tests in sksl_fp_tests_sources will be compiled with --settings on.
-sksl_fp_tests_sources = [
+sksl_fp_error_tests = [
   "$_tests/sksl/errors/GrBadIn.fp",
   "$_tests/sksl/errors/GrBothExplicitReturnAndSkOutColor.fp",
   "$_tests/sksl/errors/GrCannotReturnWithSkOutColor.fp",
@@ -16,6 +15,9 @@ sksl_fp_tests_sources = [
   "$_tests/sksl/errors/GrNoFragmentProcessorLocals.fp",
   "$_tests/sksl/errors/GrNoFragmentProcessorParams.fp",
   "$_tests/sksl/errors/GrNoFragmentProcessorReturn.fp",
+]
+
+sksl_fp_tests = [
   "$_tests/sksl/fp/GrChildProcessorAndGlobal.fp",
   "$_tests/sksl/fp/GrChildProcessorFieldAccess.fp",
   "$_tests/sksl/fp/GrChildProcessorInlineFieldAccess.fp",
@@ -61,8 +63,7 @@ sksl_fp_tests_sources = [
   "$_tests/sksl/fp/GrUseExplicitReturn.fp",
 ]
 
-# Tests in sksl_glsl_tests_sources will be compiled with --settings on.
-sksl_glsl_tests_sources = [
+sksl_error_tests = [
   "$_tests/sksl/errors/ArgumentCountMismatch.sksl",
   "$_tests/sksl/errors/ArgumentMismatch.sksl",
   "$_tests/sksl/errors/ArgumentModifiers.sksl",
@@ -127,6 +128,9 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/errors/UseWithoutInitializeVarDecl.sksl",
   "$_tests/sksl/errors/UsingInvalidValue.sksl",
   "$_tests/sksl/errors/WhileTypeMismatch.sksl",
+]
+
+sksl_common_tests = [
   "$_tests/sksl/glsl/ArrayConstructors.sksl",
   "$_tests/sksl/glsl/ArrayIndexTypes.sksl",
   "$_tests/sksl/glsl/ArrayTypes.sksl",
@@ -224,6 +228,9 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/Version450Core.sksl",
   "$_tests/sksl/glsl/VertexID.vert",
   "$_tests/sksl/glsl/Width.sksl",
+]
+
+sksl_inliner_tests = [
   "$_tests/sksl/inliner/DoWhileBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/DoWhileTestCannotBeInlined.sksl",
   "$_tests/sksl/inliner/ForBodyMustBeInlinedIntoAScope.sksl",
@@ -256,9 +263,7 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/inliner/WhileTestCannotBeInlined.sksl",
 ]
 
-# Tests in sksl_glsl_settings_tests_sources will be compiled twice, once with --settings and once
-# using --nosettings. In the latter mode, StandaloneSettings is appended to the output filename.
-sksl_glsl_settings_tests_sources = [
+sksl_blend_tests = [
   "$_tests/sksl/blend/BlendClear.sksl",
   "$_tests/sksl/blend/BlendColor.sksl",
   "$_tests/sksl/blend/BlendColorBurn.sksl",
@@ -288,6 +293,9 @@ sksl_glsl_settings_tests_sources = [
   "$_tests/sksl/blend/BlendSrcOut.sksl",
   "$_tests/sksl/blend/BlendSrcOver.sksl",
   "$_tests/sksl/blend/BlendXor.sksl",
+]
+
+sksl_settings_tests = [
   "$_tests/sksl/glsl/Derivatives.sksl",
   "$_tests/sksl/glsl/DerivativesFlipY.sksl",
   "$_tests/sksl/glsl/TypePrecision.sksl",
@@ -302,3 +310,16 @@ sksl_glsl_settings_tests_sources = [
   "$_tests/sksl/workarounds/RewriteDoWhileLoops.sksl",
   "$_tests/sksl/workarounds/TernaryShortCircuit.sksl",
 ]
+
+# Tests in sksl_fp_tests_sources will be compiled with --settings on, and are expected to generate
+# a .cpp and a .h output file.
+sksl_fp_tests_sources = sksl_fp_error_tests + sksl_fp_tests
+
+# Tests in sksl_glsl_tests_sources will be compiled with --settings on, and are expected to generate
+# a .glsl output file.
+sksl_glsl_tests_sources =
+    sksl_error_tests + sksl_common_tests + sksl_inliner_tests
+
+# Tests in sksl_glsl_settings_tests_sources will be compiled twice, once with --settings and once
+# using --nosettings. In the latter mode, StandaloneSettings is appended to the output filename.
+sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
