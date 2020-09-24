@@ -702,45 +702,49 @@ if (skia_compile_sksl_tests) {
                       target_out_dir) ]
   }
 
-  action("compile_sksl_tests") {
-    # This action compiles SkSL tests with their settings enabled, i.e. in --settings mode.
-    script = "gn/compile_sksl_tests.py"
-    deps = [
-      ":create_sksl_fp",
-      ":sksl_pre_includes",
-      ":skslc(//gn/toolchain:$host_toolchain)",
-    ]
-    sources = sksl_fp_tests_sources + sksl_glsl_tests_sources +
-              sksl_glsl_settings_tests_sources
-    outputs = sksl_fp_tests_outputs + sksl_glsl_tests_outputs
-    args = [
-      rebase_path(skslc_path),
-      "--settings",
-    ]
-    args += rebase_path(sksl_fp_tests_sources)
-    args += rebase_path(sksl_glsl_tests_sources)
-    args += rebase_path(sksl_glsl_settings_tests_sources)
+  template("compile_sksl") {
+    # Compile the passed-in `sources` into `outputs` using skslc, with the given language/settings.
+    action("compile_sksl_${target_name}") {
+      script = "gn/compile_sksl_tests.py"
+      deps = [
+        ":create_sksl_fp",
+        ":sksl_pre_includes",
+        ":skslc(//gn/toolchain:$host_toolchain)",
+      ]
+      sources = invoker.sources
+      outputs = invoker.outputs
+      args = [
+        rebase_path(skslc_path),
+        invoker.lang,
+        invoker.settings,
+      ]
+      args += rebase_path(invoker.sources)
+    }
   }
-  action("compile_sksl_tests_nosettings") {
-    # This action compiles SkSL tests with their settings disabled, i.e. in --nosettings mode.
-    script = "gn/compile_sksl_tests.py"
-    deps = [
-      ":create_sksl_fp",
-      ":sksl_pre_includes",
-      ":skslc(//gn/toolchain:$host_toolchain)",
-    ]
+  compile_sksl("fp_tests") {
+    sources = sksl_fp_tests_sources
+    outputs = sksl_fp_tests_outputs
+    lang = "--fp"
+    settings = "--settings"
+  }
+  compile_sksl("glsl_tests") {
+    sources = sksl_glsl_tests_sources + sksl_glsl_settings_tests_sources
+    outputs = sksl_glsl_tests_outputs
+    lang = "--glsl"
+    settings = "--settings"
+  }
+  compile_sksl("glsl_nosettings_tests") {
     sources = sksl_glsl_settings_tests_sources
     outputs = sksl_glsl_settings_tests_outputs
-    args = [
-      rebase_path(skslc_path),
-      "--nosettings",
-    ]
-    args += rebase_path(sksl_glsl_settings_tests_sources)
+    lang = "--glsl"
+    settings = "--nosettings"
   }
 } else {
-  group("compile_sksl_tests") {
+  group("compile_sksl_fp_tests") {
   }
-  group("compile_sksl_tests_nosettings") {
+  group("compile_sksl_glsl_tests") {
+  }
+  group("compile_sksl_glsl_nosettings_tests") {
   }
 }
 
@@ -748,8 +752,9 @@ optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
     ":compile_processors",
-    ":compile_sksl_tests",
-    ":compile_sksl_tests_nosettings",
+    ":compile_sksl_fp_tests",
+    ":compile_sksl_glsl_nosettings_tests",
+    ":compile_sksl_glsl_tests",
     ":dehydrate_sksl",
     ":run_sksllex",
   ]
