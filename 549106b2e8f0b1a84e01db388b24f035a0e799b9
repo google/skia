@@ -34,6 +34,24 @@
       "revId": "549106b2e8f0b1a84e01db388b24f035a0e799b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c020f768_b09c506e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-24T00:59:21Z",
+      "side": 1,
+      "message": "I would not expect any benefit from switching.",
+      "parentUuid": "fbb44fdf_82492bd9",
+      "revId": "549106b2e8f0b1a84e01db388b24f035a0e799b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
