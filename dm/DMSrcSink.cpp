@@ -1474,7 +1474,7 @@ sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context, SkISize siz
 
     SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
     uint32_t flags = fUseDIText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag : 0;
-    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
 
     switch (fSurfType) {
         case SkCommandLineConfigGpu::SurfType::kDefault:

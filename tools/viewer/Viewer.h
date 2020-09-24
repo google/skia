@@ -92,6 +92,18 @@ public:
         bool fStyle = false;
         bool fFilterQuality = false;
     };
+    struct SkSurfacePropsFields {
+        bool fFlags = false;
+        bool fPixelGeometry = false;
+    };
+    struct DisplayFields {
+        bool fColorType = false;
+        bool fColorSpace = false;
+        bool fMSAASampleCount = false;
+        bool fGrContextOptions = false;
+        SkSurfacePropsFields fSurfaceProps;
+        bool fDisableVsync = false;
+    };
 private:
     enum class ColorMode {
         kLegacy,                // 8888, no color management
@@ -194,7 +206,8 @@ private:
     SkPaintFields fPaintOverrides;
     SkFont fFont;
     SkFontFields fFontOverrides;
-    bool fPixelGeometryOverrides = false;
+    sk_app::DisplayParams fDefaultDisplayParams;
+    DisplayFields fDisplayOverrides;
 
     struct CachedShader {
         bool                fHovered = false;
