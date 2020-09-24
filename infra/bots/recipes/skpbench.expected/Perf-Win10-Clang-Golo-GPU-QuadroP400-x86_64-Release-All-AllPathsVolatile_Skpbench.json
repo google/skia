@@ -74,11 +74,15 @@
       "--resultsfile",
       "[START_DIR]\\[SWARM_OUT_DIR]\\table",
       "--config",
-      "vk",
+      "glmsaa8",
       "--internalSamples",
       "8",
       "-v5",
-      "[START_DIR]\\skp"
+      "--pr",
+      "~nvpr",
+      "--allPathsVolatile",
+      "[START_DIR]\\skp\\desk_*svg.skp",
+      "[START_DIR]\\skp\\desk_chalkboard.skp"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
@@ -137,7 +141,7 @@
       "cpu_or_gpu_value",
       "QuadroP400",
       "extra_config",
-      "Vulkan_Skpbench",
+      "AllPathsVolatile_Skpbench",
       "model",
       "Golo",
       "os",
