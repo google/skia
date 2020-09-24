@@ -46,6 +46,23 @@
   },
   {
     "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "cp",
+      "/vendor/lib64/egl/libGLES_mali.so",
+      "/data/local/tmp/libvulkan.so"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "cp libGLES_mali.so to /data/local/tmp/"
+  },
+  {
+    "cmd": [
       "vpython",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
@@ -335,11 +352,11 @@
       "python",
       "-u",
       "[START_DIR]/skia/tools/skpbench/skpbench.py",
-      "/data/local/tmp/skpbench",
+      "LD_LIBRARY_PATH=/data/local/tmp /data/local/tmp/skpbench",
       "--resultsfile",
       "[START_DIR]/[SWARM_OUT_DIR]/table",
       "--config",
-      "gles",
+      "vkmsaa4",
       "--internalSamples",
       "4",
       "-v5",
@@ -347,9 +364,8 @@
       "--adb_binary",
       "adb.1.0.35",
       "--pr",
-      "ccpr",
-      "--cc",
-      "--nocache",
+      "~nvpr",
+      "--allPathsVolatile",
       "/sdcard/revenge_of_the_skiabot/skps/desk_*svg.skp",
       "/sdcard/revenge_of_the_skiabot/skps/desk_chalkboard.skp"
     ],
@@ -395,11 +411,11 @@
       "cpu_or_gpu",
       "GPU",
       "cpu_or_gpu_value",
-      "Adreno530",
+      "MaliG77",
       "extra_config",
-      "Android_CCPR_Skpbench",
+      "Android_Vulkan_AllPathsVolatile_Skpbench",
       "model",
-      "Pixel",
+      "GalaxyS20",
       "os",
       "Android",
       "test_filter",

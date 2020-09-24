@@ -340,6 +340,8 @@
       "[START_DIR]/[SWARM_OUT_DIR]/table",
       "--config",
       "vk",
+      "--internalSamples",
+      "4",
       "-v5",
       "--adb",
       "--adb_binary",
