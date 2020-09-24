@@ -1,0 +1,58 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005165243",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/319409?revision\u003d12",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "5e06cc47_ca05d11c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-24T23:31:27Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 15,
+        "startChar": 62,
+        "endLine": 15,
+        "endChar": 68
+      },
+      "revId": "e23165c40faae88376a5b06f74e0884179411e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005165243",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/319409?revision\u003d12",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "8e0ffe86_e6f441b0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-09-24T23:31:27Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 17,
+        "startChar": 47,
+        "endLine": 17,
+        "endChar": 53
+      },
+      "revId": "e23165c40faae88376a5b06f74e0884179411e68",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
