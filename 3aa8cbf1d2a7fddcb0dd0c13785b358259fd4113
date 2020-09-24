@@ -33,6 +33,23 @@
       "revId": "3aa8cbf1d2a7fddcb0dd0c13785b358259fd4113",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a17fbaf_9bebb43a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-24T15:52:24Z",
+      "side": 1,
+      "message": "Ugh sorry one more thing, we\u0027re missing the vulkan version of all these bots which we want.",
+      "revId": "3aa8cbf1d2a7fddcb0dd0c13785b358259fd4113",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
