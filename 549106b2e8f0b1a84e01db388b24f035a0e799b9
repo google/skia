@@ -70,6 +70,24 @@
       "revId": "549106b2e8f0b1a84e01db388b24f035a0e799b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb73cd84_d1f5cbee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-24T03:57:38Z",
+      "side": 1,
+      "message": "Um, very slowly on the way out.  If you want the best wasm performance, that\u0027s a good reason to think about switching over to skvx.  But I just wouldn\u0027t expect that skvx would do anything better where Sk4f and co. are already working well.",
+      "parentUuid": "71e36693_a15f0fe0",
+      "revId": "549106b2e8f0b1a84e01db388b24f035a0e799b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
