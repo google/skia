@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1df451e0_2a247362",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-24T15:50:50Z",
+      "side": 1,
+      "message": "Also added long-overdue normal bots for Pixel4 and GalaxyS20",
+      "revId": "3aa8cbf1d2a7fddcb0dd0c13785b358259fd4113",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
