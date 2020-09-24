@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1210e35e_3aab46cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-09-24T18:49:41Z",
+      "side": 1,
+      "message": "Something I noticed with the current stack overflows.  Not quite FreeType-level, but pretty bad.",
+      "revId": "d10162dc9fe647d5106f60e16688532d403aab27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
