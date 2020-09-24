@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "7932a0f0_b7ed3c0b",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-24T18:38:47Z",
+      "side": 1,
+      "message": "So the keys here are strings with a single WTF-16 unit in them? How does this work with emoji or anything else outside the BMP where there may be two WTF-16 units per codepoint? Also, since the keys are supposed to be individual codepoints encoded in WTF-16 this is more like glyphID for Codepoint (where Codepoint is short for String of a single WTF-16 encoded codepoint, which is a long thing to write out, so is going to need some sort of shorthand).",
+      "parentUuid": "b3e72eb0_765cdf4d",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 21
+      },
+      "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d92c9959_1b4c83dd",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 7
