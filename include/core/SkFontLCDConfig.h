@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 
+#ifdef SK_LEGACY_SURFACE_PROPS
 class SK_API SkFontLCDConfig {
 public:
     /** LCDs either have their color elements arranged horizontally or
@@ -54,5 +55,6 @@ public:
     /** @deprecated get from Device. */
     static LCDOrder GetSubpixelOrder();
 };
+#endif
 
 #endif
