@@ -721,6 +721,7 @@ namespace skvm {
             memcpy(imm, &fProgram[id].immy, 4);
             return this->allImm(rest...);
         }
+        // TODO: Op::splat_q14
         return false;
     }
 
@@ -3323,7 +3324,7 @@ namespace skvm {
         #endif
 
         auto load_from_memory = [&](Reg r, Val v) {
-            if (instructions[v].op == Op::splat) {
+            if (instructions[v].op == Op::splat || instructions[v].op == Op::splat_q14) {
                 if (instructions[v].immy == 0) {
                     a->vpxor(r,r,r);
                 } else {
@@ -3359,7 +3360,7 @@ namespace skvm {
                           a->ret(A::x30); };
 
         auto load_from_memory = [&](Reg r, Val v) {
-            if (instructions[v].op == Op::splat) {
+            if (instructions[v].op == Op::splat || instructions[v].op == Op::splat_q14) {
                 if (instructions[v].immy == 0) {
                     a->eor16b(r,r,r);
                 } else {
@@ -3422,7 +3423,8 @@ namespace skvm {
 
                 SkASSERT(v == NA || v >= 0);
                 if (v >= 0) {
-                    if (stack_slot[v] == NA && instructions[v].op != Op::splat) {
+                    if (stack_slot[v] == NA && instructions[v].op != Op::splat
+                                            && instructions[v].op != Op::splat_q14) {
                         store_to_stack(r, v);
                     }
                     v = NA;
@@ -3526,7 +3528,7 @@ namespace skvm {
                 if (int found = find_existing_reg(v); found != NA) {
                     return (Reg)found;
                 }
-                if (instructions[v].op == Op::splat) {
+                if (instructions[v].op == Op::splat || instructions[v].op == Op::splat_q14) {
                     return constants.find(instructions[v].immy);
                 }
                 return A::Mem{A::rsp, stack_slot[v]*K*4};
@@ -3540,20 +3542,11 @@ namespace skvm {
         #endif
 
             switch (op) {
+                // Make sure splat constants can be found by load_from_memory() or any().
                 case Op::splat:
-                    // Make sure splat constants can be found by load_from_memory() or any().
+                case Op::splat_q14:
                     (void)constants[immy];
                     break;
-
-                case Op::splat_q14:
-                case Op::select_q14:
-                case Op::bit_and_q14:
-                case Op::bit_or_q14:
-                case Op::bit_xor_q14:
-                case Op::bit_clear_q14:
-                case Op::from_q14:
-                case Op::  to_q14:
-                    return false;  // TODO
 
             #if defined(__x86_64__) || defined(_M_X64)
                 case Op::assert_true: {
@@ -3836,21 +3829,26 @@ namespace skvm {
                 case Op::sub_q14: a->vpsubw(dst(x), r(x), any(y)); break;
 
                 case Op::bit_and:
+                case Op::bit_and_q14:
                     if (in_reg(x)) { a->vpand(dst(x), r(x), any(y)); }
                     else           { a->vpand(dst(y), r(y), any(x)); }
                                      break;
                 case Op::bit_or:
+                case Op::bit_or_q14:
                     if (in_reg(x)) { a->vpor(dst(x), r(x), any(y)); }
                     else           { a->vpor(dst(y), r(y), any(x)); }
                                      break;
                 case Op::bit_xor:
+                case Op::bit_xor_q14:
                     if (in_reg(x)) { a->vpxor(dst(x), r(x), any(y)); }
                     else           { a->vpxor(dst(y), r(y), any(x)); }
                                      break;
 
-                case Op::bit_clear: a->vpandn(dst(y), r(y), any(x)); break;  // Notice, y then x.
+                case Op::bit_clear:
+                case Op::bit_clear_q14: a->vpandn(dst(y), r(y), any(x)); break; // Notice, y then x.
 
                 case Op::select:
+                case Op::select_q14:
                     if (try_alias(z)) { a->vpblendvb(dst(z), r(z), any(y), r(x)); }
                     else              { a->vpblendvb(dst(x), r(z), any(y), r(x)); }
                                         break;
@@ -3943,6 +3941,10 @@ namespace skvm {
                     a->vpermq   (dst(), dst(), 0xd8);  // swap middle two 64-bit lanes
                     a->vcvtph2ps(dst(), dst());        // f16 xmm -> f32 ymm
                     break;
+
+                // These are both no-ops since we're storing Q14 values in even lanes.
+                case Op::from_q14: if (!try_alias(x)) { a->vmovdqa(dst(), any(x)); } break;
+                case Op::to_q14:   if (!try_alias(x)) { a->vmovdqa(dst(), any(x)); } break;
 
             #elif defined(__aarch64__)
                 default:  // TODO
