@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d784a77b_3d908e97",
+        "filename": "src/gpu/tessellate/GrPathTessellateOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-24T15:36:07Z",
+      "side": 1,
+      "message": "Good idea. I was slightly concerned about an arbitrarily large allocation going on that arena, but I guess that\u0027s its purpose",
+      "parentUuid": "8c64d86e_054f84be",
+      "revId": "8b0c5d56dd88dd170251dd9d2d982c2f0263b1ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d1d9ac8_4d389b91",
         "filename": "src/gpu/tessellate/GrPathTessellateOp.cpp",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "8b0c5d56dd88dd170251dd9d2d982c2f0263b1ca",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7bfd587_bd3eba63",
+        "filename": "src/gpu/tessellate/GrPathTessellateOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-24T15:36:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d1d9ac8_4d389b91",
+      "revId": "8b0c5d56dd88dd170251dd9d2d982c2f0263b1ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
