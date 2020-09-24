@@ -17,6 +17,38 @@ CanvasKit._extraInitializations.push(function() {
     }
   }
 
+  CanvasKit.SkFont.prototype.getGlyphIDs = function(str, numGlyphIDs, optionalOutputArray) {
+    if (!numGlyphIDs) {
+      numGlyphIDs = str.length;
+    }
+    // lengthBytesUTF8 and stringToUTF8Array are defined in the emscripten
+    // JS.  See https://kripken.github.io/emscripten-site/docs/api_reference/preamble.js.html#stringToUTF8
+    // Add 1 for null terminator
+    var strBytes = lengthBytesUTF8(str) + 1;
+    var strPtr = CanvasKit._malloc(strBytes);
+    stringToUTF8(str, strPtr, strBytes); // This includes the null terminator
+
+    var bytesPerGlyph = 2;
+    var glyphPtr = CanvasKit._malloc(numGlyphIDs * bytesPerGlyph);
+    // We don't need to compute the id for the null terminator, so subtract 1.
+    var actualIDs = this._getGlyphIDs(strPtr, strBytes - 1, numGlyphIDs, glyphPtr);
+    CanvasKit._free(strPtr);
+    if (actualIDs < 0) {
+      SkDebug('Could not get glyphIDs');
+      CanvasKit._free(glyphPtr);
+      return null;
+    }
+    var glyphs = new Uint16Array(CanvasKit.HEAPU8.buffer, glyphPtr, actualIDs);
+    if (optionalOutputArray) {
+      optionalOutputArray.set(glyphs);
+      CanvasKit._free(glyphPtr);
+      return optionalOutputArray;
+    }
+    var rv = Uint32Array.from(glyphs);
+    CanvasKit._free(glyphPtr);
+    return rv;
+  };
+
   // Returns an array of the widths of the glyphs in this string.
   CanvasKit.SkFont.prototype.getWidths = function(str) {
     // add 1 for null terminator
@@ -175,15 +207,28 @@ CanvasKit._extraInitializations.push(function() {
     var rptr = rsxBuilder.build();
 
     var blob = CanvasKit.SkTextBlob._MakeFromRSXform(strPtr, strLen - 1, rptr, font);
+    CanvasKit._free(strPtr);
     if (!blob) {
       SkDebug('Could not make textblob from string "' + str + '"');
       return null;
     }
+    return blob;
+  }
 
-    var origDelete = blob.delete.bind(blob);
-    blob.delete = function() {
-      CanvasKit._free(strPtr);
-      origDelete();
+  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by SkFont.getGlyphIDs.
+  // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
+  CanvasKit.SkTextBlob.MakeFromRSXformGlyphs = function(glyphs, rsxBuilder, font) {
+    // Currently on the C++ side, glyph ids are 16bit, but there is an effort to change that.
+    var glyphPtr = copy1dArray(glyphs, CanvasKit.HEAPU16);
+    var bytesPerGlyph = 2;
+    // TODO(kjlubick) also accept a malloc'd array instead of a builder.
+    var rptr = rsxBuilder.build();
+
+    var blob = CanvasKit.SkTextBlob._MakeFromRSXformGlyphs(glyphPtr, glyphs.length * bytesPerGlyph, rptr, font);
+    freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);
+    if (!blob) {
+      SkDebug('Could not make textblob from glyphs "' + glyphs + '"');
+      return null;
     }
     return blob;
   }
@@ -198,16 +243,32 @@ CanvasKit._extraInitializations.push(function() {
     stringToUTF8(str, strPtr, strLen);
 
     var blob = CanvasKit.SkTextBlob._MakeFromText(strPtr, strLen - 1, font);
+    CanvasKit._free(strPtr);
     if (!blob) {
       SkDebug('Could not make textblob from string "' + str + '"');
       return null;
     }
+    return blob;
+  }
 
-    var origDelete = blob.delete.bind(blob);
-    blob.delete = function() {
-      CanvasKit._free(strPtr);
-      origDelete();
+  // Glyphs should be a Uint32Array of glyph ids, e.g. provided by SkFont.getGlyphIDs.
+  // If using a Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs() to get the right type.
+  CanvasKit.SkTextBlob.MakeFromGlyphs = function(glyphs, font) {
+    // Currently on the C++ side, glyph ids are 16bit, but there is an effort to change that.
+    var glyphPtr = copy1dArray(glyphs, CanvasKit.HEAPU16);
+    var bytesPerGlyph = 2;
+    var blob = CanvasKit.SkTextBlob._MakeFromGlyphs(glyphPtr, glyphs.length * bytesPerGlyph, font);
+    freeArraysThatAreNotMallocedByUsers(glyphPtr, glyphs);
+    if (!blob) {
+      SkDebug('Could not make textblob from glyphs "' + glyphs + '"');
+      return null;
     }
     return blob;
+  }
+
+  // A helper to return the right type for GlyphIDs stored internally. When that changes, this
+  // will also be changed, which will help avoid future breakages.
+  CanvasKit.MallocGlyphIDs = function(n) {
+    return CanvasKit.Malloc(Uint16Array, n);
   }
 });
