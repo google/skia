@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
-uniform bvec4 v;
 void main() {
+    bvec4 v = bvec4(sqrt(1.0) == 1.0);
     bvec4 result;
     result = bvec4(v.x, true, true, true);
     result = bvec4(v.xy, false, true);
