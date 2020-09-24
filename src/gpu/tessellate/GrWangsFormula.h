@@ -101,7 +101,7 @@ SK_ALWAYS_INLINE static int cubic_log2(float intolerance, const SkPoint pts[],
 // maximize its value by placing control points on specific corners of the bounding box.
 SK_ALWAYS_INLINE static float worst_case_cubic(float intolerance, float devWidth, float devHeight) {
     float k = cubic_k(intolerance);
-    return root4(4*k*k * (devWidth * devWidth + devHeight * devHeight));
+    return SkScalarSqrt(2*k * SkVector::Length(devWidth, devHeight));
 }
 
 // Returns the maximum log2 number of line segments a cubic with the given device-space bounding box

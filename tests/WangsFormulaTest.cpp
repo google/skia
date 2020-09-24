@@ -21,7 +21,30 @@ const SkPoint kLoop[4] = {
 const SkPoint kQuad[4] = {
         {460.625f, 557.187f}, {707.121f, 209.688f}, {779.628f, 577.687f}};
 
-void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
+static float length(const Sk2f& v) {
+    Sk2f vv = v*v;
+    return SkScalarSqrt(vv[0] + vv[1]);
+}
+
+static float wangs_formula_quadratic_reference_impl(float intolerance, const SkPoint pts[4]) {
+    Sk2f p0 = Sk2f::Load(pts);
+    Sk2f p1 = Sk2f::Load(pts + 1);
+    Sk2f p2 = Sk2f::Load(pts + 2);
+    float k = GrWangsFormula::quadratic_k(intolerance);
+    return SkScalarSqrt(k * length(p0 - p1*2 + p2));
+}
+
+static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint pts[4]) {
+    Sk2f p0 = Sk2f::Load(pts);
+    Sk2f p1 = Sk2f::Load(pts + 1);
+    Sk2f p2 = Sk2f::Load(pts + 2);
+    Sk2f p3 = Sk2f::Load(pts + 3);
+    float k = GrWangsFormula::cubic_k(intolerance);
+    return SkScalarSqrt(k * length(Sk2f::Max((p0 - p1*2 + p2).abs(),
+                                             (p1 - p2*2 + p3).abs())));
+}
+
+static void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f) {
     SkMatrix m;
     m.setIdentity();
     f(m);
@@ -43,7 +66,8 @@ void for_random_matrices(SkRandom* rand, std::function<void(const SkMatrix&)> f)
     }
 }
 
-void for_random_beziers(int numPoints, SkRandom* rand, std::function<void(const SkPoint[])> f) {
+static void for_random_beziers(int numPoints, SkRandom* rand,
+                               std::function<void(const SkPoint[])> f) {
     SkASSERT(numPoints <= 4);
     SkPoint pts[4];
     for (int i = -10; i <= 30; ++i) {
@@ -128,6 +152,11 @@ DEF_TEST(WangsFormula_log2, r) {
         }
     };
 
+    // GrWangsFormula::cubic and ::quadratic both use rsqrt instead of sqrt for speed. Linearization
+    // is all approximate anyway, so as long as we are within ~1/2 tessellation segment of the
+    // reference value we are good enough.
+    constexpr static float kTessellationTolerance = 1/128.f;
+
     for (int level = 0; level < 30; ++level) {
         float epsilon = std::ldexp(SK_ScalarNearlyZero, level * 2);
         SkPoint pts[4];
@@ -139,12 +168,16 @@ DEF_TEST(WangsFormula_log2, r) {
             constexpr static float k = (3 * 2) / (8 * (1.f/kIntolerance));
             float x = std::ldexp(1, level * 2) / k;
             setupCubicLengthTerm(level << 1, pts, x - epsilon);
-            REPORTER_ASSERT(r,
-                    std::ceil(std::log2(GrWangsFormula::cubic(kIntolerance, pts))) == level);
+            float referenceValue = wangs_formula_cubic_reference_impl(kIntolerance, pts);
+            REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level);
+            float c = GrWangsFormula::cubic(kIntolerance, pts);
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(c/referenceValue, 1, kTessellationTolerance));
             REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kIntolerance, pts) == level);
             setupCubicLengthTerm(level << 1, pts, x + epsilon);
-            REPORTER_ASSERT(r,
-                    std::ceil(std::log2(GrWangsFormula::cubic(kIntolerance, pts))) == level + 1);
+            referenceValue = wangs_formula_cubic_reference_impl(kIntolerance, pts);
+            REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level + 1);
+            c = GrWangsFormula::cubic(kIntolerance, pts);
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(c/referenceValue, 1, kTessellationTolerance));
             REPORTER_ASSERT(r, GrWangsFormula::cubic_log2(kIntolerance, pts) == level + 1);
         }
 
@@ -154,26 +187,34 @@ DEF_TEST(WangsFormula_log2, r) {
             constexpr static float k = 2 / (8 * (1.f/kIntolerance));
             float x = std::ldexp(1, level * 2) / k;
             setupQuadraticLengthTerm(level << 1, pts, x - epsilon);
-            REPORTER_ASSERT(r,
-                    std::ceil(std::log2(GrWangsFormula::quadratic(kIntolerance, pts))) == level);
+            float referenceValue = wangs_formula_quadratic_reference_impl(kIntolerance, pts);
+            REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level);
+            float q = GrWangsFormula::quadratic(kIntolerance, pts);
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(q/referenceValue, 1, kTessellationTolerance));
             REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kIntolerance, pts) == level);
             setupQuadraticLengthTerm(level << 1, pts, x + epsilon);
-            REPORTER_ASSERT(r,
-                    std::ceil(std::log2(GrWangsFormula::quadratic(kIntolerance, pts))) == level+1);
+            referenceValue = wangs_formula_quadratic_reference_impl(kIntolerance, pts);
+            REPORTER_ASSERT(r, std::ceil(std::log2(referenceValue)) == level+1);
+            q = GrWangsFormula::quadratic(kIntolerance, pts);
+            REPORTER_ASSERT(r, SkScalarNearlyEqual(q/referenceValue, 1, kTessellationTolerance));
             REPORTER_ASSERT(r, GrWangsFormula::quadratic_log2(kIntolerance, pts) == level + 1);
         }
     }
 
     auto check_cubic_log2 = [&](const SkPoint* pts) {
-        float f = std::max(1.f, GrWangsFormula::cubic(kIntolerance, pts));
+        float f = std::max(1.f, wangs_formula_cubic_reference_impl(kIntolerance, pts));
         int f_log2 = GrWangsFormula::cubic_log2(kIntolerance, pts);
         REPORTER_ASSERT(r, SkScalarCeilToInt(std::log2(f)) == f_log2);
+        float c = std::max(1.f, GrWangsFormula::cubic(kIntolerance, pts));
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(c/f, 1, kTessellationTolerance));
     };
 
     auto check_quadratic_log2 = [&](const SkPoint* pts) {
-        float f = std::max(1.f, GrWangsFormula::quadratic(kIntolerance, pts));
+        float f = std::max(1.f, wangs_formula_quadratic_reference_impl(kIntolerance, pts));
         int f_log2 = GrWangsFormula::quadratic_log2(kIntolerance, pts);
         REPORTER_ASSERT(r, SkScalarCeilToInt(std::log2(f)) == f_log2);
+        float q = std::max(1.f, GrWangsFormula::quadratic(kIntolerance, pts));
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(q/f, 1, kTessellationTolerance));
     };
 
     SkRandom rand;
@@ -238,14 +279,14 @@ DEF_TEST(WangsFormula_worst_case_cubic, r) {
     {
         SkPoint worstP[] = {{0,0}, {100,100}, {0,0}, {0,0}};
         REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kIntolerance, 100, 100) ==
-                           GrWangsFormula::cubic(kIntolerance, worstP));
+                           wangs_formula_cubic_reference_impl(kIntolerance, worstP));
         REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kIntolerance, 100, 100) ==
                            GrWangsFormula::cubic_log2(kIntolerance, worstP));
     }
     {
         SkPoint worstP[] = {{100,100}, {100,100}, {200,200}, {100,100}};
         REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic(kIntolerance, 100, 100) ==
-                           GrWangsFormula::cubic(kIntolerance, worstP));
+                           wangs_formula_cubic_reference_impl(kIntolerance, worstP));
         REPORTER_ASSERT(r, GrWangsFormula::worst_case_cubic_log2(kIntolerance, 100, 100) ==
                            GrWangsFormula::cubic_log2(kIntolerance, worstP));
     }
@@ -255,7 +296,7 @@ DEF_TEST(WangsFormula_worst_case_cubic, r) {
         float worst = GrWangsFormula::worst_case_cubic(kIntolerance, bbox.width(), bbox.height());
         int worst_log2 = GrWangsFormula::worst_case_cubic_log2(kIntolerance, bbox.width(),
                                                                bbox.height());
-        float actual = GrWangsFormula::cubic(kIntolerance, pts);
+        float actual = wangs_formula_cubic_reference_impl(kIntolerance, pts);
         REPORTER_ASSERT(r, worst >= actual);
         REPORTER_ASSERT(r, std::ceil(std::log2(std::max(1.f, worst))) == worst_log2);
     };
