@@ -16,6 +16,24 @@
       "revId": "c4690248c023642447c1e99847eb0945ec154881",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a03115ed_58e74314",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-24T21:13:45Z",
+      "side": 1,
+      "message": "I wonder if this is worse on Windows? On OS X it\u0027s only a few seconds to rebuild them all from scratch, and that\u0027s only if you have compile_processors turned on and you edited skslc. But I\u0027d be very willing to believe that the cost of spawning skslc hundreds of times on Windows is prohibitive.",
+      "parentUuid": "d7a6718f_10fec10a",
+      "revId": "c4690248c023642447c1e99847eb0945ec154881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
