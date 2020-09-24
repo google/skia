@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d0b83b8_237d1033",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-24T17:40:50Z",
+      "side": 1,
+      "message": "I buy into your reason for wanting to have D) work out!",
+      "revId": "1ebc1d8e87ce0c41e17a432da0c4508b334c526e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4bd21ee_1dabe6c1",
+        "filename": "src/core/SkVM.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-24T17:40:50Z",
+      "side": 1,
+      "message": "I presume these 4-5 \"changes\" are just formatting? (bit_and, bit_or, bit_xor, ...)",
+      "range": {
+        "startLine": 502,
+        "startChar": 27,
+        "endLine": 502,
+        "endChar": 45
+      },
+      "revId": "1ebc1d8e87ce0c41e17a432da0c4508b334c526e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a3a1780_ae85adbe",
+        "filename": "src/core/SkVM.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-24T17:40:50Z",
+      "side": 1,
+      "message": "wonder if we should round here (as we might if we were scaling to a byte)?\n\nalso, maybe assert that f can fit in 2.14 in debug builds?",
+      "range": {
+        "startLine": 506,
+        "startChar": 39,
+        "endLine": 506,
+        "endChar": 47
+      },
+      "revId": "1ebc1d8e87ce0c41e17a432da0c4508b334c526e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
