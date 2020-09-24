@@ -22,7 +22,7 @@ sk_sp<SkSurface> SkMtkViewToSurface(MTKView* mtkView, GrRecordingContext* rConte
     const SkColorType colorType = kBGRA_8888_SkColorType;  // MTLPixelFormatBGRA8Unorm
     sk_sp<SkColorSpace> colorSpace = nullptr;  // MTLPixelFormatBGRA8Unorm
     const GrSurfaceOrigin origin = kTopLeft_GrSurfaceOrigin;
-    const SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
+    const SkSurfaceProps surfaceProps;
     int sampleCount = (int)[mtkView sampleCount];
 
     return SkSurface::MakeFromMTKView(rContext, (__bridge GrMTLHandle)mtkView, origin, sampleCount,

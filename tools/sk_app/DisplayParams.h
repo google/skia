@@ -18,7 +18,7 @@ struct DisplayParams {
         : fColorType(kN32_SkColorType)
         , fColorSpace(nullptr)
         , fMSAASampleCount(1)
-        , fSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType)
+        , fSurfaceProps(0, kRGB_H_SkPixelGeometry)
         , fDisableVsync(false)
     {}
 

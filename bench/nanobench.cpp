@@ -251,7 +251,7 @@ struct GPUTarget : public Target {
         this->factory = std::make_unique<GrContextFactory>(options);
         uint32_t flags = this->config.useDFText ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag :
                                                   0;
-        SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+        SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
         this->surface = SkSurface::MakeRenderTarget(
                 this->factory->get(this->config.ctxType, this->config.ctxOverrides),
                 SkBudgeted::kNo, info, this->config.samples, &props);

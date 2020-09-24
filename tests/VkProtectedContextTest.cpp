@@ -31,7 +31,7 @@ static sk_sp<SkSurface> create_protected_sksurface(GrDirectContext* dContext,
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected());
 
-    SkSurfaceProps surfaceProps = SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps surfaceProps = SkSurfaceProps(0, kRGB_H_SkPixelGeometry);
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(
         dContext, backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
@@ -69,7 +69,7 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
     REPORTER_ASSERT(reporter, backendTex.isValid());
     REPORTER_ASSERT(reporter, backendTex.isProtected());
 
-    SkSurfaceProps surfaceProps = SkSurfaceProps(0, SkSurfaceProps::kLegacyFontHost_InitType);
+    SkSurfaceProps surfaceProps = SkSurfaceProps(0, kRGB_H_SkPixelGeometry);
     sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
         dContext, backendTex, kTopLeft_GrSurfaceOrigin, 1,
         kRGBA_8888_SkColorType, nullptr, &surfaceProps);
