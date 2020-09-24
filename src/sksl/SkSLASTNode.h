@@ -262,18 +262,18 @@ struct ASTNode {
     };
 
     struct NodeData {
-        char fBytes[std::max({sizeof(Token),
-                              sizeof(StringFragment),
-                              sizeof(bool),
-                              sizeof(SKSL_INT),
-                              sizeof(SKSL_FLOAT),
-                              sizeof(Modifiers),
-                              sizeof(TypeData),
-                              sizeof(FunctionData),
-                              sizeof(ParameterData),
-                              sizeof(VarData),
-                              sizeof(InterfaceBlockData),
-                              sizeof(SectionData)})];
+        char fBytes[std::max(sizeof(Token),
+                    std::max(sizeof(StringFragment),
+                    std::max(sizeof(bool),
+                    std::max(sizeof(SKSL_INT),
+                    std::max(sizeof(SKSL_FLOAT),
+                    std::max(sizeof(Modifiers),
+                    std::max(sizeof(TypeData),
+                    std::max(sizeof(FunctionData),
+                    std::max(sizeof(ParameterData),
+                    std::max(sizeof(VarData),
+                    std::max(sizeof(InterfaceBlockData),
+                             sizeof(SectionData))))))))))))];
 
         enum class Kind {
             kToken,
