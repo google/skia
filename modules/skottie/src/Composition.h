@@ -10,9 +10,10 @@
 
 #include "modules/skottie/src/SkottiePriv.h"
 
-#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "modules/skottie/src/Layer.h"
+
+#include <vector>
 
 namespace skottie {
 namespace internal {
@@ -31,16 +32,16 @@ private:
 
     friend class LayerBuilder;
 
-    const SkSize                fSize;
+    const SkSize              fSize;
 
-    SkSTArray<64, LayerBuilder> fLayerBuilders;
-    SkTHashMap<int, size_t>     fLayerIndexMap; // Maps layer "ind" to layer builder index.
+    std::vector<LayerBuilder> fLayerBuilders;
+    SkTHashMap<int, size_t>   fLayerIndexMap; // Maps layer "ind" to layer builder index.
 
-    sk_sp<sksg::Transform>      fCameraTransform;
+    sk_sp<sksg::Transform>    fCameraTransform;
 
-    size_t                      fMotionBlurSamples = 1;
-    float                       fMotionBlurAngle   = 0,
-                                fMotionBlurPhase   = 0;
+    size_t                    fMotionBlurSamples = 1;
+    float                     fMotionBlurAngle   = 0,
+                              fMotionBlurPhase   = 0;
 };
 
 } // namespace internal
