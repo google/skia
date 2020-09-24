@@ -1,5 +1,6 @@
 #version 400
-uniform vec4 src, dst;
+out vec4 sk_FragColor;
+in vec4 src, dst;
 float _blend_overlay_component(vec2 s, vec2 d) {
     return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
 }
@@ -32,12 +33,12 @@ vec4 blend_overlay(vec4 src, vec4 dst) {
 vec4 blend_hard_light(vec4 src, vec4 dst) {
     return blend_overlay(dst, src);
 }
-vec4 main() {
+void main() {
     vec4 _0_blend_hard_light;
     {
         _0_blend_hard_light = blend_overlay(dst, src);
     }
 
-    return _0_blend_hard_light;
+    sk_FragColor = _0_blend_hard_light;
 
 }

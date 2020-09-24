@@ -1,5 +1,6 @@
 #version 400
-uniform vec4 src, dst;
+out vec4 sk_FragColor;
+in vec4 src, dst;
 vec4 blend_src_in(vec4 src, vec4 dst) {
     return src * dst.w;
 }
@@ -11,7 +12,7 @@ vec4 blend_dst_in(vec4 src, vec4 dst) {
     return _1_blend_src_in;
 
 }
-vec4 main() {
+void main() {
     vec4 _0_blend_dst_in;
     {
         vec4 _2_blend_src_in;
@@ -22,6 +23,6 @@ vec4 main() {
 
     }
 
-    return _0_blend_dst_in;
+    sk_FragColor = _0_blend_dst_in;
 
 }
