@@ -64,5 +64,7 @@ for input in inputs:
             makeEmptyFile(target + ".h")
     elif lang == "--glsl":
         compile(skslc, input, target, ".glsl")
+    elif lang == "--metal":
+        compile(skslc, input, target, ".metal")
     else:
-        sys.exit("### Expected one of: --fp --glsl, got " + lang)
+        sys.exit("### Expected one of: --fp --glsl --metal, got " + lang)
