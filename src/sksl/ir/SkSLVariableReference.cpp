@@ -14,39 +14,40 @@
 
 namespace SkSL {
 
-VariableReference::VariableReference(int offset, const Variable& variable, RefKind refKind)
-: INHERITED(offset, kExpressionKind, &variable.type())
-, fVariable(variable)
-, fRefKind(refKind) {
+VariableReference::VariableReference(int offset, const Variable* variable, RefKind refKind)
+        : INHERITED(offset, kExpressionKind, &variable->type())
+        , fVariable(variable)
+        , fRefKind(refKind) {
+    SkASSERT(fVariable);
     if (refKind != kRead_RefKind) {
-        fVariable.fWriteCount++;
+        fVariable->fWriteCount++;
     }
     if (refKind != kWrite_RefKind) {
-        fVariable.fReadCount++;
+        fVariable->fReadCount++;
     }
 }
 
 VariableReference::~VariableReference() {
     if (fRefKind != kRead_RefKind) {
-        fVariable.fWriteCount--;
+        fVariable->fWriteCount--;
     }
     if (fRefKind != kWrite_RefKind) {
-        fVariable.fReadCount--;
+        fVariable->fReadCount--;
     }
 }
 
 void VariableReference::setRefKind(RefKind refKind) {
     if (fRefKind != kRead_RefKind) {
-        fVariable.fWriteCount--;
+        fVariable->fWriteCount--;
     }
     if (fRefKind != kWrite_RefKind) {
-        fVariable.fReadCount--;
+        fVariable->fReadCount--;
     }
     if (refKind != kRead_RefKind) {
-        fVariable.fWriteCount++;
+        fVariable->fWriteCount++;
     }
     if (refKind != kWrite_RefKind) {
-        fVariable.fReadCount++;
+        fVariable->fReadCount++;
     }
     fRefKind = refKind;
 }
@@ -56,12 +57,12 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     if (fRefKind != kRead_RefKind) {
         return nullptr;
     }
-    if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
-        fVariable.fInitialValue->isCompileTimeConstant() &&
+    if ((fVariable->fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable->fInitialValue &&
+        fVariable->fInitialValue->isCompileTimeConstant() &&
         this->type().typeKind() != Type::TypeKind::kArray) {
-        return fVariable.fInitialValue->clone();
+        return fVariable->fInitialValue->clone();
     }
-    auto exprIter = definitions.find(&fVariable);
+    auto exprIter = definitions.find(fVariable);
     if (exprIter != definitions.end() && exprIter->second &&
         (*exprIter->second)->isCompileTimeConstant()) {
         return (*exprIter->second)->clone();

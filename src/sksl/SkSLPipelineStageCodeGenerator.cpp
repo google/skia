@@ -39,7 +39,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkDEBUGCODE(const Type& arg0Type = c.fArguments[0]->type());
         SkASSERT("fragmentProcessor"  == arg0Type.name() ||
                  "fragmentProcessor?" == arg0Type.name());
-        SkASSERT(c.fArguments[0]->kind() == Expression::Kind::kVariableReference);
+        SkASSERT(c.fArguments[0]->is<VariableReference>());
         int index = 0;
         bool found = false;
         for (const auto& p : fProgram) {
@@ -47,7 +47,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 const VarDeclarations& decls = p.as<VarDeclarations>();
                 for (const std::unique_ptr<Statement>& raw : decls.fVars) {
                     VarDeclaration& decl = raw->as<VarDeclaration>();
-                    if (decl.fVar == &c.fArguments[0]->as<VariableReference>().fVariable) {
+                    if (decl.fVar == c.fArguments[0]->as<VariableReference>().fVariable) {
                         found = true;
                     } else if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
                         ++index;
@@ -108,7 +108,7 @@ void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
+    switch (ref.fVariable->fModifiers.fLayout.fBuiltin) {
         case SK_OUTCOLOR_BUILTIN:
             this->write(Compiler::kFormatArgPlaceholderStr);
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
@@ -129,7 +129,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                         const VarDeclarations& decls = e.as<VarDeclarations>();
                         for (const auto& decl : decls.fVars) {
                             const Variable& var = *decl->as<VarDeclaration>().fVar;
-                            if (&var == &ref.fVariable) {
+                            if (&var == ref.fVariable) {
                                 found = true;
                                 break;
                             }
@@ -143,16 +143,16 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 return index;
             };
 
-            if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
+            if (ref.fVariable->fModifiers.fFlags & Modifiers::kUniform_Flag) {
                 this->write(Compiler::kFormatArgPlaceholderStr);
                 fArgs->fFormatArgs.push_back(
                         Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                             varIndexByFlag(Modifiers::kUniform_Flag)));
-            } else if (ref.fVariable.fModifiers.fFlags & Modifiers::kVarying_Flag) {
+            } else if (ref.fVariable->fModifiers.fFlags & Modifiers::kVarying_Flag) {
                 this->write("_vtx_attr_");
                 this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
             } else {
-                this->write(ref.fVariable.fName);
+                this->write(ref.fVariable->fName);
             }
         }
     }

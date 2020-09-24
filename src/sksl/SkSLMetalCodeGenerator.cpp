@@ -676,7 +676,7 @@ void MetalCodeGenerator::writeFragCoord() {
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
+    switch (ref.fVariable->fModifiers.fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("_out->sk_FragColor");
             break;
@@ -695,19 +695,19 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write(fProgram.fSettings.fFlipY ? "_frontFacing" : "(!_frontFacing)");
             break;
         default:
-            if (Variable::kGlobal_Storage == ref.fVariable.fStorage) {
-                if (ref.fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) {
+            if (Variable::kGlobal_Storage == ref.fVariable->fStorage) {
+                if (ref.fVariable->fModifiers.fFlags & Modifiers::kIn_Flag) {
                     this->write("_in.");
-                } else if (ref.fVariable.fModifiers.fFlags & Modifiers::kOut_Flag) {
+                } else if (ref.fVariable->fModifiers.fFlags & Modifiers::kOut_Flag) {
                     this->write("_out->");
-                } else if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag &&
-                           ref.fVariable.type().typeKind() != Type::TypeKind::kSampler) {
+                } else if (ref.fVariable->fModifiers.fFlags & Modifiers::kUniform_Flag &&
+                           ref.fVariable->type().typeKind() != Type::TypeKind::kSampler) {
                     this->write("_uniforms.");
                 } else {
                     this->write("_globals->");
                 }
             }
-            this->writeName(ref.fVariable.fName);
+            this->writeName(ref.fVariable->fName);
     }
 }
 
@@ -831,10 +831,9 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (needParens) {
         this->write("(");
     }
-    if (Compiler::IsAssignment(b.fOperator) &&
-        Expression::Kind::kVariableReference == b.fLeft->kind() &&
-        Variable::kParameter_Storage == ((VariableReference&) *b.fLeft).fVariable.fStorage &&
-        (((VariableReference&) *b.fLeft).fVariable.fModifiers.fFlags & Modifiers::kOut_Flag)) {
+    if (Compiler::IsAssignment(b.fOperator) && b.fLeft->is<VariableReference>() &&
+        b.fLeft->as<VariableReference>().fVariable->fStorage == Variable::kParameter_Storage &&
+        b.fLeft->as<VariableReference>().fVariable->fModifiers.fFlags & Modifiers::kOut_Flag) {
         // writing to an out parameter. Since we have to turn those into pointers, we have to
         // dereference it here.
         this->write("*");
@@ -1749,15 +1748,15 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = e->as<VariableReference>();
             Requirements result = kNo_Requirements;
-            if (v.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
+            if (v.fVariable->fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                 result = kGlobals_Requirement | kFragCoord_Requirement;
-            } else if (Variable::kGlobal_Storage == v.fVariable.fStorage) {
-                if (v.fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) {
+            } else if (Variable::kGlobal_Storage == v.fVariable->fStorage) {
+                if (v.fVariable->fModifiers.fFlags & Modifiers::kIn_Flag) {
                     result = kInputs_Requirement;
-                } else if (v.fVariable.fModifiers.fFlags & Modifiers::kOut_Flag) {
+                } else if (v.fVariable->fModifiers.fFlags & Modifiers::kOut_Flag) {
                     result = kOutputs_Requirement;
-                } else if (v.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag &&
-                           v.fVariable.type().typeKind() != Type::TypeKind::kSampler) {
+                } else if (v.fVariable->fModifiers.fFlags & Modifiers::kUniform_Flag &&
+                           v.fVariable->type().typeKind() != Type::TypeKind::kSampler) {
                     result = kUniforms_Requirement;
                 } else {
                     result = kGlobals_Requirement;
