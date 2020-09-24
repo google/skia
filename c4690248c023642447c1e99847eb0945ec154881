@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7a6718f_10fec10a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-24T21:01:41Z",
+      "side": 1,
+      "message": "I\u0027m wondering - can we refactor this so that each test is a separate action? I had already been wondering about that - I haven\u0027t timed to verify, but it seems like builds are taking longer, and we\u0027ve essentially created a single long-pole action for each test type, right?",
+      "revId": "c4690248c023642447c1e99847eb0945ec154881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
