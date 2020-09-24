@@ -42,7 +42,7 @@ struct ProgramElement : public IRNode {
 
     /**
      *  Use is<T> to check the type of a program element.
-     *  e.g. replace `el.fKind == ProgramElement::kEnum_Kind` with `el.is<Enum>()`.
+     *  e.g. replace `el.kind() == ProgramElement::Kind::kEnum` with `el.is<Enum>()`.
      */
     template <typename T>
     bool is() const {

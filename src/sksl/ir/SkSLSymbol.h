@@ -46,7 +46,7 @@ struct Symbol : public IRNode {
 
     /**
      *  Use is<T> to check the type of a symbol.
-     *  e.g. replace `sym.fKind == Symbol::kVariable_Kind` with `sym.is<Variable>()`.
+     *  e.g. replace `sym.kind() == Symbol::Kind::kVariable` with `sym.is<Variable>()`.
      */
     template <typename T>
     bool is() const {

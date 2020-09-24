@@ -73,7 +73,7 @@ struct Expression : public IRNode {
 
     /**
      *  Use is<T> to check the type of an expression.
-     *  e.g. replace `e.fKind == Expression::kIntLiteral_Kind` with `e.is<IntLiteral>()`.
+     *  e.g. replace `e.kind() == Expression::Kind::kIntLiteral` with `e.is<IntLiteral>()`.
      */
     template <typename T>
     bool is() const {
