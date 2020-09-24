@@ -7,6 +7,7 @@
 
 #include "include/core/SkFontLCDConfig.h"
 
+#ifdef SK_LEGACY_SURFACE_PROPS
 static SkFontLCDConfig::LCDOrientation gLCDOrientation = SkFontLCDConfig::kHorizontal_LCDOrientation;
 static SkFontLCDConfig::LCDOrder gLCDOrder = SkFontLCDConfig::kRGB_LCDOrder;
 
@@ -25,3 +26,4 @@ SkFontLCDConfig::LCDOrder SkFontLCDConfig::GetSubpixelOrder() {
 void SkFontLCDConfig::SetSubpixelOrder(LCDOrder order) {
     gLCDOrder = order;
 }
+#endif
