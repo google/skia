@@ -371,7 +371,7 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kVariableReference: {
                 const VariableReference& v = e->as<VariableReference>();
                 this->writeU8(Rehydrator::kVariableReference_Command);
-                this->writeId(&v.fVariable);
+                this->writeId(v.fVariable);
                 this->writeU8(v.fRefKind);
                 break;
             }
