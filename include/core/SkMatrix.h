@@ -97,11 +97,6 @@ public:
         m.setRotate(deg);
         return m;
     }
-    static SkMatrix SK_WARN_UNUSED_RESULT RotateDeg(SkScalar deg, SkPoint pt) {
-        SkMatrix m;
-        m.setRotate(deg, pt.x(), pt.y());
-        return m;
-    }
     static SkMatrix SK_WARN_UNUSED_RESULT RotateRad(SkScalar rad) {
         return RotateDeg(SkRadiansToDegrees(rad));
     }
