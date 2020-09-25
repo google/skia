@@ -84,6 +84,11 @@ public:
 
     GrSurfaceProxyView add(const GrUniqueKey&, const GrSurfaceProxyView&)  SK_EXCLUDES(fSpinLock);
 
+    GrSurfaceProxyView findOrAdd(const GrUniqueKey&,
+                                 const GrSurfaceProxyView&)  SK_EXCLUDES(fSpinLock);
+
+    void remove(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
+
 private:
     struct Entry {
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
