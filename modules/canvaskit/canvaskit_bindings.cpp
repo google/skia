@@ -1210,6 +1210,26 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .constructor<sk_sp<SkTypeface>>()
         .constructor<sk_sp<SkTypeface>, SkScalar>()
         .constructor<sk_sp<SkTypeface>, SkScalar, SkScalar, SkScalar>()
+        .function("_getGlyphWidthBounds", optional_override([](SkFont& self, uintptr_t /* SkGlyphID* */ gPtr,
+                                                          int numGlyphs, uintptr_t /* float* */ wPtr,
+                                                          uintptr_t /* float* */ rPtr,
+                                                          SkPaint* paint) {
+            const SkGlyphID* glyphs = reinterpret_cast<const SkGlyphID*>(gPtr);
+            // On the JS side only one of these is set at a time for easier ergonomics.
+            SkRect* outputRects = reinterpret_cast<SkRect*>(rPtr);
+            SkScalar* outputWidths = reinterpret_cast<SkScalar*>(wPtr);
+            self.getWidthsBounds(glyphs, numGlyphs, outputWidths, outputRects, paint);
+        }), allow_raw_pointers())
+        .function("_getGlyphIDs", optional_override([](SkFont& self, uintptr_t /* char* */ sptr,
+                                                       size_t strLen, size_t expectedCodePoints,
+                                                       uintptr_t /* SkGlyphID* */ iPtr) -> int {
+            char* str = reinterpret_cast<char*>(sptr);
+            SkGlyphID* glyphIDs = reinterpret_cast<SkGlyphID*>(iPtr);
+
+            int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
+                                                     glyphIDs, expectedCodePoints);
+            return actualCodePoints;
+        }))
         .function("getScaleX", &SkFont::getScaleX)
         .function("getSize", &SkFont::getSize)
         .function("getSkewX", &SkFont::getSkewX)
@@ -1659,10 +1679,24 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
             return SkTextBlob::MakeFromRSXform(str, strBtyes, xforms, font, SkTextEncoding::kUTF8);
         }), allow_raw_pointers())
+        .class_function("_MakeFromRSXformGlyphs", optional_override([](uintptr_t /* SkGlyphID* */ gPtr,
+                                                              size_t byteLen,
+                                                              uintptr_t /* SkRSXform* */ xptr,
+                                                              const SkFont& font)->sk_sp<SkTextBlob> {
+            const SkGlyphID* glyphs = reinterpret_cast<const SkGlyphID*>(gPtr);
+            const SkRSXform* xforms = reinterpret_cast<const SkRSXform*>(xptr);
+
+            return SkTextBlob::MakeFromRSXform(glyphs, byteLen, xforms, font, SkTextEncoding::kGlyphID);
+        }), allow_raw_pointers())
         .class_function("_MakeFromText", optional_override([](uintptr_t /* char* */ sptr,
                                                               size_t len, const SkFont& font)->sk_sp<SkTextBlob> {
             const char* str = reinterpret_cast<const char*>(sptr);
             return SkTextBlob::MakeFromText(str, len, font, SkTextEncoding::kUTF8);
+        }), allow_raw_pointers())
+        .class_function("_MakeFromGlyphs", optional_override([](uintptr_t /* SkGlyphID* */ gPtr,
+                                                                size_t byteLen, const SkFont& font)->sk_sp<SkTextBlob> {
+            const SkGlyphID* glyphs = reinterpret_cast<const SkGlyphID*>(gPtr);
+            return SkTextBlob::MakeFromText(glyphs, byteLen, font, SkTextEncoding::kGlyphID);
         }), allow_raw_pointers());
 
     class_<SkTypeface>("SkTypeface")
