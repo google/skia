@@ -1,0 +1,7 @@
+struct S { float f; };
+
+void not_a_field()    { S s; s.missing = 123; }
+void not_a_function() { S s; s.f(); }
+void not_a_bvec()     { S s; s.f = bool3(true); }
+void not_a_struct()   { S s; s.f.missing; }
+void not_an_array()   { S s; s.f[0]; }

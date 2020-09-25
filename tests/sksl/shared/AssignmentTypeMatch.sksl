@@ -1,1 +1,0 @@
-void main() { float3 x = float3(0); x *= 1.0; }
