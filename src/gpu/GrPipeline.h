@@ -67,7 +67,6 @@ public:
 
     struct InitArgs {
         InputFlags fInputFlags = InputFlags::kNone;
-        const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
         const GrCaps* fCaps = nullptr;
         GrXferProcessor::DstProxyView fDstProxyView;
         GrSwizzle fWriteSwizzle;
@@ -81,19 +80,16 @@ public:
     GrPipeline(GrScissorTest scissor,
                SkBlendMode blend,
                const GrSwizzle& writeSwizzle,
-               InputFlags flags = InputFlags::kNone,
-               const GrUserStencilSettings* stencil = &GrUserStencilSettings::kUnused)
+               InputFlags flags = InputFlags::kNone)
             : GrPipeline(scissor,
                          GrPorterDuffXPFactory::MakeNoCoverageXP(blend),
                          writeSwizzle,
-                         flags,
-                         stencil) {}
+                         flags) {}
 
     GrPipeline(GrScissorTest,
                sk_sp<const GrXferProcessor>,
                const GrSwizzle& writeSwizzle,
-               InputFlags = InputFlags::kNone,
-               const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+               InputFlags = InputFlags::kNone);
 
     GrPipeline(const InitArgs& args, sk_sp<const GrXferProcessor>, const GrAppliedHardClip&);
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
@@ -167,14 +163,6 @@ public:
 
     /// @}
 
-    const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
-    void setUserStencil(const GrUserStencilSettings* stencil) {
-        fUserStencilSettings = stencil;
-        if (!fUserStencilSettings->isDisabled(fFlags & Flags::kHasStencilClip)) {
-            fFlags |= Flags::kStencilEnabled;
-        }
-    }
-
     bool isScissorTestEnabled() const {
         return SkToBool(fFlags & Flags::kScissorTestEnabled);
     }
@@ -189,9 +177,6 @@ public:
     }
     bool hasStencilClip() const {
         return SkToBool(fFlags & Flags::kHasStencilClip);
-    }
-    bool isStencilEnabled() const {
-        return SkToBool(fFlags & Flags::kStencilEnabled);
     }
 #ifdef SK_DEBUG
     bool allProxiesInstantiated() const {
@@ -223,8 +208,7 @@ private:
     /** This is a continuation of the public "InputFlags" enum. */
     enum class Flags : uint8_t {
         kHasStencilClip = (kLastInputFlag << 1),
-        kStencilEnabled = (kLastInputFlag << 2),
-        kScissorTestEnabled = (kLastInputFlag << 3),
+        kScissorTestEnabled = (kLastInputFlag << 2),
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(Flags);
@@ -241,7 +225,6 @@ private:
     // GrDstSampleType).
     GrDstSampleType fDstSampleType = GrDstSampleType::kNone;
     GrWindowRectsState fWindowRectsState;
-    const GrUserStencilSettings* fUserStencilSettings;
     Flags fFlags;
     sk_sp<const GrXferProcessor> fXferProcessor;
     FragmentProcessorArray fFragmentProcessors;

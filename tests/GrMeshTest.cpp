@@ -577,7 +577,8 @@ GrOpsRenderPass* DrawMeshHelper::bindPipeline(GrPrimitiveType primitiveType, boo
 
     GrProgramInfo programInfo(fState->proxy()->numSamples(), fState->proxy()->numStencilSamples(),
                               fState->proxy()->backendFormat(), fState->writeView()->origin(),
-                              pipeline, mtp, primitiveType, 0, fState->renderPassBarriers());
+                              pipeline, &GrUserStencilSettings::kUnused, mtp, primitiveType, 0,
+                              fState->renderPassBarriers());
 
     fState->opsRenderPass()->bindPipeline(programInfo, SkRect::MakeIWH(kImageWidth, kImageHeight));
     return fState->opsRenderPass();
