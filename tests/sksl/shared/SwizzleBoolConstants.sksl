@@ -1,6 +1,6 @@
-uniform bool4 v;
 
 void main() {
+    bool4 v = bool4(sqrt(1) == 1);
     bool4 result;
     result = bool4(v.x, true, true, true);
     result = bool4(v.xy, false, true);

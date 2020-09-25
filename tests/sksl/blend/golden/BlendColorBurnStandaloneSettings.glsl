@@ -1,5 +1,6 @@
 
-uniform vec4 src, dst;
+out vec4 sk_FragColor;
+in vec4 src, dst;
 float _guarded_divide(float n, float d) {
     return n / d;
 }
@@ -23,12 +24,12 @@ float _color_burn_component(vec2 s, vec2 d) {
 vec4 blend_color_burn(vec4 src, vec4 dst) {
     return vec4(_color_burn_component(src.xw, dst.xw), _color_burn_component(src.yw, dst.yw), _color_burn_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
 }
-vec4 main() {
+void main() {
     vec4 _0_blend_color_burn;
     {
         _0_blend_color_burn = vec4(_color_burn_component(src.xw, dst.xw), _color_burn_component(src.yw, dst.yw), _color_burn_component(src.zw, dst.zw), src.w + (1.0 - src.w) * dst.w);
     }
 
-    return _0_blend_color_burn;
+    sk_FragColor = _0_blend_color_burn;
 
 }

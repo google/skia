@@ -1,14 +1,15 @@
 #version 400
-uniform vec4 src, dst;
+out vec4 sk_FragColor;
+in vec4 src, dst;
 vec4 blend_screen(vec4 src, vec4 dst) {
     return src + (1.0 - src) * dst;
 }
-vec4 main() {
+void main() {
     vec4 _0_blend_screen;
     {
         _0_blend_screen = src + (1.0 - src) * dst;
     }
 
-    return _0_blend_screen;
+    sk_FragColor = _0_blend_screen;
 
 }

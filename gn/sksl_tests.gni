@@ -133,6 +133,7 @@ sksl_error_tests = [
 sksl_glsl_tests = [
   "$_tests/sksl/glsl/ForceHighPrecision.sksl",
   "$_tests/sksl/glsl/IncompleteShortIntPrecision.sksl",
+  "$_tests/sksl/glsl/LayoutQualifiers.sksl",
   "$_tests/sksl/glsl/ShortIntPrecision.sksl",
   "$_tests/sksl/glsl/TextureSharpenVersion110.sksl",
   "$_tests/sksl/glsl/TextureVersion110.sksl",
@@ -184,7 +185,6 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/InterfaceBlockNamed.sksl",
   "$_tests/sksl/shared/Matrices.sksl",
   "$_tests/sksl/shared/MatrixFolding.sksl",
-  "$_tests/sksl/shared/ModifiersDeclaration.sksl",
   "$_tests/sksl/shared/MultipleAssignments.sksl",
   "$_tests/sksl/shared/NegatedVectorLiteral.sksl",
   "$_tests/sksl/shared/NoFragCoordsPos.vert",
@@ -326,3 +326,7 @@ sksl_glsl_tests_sources =
 # Tests in sksl_glsl_settings_tests_sources will be compiled twice, once with --settings and once
 # using --nosettings. In the latter mode, StandaloneSettings is appended to the output filename.
 sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
+
+# Tests in sksl_metal_tests_sources will be compiled with --settings on, and are expected to
+# generate a .metal output file.
+sksl_metal_tests_sources = sksl_blend_tests + sksl_shared_tests

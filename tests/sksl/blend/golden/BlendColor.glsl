@@ -1,5 +1,6 @@
 #version 400
-uniform vec4 src, dst;
+out vec4 sk_FragColor;
+in vec4 src, dst;
 float _blend_color_luminance(vec3 color) {
     return dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), color);
 }
@@ -29,7 +30,7 @@ vec4 blend_color(vec4 src, vec4 dst) {
     vec3 dsa = dst.xyz * src.w;
     return vec4((((_blend_set_color_luminance(sda, alpha, dsa) + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }
-vec4 main() {
+void main() {
     vec4 _0_blend_color;
     {
         float _1_alpha = dst.w * src.w;
@@ -38,6 +39,6 @@ vec4 main() {
         _0_blend_color = vec4((((_blend_set_color_luminance(_2_sda, _1_alpha, _3_dsa) + dst.xyz) - _3_dsa) + src.xyz) - _2_sda, (src.w + dst.w) - _1_alpha);
     }
 
-    return _0_blend_color;
+    sk_FragColor = _0_blend_color;
 
 }

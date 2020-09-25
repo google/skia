@@ -1,5 +1,5 @@
-uniform float4x4 colorXform;
-uniform sampler2D sampler;
+layout(set=0) uniform float4x4 colorXform;
+layout(binding=0) uniform sampler2D sampler;
 
 void main() {
     float4 tmpColor;
