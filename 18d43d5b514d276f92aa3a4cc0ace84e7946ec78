@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c237cda_c20f60c8",
+        "filename": "src/sksl/ir/SkSLBlock.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T18:27:26Z",
+      "side": 1,
+      "message": "BlockData\u0026",
+      "range": {
+        "startLine": 62,
+        "startChar": 8,
+        "endLine": 62,
+        "endChar": 18
+      },
+      "revId": "18d43d5b514d276f92aa3a4cc0ace84e7946ec78",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
