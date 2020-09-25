@@ -1934,6 +1934,27 @@ DEF_TEST(ArithmeticImageFilterBounds, reporter) {
     test_arithmetic_combinations(reporter, 0.5);
 }
 
+// Test SkDisplacementMapEffect::filterBounds.
+DEF_TEST(DisplacementMapBounds, reporter) {
+    SkPaint greenPaint;
+    greenPaint.setColor(SK_ColorGREEN);
+    SkIRect floodBounds(SkIRect::MakeXYWH(20, 30, 10, 10));
+    sk_sp<SkImageFilter> flood(SkImageFilters::Paint(greenPaint, &floodBounds));
+    SkIRect tilingBounds(SkIRect::MakeXYWH(0, 0, 200, 100));
+    sk_sp<SkImageFilter> tiling(SkImageFilters::Tile(SkRect::Make(floodBounds),
+                                                     SkRect::Make(tilingBounds),
+                                                     flood));
+    sk_sp<SkImageFilter> displace(SkImageFilters::DisplacementMap(SkColorChannel::kR,
+                                                                  SkColorChannel::kB,
+                                                                  20.0f, nullptr, tiling));
+    SkIRect input(SkIRect::MakeXYWH(20, 30, 40, 50));
+    // Expected: union(floodBounds, outset(input, 10))
+    SkIRect expected(SkIRect::MakeXYWH(10, 20, 60, 70));
+    REPORTER_ASSERT(reporter,
+                    expected == displace->filterBounds(input, SkMatrix::I(),
+                                                       SkImageFilter::kReverse_MapDirection));
+}
+
 // Test SkImageSource::filterBounds.
 DEF_TEST(ImageSourceBounds, reporter) {
     sk_sp<SkImage> image(SkImage::MakeFromBitmap(make_gradient_circle(64, 64)));
