@@ -187,6 +187,216 @@ namespace {
         };
     }
 
+    // Notes only where this diverges from build_program().
+    static bool build_program_q14(skvm::Builder* p, const Params& params,
+                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
+        uniforms->base    = p->uniform();
+        skvm::Arg dst_ptr = p->arg(SkColorTypeBytesPerPixel(params.dst.colorType()));
+
+        skvm::Coord device = device_coord(p, uniforms);
+        skvm::Color_Q14 paint = p->uniformColor_Q14(params.paint, uniforms);
+
+        // These two should round trip.
+        // The main thing to think about is that 16384 / 255 ≈ 64.251.
+        auto from_unorm8 = [](skvm::I32 x) -> skvm::Q14 {
+            skvm::Q14 v = to_Q14(x);
+            // (128.5*v + 1)/2 is a rounded 64.25 * v.
+            return unsigned_avg(v << 7,
+                                v >> 1);
+        };
+        auto to_unorm8 = [](skvm::Q14 x) -> skvm::I32 {
+            // Dividing by 64 alone doesn't leave large Q14 quite small enough.
+            // In ordinary C this expression would be (x >> 6) - (x > 0x3fbf),
+            // but since (x > 0x3fbf) returns 0 or -1, we'll instead _add_ here.
+            return to_I32( (x >> 6) + (x > 0x3fbf) );
+        };
+
+        skvm::Color_Q14 src = as_SB(params.shader)->program_Q14(p, device,/*local=*/device, paint,
+                                                                params.matrices, nullptr,
+                                                                params.quality, params.dst,
+                                                                uniforms, alloc);
+        if (!src) {
+            return false;
+        }
+        if (params.coverage == Coverage::Mask3D) {
+            skvm::Q14 M = from_unorm8(p->load8(p->varying<uint8_t>())),
+                      A = from_unorm8(p->load8(p->varying<uint8_t>()));
+
+            src.r = min(src.r * M + A, src.a);
+            src.g = min(src.g * M + A, src.a);
+            src.b = min(src.b * M + A, src.a);
+        }
+
+        bool src_in_gamut = false;
+        if (!src_in_gamut
+                && params.dst.alphaType() == kPremul_SkAlphaType
+                && SkColorTypeIsNormalized(params.dst.colorType())) {
+            src.a = clamp(src.a, 0.0f,  1.0f);
+            src.r = clamp(src.r, 0.0f, src.a);
+            src.g = clamp(src.g, 0.0f, src.a);
+            src.b = clamp(src.b, 0.0f, src.a);
+            src_in_gamut = true;
+        }
+
+        skvm::Color_Q14 dst;
+        switch (params.dst.colorType()) {
+            case kARGB_4444_SkColorType:
+            case kAlpha_8_SkColorType:
+            case kBGRA_1010102_SkColorType:
+            case kBGRA_8888_SkColorType:
+            case kBGR_101010x_SkColorType:
+            case kGray_8_SkColorType:
+            case kR8G8_unorm_SkColorType:
+            case kRGBA_1010102_SkColorType:
+            case kRGB_101010x_SkColorType:
+            case kRGB_565_SkColorType:
+            case kRGB_888x_SkColorType:
+                return false;  // TODO
+
+            case kA16_float_SkColorType:
+            case kA16_unorm_SkColorType:
+            case kR16G16B16A16_unorm_SkColorType:
+            case kR16G16_float_SkColorType:
+            case kR16G16_unorm_SkColorType:
+            case kRGBA_F16Norm_SkColorType:
+            case kRGBA_F16_SkColorType:
+            case kRGBA_F32_SkColorType:
+            case kUnknown_SkColorType:
+                return false;   // Not suitable for Q14.
+
+            case kRGBA_8888_SkColorType: {
+                skvm::I32 rgba = p->load32(dst_ptr);
+                dst = {
+                    from_unorm8(extract(rgba,  0, 0xff)),
+                    from_unorm8(extract(rgba,  8, 0xff)),
+                    from_unorm8(extract(rgba, 16, 0xff)),
+                    from_unorm8(extract(rgba, 24, 0xff)),
+                };
+            } break;
+        }
+
+        if (params.dst.isOpaque()) {
+            dst.a = p->splat_Q14(1.0f);
+        } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
+            // We can't handle non-opaque unpremul destinations with fixed-point,
+            // since we can't unpremul after the blend without a divide.
+            return false;
+        }
+
+        skvm::Color_Q14 cov;
+        switch (params.coverage) {
+            case Coverage::Full:
+                cov.r = cov.g = cov.b = cov.a = p->splat_Q14(1.0f);
+                break;
+
+            case Coverage::UniformA8:
+                cov.r = cov.g = cov.b = cov.a = from_unorm8(p->uniform8(p->uniform(), 0));
+                break;
+
+            case Coverage::Mask3D:
+            case Coverage::MaskA8:
+                cov.r = cov.g = cov.b = cov.a = from_unorm8(p->load8(p->varying<uint8_t>()));
+                break;
+
+            case Coverage::MaskLCD16: return false; // TODO: need from_unorm5, from_unorm6 math
+        }
+        if (params.clip) {
+            skvm::Color_Q14 clip = as_SB(params.clip)->program_Q14(p, device,/*local=*/device,paint,
+                                                                   params.matrices, nullptr,
+                                                                   params.quality, params.dst,
+                                                                   uniforms, alloc);
+            if (!clip) {
+                return false;
+            }
+            cov.r *= clip.a;
+            cov.g *= clip.a;
+            cov.b *= clip.a;
+            cov.a *= clip.a;
+        }
+
+        if (SkBlendMode_ShouldPreScaleCoverage(params.blendMode,
+                                               params.coverage == Coverage::MaskLCD16)) {
+            src.r *= cov.r;
+            src.g *= cov.g;
+            src.b *= cov.b;
+            src.a *= cov.a;
+
+            src = blend(params.blendMode, src, dst);
+            if (!src) {
+                return false;
+            }
+        } else {
+            src = blend(params.blendMode, src, dst);
+            if (!src) {
+                return false;
+            }
+
+            src.r = lerp(dst.r, src.r, cov.r);
+            src.g = lerp(dst.g, src.g, cov.g);
+            src.b = lerp(dst.b, src.b, cov.b);
+            src.a = lerp(dst.a, src.a, cov.a);
+        }
+
+        if (params.dst.isOpaque()) {
+            src.a = p->splat_Q14(1.0f);
+        } else if (params.dst.alphaType() == kUnpremul_SkAlphaType) {
+            // Can't unpremul with fixed-point.
+            // We should never actually reach here...  we've already returned false by now.
+            return false;
+        }
+
+        if (src_in_gamut) {
+            // TODO: allow a little give here like we do for floats?
+            /*   TODO: assert_true(Q14)
+            assert_true(src.r == clamp(src.r, 0.0f, 1.0f), src.r);
+            assert_true(src.g == clamp(src.g, 0.0f, 1.0f), src.g);
+            assert_true(src.b == clamp(src.b, 0.0f, 1.0f), src.b);
+            assert_true(src.a == clamp(src.a, 0.0f, 1.0f), src.a);
+            */
+        } else if (SkColorTypeIsNormalized(params.dst.colorType())) {
+            src.r = clamp(src.r, 0.0f, 1.0f);
+            src.g = clamp(src.g, 0.0f, 1.0f);
+            src.b = clamp(src.b, 0.0f, 1.0f);
+            src.a = clamp(src.a, 0.0f, 1.0f);
+        }
+
+        switch (params.dst.colorType()) {
+            case kARGB_4444_SkColorType:
+            case kAlpha_8_SkColorType:
+            case kBGRA_1010102_SkColorType:
+            case kBGRA_8888_SkColorType:
+            case kBGR_101010x_SkColorType:
+            case kGray_8_SkColorType:
+            case kR8G8_unorm_SkColorType:
+            case kRGBA_1010102_SkColorType:
+            case kRGB_101010x_SkColorType:
+            case kRGB_565_SkColorType:
+            case kRGB_888x_SkColorType:
+                return false;  // TODO
+
+            case kA16_float_SkColorType:
+            case kA16_unorm_SkColorType:
+            case kR16G16B16A16_unorm_SkColorType:
+            case kR16G16_float_SkColorType:
+            case kR16G16_unorm_SkColorType:
+            case kRGBA_F16Norm_SkColorType:
+            case kRGBA_F16_SkColorType:
+            case kRGBA_F32_SkColorType:
+            case kUnknown_SkColorType:
+                return false;   // Not suitable for Q14.
+
+
+            case kRGBA_8888_SkColorType:
+                store32(dst_ptr, pack(pack(to_unorm8(src.r),
+                                           to_unorm8(src.g), 8),
+                                      pack(to_unorm8(src.b),
+                                           to_unorm8(src.a), 8), 16));
+        }
+
+        //__builtin_debugtrap();
+        return true;
+    }
+
     static void build_program(skvm::Builder* p, const Params& params,
                               skvm::Uniforms* uniforms, SkArenaAlloc* alloc) {
         // First two arguments are always uniforms and the destination buffer.
@@ -594,18 +804,25 @@ namespace {
                     return p;
                 }
             }
-            // We don't really _need_ to rebuild fUniforms here.
-            // It's just more natural to have effects unconditionally emit them,
-            // and more natural to rebuild fUniforms than to emit them into a dummy buffer.
-            // fUniforms should reuse the exact same memory, so this is very cheap.
-            SkDEBUGCODE(size_t prev = fUniforms.buf.size();)
+
+            // We reset these uniforms each time so that effects can emit them unconditionally,
+            // and particularly to allow F32 and Q14 variants to emit different uniforms.
             fUniforms.buf.resize(kBlitterUniformsCount);
+
             skvm::Builder builder;
-            build_program(&builder, fParams.withCoverage(coverage), &fUniforms, &fAlloc);
-            SkASSERTF(fUniforms.buf.size() == prev,
-                      "%zu, prev was %zu", fUniforms.buf.size(), prev);
+            bool q14 = true;
+            if (!build_program_q14(&builder, fParams.withCoverage(coverage), &fUniforms, &fAlloc)) {
+                q14 = false;
+                builder = skvm::Builder{};
+                fUniforms.buf.resize(kBlitterUniformsCount);
+                build_program(&builder, fParams.withCoverage(coverage), &fUniforms, &fAlloc);
+            }
 
             skvm::Program program = builder.done(debug_name(key).c_str());
+            if (false && q14) {
+                builder.dump();
+                program.dump();
+            }
             if (false) {
                 static std::atomic<int> missed{0},
                                          total{0};

@@ -782,7 +782,7 @@ namespace skvm {
     }
 
     I32 Builder::splat    (int n) { return {this, push(Op::splat    , NA,NA,NA, n) }; }
-    Q14 Builder::splat_q14(int n) { return {this, push(Op::splat_q14, NA,NA,NA, n) }; }
+    Q14 Builder::splat_Q14(int n) { return {this, push(Op::splat_q14, NA,NA,NA, n) }; }
 
     bool fma_supported() {
         static const bool supported =
@@ -1058,7 +1058,11 @@ namespace skvm {
     I32 Builder::to_I32(Q14 x) { return {this, this->push(Op::from_q14, x.id) }; }
 
     // TODO: open question in general whether float -> q14 should round() or trunc().
-    Q14 Builder::to_Q14(F32 x) { return to_Q14(trunc(x * 16384.0f)); }
+    Q14 Builder::to_Q14(F32 x) {
+        assert_true(-2.0f <= x, x);
+        assert_true(x <  +2.0f, x);
+        return to_Q14(trunc(x * 16384.0f));
+    }
     F32 Builder::to_F32(Q14 x) { return to_F32(to_I32(x)) * (1/16384.0f); }
 
     Q14 Builder::unsigned_avg(Q14 x, Q14 y) {
@@ -1484,13 +1488,51 @@ namespace skvm {
         };
     }
 
+    // TODO: native Q14 paint color, with r,g,b set to Q14{} when out of [-2,2)?
+    Color_Q14 Builder::uniformColor_Q14(SkColor4f color, Uniforms* uniforms) {
+    #if 1
+        auto [r,g,b,a] = this->uniformColor(color, uniforms);
+        return {
+            to_Q14(r),
+            to_Q14(g),
+            to_Q14(b),
+            to_Q14(a),
+        };
+    #else
+        auto [r,g,b,a] = color;
+        //SkDebugf("%g %g %g %g -> %08x %08x %08x %08x\n",
+        //         r,g,b,a, Q14a{r}.imm, Q14a{g}.imm, Q14a{b}.imm, Q14a{a}.imm);
+        return {
+            to_Q14(uniform16(uniforms->push(Q14a{r}.imm))),
+            to_Q14(uniform16(uniforms->push(Q14a{g}.imm))),
+            to_Q14(uniform16(uniforms->push(Q14a{b}.imm))),
+            to_Q14(uniform16(uniforms->push(Q14a{a}.imm))),
+        };
+    #endif
+    }
+
     F32 Builder::lerp(F32 lo, F32 hi, F32 t) {
         if (this->isImm(t.id, 0.0f)) { return lo; }
         if (this->isImm(t.id, 1.0f)) { return hi; }
-        return mad(sub(hi, lo), t, lo);
+        return (hi-lo)*t + lo;
+    }
+    Color Builder::lerp(Color lo, Color hi, F32 t) {
+        return {
+            lerp(lo.r, hi.r, t),
+            lerp(lo.g, hi.g, t),
+            lerp(lo.b, hi.b, t),
+            lerp(lo.a, hi.a, t),
+        };
     }
 
-    Color Builder::lerp(Color lo, Color hi, F32 t) {
+    Q14 Builder::lerp(Q14 lo, Q14 hi, Q14 t) {
+        /*  TODO
+        if (this->isImm(t.id, 0.0f)) { return lo; }
+        if (this->isImm(t.id, 1.0f)) { return hi; }
+        */
+        return (hi-lo)*t + lo;
+    }
+    Color_Q14 Builder::lerp(Color_Q14 lo, Color_Q14 hi, Q14 t) {
         return {
             lerp(lo.r, hi.r, t),
             lerp(lo.g, hi.g, t),
@@ -1593,6 +1635,35 @@ namespace skvm {
         *r = clip(*r);
         *g = clip(*g);
         *b = clip(*b);
+    }
+
+    Color_Q14 Builder::blend(SkBlendMode mode, Color_Q14 src, Color_Q14 dst) {
+        auto apply_rgba = [&](auto fn) {
+            return Color_Q14 {
+                fn(src.r, dst.r),
+                fn(src.g, dst.g),
+                fn(src.b, dst.b),
+                fn(src.a, dst.a),
+            };
+        };
+        switch (mode) {
+            default: break;  // TODO: modes that don't need sqrt or divide should work fine.
+
+            case SkBlendMode::kClear: return { splat_Q14(0.0f),
+                                               splat_Q14(0.0f),
+                                               splat_Q14(0.0f),
+                                               splat_Q14(0.0f) };
+
+            case SkBlendMode::kSrc: return src;
+            case SkBlendMode::kDst: return dst;
+
+            case SkBlendMode::kDstOver: std::swap(src, dst); [[fallthrough]];
+            case SkBlendMode::kSrcOver:
+                return apply_rgba([&](Q14 s, Q14 d) {
+                    return s + d*(1.0f-src.a);
+                });
+        }
+        return {};
     }
 
     Color Builder::blend(SkBlendMode mode, Color src, Color dst) {

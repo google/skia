@@ -646,8 +646,9 @@ namespace skvm {
         I32 uniform32(Arg ptr, int offset);
         F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
 
-        // Push and load this color as a uniform.
-        Color uniformColor(SkColor4f, Uniforms*);
+        // Push and load a color as a uniform.
+        Color     uniformColor    (SkColor4f, Uniforms*);
+        Color_Q14 uniformColor_Q14(SkColor4f, Uniforms*);
 
         // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
         I32 gather8 (Arg ptr, int offset, I32 index);
@@ -677,9 +678,9 @@ namespace skvm {
         }
 
         // Load an immediate Q14, expressed as either integer (16384, 0x4000) or float (1.0f).
-        Q14 splat_q14(int      n);
-        Q14 splat_q14(unsigned u) { return splat_q14((int)u); }
-        Q14 splat_q14(float    f) { return splat_q14(Q14a{f}.imm); }
+        Q14 splat_Q14(int      n);
+        Q14 splat_Q14(unsigned u) { return splat_Q14((int)u); }
+        Q14 splat_Q14(float    f) { return splat_Q14(Q14a{f}.imm); }
 
         // float math, comparisons, etc.
         F32 add(F32, F32);  F32 add(F32a x, F32a y) { return add(_(x), _(y)); }
@@ -799,6 +800,12 @@ namespace skvm {
         Q14 min(Q14, Q14);  Q14 min(Q14a x, Q14a y) { return min(_(x), _(y)); }
         Q14 max(Q14, Q14);  Q14 max(Q14a x, Q14a y) { return max(_(x), _(y)); }
 
+        Q14 clamp(Q14  x, Q14  lo, Q14  hi) { return max(lo, min(x, hi)); }
+        Q14 clamp(Q14a x, Q14a lo, Q14a hi) { return clamp(_(x), _(lo), _(hi)); }
+
+        Q14 lerp(Q14  lo, Q14  hi, Q14  t);
+        Q14 lerp(Q14a lo, Q14a hi, Q14a t) { return lerp(_(lo), _(hi), _(t)); }
+
         Q14 shl(Q14, int bits);
         Q14 shr(Q14, int bits);
         Q14 sra(Q14, int bits);
@@ -838,8 +845,11 @@ namespace skvm {
         Color   premul(Color c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
         Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
 
-        Color lerp(Color lo, Color hi, F32 t);
-        Color blend(SkBlendMode, Color src, Color dst);
+        Color     lerp(Color     lo, Color     hi, F32 t);
+        Color_Q14 lerp(Color_Q14 lo, Color_Q14 hi, Q14 t);
+
+        Color     blend(SkBlendMode, Color     src, Color     dst);  // always succeeds
+        Color_Q14 blend(SkBlendMode, Color_Q14 src, Color_Q14 dst);  // may return Color_Q14{}
 
         Color clamp01(Color c) {
             return { clamp01(c.r), clamp01(c.g), clamp01(c.b), clamp01(c.a) };
@@ -880,7 +890,7 @@ namespace skvm {
                 SkASSERT(x.builder == this);
                 return {this, x.id};
             }
-            return splat_q14(x.imm);
+            return splat_Q14(x.imm);
         }
 
         bool allImm() const;
@@ -1000,6 +1010,14 @@ namespace skvm {
 
     static inline Q14 max(Q14   x, Q14a y) { return x->max(x,y); }
     static inline Q14 max(float x, Q14  y) { return y->max(x,y); }
+
+    static inline Q14 clamp(Q14   x, Q14a  lo, Q14a hi) { return  x->clamp(x,lo,hi); }
+    static inline Q14 clamp(float x, Q14   lo, Q14a hi) { return lo->clamp(x,lo,hi); }
+    static inline Q14 clamp(float x, float lo, Q14  hi) { return hi->clamp(x,lo,hi); }
+
+    static inline Q14 lerp(Q14   lo, Q14a  hi, Q14a t) { return lo->lerp(lo,hi,t); }
+    static inline Q14 lerp(float lo, Q14   hi, Q14a t) { return hi->lerp(lo,hi,t); }
+    static inline Q14 lerp(float lo, float hi, Q14  t) { return  t->lerp(lo,hi,t); }
 
     static inline Q14 unsigned_avg(Q14   x, Q14a y) { return x->unsigned_avg(x,y); }
     static inline Q14 unsigned_avg(float x, Q14  y) { return y->unsigned_avg(x,y); }
@@ -1251,9 +1269,13 @@ namespace skvm {
     static inline Color   premul(Color c) { return c->  premul(c); }
     static inline Color unpremul(Color c) { return c->unpremul(c); }
 
-    static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
+    static inline Color     lerp(Color     lo, Color     hi, F32 t) { return t->lerp(lo,hi,t); }
+    static inline Color_Q14 lerp(Color_Q14 lo, Color_Q14 hi, Q14 t) { return t->lerp(lo,hi,t); }
 
     static inline Color blend(SkBlendMode m, Color s, Color d) { return s->blend(m,s,d); }
+    static inline Color_Q14 blend(SkBlendMode m, Color_Q14 s, Color_Q14 d) {
+        return s->blend(m,s,d);
+    }
 
     static inline Color clamp01(Color c) { return c->clamp01(c); }
 

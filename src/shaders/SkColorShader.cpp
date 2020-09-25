@@ -92,10 +92,9 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkColorShader::onProgram(skvm::Builder* p,
-                                     skvm::Coord /*device*/, skvm::Coord /*local*/,
-                                     skvm::Color /*paint*/,
-                                     const SkMatrixProvider&, const SkMatrix* /*localM*/,
-                                     SkFilterQuality /*quality*/, const SkColorInfo& dst,
+                                     skvm::Coord, skvm::Coord, skvm::Color,
+                                     const SkMatrixProvider&, const SkMatrix*,
+                                     SkFilterQuality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     SkColor4f color = SkColor4f::FromColor(fColor);
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
@@ -103,15 +102,35 @@ skvm::Color SkColorShader::onProgram(skvm::Builder* p,
     return p->uniformColor(color, uniforms);
 }
 skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
-                                      skvm::Coord /*device*/, skvm::Coord /*local*/,
-                                      skvm::Color /*paint*/,
-                                      const SkMatrixProvider&, const SkMatrix* /*localM*/,
-                                      SkFilterQuality /*quality*/, const SkColorInfo& dst,
+                                      skvm::Coord, skvm::Coord, skvm::Color,
+                                      const SkMatrixProvider&, const SkMatrix*,
+                                      SkFilterQuality, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     SkColor4f color = fColor;
     SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
                             dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
     return p->uniformColor(color, uniforms);
+}
+
+skvm::Color_Q14 SkColorShader::onProgram_Q14(skvm::Builder* p,
+                                             skvm::Coord dev, skvm::Coord local, skvm::Color_Q14,
+                                             const SkMatrixProvider& mp, const SkMatrix* lm,
+                                             SkFilterQuality q, const SkColorInfo& dst,
+                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    SkColor4f color = SkColor4f::FromColor(fColor);
+    SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                              dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
+    return p->uniformColor_Q14(color, uniforms);
+}
+skvm::Color_Q14 SkColor4Shader::onProgram_Q14(skvm::Builder* p,
+                                              skvm::Coord dev, skvm::Coord local, skvm::Color_Q14,
+                                              const SkMatrixProvider& mp, const SkMatrix* lm,
+                                              SkFilterQuality q, const SkColorInfo& dst,
+                                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    SkColor4f color = fColor;
+    SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
+                            dst.colorSpace(),   kPremul_SkAlphaType).apply(color.vec());
+    return p->uniformColor_Q14(color, uniforms);
 }
 
 #if SK_SUPPORT_GPU
