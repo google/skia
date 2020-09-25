@@ -213,10 +213,18 @@ public:
     }
 
     SK_WARN_UNUSED_RESULT
-    skvm::Color program(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device, skvm::Coord local, skvm::Color paint,
                         const SkMatrixProvider&, const SkMatrix* localM,
                         SkFilterQuality quality, const SkColorInfo& dst,
                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
+
+    SK_WARN_UNUSED_RESULT
+    skvm::Color_Q14 program_Q14(skvm::Builder*,
+                                skvm::Coord device, skvm::Coord local, skvm::Color_Q14 paint,
+                                const SkMatrixProvider&, const SkMatrix* localM,
+                                SkFilterQuality quality, const SkColorInfo& dst,
+                                skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);
@@ -249,11 +257,19 @@ private:
     // This is essentially const, but not officially so it can be modified in constructors.
     SkMatrix fLocalMatrix;
 
-    virtual skvm::Color onProgram(skvm::Builder*,
-                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                  const SkMatrixProvider&, const SkMatrix* localM,
-                                  SkFilterQuality quality, const SkColorInfo& dst,
-                                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
+    virtual skvm::Color
+    onProgram(skvm::Builder*,
+              skvm::Coord device, skvm::Coord local, skvm::Color paint,
+              const SkMatrixProvider&, const SkMatrix* localM,
+              SkFilterQuality quality, const SkColorInfo& dst,
+              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
+
+    virtual skvm::Color_Q14
+    onProgram_Q14(skvm::Builder*,
+                  skvm::Coord device, skvm::Coord local, skvm::Color_Q14 paint,
+                  const SkMatrixProvider&, const SkMatrix* localM,
+                  SkFilterQuality quality, const SkColorInfo& dst,
+                  skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
     using INHERITED = SkShader;
 };
