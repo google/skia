@@ -1,0 +1,3 @@
+struct S {};
+
+void main() { S s; s.missing = 123; }
