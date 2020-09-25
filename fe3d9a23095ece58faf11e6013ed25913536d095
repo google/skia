@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b87c32e_b1756e25",
+        "filename": "gm/lcdoverlap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-25T18:26:53Z",
+      "side": 0,
+      "message": "It was because one way computed the bounds with RGB pixel geometry and another with unknown pixel geometry producing different bounds. Since this used to incorrectly draw the text at the left edge of the bounds (instead of the origin of the bounds) this shifted the glyphs. In theory this should not happen as the pixel geometry of the surface should not affect the glyph metrics, but some code paths do not yet support kGenA8FromLCD. See also https://skia-review.googlesource.com/c/skia/+/319696 (FreeType may also need to be updated).",
+      "revId": "fe3d9a23095ece58faf11e6013ed25913536d095",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
