@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a45934d_d4c453c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-25T20:18:10Z",
+      "side": 1,
+      "message": "+Greg - I think Adlai may have left the building",
+      "revId": "d0c3d8bb86a838ec105c9c694a9bf42dbf5ba720",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
