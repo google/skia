@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b44b82e4_092664da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T20:42:47Z",
+      "side": 1,
+      "message": "setLinearMetrics(false) https://screenshot.googleplex.com/5E2MUUxnHuagtLm\nsetLinearMetrics(true) https://screenshot.googleplex.com/ASgRfoZ2yzx8xfM",
+      "revId": "89e66894d58128b6522a45e4e145065def815305",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
