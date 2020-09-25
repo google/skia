@@ -110,7 +110,6 @@ sksl_error_tests = [
   "$_tests/sksl/errors/SwitchDuplicateCase.sksl",
   "$_tests/sksl/errors/SwitchTypes.sksl",
   "$_tests/sksl/errors/SwizzleConstantOutput.sksl",
-  "$_tests/sksl/errors/SwizzleDuplicateOutput.sksl",
   "$_tests/sksl/errors/SwizzleMatrix.sksl",
   "$_tests/sksl/errors/SwizzleOnlyLiterals.sksl",
   "$_tests/sksl/errors/SwizzleOutOfBounds.sksl",

@@ -2810,58 +2810,15 @@ void IRGenerator::checkValid(const Expression& expr) {
     }
 }
 
-bool IRGenerator::checkSwizzleWrite(const Swizzle& swizzle) {
-    int bits = 0;
-    for (int idx : swizzle.fComponents) {
-        SkASSERT(idx <= 3);
-        int bit = 1 << idx;
-        if (bits & bit) {
-            fErrors.error(swizzle.fOffset,
-                          "cannot write to the same swizzle field more than once");
-            return false;
-        }
-        bits |= bit;
+bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) {
+    std::vector<VariableReference*> assignableVars;
+    if (!Analysis::IsAssignable(expr, &assignableVars, fErrors)) {
+        return false;
+    }
+    for (VariableReference* v : assignableVars) {
+        v->setRefKind(kind);
     }
     return true;
-}
-
-bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) {
-    switch (expr.kind()) {
-        case Expression::Kind::kVariableReference: {
-            const Variable& var = *expr.as<VariableReference>().fVariable;
-            if (var.fModifiers.fFlags &
-                (Modifiers::kConst_Flag | Modifiers::kUniform_Flag | Modifiers::kVarying_Flag)) {
-                fErrors.error(expr.fOffset, "cannot modify immutable variable '" + var.fName + "'");
-                return false;
-            }
-            expr.as<VariableReference>().setRefKind(kind);
-            return true;
-        }
-        case Expression::Kind::kFieldAccess:
-            return this->setRefKind(*expr.as<FieldAccess>().fBase, kind);
-        case Expression::Kind::kSwizzle: {
-            const Swizzle& swizzle = expr.as<Swizzle>();
-            return this->checkSwizzleWrite(swizzle) && this->setRefKind(*swizzle.fBase, kind);
-        }
-        case Expression::Kind::kIndex:
-            return this->setRefKind(*expr.as<IndexExpression>().fBase, kind);
-        case Expression::Kind::kTernary: {
-            const TernaryExpression& t = expr.as<TernaryExpression>();
-            return this->setRefKind(*t.fIfTrue, kind) && this->setRefKind(*t.fIfFalse, kind);
-        }
-        case Expression::Kind::kExternalValue: {
-            const ExternalValue& v = *expr.as<ExternalValueReference>().fValue;
-            if (!v.canWrite()) {
-                fErrors.error(expr.fOffset,
-                              "cannot modify immutable external value '" + v.fName + "'");
-                return false;
-            }
-            return true;
-        }
-        default:
-            fErrors.error(expr.fOffset, "cannot assign to this expression");
-            return false;
-    }
 }
 
 void IRGenerator::convertProgram(Program::Kind kind,

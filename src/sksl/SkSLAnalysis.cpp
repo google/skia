@@ -8,6 +8,7 @@
 #include "src/sksl/SkSLAnalysis.h"
 
 #include "include/private/SkSLSampleUsage.h"
+#include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
@@ -206,6 +207,91 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
+// This isn't actually using ProgramVisitor, because it only considers a subset of the fields for
+// any given expression kind. For instance, when indexing an array (e.g. `x[1]`), we only want to
+// know if the base (`x`) is assignable; the index expression (`1`) doesn't need to be.
+class IsAssignableVisitor {
+public:
+    IsAssignableVisitor(std::vector<VariableReference*>* assignableVars, ErrorReporter& errors)
+        : fAssignableVars(assignableVars)
+        , fErrors(errors) {}
+
+    bool visit(Expression& expr) {
+        this->visitExpression(expr);
+        return fErrors.errorCount() == 0;
+    }
+
+    void visitExpression(Expression& expr) {
+        switch (expr.kind()) {
+            case Expression::Kind::kVariableReference: {
+                VariableReference& varRef = expr.as<VariableReference>();
+                const Variable* var = varRef.fVariable;
+                if (var->fModifiers.fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag |
+                                              Modifiers::kVarying_Flag)) {
+                    fErrors.error(expr.fOffset,
+                                  "cannot modify immutable variable '" + var->fName + "'");
+                } else if (fAssignableVars) {
+                    fAssignableVars->push_back(&varRef);
+                }
+                break;
+            }
+            case Expression::Kind::kFieldAccess:
+                this->visitExpression(*expr.as<FieldAccess>().fBase);
+                break;
+
+            case Expression::Kind::kSwizzle: {
+                const Swizzle& swizzle = expr.as<Swizzle>();
+                this->checkSwizzleWrite(swizzle);
+                this->visitExpression(*swizzle.fBase);
+                break;
+            }
+            case Expression::Kind::kIndex:
+                this->visitExpression(*expr.as<IndexExpression>().fBase);
+                break;
+
+            case Expression::Kind::kTernary: {
+                const TernaryExpression& ternary = expr.as<TernaryExpression>();
+                this->visitExpression(*ternary.fIfTrue);
+                this->visitExpression(*ternary.fIfFalse);
+                break;
+            }
+            case Expression::Kind::kExternalValue: {
+                const ExternalValue* var = expr.as<ExternalValueReference>().fValue;
+                if (!var->canWrite()) {
+                    fErrors.error(expr.fOffset,
+                                  "cannot modify immutable external value '" + var->fName + "'");
+                }
+                break;
+            }
+            default:
+                fErrors.error(expr.fOffset, "cannot assign to this expression");
+                break;
+        }
+    }
+
+private:
+    void checkSwizzleWrite(const Swizzle& swizzle) {
+        int bits = 0;
+        for (int idx : swizzle.fComponents) {
+            SkASSERT(idx <= 3);
+            int bit = 1 << idx;
+            if (bits & bit) {
+                fErrors.error(swizzle.fOffset,
+                              "cannot write to the same swizzle field more than once");
+                break;
+            }
+            bits |= bit;
+        }
+    }
+
+    std::vector<VariableReference*>* fAssignableVars;
+    ErrorReporter& fErrors;
+
+    using INHERITED = ProgramVisitor;
+};
+
+
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -235,6 +321,11 @@ int Analysis::NodeCount(const FunctionDefinition& function) {
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {
     return VariableWriteVisitor(&var).visit(stmt);
+}
+
+bool Analysis::IsAssignable(Expression& expr, std::vector<VariableReference*>* assignableVars,
+                            ErrorReporter& errors) {
+    return IsAssignableVisitor{assignableVars, errors}.visit(expr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
