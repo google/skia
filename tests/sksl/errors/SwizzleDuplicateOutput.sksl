@@ -1,4 +1,0 @@
-void main() {
-    float4 test = float4(1);
-    test.xyyz = float4(1);
-}
