@@ -1,6 +1,0 @@
-void main() {
-    half r, g;
-    (sqrt(1) > 0 ? r : g) = half(sqrt(1));
-    (sqrt(0) > 0 ? r : g) = half(sqrt(0));
-    sk_FragColor = half4(r, g, 1, 1);
-}
