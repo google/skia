@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c79b509a_54f6e23a",
+        "filename": "src/sksl/ir/SkSLBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:15:22Z",
+      "side": 1,
+      "message": "This is a lot of boilerplate--and this is the minimal version; it\u0027s missing lots of stuff that would prevent it from being used in any actual STL algorithms (no reference/pointer typedefs, no operator\u003c, no subtraction, etc); I expect eventually we will want to flesh it out and fill in those limitations. \n\nWhat do you think about changing this so instead of\n    `for (Statement\u0026 s : block)`\nWe would do\n    `for (Statement\u0026 s : block.children())`\n\nI think this syntax is more clear anyway (we\u0027re iterating over one PART of the Block object; it\u0027s got more than just statements in it) and it lets us get this boilerplate out of Block and into a separate class, where we could even reuse it if we have a use case.\n\nNot required in this CL at all, and it\u0027s OK if you disagree, but please think it over?",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 5
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eac0d592_ec21f292",
+        "filename": "src/sksl/ir/SkSLBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:15:22Z",
+      "side": 1,
+      "message": "Could be children().size()",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 5
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c10a29e_d1e0e33c",
+        "filename": "src/sksl/ir/SkSLBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:15:22Z",
+      "side": 1,
+      "message": "Could be children().at(index) or children()[index]",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 5
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdc39c0c_8020cacb",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:15:22Z",
+      "side": 1,
+      "message": "We don\u0027t actually have a valid BlockData in dest yet, we have a reference to a bag of uninitialized bytes. To have dest be a valid object, we need to do\n\n    new(\u0026dest) BlockData;\n\nAt that point your shared_ptr is constructed. Now you can just say\n    dest.fSymbolTable \u003d std::move(data.fSymbolTable);\n    dest.fIsScope \u003d data.fIsScope;\n\nOr this if you\u0027re willing to accept a little more action on the shared_ptr:\n    dest \u003d data;\n\nI don\u0027t know if this would work? But a man can dream:\n    dest \u003d std::move(data);",
+      "range": {
+        "startLine": 92,
+        "startChar": 12,
+        "endLine": 93,
+        "endChar": 42
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0170e830_e40f0935",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:15:22Z",
+      "side": 1,
+      "message": "I imagine as this progresses, we\u0027ll have a big ol\u0027 switch here.",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 40
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62ff40b9_dc20b474",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:15:22Z",
+      "side": 1,
+      "message": "Destroy it all!\n    reinterpret_cast\u003cBlockData*\u003e(fBytes)-\u003e~BlockData();",
+      "range": {
+        "startLine": 108,
+        "startChar": 16,
+        "endLine": 108,
+        "endChar": 94
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf3e07f2_71f2d237",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:15:22Z",
+      "side": 1,
+      "message": "Any reason not to add a `\u0026` here, to avoid accidentally incurring a copy if the caller forgets to move?",
+      "range": {
+        "startLine": 113,
+        "startChar": 88,
+        "endLine": 113,
+        "endChar": 89
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
