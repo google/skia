@@ -1008,7 +1008,7 @@ void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
 }
 
 void GLSLCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
-    this->write(b.fValue ? "true" : "false");
+    this->write(b.value() ? "true" : "false");
 }
 
 void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {

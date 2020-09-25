@@ -50,6 +50,8 @@ public:
 
     const Type& type() const {
         switch (fData.fKind) {
+            case NodeData::Kind::kBoolLiteral:
+                return *this->boolLiteralData().fType;
             case NodeData::Kind::kType:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
@@ -68,6 +70,11 @@ protected:
         bool fIsScope;
     };
 
+    struct BoolLiteralData {
+        const Type* fType;
+        bool fValue;
+    };
+
     struct TypeTokenData {
         const Type* fType;
         Token::Kind fToken;
@@ -75,45 +82,64 @@ protected:
 
     struct NodeData {
         char fBytes[std::max({sizeof(BlockData),
+                              sizeof(BoolLiteralData),
                               sizeof(Type*),
                               sizeof(TypeTokenData)})];
 
         enum class Kind {
             kBlock,
+            kBoolLiteral,
             kType,
             kTypeToken,
         } fKind;
 
         NodeData() = default;
 
-        NodeData(BlockData data)
+        NodeData(const BlockData& data)
             : fKind(Kind::kBlock) {
-            new(reinterpret_cast<BlockData*>(fBytes)) BlockData{std::move(data.fSymbolTable),
-                                                                data.fIsScope};
+            *(new(fBytes) BlockData) = data;
+        }
+
+        NodeData(const BoolLiteralData& data)
+            : fKind(Kind::kBoolLiteral) {
+            *(new(fBytes) BoolLiteralData) = data;
         }
 
         NodeData(const Type* data)
             : fKind(Kind::kType) {
-            memcpy(fBytes, &data, sizeof(data));
+            *(new(fBytes) const Type*) = data;
         }
 
-        NodeData(TypeTokenData data)
+        NodeData(const TypeTokenData& data)
             : fKind(Kind::kTypeToken) {
-            memcpy(fBytes, &data, sizeof(data));
+            *(new(fBytes) TypeTokenData) = data;
         }
 
         ~NodeData() {
-            if (fKind == Kind::kBlock) {
-                reinterpret_cast<BlockData*>(fBytes)->~BlockData();
+            switch (fKind) {
+                case Kind::kBlock:
+                    reinterpret_cast<BlockData*>(fBytes)->~BlockData();
+                    break;
+                case Kind::kBoolLiteral:
+                    reinterpret_cast<BoolLiteralData*>(fBytes)->~BoolLiteralData();
+                    break;
+                case Kind::kType:
+                    break;
+                case Kind::kTypeToken:
+                    reinterpret_cast<TypeTokenData*>(fBytes)->~TypeTokenData();
+                    break;
             }
         }
     };
 
-    IRNode(int offset, int kind, BlockData data, std::vector<std::unique_ptr<Statement>> stmts);
+    IRNode(int offset, int kind, const BlockData& data,
+           std::vector<std::unique_ptr<Statement>> stmts);
+
+    IRNode(int offset, int kind, const BoolLiteralData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
-    IRNode(int offset, int kind, TypeTokenData data);
+    IRNode(int offset, int kind, const TypeTokenData& data);
 
     IRNode(const IRNode& other);
 
@@ -164,6 +190,11 @@ protected:
     const BlockData& blockData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kBlock);
         return *reinterpret_cast<const BlockData*>(fData.fBytes);
+    }
+
+    const BoolLiteralData& boolLiteralData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kBoolLiteral);
+        return *reinterpret_cast<const BoolLiteralData*>(fData.fBytes);
     }
 
     const Type* typeData() const {
