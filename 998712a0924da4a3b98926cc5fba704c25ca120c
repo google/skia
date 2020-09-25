@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "d91a3b4a_7308a32e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T16:28:43Z",
+      "side": 1,
+      "message": "I\u0027m speaking as a possible JS client. How do I know what the parameters are, which. ones are optional, etc.?",
+      "parentUuid": "caaab9a8_cd9142cc",
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b53d7b6f_760faf48",
         "filename": "modules/canvaskit/CHANGELOG.md",
         "patchSetId": 10
@@ -89,6 +107,30 @@
       "side": 1,
       "message": "I went with getGlyphBounds and getGlyphWidths instead of getBounds and getWidths because I thought those names are more clear that they work with glyphs (and not text). textToGlyphs didn\u0027t fit as well with those other two names and I wanted to emphasize that it returns GlyphIDs.",
       "parentUuid": "b53d7b6f_760faf48",
+      "range": {
+        "startLine": 61,
+        "startChar": 11,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a5360c3_b9ee1709",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T16:28:43Z",
+      "side": 1,
+      "message": "Hmmm. Not that I really have a pref for one or the other, but I DO have a pref that we try to keep the names the same. If they should be cleared up (by adding Glyph or something), let\u0027s discuss that at a level where we are looking at C++ and JS.",
+      "parentUuid": "eda7bca0_63ca8f93",
       "range": {
         "startLine": 61,
         "startChar": 11,
@@ -160,6 +202,30 @@
       "side": 1,
       "message": "Yeah, it\u0027s so one can get glyph bounds for things like blurred text and things like that. (Not sure what\u0027s exposed in js at the moment, but things like stroked, fake bolded, path effected, mask filtered.)",
       "parentUuid": "067cb752_a35c969f",
+      "range": {
+        "startLine": 204,
+        "startChar": 48,
+        "endLine": 204,
+        "endChar": 57
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "723b97f5_7f52e095",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T16:28:43Z",
+      "side": 1,
+      "message": "Doh, I even added that parameter. Let\u0027s be sure to document to the JS client that is is optional (esp. that it DOESN\u0027T care about colors, shaders, etc.)",
+      "parentUuid": "0a8dca1b_30b2feae",
       "range": {
         "startLine": 204,
         "startChar": 48,
