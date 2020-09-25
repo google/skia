@@ -4,7 +4,6 @@
 // defines built-in interfaces supported by SkiaSL fragment shaders
 
 layout(builtin=15) in float4 sk_FragCoord;
-layout(builtin=3) float sk_ClipDistance[1];
 layout(builtin=20) out int sk_SampleMask[1];
 
 // 9999 is a temporary value that causes us to ignore these declarations beyond

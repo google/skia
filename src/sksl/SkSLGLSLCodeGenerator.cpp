@@ -812,9 +812,6 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_INSTANCEID_BUILTIN:
             this->write("gl_InstanceID");
             break;
-        case SK_CLIPDISTANCE_BUILTIN:
-            this->write("gl_ClipDistance");
-            break;
         case SK_IN_BUILTIN:
             this->write("gl_in");
             break;
@@ -846,19 +843,13 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         this->write(".");
     }
     const Type& baseType = f.fBase->type();
-    switch (baseType.fields()[f.fFieldIndex].fModifiers.fLayout.fBuiltin) {
-        case SK_CLIPDISTANCE_BUILTIN:
-            this->write("gl_ClipDistance");
-            break;
-        default:
-            StringFragment name = baseType.fields()[f.fFieldIndex].fName;
-            if (name == "sk_Position") {
-                this->write("gl_Position");
-            } else if (name == "sk_PointSize") {
-                this->write("gl_PointSize");
-            } else {
-                this->write(baseType.fields()[f.fFieldIndex].fName);
-            }
+    StringFragment name = baseType.fields()[f.fFieldIndex].fName;
+    if (name == "sk_Position") {
+        this->write("gl_Position");
+    } else if (name == "sk_PointSize") {
+        this->write("gl_PointSize");
+    } else {
+        this->write(baseType.fields()[f.fFieldIndex].fName);
     }
 }
 

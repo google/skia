@@ -149,8 +149,6 @@ sksl_shared_tests = [
   "$_tests/sksl/shared/BoolFolding.sksl",
   "$_tests/sksl/shared/Caps.sksl",
   "$_tests/sksl/shared/CastsRoundTowardZero.sksl",
-  "$_tests/sksl/shared/ClipDistanceFragment.sksl",
-  "$_tests/sksl/shared/ClipDistanceVertex.vert",
   "$_tests/sksl/shared/Clockwise.sksl",
   "$_tests/sksl/shared/ComplexDelete.sksl",
   "$_tests/sksl/shared/ConstArray.sksl",
