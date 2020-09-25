@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "5adf8770_943a911d",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-25T15:54:31Z",
+      "side": 1,
+      "message": "Yet another option is to remove all use from Skia and put the globals and the old behavior behind a flag (which would be set in Chromium\u0027s build of Skia to keep the old behavior) and then make the Chromium side change while removing the build flag to both remove the globals and change the behavior of \u0027nullptr\u0027 at the same time (to be kUnknown instead of Legacy).\n\nI\u0027ve started in on https://skia-review.googlesource.com/c/skia/+/319343 which is more or less what needs to be done Skia side. This has unfortunately uncovered some knock on things which will need to be fixed as well (like https://skia-review.googlesource.com/c/skia/+/319696 and possibly others) where there was a subtle dependency on the globals providing a consistent default.",
+      "parentUuid": "5ff30c3e_156c08e0",
+      "revId": "19bf7a8414acc6b88fda55a2df404eacbf8ecc77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fda9e410_f9ddd625",
         "filename": "src/image/SkSurface.cpp",
         "patchSetId": 3
