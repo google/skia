@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb657479_71166ec7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-25T17:57:23Z",
+      "side": 1,
+      "message": "This makes sense to me, but there are chrome layout tests that will need to be suppressed before this can go into skia without breaking our auto-roller. I don\u0027t fully understand what goes into an svg invalidation, but it seems reasonable to expect that they would invalidate less now that we report a better forward bounds.",
+      "revId": "f79450d96d64427be4991761232ad9664813143b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
