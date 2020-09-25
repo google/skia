@@ -2914,8 +2914,8 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
 }
 
 void SPIRVCodeGenerator::writeBlock(const Block& b, OutputStream& out) {
-    for (size_t i = 0; i < b.fStatements.size(); i++) {
-        this->writeStatement(*b.fStatements[i], out);
+    for (const std::unique_ptr<Statement>& stmt : b.children()) {
+        this->writeStatement(*stmt, out);
     }
 }
 

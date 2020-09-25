@@ -1090,7 +1090,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             body = this->applyInvocationIDWorkaround(std::move(body));
         }
         if (Program::kVertex_Kind == fKind && funcData.fName == "main" && fRTAdjust) {
-            body->fStatements.insert(body->fStatements.end(), this->getNormalizeSkPositionCode());
+            body->children().push_back(this->getNormalizeSkPositionCode());
         }
         auto result = std::make_unique<FunctionDefinition>(f.fOffset, *decl, std::move(body),
                                                            std::move(fReferencedIntrinsics));

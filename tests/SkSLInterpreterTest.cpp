@@ -974,7 +974,7 @@ class PointerExternalValue : public SkSL::ExternalValue {
 public:
     PointerExternalValue(const char* name, const SkSL::Type& type, void* data, size_t size)
         : INHERITED(name, type)
-        , fData(data)
+        , fBytes(data)
         , fSize(size) {}
 
     bool canRead() const override {
@@ -986,16 +986,16 @@ public:
     }
 
     void read(int /*unusedIndex*/, float* target) const override {
-        memcpy(target, fData, fSize);
+        memcpy(target, fBytes, fSize);
     }
 
     void write(int /*unusedIndex*/, float* src) const override {
-        memcpy(fData, src, fSize);
+        memcpy(fBytes, src, fSize);
     }
 
 
 private:
-    void* fData;
+    void* fBytes;
     size_t fSize;
 
     using INHERITED = SkSL::ExternalValue;
