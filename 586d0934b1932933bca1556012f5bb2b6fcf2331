@@ -16,6 +16,24 @@
       "revId": "586d0934b1932933bca1556012f5bb2b6fcf2331",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03e1c565_76d2c26c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T14:39:34Z",
+      "side": 1,
+      "message": "It\u0027s just Metal dropping a draw :) Just a flake. We need to take down that Metal bot.",
+      "parentUuid": "9c6ddf2a_cc8ae2d0",
+      "revId": "586d0934b1932933bca1556012f5bb2b6fcf2331",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
