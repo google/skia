@@ -417,6 +417,9 @@ SkIRect SkDisplacementMapEffectImpl::onFilterNodeBounds(
 
 SkIRect SkDisplacementMapEffectImpl::onFilterBounds(
         const SkIRect& src, const SkMatrix& ctm, MapDirection dir, const SkIRect* inputRect) const {
+    if (kReverse_MapDirection == dir) {
+        return INHERITED::onFilterBounds(src, ctm, dir, inputRect);
+    }
     // Recurse only into color input.
     if (this->getColorInput()) {
         return this->getColorInput()->filterBounds(src, ctm, dir, inputRect);
