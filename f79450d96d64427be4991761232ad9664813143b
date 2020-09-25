@@ -16,6 +16,24 @@
       "revId": "f79450d96d64427be4991761232ad9664813143b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c497c421_a2d0d293",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2020-09-25T19:38:38Z",
+      "side": 1,
+      "message": "Yes, these tests are one of the reasons that I noticed this issue, and AFAICT the results are now as expected/better. I can add the disabling expectations and handle the rebaselines if needed.",
+      "parentUuid": "bb657479_71166ec7",
+      "revId": "f79450d96d64427be4991761232ad9664813143b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
