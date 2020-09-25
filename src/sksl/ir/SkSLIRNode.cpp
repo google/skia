@@ -11,6 +11,12 @@
 
 namespace SkSL {
 
+IRNode::IRNode(int offset, int kind, BlockData data, std::vector<std::unique_ptr<Statement>> stmts)
+: fOffset(offset)
+, fKind(kind)
+, fData(data)
+, fStatementChildren(std::move(stmts)) {}
+
 IRNode::IRNode(int offset, int kind, const Type* data)
 : fOffset(offset)
 , fKind(kind)

@@ -484,11 +484,13 @@ static bool is_true(Expression& expr) {
 
 void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
     switch ((*s)->kind()) {
-        case Statement::Kind::kBlock:
-            for (auto& child : (*s)->as<Block>().fStatements) {
-                addStatement(cfg, &child);
+        case Statement::Kind::kBlock: {
+            Block& block = (*s)->as<Block>();
+            for (int i = 0; i < block.childCount(); ++i) {
+                addStatement(cfg, &block.childPointer(i));
             }
             break;
+        }
         case Statement::Kind::kIf: {
             IfStatement& ifs = (*s)->as<IfStatement>();
             this->addExpression(cfg, &ifs.fTest, /*constantPropagate=*/true);
