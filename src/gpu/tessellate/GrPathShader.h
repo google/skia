@@ -13,6 +13,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrProgramInfo.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
  // This is a common base class for shaders in the GPU tessellator.
 class GrPathShader : public GrGeometryProcessor {
@@ -40,13 +41,9 @@ public:
                                           GrXferBarrierFlags renderPassXferBarriers,
                                           const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
-        GrPipeline::InitArgs pipelineArgs;
-        pipelineArgs.fInputFlags = pipelineFlags;
-        pipelineArgs.fCaps = &caps;
-        pipelineArgs.fDstProxyView = dstProxyView;
-        pipelineArgs.fWriteSwizzle = writeView->swizzle();
-        auto* pipeline = arena->make<GrPipeline>(pipelineArgs, std::move(processors),
-                                                 std::move(appliedClip));
+        auto* pipeline = GrSimpleMeshDrawOpHelper::CreatePipeline(
+                &caps, arena, writeView->swizzle(), std::move(appliedClip), dstProxyView,
+                std::move(processors), pipelineFlags);
         return MakeProgramInfo(shader, arena, writeView, pipeline, dstProxyView,
                                renderPassXferBarriers, stencil, caps);
     }
