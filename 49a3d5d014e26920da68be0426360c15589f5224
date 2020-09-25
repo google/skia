@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "52f4f014_95ea1c57",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c408eb77_b1c7f5f1",
+      "range": {
+        "startLine": 24,
+        "startChar": 41,
+        "endLine": 24,
+        "endChar": 42
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdda861b_a7896fcd",
         "filename": "src/sksl/ir/SkSLBoolLiteral.h",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "49a3d5d014e26920da68be0426360c15589f5224",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f014c70e_641c97d3",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdda861b_a7896fcd",
+      "range": {
+        "startLine": 43,
+        "startChar": 25,
+        "endLine": 43,
+        "endChar": 46
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9d4cf745_d9815e5b",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fe183dc_26f15726",
+      "range": {
+        "startLine": 53,
+        "startChar": 41,
+        "endLine": 53,
+        "endChar": 42
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63bd41c2_17fed295",
         "filename": "src/sksl/ir/SkSLBoolLiteral.h",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2020-09-25T20:40:08Z",
       "side": 1,
       "message": "Why moved to private?",
+      "range": {
+        "startLine": 55,
+        "startChar": 1,
+        "endLine": 55,
+        "endChar": 33
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16940314_c1f65519",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Seemed like having it be public in the first place was a mistake. I can\u0027t imagine any reason anyone outside of this class would care about it.",
+      "parentUuid": "63bd41c2_17fed295",
       "range": {
         "startLine": 55,
         "startChar": 1,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "8e81170f_e68c4419",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d698a24_dbd20f1d",
+      "range": {
+        "startLine": 98,
+        "startChar": 17,
+        "endLine": 98,
+        "endChar": 26
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7076d802_e8541c54",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 1
@@ -137,6 +257,30 @@
       "revId": "49a3d5d014e26920da68be0426360c15589f5224",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04ab4dc2_2a96d8fb",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7076d802_e8541c54",
+      "range": {
+        "startLine": 100,
+        "startChar": 16,
+        "endLine": 100,
+        "endChar": 52
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "27072a1c_30421f6d",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ee9f5ee_804746de",
+      "range": {
+        "startLine": 104,
+        "startChar": 17,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0d5bc1a_beb8276e",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 1
@@ -183,6 +351,30 @@
       "revId": "49a3d5d014e26920da68be0426360c15589f5224",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01bd92fc_9763eb9c",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0d5bc1a_beb8276e",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 106,
+        "endChar": 48
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "ddbf0336_a0fc6912",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f65589d_5c164495",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 13
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c3d92927_b2d14910",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 1
@@ -229,6 +445,30 @@
       "revId": "49a3d5d014e26920da68be0426360c15589f5224",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1402c4e_fddfb014",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T21:22:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3d92927_b2d14910",
+      "range": {
+        "startLine": 126,
+        "startChar": 33,
+        "endLine": 126,
+        "endChar": 42
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
