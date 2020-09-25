@@ -322,10 +322,10 @@ bool SkRRect::contains(const SkRect& rect) const {
 }
 
 static bool radii_are_nine_patch(const SkVector radii[4]) {
-    return radii[SkRRect::kUpperLeft_Corner].fX == radii[SkRRect::kLowerLeft_Corner].fX &&
-           radii[SkRRect::kUpperLeft_Corner].fY == radii[SkRRect::kUpperRight_Corner].fY &&
-           radii[SkRRect::kUpperRight_Corner].fX == radii[SkRRect::kLowerRight_Corner].fX &&
-           radii[SkRRect::kLowerLeft_Corner].fY == radii[SkRRect::kLowerRight_Corner].fY;
+    return SkScalarNearlyEqual(radii[SkRRect::kUpperLeft_Corner].fX, radii[SkRRect::kLowerLeft_Corner].fX) &&
+           SkScalarNearlyEqual(radii[SkRRect::kUpperLeft_Corner].fY, radii[SkRRect::kUpperRight_Corner].fY) &&
+           SkScalarNearlyEqual(radii[SkRRect::kUpperRight_Corner].fX, radii[SkRRect::kLowerRight_Corner].fX) &&
+           SkScalarNearlyEqual(radii[SkRRect::kLowerLeft_Corner].fY, radii[SkRRect::kLowerRight_Corner].fY);
 }
 
 // There is a simplified version of this method in setRectXY
