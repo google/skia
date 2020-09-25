@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "81f83174_cdbdf24f",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T17:41:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4690cc91_22d743b5",
+      "range": {
+        "startLine": 99,
+        "startChar": 48,
+        "endLine": 99,
+        "endChar": 83
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c79b509a_54f6e23a",
         "filename": "src/sksl/ir/SkSLBlock.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "9d59366602dfdbae07332ae90657fe607797442b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f76b8021_3c6590a6",
+        "filename": "src/sksl/ir/SkSLBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T17:41:25Z",
+      "side": 1,
+      "message": "The original intent was to mostly hide the unique_ptrs for now, since they\u0027re going away anyway, and move to a children() vector later, but I agree we\u0027d be better served doing it this way around.",
+      "parentUuid": "c79b509a_54f6e23a",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 102,
+        "endChar": 5
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5ca1afd9_0d86eb32",
+        "filename": "src/sksl/ir/SkSLBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T17:41:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eac0d592_ec21f292",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 106,
+        "endChar": 5
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9c10a29e_d1e0e33c",
         "filename": "src/sksl/ir/SkSLBlock.h",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "4aee5bb6_4eff70a9",
+        "filename": "src/sksl/ir/SkSLBlock.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T17:41:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c10a29e_d1e0e33c",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 5
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fdc39c0c_8020cacb",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 2
@@ -114,6 +210,30 @@
       "revId": "9d59366602dfdbae07332ae90657fe607797442b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65fac036_a0c3978d",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T17:41:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fdc39c0c_8020cacb",
+      "range": {
+        "startLine": 92,
+        "startChar": 12,
+        "endLine": 93,
+        "endChar": 42
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "f407cdab_06213114",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T17:41:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62ff40b9_dc20b474",
+      "range": {
+        "startLine": 108,
+        "startChar": 16,
+        "endLine": 108,
+        "endChar": 94
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cf3e07f2_71f2d237",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 2
@@ -183,6 +327,30 @@
       "revId": "9d59366602dfdbae07332ae90657fe607797442b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45b248b5_a416d5ac",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T17:41:25Z",
+      "side": 1,
+      "message": "As discussed in chat, I\u0027m not a huge fan of not signaling the std::move at the call site.",
+      "parentUuid": "cf3e07f2_71f2d237",
+      "range": {
+        "startLine": 113,
+        "startChar": 88,
+        "endLine": 113,
+        "endChar": 89
+      },
+      "revId": "9d59366602dfdbae07332ae90657fe607797442b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
