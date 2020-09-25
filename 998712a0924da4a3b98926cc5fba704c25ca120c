@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfbadef4_f90c6958",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T14:52:46Z",
+      "side": 1,
+      "message": "Any additional feedback on the APIs I\u0027ve exposed or how I\u0027ve exposed them?",
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

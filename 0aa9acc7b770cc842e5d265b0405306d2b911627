@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6096e7d3_ef581cf0",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T14:52:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8270b1b4_30ba9454",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 58
+      },
+      "revId": "0aa9acc7b770cc842e5d265b0405306d2b911627",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e646482_857454af",
         "filename": "modules/canvaskit/canvaskit/shaping.html",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "0aa9acc7b770cc842e5d265b0405306d2b911627",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "320492c9_2a443ae4",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T14:52:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e646482_857454af",
+      "range": {
+        "startLine": 71,
+        "startChar": 34,
+        "endLine": 71,
+        "endChar": 40
+      },
+      "revId": "0aa9acc7b770cc842e5d265b0405306d2b911627",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
