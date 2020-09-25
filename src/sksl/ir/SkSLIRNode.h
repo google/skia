@@ -50,6 +50,8 @@ public:
 
     const Type& type() const {
         switch (fData.fKind) {
+            case NodeData::Kind::kBoolLiteral:
+                return *this->boolLiteralData().fType;
             case NodeData::Kind::kType:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
@@ -68,6 +70,11 @@ protected:
         bool fIsScope;
     };
 
+    struct BoolLiteralData {
+        const Type* fType;
+        bool fValue;
+    };
+
     struct TypeTokenData {
         const Type* fType;
         Token::Kind fToken;
@@ -75,11 +82,13 @@ protected:
 
     struct NodeData {
         char fBytes[std::max({sizeof(BlockData),
+                              sizeof(BoolLiteralData),
                               sizeof(Type*),
                               sizeof(TypeTokenData)})];
 
         enum class Kind {
             kBlock,
+            kBoolLiteral,
             kType,
             kTypeToken,
         } fKind;
@@ -90,6 +99,11 @@ protected:
             : fKind(Kind::kBlock) {
             new(reinterpret_cast<BlockData*>(fBytes)) BlockData{std::move(data.fSymbolTable),
                                                                 data.fIsScope};
+        }
+
+        NodeData(BoolLiteralData data)
+            : fKind(Kind::kBoolLiteral) {
+            memcpy(fBytes, &data, sizeof(data));
         }
 
         NodeData(const Type* data)
@@ -110,6 +124,8 @@ protected:
     };
 
     IRNode(int offset, int kind, BlockData data, std::vector<std::unique_ptr<Statement>> stmts);
+
+    IRNode(int offset, int kind, BoolLiteralData data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -164,6 +180,11 @@ protected:
     const BlockData& blockData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kBlock);
         return *reinterpret_cast<const BlockData*>(fData.fBytes);
+    }
+
+    const BoolLiteralData& boolLiteralData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kBoolLiteral);
+        return *reinterpret_cast<const BoolLiteralData*>(fData.fBytes);
     }
 
     const Type* typeData() const {
