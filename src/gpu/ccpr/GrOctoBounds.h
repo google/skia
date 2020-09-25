@@ -101,7 +101,7 @@ public:
     constexpr static float Get_x(float x45, float y45) { return (x45 + y45) * .5f; }
     constexpr static float Get_y(float x45, float y45) { return (y45 - x45) * .5f; }
 
-#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
+#if defined(SK_DEBUG) || GR_TEST_UTILS
     void validateBoundsAreTight() const;
     void validateBoundsAreTight(const std::function<void(
             bool cond, const char* file, int line, const char* code)>& validateFn) const;

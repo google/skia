@@ -525,10 +525,12 @@ public:
         void incTextureCreates() {}
         void incTextureUploads() {}
         void incTransfersToTexture() {}
+        void incTransfersFromSurface() {}
         void incStencilAttachmentCreates() {}
         void incNumDraws() {}
         void incNumFailedDraws() {}
         void incNumSubmitToGpus() {}
+        void incNumScratchTexturesReused() {}
         void incNumInlineCompilationFailures() {}
         void incNumInlineProgramCacheResult(ProgramCacheResult stat) {}
         void incNumPreCompilationFailures() {}
