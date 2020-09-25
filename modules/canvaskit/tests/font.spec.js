@@ -183,6 +183,70 @@ describe('Font Behavior', () => {
         fontMgr.delete();
     });
 
+    gm('textblobs_with_glyphs', (canvas) => {
+        canvas.clear(CanvasKit.WHITE);
+        const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+        const notoSerif = fontMgr.MakeTypefaceFromData(notoSerifFontBuffer);
+
+        const font = new CanvasKit.SkFont(notoSerif, 24);
+        const bluePaint = new CanvasKit.SkPaint();
+        bluePaint.setColor(CanvasKit.parseColorString('#04083f')); // arbitrary deep blue
+        bluePaint.setAntiAlias(true);
+        bluePaint.setStyle(CanvasKit.PaintStyle.Fill);
+
+        const redPaint = new CanvasKit.SkPaint();
+        redPaint.setColor(CanvasKit.parseColorString('#770b1e')); // arbitrary deep red
+
+        const ids = font.getGlyphIDs('AEGIS ægis');
+        expect(ids.length).toEqual(10); // one glyph id per glyph
+        expect(ids[0]).toEqual(36); // spot check this, should be consistent as long as the font is.
+
+        const bounds = font.getGlyphBounds(ids, bluePaint);
+        expect(bounds.length).toEqual(40); // 4 measurements per glyph
+        expect(bounds[0]).toEqual(0); // again, spot check the measurements for the first glyph.
+        expect(bounds[1]).toEqual(-17);
+        expect(bounds[2]).toEqual(17);
+        expect(bounds[3]).toEqual(0);
+
+        const widths = font.getGlyphWidths(ids, bluePaint);
+        expect(widths.length).toEqual(10); // 1 width per glyph
+        expect(widths[0]).toEqual(17);
+
+        const topBlob = CanvasKit.SkTextBlob.MakeFromGlyphs(ids, font);
+        canvas.drawTextBlob(topBlob, 5, 30, bluePaint);
+        canvas.drawTextBlob(topBlob, 5, 60, redPaint);
+        topBlob.delete();
+
+        const mIDs = CanvasKit.MallocGlyphIDs(ids.length);
+        const mArr = mIDs.toTypedArray();
+        mArr.set(ids);
+
+        const mXforms = CanvasKit.Malloc(Float32Array, ids.length * 4);
+        const mXformsArr = mXforms.toTypedArray();
+        // Draw each glyph rotated slightly and slightly lower than the glyph before it.
+        let currX = 0;
+        for (let i = 0; i < ids.length; i++) {
+            mXformsArr[i * 4] = Math.cos(-Math.PI / 16); // scos
+            mXformsArr[i * 4 + 1] = Math.sin(-Math.PI / 16); // ssin
+            mXformsArr[i * 4 + 2] = currX; // tx
+            mXformsArr[i * 4 + 3] = i*2; // ty
+            currX += widths[i];
+        }
+
+        const bottomBlob = CanvasKit.SkTextBlob.MakeFromRSXformGlyphs(mIDs, mXforms, font);
+        canvas.drawTextBlob(bottomBlob, 5, 110, bluePaint);
+        canvas.drawTextBlob(bottomBlob, 5, 140, redPaint);
+        bottomBlob.delete();
+
+        CanvasKit.Free(mIDs);
+        CanvasKit.Free(mXforms);
+        bluePaint.delete();
+        redPaint.delete();
+        notoSerif.delete();
+        font.delete();
+        fontMgr.delete();
+    });
+
     it('can make a font mgr with passed in fonts', () => {
         // CanvasKit.SkFontMgr.FromData([bungeeFontBuffer, notoSerifFontBuffer]) also works
         const fontMgr = CanvasKit.SkFontMgr.FromData(bungeeFontBuffer, notoSerifFontBuffer);
