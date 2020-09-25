@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "caaab9a8_cd9142cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T15:21:03Z",
+      "side": 1,
+      "message": "When you say clear declaration of the parameters, are you talking about where the public versions are declared in font.js or the (internal) declarations in canvaskit_bindings.cpp?\n\nAt the moment, you can just omit the rs part of rsxforms and get a translate. This is at the cost of sending twice as much data across the wire as needed for the xforms. Should I add another API for positions?",
+      "parentUuid": "c2f9c575_b92f227b",
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b53d7b6f_760faf48",
         "filename": "modules/canvaskit/CHANGELOG.md",
         "patchSetId": 10
@@ -47,6 +65,30 @@
       "writtenOn": "2020-09-25T14:59:42Z",
       "side": 1,
       "message": "is this (in C) textToGlyphs? If so, why the diff name? If textToGlyphs is not clear, let\u0027s make the case to change both C and JS.",
+      "range": {
+        "startLine": 61,
+        "startChar": 11,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eda7bca0_63ca8f93",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T15:21:03Z",
+      "side": 1,
+      "message": "I went with getGlyphBounds and getGlyphWidths instead of getBounds and getWidths because I thought those names are more clear that they work with glyphs (and not text). textToGlyphs didn\u0027t fit as well with those other two names and I wanted to emphasize that it returns GlyphIDs.",
+      "parentUuid": "b53d7b6f_760faf48",
       "range": {
         "startLine": 61,
         "startChar": 11,
@@ -82,6 +124,30 @@
     },
     {
       "key": {
+        "uuid": "067cb752_a35c969f",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T15:21:03Z",
+      "side": 1,
+      "message": "Because https://github.com/google/skia/blob/3b88c0772e89122cd1c999ce086cd7f2cb15dcb8/include/core/SkFont.h#L397 includes an option for a paint and I want to make sure passing in a paint compiles and runs.",
+      "parentUuid": "b8ec95c2_c949ed2d",
+      "range": {
+        "startLine": 204,
+        "startChar": 48,
+        "endLine": 204,
+        "endChar": 57
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fcec5ed1_52b8dbcd",
         "filename": "modules/canvaskit/tests/font.spec.js",
         "patchSetId": 10
@@ -102,6 +168,30 @@
       "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcfcf20b_99f17e76",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T15:21:03Z",
+      "side": 1,
+      "message": "See above.",
+      "parentUuid": "fcec5ed1_52b8dbcd",
+      "range": {
+        "startLine": 211,
+        "startChar": 48,
+        "endLine": 211,
+        "endChar": 57
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
