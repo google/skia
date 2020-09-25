@@ -79,9 +79,10 @@ public:
 
         SkMatrix invM;
         SkRect rect;
-        if (viewMatrix.isScaleTranslate()) {
+        if (viewMatrix.rectStaysRect()) {
             invM = SkMatrix::I();
-            // We can do everything in device space when there is no rotation.
+            // We can do everything in device space when the src rect projects to a rect in device
+            // space.
             SkAssertResult(viewMatrix.mapRect(&rect, srcRect));
         } else {
             // The view matrix may scale, perhaps anisotropically. But we want to apply our device
