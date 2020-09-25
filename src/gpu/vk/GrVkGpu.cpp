@@ -2024,7 +2024,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
       return {};
     }
 
-    return GrBackendRenderTarget(w, h, 1, 0, info);
+    return GrBackendRenderTarget(w, h, 1, info);
 }
 
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {

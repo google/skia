@@ -428,12 +428,6 @@ public:
 #endif
 
 #ifdef SK_VULKAN
-    /** Deprecated, use version that does not take stencil bits. */
-    GrBackendRenderTarget(int width,
-                          int height,
-                          int sampleCnt,
-                          int stencilBits,
-                          const GrVkImageInfo& vkInfo);
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
 #endif
 
