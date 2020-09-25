@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "67b6edc3_122f0656",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T12:34:56Z",
+      "side": 1,
+      "message": "Changed the name so I\u0027m not conflating glyph with code points.\n\nAlso updated the logic to properly deal with code points that require \u003e 16 bits.\n\nSo this maps unicode code points (even those \u003e 16 bits) to glyphIDs. The code to draw has also been updated to properly look up code points instead of a WTF-16 unit.",
+      "parentUuid": "7932a0f0_b7ed3c0b",
+      "range": {
+        "startLine": 70,
+        "startChar": 6,
+        "endLine": 70,
+        "endChar": 21
+      },
+      "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d92c9959_1b4c83dd",
         "filename": "modules/canvaskit/canvaskit_bindings.cpp",
         "patchSetId": 7
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "Emscripten provides some helpers for converting to UTF-8. I used those in the beginning, and I sort of like it because it helps convince me that the bytes are correct when I pass them from JS to WASM. I\u0027m happy to be wrong here, but so far nobody has complained too much about the overhead.",
       "parentUuid": "d92c9959_1b4c83dd",
+      "range": {
+        "startLine": 1229,
+        "startChar": 66,
+        "endLine": 1229,
+        "endChar": 87
+      },
+      "revId": "1a89f0aa483f169a5b7bb178d2854be690520e04",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5f3a58b_2c4de20a",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T12:34:56Z",
+      "side": 1,
+      "message": "One more thing, from JS, I can\u0027t easily say \"give me a string as bytes\" like I can in C++. I have to extract it character by character. While doing this, I might as well make sure the input is valid.",
+      "parentUuid": "1e0a5a85_38d5b980",
       "range": {
         "startLine": 1229,
         "startChar": 66,
