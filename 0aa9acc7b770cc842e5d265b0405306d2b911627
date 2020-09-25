@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8270b1b4_30ba9454",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-25T14:27:08Z",
+      "side": 1,
+      "message": "Not sure if always clearer, but the unambiguous term is \u0027code unit\u0027 (see https://unicode.org/glossary/#code_unit ).",
+      "range": {
+        "startLine": 70,
+        "startChar": 44,
+        "endLine": 70,
+        "endChar": 58
+      },
+      "revId": "0aa9acc7b770cc842e5d265b0405306d2b911627",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e646482_857454af",
+        "filename": "modules/canvaskit/canvaskit/shaping.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-25T14:27:08Z",
+      "side": 1,
+      "message": "index?",
+      "range": {
+        "startLine": 71,
+        "startChar": 34,
+        "endLine": 71,
+        "endChar": 40
+      },
+      "revId": "0aa9acc7b770cc842e5d265b0405306d2b911627",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
