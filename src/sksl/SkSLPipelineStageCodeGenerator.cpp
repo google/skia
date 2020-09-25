@@ -178,8 +178,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     StringStream buffer;
     fOut = &buffer;
     if (f.fDeclaration.fName == "main") {
-        for (const std::unique_ptr<Statement>& s : f.fBody->as<Block>().fStatements) {
-            this->writeStatement(*s);
+        for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
+            this->writeStatement(*stmt);
             this->writeLine();
         }
         fOut = oldOut;
@@ -201,8 +201,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
             }
             result.fParameters.emplace_back(v->fName, paramSLType);
         }
-        for (const std::unique_ptr<Statement>& s : f.fBody->as<Block>().fStatements) {
-            this->writeStatement(*s);
+        for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
+            this->writeStatement(*stmt);
             this->writeLine();
         }
         fOut = oldOut;

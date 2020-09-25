@@ -12,11 +12,14 @@
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLString.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace SkSL {
 
 struct Expression;
+struct Statement;
+class SymbolTable;
 class Type;
 
 /**
@@ -57,21 +60,37 @@ public:
     }
 
 protected:
+    struct BlockData {
+        std::shared_ptr<SymbolTable> fSymbolTable;
+        // if isScope is false, this is just a group of statements rather than an actual
+        // language-level block. This allows us to pass around multiple statements as if they were a
+        // single unit, with no semantic impact.
+        bool fIsScope;
+    };
+
     struct TypeTokenData {
         const Type* fType;
         Token::Kind fToken;
     };
 
     struct NodeData {
-        char fBytes[std::max(sizeof(Type*),
-                             sizeof(TypeTokenData))];
+        char fBytes[std::max({sizeof(BlockData),
+                              sizeof(Type*),
+                              sizeof(TypeTokenData)})];
 
         enum class Kind {
+            kBlock,
             kType,
             kTypeToken,
         } fKind;
 
         NodeData() = default;
+
+        NodeData(BlockData data)
+            : fKind(Kind::kBlock) {
+            new(reinterpret_cast<BlockData*>(fBytes)) BlockData{std::move(data.fSymbolTable),
+                                                                data.fIsScope};
+        }
 
         NodeData(const Type* data)
             : fKind(Kind::kType) {
@@ -82,7 +101,15 @@ protected:
             : fKind(Kind::kTypeToken) {
             memcpy(fBytes, &data, sizeof(data));
         }
+
+        ~NodeData() {
+            if (fKind == Kind::kBlock) {
+                reinterpret_cast<BlockData*>(fBytes)->~BlockData();
+            }
+        }
     };
+
+    IRNode(int offset, int kind, BlockData data, std::vector<std::unique_ptr<Statement>> stmts);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -91,36 +118,80 @@ protected:
     IRNode(const IRNode& other);
 
     Expression& expressionChild(int index) const {
+        SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
         return *fExpressionChildren[index];
     }
 
     std::unique_ptr<Expression>& expressionPointer(int index) {
+        SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
         return fExpressionChildren[index];
     }
 
     const std::unique_ptr<Expression>& expressionPointer(int index) const {
+        SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
         return fExpressionChildren[index];
     }
 
-    Type* typeData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kType);
-        Type* result;
-        memcpy(&result, fData.fBytes, sizeof(result));
-        return result;
+    int expressionChildCount() const {
+        return fExpressionChildren.size();
     }
 
-    TypeTokenData typeTokenData() const {
+
+    Statement& statementChild(int index) const {
+        SkASSERT(index >= 0 && index < (int) fStatementChildren.size());
+        return *fStatementChildren[index];
+    }
+
+    std::unique_ptr<Statement>& statementPointer(int index) {
+        SkASSERT(index >= 0 && index < (int) fStatementChildren.size());
+        return fStatementChildren[index];
+    }
+
+    const std::unique_ptr<Statement>& statementPointer(int index) const {
+        SkASSERT(index >= 0 && index < (int) fStatementChildren.size());
+        return fStatementChildren[index];
+    }
+
+    int statementChildCount() const {
+        return fStatementChildren.size();
+    }
+
+    BlockData& blockData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kBlock);
+        return *reinterpret_cast<BlockData*>(fData.fBytes);
+    }
+
+    const BlockData& blockData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kBlock);
+        return *reinterpret_cast<const BlockData*>(fData.fBytes);
+    }
+
+    const Type* typeData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kType);
+        return *reinterpret_cast<const Type* const*>(fData.fBytes);
+    }
+
+    const TypeTokenData& typeTokenData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kTypeToken);
-        TypeTokenData result;
-        memcpy(&result, fData.fBytes, sizeof(result));
-        return result;
+        return *reinterpret_cast<const TypeTokenData*>(fData.fBytes);
     }
 
     int fKind;
-    std::vector<std::unique_ptr<Expression>> fExpressionChildren;
 
-private:
     NodeData fData;
+
+    // Needing two separate vectors is a temporary issue. Ideally, we'd just be able to use a single
+    // vector of nodes, but there are various spots where we take pointers to std::unique_ptr<>,
+    // and it isn't safe to pun std::unique_ptr<IRNode> to std::unique_ptr<Statement / Expression>.
+    // And we can't update the call sites to expect std::unique_ptr<IRNode> while there are still
+    // old-style nodes around.
+    // When the transition is finished, we'll be able to drop the unique_ptrs and just handle
+    // <IRNode> directly.
+    std::vector<std::unique_ptr<Expression>> fExpressionChildren;
+    // it's important to keep fStatements defined after (and thus destroyed before) fData,
+    // because destroying statements can modify reference counts in a SymbolTable contained in fData
+    std::vector<std::unique_ptr<Statement>> fStatementChildren;
+
 };
 
 }  // namespace SkSL
