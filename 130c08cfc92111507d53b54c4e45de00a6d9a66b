@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d3d76c6e_67498c26",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 26
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T19:52:38Z",
+      "side": 1,
+      "message": "Before or after this lands?",
+      "parentUuid": "753380d0_2d22b7d5",
+      "range": {
+        "startLine": 151,
+        "startChar": 3,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb5f4806_68889def",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
@@ -36,6 +60,30 @@
       "writtenOn": "2020-09-25T15:36:24Z",
       "side": 1,
       "message": "This is done frequently enough (here and in many other services) that it seems to warrant adding eg. common.AbsPathFlag(...)",
+      "range": {
+        "startLine": 47,
+        "startChar": 15,
+        "endLine": 47,
+        "endChar": 40
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4db5502c_b82cc242",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T19:52:38Z",
+      "side": 1,
+      "message": "ack.",
+      "parentUuid": "cb5f4806_68889def",
       "range": {
         "startLine": 47,
         "startChar": 15,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cae0c876_41174f58",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T19:52:38Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean by the git package. I looked for git in the task driver directory and didn\u0027t see anything that seemed helpful.",
+      "parentUuid": "7c49e9fb_bccdb348",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 103
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e348df29_51342432",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
@@ -82,6 +154,30 @@
       "writtenOn": "2020-09-25T15:36:24Z",
       "side": 1,
       "message": "Why not use the docker package?",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 57
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e819948e_3bbc8646",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-25T19:52:38Z",
+      "side": 1,
+      "message": "Docker package requires volume mounts instead of --mount and doesn\u0027t allow me to have the --name or --rm flag.",
+      "parentUuid": "e348df29_51342432",
       "range": {
         "startLine": 172,
         "startChar": 0,
