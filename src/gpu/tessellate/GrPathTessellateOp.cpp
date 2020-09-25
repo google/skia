@@ -12,6 +12,7 @@
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrTriangulator.h"
+#include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 #include "src/gpu/tessellate/GrFillPathShader.h"
 #include "src/gpu/tessellate/GrMiddleOutPolygonTriangulator.h"
 #include "src/gpu/tessellate/GrMidpointContourParser.h"
@@ -62,17 +63,26 @@ void GrPathTessellateOp::onPrePrepare(GrRecordingContext* context,
                                       const GrXferProcessor::DstProxyView& dstProxyView,
                                       GrXferBarrierFlags renderPassXferBarriers) {
     SkArenaAlloc* recordTimeAllocator = context->priv().recordTimeAllocator();
+    GrAppliedHardClip hardClip = GrAppliedHardClip(
+            (clip) ? clip->hardClip() : GrAppliedHardClip::Disabled());
     CpuTriangleAllocator cpuTriangleAllocator(recordTimeAllocator, &fOffThreadInnerTriangulation);
-    this->prePreparePrograms({recordTimeAllocator, writeView, clip, &dstProxyView,
-                             renderPassXferBarriers, context->priv().caps(),
-                             &cpuTriangleAllocator});
+    PrePrepareArgs args{recordTimeAllocator, writeView, &hardClip, clip, &dstProxyView,
+                        renderPassXferBarriers, context->priv().caps(), &cpuTriangleAllocator};
+
+    this->prePreparePrograms(args);
+
     if (fStencilTrianglesProgram) {
         context->priv().recordProgramInfo(fStencilTrianglesProgram);
     }
     if (fStencilCubicsProgram) {
         context->priv().recordProgramInfo(fStencilCubicsProgram);
     }
-    // TODO: Record the fill programs as well once they are getting prePrepared.
+    if (fFillTrianglesProgram) {
+        context->priv().recordProgramInfo(fFillTrianglesProgram);
+    }
+    if (fFillPathProgram) {
+        context->priv().recordProgramInfo(fFillPathProgram);
+    }
 }
 
 void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
@@ -95,16 +105,22 @@ void GrPathTessellateOp::prePreparePrograms(const PrePrepareArgs& args) {
         // This will fail if the inner triangles do not form a simple polygon (e.g., self
         // intersection, double winding).
         if (this->prePrepareInnerPolygonTriangulation(args, &numCountedCubics)) {
-            if (numCountedCubics) {
+            if (numCountedCubics > 0) {
                 // Always use indirect draws for cubics instead of tessellation here. Our goal in
                 // this mode is to maximize GPU performance, and the middle-out topology used by our
                 // indirect draws is easier on the rasterizer than a tessellated fan. There also
                 // seems to be a small amount of fixed tessellation overhead that this avoids.
                 this->prePrepareStencilCubicsProgram<GrMiddleOutCubicShader>(args);
+                // We will need one final pass to cover the convex hulls of the cubics after
+                // drawing the inner triangles.
+                this->prePrepareFillCubicHullsProgram(args);
             }
             return;
         }
     }
+
+    // If we didn't triangulate the inner fan then the fill program will be a simple bounding box.
+    this->prePrepareFillBoundingBoxProgram(args);
 
     // When there are only a few verbs, it seems to always be fastest to make a single indirect draw
     // that contains both the inner triangles and the outer cubics, instead of using hardware
@@ -142,7 +158,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
     SkASSERT(!fTriangleBuffer);
     SkASSERT(fTriangleVertexCount == 0);
     SkASSERT(!fStencilTrianglesProgram);
-    SkASSERT(!fDoFillTriangleBuffer);
+    SkASSERT(!fFillTrianglesProgram);
 
     using GrTriangulator::Mode;
 
@@ -155,7 +171,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
         // simple.
         return false;
     }
-    if (((OpFlags::kStencilOnly | OpFlags::kWireframe) & fOpFlags) ||
+    if ((fOpFlags & (OpFlags::kStencilOnly | OpFlags::kWireframe)) ||
         GrAAType::kCoverage == fAAType ||
         (args.fClip && args.fClip->hasStencilClip())) {
         // If we have certain flags, mixed samples, or a stencil clip then we unfortunately
@@ -163,9 +179,7 @@ bool GrPathTessellateOp::prePrepareInnerPolygonTriangulation(const PrePrepareArg
         // stencilled.
         this->prePrepareStencilTrianglesProgram(args);
     }
-    if (!(OpFlags::kStencilOnly & fOpFlags)) {
-        fDoFillTriangleBuffer = true;
-    }
+    this->prePrepareFillTrianglesProgram(args, *numCountedCurves);
     return true;
 }
 
@@ -195,25 +209,29 @@ constexpr static const GrUserStencilSettings* stencil_pass_settings(SkPathFillTy
 
 void GrPathTessellateOp::prePrepareStencilTrianglesProgram(const PrePrepareArgs& args) {
     SkASSERT(!fStencilTrianglesProgram);
+
+    this->prePreparePipelineForStencils(args);
+
     auto* shader = args.fArena->make<GrStencilTriangleShader>(fViewMatrix);
-    this->prePrepareSharedStencilPipeline(args);
     fStencilTrianglesProgram = GrPathShader::MakeProgramInfo(
-            shader, args.fArena, args.fWriteView, fSharedStencilPipeline, *args.fDstProxfView,
+            shader, args.fArena, args.fWriteView, fPipelineForStencils, *args.fDstProxyView,
             args.fXferBarrierFlags, stencil_pass_settings(fPath.getFillType()), *args.fCaps);
 }
 
 template<typename ShaderType>
 void GrPathTessellateOp::prePrepareStencilCubicsProgram(const PrePrepareArgs& args) {
     SkASSERT(!fStencilCubicsProgram);
+
+    this->prePreparePipelineForStencils(args);
+
     auto* shader = args.fArena->make<ShaderType>(fViewMatrix);
-    this->prePrepareSharedStencilPipeline(args);
     fStencilCubicsProgram = GrPathShader::MakeProgramInfo(
-            shader, args.fArena, args.fWriteView, fSharedStencilPipeline, *args.fDstProxfView,
+            shader, args.fArena, args.fWriteView, fPipelineForStencils, *args.fDstProxyView,
             args.fXferBarrierFlags, stencil_pass_settings(fPath.getFillType()), *args.fCaps);
 }
 
-void GrPathTessellateOp::prePrepareSharedStencilPipeline(const PrePrepareArgs& args) {
-    if (fSharedStencilPipeline) {
+void GrPathTessellateOp::prePreparePipelineForStencils(const PrePrepareArgs& args) {
+    if (fPipelineForStencils) {
         return;
     }
 
@@ -227,9 +245,140 @@ void GrPathTessellateOp::prePrepareSharedStencilPipeline(const PrePrepareArgs& a
     SkASSERT(SkPathFillType::kWinding == fPath.getFillType() ||
              SkPathFillType::kEvenOdd == fPath.getFillType());
     initArgs.fCaps = args.fCaps;
-    const auto& hardClip = (args.fClip) ? args.fClip->hardClip() : GrAppliedHardClip::Disabled();
-    fSharedStencilPipeline = args.fArena->make<GrPipeline>(
-            initArgs, GrDisableColorXPFactory::MakeXferProcessor(), hardClip);
+    fPipelineForStencils = args.fArena->make<GrPipeline>(
+            initArgs, GrDisableColorXPFactory::MakeXferProcessor(), *args.fHardClip);
+}
+
+// Allows non-zero stencil values to pass and write a color, and resets the stencil value back to
+// zero; discards immediately on stencil values of zero.
+// NOTE: It's ok to not check the clip here because the previous stencil pass will have only written
+// to samples already inside the clip.
+constexpr static GrUserStencilSettings kTestAndResetStencil(
+    GrUserStencilSettings::StaticInit<
+        0x0000,
+        GrUserStencilTest::kNotEqual,
+        0xffff,
+        GrUserStencilOp::kZero,
+        GrUserStencilOp::kKeep,
+        0xffff>());
+
+void GrPathTessellateOp::prePrepareFillTrianglesProgram(const PrePrepareArgs& args,
+                                                        int numCountedCurves) {
+    SkASSERT(!fFillTrianglesProgram);
+
+    if (fOpFlags & OpFlags::kStencilOnly) {
+        return;
+    }
+
+    // These are a twist on the standard red book stencil settings that allow us to fill the inner
+    // polygon directly to the final render target. At this point, the curves are already stencilled
+    // in. So if the stencil value is zero, then it means the path at our sample is not affected by
+    // any curves and we fill the path in directly. If the stencil value is nonzero, then we don't
+    // fill and instead continue the standard red book stencil process.
+    //
+    // NOTE: These settings are currently incompatible with a stencil clip.
+    constexpr static GrUserStencilSettings kFillOrIncrDecrStencil(
+        GrUserStencilSettings::StaticInitSeparate<
+            0x0000,                        0x0000,
+            GrUserStencilTest::kEqual,     GrUserStencilTest::kEqual,
+            0xffff,                        0xffff,
+            GrUserStencilOp::kKeep,        GrUserStencilOp::kKeep,
+            GrUserStencilOp::kIncWrap,     GrUserStencilOp::kDecWrap,
+            0xffff,                        0xffff>());
+
+    constexpr static GrUserStencilSettings kFillOrInvertStencil(
+        GrUserStencilSettings::StaticInit<
+            0x0000,
+            GrUserStencilTest::kEqual,
+            0xffff,
+            GrUserStencilOp::kKeep,
+            GrUserStencilOp::kZero,
+            0xffff>());
+
+    this->prePreparePipelineForFills(args);
+
+    const GrUserStencilSettings* stencil;
+    if (fStencilTrianglesProgram) {
+        // The path was already stencilled. Here we just need to do a cover pass.
+        stencil = &kTestAndResetStencil;
+    } else if (numCountedCurves == 0) {
+        // There are no stencilled curves. We can ignore stencil and fill the path directly.
+        stencil = &GrUserStencilSettings::kUnused;
+    } else if (SkPathFillType::kWinding == fPath.getFillType()) {
+        // Fill in the path pixels not touched by curves, incr/decr stencil otherwise.
+        SkASSERT(!fPipelineForFills->hasStencilClip());
+        stencil = &kFillOrIncrDecrStencil;
+    } else {
+        // Fill in the path pixels not touched by curves, invert stencil otherwise.
+        SkASSERT(!fPipelineForFills->hasStencilClip());
+        stencil = &kFillOrInvertStencil;
+    }
+
+    auto* fillTriangleShader = args.fArena->make<GrFillTriangleShader>(fViewMatrix, fColor);
+    fFillTrianglesProgram = GrPathShader::MakeProgramInfo(
+            fillTriangleShader, args.fArena, args.fWriteView, fPipelineForFills,
+            *args.fDstProxyView, args.fXferBarrierFlags, stencil, *args.fCaps);
+}
+
+void GrPathTessellateOp::prePrepareFillCubicHullsProgram(const PrePrepareArgs& args) {
+    SkASSERT(!fFillPathProgram);
+
+    if (fOpFlags & OpFlags::kStencilOnly) {
+        return;
+    }
+
+    this->prePreparePipelineForFills(args);
+
+    auto* fillCubicHullsShader = args.fArena->make<GrFillCubicHullShader>(fViewMatrix, fColor);
+    fFillPathProgram = GrPathShader::MakeProgramInfo(
+            fillCubicHullsShader, args.fArena, args.fWriteView, fPipelineForFills,
+            *args.fDstProxyView, args.fXferBarrierFlags, &kTestAndResetStencil, *args.fCaps);
+}
+
+void GrPathTessellateOp::prePrepareFillBoundingBoxProgram(const PrePrepareArgs& args) {
+    SkASSERT(!fFillPathProgram);
+
+    if (fOpFlags & OpFlags::kStencilOnly) {
+        return;
+    }
+
+    this->prePreparePipelineForFills(args);
+
+    auto* fillBoundingBoxShader = args.fArena->make<GrFillBoundingBoxShader>(fViewMatrix, fColor,
+                                                                             fPath.getBounds());
+    fFillPathProgram = GrPathShader::MakeProgramInfo(
+            fillBoundingBoxShader, args.fArena, args.fWriteView, fPipelineForFills,
+            *args.fDstProxyView, args.fXferBarrierFlags, &kTestAndResetStencil, *args.fCaps);
+}
+
+void GrPathTessellateOp::prePreparePipelineForFills(const PrePrepareArgs& args) {
+    SkASSERT(!(fOpFlags & OpFlags::kStencilOnly));
+
+    if (fPipelineForFills) {
+        return;
+    }
+
+    auto pipelineFlags = GrPipeline::InputFlags::kNone;
+    if (GrAAType::kNone != fAAType) {
+        if (args.fWriteView->asRenderTargetProxy()->numSamples() == 1) {
+            // We are mixed sampled. We need to either enable conservative raster (preferred) or
+            // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
+            // the cover geometry, the stencil test is still multisampled and will still produce
+            // smooth results.)
+            SkASSERT(GrAAType::kCoverage == fAAType);
+            if (args.fCaps->conservativeRasterSupport()) {
+                pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+                pipelineFlags |= GrPipeline::InputFlags::kConservativeRaster;
+            }
+        } else {
+            // We are standard MSAA. Leave MSAA enabled for the cover geometry.
+            pipelineFlags |= GrPipeline::InputFlags::kHWAntialias;
+        }
+    }
+
+    fPipelineForFills = GrSimpleMeshDrawOpHelper::CreatePipeline(
+            args.fCaps, args.fArena, args.fWriteView->swizzle(), std::move(*args.fClip),
+            *args.fDstProxyView, std::move(fProcessors), pipelineFlags);
 }
 
 void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
@@ -238,14 +387,17 @@ void GrPathTessellateOp::onPrepare(GrOpFlushState* flushState) {
         return;
     }
 
-    if (!fSharedStencilPipeline) {
+    if (!fPipelineForStencils && !fPipelineForFills) {
         // Nothing has been prePrepared yet. Do it now.
         GrEagerDynamicVertexAllocator innerTriangleAllocator(flushState, &fTriangleBuffer,
                                                              &fBaseTriangleVertex);
-        this->prePreparePrograms({flushState->allocator(), flushState->writeView(),
-                                 flushState->appliedClip(), &flushState->dstProxyView(),
-                                 flushState->renderPassBarriers(), &flushState->caps(),
-                                 &innerTriangleAllocator});
+        GrAppliedHardClip hardClip = GrAppliedHardClip(flushState->appliedHardClip());
+        GrAppliedClip clip = flushState->detachAppliedClip();
+        PrePrepareArgs args{flushState->allocator(), flushState->writeView(), &hardClip,
+                            &clip, &flushState->dstProxyView(),
+                            flushState->renderPassBarriers(), &flushState->caps(),
+                            &innerTriangleAllocator};
+        this->prePreparePrograms(args);
     }
 
     if (fTriangleVertexCount != 0) {
@@ -295,7 +447,7 @@ void GrPathTessellateOp::prepareMiddleOutTrianglesAndCubics(
         GrMeshDrawOp::Target* target, GrResolveLevelCounter* resolveLevelCounter) {
     SkASSERT(fStencilCubicsProgram);
     SkASSERT(!fTriangleBuffer);
-    SkASSERT(!fDoFillTriangleBuffer);
+    SkASSERT(!fFillTrianglesProgram);
     SkASSERT(!fCubicBuffer);
     SkASSERT(!fIndirectDrawBuffer);
     SkASSERT(fTriangleVertexCount == 0);
@@ -646,9 +798,7 @@ void GrPathTessellateOp::prepareTessellatedCubicWedges(GrMeshDrawOp::Target* tar
 
 void GrPathTessellateOp::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
     this->drawStencilPass(flushState);
-    if (!(OpFlags::kStencilOnly & fOpFlags)) {
-        this->drawCoverPass(flushState);
-    }
+    this->drawCoverPass(flushState);
 }
 
 void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
@@ -679,109 +829,26 @@ void GrPathTessellateOp::drawStencilPass(GrOpFlushState* flushState) {
 }
 
 void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
-    // Allows non-zero stencil values to pass and write a color, and resets the stencil value back
-    // to zero; discards immediately on stencil values of zero.
-    // NOTE: It's ok to not check the clip here because the previous stencil pass only wrote to
-    // samples already inside the clip.
-    constexpr static GrUserStencilSettings kTestAndResetStencil(
-        GrUserStencilSettings::StaticInit<
-            0x0000,
-            GrUserStencilTest::kNotEqual,
-            0xffff,
-            GrUserStencilOp::kZero,
-            GrUserStencilOp::kKeep,
-            0xffff>());
-
-    GrPipeline::InitArgs initArgs;
-    if (GrAAType::kNone != fAAType) {
-        if (flushState->proxy()->numSamples() == 1) {
-            // We are mixed sampled. We need to either enable conservative raster (preferred) or
-            // disable MSAA in order to avoid double blend artifacts. (Even if we disable MSAA for
-            // the cover geometry, the stencil test is still multisampled and will still produce
-            // smooth results.)
-            SkASSERT(GrAAType::kCoverage == fAAType);
-            if (flushState->caps().conservativeRasterSupport()) {
-                initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
-                initArgs.fInputFlags |= GrPipeline::InputFlags::kConservativeRaster;
-            }
-        } else {
-            // We are standard MSAA. Leave MSAA enabled for the cover geometry.
-            initArgs.fInputFlags |= GrPipeline::InputFlags::kHWAntialias;
-        }
-    }
-    initArgs.fCaps = &flushState->caps();
-    initArgs.fDstProxyView = flushState->drawOpArgs().dstProxyView();
-    initArgs.fWriteSwizzle = flushState->drawOpArgs().writeSwizzle();
-    GrPipeline pipeline(initArgs, std::move(fProcessors), flushState->detachAppliedClip());
-
-    if (fDoFillTriangleBuffer) {
+    if (fFillTrianglesProgram) {
         SkASSERT(fTriangleBuffer);
+        SkASSERT(fTriangleVertexCount > 0);
 
-        // These are a twist on the standard red book stencil settings that allow us to fill the
-        // inner polygon directly to the final render target. At this point, the curves are already
-        // stencilled in. So if the stencil value is zero, then it means the path at our sample is
-        // not affected by any curves and we fill the path in directly. If the stencil value is
-        // nonzero, then we don't fill and instead continue the standard red book stencil process.
-        //
-        // NOTE: These settings are currently incompatible with a stencil clip.
-        constexpr static GrUserStencilSettings kFillOrIncrDecrStencil(
-            GrUserStencilSettings::StaticInitSeparate<
-                0x0000,                        0x0000,
-                GrUserStencilTest::kEqual,     GrUserStencilTest::kEqual,
-                0xffff,                        0xffff,
-                GrUserStencilOp::kKeep,        GrUserStencilOp::kKeep,
-                GrUserStencilOp::kIncWrap,     GrUserStencilOp::kDecWrap,
-                0xffff,                        0xffff>());
-
-        constexpr static GrUserStencilSettings kFillOrInvertStencil(
-            GrUserStencilSettings::StaticInit<
-                0x0000,
-                GrUserStencilTest::kEqual,
-                0xffff,
-                GrUserStencilOp::kKeep,
-                GrUserStencilOp::kZero,
-                0xffff>());
-
-        const GrUserStencilSettings* stencil;
-        if (fStencilTrianglesProgram) {
-            // The path was already stencilled. Here we just need to do a cover pass.
-            stencil = &kTestAndResetStencil;
-        } else if (fCubicVertexCount == 0) {
-            // There are no stencilled curves. We can ignore stencil and fill the path directly.
-            stencil = &GrUserStencilSettings::kUnused;
-        } else if (SkPathFillType::kWinding == fPath.getFillType()) {
-            // Fill in the path pixels not touched by curves, incr/decr stencil otherwise.
-            SkASSERT(!pipeline.hasStencilClip());
-            stencil = &kFillOrIncrDecrStencil;
-        } else {
-            // Fill in the path pixels not touched by curves, invert stencil otherwise.
-            SkASSERT(!pipeline.hasStencilClip());
-            stencil = &kFillOrInvertStencil;
-        }
-
-        GrFillTriangleShader fillTrianglesShader(fViewMatrix, fColor);
-        auto* fillTrianglesProgram = GrPathShader::MakeProgramInfo(
-                &fillTrianglesShader, flushState->allocator(), flushState->writeView(), &pipeline,
-                flushState->dstProxyView(), flushState->renderPassBarriers(), stencil,
-                flushState->caps());
-        flushState->bindPipelineAndScissorClip(*fillTrianglesProgram, this->bounds());
-        flushState->bindTextures(fillTrianglesShader, nullptr, pipeline);
+        // We have a triangulation of the path's inner polygon. This is the fast path. Fill those
+        // triangles directly to the screen.
+        flushState->bindPipelineAndScissorClip(*fFillTrianglesProgram, this->bounds());
+        flushState->bindTextures(fFillTrianglesProgram->primProc(), nullptr, *fPipelineForFills);
         flushState->bindBuffers(nullptr, nullptr, fTriangleBuffer);
         flushState->draw(fTriangleVertexCount, fBaseTriangleVertex);
 
         if (fCubicVertexCount > 0) {
+            SkASSERT(fFillPathProgram);
             SkASSERT(fCubicBuffer);
 
-            // At this point, every pixel is filled in except the ones touched by curves. Issue a
-            // final cover pass over the curves by drawing their convex hulls. This will fill in any
-            // remaining samples and reset the stencil buffer.
-            GrFillCubicHullShader fillCubicHullsShader(fViewMatrix, fColor);
-            auto* fillCubicHullsProgram = GrPathShader::MakeProgramInfo(
-                    &fillCubicHullsShader, flushState->allocator(), flushState->writeView(),
-                    &pipeline, flushState->dstProxyView(), flushState->renderPassBarriers(),
-                    &kTestAndResetStencil, flushState->caps());
-            flushState->bindPipelineAndScissorClip(*fillCubicHullsProgram, this->bounds());
-            flushState->bindTextures(fillCubicHullsShader, nullptr, pipeline);
+            // At this point, every pixel is filled in except the ones touched by curves.
+            // fFillPathProgram will issue a final cover pass over the curves by drawing their
+            // convex hulls. This will fill in any remaining samples and reset the stencil buffer.
+            flushState->bindPipelineAndScissorClip(*fFillPathProgram, this->bounds());
+            flushState->bindTextures(fFillPathProgram->primProc(), nullptr, *fPipelineForFills);
 
             // Here we treat fCubicBuffer as an instance buffer. It should have been prepared with
             // the base vertex on an instance boundary in order to accommodate this.
@@ -790,17 +857,11 @@ void GrPathTessellateOp::drawCoverPass(GrOpFlushState* flushState) {
             flushState->bindBuffers(nullptr, fCubicBuffer, nullptr);
             flushState->drawInstanced(fCubicVertexCount >> 2, fBaseCubicVertex >> 2, 4, 0);
         }
-        return;
+    } else if (fFillPathProgram) {
+        // There are no triangles to fill. Just draw a bounding box.
+        flushState->bindPipelineAndScissorClip(*fFillPathProgram, this->bounds());
+        flushState->bindTextures(fFillPathProgram->primProc(), nullptr, *fPipelineForFills);
+        flushState->bindBuffers(nullptr, nullptr, nullptr);
+        flushState->draw(4, 0);
     }
-
-    // There are no triangles to fill. Just draw a bounding box.
-    GrFillBoundingBoxShader fillBoundingBoxShader(fViewMatrix, fColor, fPath.getBounds());
-    auto* fillBoundingBoxProgram = GrPathShader::MakeProgramInfo(
-            &fillBoundingBoxShader, flushState->allocator(), flushState->writeView(),
-            &pipeline, flushState->dstProxyView(), flushState->renderPassBarriers(),
-            &kTestAndResetStencil, flushState->caps());
-    flushState->bindPipelineAndScissorClip(*fillBoundingBoxProgram, this->bounds());
-    flushState->bindTextures(fillBoundingBoxShader, nullptr, pipeline);
-    flushState->bindBuffers(nullptr, nullptr, nullptr);
-    flushState->draw(4, 0);
 }
