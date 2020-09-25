@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fcf61c9_13f05ba6",
+        "filename": "tests/sksl/shared/Assignment.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-25T19:01:31Z",
+      "side": 1,
+      "message": "I didn\u0027t even know we allowed non-square matrices. Another thing we\u0027ll have to ban in public SkSL.",
+      "range": {
+        "startLine": 15,
+        "startChar": 41,
+        "endLine": 15,
+        "endChar": 48
+      },
+      "revId": "63d4cb7f617e30473200db6a40d41808ec05adfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
