@@ -13,12 +13,11 @@
 
 GrDawnTextureRenderTarget::GrDawnTextureRenderTarget(GrDawnGpu* gpu,
                                                      SkISize dimensions,
-                                                     wgpu::TextureView textureView,
                                                      int sampleCnt,
                                                      const GrDawnTextureInfo& textureInfo,
                                                      GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
-        , GrDawnTexture(gpu, dimensions, textureView, textureInfo, mipmapStatus)
+        , GrDawnTexture(gpu, dimensions, textureInfo, mipmapStatus)
         , GrDawnRenderTarget(gpu, dimensions, sampleCnt,
                              GrDawnRenderTargetInfo(textureInfo)) {}
 
