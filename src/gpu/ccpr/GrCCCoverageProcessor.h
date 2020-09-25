@@ -111,7 +111,8 @@ public:
     // subpassIdx of each PrimitiveType, it calls reset/bind*/drawInstances.
     virtual int numSubpasses() const = 0;
     virtual void reset(PrimitiveType, int subpassIdx, GrResourceProvider*) = 0;
-    void bindPipeline(GrOpFlushState*, const GrPipeline&, const SkRect& drawBounds) const;
+    void bindPipeline(GrOpFlushState*, const GrPipeline&, const SkRect& drawBounds,
+                      const GrUserStencilSettings* = &GrUserStencilSettings::kUnused) const;
     virtual void bindBuffers(GrOpsRenderPass*, sk_sp<const GrBuffer> instanceBuffer) const = 0;
     virtual void drawInstances(GrOpsRenderPass*, int instanceCount, int baseInstance) const = 0;
 

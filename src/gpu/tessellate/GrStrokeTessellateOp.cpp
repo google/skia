@@ -101,7 +101,8 @@ void GrStrokeTessellateOp::prePrepareColorProgram(SkArenaAlloc* arena,
     }
     fColorProgram = GrPathShader::MakeProgramInfo(strokeShader, arena, writeView, pipelineFlags,
                                                   std::move(fProcessors), std::move(clip),
-                                                  dstProxyView, renderPassXferBarriers, caps);
+                                                  dstProxyView, renderPassXferBarriers,
+                                                  &GrUserStencilSettings::kUnused, caps);
 }
 
 void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {

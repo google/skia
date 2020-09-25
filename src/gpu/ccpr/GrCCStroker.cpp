@@ -729,9 +729,9 @@ void GrCCStroker::drawLog2Strokes(int numSegmentsLog2, GrOpFlushState* flushStat
     GrProgramInfo programInfo(flushState->proxy()->numSamples(),
                               flushState->proxy()->numStencilSamples(),
                               flushState->proxy()->backendFormat(),
-                              flushState->writeView()->origin(), &pipeline, &processor,
-                              GrPrimitiveType::kTriangleStrip, 0,
-                              flushState->renderPassBarriers());
+                              flushState->writeView()->origin(), &pipeline,
+                              &GrUserStencilSettings::kUnused, &processor,
+                              GrPrimitiveType::kTriangleStrip, 0, flushState->renderPassBarriers());
 
     flushState->bindPipeline(programInfo, SkRect::Make(drawBounds));
     flushState->bindBuffers(nullptr, fInstanceBuffer, nullptr);
