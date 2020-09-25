@@ -1643,8 +1643,8 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
 }
 
 void ByteCodeGenerator::writeBlock(const Block& b) {
-    for (const auto& s : b.fStatements) {
-        this->writeStatement(*s);
+    for (const std::unique_ptr<Statement>& stmt : b.children()) {
+        this->writeStatement(*stmt);
     }
 }
 

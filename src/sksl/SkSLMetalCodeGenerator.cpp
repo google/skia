@@ -1069,7 +1069,12 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     StringStream buffer;
     fOut = &buffer;
     fIndentation++;
-    this->writeStatements(((Block&) *f.fBody).fStatements);
+    for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
+        if (!stmt->isEmpty()) {
+            this->writeStatement(*stmt);
+            this->writeLine();
+        }
+    }
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
@@ -1291,22 +1296,19 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
     }
 }
 
-void MetalCodeGenerator::writeStatements(const std::vector<std::unique_ptr<Statement>>& statements) {
-    for (const auto& s : statements) {
-        if (!s->isEmpty()) {
-            this->writeStatement(*s);
-            this->writeLine();
-        }
-    }
-}
-
 void MetalCodeGenerator::writeBlock(const Block& b) {
-    if (b.fIsScope) {
+    bool isScope = b.isScope();
+    if (isScope) {
         this->writeLine("{");
         fIndentation++;
     }
-    this->writeStatements(b.fStatements);
-    if (b.fIsScope) {
+    for (const std::unique_ptr<Statement>& stmt : b.children()) {
+        if (!stmt->isEmpty()) {
+            this->writeStatement(*stmt);
+            this->writeLine();
+        }
+    }
+    if (isScope) {
         fIndentation--;
         this->write("}");
     }
@@ -1778,7 +1780,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
     switch (s->kind()) {
         case Statement::Kind::kBlock: {
             Requirements result = kNo_Requirements;
-            for (const auto& child : s->as<Block>().fStatements) {
+            for (const std::unique_ptr<Statement>& child : s->as<Block>().children()) {
                 result |= this->requirements(child.get());
             }
             return result;

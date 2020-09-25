@@ -393,12 +393,12 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kBlock: {
                 const Block& b = s->as<Block>();
                 this->writeU8(Rehydrator::kBlock_Command);
-                AutoDehydratorSymbolTable symbols(this, b.fSymbols);
-                this->writeU8(b.fStatements.size());
-                for (const std::unique_ptr<Statement>& blockStmt : b.fStatements) {
+                AutoDehydratorSymbolTable symbols(this, b.symbolTable());
+                this->writeU8(b.children().size());
+                for (const std::unique_ptr<Statement>& blockStmt : b.children()) {
                     this->write(blockStmt.get());
                 }
-                this->writeU8(b.fIsScope);
+                this->writeU8(b.isScope());
                 break;
             }
             case Statement::Kind::kBreak:

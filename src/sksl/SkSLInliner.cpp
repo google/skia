@@ -94,9 +94,9 @@ static int count_returns_at_end_of_control_flow(const FunctionDefinition& funcDe
             switch (stmt.kind()) {
                 case Statement::Kind::kBlock: {
                     // Check only the last statement of a block.
-                    const auto& blockStmts = stmt.as<Block>().fStatements;
-                    return (blockStmts.size() > 0) ? this->visitStatement(*blockStmts.back())
-                                                   : false;
+                    const auto& block = stmt.as<Block>();
+                    return block.children().size() &&
+                           this->visitStatement(*block.children().back());
                 }
                 case Statement::Kind::kSwitch:
                 case Statement::Kind::kWhile:
@@ -210,7 +210,7 @@ static Statement* find_parent_statement(const std::vector<std::unique_ptr<Statem
     // Anything counts as a parent statement other than a scopeless Block.
     for (; iter != stmtStack.rend(); ++iter) {
         Statement* stmt = (*iter)->get();
-        if (!stmt->is<Block>() || stmt->as<Block>().fIsScope) {
+        if (!stmt->is<Block>() || stmt->as<Block>().isScope()) {
             return stmt;
         }
     }
@@ -243,23 +243,23 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
     // issues--if we don't represent the Block textually somehow, we run the risk of accidentally
     // absorbing the following statement into our loop--so we also add a scope to these.
     for (Block* nestedBlock = &block;; ) {
-        if (nestedBlock->fIsScope) {
+        if (nestedBlock->isScope()) {
             // We found an explicit scope; all is well.
             return;
         }
-        if (nestedBlock->fStatements.size() != 1) {
+        if (nestedBlock->children().size() != 1) {
             // We found a block with multiple (or zero) statements, but no scope? Let's add a scope
             // to the outermost block.
-            block.fIsScope = true;
+            block.setIsScope(true);
             return;
         }
-        if (!nestedBlock->fStatements[0]->is<Block>()) {
+        if (!nestedBlock->children()[0]->is<Block>()) {
             // This block has exactly one thing inside, and it's not another block. No need to scope
             // it.
             return;
         }
         // We have to go deeper.
-        nestedBlock = &nestedBlock->fStatements[0]->as<Block>();
+        nestedBlock = &nestedBlock->children()[0]->as<Block>();
     }
 }
 
@@ -400,6 +400,13 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         return nullptr;
     };
+    auto blockStmts = [&](const Block& block) {
+        std::vector<std::unique_ptr<Statement>> result;
+        for (const std::unique_ptr<Statement>& child : block.children()) {
+            result.push_back(stmt(child));
+        }
+        return result;
+    };
     auto stmts = [&](const std::vector<std::unique_ptr<Statement>>& ss) {
         std::vector<std::unique_ptr<Statement>> result;
         for (const auto& s : ss) {
@@ -416,7 +423,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
     switch (statement.kind()) {
         case Statement::Kind::kBlock: {
             const Block& b = statement.as<Block>();
-            return std::make_unique<Block>(offset, stmts(b.fStatements), b.fSymbols, b.fIsScope);
+            return std::make_unique<Block>(offset, blockStmts(b), b.symbolTable(), b.isScope());
         }
 
         case Statement::Kind::kBreak:
@@ -558,14 +565,16 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                                        /*symbols=*/nullptr,
                                                        /*isScope=*/false);
 
-    std::vector<std::unique_ptr<Statement>>& inlinedBody = inlinedCall.fInlinedBody->fStatements;
-    inlinedBody.reserve(1 +                 // Inline marker
-                        1 +                 // Result variable
-                        arguments.size() +  // Function arguments (passing in)
-                        arguments.size() +  // Function arguments (copy out-parameters back)
-                        1);                 // Inlined code (either as a Block or do-while loop)
+    Block& inlinedBody = *inlinedCall.fInlinedBody;
+    inlinedBody.children().reserve(1 +                // Inline marker
+                                   1 +                // Result variable
+                                   arguments.size() + // Function arguments (passing in)
+                                   arguments.size() + // Function arguments (copy out-parameters
+                                                      // back)
+                                   1);                // Inlined code (either as a Block or do-while
+                                                      // loop)
 
-    inlinedBody.push_back(std::make_unique<InlineMarker>(call->fFunction));
+    inlinedBody.children().push_back(std::make_unique<InlineMarker>(call->fFunction));
 
     auto makeInlineVar = [&](const String& baseName, const Type* type, Modifiers modifiers,
                              std::unique_ptr<Expression>* initialValue) -> const Variable* {
@@ -605,7 +614,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         }
 
         // Add the new variable-declaration statement to our block of extra statements.
-        inlinedBody.push_back(std::make_unique<VarDeclarationsStatement>(
+        inlinedBody.children().push_back(std::make_unique<VarDeclarationsStatement>(
                 std::make_unique<VarDeclarations>(offset, type, std::move(variables))));
 
         return variableSymbol;
@@ -643,9 +652,9 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     const Block& body = function.fBody->as<Block>();
     auto inlineBlock = std::make_unique<Block>(offset, std::vector<std::unique_ptr<Statement>>{});
-    inlineBlock->fStatements.reserve(body.fStatements.size());
-    for (const std::unique_ptr<Statement>& stmt : body.fStatements) {
-        inlineBlock->fStatements.push_back(this->inlineStatement(
+    inlineBlock->children().reserve(body.children().size());
+    for (const std::unique_ptr<Statement>& stmt : body.children()) {
+        inlineBlock->children().push_back(this->inlineStatement(
                 offset, &varMap, symbolTableForCall, resultExpr, hasEarlyReturn, *stmt));
     }
     if (hasEarlyReturn) {
@@ -653,14 +662,14 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // used to perform an early return), we fake it by wrapping the function in a
         // do { } while (false); and then use break statements to jump to the end in order to
         // emulate a goto.
-        inlinedBody.push_back(std::make_unique<DoStatement>(
+        inlinedBody.children().push_back(std::make_unique<DoStatement>(
                 /*offset=*/-1,
                 std::move(inlineBlock),
                 std::make_unique<BoolLiteral>(*fContext, offset, /*value=*/false)));
     } else {
         // No early returns, so we can just dump the code in. We still need to keep the block so we
         // don't get name conflicts with locals.
-        inlinedBody.push_back(std::move(inlineBlock));
+        inlinedBody.children().push_back(std::move(inlineBlock));
     }
 
     // Copy the values of `out` parameters into their destinations.
@@ -675,7 +684,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                 continue;
             }
             auto varRef = std::make_unique<VariableReference>(offset, varMap[p]);
-            inlinedBody.push_back(std::make_unique<ExpressionStatement>(
+            inlinedBody.children().push_back(std::make_unique<ExpressionStatement>(
                     std::make_unique<BinaryExpression>(offset,
                                                        arguments[i]->clone(),
                                                        Token::Kind::TK_EQ,
@@ -805,12 +814,12 @@ bool Inliner::analyze(Program& program) {
 
                 case Statement::Kind::kBlock: {
                     Block& block = (*stmt)->as<Block>();
-                    if (block.fSymbols) {
-                        fSymbolTableStack.push_back(block.fSymbols.get());
+                    if (block.symbolTable()) {
+                        fSymbolTableStack.push_back(block.symbolTable().get());
                     }
 
-                    for (std::unique_ptr<Statement>& blockStmt : block.fStatements) {
-                        this->visitStatement(&blockStmt);
+                    for (std::unique_ptr<Statement>& stmt : block.children()) {
+                        this->visitStatement(&stmt);
                     }
                     break;
                 }
@@ -1082,7 +1091,7 @@ bool Inliner::analyze(Program& program) {
             // After:
             //     fInlinedBody = null
             //     fEnclosingStmt = Block{ stmt1, stmt2, stmt3, stmt4 }
-            inlinedCall.fInlinedBody->fStatements.push_back(std::move(*candidate.fEnclosingStmt));
+            inlinedCall.fInlinedBody->children().push_back(std::move(*candidate.fEnclosingStmt));
             *candidate.fEnclosingStmt = std::move(inlinedCall.fInlinedBody);
         }
 

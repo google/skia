@@ -16,7 +16,7 @@
 
 namespace SkSL {
 
-struct Block;
+class Block;
 class Context;
 struct Expression;
 struct FunctionCall;
