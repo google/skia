@@ -55,16 +55,16 @@ private:
     struct PrePrepareArgs {
         SkArenaAlloc* fArena;
         const GrSurfaceProxyView* fWriteView;
-        const GrAppliedClip* fClip;
-        const GrXferProcessor::DstProxyView* fDstProxfView;
+        const GrAppliedHardClip* fHardClip;
+        GrAppliedClip* fClip;
+        const GrXferProcessor::DstProxyView* fDstProxyView;
         GrXferBarrierFlags fXferBarrierFlags;
         const GrCaps* fCaps;
         GrEagerVertexAllocator* fInnerTriangleAllocator;
     };
 
-    // Chooses the rendering method we will use and creates the corresponding stencil programs up
-    // front.
-    // TODO: This will eventually create the fill programs also.
+    // Chooses the rendering method we will use and creates the corresponding stencil and fill
+    // programs up front.
     void prePreparePrograms(const PrePrepareArgs&);
 
     // Produces a non-overlapping triangulation of the path's inner polygon(s). The inner polygons
@@ -79,7 +79,12 @@ private:
 
     void prePrepareStencilTrianglesProgram(const PrePrepareArgs&);
     template<typename ShaderType> void prePrepareStencilCubicsProgram(const PrePrepareArgs&);
-    void prePrepareSharedStencilPipeline(const PrePrepareArgs&);
+    void prePreparePipelineForStencils(const PrePrepareArgs&);
+
+    void prePrepareFillTrianglesProgram(const PrePrepareArgs&, int numCountedCurves);
+    void prePrepareFillCubicHullsProgram(const PrePrepareArgs&);
+    void prePrepareFillBoundingBoxProgram(const PrePrepareArgs&);
+    void prePreparePipelineForFills(const PrePrepareArgs&);
 
     void onPrepare(GrOpFlushState*) override;
 
@@ -144,8 +149,11 @@ private:
     int fBaseTriangleVertex;
     int fTriangleVertexCount = 0;
 
-    // This same GrPipeline is used by all programInfos in the stencil step.
-    const GrPipeline* fSharedStencilPipeline = nullptr;
+    // This pipeline is used by all programInfos in the stencil step.
+    const GrPipeline* fPipelineForStencils = nullptr;
+
+    // This pipeline is used by all programInfos in the fill step.
+    const GrPipeline* fPipelineForFills = nullptr;
 
     // These switches specify how the above fTriangleBuffer should be drawn (if at all).
     //
@@ -166,7 +174,7 @@ private:
     //     fill step we draw the triangles directly with a stencil test that accounts for curves
     //     (see drawCoverPass()), and then finally fill the curves with local convex hulls.
     const GrProgramInfo* fStencilTrianglesProgram = nullptr;
-    bool fDoFillTriangleBuffer = false;
+    const GrProgramInfo* fFillTrianglesProgram = nullptr;
 
     // The cubic buffer defines either standalone cubics or wedges. These are stencilled by
     // tessellation shaders, and may also be used do fill local convex hulls around each cubic.
@@ -174,6 +182,10 @@ private:
     int fBaseCubicVertex;
     int fCubicVertexCount = 0;
     const GrProgramInfo* fStencilCubicsProgram = nullptr;
+
+    // This will draw either a bounding box, or if fFillTrianglesProgram exists, individual convex
+    // hulls covering each cubic.
+    const GrProgramInfo* fFillPathProgram = nullptr;
 
     // If fIndirectDrawBuffer is non-null, then we issue an indexed-indirect draw instead of using
     // hardware tessellation. This is oftentimes faster than tessellation, and other times it serves
