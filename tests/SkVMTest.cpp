@@ -652,7 +652,7 @@ DEF_TEST(SkVM_mad, r) {
     {
         skvm::Arg arg = b.varying<int>();
 
-        skvm::F32 x = b.to_f32(b.load32(arg)),
+        skvm::F32 x = b.to_F32(b.load32(arg)),
                   y = b.mad(x,x,x),   // x is needed in the future, so r[x] != r[y].
                   z = b.mad(y,y,x),   // y is needed in the future, but r[z] = r[x] is ok.
                   w = b.mad(z,z,y),   // w can alias z but not y.
@@ -678,7 +678,7 @@ DEF_TEST(SkVM_fms, r) {
     {
         skvm::Arg arg = b.varying<int>();
 
-        skvm::F32 x = b.to_f32(b.load32(arg)),
+        skvm::F32 x = b.to_F32(b.load32(arg)),
                   v = b.sub(b.mul(x, b.splat(2.0f)),
                             b.splat(1.0f));
         b.store32(arg, b.trunc(v));
@@ -700,7 +700,7 @@ DEF_TEST(SkVM_fnma, r) {
     {
         skvm::Arg arg = b.varying<int>();
 
-        skvm::F32 x = b.to_f32(b.load32(arg)),
+        skvm::F32 x = b.to_F32(b.load32(arg)),
                   v = b.sub(b.splat(1.0f),
                             b.mul(x, b.splat(2.0f)));
         b.store32(arg, b.trunc(v));
@@ -2489,8 +2489,8 @@ DEF_TEST(SkVM_Q14, r) {
             skvm::Arg dst = b.varying<uint16_t>(),
                       src = b.varying<uint16_t>();
 
-            skvm::Q14 x = to_q14(b.load16(src));
-            store16(dst, to_i32(test.fn(x)));
+            skvm::Q14 x = to_Q14(b.load16(src));
+            store16(dst, to_I32(test.fn(x)));
         }
 
         test_jit_and_interpreter(b.done(), [&](const skvm::Program& program){

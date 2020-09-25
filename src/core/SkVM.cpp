@@ -782,7 +782,7 @@ namespace skvm {
     }
 
     I32 Builder::splat    (int n) { return {this, push(Op::splat    , NA,NA,NA, n) }; }
-    Q14 Builder::splat_q14(int n) { return {this, push(Op::splat_q14, NA,NA,NA, n) }; }
+    Q14 Builder::splat_Q14(int n) { return {this, push(Op::splat_q14, NA,NA,NA, n) }; }
 
     bool fma_supported() {
         static const bool supported =
@@ -862,7 +862,7 @@ namespace skvm {
     // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
     F32 Builder::approx_log2(F32 x) {
         // e - 127 is a fair approximation of log2(x) in its own right...
-        F32 e = mul(to_f32(bit_cast(x)), splat(1.0f / (1<<23)));
+        F32 e = mul(to_F32(bit_cast(x)), splat(1.0f / (1<<23)));
 
         // ... but using the mantissa to refine its error is _much_ better.
         F32 m = bit_cast(bit_or(bit_and(bit_cast(x), 0x007fffff),
@@ -1054,12 +1054,16 @@ namespace skvm {
         return {this, this->push(Op::select_q14, cond.id, t.id, f.id)};
     }
 
-    Q14 Builder::to_q14(I32 x) { return {this, this->push(Op::  to_q14, x.id) }; }
-    I32 Builder::to_i32(Q14 x) { return {this, this->push(Op::from_q14, x.id) }; }
+    Q14 Builder::to_Q14(I32 x) { return {this, this->push(Op::  to_q14, x.id) }; }
+    I32 Builder::to_I32(Q14 x) { return {this, this->push(Op::from_q14, x.id) }; }
 
     // TODO: open question in general whether float -> q14 should round() or trunc().
-    Q14 Builder::to_q14(F32 x) { return to_q14(trunc(x * 16384.0f)); }
-    F32 Builder::to_f32(Q14 x) { return to_f32(to_i32(x)) * (1/16384.0f); }
+    Q14 Builder::to_Q14(F32 x) {
+        assert_true(-2.0f <= x, x);
+        assert_true(x <  +2.0f, x);
+        return to_Q14(trunc(x * 16384.0f));
+    }
+    F32 Builder::to_F32(Q14 x) { return to_F32(to_I32(x)) * (1/16384.0f); }
 
     Q14 Builder::unsigned_avg(Q14 x, Q14 y) {
         return {this, this->push(Op::uavg_q14, x.id, y.id)};
@@ -1206,7 +1210,7 @@ namespace skvm {
         if (float X; this->allImm(x.id,&X)) { return splat(floorf(X)); }
         return {this, this->push(Op::floor, x.id)};
     }
-    F32 Builder::to_f32(I32 x) {
+    F32 Builder::to_F32(I32 x) {
         if (int X; this->allImm(x.id,&X)) { return splat((float)X); }
         return {this, this->push(Op::to_f32, x.id)};
     }
@@ -1230,7 +1234,7 @@ namespace skvm {
 
     F32 Builder::from_unorm(int bits, I32 x) {
         F32 limit = splat(1 / ((1<<bits)-1.0f));
-        return mul(to_f32(x), limit);
+        return mul(to_F32(x), limit);
     }
     I32 Builder::to_unorm(int bits, F32 x) {
         F32 limit = splat((1<<bits)-1.0f);
@@ -1474,25 +1478,60 @@ namespace skvm {
         *b *= a;
     }
 
-    Color Builder::uniformPremul(SkColor4f color,    SkColorSpace* src,
-                                 Uniforms* uniforms, SkColorSpace* dst) {
-        SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType,
-                               dst,   kPremul_SkAlphaType).apply(color.vec());
+    Color Builder::uniformColor(SkColor4f color, Uniforms* uniforms) {
+        auto [r,g,b,a] = color;
         return {
-            uniformF(uniforms->pushF(color.fR)),
-            uniformF(uniforms->pushF(color.fG)),
-            uniformF(uniforms->pushF(color.fB)),
-            uniformF(uniforms->pushF(color.fA)),
+            uniformF(uniforms->pushF(r)),
+            uniformF(uniforms->pushF(g)),
+            uniformF(uniforms->pushF(b)),
+            uniformF(uniforms->pushF(a)),
         };
+    }
+
+    Color_Q14 Builder::uniformColor_Q14(SkColor4f color, Uniforms* uniforms) {
+    #if 1
+        auto [r,g,b,a] = this->uniformColor(color, uniforms);
+        return {
+            to_Q14(r),
+            to_Q14(g),
+            to_Q14(b),
+            to_Q14(a),
+        };
+    #else
+        auto [r,g,b,a] = color;
+        //SkDebugf("%g %g %g %g -> %08x %08x %08x %08x\n",
+        //         r,g,b,a, Q14a{r}.imm, Q14a{g}.imm, Q14a{b}.imm, Q14a{a}.imm);
+        return {
+            to_Q14(uniform16(uniforms->push(Q14a{r}.imm))),
+            to_Q14(uniform16(uniforms->push(Q14a{g}.imm))),
+            to_Q14(uniform16(uniforms->push(Q14a{b}.imm))),
+            to_Q14(uniform16(uniforms->push(Q14a{a}.imm))),
+        };
+    #endif
     }
 
     F32 Builder::lerp(F32 lo, F32 hi, F32 t) {
         if (this->isImm(t.id, 0.0f)) { return lo; }
         if (this->isImm(t.id, 1.0f)) { return hi; }
-        return mad(sub(hi, lo), t, lo);
+        return (hi-lo)*t + lo;
+    }
+    Color Builder::lerp(Color lo, Color hi, F32 t) {
+        return {
+            lerp(lo.r, hi.r, t),
+            lerp(lo.g, hi.g, t),
+            lerp(lo.b, hi.b, t),
+            lerp(lo.a, hi.a, t),
+        };
     }
 
-    Color Builder::lerp(Color lo, Color hi, F32 t) {
+    Q14 Builder::lerp(Q14 lo, Q14 hi, Q14 t) {
+        /*  TODO
+        if (this->isImm(t.id, 0.0f)) { return lo; }
+        if (this->isImm(t.id, 1.0f)) { return hi; }
+        */
+        return (hi-lo)*t + lo;
+    }
+    Color_Q14 Builder::lerp(Color_Q14 lo, Color_Q14 hi, Q14 t) {
         return {
             lerp(lo.r, hi.r, t),
             lerp(lo.g, hi.g, t),
@@ -1595,6 +1634,33 @@ namespace skvm {
         *r = clip(*r);
         *g = clip(*g);
         *b = clip(*b);
+    }
+
+    Color_Q14 Builder::blend(SkBlendMode mode, Color_Q14 src, Color_Q14 dst) {
+        auto apply_rgba = [&](auto fn) {
+            return Color_Q14 {
+                fn(src.r, dst.r),
+                fn(src.g, dst.g),
+                fn(src.b, dst.b),
+                fn(src.a, dst.a),
+            };
+        };
+        switch (mode) {
+            default: break;  // TODO: modes that don't need sqrt or divide should work fine.
+
+            case SkBlendMode::kClear:
+                     return { splat_Q14(0.0f), splat_Q14(0.0f), splat_Q14(0.0f), splat_Q14(0.0f) };
+
+            case SkBlendMode::kSrc: return src;
+            case SkBlendMode::kDst: return dst;
+
+            case SkBlendMode::kDstOver: std::swap(src, dst); [[fallthrough]];
+            case SkBlendMode::kSrcOver:
+                return apply_rgba([&](Q14 s, Q14 d) {
+                    return s + d*(1-src.a);
+                });
+        }
+        return {};
     }
 
     Color Builder::blend(SkBlendMode mode, Color src, Color dst) {
