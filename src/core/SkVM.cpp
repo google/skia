@@ -1473,15 +1473,13 @@ namespace skvm {
         *b *= a;
     }
 
-    Color Builder::uniformPremul(SkColor4f color,    SkColorSpace* src,
-                                 Uniforms* uniforms, SkColorSpace* dst) {
-        SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType,
-                               dst,   kPremul_SkAlphaType).apply(color.vec());
+    Color Builder::uniformColor(SkColor4f color, Uniforms* uniforms) {
+        auto [r,g,b,a] = color;
         return {
-            uniformF(uniforms->pushF(color.fR)),
-            uniformF(uniforms->pushF(color.fG)),
-            uniformF(uniforms->pushF(color.fB)),
-            uniformF(uniforms->pushF(color.fA)),
+            uniformF(uniforms->pushF(r)),
+            uniformF(uniforms->pushF(g)),
+            uniformF(uniforms->pushF(b)),
+            uniformF(uniforms->pushF(a)),
         };
     }
 

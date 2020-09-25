@@ -75,9 +75,11 @@ bool SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
 skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
                                          SkColorSpace* dstCS,
                                          skvm::Uniforms* uniforms, SkArenaAlloc*) const {
+    SkColor4f color = SkColor4f::FromColor(fColor);
+    SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                                         dstCS,   kPremul_SkAlphaType).apply(color.vec());
     skvm::Color dst = c,
-                src = p->uniformPremul(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
-                                       uniforms, dstCS);
+                src = p->uniformColor(color, uniforms);
     return p->blend(fMode, src,dst);
 }
 

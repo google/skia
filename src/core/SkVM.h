@@ -646,9 +646,8 @@ namespace skvm {
         I32 uniform32(Arg ptr, int offset);
         F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
 
-        // Load this color as a uniform, premultiplied and converted to dst SkColorSpace.
-        Color uniformPremul(SkColor4f, SkColorSpace* src,
-                            Uniforms*, SkColorSpace* dst);
+        // Push and load this color as a uniform.
+        Color uniformColor(SkColor4f, Uniforms*);
 
         // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
         I32 gather8 (Arg ptr, int offset, I32 index);
