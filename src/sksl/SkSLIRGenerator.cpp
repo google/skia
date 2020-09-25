@@ -2483,7 +2483,7 @@ std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression
         }
     }
     fErrors.error(base->fOffset, "type '" + baseType.displayName() + "' does not have a field "
-                                 "named '" + field + "");
+                                 "named '" + field + "'");
     return nullptr;
 }
 
