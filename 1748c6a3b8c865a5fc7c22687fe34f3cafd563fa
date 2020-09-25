@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e88b8ebd_5bf60554",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1093,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T15:18:33Z",
+      "side": 0,
+      "message": "It was secretly push_back all along",
+      "range": {
+        "startLine": 1093,
+        "startChar": 12,
+        "endLine": 1093,
+        "endChar": 61
+      },
+      "revId": "1748c6a3b8c865a5fc7c22687fe34f3cafd563fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
