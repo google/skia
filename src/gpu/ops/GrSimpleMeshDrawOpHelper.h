@@ -130,22 +130,28 @@ public:
                                 GrAppliedClip&&,
                                 const GrXferProcessor::DstProxyView&,
                                 GrProcessorSet&&,
-                                GrPipeline::InputFlags pipelineFlags,
-                                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+                                GrPipeline::InputFlags pipelineFlags);
     static const GrPipeline* CreatePipeline(
                                 GrOpFlushState*,
                                 GrProcessorSet&&,
-                                GrPipeline::InputFlags pipelineFlags,
-                                const GrUserStencilSettings* = &GrUserStencilSettings::kUnused);
+                                GrPipeline::InputFlags pipelineFlags);
 
     const GrPipeline* createPipeline(GrOpFlushState* flushState);
+
+    const GrPipeline* createPipeline(const GrCaps*,
+                                     SkArenaAlloc*,
+                                     GrSwizzle writeViewSwizzle,
+                                     GrAppliedClip&&,
+                                     const GrXferProcessor::DstProxyView&);
 
     static GrProgramInfo* CreateProgramInfo(SkArenaAlloc*,
                                             const GrPipeline*,
                                             const GrSurfaceProxyView* writeView,
                                             GrGeometryProcessor*,
                                             GrPrimitiveType,
-                                            GrXferBarrierFlags renderPassXferBarriers);
+                                            GrXferBarrierFlags renderPassXferBarriers,
+                                            const GrUserStencilSettings*
+                                                                = &GrUserStencilSettings::kUnused);
 
     // Create a programInfo with the following properties:
     //     its primitive processor uses no textures

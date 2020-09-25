@@ -21,14 +21,7 @@ public:
     using InputFlags = GrSimpleMeshDrawOpHelper::InputFlags;
 
     using GrSimpleMeshDrawOpHelper::visitProxies;
-
-    const GrPipeline* createPipelineWithStencil(const GrCaps*,
-                                                SkArenaAlloc*,
-                                                GrSwizzle writeViewSwizzle,
-                                                GrAppliedClip&&,
-                                                const GrXferProcessor::DstProxyView&);
-
-    const GrPipeline* createPipelineWithStencil(GrOpFlushState* flushState);
+    using GrSimpleMeshDrawOpHelper::createPipeline;
 
     GrProgramInfo* createProgramInfoWithStencil(const GrCaps*,
                                                 SkArenaAlloc*,
@@ -38,7 +31,6 @@ public:
                                                 GrGeometryProcessor*,
                                                 GrPrimitiveType,
                                                 GrXferBarrierFlags renderPassXferBarriers);
-
 
     // using declarations can't be templated, so this is a pass through function instead.
     template <typename Op, typename... OpArgs>

@@ -166,6 +166,7 @@ private:
                                   flushState->proxy()->backendFormat(),
                                   flushState->writeView()->origin(),
                                   &pipeline,
+                                  &GrUserStencilSettings::kUnused,
                                   geomProc,
                                   GrPrimitiveType::kTriangleStrip, 0,
                                   flushState->renderPassBarriers());

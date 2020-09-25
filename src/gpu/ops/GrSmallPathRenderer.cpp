@@ -610,9 +610,10 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        auto pipeline = fHelper.createPipelineWithStencil(flushState);
+        auto pipeline = fHelper.createPipeline(flushState);
 
-        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline);
+        flushState->executeDrawsAndUploadsForMeshDrawOp(this, chainBounds, pipeline,
+                                                        fHelper.stencilSettings());
     }
 
     const SkPMColor4f& color() const { return fShapes[0].fColor; }
