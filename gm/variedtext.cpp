@@ -95,8 +95,8 @@ protected:
             fFont.setSize(fPtSizes[i]);
 
             fFont.measureText(fStrings[i].c_str(), fStrings[i].size(), SkTextEncoding::kUTF8, &r);
-            // safeRect is set of x,y positions where we can draw the string without hitting
-            // the GM's border.
+            // safeRect is set of x,y positions where we can draw the string's bounding box without
+            // hitting the GM's border.
             SkRect safeRect = SkRect::MakeLTRB(-r.fLeft, -r.fTop, w - r.fRight, h - r.fBottom);
             if (safeRect.isEmpty()) {
                 // If we don't fit then just don't worry about how we get cliped to the device
@@ -113,6 +113,9 @@ protected:
             if (fEffectiveClip) {
                 fClipRects[i].fRight -= 0.25f * fClipRects[i].width();
             }
+
+            // Adjust the point at which to draw the text so that it will draw in the bounds.
+            fPositions[i].fX -= r.left();
         }
     }
 

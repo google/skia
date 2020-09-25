@@ -46,7 +46,6 @@ protected:
         const char* text = "able was I ere I saw elba";
         font.setSubpixel(true);
         font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-        // If we use SkTextBlob::MakeFromText, we get very different positioning ... why?
         ToolUtils::add_to_text_blob(&builder, text, font, 0, 0);
         fBlob = builder.make();
     }
@@ -73,7 +72,7 @@ protected:
             SkPaint textPaint;
             textPaint.setColor(colors[i]);
             textPaint.setBlendMode(i % 2 == 0 ? mode : mode2);
-            canvas->drawTextBlob(fBlob, 0, 0, textPaint);
+            canvas->drawTextBlob(fBlob, -fBlob->bounds().left(), 0, textPaint);
             canvas->restore();
         }
     }
