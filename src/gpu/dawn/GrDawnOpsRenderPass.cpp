@@ -120,10 +120,10 @@ void GrDawnOpsRenderPass::applyState(GrDawnProgram* program, const GrProgramInfo
     auto bindGroup = program->setUniformData(fGpu, fRenderTarget, programInfo);
     fPassEncoder.SetPipeline(program->fRenderPipeline);
     fPassEncoder.SetBindGroup(0, bindGroup, 0, nullptr);
-    const GrPipeline& pipeline = programInfo.pipeline();
-    if (pipeline.isStencilEnabled()) {
-        fPassEncoder.SetStencilReference(pipeline.getUserStencil()->fCCWFace.fRef);
+    if (programInfo.isStencilEnabled()) {
+        fPassEncoder.SetStencilReference(programInfo.userStencilSettings()->fCCWFace.fRef);
     }
+    const GrPipeline& pipeline = programInfo.pipeline();
     GrXferProcessor::BlendInfo blendInfo = pipeline.getXferProcessor().getBlendInfo();
     const float* c = blendInfo.fBlendConstant.vec();
     wgpu::Color color{c[0], c[1], c[2], c[3]};

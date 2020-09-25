@@ -51,7 +51,8 @@ public:
 
     // Called after prepareToDraw(). Draws the given batch of path fills.
     void drawFills(GrOpFlushState*, GrCCCoverageProcessor*, const GrPipeline&, BatchID,
-                   const SkIRect& drawBounds) const;
+                   const SkIRect& drawBounds,
+                   const GrUserStencilSettings* = &GrUserStencilSettings::kUnused) const;
 
 private:
     static constexpr int kNumScissorModes = 2;
@@ -107,7 +108,8 @@ private:
             GrCCCoverageProcessor::TriPointInstance::Ordering,
             GrCCCoverageProcessor::TriPointInstance*, GrCCCoverageProcessor::QuadPointInstance*,
             GrCCFillGeometry::PrimitiveTallies*);
-    void drawPrimitives(GrOpFlushState*, const GrCCCoverageProcessor&, const GrPipeline&, BatchID,
+    void drawPrimitives(GrOpFlushState*, const GrCCCoverageProcessor&, const GrPipeline&,
+                        const GrUserStencilSettings*, BatchID,
                         int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const;
 
     const Algorithm fAlgorithm;

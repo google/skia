@@ -180,8 +180,8 @@ void GrDrawAtlasPathOp::onExecute(GrOpFlushState* state, const SkRect& chainBoun
 
     GrProgramInfo programInfo(state->proxy()->numSamples(), state->proxy()->numStencilSamples(),
                               state->proxy()->backendFormat(), state->writeView()->origin(),
-                              &pipeline, &shader, GrPrimitiveType::kTriangleStrip, 0,
-                              state->renderPassBarriers());
+                              &pipeline, &GrUserStencilSettings::kUnused, &shader,
+                              GrPrimitiveType::kTriangleStrip, 0, state->renderPassBarriers());
 
     state->bindPipelineAndScissorClip(programInfo, this->bounds());
     state->bindTextures(shader, *fAtlasProxy, pipeline);
