@@ -209,7 +209,6 @@ sksl_glsl_tests_sources = [
   "$_tests/sksl/glsl/SwizzleScalar.sksl",
   "$_tests/sksl/glsl/TernaryAsLValueEntirelyFoldable.sksl",
   "$_tests/sksl/glsl/TernaryAsLValueFoldableTest.sksl",
-  "$_tests/sksl/glsl/TernaryAsLValueUnfoldable.sksl",
   "$_tests/sksl/glsl/Texture.sksl",
   "$_tests/sksl/glsl/TextureSharpen.sksl",
   "$_tests/sksl/glsl/TextureSharpenVersion110.sksl",
