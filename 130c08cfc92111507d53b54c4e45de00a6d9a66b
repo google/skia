@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "753380d0_2d22b7d5",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 26
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-25T15:36:24Z",
+      "side": 1,
+      "message": "Note that this also needs a change to the schema in infra.git",
+      "range": {
+        "startLine": 151,
+        "startChar": 3,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb5f4806_68889def",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-25T15:36:24Z",
+      "side": 1,
+      "message": "This is done frequently enough (here and in many other services) that it seems to warrant adding eg. common.AbsPathFlag(...)",
+      "range": {
+        "startLine": 47,
+        "startChar": 15,
+        "endLine": 47,
+        "endChar": 40
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7c49e9fb_bccdb348",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-25T15:36:24Z",
+      "side": 1,
+      "message": "Let\u0027s use the git package, which handles the location of Git (including asserting that it comes from CIPD)",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 103
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e348df29_51342432",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-25T15:36:24Z",
+      "side": 1,
+      "message": "Why not use the docker package?",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 57
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
