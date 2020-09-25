@@ -102,6 +102,7 @@ def skpbench_steps(api):
         # for volatile paths.
         '--pr', '~nvpr',
         '--allPathsVolatile',
+        '--suffix', "_volatile",
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_*svg.skp'),
         api.path.join(api.flavor.device_dirs.skp_dir, 'desk_chalkboard.skp')]
   else:
