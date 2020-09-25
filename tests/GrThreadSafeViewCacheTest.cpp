@@ -12,6 +12,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
+#include "src/gpu/GrStyle.h"
 #include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -25,6 +26,19 @@ static SkImageInfo default_ii(int wh) {
     return SkImageInfo::Make(wh, wh, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 }
 
+static std::unique_ptr<GrRenderTargetContext> new_RTC(GrRecordingContext* rContext, int wh) {
+    return GrRenderTargetContext::Make(rContext,
+                                       GrColorType::kRGBA_8888,
+                                       nullptr,
+                                       SkBackingFit::kExact,
+                                       {wh, wh},
+                                       1,
+                                       GrMipMapped::kNo,
+                                       GrProtected::kNo,
+                                       kImageOrigin,
+                                       SkBudgeted::kYes);
+}
+
 static void create_key(GrUniqueKey* key, int wh) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kDomain, 1);
@@ -32,7 +46,7 @@ static void create_key(GrUniqueKey* key, int wh) {
     builder.finish();
 };
 
-SkBitmap create_up_arrow_bitmap(int wh) {
+static SkBitmap create_bitmap(int wh) {
     SkBitmap bitmap;
 
     bitmap.allocPixels(default_ii(wh));
@@ -42,23 +56,9 @@ SkBitmap create_up_arrow_bitmap(int wh) {
 
     SkPaint blue;
     blue.setColor(SK_ColorBLUE);
-    blue.setAntiAlias(true);
+    blue.setAntiAlias(false);
 
-    float halfW = wh / 2.0f;
-    float halfH = wh / 2.0f;
-    float thirdW = wh / 3.0f;
-
-    SkPath path;
-    path.moveTo(0, halfH);
-    path.lineTo(thirdW, halfH);
-    path.lineTo(thirdW, wh);
-    path.lineTo(2*thirdW, wh);
-    path.lineTo(2*thirdW, halfH);
-    path.lineTo(wh, halfH);
-    path.lineTo(halfW, 0);
-    path.close();
-
-    tmp.drawPath(path, blue);
+    tmp.drawRect({10, 10, wh-10.0f, wh-10.0f}, blue);
 
     return bitmap;
 }
@@ -70,6 +70,7 @@ public:
         int fCacheMisses = 0;
 
         int fNumSWCreations = 0;
+        int fNumLazyCreations = 0;
         int fNumHWCreations = 0;
     };
 
@@ -130,11 +131,12 @@ public:
     // Add a draw on 'canvas' that will introduce a ref on the 'wh' view
     void accessCachedView(SkCanvas* canvas,
                           int wh,
-                          bool failLookup = false) {
+                          bool failLookup = false,
+                          bool failFillingIn = false) {
         GrRecordingContext* rContext = canvas->recordingContext();
 
         auto view = AccessCachedView(rContext, this->threadSafeViewCache(),
-                                     wh, failLookup, &fStats);
+                                     wh, failLookup, failFillingIn, &fStats);
         SkASSERT(view);
 
         auto rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
@@ -220,12 +222,25 @@ public:
     }
 
 private:
+    // In the gpu-creation case, we need to pre-emptively place a lazy proxy in the shared
+    // cache. This object allows that lazy proxy to be instantiated with some rendering result
+    // generated after the fact.
+    class Trampoline : public SkRefCnt {
+    public:
+        sk_sp<GrTextureProxy> fProxy;
+    };
+
     static GrSurfaceProxyView AccessCachedView(GrRecordingContext*,
                                                GrThreadSafeUniquelyKeyedProxyViewCache*,
                                                int wh,
-                                               bool failLookup, Stats*);
+                                               bool failLookup, bool failFillingIn,
+                                               Stats*);
     static GrSurfaceProxyView CreateViewOnCpu(GrRecordingContext*, int wh, Stats*);
-    static GrSurfaceProxyView CreateViewOnGpu(GrDirectContext*, int wh, Stats*);
+    static std::tuple<GrSurfaceProxyView, sk_sp<Trampoline>> CreateLazyView(GrDirectContext*,
+                                                                            int wh, Stats*);
+    static bool FillInViewOnGpu(GrDirectContext*, int wh, Stats*,
+                                const GrSurfaceProxyView& lazyView,
+                                sk_sp<Trampoline>);
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
@@ -240,7 +255,7 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
                                                Stats* stats) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(create_up_arrow_bitmap(wh),
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(create_bitmap(wh),
                                                                        GrMipmapped::kNo,
                                                                        SkBackingFit::kExact,
                                                                        SkBudgeted::kYes);
@@ -254,50 +269,121 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
     return {std::move(proxy), kImageOrigin, swizzle};
 }
 
-GrSurfaceProxyView TestHelper::CreateViewOnGpu(GrDirectContext* dContext,
-                                               int wh,
-                                               Stats* stats) {
+std::tuple<GrSurfaceProxyView, sk_sp<TestHelper::Trampoline>> TestHelper::CreateLazyView(
+            GrDirectContext* dContext, int wh, Stats* stats) {
+
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(create_up_arrow_bitmap(wh),
-                                                                       GrMipmapped::kNo,
-                                                                       SkBackingFit::kExact,
-                                                                       SkBudgeted::kYes);
+    sk_sp<Trampoline> trampoline(new Trampoline);
 
-    GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                GrColorType::kRGBA_8888);
-    ++stats->fNumHWCreations;
-    return {std::move(proxy), kImageOrigin, swizzle};
+    GrProxyProvider::TextureInfo texInfo { GrMipMapped::kNo, GrTextureType::k2D };
+
+    GrBackendFormat format = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
+                                                            GrRenderable::kYes);
+    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
+        [trampoline] (GrResourceProvider* resourceProvider, const GrSurfaceProxy::LazySurfaceDesc&)
+                -> GrSurfaceProxy::LazyCallbackResult {
+            if (!resourceProvider || !trampoline->fProxy || !trampoline->fProxy->isInstantiated()) {
+                return GrSurfaceProxy::LazyCallbackResult(nullptr, true);
+
+            }
+
+            SkASSERT(!trampoline->fProxy->peekTexture()->getUniqueKey().isValid());
+            return GrSurfaceProxy::LazyCallbackResult(sk_ref_sp(trampoline->fProxy->peekTexture()));
+        },
+        format,
+        {wh, wh},
+        /* renderTargetSampleCnt */ 1,
+        GrInternalSurfaceFlags::kNone,
+        &texInfo,
+        GrMipmapStatus::kNotAllocated,
+        SkBackingFit::kExact,
+        SkBudgeted::kYes,
+        GrProtected::kNo,
+        /* wrapsVkSecondaryCB */ false,
+        GrSurfaceProxy::UseAllocator::kYes);
+
+    GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
+
+    ++stats->fNumLazyCreations;
+    return {{std::move(proxy), kImageOrigin, swizzle}, std::move(trampoline)};
 }
 
-// TODO: this doesn't actually implement the correct behavior for the gpu-thread. It needs to
-// add a view to the cache and then queue up the calls to draw the content.
+bool TestHelper::FillInViewOnGpu(GrDirectContext* dContext, int wh, Stats* stats,
+                                 const GrSurfaceProxyView& lazyView,
+                                 sk_sp<Trampoline> trampoline) {
+
+    std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext, wh);
+
+    GrPaint paint;
+    paint.setColor4f({0.0f, 0.0f, 1.0f, 1.0f});
+
+    rtc->clear({1.0f, 1.0f, 1.0f, 1.0f});
+    rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                  { 10, 10, wh-10.0f, wh-10.0f }, &GrStyle::SimpleFill());
+
+    ++stats->fNumHWCreations;
+    auto view = rtc->readSurfaceView();
+
+    SkASSERT(view.swizzle() == lazyView.swizzle());
+    SkASSERT(view.origin() == lazyView.origin());
+    trampoline->fProxy = view.asTextureProxyRef();
+
+    return true;
+}
+
 GrSurfaceProxyView TestHelper::AccessCachedView(
                                     GrRecordingContext* rContext,
                                     GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache,
                                     int wh,
-                                    bool failLookup,
+                                    bool failLookup, bool failFillingIn,
                                     Stats* stats) {
     GrUniqueKey key;
     create_key(&key, wh);
 
-    // We can "fail the lookup" to simulate a threaded race condition
-    if (auto view = threadSafeViewCache->find(key); !failLookup && view) {
-        ++stats->fCacheHits;
-        return view;
-    }
-
-    ++stats->fCacheMisses;
-
-    GrSurfaceProxyView view;
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
-        view = CreateViewOnGpu(dContext, wh, stats);
-    } else {
-        view = CreateViewOnCpu(rContext, wh, stats);
-    }
-    SkASSERT(view);
+        // The gpu thread gets priority over the recording threads. If the gpu thread is first,
+        // it crams a lazy proxy into the cache and then fills it in later.
+        auto [lazyView, trampoline] = CreateLazyView(dContext, wh, stats);
 
-    return threadSafeViewCache->add(key, view);
+        GrSurfaceProxyView view = threadSafeViewCache->findOrAdd(key, lazyView);
+        if (view != lazyView) {
+            ++stats->fCacheHits;
+            return view;
+        }
+
+        ++stats->fCacheMisses;
+
+        if (failFillingIn) {
+            // Simulate something going horribly wrong at flush-time so no GrTexture is
+            // available to fulfill the lazy proxy.
+            return view;
+        }
+
+        if (!FillInViewOnGpu(dContext, wh, stats, lazyView, std::move(trampoline))) {
+            // In this case something has gone disastrously wrong so set up to drop the draw
+            // that needed this resource and reduce future pollution of the cache.
+            threadSafeViewCache->remove(key);
+            return {};
+        }
+
+        return view;
+    } else {
+        GrSurfaceProxyView view;
+
+        // We can "fail the lookup" to simulate a threaded race condition
+        if (auto view = threadSafeViewCache->find(key); !failLookup && view) {
+            ++stats->fCacheHits;
+            return view;
+        }
+
+        ++stats->fCacheMisses;
+
+        view = CreateViewOnCpu(rContext, wh, stats);
+        SkASSERT(view);
+
+        return threadSafeViewCache->add(key, view);
+    }
 }
 
 // Case 1: ensure two DDL recorders share the view
@@ -313,6 +399,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
                                                /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 1);
 }
@@ -334,6 +421,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
                                                /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 }
@@ -351,6 +439,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
                                                /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 1);
 }
@@ -369,8 +458,63 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
                                                /*hits*/ 0, /*misses*/ 2, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 2);
+}
+
+// Case 4.5: check that, if a live rendering and a DDL recording get into a race, the live
+// rendering takes precedence.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_5, reporter, ctxInfo) {
+    TestHelper helper(ctxInfo.directContext());
+
+    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
+
+    static const bool kFailLookup = true;
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, kFailLookup);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2));
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 1);
+}
+
+// Case 4.75: check that, if a live rendering fails to generate the content needed to instantiate
+//            its lazy proxy, life goes on
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo) {
+    auto dContext = ctxInfo.directContext();
+
+    TestHelper helper(dContext);
+
+    static const bool kFailFillingIn = true;
+    helper.accessCachedView(helper.liveCanvas(), kImageWH, false, kFailFillingIn);
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
+
+    dContext->flush();
+    dContext->submit(true);
+
+    REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 0));
+
+    REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 }
 
 // Case 5: ensure that expanding the map works
@@ -473,6 +617,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache8, reporter, ctxInfo) {
                                                /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
@@ -506,6 +651,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache9, reporter, ctxInfo) {
                                                /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
