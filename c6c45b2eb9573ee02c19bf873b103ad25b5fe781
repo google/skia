@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8ab2ebb7_f143c43b",
+        "filename": "src/gpu/tessellate/GrPathTessellateOp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-25T19:47:51Z",
+      "side": 1,
+      "message": "draw ?",
+      "range": {
+        "startLine": 186,
+        "startChar": 26,
+        "endLine": 186,
+        "endChar": 27
+      },
+      "revId": "c6c45b2eb9573ee02c19bf873b103ad25b5fe781",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
