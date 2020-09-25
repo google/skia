@@ -35,7 +35,8 @@ const GrCaps& GrOpFlushState::caps() const {
 }
 
 void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
-        const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline) {
+        const GrOp* op, const SkRect& chainBounds, const GrPipeline* pipeline,
+        const GrUserStencilSettings* userStencilSettings) {
     SkASSERT(this->opsRenderPass());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
@@ -51,6 +52,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
                                   this->proxy()->backendFormat(),
                                   this->writeView()->origin(),
                                   pipeline,
+                                  userStencilSettings,
                                   fCurrDraw->fGeometryProcessor,
                                   fCurrDraw->fPrimitiveType,
                                   0,

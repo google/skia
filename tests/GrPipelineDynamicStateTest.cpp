@@ -166,8 +166,8 @@ private:
                                   flushState->proxy()->backendFormat(),
                                   flushState->writeView()->origin(),
                                   &pipeline,
-                                  geomProc,
-                                  GrPrimitiveType::kTriangleStrip, 0,
+                                  &GrUserStencilSettings::kUnused,
+                                  geomProc, GrPrimitiveType::kTriangleStrip, 0,
                                   flushState->renderPassBarriers());
 
         flushState->bindPipeline(programInfo, SkRect::MakeIWH(kScreenSize, kScreenSize));
