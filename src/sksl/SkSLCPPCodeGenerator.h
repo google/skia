@@ -13,7 +13,7 @@
 
 #include <set>
 
-#if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+#if defined(SKSL_STANDALONE) || GR_TEST_UTILS
 
 namespace SkSL {
 
@@ -159,6 +159,6 @@ private:
 
 }  // namespace SkSL
 
-#endif // defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+#endif // defined(SKSL_STANDALONE) || GR_TEST_UTILS
 
 #endif // SKSL_CPPCODEGENERATOR

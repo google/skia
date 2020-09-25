@@ -233,7 +233,7 @@ private:
 
     std::unique_ptr<GrAuditTrail>     fAuditTrail;
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
     int fSuppressWarningMessages = 0;
 #endif
 

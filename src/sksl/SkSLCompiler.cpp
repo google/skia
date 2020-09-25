@@ -1823,7 +1823,7 @@ bool Compiler::toMetal(Program& program, String* out) {
     return result;
 }
 
-#if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+#if defined(SKSL_STANDALONE) || GR_TEST_UTILS
 bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
     fSource = program.fSource.get();
     CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
@@ -1839,7 +1839,7 @@ bool Compiler::toH(Program& program, String name, OutputStream& out) {
     fSource = nullptr;
     return result;
 }
-#endif // defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+#endif // defined(SKSL_STANDALONE) || GR_TEST_UTILS
 
 #endif // defined(SKSL_STANDALONE) || SK_SUPPORT_GPU
 

@@ -77,7 +77,7 @@ public:
     GrClip::PreClipResult preApply(const SkRect& drawBounds, GrAA aa) const override;
     SkIRect getConservativeBounds() const override;
 
-#ifdef GR_TEST_UTILS
+#if GR_TEST_UTILS
     GrUniqueKey testingOnly_getLastSWMaskKey() const {
         return fMasks.empty() ? GrUniqueKey() : fMasks.back().key();
     }

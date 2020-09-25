@@ -19,7 +19,7 @@
 
 #include <set>
 
-#if defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+#if defined(SKSL_STANDALONE) || GR_TEST_UTILS
 
 namespace SkSL {
 
@@ -393,4 +393,4 @@ bool HCodeGenerator::generateCode() {
 
 }  // namespace SkSL
 
-#endif // defined(SKSL_STANDALONE) || defined(GR_TEST_UTILS)
+#endif // defined(SKSL_STANDALONE) || GR_TEST_UTILS

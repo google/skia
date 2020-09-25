@@ -114,7 +114,7 @@ bool GrOctoBounds::clip(const SkIRect& clipRect) {
     return true;
 }
 
-#if defined(SK_DEBUG) || defined(GR_TEST_UTILS)
+#if defined(SK_DEBUG) || GR_TEST_UTILS
 void GrOctoBounds::validateBoundsAreTight() const {
     this->validateBoundsAreTight([](bool cond, const char* file, int line, const char* code) {
         SkASSERTF(cond, "%s(%d): assertion failure: \"assert(%s)\"", file, line, code);
