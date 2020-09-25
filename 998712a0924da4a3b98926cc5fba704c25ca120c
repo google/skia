@@ -148,6 +148,30 @@
     },
     {
       "key": {
+        "uuid": "0a8dca1b_30b2feae",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-25T15:45:53Z",
+      "side": 1,
+      "message": "Yeah, it\u0027s so one can get glyph bounds for things like blurred text and things like that. (Not sure what\u0027s exposed in js at the moment, but things like stroked, fake bolded, path effected, mask filtered.)",
+      "parentUuid": "067cb752_a35c969f",
+      "range": {
+        "startLine": 204,
+        "startChar": 48,
+        "endLine": 204,
+        "endChar": 57
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fcec5ed1_52b8dbcd",
         "filename": "modules/canvaskit/tests/font.spec.js",
         "patchSetId": 10
