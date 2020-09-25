@@ -1,7 +1,7 @@
 /*#pragma settings Default*/
 
-uniform half4 src, dst;
+in half4 src, dst;
 
-half4 main() {
-    return blend_overlay(src, dst);
+void main() {
+    sk_FragColor = blend_overlay(src, dst);
 }
