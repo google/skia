@@ -46,6 +46,30 @@
       "revId": "63d4cb7f617e30473200db6a40d41808ec05adfd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98ba74c5_b2753067",
+        "filename": "tests/sksl/shared/Assignment.sksl",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-25T19:15:05Z",
+      "side": 1,
+      "message": "yep",
+      "parentUuid": "70e71636_f60df929",
+      "range": {
+        "startLine": 15,
+        "startChar": 41,
+        "endLine": 15,
+        "endChar": 48
+      },
+      "revId": "63d4cb7f617e30473200db6a40d41808ec05adfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
