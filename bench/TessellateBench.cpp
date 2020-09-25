@@ -148,13 +148,15 @@ private:
         for (int i = 0; i < loops; ++i) {
             fOp.fTriangleBuffer.reset();
             fOp.fTriangleVertexCount = 0;
-            fOp.fSharedStencilPipeline = nullptr;
+            fOp.fPipelineForStencils = nullptr;
+            fOp.fPipelineForFills = nullptr;
             fOp.fStencilTrianglesProgram = nullptr;
-            fOp.fDoFillTriangleBuffer = false;
+            fOp.fFillTrianglesProgram = nullptr;
             fOp.fCubicBuffer.reset();
             fOp.fCubicVertexCount = 0;
-            // Make fStencilTrianglesProgram non-null to keep assertions happy.
+            // Make fStencilCubicsProgram non-null to keep assertions happy.
             fOp.fStencilCubicsProgram = (GrProgramInfo*)-1;
+            fOp.fFillPathProgram = nullptr;
             this->runBench(&fTarget, &fOp);
             fTarget.resetAllocator();
         }

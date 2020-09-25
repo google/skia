@@ -36,7 +36,7 @@ public:
     }
 
     GrAppliedHardClip(GrAppliedHardClip&& that) = default;
-    GrAppliedHardClip(const GrAppliedHardClip&) = delete;
+    explicit GrAppliedHardClip(const GrAppliedHardClip&) = default;
 
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
