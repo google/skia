@@ -2811,12 +2811,12 @@ void IRGenerator::checkValid(const Expression& expr) {
 }
 
 bool IRGenerator::setRefKind(Expression& expr, VariableReference::RefKind kind) {
-    std::vector<VariableReference*> assignableVars;
-    if (!Analysis::IsAssignable(expr, &assignableVars, fErrors)) {
+    VariableReference* assignableVar = nullptr;
+    if (!Analysis::IsAssignable(expr, &assignableVar, &fErrors)) {
         return false;
     }
-    for (VariableReference* v : assignableVars) {
-        v->setRefKind(kind);
+    if (assignableVar) {
+        assignableVar->setRefKind(kind);
     }
     return true;
 }
