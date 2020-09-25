@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c408eb77_b1c7f5f1",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "It\u0027s not required, but it might be nice for the reader to explicitly say BoolLiteralData{...} here instead of letting type deduction figure it out.",
+      "range": {
+        "startLine": 24,
+        "startChar": 41,
+        "endLine": 24,
+        "endChar": 42
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdda861b_a7896fcd",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "optional:\n    other.as\u003cBoolLiteral\u003e()",
+      "range": {
+        "startLine": 43,
+        "startChar": 25,
+        "endLine": 43,
+        "endChar": 46
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fe183dc_26f15726",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "maybe  \n    BoolLiteralData{...}  \n?",
+      "range": {
+        "startLine": 53,
+        "startChar": 41,
+        "endLine": 53,
+        "endChar": 42
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63bd41c2_17fed295",
+        "filename": "src/sksl/ir/SkSLBoolLiteral.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "Why moved to private?",
+      "range": {
+        "startLine": 55,
+        "startChar": 1,
+        "endLine": 55,
+        "endChar": 33
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d698a24_dbd20f1d",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "const BlockData\u0026",
+      "range": {
+        "startLine": 98,
+        "startChar": 17,
+        "endLine": 98,
+        "endChar": 26
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7076d802_e8541c54",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "Re-reading this, the reinterpret_cast shouldn\u0027t be necessary? The goal of placement-new is to turn your untyped wad of memory into a T. This should hopefully work equally well:\n\n   new (fBytes) BlockData\n\nAnd if I\u0027m not wrong we should be able to use the built-in copy constructor:\n\n   *(new (fBytes) BlockData) \u003d data;",
+      "range": {
+        "startLine": 100,
+        "startChar": 16,
+        "endLine": 100,
+        "endChar": 52
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ee9f5ee_804746de",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "const BoolLiteralData\u0026",
+      "range": {
+        "startLine": 104,
+        "startChar": 17,
+        "endLine": 104,
+        "endChar": 32
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0d5bc1a_beb8276e",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "I was assuming we\u0027d construct and destruct all the types, not switch between memcpy and placement-construction/destruction on a case-by-case basis. From a UB perspective, we don\u0027t have a valid object living inside fBytes until we construct something there.\n\nCan we do this? \n\n    *(new (fBytes) BoolLiteralData) \u003d data;\n\nThe codegen appears identical: https://godbolt.org/z/Mroj8r",
+      "range": {
+        "startLine": 106,
+        "startChar": 12,
+        "endLine": 106,
+        "endChar": 48
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f65589d_5c164495",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "Let\u0027s destruct everything and let the optimizer decide to eliminate the POD ones on our behalf. This also has the advantage of giving us a nice error if we forget to add a kind, rather than accidentally missing a destructor call.\n\n    switch (fKind) {\n        case Kind::kBlock:       reinterpret_cast\u003cBlockData*\u003e(fBytes)-\u003e~BlockData(); break;\n        case Kind::kBoolLiteral: reinterpret_cast\u003cBoolLiteralData*\u003e(fBytes)-\u003e~BoolLiteralData(); break;\n    }",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 122,
+        "endChar": 13
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3d92927_b2d14910",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T20:40:08Z",
+      "side": 1,
+      "message": "const\u0026 here and below?",
+      "range": {
+        "startLine": 126,
+        "startChar": 33,
+        "endLine": 126,
+        "endChar": 42
+      },
+      "revId": "49a3d5d014e26920da68be0426360c15589f5224",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
