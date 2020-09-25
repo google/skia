@@ -2914,8 +2914,8 @@ void SPIRVCodeGenerator::writeStatement(const Statement& s, OutputStream& out) {
 }
 
 void SPIRVCodeGenerator::writeBlock(const Block& b, OutputStream& out) {
-    for (size_t i = 0; i < b.fStatements.size(); i++) {
-        this->writeStatement(*b.fStatements[i], out);
+    for (const Statement& stmt : b) {
+        this->writeStatement(stmt, out);
     }
 }
 

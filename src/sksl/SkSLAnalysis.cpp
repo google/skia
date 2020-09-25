@@ -314,8 +314,10 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             // Leaf statements just return false
             return false;
         case Statement::Kind::kBlock:
-            for (const std::unique_ptr<Statement>& blockStmt : s.as<Block>().fStatements) {
-                if (this->visitStatement(*blockStmt)) { return true; }
+            for (Statement& stmt : s.as<Block>()) {
+                if (this->visitStatement(stmt)) {
+                    return true;
+                }
             }
             return false;
         case Statement::Kind::kDo: {
