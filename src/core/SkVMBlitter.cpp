@@ -29,7 +29,6 @@ namespace {
     struct BlitterUniforms {
         int       right;  // First device x + blit run length n, used to get device x coordinate.
         int       y;      // Device y coordinate.
-        SkColor4f paint;  // In device color space.
     };
     static_assert(SkIsAlign4(sizeof(BlitterUniforms)), "");
     static constexpr int kBlitterUniformsCount = sizeof(BlitterUniforms) / 4;
@@ -42,6 +41,7 @@ namespace {
         SkColorInfo             dst;
         SkBlendMode             blendMode;
         Coverage                coverage;
+        SkColor4f               paint;
         SkFilterQuality         quality;
         const SkMatrixProvider& matrices;
 
@@ -62,7 +62,7 @@ namespace {
                  blendMode,
                  coverage;
         uint32_t padding{0};
-        // Params::quality and Params::matrices are only passed to {shader,clip}->program(),
+        // Params::{paint,quality,matrices} are only passed to {shader,clip}->program(),
         // not used here by the blitter itself.  No need to include them in the key;
         // they'll be folded into the shader key if used.
 
@@ -120,15 +120,6 @@ namespace {
         };
     }
 
-    static skvm::Color paint_color(skvm::Builder* p, skvm::Uniforms* uniforms) {
-        return {
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
-        };
-    }
-
     // If build_program() can't build this program, cache_key() sets *ok to false.
     static Key cache_key(const Params& params,
                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc, bool* ok) {
@@ -137,7 +128,7 @@ namespace {
             skvm::Builder p;
 
             skvm::Coord device = device_coord(&p, uniforms);
-            skvm::Color paint = paint_color(&p, uniforms);
+            skvm::Color paint = p.uniformColor(params.paint, uniforms);
 
             uint64_t hash = 0;
             if (auto c = sb->program(&p,
@@ -200,7 +191,7 @@ namespace {
         //    - UniformA8: 8-bit coverage uniform
 
         skvm::Coord device = device_coord(p, uniforms);
-        skvm::Color paint = paint_color(p, uniforms);
+        skvm::Color paint = p->uniformColor(params.paint, uniforms);
 
         // See note about arguments above... a SpriteShader will call p->arg() once here.
         skvm::Color src = as_SB(params.shader)->program(p, device,/*local=*/device, paint,
@@ -509,12 +500,18 @@ namespace {
             blendMode =  SkBlendMode::kSrc;
         }
 
+        SkColor4f paintColor = paint.getColor4f();
+        SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                               device.colorSpace(), kUnpremul_SkAlphaType}
+            .apply(paintColor.vec());
+
         return {
             std::move(shader),
             std::move(clip),
             { device.colorType(), device.alphaType(), device.refColorSpace() },
             blendMode,
             Coverage::Full,  // Placeholder... withCoverage() will change as needed.
+            paintColor,
             paint.getFilterQuality(),
             matrices,
         };
@@ -535,13 +532,7 @@ namespace {
             , fUniforms(kBlitterUniformsCount)
             , fParams(effective_params(device, sprite, paint, matrices, std::move(clip)))
             , fKey(cache_key(fParams, &fUniforms, &fAlloc, ok))
-            , fPaint([&]{
-                SkColor4f color = paint.getColor4f();
-                SkColorSpaceXformSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType,
-                                       device.colorSpace(), kUnpremul_SkAlphaType}
-                    .apply(color.vec());
-                return color;
-            }()) {}
+        {}
 
         ~Blitter() override {
             if (SkLRUCache<Key, skvm::Program>* cache = try_acquire_program_cache()) {
@@ -573,7 +564,6 @@ namespace {
         SkArenaAlloc    fAlloc{2*sizeof(void*)};  // but a few effects need to ref large content.
         const Params    fParams;
         const Key       fKey;
-        const SkColor4f fPaint;
         skvm::Program   fBlitH,
                         fBlitAntiH,
                         fBlitMaskA8,
@@ -629,7 +619,7 @@ namespace {
         }
 
         void updateUniforms(int right, int y) {
-            BlitterUniforms uniforms{right, y, fPaint};
+            BlitterUniforms uniforms{right, y};
             memcpy(fUniforms.buf.data(), &uniforms, sizeof(BlitterUniforms));
         }
 
