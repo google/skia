@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c6ddf2a_cc8ae2d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-25T14:38:41Z",
+      "side": 1,
+      "message": "Change looks good to me, but I\u0027m not going to autosubmit with that gold diff.",
+      "revId": "586d0934b1932933bca1556012f5bb2b6fcf2331",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
