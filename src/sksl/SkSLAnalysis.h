@@ -8,17 +8,21 @@
 #ifndef SkSLAnalysis_DEFINED
 #define SkSLAnalysis_DEFINED
 
+#include <vector>
+
 #include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/SkSLDefines.h"
 
 namespace SkSL {
 
+class ErrorReporter;
 struct Expression;
 struct FunctionDefinition;
 struct Program;
 struct ProgramElement;
 struct Statement;
 struct Variable;
+struct VariableReference;
 
 /**
  * Provides utilities for analyzing SkSL statically before it's composed into a full program.
@@ -34,6 +38,8 @@ struct Analysis {
     static int NodeCount(const FunctionDefinition& function);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
+    static bool IsAssignable(Expression& expr, std::vector<VariableReference*>* assignableVars,
+                             ErrorReporter& errors);
 };
 
 /**
