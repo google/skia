@@ -46,7 +46,25 @@ static void create_key(GrUniqueKey* key, int wh) {
     builder.finish();
 };
 
-static SkBitmap create_bitmap(int wh) {
+static SkPath up_arrow_path(int wh) {
+    float halfW = wh / 2.0f;
+    float halfH = wh / 2.0f;
+    float thirdW = wh / 3.0f;
+
+    SkPath path;
+    path.moveTo(0, halfH);
+    path.lineTo(thirdW, halfH);
+    path.lineTo(thirdW, wh);
+    path.lineTo(2*thirdW, wh);
+    path.lineTo(2*thirdW, halfH);
+    path.lineTo(wh, halfH);
+    path.lineTo(halfW, 0);
+    path.close();
+
+    return path;
+}
+
+static SkBitmap create_up_arrow_bitmap(int wh) {
     SkBitmap bitmap;
 
     bitmap.allocPixels(default_ii(wh));
@@ -56,9 +74,10 @@ static SkBitmap create_bitmap(int wh) {
 
     SkPaint blue;
     blue.setColor(SK_ColorBLUE);
-    blue.setAntiAlias(false);
+    blue.setAntiAlias(true);
 
-    tmp.drawRect({10, 10, wh-10.0f, wh-10.0f}, blue);
+    SkPath path = up_arrow_path(wh);
+    tmp.drawPath(path, blue);
 
     return bitmap;
 }
@@ -213,54 +232,6 @@ public:
         return true;
     }
 
-    bool checkImage(skiatest::Reporter* reporter, sk_sp<SkSurface> s) {
-        SkBitmap actual;
-
-        actual.allocPixels(default_ii(kImageWH));
-
-        if (!s->readPixels(actual, 0, 0)) {
-            return false;
-        }
-
-        SkBitmap expected = create_bitmap(kImageWH);
-
-#if 1
-        // we need 0.001f across the board just for noise
-        // we need 0.01f across the board for 1010102
-        const float tols[4] = { 0.01f, 0.01f, 0.01f, 0.01f };
-
-        auto error = std::function<ComparePixmapsErrorReporter>(
-            [reporter](int x, int y, const float diffs[4]) {
-                SkASSERT(x >= 0 && y >= 0);
-                ERRORF(reporter, "mismatch at %d, %d (%f, %f, %f %f)",
-                       x, y, diffs[0], diffs[1], diffs[2], diffs[3]);
-            });
-
-        ComparePixels(expected.pixmap(), actual.pixmap(), tols, error);
-#endif
-
-        return true;
-    }
-
-    bool checkImage(skiatest::Reporter* reporter) {
-        return checkImage(reporter, fDst);
-    }
-
-    bool checkImage(skiatest::Reporter* reporter, sk_sp<SkDeferredDisplayList> ddl) {
-        sk_sp<SkSurface> tmp = SkSurface::MakeRenderTarget(fDContext,
-                                                           SkBudgeted::kNo,
-                                                           default_ii(kImageWH));
-        if (!tmp) {
-            return false;
-        }
-
-        if (!tmp->draw(std::move(ddl))) {
-            return false;
-        }
-
-        return checkImage(reporter, std::move(tmp));
-    }
-
     size_t gpuSize(int wh) const {
         GrBackendFormat format = fDContext->defaultBackendFormat(kRGBA_8888_SkColorType,
                                                                  GrRenderable::kNo);
@@ -303,7 +274,7 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
                                                Stats* stats) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(create_bitmap(wh),
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(create_up_arrow_bitmap(wh),
                                                                        GrMipmapped::kNo,
                                                                        SkBackingFit::kExact,
                                                                        SkBudgeted::kYes);
@@ -360,14 +331,16 @@ std::tuple<GrSurfaceProxyView, sk_sp<TestHelper::Trampoline>> TestHelper::Create
 bool TestHelper::FillInViewOnGpu(GrDirectContext* dContext, int wh, Stats* stats,
                                  const GrSurfaceProxyView& lazyView,
                                  sk_sp<Trampoline> trampoline) {
+    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+
     std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext, wh);
 
     GrPaint paint;
     paint.setColor4f({0.0f, 0.0f, 1.0f, 1.0f});
 
-    rtc->clear({1.0f, 1.0f, 1.0f, 1.0f});
-    rtc->drawRect(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                  { 10, 10, wh-10.0f, wh-10.0f }, &GrStyle::SimpleFill());
+    SkPath path = up_arrow_path(wh);
+
+    rtc->drawPath(nullptr, std::move(paint), GrAA::kYes, SkMatrix::I(), path, GrStyle::SimpleFill());
 
     ++stats->fNumHWCreations;
     auto view = rtc->readSurfaceView();
@@ -449,9 +422,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 1);
-
-    helper.checkImage(reporter, helper.snap1());
-    helper.checkImage(reporter, helper.snap2());
 }
 
 // Case 2: ensure that, if the direct context version wins, it is reused by the DDL recorders
@@ -474,10 +444,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
-
-    helper.checkImage(reporter);
-    helper.checkImage(reporter, helper.snap1());
-    helper.checkImage(reporter, helper.snap2());
 }
 
 // Case 3: ensure that, if the cpu-version wins, it is reused by the direct context
@@ -493,12 +459,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
                                                /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
-    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 1);
-
-    helper.checkImage(reporter);
-    helper.checkImage(reporter, helper.snap1());
 }
 
 // Case 4: ensure that, if two DDL recorders get in a race, they still end up sharing a single view
@@ -518,9 +481,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 2);
-
-    helper.checkImage(reporter, helper.snap1());
-    helper.checkImage(reporter, helper.snap2());
 }
 
 // Case 4.5: check that, if a live rendering and a DDL recording get into a race, the live
@@ -546,9 +506,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_5, reporter, ctxInfo) 
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 1);
-
-    helper.checkImage(reporter);
-    helper.checkImage(reporter, helper.snap2());
 }
 
 // Case 4.75: check that, if a live rendering fails to generate the content needed to instantiate
@@ -564,7 +521,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo)
                                                /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
-    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
@@ -575,7 +532,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo)
                                                /*hits*/ 0, /*misses*/ 1, /*refs*/ 0));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
-    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
+    REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumHWCreations == 0);
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 }
@@ -597,8 +554,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
     }
 }
 
-// Case 6: check on dropping refs. In particular that the cache has its own ref to keep
-// the backing resource alive and locked
+// Case 6: check on dropping refs
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
@@ -629,8 +585,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
                                                /*hits*/ 1, /*misses*/ 1, /*refs*/ 0));
 }
 
-// Case 7: check that invoking dropAllRefs and dropUniqueRefs directly works as expected i.e.,
-// dropAllRefs removes everything from orbit while dropUniqueRefs is more measured.
+// Case 7: check that invoking dropAllRefs and dropAllUniqueRefs directly works as expected
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
@@ -796,8 +751,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
 }
 
 // Case 11: This checks that scratch-only variant of GrContext::purgeUnlockedResources works as
-//          expected wrt the thread safe cache. In particular, that when 'scratchResourcesOnly'
-//          is true, the call has no effect on the cache.
+//          expected wrt the thread safe cache.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache11, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
@@ -830,9 +784,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache11, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 }
 
-// Case 12: Test out purges caused by resetting the cache budget to 0. Note that, due to
-//          the how the cache operates (i.e., not directly driven by ref/unrefs) there
-//          needs to be an explicit kick to purge the cache.
+// Case 12: Test out purges caused by resetting the cache budget
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache12, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
@@ -865,7 +817,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache12, reporter, ctxInfo) {
 
     ddl1 = nullptr;
 
-    // Explicitly kick off the purge - it won't happen automatically on unref
     dContext->performDeferredCleanup(std::chrono::milliseconds(0));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
@@ -906,6 +857,3 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
                                                /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
 }
-
-// add flush & readback of gpu-draw & ddl draws and check that rendering is correct ?
-//      - would need to add op-creation for this
