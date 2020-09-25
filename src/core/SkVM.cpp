@@ -861,7 +861,7 @@ namespace skvm {
     // See http://www.machinedlearnings.com/2011/06/fast-approximate-logarithm-exponential.html.
     F32 Builder::approx_log2(F32 x) {
         // e - 127 is a fair approximation of log2(x) in its own right...
-        F32 e = mul(to_f32(bit_cast(x)), splat(1.0f / (1<<23)));
+        F32 e = mul(to_F32(bit_cast(x)), splat(1.0f / (1<<23)));
 
         // ... but using the mantissa to refine its error is _much_ better.
         F32 m = bit_cast(bit_or(bit_and(bit_cast(x), 0x007fffff),
@@ -1053,12 +1053,12 @@ namespace skvm {
         return {this, this->push(Op::select_q14, cond.id, t.id, f.id)};
     }
 
-    Q14 Builder::to_q14(I32 x) { return {this, this->push(Op::  to_q14, x.id) }; }
-    I32 Builder::to_i32(Q14 x) { return {this, this->push(Op::from_q14, x.id) }; }
+    Q14 Builder::to_Q14(I32 x) { return {this, this->push(Op::  to_q14, x.id) }; }
+    I32 Builder::to_I32(Q14 x) { return {this, this->push(Op::from_q14, x.id) }; }
 
     // TODO: open question in general whether float -> q14 should round() or trunc().
-    Q14 Builder::to_q14(F32 x) { return to_q14(trunc(x * 16384.0f)); }
-    F32 Builder::to_f32(Q14 x) { return to_f32(to_i32(x)) * (1/16384.0f); }
+    Q14 Builder::to_Q14(F32 x) { return to_Q14(trunc(x * 16384.0f)); }
+    F32 Builder::to_F32(Q14 x) { return to_F32(to_I32(x)) * (1/16384.0f); }
 
     Q14 Builder::unsigned_avg(Q14 x, Q14 y) {
         return {this, this->push(Op::uavg_q14, x.id, y.id)};
@@ -1205,7 +1205,7 @@ namespace skvm {
         if (float X; this->allImm(x.id,&X)) { return splat(floorf(X)); }
         return {this, this->push(Op::floor, x.id)};
     }
-    F32 Builder::to_f32(I32 x) {
+    F32 Builder::to_F32(I32 x) {
         if (int X; this->allImm(x.id,&X)) { return splat((float)X); }
         return {this, this->push(Op::to_f32, x.id)};
     }
@@ -1229,7 +1229,7 @@ namespace skvm {
 
     F32 Builder::from_unorm(int bits, I32 x) {
         F32 limit = splat(1 / ((1<<bits)-1.0f));
-        return mul(to_f32(x), limit);
+        return mul(to_F32(x), limit);
     }
     I32 Builder::to_unorm(int bits, F32 x) {
         F32 limit = splat((1<<bits)-1.0f);

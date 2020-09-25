@@ -761,7 +761,7 @@ namespace skvm {
         I32 gt (I32 x, I32 y);  I32 gt (I32a x, I32a y) { return gt (_(x), _(y)); }
         I32 gte(I32 x, I32 y);  I32 gte(I32a x, I32a y) { return gte(_(x), _(y)); }
 
-        F32 to_f32(I32 x);
+        F32 to_F32(I32 x);
         F32 bit_cast(I32 x) { return {x.builder, x.id}; }
 
         // Bitwise operations.
@@ -819,8 +819,8 @@ namespace skvm {
         Q14 unsigned_avg(Q14  x, Q14  y);  // (x+y+1)>>1
         Q14 unsigned_avg(Q14a x, Q14a y) { return unsigned_avg(_(x), _(y)); }
 
-        Q14 to_q14(F32); F32 to_f32(Q14);   // Converts values, e.g. 0x4000 <-> 1.0f
-        Q14 to_q14(I32); I32 to_i32(Q14);   // Preserves bits, e.g. 0x4000 <-> 0x00004000
+        Q14 to_Q14(F32); F32 to_F32(Q14);   // Converts values, e.g. 0x4000 <-> 1.0f
+        Q14 to_Q14(I32); I32 to_I32(Q14);   // Preserves bits, e.g. 0x4000 <-> 0x00004000
 
         // Common idioms used in several places, worth centralizing for consistency.
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
@@ -1163,14 +1163,14 @@ namespace skvm {
     static inline I32     round(F32 x) { return x->    round(x); }
     static inline I32  bit_cast(F32 x) { return x-> bit_cast(x); }
     static inline F32  bit_cast(I32 x) { return x-> bit_cast(x); }
-    static inline F32    to_f32(I32 x) { return x->   to_f32(x); }
+    static inline F32    to_F32(I32 x) { return x->   to_F32(x); }
     static inline I32   to_half(F32 x) { return x->  to_half(x); }
     static inline F32 from_half(I32 x) { return x->from_half(x); }
 
-    static inline F32 to_f32(Q14 x) { return x->to_f32(x); }
-    static inline I32 to_i32(Q14 x) { return x->to_i32(x); }
-    static inline Q14 to_q14(F32 x) { return x->to_q14(x); }
-    static inline Q14 to_q14(I32 x) { return x->to_q14(x); }
+    static inline F32 to_F32(Q14 x) { return x->to_F32(x); }
+    static inline I32 to_I32(Q14 x) { return x->to_I32(x); }
+    static inline Q14 to_Q14(F32 x) { return x->to_Q14(x); }
+    static inline Q14 to_Q14(I32 x) { return x->to_Q14(x); }
 
     static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
     static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }
