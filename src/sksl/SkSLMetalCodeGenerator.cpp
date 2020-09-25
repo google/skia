@@ -725,9 +725,6 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         this->write(".");
     }
     switch (field->fModifiers.fLayout.fBuiltin) {
-        case SK_CLIPDISTANCE_BUILTIN:
-            this->write("gl_ClipDistance");
-            break;
         case SK_POSITION_BUILTIN:
             this->write("_out->sk_Position");
             break;
