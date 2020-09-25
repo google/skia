@@ -52,6 +52,24 @@
       "revId": "f79450d96d64427be4991761232ad9664813143b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d649cc00_8222dadf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2020-09-25T20:09:24Z",
+      "side": 1,
+      "message": "I\u0027ve uploaded a suppression CL https://chromium-review.googlesource.com/c/chromium/src/+/2431432 - will CC you.",
+      "parentUuid": "f1323ec8_74e71c55",
+      "revId": "f79450d96d64427be4991761232ad9664813143b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
