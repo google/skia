@@ -646,9 +646,9 @@ namespace skvm {
         I32 uniform32(Arg ptr, int offset);
         F32 uniformF (Arg ptr, int offset) { return this->bit_cast(this->uniform32(ptr,offset)); }
 
-        // Load this color as a uniform, premultiplied and converted to dst SkColorSpace.
-        Color uniformPremul(SkColor4f, SkColorSpace* src,
-                            Uniforms*, SkColorSpace* dst);
+        // Push and load a color as a uniform.
+        Color     uniformColor    (SkColor4f, Uniforms*);
+        Color_Q14 uniformColor_Q14(SkColor4f, Uniforms*);
 
         // Gather u8,u16,i32 with varying element-count index from *(ptr + byte-count offset).
         I32 gather8 (Arg ptr, int offset, I32 index);
@@ -678,9 +678,9 @@ namespace skvm {
         }
 
         // Load an immediate Q14, expressed as either integer (16384, 0x4000) or float (1.0f).
-        Q14 splat_q14(int      n);
-        Q14 splat_q14(unsigned u) { return splat_q14((int)u); }
-        Q14 splat_q14(float    f) { return splat_q14(Q14a{f}.imm); }
+        Q14 splat_Q14(int      n);
+        Q14 splat_Q14(unsigned u) { return splat_Q14((int)u); }
+        Q14 splat_Q14(float    f) { return splat_Q14(Q14a{f}.imm); }
 
         // float math, comparisons, etc.
         F32 add(F32, F32);  F32 add(F32a x, F32a y) { return add(_(x), _(y)); }
@@ -761,7 +761,7 @@ namespace skvm {
         I32 gt (I32 x, I32 y);  I32 gt (I32a x, I32a y) { return gt (_(x), _(y)); }
         I32 gte(I32 x, I32 y);  I32 gte(I32a x, I32a y) { return gte(_(x), _(y)); }
 
-        F32 to_f32(I32 x);
+        F32 to_F32(I32 x);
         F32 bit_cast(I32 x) { return {x.builder, x.id}; }
 
         // Bitwise operations.
@@ -800,6 +800,12 @@ namespace skvm {
         Q14 min(Q14, Q14);  Q14 min(Q14a x, Q14a y) { return min(_(x), _(y)); }
         Q14 max(Q14, Q14);  Q14 max(Q14a x, Q14a y) { return max(_(x), _(y)); }
 
+        Q14 clamp(Q14  x, Q14  lo, Q14  hi) { return max(lo, min(x, hi)); }
+        Q14 clamp(Q14a x, Q14a lo, Q14a hi) { return clamp(_(x), _(lo), _(hi)); }
+
+        Q14 lerp(Q14  lo, Q14  hi, Q14  t);
+        Q14 lerp(Q14a lo, Q14a hi, Q14a t) { return lerp(_(lo), _(hi), _(t)); }
+
         Q14 shl(Q14, int bits);
         Q14 shr(Q14, int bits);
         Q14 sra(Q14, int bits);
@@ -819,8 +825,8 @@ namespace skvm {
         Q14 unsigned_avg(Q14  x, Q14  y);  // (x+y+1)>>1
         Q14 unsigned_avg(Q14a x, Q14a y) { return unsigned_avg(_(x), _(y)); }
 
-        Q14 to_q14(F32); F32 to_f32(Q14);   // Converts values, e.g. 0x4000 <-> 1.0f
-        Q14 to_q14(I32); I32 to_i32(Q14);   // Preserves bits, e.g. 0x4000 <-> 0x00004000
+        Q14 to_Q14(F32); F32 to_F32(Q14);   // Converts values, e.g. 0x4000 <-> 1.0f
+        Q14 to_Q14(I32); I32 to_I32(Q14);   // Preserves bits, e.g. 0x4000 <-> 0x00004000
 
         // Common idioms used in several places, worth centralizing for consistency.
         F32 from_unorm(int bits, I32);   // E.g. from_unorm(8, x) -> x * (1/255.0f)
@@ -839,8 +845,11 @@ namespace skvm {
         Color   premul(Color c) {   this->premul(&c.r, &c.g, &c.b, c.a); return c; }
         Color unpremul(Color c) { this->unpremul(&c.r, &c.g, &c.b, c.a); return c; }
 
-        Color lerp(Color lo, Color hi, F32 t);
-        Color blend(SkBlendMode, Color src, Color dst);
+        Color     lerp(Color     lo, Color     hi, F32 t);
+        Color_Q14 lerp(Color_Q14 lo, Color_Q14 hi, Q14 t);
+
+        Color     blend(SkBlendMode, Color     src, Color     dst);  // always succeeds
+        Color_Q14 blend(SkBlendMode, Color_Q14 src, Color_Q14 dst);  // may return Color_Q14{}
 
         Color clamp01(Color c) {
             return { clamp01(c.r), clamp01(c.g), clamp01(c.b), clamp01(c.a) };
@@ -881,7 +890,7 @@ namespace skvm {
                 SkASSERT(x.builder == this);
                 return {this, x.id};
             }
-            return splat_q14(x.imm);
+            return splat_Q14(x.imm);
         }
 
         bool allImm() const;
@@ -1001,6 +1010,14 @@ namespace skvm {
 
     static inline Q14 max(Q14   x, Q14a y) { return x->max(x,y); }
     static inline Q14 max(float x, Q14  y) { return y->max(x,y); }
+
+    static inline Q14 clamp(Q14   x, Q14a  lo, Q14a hi) { return  x->clamp(x,lo,hi); }
+    static inline Q14 clamp(float x, Q14   lo, Q14a hi) { return lo->clamp(x,lo,hi); }
+    static inline Q14 clamp(float x, float lo, Q14  hi) { return hi->clamp(x,lo,hi); }
+
+    static inline Q14 lerp(Q14   lo, Q14a  hi, Q14a t) { return lo->lerp(lo,hi,t); }
+    static inline Q14 lerp(float lo, Q14   hi, Q14a t) { return hi->lerp(lo,hi,t); }
+    static inline Q14 lerp(float lo, float hi, Q14  t) { return  t->lerp(lo,hi,t); }
 
     static inline Q14 unsigned_avg(Q14   x, Q14a y) { return x->unsigned_avg(x,y); }
     static inline Q14 unsigned_avg(float x, Q14  y) { return y->unsigned_avg(x,y); }
@@ -1163,14 +1180,14 @@ namespace skvm {
     static inline I32     round(F32 x) { return x->    round(x); }
     static inline I32  bit_cast(F32 x) { return x-> bit_cast(x); }
     static inline F32  bit_cast(I32 x) { return x-> bit_cast(x); }
-    static inline F32    to_f32(I32 x) { return x->   to_f32(x); }
+    static inline F32    to_F32(I32 x) { return x->   to_F32(x); }
     static inline I32   to_half(F32 x) { return x->  to_half(x); }
     static inline F32 from_half(I32 x) { return x->from_half(x); }
 
-    static inline F32 to_f32(Q14 x) { return x->to_f32(x); }
-    static inline I32 to_i32(Q14 x) { return x->to_i32(x); }
-    static inline Q14 to_q14(F32 x) { return x->to_q14(x); }
-    static inline Q14 to_q14(I32 x) { return x->to_q14(x); }
+    static inline F32 to_F32(Q14 x) { return x->to_F32(x); }
+    static inline I32 to_I32(Q14 x) { return x->to_I32(x); }
+    static inline Q14 to_Q14(F32 x) { return x->to_Q14(x); }
+    static inline Q14 to_Q14(I32 x) { return x->to_Q14(x); }
 
     static inline F32 lerp(F32   lo, F32a  hi, F32a t) { return lo->lerp(lo,hi,t); }
     static inline F32 lerp(float lo, F32   hi, F32a t) { return hi->lerp(lo,hi,t); }
@@ -1252,9 +1269,13 @@ namespace skvm {
     static inline Color   premul(Color c) { return c->  premul(c); }
     static inline Color unpremul(Color c) { return c->unpremul(c); }
 
-    static inline Color lerp(Color lo, Color hi, F32 t) { return t->lerp(lo,hi,t); }
+    static inline Color     lerp(Color     lo, Color     hi, F32 t) { return t->lerp(lo,hi,t); }
+    static inline Color_Q14 lerp(Color_Q14 lo, Color_Q14 hi, Q14 t) { return t->lerp(lo,hi,t); }
 
     static inline Color blend(SkBlendMode m, Color s, Color d) { return s->blend(m,s,d); }
+    static inline Color_Q14 blend(SkBlendMode m, Color_Q14 s, Color_Q14 d) {
+        return s->blend(m,s,d);
+    }
 
     static inline Color clamp01(Color c) { return c->clamp01(c); }
 
