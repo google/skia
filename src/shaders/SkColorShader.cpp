@@ -92,22 +92,48 @@ bool SkColor4Shader::onAppendStages(const SkStageRec& rec) const {
 }
 
 skvm::Color SkColorShader::onProgram(skvm::Builder* p,
-                                     skvm::Coord /*device*/, skvm::Coord /*local*/,
-                                     skvm::Color /*paint*/,
-                                     const SkMatrixProvider&, const SkMatrix* /*localM*/,
-                                     SkFilterQuality /*quality*/, const SkColorInfo& dst,
+                                     skvm::Coord, skvm::Coord, skvm::Color,
+                                     const SkMatrixProvider&, const SkMatrix*,
+                                     SkFilterQuality, const SkColorInfo& dst,
                                      skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     return p->uniformPremul(SkColor4f::FromColor(fColor), sk_srgb_singleton(),
                             uniforms, dst.colorSpace());
 }
 skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
-                                      skvm::Coord /*device*/, skvm::Coord /*local*/,
-                                      skvm::Color /*paint*/,
-                                      const SkMatrixProvider&, const SkMatrix* /*localM*/,
-                                      SkFilterQuality /*quality*/, const SkColorInfo& dst,
+                                      skvm::Coord, skvm::Coord, skvm::Color,
+                                      const SkMatrixProvider&, const SkMatrix*,
+                                      SkFilterQuality, const SkColorInfo& dst,
                                       skvm::Uniforms* uniforms, SkArenaAlloc*) const {
     return p->uniformPremul(fColor, fColorSpace.get(),
                             uniforms, dst.colorSpace());
+}
+
+// TODO: less lazy versions that don't piggyback on floats
+skvm::Color_Q14 SkColorShader::onProgram_Q14(skvm::Builder* p,
+                                             skvm::Coord dev, skvm::Coord local, skvm::Color_Q14,
+                                             const SkMatrixProvider& mp, const SkMatrix* lm,
+                                             SkFilterQuality q, const SkColorInfo& dst,
+                                             skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    skvm::Color c = this->onProgram(p, dev,local,{}, mp,lm, q,dst, uniforms,alloc);
+    return {
+        to_Q14(c.r),
+        to_Q14(c.g),
+        to_Q14(c.b),
+        to_Q14(c.a),
+    };
+}
+skvm::Color_Q14 SkColor4Shader::onProgram_Q14(skvm::Builder* p,
+                                              skvm::Coord dev, skvm::Coord local, skvm::Color_Q14,
+                                              const SkMatrixProvider& mp, const SkMatrix* lm,
+                                              SkFilterQuality q, const SkColorInfo& dst,
+                                              skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    skvm::Color c = this->onProgram(p, dev,local,{}, mp,lm, q,dst, uniforms,alloc);
+    return {
+        to_Q14(c.r),
+        to_Q14(c.g),
+        to_Q14(c.b),
+        to_Q14(c.a),
+    };
 }
 
 #if SK_SUPPORT_GPU
