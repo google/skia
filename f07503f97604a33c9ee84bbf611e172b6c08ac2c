@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "a8591685_3f691da4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-25T17:50:55Z",
+      "side": 1,
+      "message": "I guess this is fine then. A question for outside this change, should be get ride of GrPipeline? From your description it doesn\u0027t seem like it has any real distinction besides arbitrarily holding some of the fields for the overall GrProgamInfo. Like should we just move all its logic into GrProgramInfo?",
+      "parentUuid": "3197d7d9_300243db",
+      "revId": "f07503f97604a33c9ee84bbf611e172b6c08ac2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b027db7_84f5d2c2",
         "filename": "src/gpu/GrProgramInfo.h",
         "patchSetId": 3
