@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1929b00a_de6ebdec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-25T19:36:22Z",
+      "side": 1,
+      "message": "I\u0027ll go ahead and submit this since it unblocks us in enabling tessellation.\n\nOnce tessellation is landed we can remove CCPR, which then gets rid of most rogue GrProgramInfos and makes a future refactor easier.",
+      "revId": "684b7a10c00d52e645f58bfb4d847ebf6a2fcfb0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
