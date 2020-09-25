@@ -938,7 +938,8 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write("vertex Outputs vertexMain");
                 break;
             default:
-                SkDEBUGFAIL("unsupported kind of program");
+                fErrors.error(-1, "unsupported kind of program");
+                return;
         }
         this->write("(Inputs _in [[stage_in]]");
         if (-1 != fUniformBuffer) {
