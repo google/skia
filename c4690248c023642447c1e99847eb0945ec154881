@@ -52,6 +52,24 @@
       "revId": "c4690248c023642447c1e99847eb0945ec154881",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4850c609_e4f7d22e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-25T00:23:24Z",
+      "side": 1,
+      "message": "I spent some time on this and it looks like the answer is `action_foreach`, but that comes with some interesting limitations. It sets up a bunch of limitations about where your source and output files can live and requires paths to go through a \"{{source}}\" template. \n\nHow long do tests take to build for you? Do you think this change would actually allow them to parallelize? Invoking the Python script from scratch hundreds of times in a row will add on extra cost, so if this doesn\u0027t actually allow parallelization, I\u0027m worried I could solve these issues but the final result would still be a net loss. We might actually do better to go in the opposite direction, and allow `skslc` to take in multiple input files. I would bet that would blow the doors off this approach.",
+      "parentUuid": "26ee99c0_22204a9e",
+      "revId": "c4690248c023642447c1e99847eb0945ec154881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
