@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "12de53fd_4103af48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-25T17:37:50Z",
+      "side": 1,
+      "message": "TBH I don\u0027t really know what the logical difference between GrProgramInfo and GrPipeline are suppose to be. So if someone can give me an overview of what each is meant for then I can give better thoughts on this.",
+      "parentUuid": "ee9e1e63_ad81ecaf",
+      "revId": "f07503f97604a33c9ee84bbf611e172b6c08ac2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b027db7_84f5d2c2",
         "filename": "src/gpu/GrProgramInfo.h",
         "patchSetId": 3
