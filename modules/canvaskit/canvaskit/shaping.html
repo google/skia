@@ -66,21 +66,24 @@
     const alphabet = "�👪abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 _.,?!æ‽";
     const ids = textFont.getGlyphIDs(alphabet);
     const unknownCharacterGlyphID = ids[0];
-    const codePointsToGlyphIDs = {};
-    // Indexes in JS correspond to a 16 bit code unit. If a code point is wider than 16 bits,
-    // it overflows into the next index. codePointAt will return a >16 bit value if the given index
-    // overflows. We need to check for this and skip the next index lest we get a garbage value
-    // (the second half of the Unicode code point.
+    // char here means "string version of unicode code point". This makes the code below a bit more
+    // readable than just integers. We just have to take care when reading these in that we don't
+    // grab the second half of a 32 bit code unit.
+    const charsToGlyphIDs = {};
+    // Indexes in JS correspond to a 16 bit or 32 bit code unit. If a code point is wider than
+    // 16 bits, it overflows into the next index. codePointAt will return a >16 bit value if the
+    // given index overflows. We need to check for this and skip the next index lest we get a
+    // garbage value (the second half of the Unicode code point.
     let glyphIdx = 0;
     for (let i = 0; i < alphabet.length; i++) {
-      const cp = alphabet.codePointAt(i);
-      codePointsToGlyphIDs[cp] = ids[glyphIdx];
-      if (cp > 65535) {
+      charsToGlyphIDs[alphabet[i]] = ids[glyphIdx];
+      if (alphabet.codePointAt(i) > 65535) {
         i++; // skip the next index because that will be the second half of the code point.
       }
       glyphIdx++;
     }
 
+    // TODO(kjlubick): linear metrics so we get "correct" data (e.g. floats).
     const bounds = textFont.getGlyphBounds(ids, textPaint);
     const widths = textFont.getGlyphWidths(ids, textPaint);
     // See https://www.freetype.org/freetype2/docs/glyphs/glyphs-3.html
@@ -107,24 +110,22 @@
       // Turn the code points into glyphs, accounting for up to 2 ligatures.
       let shapedGlyphIdx = -1;
       for (let i = 0; i < str.length; i++) {
-        const cp = str.codePointAt(i);
+        const char = str[i];
         shapedGlyphIdx++;
-        // POC Ligature support. Note that we don't need to use codePointAt because if the
-        // current code point is one of the first two parts of our supported ligatures, we know
-        // the code point is not greater than 16 bits.
-        if (codePointsToGlyphIDs['æ'] && cp == 'a' && str[i+1] == 'e') {
-          glyphArr[shapedGlyphIdx] = codePointsToGlyphIDs['æ'];
+        // POC Ligature support.
+        if (charsToGlyphIDs['æ'] && char === 'a' && str[i+1] === 'e') {
+          glyphArr[shapedGlyphIdx] = charsToGlyphIDs['æ'];
           i++; // skip next code point
           continue;
         }
-        if (codePointsToGlyphIDs['‽'] && (
-            (cp == '?' && str[i+1] == '!') || (cp == '!' && str[i+1] == '?' ))) {
-          glyphArr[shapedGlyphIdx] = codePointsToGlyphIDs['‽'];
+        if (charsToGlyphIDs['‽'] && (
+            (char === '?' && str[i+1] === '!') || (char === '!' && str[i+1] === '?' ))) {
+          glyphArr[shapedGlyphIdx] = charsToGlyphIDs['‽'];
           i++; // skip next code point
           continue;
         }
-        glyphArr[shapedGlyphIdx] = codePointsToGlyphIDs[cp] || unknownCharacterGlyphID;
-        if (cp > 65535) {
+        glyphArr[shapedGlyphIdx] = charsToGlyphIDs[char] || unknownCharacterGlyphID;
+        if (str.codePointAt(i) > 65535) {
           i++; // skip the next index because that will be the second half of the code point.
         }
       }
