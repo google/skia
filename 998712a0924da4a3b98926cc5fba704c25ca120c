@@ -16,6 +16,92 @@
       "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2f9c575_b92f227b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T14:59:42Z",
+      "side": 1,
+      "message": "Just my inexperience, but I find it hard to see, for each (new) function, the clear declaration of its parameters.\n\nseparately, I see I can make a Blob from glyphs or glyphs+rsxforms. Can I also make one from glyphs+positions?",
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b53d7b6f_760faf48",
+        "filename": "modules/canvaskit/CHANGELOG.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T14:59:42Z",
+      "side": 1,
+      "message": "is this (in C) textToGlyphs? If so, why the diff name? If textToGlyphs is not clear, let\u0027s make the case to change both C and JS.",
+      "range": {
+        "startLine": 61,
+        "startChar": 11,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8ec95c2_c949ed2d",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T14:59:42Z",
+      "side": 1,
+      "message": "Why is this taking a paint?",
+      "range": {
+        "startLine": 204,
+        "startChar": 48,
+        "endLine": 204,
+        "endChar": 57
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcec5ed1_52b8dbcd",
+        "filename": "modules/canvaskit/tests/font.spec.js",
+        "patchSetId": 10
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T14:59:42Z",
+      "side": 1,
+      "message": "Why is this taking a paint?",
+      "range": {
+        "startLine": 211,
+        "startChar": 48,
+        "endLine": 211,
+        "endChar": 57
+      },
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
