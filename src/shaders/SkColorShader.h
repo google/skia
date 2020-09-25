@@ -44,10 +44,17 @@ private:
 
     bool onAppendStages(const SkStageRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+    skvm::Color onProgram(skvm::Builder*,
+                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM,
                           SkFilterQuality quality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+
+    skvm::Color_Q14 onProgram_Q14(skvm::Builder*,
+                                  skvm::Coord device, skvm::Coord local, skvm::Color_Q14 paint,
+                                  const SkMatrixProvider&, const SkMatrix* localM,
+                                  SkFilterQuality quality, const SkColorInfo& dst,
+                                  skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
 
     SkColor fColor;
 };
@@ -69,10 +76,17 @@ private:
     void flatten(SkWriteBuffer&) const override;
     bool onAppendStages(const SkStageRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
+    skvm::Color onProgram(skvm::Builder*,
+                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM,
                           SkFilterQuality quality, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+
+    skvm::Color_Q14 onProgram_Q14(skvm::Builder*,
+                                  skvm::Coord device, skvm::Coord local, skvm::Color_Q14 paint,
+                                  const SkMatrixProvider&, const SkMatrix* localM,
+                                  SkFilterQuality quality, const SkColorInfo& dst,
+                                  skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
 
     sk_sp<SkColorSpace> fColorSpace;
     const SkColor4f     fColor;
