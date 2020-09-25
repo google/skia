@@ -120,8 +120,8 @@ namespace {
             skvm::I32 dx = p.uniform32(uniforms->base, offsetof(BlitterUniforms, right))
                          - p.index(),
                       dy = p.uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-            skvm::Coord device = {to_f32(dx) + 0.5f,
-                                  to_f32(dy) + 0.5f},
+            skvm::Coord device = {to_F32(dx) + 0.5f,
+                                  to_F32(dy) + 0.5f},
                         local = device;
 
             skvm::Color paint = {
@@ -194,8 +194,8 @@ namespace {
         skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))
                      - p->index(),
                   dy = p->uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-        skvm::Coord device = {to_f32(dx) + 0.5f,
-                              to_f32(dy) + 0.5f},
+        skvm::Coord device = {to_F32(dx) + 0.5f,
+                              to_F32(dy) + 0.5f},
                     local = device;
 
         skvm::Color paint = {
@@ -449,7 +449,7 @@ namespace {
             // we can bake it in without hurting the cache hit rate.
             float scale = rate * (  2/128.0f),
                   bias  = rate * (-63/128.0f);
-            skvm::F32 dither = to_f32(M) * scale + bias;
+            skvm::F32 dither = to_F32(M) * scale + bias;
             c.r += dither;
             c.g += dither;
             c.b += dither;
