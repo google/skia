@@ -1,3 +1,4 @@
 ### Compilation failed:
 
-unsupported kind of program
+error: 1: unsupported kind of program
+1 error
