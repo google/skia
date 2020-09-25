@@ -42,6 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `SkCanvas.drawAnimatedImage` has been removed in favor of calling
    `SkCanvas.drawImageAtCurrentFrame` or `SkAnimatedImage.makeImageAtCurrentFrame` and then
    `SkCanvas.drawImage`.
+ - `SkTextBlob.MakeFromRSXform` also accepts a (possibly Malloc'd) Float32Array of RSXforms (
+   see SkRSXform for more.)
 
 ### Removed
  - `SkCanvas.drawRoundRect` has been removed in favor of `SkCanvas.drawRRect`
@@ -56,10 +58,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    already have their own representation of Rect. This is experimental because we don't know
    if it's faster/better under real-world use and because we don't want to commit to having these
    for all Rect APIs (and for similar types) until it has baked in a bit.
+ - `SkFont.getGlyphIDs`, `SkFont.getGlyphBounds`, `SkFont.getGlyphWidths` for turning code points
+   into GlyphIDs and getting the associated metrics with those glyphs. Note: glyph ids are only
+   valid for the font of which they were requested.
+ - `SkTextBlob.MakeFromRSXformGlyphs` and `SkTextBlob.MakeFromGlyphs` as a way to build TextBlobs
+   using GlyphIDs instead of code points.
+ - `CanvasKit.MallocGlyphIDs` as a helper for pre-allocating space on the WASM heap for Glyph IDs.
 
 ### Deprecated
  - `SkAnimatedImage.getCurrentFrame`; prefer `SkAnimatedImage.makeImageAtCurrentFrame` (which
    follows the establishing naming convention).
+
+### Fixed
+ - Addressed Memory leak in `SkCanvas.drawText`.
+ - Made SkTextBlob hang on to less memory during its lifetime.
 
 ## [0.17.3] - 2020-08-05
 
