@@ -195,7 +195,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                                            const GrSurfaceProxyView* writeView,
                                                            GrGeometryProcessor* geometryProcessor,
                                                            GrPrimitiveType primitiveType,
-                                                           GrXferBarrierFlags renderPassXferBarriers,
+                                                           GrXferBarrierFlags xferBarrierFlags,
                                                            const GrUserStencilSettings* stencilSettings) {
     GrRenderTargetProxy* outputProxy = writeView->asRenderTargetProxy();
 
@@ -208,7 +208,7 @@ GrProgramInfo* GrSimpleMeshDrawOpHelper::CreateProgramInfo(SkArenaAlloc* arena,
                                           geometryProcessor,
                                           primitiveType,
                                           0,
-                                          renderPassXferBarriers);
+                                          xferBarrierFlags);
     return tmp;
 }
 
