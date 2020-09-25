@@ -110,6 +110,25 @@ namespace {
 
     static void release_program_cache() { }
 
+    static skvm::Coord device_coord(skvm::Builder* p, skvm::Uniforms* uniforms) {
+        skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))
+                     - p->index(),
+                  dy = p->uniform32(uniforms->base, offsetof(BlitterUniforms, y));
+        return {
+            to_F32(dx) + 0.5f,
+            to_F32(dy) + 0.5f,
+        };
+    }
+
+    static skvm::Color paint_color(skvm::Builder* p, skvm::Uniforms* uniforms) {
+        return {
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
+            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
+        };
+    }
+
     // If build_program() can't build this program, cache_key() sets *ok to false.
     static Key cache_key(const Params& params,
                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc, bool* ok) {
@@ -117,23 +136,12 @@ namespace {
             const SkShaderBase* sb = as_SB(shader);
             skvm::Builder p;
 
-            skvm::I32 dx = p.uniform32(uniforms->base, offsetof(BlitterUniforms, right))
-                         - p.index(),
-                      dy = p.uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-            skvm::Coord device = {to_F32(dx) + 0.5f,
-                                  to_F32(dy) + 0.5f},
-                        local = device;
-
-            skvm::Color paint = {
-                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
-                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
-                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
-                p.uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
-            };
+            skvm::Coord device = device_coord(&p, uniforms);
+            skvm::Color paint = paint_color(&p, uniforms);
 
             uint64_t hash = 0;
             if (auto c = sb->program(&p,
-                                     device,local, paint,
+                                     device,/*local=*/device, paint,
                                      params.matrices, /*localM=*/nullptr,
                                      params.quality, params.dst,
                                      uniforms,alloc)) {
@@ -191,22 +199,11 @@ namespace {
         //    - MaskLCD16: 565 coverage varying
         //    - UniformA8: 8-bit coverage uniform
 
-        skvm::I32 dx = p->uniform32(uniforms->base, offsetof(BlitterUniforms, right))
-                     - p->index(),
-                  dy = p->uniform32(uniforms->base, offsetof(BlitterUniforms, y));
-        skvm::Coord device = {to_F32(dx) + 0.5f,
-                              to_F32(dy) + 0.5f},
-                    local = device;
-
-        skvm::Color paint = {
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fR)),
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fG)),
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fB)),
-            p->uniformF(uniforms->base, offsetof(BlitterUniforms, paint.fA)),
-        };
+        skvm::Coord device = device_coord(p, uniforms);
+        skvm::Color paint = paint_color(p, uniforms);
 
         // See note about arguments above... a SpriteShader will call p->arg() once here.
-        skvm::Color src = as_SB(params.shader)->program(p, device,local, paint,
+        skvm::Color src = as_SB(params.shader)->program(p, device,/*local=*/device, paint,
                                                         params.matrices, /*localM=*/nullptr,
                                                         params.quality, params.dst,
                                                         uniforms, alloc);
@@ -279,7 +276,7 @@ namespace {
             } break;
         }
         if (params.clip) {
-            skvm::Color clip = as_SB(params.clip)->program(p, device,local, paint,
+            skvm::Color clip = as_SB(params.clip)->program(p, device,/*local=*/device, paint,
                                                            params.matrices, /*localM=*/nullptr,
                                                            params.quality, params.dst,
                                                            uniforms, alloc);
