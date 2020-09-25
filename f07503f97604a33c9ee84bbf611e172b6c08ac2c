@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "6f95d902_6b914720",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-25T18:21:57Z",
+      "side": 1,
+      "message": "\u003e\u003e A GrProgramInfo holds all the information needed to compile a program\n\nIn that case the stencil settings probably don\u0027t actually belong in GrProgramInfo.\n\nIs GrProgramInfo actually just used to compile programs? Or does Vulkan use it to build VkPipelines as well? Looking at the code more, I think a better solution would be one of the following:\n\n1) Reverse the ownership. GrPipeline owns GrProgramInfo. Everything that doesn\u0027t have to do with compiling a program lives in GrPipeline.\n\n2) Just merge them into one class called GrPipeline.\n\n(This change is really just a Band-Aid for a problem I ran into in the tessellator, and that probably exists because we haven\u0027t defined the relationship well between GrProgramInfo and GrPipeline)",
+      "parentUuid": "a8591685_3f691da4",
+      "revId": "f07503f97604a33c9ee84bbf611e172b6c08ac2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b027db7_84f5d2c2",
         "filename": "src/gpu/GrProgramInfo.h",
         "patchSetId": 3
@@ -96,6 +114,30 @@
     },
     {
       "key": {
+        "uuid": "7d92bdba_071b4c41",
+        "filename": "src/gpu/GrProgramInfo.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-25T18:21:57Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "3b027db7_84f5d2c2",
+      "range": {
+        "startLine": 57,
+        "startChar": 15,
+        "endLine": 57,
+        "endChar": 36
+      },
+      "revId": "f07503f97604a33c9ee84bbf611e172b6c08ac2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c4acff6_78e9540e",
         "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp",
         "patchSetId": 3
@@ -110,6 +152,24 @@
       "revId": "f07503f97604a33c9ee84bbf611e172b6c08ac2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ca89228_a6cc216c",
+        "filename": "src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-25T18:21:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c4acff6_78e9540e",
+      "revId": "f07503f97604a33c9ee84bbf611e172b6c08ac2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
