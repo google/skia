@@ -7,31 +7,6 @@
 
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
-const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil(
-                                            const GrCaps* caps,
-                                            SkArenaAlloc* arena,
-                                            GrSwizzle writeViewSwizzle,
-                                            GrAppliedClip&& appliedClip,
-                                            const GrXferProcessor::DstProxyView& dstProxyView) {
-    return GrSimpleMeshDrawOpHelper::CreatePipeline(caps,
-                                                    arena,
-                                                    writeViewSwizzle,
-                                                    std::move(appliedClip),
-                                                    dstProxyView,
-                                                    this->detachProcessorSet(),
-                                                    this->pipelineFlags(),
-                                                    this->stencilSettings());
-}
-
-const GrPipeline* GrSimpleMeshDrawOpHelperWithStencil::createPipelineWithStencil(
-        GrOpFlushState* flushState) {
-    return this->createPipelineWithStencil(&flushState->caps(),
-                                           flushState->allocator(),
-                                           flushState->writeView()->swizzle(),
-                                           flushState->detachAppliedClip(),
-                                           flushState->dstProxyView());
-}
-
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
                                                     const MakeArgs& args,
                                                     GrAAType aaType,

@@ -1020,7 +1020,7 @@ void AAHairlineOp::makeLineProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
 
     fProgramInfos[0] = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             arena, pipeline, writeView, lineGP, GrPrimitiveType::kTriangles,
-            renderPassXferBarriers);
+            renderPassXferBarriers, fHelper.stencilSettings());
 }
 
 void AAHairlineOp::makeQuadProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
@@ -1044,7 +1044,7 @@ void AAHairlineOp::makeQuadProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
 
     fProgramInfos[1] = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             arena, pipeline, writeView, quadGP, GrPrimitiveType::kTriangles,
-            renderPassXferBarriers);
+            renderPassXferBarriers, fHelper.stencilSettings());
 }
 
 void AAHairlineOp::makeConicProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
@@ -1068,7 +1068,7 @@ void AAHairlineOp::makeConicProgramInfo(const GrCaps& caps, SkArenaAlloc* arena,
 
     fProgramInfos[2] = GrSimpleMeshDrawOpHelper::CreateProgramInfo(
             arena, pipeline, writeView, conicGP, GrPrimitiveType::kTriangles,
-            renderPassXferBarriers);
+            renderPassXferBarriers, fHelper.stencilSettings());
 }
 
 AAHairlineOp::Program AAHairlineOp::predictPrograms(const GrCaps* caps) const {
@@ -1118,8 +1118,8 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
         geometryProcessorLocalM = &SkMatrix::I();
     }
 
-    auto pipeline = fHelper.createPipelineWithStencil(caps, arena, writeView->swizzle(),
-                                                      std::move(appliedClip), dstProxyView);
+    auto pipeline = fHelper.createPipeline(caps, arena, writeView->swizzle(),
+                                           std::move(appliedClip), dstProxyView);
 
     if (fCharacterization & kLine_Program) {
         this->makeLineProgramInfo(*caps, arena, pipeline, writeView,

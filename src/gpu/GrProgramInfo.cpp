@@ -12,10 +12,8 @@
 GrStencilSettings GrProgramInfo::nonGLStencilSettings() const {
     GrStencilSettings stencil;
 
-    if (this->pipeline().isStencilEnabled()) {
-        stencil.reset(*this->pipeline().getUserStencil(),
-                      this->pipeline().hasStencilClip(),
-                      8);
+    if (this->isStencilEnabled()) {
+        stencil.reset(*fUserStencilSettings, this->pipeline().hasStencilClip(), 8);
     }
 
     return stencil;

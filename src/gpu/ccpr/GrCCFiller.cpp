@@ -472,7 +472,7 @@ bool GrCCFiller::prepareToDraw(GrOnFlushResourceProvider* onFlushRP) {
 
 void GrCCFiller::drawFills(
         GrOpFlushState* flushState, GrCCCoverageProcessor* proc, const GrPipeline& pipeline,
-        BatchID batchID, const SkIRect& drawBounds) const {
+        BatchID batchID, const SkIRect& drawBounds, const GrUserStencilSettings* stencil) const {
     using PrimitiveType = GrCCCoverageProcessor::PrimitiveType;
 
     SkASSERT(fInstanceBuffer.hasGpuBuffer());
@@ -485,7 +485,7 @@ void GrCCFiller::drawFills(
     if (batchTotalCounts.fTriangles) {
         for (int i = 0; i < numSubpasses; ++i) {
             proc->reset(PrimitiveType::kTriangles, i, rp);
-            this->drawPrimitives(flushState, *proc, pipeline, batchID,
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
                                  &PrimitiveTallies::fTriangles, drawBounds);
         }
     }
@@ -494,7 +494,7 @@ void GrCCFiller::drawFills(
         SkASSERT(Algorithm::kStencilWindingCount != fAlgorithm);
         for (int i = 0; i < numSubpasses; ++i) {
             proc->reset(PrimitiveType::kWeightedTriangles, i, rp);
-            this->drawPrimitives(flushState, *proc, pipeline, batchID,
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
                                  &PrimitiveTallies::fWeightedTriangles, drawBounds);
         }
     }
@@ -502,7 +502,7 @@ void GrCCFiller::drawFills(
     if (batchTotalCounts.fQuadratics) {
         for (int i = 0; i < numSubpasses; ++i) {
             proc->reset(PrimitiveType::kQuadratics, i, rp);
-            this->drawPrimitives(flushState, *proc, pipeline, batchID,
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
                                  &PrimitiveTallies::fQuadratics, drawBounds);
         }
     }
@@ -510,27 +510,28 @@ void GrCCFiller::drawFills(
     if (batchTotalCounts.fCubics) {
         for (int i = 0; i < numSubpasses; ++i) {
             proc->reset(PrimitiveType::kCubics, i, rp);
-            this->drawPrimitives(flushState, *proc, pipeline, batchID, &PrimitiveTallies::fCubics,
-                                 drawBounds);
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
+                                 &PrimitiveTallies::fCubics, drawBounds);
         }
     }
 
     if (batchTotalCounts.fConics) {
         for (int i = 0; i < numSubpasses; ++i) {
             proc->reset(PrimitiveType::kConics, i, rp);
-            this->drawPrimitives(flushState, *proc, pipeline, batchID, &PrimitiveTallies::fConics,
-                                 drawBounds);
+            this->drawPrimitives(flushState, *proc, pipeline, stencil, batchID,
+                                 &PrimitiveTallies::fConics, drawBounds);
         }
     }
 }
 
 void GrCCFiller::drawPrimitives(
         GrOpFlushState* flushState, const GrCCCoverageProcessor& proc, const GrPipeline& pipeline,
-        BatchID batchID, int PrimitiveTallies::*instanceType, const SkIRect& drawBounds) const {
+        const GrUserStencilSettings* stencil, BatchID batchID, int PrimitiveTallies::*instanceType,
+        const SkIRect& drawBounds) const {
     SkASSERT(pipeline.isScissorTestEnabled());
 
     GrOpsRenderPass* renderPass = flushState->opsRenderPass();
-    proc.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds));
+    proc.bindPipeline(flushState, pipeline, SkRect::Make(drawBounds), stencil);
     proc.bindBuffers(renderPass, fInstanceBuffer.gpuBuffer());
 
     SkASSERT(batchID > 0);

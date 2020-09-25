@@ -38,6 +38,7 @@ public:
                                           GrProcessorSet&& processors, GrAppliedClip&& appliedClip,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
                                           GrXferBarrierFlags renderPassXferBarriers,
+                                          const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
         GrPipeline::InitArgs pipelineArgs;
         pipelineArgs.fInputFlags = pipelineFlags;
@@ -47,7 +48,7 @@ public:
         auto* pipeline = arena->make<GrPipeline>(pipelineArgs, std::move(processors),
                                                  std::move(appliedClip));
         return MakeProgramInfo(shader, arena, writeView, pipeline, dstProxyView,
-                               renderPassXferBarriers, caps);
+                               renderPassXferBarriers, stencil, caps);
     }
 
     static GrProgramInfo* MakeProgramInfo(const GrPathShader* shader, SkArenaAlloc* arena,
@@ -55,11 +56,12 @@ public:
                                           const GrPipeline* pipeline,
                                           const GrXferProcessor::DstProxyView& dstProxyView,
                                           GrXferBarrierFlags renderPassXferBarriers,
+                                          const GrUserStencilSettings* stencil,
                                           const GrCaps& caps) {
         GrRenderTargetProxy* proxy = writeView->asRenderTargetProxy();
         return arena->make<GrProgramInfo>(proxy->numSamples(), proxy->numStencilSamples(),
                                           proxy->backendFormat(), writeView->origin(), pipeline,
-                                          shader, shader->fPrimitiveType,
+                                          stencil, shader, shader->fPrimitiveType,
                                           shader->fTessellationPatchVertexCount,
                                           renderPassXferBarriers);
     }
