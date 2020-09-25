@@ -72,6 +72,23 @@
     },
     {
       "key": {
+        "uuid": "bc6dfd8a_7fb608f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-25T17:06:58Z",
+      "side": 1,
+      "message": "Looking forward to Typescript, or more explicit ways to document new functions (and their signatures).",
+      "revId": "998712a0924da4a3b98926cc5fba704c25ca120c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b53d7b6f_760faf48",
         "filename": "modules/canvaskit/CHANGELOG.md",
         "patchSetId": 10
