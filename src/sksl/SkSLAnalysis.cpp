@@ -249,12 +249,6 @@ public:
                 this->visitExpression(*expr.as<IndexExpression>().fBase);
                 break;
 
-            case Expression::Kind::kTernary: {
-                const TernaryExpression& ternary = expr.as<TernaryExpression>();
-                this->visitExpression(*ternary.fIfTrue);
-                this->visitExpression(*ternary.fIfFalse);
-                break;
-            }
             case Expression::Kind::kExternalValue: {
                 const ExternalValue* var = expr.as<ExternalValueReference>().fValue;
                 if (!var->canWrite()) {
