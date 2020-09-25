@@ -198,7 +198,6 @@ private:
     void checkValid(const Expression& expr);
     bool setRefKind(Expression& expr, VariableReference::RefKind kind);
     bool getConstantInt(const Expression& value, int64_t* out);
-    bool checkSwizzleWrite(const Swizzle& swizzle);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
 
     Inliner* fInliner = nullptr;
