@@ -13,24 +13,18 @@ float _blend_overlay_component(float2 s, float2 d) {
 }
 float4 blend_overlay(float4 src, float4 dst) {
     float _0_blend_overlay_component;
-    float2 _1_s = src.xw;
-    float2 _2_d = dst.xw;
     {
-        _0_blend_overlay_component = 2.0 * _2_d.x <= _2_d.y ? (2.0 * _1_s.x) * _2_d.x : _1_s.y * _2_d.y - (2.0 * (_2_d.y - _2_d.x)) * (_1_s.y - _1_s.x);
+        _0_blend_overlay_component = 2.0 * dst.x <= dst.w ? (2.0 * src.x) * dst.x : src.w * dst.w - (2.0 * (dst.w - dst.x)) * (src.w - src.x);
     }
-    float _3_blend_overlay_component;
-    float2 _4_s = src.yw;
-    float2 _5_d = dst.yw;
+    float _1_blend_overlay_component;
     {
-        _3_blend_overlay_component = 2.0 * _5_d.x <= _5_d.y ? (2.0 * _4_s.x) * _5_d.x : _4_s.y * _5_d.y - (2.0 * (_5_d.y - _5_d.x)) * (_4_s.y - _4_s.x);
+        _1_blend_overlay_component = 2.0 * dst.y <= dst.w ? (2.0 * src.y) * dst.y : src.w * dst.w - (2.0 * (dst.w - dst.y)) * (src.w - src.y);
     }
-    float _6_blend_overlay_component;
-    float2 _7_s = src.zw;
-    float2 _8_d = dst.zw;
+    float _2_blend_overlay_component;
     {
-        _6_blend_overlay_component = 2.0 * _8_d.x <= _8_d.y ? (2.0 * _7_s.x) * _8_d.x : _7_s.y * _8_d.y - (2.0 * (_8_d.y - _8_d.x)) * (_7_s.y - _7_s.x);
+        _2_blend_overlay_component = 2.0 * dst.z <= dst.w ? (2.0 * src.z) * dst.z : src.w * dst.w - (2.0 * (dst.w - dst.z)) * (src.w - src.z);
     }
-    float4 result = float4(_0_blend_overlay_component, _3_blend_overlay_component, _6_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
+    float4 result = float4(_0_blend_overlay_component, _1_blend_overlay_component, _2_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
 
 
 
