@@ -207,18 +207,31 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
+// If a caller doesn't care about errors, we can use this trivial reporter that just counts up.
+class TrivialErrorReporter : public ErrorReporter {
+public:
+    void error(int offset, String) override { ++fErrorCount; }
+    int errorCount() override { return fErrorCount; }
+
+private:
+    int fErrorCount = 0;
+};
+
 // This isn't actually using ProgramVisitor, because it only considers a subset of the fields for
 // any given expression kind. For instance, when indexing an array (e.g. `x[1]`), we only want to
 // know if the base (`x`) is assignable; the index expression (`1`) doesn't need to be.
 class IsAssignableVisitor {
 public:
-    IsAssignableVisitor(std::vector<VariableReference*>* assignableVars, ErrorReporter& errors)
-        : fAssignableVars(assignableVars)
-        , fErrors(errors) {}
+    IsAssignableVisitor(VariableReference** assignableVar, ErrorReporter* errors)
+            : fAssignableVar(assignableVar), fErrors(errors) {
+        if (fAssignableVar) {
+            *fAssignableVar = nullptr;
+        }
+    }
 
     bool visit(Expression& expr) {
         this->visitExpression(expr);
-        return fErrors.errorCount() == 0;
+        return fErrors->errorCount() == 0;
     }
 
     void visitExpression(Expression& expr) {
@@ -228,10 +241,11 @@ public:
                 const Variable* var = varRef.fVariable;
                 if (var->fModifiers.fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag |
                                               Modifiers::kVarying_Flag)) {
-                    fErrors.error(expr.fOffset,
-                                  "cannot modify immutable variable '" + var->fName + "'");
-                } else if (fAssignableVars) {
-                    fAssignableVars->push_back(&varRef);
+                    fErrors->error(expr.fOffset,
+                                   "cannot modify immutable variable '" + var->fName + "'");
+                } else if (fAssignableVar) {
+                    SkASSERT(*fAssignableVar == nullptr);
+                    *fAssignableVar = &varRef;
                 }
                 break;
             }
@@ -252,13 +266,13 @@ public:
             case Expression::Kind::kExternalValue: {
                 const ExternalValue* var = expr.as<ExternalValueReference>().fValue;
                 if (!var->canWrite()) {
-                    fErrors.error(expr.fOffset,
-                                  "cannot modify immutable external value '" + var->fName + "'");
+                    fErrors->error(expr.fOffset,
+                                   "cannot modify immutable external value '" + var->fName + "'");
                 }
                 break;
             }
             default:
-                fErrors.error(expr.fOffset, "cannot assign to this expression");
+                fErrors->error(expr.fOffset, "cannot assign to this expression");
                 break;
         }
     }
@@ -270,21 +284,19 @@ private:
             SkASSERT(idx <= 3);
             int bit = 1 << idx;
             if (bits & bit) {
-                fErrors.error(swizzle.fOffset,
-                              "cannot write to the same swizzle field more than once");
+                fErrors->error(swizzle.fOffset,
+                               "cannot write to the same swizzle field more than once");
                 break;
             }
             bits |= bit;
         }
     }
 
-    std::vector<VariableReference*>* fAssignableVars;
-    ErrorReporter& fErrors;
+    VariableReference** fAssignableVar;
+    ErrorReporter* fErrors;
 
     using INHERITED = ProgramVisitor;
 };
-
-
 
 }  // namespace
 
@@ -317,9 +329,10 @@ bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& 
     return VariableWriteVisitor(&var).visit(stmt);
 }
 
-bool Analysis::IsAssignable(Expression& expr, std::vector<VariableReference*>* assignableVars,
-                            ErrorReporter& errors) {
-    return IsAssignableVisitor{assignableVars, errors}.visit(expr);
+bool Analysis::IsAssignable(Expression& expr, VariableReference** assignableVar,
+                            ErrorReporter* errors) {
+    TrivialErrorReporter trivialErrors;
+    return IsAssignableVisitor{assignableVar, errors ? errors : &trivialErrors}.visit(expr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
