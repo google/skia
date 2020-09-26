@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aab1c761_e34c089b",
+        "filename": "src/gpu/gl/GrGLAssembleWebGLInterfaceAutogen.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-26T03:23:59Z",
+      "side": 1,
+      "message": "This throws an error: use of undeclared identifier \u0027emscripten_glMultiDrawArraysInstancedBaseInstanceWEBGL\u0027\n\nIs there not a way to query these entry points by name that doesn\u0027t rely on having the newest headers?",
+      "revId": "64a09a0499f3f95f529ab76b73c4e0aeb5f6ef35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
