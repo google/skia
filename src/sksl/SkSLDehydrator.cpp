@@ -267,7 +267,7 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kBoolLiteral: {
                 const BoolLiteral& b = e->as<BoolLiteral>();
                 this->writeU8(Rehydrator::kBoolLiteral_Command);
-                this->writeU8(b.value());
+                this->writeU8(b.fValue);
                 break;
             }
             case Expression::Kind::kConstructor: {

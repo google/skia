@@ -479,7 +479,7 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
 }
 
 static bool is_true(Expression& expr) {
-    return expr.is<BoolLiteral>() && expr.as<BoolLiteral>().value();
+    return expr.is<BoolLiteral>() && expr.as<BoolLiteral>().fValue;
 }
 
 void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
