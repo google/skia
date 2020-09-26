@@ -33,6 +33,23 @@
       "revId": "a17371d0a84f585c7b8ed68d8fdac98fa32a75b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b4b4fb3_c8d1c3da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14424
+      },
+      "writtenOn": "2020-09-26T04:55:45Z",
+      "side": 1,
+      "message": "Also it seems that the automated build process rejected this - what\u0027s the cause of that? I guess that it\u0027s due to the link in the commit message?",
+      "revId": "a17371d0a84f585c7b8ed68d8fdac98fa32a75b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
