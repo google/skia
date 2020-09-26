@@ -881,7 +881,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             if (t->fTest->kind() == Expression::Kind::kBoolLiteral) {
                 // ternary has a constant test, replace it with either the true or
                 // false branch
-                if (t->fTest->as<BoolLiteral>().value()) {
+                if (t->fTest->as<BoolLiteral>().fValue) {
                     (*iter)->setExpression(std::move(t->fIfTrue));
                 } else {
                     (*iter)->setExpression(std::move(t->fIfFalse));
@@ -1292,7 +1292,7 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
             IfStatement& i = stmt->as<IfStatement>();
             if (i.fTest->kind() == Expression::Kind::kBoolLiteral) {
                 // constant if, collapse down to a single branch
-                if (i.fTest->as<BoolLiteral>().value()) {
+                if (i.fTest->as<BoolLiteral>().fValue) {
                     SkASSERT(i.fIfTrue);
                     (*iter)->setStatement(std::move(i.fIfTrue));
                 } else {

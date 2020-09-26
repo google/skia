@@ -901,7 +901,7 @@ bool ByteCodeGenerator::writeBinaryExpression(const BinaryExpression& b, bool di
 
 void ByteCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
     this->write(ByteCodeInstruction::kPushImmediate);
-    this->write32(b.value() ? ~0 : 0);
+    this->write32(b.fValue ? ~0 : 0);
 }
 
 void ByteCodeGenerator::writeConstructor(const Constructor& c) {
