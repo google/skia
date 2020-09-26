@@ -47,44 +47,39 @@ vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
 
         } else if (hueLumColor.x <= hueLumColor.z) {
             vec3 _4_blend_set_color_saturation_helper;
-            vec3 _5_minMidMax = hueLumColor.xzy;
             {
-                _4_blend_set_color_saturation_helper = _5_minMidMax.x < _5_minMidMax.z ? vec3(0.0, (sat * (_5_minMidMax.y - _5_minMidMax.x)) / (_5_minMidMax.z - _5_minMidMax.x), sat) : vec3(0.0);
+                _4_blend_set_color_saturation_helper = hueLumColor.x < hueLumColor.y ? vec3(0.0, (sat * (hueLumColor.z - hueLumColor.x)) / (hueLumColor.y - hueLumColor.x), sat) : vec3(0.0);
             }
             hueLumColor.xzy = _4_blend_set_color_saturation_helper;
 
         } else {
-            vec3 _6_blend_set_color_saturation_helper;
-            vec3 _7_minMidMax = hueLumColor.zxy;
+            vec3 _5_blend_set_color_saturation_helper;
             {
-                _6_blend_set_color_saturation_helper = _7_minMidMax.x < _7_minMidMax.z ? vec3(0.0, (sat * (_7_minMidMax.y - _7_minMidMax.x)) / (_7_minMidMax.z - _7_minMidMax.x), sat) : vec3(0.0);
+                _5_blend_set_color_saturation_helper = hueLumColor.z < hueLumColor.y ? vec3(0.0, (sat * (hueLumColor.x - hueLumColor.z)) / (hueLumColor.y - hueLumColor.z), sat) : vec3(0.0);
             }
-            hueLumColor.zxy = _6_blend_set_color_saturation_helper;
+            hueLumColor.zxy = _5_blend_set_color_saturation_helper;
 
         }
     } else if (hueLumColor.x <= hueLumColor.z) {
-        vec3 _8_blend_set_color_saturation_helper;
-        vec3 _9_minMidMax = hueLumColor.yxz;
+        vec3 _6_blend_set_color_saturation_helper;
         {
-            _8_blend_set_color_saturation_helper = _9_minMidMax.x < _9_minMidMax.z ? vec3(0.0, (sat * (_9_minMidMax.y - _9_minMidMax.x)) / (_9_minMidMax.z - _9_minMidMax.x), sat) : vec3(0.0);
+            _6_blend_set_color_saturation_helper = hueLumColor.y < hueLumColor.z ? vec3(0.0, (sat * (hueLumColor.x - hueLumColor.y)) / (hueLumColor.z - hueLumColor.y), sat) : vec3(0.0);
         }
-        hueLumColor.yxz = _8_blend_set_color_saturation_helper;
+        hueLumColor.yxz = _6_blend_set_color_saturation_helper;
 
     } else if (hueLumColor.y <= hueLumColor.z) {
-        vec3 _10_blend_set_color_saturation_helper;
-        vec3 _11_minMidMax = hueLumColor.yzx;
+        vec3 _7_blend_set_color_saturation_helper;
         {
-            _10_blend_set_color_saturation_helper = _11_minMidMax.x < _11_minMidMax.z ? vec3(0.0, (sat * (_11_minMidMax.y - _11_minMidMax.x)) / (_11_minMidMax.z - _11_minMidMax.x), sat) : vec3(0.0);
+            _7_blend_set_color_saturation_helper = hueLumColor.y < hueLumColor.x ? vec3(0.0, (sat * (hueLumColor.z - hueLumColor.y)) / (hueLumColor.x - hueLumColor.y), sat) : vec3(0.0);
         }
-        hueLumColor.yzx = _10_blend_set_color_saturation_helper;
+        hueLumColor.yzx = _7_blend_set_color_saturation_helper;
 
     } else {
-        vec3 _12_blend_set_color_saturation_helper;
-        vec3 _13_minMidMax = hueLumColor.zyx;
+        vec3 _8_blend_set_color_saturation_helper;
         {
-            _12_blend_set_color_saturation_helper = _13_minMidMax.x < _13_minMidMax.z ? vec3(0.0, (sat * (_13_minMidMax.y - _13_minMidMax.x)) / (_13_minMidMax.z - _13_minMidMax.x), sat) : vec3(0.0);
+            _8_blend_set_color_saturation_helper = hueLumColor.z < hueLumColor.x ? vec3(0.0, (sat * (hueLumColor.y - hueLumColor.z)) / (hueLumColor.x - hueLumColor.z), sat) : vec3(0.0);
         }
-        hueLumColor.zyx = _12_blend_set_color_saturation_helper;
+        hueLumColor.zyx = _8_blend_set_color_saturation_helper;
 
     }
     return hueLumColor;
