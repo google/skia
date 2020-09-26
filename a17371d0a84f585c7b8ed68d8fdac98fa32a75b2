@@ -16,6 +16,23 @@
       "revId": "a17371d0a84f585c7b8ed68d8fdac98fa32a75b2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fea40d2_1baf734d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14424
+      },
+      "writtenOn": "2020-09-26T04:54:10Z",
+      "side": 1,
+      "message": "https://skia.googlesource.com/skia/+/master/src/core/SkRRectPriv.h#23\n\nThe assertion on this line hits, which is due to previous transform call setting the type to \"complex\". When this occurred the fX and fY were off by a very small value, which is presumably due to rounding error.",
+      "revId": "a17371d0a84f585c7b8ed68d8fdac98fa32a75b2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
