@@ -38,8 +38,8 @@ struct Analysis {
     static int NodeCount(const FunctionDefinition& function);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
-    static bool IsAssignable(Expression& expr, std::vector<VariableReference*>* assignableVars,
-                             ErrorReporter& errors);
+    static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
+                             ErrorReporter* errors = nullptr);
 };
 
 /**
