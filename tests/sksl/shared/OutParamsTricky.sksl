@@ -1,0 +1,13 @@
+half2 tricky(half x, half y, inout half2 color, half z) {
+    color.xy = color.yx;
+    return half2(x + y, z);
+}
+
+void func(inout half4 color) {
+    half2 t = tricky(1, 2, color.rb, 5);
+    color.ga = t;
+}
+
+void main() {
+    func(sk_FragColor);
+}
