@@ -88,6 +88,24 @@
       "revId": "f79450d96d64427be4991761232ad9664813143b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "26082a31_d234a7a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2020-09-26T09:17:27Z",
+      "side": 1,
+      "message": "Ought to be safe to CQ this now.",
+      "parentUuid": "f2eb3a43_28444c9a",
+      "revId": "f79450d96d64427be4991761232ad9664813143b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
