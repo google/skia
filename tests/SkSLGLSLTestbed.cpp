@@ -47,8 +47,16 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+uniform half4 color;
+
+half4 blocky(half4 c) {
+    {
+        return c;
+    }
+}
+
+void main() {
+    sk_FragColor = blocky(color);
+}
          )__SkSL__");
 }
