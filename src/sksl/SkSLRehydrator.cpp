@@ -287,10 +287,10 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 refs.insert(this->symbolRef<FunctionDeclaration>(
                                                                Symbol::Kind::kFunctionDeclaration));
             }
-            FunctionDefinition* result = new FunctionDefinition(-1, *decl, std::move(body),
-                                                                std::move(refs));
-            decl->fDefinition = result;
-            return std::unique_ptr<ProgramElement>(result);
+            auto result = std::make_unique<FunctionDefinition>(-1, *decl, std::move(body),
+                                                               std::move(refs));
+            decl->fDefinition = result.get();
+            return std::move(result);
         }
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
@@ -303,9 +303,8 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             for (int i = 0; i < sizeCount; ++i) {
                 sizes.push_back(this->expression());
             }
-            return std::unique_ptr<ProgramElement>(new InterfaceBlock(-1, (Variable*) var, typeName,
-                                                                      instanceName,
-                                                                      std::move(sizes), nullptr));
+            return std::make_unique<InterfaceBlock>(-1, (Variable*)var, typeName, instanceName,
+                                                    std::move(sizes), nullptr);
         }
         case Rehydrator::kVarDeclarations_Command: {
             const Type* baseType = this->type();
@@ -317,8 +316,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 SkASSERT(s->kind() == Statement::Kind::kVarDeclaration);
                 vars.emplace_back((VarDeclaration*) s.release());
             }
-            return std::unique_ptr<ProgramElement>(new VarDeclarations(-1, baseType,
-                                                                       std::move(vars)));
+            return std::make_unique<VarDeclarations>(-1, baseType, std::move(vars));
         }
         default:
             printf("unsupported element %d\n", kind);
@@ -339,8 +337,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                 statements.push_back(this->statement());
             }
             bool isScope = this->readU8();
-            return std::unique_ptr<Statement>(new Block(-1, std::move(statements), fSymbolTable,
-                                                        isScope));
+            return std::make_unique<Block>(-1, std::move(statements), fSymbolTable, isScope);
         }
         case Rehydrator::kBreak_Command:
             return std::unique_ptr<Statement>(new BreakStatement(-1));

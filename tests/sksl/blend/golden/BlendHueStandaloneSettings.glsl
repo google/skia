@@ -1,9 +1,6 @@
 
 out vec4 sk_FragColor;
 in vec4 src, dst;
-float _blend_color_luminance(vec3 color) {
-    return dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), color);
-}
 vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
     float _0_blend_color_luminance;
     {
@@ -23,12 +20,6 @@ vec3 _blend_set_color_luminance(vec3 hueSatColor, float alpha, vec3 lumColor) {
         result = lum + ((result - lum) * lum) / (lum - minComp);
     }
     return maxComp > alpha && maxComp != lum ? lum + ((result - lum) * (alpha - lum)) / (maxComp - lum) : result;
-}
-float _blend_color_saturation(vec3 color) {
-    return max(max(color.x, color.y), color.z) - min(min(color.x, color.y), color.z);
-}
-vec3 _blend_set_color_saturation_helper(vec3 minMidMax, float sat) {
-    return minMidMax.x < minMidMax.z ? vec3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat) : vec3(0.0);
 }
 vec3 _blend_set_color_saturation(vec3 hueLumColor, vec3 satColor) {
     float _2_blend_color_saturation;

@@ -8,9 +8,6 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-float _blend_color_luminance(float3 color) {
-    return dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), color);
-}
 float3 _blend_set_color_luminance(float3 hueSatColor, float alpha, float3 lumColor) {
     float _0_blend_color_luminance;
     {
@@ -30,12 +27,6 @@ float3 _blend_set_color_luminance(float3 hueSatColor, float alpha, float3 lumCol
         result = lum + ((result - lum) * lum) / (lum - minComp);
     }
     return maxComp > alpha && maxComp != lum ? lum + ((result - lum) * (alpha - lum)) / (maxComp - lum) : result;
-}
-float _blend_color_saturation(float3 color) {
-    return max(max(color.x, color.y), color.z) - min(min(color.x, color.y), color.z);
-}
-float3 _blend_set_color_saturation_helper(float3 minMidMax, float sat) {
-    return minMidMax.x < minMidMax.z ? float3(0.0, (sat * (minMidMax.y - minMidMax.x)) / (minMidMax.z - minMidMax.x), sat) : float3(0.0);
 }
 float3 _blend_set_color_saturation(float3 hueLumColor, float3 satColor) {
     float _2_blend_color_saturation;
