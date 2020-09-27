@@ -121,6 +121,7 @@ struct FunctionDeclaration : public Symbol {
     const std::vector<const Variable*> fParameters;
     const Type& fReturnType;
     mutable std::atomic<int> fCallCount = 0;
+    mutable int fBaselineCallCount = 0;
 
     using INHERITED = Symbol;
 };

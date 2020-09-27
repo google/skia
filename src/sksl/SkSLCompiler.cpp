@@ -266,6 +266,16 @@ Compiler::Compiler(Flags flags)
         fFragmentInclude = rehydrator.elements();
     }
 #endif
+    // Set the baseline call count for built-in functions.
+    for (auto* include : { &gpuIntrinsics, &fVertexInclude, &fFragmentInclude }) {
+        for (std::unique_ptr<ProgramElement>& element : *include) {
+            if (element->is<FunctionDefinition>()) {
+                const FunctionDeclaration& fnDecl = element->as<FunctionDefinition>().fDeclaration;
+                fnDecl.fBaselineCallCount = fnDecl.fCallCount;
+            }
+        }
+    }
+
     grab_intrinsics(&gpuIntrinsics, fGPUIntrinsics.get());
     SkASSERT(gpuIntrinsics.empty());
 }
@@ -1689,15 +1699,15 @@ bool Compiler::optimize(Program& program) {
         // even in unused code.
         if (program.fSettings.fRemoveDeadFunctions) {
             program.fElements.erase(
-                    std::remove_if(program.fElements.begin(),
-                                   program.fElements.end(),
+                    std::remove_if(program.fElements.begin(), program.fElements.end(),
                                    [&](const std::unique_ptr<ProgramElement>& element) {
                                        if (!element->is<FunctionDefinition>()) {
                                            return false;
                                        }
-                                       const auto& fn = element->as<FunctionDefinition>();
-                                       bool dead = fn.fDeclaration.fCallCount == 0 &&
-                                                   fn.fDeclaration.fName != "main";
+                                       const FunctionDeclaration& fnDecl =
+                                               element->as<FunctionDefinition>().fDeclaration;
+                                       bool dead = fnDecl.fCallCount <= fnDecl.fBaselineCallCount &&
+                                                   fnDecl.fName != "main";
                                        madeChanges |= dead;
                                        return dead;
                                    }),

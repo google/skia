@@ -8,9 +8,6 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-float _blend_overlay_component(float2 s, float2 d) {
-    return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
-}
 float4 blend_overlay(float4 src, float4 dst) {
     float _1_blend_overlay_component;
     float2 _2_s = src.xw;
@@ -36,9 +33,6 @@ float4 blend_overlay(float4 src, float4 dst) {
 
     result.xyz = result.xyz + dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
     return result;
-}
-float4 blend_hard_light(float4 src, float4 dst) {
-    return blend_overlay(dst, src);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
