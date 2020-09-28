@@ -280,7 +280,7 @@ String CPPCodeGenerator::getSamplerHandle(const Variable& var) {
 }
 
 void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    this->write(to_string((int32_t) i.fValue));
+    this->write(to_string((int32_t) i.value()));
 }
 
 void CPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {

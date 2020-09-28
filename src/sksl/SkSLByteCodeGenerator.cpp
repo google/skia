@@ -1316,7 +1316,7 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
 
 void ByteCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     this->write(ByteCodeInstruction::kPushImmediate);
-    this->write32(i.fValue);
+    this->write32(i.value());
 }
 
 void ByteCodeGenerator::writeNullLiteral(const NullLiteral& n) {
