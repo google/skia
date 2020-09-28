@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e67d95e5_64b4c9c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-28T13:57:36Z",
+      "side": 1,
+      "message": "I want to get a better understanding of what is leading to the assert firing. I\u0027m guessing that either the matrix detection in the new code is more particular and is missing something or it\u0027s either non-circular oval that gets transformed to a circle in dev space or corner radii that get projected to nearly zero and therefore produce a rect by our logic. In any event I think we could either decide to remove the asserts or to update the rect/circle code to be more permissive.",
+      "revId": "c251b060fed22e9f8f3ab678b0c9c63845dd3844",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
