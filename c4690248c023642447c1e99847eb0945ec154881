@@ -88,6 +88,24 @@
       "revId": "c4690248c023642447c1e99847eb0945ec154881",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d36cb4cd_d1d7e1e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T19:00:20Z",
+      "side": 1,
+      "message": "Interesting! I tried this experiment locally. I\u0027m using goma but I can control the parallelism via -j.\n\nWith -j 1, it was very very slow, but the time was clearly spent rebuilding all the FP gencode. I eventually canceled it.\nWith -j 8, I get build times of ~34 seconds.\nWith -j 333 (my usual), I get build times of ~15 seconds.\n\nIt didn\u0027t look like the golden-files actions were a significant portion of the times in any event. Linking seemed to be the biggest blocking event. I don\u0027t know how much of the timing is invalidated by goma caching results.",
+      "parentUuid": "9253abac_a3170a29",
+      "revId": "c4690248c023642447c1e99847eb0945ec154881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
