@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "04e17838_14369d0e",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1443,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T17:21:22Z",
+      "side": 1,
+      "message": "This \u0027unicode\u0027 is destructed at the end of this method. Note that MakeSkUnicodeHbScriptRunIterator isn\u0027t taking ownership.",
+      "revId": "923cb60f35bce130b880a57419a4af426061a2ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
