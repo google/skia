@@ -65,6 +65,30 @@
     },
     {
       "key": {
+        "uuid": "1186b12a_db41d6d5",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-28T20:00:47Z",
+      "side": 1,
+      "message": "No, I think that\u0027s part of the complication with non-POD types in unions - the default constructor and destructor get implicitly marked \u003d delete(), so you have to provide explicit behavior for them.",
+      "parentUuid": "e645e801_7b6c0638",
+      "range": {
+        "startLine": 106,
+        "startChar": 11,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "c42a25e7c866ec25d4c8ef90aaf1da42afc18276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea8a53fe_4c5c4f90",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 2
