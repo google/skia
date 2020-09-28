@@ -52,6 +52,8 @@ public:
         switch (fData.fKind) {
             case NodeData::Kind::kBoolLiteral:
                 return *this->boolLiteralData().fType;
+            case NodeData::Kind::kFloatLiteral:
+                return *this->floatLiteralData().fType;
             case NodeData::Kind::kType:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
@@ -75,6 +77,11 @@ protected:
         bool fValue;
     };
 
+    struct FloatLiteralData {
+        const Type* fType;
+        float fValue;
+    };
+
     struct TypeTokenData {
         const Type* fType;
         Token::Kind fToken;
@@ -89,6 +96,7 @@ protected:
         enum class Kind {
             kBlock,
             kBoolLiteral,
+            kFloatLiteral,
             kType,
             kTypeToken,
         } fKind;
@@ -103,6 +111,11 @@ protected:
         NodeData(const BoolLiteralData& data)
             : fKind(Kind::kBoolLiteral) {
             *(new(fBytes) BoolLiteralData) = data;
+        }
+
+        NodeData(const FloatLiteralData& data)
+            : fKind(Kind::kFloatLiteral) {
+            *(new(fBytes) FloatLiteralData) = data;
         }
 
         NodeData(const Type* data)
@@ -123,6 +136,9 @@ protected:
                 case Kind::kBoolLiteral:
                     reinterpret_cast<BoolLiteralData*>(fBytes)->~BoolLiteralData();
                     break;
+                case Kind::kFloatLiteral:
+                    reinterpret_cast<FloatLiteralData*>(fBytes)->~FloatLiteralData();
+                    break;
                 case Kind::kType:
                     break;
                 case Kind::kTypeToken:
@@ -136,6 +152,8 @@ protected:
            std::vector<std::unique_ptr<Statement>> stmts);
 
     IRNode(int offset, int kind, const BoolLiteralData& data);
+
+    IRNode(int offset, int kind, const FloatLiteralData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -195,6 +213,11 @@ protected:
     const BoolLiteralData& boolLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kBoolLiteral);
         return *reinterpret_cast<const BoolLiteralData*>(fData.fBytes);
+    }
+
+    const FloatLiteralData& floatLiteralData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kFloatLiteral);
+        return *reinterpret_cast<const FloatLiteralData*>(fData.fBytes);
     }
 
     const Type* typeData() const {
