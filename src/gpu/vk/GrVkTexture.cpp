@@ -24,12 +24,12 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkISize dimensions,
                          const GrVkImageInfo& info,
                          sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                         const GrVkImageView* view,
+                         sk_sp<const GrVkImageView> view,
                          GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipmapStatus)
-        , fTextureView(view)
+        , fTextureView(std::move(view))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == info.fLevelCount));
     // We don't support creating external GrVkTextures
@@ -43,14 +43,14 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
 
 GrVkTexture::GrVkTexture(GrVkGpu* gpu, SkISize dimensions, const GrVkImageInfo& info,
                          sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                         const GrVkImageView* view,
+                         sk_sp<const GrVkImageView> view,
                          GrMipmapStatus mipmapStatus, GrBackendObjectOwnership ownership,
                          GrWrapCacheable cacheable, GrIOType ioType, bool isExternal)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , INHERITED(gpu, dimensions, info.fProtected,
                     isExternal ? GrTextureType::kExternal : GrTextureType::k2D, mipmapStatus)
-        , fTextureView(view)
+        , fTextureView(std::move(view))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == info.fLevelCount));
     SkASSERT(SkToBool(info.fImageUsageFlags & VK_IMAGE_USAGE_SAMPLED_BIT));
@@ -65,13 +65,13 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
                          SkISize dimensions,
                          const GrVkImageInfo& info,
                          sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                         const GrVkImageView* view,
+                         sk_sp<const GrVkImageView> view,
                          GrMipmapStatus mipmapStatus,
                          GrBackendObjectOwnership ownership)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(gpu, info, std::move(mutableState), ownership)
         , INHERITED(gpu, dimensions, info.fProtected, GrTextureType::k2D, mipmapStatus)
-        , fTextureView(view)
+        , fTextureView(std::move(view))
         , fDescSetCache(kMaxCachedDescSets) {
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == info.fLevelCount));
     // Since this ctor is only called from GrVkTextureRenderTarget, we can't have a ycbcr conversion
@@ -91,7 +91,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
         return nullptr;
     }
 
-    const GrVkImageView* imageView = GrVkImageView::Create(
+    sk_sp<const GrVkImageView> imageView = GrVkImageView::Make(
             gpu, info.fImage, info.fFormat, GrVkImageView::kColor_Type, info.fLevelCount,
             info.fYcbcrConversionInfo);
     if (!imageView) {
@@ -101,7 +101,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted
     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(
             new GrBackendSurfaceMutableStateImpl(info.fImageLayout, info.fCurrentQueueFamily));
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu, budgeted, dimensions, info,
-                                              std::move(mutableState), imageView, mipmapStatus));
+                                              std::move(mutableState), std::move(imageView),
+                                              mipmapStatus));
 }
 
 sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
@@ -112,7 +113,7 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
     SkASSERT(VK_NULL_HANDLE != info.fImage &&
              (kBorrow_GrWrapOwnership == wrapOwnership || VK_NULL_HANDLE != info.fAlloc.fMemory));
 
-    const GrVkImageView* imageView = GrVkImageView::Create(
+    sk_sp<const GrVkImageView> imageView = GrVkImageView::Make(
             gpu, info.fImage, info.fFormat, GrVkImageView::kColor_Type, info.fLevelCount,
             info.fYcbcrConversionInfo);
     if (!imageView) {
@@ -127,8 +128,8 @@ sk_sp<GrVkTexture> GrVkTexture::MakeWrappedTexture(
     bool isExternal = info.fYcbcrConversionInfo.isValid() &&
                       (info.fYcbcrConversionInfo.fExternalFormat != 0);
     return sk_sp<GrVkTexture>(new GrVkTexture(gpu, dimensions, info, std::move(mutableState),
-                                              imageView, mipmapStatus, ownership, cacheable,
-                                              ioType, isExternal));
+                                              std::move(imageView), mipmapStatus, ownership,
+                                              cacheable, ioType, isExternal));
 }
 
 GrVkTexture::~GrVkTexture() {
@@ -146,8 +147,7 @@ void GrVkTexture::onRelease() {
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
-        fTextureView->unref();
-        fTextureView = nullptr;
+        fTextureView.reset();
     }
 
     fDescSetCache.reset();
@@ -180,8 +180,7 @@ void GrVkTexture::onAbandon() {
 
     // we create this and don't hand it off, so we should always destroy it
     if (fTextureView) {
-        fTextureView->unref();
-        fTextureView = nullptr;
+        fTextureView.reset();
     }
 
     fDescSetCache.reset();
@@ -200,7 +199,7 @@ GrVkGpu* GrVkTexture::getVkGpu() const {
 }
 
 const GrVkImageView* GrVkTexture::textureView() {
-    return fTextureView;
+    return fTextureView.get();
 }
 
 void GrVkTexture::addIdleProc(sk_sp<GrRefCntedCallback> idleProc, IdleState type) {

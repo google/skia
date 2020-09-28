@@ -30,7 +30,7 @@ public:
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
     const GrManagedResource* imageResource() const { return this->resource(); }
-    const GrVkImageView* stencilView() const { return fStencilView; }
+    const GrVkImageView* stencilView() const { return fStencilView.get(); }
 
 protected:
     void onRelease() override;
@@ -45,11 +45,11 @@ private:
                           const GrVkImage::ImageDesc&,
                           const GrVkImageInfo&,
                           sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                          const GrVkImageView* stencilView);
+                          sk_sp<const GrVkImageView> stencilView);
 
     GrVkGpu* getVkGpu() const;
 
-    const GrVkImageView*       fStencilView;
+    sk_sp<const GrVkImageView> fStencilView;
 };
 
 #endif

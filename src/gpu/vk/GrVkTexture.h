@@ -62,7 +62,7 @@ protected:
                 SkISize dimensions,
                 const GrVkImageInfo&,
                 sk_sp<GrBackendSurfaceMutableStateImpl>,
-                const GrVkImageView*,
+                sk_sp<const GrVkImageView>,
                 GrMipmapStatus,
                 GrBackendObjectOwnership);
 
@@ -79,11 +79,11 @@ protected:
 
 private:
     GrVkTexture(GrVkGpu*, SkBudgeted, SkISize, const GrVkImageInfo&,
-                sk_sp<GrBackendSurfaceMutableStateImpl>, const GrVkImageView* imageView,
+                sk_sp<GrBackendSurfaceMutableStateImpl>, sk_sp<const GrVkImageView> imageView,
                 GrMipmapStatus);
     GrVkTexture(GrVkGpu*, SkISize, const GrVkImageInfo&, sk_sp<GrBackendSurfaceMutableStateImpl>,
-                const GrVkImageView*, GrMipmapStatus, GrBackendObjectOwnership, GrWrapCacheable,
-                GrIOType, bool isExternal);
+                sk_sp<const GrVkImageView>, GrMipmapStatus, GrBackendObjectOwnership,
+                GrWrapCacheable, GrIOType, bool isExternal);
 
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).
@@ -94,7 +94,7 @@ private:
 
     void removeFinishIdleProcs();
 
-    const GrVkImageView* fTextureView;
+    sk_sp<const GrVkImageView> fTextureView;
 
     struct SamplerHash {
         uint32_t operator()(GrSamplerState state) const { return state.asIndex(); }

@@ -19,12 +19,11 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImageInfo& info,
                                              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                                             const GrVkImageView* stencilView)
+                                             sk_sp<const GrVkImageView> stencilView)
         : GrStencilAttachment(gpu, dimensions, format.fStencilBits, desc.fSamples, info.fProtected)
     , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
-    , fStencilView(stencilView) {
+    , fStencilView(std::move(stencilView)) {
     this->registerWithCache(SkBudgeted::kYes);
-    stencilView->ref();
 }
 
 GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
@@ -48,10 +47,10 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
         return nullptr;
     }
 
-    const GrVkImageView* imageView = GrVkImageView::Create(gpu, info.fImage,
-                                                           format.fInternalFormat,
-                                                           GrVkImageView::kStencil_Type, 1,
-                                                           GrVkYcbcrConversionInfo());
+    sk_sp<const GrVkImageView> imageView = GrVkImageView::Make(gpu, info.fImage,
+                                                               format.fInternalFormat,
+                                                               GrVkImageView::kStencil_Type, 1,
+                                                               GrVkYcbcrConversionInfo());
     if (!imageView) {
         GrVkImage::DestroyImageInfo(gpu, &info);
         return nullptr;
@@ -61,8 +60,7 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
         info.fImageLayout, info.fCurrentQueueFamily));
     GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, dimensions, format, imageDesc,
                                                                info, std::move(mutableState),
-                                                               imageView);
-    imageView->unref();
+                                                               std::move(imageView));
 
     return stencil;
 }
@@ -82,16 +80,14 @@ size_t GrVkStencilAttachment::onGpuMemorySize() const {
 
 void GrVkStencilAttachment::onRelease() {
     this->releaseImage();
-    fStencilView->unref();
-    fStencilView = nullptr;
+    fStencilView.reset();
 
     GrStencilAttachment::onRelease();
 }
 
 void GrVkStencilAttachment::onAbandon() {
     this->releaseImage();
-    fStencilView->unref();
-    fStencilView = nullptr;
+    fStencilView.reset();
 
     GrStencilAttachment::onAbandon();
 }

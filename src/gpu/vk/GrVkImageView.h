@@ -22,9 +22,9 @@ public:
         kStencil_Type
     };
 
-    static const GrVkImageView* Create(GrVkGpu* gpu, VkImage image, VkFormat format,
-                                       Type viewType, uint32_t miplevels,
-                                       const GrVkYcbcrConversionInfo& ycbcrInfo);
+    static sk_sp<const GrVkImageView> Make(GrVkGpu* gpu, VkImage image, VkFormat format,
+                                           Type viewType, uint32_t miplevels,
+                                           const GrVkYcbcrConversionInfo& ycbcrInfo);
 
     VkImageView imageView() const { return fImageView; }
 
@@ -38,9 +38,6 @@ private:
     GrVkImageView(const GrVkGpu* gpu, VkImageView imageView,
                   GrVkSamplerYcbcrConversion* ycbcrConversion)
             : INHERITED(gpu), fImageView(imageView), fYcbcrConversion(ycbcrConversion) {}
-
-    GrVkImageView(const GrVkImageView&);
-    GrVkImageView& operator=(const GrVkImageView&);
 
     void freeGPUData() const override;
 

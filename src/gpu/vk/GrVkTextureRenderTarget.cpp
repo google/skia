@@ -25,19 +25,19 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         int sampleCnt,
         const GrVkImageInfo& info,
         sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-        const GrVkImageView* texView,
+        sk_sp<const GrVkImageView> texView,
         const GrVkImageInfo& msaaInfo,
         sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
-        const GrVkImageView* colorAttachmentView,
-        const GrVkImageView* resolveAttachmentView,
+        sk_sp<const GrVkImageView> colorAttachmentView,
+        sk_sp<const GrVkImageView> resolveAttachmentView,
         GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(gpu, info, mutableState, GrBackendObjectOwnership::kOwned)
-        , GrVkTexture(gpu, dimensions, info, mutableState, texView, mipmapStatus,
+        , GrVkTexture(gpu, dimensions, info, mutableState, std::move(texView), mipmapStatus,
                       GrBackendObjectOwnership::kOwned)
         , GrVkRenderTarget(gpu, dimensions, sampleCnt, info, std::move(mutableState), msaaInfo,
-                           std::move(msaaMutableState), colorAttachmentView, resolveAttachmentView,
-                           GrBackendObjectOwnership::kOwned) {
+                           std::move(msaaMutableState), std::move(colorAttachmentView),
+                           std::move(resolveAttachmentView), GrBackendObjectOwnership::kOwned) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCache(budgeted);
 }
@@ -48,15 +48,15 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         SkISize dimensions,
         const GrVkImageInfo& info,
         sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-        const GrVkImageView* texView,
-        const GrVkImageView* colorAttachmentView,
+        sk_sp<const GrVkImageView> texView,
+        sk_sp<const GrVkImageView> colorAttachmentView,
         GrMipmapStatus mipmapStatus)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(gpu, info, mutableState, GrBackendObjectOwnership::kOwned)
-        , GrVkTexture(gpu, dimensions, info, mutableState, texView, mipmapStatus,
+        , GrVkTexture(gpu, dimensions, info, mutableState, std::move(texView), mipmapStatus,
                       GrBackendObjectOwnership::kOwned)
-        , GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState), colorAttachmentView,
-                           GrBackendObjectOwnership::kOwned) {
+        , GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState),
+                           std::move(colorAttachmentView), GrBackendObjectOwnership::kOwned) {
     this->registerWithCache(budgeted);
 }
 
@@ -66,20 +66,21 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         int sampleCnt,
         const GrVkImageInfo& info,
         sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-        const GrVkImageView* texView,
+        sk_sp<const GrVkImageView> texView,
         const GrVkImageInfo& msaaInfo,
         sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
-        const GrVkImageView* colorAttachmentView,
-        const GrVkImageView* resolveAttachmentView,
+        sk_sp<const GrVkImageView> colorAttachmentView,
+        sk_sp<const GrVkImageView> resolveAttachmentView,
         GrMipmapStatus mipmapStatus,
         GrBackendObjectOwnership ownership,
         GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(gpu, info, mutableState, ownership)
-        , GrVkTexture(gpu, dimensions, info, mutableState, texView, mipmapStatus, ownership)
+        , GrVkTexture(gpu, dimensions, info, mutableState, std::move(texView), mipmapStatus,
+                      ownership)
         , GrVkRenderTarget(gpu, dimensions, sampleCnt, info, std::move(mutableState), msaaInfo,
-                           std::move(msaaMutableState), colorAttachmentView, resolveAttachmentView,
-                           ownership) {
+                           std::move(msaaMutableState), std::move(colorAttachmentView),
+                           std::move(resolveAttachmentView), ownership) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
     this->registerWithCacheWrapped(cacheable);
 }
@@ -89,24 +90,25 @@ GrVkTextureRenderTarget::GrVkTextureRenderTarget(
         SkISize dimensions,
         const GrVkImageInfo& info,
         sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-        const GrVkImageView* texView,
-        const GrVkImageView* colorAttachmentView,
+        sk_sp<const GrVkImageView> texView,
+        sk_sp<const GrVkImageView> colorAttachmentView,
         GrMipmapStatus mipmapStatus,
         GrBackendObjectOwnership ownership,
         GrWrapCacheable cacheable)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrVkImage(gpu, info, mutableState, ownership)
-        , GrVkTexture(gpu, dimensions, info, mutableState, texView, mipmapStatus, ownership)
-        , GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState), colorAttachmentView,
-                           ownership) {
+        , GrVkTexture(gpu, dimensions, info, mutableState, std::move(texView), mipmapStatus,
+                      ownership)
+        , GrVkRenderTarget(gpu, dimensions, info, std::move(mutableState),
+                           std::move(colorAttachmentView), ownership) {
     this->registerWithCacheWrapped(cacheable);
 }
 
 namespace {
 struct Views {
-    const GrVkImageView* imageView = nullptr;
-    const GrVkImageView* colorAttachmentView = nullptr;
-    const GrVkImageView* resolveAttachmentView = nullptr;
+    sk_sp<const GrVkImageView> imageView;
+    sk_sp<const GrVkImageView> colorAttachmentView;
+    sk_sp<const GrVkImageView> resolveAttachmentView;
     GrVkImageInfo msInfo;
     sk_sp<GrBackendSurfaceMutableStateImpl> msMutableState;
 };
@@ -117,8 +119,8 @@ static Views create_views(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
     VkImage image = info.fImage;
     // Create the texture ImageView
     Views views;
-    views.imageView = GrVkImageView::Create(gpu, image, info.fFormat, GrVkImageView::kColor_Type,
-                                            info.fLevelCount, info.fYcbcrConversionInfo);
+    views.imageView = GrVkImageView::Make(gpu, image, info.fFormat, GrVkImageView::kColor_Type,
+                                          info.fLevelCount, info.fYcbcrConversionInfo);
     if (!views.imageView) {
         return {};
     }
@@ -143,7 +145,6 @@ static Views create_views(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
         msImageDesc.fMemProps = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
         if (!GrVkImage::InitImageInfo(gpu, msImageDesc, &views.msInfo)) {
-            views.imageView->unref();
             return {};
         }
 
@@ -152,11 +153,10 @@ static Views create_views(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
 
         // Create resolve attachment view.
         views.resolveAttachmentView =
-                GrVkImageView::Create(gpu, image, pixelFormat, GrVkImageView::kColor_Type,
-                                      info.fLevelCount, GrVkYcbcrConversionInfo());
+                GrVkImageView::Make(gpu, image, pixelFormat, GrVkImageView::kColor_Type,
+                                    info.fLevelCount, GrVkYcbcrConversionInfo());
         if (!views.resolveAttachmentView) {
             GrVkImage::DestroyImageInfo(gpu, &views.msInfo);
-            views.imageView->unref();
             return {};
         }
         views.msMutableState.reset(new GrBackendSurfaceMutableStateImpl(
@@ -166,14 +166,12 @@ static Views create_views(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
         colorImage = info.fImage;
     }
 
-    views.colorAttachmentView = GrVkImageView::Create(
+    views.colorAttachmentView = GrVkImageView::Make(
             gpu, colorImage, pixelFormat, GrVkImageView::kColor_Type, 1, GrVkYcbcrConversionInfo());
     if (!views.colorAttachmentView) {
         if (sampleCnt > 1) {
-            views.resolveAttachmentView->unref();
             GrVkImage::DestroyImageInfo(gpu, &views.msInfo);
         }
-        views.imageView->unref();
         return {};
     }
     return views;
@@ -204,12 +202,13 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarg
     if (sampleCnt > 1) {
         return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
                 gpu, budgeted, dimensions, sampleCnt, info, std::move(mutableState),
-                views.imageView, views.msInfo, std::move(views.msMutableState),
-                views.colorAttachmentView, views.resolveAttachmentView, mipmapStatus));
+                std::move(views.imageView), views.msInfo, std::move(views.msMutableState),
+                std::move(views.colorAttachmentView), std::move(views.resolveAttachmentView),
+                mipmapStatus));
     } else {
         return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
-                gpu, budgeted, dimensions, info, std::move(mutableState), views.imageView,
-                views.colorAttachmentView, mipmapStatus));
+                gpu, budgeted, dimensions, info, std::move(mutableState),
+                std::move(views.imageView), std::move(views.colorAttachmentView), mipmapStatus));
     }
 }
 
@@ -236,13 +235,14 @@ sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeWrappedTextureRender
     }
     if (sampleCnt > 1) {
         return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
-                gpu, dimensions, sampleCnt, info, std::move(mutableState), views.imageView,
-                views.msInfo, std::move(views.msMutableState), views.colorAttachmentView,
-                views.resolveAttachmentView, mipmapStatus, ownership, cacheable));
+                gpu, dimensions, sampleCnt, info, std::move(mutableState),
+                std::move(views.imageView), views.msInfo, std::move(views.msMutableState),
+                std::move(views.colorAttachmentView), std::move(views.resolveAttachmentView),
+                mipmapStatus, ownership, cacheable));
     } else {
         return sk_sp<GrVkTextureRenderTarget>(new GrVkTextureRenderTarget(
-                gpu, dimensions, info, std::move(mutableState), views.imageView,
-                views.colorAttachmentView, mipmapStatus, ownership, cacheable));
+                gpu, dimensions, info, std::move(mutableState), std::move(views.imageView),
+                std::move(views.colorAttachmentView), mipmapStatus, ownership, cacheable));
     }
 }
 
