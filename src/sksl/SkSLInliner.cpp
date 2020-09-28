@@ -457,7 +457,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
 
         case Statement::Kind::kDo: {
             const DoStatement& d = statement.as<DoStatement>();
-            return std::make_unique<DoStatement>(offset, stmt(d.fStatement), expr(d.fTest));
+            return std::make_unique<DoStatement>(offset, stmt(d.statement()), expr(d.test()));
         }
         case Statement::Kind::kExpression: {
             const ExpressionStatement& e = statement.as<ExpressionStatement>();
@@ -845,7 +845,7 @@ bool Inliner::analyze(Program& program) {
                 case Statement::Kind::kDo: {
                     DoStatement& doStmt = (*stmt)->as<DoStatement>();
                     // The loop body is a candidate for inlining.
-                    this->visitStatement(&doStmt.fStatement);
+                    this->visitStatement(&doStmt.statement());
                     // The inliner isn't smart enough to inline the test-expression for a do-while
                     // loop at this time. There are two limitations:
                     // - We would need to insert the inlined-body block at the very end of the do-

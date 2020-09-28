@@ -579,8 +579,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             fLoopContinues.push(loopStart);
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
-            this->addStatement(cfg, &d.fStatement);
-            this->addExpression(cfg, &d.fTest, /*constantPropagate=*/true);
+            this->addStatement(cfg, &d.statement());
+            this->addExpression(cfg, &d.test(), /*constantPropagate=*/true);
             cfg.addExit(cfg.fCurrent, loopExit);
             cfg.addExit(cfg.fCurrent, loopStart);
             fLoopContinues.pop();

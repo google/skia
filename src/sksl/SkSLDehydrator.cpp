@@ -413,8 +413,8 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kDo: {
                 const DoStatement& d = s->as<DoStatement>();
                 this->writeU8(Rehydrator::kDo_Command);
-                this->write(d.fStatement.get());
-                this->write(d.fTest.get());
+                this->write(d.statement().get());
+                this->write(d.test().get());
                 break;
             }
             case Statement::Kind::kExpression: {

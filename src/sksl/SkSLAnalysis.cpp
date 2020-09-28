@@ -421,7 +421,7 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
             return false;
         case Statement::Kind::kDo: {
             const DoStatement& d = s.as<DoStatement>();
-            return this->visitExpression(*d.fTest) || this->visitStatement(*d.fStatement); }
+            return this->visitExpression(*d.test()) || this->visitStatement(*d.statement()); }
         case Statement::Kind::kExpression:
             return this->visitExpression(*s.as<ExpressionStatement>().fExpression);
         case Statement::Kind::kFor: {
