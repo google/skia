@@ -8,8 +8,6 @@
 #ifndef SkRemoteGlyphCache_DEFINED
 #define SkRemoteGlyphCache_DEFINED
 
-// Use `extra_cflags=["-DSK_CAPTURE_DRAW_TEXT_BLOB"]` to capture traces to disc.
-
 // Or uncomment this line:
 //#define SK_CAPTURE_DRAW_TEXT_BLOB
 
@@ -28,7 +26,6 @@
 #include "src/core/SkDevice.h"
 #include "src/core/SkStrikeForGPU.h"
 #include "src/core/SkTLazy.h"
-#include "src/core/SkTextBlobTrace.h"
 
 class Deserializer;
 class Serializer;
@@ -70,8 +67,10 @@ private:
 
 using SkDiscardableHandleId = uint32_t;
 
+
 // This class is not thread-safe.
-class SkStrikeServer final : public SkStrikeForGPUCacheInterface {
+class SkStrikeServerImpl;
+class SkStrikeServer {
 public:
     // An interface used by the server to create handles for pinning SkStrike
     // entries on the remote client.
@@ -98,7 +97,7 @@ public:
     };
 
     SK_SPI explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
-    SK_SPI ~SkStrikeServer() override;
+    SK_SPI ~SkStrikeServer();
 
     // Serializes the typeface to be transmitted using this server.
     SK_SPI sk_sp<SkData> serializeTypeface(SkTypeface*);
@@ -108,61 +107,18 @@ public:
     // unlocked after this call.
     SK_SPI void writeStrikeData(std::vector<uint8_t>* memory);
 
-    // Methods used internally in Skia ------------------------------------------
-    class RemoteStrike;
-
-    RemoteStrike* getOrCreateCache(const SkPaint&,
-                                   const SkFont& font,
-                                   const SkSurfaceProps&,
-                                   const SkMatrix&,
-                                   SkScalerContextFlags flags,
-                                   SkScalerContextEffects* effects);
-
-    SkScopedStrikeForGPU findOrCreateScopedStrike(const SkDescriptor& desc,
-                                                  const SkScalerContextEffects& effects,
-                                                  const SkTypeface& typeface) override;
-
-    void setMaxEntriesInDescriptorMapForTesting(size_t count) {
-        fMaxEntriesInDescriptorMap = count;
-    }
-    size_t remoteStrikeMapSizeForTesting() const { return fDescToRemoteStrike.size(); }
-
-    #ifdef SK_CAPTURE_DRAW_TEXT_BLOB
-    // DrawTextBlob trace capture.
-    std::unique_ptr<SkTextBlobTrace::Capture> fCapture;
-    #endif  //  SK_CAPTURE_DRAW_TEXT_BLOB
+    // Testing helpers
+    void setMaxEntriesInDescriptorMapForTesting(size_t count);
+    size_t remoteStrikeMapSizeForTesting() const;
 
 private:
-    static constexpr size_t kMaxEntriesInDescriptorMap = 2000u;
+    friend class SkTextBlobCacheDiffCanvas;
+    SkStrikeServerImpl* impl();
 
-    void checkForDeletedEntries();
-
-    RemoteStrike* getOrCreateCache(const SkDescriptor& desc,
-                                   const SkTypeface& typeface,
-                                   SkScalerContextEffects effects);
-
-    struct MapOps {
-        size_t operator()(const SkDescriptor* key) const;
-        bool operator()(const SkDescriptor* lhs, const SkDescriptor* rhs) const;
-    };
-    using DescToRemoteStrike =
-            std::unordered_map<const SkDescriptor*, std::unique_ptr<RemoteStrike>, MapOps, MapOps>;
-    DescToRemoteStrike fDescToRemoteStrike;
-
-    DiscardableHandleManager* const fDiscardableHandleManager;
-    SkTHashSet<SkFontID> fCachedTypefaces;
-    size_t fMaxEntriesInDescriptorMap = kMaxEntriesInDescriptorMap;
-
-    // Cached serialized typefaces.
-    SkTHashMap<SkFontID, sk_sp<SkData>> fSerializedTypefaces;
-
-    // State cached until the next serialization.
-    SkTHashSet<RemoteStrike*> fRemoteStrikesToSend;
-    std::vector<WireTypeface> fTypefacesToSend;
+    std::unique_ptr<SkStrikeServerImpl> fImpl;
 };
 
 class SkStrikeClientImpl;
-
 class SkStrikeClient {
 public:
     // This enum is used in histogram reporting in chromium. Please don't re-order the list of

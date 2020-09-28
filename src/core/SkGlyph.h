@@ -333,6 +333,7 @@ private:
     // access to all the fields. Scalers are assumed to maintain all the SkGlyph invariants. The
     // consumer side has a tighter interface.
     friend class RandomScalerContext;
+    friend class RemoteStrike;
     friend class SkScalerContext;
     friend class SkScalerContextProxy;
     friend class SkScalerContext_Empty;
@@ -342,7 +343,6 @@ private:
     friend class SkScalerContext_GDI;
     friend class SkScalerContext_Mac;
     friend class SkStrikeClientImpl;
-    friend class SkStrikeServer;
     friend class SkTestScalerContext;
     friend class SkTestSVGScalerContext;
     friend class SkUserScalerContext;
