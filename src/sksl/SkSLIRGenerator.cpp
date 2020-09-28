@@ -421,7 +421,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                 String name(type->fName);
                 int64_t count;
                 if (size->kind() == Expression::Kind::kIntLiteral) {
-                    count = size->as<IntLiteral>().fValue;
+                    count = size->as<IntLiteral>().value();
                     if (count <= 0) {
                         fErrors.error(size->fOffset, "array size must be positive");
                         return nullptr;
@@ -1162,7 +1162,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             String name = type->fName;
             int64_t count;
             if (converted->kind() == Expression::Kind::kIntLiteral) {
-                count = converted->as<IntLiteral>().fValue;
+                count = converted->as<IntLiteral>().value();
                 if (count <= 0) {
                     fErrors.error(converted->fOffset, "array size must be positive");
                     return nullptr;
@@ -1207,7 +1207,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
 bool IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
     switch (value.kind()) {
         case Expression::Kind::kIntLiteral:
-            *out = value.as<IntLiteral>().fValue;
+            *out = value.as<IntLiteral>().value();
             return true;
         case Expression::Kind::kVariableReference: {
             const Variable& var = *value.as<VariableReference>().fVariable;
@@ -1771,8 +1771,8 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                                                           (uint32_t) rightVal)
     if (left.kind() == Expression::Kind::kIntLiteral &&
         right.kind() == Expression::Kind::kIntLiteral) {
-        int64_t leftVal  = left.as<IntLiteral>().fValue;
-        int64_t rightVal = right.as<IntLiteral>().fValue;
+        int64_t leftVal  = left.as<IntLiteral>().value();
+        int64_t rightVal = right.as<IntLiteral>().value();
         switch (op) {
             case Token::Kind::TK_PLUS:       return URESULT(Int, +);
             case Token::Kind::TK_MINUS:      return URESULT(Int, -);
@@ -2231,12 +2231,12 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
         return std::make_unique<FloatLiteral>(offset, value, &type);
     }
     if (type.isFloat() && args.size() == 1 && args[0]->is<IntLiteral>()) {
-        int64_t value = args[0]->as<IntLiteral>().fValue;
+        int64_t value = args[0]->as<IntLiteral>().value();
         return std::make_unique<FloatLiteral>(offset, (double)value, &type);
     }
     if (args[0]->is<IntLiteral>() && (type == *fContext.fInt_Type ||
                                       type == *fContext.fUInt_Type)) {
-        return std::make_unique<IntLiteral>(offset, args[0]->as<IntLiteral>().fValue, &type);
+        return std::make_unique<IntLiteral>(offset, args[0]->as<IntLiteral>().value(), &type);
     }
     if (argType == *fContext.fBool_Type) {
         std::unique_ptr<IntLiteral> zero(new IntLiteral(fContext, offset, 0));
@@ -2365,7 +2365,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
         case Token::Kind::TK_MINUS:
             if (base->is<IntLiteral>()) {
                 return std::make_unique<IntLiteral>(fContext, base->fOffset,
-                                                    -base->as<IntLiteral>().fValue);
+                                                    -base->as<IntLiteral>().value());
             }
             if (base->is<FloatLiteral>()) {
                 return std::make_unique<FloatLiteral>(fContext, base->fOffset,
@@ -2686,7 +2686,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
             const Variable& v = *result->as<VariableReference>().fVariable;
             SkASSERT(v.fInitialValue);
             result = std::make_unique<IntLiteral>(
-                    offset, v.fInitialValue->as<IntLiteral>().fValue, &type);
+                    offset, v.fInitialValue->as<IntLiteral>().value(), &type);
         } else {
             fErrors.error(offset,
                           "type '" + type.fName + "' does not have a member named '" + field + "'");
