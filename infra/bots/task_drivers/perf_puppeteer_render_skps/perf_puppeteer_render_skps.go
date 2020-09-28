@@ -187,6 +187,7 @@ func benchSKPs(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvaski
 				"--bench_html", "render-skp.html",
 				"--canvaskit_js", filepath.Join(canvaskitBinPath, "canvaskit.js"),
 				"--canvaskit_wasm", filepath.Join(canvaskitBinPath, "canvaskit.wasm"),
+				"--timeout", "90", // 90 seconds before timeout
 				"--input_skp", skp,
 				"--output", filepath.Join(benchmarkPath, "out", name+".json"),
 			}

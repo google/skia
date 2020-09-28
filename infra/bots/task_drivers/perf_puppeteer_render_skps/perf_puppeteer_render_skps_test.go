@@ -84,6 +84,7 @@ func TestBenchSKPs_CPUHasNoUseGPUFlag(t *testing.T) {
 			"--bench_html", "render-skp.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--timeout", "90",
 			"--input_skp", filepath.Join(skps, "first_skp"),
 			"--output", "/fake/path/to/perf-puppeteer/out/first_skp.json"}, cmd.Args)
 		return nil
@@ -124,6 +125,7 @@ func TestBenchSKPs_GPUHasFlag(t *testing.T) {
 			"--bench_html", "render-skp.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--timeout", "90",
 			"--input_skp", filepath.Join(skps, "first_skp"),
 			"--output", "/fake/path/to/perf-puppeteer/out/first_skp.json",
 			"--use_gpu"}, cmd.Args)
@@ -166,6 +168,7 @@ func TestBenchSKPs_WebGL1(t *testing.T) {
 			"--bench_html", "render-skp.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--timeout", "90",
 			"--input_skp", filepath.Join(skps, "first_skp"),
 			"--output", "/fake/path/to/perf-puppeteer/out/first_skp.json",
 			"--use_gpu",
