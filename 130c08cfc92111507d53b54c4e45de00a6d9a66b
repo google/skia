@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "2d8edf56_92238e39",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 26
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-28T13:15:12Z",
+      "side": 1,
+      "message": "Also, where is the schema in the infra repo? It does not appear to be in infra/bots/recipe_modules (since that folder does not exist).",
+      "parentUuid": "3e7ea284_94e51cf6",
+      "range": {
+        "startLine": 151,
+        "startChar": 3,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb5f4806_68889def",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
