@@ -509,3 +509,59 @@ DEF_TEST(Codec_gif_out_of_palette, r) {
                         pixel.x, pixel.y, pixel.expected, actual);
     }
 }
+
+// This tests decoding the GIF image created by this script:
+// https://raw.githubusercontent.com/google/wuffs/6c2fb9a2fd9e3334ee7dabc1ad60bfc89158084f/test/data/artificial/gif-transparent-index.gif.make-artificial.txt
+//
+// It is a 4x2 animated image with 2 frames. The first frame is full of various
+// red pixels. The second frame overlays a 3x1 rectangle at (1, 1): light blue,
+// transparent, dark blue.
+DEF_TEST(Codec_AnimatedTransparentGif, r) {
+    const char* path = "images/gif-transparent-index.gif";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "failed to find %s", path);
+        return;
+    }
+
+    auto codec = SkCodec::MakeFromData(std::move(data));
+    if (!codec) {
+        ERRORF(r, "Could not create codec from %s", path);
+        return;
+    }
+
+    SkImageInfo info = codec->getInfo();
+    if ((info.width() != 4) || (info.height() != 2) || (codec->getFrameInfo().size() != 2)) {
+        ERRORF(r, "Unexpected image info");
+        return;
+    }
+    SkBitmap bm;
+    bm.allocPixels(info);
+
+    for (int i = 0; i < 2; i++) {
+        SkColor expectedPixels[2][4] = {
+            { 0xFF800000, 0xFF900000, 0xFFA00000, 0xFFB00000 },
+            { 0xFFC00000, 0xFFD00000, 0xFFE00000, 0xFFF00000 },
+        };
+        if (i > 0) {
+            expectedPixels[1][1] = 0xFF0000FF;
+            expectedPixels[1][3] = 0xFF000055;
+        }
+
+        SkCodec::Options options;
+        options.fFrameIndex = i;
+        options.fPriorFrame = (i > 0) ? (i - 1) : SkCodec::kNoFrame;
+        auto result = codec->getPixels(bm.pixmap(), &options);
+        REPORTER_ASSERT(r, result == SkCodec::kSuccess, "Failed to decode frame %i", i);
+
+        for (int y = 0; y < 2; y++) {
+            for (int x = 0; x < 4; x++) {
+                auto expected = expectedPixels[y][x];
+                auto actual = bm.getColor(x, y);
+                REPORTER_ASSERT(r, actual == expected,
+                                "frame %i, pixel (%i,%i) mismatch! expected: %x actual: %x",
+                                i, x, y, expected, actual);
+            }
+        }
+    }
+}
