@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8262937c_b4c556fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T19:57:56Z",
+      "side": 1,
+      "message": "+1 again",
+      "revId": "c42a25e7c866ec25d4c8ef90aaf1da42afc18276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4537084b_2b1d71df",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T19:57:56Z",
+      "side": 1,
+      "message": "Let\u0027s default-initialize here to avoid needing to be sneaky in the copy-constructor. (It will optimize away in the constructors where we initialize it explicitly.)\n\n  fKind \u003d Kind::kType;\n\nMaybe it\u0027d be worth it to have a Kind::kNone to make this more unambiguous.",
+      "range": {
+        "startLine": 97,
+        "startChar": 15,
+        "endLine": 97,
+        "endChar": 16
+      },
+      "revId": "c42a25e7c866ec25d4c8ef90aaf1da42afc18276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e645e801_7b6c0638",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T19:57:56Z",
+      "side": 1,
+      "message": "Out of curiosity, I assume you added these because the compiler asked for them? What was the error?\n\nWill it let you do\n\n   Contents() \u003d default;\n   ~Contents() \u003d default;\n\n?",
+      "range": {
+        "startLine": 106,
+        "startChar": 11,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "c42a25e7c866ec25d4c8ef90aaf1da42afc18276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea8a53fe_4c5c4f90",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T19:57:56Z",
+      "side": 1,
+      "message": "So much cleaner :D",
+      "range": {
+        "startLine": 245,
+        "startChar": 15,
+        "endLine": 245,
+        "endChar": 38
+      },
+      "revId": "c42a25e7c866ec25d4c8ef90aaf1da42afc18276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
