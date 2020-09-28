@@ -52,6 +52,23 @@
       "revId": "652f8e03191ce6a2610015a5d7becc5203553683",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0ac50bf2_1c0e83b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-28T21:30:32Z",
+      "side": 1,
+      "message": "I don\u0027t really think I grasp what\u0027s going on here reading the CL description and linked bugs.  Can you leave a note in the code about what we\u0027re doing and why?  Is it like,\n\n// malloc() generally doesn\u0027t initialize its memory and that\u0027s a huge security hole,\n// so Android has replaced its malloc() with one that zeros memory,\n// but that\u0027s a huge performance hit for HWUI, so turn it back off again.\n// Skia engineers please don\u0027t touch this.\n// Love, \n//     Android Security Team\n\nIs this an improvement to speed at the expense of security or an improvement to security in expense of speed?  What if we just sent everything through calloc()? ",
+      "revId": "652f8e03191ce6a2610015a5d7becc5203553683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
