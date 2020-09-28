@@ -8,6 +8,7 @@
 import os
 import shutil
 import sys
+import datetime
 
 src, dst = sys.argv[1:]
 
@@ -21,3 +22,4 @@ if os.path.isdir(src):
   shutil.copytree(src, dst)
 else:
   shutil.copy2(src, dst)
+  os.utime(dst, None)
