@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25e821af_29fb14cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T15:06:07Z",
+      "side": 1,
+      "message": "I suppose this might be useful when we know we\u0027re in a bitmap device space which is limited in dimensions, but I\u0027m not sure how great this is for the bounds or runs since we sometimes get really long log lines which exceed the 16bit space. Is the idea to replace already intrinsically 16bit rect operations? I was just thinking of https://crbug.com/375322 .",
+      "revId": "0e9053792ae9191b7899b5d70b62edc0901b0db3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
