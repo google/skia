@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "991cbd23_101d96ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:41:01Z",
+      "side": 1,
+      "message": "Everything can be solved by another layer of indirection, except for too many layers of indirection.",
+      "revId": "9077465fe6e670993e7a1abcb7d3a7e2072fcb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79c8dd27_b310b4d5",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:41:01Z",
+      "side": 1,
+      "message": "Kinda makes one desire a \u0027friend(typename, typename, ...):\u0027 so that things in that block were private but friended to those types. It\u0027s just awkward to have this \u0027impl()\u0027 here so that you can just allow this one class access to a raw pointer and shouldn\u0027t really have access to the unique_ptr below (we sure don\u0027t want any friends to reset that) but it does anyway.",
+      "revId": "9077465fe6e670993e7a1abcb7d3a7e2072fcb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
