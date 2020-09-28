@@ -21,10 +21,14 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
 
-    h3.xz = float2(2.0);
+    {
+        h3.xz = float2(2.0);
+    }
 
 
-    h4.zwxy = float4(4.0);
+    {
+        h4.zwxy = float4(4.0);
+    }
 
 
     _out->sk_FragColor = float4(1.0, 2.0, h3.x, h4.x);
@@ -40,7 +44,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
 
-    h3x3[1] = float3(3.0);
+    {
+        h3x3[1] = float3(3.0);
+    }
 
 
     h4x4[3].w = 1.0;
@@ -53,7 +59,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
 
-    i4.xyz = int3(3);
+    {
+        i4.xyz = int3(3);
+    }
 
 
     _out->sk_FragColor = float4(1.0, 2.0, 3.0, float(i4.x));
@@ -63,7 +71,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
 
-    f3.xy = float2(2.0);
+    {
+        f3.xy = float2(2.0);
+    }
 
 
     _out->sk_FragColor = float4(1.0, 2.0, f3.x, 4.0);
@@ -83,7 +93,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     }
 
 
-    b4.xw = bool2(false);
+    {
+        b4.xw = bool2(false);
+    }
 
 
     _out->sk_FragColor = float4(1.0, bool2(false).x ? 1.0 : 0.0, bool3(true).x ? 1.0 : 0.0, b4.x ? 1.0 : 0.0);
