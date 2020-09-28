@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "3e7ea284_94e51cf6",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 26
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-28T13:12:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure I want the source of truth to be in the infra repo - won\u0027t that remove the ability to modify the schema as a tryjob from the Skia repo?",
+      "parentUuid": "1645febf_e04bfbbf",
+      "range": {
+        "startLine": 151,
+        "startChar": 3,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb5f4806_68889def",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
@@ -215,6 +239,30 @@
     },
     {
       "key": {
+        "uuid": "e41bf657_699dcddc",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-28T13:12:18Z",
+      "side": 1,
+      "message": "I\u0027m not sure I like using https://github.com/google/skia-buildbot/blob/0d5a5b4b2895b0aa3fe85fd492fde586da71c6c1/go/git/util.go#L46 here. The Executable call seems a lot more opaque than just me specifying the absolute path to the git executable we want to use. I would argue that we want our task_drivers to be as simple as possible and this line of code leaves fewer surprises than git.Clone would. (additionally, I can\u0027t specify options like --depth 1",
+      "parentUuid": "6b234ef6_de7e1f86",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 103
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e348df29_51342432",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
@@ -283,6 +331,30 @@
       "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c96bf145_1a747ced",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-28T13:12:18Z",
+      "side": 1,
+      "message": "Ack, although notice there\u0027s a blend of --mount and --volume, so sometimes we should have the freedom to just run docker ourselves.",
+      "parentUuid": "801ff713_b13a087f",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 57
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
