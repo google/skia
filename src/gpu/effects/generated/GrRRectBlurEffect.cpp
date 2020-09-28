@@ -261,9 +261,14 @@ std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::Make(
         float xformedSigma,
         const SkRRect& srcRRect,
         const SkRRect& devRRect) {
-    SkASSERT(!SkRRectPriv::IsCircle(devRRect) &&
-             !devRRect.isRect());  // Should've been caught up-stream
-
+// Should've been caught up-stream
+#ifdef SK_DEBUG
+    SkASSERTF(!SkRRectPriv::IsCircle(devRRect), "Unexpected circle. %d\n\t%s\n\t%s",
+              SkRRectPriv::IsCircle(srcRRect), srcRRect.dumpToString(true).c_str(),
+              devRRect.dumpToString(true).c_str());
+    SkASSERTF(!devRRect.isRect(), "Unexpected rect. %d\n\t%s\n\t%s", srcRRect.isRect(),
+              srcRRect.dumpToString(true).c_str(), devRRect.dumpToString(true).c_str());
+#endif
     // TODO: loosen this up
     if (!SkRRectPriv::IsSimpleCircular(devRRect)) {
         return nullptr;
@@ -337,18 +342,18 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _sample15531 = this->invokeChild(0, args);
+        SkString _sample15923 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample15531.c_str());
-        SkString _coords15579("float2(texCoord)");
-        SkString _sample15579 = this->invokeChild(1, args, _coords15579.c_str());
+                _sample15923.c_str());
+        SkString _coords15971("float2(texCoord)");
+        SkString _sample15971 = this->invokeChild(1, args, _coords15971.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample15579.c_str());
+                args.fOutputColor, _sample15971.c_str());
     }
 
 private:
