@@ -9,6 +9,10 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * Update SkClipOp::kMax_EnumValue to include only intersect and difference when
+    SK_SUPPORT_DEPRECATED_CLIPOPS is not defined.
+    https://review.skia.org/320064
+
   * Add support for external allocator for Direct3D 12 backend.
     Defines base classes for an allocation associated with a backend texture and a
     a memory allocator to create such allocations.
