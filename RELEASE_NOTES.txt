@@ -9,6 +9,9 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * Added deprecation warning for Metal support on MacOS 10.13, iOS 8.3, and older.
+    https://review.skia.org/320260
+
   * Update SkClipOp::kMax_EnumValue to include only intersect and difference when
     SK_SUPPORT_DEPRECATED_CLIPOPS is not defined.
     https://review.skia.org/320064
