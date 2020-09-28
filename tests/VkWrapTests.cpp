@@ -83,6 +83,19 @@ void wrap_tex_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
 
         REPORTER_ASSERT(reporter, tex);
     }
+
+    // image has MSAA
+    {
+        GrVkImageInfo backendCopy = imageInfo;
+        backendCopy.fSampleCount = 4;
+        GrBackendTexture backendTex = GrBackendTexture(kW, kH, backendCopy);
+        tex = gpu->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                                      kRead_GrIOType);
+        REPORTER_ASSERT(reporter, !tex);
+        tex = gpu->wrapBackendTexture(backendTex, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo,
+                                      kRead_GrIOType);
+        REPORTER_ASSERT(reporter, !tex);
+    }
 }
 
 void wrap_rt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
@@ -117,6 +130,15 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
         GrBackendRenderTarget backendRT(kW, kH, 1, backendCopy);
         rt = gpu->wrapBackendRenderTarget(backendRT);
         REPORTER_ASSERT(reporter, rt);
+    }
+
+    // Image has MSAA
+    {
+        GrVkImageInfo backendCopy = imageInfo;
+        backendCopy.fSampleCount = 4;
+        GrBackendRenderTarget backendRT(kW, kH, backendCopy);
+        rt = gpu->wrapBackendRenderTarget(backendRT);
+        REPORTER_ASSERT(reporter, !rt);
     }
 
     // When we wrapBackendRenderTarget it is always borrowed, so we must make sure to free the
@@ -171,6 +193,26 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
         tex = gpu->wrapRenderableBackendTexture(backendTex, 1, kAdopt_GrWrapOwnership,
                                                 GrWrapCacheable::kNo);
         REPORTER_ASSERT(reporter, tex);
+    }
+
+    // check rendering with MSAA
+    {
+        int maxSamples = dContext->priv().caps()->maxRenderTargetSampleCount(
+                origBackendTex.getBackendFormat());
+        bool shouldSucceed = maxSamples > 1;
+        tex = gpu->wrapRenderableBackendTexture(origBackendTex, 2, kBorrow_GrWrapOwnership,
+                                                GrWrapCacheable::kNo);
+        REPORTER_ASSERT(reporter, SkToBool(tex) == shouldSucceed);
+    }
+
+    // Image has MSAA
+    {
+        GrVkImageInfo backendCopy = imageInfo;
+        backendCopy.fSampleCount = 4;
+        GrBackendTexture backendTex = GrBackendTexture(kW, kH, backendCopy);
+        tex = gpu->wrapRenderableBackendTexture(backendTex, 1, kAdopt_GrWrapOwnership,
+                                                GrWrapCacheable::kNo);
+        REPORTER_ASSERT(reporter, !tex);
     }
 }
 

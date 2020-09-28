@@ -9,8 +9,16 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * GrVkImageInfo now has a field for sample count. GrBackendRenderTarget constructor
+    that took both a GrVkImageInfo and separate sample count is deprecated. Use the
+    version without sample count instead.
+
   * Added deprecation warning for Metal support on MacOS 10.13, iOS 8.3, and older.
     https://review.skia.org/320260
+
+  * GrVkImageInfo now has a field for sample count. GrBackendRenderTarget constructor
+    that took both a GrVkImageInfo and separate sample count is deprecated. Use the
+    version without sample count instead.
 
   * Update SkClipOp::kMax_EnumValue to include only intersect and difference when
     SK_SUPPORT_DEPRECATED_CLIPOPS is not defined.
