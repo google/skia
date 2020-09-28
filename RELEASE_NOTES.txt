@@ -9,6 +9,12 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * GrVkImageInfo now has a field for sample count. GrBackendRenderTarget constructor
+    that took both a GrVkImageInfo and separate sample count is deprecated. Use the
+    version without sample count instead.
+    https://review.skia.org/320262
+    
+
   * Add support for external allocator for Direct3D 12 backend.
     Defines base classes for an allocation associated with a backend texture and a
     a memory allocator to create such allocations.
