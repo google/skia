@@ -10,6 +10,7 @@
 
 #include "include/private/SkDeque.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMSAAAttachment.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrStagingBufferManager.h"
@@ -80,6 +81,13 @@ public:
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
+
+    sk_sp<GrMSAAAttachment> createMSAAAttachment(SkISize dimensions,
+                                                 const GrBackendFormat& format,
+                                                 int numSamples,
+                                                 GrProtected isProtected) override {
+        return nullptr;
+    }
 
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrStencilAttachment*,

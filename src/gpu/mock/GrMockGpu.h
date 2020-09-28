@@ -10,6 +10,7 @@
 
 #include "include/private/SkTHash.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMSAAAttachment.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrSemaphore.h"
 #include "src/gpu/GrTexture.h"
@@ -147,6 +148,14 @@ private:
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
+
+    sk_sp<GrMSAAAttachment> createMSAAAttachment(SkISize dimensions,
+                                                 const GrBackendFormat& format,
+                                                 int numSamples,
+                                                 GrProtected isProtected) override {
+        return nullptr;
+    }
+
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,

@@ -13,6 +13,7 @@
 #include "dawn/webgpu_cpp.h"
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
+#include "src/gpu/GrMSAAAttachment.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
@@ -61,6 +62,13 @@ public:
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 SkISize dimensions,
                                                                 int numStencilSamples) override;
+
+    sk_sp<GrMSAAAttachment> createMSAAAttachment(SkISize dimensions,
+                                                 const GrBackendFormat& format,
+                                                 int numSamples,
+                                                 GrProtected isProtected) override {
+        return nullptr;
+    }
 
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*, GrStencilAttachment*,

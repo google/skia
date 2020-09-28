@@ -32,6 +32,7 @@
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkInterface.h"
+#include "src/gpu/vk/GrVkMSAAAttachment.h"
 #include "src/gpu/vk/GrVkMemory.h"
 #include "src/gpu/vk/GrVkMeshBuffer.h"
 #include "src/gpu/vk/GrVkOpsRenderPass.h"
@@ -1546,6 +1547,33 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
                                                                  sFmt));
     fStats.incStencilAttachmentCreates();
     return stencil;
+}
+
+sk_sp<GrMSAAAttachment> GrVkGpu::createMSAAAttachment(SkISize dimensions,
+                                                      const GrBackendFormat& format,
+                                                      int numSamples,
+                                                      GrProtected isProtected) {
+    VkFormat pixelFormat;
+    SkAssertResult(format.asVkFormat(&pixelFormat));
+    SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
+    SkASSERT(this->vkCaps().isFormatRenderable(pixelFormat, numSamples));
+
+    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                   VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+    GrVkImage::ImageDesc imageDesc;
+    imageDesc.fImageType = VK_IMAGE_TYPE_2D;
+    imageDesc.fFormat = pixelFormat;
+    imageDesc.fWidth = dimensions.fWidth;
+    imageDesc.fHeight = dimensions.fHeight;
+    imageDesc.fLevels = 1;
+    imageDesc.fSamples = numSamples;
+    imageDesc.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+    imageDesc.fUsageFlags = usageFlags;
+    imageDesc.fIsProtected = isProtected;
+
+    return GrVkMSAAAttachment::Make(this, dimensions, imageDesc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

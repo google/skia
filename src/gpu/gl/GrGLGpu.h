@@ -13,6 +13,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/GrFinishCallbacks.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrMSAAAttachment.h"
 #include "src/gpu/GrNativeRect.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrWindowRectsState.h"
@@ -133,6 +134,14 @@ public:
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) override;
+
+    sk_sp<GrMSAAAttachment> createMSAAAttachment(SkISize dimensions,
+                                                 const GrBackendFormat& format,
+                                                 int numSamples,
+                                                 GrProtected isProtected) override {
+        return nullptr;
+    }
+
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
