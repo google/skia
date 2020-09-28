@@ -59,6 +59,10 @@
 
     const textPaint = new CanvasKit.SkPaint();
     const textFont = new CanvasKit.SkFont(typeface, 20);
+    textFont.setLinearMetrics(true);
+    textFont.setSubpixel(true);
+    textFont.setHinting(CanvasKit.FontHinting.Slight);
+
 
     // Only care about these characters for now. If we get any unknown characters, we'll replace
     // them with the first glyph here (the replacement glyph).
