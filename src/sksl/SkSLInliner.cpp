@@ -661,12 +661,19 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         const Variable* param = function.fDeclaration.fParameters[i];
         bool isOutParam = param->fModifiers.fFlags & Modifiers::kOut_Flag;
 
-        // If this is a plain VariableReference...
-        if (arguments[i]->is<VariableReference>()) {
+        // If this is a variable, a swizzled variable, a struct member, or a simple array access...
+        if (arguments[i]->is<VariableReference>() ||
+            (arguments[i]->is<Swizzle>() &&
+             arguments[i]->as<Swizzle>().fBase->is<VariableReference>()) ||
+            (arguments[i]->is<FieldAccess>() &&
+             arguments[i]->as<FieldAccess>().fBase->is<VariableReference>()) ||
+            (arguments[i]->is<IndexExpression>() &&
+             arguments[i]->as<IndexExpression>().fBase->is<VariableReference>() &&
+             arguments[i]->as<IndexExpression>().fIndex->is<IntLiteral>())) {
             // ... and it's an `out` param, or it isn't written to within the inline function...
             if (isOutParam || !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
-                // ... we don't need to copy it at all! We can just use the existing variable.
-                varMap[param] = arguments[i]->as<VariableReference>().clone();
+                // ... we don't need to copy it at all! We can just use the existing expression.
+                varMap[param] = arguments[i]->clone();
                 continue;
             }
         }
