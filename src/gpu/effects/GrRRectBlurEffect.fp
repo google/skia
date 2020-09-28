@@ -286,8 +286,15 @@ uniform half blurRadius;
             float xformedSigma,
             const SkRRect& srcRRect,
             const SkRRect& devRRect) {
-        SkASSERT(!SkRRectPriv::IsCircle(devRRect) && !devRRect.isRect()); // Should've been caught up-stream
-
+        // Should've been caught up-stream
+#ifdef SK_DEBUG
+        SkASSERTF(!SkRRectPriv::IsCircle(devRRect), "%d\n\t%s\n\t%s",
+                  SkRRectPriv::IsCirlce(srcRRect),
+                  srcRRect.dumpToString(true).c_str(), devRRect.dumpToString(true).c_str());
+        SkASSERTF(!devRRect.isRect(), "%d\n\t%s\n\t%s",
+                  srcRRect.isRect(),
+                  srcRRect.dumpToString(true).c_str(), devRRect.dumpToString(true).c_str());
+#endif
         // TODO: loosen this up
         if (!SkRRectPriv::IsSimpleCircular(devRRect)) {
             return nullptr;

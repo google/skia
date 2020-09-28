@@ -10,6 +10,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkString.h"
 
 class SkPath;
 class SkMatrix;
@@ -475,6 +476,7 @@ public:
         example: https://fiddle.skia.org/c/@RRect_dump
     */
     void dump(bool asHex) const;
+    SkString dumpToString(bool asHex) const;
 
     /** Writes text representation of SkRRect to standard output. The representation
         may be directly compiled as C++ code. Floating point values are written
