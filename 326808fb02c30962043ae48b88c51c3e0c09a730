@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e869d7d_99dbdfa6",
+        "filename": "modules/skshaper/src/SkShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:57:46Z",
+      "side": 1,
+      "message": "Should write out \u0027std::unique_ptr\u003cSkUnicode\u003e\u0027 here since \u0027auto\u0027 is hiding the ownership relation. For example, if we had someone calling this things should crash because we will return a ScriptRunIterator with a dangling pointer to this SkUnicode.",
+      "range": {
+        "startLine": 61,
+        "startChar": 4,
+        "endLine": 61,
+        "endChar": 8
+      },
+      "revId": "326808fb02c30962043ae48b88c51c3e0c09a730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5c72bde_3a970b29",
+        "filename": "modules/skshaper/src/SkShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:57:46Z",
+      "side": 1,
+      "message": "Need to transfer ownership or otherwise ensure that unicode outlives it\u0027s use in the returned shaper.",
+      "range": {
+        "startLine": 66,
+        "startChar": 51,
+        "endLine": 66,
+        "endChar": 64
+      },
+      "revId": "326808fb02c30962043ae48b88c51c3e0c09a730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a09f7fd_6604c1ff",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:57:46Z",
+      "side": 1,
+      "message": "Formatting here. Probably best to put the whole \u0027MakeSkUnicodeHbScriptRunIterator(...)\u0027 call on the next line.",
+      "range": {
+        "startLine": 808,
+        "startChar": 79,
+        "endLine": 808,
+        "endChar": 87
+      },
+      "revId": "326808fb02c30962043ae48b88c51c3e0c09a730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16c6a6c5_53c9129d",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1404,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:57:46Z",
+      "side": 1,
+      "message": "Too much auto, make ownership obvious.",
+      "range": {
+        "startLine": 1404,
+        "startChar": 4,
+        "endLine": 1404,
+        "endChar": 8
+      },
+      "revId": "326808fb02c30962043ae48b88c51c3e0c09a730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7465f90a_c3657122",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:57:46Z",
+      "side": 1,
+      "message": "Who owns this?",
+      "range": {
+        "startLine": 1408,
+        "startChar": 50,
+        "endLine": 1408,
+        "endChar": 63
+      },
+      "revId": "326808fb02c30962043ae48b88c51c3e0c09a730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57338e1c_7ca92e1d",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1444,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T20:57:46Z",
+      "side": 1,
+      "message": "Ownership. Maybe the issue is that SkUnicode instead of having a \u0027Make\u0027 should have a static \u0027GetInstance\u0027?\n\nI think this is getting away with all the use after free because there\u0027s only one implementation of SkUnicode and it has no internal state so the vtable access are being inlined usually. But we cannot rely on that.",
+      "range": {
+        "startLine": 1444,
+        "startChar": 4,
+        "endLine": 1444,
+        "endChar": 8
+      },
+      "revId": "326808fb02c30962043ae48b88c51c3e0c09a730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
