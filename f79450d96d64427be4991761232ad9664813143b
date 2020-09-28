@@ -123,6 +123,24 @@
       "revId": "f79450d96d64427be4991761232ad9664813143b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9bcdb20a_c401e8ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2020-09-28T15:55:58Z",
+      "side": 1,
+      "message": "Could you resolve/close the associated bug also? Thanks \u003d).",
+      "parentUuid": "543b3ae4_55bfdc30",
+      "revId": "f79450d96d64427be4991761232ad9664813143b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
