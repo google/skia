@@ -532,7 +532,7 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
     }
     if (test->kind() == Expression::Kind::kBoolLiteral) {
         // static boolean value, fold down to a single branch
-        if (test->as<BoolLiteral>().fValue) {
+        if (test->as<BoolLiteral>().value()) {
             return ifTrue;
         } else if (ifFalse) {
             return ifFalse;
@@ -1710,7 +1710,7 @@ static std::unique_ptr<Expression> short_circuit_boolean(const Context& context,
                                                          Token::Kind op,
                                                          const Expression& right) {
     SkASSERT(left.kind() == Expression::Kind::kBoolLiteral);
-    bool leftVal = left.as<BoolLiteral>().fValue;
+    bool leftVal = left.as<BoolLiteral>().value();
     if (op == Token::Kind::TK_LOGICALAND) {
         // (true && expr) -> (expr) and (false && expr) -> (false)
         return leftVal ? right.clone()
@@ -1753,8 +1753,8 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     // types, which will let us be more intelligent about this.
     if (left.kind() == Expression::Kind::kBoolLiteral &&
         right.kind() == Expression::Kind::kBoolLiteral) {
-        bool leftVal  = left.as<BoolLiteral>().fValue;
-        bool rightVal = right.as<BoolLiteral>().fValue;
+        bool leftVal  = left.as<BoolLiteral>().value();
+        bool rightVal = right.as<BoolLiteral>().value();
         bool result;
         switch (op) {
             case Token::Kind::TK_LOGICALAND: result = leftVal && rightVal; break;
@@ -2013,7 +2013,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
     }
     if (test->kind() == Expression::Kind::kBoolLiteral) {
         // static boolean test, just return one of the branches
-        if (test->as<BoolLiteral>().fValue) {
+        if (test->as<BoolLiteral>().value()) {
             return ifTrue;
         } else {
             return ifFalse;
@@ -2409,7 +2409,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
             }
             if (base->kind() == Expression::Kind::kBoolLiteral) {
                 return std::make_unique<BoolLiteral>(fContext, base->fOffset,
-                                                     !base->as<BoolLiteral>().fValue);
+                                                     !base->as<BoolLiteral>().value());
             }
             break;
         case Token::Kind::TK_BITWISENOT:

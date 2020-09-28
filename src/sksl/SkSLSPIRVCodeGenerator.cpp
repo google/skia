@@ -2503,7 +2503,7 @@ SpvId SPIRVCodeGenerator::writePostfixExpression(const PostfixExpression& p, Out
 }
 
 SpvId SPIRVCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
-    if (b.fValue) {
+    if (b.value()) {
         if (fBoolTrue == 0) {
             fBoolTrue = this->nextId();
             this->writeInstruction(SpvOpConstantTrue, this->getType(b.type()), fBoolTrue,
