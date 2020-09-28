@@ -16,6 +16,24 @@
       "revId": "64a09a0499f3f95f529ab76b73c4e0aeb5f6ef35",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b16363b4_a3c9b6d6",
+        "filename": "src/gpu/gl/GrGLAssembleWebGLInterfaceAutogen.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-28T11:45:11Z",
+      "side": 1,
+      "message": "The old way was to use getproc, but that adds a fair amount of code size. I wonder if we could modify GET_PROC_* to add a #ifdef emscrpten_foo also?",
+      "parentUuid": "aab1c761_e34c089b",
+      "revId": "64a09a0499f3f95f529ab76b73c4e0aeb5f6ef35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
