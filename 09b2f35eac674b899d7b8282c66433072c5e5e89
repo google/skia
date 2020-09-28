@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ecc18d7_509c3379",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-28T22:22:56Z",
+      "side": 1,
+      "message": "Is anybody creating and using this class yet? What is the plan for who creates it and when?\n\nBefore now it looks like we only had a stencil attachment. But in the near future I see us wanting:\n\nstencil attachment\nmsaa attachment\ndepth attachment\ncoverage count attachment\n\nShould we set up a common mechanism to request/create those attachments? Or do you think msaa is fundamentally different from the others?",
+      "revId": "09b2f35eac674b899d7b8282c66433072c5e5e89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05420c5e_51ca81bc",
+        "filename": "src/gpu/GrMSAAAttachment.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-09-28T22:22:56Z",
+      "side": 1,
+      "message": "I think a class comment would be nice to explain the purpose of this class.",
+      "revId": "09b2f35eac674b899d7b8282c66433072c5e5e89",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
