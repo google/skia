@@ -284,7 +284,7 @@ public:
 
     // Call this to indicate that the texture parameters have been modified in the GL context
     // externally to GrContext.
-    void glTextureParametersModified();
+    void glTextureParametersModified() const;
 
 #ifdef SK_DAWN
     // If the backend API is Dawn, copies a snapshot of the GrDawnTextureInfo struct into the passed
@@ -299,7 +299,7 @@ public:
 
     // Anytime the client changes the VkImageLayout of the VkImage captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
-    void setVkImageLayout(VkImageLayout);
+    void setVkImageLayout(VkImageLayout) const;
 
 #ifdef SK_METAL
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
@@ -315,7 +315,7 @@ public:
 
     // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
-    void setD3DResourceState(GrD3DResourceStateEnum);
+    void setD3DResourceState(GrD3DResourceStateEnum) const;
 #endif
 
     // Get the GrBackendFormat for this texture (or an invalid format if this is not valid).
@@ -330,7 +330,7 @@ public:
     // that can be set from this function are:
     //
     // Vulkan: VkImageLayout and QueueFamilyIndex
-    void setMutableState(const GrBackendSurfaceMutableState&);
+    void setMutableState(const GrBackendSurfaceMutableState&) const;
 
     // Returns true if we are working with protected content.
     bool isProtected() const;
@@ -339,7 +339,7 @@ public:
     bool isValid() const { return fIsValid; }
 
     // Returns true if both textures are valid and refer to the same API texture.
-    bool isSameTexture(const GrBackendTexture&);
+    bool isSameTexture(const GrBackendTexture&) const;
 
 #if GR_TEST_UTILS
     static bool TestingOnly_Equals(const GrBackendTexture& , const GrBackendTexture&);
@@ -487,7 +487,7 @@ public:
 
     // Anytime the client changes the VkImageLayout of the VkImage captured by this
     // GrBackendRenderTarget, they must call this function to notify Skia of the changed layout.
-    void setVkImageLayout(VkImageLayout);
+    void setVkImageLayout(VkImageLayout) const;
 
 #ifdef SK_METAL
     // If the backend API is Metal, copies a snapshot of the GrMtlTextureInfo struct into the passed
@@ -502,7 +502,7 @@ public:
 
     // Anytime the client changes the D3D12_RESOURCE_STATES of the D3D12_RESOURCE captured by this
     // GrBackendTexture, they must call this function to notify Skia of the changed layout.
-    void setD3DResourceState(GrD3DResourceStateEnum);
+    void setD3DResourceState(GrD3DResourceStateEnum) const;
 #endif
 
     // Get the GrBackendFormat for this render target (or an invalid format if this is not valid).
@@ -517,7 +517,7 @@ public:
     // that can be set from this function are:
     //
     // Vulkan: VkImageLayout and QueueFamilyIndex
-    void setMutableState(const GrBackendSurfaceMutableState&);
+    void setMutableState(const GrBackendSurfaceMutableState&) const;
 
     // Returns true if we are working with protected content.
     bool isProtected() const;

@@ -614,7 +614,7 @@ bool GrBackendTexture::getVkImageInfo(GrVkImageInfo* outInfo) const {
     return false;
 }
 
-void GrBackendTexture::setVkImageLayout(VkImageLayout layout) {
+void GrBackendTexture::setVkImageLayout(VkImageLayout layout) const {
 #ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         fMutableState->setImageLayout(layout);
@@ -641,7 +641,7 @@ bool GrBackendTexture::getD3DTextureResourceInfo(GrD3DTextureResourceInfo* outIn
     return false;
 }
 
-void GrBackendTexture::setD3DResourceState(GrD3DResourceStateEnum state) {
+void GrBackendTexture::setD3DResourceState(GrD3DResourceStateEnum state) const {
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
         fD3DInfo.setResourceState(state);
     }
@@ -673,7 +673,7 @@ bool GrBackendTexture::getGLTextureInfo(GrGLTextureInfo* outInfo) const {
     return false;
 }
 
-void GrBackendTexture::glTextureParametersModified() {
+void GrBackendTexture::glTextureParametersModified() const {
 #ifdef SK_GL
     if (this->isValid() && fBackend == GrBackendApi::kOpenGL) {
         fGLInfo.parameters()->invalidate();
@@ -689,7 +689,7 @@ bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     return false;
 }
 
-void GrBackendTexture::setMutableState(const GrBackendSurfaceMutableState& state) {
+void GrBackendTexture::setMutableState(const GrBackendSurfaceMutableState& state) const {
     fMutableState->set(state);
 }
 
@@ -700,7 +700,7 @@ bool GrBackendTexture::isProtected() const {
     return fVkInfo.isProtected();
 }
 
-bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) {
+bool GrBackendTexture::isSameTexture(const GrBackendTexture& that) const {
     if (!this->isValid() || !that.isValid()) {
         return false;
     }
@@ -1056,7 +1056,7 @@ bool GrBackendRenderTarget::getVkImageInfo(GrVkImageInfo* outInfo) const {
     return false;
 }
 
-void GrBackendRenderTarget::setVkImageLayout(VkImageLayout layout) {
+void GrBackendRenderTarget::setVkImageLayout(VkImageLayout layout) const {
 #ifdef SK_VULKAN
     if (this->isValid() && GrBackendApi::kVulkan == fBackend) {
         fMutableState->setImageLayout(layout);
@@ -1083,7 +1083,7 @@ bool GrBackendRenderTarget::getD3DTextureResourceInfo(GrD3DTextureResourceInfo* 
     return false;
 }
 
-void GrBackendRenderTarget::setD3DResourceState(GrD3DResourceStateEnum state) {
+void GrBackendRenderTarget::setD3DResourceState(GrD3DResourceStateEnum state) const {
     if (this->isValid() && GrBackendApi::kDirect3D == fBackend) {
         fD3DInfo.setResourceState(state);
     }
@@ -1161,7 +1161,7 @@ bool GrBackendRenderTarget::getMockRenderTargetInfo(GrMockRenderTargetInfo* outI
     return false;
 }
 
-void GrBackendRenderTarget::setMutableState(const GrBackendSurfaceMutableState& state) {
+void GrBackendRenderTarget::setMutableState(const GrBackendSurfaceMutableState& state) const {
     fMutableState->set(state);
 }
 
