@@ -297,7 +297,7 @@ public:
     GrDirectMaskSubRun(GrMaskFormat format,
                        SkPoint residual,
                        GrTextBlob* blob,
-                       const SkRect& bounds,
+                       SkGlyphRect bounds,
                        SkSpan<const VertexData> vertexData,
                        GrGlyphVector glyphs);
 
@@ -342,7 +342,7 @@ private:
     const SkPoint fResidual;
     GrTextBlob* const fBlob;
     // The vertex bounds in device space. The bounds are the joined rectangles of all the glyphs.
-    const SkRect fVertexBounds;
+    const SkGlyphRect fVertexBounds;
     const SkSpan<const VertexData> fVertexData;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must

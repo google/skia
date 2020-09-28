@@ -465,7 +465,7 @@ std::tuple<bool, int> GrGlyphVector::regenerateAtlas(int begin, int end,
 GrDirectMaskSubRun::GrDirectMaskSubRun(GrMaskFormat format,
                                        SkPoint residual,
                                        GrTextBlob* blob,
-                                       const SkRect& bounds,
+                                       SkGlyphRect bounds,
                                        SkSpan<const VertexData> vertexData,
                                        GrGlyphVector glyphs)
         : fMaskFormat{format}
@@ -482,27 +482,22 @@ GrSubRun* GrDirectMaskSubRun::Make(const SkZip<SkGlyphVariant, SkPoint>& drawabl
                                    GrTextBlob* blob,
                                    SkArenaAlloc* alloc) {
     size_t vertexCount = drawables.size();
-    SkRect bounds = SkRectPriv::MakeLargestInverted();
+    SkGlyphRect runBounds = skglyph::empty_rect();
 
     auto initializer = [&](size_t i) {
         auto [variant, pos] = drawables[i];
         SkGlyph* skGlyph = variant;
-        int16_t l = skGlyph->left();
-        int16_t t = skGlyph->top();
-        int16_t r = l + skGlyph->width();
-        int16_t b = t + skGlyph->height();
-        SkPoint lt = SkPoint::Make(l, t) + pos,
-                rb = SkPoint::Make(r, b) + pos;
-
-        bounds.joinPossiblyEmptyRect(SkRect::MakeLTRB(lt.x(), lt.y(), rb.x(), rb.y()));
-        return VertexData{SkScalarRoundToInt(lt.x()), SkScalarRoundToInt(lt.y())};
+        SkIPoint offset = {SkScalarRoundToInt(pos.x()), SkScalarRoundToInt(pos.y())};
+        SkGlyphRect glyphBounds = skGlyph->glyphBoundsRect().offset(offset);
+        runBounds = skglyph::rect_union(runBounds, glyphBounds);
+        return VertexData{glyphBounds.topLeft()};
     };
 
     SkSpan<const VertexData> vertexData{
             alloc->makeInitializedArray<VertexData>(vertexCount, initializer), vertexCount};
 
     GrDirectMaskSubRun* subRun = alloc->make<GrDirectMaskSubRun>(
-            format, residual, blob, bounds, vertexData,
+            format, residual, blob, runBounds, vertexData,
             GrGlyphVector::Make(strikeSpec, drawables.get<0>(), alloc));
 
     return subRun;
@@ -649,16 +644,13 @@ void GrDirectMaskSubRun::fillVertexData(void* vertexDst, int offset, int count, 
 }
 
 SkRect GrDirectMaskSubRun::deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
-    SkRect outBounds = fVertexBounds;
+    SkIRect outBounds = fVertexBounds.iRect();
 
     SkPoint offset = drawMatrix.mapXY(drawOrigin.x(), drawOrigin.y());
     // The vertex bounds are already {0, 0} based, so just add the new origin offset.
-    outBounds.offset(offset);
+    outBounds.offset(SkScalarRoundToInt(offset.x()), SkScalarRoundToInt(offset.y()));
 
-    // Due to floating point numerical inaccuracies, we have to round out here
-    outBounds.roundOut();
-
-    return outBounds;
+    return SkRect::Make(outBounds);
 }
 
 // -- GrTransformedMaskSubRun ----------------------------------------------------------------------

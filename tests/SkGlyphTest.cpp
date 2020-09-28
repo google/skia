@@ -8,7 +8,7 @@
 #include "src/core/SkGlyph.h"
 #include "tests/Test.h"
 
-DEF_TEST(SkGlyphRectBasic, reporter) {
+DEF_TEST(SkGlyphBoundsRectBasic, reporter) {
     using namespace skglyph;
     SkGlyphRect r{1, 1, 10, 10};
     REPORTER_ASSERT(reporter, !r.empty());
