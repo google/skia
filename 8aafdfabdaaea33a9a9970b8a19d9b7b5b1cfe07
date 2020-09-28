@@ -33,6 +33,23 @@
       "revId": "8aafdfabdaaea33a9a9970b8a19d9b7b5b1cfe07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7f746cbe_c10b4e0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-28T18:08:57Z",
+      "side": 1,
+      "message": "I should have phrased that differently. If the image differences are what you expect, then LGTM.",
+      "revId": "8aafdfabdaaea33a9a9970b8a19d9b7b5b1cfe07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
