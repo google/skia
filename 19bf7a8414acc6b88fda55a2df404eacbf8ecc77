@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "aadc7f8d_22aa625f",
+        "filename": "include/core/SkSurfaceProps.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 10586
+      },
+      "writtenOn": "2020-09-28T20:55:15Z",
+      "side": 1,
+      "message": "That works for me.\n\nI see the bug-fix CL is merged and recent progress on the first CL, so I\u0027ll abandon this one (which won\u0027t be needed with your change).\n\nWhen your first CL is merged, I\u0027ll update everything on the Chrome side in my Chrome CL (https://chromium-review.googlesource.com/c/chromium/src/+/2378763), including the removal of the #define.\n\nThanks!",
+      "parentUuid": "5adf8770_943a911d",
+      "revId": "19bf7a8414acc6b88fda55a2df404eacbf8ecc77",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fda9e410_f9ddd625",
         "filename": "src/image/SkSurface.cpp",
         "patchSetId": 3
