@@ -323,7 +323,7 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kIntLiteral: {
                 const IntLiteral& i = e->as<IntLiteral>();
                 this->writeU8(Rehydrator::kIntLiteral_Command);
-                this->writeS32(i.fValue);
+                this->writeS32(i.value());
                 break;
             }
             case Expression::Kind::kNullLiteral:
@@ -517,7 +517,7 @@ void Dehydrator::write(const ProgramElement& e) {
                 Variable& v = (Variable&) *s;
                 SkASSERT(v.fInitialValue);
                 const IntLiteral& i = v.fInitialValue->as<IntLiteral>();
-                this->writeS32(i.fValue);
+                this->writeS32(i.value());
             }
             break;
         }

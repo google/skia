@@ -46,7 +46,7 @@ struct Enum : public ProgramElement {
         for (const auto& s : sortedSymbols) {
             const Expression& initialValue = *s->as<Variable>().fInitialValue;
             result += separator + "    " + s->fName + " = " +
-                      to_string(initialValue.as<IntLiteral>().fValue);
+                      to_string(initialValue.as<IntLiteral>().value());
             separator = ",\n";
         }
         result += "\n};";

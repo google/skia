@@ -104,7 +104,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 }
 
 void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
-    this->write(to_string((int32_t) i.fValue));
+    this->write(to_string((int32_t) i.value()));
 }
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {

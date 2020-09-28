@@ -16,21 +16,24 @@ namespace SkSL {
 /**
  * A literal integer.
  */
-struct IntLiteral : public Expression {
+class IntLiteral : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kIntLiteral;
 
     // FIXME: we will need to revisit this if/when we add full support for both signed and unsigned
     // 64-bit integers, but for right now an int64_t will hold every value we care about
     IntLiteral(const Context& context, int offset, int64_t value)
-    : INHERITED(offset, kExpressionKind, context.fInt_Type.get())
-    , fValue(value) {}
+    : INHERITED(offset, IntLiteralData{context.fInt_Type.get(), value}) {}
 
     IntLiteral(int offset, int64_t value, const Type* type = nullptr)
-    : INHERITED(offset, kExpressionKind, type)
-    , fValue(value) {}
+    : INHERITED(offset, IntLiteralData{type, value}) {}
+
+    int64_t value() const {
+        return this->intLiteralData().fValue;
+    }
 
     String description() const override {
-        return to_string(fValue);
+        return to_string(this->value());
     }
 
     bool hasProperty(Property property) const override {
@@ -42,7 +45,7 @@ struct IntLiteral : public Expression {
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        return fValue == other.as<IntLiteral>().fValue;
+        return this->value() == other.as<IntLiteral>().value();
     }
 
     CoercionCost coercionCost(const Type& target) const override {
@@ -54,15 +57,14 @@ struct IntLiteral : public Expression {
     }
 
     int64_t getConstantInt() const override {
-        return fValue;
+        return this->value();
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new IntLiteral(fOffset, fValue, &this->type()));
+        return std::unique_ptr<Expression>(new IntLiteral(fOffset, this->value(), &this->type()));
     }
 
-    const int64_t fValue;
-
+private:
     using INHERITED = Expression;
 };
 
