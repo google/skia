@@ -1573,6 +1573,7 @@ sk_sp<GrMSAAAttachment> GrVkGpu::createMSAAAttachment(SkISize dimensions,
     imageDesc.fUsageFlags = usageFlags;
     imageDesc.fIsProtected = isProtected;
 
+    fStats.incMSAAAttachmentCreates();
     return GrVkMSAAAttachment::Make(this, dimensions, imageDesc);
 }
 

@@ -18,6 +18,7 @@ class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrBackendTexture;
 class GrGpu;
+class GrMSAAAttachment;
 class GrPath;
 class GrRenderTarget;
 class GrResourceProviderPriv;
@@ -263,6 +264,11 @@ public:
      */
     bool attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples);
 
+    sk_sp<GrMSAAAttachment> createMSAAAttachment(SkISize dimensions,
+                                                 const GrBackendFormat& format,
+                                                 int sampleCnt,
+                                                 GrProtected isProtected);
+
      /**
       * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
       * texture has a format that cannot be textured from by Skia, but we want to raster to it.
@@ -328,6 +334,13 @@ private:
                                      SkBudgeted,
                                      GrMipmapped,
                                      GrProtected);
+
+    // Attempts to find a resource in the cache that exactly matches the SkISize. Failing that
+    // it returns null. If non-null, the resulting msaa attachment is always budgeted.
+    sk_sp<GrMSAAAttachment> refScratchMSAAAttachment(SkISize dimensions,
+                                                    const GrBackendFormat&,
+                                                    int sampleCnt,
+                                                    GrProtected);
 
     // Used to perform any conversions necessary to texel data before creating a texture with
     // existing data or uploading to a scratch texture.

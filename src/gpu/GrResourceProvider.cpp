@@ -17,6 +17,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuBuffer.h"
 #include "src/gpu/GrImageInfo.h"
+#include "src/gpu/GrMSAAAttachment.h"
 #include "src/gpu/GrPath.h"
 #include "src/gpu/GrPathRendering.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -524,6 +525,54 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
         return stencil->numSamples() == numStencilSamples;
     }
     return false;
+}
+
+sk_sp<GrMSAAAttachment> GrResourceProvider::createMSAAAttachment(SkISize dimensions,
+                                                                 const GrBackendFormat& format,
+                                                                 int sampleCnt,
+                                                                 GrProtected isProtected) {
+    ASSERT_SINGLE_OWNER
+
+    SkASSERT(sampleCnt > 1);
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    if (!fCaps->validateSurfaceParams(dimensions, format, GrRenderable::kYes, sampleCnt,
+                                      GrMipMapped::kNo)) {
+        return nullptr;
+    }
+
+    auto scratch = this->refScratchMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+    if (scratch) {
+        return scratch;
+    }
+
+    return fGpu->createMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+}
+
+sk_sp<GrMSAAAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensions,
+                                                                     const GrBackendFormat& format,
+                                                                     int sampleCnt,
+                                                                     GrProtected isProtected) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(!this->isAbandoned());
+    SkASSERT(!this->caps()->isFormatCompressed(format));
+    SkASSERT(fCaps->validateSurfaceParams(dimensions, format, GrRenderable::kYes, sampleCnt,
+                                          GrMipmapped::kNo));
+
+    GrScratchKey key;
+    GrMSAAAttachment::ComputeScratchKey(*this->caps(), format, dimensions, sampleCnt, isProtected,
+                                        &key);
+    GrGpuResource* resource = fCache->findAndRefScratchResource(key);
+    if (resource) {
+        fGpu->stats()->incNumScratchMSAAAttachmentsReused();
+        GrMSAAAttachment* attachment = static_cast<GrMSAAAttachment*>(resource);
+        return sk_sp<GrMSAAAttachment>(attachment);
+    }
+
+    return nullptr;
 }
 
 sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
