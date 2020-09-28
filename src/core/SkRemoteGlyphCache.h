@@ -161,6 +161,8 @@ private:
     std::vector<WireTypeface> fTypefacesToSend;
 };
 
+class SkStrikeClientImpl;
+
 class SkStrikeClient {
 public:
     // This enum is used in histogram reporting in chromium. Please don't re-order the list of
@@ -217,15 +219,7 @@ public:
     SK_SPI bool readStrikeData(const volatile void* memory, size_t memorySize);
 
 private:
-    class DiscardableStrikePinner;
-
-    static bool ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer);
-    sk_sp<SkTypeface> addTypeface(const WireTypeface& wire);
-
-    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
-    sk_sp<DiscardableHandleManager> fDiscardableHandleManager;
-    SkStrikeCache* const fStrikeCache;
-    const bool fIsLogging;
+    std::unique_ptr<SkStrikeClientImpl> fImpl;
 };
 
 // For exposure to fuzzing only.
