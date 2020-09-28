@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6194e39_a641cdef",
+        "filename": "src/sksl/ir/SkSLExpression.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T18:00:28Z",
+      "side": 1,
+      "message": "Now that I think about it, we don\u0027t need to pass Kind to these constructors at all, do we? We\u0027ve got an IntLiteralData; the kind is IntLiteral. This should happen automatically.",
+      "range": {
+        "startLine": 64,
+        "startChar": 27,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "6c0a0013809f846c908d88f43f0a731ea4ef8734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5997029e_7e8f537a",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T18:00:28Z",
+      "side": 1,
+      "message": "As I\u0027m seeing this code develop and starting to understand it better, I\u0027m wondering--could this become\n\n  union {\n    BlockData block;\n    BoolLiteralData boolLiteral;\n    ... etc... all the types of node\n  } fData;\n\n? Seems like this allow us to read nodes in the debugger more easily, and I can\u0027t think of a downside. I would just want to make sure it works properly with the non-POD structs like BlockData\u0027s shared_ptr, but AFAICS as long as we placement-construct, it should be fine.",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 96,
+        "endChar": 0
+      },
+      "revId": "6c0a0013809f846c908d88f43f0a731ea4ef8734",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
