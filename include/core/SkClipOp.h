@@ -19,15 +19,20 @@ enum class SkClipOp {
     kXOR_deprecated               = 3,
     kReverseDifference_deprecated = 4,
     kReplace_deprecated           = 5,
+
+    // Used internally for validation, can only shrink to 1 when the deprecated flag is gone
+    kMax_EnumValue = 5,
 #else
+    // Technically only kDifference and kIntersect are allowed, hence kMax_EnumValue = 1, but
+    // internally we need these values defined for the deprecated clip ops.
     kExtraEnumNeedInternallyPleaseIgnoreWillGoAway2   = 2,
     kExtraEnumNeedInternallyPleaseIgnoreWillGoAway3   = 3,
     kExtraEnumNeedInternallyPleaseIgnoreWillGoAway4   = 4,
     kExtraEnumNeedInternallyPleaseIgnoreWillGoAway5   = 5,
+
+    kMax_EnumValue = 1
 #endif
 
-    // Used internally for validation, can only shrink to 1 when the deprecated flag is gone
-    kMax_EnumValue = 5,
 };
 
 #endif

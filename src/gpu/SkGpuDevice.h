@@ -35,6 +35,7 @@ class SkVertices;
     #endif
 #endif
 
+#define SK_DISABLE_NEW_GR_CLIP_STACK
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
     #include "src/core/SkDevice.h"
     #include "src/gpu/GrClipStack.h"
