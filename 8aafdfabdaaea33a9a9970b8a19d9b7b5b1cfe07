@@ -16,6 +16,23 @@
       "revId": "8aafdfabdaaea33a9a9970b8a19d9b7b5b1cfe07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c4934350_cbd879fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-28T17:54:13Z",
+      "side": 1,
+      "message": "Are the 168 image differences expected?",
+      "revId": "8aafdfabdaaea33a9a9970b8a19d9b7b5b1cfe07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
