@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "cca7dba4_3c0edc5c",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T21:16:46Z",
+      "side": 1,
+      "message": "I find Color and Color4f to be reflecting a history of the C world, not conveying anything real (in fact, conveying perhaps the reverse):\n\n- float colors are native, and sometimes required\n- int colors are legacy, and sometimes can\u0027t express what is needed",
+      "parentUuid": "50163fb6_d5c076bd",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 63
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "22a5665b_511adf07",
         "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
         "patchSetId": 2
@@ -166,6 +190,30 @@
       "side": 1,
       "message": "We don\u0027t need to - clients can just make an array or typed array of 12 values and pass it in. This is just for convenience.",
       "parentUuid": "531f8f25_1c1748b0",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 11
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4037a1b8_68b8d395",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T21:16:46Z",
+      "side": 1,
+      "message": "Hmmm, is that constructor visible in this file?\n\nRRect(rect: SkRect, radii: array)",
+      "parentUuid": "5fb67c0c_7259cce4",
       "range": {
         "startLine": 107,
         "startChar": 4,
