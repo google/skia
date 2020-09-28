@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "1645febf_e04bfbbf",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 26
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-28T11:24:18Z",
+      "side": 1,
+      "message": "TODO(borenet): Now that we have an actual dependency between the two repos via go.mod, we should probably just move the schema into the infra repo and have the skia repo use the version from infra.",
+      "parentUuid": "bb604eca_ab4a985c",
+      "range": {
+        "startLine": 151,
+        "startChar": 3,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb5f4806_68889def",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
