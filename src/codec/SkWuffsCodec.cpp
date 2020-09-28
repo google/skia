@@ -288,11 +288,12 @@ private:
     wuffs_base__io_buffer    fIOBuffer;
 
     // Incremental decoding state.
-    uint8_t* fIncrDecDst;
-    uint64_t fIncrDecReaderIOPosition;
-    size_t   fIncrDecRowBytes;
-    bool     fIncrDecOnePass;
-    bool     fFirstCallToIncrementalDecode;
+    uint8_t*                fIncrDecDst;
+    uint64_t                fIncrDecReaderIOPosition;
+    size_t                  fIncrDecRowBytes;
+    wuffs_base__pixel_blend fIncrDecPixelBlend;
+    bool                    fIncrDecOnePass;
+    bool                    fFirstCallToIncrementalDecode;
 
     // Lazily allocated intermediate pixel buffer, for two pass decoding.
     std::unique_ptr<uint8_t, decltype(&sk_free)> fTwoPassPixbufPtr;
@@ -400,6 +401,7 @@ SkWuffsCodec::SkWuffsCodec(SkEncodedInfo&&                                      
       fIncrDecDst(nullptr),
       fIncrDecReaderIOPosition(0),
       fIncrDecRowBytes(0),
+      fIncrDecPixelBlend(WUFFS_BASE__PIXEL_BLEND__SRC),
       fIncrDecOnePass(false),
       fFirstCallToIncrementalDecode(false),
       fTwoPassPixbufPtr(nullptr, &sk_free),
@@ -493,17 +495,12 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecode(const SkImageInfo&      d
 
     // We can use "one pass" decoding if we have a Skia pixel format that Wuffs
     // supports...
-    fIncrDecOnePass =
-        (pixelFormat != WUFFS_BASE__PIXEL_FORMAT__INVALID) &&
-        // ...and no color profile (as Wuffs does not support them)...
-        (!getEncodedInfo().profile()) &&
-        // ...and we have an independent frame (as Wuffs does not support the
-        // equivalent of SkBlendMode::kSrcOver)...
-        ((options.fFrameIndex == 0) ||
-         (this->frame(options.fFrameIndex)->getRequiredFrame() == SkCodec::kNoFrame)) &&
-        // ...and we use the identity transform (as Wuffs does not support
-        // scaling).
-        (this->dimensions() == dstInfo.dimensions());
+    fIncrDecOnePass = (pixelFormat != WUFFS_BASE__PIXEL_FORMAT__INVALID) &&
+                      // ...and no color profile (as Wuffs does not support them)...
+                      (!getEncodedInfo().profile()) &&
+                      // ...and we use the identity transform (as Wuffs does
+                      // not support scaling).
+                      (this->dimensions() == dstInfo.dimensions());
 
     result = fIncrDecOnePass ? this->onStartIncrementalDecodeOnePass(
                                    dstInfo, static_cast<uint8_t*>(dst), rowBytes, options,
@@ -542,7 +539,17 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecodeOnePass(const SkImageInfo&
         return SkCodec::kInternalError;
     }
 
-    SkSampler::Fill(dstInfo, dst, rowBytes, options.fZeroInitialized);
+    // SRC is usually faster than SRC_OVER, but for a dependent frame, dst is
+    // assumed to hold the previous frame's pixels (after processing the
+    // DisposalMethod). For one-pass decoding, we therefore use SRC_OVER.
+    if ((options.fFrameIndex != 0) &&
+        (this->frame(options.fFrameIndex)->getRequiredFrame() != SkCodec::kNoFrame)) {
+        fIncrDecPixelBlend = WUFFS_BASE__PIXEL_BLEND__SRC_OVER;
+    } else {
+        SkSampler::Fill(dstInfo, dst, rowBytes, options.fZeroInitialized);
+        fIncrDecPixelBlend = WUFFS_BASE__PIXEL_BLEND__SRC;
+    }
+
     return SkCodec::kSuccess;
 }
 
@@ -597,6 +604,7 @@ SkCodec::Result SkWuffsCodec::onStartIncrementalDecodeTwoPass() {
         }
     }
 
+    fIncrDecPixelBlend = WUFFS_BASE__PIXEL_BLEND__SRC;
     return SkCodec::kSuccess;
 }
 
@@ -626,6 +634,7 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecode(int* rowsDecoded) {
         fIncrDecDst = nullptr;
         fIncrDecReaderIOPosition = 0;
         fIncrDecRowBytes = 0;
+        fIncrDecPixelBlend = WUFFS_BASE__PIXEL_BLEND__SRC;
         fIncrDecOnePass = false;
     } else {
         fIncrDecReaderIOPosition = fIOBuffer.reader_io_position();
@@ -927,7 +936,7 @@ const char* SkWuffsCodec::decodeFrameConfig(WhichDecoder which) {
 const char* SkWuffsCodec::decodeFrame(WhichDecoder which) {
     while (true) {
         wuffs_base__status status = fDecoders[which]->decode_frame(
-            &fPixelBuffer, &fIOBuffer, WUFFS_BASE__PIXEL_BLEND__SRC,
+            &fPixelBuffer, &fIOBuffer, fIncrDecPixelBlend,
             wuffs_base__make_slice_u8(fWorkbufPtr.get(), fWorkbufLen), NULL);
         if ((status.repr == wuffs_base__suspension__short_read) &&
             fill_buffer(&fIOBuffer, fStream.get())) {
