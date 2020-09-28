@@ -52,6 +52,8 @@ public:
         switch (fData.fKind) {
             case NodeData::Kind::kBoolLiteral:
                 return *this->boolLiteralData().fType;
+            case NodeData::Kind::kIntLiteral:
+                return *this->intLiteralData().fType;
             case NodeData::Kind::kType:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
@@ -75,6 +77,11 @@ protected:
         bool fValue;
     };
 
+    struct IntLiteralData {
+        const Type* fType;
+        int64_t fValue;
+    };
+
     struct TypeTokenData {
         const Type* fType;
         Token::Kind fToken;
@@ -83,12 +90,14 @@ protected:
     struct NodeData {
         char fBytes[std::max({sizeof(BlockData),
                               sizeof(BoolLiteralData),
+                              sizeof(IntLiteralData),
                               sizeof(Type*),
                               sizeof(TypeTokenData)})];
 
         enum class Kind {
             kBlock,
             kBoolLiteral,
+            kIntLiteral,
             kType,
             kTypeToken,
         } fKind;
@@ -103,6 +112,11 @@ protected:
         NodeData(const BoolLiteralData& data)
             : fKind(Kind::kBoolLiteral) {
             *(new(fBytes) BoolLiteralData) = data;
+        }
+
+        NodeData(IntLiteralData data)
+            : fKind(Kind::kIntLiteral) {
+            *(new(fBytes) IntLiteralData) = data;
         }
 
         NodeData(const Type* data)
@@ -123,6 +137,9 @@ protected:
                 case Kind::kBoolLiteral:
                     reinterpret_cast<BoolLiteralData*>(fBytes)->~BoolLiteralData();
                     break;
+                case Kind::kIntLiteral:
+                    reinterpret_cast<IntLiteralData*>(fBytes)->~IntLiteralData();
+                    break;
                 case Kind::kType:
                     break;
                 case Kind::kTypeToken:
@@ -136,6 +153,8 @@ protected:
            std::vector<std::unique_ptr<Statement>> stmts);
 
     IRNode(int offset, int kind, const BoolLiteralData& data);
+
+    IRNode(int offset, int kind, const IntLiteralData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -195,6 +214,11 @@ protected:
     const BoolLiteralData& boolLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kBoolLiteral);
         return *reinterpret_cast<const BoolLiteralData*>(fData.fBytes);
+    }
+
+    const IntLiteralData& intLiteralData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kIntLiteral);
+        return *reinterpret_cast<const IntLiteralData*>(fData.fBytes);
     }
 
     const Type* typeData() const {

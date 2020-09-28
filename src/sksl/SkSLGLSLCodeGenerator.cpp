@@ -1014,13 +1014,13 @@ void GLSLCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     const Type& type = i.type();
     if (type == *fContext.fUInt_Type) {
-        this->write(to_string(i.fValue & 0xffffffff) + "u");
+        this->write(to_string(i.value() & 0xffffffff) + "u");
     } else if (type == *fContext.fUShort_Type) {
-        this->write(to_string(i.fValue & 0xffff) + "u");
+        this->write(to_string(i.value() & 0xffff) + "u");
     } else if (type == *fContext.fUByte_Type) {
-        this->write(to_string(i.fValue & 0xff) + "u");
+        this->write(to_string(i.value() & 0xff) + "u");
     } else {
-        this->write(to_string((int32_t) i.fValue));
+        this->write(to_string((int32_t) i.value()));
     }
 }
 
