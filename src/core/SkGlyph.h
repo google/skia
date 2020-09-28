@@ -341,7 +341,7 @@ private:
     friend class SkScalerContext_DW;
     friend class SkScalerContext_GDI;
     friend class SkScalerContext_Mac;
-    friend class SkStrikeClient;
+    friend class SkStrikeClientImpl;
     friend class SkStrikeServer;
     friend class SkTestScalerContext;
     friend class SkTestSVGScalerContext;

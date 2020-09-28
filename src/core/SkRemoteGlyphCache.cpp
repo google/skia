@@ -844,11 +844,11 @@ void SkStrikeServer::RemoteStrike::prepareForPathDrawing(
         });
 }
 
-// SkStrikeClient ----------------------------------------------------------------------------------
-class SkStrikeClient::DiscardableStrikePinner : public SkStrikePinner {
+// -- DiscardableStrikePinner ----------------------------------------------------------------------
+class DiscardableStrikePinner : public SkStrikePinner {
 public:
     DiscardableStrikePinner(SkDiscardableHandleId discardableHandleId,
-                            sk_sp<DiscardableHandleManager> manager)
+                            sk_sp<SkStrikeClient::DiscardableHandleManager> manager)
             : fDiscardableHandleId(discardableHandleId), fManager(std::move(manager)) {}
 
     ~DiscardableStrikePinner() override = default;
@@ -856,31 +856,42 @@ public:
 
 private:
     const SkDiscardableHandleId fDiscardableHandleId;
-    sk_sp<DiscardableHandleManager> fManager;
+    sk_sp<SkStrikeClient::DiscardableHandleManager> fManager;
 };
 
-SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager,
-                               bool isLogging,
-                               SkStrikeCache* strikeCache)
-        : fDiscardableHandleManager(std::move(discardableManager))
-        , fStrikeCache{strikeCache ? strikeCache : SkStrikeCache::GlobalStrikeCache()}
-        , fIsLogging{isLogging} {}
+// -- SkStrikeCacheImpl ----------------------------------------------------------------------------
+class SkStrikeClientImpl {
+public:
+    explicit SkStrikeClientImpl(sk_sp<SkStrikeClient::DiscardableHandleManager>,
+                                bool isLogging = true,
+                                SkStrikeCache* strikeCache = nullptr);
 
-SkStrikeClient::~SkStrikeClient() = default;
+    sk_sp<SkTypeface> deserializeTypeface(const void* data, size_t length);
 
-#define READ_FAILURE                                                     \
-    {                                                                    \
-        SkDebugf("Bad font data serialization line: %d", __LINE__);      \
-        DiscardableHandleManager::ReadFailureData data = {               \
-                memorySize,  deserializer.bytesRead(), typefaceSize,     \
-                strikeCount, glyphImagesCount,         glyphPathsCount}; \
-        fDiscardableHandleManager->notifyReadFailure(data);              \
-        return false;                                                    \
-    }
+    bool readStrikeData(const volatile void* memory, size_t memorySize);
+
+private:
+    static bool ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer);
+    sk_sp<SkTypeface> addTypeface(const WireTypeface& wire);
+
+    SkTHashMap<SkFontID, sk_sp<SkTypeface>> fRemoteFontIdToTypeface;
+    sk_sp<SkStrikeClient::DiscardableHandleManager> fDiscardableHandleManager;
+    SkStrikeCache* const fStrikeCache;
+    const bool fIsLogging;
+};
+
+SkStrikeClientImpl::SkStrikeClientImpl(
+        sk_sp<SkStrikeClient::DiscardableHandleManager>
+        discardableManager,
+        bool isLogging,
+        SkStrikeCache* strikeCache)
+    : fDiscardableHandleManager(std::move(discardableManager)),
+      fStrikeCache{strikeCache ? strikeCache : SkStrikeCache::GlobalStrikeCache()},
+      fIsLogging{isLogging} {}
 
 // No need to read fForceBW because it is a flag private to SkScalerContext_DW, which will never
 // be called on the GPU side.
-bool SkStrikeClient::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
+bool SkStrikeClientImpl::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializer) {
     SkPackedGlyphID glyphID;
     if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;
     glyph.init(glyphID);
@@ -896,7 +907,17 @@ bool SkStrikeClient::ReadGlyph(SkTLazy<SkGlyph>& glyph, Deserializer* deserializ
     return true;
 }
 
-bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySize) {
+#define READ_FAILURE                                                        \
+    {                                                                       \
+        SkDebugf("Bad font data serialization line: %d", __LINE__);         \
+        SkStrikeClient::DiscardableHandleManager::ReadFailureData data = {  \
+                memorySize,  deserializer.bytesRead(), typefaceSize,        \
+                strikeCount, glyphImagesCount,         glyphPathsCount};    \
+        fDiscardableHandleManager->notifyReadFailure(data);                 \
+        return false;                                                       \
+    }
+
+bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memorySize) {
     SkASSERT(memorySize != 0u);
     Deserializer deserializer(static_cast<const volatile char*>(memory), memorySize);
 
@@ -1002,14 +1023,14 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
     return true;
 }
 
-sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
+sk_sp<SkTypeface> SkStrikeClientImpl::deserializeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
     if (len != sizeof(wire)) return nullptr;
     memcpy(&wire, buf, sizeof(wire));
     return this->addTypeface(wire);
 }
 
-sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
+sk_sp<SkTypeface> SkStrikeClientImpl::addTypeface(const WireTypeface& wire) {
     auto* typeface = fRemoteFontIdToTypeface.find(wire.typefaceID);
     if (typeface) return *typeface;
 
@@ -1019,3 +1040,20 @@ sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
     fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
     return std::move(newTypeface);
 }
+
+// SkStrikeClient ----------------------------------------------------------------------------------
+SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager,
+                               bool isLogging,
+                               SkStrikeCache* strikeCache)
+       : fImpl{new SkStrikeClientImpl{std::move(discardableManager), isLogging, strikeCache}} {}
+
+SkStrikeClient::~SkStrikeClient() = default;
+
+bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySize) {
+    return fImpl->readStrikeData(memory, memorySize);
+}
+
+sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
+    return fImpl->deserializeTypeface(buf, len);
+}
+
