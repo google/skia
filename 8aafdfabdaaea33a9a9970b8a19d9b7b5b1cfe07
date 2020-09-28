@@ -50,6 +50,24 @@
       "revId": "8aafdfabdaaea33a9a9970b8a19d9b7b5b1cfe07",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f0c9869_727b57be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T18:36:46Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ve looked at almost all of them now. The changes are where one would expect, where we were asking for subpixel rendering on an unknown geometry with portable fonts. I think the FreeType port may also need to do this, DirectWrite and CoreText ones do this already. Outside of our tests (which use the portable fonts) we don\u0027t actually end up in this case that often.",
+      "parentUuid": "7f746cbe_c10b4e0a",
+      "revId": "8aafdfabdaaea33a9a9970b8a19d9b7b5b1cfe07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
