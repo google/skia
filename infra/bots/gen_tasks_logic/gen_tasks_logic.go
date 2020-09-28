@@ -586,7 +586,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"AndroidOne":      {"sprout", "MOB30Q"},
 				"GalaxyS6":        {"zerofltetmo", "NRD90M_G920TUVS6FRC1"},
 				"GalaxyS7_G930FD": {"herolte", "R16NW_G930FXXS2ERH6"}, // This is Oreo.
-				"GalaxyS9":        {"starlte", "QP1A.190711.020"}, // This is Android10.
+				"GalaxyS9":        {"starlte", "QP1A.190711.020"},     // This is Android10.
 				"GalaxyS20":       {"exynos990", "QP1A.190711.020"},
 				"MotoG4":          {"athene", "NPJS25.93-14.7-8"},
 				"NVIDIA_Shield":   {"foster", "OPR6.170623.010_3507953_1441.7411"},
@@ -1563,6 +1563,32 @@ func (b *jobBuilder) puppeteer() {
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.cipd(specs.CIPD_PKGS_GSUTIL...)
 		b.dep(depName)
+	})
+}
+
+func (b *jobBuilder) cifuzz() {
+	b.addTask(b.Name, func(b *taskBuilder) {
+		b.attempts(1)
+		b.usesDocker()
+		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.cipd(specs.CIPD_PKGS_GIT_LINUX_AMD64...)
+		b.dep(b.buildTaskDrivers())
+		b.output("cifuzz_out")
+		b.timeout(60 * time.Minute)
+		b.isolate("whole_repo.isolate")
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.cmd(
+			"./cifuzz",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", b.Name,
+			"--git_exe_path", "./cipd_bin_packages/git",
+			"--out_path", "./cifuzz_out",
+			"--skia_path", "./skia",
+			"--work_path", "./cifuzz_work",
+			"--alsologtostderr",
+		)
 	})
 }
 
