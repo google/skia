@@ -39,6 +39,47 @@
       "revId": "262742fe668b244232a77876769ad043f9846e56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f85f1fc9_cf82b991",
+        "filename": "gm/lcdoverlap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T16:07:40Z",
+      "side": 1,
+      "message": "No, because of the 0 for the y offset in the above canvas-\u003etranslate call (the vertical bounds did not come into play in placing the baseline). Though maybe that\u0027s just pointing out that this should be in the translate.",
+      "parentUuid": "c57fafed_f652328a",
+      "range": {
+        "startLine": 75,
+        "startChar": 65,
+        "endLine": 75,
+        "endChar": 66
+      },
+      "revId": "262742fe668b244232a77876769ad043f9846e56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f3e67bd_371f20e8",
+        "filename": "gm/variedtext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T16:07:40Z",
+      "side": 1,
+      "message": "This turns out to be wrong because I misunderstood what this was doing (because the comment is even more misleading than I thought). safeRect is the set of x,y offsets for the string\u0027s bounding box (note that it\u0027s even used to pass into \u0027fClipRects[i].offset\u0027. So this adjustment is incorrect since the text needs to be offset the same amount (this was always drawing the text centered in the bounding box).\n\nThe oddness of this comes more form lcd vs non-lcd bounds. If we\u0027re doing subpixel rendering we will often need a bit more space so the width of the bounds will grow by 2 pixels (1 pixel in each direction). This means that the safeRect will have a different width and so the location chosen for the bounding box will change (since nextRangeScaler will scale a 0..1 value to the range). Note that this also will affect the vertical placement, but we don\u0027t normally see it due to baseline snapping. This is different from the lcdoverlap in that this isn\u0027t trying to center the text in a bounding box. Instead the oddness of this one comes from the SkFont setting causing the bounding box to change, affecting where the code here places the text.\n\nAll that to say, I\u0027m going to fix the comment and the member name to make this clear.",
+      "revId": "262742fe668b244232a77876769ad043f9846e56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
