@@ -438,82 +438,76 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
 // add local variables defined by this node to the set
 void Compiler::addDefinitions(const BasicBlock::Node& node,
                               DefinitionMap* definitions) {
-    switch (node.fKind) {
-        case BasicBlock::Node::kExpression_Kind: {
-            SkASSERT(node.expression());
-            Expression* expr = node.expression()->get();
-            switch (expr->kind()) {
-                case Expression::Kind::kBinary: {
-                    BinaryExpression* b = &expr->as<BinaryExpression>();
-                    if (b->getOperator() == Token::Kind::TK_EQ) {
-                        this->addDefinition(&b->left(), &b->rightPointer(), definitions);
-                    } else if (Compiler::IsAssignment(b->getOperator())) {
-                        this->addDefinition(
-                                      &b->left(),
-                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
-                                      definitions);
+    if (node.isExpression()) {
+        Expression* expr = node.expression()->get();
+        switch (expr->kind()) {
+            case Expression::Kind::kBinary: {
+                BinaryExpression* b = &expr->as<BinaryExpression>();
+                if (b->getOperator() == Token::Kind::TK_EQ) {
+                    this->addDefinition(&b->left(), &b->rightPointer(), definitions);
+                } else if (Compiler::IsAssignment(b->getOperator())) {
+                    this->addDefinition(
+                                  &b->left(),
+                                  (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                  definitions);
 
-                    }
-                    break;
                 }
-                case Expression::Kind::kFunctionCall: {
-                    const FunctionCall& c = expr->as<FunctionCall>();
-                    for (size_t i = 0; i < c.fFunction.fParameters.size(); ++i) {
-                        if (c.fFunction.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
-                            this->addDefinition(
-                                      c.fArguments[i].get(),
-                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
-                                      definitions);
-                        }
-                    }
-                    break;
-                }
-                case Expression::Kind::kPrefix: {
-                    const PrefixExpression* p = &expr->as<PrefixExpression>();
-                    if (p->fOperator == Token::Kind::TK_MINUSMINUS ||
-                        p->fOperator == Token::Kind::TK_PLUSPLUS) {
-                        this->addDefinition(
-                                      p->fOperand.get(),
-                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
-                                      definitions);
-                    }
-                    break;
-                }
-                case Expression::Kind::kPostfix: {
-                    const PostfixExpression* p = &expr->as<PostfixExpression>();
-                    if (p->fOperator == Token::Kind::TK_MINUSMINUS ||
-                        p->fOperator == Token::Kind::TK_PLUSPLUS) {
-                        this->addDefinition(
-                                      p->fOperand.get(),
-                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
-                                      definitions);
-                    }
-                    break;
-                }
-                case Expression::Kind::kVariableReference: {
-                    const VariableReference* v = &expr->as<VariableReference>();
-                    if (v->fRefKind != VariableReference::kRead_RefKind) {
-                        this->addDefinition(
-                                      v,
-                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
-                                      definitions);
-                    }
-                    break;
-                }
-                default:
-                    break;
+                break;
             }
-            break;
+            case Expression::Kind::kFunctionCall: {
+                const FunctionCall& c = expr->as<FunctionCall>();
+                for (size_t i = 0; i < c.fFunction.fParameters.size(); ++i) {
+                    if (c.fFunction.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
+                        this->addDefinition(
+                                  c.fArguments[i].get(),
+                                  (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                  definitions);
+                    }
+                }
+                break;
+            }
+            case Expression::Kind::kPrefix: {
+                const PrefixExpression* p = &expr->as<PrefixExpression>();
+                if (p->fOperator == Token::Kind::TK_MINUSMINUS ||
+                    p->fOperator == Token::Kind::TK_PLUSPLUS) {
+                    this->addDefinition(
+                                  p->fOperand.get(),
+                                  (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                  definitions);
+                }
+                break;
+            }
+            case Expression::Kind::kPostfix: {
+                const PostfixExpression* p = &expr->as<PostfixExpression>();
+                if (p->fOperator == Token::Kind::TK_MINUSMINUS ||
+                    p->fOperator == Token::Kind::TK_PLUSPLUS) {
+                    this->addDefinition(
+                                  p->fOperand.get(),
+                                  (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                  definitions);
+                }
+                break;
+            }
+            case Expression::Kind::kVariableReference: {
+                const VariableReference* v = &expr->as<VariableReference>();
+                if (v->fRefKind != VariableReference::kRead_RefKind) {
+                    this->addDefinition(
+                                  v,
+                                  (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
+                                  definitions);
+                }
+                break;
+            }
+            default:
+                break;
         }
-        case BasicBlock::Node::kStatement_Kind: {
-            Statement* stmt = node.statement()->get();
-            if (stmt->kind() == Statement::Kind::kVarDeclaration) {
-                VarDeclaration& vd = stmt->as<VarDeclaration>();
-                if (vd.fValue) {
-                    (*definitions)[vd.fVar] = &vd.fValue;
-                }
+    } else if (node.isStatement()) {
+        Statement* stmt = node.statement()->get();
+        if (stmt->is<VarDeclaration>()) {
+            VarDeclaration& vd = stmt->as<VarDeclaration>();
+            if (vd.fValue) {
+                (*definitions)[vd.fVar] = &vd.fValue;
             }
-            break;
         }
     }
 }
@@ -564,8 +558,7 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
     DefinitionMap result;
     for (const auto& block : cfg.fBlocks) {
         for (const auto& node : block.fNodes) {
-            if (node.fKind == BasicBlock::Node::kStatement_Kind) {
-                SkASSERT(node.statement());
+            if (node.isStatement()) {
                 const Statement* s = node.statement()->get();
                 if (s->is<VarDeclarationsStatement>()) {
                     const VarDeclarationsStatement* vd = &s->as<VarDeclarationsStatement>();
@@ -733,8 +726,7 @@ static void delete_left(BasicBlock* b,
         return;
     }
     --(*iter);
-    if ((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
-        (*iter)->expression() != &rightPointer) {
+    if (!(*iter)->isExpression() || (*iter)->expression() != &rightPointer) {
         *outNeedsRescan = true;
         return;
     }
@@ -767,8 +759,7 @@ static void delete_right(BasicBlock* b,
         return;
     }
     --(*iter);
-    if (((*iter)->fKind != BasicBlock::Node::kExpression_Kind ||
-        (*iter)->expression() != &leftPointer)) {
+    if ((!(*iter)->isExpression() || (*iter)->expression() != &leftPointer)) {
         *outNeedsRescan = true;
         return;
     }
@@ -876,7 +867,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 *outNeedsRescan = true;
                 return;
             }
-            SkASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+            SkASSERT((*iter)->isExpression());
             expr = (*iter)->expression()->get();
         }
     }
@@ -1096,7 +1087,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                         *outNeedsRescan = true;
                         return;
                     }
-                    SkASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+                    SkASSERT((*iter)->isExpression());
                     break;
                 }
             }
@@ -1114,7 +1105,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                     *outNeedsRescan = true;
                     return;
                 }
-                SkASSERT((*iter)->fKind == BasicBlock::Node::kExpression_Kind);
+                SkASSERT((*iter)->isExpression());
             }
             break;
         }
@@ -1430,20 +1421,17 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
         if (i != cfg.fStart && !block.fEntrances.size() && block.fNodes.size()) {
             int offset;
             const BasicBlock::Node& node = block.fNodes[0];
-            switch (node.fKind) {
-                case BasicBlock::Node::kStatement_Kind:
-                    offset = (*node.statement())->fOffset;
-                    break;
-                case BasicBlock::Node::kExpression_Kind:
-                    offset = (*node.expression())->fOffset;
-                    if ((*node.expression())->is<BoolLiteral>()) {
-                        // Function inlining can generate do { ... } while(false) loops which always
-                        // break, so the boolean condition is considered unreachable. Since not
-                        // being able to reach a literal is a non-issue in the first place, we
-                        // don't report an error in this case.
-                        continue;
-                    }
-                    break;
+            if (node.isStatement()) {
+                offset = (*node.statement())->fOffset;
+            } else {
+                offset = (*node.expression())->fOffset;
+                if ((*node.expression())->is<BoolLiteral>()) {
+                    // Function inlining can generate do { ... } while(false) loops which always
+                    // break, so the boolean condition is considered unreachable. Since not being
+                    // able to reach a literal is a non-issue in the first place, we don't report an
+                    // error in this case.
+                    continue;
+                }
             }
             this->error(offset, String("unreachable"));
         }
@@ -1477,18 +1465,16 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                 // the VarDeclarationsStatement. When we replace the VDS with a Nop, we delete the
                 // storage of the unique_ptr that the VD nodes are pointing to. So we remove those
                 // from the node list entirely, first.
-                b.fNodes.erase(
-                        std::remove_if(b.fNodes.begin(), b.fNodes.end(),
-                                       [](const BasicBlock::Node& node) {
-                                           return node.fKind == BasicBlock::Node::kStatement_Kind &&
-                                                  (*node.statement())->is<VarDeclaration>();
-                                       }),
-                        b.fNodes.end());
+                b.fNodes.erase(std::remove_if(b.fNodes.begin(), b.fNodes.end(),
+                                              [](const BasicBlock::Node& node) {
+                                                  return node.isStatement() &&
+                                                         (*node.statement())->is<VarDeclaration>();
+                                              }),
+                               b.fNodes.end());
 
                 // Now replace any remaining statements in the block with Nops.
                 for (BasicBlock::Node& node : b.fNodes) {
-                    if (node.fKind == BasicBlock::Node::kStatement_Kind &&
-                        !(*node.statement())->is<Nop>()) {
+                    if (node.isStatement() && !(*node.statement())->is<Nop>()) {
                         node.setStatement(std::make_unique<Nop>());
                         madeChanges = true;
                     }
@@ -1499,7 +1485,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
             DefinitionMap definitions = b.fBefore;
 
             for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
-                if (iter->fKind == BasicBlock::Node::kExpression_Kind) {
+                if (iter->isExpression()) {
                     this->simplifyExpression(definitions, b, &iter, &undefinedVariables, &updated,
                                              &needsRescan);
                 } else {
@@ -1525,7 +1511,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
         DefinitionMap definitions = b.fBefore;
 
         for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan;) {
-            if (iter->fKind == BasicBlock::Node::kStatement_Kind) {
+            if (iter->isStatement()) {
                 const Statement& s = **iter->statement();
                 switch (s.kind()) {
                     case Statement::Kind::kIf:
