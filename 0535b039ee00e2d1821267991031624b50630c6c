@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6590fe99_db482962",
+        "filename": "include/core/SkRRect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-28T14:55:52Z",
+      "side": 1,
+      "message": "Just \"class SkString;\" here and move this to the .cpp ?",
+      "revId": "0535b039ee00e2d1821267991031624b50630c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ba3faa7_c64e1bcc",
+        "filename": "src/core/SkRRect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-28T14:55:52Z",
+      "side": 1,
+      "message": "\"%s\\n\", ?",
+      "range": {
+        "startLine": 604,
+        "startChar": 48,
+        "endLine": 604,
+        "endChar": 49
+      },
+      "revId": "0535b039ee00e2d1821267991031624b50630c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29fc76ae_88a36825",
+        "filename": "src/gpu/effects/generated/GrRRectBlurEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-28T14:55:52Z",
+      "side": 1,
+      "message": "Maybe a \"Unexpected-circle\" prefix here and a \"Unexpected-rect\" prefix on the next line?",
+      "range": {
+        "startLine": 266,
+        "startChar": 48,
+        "endLine": 266,
+        "endChar": 49
+      },
+      "revId": "0535b039ee00e2d1821267991031624b50630c6c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
