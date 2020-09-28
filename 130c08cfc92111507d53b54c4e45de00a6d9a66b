@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bb604eca_ab4a985c",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 26
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-28T11:19:45Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter that much.  We\u0027ll get alerts (datahopper, IIRC).  I\u0027d recommend having the CL staged and ready but I don\u0027t think it\u0027s necessary to stage things super carefully.",
+      "parentUuid": "d3d76c6e_67498c26",
+      "range": {
+        "startLine": 151,
+        "startChar": 3,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb5f4806_68889def",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
@@ -143,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "6b234ef6_de7e1f86",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-28T11:19:45Z",
+      "side": 1,
+      "message": "//infra/go/git",
+      "parentUuid": "cae0c876_41174f58",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 103
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e348df29_51342432",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
@@ -178,6 +226,30 @@
       "side": 1,
       "message": "Docker package requires volume mounts instead of --mount and doesn\u0027t allow me to have the --name or --rm flag.",
       "parentUuid": "e348df29_51342432",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 172,
+        "endChar": 57
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "801ff713_b13a087f",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-28T11:19:45Z",
+      "side": 1,
+      "message": "Looking at the current usage of docker.Run, I think we could add --rm by default and change --volume to --mount.  I don\u0027t know the utility of --name when running on CI, but I\u0027m not opposed to adding it, either explicitly or by adding a variadic parameter for any extra flags.",
+      "parentUuid": "e819948e_3bbc8646",
       "range": {
         "startLine": 172,
         "startChar": 0,
