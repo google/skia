@@ -16,6 +16,23 @@
       "revId": "379cecde7487300b8c1c43be8764b4e3c5f5a13d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9efcb4e_bb0c85e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2020-09-28T20:54:41Z",
+      "side": 1,
+      "message": "Thanks, like this approach to the typescript docs",
+      "revId": "379cecde7487300b8c1c43be8764b4e3c5f5a13d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
