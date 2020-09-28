@@ -1108,6 +1108,7 @@ DEF_TEST(GrClipStack_DeviceRRect, r) {
 DEF_TEST(GrClipStack_ScaleTranslate, r) {
     SkMatrix lm = SkMatrix::Scale(2.f, 4.f);
     lm.postTranslate(15.5f, 14.3f);
+    SkASSERT(lm.preservesAxisAlignment() && lm.isScaleTranslate());
 
     // Rect -> matrix is applied up front
     SkRect rect = {0.f, 0.f, 10.f, 10.f};
@@ -1133,6 +1134,43 @@ DEF_TEST(GrClipStack_ScaleTranslate, r) {
 
     // Path -> matrix is NOT applied
     run_test_case(r, TestCase::Build("st+path", kDeviceBounds)
+                              .actual().intersect().localToDevice(lm).path(make_octagon(rect))
+                                       .finishElements()
+                              .expectActual()
+                              .state(GrClipStack::ClipState::kComplex)
+                              .finishTest());
+}
+
+// Tests that rect-stays-rect matrices that are not scale+translate matrices are pre-applied.
+DEF_TEST(GrClipStack_PreserveAxisAlignment, r) {
+    SkMatrix lm = SkMatrix::RotateDeg(90.f);
+    lm.postTranslate(15.5f, 14.3f);
+    SkASSERT(lm.preservesAxisAlignment() && !lm.isScaleTranslate());
+
+    // Rect -> matrix is applied up front
+    SkRect rect = {0.f, 0.f, 10.f, 10.f};
+    run_test_case(r, TestCase::Build("r90+rect", kDeviceBounds)
+                              .actual().rect(rect, lm, GrAA::kYes, SkClipOp::kIntersect)
+                                       .finishElements()
+                              .expect().rect(lm.mapRect(rect), GrAA::kYes, SkClipOp::kIntersect)
+                                       .finishElements()
+                              .state(GrClipStack::ClipState::kDeviceRect)
+                              .finishTest());
+
+    // RRect -> matrix is applied up front
+    SkRRect localRRect = SkRRect::MakeRectXY(rect, 2.f, 2.f);
+    SkRRect deviceRRect;
+    SkAssertResult(localRRect.transform(lm, &deviceRRect));
+    run_test_case(r, TestCase::Build("r90+rrect", kDeviceBounds)
+                              .actual().rrect(localRRect, lm, GrAA::kYes, SkClipOp::kIntersect)
+                                       .finishElements()
+                              .expect().rrect(deviceRRect, GrAA::kYes, SkClipOp::kIntersect)
+                                       .finishElements()
+                              .state(GrClipStack::ClipState::kDeviceRRect)
+                              .finishTest());
+
+    // Path -> matrix is NOT applied
+    run_test_case(r, TestCase::Build("r90+path", kDeviceBounds)
                               .actual().intersect().localToDevice(lm).path(make_octagon(rect))
                                        .finishElements()
                               .expectActual()
