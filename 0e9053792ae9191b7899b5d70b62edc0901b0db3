@@ -16,6 +16,24 @@
       "revId": "0e9053792ae9191b7899b5d70b62edc0901b0db3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20236227_86a87780",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-28T15:17:54Z",
+      "side": 1,
+      "message": "This is specifically designed for accumulating the bounding box for the GPU op merging operations and for final device clipping. Instruments shows these to operations as large uses of CPU. For wrapping, I\u0027m working on a system that manages device coordinates for individual glyphs much more tightly.",
+      "parentUuid": "25e821af_29fb14cb",
+      "revId": "0e9053792ae9191b7899b5d70b62edc0901b0db3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
