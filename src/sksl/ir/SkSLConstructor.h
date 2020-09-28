@@ -26,18 +26,28 @@ namespace SkSL {
  * collection of vectors and scalars totalling exactly the right number of scalar components.
  */
 struct Constructor : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kConstructor;
 
     Constructor(int offset, const Type* type, std::vector<std::unique_ptr<Expression>> arguments)
-            : INHERITED(offset, kExpressionKind, type)
-            , fArguments(std::move(arguments)) {}
+            : INHERITED(offset, kExpressionKind, type) {
+        fExpressionChildren = std::move(arguments);
+    }
+
+    std::vector<std::unique_ptr<Expression>>& arguments() {
+        return fExpressionChildren;
+    }
+
+    const std::vector<std::unique_ptr<Expression>>& arguments() const {
+        return fExpressionChildren;
+    }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override {
-        if (fArguments.size() == 1 && fArguments[0]->is<IntLiteral>()) {
+        if (this->arguments().size() == 1 && this->arguments()[0]->is<IntLiteral>()) {
             const Context& context = irGenerator.fContext;
             const Type& type = this->type();
-            int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
+            int64_t intValue = this->arguments()[0]->as<IntLiteral>().fValue;
 
             if (type.isFloat()) {
                 // promote float(1) to 1.0
@@ -54,7 +64,7 @@ struct Constructor : public Expression {
     }
 
     bool hasProperty(Property property) const override {
-        for (const std::unique_ptr<Expression>& arg: fArguments) {
+        for (const std::unique_ptr<Expression>& arg: this->arguments()) {
             if (arg->hasProperty(property)) {
                 return true;
             }
@@ -64,8 +74,8 @@ struct Constructor : public Expression {
 
     std::unique_ptr<Expression> clone() const override {
         std::vector<std::unique_ptr<Expression>> cloned;
-        cloned.reserve(fArguments.size());
-        for (const std::unique_ptr<Expression>& arg: fArguments) {
+        cloned.reserve(this->arguments().size());
+        for (const std::unique_ptr<Expression>& arg: this->arguments()) {
             cloned.push_back(arg->clone());
         }
         return std::make_unique<Constructor>(fOffset, &this->type(), std::move(cloned));
@@ -74,7 +84,7 @@ struct Constructor : public Expression {
     String description() const override {
         String result = this->type().description() + "(";
         const char* separator = "";
-        for (const std::unique_ptr<Expression>& arg: fArguments) {
+        for (const std::unique_ptr<Expression>& arg: this->arguments()) {
             result += separator;
             result += arg->description();
             separator = ", ";
@@ -84,7 +94,7 @@ struct Constructor : public Expression {
     }
 
     bool isCompileTimeConstant() const override {
-        for (const std::unique_ptr<Expression>& arg: fArguments) {
+        for (const std::unique_ptr<Expression>& arg: this->arguments()) {
             if (!arg->isCompileTimeConstant()) {
                 return false;
             }
@@ -93,7 +103,7 @@ struct Constructor : public Expression {
     }
 
     bool isConstantOrUniform() const override {
-        for (const std::unique_ptr<Expression>& arg: fArguments) {
+        for (const std::unique_ptr<Expression>& arg: this->arguments()) {
             if (!arg->isConstantOrUniform()) {
                 return false;
             }
@@ -137,19 +147,19 @@ struct Constructor : public Expression {
     template <typename type>
     type getVecComponent(int index) const {
         SkASSERT(this->type().typeKind() == Type::TypeKind::kVector);
-        if (fArguments.size() == 1 &&
-            fArguments[0]->type().typeKind() == Type::TypeKind::kScalar) {
+        if (this->arguments().size() == 1 &&
+            this->arguments()[0]->type().typeKind() == Type::TypeKind::kScalar) {
             // This constructor just wraps a scalar. Propagate out the value.
             if (std::is_floating_point<type>::value) {
-                return fArguments[0]->getConstantFloat();
+                return this->arguments()[0]->getConstantFloat();
             } else {
-                return fArguments[0]->getConstantInt();
+                return this->arguments()[0]->getConstantInt();
             }
         }
 
         // Walk through all the constructor arguments until we reach the index we're searching for.
         int current = 0;
-        for (const std::unique_ptr<Expression>& arg : fArguments) {
+        for (const std::unique_ptr<Expression>& arg : this->arguments()) {
             if (current > index) {
                 // Somehow, we went past the argument we're looking for. Bail.
                 break;
@@ -235,22 +245,22 @@ struct Constructor : public Expression {
         SkASSERT(this->isCompileTimeConstant());
         SkASSERT(myType.typeKind() == Type::TypeKind::kMatrix);
         SkASSERT(col < myType.columns() && row < myType.rows());
-        if (fArguments.size() == 1) {
-            const Type& argType = fArguments[0]->type();
+        if (this->arguments().size() == 1) {
+            const Type& argType = this->arguments()[0]->type();
             if (argType.typeKind() == Type::TypeKind::kScalar) {
                 // single scalar argument, so matrix is of the form:
                 // x 0 0
                 // 0 x 0
                 // 0 0 x
                 // return x if col == row
-                return col == row ? fArguments[0]->getConstantFloat() : 0.0;
+                return col == row ? this->arguments()[0]->getConstantFloat() : 0.0;
             }
             if (argType.typeKind() == Type::TypeKind::kMatrix) {
-                SkASSERT(fArguments[0]->kind() == Expression::Kind::kConstructor);
+                SkASSERT(this->arguments()[0]->kind() == Expression::Kind::kConstructor);
                 // single matrix argument. make sure we're within the argument's bounds.
                 if (col < argType.columns() && row < argType.rows()) {
                     // within bounds, defer to argument
-                    return ((Constructor&) *fArguments[0]).getMatComponent(col, row);
+                    return ((Constructor&) *this->arguments()[0]).getMatComponent(col, row);
                 }
                 // out of bounds
                 return 0.0;
@@ -258,7 +268,7 @@ struct Constructor : public Expression {
         }
         int currentIndex = 0;
         int targetIndex = col * this->type().rows() + row;
-        for (const auto& arg : fArguments) {
+        for (const auto& arg : this->arguments()) {
             const Type& argType = arg->type();
             SkASSERT(targetIndex >= currentIndex);
             SkASSERT(argType.rows() == 1);
@@ -274,8 +284,7 @@ struct Constructor : public Expression {
         ABORT("can't happen, matrix component out of bounds");
     }
 
-    std::vector<std::unique_ptr<Expression>> fArguments;
-
+private:
     using INHERITED = Expression;
 };
 
