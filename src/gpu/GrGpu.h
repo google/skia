@@ -26,6 +26,7 @@ class GrDirectContext;
 class GrGpuBuffer;
 struct GrContextOptions;
 class GrGLContext;
+class GrMSAAAttachment;
 class GrPath;
 class GrPathRenderer;
 class GrPathRendererChain;
@@ -696,6 +697,12 @@ public:
     // the GrStencilAttachment.
     virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, SkISize dimensions, int numStencilSamples) = 0;
+
+    // Creates an MSAA surface to be used as an MSAA attachment on a framebuffer.
+    virtual sk_sp<GrMSAAAttachment> createMSAAAttachment(SkISize dimensions,
+                                                         const GrBackendFormat& format,
+                                                         int numSamples,
+                                                         GrProtected isProtected) = 0;
 
     void handleDirtyContext() {
         if (fResetBits) {

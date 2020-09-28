@@ -32,17 +32,16 @@ public:
     const GrManagedResource* imageResource() const { return this->resource(); }
     const GrVkImageView* stencilView() const { return fStencilView.get(); }
 
-protected:
+private:
     void onRelease() override;
     void onAbandon() override;
 
-private:
     size_t onGpuMemorySize() const override;
 
     GrVkStencilAttachment(GrVkGpu* gpu,
                           SkISize dimensions,
-                          const Format& format,
-                          const GrVkImage::ImageDesc&,
+                          int stencilBits,
+                          int sampleCnt,
                           const GrVkImageInfo&,
                           sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                           sk_sp<const GrVkImageView> stencilView);

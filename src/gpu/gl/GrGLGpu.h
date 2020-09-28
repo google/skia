@@ -133,6 +133,14 @@ public:
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) override;
+
+    sk_sp<GrMSAAAttachment> createMSAAAttachment(SkISize dimensions,
+                                                 const GrBackendFormat& format,
+                                                 int numSamples,
+                                                 GrProtected isProtected) override {
+        return nullptr;
+    }
+
     void deleteBackendTexture(const GrBackendTexture&) override;
 
     bool compile(const GrProgramDesc&, const GrProgramInfo&) override;
