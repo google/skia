@@ -16,6 +16,24 @@
       "revId": "89e66894d58128b6522a45e4e145065def815305",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50885c4e_514b16ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T14:29:28Z",
+      "side": 1,
+      "message": "Hmmmm... yes, those still look pretty iffy. Probably also want setSubpixel(true) and setHinting(slight) or something like that.",
+      "parentUuid": "b44b82e4_092664da",
+      "revId": "89e66894d58128b6522a45e4e145065def815305",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
