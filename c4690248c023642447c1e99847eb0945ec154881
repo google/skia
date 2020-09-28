@@ -70,6 +70,24 @@
       "revId": "c4690248c023642447c1e99847eb0945ec154881",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9253abac_a3170a29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-28T18:48:13Z",
+      "side": 1,
+      "message": "I need to figure out how to get per-task timing. (I thought GN had a tool to do that, but I think I have it mixed up with a clang driver). Anyway, from steady-state, if I touch IRGenerator.cpp and rebuild everything, I get ~145 targets built, and (on my Windows laptop) it takes right around 1 minute. (Slightly more for debug build, just a hair under for release).",
+      "parentUuid": "4850c609_e4f7d22e",
+      "revId": "c4690248c023642447c1e99847eb0945ec154881",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
