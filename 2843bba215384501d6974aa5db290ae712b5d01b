@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9c4c63b3_b89d6ce5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-28T21:52:40Z",
+      "side": 1,
+      "message": "Oh boy I wouldn\u0027t trust this.  If you\u0027re making a change to improve security in Android, you really want to put Skia on the untrusted secure-me-please side of any fence you set up if you can.\n\nIf Skia is making any large allocations that aren\u0027t already being zeroed, I\u0027d prefer to switch them to be explicitly zeroed, independent of whether we\u0027re running on Android.",
+      "range": {
+        "startLine": 12,
+        "startChar": 41,
+        "endLine": 14,
+        "endChar": 0
+      },
+      "revId": "2843bba215384501d6974aa5db290ae712b5d01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "555ee473_f3628624",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-09-28T21:52:40Z",
+      "side": 1,
+      "message": "Why don\u0027t we just take the perf hit?",
+      "revId": "2843bba215384501d6974aa5db290ae712b5d01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
