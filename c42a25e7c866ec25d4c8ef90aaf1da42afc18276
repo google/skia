@@ -89,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "f4e81ea0_840d36c0",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-28T20:01:42Z",
+      "side": 1,
+      "message": "Does `\u003d default` map back to `\u003d delete` in that case...?",
+      "parentUuid": "1186b12a_db41d6d5",
+      "range": {
+        "startLine": 106,
+        "startChar": 11,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "c42a25e7c866ec25d4c8ef90aaf1da42afc18276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ea8a53fe_4c5c4f90",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 2
