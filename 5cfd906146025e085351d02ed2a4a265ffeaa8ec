@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca02b87e_72f1238d",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T17:47:03Z",
+      "side": 1,
+      "message": "can we remove this one, and rename Color4f to just Color?\n\nIf we really want an int constructor, how about just one that takes an int:\n\nARGB32(n: number) : SkColor;\n\nSo folks can pass 0xFF00FF00 and such.\n\nAlternatively, if we reall need SkColorInt, how about a constructor that just takes that as its parameter.",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 63
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22a5665b_511adf07",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T17:47:03Z",
+      "side": 1,
+      "message": "where is this used? paint? gradients? (just curious, not looking for dox about usage here)",
+      "range": {
+        "startLine": 40,
+        "startChar": 61,
+        "endLine": 40,
+        "endChar": 71
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "531f8f25_1c1748b0",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T17:47:03Z",
+      "side": 1,
+      "message": "Do we also expose the mega constructor, that takes 8 values for the radii? (just curious)",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 11
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f483db3a_3878bae3",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T17:47:03Z",
+      "side": 1,
+      "message": "Need to state somewhere (perhaps several places) -- SkColor (and SkColorInt if we keep that) is treated as sRGB",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 19
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08f9b45d_18ee6e5c",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T17:47:03Z",
+      "side": 1,
+      "message": "ints",
+      "range": {
+        "startLine": 182,
+        "startChar": 54,
+        "endLine": 182,
+        "endChar": 60
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b8c7f02_4cd7d161",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-09-28T17:47:03Z",
+      "side": 1,
+      "message": "can we remove this?",
+      "range": {
+        "startLine": 192,
+        "startChar": 12,
+        "endLine": 192,
+        "endChar": 22
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
