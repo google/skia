@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3cfbc180_add86ded",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-28T17:29:18Z",
+      "side": 1,
+      "message": "Nice. Note that this fix can probably go away once I finish my \"don\u0027t inherit program elements, everything is cloned\" work.",
+      "revId": "75b8de1f1de9b33992454c1264c44a975aef4ce5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
