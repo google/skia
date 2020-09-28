@@ -1,42 +1,38 @@
 
 out vec4 sk_FragColor;
 in vec4 src, dst;
-float _blend_overlay_component(vec2 s, vec2 d) {
-    return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
-}
-vec4 blend_overlay(vec4 src, vec4 dst) {
-    float _1_blend_overlay_component;
-    vec2 _2_s = src.xw;
-    vec2 _3_d = dst.xw;
-    {
-        _1_blend_overlay_component = 2.0 * _3_d.x <= _3_d.y ? (2.0 * _2_s.x) * _3_d.x : _2_s.y * _3_d.y - (2.0 * (_3_d.y - _3_d.x)) * (_2_s.y - _2_s.x);
-    }
-    float _4_blend_overlay_component;
-    vec2 _5_s = src.yw;
-    vec2 _6_d = dst.yw;
-    {
-        _4_blend_overlay_component = 2.0 * _6_d.x <= _6_d.y ? (2.0 * _5_s.x) * _6_d.x : _5_s.y * _6_d.y - (2.0 * (_6_d.y - _6_d.x)) * (_5_s.y - _5_s.x);
-    }
-    float _7_blend_overlay_component;
-    vec2 _8_s = src.zw;
-    vec2 _9_d = dst.zw;
-    {
-        _7_blend_overlay_component = 2.0 * _9_d.x <= _9_d.y ? (2.0 * _8_s.x) * _9_d.x : _8_s.y * _9_d.y - (2.0 * (_9_d.y - _9_d.x)) * (_8_s.y - _8_s.x);
-    }
-    vec4 result = vec4(_1_blend_overlay_component, _4_blend_overlay_component, _7_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
-
-
-
-    result.xyz += dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
-    return result;
-}
-vec4 blend_hard_light(vec4 src, vec4 dst) {
-    return blend_overlay(dst, src);
-}
 void main() {
     vec4 _0_blend_hard_light;
     {
-        _0_blend_hard_light = blend_overlay(dst, src);
+        vec4 _7_blend_overlay;
+        {
+            float _9_blend_overlay_component;
+            vec2 _10_s = dst.xw;
+            vec2 _11_d = src.xw;
+            {
+                _9_blend_overlay_component = 2.0 * _11_d.x <= _11_d.y ? (2.0 * _10_s.x) * _11_d.x : _10_s.y * _11_d.y - (2.0 * (_11_d.y - _11_d.x)) * (_10_s.y - _10_s.x);
+            }
+            float _12_blend_overlay_component;
+            vec2 _13_s = dst.yw;
+            vec2 _14_d = src.yw;
+            {
+                _12_blend_overlay_component = 2.0 * _14_d.x <= _14_d.y ? (2.0 * _13_s.x) * _14_d.x : _13_s.y * _14_d.y - (2.0 * (_14_d.y - _14_d.x)) * (_13_s.y - _13_s.x);
+            }
+            float _15_blend_overlay_component;
+            vec2 _16_s = dst.zw;
+            vec2 _17_d = src.zw;
+            {
+                _15_blend_overlay_component = 2.0 * _17_d.x <= _17_d.y ? (2.0 * _16_s.x) * _17_d.x : _16_s.y * _17_d.y - (2.0 * (_17_d.y - _17_d.x)) * (_16_s.y - _16_s.x);
+            }
+            vec4 _8_result = vec4(_9_blend_overlay_component, _12_blend_overlay_component, _15_blend_overlay_component, dst.w + (1.0 - dst.w) * src.w);
+
+
+
+            _8_result.xyz += src.xyz * (1.0 - dst.w) + dst.xyz * (1.0 - src.w);
+            _7_blend_overlay = _8_result;
+        }
+        _0_blend_hard_light = _7_blend_overlay;
+
     }
 
     sk_FragColor = _0_blend_hard_light;

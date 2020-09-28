@@ -8,44 +8,40 @@ struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
 
-float _blend_overlay_component(float2 s, float2 d) {
-    return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
-}
-float4 blend_overlay(float4 src, float4 dst) {
-    float _1_blend_overlay_component;
-    float2 _2_s = src.xw;
-    float2 _3_d = dst.xw;
-    {
-        _1_blend_overlay_component = 2.0 * _3_d.x <= _3_d.y ? (2.0 * _2_s.x) * _3_d.x : _2_s.y * _3_d.y - (2.0 * (_3_d.y - _3_d.x)) * (_2_s.y - _2_s.x);
-    }
-    float _4_blend_overlay_component;
-    float2 _5_s = src.yw;
-    float2 _6_d = dst.yw;
-    {
-        _4_blend_overlay_component = 2.0 * _6_d.x <= _6_d.y ? (2.0 * _5_s.x) * _6_d.x : _5_s.y * _6_d.y - (2.0 * (_6_d.y - _6_d.x)) * (_5_s.y - _5_s.x);
-    }
-    float _7_blend_overlay_component;
-    float2 _8_s = src.zw;
-    float2 _9_d = dst.zw;
-    {
-        _7_blend_overlay_component = 2.0 * _9_d.x <= _9_d.y ? (2.0 * _8_s.x) * _9_d.x : _8_s.y * _9_d.y - (2.0 * (_9_d.y - _9_d.x)) * (_8_s.y - _8_s.x);
-    }
-    float4 result = float4(_1_blend_overlay_component, _4_blend_overlay_component, _7_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
-
-
-
-    result.xyz = result.xyz + dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
-    return result;
-}
-float4 blend_hard_light(float4 src, float4 dst) {
-    return blend_overlay(dst, src);
-}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float4 _0_blend_hard_light;
     {
-        _0_blend_hard_light = blend_overlay(_in.dst, _in.src);
+        float4 _7_blend_overlay;
+        {
+            float _9_blend_overlay_component;
+            float2 _10_s = _in.dst.xw;
+            float2 _11_d = _in.src.xw;
+            {
+                _9_blend_overlay_component = 2.0 * _11_d.x <= _11_d.y ? (2.0 * _10_s.x) * _11_d.x : _10_s.y * _11_d.y - (2.0 * (_11_d.y - _11_d.x)) * (_10_s.y - _10_s.x);
+            }
+            float _12_blend_overlay_component;
+            float2 _13_s = _in.dst.yw;
+            float2 _14_d = _in.src.yw;
+            {
+                _12_blend_overlay_component = 2.0 * _14_d.x <= _14_d.y ? (2.0 * _13_s.x) * _14_d.x : _13_s.y * _14_d.y - (2.0 * (_14_d.y - _14_d.x)) * (_13_s.y - _13_s.x);
+            }
+            float _15_blend_overlay_component;
+            float2 _16_s = _in.dst.zw;
+            float2 _17_d = _in.src.zw;
+            {
+                _15_blend_overlay_component = 2.0 * _17_d.x <= _17_d.y ? (2.0 * _16_s.x) * _17_d.x : _16_s.y * _17_d.y - (2.0 * (_17_d.y - _17_d.x)) * (_16_s.y - _16_s.x);
+            }
+            float4 _8_result = float4(_9_blend_overlay_component, _12_blend_overlay_component, _15_blend_overlay_component, _in.dst.w + (1.0 - _in.dst.w) * _in.src.w);
+
+
+
+            _8_result.xyz = _8_result.xyz + _in.src.xyz * (1.0 - _in.dst.w) + _in.dst.xyz * (1.0 - _in.src.w);
+            _7_blend_overlay = _8_result;
+        }
+        _0_blend_hard_light = _7_blend_overlay;
+
     }
 
     _out->sk_FragColor = _0_blend_hard_light;
