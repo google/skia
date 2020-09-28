@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b4eab31_6118d18e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-28T15:03:39Z",
+      "side": 1,
+      "message": "Wanna file a bug to investigate the failing skp?",
+      "revId": "f83f4c63fdef66fe7396d206e24844b55e72ab57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
