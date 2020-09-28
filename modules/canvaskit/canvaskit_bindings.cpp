@@ -1197,6 +1197,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("isClosed", &SkContourMeasure::isClosed)
         .function("length", &SkContourMeasure::length);
 
+    // TODO(kjlubick) Don't expose SkData - just expose ways to get the bytes.
     class_<SkData>("SkData")
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
         .function("size", &SkData::size);

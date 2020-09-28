@@ -30,7 +30,7 @@
     }
 
     // Note that color spaces are currently not supported in CPU surfaces. due to the limitation
-    // canvas.getContext('2d').putImageData imposes a limitatin of using an RGBA_8888 color type.
+    // canvas.getContext('2d').putImageData imposes a limitation of using an RGBA_8888 color type.
     // TODO(nifong): support WGC color spaces while still using an RGBA_8888 color type when
     // on a cpu backend.
     CanvasKit.MakeSurface = function(width, height) {
@@ -84,7 +84,8 @@
       }
     };
 
-    // Call dispose() instead of delete to clean up the underlying memory
+    // Call dispose() instead of delete to clean up the underlying memory.
+    // TODO(kjlubick) get rid of this and just wrap around delete().
     CanvasKit.SkSurface.prototype.dispose = function() {
       if (this._pixelPtr) {
         CanvasKit._free(this._pixelPtr);

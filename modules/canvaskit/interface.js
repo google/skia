@@ -1269,6 +1269,8 @@ CanvasKit.onRuntimeInitialized = function() {
     return this._beginRecording(bPtr);
   }
 
+  // TODO(kjlubick) This probably does not need to be on SkSurface, given it only uses the
+  //   width/height.
   CanvasKit.SkSurface.prototype.captureFrameAsSkPicture = function(drawFrame) {
     // Set up SkPictureRecorder
     var spr = new CanvasKit.SkPictureRecorder();
@@ -1277,7 +1279,7 @@ CanvasKit.onRuntimeInitialized = function() {
     drawFrame(canvas);
     var pic = spr.finishRecordingAsPicture();
     spr.delete();
-    // TODO: do we need to clean up the memory for canvas?
+    // TODO(kjlubick): do we need to clean up the memory for canvas?
     // If we delete it here, saveAsFile doesn't work correctly.
     return pic;
   }
