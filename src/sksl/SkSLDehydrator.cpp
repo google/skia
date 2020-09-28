@@ -298,7 +298,7 @@ void Dehydrator::write(const Expression* e) {
                 const FloatLiteral& f = e->as<FloatLiteral>();
                 this->writeU8(Rehydrator::kFloatLiteral_Command);
                 FloatIntUnion u;
-                u.fFloat = f.fValue;
+                u.fFloat = f.value();
                 this->writeS32(u.fInt);
                 break;
             }
@@ -323,7 +323,7 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kIntLiteral: {
                 const IntLiteral& i = e->as<IntLiteral>();
                 this->writeU8(Rehydrator::kIntLiteral_Command);
-                this->writeS32(i.fValue);
+                this->writeS32(i.value());
                 break;
             }
             case Expression::Kind::kNullLiteral:
@@ -517,7 +517,7 @@ void Dehydrator::write(const ProgramElement& e) {
                 Variable& v = (Variable&) *s;
                 SkASSERT(v.fInitialValue);
                 const IntLiteral& i = v.fInitialValue->as<IntLiteral>();
-                this->writeS32(i.fValue);
+                this->writeS32(i.value());
             }
             break;
         }

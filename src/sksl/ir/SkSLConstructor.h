@@ -37,7 +37,7 @@ struct Constructor : public Expression {
         if (fArguments.size() == 1 && fArguments[0]->is<IntLiteral>()) {
             const Context& context = irGenerator.fContext;
             const Type& type = this->type();
-            int64_t intValue = fArguments[0]->as<IntLiteral>().fValue;
+            int64_t intValue = fArguments[0]->as<IntLiteral>().value();
 
             if (type.isFloat()) {
                 // promote float(1) to 1.0

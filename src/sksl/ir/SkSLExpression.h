@@ -56,7 +56,15 @@ struct Expression : public IRNode {
         kContainsRTAdjust
     };
 
-    Expression(int offset, Kind kind, BoolLiteralData data)
+    Expression(int offset, const BoolLiteralData& data)
+        : INHERITED(offset, (int) Kind::kBoolLiteral, data) {
+    }
+
+    Expression(int offset, const IntLiteralData& data)
+        : INHERITED(offset, (int) Kind::kIntLiteral, data) {
+    }
+
+    Expression(int offset, Kind kind, FloatLiteralData data)
         : INHERITED(offset, (int) kind, data) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
@@ -66,11 +74,10 @@ struct Expression : public IRNode {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
-    Expression(int offset, Kind kind, TypeTokenData data)
+    Expression(int offset, Kind kind, const TypeTokenData& data)
         : INHERITED(offset, (int) kind, data) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
-
 
     Kind kind() const {
         return (Kind) fKind;
