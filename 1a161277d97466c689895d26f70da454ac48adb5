@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9708abbd_d0847414",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-28T16:21:42Z",
+      "side": 1,
+      "message": "This should fix the chrome crash in the linked bug. The initial GrClipStack code I wrote had assumed that if a matrix was scale+translate, the transform() would always succeed. But under some numeric conditions, the transformed rrect will return false from AreRectAndRadiiValid, so transform() will return false.",
+      "revId": "1a161277d97466c689895d26f70da454ac48adb5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
