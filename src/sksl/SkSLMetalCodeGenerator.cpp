@@ -912,14 +912,14 @@ void MetalCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 
 void MetalCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     if (i.type() == *fContext.fUInt_Type) {
-        this->write(to_string(i.fValue & 0xffffffff) + "u");
+        this->write(to_string(i.value() & 0xffffffff) + "u");
     } else {
-        this->write(to_string((int32_t) i.fValue));
+        this->write(to_string((int32_t) i.value()));
     }
 }
 
 void MetalCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    this->write(to_string(f.fValue));
+    this->write(to_string(f.value()));
 }
 
 void MetalCodeGenerator::writeSetting(const Setting& s) {

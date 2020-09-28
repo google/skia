@@ -661,10 +661,10 @@ template <typename T = double>
 static bool is_constant(const Expression& expr, T value) {
     switch (expr.kind()) {
         case Expression::Kind::kIntLiteral:
-            return expr.as<IntLiteral>().fValue == value;
+            return expr.as<IntLiteral>().value() == value;
 
         case Expression::Kind::kFloatLiteral:
-            return expr.as<FloatLiteral>().fValue == value;
+            return expr.as<FloatLiteral>().value() == value;
 
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expr.as<Constructor>();
