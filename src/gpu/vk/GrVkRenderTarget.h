@@ -40,7 +40,7 @@ public:
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
 
     const GrVkFramebuffer* getFramebuffer(bool withStencil, SelfDependencyFlags);
-    const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView; }
+    const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView.get(); }
     const GrManagedResource* msaaImageResource() const {
         if (fMSAAImage) {
             return fMSAAImage->fResource;
@@ -48,7 +48,7 @@ public:
         return nullptr;
     }
     GrVkImage* msaaImage() { return fMSAAImage.get(); }
-    const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView; }
+    const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView.get(); }
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
 
@@ -102,15 +102,15 @@ protected:
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      const GrVkImageInfo& msaaInfo,
                      sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
-                     const GrVkImageView* colorAttachmentView,
-                     const GrVkImageView* resolveAttachmentView,
+                     sk_sp<const GrVkImageView> colorAttachmentView,
+                     sk_sp<const GrVkImageView> resolveAttachmentView,
                      GrBackendObjectOwnership);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
                      const GrVkImageInfo& info,
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     const GrVkImageView* colorAttachmentView,
+                     sk_sp<const GrVkImageView> colorAttachmentView,
                      GrBackendObjectOwnership);
 
     void onAbandon() override;
@@ -136,14 +136,14 @@ private:
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      const GrVkImageInfo& msaaInfo,
                      sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
-                     const GrVkImageView* colorAttachmentView,
-                     const GrVkImageView* resolveAttachmentView);
+                     sk_sp<const GrVkImageView> colorAttachmentView,
+                     sk_sp<const GrVkImageView> resolveAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
                      const GrVkImageInfo& info,
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     const GrVkImageView* colorAttachmentView);
+                     sk_sp < const GrVkImageView> colorAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,
@@ -170,9 +170,9 @@ private:
 
     void releaseInternalObjects();
 
-    const GrVkImageView*       fColorAttachmentView;
+    sk_sp<const GrVkImageView> fColorAttachmentView;
     std::unique_ptr<GrVkImage> fMSAAImage;
-    const GrVkImageView*       fResolveAttachmentView;
+    sk_sp<const GrVkImageView> fResolveAttachmentView;
 
     // We can have a renderpass with and without stencil, input attachment dependency, and advanced
     // blend dependency. All three being completely orthogonal. Thus we have a total of 8 types of
