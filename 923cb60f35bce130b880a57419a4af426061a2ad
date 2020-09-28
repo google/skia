@@ -16,6 +16,24 @@
       "revId": "923cb60f35bce130b880a57419a4af426061a2ad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "278417a4_1d1a936d",
+        "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1443,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-09-28T19:51:37Z",
+      "side": 1,
+      "message": "Right. I didn\u0027t remove this method only because I suspect it\u0027s in use somewhere in google3.",
+      "parentUuid": "04e17838_14369d0e",
+      "revId": "923cb60f35bce130b880a57419a4af426061a2ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
