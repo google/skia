@@ -852,32 +852,43 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
 #endif
 
 #ifdef SK_VULKAN
+static GrVkImageInfo resolve_vkii_sample_count(const GrVkImageInfo& vkII, int sidebandSampleCnt) {
+    auto result = vkII;
+    result.fSampleCount = std::max({vkII.fSampleCount,
+                                    static_cast<uint32_t>(sidebandSampleCnt),
+                                    1U});
+    return result;
+}
+
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
                                              const GrVkImageInfo& vkInfo)
-        : GrBackendRenderTarget(width, height, sampleCnt, vkInfo,
+        : GrBackendRenderTarget(width, height, resolve_vkii_sample_count(vkInfo, sampleCnt)) {}
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width,
+                                             int height,
+                                             const GrVkImageInfo& vkInfo)
+        : GrBackendRenderTarget(width, height, vkInfo,
                                 sk_sp<GrBackendSurfaceMutableStateImpl>(
                                         new GrBackendSurfaceMutableStateImpl(
-                                               vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily))) {}
+                                                vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily))) {}
 
 static const VkImageUsageFlags kDefaultRTUsageFlags =
         kDefaultUsageFlags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
-                                             int sampleCnt,
                                              const GrVkImageInfo& vkInfo,
                                              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fSampleCnt(std::max(1, sampleCnt))
+        , fSampleCnt(std::max(1U, vkInfo.fSampleCount))
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
         , fBackend(GrBackendApi::kVulkan)
         , fVkInfo(apply_default_usage_flags(vkInfo, kDefaultRTUsageFlags))
-        , fMutableState(mutableState) {
-}
+        , fMutableState(mutableState) {}
 #endif
 
 #ifdef SK_METAL
