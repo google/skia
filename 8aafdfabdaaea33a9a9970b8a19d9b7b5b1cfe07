@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de8ac0cb_b10c9b12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-28T17:48:16Z",
+      "side": 1,
+      "message": "It seems the Android-Canary and Flutter-Canary had other builder issues. I don\u0027t think they should be affected by this particular change though. Outside of our tests, this will mostly affect fake-bold when requesting subpixel rendering on a surface where the subpixel geometry is not known.",
+      "revId": "8aafdfabdaaea33a9a9970b8a19d9b7b5b1cfe07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
