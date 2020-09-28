@@ -66,6 +66,30 @@
     },
     {
       "key": {
+        "uuid": "ab37471c_28b5a0c9",
+        "filename": "gm/lcdoverlap.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-28T16:19:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f85f1fc9_cf82b991",
+      "range": {
+        "startLine": 75,
+        "startChar": 65,
+        "endLine": 75,
+        "endChar": 66
+      },
+      "revId": "262742fe668b244232a77876769ad043f9846e56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f3e67bd_371f20e8",
         "filename": "gm/variedtext.cpp",
         "patchSetId": 1
@@ -80,6 +104,24 @@
       "revId": "262742fe668b244232a77876769ad043f9846e56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d04a8cb_723c6694",
+        "filename": "gm/variedtext.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-28T16:19:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5f3e67bd_371f20e8",
+      "revId": "262742fe668b244232a77876769ad043f9846e56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
