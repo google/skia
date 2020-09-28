@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6920b835_ea1a1f19",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-28T17:25:07Z",
+      "side": 1,
+      "message": "I realized it always could have been preservesAxisAlignment/rectStaysRect vs. scaleTranslate, but I\u0027ve been thinking about image filters too much (and they want scaleTranslate only) 😊",
+      "revId": "e8aac50ba53f10e3e776d29c194f4ea5e8bdd3af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
