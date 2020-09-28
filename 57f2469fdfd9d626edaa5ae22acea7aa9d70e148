@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3062016e_0963bde0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-28T20:49:11Z",
+      "side": 1,
+      "message": "If this is the right direction I will follow up with a similar change for D3D. For Metal I think the only API change is to remove the sample count param to GrBackendRenderTarget. The sample count is already queryable from the MtlTexture.",
+      "revId": "57f2469fdfd9d626edaa5ae22acea7aa9d70e148",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
