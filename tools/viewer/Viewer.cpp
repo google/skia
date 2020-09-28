@@ -1530,6 +1530,8 @@ void Viewer::onPaint(SkSurface* surface) {
 
     this->drawImGui();
 
+    fLastImage.reset();
+
     if (auto direct = fWindow->directContext()) {
         // Clean out cache items that haven't been used in more than 10 seconds.
         direct->performDeferredCleanup(std::chrono::seconds(10));
