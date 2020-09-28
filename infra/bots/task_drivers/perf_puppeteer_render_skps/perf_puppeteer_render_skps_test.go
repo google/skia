@@ -84,8 +84,42 @@ func TestBenchSKPs_CPUHasNoUseGPUFlag(t *testing.T) {
 			"--bench_html", "render-skp.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--timeout", "90",
 			"--input_skp", filepath.Join(skps, "first_skp"),
 			"--output", "/fake/path/to/perf-puppeteer/out/first_skp.json"}, cmd.Args)
+		return nil
+	})
+	require.Empty(t, res.Errors)
+	require.Empty(t, res.Exceptions)
+}
+
+func TestBenchSKPs_SkiplistIsUsed(t *testing.T) {
+	skps, err := ioutil.TempDir("", "skps")
+	require.NoError(t, err)
+	defer testutils.RemoveAll(t, skps)
+
+	require.NoError(t, ioutil.WriteFile(filepath.Join(skps, "desk_carsvg.skp"), []byte("doesnt matter"), 0777))
+
+	const fakeNodeBinPath = "/fake/path/to/node/bin"
+	const fakeCanvasKitPath = "/fake/path/to/canvaskit"
+	const fakeBenchmarkPath = "/fake/path/to/perf-puppeteer"
+
+	perfObj := perfJSONFormat{
+		Key: map[string]string{
+			perfKeyCpuOrGPU: "CPU",
+		},
+	}
+
+	res := td.RunTestSteps(t, false, func(ctx context.Context) error {
+		mock := exec.CommandCollector{}
+		ctx = td.WithExecRunFn(ctx, mock.Run)
+		err := benchSKPs(ctx, perfObj, fakeBenchmarkPath, fakeCanvasKitPath, skps, fakeNodeBinPath)
+		if err != nil {
+			assert.NoError(t, err)
+			return err
+		}
+		// Should be skipped
+		require.Len(t, mock.Commands(), 0)
 		return nil
 	})
 	require.Empty(t, res.Errors)
@@ -124,6 +158,7 @@ func TestBenchSKPs_GPUHasFlag(t *testing.T) {
 			"--bench_html", "render-skp.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--timeout", "90",
 			"--input_skp", filepath.Join(skps, "first_skp"),
 			"--output", "/fake/path/to/perf-puppeteer/out/first_skp.json",
 			"--use_gpu"}, cmd.Args)
@@ -166,6 +201,7 @@ func TestBenchSKPs_WebGL1(t *testing.T) {
 			"--bench_html", "render-skp.html",
 			"--canvaskit_js", "/fake/path/to/canvaskit/canvaskit.js",
 			"--canvaskit_wasm", "/fake/path/to/canvaskit/canvaskit.wasm",
+			"--timeout", "90",
 			"--input_skp", filepath.Join(skps, "first_skp"),
 			"--output", "/fake/path/to/perf-puppeteer/out/first_skp.json",
 			"--use_gpu",
