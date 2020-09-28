@@ -22,6 +22,7 @@ import (
 	"go.skia.org/infra/go/exec"
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/sklog"
+	"go.skia.org/infra/go/util"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
 )
@@ -150,6 +151,12 @@ func setup(ctx context.Context, benchmarkPath, nodeBinPath string) error {
 	return nil
 }
 
+var cpuSkiplist = []string{
+	// When the SKPs were generated on Sept 27 2020, this started to timeout on CPU
+	"desk_carsvg.skp",
+}
+var gpuSkiplist = []string{}
+
 // benchSKPs serves skps from a folder and runs the RenderSKPs benchmark on each of them
 // individually. The benchmark is run N times to reduce the noise of the resulting data.
 // The output for each will be a JSON file in $benchmarkPath/out/ corresponding to the skp name
@@ -175,11 +182,18 @@ func benchSKPs(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvaski
 	if err != nil {
 		return td.FailStep(ctx, skerr.Wrap(err))
 	}
-
+	skiplist := cpuSkiplist
+	if perf.Key[perfKeyCpuOrGPU] != "CPU" {
+		skiplist = gpuSkiplist
+	}
 	sklog.Infof("Identified %d skp files to benchmark", len(skpFiles))
 
 	for _, skp := range skpFiles {
 		name := filepath.Base(skp)
+		if util.In(name, skiplist) {
+			sklog.Infof("Skipping skp %s", name)
+			continue
+		}
 		err = td.Do(ctx, td.Props(fmt.Sprintf("Benchmark %s", name)), func(ctx context.Context) error {
 			// See comment in setup about why we specify the absolute path for node.
 			args := []string{filepath.Join(nodeBinPath, "node"),
@@ -187,6 +201,7 @@ func benchSKPs(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvaski
 				"--bench_html", "render-skp.html",
 				"--canvaskit_js", filepath.Join(canvaskitBinPath, "canvaskit.js"),
 				"--canvaskit_wasm", filepath.Join(canvaskitBinPath, "canvaskit.wasm"),
+				"--timeout", "90", // 90 seconds before timeout
 				"--input_skp", skp,
 				"--output", filepath.Join(benchmarkPath, "out", name+".json"),
 			}
