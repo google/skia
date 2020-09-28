@@ -122,9 +122,6 @@ public:
                                                   const SkScalerContextEffects& effects,
                                                   const SkTypeface& typeface) override;
 
-    static void AddGlyphForTesting(
-            RemoteStrike* strike, SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects);
-
     void setMaxEntriesInDescriptorMapForTesting(size_t count) {
         fMaxEntriesInDescriptorMap = count;
     }

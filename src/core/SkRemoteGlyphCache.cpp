@@ -571,13 +571,6 @@ SkScopedStrikeForGPU SkStrikeServer::findOrCreateScopedStrike(const SkDescriptor
     return SkScopedStrikeForGPU{this->getOrCreateCache(desc, typeface, effects)};
 }
 
-void SkStrikeServer::AddGlyphForTesting(
-        RemoteStrike* strike, SkDrawableGlyphBuffer* drawables, SkSourceGlyphBuffer* rejects) {
-    strike->prepareForMaskDrawing(drawables, rejects);
-    rejects->flipRejectsToSource();
-    SkASSERT(rejects->source().empty());
-}
-
 void SkStrikeServer::checkForDeletedEntries() {
     auto it = fDescToRemoteStrike.begin();
     while (fDescToRemoteStrike.size() > fMaxEntriesInDescriptorMap &&
