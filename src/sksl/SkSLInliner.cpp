@@ -219,6 +219,30 @@ static Statement* find_parent_statement(const std::vector<std::unique_ptr<Statem
     return nullptr;
 }
 
+std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
+                                                VariableReference::RefKind refKind) {
+    std::unique_ptr<Expression> clone = expr.clone();
+    class SetRefKindInExpression : public ProgramVisitor {
+    public:
+        SetRefKindInExpression(VariableReference::RefKind refKind) : fRefKind(refKind) {}
+        bool visitExpression(const Expression& expr) override {
+            if (expr.is<VariableReference>()) {
+                // TODO: create a const-savvy ProgramVisitor and remove const_cast
+                const_cast<VariableReference&>(expr.as<VariableReference>()).setRefKind(fRefKind);
+            }
+            return INHERITED::visitExpression(expr);
+        }
+
+    private:
+        VariableReference::RefKind fRefKind;
+
+        using INHERITED = ProgramVisitor;
+    };
+
+    SetRefKindInExpression{refKind}.visitExpression(*clone);
+    return clone;
+}
+
 }  // namespace
 
 void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) {
@@ -375,9 +399,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
-            auto found = varMap->find(v.fVariable);
-            if (found != varMap->end()) {
-                return std::make_unique<VariableReference>(offset, found->second, v.fRefKind);
+            auto varMapIter = varMap->find(v.fVariable);
+            if (varMapIter != varMap->end()) {
+                return clone_with_ref_kind(*varMapIter->second, v.fRefKind);
             }
             return v.clone();
         }
@@ -390,7 +414,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
 std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                     VariableRewriteMap* varMap,
                                                     SymbolTable* symbolTableForStatement,
-                                                    const VariableExpression& resultExpr,
+                                                    const Expression& resultExpr,
                                                     bool haveEarlyReturns,
                                                     const Statement& statement) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
@@ -461,7 +485,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                 auto assignment =
                         std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                                 offset,
-                                resultExpr.cloneWithRefKind(VariableReference::kWrite_RefKind),
+                                clone_with_ref_kind(resultExpr, VariableReference::kWrite_RefKind),
                                 Token::Kind::TK_EQ,
                                 expr(r.fExpression),
                                 &resultExpr.type()));
@@ -514,7 +538,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                typePtr,
                                                old->fStorage,
                                                initialValue.get()));
-            (*varMap)[old] = clone;
+            (*varMap)[old] = std::make_unique<VariableReference>(offset, clone);
             return std::make_unique<VarDeclaration>(clone, std::move(sizes),
                                                     std::move(initialValue));
         }
@@ -569,15 +593,14 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     inlinedBody.children().reserve(1 +                // Inline marker
                                    1 +                // Result variable
                                    arguments.size() + // Function arguments (passing in)
-                                   arguments.size() + // Function arguments (copy out-parameters
-                                                      // back)
-                                   1);                // Inlined code (either as a Block or do-while
-                                                      // loop)
+                                   arguments.size() + // Function arguments (copy out-params back)
+                                   1);                // Inlined code (Block or do-while loop)
 
     inlinedBody.children().push_back(std::make_unique<InlineMarker>(call->fFunction));
 
-    auto makeInlineVar = [&](const String& baseName, const Type* type, Modifiers modifiers,
-                             std::unique_ptr<Expression>* initialValue) -> const Variable* {
+    auto makeInlineVar =
+            [&](const String& baseName, const Type* type, Modifiers modifiers,
+                std::unique_ptr<Expression>* initialValue) -> std::unique_ptr<Expression> {
         // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
         // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
         // somewhere during compilation.
@@ -617,33 +640,38 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlinedBody.children().push_back(std::make_unique<VarDeclarationsStatement>(
                 std::make_unique<VarDeclarations>(offset, type, std::move(variables))));
 
-        return variableSymbol;
+        return std::make_unique<VariableReference>(offset, variableSymbol);
     };
 
     // Create a variable to hold the result in the extra statements (excepting void).
-    VariableExpression resultExpr;
+    std::unique_ptr<Expression> resultExpr;
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
-        const Variable* var = makeInlineVar(String(function.fDeclaration.fName),
-                                            &function.fDeclaration.fReturnType,
-                                            Modifiers{}, &noInitialValue);
-        resultExpr.fInnerVariable = std::make_unique<VariableReference>(offset, var);
-    }
+        resultExpr = makeInlineVar(String(function.fDeclaration.fName),
+                                   &function.fDeclaration.fReturnType,
+                                   Modifiers{}, &noInitialValue);
+   }
 
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
     // them.
     VariableRewriteMap varMap;
+    std::vector<int> argsToCopyBack;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
+        bool isOutParam = param->fModifiers.fFlags & Modifiers::kOut_Flag;
 
+        // If this is a plain VariableReference...
         if (arguments[i]->is<VariableReference>()) {
-            // The argument is just a variable, so we only need to copy it if it's an out parameter
-            // or it's written to within the function.
-            if ((param->fModifiers.fFlags & Modifiers::kOut_Flag) ||
-                !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
-                varMap[param] = arguments[i]->as<VariableReference>().fVariable;
+            // ... and it's an `out` param, or it isn't written to within the inline function...
+            if (isOutParam || !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
+                // ... we don't need to copy it at all! We can just use the existing variable.
+                varMap[param] = arguments[i]->as<VariableReference>().clone();
                 continue;
             }
+        }
+
+        if (isOutParam) {
+            argsToCopyBack.push_back(i);
         }
 
         varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->type(),
@@ -655,7 +683,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     inlineBlock->children().reserve(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(
-                offset, &varMap, symbolTableForCall, resultExpr, hasEarlyReturn, *stmt));
+                offset, &varMap, symbolTableForCall, *resultExpr, hasEarlyReturn, *stmt));
     }
     if (hasEarlyReturn) {
         // Since we output to backends that don't have a goto statement (which would normally be
@@ -672,33 +700,23 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlinedBody.children().push_back(std::move(inlineBlock));
     }
 
-    // Copy the values of `out` parameters into their destinations.
-    for (size_t i = 0; i < arguments.size(); ++i) {
+    // Copy back the values of `out` parameters into their real destinations.
+    for (int i : argsToCopyBack) {
         const Variable* p = function.fDeclaration.fParameters[i];
-        if (p->fModifiers.fFlags & Modifiers::kOut_Flag) {
-            SkASSERT(varMap.find(p) != varMap.end());
-            if (arguments[i]->is<VariableReference>() &&
-                arguments[i]->as<VariableReference>().fVariable == varMap[p]) {
-                // We didn't create a temporary for this parameter, so there's nothing to copy back
-                // out.
-                continue;
-            }
-            auto varRef = std::make_unique<VariableReference>(offset, varMap[p]);
-            inlinedBody.children().push_back(std::make_unique<ExpressionStatement>(
-                    std::make_unique<BinaryExpression>(offset,
-                                                       arguments[i]->clone(),
-                                                       Token::Kind::TK_EQ,
-                                                       std::move(varRef),
-                                                       &arguments[i]->type())));
-        }
+        SkASSERT(varMap.find(p) != varMap.end());
+        inlinedBody.children().push_back(
+                std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
+                        offset,
+                        clone_with_ref_kind(*arguments[i], VariableReference::kWrite_RefKind),
+                        Token::Kind::TK_EQ,
+                        std::move(varMap[p]),
+                        &arguments[i]->type())));
     }
 
-    if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
-        // Return a reference to the result variable as our replacement expression.
-        resultExpr.fInnerVariable->setRefKind(VariableReference::kRead_RefKind);
-        inlinedCall.fReplacementExpr = resultExpr.fOuterExpression
-                                               ? std::move(resultExpr.fOuterExpression)
-                                               : std::move(resultExpr.fInnerVariable);
+    if (resultExpr != nullptr) {
+        // Return our result variable as our replacement expression.
+        SkASSERT(resultExpr->as<VariableReference>().fRefKind == VariableReference::kRead_RefKind);
+        inlinedCall.fReplacementExpr = std::move(resultExpr);
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.
