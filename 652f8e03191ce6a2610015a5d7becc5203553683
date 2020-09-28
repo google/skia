@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4bc6303c_95b7bd66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14494
+      },
+      "writtenOn": "2020-09-28T20:52:24Z",
+      "side": 1,
+      "message": "I noticed that this is being tested using Android\u0027s internal branches. When it merges, will it be applied to aosp/master automatically as well?",
+      "revId": "652f8e03191ce6a2610015a5d7becc5203553683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
