@@ -13,6 +13,7 @@
 
 class SkPath;
 class SkMatrix;
+class SkString;
 
 /** \class SkRRect
     SkRRect describes a rounded rectangle with a bounds and a pair of radii for each corner.
@@ -475,6 +476,7 @@ public:
         example: https://fiddle.skia.org/c/@RRect_dump
     */
     void dump(bool asHex) const;
+    SkString dumpToString(bool asHex) const;
 
     /** Writes text representation of SkRRect to standard output. The representation
         may be directly compiled as C++ code. Floating point values are written
