@@ -18,5 +18,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     _out->sk_FragColor = float4(v);
     _out->sk_FragColor = float4(float4(v).xx, 1.0, 1.0);
     _out->sk_FragColor = float4(v).wzwz;
+    _out->sk_FragColor.xyzw = _out->sk_FragColor;
+    _out->sk_FragColor.wzyx = _out->sk_FragColor;
+    _out->sk_FragColor.xyzw.xw = _out->sk_FragColor.yz;
+    _out->sk_FragColor.wzyx.yzw = float3(_out->sk_FragColor.ww, 1.0);
     return *_out;
 }
