@@ -570,16 +570,19 @@ void GrClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA
                 SkASSERT(fOuterBounds.contains(fInnerBounds) || fInnerBounds.isEmpty());
             }
         } else if (fShape.isRRect()) {
-            // Can't transform in place
-            SkRRect src = fShape.rrect();
-            SkAssertResult(src.transform(fLocalToDevice, &fShape.rrect()));
-            fLocalToDevice.setIdentity();
-            fDeviceToLocal.setIdentity();
+            // Can't transform in place and must still check transform result since some very
+            // ill-formed scale+translate matrices can cause invalid rrect radii.
+            SkRRect src;
+            if (fShape.rrect().transform(fLocalToDevice, &src)) {
+                fShape.rrect() = src;
+                fLocalToDevice.setIdentity();
+                fDeviceToLocal.setIdentity();
 
-            SkRect inner = SkRRectPriv::InnerBounds(fShape.rrect());
-            fInnerBounds = GrClip::GetPixelIBounds(inner, fAA, BoundsType::kInterior);
-            if (!fInnerBounds.intersect(deviceBounds)) {
-                fInnerBounds = SkIRect::MakeEmpty();
+                SkRect inner = SkRRectPriv::InnerBounds(fShape.rrect());
+                fInnerBounds = GrClip::GetPixelIBounds(inner, fAA, BoundsType::kInterior);
+                if (!fInnerBounds.intersect(deviceBounds)) {
+                    fInnerBounds = SkIRect::MakeEmpty();
+                }
             }
         }
     }
