@@ -33,6 +33,24 @@
       "revId": "e8aac50ba53f10e3e776d29c194f4ea5e8bdd3af",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1094e07d_c3975e25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-28T18:14:13Z",
+      "side": 1,
+      "message": "Thanks! Given that some layout tests will need to be rebased, I\u0027m going to wait on landing this for a little bit, to make sure the base clip stack change is stable in chrome, so any potential revert doesn\u0027t get too complicated.",
+      "parentUuid": "f4359931_751686cc",
+      "revId": "e8aac50ba53f10e3e776d29c194f4ea5e8bdd3af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
