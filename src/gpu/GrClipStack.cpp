@@ -125,7 +125,7 @@ static bool shape_contains_rect(
     if (!mixedAAMode && aToDevice == bToDevice) {
         // A and B are in the same coordinate space, so don't bother mapping
         return a.conservativeContains(b);
-    } else if (bToDevice.isIdentity() && aToDevice.isScaleTranslate()) {
+    } else if (bToDevice.isIdentity() && aToDevice.preservesAxisAlignment()) {
         // Optimize the common case of draws (B, with identity matrix) and axis-aligned shapes,
         // instead of checking the four corners separately.
         SkRect bInA = b;
@@ -543,7 +543,7 @@ void GrClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA
     // Except for axis-aligned clip rects, upgrade to AA when forced. We skip axis-aligned clip
     // rects because a non-AA axis aligned rect can always be set as just a scissor test or window
     // rect, avoiding an expensive stencil mask generation.
-    if (forceAA && !(fShape.isRect() && fLocalToDevice.isScaleTranslate())) {
+    if (forceAA && !(fShape.isRect() && fLocalToDevice.preservesAxisAlignment())) {
         fAA = GrAA::kYes;
     }
 
@@ -551,7 +551,7 @@ void GrClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA
     // mapped bounds of the shape.
     fOuterBounds = GrClip::GetPixelIBounds(outer, fAA, BoundsType::kExterior);
 
-    if (fLocalToDevice.isScaleTranslate()) {
+    if (fLocalToDevice.preservesAxisAlignment()) {
         if (fShape.isRect()) {
             // The actual geometry can be updated to the device-intersected bounds and we can
             // know the inner bounds
