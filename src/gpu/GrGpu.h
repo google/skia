@@ -447,6 +447,9 @@ public:
         int stencilAttachmentCreates() const { return fStencilAttachmentCreates; }
         void incStencilAttachmentCreates() { fStencilAttachmentCreates++; }
 
+        int msaaAttachmentCreates() const { return fMSAAAttachmentCreates; }
+        void incMSAAAttachmentCreates() { fMSAAAttachmentCreates++; }
+
         int numDraws() const { return fNumDraws; }
         void incNumDraws() { fNumDraws++; }
 
@@ -458,6 +461,9 @@ public:
 
         int numScratchTexturesReused() const { return fNumScratchTexturesReused; }
         void incNumScratchTexturesReused() { ++fNumScratchTexturesReused; }
+
+        int numScratchMSAAAttachmentsReused() const { return fNumScratchMSAAAttachmentsReused; }
+        void incNumScratchMSAAAttachmentsReused() { ++fNumScratchMSAAAttachmentsReused; }
 
         int numInlineCompilationFailures() const { return fNumInlineCompilationFailures; }
         void incNumInlineCompilationFailures() { ++fNumInlineCompilationFailures; }
@@ -500,10 +506,12 @@ public:
         int fTransfersToTexture = 0;
         int fTransfersFromSurface = 0;
         int fStencilAttachmentCreates = 0;
+        int fMSAAAttachmentCreates = 0;
         int fNumDraws = 0;
         int fNumFailedDraws = 0;
         int fNumSubmitToGpus = 0;
         int fNumScratchTexturesReused = 0;
+        int fNumScratchMSAAAttachmentsReused = 0;
 
         int fNumInlineCompilationFailures = 0;
         int fInlineProgramCacheStats[kNumProgramCacheResults] = { 0 };
@@ -528,10 +536,12 @@ public:
         void incTransfersToTexture() {}
         void incTransfersFromSurface() {}
         void incStencilAttachmentCreates() {}
+        void incMSAAAttachmentCreates() {}
         void incNumDraws() {}
         void incNumFailedDraws() {}
         void incNumSubmitToGpus() {}
         void incNumScratchTexturesReused() {}
+        void incNumScratchMSAAAttachmentsReused() {}
         void incNumInlineCompilationFailures() {}
         void incNumInlineProgramCacheResult(ProgramCacheResult stat) {}
         void incNumPreCompilationFailures() {}
