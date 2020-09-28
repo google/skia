@@ -147,5 +147,10 @@ sk_sp<SkTypeface> FontCollection::defaultFallback() {
 void FontCollection::disableFontFallback() { fEnableFontFallback = false; }
 void FontCollection::enableFontFallback() { fEnableFontFallback = true; }
 
+void FontCollection::clearCaches() {
+    fParagraphCache.reset();
+    fTypefaces.reset();
+}
+
 }  // namespace textlayout
 }  // namespace skia

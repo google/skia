@@ -40,6 +40,8 @@ public:
 
     ParagraphCache* getParagraphCache() { return &fParagraphCache; }
 
+    void clearCaches();
+
 private:
     std::vector<sk_sp<SkFontMgr>> getFontManagerOrder() const;
 
