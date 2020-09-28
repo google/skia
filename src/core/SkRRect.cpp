@@ -582,7 +582,7 @@ bool SkRRectPriv::ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr) {
 #include "include/core/SkString.h"
 #include "src/core/SkStringUtils.h"
 
-void SkRRect::dump(bool asHex) const {
+SkString SkRRect::dumpToString(bool asHex) const {
     SkScalarAsStringType asType = asHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
 
     fRect.dump(asHex);
@@ -598,8 +598,10 @@ void SkRRect::dump(bool asHex) const {
         line.append("\n");
     }
     line.append("};");
-    SkDebugf("%s\n", line.c_str());
+    return line;
 }
+
+void SkRRect::dump(bool asHex) const { SkDebugf(this->dumpToString(asHex).c_str()); }
 
 ///////////////////////////////////////////////////////////////////////////////
 
