@@ -145,6 +145,30 @@
     },
     {
       "key": {
+        "uuid": "a34b8e0b_acab1344",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 26
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-28T13:45:18Z",
+      "side": 1,
+      "message": "I agree that it make more sense for the skia repo to be the source of truth, but mechanically speaking it\u0027s saner to inherit it from upstream rather the circular dependency we currently have.  Offhand, I don\u0027t know why the infra repo needs the schema at all, so maybe the right solution is just to remove the dependency.\n\nI was mistaken, this CL needs to land first, then you can run \"go generate\" to create https://skia.googlesource.com/buildbot/+/master/go/taskname/task_name_schema_gen.go",
+      "parentUuid": "2d8edf56_92238e39",
+      "range": {
+        "startLine": 151,
+        "startChar": 3,
+        "endLine": 151,
+        "endChar": 7
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cb5f4806_68889def",
         "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
         "patchSetId": 26
@@ -275,6 +299,30 @@
       "side": 1,
       "message": "I\u0027m not sure I like using https://github.com/google/skia-buildbot/blob/0d5a5b4b2895b0aa3fe85fd492fde586da71c6c1/go/git/util.go#L46 here. The Executable call seems a lot more opaque than just me specifying the absolute path to the git executable we want to use. I would argue that we want our task_drivers to be as simple as possible and this line of code leaves fewer surprises than git.Clone would. (additionally, I can\u0027t specify options like --depth 1",
       "parentUuid": "6b234ef6_de7e1f86",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 103
+      },
+      "revId": "130c08cfc92111507d53b54c4e45de00a6d9a66b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00b6708b_285675e9",
+        "filename": "infra/bots/task_drivers/cifuzz/cifuzz.go",
+        "patchSetId": 26
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-09-28T13:45:18Z",
+      "side": 1,
+      "message": "Ok, then please at least check git_common.IsFromCIPD(gitAbsPath).  Multiple critical git vulnerabilities have demonstrated the importance of asserting that we\u0027re using the correct git version.",
+      "parentUuid": "e41bf657_699dcddc",
       "range": {
         "startLine": 121,
         "startChar": 0,
