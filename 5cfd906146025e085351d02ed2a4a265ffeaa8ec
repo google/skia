@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "46e921ef_4ab2cb78",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-09-28T18:19:49Z",
+      "side": 1,
+      "message": "I\u0027m thrilled to see types in canvaskit. later I assume we\u0027ll want to use tybind to generate defitions for our publib bound functions.\nhttps://groups.google.com/a/google.com/g/wasm-users/c/QOWbF6z75xQ/m/U8t2iP8NBQAJ",
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca02b87e_72f1238d",
         "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
         "patchSetId": 2
