@@ -630,7 +630,7 @@ std::unique_ptr<Statement> IRGenerator::convertDo(const ASTNode& d) {
         return nullptr;
     }
     auto doStmt = std::make_unique<DoStatement>(d.fOffset, std::move(statement), std::move(test));
-    fInliner->ensureScopedBlocks(doStmt->fStatement.get(), doStmt.get());
+    fInliner->ensureScopedBlocks(doStmt->statement().get(), doStmt.get());
     return std::move(doStmt);
 }
 
