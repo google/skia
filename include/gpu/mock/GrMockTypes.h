@@ -74,8 +74,11 @@ struct GrMockRenderTargetInfo {
 
     GrColorType colorType() const { return fColorType; }
 
+    int sampleCnt() const { return fSampleCnt; }
+
 private:
     GrColorType   fColorType;
+    int           fSampleCnt = 1;
     int           fID;
 };
 

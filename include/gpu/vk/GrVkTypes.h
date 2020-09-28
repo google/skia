@@ -101,7 +101,9 @@ struct GrVkImageInfo {
     VkImageTiling            fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageLayout            fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     VkFormat                 fFormat = VK_FORMAT_UNDEFINED;
+
     VkImageUsageFlags        fImageUsageFlags = 0;
+    uint32_t                 fSampleCnt = 1;
     uint32_t                 fLevelCount = 0;
     uint32_t                 fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
     GrProtected              fProtected = GrProtected::kNo;
@@ -113,7 +115,7 @@ struct GrVkImageInfo {
         return fImage == that.fImage && fAlloc == that.fAlloc &&
                fImageTiling == that.fImageTiling && fImageLayout == that.fImageLayout &&
                fFormat == that.fFormat && fImageUsageFlags == that.fImageUsageFlags &&
-               fLevelCount == that.fLevelCount && fCurrentQueueFamily == that.fCurrentQueueFamily &&
+               fSampleCnt == that.fSampleCnt && fLevelCount == that.fLevelCount && fCurrentQueueFamily == that.fCurrentQueueFamily &&
                fProtected == that.fProtected && fYcbcrConversionInfo == that.fYcbcrConversionInfo &&
                fSharingMode == that.fSharingMode;
     }

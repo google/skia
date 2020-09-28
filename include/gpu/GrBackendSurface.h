@@ -429,6 +429,7 @@ public:
 
 #ifdef SK_VULKAN
     GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo);
+    GrBackendRenderTarget(int width, int height, const GrVkImageInfo& vkInfo);
 #endif
 
 #ifdef SK_METAL
@@ -530,7 +531,7 @@ private:
 
 #ifdef SK_VULKAN
     friend class GrVkRenderTarget;
-    GrBackendRenderTarget(int width, int height, int sampleCnt, const GrVkImageInfo& vkInfo,
+    GrBackendRenderTarget(int width, int height, const GrVkImageInfo& vkInfo,
                           sk_sp<GrBackendSurfaceMutableStateImpl> mutableState);
 #endif
 

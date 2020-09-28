@@ -196,6 +196,7 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
                                VK_IMAGE_LAYOUT_UNDEFINED,
                                vkImageInfo.format,
                                vkImageInfo.usage,
+                               1 /* sample count */,
                                1 /* levelCount */,
                                VK_QUEUE_FAMILY_IGNORED,
                                GrProtected::kNo,
