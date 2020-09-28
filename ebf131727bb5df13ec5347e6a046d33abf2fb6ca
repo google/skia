@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5d17785e_5ee8b2af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-09-28T14:15:42Z",
+      "side": 1,
+      "message": "I think this should be okay; I didn\u0027t find any uses of the kExtraEnumNeedInternallyPleaseIgnoreWillGoAway values",
+      "revId": "ebf131727bb5df13ec5347e6a046d33abf2fb6ca",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
