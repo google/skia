@@ -16,6 +16,24 @@
       "revId": "652f8e03191ce6a2610015a5d7becc5203553683",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c151a4b0_584a2b0c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-28T20:58:46Z",
+      "side": 1,
+      "message": "unfortunately, it will land in the internal branch.  You can then land your AOSP change with the correct Merged-In id.\n\nWe would love to land in AOSP, but the code in Android that uses Skia (e.g. HWUI/SurfaceFlinger) is developed on the internal side.",
+      "parentUuid": "4bc6303c_95b7bd66",
+      "revId": "652f8e03191ce6a2610015a5d7becc5203553683",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
