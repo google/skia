@@ -528,8 +528,7 @@ void GrVkRenderTarget::onAbandon() {
 
 GrBackendRenderTarget GrVkRenderTarget::getBackendRenderTarget() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    return GrBackendRenderTarget(this->width(), this->height(), this->numSamples(), fInfo,
-                                 this->getMutableState());
+    return GrBackendRenderTarget(this->width(), this->height(), fInfo, this->getMutableState());
 }
 
 const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
