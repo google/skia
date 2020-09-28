@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "822aad25_3e5184d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-09-28T19:27:46Z",
+      "side": 1,
+      "message": "I don\u0027t know of any good reason to preserve the src file\u0027s date. I assume this script is using copy2 to preserve other attribs of the file when copying.",
+      "revId": "dde369edaa7b8455c3a16427966a62ff4b7ed0a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
