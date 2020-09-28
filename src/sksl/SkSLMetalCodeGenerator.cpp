@@ -907,7 +907,7 @@ void MetalCodeGenerator::writePostfixExpression(const PostfixExpression& p,
 }
 
 void MetalCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
-    this->write(b.fValue ? "true" : "false");
+    this->write(b.value() ? "true" : "false");
 }
 
 void MetalCodeGenerator::writeIntLiteral(const IntLiteral& i) {
