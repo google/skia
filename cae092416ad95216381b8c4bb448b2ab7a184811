@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b378a79e_6af1a87c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-29T13:26:58Z",
+      "side": 1,
+      "message": "Also took the opportunity to change the internal storage to float, since we never ended up adding actual support for double.",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
