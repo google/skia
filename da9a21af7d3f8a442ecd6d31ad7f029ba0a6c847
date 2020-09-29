@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81a422d2_30b6bc4c",
+        "filename": "src/gpu/effects/generated/GrCircleBlurFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-29T18:18:09Z",
+      "side": 1,
+      "message": "do you not like this in the if()?",
+      "range": {
+        "startLine": 232,
+        "startChar": 4,
+        "endLine": 232,
+        "endChar": 68
+      },
+      "revId": "da9a21af7d3f8a442ecd6d31ad7f029ba0a6c847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c183be75_0ed4e947",
+        "filename": "src/gpu/effects/generated/GrCircleBlurFragmentProcessor.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-29T18:18:09Z",
+      "side": 1,
+      "message": "do we need any assert about the swizzle? Or does this code not really care since we trust the view to have the swizzle it needs",
+      "range": {
+        "startLine": 234,
+        "startChar": 8,
+        "endLine": 234,
+        "endChar": 47
+      },
+      "revId": "da9a21af7d3f8a442ecd6d31ad7f029ba0a6c847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
