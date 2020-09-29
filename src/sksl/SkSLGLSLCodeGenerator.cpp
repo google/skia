@@ -1025,7 +1025,7 @@ void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 void GLSLCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    this->write(to_string(f.fValue));
+    this->write(to_string(f.value()));
 }
 
 void GLSLCodeGenerator::writeSetting(const Setting& s) {
