@@ -998,6 +998,7 @@ CanvasKit.onRuntimeInitialized = function() {
   // colors are optional and used to tint the drawn images using the optional blend mode
   // Colors may be an SkColorBuilder, a Uint32Array of int colors,
   // a Flat Float32Array of float colors or a 2d Array of Float32Array(4) (deprecated)
+  // TODO(kjlubick) remove Builders - no longer needed now that Malloc is a thing.
   CanvasKit.SkCanvas.prototype.drawAtlas = function(atlas, srcRects, dstXforms, paint,
                                        /*optional*/ blendMode, colors) {
     if (!atlas || !paint || !srcRects || !dstXforms) {
