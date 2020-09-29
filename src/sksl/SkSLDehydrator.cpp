@@ -274,8 +274,8 @@ void Dehydrator::write(const Expression* e) {
                 const Constructor& c = e->as<Constructor>();
                 this->writeU8(Rehydrator::kConstructor_Command);
                 this->write(c.type());
-                this->writeU8(c.fArguments.size());
-                for (const auto& a : c.fArguments) {
+                this->writeU8(c.arguments().size());
+                for (const auto& a : c.arguments()) {
                     this->write(a.get());
                 }
                 break;

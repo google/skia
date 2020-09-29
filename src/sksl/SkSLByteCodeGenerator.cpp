@@ -905,11 +905,11 @@ void ByteCodeGenerator::writeBoolLiteral(const BoolLiteral& b) {
 }
 
 void ByteCodeGenerator::writeConstructor(const Constructor& c) {
-    for (const auto& arg : c.fArguments) {
+    for (const auto& arg : c.arguments()) {
         this->writeExpression(*arg);
     }
-    if (c.fArguments.size() == 1) {
-        const Type& inType = c.fArguments[0]->type();
+    if (c.arguments().size() == 1) {
+        const Type& inType = c.arguments()[0]->type();
         const Type& outType = c.type();
         TypeCategory inCategory = type_category(inType);
         TypeCategory outCategory = type_category(outType);
