@@ -33,6 +33,41 @@
       "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14bec7b5_0a04c52c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-29T14:51:42Z",
+      "side": 1,
+      "message": "In order to do mipmap generation, I need to do level-\u003elevel draws, so I need some simple shaders for that.",
+      "parentUuid": "b9b49ee7_39956cbd",
+      "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c063eb7d_f609df4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-29T14:51:42Z",
+      "side": 1,
+      "message": "Thanks for your review!",
+      "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
