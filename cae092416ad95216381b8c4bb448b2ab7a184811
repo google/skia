@@ -16,6 +16,24 @@
       "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "022699a8_0e1e35bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-29T13:42:09Z",
+      "side": 1,
+      "message": "Changing double -\u003e float impacted the gencode though, which will probably cause lots of little 1-bit diffs in Gold :) \n\nI\u0027d suggest keeping it double just to minimize blast radius of this CL.",
+      "parentUuid": "b378a79e_6af1a87c",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
