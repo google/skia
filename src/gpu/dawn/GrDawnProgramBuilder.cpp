@@ -462,7 +462,7 @@ static void set_texture(GrDawnGpu* gpu, GrSamplerState state, GrTexture* texture
     wgpu::Sampler sampler = gpu->getOrCreateSampler(state);
     bindings->push_back(make_bind_group_entry((*binding)++, sampler));
     GrDawnTexture* tex = static_cast<GrDawnTexture*>(texture);
-    wgpu::TextureView textureView = tex->textureView();
+    wgpu::TextureView textureView = tex->texture().CreateView();
     bindings->push_back(make_bind_group_entry((*binding)++, textureView));
 }
 
