@@ -59,7 +59,7 @@ struct BasicBlock {
             *fStatement = std::move(stmt);
         }
 
-#ifdef SK_DEBUG
+#if 1//def SK_DEBUG
         String description() const {
             SkASSERT(fStatement || fExpression);
             return fStatement ? (*fStatement)->description() : (*fExpression)->description();
@@ -121,7 +121,7 @@ struct BasicBlock {
     bool tryInsertExpression(std::vector<BasicBlock::Node>::iterator* iter,
                              std::unique_ptr<Expression>* expr);
 
-#ifdef SK_DEBUG
+#if 1//def SK_DEBUG
     void dump() const;
 #endif
 
@@ -137,7 +137,7 @@ struct CFG {
     BlockId fExit;
     std::vector<BasicBlock> fBlocks;
 
-#ifdef SK_DEBUG
+#if 1//def SK_DEBUG
     void dump() const;
 #endif
 

@@ -51,7 +51,7 @@ void CFG::addExit(BlockId from, BlockId to) {
     }
 }
 
-#ifdef SK_DEBUG
+#if 1//def SK_DEBUG
 void CFG::dump() const {
     for (size_t i = 0; i < fBlocks.size(); i++) {
         printf("Block %zu\n-------\n", i);
@@ -90,7 +90,7 @@ void BasicBlock::dump() const {
 
 bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                            Expression* e) {
-    if (e->kind() == Expression::Kind::kTernary) {
+    if (e->is<TernaryExpression>()) {
         return false;
     }
     bool result;

@@ -22,7 +22,7 @@ void main() {
                     {
                         _25_blend_set_color_saturation_helper = _22_hueLumColor.x < _22_hueLumColor.z ? vec3(0.0, (_23_sat * (_22_hueLumColor.y - _22_hueLumColor.x)) / (_22_hueLumColor.z - _22_hueLumColor.x), _23_sat) : vec3(0.0);
                     }
-                    _22_hueLumColor.xyz = _25_blend_set_color_saturation_helper;
+                    _22_hueLumColor = _25_blend_set_color_saturation_helper;
 
                 } else if (_22_hueLumColor.x <= _22_hueLumColor.z) {
                     vec3 _26_blend_set_color_saturation_helper;

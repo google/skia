@@ -21,6 +21,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float4 tmpColor;
-    _out->sk_FragColor = (tmpColor = _globals->sampler.sample(_globals->samplerSmplr, float2(1.0)) , _uniforms.colorXform != float4x4(1.0) ? float4(clamp((_uniforms.colorXform * float4(tmpColor.xyz, 1.0)).xyz, 0.0, tmpColor.w), tmpColor.w) : tmpColor);
+    _out->sk_FragColor = float4(1.0) * (tmpColor = _globals->sampler.sample(_globals->samplerSmplr, float2(1.0)) , _uniforms.colorXform != float4x4(1.0) ? float4(clamp((_uniforms.colorXform * float4(tmpColor.xyz, 1.0)).xyz, 0.0, tmpColor.w), tmpColor.w) : tmpColor);
     return *_out;
 }
