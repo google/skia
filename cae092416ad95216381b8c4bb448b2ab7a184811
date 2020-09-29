@@ -34,6 +34,81 @@
       "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb5be231_a3df3a24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T13:46:58Z",
+      "side": 1,
+      "message": "I think I assumed it wouldn\u0027t impact visuals at all - the printed values are still going to round to the same (closest) 32-bit float that they did before?",
+      "parentUuid": "022699a8_0e1e35bc",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8658c4b_f44d5d3c",
+        "filename": "src/sksl/ir/SkSLFloatLiteral.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T13:46:58Z",
+      "side": 1,
+      "message": "This can be float now, too, right?",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 11
+      },
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b0e5041_608ce2f1",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T13:46:58Z",
+      "side": 1,
+      "message": "micro-nit: You kept the enum and switch statements alphabetical below, but not the structs. Move this one above IntLiteralData?",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3edfe4c_c78b276b",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T13:46:58Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
