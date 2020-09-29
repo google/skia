@@ -12,9 +12,8 @@ float _soft_light_component(float2 s, float2 d) {
     if (2.0 * s.x <= s.y) {
         float _1_guarded_divide;
         float _2_n = (d.x * d.x) * (s.y - 2.0 * s.x);
-        float _3_d = d.y;
         {
-            _1_guarded_divide = _2_n / _3_d;
+            _1_guarded_divide = _2_n / d.y;
         }
         return (_1_guarded_divide + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);
 
@@ -23,12 +22,12 @@ float _soft_light_component(float2 s, float2 d) {
         float DCub = DSqd * d.x;
         float DaSqd = d.y * d.y;
         float DaCub = DaSqd * d.y;
-        float _4_guarded_divide;
-        float _5_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
+        float _3_guarded_divide;
+        float _4_n = ((DaSqd * (s.x - d.x * ((3.0 * s.y - 6.0 * s.x) - 1.0)) + ((12.0 * d.y) * DSqd) * (s.y - 2.0 * s.x)) - (16.0 * DCub) * (s.y - 2.0 * s.x)) - DaCub * s.x;
         {
-            _4_guarded_divide = _5_n / DaSqd;
+            _3_guarded_divide = _4_n / DaSqd;
         }
-        return _4_guarded_divide;
+        return _3_guarded_divide;
 
     } else {
         return ((d.x * ((s.y - 2.0 * s.x) + 1.0) + s.x) - sqrt(d.y * d.x) * (s.y - 2.0 * s.x)) - d.y * s.x;
