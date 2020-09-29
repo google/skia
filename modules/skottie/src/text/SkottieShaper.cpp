@@ -446,7 +446,12 @@ Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const Sk
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    switch(desc.fResize) {
+    // We can only auto-resize in paragraph mode.
+    const auto resize = box.isEmpty()
+            ? ResizePolicy::kNone
+            : desc.fResize;
+
+    switch(resize) {
     case ResizePolicy::kNone:
         return ShapeImpl(txt, desc, box, fontmgr);
     case ResizePolicy::kScaleToFit:
