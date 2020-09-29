@@ -52,6 +52,24 @@
       "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3afc1c07_0b280eb0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2020-09-29T14:39:25Z",
+      "side": 1,
+      "message": "I figure it\u0027s the car.svg linked by tools/skp/page_sets/skia_carsvg_desktop.py (http://codinginparadise.org/projects/svgweb/samples/svg-files/car.svg), so I took a quick a look at that, and it doesn\u0027t appear to produce the pattern that I expected my current CL will improve. It also shouldn\u0027t produce any SkPictureImageFilter\u0027s.",
+      "parentUuid": "bc760863_a47d6a4b",
+      "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
