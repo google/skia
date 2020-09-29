@@ -175,6 +175,30 @@
     },
     {
       "key": {
+        "uuid": "77604252_0d59a0c1",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "Oops. Leftover from a previous version.",
+      "parentUuid": "006862e9_e5a310e2",
+      "range": {
+        "startLine": 43,
+        "startChar": 7,
+        "endLine": 43,
+        "endChar": 23
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8712546f_864e9497",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 2
@@ -195,6 +219,30 @@
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d036fd4d_94216637",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "After discussion, we decided to go ahead and keep this struct as is.",
+      "parentUuid": "8712546f_864e9497",
+      "range": {
+        "startLine": 49,
+        "startChar": 7,
+        "endLine": 49,
+        "endChar": 22
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -221,6 +269,30 @@
     },
     {
       "key": {
+        "uuid": "6e05efef_9011e2e3",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "868ca1ab_d03c7979",
+      "range": {
+        "startLine": 70,
+        "startChar": 17,
+        "endLine": 70,
+        "endChar": 22
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d948dbae_17b30305",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 2
@@ -241,6 +313,30 @@
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4cfbd316_4dd51886",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d948dbae_17b30305",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 80,
+        "endChar": 2
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -411,6 +507,24 @@
     },
     {
       "key": {
+        "uuid": "293e6a16_1dd4c771",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "It is a signal to the paragraph builder that some non-text content is going to be inlined into the paragraph. For example, this is used in Flutter to place widgets in text.",
+      "parentUuid": "499b2057_9b057612",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8cbd94b9_eb7adbde",
         "filename": "modules/canvaskit/tests/paragraph.spec.js",
         "patchSetId": 2
@@ -425,6 +539,24 @@
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4da4d9ac_00b3e362",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cbd94b9_eb7adbde",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -451,6 +583,30 @@
     },
     {
       "key": {
+        "uuid": "05860805_35f624f9",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3de81c5_f221e59d",
+      "range": {
+        "startLine": 226,
+        "startChar": 16,
+        "endLine": 226,
+        "endChar": 23
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82d58a6a_bcfd1a4b",
         "filename": "modules/canvaskit/tests/paragraph.spec.js",
         "patchSetId": 2
@@ -471,6 +627,30 @@
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "214a634c_32279288",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 2
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 10154
+      },
+      "writtenOn": "2020-09-29T23:15:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82d58a6a_bcfd1a4b",
+      "range": {
+        "startLine": 600,
+        "startChar": 41,
+        "endLine": 600,
+        "endChar": 42
+      },
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
