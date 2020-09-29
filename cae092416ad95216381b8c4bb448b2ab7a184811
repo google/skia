@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "af811dd5_389ee0dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-29T16:43:23Z",
+      "side": 1,
+      "message": "We get 1-bit diffs if we breathe on the code too hard, so I\u0027m not generally stressed about them. This particular change doesn\u0027t seem to have affected anything.",
+      "parentUuid": "a09ad62b_b65d6aff",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a8658c4b_f44d5d3c",
         "filename": "src/sksl/ir/SkSLFloatLiteral.h",
         "patchSetId": 5
@@ -96,6 +114,30 @@
     },
     {
       "key": {
+        "uuid": "aad2d323_aec655b9",
+        "filename": "src/sksl/ir/SkSLFloatLiteral.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-29T16:43:23Z",
+      "side": 1,
+      "message": "Yes. While I was at it I changed a bunch more leftover doubles, and discovered that we had an SKSL_FLOAT typedef we really should be using instead - I don\u0027t anticipate adding double support in the future, but if we do, that will make it easier.",
+      "parentUuid": "a8658c4b_f44d5d3c",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 11
+      },
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b0e5041_608ce2f1",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 5
@@ -113,6 +155,24 @@
     },
     {
       "key": {
+        "uuid": "333487c8_459b1c98",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-29T16:43:23Z",
+      "side": 1,
+      "message": "Curse you, alphabetical order! My greatest weakness!",
+      "parentUuid": "8b0e5041_608ce2f1",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e3edfe4c_c78b276b",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 5
@@ -127,6 +187,24 @@
       "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac0150f0_db9281db",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-09-29T16:43:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3edfe4c_c78b276b",
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
