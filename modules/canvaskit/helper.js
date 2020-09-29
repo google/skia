@@ -560,6 +560,8 @@ function saveBytesToFile(bytes, fileName) {
     });
   }
 }
+
+// TODO(kjlubick) remove Builders - no longer needed now that Malloc is a thing.
 /**
  * Generic helper for dealing with an array of four floats.
  */
