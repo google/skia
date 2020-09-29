@@ -1621,17 +1621,16 @@ std::unique_ptr<ByteCodeGenerator::LValue> ByteCodeGenerator::getLValue(const Ex
             int index = fOutput->fExternalValues.size();
             fOutput->fExternalValues.push_back(value);
             SkASSERT(index <= 255);
-            return std::unique_ptr<LValue>(new ByteCodeExternalValueLValue(this, *value, index));
+            return std::make_unique<ByteCodeExternalValueLValue>(this, *value, index);
         }
         case Expression::Kind::kFieldAccess:
         case Expression::Kind::kIndex:
         case Expression::Kind::kVariableReference:
-            return std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e));
+            return std::make_unique<ByteCodeExpressionLValue>(this, e);
         case Expression::Kind::kSwizzle: {
             const Swizzle& s = e.as<Swizzle>();
-            return swizzle_is_simple(s)
-                    ? std::unique_ptr<LValue>(new ByteCodeExpressionLValue(this, e))
-                    : std::unique_ptr<LValue>(new ByteCodeSwizzleLValue(this, s));
+            return swizzle_is_simple(s) ? std::make_unique<ByteCodeExpressionLValue>(this, e)
+                                        : std::make_unique<ByteCodeSwizzleLValue>(this, s);
         }
         case Expression::Kind::kTernary:
         default:
