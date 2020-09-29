@@ -279,8 +279,10 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
                 return false;
             }
             ++(*iter);
-            *iter = fNodes.insert(*iter,
-                                  BasicBlock::MakeExpression(expr, /*constantPropagation=*/true));
+            *iter = fNodes.insert(
+                    *iter,
+                    BasicBlock::MakeExpression(expr, /*constantPropagation=*/true,
+                                               /*isAssignedTo=*/false));  // FIXME(johnstiles)
             return true;
         }
         case Expression::Kind::kBoolLiteral:  // fall through
@@ -288,7 +290,8 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
         case Expression::Kind::kIntLiteral:   // fall through
         case Expression::Kind::kVariableReference: {
             *iter = fNodes.insert(*iter,
-                                  BasicBlock::MakeExpression(expr, /*constantPropagation=*/true));
+                                  BasicBlock::MakeExpression(expr, /*constantPropagation=*/true,
+                                                             /*isAssignedTo=*/false));
             return true;
         }
         case Expression::Kind::kConstructor: {
@@ -300,7 +303,8 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
                 ++(*iter);
             }
             *iter = fNodes.insert(*iter,
-                                  BasicBlock::MakeExpression(expr, /*constantPropagation=*/true));
+                                  BasicBlock::MakeExpression(expr, /*constantPropagation=*/true,
+                                                             /*isAssignedTo=*/false));
             return true;
         }
         case Expression::Kind::kSwizzle: {
@@ -310,7 +314,8 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
             }
             ++(*iter);
             *iter = fNodes.insert(*iter,
-                                  BasicBlock::MakeExpression(expr, /*constantPropagation=*/true));
+                                  BasicBlock::MakeExpression(expr, /*constantPropagation=*/true,
+                                                             /*isAssignedTo=*/false));
             return true;
         }
         default:
@@ -318,7 +323,8 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
     }
 }
 
-void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate) {
+void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e,
+                                 bool constantPropagate, bool isAssignedTo) {
     SkASSERT(e);
     switch ((*e)->kind()) {
         case Expression::Kind::kBinary: {
@@ -327,151 +333,129 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             switch (op) {
                 case Token::Kind::TK_LOGICALAND: // fall through
                 case Token::Kind::TK_LOGICALOR: {
+                    SkASSERT(!isAssignedTo);
                     // this isn't as precise as it could be -- we don't bother to track that if we
                     // early exit from a logical and/or, we know which branch of an 'if' we're going
                     // to hit -- but it won't make much difference in practice.
-                    this->addExpression(cfg, &b.leftPointer(), constantPropagate);
+                    this->addExpression(cfg, &b.leftPointer(), constantPropagate, isAssignedTo);
                     BlockId start = cfg.fCurrent;
                     cfg.newBlock();
-                    this->addExpression(cfg, &b.rightPointer(), constantPropagate);
+                    this->addExpression(cfg, &b.rightPointer(), constantPropagate, isAssignedTo);
                     cfg.newBlock();
                     cfg.addExit(start, cfg.fCurrent);
                     cfg.currentBlock().fNodes.push_back(
-                            BasicBlock::MakeExpression(e, constantPropagate));
+                            BasicBlock::MakeExpression(e, constantPropagate, isAssignedTo));
                     break;
                 }
-                case Token::Kind::TK_EQ: {
-                    this->addExpression(cfg, &b.rightPointer(), constantPropagate);
-                    this->addLValue(cfg, &b.leftPointer());
-                    cfg.currentBlock().fNodes.push_back(
-                            BasicBlock::MakeExpression(e, constantPropagate));
-                    break;
-                }
-                default:
+                default: {
+                    bool leftIsAssignment = Compiler::IsAssignment(b.getOperator());
                     this->addExpression(cfg, &b.leftPointer(),
-                                        !Compiler::IsAssignment(b.getOperator()));
-                    this->addExpression(cfg, &b.rightPointer(), constantPropagate);
+                                        constantPropagate && !leftIsAssignment, leftIsAssignment);
+                    this->addExpression(cfg, &b.rightPointer(), constantPropagate, isAssignedTo);
                     cfg.currentBlock().fNodes.push_back(
-                            BasicBlock::MakeExpression(e, constantPropagate));
+                            BasicBlock::MakeExpression(e, constantPropagate, isAssignedTo));
+                    break;
+                }
             }
             break;
         }
         case Expression::Kind::kConstructor: {
+            SkASSERT(!isAssignedTo);
             Constructor& c = e->get()->as<Constructor>();
             for (auto& arg : c.fArguments) {
-                this->addExpression(cfg, &arg, constantPropagate);
+                this->addExpression(cfg, &arg, constantPropagate, isAssignedTo);
             }
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
         }
         case Expression::Kind::kExternalFunctionCall: {
+            SkASSERT(!isAssignedTo);
             ExternalFunctionCall& c = e->get()->as<ExternalFunctionCall>();
             for (auto& arg : c.fArguments) {
-                this->addExpression(cfg, &arg, constantPropagate);
+                this->addExpression(cfg, &arg, constantPropagate, isAssignedTo);
             }
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
         }
         case Expression::Kind::kFunctionCall: {
+            SkASSERT(!isAssignedTo);
             FunctionCall& c = e->get()->as<FunctionCall>();
             for (auto& arg : c.fArguments) {
-                this->addExpression(cfg, &arg, constantPropagate);
+                this->addExpression(cfg, &arg, constantPropagate, isAssignedTo);
             }
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
         }
         case Expression::Kind::kFieldAccess: {
-            this->addExpression(cfg, &e->get()->as<FieldAccess>().fBase, constantPropagate);
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            this->addExpression(cfg, &e->get()->as<FieldAccess>().fBase, constantPropagate,
+                                isAssignedTo);
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
         }
         case Expression::Kind::kIndex: {
             IndexExpression& indexExpr = e->get()->as<IndexExpression>();
 
-            this->addExpression(cfg, &indexExpr.fBase, constantPropagate);
-            this->addExpression(cfg, &indexExpr.fIndex, constantPropagate);
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            this->addExpression(cfg, &indexExpr.fBase, constantPropagate, isAssignedTo);
+            this->addExpression(cfg, &indexExpr.fIndex, constantPropagate, /*isAssignedTo=*/false);
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
         }
         case Expression::Kind::kPrefix: {
             PrefixExpression& p = e->get()->as<PrefixExpression>();
-            this->addExpression(cfg, &p.fOperand, constantPropagate &&
-                                                  p.fOperator != Token::Kind::TK_PLUSPLUS &&
-                                                  p.fOperator != Token::Kind::TK_MINUSMINUS);
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            constantPropagate &= (p.fOperator != Token::Kind::TK_PLUSPLUS &&
+                                  p.fOperator != Token::Kind::TK_MINUSMINUS);
+            this->addExpression(cfg, &p.fOperand, constantPropagate, isAssignedTo);
             break;
         }
         case Expression::Kind::kPostfix:
-            this->addExpression(cfg, &e->get()->as<PostfixExpression>().fOperand, false);
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            this->addExpression(cfg, &e->get()->as<PostfixExpression>().fOperand,
+                                /*constantPropagate=*/false, isAssignedTo);
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
         case Expression::Kind::kSwizzle:
-            this->addExpression(cfg, &e->get()->as<Swizzle>().fBase, constantPropagate);
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            this->addExpression(cfg, &e->get()->as<Swizzle>().fBase, constantPropagate,
+                                isAssignedTo);
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
-        case Expression::Kind::kBoolLiteral:   // fall through
-        case Expression::Kind::kExternalValue: // fall through
-        case Expression::Kind::kFloatLiteral:  // fall through
-        case Expression::Kind::kIntLiteral:    // fall through
-        case Expression::Kind::kNullLiteral:   // fall through
-        case Expression::Kind::kSetting:       // fall through
+        case Expression::Kind::kBoolLiteral:
+        case Expression::Kind::kExternalValue:
+        case Expression::Kind::kFloatLiteral:
+        case Expression::Kind::kIntLiteral:
+        case Expression::Kind::kNullLiteral:
+        case Expression::Kind::kSetting:
+            SkASSERT(!isAssignedTo);
+            [[fallthrough]];
         case Expression::Kind::kVariableReference:
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           isAssignedTo));
             break;
         case Expression::Kind::kTernary: {
             TernaryExpression& t = e->get()->as<TernaryExpression>();
-            this->addExpression(cfg, &t.fTest, constantPropagate);
-            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
+            this->addExpression(cfg, &t.fTest, constantPropagate, /*isAssignedTo=*/false);
+            cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate,
+                                                                           /*isAssignedTo=*/false));
             BlockId start = cfg.fCurrent;
             cfg.newBlock();
-            this->addExpression(cfg, &t.fIfTrue, constantPropagate);
+            this->addExpression(cfg, &t.fIfTrue, constantPropagate, isAssignedTo);
             BlockId next = cfg.newBlock();
             cfg.fCurrent = start;
             cfg.newBlock();
-            this->addExpression(cfg, &t.fIfFalse, constantPropagate);
+            this->addExpression(cfg, &t.fIfFalse, constantPropagate, isAssignedTo);
             cfg.addExit(cfg.fCurrent, next);
             cfg.fCurrent = next;
             break;
         }
-        case Expression::Kind::kFunctionReference: // fall through
-        case Expression::Kind::kTypeReference:     // fall through
+        case Expression::Kind::kFunctionReference:
+        case Expression::Kind::kTypeReference:
         case Expression::Kind::kDefined:
-            SkASSERT(false);
-            break;
-    }
-}
-
-// adds expressions that are evaluated as part of resolving an lvalue
-void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
-    switch ((*e)->kind()) {
-        case Expression::Kind::kFieldAccess:
-            this->addLValue(cfg, &e->get()->as<FieldAccess>().fBase);
-            break;
-        case Expression::Kind::kIndex: {
-            IndexExpression& indexExpr = e->get()->as<IndexExpression>();
-            this->addLValue(cfg, &indexExpr.fBase);
-            this->addExpression(cfg, &indexExpr.fIndex, /*constantPropagate=*/true);
-            break;
-        }
-        case Expression::Kind::kSwizzle:
-            this->addLValue(cfg, &e->get()->as<Swizzle>().fBase);
-            break;
-        case Expression::Kind::kExternalValue: // fall through
-        case Expression::Kind::kVariableReference:
-            break;
-        case Expression::Kind::kTernary: {
-            TernaryExpression& ternary = e->get()->as<TernaryExpression>();
-            this->addExpression(cfg, &ternary.fTest, /*constantPropagate=*/true);
-            // Technically we will of course only evaluate one or the other, but if the test turns
-            // out to be constant, the ternary will get collapsed down to just one branch anyway. So
-            // it should be ok to pretend that we always evaluate both branches here.
-            this->addLValue(cfg, &ternary.fIfTrue);
-            this->addLValue(cfg, &ternary.fIfFalse);
-            break;
-        }
-        default:
-            // not an lvalue, can't happen
-            SkASSERT(false);
+            SkDEBUGFAIL("unexpected expression inside of a function");
             break;
     }
 }
@@ -491,7 +475,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kIf: {
             IfStatement& ifs = (*s)->as<IfStatement>();
-            this->addExpression(cfg, &ifs.fTest, /*constantPropagate=*/true);
+            this->addExpression(cfg, &ifs.fTest, /*constantPropagate=*/true,
+                                /*isAssignedTo=*/false);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             BlockId start = cfg.fCurrent;
             cfg.newBlock();
@@ -510,7 +495,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kExpression: {
             this->addExpression(cfg, &(*s)->as<ExpressionStatement>().fExpression,
-                                /*constantPropagate=*/true);
+                                /*constantPropagate=*/true, /*isAssignedTo=*/false);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             break;
         }
@@ -522,7 +507,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
                 }
                 VarDeclaration& vd = stmt->as<VarDeclaration>();
                 if (vd.fValue) {
-                    this->addExpression(cfg, &vd.fValue, /*constantPropagate=*/true);
+                    this->addExpression(cfg, &vd.fValue, /*constantPropagate=*/true,
+                                        /*isAssignedTo=*/false);
                 }
                 cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(&stmt));
             }
@@ -536,7 +522,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         case Statement::Kind::kReturn: {
             ReturnStatement& r = (*s)->as<ReturnStatement>();
             if (r.fExpression) {
-                this->addExpression(cfg, &r.fExpression, /*constantPropagate=*/true);
+                this->addExpression(cfg, &r.fExpression, /*constantPropagate=*/true,
+                                    /*isAssignedTo=*/false);
             }
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             cfg.fCurrent = cfg.newIsolatedBlock();
@@ -558,7 +545,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             fLoopContinues.push(loopStart);
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
-            this->addExpression(cfg, &w.fTest, /*constantPropagate=*/true);
+            this->addExpression(cfg, &w.fTest, /*constantPropagate=*/true, /*isAssignedTo=*/false);
             BlockId test = cfg.fCurrent;
             if (!is_true(*w.fTest)) {
                 cfg.addExit(test, loopExit);
@@ -578,7 +565,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
             this->addStatement(cfg, &d.statement());
-            this->addExpression(cfg, &d.test(), /*constantPropagate=*/true);
+            this->addExpression(cfg, &d.test(), /*constantPropagate=*/true, /*isAssignedTo=*/false);
             cfg.addExit(cfg.fCurrent, loopExit);
             cfg.addExit(cfg.fCurrent, loopStart);
             fLoopContinues.pop();
@@ -597,7 +584,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
             if (f.fTest) {
-                this->addExpression(cfg, &f.fTest, /*constantPropagate=*/true);
+                this->addExpression(cfg, &f.fTest, /*constantPropagate=*/true,
+                                    /*isAssignedTo=*/false);
                 // this isn't quite right; we should have an exit from here to the loop exit, and
                 // remove the exit from the loop body to the loop exit. Structuring it like this
                 // forces the optimizer to believe that the loop body is always executed at least
@@ -611,7 +599,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             cfg.addExit(cfg.fCurrent, next);
             cfg.fCurrent = next;
             if (f.fNext) {
-                this->addExpression(cfg, &f.fNext, /*constantPropagate=*/true);
+                this->addExpression(cfg, &f.fNext, /*constantPropagate=*/true,
+                                    /*isAssignedTo=*/false);
             }
             cfg.addExit(cfg.fCurrent, loopStart);
             cfg.addExit(cfg.fCurrent, loopExit);
@@ -622,7 +611,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kSwitch: {
             SwitchStatement& ss = (*s)->as<SwitchStatement>();
-            this->addExpression(cfg, &ss.fValue, /*constantPropagate=*/true);
+            this->addExpression(cfg, &ss.fValue, /*constantPropagate=*/true,
+                                /*isAssignedTo=*/false);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             BlockId start = cfg.fCurrent;
             BlockId switchExit = cfg.newIsolatedBlock();
@@ -633,7 +623,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
                 if (c->fValue) {
                     // technically this should go in the start block, but it doesn't actually matter
                     // because it must be constant. Not worth running two loops for.
-                    this->addExpression(cfg, &c->fValue, /*constantPropagate=*/true);
+                    this->addExpression(cfg, &c->fValue, /*constantPropagate=*/true,
+                                        /*isLvalue=*/false);
                 }
                 for (auto& caseStatement : c->fStatements) {
                     this->addStatement(cfg, &caseStatement);

@@ -9,6 +9,9 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    _out->sk_FragColor.xy = -float2(1.0);
+    float2 x = float2(1.0);
+    x = x;
+    x = -x;
+    _out->sk_FragColor.xy = x;
     return *_out;
 }
