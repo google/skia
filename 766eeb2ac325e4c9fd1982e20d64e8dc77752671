@@ -34,6 +34,24 @@
       "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e4c5dee_f7138edd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T14:30:33Z",
+      "side": 1,
+      "message": "OK, that\u0027s good to hear (that Chrome saw similar regressions, and that things are likely going to revert to baseline). Sounds like things are all WAI. The SVG we were testing was this one: https://dev.w3.org/SVG/tools/svgweb/samples/svg-files/car.svg",
+      "parentUuid": "bc760863_a47d6a4b",
+      "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
