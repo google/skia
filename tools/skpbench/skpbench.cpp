@@ -472,8 +472,6 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
     fflush(stdout);
 }
 
-extern int numHWMask, numSWMask;
-
 int main(int argc, char** argv) {
     CommandLineFlags::SetUsage(
             "Use skpbench.py instead. "
@@ -647,8 +645,6 @@ int main(int argc, char** argv) {
             exitf(ExitErr::kIO, "failed to save png to \"%s\"", FLAGS_png[0]);
         }
     }
-
-    SkDebugf("------- HW %d SW %d\n", numHWMask, numSWMask);
 
     return(0);
 }
