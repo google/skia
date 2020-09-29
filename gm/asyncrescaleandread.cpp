@@ -313,6 +313,11 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
         return skiagm::DrawResult::kSkip;
     }
 
+    auto dContext = GrAsDirectContext(canvas->recordingContext());
+    if (!dContext) {
+        return skiagm::DrawResult::kSkip;
+    }
+
     static constexpr int kBorder = 5;
     static constexpr int kInner = 5;
     const auto srcRect = SkIRect::MakeXYWH(kBorder, kBorder, kInner, kInner);
@@ -337,8 +342,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     canvas->translate(kPad, kPad);
     skiagm::DrawResult result;
     SkISize downSize = {static_cast<int>(kInner/2),  static_cast<int>(kInner / 2)};
-    auto direct = GrAsDirectContext(canvas->recordingContext());
-    result = do_rescale_grid(canvas, surface.get(), direct, srcRect, downSize, false, errorMsg,
+    result = do_rescale_grid(canvas, surface.get(), dContext, srcRect, downSize, false, errorMsg,
                              kPad);
 
     if (result != skiagm::DrawResult::kOk) {
@@ -346,7 +350,7 @@ DEF_SIMPLE_GM_CAN_FAIL(async_rescale_and_read_no_bleed, canvas, errorMsg, 60, 60
     }
     canvas->translate(0, 4 * downSize.height());
     SkISize upSize = {static_cast<int>(kInner * 3.5), static_cast<int>(kInner * 4.6)};
-    result = do_rescale_grid(canvas, surface.get(), direct, srcRect, upSize, false, errorMsg, kPad);
+    result = do_rescale_grid(canvas, surface.get(), dContext, srcRect, upSize, false, errorMsg, kPad);
     if (result != skiagm::DrawResult::kOk) {
         return result;
     }
