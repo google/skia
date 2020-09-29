@@ -232,6 +232,8 @@ static const void* buffer_offset_to_gl_address(const GrBuffer* drawIndirectBuffe
 
 void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
                                        int drawCount) {
+    using MultiDrawType = GrGLCaps::MultiDrawType;
+
     SkASSERT(fGpu->caps()->nativeDrawIndirectSupport());
     SkASSERT(fGpu->glCaps().baseVertexBaseInstanceSupport());
     SkASSERT(fDidBindVertexBuffer || fGpu->glCaps().drawArraysBaseVertexIsBroken());
@@ -242,14 +244,15 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
         this->bindVertexBuffer(fActiveVertexBuffer.get(), 0);
     }
 
-    if (fGpu->glCaps().ANGLEMultiDrawSupport()) {
-        this->multiDrawArraysANGLE(drawIndirectBuffer, offset, drawCount);
+    if (fGpu->glCaps().multiDrawType() == MultiDrawType::kANGLEOrWebGL) {
+        // ANGLE and WebGL don't support glDrawElementsIndirect. We draw everything as a multi draw.
+        this->multiDrawArraysANGLEOrWebGL(drawIndirectBuffer, offset, drawCount);
         return;
     }
 
     fGpu->bindBuffer(GrGpuBufferType::kDrawIndirect, drawIndirectBuffer);
 
-    if (fGpu->glCaps().multiDrawIndirectSupport() && drawCount > 1) {
+    if (drawCount > 1 && fGpu->glCaps().multiDrawType() == MultiDrawType::kMultiDrawIndirect) {
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
         GL_CALL(MultiDrawArraysIndirect(glPrimType,
                                         buffer_offset_to_gl_address(drawIndirectBuffer, offset),
@@ -265,9 +268,9 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
     }
 }
 
-void GrGLOpsRenderPass::multiDrawArraysANGLE(const GrBuffer* drawIndirectBuffer, size_t offset,
-                                             int drawCount) {
-    SkASSERT(fGpu->glCaps().ANGLEMultiDrawSupport());
+void GrGLOpsRenderPass::multiDrawArraysANGLEOrWebGL(const GrBuffer* drawIndirectBuffer,
+                                                    size_t offset, int drawCount) {
+    SkASSERT(fGpu->glCaps().multiDrawType() == GrGLCaps::MultiDrawType::kANGLEOrWebGL);
     SkASSERT(drawIndirectBuffer->isCpuBuffer());
 
     constexpr static int kMaxDrawCountPerBatch = 128;
@@ -289,8 +292,14 @@ void GrGLOpsRenderPass::multiDrawArraysANGLE(const GrBuffer* drawIndirectBuffer,
             fInstanceCounts[i] = cmd.fInstanceCount;
             fBaseInstances[i] = cmd.fBaseInstance;
         }
-        GL_CALL(MultiDrawArraysInstancedBaseInstance(glPrimType, fFirsts, fCounts, fInstanceCounts,
-                                                     fBaseInstances, countInBatch));
+        if (countInBatch == 1) {
+            GL_CALL(DrawArraysInstancedBaseInstance(glPrimType, fFirsts[0], fCounts[0],
+                                                    fInstanceCounts[0], fBaseInstances[0]));
+        } else {
+            GL_CALL(MultiDrawArraysInstancedBaseInstance(glPrimType, fFirsts, fCounts,
+                                                         fInstanceCounts, fBaseInstances,
+                                                         countInBatch));
+        }
         drawCount -= countInBatch;
         cmds += countInBatch;
     }
@@ -298,6 +307,8 @@ void GrGLOpsRenderPass::multiDrawArraysANGLE(const GrBuffer* drawIndirectBuffer,
 
 void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
                                               int drawCount) {
+    using MultiDrawType = GrGLCaps::MultiDrawType;
+
     SkASSERT(fGpu->caps()->nativeDrawIndirectSupport());
     SkASSERT(!fGpu->caps()->nativeDrawIndexedIndirectIsBroken());
     SkASSERT(fGpu->glCaps().baseVertexBaseInstanceSupport());
@@ -305,14 +316,15 @@ void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
     // onBindBuffers and not expecting to bind it until this point).
     SkASSERT(fDidBindVertexBuffer);
 
-    if (fGpu->glCaps().ANGLEMultiDrawSupport()) {
-        this->multiDrawElementsANGLE(drawIndirectBuffer, offset, drawCount);
+    if (fGpu->glCaps().multiDrawType() == MultiDrawType::kANGLEOrWebGL) {
+        // ANGLE and WebGL don't support glDrawElementsIndirect. We draw everything as a multi draw.
+        this->multiDrawElementsANGLEOrWebGL(drawIndirectBuffer, offset, drawCount);
         return;
     }
 
     fGpu->bindBuffer(GrGpuBufferType::kDrawIndirect, drawIndirectBuffer);
 
-    if (fGpu->glCaps().multiDrawIndirectSupport() && drawCount > 1) {
+    if (drawCount > 1 && fGpu->glCaps().multiDrawType() == MultiDrawType::kMultiDrawIndirect) {
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
         GL_CALL(MultiDrawElementsIndirect(glPrimType, GR_GL_UNSIGNED_SHORT,
                                           buffer_offset_to_gl_address(drawIndirectBuffer, offset),
@@ -328,9 +340,9 @@ void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
     }
 }
 
-void GrGLOpsRenderPass::multiDrawElementsANGLE(const GrBuffer* drawIndirectBuffer, size_t offset,
-                                               int drawCount) {
-    SkASSERT(fGpu->glCaps().ANGLEMultiDrawSupport());
+void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndirectBuffer,
+                                                      size_t offset, int drawCount) {
+    SkASSERT(fGpu->glCaps().multiDrawType() == GrGLCaps::MultiDrawType::kANGLEOrWebGL);
     SkASSERT(drawIndirectBuffer->isCpuBuffer());
 
     constexpr static int kMaxDrawCountPerBatch = 128;
@@ -354,10 +366,18 @@ void GrGLOpsRenderPass::multiDrawElementsANGLE(const GrBuffer* drawIndirectBuffe
             fBaseVertices[i] = cmd.fBaseVertex;
             fBaseInstances[i] = cmd.fBaseInstance;
         }
-        GL_CALL(MultiDrawElementsInstancedBaseVertexBaseInstance(glPrimType, fCounts,
-                                                                 GR_GL_UNSIGNED_SHORT, fIndices,
-                                                                 fInstanceCounts, fBaseVertices,
-                                                                 fBaseInstances, countInBatch));
+        if (countInBatch == 1) {
+            GL_CALL(DrawElementsInstancedBaseVertexBaseInstance(glPrimType, fCounts[0],
+                                                                GR_GL_UNSIGNED_SHORT, fIndices[0],
+                                                                fInstanceCounts[0],
+                                                                fBaseVertices[0],
+                                                                fBaseInstances[0]));
+        } else {
+            GL_CALL(MultiDrawElementsInstancedBaseVertexBaseInstance(glPrimType, fCounts,
+                                                                     GR_GL_UNSIGNED_SHORT, fIndices,
+                                                                     fInstanceCounts, fBaseVertices,
+                                                                     fBaseInstances, countInBatch));
+        }
         drawCount -= countInBatch;
         cmds += countInBatch;
     }
