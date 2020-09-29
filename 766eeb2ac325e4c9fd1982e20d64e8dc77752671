@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27f7898a_8de82e42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T14:03:27Z",
+      "side": 1,
+      "message": "FYI: We had a recent performance regression when drawing some SVG content.\n\nhttps://perf.skia.org/e/?begin\u003d1601069810\u0026end\u003d1601306245\u0026keys\u003dX36ee0379f238cd3f056b51bb33a45576\u0026num_commits\u003d50\u0026request_type\u003d1\u0026xbaroffset\u003d50920\n\nWorking with Michael, we think the root cause is this CL (or related work?). Those graphs are for rendering time of an SVG that was drawn in Chrome, and the resulting drawing commands recorded to SkPicture. We then draw the SkPicture. When the Chrome SKP recording was re-performed, the resulting pictures had a very different structure.\n\nWhenever something like a blur happens, we get a saveLayer with a blur image filter in both cases. In the new SKPs, that saveLayer then contains a series of actual drawing commands (eg, drawPath). In the old SKPs, the blurImageFilter in the saveLayer\u0027s paint contains a pictureImageFilter as input.\n\nThe old pattern (of pictureImageFilter directly in the DAG) is drawing much faster than the new pattern (where we can\u0027t elide the layer).",
+      "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
