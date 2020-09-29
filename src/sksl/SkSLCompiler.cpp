@@ -1495,6 +1495,9 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                     this->simplifyStatement(definitions, b, &iter, &undefinedVariables, &updated,
                                             &needsRescan);
                 }
+                if (updated) {
+                    needsRescan = true;
+                }
                 if (needsRescan) {
                     break;
                 }
