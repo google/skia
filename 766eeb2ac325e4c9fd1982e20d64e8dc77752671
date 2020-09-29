@@ -16,6 +16,24 @@
       "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc760863_a47d6a4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2020-09-29T14:19:18Z",
+      "side": 1,
+      "message": "That sounds like related work rather than this CL. SVG filter painting was recently (a bit over week ago now I think) changed to paint in the same way as HTML filters. In an interim the bounds for the associated saveLayer() will be too large (using a conservative estimate based on the filter region), which could be what you\u0027re observing (there are Chromium perf tests that also noticed). I just published a CL with the updated bounds computation (it was blocked on this change).\nIf you can point me to the original SVG file I can check what it does.",
+      "parentUuid": "27f7898a_8de82e42",
+      "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
