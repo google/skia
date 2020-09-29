@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81ab7a38_a75eb00a",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.fp",
+        "patchSetId": 87
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-29T18:57:53Z",
+      "side": 1,
+      "message": "Do we really need to change the origin on the view here? Seems weird? Are we sure that kBlurredRrrecMaskOrigin isn\u0027t just the default origin that uploading a bitmap uses? And we put in a named static instead of generically saying top or bottom. If that\u0027s the case I would think we could just return view.\n\nIt seems odd we\u0027d upload the bitmap with on origin, but then sample it with another",
+      "range": {
+        "startLine": 249,
+        "startChar": 15,
+        "endLine": 249,
+        "endChar": 74
+      },
+      "revId": "46c9b26cea1decc075200b069e9a86f3ed0291b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
