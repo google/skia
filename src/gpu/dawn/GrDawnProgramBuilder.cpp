@@ -12,33 +12,6 @@
 #include "src/gpu/GrStencilSettings.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
-#include "src/sksl/SkSLCompiler.h"
-
-static SkSL::String sksl_to_spirv(const GrDawnGpu* gpu, const char* shaderString,
-                                  SkSL::Program::Kind kind, bool flipY, uint32_t rtHeightOffset,
-                                  SkSL::Program::Inputs* inputs) {
-    SkSL::Program::Settings settings;
-    settings.fCaps = gpu->caps()->shaderCaps();
-    settings.fFlipY = flipY;
-    settings.fRTHeightOffset = rtHeightOffset;
-    settings.fRTHeightBinding = 0;
-    settings.fRTHeightSet = 0;
-    std::unique_ptr<SkSL::Program> program = gpu->shaderCompiler()->convertProgram(
-        kind,
-        shaderString,
-        settings);
-    if (!program) {
-        SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
-        SkASSERT(false);
-        return "";
-    }
-    *inputs = program->fInputs;
-    SkSL::String code;
-    if (!gpu->shaderCompiler()->toSPIRV(*program, &code)) {
-        return "";
-    }
-    return code;
-}
 
 static wgpu::BlendFactor to_dawn_blend_factor(GrBlendCoeff coeff) {
     switch (coeff) {
@@ -449,20 +422,13 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     printf("converting program:\n%s\n", sksl.c_str());
 #endif
 
-    SkSL::String spirvSource = sksl_to_spirv(fGpu, source.c_str(), kind, flipY,
-                                             fUniformHandler.getRTHeightOffset(), inputs);
+    SkSL::String spirvSource = fGpu->SkSLToSPIRV(source.c_str(), kind, flipY,
+                                                 fUniformHandler.getRTHeightOffset(), inputs);
     if (inputs->fRTHeight) {
         this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
     }
 
-    wgpu::ShaderModuleSPIRVDescriptor desc;
-    desc.codeSize = spirvSource.size() / 4;
-    desc.code = reinterpret_cast<const uint32_t*>(spirvSource.c_str());
-
-    wgpu::ShaderModuleDescriptor smDesc;
-    smDesc.nextInChain = &desc;
-
-    return device.CreateShaderModule(&smDesc);
+    return fGpu->createShaderModule(spirvSource);
 };
 
 const GrCaps* GrDawnProgramBuilder::caps() const {
