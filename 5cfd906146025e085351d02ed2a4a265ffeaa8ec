@@ -108,6 +108,30 @@
     },
     {
       "key": {
+        "uuid": "5e1ac5f2_8699b8f7",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-29T11:37:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cca7dba4_3c0edc5c",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 63
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22a5665b_511adf07",
         "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
         "patchSetId": 2
@@ -214,6 +238,30 @@
       "side": 1,
       "message": "Hmmm, is that constructor visible in this file?\n\nRRect(rect: SkRect, radii: array)",
       "parentUuid": "5fb67c0c_7259cce4",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 11
+      },
+      "revId": "5cfd906146025e085351d02ed2a4a265ffeaa8ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2c8c5a5_730f9e27",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-29T11:37:45Z",
+      "side": 1,
+      "message": "We do not yet have that constructor.",
+      "parentUuid": "4037a1b8_68b8d395",
       "range": {
         "startLine": 107,
         "startChar": 4,
