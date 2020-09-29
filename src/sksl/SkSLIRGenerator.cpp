@@ -1825,8 +1825,8 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     if (left.kind() == Expression::Kind::kFloatLiteral &&
         right.kind() == Expression::Kind::kFloatLiteral) {
-        double leftVal  = left.as<FloatLiteral>().fValue;
-        double rightVal = right.as<FloatLiteral>().fValue;
+        double leftVal  = left.as<FloatLiteral>().value();
+        double rightVal = right.as<FloatLiteral>().value();
         switch (op) {
             case Token::Kind::TK_PLUS:  return RESULT(Float, +);
             case Token::Kind::TK_MINUS: return RESULT(Float, -);
@@ -2227,7 +2227,7 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
         return std::move(args[0]);
     }
     if (type.isFloat() && args.size() == 1 && args[0]->is<FloatLiteral>()) {
-        double value = args[0]->as<FloatLiteral>().fValue;
+        double value = args[0]->as<FloatLiteral>().value();
         return std::make_unique<FloatLiteral>(offset, value, &type);
     }
     if (type.isFloat() && args.size() == 1 && args[0]->is<IntLiteral>()) {
@@ -2369,7 +2369,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
             }
             if (base->is<FloatLiteral>()) {
                 return std::make_unique<FloatLiteral>(fContext, base->fOffset,
-                                                      -base->as<FloatLiteral>().fValue);
+                                                      -base->as<FloatLiteral>().value());
             }
             if (!baseType.isNumber() && baseType.typeKind() != Type::TypeKind::kVector) {
                 fErrors.error(expression.fOffset,

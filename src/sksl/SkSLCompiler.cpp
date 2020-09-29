@@ -657,7 +657,7 @@ static bool is_constant(const Expression& expr, T value) {
             return expr.as<IntLiteral>().value() == value;
 
         case Expression::Kind::kFloatLiteral:
-            return expr.as<FloatLiteral>().fValue == value;
+            return expr.as<FloatLiteral>().value() == value;
 
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expr.as<Constructor>();
