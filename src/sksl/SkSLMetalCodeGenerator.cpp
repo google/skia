@@ -499,7 +499,7 @@ String MetalCodeGenerator::getMatrixConstructHelper(const Constructor& c) {
     const Type& matrix = c.type();
     int columns = matrix.columns();
     int rows = matrix.rows();
-    const std::vector<std::unique_ptr<Expression>>& args = c.fArguments;
+    const std::vector<std::unique_ptr<Expression>>& args = c.arguments();
 
     // Create the helper-method name and use it as our lookup key.
     String name;
@@ -577,7 +577,7 @@ bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const Constructor& c) {
     //
 
     int position = 0;
-    for (const std::unique_ptr<Expression>& expr : c.fArguments) {
+    for (const std::unique_ptr<Expression>& expr : c.arguments()) {
         // If an input argument is a matrix, we need a helper function.
         if (expr->type().typeKind() == Type::TypeKind::kMatrix) {
             return true;
@@ -599,9 +599,9 @@ bool MetalCodeGenerator::matrixConstructHelperIsNeeded(const Constructor& c) {
 void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence parentPrecedence) {
     const Type& constructorType = c.type();
     // Handle special cases for single-argument constructors.
-    if (c.fArguments.size() == 1) {
+    if (c.arguments().size() == 1) {
         // If the type is coercible, emit it directly.
-        const Expression& arg = *c.fArguments.front();
+        const Expression& arg = *c.arguments().front();
         const Type& argType = arg.type();
         if (this->canCoerce(constructorType, argType)) {
             this->writeExpression(arg, parentPrecedence);
@@ -628,7 +628,7 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
         this->write(this->getMatrixConstructHelper(c));
         this->write("(");
         const char* separator = "";
-        for (const std::unique_ptr<Expression>& expr : c.fArguments) {
+        for (const std::unique_ptr<Expression>& expr : c.arguments()) {
             this->write(separator);
             separator = ", ";
             this->writeExpression(*expr, kSequence_Precedence);
@@ -642,7 +642,7 @@ void MetalCodeGenerator::writeConstructor(const Constructor& c, Precedence paren
     this->write("(");
     const char* separator = "";
     int scalarCount = 0;
-    for (const std::unique_ptr<Expression>& arg : c.fArguments) {
+    for (const std::unique_ptr<Expression>& arg : c.arguments()) {
         const Type& argType = arg->type();
         this->write(separator);
         separator = ", ";
@@ -1715,7 +1715,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kConstructor: {
             const Constructor& c = e->as<Constructor>();
             Requirements result = kNo_Requirements;
-            for (const auto& arg : c.fArguments) {
+            for (const auto& arg : c.arguments()) {
                 result |= this->requirements(arg.get());
             }
             return result;

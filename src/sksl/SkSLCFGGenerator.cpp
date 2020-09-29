@@ -216,7 +216,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kConstructor: {
             Constructor& c = expr->as<Constructor>();
-            for (auto& arg : c.fArguments) {
+            for (auto& arg : c.arguments()) {
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
@@ -293,7 +293,7 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kConstructor: {
             Constructor& c = expr->get()->as<Constructor>();
-            for (auto& arg : c.fArguments) {
+            for (auto& arg : c.arguments()) {
                 if (!this->tryInsertExpression(iter, &arg)) {
                     return false;
                 }
@@ -358,7 +358,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         }
         case Expression::Kind::kConstructor: {
             Constructor& c = e->get()->as<Constructor>();
-            for (auto& arg : c.fArguments) {
+            for (auto& arg : c.arguments()) {
                 this->addExpression(cfg, &arg, constantPropagate);
             }
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));

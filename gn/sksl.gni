@@ -51,6 +51,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLBlock.h",
   "$_src/sksl/ir/SkSLBoolLiteral.h",
   "$_src/sksl/ir/SkSLBreakStatement.h",
+  "$_src/sksl/ir/SkSLConstructor.cpp",
   "$_src/sksl/ir/SkSLConstructor.h",
   "$_src/sksl/ir/SkSLContinueStatement.h",
   "$_src/sksl/ir/SkSLDiscardStatement.h",

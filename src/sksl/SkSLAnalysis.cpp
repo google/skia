@@ -366,7 +366,7 @@ bool ProgramVisitor::visitExpression(const Expression& e) {
             return this->visitExpression(b.left()) || this->visitExpression(b.right()); }
         case Expression::Kind::kConstructor: {
             const Constructor& c = e.as<Constructor>();
-            for (const auto& arg : c.fArguments) {
+            for (const auto& arg : c.arguments()) {
                 if (this->visitExpression(*arg)) { return true; }
             }
             return false; }

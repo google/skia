@@ -2610,8 +2610,8 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     // Synthesize a 'type(0)' argument at the end of the constructor.
                     auto zero = std::make_unique<Constructor>(
                             offset, numberType, std::vector<std::unique_ptr<Expression>>{});
-                    zero->fArguments.push_back(std::make_unique<IntLiteral>(fContext, offset,
-                                                                            /*fValue=*/0));
+                    zero->arguments().push_back(std::make_unique<IntLiteral>(fContext, offset,
+                                                                             /*fValue=*/0));
                     constructorArgs.push_back(std::move(zero));
                     constantZeroIdx = constantFieldIdx++;
                 }
@@ -2622,8 +2622,8 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
                     // Synthesize a 'type(1)' argument at the end of the constructor.
                     auto one = std::make_unique<Constructor>(
                             offset, numberType, std::vector<std::unique_ptr<Expression>>{});
-                    one->fArguments.push_back(std::make_unique<IntLiteral>(fContext, offset,
-                                                                           /*fValue=*/1));
+                    one->arguments().push_back(std::make_unique<IntLiteral>(fContext, offset,
+                                                                            /*fValue=*/1));
                     constructorArgs.push_back(std::move(one));
                     constantOneIdx = constantFieldIdx++;
                 }

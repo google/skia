@@ -682,8 +682,8 @@ static bool is_constant(const Expression& expr, T value) {
                         return true;
 
                     case Type::TypeKind::kScalar:
-                        SkASSERT(constructor.fArguments.size() == 1);
-                        return is_constant<T>(*constructor.fArguments[0], value);
+                        SkASSERT(constructor.arguments().size() == 1);
+                        return is_constant<T>(*constructor.arguments()[0], value);
 
                     default:
                         return false;
