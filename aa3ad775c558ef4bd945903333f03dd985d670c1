@@ -16,6 +16,23 @@
       "revId": "aa3ad775c558ef4bd945903333f03dd985d670c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a3a5e62_550fb4a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2020-09-29T14:59:46Z",
+      "side": 1,
+      "message": "Weston, any objections?",
+      "revId": "aa3ad775c558ef4bd945903333f03dd985d670c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
