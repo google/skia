@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46d32ef3_93c21a92",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-29T20:53:17Z",
+      "side": 1,
+      "message": "nit: include the rationale for the change to emscripten_glWaitSync as well.",
+      "revId": "24fe4a7c30538befec709c6856ca3b434e94ab8f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
