@@ -16,6 +16,7 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/dawn/GrDawnRingBuffer.h"
+#include "src/sksl/ir/SkSLProgram.h"
 
 #include <unordered_map>
 
@@ -101,6 +102,9 @@ public:
     void appendCommandBuffer(wgpu::CommandBuffer commandBuffer);
 
     void waitOnAllBusyStagingBuffers();
+    SkSL::String SkSLToSPIRV(const char* shaderString, SkSL::Program::Kind, bool flipY,
+                             uint32_t rtHeightOffset, SkSL::Program::Inputs*);
+    wgpu::ShaderModule createShaderModule(const SkSL::String& spirvSource);
 
 private:
     GrDawnGpu(GrDirectContext*, const GrContextOptions&, const wgpu::Device&);
