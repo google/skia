@@ -21,6 +21,19 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
     }
 }
 
+// Returns true if the function array was modified.
+bool add_function_decl_if_missing(const FunctionDeclaration* candidate,
+                                  std::vector<const FunctionDeclaration*>* functions) {
+    for (const FunctionDeclaration* current : *functions) {
+        if (current->matches(*candidate)) {
+            return false;
+        }
+    }
+
+    functions->push_back(candidate);
+    return true;
+}
+
 const Symbol* SymbolTable::operator[](StringFragment name) {
     const auto& entry = fSymbols.find(name);
     if (entry == fSymbols.end()) {
@@ -30,25 +43,22 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
         return nullptr;
     }
     if (fParent) {
-        auto functions = GetFunctions(*entry->second);
-        if (functions.size() > 0) {
-            bool modified = false;
+        std::vector<const FunctionDeclaration*> functions = GetFunctions(*entry->second);
+        if (!functions.empty()) {
             const Symbol* previous = (*fParent)[name];
             if (previous) {
-                auto previousFunctions = GetFunctions(*previous);
-                for (const FunctionDeclaration* prev : previousFunctions) {
-                    bool found = false;
-                    for (const FunctionDeclaration* current : functions) {
-                        if (current->matches(*prev)) {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        functions.push_back(prev);
-                        modified = true;
+                bool modified = false;
+
+                if (previous->is<FunctionDeclaration>()) {
+                    modified = add_function_decl_if_missing(&previous->as<FunctionDeclaration>(),
+                                                            &functions);
+                } else if (previous->is<UnresolvedFunction>()) {
+                    for (const FunctionDeclaration* prev :
+                         previous->as<UnresolvedFunction>().fFunctions) {
+                        modified |= add_function_decl_if_missing(prev, &functions);
                     }
                 }
+
                 if (modified) {
                     SkASSERT(functions.size() > 1);
                     return this->takeOwnershipOfSymbol(
