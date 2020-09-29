@@ -104,7 +104,7 @@ export interface CanvasKit {
      * @param rx - The radius of the corners in the x direction.
      * @param ry - The radius of the corners in the y direction.
      */
-    RRectXY(rect: SkRect, rx: number, ry: number): SkRRect;
+    RRectXY(rect: InputRect, rx: number, ry: number): SkRRect;
 
     /**
      * Malloc returns a TypedArray backed by the C++ memory of the
@@ -134,11 +134,6 @@ export interface CanvasKit {
      */
     Free(m: MallocObj): void;
 
-    // TODO(kjlubick) in helper.js
-    //   - SkRectBuilder
-    //   - RSXFormBuilder
-    //   - SkColorBuilder
-
     // Surface related functions
     /**
      * Creates a Surface on a given canvas. If both GPU and CPU modes have been compiled in, this
@@ -161,7 +156,7 @@ export interface CanvasKit {
      * @param colorSpace - One of the supported color spaces. Default is SRGB.
      * @param opts - Options that will get passed to the creation of the WebGL context.
      */
-    MakeWebGLCanvasSurface(canvas: HTMLCanvasElement | string, colorSpace?: SkColorSpace,
+    MakeWebGLCanvasSurface(canvas: HTMLCanvasElement | string, colorSpace?: ColorSpace,
                            opts?: WebGLOptions): SkSurface | null;
 
     /**
@@ -195,9 +190,32 @@ export interface CanvasKit {
      * @param colorSpace
      */
     MakeOnScreenGLSurface(ctx: GrContext, width: number, height: number,
-                          colorSpace: SkColorSpace): SkSurface | null;
+                          colorSpace: ColorSpace): SkSurface | null;
 
-    readonly SkColorSpace: SkColorSpaceFactory;
+    /**
+     * Returns the underlying data from SkData as a Uint8Array.
+     * @param data
+     */
+    getSkDataBytes(data: SkData): Uint8Array;
+
+    readonly AlphaType: AlphaTypeEnumValues;
+    readonly BlendMode: BlendModeEnumValues;
+    readonly ClipOp: ClipOpEnumValues;
+    readonly ColorType: ColorTypeEnumValues;
+    readonly ImageFormat: ImageFormatEnumValues;
+    readonly PointMode: PointModeEnumValues;
+    readonly SkColorSpace: ColorSpaceEnumValues;
+    readonly TileMode: TileModeEnumValues;
+
+    readonly TRANSPARENT: SkColor;
+    readonly BLACK: SkColor;
+    readonly WHITE: SkColor;
+    readonly RED: SkColor;
+    readonly GREEN: SkColor;
+    readonly BLUE: SkColor;
+    readonly YELLOW: SkColor;
+    readonly CYAN: SkColor;
+    readonly MAGENTA: SkColor;
 }
 
 /**
@@ -271,27 +289,452 @@ export interface MallocObj {
 }
 
 /**
+ * See Paragraph.h for more information on this class. This is only available if Paragraph has
+ * been compiled in.
+ */
+export interface Paragraph extends EmbindObject<SkAnimatedImage> {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
+ * A simple wrapper around SkTextBlob and the simple Text Shaper.
+ */
+export interface ShapedText extends EmbindObject<SkAnimatedImage> {
+    /**
+     * Return the bounding area for the given text.
+     * @param outputArray - if provided, the bounding box will be copied into this array instead of
+     *                      allocating a new one.
+     */
+    getBounds(outputArray?: SkRect): SkRect;
+}
+
+/**
+ * See SkAnimatedImage.h for more information on this class.
+ */
+export interface SkAnimatedImage extends EmbindObject<SkAnimatedImage> {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
  * See SkCanvas.h for more information on this class.
  */
 export interface SkCanvas extends EmbindObject<SkCanvas> {
-    // TODO(kjlubick) Fill out the rest
     /**
      * Fills the current clip with the given color using Src BlendMode.
      * This has the effect of replacing all pixels contained by clip with color.
      * @param color
      */
-    clear(color: SkColor): void;
-}
+    clear(color: InputColor): void;
 
-export type SkColorSpace = EmbindSingleton;
+    /**
+     * Replaces clip with the intersection or difference of the current clip and path,
+     * with an aliased or anti-aliased clip edge.
+     * @param path
+     * @param op
+     * @param doAntiAlias
+     */
+    clipPath(path: SkPath, op: ClipOp, doAntiAlias: boolean): void;
 
-/**
- * The currently supported color spaces. These are all singleton values.
- */
-export interface SkColorSpaceFactory {
-    readonly SRGB: SkColorSpace;
-    readonly DISPLAY_P3: SkColorSpace;
-    readonly ADOBE_RGB: SkColorSpace;
+    /**
+     * Replaces clip with the intersection or difference of the current clip and rect,
+     * with an aliased or anti-aliased clip edge.
+     * @param rect
+     * @param op
+     * @param doAntiAlias
+     */
+    clipRect(rect: InputRect, op: ClipOp, doAntiAlias: boolean): void;
+
+    /**
+     * Replaces clip with the intersection or difference of the current clip and rrect,
+     * with an aliased or anti-aliased clip edge.
+     * @param rrect
+     * @param op
+     * @param doAntiAlias
+     */
+    clipRRect(rrect: InputRRect, op: ClipOp, doAntiAlias: boolean): void;
+
+    /**
+     * Replaces current matrix with m premultiplied with the existing matrix.
+     * @param m
+     */
+    concat(m: InputMatrix): void;
+
+    /**
+     * Draws arc using clip, SkMatrix, and SkPaint paint.
+     *
+     * Arc is part of oval bounded by oval, sweeping from startAngle to startAngle plus
+     * sweepAngle. startAngle and sweepAngle are in degrees.
+     * @param oval - bounds of oval containing arc to draw
+     * @param startAngle - angle in degrees where arc begins
+     * @param sweepAngle - sweep angle in degrees; positive is clockwise
+     * @param useCenter - if true, include the center of the oval
+     * @param paint
+     */
+    drawArc(oval: InputRect, startAngle: angleInDegrees, sweepAngle: angleInDegrees,
+            useCenter: boolean, paint: SkPaint): void;
+
+    /**
+     * Draws a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
+     * @param atlas - SkImage containing sprites
+     * @param srcRects - SkRect locations of sprites in atlas
+     * @param dstXforms - SkRSXform mappings for sprites in atlas
+     * @param paint
+     * @param blendMode - BlendMode combining colors and sprites
+     * @param colors - If provided, will be blended with sprite using blendMode.
+     */
+    drawAtlas(atlas: SkImage, srcRects: FlattenedRectangleArray,
+              dstXforms: FlattenedRSXFormArray, paint: SkPaint,
+              blendMode?: BlendMode, colors?: ColorIntArray): void;
+
+    /**
+     * Draws a circle at (cx, cy) with the given radius.
+     * @param cx
+     * @param cy
+     * @param radius
+     * @param paint
+     */
+    drawCircle(cx: number, cy: number, radius: number, paint: SkPaint): void;
+
+    /**
+     * Fills clip with the given color.
+     * @param color
+     * @param blendMode - defaults to SrcOver.
+     */
+    drawColor(color: InputColor, blendMode?: BlendMode): void;
+
+    /**
+     * Fills clip with the given color.
+     * @param r - red value (typically from 0 to 1.0).
+     * @param g - green value (typically from 0 to 1.0).
+     * @param b - blue value (typically from 0 to 1.0).
+     * @param a - alpha value, range 0 to 1.0 (1.0 is opaque).
+     * @param blendMode - defaults to SrcOver.
+     */
+    drawColorComponents(r: number, g: number, b: number, a: number, blendMode?: BlendMode): void;
+
+    /**
+     * Fills clip with the given color.
+     * @param color
+     * @param blendMode - defaults to SrcOver.
+     */
+    drawColorInt(color: SkColorInt, blendMode?: BlendMode): void;
+
+    /**
+     * Draws SkRRect outer and inner using clip, SkMatrix, and SkPaint paint.
+     * outer must contain inner or the drawing is undefined.
+     * @param outer
+     * @param inner
+     * @param paint
+     */
+    drawDRRect(outer: InputRRect, inner: InputRRect, paint: SkPaint): void;
+
+    /**
+     * Draws the given image with its top-left corner at (left, top) using the current clip,
+     * the current matrix, and optionally-provided paint.
+     * @param img
+     * @param left
+     * @param top
+     * @param paint
+     */
+    drawImage(img: SkImage, left: number, top: number, paint?: SkPaint): void;
+
+    /**
+     * Draws the current frame of the given animated image with its top-left corner at
+     * (left, top) using the current clip, the current matrix, and optionally-provided paint.
+     * @param aImg
+     * @param left
+     * @param top
+     * @param paint
+     */
+    drawImageAtCurrentFrame(aImg: SkAnimatedImage, left: number, top: number,
+                            paint?: SkPaint): void;
+
+    /**
+     *  Draws the provided image stretched proportionally to fit into dst rectangle.
+     *  The center rectangle divides the image into nine sections: four sides, four corners, and
+     *  the center.
+     * @param img
+     * @param center
+     * @param dest
+     * @param paint
+     */
+    drawImageNine(img: SkImage, center: InputIRect, dest: InputRect, paint: SkPaint): void;
+
+    /**
+     * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
+     * @param img
+     * @param src
+     * @param dest
+     * @param paint
+     * @param fastSample - if false, will filter strictly within src.
+     */
+    drawImageRect(img: SkImage, src: InputRect, dest: InputRect, paint: SkPaint,
+                  fastSample?: boolean): void;
+
+    /**
+     * Draws line segment from (x0, y0) to (x1, y1) using the current clip, current matrix,
+     * and the provided paint.
+     * @param x0
+     * @param y0
+     * @param x1
+     * @param y1
+     * @param paint
+     */
+    drawLine(x0: number, y0: number, x1: number, y1: number, paint: SkPaint): void;
+
+    /**
+     * Draws an oval bounded by the given rectangle using the current clip, current matrix,
+     * and the provided paint.
+     * @param oval
+     * @param paint
+     */
+    drawOval(oval: InputRect, paint: SkPaint): void;
+
+    /**
+     * Fills clip with the given paint.
+     * @param paint
+     */
+    drawPaint(paint: SkPaint): void;
+
+    /**
+     * Draws the given Paragraph at the provided coordinates.
+     * Requires the Paragraph code to be compiled in.
+     * @param p
+     * @param x
+     * @param y
+     */
+    drawParagraph(p: Paragraph, x: number, y: number): void;
+
+    /**
+     * Draws the given path using the current clip, current matrix, and the provided paint.
+     * @param path
+     * @param paint
+     */
+    drawPath(path: SkPath, paint: SkPaint): void;
+
+    /**
+     * Draws the given picture using the current clip, current matrix, and the provided paint.
+     * @param skp
+     */
+    drawPicture(skp: SkPicture): void;
+
+    /**
+     * Draws the given points using the current clip, current matrix, and the provided paint.
+     *
+     * See SkCanvas.h for more on the mode and its interaction with paint.
+     * @param mode
+     * @param points
+     * @param paint
+     */
+    drawPoints(mode: PointMode, points: FlattenedPointArray, paint: SkPaint): void;
+
+    /**
+     * Draws the given rectangle using the current clip, current matrix, and the provided paint.
+     * @param rect
+     * @param paint
+     */
+    drawRect(rect: InputRect, paint: SkPaint): void;
+
+    /**
+     * Draws the given rectangle using the current clip, current matrix, and the provided paint.
+     * @param left
+     * @param top
+     * @param right
+     * @param bottom
+     * @param paint
+     */
+    drawRect4f(left: number, top: number, right: number, bottom: number, paint: SkPaint): void;
+
+    /**
+     * Draws the given rectangle with rounded corners using the current clip, current matrix,
+     * and the provided paint.
+     * @param rrect
+     * @param paint
+     */
+    drawRRect(rrect: InputRRect, paint: SkPaint): void;
+
+    /**
+     * Draw an offset spot shadow and outlining ambient shadow for the given path using a disc
+     * light. See SkShadowUtils.h for more details
+     * @param path - The occluder used to generate the shadows.
+     * @param zPlaneParams - Values for the plane function which returns the Z offset of the
+     *                       occluder from the canvas based on local x and y values (the current
+     *                       matrix is not applied).
+     * @param lightPos - The 3D position of the light relative to the canvas plane. This is
+     *                   independent of the canvas's current matrix.
+     * @param lightRadius - The radius of the disc light.
+     * @param ambientColor - The color of the ambient shadow.
+     * @param spotColor -  The color of the spot shadow.
+     * @param flags - See SkShadowFlags.h; 0 means use default options.
+     */
+    drawShadow(path: SkPath, zPlaneParams: Point3, lightPos: Point3, lightRadius: number,
+               ambientColor: InputColor, spotColor: InputColor, flags: number): void;
+
+    /**
+     * Draw the given text at the location (x, y) using the provided paint and font. If non-shaped
+     * text is provided, the text will be drawn as is; no line-breaking, no ligatures, etc.
+     * @param str - either a string or pre-shaped text. Unicode text is supported.
+     * @param x
+     * @param y
+     * @param paint
+     * @param font
+     */
+    drawText(str: string | ShapedText, x: number, y: number, paint: SkPaint, font: SkFont): void;
+
+    /**
+     * Draws the given TextBlob at (x, y) using the current clip, current matrix, and the
+     * provided paint. Reminder that the fonts used to draw TextBlob are part of the blob.
+     * @param blob
+     * @param x
+     * @param y
+     * @param paint
+     */
+    drawTextBlob(blob: SkTextBlob, x: number, y: number, paint: SkPaint): void;
+
+    /**
+     * Draws the given vertices (a triangle mesh) using the current clip, current matrix, and the
+     * provided paint.
+     *  If paint contains an SkShader and vertices does not contain texCoords, the shader
+     *  is mapped using the vertices' positions.
+     *  If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
+     *  SkBlendMode mode combines vertices colors with SkShader.
+     * @param verts
+     * @param mode
+     * @param paint
+     */
+    drawVertices(verts: SkVertices, mode: BlendMode, paint: SkPaint): void;
+
+    /**
+     * Returns the 4x4 matrix matching the given marker or null if there was none.
+     * See also markCTM.
+     * @param marker
+     */
+    findMarkedCTM(marker: string): Matrix4x4 | null;
+
+    /**
+     * Returns the current transform from local coordinates to the 'device', which for most
+     * purposes means pixels.
+     */
+    getLocalToDevice(): Matrix4x4;
+
+    /**
+     * Returns the number of saved states, each containing: SkMatrix and clip.
+     * Equals the number of save() calls less the number of restore() calls plus one.
+     * The save count of a new canvas is one.
+     */
+    getSaveCount(): number;
+
+    /**
+     * Legacy version of getLocalToDevice(), which strips away any Z information, and
+     * just returns a 3x3 version.
+     */
+    getTotalMatrix(): Matrix3x3;
+
+    /**
+     * Creates SkSurface matching info and props, and associates it with SkCanvas.
+     * Returns null if no match found.
+     * @param info
+     */
+    makeSurface(info: SkImageInfo): SkSurface | null;
+
+    /**
+     * Record a marker (provided by caller) for the current CTM. This does not change anything
+     * about the ctm or clip, but does "name" this matrix value, so it can be referenced by
+     * custom effects (who access it by specifying the same name).
+     * See also findMarkedCTM.
+     * @param marker
+     */
+    markCTM(marker: string): void;
+
+    /**
+     * Copies the given rectangle of pixels into a new Uint8Array and returns it. If alphaType,
+     * colorType, and colorSpace are provided, those will describe the output format.
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param alphaType - defaults to Unpremul
+     * @param colorType - defaults to RGBA_8888
+     * @param colorSpace - defaults to SRGB
+     * @param dstRowBytes
+     */
+    readPixels(x: number, y: number, w: number, h: number, alphaType?: AlphaType,
+               colorType?: ColorType, colorSpace?: ColorSpace, dstRowBytes?: number): Uint8Array;
+
+    /**
+     * Removes changes to the current matrix and clip since SkCanvas state was
+     * last saved. The state is removed from the stack.
+     * Does nothing if the stack is empty.
+     */
+    restore(): void;
+
+    /**
+     * Restores state to a previous stack value.
+     * @param saveCount
+     */
+    restoreToCount(saveCount: number): void;
+
+    /**
+     * Rotates the current matrix by the number of degrees.
+     * @param rot - angle of rotation in degrees.
+     * @param rx
+     * @param ry
+     */
+    rotate(rot: angleInDegrees, rx: number, ry: number): void;
+
+    /**
+     * Saves the current matrix and clip and returns current height of the stack.
+     */
+    save(): number;
+
+    /**
+     * Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
+     * Calling restore() discards changes to SkMatrix and clip, and draws the SkBitmap.
+     * It returns the height of the stack.
+     * See SkCanvas.h for more.
+     * @param paint
+     * @param bounds
+     */
+    saveLayer(paint?: SkPaint, bounds?: InputRect): number;
+
+    /**
+     * Scales the current matrix by sx on the x-axis and sy on the y-axis.
+     * @param sx
+     * @param sy
+     */
+    scale(sx: number, sy: number): void;
+
+    /**
+     *  Skews SkMatrix by sx on the x-axis and sy on the y-axis. A positive value of sx
+     *  skews the drawing right as y-axis values increase; a positive value of sy skews
+     *  the drawing down as x-axis values increase.
+     * @param sx
+     * @param sy
+     */
+    skew(sx: number, sy: number): void;
+
+    /**
+     * Translates SkMatrix by dx along the x-axis and dy along the y-axis.
+     * @param dx
+     * @param dy
+     */
+    translate(dx: number, dy: number): void;
+
+    /**
+     * Writes the given rectangle of pixels to the provided coordinates. The source pixels
+     * will be converted to the canvas's alphaType and colorType if they do not match.
+     * @param pixels
+     * @param srcWidth
+     * @param srcHeight
+     * @param destX
+     * @param destY
+     * @param alphaType - defaults to Unpremul
+     * @param colorType - defaults to RGBA_8888
+     * @param colorSpace - defaults to SRGB
+     */
+    writePixels(pixels: Uint8Array | number[], srcWidth: number, srcHeight: number,
+                destX: number, destY: number, alphaType?: AlphaType, colorType?: ColorType,
+                colorSpace?: ColorSpace): boolean;
 }
 
 /**
@@ -303,27 +746,88 @@ export interface SkData extends EmbindObject<SkImage> {
      */
     size(): number;
 }
+
+/**
+ * See SkFont.h for more on this class.
+ */
+export interface SkFont extends EmbindObject<SkImage> {
+    todo: number; // TODO(kjlubick)
+}
+
 /**
  * See SkImage.h for more information on this class.
  */
 export interface SkImage extends EmbindObject<SkImage> {
-    // TODO(kjlubick)
+    /**
+     * Encodes this image's pixels to PNG and returns them. Must be built with the PNG codec.
+     */
+    encodeToData(): SkData;
+
+    /**
+     * Encodes this image's pixels to the specified format and returns them. Must be built with
+     * the specified codec.
+     * @param fmt
+     * @param quality - a value from 0 to 100; 100 is the least lossy. May be ignored.
+     */
+    encodeToDataWithFormat(fmt: EncodedImageFormat, quality: number): SkData;
+
     /**
      * Return the height in pixels of the image.
      */
     height(): number;
+
+    /**
+     * Returns this image as a shader with the specified tiling.
+     * @param tx - tile mode in the x direction.
+     * @param ty - tile mode in the y direction.
+     * @param localMatrix
+     */
+    makeShader(tx: TileMode, ty: TileMode, localMatrix?: InputMatrix): SkShader;
+
+    /**
+     * Returns a TypedArray containing the pixels reading starting at (srcX, srcY) and does not
+     * exceed the size indicated by imageInfo. See SkImage.h for more on the caveats.
+     *
+     * @param imageInfo - describes the destination format of the pixels.
+     * @param srcX
+     * @param srcY
+     * @returns a Uint8Array if RGB_8888 was requested, Float32Array if RGBA_F32 was requested.
+     */
+    readPixels(imageInfo: SkImageInfo, srcX: number, srcY: number): Uint8Array | Float32Array | null;
+
+    /**
+     * Return the width in pixels of the image.
+     */
+    width(): number;
 }
 
 export interface SkImageInfo {
-    alphaType: SkAlphaType;
-    colorSpace: SkColorSpace;
-    colorType: SkColorType;
+    alphaType: AlphaType;
+    colorSpace: ColorSpace;
+    colorType: ColorType;
     height: number;
     width: number;
 }
 
 /**
+ * See SkPaint.h for more information on this class.
+ */
+export interface SkPaint extends EmbindObject<SkPaint> {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
+ * See SkPath.h for more information on this class.
+ */
+export interface SkPath extends EmbindObject<SkPath> {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
  * See SkPicture.h for more information on this class.
+ *
+ * Of note, SkPicture is *not* what is colloquially thought of as a "picture" (what we
+ * call a bitmap). An SkPicture is a series of draw commands.
  */
 export interface SkPicture extends EmbindObject<SkPicture> {
     /**
@@ -331,6 +835,10 @@ export interface SkPicture extends EmbindObject<SkPicture> {
      * no promises are made for backwards or forward compatibility.
      */
     serialize(): SkData;
+}
+
+export interface SkShader extends EmbindObject<SkShader> {
+    todo: number; // TODO(kjlubick)
 }
 
 export interface SkSurface extends EmbindObject<SkSurface> {
@@ -400,6 +908,20 @@ export interface SkSurface extends EmbindObject<SkSurface> {
 }
 
 /**
+ * See SkTextBlob.h for more on this class.
+ */
+export interface SkTextBlob extends EmbindObject<SkImage> {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
+ * See SkVertices.h for more on this class.
+ */
+export interface SkVertices extends EmbindObject<SkImage> {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
  * Options for configuring a WebGL context. If an option is omitted, a sensible default will
  * be used. These are defined by the WebGL standards.
  */
@@ -441,13 +963,151 @@ export type SkRect = Float32Array;
  * upper-right, lower-right, lower-left. See SkRRect.h for more.
  */
 export type SkRRect = Float32Array;
+
 export type WebGLContextHandle = number;
+export type angleInDegrees = number;
 
 export type TypedArrayConstructor = Float32ArrayConstructor | Int32ArrayConstructor |
     Int16ArrayConstructor | Int8ArrayConstructor | Uint32ArrayConstructor |
     Uint16ArrayConstructor | Uint8ArrayConstructor;
 export type TypedArray = Float32Array | Int32Array | Int16Array | Int8Array | Uint32Array |
     Uint16Array | Uint8Array;
+/**
+ * FlattenedPointArray represents n points by 2*n float values. In order, the values should
+ * be the x, y for each point.
+ */
+export type FlattenedPointArray = MallocObj | Float32Array | number[];
+/**
+ * FlattenedRectangleArray represents n rectangles by 4*n float values. In order, the values should
+ * be the top, left, right, bottom point for each rectangle.
+ */
+export type FlattenedRectangleArray = MallocObj | Float32Array | number[];
+/**
+ * FlattenedRSXFormArray represents n RSXforms by 4*n float values. In order, the values should
+ * be scos, ssin, tx, ty for each RSXForm. See RSXForm.h for more details.
+ */
+export type FlattenedRSXFormArray = MallocObj | Float32Array | number[];
+export type ColorIntArray = MallocObj | Uint32Array | number[];
 
-export type SkAlphaType = EmbindEnumEntity;
-export type SkColorType = EmbindEnumEntity;
+export type Matrix4x4 = Float32Array;
+export type Matrix3x3 = Float32Array;
+export type Matrix3x2 = Float32Array;
+/**
+ * Point3 represents an x, y, coordinate.
+ */
+export type Point3 = number[]; // TODO(kjlubick) make this include typed array and malloc'd.
+
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as colors.
+ */
+export type InputColor = MallocObj | SkColor | number[];
+/**
+ * CanvasKit APIs accept all of these matrix types. Under the hood, we generally use 4x4 matrices.
+ */
+export type InputMatrix = MallocObj | Matrix4x4 | Matrix3x3 | Matrix3x2 | DOMMatrix | number[];
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles.
+ */
+export type InputRect = MallocObj | SkRect | number[];
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles.
+ */
+export type InputIRect = MallocObj | SkRect | number[];
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles with
+ * rounded corners.
+ */
+export type InputRRect = MallocObj | SkRRect | number[];
+
+export type AlphaType = EmbindEnumEntity;
+export type BlendMode = EmbindEnumEntity;
+export type ClipOp = EmbindEnumEntity;
+export type ColorSpace = EmbindSingleton;
+export type ColorType = EmbindEnumEntity;
+export type EncodedImageFormat = EmbindEnumEntity;
+export type PointMode = EmbindEnumEntity;
+export type TileMode = EmbindEnumEntity;
+
+export interface AlphaTypeEnumValues extends EmbindEnum {
+    Opaque: AlphaType;
+    Premul: AlphaType;
+    Unpremul: AlphaType;
+}
+
+export interface BlendModeEnumValues extends EmbindEnum {
+    Clear: BlendMode;
+    Src: BlendMode;
+    Dst: BlendMode;
+    SrcOver: BlendMode;
+    DstOver: BlendMode;
+    SrcIn: BlendMode;
+    DstIn: BlendMode;
+    SrcOut: BlendMode;
+    DstOut: BlendMode;
+    SrcATop: BlendMode;
+    DstATop: BlendMode;
+    Xor: BlendMode;
+    Plus: BlendMode;
+    Modulate: BlendMode;
+    Screen: BlendMode;
+    Overlay: BlendMode;
+    Darken: BlendMode;
+    Lighten: BlendMode;
+    ColorDodge: BlendMode;
+    ColorBurn: BlendMode;
+    HardLight: BlendMode;
+    SoftLight: BlendMode;
+    Difference: BlendMode;
+    Exclusion: BlendMode;
+    Multiply: BlendMode;
+    Hue: BlendMode;
+    Saturation: BlendMode;
+    Color: BlendMode;
+    Luminosity: BlendMode;
+}
+
+export interface ClipOpEnumValues extends EmbindEnum {
+    Difference: ClipOp;
+    Intersect: ClipOp;
+}
+
+/**
+ * The currently supported color spaces. These are all singleton values.
+ */
+export interface ColorSpaceEnumValues { // not a typical enum, but effectively like one.
+    readonly SRGB: ColorSpace;
+    readonly DISPLAY_P3: ColorSpace;
+    readonly ADOBE_RGB: ColorSpace;
+}
+
+export interface ColorTypeEnumValues extends EmbindEnum {
+    Alpha_8: ColorType;
+    RGB_565: ColorType;
+    RGBA_8888: ColorType;
+    BGRA_8888: ColorType;
+    RGBA_1010102: ColorType;
+    RGB_101010x: ColorType;
+    Gray_8: ColorType;
+    RGBA_F16: ColorType;
+    RGBA_F32: ColorType;
+}
+
+export interface ImageFormatEnumValues extends EmbindEnum {
+    // TODO(kjlubick) When these are compiled in depending on the availability of the codecs,
+    PNG: EncodedImageFormat;
+    JPEG: EncodedImageFormat;
+    WEBP: EncodedImageFormat;
+}
+
+export interface PointModeEnumValues extends EmbindEnum {
+    Points: PointMode;
+    Lines: PointMode;
+    Polygon: PointMode;
+}
+
+export interface TileModeEnumValues extends EmbindEnum {
+    Clamp: TileMode;
+    Decal: TileMode;
+    Mirror: TileMode;
+    Repeat: TileMode;
+}
