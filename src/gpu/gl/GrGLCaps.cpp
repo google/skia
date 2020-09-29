@@ -39,8 +39,6 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fDebugSupport = false;
     fES2CompatibilitySupport = false;
     fDrawRangeElementsSupport = false;
-    fANGLEMultiDrawSupport = false;
-    fMultiDrawIndirectSupport = false;
     fBaseVertexBaseInstanceSupport = false;
     fUseNonVBOVertexAndIndexDynamicData = false;
     fIsCoreProfile = false;
@@ -636,27 +634,38 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         if (fBaseVertexBaseInstanceSupport) {
             fNativeDrawIndirectSupport = version >= GR_GL_VER(4,0) ||
                                          ctxInfo.hasExtension("GL_ARB_draw_indirect");
-            fMultiDrawIndirectSupport = version >= GR_GL_VER(4,3) ||
-                                        ctxInfo.hasExtension("GL_ARB_multi_draw_indirect");
+            if (version >= GR_GL_VER(4,3) || ctxInfo.hasExtension("GL_ARB_multi_draw_indirect")) {
+                fMultiDrawType = MultiDrawType::kMultiDrawIndirect;
+            }
         }
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else if (GR_IS_GR_GL_ES(standard)) {
         if (ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance")) {
             fBaseVertexBaseInstanceSupport = true;
             fNativeDrawIndirectSupport = true;
-            fANGLEMultiDrawSupport = true;
+            fMultiDrawType = MultiDrawType::kANGLEOrWebGL;
             // The indirect structs need to reside in CPU memory for the ANGLE version.
             fUseClientSideIndirectBuffers = true;
         } else {
             fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
             if (fBaseVertexBaseInstanceSupport) {
                 fNativeDrawIndirectSupport = (version >= GR_GL_VER(3,1));
-                fMultiDrawIndirectSupport = ctxInfo.hasExtension("GL_EXT_multi_draw_indirect");
+                if (ctxInfo.hasExtension("GL_EXT_multi_draw_indirect")) {
+                    fMultiDrawType = MultiDrawType::kMultiDrawIndirect;
+                }
             }
         }
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
-        // WebGL lacks indirect support, but drawRange was added in WebGL 2.0
+        fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension(
+                "WEBGL_draw_instanced_base_vertex_base_instance");
+        if (fBaseVertexBaseInstanceSupport && ctxInfo.hasExtension(
+                "GL_WEBGL_multi_draw_instanced_base_vertex_base_instance")) {
+            fNativeDrawIndirectSupport = true;
+            fMultiDrawType = MultiDrawType::kANGLEOrWebGL;
+        }
+        // The indirect structs need to reside in CPU memory for the WebGL version.
+        fUseClientSideIndirectBuffers = true;
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     }
 
@@ -1135,6 +1144,15 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
+static const char* multi_draw_type_name(GrGLCaps::MultiDrawType multiDrawType) {
+    switch (multiDrawType) {
+        case GrGLCaps::MultiDrawType::kNone : return "kNone";
+        case GrGLCaps::MultiDrawType::kMultiDrawIndirect : return "kMultiDrawIndirect";
+        case GrGLCaps::MultiDrawType::kANGLEOrWebGL : return "kMultiDrawIndirect";
+    }
+    SkUNREACHABLE;
+}
+
 void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     // We are called by the base class, which has already called beginObject(). We choose to nest
@@ -1192,6 +1210,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendString("MSAA Type", kMSFBOExtStr[fMSFBOType]);
     writer->appendString("Invalidate FB Type", kInvalidateFBTypeStr[fInvalidateFBType]);
     writer->appendString("Map Buffer Type", kMapBufferTypeStr[fMapBufferType]);
+    writer->appendString("Multi Draw Type", multi_draw_type_name(fMultiDrawType));
     writer->appendS32("Max FS Uniform Vectors", fMaxFragmentUniformVectors);
     writer->appendBool("Pack Flip Y support", fPackFlipYSupport);
 
@@ -1199,7 +1218,6 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("GL_ARB_imaging support", fImagingSupport);
     writer->appendBool("Vertex array object support", fVertexArrayObjectSupport);
     writer->appendBool("Debug support", fDebugSupport);
-    writer->appendBool("Multi draw indirect support", fMultiDrawIndirectSupport);
     writer->appendBool("Base (vertex base) instance support", fBaseVertexBaseInstanceSupport);
     writer->appendBool("RGBA 8888 pixel ops are slow", fRGBA8888PixelsOpsAreSlow);
     writer->appendBool("Partial FBO read is slow", fPartialFBOReadIsSlow);
@@ -3616,14 +3634,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.angleBackend() != GrGLANGLEBackend::kOpenGL) {
         fBaseVertexBaseInstanceSupport = false;
         fNativeDrawIndirectSupport = false;
-        fMultiDrawIndirectSupport = false;
+        fMultiDrawType = MultiDrawType::kNone;
     }
 
     // http://anglebug.com/4538
     if (fBaseVertexBaseInstanceSupport && !fDrawInstancedSupport) {
         fBaseVertexBaseInstanceSupport = false;
         fNativeDrawIndirectSupport = false;
-        fMultiDrawIndirectSupport = false;
+        fMultiDrawType = MultiDrawType::kNone;
     }
 
     // Currently the extension is advertised but fb fetch is broken on 500 series Adrenos like the
