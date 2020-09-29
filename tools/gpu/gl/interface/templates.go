@@ -175,27 +175,33 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 #include "webgl/webgl2.h"
 #include "webgl/webgl2_ext.h"
 
-#define GET_PROC(F) functions->f##F = (GrGL##F##Fn*) &emscripten_gl##F
-#define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Fn*) &emscripten_gl##F##S
-#define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*) &emscripten_gl##F
+#define GET_PROC(F) functions->f##F = emscripten_gl##F
+#define GET_PROC_SUFFIX(F, S) functions->f##F = emscripten_gl##F##S
+
+// Adapter from standard GL signature to emscripten.
+void emscripten_glWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
+    uint32_t timeoutLo = timeout;
+    uint32_t timeoutHi = timeout >> 32;
+    emscripten_glWaitSync(sync, flags, timeoutLo, timeoutHi);
+}
+
+// Adapter from standard GL signature to emscripten.
+GLenum emscripten_glClientWaitSync(GLsync sync, GLbitfield flags, GLuint64 timeout) {
+    uint32_t timeoutLo = timeout;
+    uint32_t timeoutHi = timeout >> 32;
+    return emscripten_glClientWaitSync(sync, flags, timeoutLo, timeoutHi);
+}
 
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
-    GET_PROC_LOCAL(GetString);
-    if (nullptr == GetString) {
-        return nullptr;
-    }
-
-    const char* verStr = reinterpret_cast<const char*>(GetString(GR_GL_VERSION));
+    const char* verStr = reinterpret_cast<const char*>(emscripten_glGetString(GR_GL_VERSION));
     GrGLVersion glVer = GrGLGetVersionFromString(verStr);
-
     if (glVer < GR_GL_VER(1,0)) {
         return nullptr;
     }
 
-    GET_PROC_LOCAL(GetIntegerv);
-    GET_PROC_LOCAL(GetStringi);
     GrGLExtensions extensions;
-    if (!extensions.init(kWebGL_GrGLStandard, GetString, GetStringi, GetIntegerv)) {
+    if (!extensions.init(kWebGL_GrGLStandard, emscripten_glGetString, emscripten_glGetStringi,
+                         emscripten_glGetIntegerv)) {
         return nullptr;
     }
 
