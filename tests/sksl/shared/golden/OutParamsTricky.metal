@@ -12,7 +12,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     {
         float2 _5_3_color = _out->sk_FragColor.xz;
         {
-            _5_3_color.xy = _5_3_color.yx;
+            _5_3_color = _5_3_color.yx;
         }
         _out->sk_FragColor.xz = _5_3_color;
 

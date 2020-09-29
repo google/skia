@@ -23,11 +23,13 @@ struct BasicBlock {
     struct Node {
         Node(std::unique_ptr<Statement>* statement)
                 : fConstantPropagation(false)
+                , fIsAssignedTo(false)
                 , fExpression(nullptr)
                 , fStatement(statement) {}
 
-        Node(std::unique_ptr<Expression>* expression, bool constantPropagation)
+        Node(std::unique_ptr<Expression>* expression, bool constantPropagation, bool isAssignedTo)
                 : fConstantPropagation(constantPropagation)
+                , fIsAssignedTo(isAssignedTo)
                 , fExpression(expression)
                 , fStatement(nullptr) {}
 
@@ -66,14 +68,19 @@ struct BasicBlock {
         }
 #endif
 
-        // if false, this node should not be subject to constant propagation. This happens with
+        // Set to false if the node should not be subject to constant propagation. This happens with
         // compound assignment (i.e. x *= 2), in which the value x is used as an rvalue for
         // multiplication by 2 and then as an lvalue for assignment purposes. Since there is only
         // one "x" node, replacing it with a constant would break the assignment and we suppress
         // it. Down the road, we should handle this more elegantly by substituting a regular
         // assignment if the target is constant (i.e. x = 1; x *= 2; should become x = 1; x = 1 * 2;
-        // and then collapse down to a simple x = 2;).
+        // and then collapse down to a simple x = 2;). Unused in statements.
         bool fConstantPropagation;
+
+        // Set to true for the left-side of assignment expressions, and allows the expression to be
+        // used without being previously assigned. Otherwise we would detect the variable reference
+        // as accessing an uninitialized variable. Unused in statements.
+        bool fIsAssignedTo;
 
     private:
         // we store pointers to the unique_ptrs so that we can replace expressions or statements
@@ -86,8 +93,9 @@ struct BasicBlock {
         return Node{stmt};
     }
 
-    static Node MakeExpression(std::unique_ptr<Expression>* expr, bool constantPropagation) {
-        return Node{expr, constantPropagation};
+    static Node MakeExpression(std::unique_ptr<Expression>* expr,
+                               bool constantPropagation, bool isAssignment) {
+        return Node{expr, constantPropagation, isAssignment};
     }
 
     /**
@@ -177,9 +185,8 @@ public:
 private:
     void addStatement(CFG& cfg, std::unique_ptr<Statement>* s);
 
-    void addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool constantPropagate);
-
-    void addLValue(CFG& cfg, std::unique_ptr<Expression>* e);
+    void addExpression(CFG& cfg, std::unique_ptr<Expression>* e,
+                       bool constantPropagate, bool isAssignedTo);
 
     std::stack<BlockId> fLoopContinues;
     std::stack<BlockId> fLoopExits;
