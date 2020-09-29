@@ -438,14 +438,14 @@ Shaper::Result ShapeToFit(const SkString& txt, const Shaper::TextDesc& orig_desc
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkPoint& point,
                              const sk_sp<SkFontMgr>& fontmgr) {
-    return (desc.fResize == ResizePolicy::kScaleToFit ||
-            desc.fResize == ResizePolicy::kDownscaleToFit) // makes no sense in point mode
-            ? Result()
-            : ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
+    // NB: the resize policy is ignored in point mode.
+    return ShapeImpl(txt, desc, SkRect::MakeEmpty().makeOffset(point.x(), point.y()), fontmgr);
 }
 
 Shaper::Result Shaper::Shape(const SkString& txt, const TextDesc& desc, const SkRect& box,
                              const sk_sp<SkFontMgr>& fontmgr) {
+    SkASSERT(!box.isEmpty());
+
     switch(desc.fResize) {
     case ResizePolicy::kNone:
         return ShapeImpl(txt, desc, box, fontmgr);
