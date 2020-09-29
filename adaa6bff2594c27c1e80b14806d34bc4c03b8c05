@@ -68,6 +68,24 @@
       "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "126ee427_5d8164de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-29T15:00:18Z",
+      "side": 1,
+      "message": "Makes sense. How are you going to do this when backed by d3d12? If I am remembering right, the only way to generate mip levels on d3d12 is to use compute shaders. Is dawn itself going to be able to convert these graphic draws into compute work?\n\nI\u0027m not aware of all the details inside dawn, but would it make more sense for dawn to have some generateMipLevels function on it then internally it can decide how to generate mips for each platform?",
+      "parentUuid": "14bec7b5_0a04c52c",
+      "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
