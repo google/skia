@@ -9,6 +9,25 @@
 #include "bench/SkSLBench.h"
 #include "src/sksl/SkSLCompiler.h"
 
+class SkSLCompilerStartupBench : public Benchmark {
+protected:
+    const char* onGetName() override {
+        return "sksl_compiler_startup";
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == kNonRendering_Backend;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        for (int i = 0; i < loops; i++) {
+            SkSL::Compiler compiler;
+        }
+    }
+};
+
+DEF_BENCH(return new SkSLCompilerStartupBench();)
+
 class SkSLBench : public Benchmark {
 public:
     SkSLBench(SkSL::String name, const char* src)
