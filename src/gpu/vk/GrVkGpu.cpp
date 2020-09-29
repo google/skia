@@ -1409,7 +1409,7 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBacken
         return nullptr;
     }
     // See comment below about intermediate MSAA buffer.
-    if (imageInfo.fSampleCount > 1) {
+    if (imageInfo.fSampleCount != 1) {
         return nullptr;
     }
 

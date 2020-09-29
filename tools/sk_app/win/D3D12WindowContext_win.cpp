@@ -141,6 +141,7 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
                                   D3D12_RESOURCE_STATE_PRESENT,
                                   DXGI_FORMAT_R8G8B8A8_UNORM,
                                   1,
+                                  1,
                                   0);
     for (int i = 0; i < kNumFrames; ++i) {
         GR_D3D_CALL_ERRCHECK(fSwapChain->GetBuffer(i, IID_PPV_ARGS(&fBuffers[i])));
@@ -155,7 +156,7 @@ void D3D12WindowContext::setupSurfaces(int width, int height) {
                 fContext.get(), backendTexture, kTopLeft_GrSurfaceOrigin, fSampleCount,
                 kRGBA_8888_SkColorType, fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);
         } else {
-            GrBackendRenderTarget backendRT(width, height, 1, info);
+            GrBackendRenderTarget backendRT(width, height, info);
             fSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(
                 fContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
                 fDisplayParams.fColorSpace, &fDisplayParams.fSurfaceProps);

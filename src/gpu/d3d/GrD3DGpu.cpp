@@ -799,6 +799,10 @@ static bool check_tex_resource_info(const GrD3DCaps& caps, const GrD3DTextureRes
     if (!caps.isFormatTexturable(info.fFormat)) {
         return false;
     }
+    // We don't support sampling from multisampled textures.
+    if (info.fSampleCount != 1) {
+        return false;
+    }
     return true;
 }
 
@@ -928,6 +932,12 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendTextureAsRenderTarget(const GrBacke
         return nullptr;
     }
     if (!check_resource_info(textureInfo)) {
+        return nullptr;
+    }
+
+    // If sampleCnt is > 1 we will create an intermediate MSAA VkImage and then resolve into
+    // the wrapped VkImage. We don't yet support rendering directly to client-provided MSAA texture.
+    if (textureInfo.fSampleCount != 1) {
         return nullptr;
     }
 
@@ -1272,7 +1282,7 @@ GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(int w, int 
         return {};
     }
 
-    return GrBackendRenderTarget(w, h, 1, info);
+    return GrBackendRenderTarget(w, h, info);
 }
 
 void GrD3DGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {

@@ -154,8 +154,7 @@ void GrD3DRenderTarget::onAbandon() {
 }
 
 GrBackendRenderTarget GrD3DRenderTarget::getBackendRenderTarget() const {
-    return GrBackendRenderTarget(this->width(), this->height(), this->numSamples(), fInfo,
-                                 this->grD3DResourceState());
+    return GrBackendRenderTarget(this->width(), this->height(), fInfo, this->grD3DResourceState());
 }
 
 GrD3DGpu* GrD3DRenderTarget::getD3DGpu() const {
