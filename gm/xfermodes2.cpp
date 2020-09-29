@@ -53,7 +53,8 @@ protected:
         const int W = 6;
 
         SkScalar x = 0, y = 0;
-        for (size_t m = 0; m <= (size_t)SkBlendMode::kLastMode; m++) {
+        for (size_t mm = 18; mm <= 24; mm++) {
+            size_t m = 24;
             SkBlendMode mode = static_cast<SkBlendMode>(m);
 
             canvas->save();
@@ -68,6 +69,10 @@ protected:
 
             canvas->saveLayer(&r, nullptr);
 
+            SkPaint p2;
+            p2.setAntiAlias(true);
+            p2.setStyle(SkPaint::kFill_Style);
+            canvas->drawRect(r, p2);
             p.setShader(fDst);
             canvas->drawRect(r, p);
             p.setShader(fSrc);

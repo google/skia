@@ -25,6 +25,6 @@ set -e
 set -x
 
 adb shell "cd \"$dst_dir\"; mkdir -p $dirs"
-adb push --sync resources "${dst_dir}/"
-adb push --sync "$path" "${dst_dir}/${name}"
+#adb push --sync resources "${dst_dir}/"
+#adb push --sync "$path" "${dst_dir}/${name}"
 adb shell "cd \"$dst_dir\"; chmod +x \"$name\"; \"./$name\" $*"

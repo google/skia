@@ -282,6 +282,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
                     VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                     uint32_t physicalDeviceVersion, const GrVkExtensions& extensions,
                     GrProtected isProtected) {
+    fPerformColorClearsAsDraws = true;
+
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
@@ -523,7 +525,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // Adreno devices fail when trying to read the dest using an input attachment and texture
     // barriers.
     if (kQualcomm_VkVendor == properties.vendorID) {
-        fTextureBarrierSupport = false;
+    //    fTextureBarrierSupport = false;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -601,7 +603,7 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
 
     fOversizedStencilSupport = true;
 
-    if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
+    if (false && extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
         this->supportsPhysicalDeviceProperties2()) {
 
         VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT blendProps;
