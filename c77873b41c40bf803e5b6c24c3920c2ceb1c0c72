@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a89a44ca_2a55eedf",
+        "filename": "src/sksl/ir/SkSLConstructor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-29T17:28:12Z",
+      "side": 1,
+      "message": "I thought the syntax had to be \n\n    template int Constructor::getVecComponent\u003cint\u003e(int) const;\n    template float Constructor::getVecComponent\u003cfloat\u003e(int) const;\n\nI didn\u0027t realize it could be inferred like this! :)",
+      "range": {
+        "startLine": 151,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 0
+      },
+      "revId": "c77873b41c40bf803e5b6c24c3920c2ceb1c0c72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
