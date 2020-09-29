@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dfa85ce0_646db220",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 14
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T21:03:27Z",
+      "side": 1,
+      "message": "Can we instead write this as a (recursive) helper that checks if the expression is \"simple\". Bsically, each of these conditions, but then recurse on the base, instead of requiring only one level of nesting before we hit the VariableReference?",
+      "revId": "9b997f319d70e142412840644555aa8fe132508b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
