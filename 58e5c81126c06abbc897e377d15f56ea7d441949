@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c11dee3_ff18ef56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-29T21:06:03Z",
+      "side": 1,
+      "message": "I\u0027d love a simpler version, but nothing springs to mind.",
+      "revId": "58e5c81126c06abbc897e377d15f56ea7d441949",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
