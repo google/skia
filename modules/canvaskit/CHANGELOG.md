@@ -68,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
  - `SkAnimatedImage.getCurrentFrame`; prefer `SkAnimatedImage.makeImageAtCurrentFrame` (which
    follows the establishing naming convention).
+ - `SkSurface.captureFrameAsSkPicture` will be removed in a future release. Callers can simply
+   use `SkPictureRecorder` directly.
 
 ### Fixed
  - Addressed Memory leak in `SkCanvas.drawText`.

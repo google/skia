@@ -107,3 +107,7 @@ Please file bugs at [skbug.com](skbug.com).
 It may be convenient to use [our online fiddle](jsfiddle.skia.org/canvaskit) to demonstrate any issues encountered.
 
 See CONTRIBUTING.md for more information on sending pull requests.
+
+# Types and Documentation
+
+There are Typescript types and associated API docs in types/.
