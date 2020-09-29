@@ -64,6 +64,10 @@ struct Expression : public IRNode {
         : INHERITED(offset, (int) Kind::kIntLiteral, data) {
     }
 
+    Expression(int offset, FloatLiteralData data)
+        : INHERITED(offset, (int) Kind::kFloatLiteral, data) {
+    }
+
     Expression(int offset, Kind kind, const Type* type)
         : INHERITED(offset, (int) kind, type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
@@ -131,7 +135,7 @@ struct Expression : public IRNode {
      * For an expression which evaluates to a constant float, returns the value. Otherwise calls
      * ABORT.
      */
-    virtual double getConstantFloat() const {
+    virtual SKSL_FLOAT getConstantFloat() const {
         ABORT("not a constant float");
     }
 

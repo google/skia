@@ -298,7 +298,7 @@ void Dehydrator::write(const Expression* e) {
                 const FloatLiteral& f = e->as<FloatLiteral>();
                 this->writeU8(Rehydrator::kFloatLiteral_Command);
                 FloatIntUnion u;
-                u.fFloat = f.fValue;
+                u.fFloat = f.value();
                 this->writeS32(u.fInt);
                 break;
             }
