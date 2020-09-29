@@ -958,7 +958,7 @@ void ByteCodeGenerator::writeConstructor(const Constructor& c) {
 
 void ByteCodeGenerator::writeExternalFunctionCall(const ExternalFunctionCall& f) {
     int argumentCount = 0;
-    for (const auto& arg : f.fArguments) {
+    for (const auto& arg : f.arguments()) {
         this->writeExpression(*arg);
         argumentCount += SlotCount(arg->type());
     }
@@ -967,7 +967,7 @@ void ByteCodeGenerator::writeExternalFunctionCall(const ExternalFunctionCall& f)
     this->write8(argumentCount);
     this->write8(SlotCount(f.type()));
     int index = fOutput->fExternalValues.size();
-    fOutput->fExternalValues.push_back(f.fFunction);
+    fOutput->fExternalValues.push_back(f.function());
     SkASSERT(index <= 255);
     this->write8(index);
 }

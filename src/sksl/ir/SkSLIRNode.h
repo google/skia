@@ -18,6 +18,7 @@
 namespace SkSL {
 
 struct Expression;
+class ExternalValue;
 struct Statement;
 class SymbolTable;
 class Type;
@@ -79,6 +80,11 @@ protected:
         bool fValue;
     };
 
+    struct ExternalValueData {
+        const Type* fType;
+        const ExternalValue* fValue;
+    };
+
     struct FloatLiteralData {
         const Type* fType;
         float fValue;
@@ -98,6 +104,7 @@ protected:
         enum class Kind {
             kBlock,
             kBoolLiteral,
+            kExternalValue,
             kFloatLiteral,
             kIntLiteral,
             kType,
@@ -108,6 +115,7 @@ protected:
         union Contents {
             BlockData fBlock;
             BoolLiteralData fBoolLiteral;
+            ExternalValueData fExternalValue;
             FloatLiteralData fFloatLiteral;
             IntLiteralData fIntLiteral;
             const Type* fType;
@@ -126,6 +134,11 @@ protected:
         NodeData(const BoolLiteralData& data)
             : fKind(Kind::kBoolLiteral) {
             *(new(&fContents) BoolLiteralData) = data;
+        }
+
+        NodeData(const ExternalValueData& data)
+            : fKind(Kind::kExternalValue) {
+            *(new(&fContents) ExternalValueData) = data;
         }
 
         NodeData(const FloatLiteralData& data)
@@ -162,6 +175,9 @@ protected:
                 case Kind::kBoolLiteral:
                     *(new(&fContents) BoolLiteralData) = other.fContents.fBoolLiteral;
                     break;
+                case Kind::kExternalValue:
+                    *(new(&fContents) ExternalValueData) = other.fContents.fExternalValue;
+                    break;
                 case Kind::kFloatLiteral:
                     *(new(&fContents) FloatLiteralData) = other.fContents.fFloatLiteral;
                     break;
@@ -191,6 +207,9 @@ protected:
                 case Kind::kBoolLiteral:
                     fContents.fBoolLiteral.~BoolLiteralData();
                     break;
+                case Kind::kExternalValue:
+                    fContents.fExternalValue.~ExternalValueData();
+                    break;
                 case Kind::kFloatLiteral:
                     fContents.fFloatLiteral.~FloatLiteralData();
                     break;
@@ -210,6 +229,8 @@ protected:
            std::vector<std::unique_ptr<Statement>> stmts);
 
     IRNode(int offset, int kind, const BoolLiteralData& data);
+
+    IRNode(int offset, int kind, const ExternalValueData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
 
@@ -273,6 +294,11 @@ protected:
     const BoolLiteralData& boolLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kBoolLiteral);
         return fData.fContents.fBoolLiteral;
+    }
+
+    const ExternalValueData& externalValueData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kExternalValue);
+        return fData.fContents.fExternalValue;
     }
 
     const FloatLiteralData& floatLiteralData() const {

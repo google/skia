@@ -366,7 +366,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         }
         case Expression::Kind::kExternalFunctionCall: {
             ExternalFunctionCall& c = e->get()->as<ExternalFunctionCall>();
-            for (auto& arg : c.fArguments) {
+            for (auto& arg : c.arguments()) {
                 this->addExpression(cfg, &arg, constantPropagate);
             }
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
