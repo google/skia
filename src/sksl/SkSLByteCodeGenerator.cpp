@@ -1557,15 +1557,24 @@ public:
         // because the stack doesn't let us retain that address between stores. Dynamic locations
         // are rare though, and swizzled writes to those are even rarer, so we just live with this.
         for (int i = count; i-- > 0;) {
-            ByteCodeGenerator::Location location = fGenerator.getLocation(*fSwizzle.fBase);
+            // If we have a swizzle-of-swizzle lvalue, we need to flatten that down to the final
+            // component index. (getLocation can't handle this case).
+            const Expression* expr = &fSwizzle;
+            int component = i;
+            do {
+                component = expr->as<Swizzle>().fComponents[component];
+                expr = expr->as<Swizzle>().fBase.get();
+            } while (expr->is<Swizzle>());
+
+            ByteCodeGenerator::Location location = fGenerator.getLocation(*expr);
             if (!location.isOnStack()) {
                 fGenerator.write(location.selectStore(ByteCodeInstruction::kStore,
                                                       ByteCodeInstruction::kStoreGlobal),
                                  1);
-                fGenerator.write8(location.fSlot + fSwizzle.fComponents[i]);
+                fGenerator.write8(location.fSlot + component);
             } else {
                 fGenerator.write(ByteCodeInstruction::kPushImmediate);
-                fGenerator.write32(fSwizzle.fComponents[i]);
+                fGenerator.write32(component);
                 fGenerator.write(ByteCodeInstruction::kAddI, 1);
                 fGenerator.write(location.selectStore(ByteCodeInstruction::kStoreExtended,
                                                       ByteCodeInstruction::kStoreExtendedGlobal),

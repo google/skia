@@ -815,6 +815,20 @@ DEF_TEST(SkSLInterpreterOutParams, r) {
          1, 2, 3, 4, 3, 3, 1, 5);
 }
 
+DEF_TEST(SkSLInterpreterSwizzleSingleLvalue, r) {
+    // Add in your SkSL here.
+    test(r,
+         "void main(inout half4 color) { color.xywz = half4(1,2,3,4); }",
+         0, 0, 0, 0, 1, 2, 4, 3);
+}
+
+DEF_TEST(SkSLInterpreterSwizzleDoubleLvalue, r) {
+    // Add in your SkSL here.
+    test(r,
+         "void main(inout half4 color) { color.xywz.yxzw = half4(1,2,3,4); }",
+         0, 0, 0, 0, 2, 1, 4, 3);
+}
+
 DEF_TEST(SkSLInterpreterMathFunctions, r) {
     float value[4], expected[4];
 
