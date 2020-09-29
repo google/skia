@@ -174,9 +174,19 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
         GET_PROC(DrawElementsInstanced);
     }
 
+    if (extensions.has("GL_WEBGL_draw_instanced_base_vertex_base_instance")) {
+        GET_PROC_SUFFIX(DrawArraysInstancedBaseInstance, WEBGL);
+        GET_PROC_SUFFIX(DrawElementsInstancedBaseVertexBaseInstance, WEBGL);
+    }
+
     if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(DrawBuffers);
         GET_PROC(ReadBuffer);
+    }
+
+    if (extensions.has("GL_WEBGL_multi_draw_instanced_base_vertex_base_instance")) {
+        GET_PROC_SUFFIX(MultiDrawArraysInstancedBaseInstance, WEBGL);
+        GET_PROC_SUFFIX(MultiDrawElementsInstancedBaseVertexBaseInstance, WEBGL);
     }
 
     if (glVer >= GR_GL_VER(2,0)) {

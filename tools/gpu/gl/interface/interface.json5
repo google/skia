@@ -170,7 +170,7 @@
               {/*    else if      */  "ext": "GL_ARB_base_instance"}],
     "GLES":  [{"ext": "GL_EXT_base_instance"},
               {/*    else if      */  "ext": "GL_ANGLE_base_vertex_base_instance"}],
-    "WebGL": null,
+    "WebGL": [{"ext": "GL_WEBGL_draw_instanced_base_vertex_base_instance"}],
 
     "functions": [
       "DrawArraysInstancedBaseInstance", "DrawElementsInstancedBaseVertexBaseInstance"
@@ -201,7 +201,7 @@
   {
     "GL":    null,
     "GLES":  [{"ext": "GL_ANGLE_base_vertex_base_instance"}],
-    "WebGL": null,
+    "WebGL": [{"ext": "GL_WEBGL_multi_draw_instanced_base_vertex_base_instance"}],
 
     "functions": [
       "MultiDrawArraysInstancedBaseInstance", "MultiDrawElementsInstancedBaseVertexBaseInstance",

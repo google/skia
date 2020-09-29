@@ -289,7 +289,9 @@ bool GrGLInterface::validate() const {
           fExtensions.has("GL_ARB_base_instance"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           fExtensions.has("GL_EXT_base_instance") ||
-          fExtensions.has("GL_ANGLE_base_vertex_base_instance")))) {
+          fExtensions.has("GL_ANGLE_base_vertex_base_instance"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          fExtensions.has("GL_WEBGL_draw_instanced_base_vertex_base_instance")))) {
         if (!fFunctions.fDrawArraysInstancedBaseInstance ||
             !fFunctions.fDrawElementsInstancedBaseVertexBaseInstance) {
             RETURN_FALSE_INTERFACE;
@@ -319,7 +321,9 @@ bool GrGLInterface::validate() const {
     }
 
     if ((GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("GL_ANGLE_base_vertex_base_instance")))) {
+          fExtensions.has("GL_ANGLE_base_vertex_base_instance"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          fExtensions.has("GL_WEBGL_multi_draw_instanced_base_vertex_base_instance")))) {
         if (!fFunctions.fMultiDrawArraysInstancedBaseInstance ||
             !fFunctions.fMultiDrawElementsInstancedBaseVertexBaseInstance) {
             RETURN_FALSE_INTERFACE;

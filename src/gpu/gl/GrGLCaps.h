@@ -104,6 +104,13 @@ public:
         kNVFence
     };
 
+    enum class MultiDrawType {
+        kNone,
+        kMultiDrawIndirect,  // ARB_multi_draw_indirect, EXT_multi_draw_indirect, or GL 4.3 core.
+        kANGLEOrWebGL  // ANGLE_base_vertex_base_instance or
+                       // WEBGL_draw_instanced_base_vertex_base_instance
+    };
+
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
@@ -283,6 +290,9 @@ public:
     /// How are GrFences implemented?
     FenceType fenceType() const { return fFenceType; }
 
+    /// How are multi draws implemented (if at all)?
+    MultiDrawType multiDrawType() const { return fMultiDrawType; }
+
     /// The maximum number of fragment uniform vectors (GLES has min. 16).
     int maxFragmentUniformVectors() const { return fMaxFragmentUniformVectors; }
 
@@ -303,13 +313,6 @@ public:
 
     /// Is there support for ES2 compatability?
     bool ES2CompatibilitySupport() const { return fES2CompatibilitySupport; }
-
-    /// Is there support for GL_ANGLE_base_vertex_base_instance?
-    bool ANGLEMultiDrawSupport() const { return fANGLEMultiDrawSupport; }
-
-    /// Is there support for glMultiDraw*Indirect? Note that the baseInstance fields of indirect
-    /// draw commands cannot be used unless we have base instance support.
-    bool multiDrawIndirectSupport() const { return fMultiDrawIndirectSupport; }
 
     /// Is there support for glDrawRangeElements?
     bool drawRangeElementsSupport() const { return fDrawRangeElementsSupport; }
@@ -526,6 +529,7 @@ private:
     MapBufferType       fMapBufferType      = kNone_MapBufferType;
     TransferBufferType  fTransferBufferType = TransferBufferType::kNone;
     FenceType           fFenceType          = FenceType::kNone;
+    MultiDrawType       fMultiDrawType      = MultiDrawType::kNone;
 
     bool fPackFlipYSupport : 1;
     bool fTextureUsageSupport : 1;
@@ -534,8 +538,6 @@ private:
     bool fDebugSupport : 1;
     bool fES2CompatibilitySupport : 1;
     bool fDrawRangeElementsSupport : 1;
-    bool fANGLEMultiDrawSupport : 1;
-    bool fMultiDrawIndirectSupport : 1;
     bool fBaseVertexBaseInstanceSupport : 1;
     bool fUseNonVBOVertexAndIndexDynamicData : 1;
     bool fIsCoreProfile : 1;
