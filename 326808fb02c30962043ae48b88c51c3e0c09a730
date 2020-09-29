@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "52c7015f_78521691",
+        "filename": "modules/skshaper/src/SkShaper.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-29T14:23:54Z",
+      "side": 1,
+      "message": "Upon closer inspection, it seems this works by passing in this SkUnicode*, MakeSkUnicodeHbScriptRunIterator creates a ScriptRunIterator out of it after which it no longer needs the SkUnicode*, so this method can then dispose of it (similarly elsewhere). This seems overly subtle, but if we eventually remove all of these \u0027Make\u0027 methods which call \u0027SkUnicode::Make()\u0027 (and replace them with ones that take an SkUnicode*) I suppose that\u0027s fine.",
+      "parentUuid": "a5c72bde_3a970b29",
+      "range": {
+        "startLine": 66,
+        "startChar": 51,
+        "endLine": 66,
+        "endChar": 64
+      },
+      "revId": "326808fb02c30962043ae48b88c51c3e0c09a730",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3a09f7fd_6604c1ff",
         "filename": "modules/skshaper/src/SkShaper_harfbuzz.cpp",
         "patchSetId": 3
