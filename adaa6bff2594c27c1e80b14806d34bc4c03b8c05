@@ -86,6 +86,24 @@
       "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5d67f14_5732638e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-29T21:04:05Z",
+      "side": 1,
+      "message": "Draws work fine for D3D12 also. I\u0027m not an expert in the D3D12 backend, but it looks like wgpu::TextureViewDescriptor::baseMipLevel translates to D3D12_TEX2D_SRV::MostDetailedMip, so you just set MipLevels to 1 and MostDetailedMip to the one you want to render to.",
+      "parentUuid": "126ee427_5d8164de",
+      "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
