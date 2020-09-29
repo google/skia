@@ -12,33 +12,21 @@
 //#define SK_CAPTURE_DRAW_TEXT_BLOB
 
 #include <memory>
-#include <tuple>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSerialProcs.h"
-#include "include/core/SkTypeface.h"
-#include "include/private/SkTHash.h"
 #include "include/utils/SkNoDrawCanvas.h"
-#include "src/core/SkDevice.h"
-#include "src/core/SkStrikeForGPU.h"
-#include "src/core/SkTLazy.h"
 
 class Deserializer;
 class Serializer;
-enum SkAxisAlignment : uint32_t;
-class SkDescriptor;
 class SkAutoDescriptor;
 struct SkPackedGlyphID;
-enum SkScalerContextFlags : uint32_t;
 class SkStrikeCache;
-class SkTypefaceProxy;
-struct WireTypeface;
-
+class SkStrikeClientImpl;
 class SkStrikeServer;
+class SkStrikeServerImpl;
+class SkTypeface;
 
 // A SkTextBlobCacheDiffCanvas is used to populate the SkStrikeServer with ops
 // which will be serialized and rendered using the SkStrikeClient.
@@ -66,10 +54,7 @@ private:
 };
 
 using SkDiscardableHandleId = uint32_t;
-
-
 // This class is not thread-safe.
-class SkStrikeServerImpl;
 class SkStrikeServer {
 public:
     // An interface used by the server to create handles for pinning SkStrike
@@ -118,7 +103,6 @@ private:
     std::unique_ptr<SkStrikeServerImpl> fImpl;
 };
 
-class SkStrikeClientImpl;
 class SkStrikeClient {
 public:
     // This enum is used in histogram reporting in chromium. Please don't re-order the list of
