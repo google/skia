@@ -22,6 +22,30 @@
       "revId": "46c9b26cea1decc075200b069e9a86f3ed0291b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffac4fab_47ff2051",
+        "filename": "src/gpu/effects/GrRRectBlurEffect.fp",
+        "patchSetId": 87
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-09-29T19:43:59Z",
+      "side": 1,
+      "message": "kBlurredRRectMaskOrigin is kBottomLeft_GrSurfaceOrigin while, in the code path this code takes, GrBitmapTextureMaker always crams kTopLeft_GrSurfaceOrigin into the view. It is more that the GrBitmapTextureMaker always assumes top left.\n\nI\u0027ve made kBlurredRRectMaskOrigin be kTopLeft_GrSurfaceOrigin so this should now work out.",
+      "parentUuid": "81ab7a38_a75eb00a",
+      "range": {
+        "startLine": 249,
+        "startChar": 15,
+        "endLine": 249,
+        "endChar": 74
+      },
+      "revId": "46c9b26cea1decc075200b069e9a86f3ed0291b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
