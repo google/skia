@@ -138,6 +138,30 @@
     },
     {
       "key": {
+        "uuid": "84f5bd77_bdd66940",
+        "filename": "src/sksl/ir/SkSLFloatLiteral.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-29T17:30:49Z",
+      "side": 1,
+      "message": "I actually removed all the double support I could find because Metal explicitly does not support it.",
+      "parentUuid": "aad2d323_aec655b9",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 11
+      },
+      "revId": "cae092416ad95216381b8c4bb448b2ab7a184811",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b0e5041_608ce2f1",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 5
