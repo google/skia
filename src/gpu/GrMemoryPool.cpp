@@ -133,8 +133,12 @@ std::unique_ptr<GrOpMemoryPool> GrOpMemoryPool::Make(size_t preallocSize, size_t
 }
 
 void GrOpMemoryPool::release(std::unique_ptr<GrOp> op) {
+    #if 1
+        op.reset();
+    #else
     GrOp* tmp = op.release();
     SkASSERT(tmp);
     tmp->~GrOp();
     fPool.release(tmp);
+    #endif
 }

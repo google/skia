@@ -154,7 +154,8 @@ void GrOpsTask::OpChain::visitProxies(const GrOp::VisitProxyFunc& func) const {
 
 void GrOpsTask::OpChain::deleteOps(GrOpMemoryPool* pool) {
     while (!fList.empty()) {
-        pool->release(fList.popHead());
+        fList.popHead();
+        //pool->release(fList.popHead());
     }
 }
 
@@ -197,7 +198,8 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(
             if (merged) {
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, a, chainB.head());
                 if (canBackwardMerge) {
-                    arenas->opMemoryPool()->release(chainB.popHead());
+                    chainB.popHead();
+                    //arenas->opMemoryPool()->release(chainB.popHead());
                 } else {
                     // We merged the contents of b's head into a. We will replace b's head with a in
                     // chain b.
@@ -206,7 +208,8 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(
                         origATail = a->prevInChain();
                     }
                     std::unique_ptr<GrOp> detachedA = chainA.removeOp(a);
-                    arenas->opMemoryPool()->release(chainB.popHead());
+                    chainB.popHead();
+                    //arenas->opMemoryPool()->release(chainB.popHead());
                     chainB.pushHead(std::move(detachedA));
                     if (chainA.empty()) {
                         // We merged all the nodes in chain a to chain b.
@@ -282,7 +285,8 @@ bool GrOpsTask::OpChain::tryConcat(
                           list->tail()->name(), list->tail()->uniqueID(), list->head()->name(),
                           list->head()->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, fList.tail(), list->head());
-                arenas->opMemoryPool()->release(list->popHead());
+                list->popHead();
+                //arenas->opMemoryPool()->release(list->popHead());
                 break;
             }
         }

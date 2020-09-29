@@ -250,12 +250,21 @@ public:
         // Allocate size based on proxyRunCnt, since that determines number of ViewCountPairs.
         SkASSERT(proxyRunCnt <= cnt);
 
+        #if 1
+        size_t size = sizeof(TextureOp) + sizeof(ViewCountPair) * (proxyRunCnt - 1);
+        void* mem = ::operator new(size);
+        return std::unique_ptr<GrDrawOp>(
+                new (mem) TextureOp(set, cnt, proxyRunCnt, filter, mm, saturate, aaType, constraint,
+                                    viewMatrix, std::move(textureColorSpaceXform)));
+        #else
         size_t size = sizeof(TextureOp) + sizeof(ViewCountPair) * (proxyRunCnt - 1);
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
         void* mem = pool->allocate(size);
         return std::unique_ptr<GrDrawOp>(
                 new (mem) TextureOp(set, cnt, proxyRunCnt, filter, mm, saturate, aaType, constraint,
                                     viewMatrix, std::move(textureColorSpaceXform)));
+
+        #endif
     }
 
     ~TextureOp() override {

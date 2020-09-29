@@ -119,11 +119,12 @@ public:
         SkASSERT(fBoundsFlags != kUninitialized_BoundsFlag);
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
-
+#if 0
 #ifdef SK_DEBUG
     // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
     void* operator new(size_t size);
     void operator delete(void* target);
+    #endif
 
     void* operator new(size_t size, void* placement) {
         return ::operator new(size, placement);
@@ -132,6 +133,10 @@ public:
         ::operator delete(target, placement);
     }
 #endif
+
+    void operator delete(void* p) { ::operator delete(p); }
+    void* operator new(size_t) { SK_ABORT("All blobs are created by placement new."); }
+    void* operator new(size_t, void* p) { return p; }
 
     /**
      * Helper for safely down-casting to a GrOp subclass
