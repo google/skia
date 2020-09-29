@@ -133,6 +133,7 @@ static void draw_zero_length_capped_paths(SkCanvas* canvas, bool aa) {
     auto rContext = canvas->recordingContext();
     auto dContext = GrAsDirectContext(rContext);
     SkASSERT(dContext || !rContext); // not supported in DDL.
+
     canvas->translate(kCellPad, kCellPad);
 
     SkImageInfo info = canvas->imageInfo().makeWH(kCellWidth, kCellHeight);
@@ -196,6 +197,7 @@ static void draw_zero_length_capped_paths_dbl_contour(SkCanvas* canvas, bool aa)
     auto rContext = canvas->recordingContext();
     auto dContext = GrAsDirectContext(rContext);
     SkASSERT(dContext || !rContext); // not supported in DDL.
+
     canvas->translate(kCellPad, kCellPad);
 
     SkImageInfo info = canvas->imageInfo().makeWH(kCellWidth, kCellHeight);
