@@ -473,6 +473,7 @@ void print_result(const std::vector<Sample>& samples, const char* config, const 
 }
 
 extern int numHWMask, numSWMask;
+extern int circleMasksCreated;
 
 int main(int argc, char** argv) {
     CommandLineFlags::SetUsage(
@@ -648,7 +649,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    SkDebugf("------- HW %d SW %d\n", numHWMask, numSWMask);
+    SkDebugf("------- HW %d SW %d Circles %d\n", numHWMask, numSWMask, circleMasksCreated);
 
     return(0);
 }
