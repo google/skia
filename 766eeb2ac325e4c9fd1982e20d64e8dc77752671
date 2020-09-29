@@ -70,6 +70,24 @@
       "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0af1f47_90d96095",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6135
+      },
+      "writtenOn": "2020-09-29T14:49:43Z",
+      "side": 1,
+      "message": "What\u0027s preventing the fast-path/layer elision? Looking at this file it appears to mostly filtering of single primitives (although both filled and stroked). It possible that we could optimize this pattern on the Blink side (when converting to/building the CC display list).",
+      "parentUuid": "3afc1c07_0b280eb0",
+      "revId": "766eeb2ac325e4c9fd1982e20d64e8dc77752671",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
