@@ -20,36 +20,25 @@ namespace SkSL {
 
 struct Symbol;
 
-class Enum : public ProgramElement {
-public:
+struct Enum : public ProgramElement {
     static constexpr Kind kProgramElementKind = Kind::kEnum;
 
     Enum(int offset, StringFragment typeName, std::shared_ptr<SymbolTable> symbols,
          bool isBuiltin = true)
-    : INHERITED(offset, EnumData{typeName, std::move(symbols), isBuiltin}) {}
-
-    StringFragment typeName() const {
-        return this->enumData().fTypeName;
-    }
-
-    std::shared_ptr<SymbolTable> symbols() const {
-        return this->enumData().fSymbols;
-    }
-
-    bool isBuiltin() const {
-        return this->enumData().fIsBuiltin;
-    }
+    : INHERITED(offset, kProgramElementKind)
+    , fTypeName(typeName)
+    , fSymbols(std::move(symbols))
+    , fBuiltin(isBuiltin) {}
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Enum(fOffset, this->typeName(), this->symbols(),
-                                                        this->isBuiltin()));
+        return std::unique_ptr<ProgramElement>(new Enum(fOffset, fTypeName, fSymbols, fBuiltin));
     }
 
     String code() const {
-        String result = "enum class " + this->typeName() + " {\n";
+        String result = "enum class " + fTypeName + " {\n";
         String separator;
         std::vector<const Symbol*> sortedSymbols;
-        for (const auto& pair : *this->symbols()) {
+        for (const auto& pair : *fSymbols) {
             sortedSymbols.push_back(pair.second);
         }
         std::sort(sortedSymbols.begin(), sortedSymbols.end(),
@@ -68,7 +57,10 @@ public:
         return this->code();
     }
 
-private:
+    const StringFragment fTypeName;
+    const std::shared_ptr<SymbolTable> fSymbols;
+    bool fBuiltin;
+
     using INHERITED = ProgramElement;
 };
 

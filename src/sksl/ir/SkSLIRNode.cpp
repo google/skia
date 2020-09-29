@@ -23,11 +23,6 @@ IRNode::IRNode(int offset, int kind, const BoolLiteralData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const EnumData& data)
-: fOffset(offset)
-, fKind(kind)
-, fData(data) {}
-
 IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
 : fOffset(offset)
 , fKind(kind)
