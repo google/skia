@@ -57,17 +57,34 @@ struct Analysis {
  * stack.
  */
 
-class ProgramVisitor {
+template <typename PROG, typename EXPR, typename STMT, typename ELEM>
+class TProgramVisitor {
 public:
-    virtual ~ProgramVisitor() = default;
+    virtual ~TProgramVisitor() = default;
 
-    bool visit(const Program&);
+    bool visit(PROG program);
 
 protected:
-    virtual bool visitExpression(const Expression&);
-    virtual bool visitStatement(const Statement&);
-    virtual bool visitProgramElement(const ProgramElement&);
+    virtual bool visitExpression(EXPR expression);
+    virtual bool visitStatement(STMT statement);
+    virtual bool visitProgramElement(ELEM programElement);
 };
+
+// Squelch bogus Clang warning about template vtables: https://bugs.llvm.org/show_bug.cgi?id=18733
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wweak-template-vtables"
+#endif
+extern template class TProgramVisitor<const Program&, const Expression&,
+                                      const Statement&, const ProgramElement&>;
+extern template class TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&>;
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
+using ProgramVisitor = TProgramVisitor<const Program&, const Expression&,
+                                       const Statement&, const ProgramElement&>;
+using ProgramWriter = TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&>;
 
 }  // namespace SkSL
 
