@@ -36,9 +36,6 @@ struct ProgramElement : public IRNode {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
-    ProgramElement(int offset, const EnumData& enumData)
-    : INHERITED(offset, (int) Kind::kEnum, enumData) {}
-
     Kind kind() const {
         return (Kind) fKind;
     }

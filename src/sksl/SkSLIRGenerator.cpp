@@ -2670,7 +2670,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     // Find the Enum element that this type refers to (if any)
     const ProgramElement* enumElement = nullptr;
     for (const auto& e : *fProgramElements) {
-        if (e->is<Enum>() && type.name() == e->as<Enum>().typeName()) {
+        if (e->is<Enum>() && type.name() == e->as<Enum>().fTypeName) {
             enumElement = e.get();
             break;
         }
@@ -2679,7 +2679,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
     if (enumElement) {
         // We found the Enum element. Look for 'field' as a member.
         std::shared_ptr<SymbolTable> old = fSymbolTable;
-        fSymbolTable = enumElement->as<Enum>().symbols();
+        fSymbolTable = enumElement->as<Enum>().fSymbols;
         std::unique_ptr<Expression> result = convertIdentifier(
                 ASTNode(&fFile->fNodes, offset, ASTNode::Kind::kIdentifier, field));
         if (result) {

@@ -84,7 +84,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
             }
             case ProgramElement::Kind::kEnum: {
                 Enum& e = element->as<Enum>();
-                target->insertOrDie(e.typeName(), std::move(element));
+                target->insertOrDie(e.fTypeName, std::move(element));
                 iter = src->erase(iter);
                 break;
             }
