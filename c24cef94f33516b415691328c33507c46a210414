@@ -22,6 +22,30 @@
       "revId": "c24cef94f33516b415691328c33507c46a210414",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfb15e23_692a5776",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-09-29T16:57:07Z",
+      "side": 1,
+      "message": "(https://helpx.adobe.com/after-effects/using/creating-editing-text-layers.html#enter_point_text)\n\nYes, for point text Bodymovin just exports an empty box - so that\u0027s indistinguishable from paragraph text with an empty box.  Thankfully the paragraph box cannot be animated, and it\u0027s impossible to create an empty one in AE (you need to drag to define, if it collapses it just switches to point mode).",
+      "parentUuid": "034b8a3f_9ffca931",
+      "range": {
+        "startLine": 279,
+        "startChar": 37,
+        "endLine": 279,
+        "endChar": 51
+      },
+      "revId": "c24cef94f33516b415691328c33507c46a210414",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
