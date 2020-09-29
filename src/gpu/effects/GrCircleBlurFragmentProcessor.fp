@@ -42,6 +42,7 @@ uniform half4 circleData;
     #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrProxyProvider.h"
     #include "src/gpu/GrRecordingContextPriv.h"
+    #include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
 
     // Computes an unnormalized half kernel (right side). Returns the summation of all the half
     // kernel values.
@@ -194,15 +195,18 @@ uniform half4 circleData;
         profile[profileWidth - 1] = 0;
     }
 
-    static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingContext* context,
-                                                     const SkRect& circle,
-                                                     float sigma,
-                                                     float* solidRadius,
-                                                     float* textureRadius) {
+    static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingContext* rContext,
+                                                                      const SkRect& circle,
+                                                                      float sigma,
+                                                                      float* solidRadius,
+                                                                      float* textureRadius) {
         float circleR = circle.width() / 2.0f;
         if (circleR < SK_ScalarNearlyZero) {
             return nullptr;
         }
+
+        auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+
         // Profile textures are cached by the ratio of sigma to circle radius and by the size of the
         // profile texture (binned by powers of 2).
         SkScalar sigmaToCircleRRatio = sigma / circleR;
@@ -243,12 +247,10 @@ uniform half4 circleData;
         builder[0] = sigmaToCircleRRatioFixed;
         builder.finish();
 
-        GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-        if (sk_sp<GrTextureProxy> blurProfile = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
-            GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(blurProfile->backendFormat(),
-                                                                       GrColorType::kAlpha_8);
-            GrSurfaceProxyView profileView{std::move(blurProfile), kTopLeft_GrSurfaceOrigin,
-                                           swizzle};
+        GrSurfaceProxyView profileView = threadSafeViewCache->find(key);
+        if (profileView) {
+            SkASSERT(profileView.asTextureProxy());
+            SkASSERT(profileView.origin() == kTopLeft_GrSurfaceOrigin);
             return GrTextureEffect::Make(std::move(profileView), kPremul_SkAlphaType, texM);
         }
 
@@ -268,12 +270,13 @@ uniform half4 circleData;
 
         bm.setImmutable();
 
-        GrBitmapTextureMaker maker(context, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-        auto profileView = maker.view(GrMipmapped::kNo);
+        GrBitmapTextureMaker maker(rContext, bm, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+        profileView = maker.view(GrMipmapped::kNo);
         if (!profileView) {
             return nullptr;
         }
-        proxyProvider->assignUniqueKeyToProxy(key, profileView.asTextureProxy());
+
+        profileView = threadSafeViewCache->add(key, profileView);
         return GrTextureEffect::Make(std::move(profileView), kPremul_SkAlphaType, texM);
     }
 
