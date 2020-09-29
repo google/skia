@@ -47,8 +47,14 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
-             void main() {
-                 sk_FragColor = half4(0);
-             }
+void main() {
+    int x = 0;
+    int y = 0;
+    int z = 0;
+    if (sk_Caps.externalTextureSupport) x = 1;
+    if (sk_Caps.fbFetchSupport) y = 1;
+    if (sk_Caps.canUseAnyFunctionInShader) z = 1;
+    sk_FragColor.rgb = half3(x, y, z);
+}
          )__SkSL__");
 }
