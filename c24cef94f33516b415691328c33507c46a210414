@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "034b8a3f_9ffca931",
+        "filename": "modules/skottie/src/text/TextAdapter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-29T16:43:15Z",
+      "side": 1,
+      "message": "Just wanted to be sure, is this the definition of point text? Just wanted to make sure that as someone animates a bounding box down to zero that the text doesn\u0027t suddenly go from more or less one glyph per line to being laid out in one long line as the size goes to zero.",
+      "range": {
+        "startLine": 279,
+        "startChar": 37,
+        "endLine": 279,
+        "endChar": 51
+      },
+      "revId": "c24cef94f33516b415691328c33507c46a210414",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
