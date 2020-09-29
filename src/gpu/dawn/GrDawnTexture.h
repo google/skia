@@ -37,10 +37,8 @@ public:
                 const SkIRect& dstRect, wgpu::CommandEncoder copyEncoder);
 
     wgpu::Texture texture() const { return fInfo.fTexture; }
-    wgpu::TextureView textureView() const { return fTextureView; }
 protected:
-    GrDawnTexture(GrDawnGpu*, SkISize dimensions, wgpu::TextureView,
-                  const GrDawnTextureInfo&, GrMipmapStatus);
+    GrDawnTexture(GrDawnGpu*, SkISize dimensions, const GrDawnTextureInfo&, GrMipmapStatus);
 
     GrDawnGpu* getDawnGpu() const;
 
@@ -53,7 +51,6 @@ protected:
 
 private:
     GrDawnTextureInfo        fInfo;
-    wgpu::TextureView        fTextureView;
 
     using INHERITED = GrTexture;
 };
