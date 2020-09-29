@@ -18,6 +18,7 @@
 #include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkCommandPool.h"
 #include "src/gpu/vk/GrVkGpu.h"
+#include "src/gpu/vk/GrVkMSAAAttachment.h"
 #include "src/gpu/vk/GrVkPipeline.h"
 #include "src/gpu/vk/GrVkRenderPass.h"
 #include "src/gpu/vk/GrVkRenderTarget.h"
@@ -75,7 +76,7 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
     GrVkRenderPass::LoadStoreOps vkStencilOps(loadOp, storeOp);
 
     GrVkRenderTarget* vkRT = static_cast<GrVkRenderTarget*>(fRenderTarget);
-    GrVkImage* targetImage = vkRT->msaaImage() ? vkRT->msaaImage() : vkRT;
+    GrVkImage* targetImage = vkRT->colorAttachmentImage();
 
     if (fSelfDependencyFlags == SelfDependencyFlags::kForInputAttachment) {
         // We need to use the GENERAL layout in this case since we'll be using texture barriers
@@ -673,7 +674,7 @@ void GrVkOpsRenderPass::onExecuteDrawable(std::unique_ptr<SkDrawable::GpuDrawHan
     }
     GrVkRenderTarget* target = static_cast<GrVkRenderTarget*>(fRenderTarget);
 
-    GrVkImage* targetImage = target->msaaImage() ? target->msaaImage() : target;
+    GrVkImage* targetImage = target->colorAttachmentImage();
 
     VkRect2D bounds;
     bounds.offset = { 0, 0 };

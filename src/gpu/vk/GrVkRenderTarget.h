@@ -20,6 +20,7 @@
 class GrVkFramebuffer;
 class GrVkGpu;
 class GrVkImageView;
+class GrVkMSAAAttachment;
 class GrVkStencilAttachment;
 
 struct GrVkImageInfo;
@@ -40,17 +41,16 @@ public:
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
 
     const GrVkFramebuffer* getFramebuffer(bool withStencil, SelfDependencyFlags);
+
     const GrVkImageView* colorAttachmentView() const { return fColorAttachmentView.get(); }
-    const GrManagedResource* msaaImageResource() const {
-        if (fMSAAImage) {
-            return fMSAAImage->fResource;
-        }
-        return nullptr;
-    }
-    GrVkImage* msaaImage() { return fMSAAImage.get(); }
+    GrVkMSAAAttachment* msaaAttachment() { return fMSAAAttachment.get(); }
     const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView.get(); }
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
+
+    // Returns that main targert for draws. If using MSAA it will be the msaa attachment, otherwise
+    // it will be this object.
+    GrVkImage* colorAttachmentImage();
 
     const GrVkRenderPass* getSimpleRenderPass(bool withStencil, SelfDependencyFlags);
     GrVkResourceProvider::CompatibleRPHandle compatibleRenderPassHandle(bool withStencil,
@@ -100,8 +100,7 @@ protected:
                      int sampleCnt,
                      const GrVkImageInfo& info,
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     const GrVkImageInfo& msaaInfo,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
+                     sk_sp<GrVkMSAAAttachment> msaaAttachment,
                      sk_sp<const GrVkImageView> colorAttachmentView,
                      sk_sp<const GrVkImageView> resolveAttachmentView,
                      GrBackendObjectOwnership);
@@ -134,8 +133,7 @@ private:
                      int sampleCnt,
                      const GrVkImageInfo& info,
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     const GrVkImageInfo& msaaInfo,
-                     sk_sp<GrBackendSurfaceMutableStateImpl> msaaMutableState,
+                     sk_sp<GrVkMSAAAttachment> msaaAttachment,
                      sk_sp<const GrVkImageView> colorAttachmentView,
                      sk_sp<const GrVkImageView> resolveAttachmentView);
 
@@ -171,7 +169,7 @@ private:
     void releaseInternalObjects();
 
     sk_sp<const GrVkImageView> fColorAttachmentView;
-    std::unique_ptr<GrVkImage> fMSAAImage;
+    sk_sp<GrVkMSAAAttachment> fMSAAAttachment;
     sk_sp<const GrVkImageView> fResolveAttachmentView;
 
     // We can have a renderpass with and without stencil, input attachment dependency, and advanced
