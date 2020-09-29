@@ -351,7 +351,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kConstructor: {
             const Constructor& constructor = expression.as<Constructor>();
             return std::make_unique<Constructor>(offset, &constructor.type(),
-                                                 argList(constructor.fArguments));
+                                                 argList(constructor.arguments()));
         }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
@@ -996,7 +996,7 @@ bool Inliner::analyze(Program& program) {
                 }
                 case Expression::Kind::kConstructor: {
                     Constructor& constructorExpr = (*expr)->as<Constructor>();
-                    for (std::unique_ptr<Expression>& arg : constructorExpr.fArguments) {
+                    for (std::unique_ptr<Expression>& arg : constructorExpr.arguments()) {
                         this->visitExpression(&arg);
                     }
                     break;
