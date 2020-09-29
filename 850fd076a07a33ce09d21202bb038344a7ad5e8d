@@ -16,6 +16,24 @@
       "revId": "850fd076a07a33ce09d21202bb038344a7ad5e8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b49ad015_7275dc50",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-09-29T16:59:47Z",
+      "side": 1,
+      "message": "Yeah. Making them dynamic extent is the norm. T(\u0026)[N] rarely happens, but is used in tests. If you have a static extent spans, then you can\u0027t mix and match array spans with vector spans.",
+      "parentUuid": "71150d7c_a3071e65",
+      "revId": "850fd076a07a33ce09d21202bb038344a7ad5e8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
