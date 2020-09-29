@@ -461,7 +461,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kExpression: {
             const ExpressionStatement& e = statement.as<ExpressionStatement>();
-            return std::make_unique<ExpressionStatement>(expr(e.fExpression));
+            return std::make_unique<ExpressionStatement>(expr(e.expression()));
         }
         case Statement::Kind::kFor: {
             const ForStatement& f = statement.as<ForStatement>();
@@ -859,7 +859,7 @@ bool Inliner::analyze(Program& program) {
                 }
                 case Statement::Kind::kExpression: {
                     ExpressionStatement& expr = (*stmt)->as<ExpressionStatement>();
-                    this->visitExpression(&expr.fExpression);
+                    this->visitExpression(&expr.expression());
                     break;
                 }
                 case Statement::Kind::kFor: {
