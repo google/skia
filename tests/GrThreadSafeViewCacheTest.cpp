@@ -417,7 +417,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
         GrSurfaceProxyView view;
 
         // We can "fail the lookup" to simulate a threaded race condition
-        if (auto view = threadSafeViewCache->find(key); !failLookup && view) {
+        if (view = threadSafeViewCache->find(key); !failLookup && view) {
             ++stats->fCacheHits;
             return view;
         }
