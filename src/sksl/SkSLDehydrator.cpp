@@ -510,9 +510,9 @@ void Dehydrator::write(const ProgramElement& e) {
         case ProgramElement::Kind::kEnum: {
             const Enum& en = e.as<Enum>();
             this->writeU8(Rehydrator::kEnum_Command);
-            this->write(en.fTypeName);
-            AutoDehydratorSymbolTable symbols(this, en.fSymbols);
-            for (const std::unique_ptr<const Symbol>& s : en.fSymbols->fOwnedSymbols) {
+            this->write(en.typeName());
+            AutoDehydratorSymbolTable symbols(this, en.symbols());
+            for (const std::unique_ptr<const Symbol>& s : en.symbols()->fOwnedSymbols) {
                 SkASSERT(s->kind() == Symbol::Kind::kVariable);
                 Variable& v = (Variable&) *s;
                 SkASSERT(v.fInitialValue);

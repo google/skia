@@ -79,6 +79,12 @@ protected:
         bool fValue;
     };
 
+    struct EnumData {
+        StringFragment fTypeName;
+        std::shared_ptr<SymbolTable> fSymbols;
+        bool fIsBuiltin;
+    };
+
     struct FloatLiteralData {
         const Type* fType;
         float fValue;
@@ -98,6 +104,7 @@ protected:
         enum class Kind {
             kBlock,
             kBoolLiteral,
+            kEnum,
             kFloatLiteral,
             kIntLiteral,
             kType,
@@ -108,6 +115,7 @@ protected:
         union Contents {
             BlockData fBlock;
             BoolLiteralData fBoolLiteral;
+            EnumData fEnum;
             FloatLiteralData fFloatLiteral;
             IntLiteralData fIntLiteral;
             const Type* fType;
@@ -126,6 +134,11 @@ protected:
         NodeData(const BoolLiteralData& data)
             : fKind(Kind::kBoolLiteral) {
             *(new(&fContents) BoolLiteralData) = data;
+        }
+
+        NodeData(const EnumData& data)
+            : fKind(Kind::kEnum) {
+            *(new(&fContents) EnumData) = data;
         }
 
         NodeData(const FloatLiteralData& data)
@@ -162,6 +175,9 @@ protected:
                 case Kind::kBoolLiteral:
                     *(new(&fContents) BoolLiteralData) = other.fContents.fBoolLiteral;
                     break;
+                case Kind::kEnum:
+                    *(new(&fContents) EnumData) = other.fContents.fEnum;
+                    break;
                 case Kind::kFloatLiteral:
                     *(new(&fContents) FloatLiteralData) = other.fContents.fFloatLiteral;
                     break;
@@ -191,6 +207,9 @@ protected:
                 case Kind::kBoolLiteral:
                     fContents.fBoolLiteral.~BoolLiteralData();
                     break;
+                case Kind::kEnum:
+                    fContents.fEnum.~EnumData();
+                    break;
                 case Kind::kFloatLiteral:
                     fContents.fFloatLiteral.~FloatLiteralData();
                     break;
@@ -210,6 +229,8 @@ protected:
            std::vector<std::unique_ptr<Statement>> stmts);
 
     IRNode(int offset, int kind, const BoolLiteralData& data);
+
+    IRNode(int offset, int kind, const EnumData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
 
@@ -273,6 +294,11 @@ protected:
     const BoolLiteralData& boolLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kBoolLiteral);
         return fData.fContents.fBoolLiteral;
+    }
+
+    const EnumData& enumData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kEnum);
+        return fData.fContents.fEnum;
     }
 
     const FloatLiteralData& floatLiteralData() const {
