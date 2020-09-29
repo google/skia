@@ -239,7 +239,8 @@ static FilterNode build_dag(const SkMatrix& ctm, const SkRect& rect,
                             const SkImageFilter* rootFilter) {
     // Emulate SkCanvas::internalSaveLayer's decomposition of the CTM.
     SkMatrix local;
-    sk_sp<SkImageFilter> finalFilter = as_IFB(rootFilter)->applyCTM(ctm, &local);
+    // FIXME this whole thing needs updating
+    sk_sp<SkImageFilter> finalFilter = sk_ref_sp(rootFilter); //as_IFB(rootFilter)->applyCTM(ctm, &local);
 
     // In ApplyCTMToFilter, the CTM is decomposed such that CTM = remainder * local. The matrix
     // that is embedded in 'finalFilter' is actually local^-1*remainder*local to account for

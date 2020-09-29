@@ -135,7 +135,6 @@ protected:
 
 private:
     friend class SkCanvas;
-    friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkDrawTiler;

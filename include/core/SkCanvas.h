@@ -2563,13 +2563,6 @@ protected:
 
     virtual void onDiscard();
 
-    // Clip rectangle bounds. Called internally by saveLayer.
-    // returns false if the entire rectangle is entirely clipped out
-    // If non-NULL, The imageFilter parameter will be used to expand the clip
-    // and offscreen bounds for any margin required by the filter DAG.
-    bool clipRectBounds(const SkRect* bounds, SaveLayerFlags flags, SkIRect* intersection,
-                        const SkImageFilter* imageFilter = nullptr);
-
     SkBaseDevice* getTopDevice() const;
 
 private:
@@ -2612,11 +2605,26 @@ private:
         bool              fDone;
     };
 
-    static bool BoundsAffectsClip(SaveLayerFlags);
 
-    static void DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
-                                     SkBaseDevice* dst, const SkIPoint& dstOrigin,
-                                     const SkMatrix& ctm);
+    enum class DeviceCompatibleWithFilter : bool {
+        kUnknown = false,
+        kYes     = true
+    };
+    /**
+     * Draws 'src' into 'dst' using 'paint'. The SkPaint is allowed to have an image filter on it,
+     * although shaders and mask filters are ignored. Any image filter is evaluated based on the
+     * destination's local coordinate system. This automatically prepares the skif::Mapping based
+     * on the devices' relative transforms and local matrix. The filter result may be transformed
+     * by a non-axis-aligned matrix, or the source device's snapshot may be pre-transformed to match
+     * the filter capabilities (for backdrop filters).
+     *
+     * The paint does not necessarily need an image filter, and the image filter can be optimized
+     * away. However, unlike internalDrawDevice, this will not call SkBaseDevice::drawDevice and
+     * relies only on snapSpecial, drawSpecial, and drawFilteredImage.
+     */
+    static void DrawDeviceWithFilter(SkBaseDevice* src, SkBaseDevice* dst,
+                                     const SkPaint& paint, const SkImageFilter* filter,
+                                     DeviceCompatibleWithFilter compat);
 
     enum ShaderOverrideOpacity {
         kNone_ShaderOverrideOpacity,        //!< there is no overriding shader (bitmap or image)
@@ -2729,7 +2737,7 @@ private:
     void internalDrawPaint(const SkPaint& paint);
     void internalSaveLayer(const SaveLayerRec&, SaveLayerStrategy);
     void internalSaveBehind(const SkRect*);
-    void internalDrawDevice(SkBaseDevice*, const SkPaint*);
+    void internalDrawDevice(SkBaseDevice*, const SkPaint&, const SkImageFilter*);
 
     void internalConcat44(const SkM44&);
 

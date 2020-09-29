@@ -663,13 +663,10 @@ void SkGpuDevice::drawSpecial(const SkMatrix& xform,
     SkRect dst = SkRect::MakeXYWH(x, y, special->width(), special->height());
     SkMatrix srcToDst = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
-    // Intentionally ignore the paint's filter quality, since special image blits are generally
-    // outside of the user's control or knowledge. Instead use kNearest when the xform is an
-    // integer translation and bilerp otherwise (it won't have mipmaps, and we want to avoid the
-    // extra overhead of bicubic filtering).
-    GrSamplerState::Filter filter = SkTreatAsSprite(xform, special->subset().size(), paint) ?
-                                            GrSamplerState::Filter::kNearest :
-                                            GrSamplerState::Filter::kLinear;
+    auto [fm, mm, bicubic] = GrInterpretFilterQuality(special->subset().size(),
+                                                      paint.getFilterQuality(),
+                                                      xform, srcToDst, false,
+                                                      /*allowFilterQualityReduction=*/true);
 
     GrColorInfo colorInfo(SkColorTypeToGrColorType(special->colorType()),
                           special->alphaType(), sk_ref_sp(special->getColorSpace()));
@@ -682,7 +679,7 @@ void SkGpuDevice::drawSpecial(const SkMatrix& xform,
     draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(),
                           matrixProvider, paint, &texture, src, dst, nullptr, srcToDst, GrAA::kNo,
                           GrQuadAAFlags::kNone, SkCanvas::kStrict_SrcRectConstraint,
-                          {GrSamplerState::WrapMode::kClamp, filter}, false);
+                          {GrSamplerState::WrapMode::kClamp, fm, mm}, bicubic);
 }
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
