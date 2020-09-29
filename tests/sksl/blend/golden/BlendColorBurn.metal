@@ -16,9 +16,8 @@ float _color_burn_component(float2 s, float2 d) {
     } else {
         float _1_guarded_divide;
         float _2_n = (d.y - d.x) * s.y;
-        float _3_d = s.x;
         {
-            _1_guarded_divide = _2_n / _3_d;
+            _1_guarded_divide = _2_n / s.x;
         }
         float delta = max(0.0, d.y - _1_guarded_divide);
 
