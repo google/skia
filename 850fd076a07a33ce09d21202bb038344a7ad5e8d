@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71150d7c_a3071e65",
+        "filename": "src/core/SkSpan.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-29T16:38:33Z",
+      "side": 1,
+      "message": "Now you have me looking at stuff like https://cplusplus.github.io/LWG/issue3369 . Gross. Most of this seems fine, but I\u0027m still staring at this trying to figure out if it is significant that \u0027Container\u0026\u0027 is CTAD but \u0027T(\u0026)[N]\u0027 isn\u0027t (with the immediate difference of course being that SkSpan is always dynamic extent though that doesn\u0027t change the T inference?).",
+      "revId": "850fd076a07a33ce09d21202bb038344a7ad5e8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
