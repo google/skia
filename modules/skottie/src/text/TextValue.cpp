@@ -110,11 +110,6 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
         }
     }
 
-    if (v->fResize != Shaper::ResizePolicy::kNone && v->fBox.isEmpty()) {
-        abuilder.log(Logger::Level::kWarning, jtxt, "Auto-scaled text requires a paragraph box.");
-        v->fResize = Shaper::ResizePolicy::kNone;
-    }
-
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
                                   SkColor* c) {
         if (!jcolor) {

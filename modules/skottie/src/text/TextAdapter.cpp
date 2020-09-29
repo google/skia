@@ -276,7 +276,12 @@ void TextAdapter::reshape() {
         fText->fResize,
         this->shaperFlags(),
     };
-    const auto shape_result = Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
+    const auto shape_result = fText->fBox.isEmpty()
+            // Point text
+            ? Shaper::Shape(fText->fText, text_desc, SkPoint{fText->fBox.x(), fText->fBox.y()},
+                            fFontMgr)
+            // Paragraph text
+            : Shaper::Shape(fText->fText, text_desc, fText->fBox, fFontMgr);
 
     if (fLogger && shape_result.fMissingGlyphCount > 0) {
         const auto msg = SkStringPrintf("Missing %zu glyphs for '%s'.",
