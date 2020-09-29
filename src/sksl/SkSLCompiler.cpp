@@ -1485,6 +1485,9 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
             DefinitionMap definitions = b.fBefore;
 
             for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
+
+                cfg.dump();
+
                 if (iter->isExpression()) {
                     this->simplifyExpression(definitions, b, &iter, &undefinedVariables, &updated,
                                              &needsRescan);

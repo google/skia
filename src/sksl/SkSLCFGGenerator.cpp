@@ -51,46 +51,46 @@ void CFG::addExit(BlockId from, BlockId to) {
     }
 }
 
-#ifdef SK_DEBUG
+#if 1//def SK_DEBUG
 void CFG::dump() const {
     for (size_t i = 0; i < fBlocks.size(); i++) {
-        printf("Block %zu\n-------\n", i);
+        String::printf("Block %zu\n-------\n", i);
         fBlocks[i].dump();
     }
 }
 
 void BasicBlock::dump() const {
-    printf("Before: [");
+    String::printf("Before: [");
     const char* separator = "";
     for (auto iter = fBefore.begin(); iter != fBefore.end(); iter++) {
-        printf("%s%s = %s", separator, iter->first->description().c_str(),
+        String::printf("%s%s = %s", separator, iter->first->description().c_str(),
                iter->second ? (*iter->second)->description().c_str() : "<undefined>");
         separator = ", ";
     }
-    printf("]\nEntrances: [");
+    String::printf("]\nEntrances: [");
     separator = "";
     for (BlockId b : fEntrances) {
-        printf("%s%zu", separator, b);
+        String::printf("%s%zu", separator, b);
         separator = ", ";
     }
-    printf("]\n");
+    String::printf("]\n");
     for (size_t j = 0; j < fNodes.size(); j++) {
         const BasicBlock::Node& n = fNodes[j];
-        printf("Node %zu (%p): %s\n", j, &n, n.description().c_str());
+        String::printf("Node %zu (%p): %s\n", j, &n, n.description().c_str());
     }
-    printf("Exits: [");
+    String::printf("Exits: [");
     separator = "";
     for (BlockId b : fExits) {
-        printf("%s%zu", separator, b);
+        String::printf("%s%zu", separator, b);
         separator = ", ";
     }
-    printf("]\n\n");
+    String::printf("]\n\n");
 }
 #endif
 
 bool BasicBlock::tryRemoveExpressionBefore(std::vector<BasicBlock::Node>::iterator* iter,
                                            Expression* e) {
-    if (e->kind() == Expression::Kind::kTernary) {
+    if (e->is<TernaryExpression>()) {
         return false;
     }
     bool result;
