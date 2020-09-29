@@ -16,6 +16,23 @@
       "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b9b49ee7_39956cbd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-09-29T14:22:22Z",
+      "side": 1,
+      "message": "Just curious, are you planning on compiling sksl-\u003espirv outside of program building? What\u0027s the need for factoring this out?",
+      "revId": "adaa6bff2594c27c1e80b14806d34bc4c03b8c05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
