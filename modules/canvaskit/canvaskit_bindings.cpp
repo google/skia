@@ -1085,7 +1085,30 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("drawTextBlob", select_overload<void (const sk_sp<SkTextBlob>&, SkScalar, SkScalar, const SkPaint&)>(&SkCanvas::drawTextBlob))
 #endif
         .function("drawVertices", select_overload<void (const sk_sp<SkVertices>&, SkBlendMode, const SkPaint&)>(&SkCanvas::drawVertices))
-        .function("flush", &SkCanvas::flush)
+        .function("_findMarkedCTM", optional_override([](SkCanvas& self, std::string marker, uintptr_t /* SkScalar* */ mPtr) -> bool {
+            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
+            if (!sixteenMatrixValues) {
+                return false; // matrix cannot be null
+            }
+            SkM44 m;
+            if (self.findMarkedCTM(marker.c_str(), &m)) {
+                m.getRowMajor(sixteenMatrixValues);
+                return true;
+            }
+            return false;
+        }))
+        .function("flush", &SkCanvas::flush) // Deprecated - will be removed
+        // 4x4 matrix functions
+        // Just like with getTotalMatrix, we allocate the buffer for the 16 floats to go in from
+        // interface.js, so it can also free them when its done.
+        .function("_getLocalToDevice", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
+            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
+            if (!sixteenMatrixValues) {
+                return; // matrix cannot be null
+            }
+            SkM44 m = self.getLocalToDevice();
+            m.getRowMajor(sixteenMatrixValues);
+        }))
         .function("getSaveCount", &SkCanvas::getSaveCount)
         // We allocate room for the matrix from the JS side and free it there so as to not have
         // an awkward moment where we malloc something here and "just know" to free it on the
@@ -1104,18 +1127,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("markCTM", optional_override([](SkCanvas& self, std::string marker) {
             self.markCTM(marker.c_str());
         }))
-        .function("_findMarkedCTM", optional_override([](SkCanvas& self, std::string marker, uintptr_t /* SkScalar* */ mPtr) -> bool {
-            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
-            if (!sixteenMatrixValues) {
-                return false; // matrix cannot be null
-            }
-            SkM44 m;
-            if (self.findMarkedCTM(marker.c_str(), &m)) {
-                m.getRowMajor(sixteenMatrixValues);
-                return true;
-            }
-            return false;
-        }))
+
         .function("_readPixels", optional_override([](SkCanvas& self, SimpleImageInfo di,
                                                       uintptr_t /* uint8_t* */ pPtr,
                                                       size_t dstRowBytes, int srcX, int srcY) {
@@ -1143,17 +1155,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkImageInfo dstInfo = toSkImageInfo(di);
 
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
-        }))
-        // 4x4 matrix functions
-        // Just like with getTotalMatrix, we allocate the buffer for the 16 floats to go in from
-        // interface.js, so it can also free them when its done.
-        .function("_getLocalToDevice", optional_override([](const SkCanvas& self, uintptr_t /* SkScalar*  */ mPtr) {
-            SkScalar* sixteenMatrixValues = reinterpret_cast<SkScalar*>(mPtr);
-            if (!sixteenMatrixValues) {
-                return; // matrix cannot be null
-            }
-            SkM44 m = self.getLocalToDevice();
-            m.getRowMajor(sixteenMatrixValues);
         }));
 
     class_<SkColorFilter>("SkColorFilter")
