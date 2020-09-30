@@ -249,7 +249,7 @@ public:
     SkColor getColor() const { return fColor4f.toSkColor(); }
 
     /** Retrieves alpha and RGB, unpremultiplied, as four floating point values. RGB are
-        are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
+        extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
 
         @return  unpremultiplied RGBA
     */
