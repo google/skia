@@ -437,7 +437,6 @@ public:
 #ifdef SK_METAL
     GrBackendRenderTarget(int width,
                           int height,
-                          int sampleCnt,
                           const GrMtlTextureInfo& mtlInfo);
 #endif
 
