@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9953eb19_1ca94e4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-30T14:54:49Z",
+      "side": 1,
+      "message": "I can\u0027t submit http://review.skia.org/320717 due to merge conflict, so temporarily blocking to avoid endless rebases. Sorry.",
+      "revId": "daddccd9fec9ecfbcec4241d17e30274f1159054",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
