@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba339a20_9d8669ba",
+        "filename": "include/private/SkTLogic.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-30T20:28:09Z",
+      "side": 1,
+      "message": "I was going to say that this comment should be like the other two, something like\n\n    // C++17, \u003c...\u003e\n\nexcept that, yeah, that \"...\" is \u003carray\u003e \u003cdeque\u003e \u003cforward_list\u003e \u003citerator\u003e \u003clist\u003e \u003cmap\u003e \u003cregex\u003e \u003cset\u003e \u003cstring\u003e \u003cstring_view\u003e \u003cunordered_map\u003e \u003cunordered_set\u003e \u003cvector\u003e (and \u003cspan\u003e in C++20). So maybe not, but maybe something like\n\n    // C++17, std::data, std::size",
+      "revId": "ed80175bcfb3445499fc1aba9794de570789e13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07ceeaec_fff0b1dd",
+        "filename": "tools/fonts/create_test_font.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-30T20:28:09Z",
+      "side": 1,
+      "message": "It took me a little while to reason about how it works, but the SkSpan(Container\u0026) deduction guide also works for sized arrays, so that\u0027s nice (and doesn\u0027t need to be a separate deduction guide like for std::span since we don\u0027t track dynamic_extent). On the one hand it\u0027s great to see that in use and working here, but I was surprised that there wasn\u0027t something like this in the SkSpan test (to go along with all the std::vector and std::array).",
+      "range": {
+        "startLine": 406,
+        "startChar": 62,
+        "endLine": 406,
+        "endChar": 68
+      },
+      "revId": "ed80175bcfb3445499fc1aba9794de570789e13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92e2e41e_c9c86f1f",
+        "filename": "tools/fonts/create_test_font.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-30T20:28:09Z",
+      "side": 1,
+      "message": "Is this needed anymore? If kFamilies data isn\u0027t already marked as `const` through the `static constexpr` it probably should be. It\u0027s interesting looking through this change that we don\u0027t name many SkSpan at creation, they\u0027re more for parameter passing (even in this case it\u0027s more of a convenience).",
+      "range": {
+        "startLine": 411,
+        "startChar": 27,
+        "endLine": 411,
+        "endChar": 49
+      },
+      "revId": "ed80175bcfb3445499fc1aba9794de570789e13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d338044b_4cea63eb",
+        "filename": "tools/fonts/create_test_font_color.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-09-30T20:28:09Z",
+      "side": 1,
+      "message": "nit: Can this go on the previous line now that it\u0027s eight characters shorter?",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 12
+      },
+      "revId": "ed80175bcfb3445499fc1aba9794de570789e13b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
