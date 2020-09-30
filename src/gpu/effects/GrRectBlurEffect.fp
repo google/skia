@@ -17,6 +17,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
+#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 }
 
@@ -51,8 +52,10 @@ layout(key) in bool isFast;
 }
 
 @class {
-static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* context,
+static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* rContext,
                                                            float sixSigma) {
+    auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+
     int width = SkCreateIntegralTable(sixSigma, nullptr);
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
@@ -63,11 +66,10 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
 
     SkMatrix m = SkMatrix::Scale(width/sixSigma, 1.f);
 
-    GrProxyProvider* proxyProvider = context->priv().proxyProvider();
-    if (sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(key)) {
-        GrSwizzle swizzle = context->priv().caps()->getReadSwizzle(proxy->backendFormat(),
-                                                                   GrColorType::kAlpha_8);
-        GrSurfaceProxyView view{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle};
+    GrSurfaceProxyView view = threadSafeViewCache->find(key);
+
+    if (view) {
+        SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
         return GrTextureEffect::Make(
                 std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
     }
@@ -77,13 +79,15 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* c
         return {};
     }
 
-    GrBitmapTextureMaker maker(context, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
-    auto view = maker.view(GrMipmapped::kNo);
+    GrBitmapTextureMaker maker(rContext, bitmap, GrImageTexGenPolicy::kNew_Uncached_Budgeted);
+    view = maker.view(GrMipmapped::kNo);
     if (!view) {
         return {};
     }
+
+    view = threadSafeViewCache->add(key, view);
+
     SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
-    proxyProvider->assignUniqueKeyToProxy(key, view.asTextureProxy());
     return GrTextureEffect::Make(
             std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
 }
