@@ -420,7 +420,7 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kExpression: {
                 const ExpressionStatement& e = s->as<ExpressionStatement>();
                 this->writeU8(Rehydrator::kExpressionStatement_Command);
-                this->write(e.fExpression.get());
+                this->write(e.expression().get());
                 break;
             }
             case Statement::Kind::kFor: {
