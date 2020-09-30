@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66751058_58139d53",
+        "filename": "modules/canvaskit/paragraph.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-30T19:46:23Z",
+      "side": 1,
+      "message": "nit: wrap JS and docs to 100 cols where practical.",
+      "range": {
+        "startLine": 276,
+        "startChar": 93,
+        "endLine": 276,
+        "endChar": 101
+      },
+      "revId": "abd25910872bde3c7b9a36353a9df5ac72de8bae",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

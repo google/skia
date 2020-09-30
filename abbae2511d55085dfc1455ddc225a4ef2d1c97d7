@@ -452,6 +452,24 @@
     },
     {
       "key": {
+        "uuid": "75c42a8a_9b65d914",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-30T19:46:23Z",
+      "side": 1,
+      "message": "I was probably too cautious when I put this in the first time, but I don\u0027t know if this extra check matters too much.",
+      "parentUuid": "036a7130_d4dada15",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "79e7f044_7b9f91f5",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 2
@@ -469,6 +487,24 @@
     },
     {
       "key": {
+        "uuid": "7b07f542_c7253d90",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-30T19:46:23Z",
+      "side": 1,
+      "message": "I think it does have a default.",
+      "parentUuid": "79e7f044_7b9f91f5",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5eb2925a_f5f4e186",
         "filename": "modules/canvaskit/paragraph_bindings.cpp",
         "patchSetId": 2
@@ -483,6 +519,24 @@
       "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fdcde57_f369239c",
+        "filename": "modules/canvaskit/paragraph_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-09-30T19:46:23Z",
+      "side": 1,
+      "message": "I believe all of the values in paragraph have deterministic defaults.",
+      "parentUuid": "5eb2925a_f5f4e186",
+      "revId": "abbae2511d55085dfc1455ddc225a4ef2d1c97d7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
