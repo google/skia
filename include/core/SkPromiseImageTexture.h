@@ -37,7 +37,7 @@ public:
         return sk_sp<SkPromiseImageTexture>(new SkPromiseImageTexture(backendTexture));
     }
 
-    const GrBackendTexture& backendTexture() const { return fBackendTexture; }
+    GrBackendTexture backendTexture() const { return fBackendTexture; }
 
     void addKeyToInvalidate(uint32_t contextID, const GrUniqueKey& key);
     uint32_t uniqueID() const { return fUniqueID; }
