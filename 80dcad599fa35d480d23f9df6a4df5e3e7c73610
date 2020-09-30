@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a082b8b_08d4c9ed",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-30T21:25:24Z",
+      "side": 1,
+      "message": "Not for this CL, but I\u0027d really like to revisit how we structure String vs StringFragment. Ideally, it should be transparent/simple to create StringFragments from Strings (since this is \"free\"), and creating Strings from StringFragments should be explicit (since this is \"heavyweight\"). This is how things work with std::string and std/absl::string_view. We seem to have ours set up the other way around, though; we have an implicit String constructor that takes StringFragments, but nothing going in the opposite direction, and these operators turn \"StringFragment + StringFragment --\u003e String\" magically. This makes the expensive thing easy and the cheap thing hard.",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 0
+      },
+      "revId": "80dcad599fa35d480d23f9df6a4df5e3e7c73610",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c9c254f_45219806",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-30T21:25:24Z",
+      "side": 1,
+      "message": "const\u0026",
+      "range": {
+        "startLine": 202,
+        "startChar": 17,
+        "endLine": 202,
+        "endChar": 27
+      },
+      "revId": "80dcad599fa35d480d23f9df6a4df5e3e7c73610",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
