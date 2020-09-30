@@ -3272,7 +3272,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     for (const auto& e : program) {
         if (e.kind() == ProgramElement::Kind::kExtension) {
-            this->writeInstruction(SpvOpSourceExtension, ((Extension&) e).fName.c_str(), out);
+            this->writeInstruction(SpvOpSourceExtension, ((Extension&) e).name().c_str(), out);
         }
     }
 

@@ -73,7 +73,7 @@ void MetalCodeGenerator::writeLine() {
 }
 
 void MetalCodeGenerator::writeExtension(const Extension& ext) {
-    this->writeLine("#extension " + ext.fName + " : enable");
+    this->writeLine("#extension " + ext.name() + " : enable");
 }
 
 String MetalCodeGenerator::typeName(const Type& type) {

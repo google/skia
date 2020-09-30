@@ -107,6 +107,7 @@ protected:
             kEnum,
             kFloatLiteral,
             kIntLiteral,
+            kString,
             kType,
             kTypeToken,
         } fKind = Kind::kType;
@@ -118,6 +119,7 @@ protected:
             EnumData fEnum;
             FloatLiteralData fFloatLiteral;
             IntLiteralData fIntLiteral;
+            String fString;
             const Type* fType;
             TypeTokenData fTypeToken;
 
@@ -149,6 +151,11 @@ protected:
         NodeData(IntLiteralData data)
             : fKind(Kind::kIntLiteral) {
             *(new(&fContents) IntLiteralData) = data;
+        }
+
+        NodeData(const String& data)
+            : fKind(Kind::kString) {
+            *(new(&fContents) String) = data;
         }
 
         NodeData(const Type* data)
@@ -184,6 +191,9 @@ protected:
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
+                case Kind::kString:
+                    *(new(&fContents) String) = other.fContents.fString;
+                    break;
                 case Kind::kType:
                     *(new(&fContents) const Type*) = other.fContents.fType;
                     break;
@@ -216,6 +226,9 @@ protected:
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
+                case Kind::kString:
+                    fContents.fString.~String();
+                    break;
                 case Kind::kType:
                     break;
                 case Kind::kTypeToken:
@@ -235,6 +248,8 @@ protected:
     IRNode(int offset, int kind, const IntLiteralData& data);
 
     IRNode(int offset, int kind, const FloatLiteralData& data);
+
+    IRNode(int offset, int kind, const String& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -309,6 +324,11 @@ protected:
     const IntLiteralData& intLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kIntLiteral);
         return fData.fContents.fIntLiteral;
+    }
+
+    const String& stringData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kString);
+        return fData.fContents.fString;
     }
 
     const Type* typeData() const {

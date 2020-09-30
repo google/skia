@@ -1495,7 +1495,7 @@ void GLSLCodeGenerator::writeHeader() {
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.kind()) {
         case ProgramElement::Kind::kExtension:
-            this->writeExtension(e.as<Extension>().fName);
+            this->writeExtension(e.as<Extension>().name());
             break;
         case ProgramElement::Kind::kVar: {
             const VarDeclarations& decl = e.as<VarDeclarations>();
