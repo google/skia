@@ -1393,9 +1393,9 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         case Statement::Kind::kExpression: {
             ExpressionStatement& e = stmt->as<ExpressionStatement>();
             SkASSERT((*iter)->statement()->get() == &e);
-            if (!e.expression()->hasSideEffects()) {
+            if (!e.fExpression->hasSideEffects()) {
                 // Expression statement with no side effects, kill it
-                if (!b.tryRemoveExpressionBefore(iter, e.expression().get())) {
+                if (!b.tryRemoveExpressionBefore(iter, e.fExpression.get())) {
                     *outNeedsRescan = true;
                 }
                 SkASSERT((*iter)->statement()->get() == stmt);

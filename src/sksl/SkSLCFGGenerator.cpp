@@ -509,7 +509,7 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             break;
         }
         case Statement::Kind::kExpression: {
-            this->addExpression(cfg, &(*s)->as<ExpressionStatement>().expression(),
+            this->addExpression(cfg, &(*s)->as<ExpressionStatement>().fExpression,
                                 /*constantPropagate=*/true);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             break;

@@ -1809,7 +1809,7 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
             this->writeDoStatement(s.as<DoStatement>());
             break;
         case Statement::Kind::kExpression:
-            this->writeExpression(*s.as<ExpressionStatement>().expression(), true);
+            this->writeExpression(*s.as<ExpressionStatement>().fExpression, true);
             break;
         case Statement::Kind::kFor:
             this->writeForStatement(s.as<ForStatement>());

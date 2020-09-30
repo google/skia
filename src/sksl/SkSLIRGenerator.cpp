@@ -243,7 +243,7 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
             std::unique_ptr<Statement> result = this->convertExpressionStatement(statement);
             if (fRTAdjust && fKind == Program::kGeometry_Kind) {
                 SkASSERT(result->kind() == Statement::Kind::kExpression);
-                Expression& expr = *result->as<ExpressionStatement>().expression();
+                Expression& expr = *result->as<ExpressionStatement>().fExpression;
                 if (expr.kind() == Expression::Kind::kFunctionCall) {
                     FunctionCall& fc = expr.as<FunctionCall>();
                     if (fc.fFunction.fBuiltin && fc.fFunction.fName == "EmitVertex") {
