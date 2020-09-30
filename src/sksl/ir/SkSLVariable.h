@@ -33,11 +33,12 @@ struct Variable : public Symbol {
     };
 
     Variable(int offset, Modifiers modifiers, StringFragment name, const Type* type,
-             Storage storage, Expression* initialValue = nullptr)
+             bool builtin, Storage storage, Expression* initialValue = nullptr)
     : INHERITED(offset, kSymbolKind, name, type)
     , fModifiers(modifiers)
     , fStorage(storage)
     , fInitialValue(initialValue)
+    , fBuiltin(builtin)
     , fReadCount(0)
     , fWriteCount(initialValue ? 1 : 0) {}
 
@@ -68,6 +69,7 @@ struct Variable : public Symbol {
     const Storage fStorage;
 
     const Expression* fInitialValue = nullptr;
+    bool fBuiltin;
 
     // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
     // becomes zero during optimization), the variable is dead and may be eliminated.

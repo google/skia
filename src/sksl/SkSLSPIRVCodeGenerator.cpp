@@ -1875,6 +1875,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                    Modifiers(layout, Modifiers::kUniform_Flag),
                                                    name,
                                                    &intfStruct,
+                                                   /*builtin=*/false,
                                                    Variable::kGlobal_Storage));
                 InterfaceBlock intf(-1, intfVar, name, String(""),
                                     std::vector<std::unique_ptr<Expression>>(), st);

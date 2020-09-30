@@ -427,11 +427,12 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                     SymbolTable* symbolTableForStatement,
                                                     const Expression* resultExpr,
                                                     bool haveEarlyReturns,
-                                                    const Statement& statement) {
+                                                    const Statement& statement,
+                                                    bool isBuiltinCode) {
     auto stmt = [&](const std::unique_ptr<Statement>& s) -> std::unique_ptr<Statement> {
         if (s) {
             return this->inlineStatement(offset, varMap, symbolTableForStatement, resultExpr,
-                                         haveEarlyReturns, *s);
+                                         haveEarlyReturns, *s, isBuiltinCode);
         }
         return nullptr;
     };
@@ -548,6 +549,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                old->fModifiers,
                                                namePtr->c_str(),
                                                typePtr,
+                                               isBuiltinCode,
                                                old->fStorage,
                                                initialValue.get()));
             (*varMap)[old] = std::make_unique<VariableReference>(offset, clone);
@@ -575,7 +577,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
 }
 
 Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
-                                         SymbolTable* symbolTableForCall) {
+                                         SymbolTable* symbolTableForCall,
+                                         const FunctionDeclaration* caller) {
     // Inlining is more complicated here than in a typical compiler, because we have to have a
     // high-level IR and can't just drop statements into the middle of an expression or even use
     // gotos.
@@ -632,7 +635,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
         // Add our new variable to the symbol table.
         auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
-                                                 Variable::kLocal_Storage, initialValue->get());
+                                                 caller->fBuiltin, Variable::kLocal_Storage,
+                                                 initialValue->get());
         const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
@@ -694,8 +698,9 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     auto inlineBlock = std::make_unique<Block>(offset, std::vector<std::unique_ptr<Statement>>{});
     inlineBlock->children().reserve(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
-        inlineBlock->children().push_back(this->inlineStatement(
-                offset, &varMap, symbolTableForCall, resultExpr.get(), hasEarlyReturn, *stmt));
+        inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
+                                                                resultExpr.get(), hasEarlyReturn,
+                                                                *stmt, caller->fBuiltin));
     }
     if (hasEarlyReturn) {
         // Since we output to backends that don't have a goto statement (which would normally be
@@ -780,6 +785,7 @@ bool Inliner::analyze(Program& program) {
         Statement* fParentStmt;                       // the parent Statement of the enclosing stmt
         std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
         std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
+        FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
     };
 
     // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
@@ -797,6 +803,8 @@ bool Inliner::analyze(Program& program) {
         // adding new instructions. Not all statements are suitable (e.g. a for-loop's initializer).
         // The inliner might replace a statement with a block containing the statement.
         std::vector<std::unique_ptr<Statement>*> fEnclosingStmtStack;
+        // The function that we're currently processing (i.e. inlining into).
+        FunctionDefinition* fEnclosingFunction = nullptr;
 
         void visit(Program& program) {
             fSymbolTableStack.push_back(program.fSymbols.get());
@@ -812,6 +820,7 @@ bool Inliner::analyze(Program& program) {
             switch (pe->kind()) {
                 case ProgramElement::Kind::kFunction: {
                     FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
+                    fEnclosingFunction = &funcDef;
                     this->visitStatement(&funcDef.fBody);
                     break;
                 }
@@ -1065,7 +1074,8 @@ bool Inliner::analyze(Program& program) {
             fInlineCandidates.push_back(InlineCandidate{fSymbolTableStack.back(),
                                                         find_parent_statement(fEnclosingStmtStack),
                                                         fEnclosingStmtStack.back(),
-                                                        candidate});
+                                                        candidate,
+                                                        fEnclosingFunction});
         }
     };
 
@@ -1108,7 +1118,8 @@ bool Inliner::analyze(Program& program) {
         }
 
         // Convert the function call to its inlined equivalent.
-        InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols);
+        InlinedCall inlinedCall = this->inlineCall(&funcCall, candidate.fSymbols,
+                                                   &candidate.fEnclosingFunction->fDeclaration);
         if (inlinedCall.fInlinedBody) {
             // Ensure that the inlined body has a scope if it needs one.
             this->ensureScopedBlocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt);

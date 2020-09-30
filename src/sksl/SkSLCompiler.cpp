@@ -240,11 +240,13 @@ Compiler::Compiler(Flags flags)
     StringFragment fpAliasName("shader");
     fRootSymbolTable->addWithoutOwnership(fpAliasName, fContext->fFragmentProcessor_Type.get());
 
+    // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
+    // treat it as builtin (ie, no need to clone it into the Program).
     StringFragment skCapsName("sk_Caps");
-    fRootSymbolTable->add(
-            skCapsName,
-            std::make_unique<Variable>(/*offset=*/-1, Modifiers(), skCapsName,
-                                       fContext->fSkCaps_Type.get(), Variable::kGlobal_Storage));
+    fRootSymbolTable->add(skCapsName,
+                          std::make_unique<Variable>(/*offset=*/-1, Modifiers(), skCapsName,
+                                                     fContext->fSkCaps_Type.get(),
+                                                     /*builtin=*/false, Variable::kGlobal_Storage));
 
     fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
