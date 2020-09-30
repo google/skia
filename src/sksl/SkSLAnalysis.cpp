@@ -377,7 +377,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
         }
         case Expression::Kind::kExternalFunctionCall: {
             auto& c = e.template as<ExternalFunctionCall>();
-            for (auto& arg : c.fArguments) {
+            for (auto& arg : c.arguments()) {
                 if (this->visitExpression(*arg)) { return true; }
             }
             return false;
