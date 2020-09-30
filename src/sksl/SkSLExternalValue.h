@@ -102,7 +102,7 @@ public:
     }
 
     String description() const override {
-        return String("external<") + fName + ">";
+        return String("external<") + this->name() + ">";
     }
 
 private:

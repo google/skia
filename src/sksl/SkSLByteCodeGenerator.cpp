@@ -17,19 +17,20 @@ static TypeCategory type_category(const Type& type) {
         case Type::TypeKind::kMatrix:
             return type_category(type.componentType());
         default:
-            if (type.fName == "bool") {
+            const StringFragment& name = type.name();
+            if (name == "bool") {
                 return TypeCategory::kBool;
-            } else if (type.fName == "int" ||
-                       type.fName == "short" ||
-                       type.fName == "$intLiteral") {
+            } else if (name == "int" ||
+                       name == "short" ||
+                       name == "$intLiteral") {
                 return TypeCategory::kSigned;
-            } else if (type.fName == "uint" ||
-                       type.fName == "ushort") {
+            } else if (name == "uint" ||
+                       name == "ushort") {
                 return TypeCategory::kUnsigned;
             } else {
-                SkASSERT(type.fName == "float" ||
-                         type.fName == "half" ||
-                         type.fName == "$floatLiteral");
+                SkASSERT(name == "float" ||
+                         name == "half" ||
+                         name == "$floatLiteral");
                 return TypeCategory::kFloat;
             }
             ABORT("unsupported type: %s\n", type.displayName().c_str());
@@ -169,7 +170,7 @@ bool ByteCodeGenerator::generateCode() {
                         continue;
                     }
                     if (is_uniform(*declVar)) {
-                        this->gatherUniforms(declVar->type(), declVar->fName);
+                        this->gatherUniforms(declVar->type(), declVar->name());
                     } else {
                         fOutput->fGlobalSlotCount += SlotCount(declVar->type());
                     }
@@ -1031,10 +1032,10 @@ static bool is_generic_type(const Type* type, const Type* generic) {
 }
 
 void ByteCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
-    auto found = fIntrinsics.find(c.fFunction.fName);
+    auto found = fIntrinsics.find(c.fFunction.name());
     if (found == fIntrinsics.end()) {
         fErrors.error(c.fOffset, String::printf("Unsupported intrinsic: '%s'",
-                                                String(c.fFunction.fName).c_str()));
+                                                String(c.fFunction.name()).c_str()));
         return;
     }
     Intrinsic intrin = found->second;
@@ -1838,7 +1839,7 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
 }
 
 ByteCodeFunction::ByteCodeFunction(const FunctionDeclaration* declaration)
-        : fName(declaration->fName) {
+        : fName(declaration->name()) {
     fParameterCount = 0;
     for (const auto& p : declaration->fParameters) {
         int slots = ByteCodeGenerator::SlotCount(p->type());

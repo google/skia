@@ -21,21 +21,33 @@ namespace SkSL {
  * whenever a bare reference to an identifier should refer to a struct field; in GLSL, this is the
  * result of declaring anonymous interface blocks.
  */
-struct Field : public Symbol {
+class Field : public Symbol {
+public:
     static constexpr Kind kSymbolKind = Kind::kField;
 
-    Field(int offset, const Variable& owner, int fieldIndex)
-    : INHERITED(offset, kSymbolKind, owner.type().fields()[fieldIndex].fName)
-    , fOwner(owner)
-    , fFieldIndex(fieldIndex) {}
+    Field(int offset, const Variable* owner, int fieldIndex)
+    : INHERITED(offset, FieldData{owner->type().fields()[fieldIndex].fName,
+                                  owner->type().fields()[fieldIndex].fType,
+                                  owner,
+                                  fieldIndex}) {}
 
-    String description() const override {
-        return fOwner.description() + "." + fOwner.type().fields()[fFieldIndex].fName;
+    StringFragment name() const override {
+        return this->fieldData().fName;
     }
 
-    const Variable& fOwner;
-    const int fFieldIndex;
+    int fieldIndex() const {
+        return this->fieldData().fFieldIndex;
+    }
 
+    const Variable& owner() const {
+        return *this->fieldData().fOwner;
+    }
+
+    String description() const override {
+        return this->owner().description() + "." + this->name();
+    }
+
+private:
     using INHERITED = Symbol;
 };
 

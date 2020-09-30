@@ -50,7 +50,7 @@ struct VariableReference : public Expression {
     bool hasProperty(Property property) const override {
         switch (property) {
             case Property::kSideEffects:      return false;
-            case Property::kContainsRTAdjust: return fVariable->fName == "sk_RTAdjust";
+            case Property::kContainsRTAdjust: return fVariable->name() == "sk_RTAdjust";
             default:
                 SkASSERT(false);
                 return false;
@@ -66,7 +66,7 @@ struct VariableReference : public Expression {
     }
 
     String description() const override {
-        return fVariable->fName;
+        return fVariable->name();
     }
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
