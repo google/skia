@@ -18,6 +18,7 @@
 namespace SkSL {
 
 struct Expression;
+class ExternalValue;
 struct Statement;
 class SymbolTable;
 class Type;
@@ -52,6 +53,8 @@ public:
         switch (fData.fKind) {
             case NodeData::Kind::kBoolLiteral:
                 return *this->boolLiteralData().fType;
+            case NodeData::Kind::kExternalValue:
+                return *this->externalValueData().fType;
             case NodeData::Kind::kIntLiteral:
                 return *this->intLiteralData().fType;
             case NodeData::Kind::kFloatLiteral:
@@ -85,6 +88,11 @@ protected:
         bool fIsBuiltin;
     };
 
+    struct ExternalValueData {
+        const Type* fType;
+        const ExternalValue* fValue;
+    };
+
     struct FloatLiteralData {
         const Type* fType;
         float fValue;
@@ -105,6 +113,7 @@ protected:
             kBlock,
             kBoolLiteral,
             kEnum,
+            kExternalValue,
             kFloatLiteral,
             kIntLiteral,
             kString,
@@ -117,6 +126,7 @@ protected:
             BlockData fBlock;
             BoolLiteralData fBoolLiteral;
             EnumData fEnum;
+            ExternalValueData fExternalValue;
             FloatLiteralData fFloatLiteral;
             IntLiteralData fIntLiteral;
             String fString;
@@ -141,6 +151,11 @@ protected:
         NodeData(const EnumData& data)
             : fKind(Kind::kEnum) {
             *(new(&fContents) EnumData) = data;
+        }
+
+        NodeData(const ExternalValueData& data)
+            : fKind(Kind::kExternalValue) {
+            *(new(&fContents) ExternalValueData) = data;
         }
 
         NodeData(const FloatLiteralData& data)
@@ -185,6 +200,9 @@ protected:
                 case Kind::kEnum:
                     *(new(&fContents) EnumData) = other.fContents.fEnum;
                     break;
+                case Kind::kExternalValue:
+                    *(new(&fContents) ExternalValueData) = other.fContents.fExternalValue;
+                    break;
                 case Kind::kFloatLiteral:
                     *(new(&fContents) FloatLiteralData) = other.fContents.fFloatLiteral;
                     break;
@@ -220,6 +238,9 @@ protected:
                 case Kind::kEnum:
                     fContents.fEnum.~EnumData();
                     break;
+                case Kind::kExternalValue:
+                    fContents.fExternalValue.~ExternalValueData();
+                    break;
                 case Kind::kFloatLiteral:
                     fContents.fFloatLiteral.~FloatLiteralData();
                     break;
@@ -244,6 +265,8 @@ protected:
     IRNode(int offset, int kind, const BoolLiteralData& data);
 
     IRNode(int offset, int kind, const EnumData& data);
+
+    IRNode(int offset, int kind, const ExternalValueData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
 
@@ -316,6 +339,11 @@ protected:
         return fData.fContents.fEnum;
     }
 
+    const ExternalValueData& externalValueData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kExternalValue);
+        return fData.fContents.fExternalValue;
+    }
+
     const FloatLiteralData& floatLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kFloatLiteral);
         return fData.fContents.fFloatLiteral;
@@ -356,7 +384,6 @@ protected:
     // it's important to keep fStatements defined after (and thus destroyed before) fData,
     // because destroying statements can modify reference counts in a SymbolTable contained in fData
     std::vector<std::unique_ptr<Statement>> fStatementChildren;
-
 };
 
 }  // namespace SkSL

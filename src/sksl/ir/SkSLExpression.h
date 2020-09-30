@@ -68,6 +68,11 @@ struct Expression : public IRNode {
         : INHERITED(offset, (int) Kind::kFloatLiteral, data) {
     }
 
+    Expression(int offset, Kind kind, ExternalValueData data)
+        : INHERITED(offset, (int) kind, data) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
     Expression(int offset, Kind kind, const Type* type)
         : INHERITED(offset, (int) kind, type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
