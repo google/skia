@@ -37,6 +37,7 @@ public:
                 const SkIRect& dstRect, wgpu::CommandEncoder copyEncoder);
 
     wgpu::Texture texture() const { return fInfo.fTexture; }
+    wgpu::TextureFormat format() const { return fInfo.fFormat; }
 protected:
     GrDawnTexture(GrDawnGpu*, SkISize dimensions, const GrDawnTextureInfo&, GrMipmapStatus);
 
