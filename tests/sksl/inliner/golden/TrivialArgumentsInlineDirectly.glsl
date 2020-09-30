@@ -47,6 +47,16 @@ void main() {
 
 
     {
+        sk_FragColor = vec3(s.h).xyzx;
+    }
+
+
+    {
+        sk_FragColor = vec4(s.h);
+    }
+
+
+    {
         sk_FragColor = s.ah4[0].xxxy;
     }
 
@@ -80,21 +90,9 @@ void main() {
     }
 
 
-    vec3 _5_h3 = vec3(s.h);
+    vec4 _5_h4 = vec3(s.h4.y, 0.0, 1.0).xyyz;
     {
-        sk_FragColor = _5_h3.xyzx;
-    }
-
-
-    vec4 _6_h4 = vec4(s.h);
-    {
-        sk_FragColor = _6_h4;
-    }
-
-
-    vec4 _7_h4 = vec3(s.h4.y, 0.0, 1.0).xyyz;
-    {
-        sk_FragColor = _7_h4;
+        sk_FragColor = _5_h4;
     }
 
 

@@ -47,6 +47,8 @@ void main() {
     func2(as[0].ah4[0].xy,       sk_FragColor);
     func3(s.h4.zzz,              sk_FragColor);
     func3(uh4.xyz,               sk_FragColor);
+    func3(s.h.xxx,               sk_FragColor);
+    func4(half4(s.h),            sk_FragColor);
     func4(s.ah4[0].xxxy,         sk_FragColor);
     func4(uh4,                   sk_FragColor);
 
@@ -56,7 +58,5 @@ void main() {
     func1(-s.h,                   sk_FragColor);
     func2(s.ah4[ui].yw,           sk_FragColor);
     func3(s.h4.yyy + s.h4.zzz,    sk_FragColor);
-    func3(s.h.xxx,                sk_FragColor);
-    func4(half4(s.h),             sk_FragColor);
     func4(s.h4.y001,              sk_FragColor);
 }

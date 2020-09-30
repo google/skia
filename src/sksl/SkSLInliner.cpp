@@ -246,6 +246,9 @@ bool is_trivial_argument(const Expression& argument) {
     return argument.is<VariableReference>() ||
            (argument.is<Swizzle>() && is_trivial_argument(*argument.as<Swizzle>().fBase)) ||
            (argument.is<FieldAccess>() && is_trivial_argument(*argument.as<FieldAccess>().fBase)) ||
+           (argument.is<Constructor>() &&
+            argument.as<Constructor>().arguments().size() == 1 &&
+            is_trivial_argument(*argument.as<Constructor>().arguments().front())) ||
            (argument.is<IndexExpression>() &&
             argument.as<IndexExpression>().fIndex->is<IntLiteral>() &&
             is_trivial_argument(*argument.as<IndexExpression>().fBase));
