@@ -88,8 +88,17 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 iter = src->erase(iter);
                 break;
             }
+            case ProgramElement::Kind::kVar: {
+                const VarDeclarations& vd = element->as<VarDeclarations>();
+                SkASSERT(vd.fVars.size() == 1);
+                const Variable* var = vd.fVars[0]->as<VarDeclaration>().fVar;
+                target->insertOrDie(var->fName, std::move(element));
+                iter = src->erase(iter);
+                break;
+            }
             default:
                 // Unsupported element, leave it in the list.
+                printf("Unsupported (%d): %s\n", element->kind(), element->description().c_str());
                 ++iter;
                 break;
         }
@@ -108,6 +117,7 @@ static void reset_call_counts(std::vector<std::unique_ptr<ProgramElement>>* src)
 Compiler::Compiler(Flags flags)
 : fGPUIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
 , fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
+, fPipelineIntrinsics(std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get()))
 , fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
@@ -313,18 +323,21 @@ void Compiler::loadPipelineIntrinsics() {
     if (fPipelineSymbolTable) {
         return;
     }
+    std::vector<std::unique_ptr<ProgramElement>> pipelineIntrinics;
     #if !SKSL_STANDALONE
         {
             Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this,
                                   SKSL_INCLUDE_sksl_pipeline,
                                   SKSL_INCLUDE_sksl_pipeline_LENGTH);
             fPipelineSymbolTable = rehydrator.symbolTable();
-            fPipelineInclude = rehydrator.elements();
+            pipelineIntrinics = rehydrator.elements();
         }
     #else
         this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
-                                 fGpuSymbolTable, &fPipelineInclude, &fPipelineSymbolTable);
+                                 fGpuSymbolTable, &pipelineIntrinics, &fPipelineSymbolTable);
     #endif
+    grab_intrinsics(&pipelineIntrinics, fPipelineIntrinsics.get());
+    SkASSERT(pipelineIntrinics.empty());
 }
 
 void Compiler::loadInterpreterIntrinsics() {
@@ -1634,9 +1647,9 @@ std::unique_ptr<Program> Compiler::convertProgram(
         }
         case Program::kPipelineStage_Kind:
             this->loadPipelineIntrinsics();
-            inherited = &fPipelineInclude;
-            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, fPipelineSymbolTable, inherited);
+            inherited = nullptr;
+            fIRGenerator->fIntrinsics = fPipelineIntrinsics.get();
+            fIRGenerator->start(&settings, fPipelineSymbolTable, /*inherited=*/nullptr);
             break;
         case Program::kGeneric_Kind:
             this->loadInterpreterIntrinsics();
