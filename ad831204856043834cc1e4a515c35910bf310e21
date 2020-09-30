@@ -16,6 +16,52 @@
       "revId": "ad831204856043834cc1e4a515c35910bf310e21",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9397536d_41d6baca",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-30T18:06:08Z",
+      "side": 1,
+      "message": "Just for paranoia \n\n    \u003d nullptr;",
+      "range": {
+        "startLine": 804,
+        "startChar": 45,
+        "endLine": 804,
+        "endChar": 47
+      },
+      "revId": "ad831204856043834cc1e4a515c35910bf310e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b246b0c_f8f97a3e",
+        "filename": "src/sksl/SkSLInliner.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-09-30T18:06:08Z",
+      "side": 1,
+      "message": "In all the cases that `inlineCall` is used, we know the enclosing function (`fCurrentFunction` in the IRGenerator); what do you think about passing that in, instead of just this one bool?",
+      "range": {
+        "startLine": 48,
+        "startChar": 56,
+        "endLine": 48,
+        "endChar": 74
+      },
+      "revId": "ad831204856043834cc1e4a515c35910bf310e21",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
