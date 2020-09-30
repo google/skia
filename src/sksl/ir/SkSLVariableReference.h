@@ -46,6 +46,7 @@ struct VariableReference : public Expression {
     }
 
     void setRefKind(RefKind refKind);
+    void setVariable(const Variable* variable);
 
     bool hasProperty(Property property) const override {
         switch (property) {

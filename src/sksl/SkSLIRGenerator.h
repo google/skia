@@ -199,6 +199,7 @@ private:
     bool setRefKind(Expression& expr, VariableReference::RefKind kind);
     bool getConstantInt(const Expression& value, int64_t* out);
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
+    void cloneBuiltinVariables();
 
     Inliner* fInliner = nullptr;
     std::unique_ptr<ASTFile> fFile;

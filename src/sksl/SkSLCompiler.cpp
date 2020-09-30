@@ -88,6 +88,17 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 iter = src->erase(iter);
                 break;
             }
+            case ProgramElement::Kind::kVar: {
+                // TODO: For now, we only support one variable per declaration. We map names to
+                // declarations, and each declaration pulls in all of it's variables, so this rule
+                // ensures that we never pull in variables that aren't actually used.
+                const VarDeclarations& vd = element->as<VarDeclarations>();
+                SkASSERT(vd.fVars.size() == 1);
+                const Variable* var = vd.fVars[0]->as<VarDeclaration>().fVar;
+                target->insertOrDie(var->fName, std::move(element));
+                iter = src->erase(iter);
+                break;
+            }
             default:
                 // Unsupported element, leave it in the list.
                 ++iter;
@@ -108,6 +119,7 @@ static void reset_call_counts(std::vector<std::unique_ptr<ProgramElement>>* src)
 Compiler::Compiler(Flags flags)
 : fGPUIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
 , fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
+, fPipelineIntrinsics(std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get()))
 , fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
@@ -309,22 +321,46 @@ void Compiler::loadGeometryIntrinsics() {
     #endif
 }
 
+void Compiler::loadFPIntrinsics() {
+    if (fFPSymbolTable) {
+        return;
+    }
+    fFPIntrinsics = std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get());
+    std::vector<std::unique_ptr<ProgramElement>> fpElements;
+    #if !SKSL_STANDALONE
+        {
+            Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_fp,
+                                  SKSL_INCLUDE_sksl_fp_LENGTH);
+            fFPSymbolTable = rehydrator.symbolTable();
+            fpElements = rehydrator.elements();
+        }
+    #else
+        this->processIncludeFile(Program::kFragmentProcessor_Kind, SKSL_FP_INCLUDE, fGpuSymbolTable,
+                                 &fpElements, &fFPSymbolTable);
+    #endif
+    grab_intrinsics(&fpElements, fFPIntrinsics.get());
+    SkASSERT(fpElements.empty());
+}
+
 void Compiler::loadPipelineIntrinsics() {
     if (fPipelineSymbolTable) {
         return;
     }
+    std::vector<std::unique_ptr<ProgramElement>> pipelineIntrinics;
     #if !SKSL_STANDALONE
         {
             Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this,
                                   SKSL_INCLUDE_sksl_pipeline,
                                   SKSL_INCLUDE_sksl_pipeline_LENGTH);
             fPipelineSymbolTable = rehydrator.symbolTable();
-            fPipelineInclude = rehydrator.elements();
+            pipelineIntrinics = rehydrator.elements();
         }
     #else
         this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
-                                 fGpuSymbolTable, &fPipelineInclude, &fPipelineSymbolTable);
+                                 fGpuSymbolTable, &pipelineIntrinics, &fPipelineSymbolTable);
     #endif
+    grab_intrinsics(&pipelineIntrinics, fPipelineIntrinsics.get());
+    SkASSERT(pipelineIntrinics.empty());
 }
 
 void Compiler::loadInterpreterIntrinsics() {
@@ -1597,46 +1633,17 @@ std::unique_ptr<Program> Compiler::convertProgram(
             fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
             fIRGenerator->start(&settings, fGeometrySymbolTable, inherited);
             break;
-        case Program::kFragmentProcessor_Kind: {
-#if !SKSL_STANDALONE
-            {
-                Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this,
-                                      SKSL_INCLUDE_sksl_fp,
-                                      SKSL_INCLUDE_sksl_fp_LENGTH);
-                fFPSymbolTable = rehydrator.symbolTable();
-                fFPInclude = rehydrator.elements();
-            }
-            fFPIntrinsics = std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get());
-            grab_intrinsics(&fFPInclude, fFPIntrinsics.get());
-
-            inherited = &fFPInclude;
-            fIRGenerator->fIntrinsics = fFPIntrinsics.get();
-            fIRGenerator->start(&settings, fFPSymbolTable, inherited);
-            break;
-#else
+        case Program::kFragmentProcessor_Kind:
+            this->loadFPIntrinsics();
             inherited = nullptr;
-            fIRGenerator->start(&settings, fGpuSymbolTable, /*inherited=*/nullptr,
-                                /*builtin=*/true);
-            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            std::ifstream in(SKSL_FP_INCLUDE);
-            std::string stdText{std::istreambuf_iterator<char>(in),
-                                std::istreambuf_iterator<char>()};
-            if (in.rdstate()) {
-                printf("error reading %s\n", SKSL_FP_INCLUDE);
-                abort();
-            }
-            const String* source = fRootSymbolTable->takeOwnershipOfString(
-                                                         std::make_unique<String>(stdText.c_str()));
-            fIRGenerator->convertProgram(kind, source->c_str(), source->length(), &elements);
-            fIRGenerator->fIsBuiltinCode = false;
+            fIRGenerator->fIntrinsics = fFPIntrinsics.get();
+            fIRGenerator->start(&settings, fFPSymbolTable, /*inherited=*/nullptr);
             break;
-#endif
-        }
         case Program::kPipelineStage_Kind:
             this->loadPipelineIntrinsics();
-            inherited = &fPipelineInclude;
-            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, fPipelineSymbolTable, inherited);
+            inherited = nullptr;
+            fIRGenerator->fIntrinsics = fPipelineIntrinsics.get();
+            fIRGenerator->start(&settings, fPipelineSymbolTable, /*inherited=*/nullptr);
             break;
         case Program::kGeneric_Kind:
             this->loadInterpreterIntrinsics();
