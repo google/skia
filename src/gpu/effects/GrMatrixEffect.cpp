@@ -21,8 +21,8 @@ public:
     void emitCode(EmitArgs& args) override {
         fMatrixVar = args.fUniformHandler->addUniform(&args.fFp, kFragment_GrShaderFlag,
                                                       kFloat3x3_GrSLType, "matrix");
-        SkString child = this->invokeChildWithMatrix(0, args);
-        args.fFragBuilder->codeAppendf("%s = %s;\n", args.fOutputColor, child.c_str());
+        args.fFragBuilder->codeAppendf("return %s;\n",
+                                       this->invokeChildWithMatrix(0, args).c_str());
     }
 
 private:
