@@ -12,8 +12,8 @@ layout(ctype=SkPMColor4f, tracked) in uniform half4 color;
      (color.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags))
 }
 
-void main() {
-    sk_OutColor = color;
+half4 main() {
+    return color;
 }
 
 @class {
