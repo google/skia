@@ -325,7 +325,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
 
     if (te.fShaderModes[0] == ShaderMode::kNone &&
         te.fShaderModes[1] == ShaderMode::kNone) {
-        fb->codeAppendf("%s = ", args.fOutputColor);
+        fb->codeAppendf("return ");
         if (te.fLazyProxyNormalization) {
             const char* norm = nullptr;
             fNormUni = args.fUniformHandler->addUniform(&te, kFragment_GrShaderFlag,
@@ -701,7 +701,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "}",
                     subsetName, subsetName, borderName);
         }
-        fb->codeAppendf("%s = textureColor;", args.fOutputColor);
+        fb->codeAppendf("return textureColor;");
     }
 }
 
