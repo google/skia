@@ -1249,7 +1249,7 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
             this->writeBlock(s.as<Block>());
             break;
         case Statement::Kind::kExpression:
-            this->writeExpression(*s.as<ExpressionStatement>().expression(), kTopLevel_Precedence);
+            this->writeExpression(*s.as<ExpressionStatement>().fExpression, kTopLevel_Precedence);
             this->write(";");
             break;
         case Statement::Kind::kReturn:
@@ -1796,7 +1796,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
             return result;
         }
         case Statement::Kind::kExpression:
-            return this->requirements(s->as<ExpressionStatement>().expression().get());
+            return this->requirements(s->as<ExpressionStatement>().fExpression.get());
         case Statement::Kind::kReturn: {
             const ReturnStatement& r = s->as<ReturnStatement>();
             return this->requirements(r.fExpression.get());
