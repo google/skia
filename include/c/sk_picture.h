@@ -26,6 +26,11 @@ SK_C_API void sk_picture_unref(sk_picture_t*);
 SK_C_API uint32_t sk_picture_get_unique_id(sk_picture_t*);
 SK_C_API void sk_picture_get_cull_rect(sk_picture_t*, sk_rect_t*);
 SK_C_API sk_shader_t* sk_picture_make_shader(sk_picture_t* src, sk_shader_tilemode_t tmx, sk_shader_tilemode_t tmy, const sk_matrix_t* localMatrix, const sk_rect_t* tile);
+SK_C_API sk_data_t* sk_picture_serialize_to_data(const sk_picture_t* picture);
+SK_C_API void sk_picture_serialize_to_stream(const sk_picture_t* picture, sk_wstream_t* stream);
+SK_C_API sk_picture_t* sk_picture_deserialize_from_stream(sk_stream_t* stream);
+SK_C_API sk_picture_t* sk_picture_deserialize_from_data(sk_data_t* data);
+SK_C_API sk_picture_t* sk_picture_deserialize_from_memory(void* buffer, size_t length);
 
 SK_C_PLUS_PLUS_END_GUARD
 

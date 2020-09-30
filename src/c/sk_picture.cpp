@@ -63,3 +63,23 @@ sk_shader_t* sk_picture_make_shader(sk_picture_t* src, sk_shader_tilemode_t tmx,
     }
     return ToShader(AsPicture(src)->makeShader((SkTileMode)tmx, (SkTileMode)tmy, localMatrix ? &m : nullptr, AsRect(tile)).release());
 }
+
+sk_data_t* sk_picture_serialize_to_data(const sk_picture_t* picture) {
+    return ToData(AsPicture(picture)->serialize().release());
+}
+
+void sk_picture_serialize_to_stream(const sk_picture_t* picture, sk_wstream_t* stream) {
+    AsPicture(picture)->serialize(AsWStream(stream));
+}
+
+sk_picture_t* sk_picture_deserialize_from_stream(sk_stream_t* stream) {
+    return ToPicture(SkPicture::MakeFromStream(AsStream(stream)).release());
+}
+
+sk_picture_t* sk_picture_deserialize_from_data(sk_data_t* data) {
+    return ToPicture(SkPicture::MakeFromData(AsData(data)).release());
+}
+
+sk_picture_t* sk_picture_deserialize_from_memory(void* buffer, size_t length) {
+    return ToPicture(SkPicture::MakeFromData(buffer, length).release());
+}
