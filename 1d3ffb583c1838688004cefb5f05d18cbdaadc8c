@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eadb89fe_1a600fa1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-30T20:08:27Z",
+      "side": 1,
+      "message": "At long last... (Though there will be more to do to finish converting all other uses of inherited element lists to intrinsic maps, as well).",
+      "revId": "1d3ffb583c1838688004cefb5f05d18cbdaadc8c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
