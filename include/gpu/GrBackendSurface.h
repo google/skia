@@ -437,6 +437,10 @@ public:
 #ifdef SK_METAL
     GrBackendRenderTarget(int width,
                           int height,
+                          const GrMtlTextureInfo& mtlInfo);
+    /** Deprecated. Sample count is ignored and is instead retrieved from the MtlTexture. */
+    GrBackendRenderTarget(int width,
+                          int height,
                           int sampleCnt,
                           const GrMtlTextureInfo& mtlInfo);
 #endif
