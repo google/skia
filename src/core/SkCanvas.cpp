@@ -178,6 +178,8 @@ void SkCanvas::predrawNotify(const SkRect* rect, const SkPaint* paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+namespace {
+
 /*  This is the record we keep for each SkBaseDevice that the user installs.
     The clip/matrix/proc are fields that reflect the top of the save/restore
     stack. Whenever the canvas changes, it marks a dirty flag, and then before
@@ -188,7 +190,6 @@ void SkCanvas::predrawNotify(const SkRect* rect, const SkPaint* paint,
 struct DeviceCM {
     DeviceCM*                      fNext;
     sk_sp<SkBaseDevice>            fDevice;
-    SkRasterClip                   fClip;
     std::unique_ptr<const SkPaint> fPaint; // may be null (in the future)
     SkMatrix                       fStashedMatrix; // original CTM; used by imagefilter in saveLayer
 
@@ -199,15 +200,13 @@ struct DeviceCM {
         , fStashedMatrix(stashed)
     {}
 
-    void reset(const SkIRect& bounds) {
+    void validate() {
         SkASSERT(!fPaint);
         SkASSERT(!fNext);
         SkASSERT(fDevice);
-        fClip.setRect(bounds);
     }
 };
 
-namespace {
 // Encapsulate state needed to restore from saveBehind()
 struct BackImage {
     sk_sp<SkSpecialImage> fImage;
@@ -262,10 +261,10 @@ public:
     void reset(const SkIRect& bounds) {
         SkASSERT(fLayer);
         SkASSERT(fDeferredSaveCount == 0);
+        fLayer->validate();
 
         fMatrix.setIdentity();
         fRasterClip.setRect(bounds);
-        fLayer->reset(bounds);
     }
 };
 

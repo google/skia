@@ -400,7 +400,6 @@ protected:
 private:
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvas;
-    friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
     friend class SkSurface_Raster;
