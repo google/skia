@@ -46,7 +46,13 @@ GrClip::PreClipResult GrClipStackClip::preApply(const SkRect& drawBounds, GrAA a
 
     PreClipResult result(Effect::kClipped);
     bool isAA;
-    if (fStack->isRRect(rect, &result.fRRect, &isAA)) {
+    // SkClipStack does not have a way to distinguish "not a rrect" vs. "rrect that doesn't
+    // intersect the draw", so pass in the device bounds and then check the returned shape for
+    // intersection afterwards.
+    if (fStack->isRRect(SkRect::Make(deviceRect), &result.fRRect, &isAA)) {
+        if (!result.fRRect.getBounds().intersects(rect)) {
+            return Effect::kClippedOut;
+        }
         result.fIsRRect = true;
         result.fAA = GrAA(isAA);
     }
