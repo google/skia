@@ -180,10 +180,12 @@ private:
     using INHERITED = ProgramVisitor;
 };
 
-class VariableWriteVisitor : public ProgramVisitor {
+class VariableAccessVisitor : public ProgramVisitor {
 public:
-    VariableWriteVisitor(const Variable* var)
-        : fVar(var) {}
+    VariableAccessVisitor(const Variable* var, int maxAllowedReadCount, int maxAllowedWriteCount)
+            : fVar(var)
+            , fMaxAllowedReadCount(maxAllowedReadCount)
+            , fMaxAllowedWriteCount(maxAllowedWriteCount) {}
 
     bool visit(const Statement& s) {
         return this->visitStatement(s);
@@ -192,17 +194,34 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<VariableReference>()) {
             const VariableReference& ref = e.as<VariableReference>();
-            if (ref.fVariable == fVar && (ref.fRefKind == VariableReference::kWrite_RefKind ||
-                                          ref.fRefKind == VariableReference::kReadWrite_RefKind ||
-                                          ref.fRefKind == VariableReference::kPointer_RefKind)) {
-                return true;
+            if (ref.fVariable == fVar) {
+                switch (ref.fRefKind) {
+                    case VariableReference::kReadWrite_RefKind:
+                    case VariableReference::kPointer_RefKind:
+                        ++fReadCount;
+                        [[fallthrough]];
+                    case VariableReference::kWrite_RefKind:
+                        ++fWriteCount;
+                        break;
+                    case VariableReference::kRead_RefKind:
+                        ++fReadCount;
+                        break;
+                }
+                if (fReadCount > fMaxAllowedReadCount || fWriteCount > fMaxAllowedWriteCount) {
+                    return true;
+                }
             }
         }
         return INHERITED::visitExpression(e);
     }
 
+    int fReadCount = 0;
+    int fWriteCount = 0;
+
 private:
     const Variable* fVar;
+    int fMaxAllowedReadCount = 0;
+    int fMaxAllowedWriteCount = 0;
 
     using INHERITED = ProgramVisitor;
 };
@@ -326,7 +345,21 @@ int Analysis::NodeCount(const FunctionDefinition& function) {
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {
-    return VariableWriteVisitor(&var).visit(stmt);
+    // Stop as soon as we encounter any writes.
+    VariableAccessVisitor visitor{&var,
+                                  /*maxAllowedReadCount=*/INT_MAX,
+                                  /*maxAllowedWriteCount=*/1};
+    visitor.visit(stmt);
+    return visitor.fWriteCount > 0;
+}
+
+bool Analysis::StatementOnlyReadsVariableOnceOrLess(const Statement& stmt, const Variable& var) {
+    // Stop as soon as we encounter any writes, or more than one read.
+    VariableAccessVisitor visitor{&var,
+                                  /*maxAllowedReadCount=*/2,
+                                  /*maxAllowedWriteCount=*/1};
+    visitor.visit(stmt);
+    return visitor.fReadCount <= 1 && visitor.fWriteCount == 0;
 }
 
 bool Analysis::IsAssignable(Expression& expr, VariableReference** assignableVar,
