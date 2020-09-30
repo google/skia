@@ -7,13 +7,18 @@ import {
     ShapedText,
     SkAnimatedImage,
     SkCanvas,
-    SkImage,
-    SkImageInfo,
+    SkColorFilter,
     SkFont,
-    SkSurface,
+    SkImage,
+    SkImageFilter,
+    SkImageInfo,
+    SkMaskFilter,
     SkPaint,
     SkPath,
+    SkPathEffect,
     SkPicture,
+    SkShader,
+    SkSurface,
     SkTextBlob,
     SkVertices,
     TypedArray,
@@ -22,8 +27,10 @@ import {
 CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + file}).then((CK: CanvasKit) => {
     canvasTests(CK);
     colorTests(CK);
+    colorFilterTests(CK);
     imageTests(CK);
     mallocTests(CK);
+    paintTests(CK);
     surfaceTests(CK);
     rectangleTests(CK);
 });
@@ -37,7 +44,9 @@ function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: S
                      skp?: SkPicture, font?: SkFont, shapedText?: ShapedText,
                      textBlob?: SkTextBlob, verts?: SkVertices, imageInfo?: SkImageInfo) {
     if (!canvas || !paint || !path || !img || !aImg || !para || !skp || !font ||
-        !shapedText || !textBlob || !verts || !imageInfo) return;
+        !shapedText || !textBlob || !verts || !imageInfo) {
+        return;
+    }
     const someColor = [0.9, 0.8, 0.7, 0.6]; // Making sure arrays are accepted as colors.
     const someRect = [4, 3, 2, 1]; // Making sure arrays are accepted as rects.
     // Making sure arrays are accepted as rrects.
@@ -120,6 +129,24 @@ function colorTests(CK: CanvasKit) {
     const alphaChanged = CK.multiplyByAlpha(colorOne, 0.1);
 }
 
+function colorFilterTests(CK: CanvasKit) {
+    const cf = CK.SkColorFilter; // less typing
+    const filterOne = cf.MakeBlend(CK.CYAN, CK.BlendMode.ColorBurn); // $xpectType SkColorFilter
+    const filterTwo = cf.MakeLinearToSRGBGamma(); // $xpectType SkColorFilter
+    const filterThree = cf.MakeSRGBToLinearGamma(); // $xpectType SkColorFilter
+    const filterFour = cf.MakeCompose(filterOne, filterTwo); // $xpectType SkColorFilter
+    const filterFive = cf.MakeLerp(0.7, filterThree, filterFour); // $xpectType SkColorFilter
+
+    const r = CK.SkColorMatrix.rotated(0, .707, -.707);  // $xpectType Float32Array
+    const b = CK.SkColorMatrix.rotated(2, .5, .866);
+    const s = CK.SkColorMatrix.scaled(0.9, 1.5, 0.8, 0.8);
+    let cm = CK.SkColorMatrix.concat(r, s);
+    cm = CK.SkColorMatrix.concat(cm, b);
+    CK.SkColorMatrix.postTranslate(cm, 20, 0, -10, 0);
+
+    const filterSix = CK.SkColorFilter.MakeMatrix(cm); // $xpectType SkColorFilter
+}
+
 function imageTests(CK: CanvasKit, img?: SkImage) {
     if (!img) return;
     const dOne = img.encodeToData(); // $ExpectType SkData
@@ -135,6 +162,44 @@ function imageTests(CK: CanvasKit, img?: SkImage) {
         alphaType: CK.AlphaType.Unpremul,
         colorSpace: CK.SkColorSpace.SRGB,
     }, 85, 1000);
+    img.delete();
+}
+
+function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: SkImageFilter,
+                    maskFilter?: SkMaskFilter, pathEffect?: SkPathEffect, shader?: SkShader) {
+    if (!colorFilter || !colorFilter || !imageFilter || !maskFilter || !pathEffect || !shader) {
+        return;
+    }
+    const paint = new CK.SkPaint(); // $ExpectType SkPaint
+    const newPaint = paint.copy(); // $ExpectType SkPaint
+    const bm = paint.getBlendMode();
+    const color = paint.getColor(); // $ExpectType Float32Array
+    const fq = paint.getFilterQuality();
+    const sc = paint.getStrokeCap();
+    const sj = paint.getStrokeJoin();
+    const limit = paint.getStrokeMiter(); // $ExpectType number
+    const width = paint.getStrokeWidth(); // $ExpectType number
+    paint.setAlphaf(0.8);
+    paint.setAntiAlias(true);
+    paint.setBlendMode(bm);
+    paint.setColor(CK.RED);
+    paint.setColor([0, 0, 1.2, 0.5], CK.SkColorSpace.DISPLAY_P3);
+    paint.setColorComponents(0, 0, 0.9, 1.0);
+    paint.setColorComponents(0, 0, 1.2, 0.5, CK.SkColorSpace.DISPLAY_P3);
+    paint.setColorFilter(colorFilter);
+    paint.setColorInt(CK.ColorAsInt(20, 30, 40));
+    paint.setColorInt(CK.ColorAsInt(20, 30, 40), CK.SkColorSpace.SRGB);
+    paint.setFilterQuality(CK.FilterQuality.Medium);
+    paint.setImageFilter(imageFilter);
+    paint.setMaskFilter(maskFilter);
+    paint.setPathEffect(pathEffect);
+    paint.setShader(shader);
+    paint.setStrokeCap(CK.StrokeCap.Round);
+    paint.setStrokeJoin(CK.StrokeJoin.Miter);
+    paint.setStrokeMiter(10);
+    paint.setStrokeWidth(20);
+    paint.setStyle(CK.PaintStyle.Fill);
+    paint.delete();
 }
 
 function mallocTests(CK: CanvasKit) {

@@ -1,5 +1,11 @@
+// Minimum TypeScript Version: 3.7
 export interface CanvasKitInitOptions {
-    locateFile: (path: string) => string;
+    /**
+     * This callback will be invoked when the CanvasKit loader needs to fetch a file (e.g.
+     * the blob of WASM code). The correct url prefix should be applied.
+     * @param file - the name of the file that is about to be loaded.
+     */
+    locateFile(file: string): string;
 }
 
 export interface CanvasKit {
@@ -198,15 +204,28 @@ export interface CanvasKit {
      */
     getSkDataBytes(data: SkData): Uint8Array;
 
+    // Constructors, i.e. things made with `new CanvasKit.Foo()`;
+    readonly SkPaint: SkPaintConstructor;
+
+    // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncapsulator()
+    readonly SkColorFilter: SkColorFilterFactory;
+    readonly SkColorMatrix: SkColorMatrixFactory;
+
+    // Enums
     readonly AlphaType: AlphaTypeEnumValues;
     readonly BlendMode: BlendModeEnumValues;
     readonly ClipOp: ClipOpEnumValues;
     readonly ColorType: ColorTypeEnumValues;
     readonly ImageFormat: ImageFormatEnumValues;
+    readonly FilterQuality: FilterQualityEnumValues;
+    readonly PaintStyle: PaintStyleEnumValues;
     readonly PointMode: PointModeEnumValues;
+    readonly StrokeCap: StrokeCapEnumValues;
+    readonly StrokeJoin: StrokeJoinEnumValues;
     readonly SkColorSpace: ColorSpaceEnumValues;
     readonly TileMode: TileModeEnumValues;
 
+    // Constants
     readonly TRANSPARENT: SkColor;
     readonly BLACK: SkColor;
     readonly WHITE: SkColor;
@@ -279,27 +298,27 @@ export interface MallocObj {
      * .toTypedArray().subarray() except the returned TypedArray can also be passed into an API
      * and not cause an additional copy.
      */
-    subarray: (start: number, end: number) => TypedArray;
+    subarray(start: number, end: number): TypedArray;
     /**
      * Return a read/write view of the memory. Do not cache the TypedArray this returns, it may be
      * invalidated if the WASM heap is resized. If this TypedArray is passed into a CanvasKit API,
      * it will not be copied again, only the pointer will be re-used.
      */
-    toTypedArray: () => TypedArray;
+    toTypedArray(): TypedArray;
 }
 
 /**
  * See Paragraph.h for more information on this class. This is only available if Paragraph has
  * been compiled in.
  */
-export interface Paragraph extends EmbindObject<SkAnimatedImage> {
+export interface Paragraph extends EmbindObject<Paragraph> {
     todo: number; // TODO(kjlubick)
 }
 
 /**
  * A simple wrapper around SkTextBlob and the simple Text Shaper.
  */
-export interface ShapedText extends EmbindObject<SkAnimatedImage> {
+export interface ShapedText extends EmbindObject<ShapedText> {
     /**
      * Return the bounding area for the given text.
      * @param outputArray - if provided, the bounding box will be copied into this array instead of
@@ -738,9 +757,14 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
 }
 
 /**
+ * See SkColorFilter.h for more on this class. The objects returned are opaque.
+ */
+export type SkColorFilter = EmbindObject<SkColorFilter>;
+
+/**
  * Represents a blob of memory. See SkData.h for more on this class.
  */
-export interface SkData extends EmbindObject<SkImage> {
+export interface SkData extends EmbindObject<SkData> {
     /**
      * Return the number of bytes in this container.
      */
@@ -750,7 +774,7 @@ export interface SkData extends EmbindObject<SkImage> {
 /**
  * See SkFont.h for more on this class.
  */
-export interface SkFont extends EmbindObject<SkImage> {
+export interface SkFont extends EmbindObject<SkFont> {
     todo: number; // TODO(kjlubick)
 }
 
@@ -801,6 +825,11 @@ export interface SkImage extends EmbindObject<SkImage> {
     width(): number;
 }
 
+/**
+ * See SkImageFilter.h for more on this class. The objects returned are opaque.
+ */
+export type SkImageFilter = EmbindObject<SkImageFilter>;
+
 export interface SkImageInfo {
     alphaType: AlphaType;
     colorSpace: ColorSpace;
@@ -810,10 +839,172 @@ export interface SkImageInfo {
 }
 
 /**
+ * See SkMaskFilter.h for more on this class. The objects returned are opaque.
+ */
+export type SkMaskFilter = EmbindObject<SkMaskFilter>;
+
+/**
  * See SkPaint.h for more information on this class.
  */
 export interface SkPaint extends EmbindObject<SkPaint> {
-    todo: number; // TODO(kjlubick)
+    /**
+     * Returns a copy of this paint.
+     */
+    copy(): SkPaint;
+
+    /**
+     * Returns the blend mode, that is, the mode used to combine source color
+     * with destination color.
+     */
+    getBlendMode(): BlendMode;
+
+    /**
+     * Retrieves the alpha and RGB unpremultiplied. RGB are extended sRGB values
+     * (sRGB gamut, and encoded with the sRGB transfer function).
+     */
+    getColor(): SkColor;
+
+    /**
+     * Returns the image filtering level.
+     * [deprecated] This will be removed in an upcoming release.
+     */
+    getFilterQuality(): FilterQuality;
+
+    /**
+     * Returns the geometry drawn at the beginning and end of strokes.
+     */
+    getStrokeCap(): StrokeCap;
+
+    /**
+     * Returns the geometry drawn at the corners of strokes.
+     */
+    getStrokeJoin(): StrokeJoin;
+
+    /**
+     *  Returns the limit at which a sharp corner is drawn beveled.
+     */
+    getStrokeMiter(): number;
+
+    /**
+     * Returns the thickness of the pen used to outline the shape.
+     */
+    getStrokeWidth(): number;
+
+    /**
+     * Replaces alpha, leaving RGBA unchanged. 0 means fully transparent, 1.0 means opaque.
+     * @param alpha
+     */
+    setAlphaf(alpha: number): void;
+
+    /**
+     * Requests, but does not require, that edge pixels draw opaque or with
+     * partial transparency.
+     * @param aa
+     */
+    setAntiAlias(aa: boolean): void;
+
+    /**
+     * Sets the blend mode that is, the mode used to combine source color
+     * with destination color.
+     * @param mode
+     */
+    setBlendMode(mode: BlendMode): void;
+
+    /**
+     * Sets alpha and RGB used when stroking and filling. The color is four floating
+     * point values, unpremultiplied. The color values are interpreted as being in
+     * the provided colorSpace.
+     * @param color
+     * @param colorSpace - defaults to sRGB
+     */
+    setColor(color: InputColor, colorSpace?: ColorSpace): void;
+
+    /**
+     * Sets alpha and RGB used when stroking and filling. The color is four floating
+     * point values, unpremultiplied. The color values are interpreted as being in
+     * the provided colorSpace.
+     * @param r
+     * @param g
+     * @param b
+     * @param a
+     * @param colorSpace - defaults to sRGB
+     */
+    setColorComponents(r: number, g: number, b: number, a: number, colorSpace?: ColorSpace): void;
+
+    /**
+     * Sets the current color filter, replacing the existing one if there was one.
+     * @param filter
+     */
+    setColorFilter(filter: SkColorFilter): void;
+
+    /**
+     * Sets the color used when stroking and filling. The color values are interpreted as being in
+     * the provided colorSpace.
+     * @param color
+     * @param colorSpace - defaults to sRGB.
+     */
+    setColorInt(color: SkColorInt, colorSpace?: ColorSpace): void;
+
+    /**
+     * Sets the image filtering level.
+     * [deprecated] This will be removed in an upcoming release.
+     * @param quality
+     */
+    setFilterQuality(quality: FilterQuality): void;
+
+    /**
+     * Sets the current image filter, replacing the existing one if there was one.
+     * @param filter
+     */
+    setImageFilter(filter: SkImageFilter): void;
+
+    /**
+     * Sets the current mask filter, replacing the existing one if there was one.
+     * @param filter
+     */
+    setMaskFilter(filter: SkMaskFilter): void;
+
+    /**
+     * Sets the current path effect, replacing the existing one if there was one.
+     * @param effect
+     */
+    setPathEffect(effect: SkPathEffect): void;
+
+    /**
+     * Sets the current shader, replacing the existing one if there was one.
+     * @param shader
+     */
+    setShader(shader: SkShader): void;
+
+    /**
+     * Sets the geometry drawn at the beginning and end of strokes.
+     * @param cap
+     */
+    setStrokeCap(cap: StrokeCap): void;
+
+    /**
+     * Sets the geometry drawn at the corners of strokes.
+     * @param join
+     */
+    setStrokeJoin(join: StrokeJoin): void;
+
+    /**
+     * Sets the limit at which a sharp corner is drawn beveled.
+     * @param limit
+     */
+    setStrokeMiter(limit: number): void;
+
+    /**
+     * Sets the thickness of the pen used to outline the shape.
+     * @param width
+     */
+    setStrokeWidth(width: number): void;
+
+    /**
+     * Sets whether the geometry is filled or stroked.
+     * @param style
+     */
+    setStyle(style: PaintStyle): void;
 }
 
 /**
@@ -822,6 +1013,11 @@ export interface SkPaint extends EmbindObject<SkPaint> {
 export interface SkPath extends EmbindObject<SkPath> {
     todo: number; // TODO(kjlubick)
 }
+
+/**
+ * See SkPathEffect.h for more on this class. The objects returned are opaque.
+ */
+export type SkPathEffect = EmbindObject<SkPathEffect>;
 
 /**
  * See SkPicture.h for more information on this class.
@@ -910,14 +1106,14 @@ export interface SkSurface extends EmbindObject<SkSurface> {
 /**
  * See SkTextBlob.h for more on this class.
  */
-export interface SkTextBlob extends EmbindObject<SkImage> {
+export interface SkTextBlob extends EmbindObject<SkTextBlob> {
     todo: number; // TODO(kjlubick)
 }
 
 /**
  * See SkVertices.h for more on this class.
  */
-export interface SkVertices extends EmbindObject<SkImage> {
+export interface SkVertices extends EmbindObject<SkVertices> {
     todo: number; // TODO(kjlubick)
 }
 
@@ -941,12 +1137,113 @@ export interface WebGLOptions {
     stencil?: number;
 }
 
+export interface SkPaintConstructor {
+    new (): SkPaint;
+}
+
+/**
+ * See SkColorFilter.h for more.
+ */
+export interface SkColorFilterFactory {
+    /**
+     * Makes a color filter with the given color and blend mode.
+     * @param color
+     * @param mode
+     */
+    MakeBlend(color: InputColor, mode: BlendMode): SkColorFilter;
+
+    /**
+     * Makes a color filter composing two color filters.
+     * @param outer
+     * @param inner
+     */
+    MakeCompose(outer: SkColorFilter, inner: SkColorFilter): SkColorFilter;
+
+    /**
+     * Makes a color filter that is linearly interpolated between two other color filters.
+     * @param t - a float in the range of 0.0 to 1.0
+     * @param dst
+     * @param src
+     */
+    MakeLerp(t: number, dst: SkColorFilter, src: SkColorFilter): SkColorFilter;
+
+    /**
+     * Makes a color filter that converts between linear colors and sRGB colors.
+     */
+    MakeLinearToSRGBGamma(): SkColorFilter;
+
+    /**
+     * Creates a color filter using the provided color matrix.
+     * @param cMatrix
+     */
+    MakeMatrix(cMatrix: InputColorMatrix): SkColorFilter;
+
+    /**
+     * Makes a color filter that converts between sRGB colors and linear colors.
+     */
+    MakeSRGBToLinearGamma(): SkColorFilter;
+}
+
+export interface SkColorMatrixFactory {
+    /**
+     * Returns a new SkColorMatrix that is the result of multiplying outer*inner
+     * @param outer
+     * @param inner
+     */
+    concat(outer: SkColorMatrix, inner: SkColorMatrix): SkColorMatrix;
+
+    /**
+     * Returns an identity SkColorMatrix.
+     */
+    identity(): SkColorMatrix;
+
+    /**
+     * Sets the 4 "special" params that will translate the colors after they are multiplied
+     * by the 4x4 matrix.
+     * @param m
+     * @param dr - delta red
+     * @param dg - delta green
+     * @param db - delta blue
+     * @param da - delta alpha
+     */
+    postTranslate(m: SkColorMatrix, dr: number, dg: number, db: number, da: number): SkColorMatrix;
+
+    /**
+     * Returns a new SkColorMatrix that is rotated around a given axis.
+     * @param axis - 0 for red, 1 for green, 2 for blue
+     * @param sine - sin(angle)
+     * @param cosine - cos(angle)
+     */
+    rotated(axis: number, sine: number, cosine: number): SkColorMatrix;
+
+    /**
+     * Returns a new SkColorMatrix that scales the colors as specified.
+     * @param redScale
+     * @param greenScale
+     * @param blueScale
+     * @param alphaScale
+     */
+    scaled(redScale: number, greenScale: number, blueScale: number,
+           alphaScale: number): SkColorMatrix;
+}
+
 /**
  * An SkColor is represented by 4 floats, typically with values between 0 and 1.0. In order,
  * the floats correspond to red, green, blue, alpha.
  */
 export type SkColor = Float32Array;
 export type SkColorInt = number; // deprecated, prefer SkColor
+/**
+ * An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
+ * with a 1x4 matrix that post-translates those 4 channels.
+ * For example, the following is the layout with the scale (S) and post-transform
+ * (PT) items indicated.
+ * RS,  0,  0,  0 | RPT
+ *  0, GS,  0,  0 | GPT
+ *  0,  0, BS,  0 | BPT
+ *  0,  0,  0, AS | APT
+ */
+export type SkColorMatrix = Float32Array;
 /**
  * An SkIRect is represented by 4 ints. In order, the ints correspond to left, top,
  * right, bottom. See SkRect.h for more
@@ -999,23 +1296,31 @@ export type Point3 = number[]; // TODO(kjlubick) make this include typed array a
 
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as colors.
+ * Length 4.
  */
 export type InputColor = MallocObj | SkColor | number[];
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as color matrices.
+ * Length 20.
+ */
+export type InputColorMatrix = MallocObj | SkColorMatrix | number[];
 /**
  * CanvasKit APIs accept all of these matrix types. Under the hood, we generally use 4x4 matrices.
  */
 export type InputMatrix = MallocObj | Matrix4x4 | Matrix3x3 | Matrix3x2 | DOMMatrix | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles.
+ * Length 4.
  */
 export type InputRect = MallocObj | SkRect | number[];
 /**
- * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles.
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as (int) rectangles.
+ * Length 4.
  */
 export type InputIRect = MallocObj | SkRect | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles with
- * rounded corners.
+ * rounded corners. Length 12.
  */
 export type InputRRect = MallocObj | SkRRect | number[];
 
@@ -1025,7 +1330,11 @@ export type ClipOp = EmbindEnumEntity;
 export type ColorSpace = EmbindSingleton;
 export type ColorType = EmbindEnumEntity;
 export type EncodedImageFormat = EmbindEnumEntity;
+export type FilterQuality = EmbindEnumEntity;
+export type PaintStyle = EmbindEnumEntity;
 export type PointMode = EmbindEnumEntity;
+export type StrokeCap = EmbindEnumEntity;
+export type StrokeJoin = EmbindEnumEntity;
 export type TileMode = EmbindEnumEntity;
 
 export interface AlphaTypeEnumValues extends EmbindEnum {
@@ -1094,15 +1403,40 @@ export interface ColorTypeEnumValues extends EmbindEnum {
 
 export interface ImageFormatEnumValues extends EmbindEnum {
     // TODO(kjlubick) When these are compiled in depending on the availability of the codecs,
+    //   be sure to make these nullable.
     PNG: EncodedImageFormat;
     JPEG: EncodedImageFormat;
     WEBP: EncodedImageFormat;
+}
+
+export interface FilterQualityEnumValues extends EmbindEnum {
+    None: FilterQuality;
+    Low: FilterQuality;
+    Medium: FilterQuality;
+    High: FilterQuality;
+}
+
+export interface PaintStyleEnumValues extends EmbindEnum {
+    Fill: PaintStyle;
+    Stroke: PaintStyle;
 }
 
 export interface PointModeEnumValues extends EmbindEnum {
     Points: PointMode;
     Lines: PointMode;
     Polygon: PointMode;
+}
+
+export interface StrokeCapEnumValues extends EmbindEnum {
+    Butt: StrokeCap;
+    Round: StrokeCap;
+    Square: StrokeCap;
+}
+
+export interface StrokeJoinEnumValues extends EmbindEnum {
+    Bevel: StrokeJoin;
+    Miter: StrokeJoin;
+    Round: StrokeJoin;
 }
 
 export interface TileModeEnumValues extends EmbindEnum {
