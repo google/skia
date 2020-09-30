@@ -35,25 +35,17 @@ public:
             uniformColorVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag,
                                                                kHalf4_GrSLType, "uniformColor");
         }
-        fragBuilder->codeAppendf(
-                R"SkSL(half4 constColor;
-@if (%s) {
-    constColor = %s;
-} else {
-    constColor = half4(%f, %f, %f, %f);
-})SkSL",
-                (_outer.useUniform ? "true" : "false"),
+        SkString _input1853 = SkStringPrintf(
+                "%s ? %s : half4(%f, %f, %f, %f)", (_outer.useUniform ? "true" : "false"),
                 uniformColorVar.isValid() ? args.fUniformHandler->getUniformCStr(uniformColorVar)
                                           : "half4(0)",
                 _outer.literalColor.fR, _outer.literalColor.fG, _outer.literalColor.fB,
                 _outer.literalColor.fA);
-        SkString _input1992("constColor");
-        SkString _sample1992 = this->invokeChild(0, _input1992.c_str(), args);
+        SkString _sample1853 = this->invokeChild(0, _input1853.c_str(), args);
         fragBuilder->codeAppendf(
-                R"SkSL(
-%s = %s;
+                R"SkSL(return %s;
 )SkSL",
-                args.fOutputColor, _sample1992.c_str());
+                _sample1853.c_str());
     }
 
 private:
@@ -92,7 +84,7 @@ bool GrOverrideInputFragmentProcessor::onIsEqual(const GrFragmentProcessor& othe
     if (literalColor != that.literalColor) return false;
     return true;
 }
-bool GrOverrideInputFragmentProcessor::usesExplicitReturn() const { return false; }
+bool GrOverrideInputFragmentProcessor::usesExplicitReturn() const { return true; }
 GrOverrideInputFragmentProcessor::GrOverrideInputFragmentProcessor(
         const GrOverrideInputFragmentProcessor& src)
         : INHERITED(kGrOverrideInputFragmentProcessor_ClassID, src.optimizationFlags())
