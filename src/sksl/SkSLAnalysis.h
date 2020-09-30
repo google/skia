@@ -38,6 +38,7 @@ struct Analysis {
     static int NodeCount(const FunctionDefinition& function);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
+    static bool StatementOnlyReadsVariableOnceOrLess(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
                              ErrorReporter* errors = nullptr);
 };

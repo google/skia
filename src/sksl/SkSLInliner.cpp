@@ -669,15 +669,20 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     VariableRewriteMap varMap;
     std::vector<int> argsToCopyBack;
     for (int i = 0; i < (int) arguments.size(); ++i) {
+        const Expression& argument = *arguments[i];
         const Variable* param = function.fDeclaration.fParameters[i];
         bool isOutParam = param->fModifiers.fFlags & Modifiers::kOut_Flag;
 
-        // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
-        if (is_trivial_argument(*arguments[i])) {
+        // Consider skipping the temporary copy of the argument if it's trivial (e.g. a swizzle, or
+        // a constant array index), or if it has no side-effects and it is only read from once (and
+        // never written to) within the inlined function.
+        if (is_trivial_argument(argument) ||
+            (!argument.hasSideEffects() &&
+             Analysis::StatementOnlyReadsVariableOnceOrLess(*function.fBody, *param))) {
             // ... and it's an `out` param, or it isn't written to within the inline function...
             if (isOutParam || !Analysis::StatementWritesToVariable(*function.fBody, *param)) {
                 // ... we don't need to copy it at all! We can just use the existing expression.
-                varMap[param] = arguments[i]->clone();
+                varMap[param] = argument.clone();
                 continue;
             }
         }
@@ -686,7 +691,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             argsToCopyBack.push_back(i);
         }
 
-        varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->type(),
+        varMap[param] = makeInlineVar(String(param->fName), &argument.type(),
                                       param->fModifiers, &arguments[i]);
     }
 
