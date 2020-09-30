@@ -372,7 +372,7 @@ bool ProgramVisitor::visitExpression(const Expression& e) {
             return false; }
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& c = e.as<ExternalFunctionCall>();
-            for (const auto& arg : c.fArguments) {
+            for (const auto& arg : c.arguments()) {
                 if (this->visitExpression(*arg)) { return true; }
             }
             return false; }
