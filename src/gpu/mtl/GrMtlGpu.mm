@@ -713,6 +713,10 @@ sk_sp<GrTexture> GrMtlGpu::onWrapBackendTexture(const GrBackendTexture& backendT
     if (!mtlTexture) {
         return nullptr;
     }
+    // We don't currently support sampling from a MSAA texture in shaders.
+    if (mtlTexture.sampleCount != 1) {
+        return nullptr;
+    }
 
     return GrMtlTexture::MakeWrappedTexture(this, backendTex.dimensions(), mtlTexture, cacheable,
                                             ioType);
@@ -723,6 +727,10 @@ sk_sp<GrTexture> GrMtlGpu::onWrapCompressedBackendTexture(const GrBackendTexture
                                                           GrWrapCacheable cacheable) {
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
     if (!mtlTexture) {
+        return nullptr;
+    }
+    // We don't currently support sampling from a MSAA texture in shaders.
+    if (mtlTexture.sampleCount != 1) {
         return nullptr;
     }
 
@@ -736,6 +744,10 @@ sk_sp<GrTexture> GrMtlGpu::onWrapRenderableBackendTexture(const GrBackendTexture
                                                           GrWrapCacheable cacheable) {
     id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
     if (!mtlTexture) {
+        return nullptr;
+    }
+    // We don't currently support sampling from a MSAA texture in shaders.
+    if (mtlTexture.sampleCount != 1) {
         return nullptr;
     }
 
@@ -1104,7 +1116,7 @@ GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int 
         return {};
     }
 
-    GrBackendRenderTarget backendRT(w, h, 1, info);
+    GrBackendRenderTarget backendRT(w, h, info);
     return backendRT;
 }
 
