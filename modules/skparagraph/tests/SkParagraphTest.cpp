@@ -131,6 +131,7 @@ public:
         SkString tmpDir = skiatest::GetTmpDir();
         if (!tmpDir.isEmpty()) {
             SkString path = SkOSPath::Join(tmpDir.c_str(), name);
+            SkDebugf("TMP DIR = %s\n", tmpDir.c_str());
             SkFILEWStream file(path.c_str());
             if (!SkEncodeImage(&file, bits, SkEncodedImageFormat::kPNG, 100)) {
                 SkDebugf("Cannot write a picture %s\n", name);
