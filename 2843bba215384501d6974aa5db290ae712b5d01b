@@ -81,6 +81,23 @@
       "revId": "2843bba215384501d6974aa5db290ae712b5d01b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6703dbb_e175ca55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-30T13:57:10Z",
+      "side": 1,
+      "message": "I think we need this CL to maintain the status quo and avoid a behavior change from the pattern we already have.  The performance hits for app startup and other use cases don\u0027t justify doing calloc for all malloc style calls.  Skia does support specifying if you want calloc behavior and we will continue to respect that.",
+      "revId": "2843bba215384501d6974aa5db290ae712b5d01b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
