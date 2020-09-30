@@ -88,8 +88,17 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 iter = src->erase(iter);
                 break;
             }
+            case ProgramElement::Kind::kVar: {
+                const VarDeclarations& vd = element->as<VarDeclarations>();
+                SkASSERT(vd.fVars.size() == 1);
+                const Variable* var = vd.fVars[0]->as<VarDeclaration>().fVar;
+                target->insertOrDie(var->fName, std::move(element));
+                iter = src->erase(iter);
+                break;
+            }
             default:
                 // Unsupported element, leave it in the list.
+                printf("Unsupported (%d): %s\n", element->kind(), element->description().c_str());
                 ++iter;
                 break;
         }
