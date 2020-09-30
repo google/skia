@@ -303,6 +303,14 @@ SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) 
     SkUNREACHABLE;
 }
 
+int GrMtlTextureInfoSampleCount(const GrMtlTextureInfo& info) {
+    id<MTLTexture> texture = GrGetMTLTexture(info.fTexture.get());
+    if (!texture) {
+        return 0;
+    }
+    return texture.sampleCount;
+}
+
 #if defined(SK_DEBUG) || GR_TEST_UTILS
 bool GrMtlFormatIsBGRA8(GrMTLPixelFormat mtlFormat) {
     return mtlFormat == MTLPixelFormatBGRA8Unorm;

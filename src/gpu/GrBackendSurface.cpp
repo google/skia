@@ -892,18 +892,20 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
 #endif
 
 #ifdef SK_METAL
-GrBackendRenderTarget::GrBackendRenderTarget(int width,
-                                             int height,
-                                             int sampleCnt,
-                                             const GrMtlTextureInfo& mtlInfo)
+GrBackendRenderTarget::GrBackendRenderTarget(int width, int height, const GrMtlTextureInfo& mtlInfo)
         : fIsValid(true)
-        , fFramebufferOnly(false) // TODO: set this from mtlInfo.fTexture->framebufferOnly
+        , fFramebufferOnly(false)  // TODO: set this from mtlInfo.fTexture->framebufferOnly
         , fWidth(width)
         , fHeight(height)
-        , fSampleCnt(std::max(1, sampleCnt))
+        , fSampleCnt(std::max(1, GrMtlTextureInfoSampleCount(mtlInfo)))
         , fStencilBits(0)
         , fBackend(GrBackendApi::kMetal)
         , fMtlInfo(mtlInfo) {}
+
+GrBackendRenderTarget::GrBackendRenderTarget(int width, int height,
+                                             int sampleCount,
+                                             const GrMtlTextureInfo& mtlInfo)
+        : GrBackendRenderTarget(width, height, mtlInfo) {}
 #endif
 
 #ifdef SK_DIRECT3D
