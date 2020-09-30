@@ -365,8 +365,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         case Expression::Kind::kExternalFunctionCall: {
             const ExternalFunctionCall& externalCall = expression.as<ExternalFunctionCall>();
             return std::make_unique<ExternalFunctionCall>(offset, &externalCall.type(),
-                                                          externalCall.fFunction,
-                                                          argList(externalCall.fArguments));
+                                                          externalCall.function(),
+                                                          argList(externalCall.arguments()));
         }
         case Expression::Kind::kExternalValue:
             return expression.clone();
@@ -1012,7 +1012,7 @@ bool Inliner::analyze(Program& program) {
                 }
                 case Expression::Kind::kExternalFunctionCall: {
                     ExternalFunctionCall& funcCallExpr = (*expr)->as<ExternalFunctionCall>();
-                    for (std::unique_ptr<Expression>& arg : funcCallExpr.fArguments) {
+                    for (std::unique_ptr<Expression>& arg : funcCallExpr.arguments()) {
                         this->visitExpression(&arg);
                     }
                     break;
