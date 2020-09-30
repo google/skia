@@ -260,6 +260,7 @@ sksl_inliner_tests = [
   "$_tests/sksl/inliner/SwizzleCanBeInlinedDirectly.sksl",
   "$_tests/sksl/inliner/TernaryResultsCannotBeInlined.sksl",
   "$_tests/sksl/inliner/TernaryTestCanBeInlined.sksl",
+  "$_tests/sksl/inliner/TrivialArgumentsInlineDirectly.sksl",
   "$_tests/sksl/inliner/WhileBodyMustBeInlinedIntoAScope.sksl",
   "$_tests/sksl/inliner/WhileTestCannotBeInlined.sksl",
 ]
