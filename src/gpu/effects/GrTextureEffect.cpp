@@ -479,8 +479,7 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                 case ShaderMode::kRepeat_Nearest_None:
                 case ShaderMode::kRepeat_Linear_None:
                     fb->codeAppendf(
-                            "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + "
-                            "%s.%s;",
+                            "subsetCoord.%s = mod(inCoord.%s - %s.%s, %s.%s - %s.%s) + %s.%s;",
                             coordSwizzle, coordSwizzle, subsetName, subsetStartSwizzle, subsetName,
                             subsetStopSwizzle, subsetName, subsetStartSwizzle, subsetName,
                             subsetStartSwizzle);
@@ -514,10 +513,8 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     // sample taken using subsetCoord and a sample at extraCoord.
                     fb->codeAppend("float hw = w/2;");
                     fb->codeAppend("float n = mod(d - hw, w2);");
-                    fb->codeAppendf(
-                            "%s = saturate(half(mix(n, w2 - n, step(w, n)) - hw + "
-                            "0.5));",
-                            coordWeight);
+                    fb->codeAppendf("%s = saturate(half(mix(n, w2 - n, step(w, n)) - hw + 0.5));",
+                                    coordWeight);
                     fb->codeAppend("}");
                     break;
                 case ShaderMode::kMirrorRepeat:
@@ -539,11 +536,11 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                               const char* clampStartSwizzle,
                               const char* clampStopSwizzle) {
             if (clamp) {
-                fb->codeAppendf("clampedCoord.%s = clamp(subsetCoord.%s, %s.%s, %s.%s);",
+                fb->codeAppendf("clampedCoord%s = clamp(subsetCoord%s, %s%s, %s%s);",
                                 coordSwizzle, coordSwizzle, clampName, clampStartSwizzle, clampName,
                                 clampStopSwizzle);
             } else {
-                fb->codeAppendf("clampedCoord.%s = subsetCoord.%s;", coordSwizzle, coordSwizzle);
+                fb->codeAppendf("clampedCoord%s = subsetCoord%s;", coordSwizzle, coordSwizzle);
             }
         };
 
@@ -574,9 +571,12 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         subsetCoord(te.fShaderModes[0], "x", "x", "z", extraRepeatCoordX, repeatCoordWeightX);
         subsetCoord(te.fShaderModes[1], "y", "y", "w", extraRepeatCoordY, repeatCoordWeightY);
         fb->codeAppend("float2 clampedCoord;");
-        clampCoord(useClamp[0], "x", "x", "z");
-        clampCoord(useClamp[1], "y", "y", "w");
-
+        if (useClamp[0] == useClamp[1]) {
+            clampCoord(useClamp[0], "", ".xy", ".zw");
+        } else {
+            clampCoord(useClamp[0], ".x", ".x", ".z");
+            clampCoord(useClamp[1], ".y", ".y", ".w");
+        }
         // Additional clamping for the extra coords for kRepeat with mip maps.
         if (mipmapRepeatX) {
             fb->codeAppendf("extraRepeatCoordX = clamp(extraRepeatCoordX, %s.x, %s.z);", clampName,
