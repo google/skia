@@ -47,7 +47,11 @@ public:
         }
         return nullptr;
     }
-    GrVkImage* msaaImage() { return fMSAAImage.get(); }
+    /**
+     * If this render target is multisampled, this returns the MSAA image for rendering. This
+     * may or may not be different than *this*. If not multisampled returns nullptr.
+     */
+    GrVkImage* msaaImage();
     const GrVkImageView* resolveAttachmentView() const { return fResolveAttachmentView.get(); }
     const GrManagedResource* stencilImageResource() const;
     const GrVkImageView* stencilAttachmentView() const;
@@ -143,7 +147,7 @@ private:
                      SkISize dimensions,
                      const GrVkImageInfo& info,
                      sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                     sk_sp < const GrVkImageView> colorAttachmentView);
+                     sk_sp<const GrVkImageView> colorAttachmentView);
 
     GrVkRenderTarget(GrVkGpu* gpu,
                      SkISize dimensions,

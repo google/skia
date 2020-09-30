@@ -884,14 +884,6 @@ sk_sp<GrTexture> GrD3DGpu::onWrapRenderableBackendTexture(const GrBackendTexture
 }
 
 sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderTarget& rt) {
-    // Currently the Direct3D backend does not support wrapping of msaa render targets directly. In
-    // general this is not an issue since swapchain images in D3D are never multisampled. Thus if
-    // you want a multisampled RT it is best to wrap the swapchain images and then let Skia handle
-    // creating and owning the MSAA images.
-    if (rt.sampleCnt() > 1) {
-        return nullptr;
-    }
-
     GrD3DTextureResourceInfo info;
     if (!rt.getD3DTextureResourceInfo(&info)) {
         return nullptr;
@@ -913,7 +905,7 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     sk_sp<GrD3DResourceState> state = rt.getGrD3DResourceState();
 
     sk_sp<GrD3DRenderTarget> tgt = GrD3DRenderTarget::MakeWrappedRenderTarget(
-            this, rt.dimensions(), 1, info, std::move(state));
+            this, rt.dimensions(), rt.sampleCnt(), info, std::move(state));
 
     // We don't allow the client to supply a premade stencil buffer. We always create one if needed.
     SkASSERT(!rt.stencilBits());
@@ -993,6 +985,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
                                                       GrTexturable texturable,
                                                       GrRenderable renderable,
                                                       GrMipmapped mipMapped,
+                                                      int sampleCnt,
                                                       GrD3DTextureResourceInfo* info,
                                                       GrProtected isProtected) {
     SkASSERT(texturable == GrTexturable::kYes || renderable == GrRenderable::kYes);
@@ -1028,7 +1021,7 @@ bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,
     resourceDesc.DepthOrArraySize = 1;
     resourceDesc.MipLevels = numMipLevels;
     resourceDesc.Format = dxgiFormat;
-    resourceDesc.SampleDesc.Count = 1;
+    resourceDesc.SampleDesc.Count = sampleCnt;
     resourceDesc.SampleDesc.Quality = DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN;
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle
     resourceDesc.Flags = usageFlags;
@@ -1082,8 +1075,8 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
 
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kYes,
-                                                      renderable, mipMapped,
-                                                      &info, isProtected)) {
+                                                      renderable, mipMapped, 1, &info,
+                                                      isProtected)) {
         return {};
     }
 
@@ -1265,24 +1258,65 @@ bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return !(textureResource->GetDesc().Flags & D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE);
 }
 
-GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                     GrColorType colorType) {
+GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                     GrColorType colorType,
+                                                                     int sampleCnt,
+                                                                     const SkPMColor4f* color) {
     this->handleDirtyContext();
 
-    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
+    if (dimensions.width() > this->caps()->maxRenderTargetSize() ||
+        dimensions.height() > this->caps()->maxRenderTargetSize()) {
         return {};
     }
 
     DXGI_FORMAT dxgiFormat = this->d3dCaps().getFormatFromColorType(colorType);
 
     GrD3DTextureResourceInfo info;
-    if (!this->createTextureResourceForBackendSurface(dxgiFormat, { w, h }, GrTexturable::kNo,
+    if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kNo,
                                                       GrRenderable::kYes, GrMipmapped::kNo,
-                                                      &info, GrProtected::kNo)) {
+                                                      sampleCnt, &info, GrProtected::kNo)) {
         return {};
     }
 
-    return GrBackendRenderTarget(w, h, info);
+    GrBackendRenderTarget bert(dimensions.width(), dimensions.height(), info);
+    if (color) {
+        auto rt = GrD3DRenderTarget::MakeWrappedRenderTarget(this, dimensions, sampleCnt, info, bert.getGrD3DResourceState());
+        if (!rt) {
+            return {};
+        }
+        rt->setResourceState(this, D3D12_RESOURCE_STATE_COPY_DEST);
+        ID3D12Resource* d3dResource = rt->d3dResource();
+        SkASSERT(d3dResource);
+        D3D12_RESOURCE_DESC desc = d3dResource->GetDesc();
+
+        GrD3DDirectCommandList* cmdList = this->currentCommandList();
+        if (!cmdList) {
+            return {};
+        }
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedFootprint;
+        UINT numRows;
+        UINT64 rowSizeInBytes;
+        UINT64 bufferSize = 0;
+        fDevice->GetCopyableFootprints(&desc, 0, 1, 0, &placedFootprint,
+                                       &numRows, &rowSizeInBytes, &bufferSize);
+        SkASSERT(bufferSize);
+        GrStagingBufferManager::Slice slice = fStagingBufferManager.allocateStagingBufferSlice(
+            bufferSize, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
+        if (!slice.fBuffer) {
+            return {};
+        }
+        char* bufferData = (char*)slice.fOffsetMapPtr;
+        SkASSERT(bufferData);
+        if (!copy_color_data(this->d3dCaps(), bufferData, info.fFormat,
+                             bert.dimensions(), &placedFootprint,
+                             {color->fR, color->fG, color->fB, color->fA})) {
+            return {};
+        }
+        placedFootprint.Offset += slice.fOffset;
+        ID3D12Resource* d3dBuffer = static_cast<GrD3DBuffer*>(slice.fBuffer)->d3dResource();
+        cmdList->copyBufferToTexture(d3dBuffer, rt.get(), 1, &placedFootprint, 0, 0);
+    }
+    return bert;
 }
 
 void GrD3DGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {

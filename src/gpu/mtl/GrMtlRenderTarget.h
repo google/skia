@@ -19,6 +19,8 @@ class GrMtlGpu;
 
 class GrMtlRenderTarget: public GrRenderTarget {
 public:
+    // If sampleCnt is greater than 1 and the texture is single sampled, then a MSAA texture
+    // is created that will resolve to the wrapped single sample texture.
     static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
                                                             SkISize,
                                                             int sampleCnt,

@@ -138,7 +138,7 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
         backendCopy.fSampleCount = 4;
         GrBackendRenderTarget backendRT(kW, kH, backendCopy);
         rt = gpu->wrapBackendRenderTarget(backendRT);
-        REPORTER_ASSERT(reporter, !rt);
+        REPORTER_ASSERT(reporter, rt);
     }
 
     // When we wrapBackendRenderTarget it is always borrowed, so we must make sure to free the
