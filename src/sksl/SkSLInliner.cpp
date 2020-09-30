@@ -222,13 +222,12 @@ static Statement* find_parent_statement(const std::vector<std::unique_ptr<Statem
 std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
                                                 VariableReference::RefKind refKind) {
     std::unique_ptr<Expression> clone = expr.clone();
-    class SetRefKindInExpression : public ProgramVisitor {
+    class SetRefKindInExpression : public ProgramWriter {
     public:
         SetRefKindInExpression(VariableReference::RefKind refKind) : fRefKind(refKind) {}
-        bool visitExpression(const Expression& expr) override {
+        bool visitExpression(Expression& expr) override {
             if (expr.is<VariableReference>()) {
-                // TODO: create a const-savvy ProgramVisitor and remove const_cast
-                const_cast<VariableReference&>(expr.as<VariableReference>()).setRefKind(fRefKind);
+                expr.as<VariableReference>().setRefKind(fRefKind);
             }
             return INHERITED::visitExpression(expr);
         }
@@ -236,7 +235,7 @@ std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
     private:
         VariableReference::RefKind fRefKind;
 
-        using INHERITED = ProgramVisitor;
+        using INHERITED = ProgramWriter;
     };
 
     SetRefKindInExpression{refKind}.visitExpression(*clone);

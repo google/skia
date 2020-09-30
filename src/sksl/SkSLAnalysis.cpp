@@ -338,8 +338,9 @@ bool Analysis::IsAssignable(Expression& expr, VariableReference** assignableVar,
 ////////////////////////////////////////////////////////////////////////////////
 // ProgramVisitor
 
-bool ProgramVisitor::visit(const Program& program) {
-    for (const ProgramElement& pe : program) {
+template <typename PROG, typename EXPR, typename STMT, typename ELEM>
+bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visit(PROG program) {
+    for (ELEM pe : program) {
         if (this->visitProgramElement(pe)) {
             return true;
         }
@@ -347,8 +348,9 @@ bool ProgramVisitor::visit(const Program& program) {
     return false;
 }
 
-bool ProgramVisitor::visitExpression(const Expression& e) {
-    switch(e.kind()) {
+template <typename PROG, typename EXPR, typename STMT, typename ELEM>
+bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
+    switch (e.kind()) {
         case Expression::Kind::kBoolLiteral:
         case Expression::Kind::kDefined:
         case Expression::Kind::kExternalValue:
@@ -361,50 +363,61 @@ bool ProgramVisitor::visitExpression(const Expression& e) {
         case Expression::Kind::kVariableReference:
             // Leaf expressions return false
             return false;
+
         case Expression::Kind::kBinary: {
-            const BinaryExpression& b = e.as<BinaryExpression>();
-            return this->visitExpression(b.left()) || this->visitExpression(b.right()); }
+            auto& b = e.template as<BinaryExpression>();
+            return this->visitExpression(b.left()) || this->visitExpression(b.right());
+        }
         case Expression::Kind::kConstructor: {
-            const Constructor& c = e.as<Constructor>();
-            for (const auto& arg : c.arguments()) {
+            auto& c = e.template as<Constructor>();
+            for (auto& arg : c.arguments()) {
                 if (this->visitExpression(*arg)) { return true; }
             }
-            return false; }
+            return false;
+        }
         case Expression::Kind::kExternalFunctionCall: {
-            const ExternalFunctionCall& c = e.as<ExternalFunctionCall>();
-            for (const auto& arg : c.fArguments) {
+            auto& c = e.template as<ExternalFunctionCall>();
+            for (auto& arg : c.fArguments) {
                 if (this->visitExpression(*arg)) { return true; }
             }
-            return false; }
+            return false;
+        }
         case Expression::Kind::kFieldAccess:
-            return this->visitExpression(*e.as<FieldAccess>().fBase);
+            return this->visitExpression(*e.template as<FieldAccess>().fBase);
+
         case Expression::Kind::kFunctionCall: {
-            const FunctionCall& c = e.as<FunctionCall>();
-            for (const auto& arg : c.fArguments) {
+            auto& c = e.template as<FunctionCall>();
+            for (auto& arg : c.fArguments) {
                 if (this->visitExpression(*arg)) { return true; }
             }
-            return false; }
+            return false;
+        }
         case Expression::Kind::kIndex: {
-            const IndexExpression& i = e.as<IndexExpression>();
-            return this->visitExpression(*i.fBase) || this->visitExpression(*i.fIndex); }
+            auto& i = e.template as<IndexExpression>();
+            return this->visitExpression(*i.fBase) || this->visitExpression(*i.fIndex);
+        }
         case Expression::Kind::kPostfix:
-            return this->visitExpression(*e.as<PostfixExpression>().fOperand);
+            return this->visitExpression(*e.template as<PostfixExpression>().fOperand);
+
         case Expression::Kind::kPrefix:
-            return this->visitExpression(*e.as<PrefixExpression>().fOperand);
+            return this->visitExpression(*e.template as<PrefixExpression>().fOperand);
+
         case Expression::Kind::kSwizzle:
-            return this->visitExpression(*e.as<Swizzle>().fBase);
+            return this->visitExpression(*e.template as<Swizzle>().fBase);
+
         case Expression::Kind::kTernary: {
-            const TernaryExpression& t = e.as<TernaryExpression>();
-            return this->visitExpression(*t.fTest) ||
-                   this->visitExpression(*t.fIfTrue) ||
-                   this->visitExpression(*t.fIfFalse); }
+            auto& t = e.template as<TernaryExpression>();
+            return this->visitExpression(*t.fTest) || this->visitExpression(*t.fIfTrue) ||
+                   this->visitExpression(*t.fIfFalse);
+        }
         default:
             SkUNREACHABLE;
     }
 }
 
-bool ProgramVisitor::visitStatement(const Statement& s) {
-    switch(s.kind()) {
+template <typename PROG, typename EXPR, typename STMT, typename ELEM>
+bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
+    switch (s.kind()) {
         case Statement::Kind::kBreak:
         case Statement::Kind::kContinue:
         case Statement::Kind::kDiscard:
@@ -412,81 +425,114 @@ bool ProgramVisitor::visitStatement(const Statement& s) {
         case Statement::Kind::kNop:
             // Leaf statements just return false
             return false;
+
         case Statement::Kind::kBlock:
-            for (const std::unique_ptr<Statement>& stmt : s.as<Block>().children()) {
+            for (auto& stmt : s.template as<Block>().children()) {
                 if (this->visitStatement(*stmt)) {
                     return true;
                 }
             }
             return false;
+
         case Statement::Kind::kDo: {
-            const DoStatement& d = s.as<DoStatement>();
-            return this->visitExpression(*d.test()) || this->visitStatement(*d.statement()); }
+            auto& d = s.template as<DoStatement>();
+            return this->visitExpression(*d.test()) || this->visitStatement(*d.statement());
+        }
         case Statement::Kind::kExpression:
-            return this->visitExpression(*s.as<ExpressionStatement>().expression());
+            return this->visitExpression(*s.template as<ExpressionStatement>().expression());
+
         case Statement::Kind::kFor: {
-            const ForStatement& f = s.as<ForStatement>();
+            auto& f = s.template as<ForStatement>();
             return (f.fInitializer && this->visitStatement(*f.fInitializer)) ||
                    (f.fTest && this->visitExpression(*f.fTest)) ||
                    (f.fNext && this->visitExpression(*f.fNext)) ||
-                   this->visitStatement(*f.fStatement); }
+                   this->visitStatement(*f.fStatement);
+        }
         case Statement::Kind::kIf: {
-            const IfStatement& i = s.as<IfStatement>();
+            auto& i = s.template as<IfStatement>();
             return this->visitExpression(*i.fTest) ||
                    this->visitStatement(*i.fIfTrue) ||
-                   (i.fIfFalse && this->visitStatement(*i.fIfFalse)); }
+                   (i.fIfFalse && this->visitStatement(*i.fIfFalse));
+        }
         case Statement::Kind::kReturn: {
-            const ReturnStatement& r = s.as<ReturnStatement>();
-            return r.fExpression && this->visitExpression(*r.fExpression); }
+            auto& r = s.template as<ReturnStatement>();
+            return r.fExpression && this->visitExpression(*r.fExpression);
+        }
         case Statement::Kind::kSwitch: {
-            const SwitchStatement& sw = s.as<SwitchStatement>();
-            if (this->visitExpression(*sw.fValue)) { return true; }
-            for (const auto& c : sw.fCases) {
-                if (c->fValue && this->visitExpression(*c->fValue)) { return true; }
-                for (const std::unique_ptr<Statement>& st : c->fStatements) {
-                    if (this->visitStatement(*st)) { return true; }
+            auto& sw = s.template as<SwitchStatement>();
+            if (this->visitExpression(*sw.fValue)) {
+                return true;
+            }
+            for (auto& c : sw.fCases) {
+                if (c->fValue && this->visitExpression(*c->fValue)) {
+                    return true;
+                }
+                for (auto& st : c->fStatements) {
+                    if (this->visitStatement(*st)) {
+                        return true;
+                    }
                 }
             }
-            return false; }
+            return false;
+        }
         case Statement::Kind::kVarDeclaration: {
-            const VarDeclaration& v = s.as<VarDeclaration>();
-            for (const std::unique_ptr<Expression>& sizeExpr : v.fSizes) {
-                if (sizeExpr && this->visitExpression(*sizeExpr)) { return true; }
+            auto& v = s.template as<VarDeclaration>();
+            for (auto& sizeExpr : v.fSizes) {
+                if (sizeExpr && this->visitExpression(*sizeExpr)) {
+                    return true;
+                }
             }
-            return v.fValue && this->visitExpression(*v.fValue); }
+            return v.fValue && this->visitExpression(*v.fValue);
+        }
         case Statement::Kind::kVarDeclarations:
-            return this->visitProgramElement(*s.as<VarDeclarationsStatement>().fDeclaration);
+            return this->visitProgramElement(
+                    *s.template as<VarDeclarationsStatement>().fDeclaration);
+
         case Statement::Kind::kWhile: {
-            const WhileStatement& w = s.as<WhileStatement>();
-            return this->visitExpression(*w.fTest) || this->visitStatement(*w.fStatement); }
+            auto& w = s.template as<WhileStatement>();
+            return this->visitExpression(*w.fTest) || this->visitStatement(*w.fStatement);
+        }
         default:
             SkUNREACHABLE;
     }
 }
 
-bool ProgramVisitor::visitProgramElement(const ProgramElement& pe) {
-    switch(pe.kind()) {
+template <typename PROG, typename EXPR, typename STMT, typename ELEM>
+bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
+    switch (pe.kind()) {
         case ProgramElement::Kind::kEnum:
         case ProgramElement::Kind::kExtension:
         case ProgramElement::Kind::kModifiers:
         case ProgramElement::Kind::kSection:
             // Leaf program elements just return false by default
             return false;
+
         case ProgramElement::Kind::kFunction:
-            return this->visitStatement(*pe.as<FunctionDefinition>().fBody);
+            return this->visitStatement(*pe.template as<FunctionDefinition>().fBody);
+
         case ProgramElement::Kind::kInterfaceBlock:
-            for (const auto& e : pe.as<InterfaceBlock>().fSizes) {
-                if (this->visitExpression(*e)) { return true; }
+            for (auto& e : pe.template as<InterfaceBlock>().fSizes) {
+                if (this->visitExpression(*e)) {
+                    return true;
+                }
             }
             return false;
+
         case ProgramElement::Kind::kVar:
-            for (const auto& v : pe.as<VarDeclarations>().fVars) {
-                if (this->visitStatement(*v)) { return true; }
+            for (auto& v : pe.template as<VarDeclarations>().fVars) {
+                if (this->visitStatement(*v)) {
+                    return true;
+                }
             }
             return false;
+
         default:
             SkUNREACHABLE;
     }
 }
+
+template class TProgramVisitor<const Program&, const Expression&,
+                               const Statement&, const ProgramElement&>;
+template class TProgramVisitor<Program&, Expression&, Statement&, ProgramElement&>;
 
 }  // namespace SkSL
