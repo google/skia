@@ -76,6 +76,9 @@ struct VariableReference : public Expression {
     RefKind fRefKind;
 
 private:
+    void incrementRefs() const;
+    void decrementRefs() const;
+
     using INHERITED = Expression;
 };
 

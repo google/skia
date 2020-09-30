@@ -19,15 +19,23 @@ VariableReference::VariableReference(int offset, const Variable* variable, RefKi
         , fVariable(variable)
         , fRefKind(refKind) {
     SkASSERT(fVariable);
-    if (refKind != kRead_RefKind) {
+    this->incrementRefs();
+}
+
+VariableReference::~VariableReference() {
+    this->decrementRefs();
+}
+
+void VariableReference::incrementRefs() const {
+    if (fRefKind != kRead_RefKind) {
         fVariable->fWriteCount++;
     }
-    if (refKind != kWrite_RefKind) {
+    if (fRefKind != kWrite_RefKind) {
         fVariable->fReadCount++;
     }
 }
 
-VariableReference::~VariableReference() {
+void VariableReference::decrementRefs() const {
     if (fRefKind != kRead_RefKind) {
         fVariable->fWriteCount--;
     }
@@ -37,19 +45,9 @@ VariableReference::~VariableReference() {
 }
 
 void VariableReference::setRefKind(RefKind refKind) {
-    if (fRefKind != kRead_RefKind) {
-        fVariable->fWriteCount--;
-    }
-    if (fRefKind != kWrite_RefKind) {
-        fVariable->fReadCount--;
-    }
-    if (refKind != kRead_RefKind) {
-        fVariable->fWriteCount++;
-    }
-    if (refKind != kWrite_RefKind) {
-        fVariable->fReadCount++;
-    }
+    this->decrementRefs();
     fRefKind = refKind;
+    this->incrementRefs();
 }
 
 std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,
