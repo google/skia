@@ -50,6 +50,12 @@ void VariableReference::setRefKind(RefKind refKind) {
     this->incrementRefs();
 }
 
+void VariableReference::setVariable(const Variable* variable) {
+    this->decrementRefs();
+    fVariable = variable;
+    this->incrementRefs();
+}
+
 std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,
                                                                  const DefinitionMap& definitions) {
     if (fRefKind != kRead_RefKind) {
