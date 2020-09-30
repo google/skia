@@ -551,7 +551,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return m;
   }
 
-  // concat returns a new SkColorMatrix that is the result of multiplying outer*inner;
+  // concat returns a new SkColorMatrix that is the result of multiplying outer*inner
   CanvasKit.SkColorMatrix.concat = function(outer, inner) {
     var m = new Float32Array(20);
     var index = 0;
