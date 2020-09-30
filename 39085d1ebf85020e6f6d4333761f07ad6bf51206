@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "673db977_5eb69349",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-09-30T17:04:59Z",
+      "side": 1,
+      "message": "Pulling out some standalone pieces of my current (larger) CL.",
+      "revId": "39085d1ebf85020e6f6d4333761f07ad6bf51206",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
