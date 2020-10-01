@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59d1f92d_51a7cba7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-01T14:47:02Z",
+      "side": 1,
+      "message": "\u003e \"dont\u0027\" is a possible misspelling of \"don\u0027t\".\n\nPlease fix.",
+      "parentUuid": "8e9d0f0f_50f6229f",
+      "range": {
+        "startLine": 15,
+        "startChar": 19,
+        "endLine": 15,
+        "endChar": 24
+      },
+      "revId": "350703f0d9a0e95cbf3e3d12ce0cca223246f750",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
