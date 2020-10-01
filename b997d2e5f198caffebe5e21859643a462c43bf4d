@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8104a039_724ef7ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T00:05:41Z",
+      "side": 1,
+      "message": "If this is the only use, maybe just change it to NodeCountExceeds(), and avoid having to repeat inlineThreshold at the call-site?",
+      "revId": "b997d2e5f198caffebe5e21859643a462c43bf4d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
