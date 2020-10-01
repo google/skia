@@ -346,7 +346,7 @@ bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     GrDawnTextureInfo info;
     SkAssertResult(backendTexture.getDawnTextureInfo(&info));
 
-    size_t bpp = GrDawnBytesPerPixel(info.fFormat);
+    size_t bpp = GrDawnBytesPerBlock(info.fFormat);
     size_t baseLayerSize = bpp * backendTexture.width() * backendTexture.height();
     const void* pixels;
     SkAutoMalloc defaultStorage(baseLayerSize);
