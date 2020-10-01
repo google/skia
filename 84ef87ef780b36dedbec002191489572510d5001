@@ -16,6 +16,190 @@
       "revId": "84ef87ef780b36dedbec002191489572510d5001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "253c76e6_77930950",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "What invariant is being asserted here?\n(Can our intrinsic files not declare multiple variables on one line??)",
+      "range": {
+        "startLine": 93,
+        "startChar": 16,
+        "endLine": 93,
+        "endChar": 47
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c528658_acb41fa7",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2840,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "nit: I had to look this up 😞\n \n    const ProgramElement*",
+      "range": {
+        "startLine": 2840,
+        "startChar": 20,
+        "endLine": 2840,
+        "endChar": 24
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12f44ea1_7e6529e4",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2842,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "nit:\n    std::unique_ptr\u003cProgramElement\u003e",
+      "range": {
+        "startLine": 2842,
+        "startChar": 20,
+        "endLine": 2842,
+        "endChar": 24
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3097a24_a52c8bb3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2861,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "optional: Does \n    insert({sharedVar, clonedVar}) \nwork?\n\nI\u0027ve generally found there\u0027s rarely a need for make_pair anymore.",
+      "range": {
+        "startLine": 2861,
+        "startChar": 34,
+        "endLine": 2861,
+        "endChar": 70
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41be2d5c_cea30a31",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2867,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "TODO:",
+      "range": {
+        "startLine": 2867,
+        "startChar": 16,
+        "endLine": 2867,
+        "endChar": 19
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad0ffaff_4ab74332",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2888,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "optional: range-based for here?",
+      "range": {
+        "startLine": 2888,
+        "startChar": 12,
+        "endLine": 2888,
+        "endChar": 61
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ace0159_ac0ce388",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "Consider:\n    static constexpr char kSource[] \u003d \"...\"\n\nNot 100% sure but this may allow you to remove the capture from the thread lambda.",
+      "range": {
+        "startLine": 299,
+        "startChar": 4,
+        "endLine": 299,
+        "endChar": 23
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "934b78de_fcb20be9",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T13:44:58Z",
+      "side": 1,
+      "message": "optional:\n    auto [effect, error] \u003d \n\nSo you don\u0027t need tuple accessors on the next line? :)",
+      "range": {
+        "startLine": 304,
+        "startChar": 12,
+        "endLine": 304,
+        "endChar": 23
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
