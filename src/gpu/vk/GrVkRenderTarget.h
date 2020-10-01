@@ -123,8 +123,7 @@ protected:
             // Add one to account for the resolved VkImage.
             numColorSamples += 1;
         }
-        const GrCaps& caps = *this->getGpu()->caps();
-        return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(),
+        return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
                                       numColorSamples, GrMipmapped::kNo);
     }
 
