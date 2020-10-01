@@ -754,7 +754,7 @@ bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThresho
     const FunctionDefinition& functionDef = *functionCall.fFunction.fDefinition;
     if (inlineThreshold < INT_MAX) {
         if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
-            Analysis::NodeCount(functionDef) >= inlineThreshold) {
+            Analysis::NodeCountExceeds(functionDef, inlineThreshold)) {
             // The function exceeds our maximum inline size and is not flagged 'inline'.
             return false;
         }
