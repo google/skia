@@ -1022,7 +1022,7 @@ static inline uint32_t float_to_bits(float x) {
 
 void ByteCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     this->write(ByteCodeInstruction::kPushImmediate);
-    this->write32(float_to_bits(f.value()));
+    this->write32(float_to_bits(f.fValue));
 }
 
 static bool is_generic_type(const Type* type, const Type* generic) {

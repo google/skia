@@ -54,8 +54,6 @@ public:
                 return *this->boolLiteralData().fType;
             case NodeData::Kind::kIntLiteral:
                 return *this->intLiteralData().fType;
-            case NodeData::Kind::kFloatLiteral:
-                return *this->floatLiteralData().fType;
             case NodeData::Kind::kType:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
@@ -79,11 +77,6 @@ protected:
         bool fValue;
     };
 
-    struct FloatLiteralData {
-        const Type* fType;
-        float fValue;
-    };
-
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
@@ -98,7 +91,6 @@ protected:
         enum class Kind {
             kBlock,
             kBoolLiteral,
-            kFloatLiteral,
             kIntLiteral,
             kType,
             kTypeToken,
@@ -108,7 +100,6 @@ protected:
         union Contents {
             BlockData fBlock;
             BoolLiteralData fBoolLiteral;
-            FloatLiteralData fFloatLiteral;
             IntLiteralData fIntLiteral;
             const Type* fType;
             TypeTokenData fTypeToken;
@@ -126,11 +117,6 @@ protected:
         NodeData(const BoolLiteralData& data)
             : fKind(Kind::kBoolLiteral) {
             *(new(&fContents) BoolLiteralData) = data;
-        }
-
-        NodeData(const FloatLiteralData& data)
-            : fKind(Kind::kFloatLiteral) {
-            *(new(&fContents) FloatLiteralData) = data;
         }
 
         NodeData(IntLiteralData data)
@@ -162,9 +148,6 @@ protected:
                 case Kind::kBoolLiteral:
                     *(new(&fContents) BoolLiteralData) = other.fContents.fBoolLiteral;
                     break;
-                case Kind::kFloatLiteral:
-                    *(new(&fContents) FloatLiteralData) = other.fContents.fFloatLiteral;
-                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
@@ -191,9 +174,6 @@ protected:
                 case Kind::kBoolLiteral:
                     fContents.fBoolLiteral.~BoolLiteralData();
                     break;
-                case Kind::kFloatLiteral:
-                    fContents.fFloatLiteral.~FloatLiteralData();
-                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
@@ -212,8 +192,6 @@ protected:
     IRNode(int offset, int kind, const BoolLiteralData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
-
-    IRNode(int offset, int kind, const FloatLiteralData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -273,11 +251,6 @@ protected:
     const BoolLiteralData& boolLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kBoolLiteral);
         return fData.fContents.fBoolLiteral;
-    }
-
-    const FloatLiteralData& floatLiteralData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kFloatLiteral);
-        return fData.fContents.fFloatLiteral;
     }
 
     const IntLiteralData& intLiteralData() const {
