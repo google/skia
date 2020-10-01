@@ -587,7 +587,7 @@ std::unique_ptr<Statement> IRGenerator::convertFor(const ASTNode& f) {
     auto forStmt = std::make_unique<ForStatement>(f.fOffset, std::move(initializer),
                                                   std::move(test), std::move(next),
                                                   std::move(statement), fSymbolTable);
-    fInliner->ensureScopedBlocks(forStmt->fStatement.get(), forStmt.get());
+    fInliner->ensureScopedBlocks(forStmt->statement().get(), forStmt.get());
     return std::move(forStmt);
 }
 
