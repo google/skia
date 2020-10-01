@@ -607,6 +607,12 @@ bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTar
     if (!caps->isFormatAsColorTypeRenderable(grCT, rt.getBackendFormat(), rt.sampleCnt())) {
         return false;
     }
+
+    // We require the stencil bits to be either 0, 8, or 16.
+    if (rt.stencilBits() != 0 && rt.stencilBits != 8 && rt.stencilBits != 16) {
+        return false;
+    }
+
     return true;
 }
 
