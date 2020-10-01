@@ -93,6 +93,30 @@
       "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22dc9533_d66468f2",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T16:06:14Z",
+      "side": 1,
+      "message": "I\u0027m sure that\u0027s probably true, but I thought the goal here was to calculate how much memory we needed to allocate to hold a texture? Is that not what these functions are good for?",
+      "parentUuid": "270740f9_6f4a1835",
+      "range": {
+        "startLine": 391,
+        "startChar": 8,
+        "endLine": 391,
+        "endChar": 62
+      },
+      "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
