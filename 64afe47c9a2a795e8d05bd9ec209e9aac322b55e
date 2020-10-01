@@ -16,6 +16,23 @@
       "revId": "64afe47c9a2a795e8d05bd9ec209e9aac322b55e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "00740f1e_7b3ad3da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-01T16:41:06Z",
+      "side": 1,
+      "message": "Note: This change has hit a bug in Dawn. I\u0027ve put up a fix here:\n\nhttps://dawn-review.googlesource.com/c/dawn/+/29261\n\nWill wait on that to land before moving forward with this CL.",
+      "revId": "64afe47c9a2a795e8d05bd9ec209e9aac322b55e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
