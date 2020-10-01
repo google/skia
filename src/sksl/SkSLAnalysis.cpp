@@ -153,29 +153,31 @@ public:
 // Visitor that counts the number of nodes visited
 class NodeCountVisitor : public ProgramVisitor {
 public:
+    NodeCountVisitor(int upperBound) : fUpperBound(upperBound) {}
+
     int visit(const Statement& s) {
-        fCount = 0;
         this->visitStatement(s);
         return fCount;
     }
 
     bool visitExpression(const Expression& e) override {
         ++fCount;
-        return INHERITED::visitExpression(e);
+        return (fCount >= fUpperBound) || INHERITED::visitExpression(e);
     }
 
     bool visitProgramElement(const ProgramElement& p) override {
         ++fCount;
-        return INHERITED::visitProgramElement(p);
+        return (fCount >= fUpperBound) || INHERITED::visitProgramElement(p);
     }
 
     bool visitStatement(const Statement& s) override {
         ++fCount;
-        return INHERITED::visitStatement(s);
+        return (fCount >= fUpperBound) || INHERITED::visitStatement(s);
     }
 
 private:
-    int fCount;
+    int fCount = 0;
+    int fUpperBound;
 
     using INHERITED = ProgramVisitor;
 };
@@ -321,8 +323,8 @@ bool Analysis::ReferencesFragCoords(const Program& program) {
     return Analysis::ReferencesBuiltin(program, SK_FRAGCOORD_BUILTIN);
 }
 
-int Analysis::NodeCount(const FunctionDefinition& function) {
-    return NodeCountVisitor().visit(*function.fBody);
+bool Analysis::NodeCountReaches(const FunctionDefinition& function, int upperBound) {
+    return NodeCountVisitor{upperBound}.visit(*function.fBody) >= upperBound;
 }
 
 bool Analysis::StatementWritesToVariable(const Statement& stmt, const Variable& var) {

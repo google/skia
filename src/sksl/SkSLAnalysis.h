@@ -9,6 +9,7 @@
 #define SkSLAnalysis_DEFINED
 
 #include <vector>
+#include <limits.h>
 
 #include "include/private/SkSLSampleUsage.h"
 #include "src/sksl/SkSLDefines.h"
@@ -35,7 +36,7 @@ struct Analysis {
     static bool ReferencesSampleCoords(const Program& program);
     static bool ReferencesFragCoords(const Program& program);
 
-    static int NodeCount(const FunctionDefinition& function);
+    static bool NodeCountReaches(const FunctionDefinition& function, int upperBound);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,
