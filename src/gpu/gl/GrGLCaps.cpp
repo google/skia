@@ -1092,9 +1092,6 @@ void GrGLCaps::initBlendEqationSupport(const GrGLContextInfo& ctxInfo) {
     }
 }
 
-namespace {
-const GrGLuint kUnknownBitCount = GrGLStencilAttachment::kUnknownBitCount;
-}  // namespace
 
 void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 
@@ -1108,8 +1105,7 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
                   // internal Format      stencil bits      total bits        packed?
         gS8    = {GR_GL_STENCIL_INDEX8,   8,                8,                false},
         gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
-        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true },
-        gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
+        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true };
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
         bool supportsPackedDS =
@@ -1119,17 +1115,15 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
 
         // S1 thru S16 formats are in GL 3.0+, EXT_FBO, and ARB_FBO since we
         // require FBO support we can expect these are legal formats and don't
-        // check. These also all support the unsized GL_STENCIL_INDEX.
+        // check.
         fStencilFormats.push_back() = gS8;
         fStencilFormats.push_back() = gS16;
         if (supportsPackedDS) {
             fStencilFormats.push_back() = gD24S8;
-            fStencilFormats.push_back() = gDS;
         }
     } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
         // ES2 has STENCIL_INDEX8 without extensions but requires extensions
         // for other formats.
-        // ES doesn't support using the unsized format.
 
         fStencilFormats.push_back() = gS8;
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
