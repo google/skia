@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8217156f_33af4a22",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-01T12:25:24Z",
+      "side": 1,
+      "message": "I didn\u0027t consider it as expensive vs. cheap but safe vs. dangerous.\n\nIt\u0027s safe to create a String from a StringFragment since the bytes are copied. It\u0027s dangerous to create a StringFragment from a String since if the String goes away you have a dangling pointer.",
+      "parentUuid": "2a082b8b_08d4c9ed",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 0
+      },
+      "revId": "80dcad599fa35d480d23f9df6a4df5e3e7c73610",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c9c254f_45219806",
         "filename": "src/sksl/ir/SkSLIRNode.h",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "80dcad599fa35d480d23f9df6a4df5e3e7c73610",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08e2e7a0_0d998c97",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-01T12:25:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c9c254f_45219806",
+      "range": {
+        "startLine": 202,
+        "startChar": 17,
+        "endLine": 202,
+        "endChar": 27
+      },
+      "revId": "80dcad599fa35d480d23f9df6a4df5e3e7c73610",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
