@@ -274,13 +274,13 @@ public:
      *
      * @return the amount of GPU memory used in bytes
      */
-    size_t gpuMemorySize(const GrCaps& caps) const {
+    size_t gpuMemorySize() const {
         SkASSERT(!this->isFullyLazy());
         if (fTarget) {
             return fTarget->gpuMemorySize();
         }
         if (kInvalidGpuMemorySize == fGpuMemorySize) {
-            fGpuMemorySize = this->onUninstantiatedGpuMemorySize(caps);
+            fGpuMemorySize = this->onUninstantiatedGpuMemorySize();
             SkASSERT(kInvalidGpuMemorySize != fGpuMemorySize);
         }
         return fGpuMemorySize;
@@ -418,7 +418,7 @@ private:
     static const size_t kInvalidGpuMemorySize = ~static_cast<size_t>(0);
     SkDEBUGCODE(size_t getRawGpuMemorySize_debugOnly() const { return fGpuMemorySize; })
 
-    virtual size_t onUninstantiatedGpuMemorySize(const GrCaps&) const = 0;
+    virtual size_t onUninstantiatedGpuMemorySize() const = 0;
 
     virtual LazySurfaceDesc callbackDesc() const = 0;
 
