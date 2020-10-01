@@ -205,7 +205,8 @@ export interface CanvasKit {
     getSkDataBytes(data: SkData): Uint8Array;
 
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
-    readonly SkPaint: SkPaintConstructor;
+    readonly SkPaint: DefaultConstructor<SkPaint>;
+    readonly SkPath: SkPathConstructorAndFactory;
 
     // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncapsulator()
     readonly SkColorFilter: SkColorFilterFactory;
@@ -243,6 +244,13 @@ export interface CanvasKit {
     readonly YELLOW: SkColor;
     readonly CYAN: SkColor;
     readonly MAGENTA: SkColor;
+
+    readonly MOVE_VERB: number;
+    readonly LINE_VERB: number;
+    readonly QUAD_VERB: number;
+    readonly CONIC_VERB: number;
+    readonly CUBIC_VERB: number;
+    readonly CLOSE_VERB: number;
 }
 
 export interface Camera {
@@ -1037,7 +1045,321 @@ export interface SkPaint extends EmbindObject<SkPaint> {
  * See SkPath.h for more information on this class.
  */
 export interface SkPath extends EmbindObject<SkPath> {
-    todo: number; // TODO(kjlubick)
+
+    /**
+     * Appends arc to SkPath, as the start of new contour. Arc added is part of ellipse
+     * bounded by oval, from startAngle through sweepAngle. Both startAngle and
+     * sweepAngle are measured in degrees, where zero degrees is aligned with the
+     * positive x-axis, and positive sweeps extends arc clockwise.
+     * Returns the modified path for easier chaining.
+     * @param oval
+     * @param startAngle
+     * @param sweepAngle
+     */
+    addArc(oval: InputRect, startAngle: angleInDegrees, sweepAngle: angleInDegrees): SkPath;
+
+    /**
+     * Adds oval to SkPath, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
+     * Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
+     * and half oval height. Oval begins at start and continues clockwise by default.
+     * Returns the modified path for easier chaining.
+     * @param oval
+     * @param isCCW - if the path should be drawn counter-clockwise or not
+     * @param startIndex - index of initial point of ellipse
+     */
+    addOval(oval: InputRect, isCCW?: boolean, startIndex?: number): SkPath;
+
+    /**
+     * Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
+     * The last arg is an optional boolean and chooses between add or extend mode.
+     * The options for the remaining args are:
+     *   - an array of 6 or 9 parameters (perspective is optional)
+     *   - the 9 parameters of a full matrix or
+     *     the 6 non-perspective params of a matrix.
+     * Returns the modified path for easier chaining (or null if params were incorrect).
+     * @param args
+     */
+    addPath(args: any[]): SkPath | null;
+
+    /**
+     * Adds contour created from array of n points, adding (count - 1) line segments.
+     * Contour added starts at pts[0], then adds a line for every additional point
+     * in pts array. If close is true, appends kClose_Verb to SkPath, connecting
+     * pts[count - 1] and pts[0].
+     * Returns the modified path for easier chaining.
+     * @param points - either an array of 2-arrays representing points or a malloc'd object of
+     *                 length n to represent 2*n points. Even indices are x, odd are y.
+     * @param close - should add a line connecting last point to the first point.
+     */
+    addPoly(points: MallocObj | number[][], close: boolean): SkPath;
+
+    /**
+     * Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
+     * starting with top-left corner of SkRect; followed by top-right, bottom-right,
+     * and bottom-left if isCCW is false; or followed by bottom-left,
+     * bottom-right, and top-right if isCCW is true.
+     * Returns the modified path for easier chaining.
+     * @param rect
+     * @param isCCW
+     */
+    addRect(rect: InputRect, isCCW?: boolean): SkPath;
+
+    /**
+     * Adds rrect to SkPath, creating a new closed contour.
+     * Returns the modified path for easier chaining.
+     * @param rrect
+     * @param isCCW
+     */
+    addRRect(rrect: InputRRect, isCCW?: boolean): SkPath;
+
+    /**
+     * Adds the given verbs and associated points/weights to the path. The process
+     * reads the first verb from verbs and then the appropriate number of points from the
+     * FlattenedPointArray (e.g. 2 points for moveTo, 4 points for quadTo, etc). If the verb is
+     * a conic, a weight will be read from the WeightList.
+     * Returns the modified path for easier chaining
+     * @param verbs - the verbs that create this path, in the order of being drawn.
+     * @param points - represents n points with 2n floats.
+     * @param weights - used if any of the verbs are conics, can be omitted otherwise.
+     */
+    addVerbsPointsWeights(verbs: VerbList, points: FlattenedPointArray,
+                          weights?: WeightList): SkPath;
+
+
+    /**
+     * Adds an arc to this path, emulating the Canvas2D behavior.
+     * Returns the modified path for easier chaining.
+     * @param x
+     * @param y
+     * @param radius
+     * @param startAngle
+     * @param endAngle
+     * @param isCCW
+     */
+    arc(x: number, y: number, radius: number, startAngle: angleInRadians, endAngle: angleInRadians,
+        isCCW?: boolean): SkPath;
+
+    /**
+     * Appends arc to SkPath. Arc added is part of ellipse
+     * bounded by oval, from startAngle through sweepAngle. Both startAngle and
+     * sweepAngle are measured in degrees, where zero degrees is aligned with the
+     * positive x-axis, and positive sweeps extends arc clockwise.
+     * Returns the modified path for easier chaining.
+     * @param oval
+     * @param startAngle
+     * @param endAngle
+     * @param forceMoveTo
+     */
+    arcToOval(oval: InputRect, startAngle: angleInDegrees, endAngle: angleInDegrees,
+              forceMoveTo: boolean): SkPath;
+
+    /**
+     * Appends arc to SkPath. Arc is implemented by one or more conics weighted to
+     * describe part of oval with radii (rx, ry) rotated by xAxisRotate degrees. Arc
+     * curves from last SkPath SkPoint to (x, y), choosing one of four possible routes:
+     * clockwise or counterclockwise, and smaller or larger. See SkPath.h for more details.
+     * Returns the modified path for easier chaining.
+     * @param rx
+     * @param ry
+     * @param xAxisRotate
+     * @param useSmallArc
+     * @param isCCW
+     * @param x
+     * @param y
+     */
+    arcToRotated(rx: number, ry: number, xAxisRotate: angleInDegrees, useSmallArc: boolean,
+                 isCCW: boolean, x: number, y: number): SkPath;
+
+    /**
+     * Appends arc to SkPath, after appending line if needed. Arc is implemented by conic
+     * weighted to describe part of circle. Arc is contained by tangent from
+     * last SkPath point to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
+     * is part of circle sized to radius, positioned so it touches both tangent lines.
+     * Returns the modified path for easier chaining.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param radius
+     */
+    arcToTangent(x1: number, y1: number, x2: number, y2: number, radius: number): SkPath;
+
+    /**
+     * Appends CLOSE_VERB to SkPath. A closed contour connects the first and last point
+     * with a line, forming a continuous loop.
+     * Returns the modified path for easier chaining.
+     */
+    close(): SkPath;
+
+    /**
+     * Returns minimum and maximum axes values of the lines and curves in SkPath.
+     * Returns (0, 0, 0, 0) if SkPath contains no points.
+     * Returned bounds width and height may be larger or smaller than area affected
+     * when SkPath is drawn.
+     *
+     * Behaves identically to getBounds() when SkPath contains
+     * only lines. If SkPath contains curves, computed bounds includes
+     * the maximum extent of the quad, conic, or cubic; is slower than getBounds();
+     * and unlike getBounds(), does not cache the result.
+     * @param outputArray - if provided, the bounding box will be copied into this array instead of
+     *                      allocating a new one.
+     */
+    computeTightBounds(outputArray?: SkRect): SkRect;
+
+    /**
+     * Adds conic from last point towards (x1, y1), to (x2, y2), weighted by w.
+     * If SkPath is empty, or path is closed, the last point is set to (0, 0)
+     * before adding conic.
+     * Returns the modified path for easier chaining.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param w
+     */
+    conicTo(x1: number, y1: number, x2: number, y2: number, w: number): SkPath;
+
+    /**
+     * Returns true if the point (x, y) is contained by SkPath, taking into
+     * account FillType.
+     * @param x
+     * @param y
+     */
+    contains(x: number, y: number): boolean;
+
+    /**
+     * Returns a copy of this SkPath.
+     */
+    copy(): SkPath;
+
+    /**
+     * Returns the number of points in this path. Initially zero.
+     */
+    countPoints(): number;
+
+
+    /**
+     *  Adds cubic from last point towards (x1, y1), then towards (x2, y2), ending at
+     * (x3, y3). If SkPath is empty, or path is closed, the last point is set to
+     * (0, 0) before adding cubic.
+     * @param cpx1
+     * @param cpy1
+     * @param cpx2
+     * @param cpy2
+     * @param x
+     * @param y
+     */
+    cubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): SkPath;
+
+    /**
+     * Changes this path to be the dashed version of itself. This is the same effect as creating
+     * an SkDashPathEffect and calling filterPath on this path.
+     * @param on
+     * @param off
+     * @param phase
+     */
+    dash(on: number, off: number, phase: number): boolean;
+
+    /**
+     * Returns true if other path is equal to this path.
+     * @param other
+     */
+    equals(other: SkPath): boolean;
+
+    /**
+     * Returns minimum and maximum axes values of SkPoint array.
+     * Returns (0, 0, 0, 0) if SkPath contains no points. Returned bounds width and height may
+     * be larger or smaller than area affected when SkPath is drawn.
+     * @param outputArray - if provided, the bounding box will be copied into this array instead of
+     *                      allocating a new one.
+     */
+    getBounds(outputArray?: SkRect): SkRect;
+
+    /**
+     * Return the FillType for this path.
+     */
+    getFillType(): FillType;
+
+    /**
+     * Returns SkPoint at index in SkPoint array. Valid range for index is
+     * 0 to countPoints() - 1.
+     * @param index
+     */
+    getPoint(index: number): SkPoint;
+
+    /**
+     * Returns true if there are no verbs in the path.
+     */
+    isEmpty(): boolean;
+
+    /**
+     * Returns true if the path is volatile; it will not be altered or discarded
+     * by the caller after it is drawn. SkPath by default have volatile set false, allowing
+     * SkSurface to attach a cache of data which speeds repeated drawing. If true, SkSurface
+     * may not speed repeated drawing.
+     */
+    isVolatile(): boolean;
+
+    /**
+     * Adds line from last point to (x, y). If SkPath is empty, or last path is closed,
+     * last point is set to (0, 0) before adding line.
+     * Returns the modified path for easier chaining.
+     * @param x
+     * @param y
+     */
+    lineTo(x: number, y: number): SkPath;
+
+    /**
+     * Adds begininning of contour at the given point.
+     * Returns the modified path for easier chaining.
+     * @param x
+     * @param y
+     */
+    moveTo(x: number, y: number): SkPath;
+
+    /**
+     * Translates all the points in the path by dx, dy.
+     * Returns the modified path for easier chaining.
+     * @param dx
+     * @param dy
+     */
+    offset(dx, dy): SkPath;
+
+    /**
+     * Combines this path with the other path using the given PathOp. Returns false if the operation
+     * fails.
+     * @param other
+     * @param op
+     */
+    op(other: SkPath, op: PathOp): boolean;
+
+    /**
+     * Adds quad from last point towards (x1, y1), to (x2, y2).
+     * If SkPath is empty, or path is closed, last point is set to (0, 0) before adding quad.
+     * Returns the modified path for easier chaining.
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     */
+    quadTo(x1: number, y1: number, x2: number, y2: number): SkPath;
+
+    rArcTo
+    rConicTo
+    rCubicTo
+    reset
+    rewind
+    rLineTo
+    rMoveTo
+    rQuadTo
+    setFillType
+    setIsVolatile
+    simplify
+    stroke
+    toCmds
+    toSVGString
+    transform
+    trim
 }
 
 /**
@@ -1104,7 +1426,7 @@ export interface SkSurface extends EmbindObject<SkSurface> {
      * drawn to another surface of the same type. For example, if this surface is backed by the
      * GPU, the returned SkImage will be backed by a GPU texture.
      */
-    makeImageSnapshot(bounds?: SkIRect | number[]): SkImage;
+    makeImageSnapshot(bounds?: InputIRect): SkImage;
 
     /**
      * Returns a compatible SkSurface, haring the same raster or GPU properties of the original.
@@ -1163,8 +1485,8 @@ export interface WebGLOptions {
     stencil?: number;
 }
 
-export interface SkPaintConstructor {
-    new (): SkPaint;
+export interface DefaultConstructor<T> {
+    new (): T;
 }
 
 export interface ColorMatrixHelpers {
@@ -1471,6 +1793,30 @@ export interface SkMaskFilterFactory {
 }
 
 /**
+ * Contains the ways to create an SkPath.
+ */
+export interface SkPathConstructorAndFactory extends DefaultConstructor<SkPath> {
+    /**
+     * Creates a new path from the given list of path commands.
+     * @param cmds
+     */
+    MakeFromCmds(cmds: PathCommand[]): SkPath;
+
+    /**
+     * Creates a new path using the provided verbs and associated points and weights. The process
+     * reads the first verb from verbs and then the appropriate number of points from the
+     * FlattenedPointArray (e.g. 2 points for moveTo, 4 points for quadTo, etc). If the verb is
+     * a conic, a weight will be read from the WeightList.
+     * If the data is malformed (e.g. not enough points), the resulting path will be incomplete.
+     * @param verbs - the verbs that create this path, in the order of being drawn.
+     * @param points - represents n points with 2n floats.
+     * @param weights - used if any of the verbs are conics, can be omitted otherwise.
+     */
+    MakeFromVerbsPointsWeights(verbs: VerbList, points: FlattenedPointArray,
+                               weights?: WeightList): SkPath;
+}
+
+/**
  * See SkPathEffect.h for more details.
  */
 export interface SkPathEffectFactory {
@@ -1544,6 +1890,8 @@ export type TypedArrayConstructor = Float32ArrayConstructor | Int32ArrayConstruc
     Uint16ArrayConstructor | Uint8ArrayConstructor;
 export type TypedArray = Float32Array | Int32Array | Int16Array | Int8Array | Uint32Array |
     Uint16Array | Uint8Array;
+
+export type ColorIntArray = MallocObj | Uint32Array | number[];
 /**
  * FlattenedPointArray represents n points by 2*n float values. In order, the values should
  * be the x, y for each point.
@@ -1559,7 +1907,22 @@ export type FlattenedRectangleArray = MallocObj | Float32Array | number[];
  * be scos, ssin, tx, ty for each RSXForm. See RSXForm.h for more details.
  */
 export type FlattenedRSXFormArray = MallocObj | Float32Array | number[];
-export type ColorIntArray = MallocObj | Uint32Array | number[];
+/**
+ * PathCommand contains a verb and then any arguments needed to fulfill that path verb.
+ * Examples:
+ *   [CanvasKit.MOVE_VERB, 0, 10]
+ *   [CanvasKit.LINE_VERB, 30, 40]
+ * TODO(kjlubick) Make this not be a 2-d array and support typed arrays.
+ */
+export type PathCommand = number[];
+/**
+ * VerbList holds verb constants like CanvasKit.MOVE_VERB, CanvasKit.CUBIC_VERB.
+ */
+export type VerbList = MallocObj | Uint8Array | number[];
+/**
+ * WeightList holds weights for conics when making paths.
+ */
+export type WeightList = MallocObj | Float32Array | number[];
 
 export type Matrix4x4 = Float32Array;
 export type Matrix3x3 = Float32Array;
@@ -1592,7 +1955,7 @@ export type InputRect = MallocObj | SkRect | number[];
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as (int) rectangles.
  * Length 4.
  */
-export type InputIRect = MallocObj | SkRect | number[];
+export type InputIRect = MallocObj | SkIRect | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles with
  * rounded corners. Length 12.

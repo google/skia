@@ -613,6 +613,7 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  // TODO(kjlubick) clean up this API - split it apart if necessary
   CanvasKit.SkPath.prototype.addPath = function() {
     // Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
     // The last arg is optional and chooses between add or extend mode.
@@ -667,6 +668,7 @@ CanvasKit.onRuntimeInitialized = function() {
       ptr = points.byteOffset;
       n = points.length/2;
     } else {
+      // TODO(kjlubick) deprecate and remove the 2d array input
       ptr = copy2dArray(points, 'HEAPF32');
       n = points.length;
     }

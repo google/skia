@@ -35,6 +35,7 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     maskFilterTests(CK);
     matrixTests(CK);
     paintTests(CK);
+    pathTests(CK);
     surfaceTests(CK);
     rectangleTests(CK);
 });
@@ -81,7 +82,9 @@ function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: S
     canvas.drawImageAtCurrentFrame(aImg, 0, -43);
     canvas.drawImageAtCurrentFrame(aImg, 0, -43, paint);
     canvas.drawImageNine(img, someRect, someRect, paint);
+    canvas.drawImageNine(img, CK.XYWHiRect(10, 20, 40, 40), someRect, paint);
     canvas.drawImageRect(img, someRect, someRect, paint);
+    canvas.drawImageRect(img, CK.XYWHRect(90, 90, 40, 40), someRect, paint);
     canvas.drawImageRect(img, someRect, someRect, paint, true);
     canvas.drawLine(1, 2, 3, 4, paint);
     canvas.drawOval(someRect, paint);
@@ -220,6 +223,19 @@ function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: Sk
     paint.setStrokeWidth(20);
     paint.setStyle(CK.PaintStyle.Fill);
     paint.delete();
+}
+
+function pathTests(CK: CanvasKit) {
+    const path = new CK.SkPath();
+    const p2 = CK.SkPath.MakeFromCmds([
+        [CK.MOVE_VERB, 0, 10],
+        [CK.LINE_VERB, 30, 40],
+        [CK.QUAD_VERB, 20, 50, 45, 60],
+    ]);
+    const verbs = CK.Malloc(Uint8Array, 10);
+    const points = CK.Malloc(Float32Array, 10);
+    const p3 = CK.SkPath.MakeFromVerbsPointsWeights(verbs, [1, 2, 3, 4]);
+    const p4 = CK.SkPath.MakeFromVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
 }
 
 function pathEffectTests(CK: CanvasKit) {
