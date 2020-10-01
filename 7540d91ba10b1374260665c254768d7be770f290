@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ec1503f_38b95d4f",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1621,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T21:34:09Z",
+      "side": 1,
+      "message": "This (and geometry just below) are the last two cases where we\u0027re using an inherited list of elements. Those both contain interface blocks, which are the last thing that needs to be handled as an \"intrinsic\" (and why I\u0027m suddenly looking at interface blocks so much).\n\nOnce I figure out how to migrate/clone that data, I *do* plan to do yet more renaming/restructuring here - like passing the intrinsic map to start, making grab_intrinsics be more of a \"convert this list of elements and return the map\" API, etc...",
+      "revId": "7540d91ba10b1374260665c254768d7be770f290",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
