@@ -119,7 +119,7 @@ struct Program {
         bool fRemoveDeadFunctions = true;
         // Functions smaller than this (measured in IR nodes) will be inlined. Default is arbitrary.
         // Set to 0 to disable inlining entirely.
-        int fInlineThreshold = 50;
+        int fInlineThreshold = 49;
         // true to enable optimization passes
         bool fOptimize = true;
         // If true, implicit conversions to lower precision numeric types are allowed
