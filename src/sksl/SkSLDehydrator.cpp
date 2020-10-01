@@ -306,9 +306,9 @@ void Dehydrator::write(const Expression* e) {
                 const FunctionCall& f = e->as<FunctionCall>();
                 this->writeU8(Rehydrator::kFunctionCall_Command);
                 this->write(f.type());
-                this->writeId(&f.fFunction);
-                this->writeU8(f.fArguments.size());
-                for (const auto& a : f.fArguments) {
+                this->writeId(&f.function());
+                this->writeU8(f.arguments().size());
+                for (const auto& a : f.arguments()) {
                     this->write(a.get());
                 }
                 break;

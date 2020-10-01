@@ -246,7 +246,7 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
                 Expression& expr = *result->as<ExpressionStatement>().expression();
                 if (expr.kind() == Expression::Kind::kFunctionCall) {
                     FunctionCall& fc = expr.as<FunctionCall>();
-                    if (fc.fFunction.fBuiltin && fc.fFunction.fName == "EmitVertex") {
+                    if (fc.function().fBuiltin && fc.function().fName == "EmitVertex") {
                         std::vector<std::unique_ptr<Statement>> statements;
                         statements.push_back(getNormalizeSkPositionCode());
                         statements.push_back(std::move(result));
@@ -2112,7 +2112,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
     }
 
-    auto funcCall = std::make_unique<FunctionCall>(offset, returnType, function,
+    auto funcCall = std::make_unique<FunctionCall>(offset, returnType, &function,
                                                    std::move(arguments));
     if (fCanInline && fInliner->isSafeToInline(*funcCall, fSettings->fInlineThreshold)) {
         Inliner::InlinedCall inlinedCall =

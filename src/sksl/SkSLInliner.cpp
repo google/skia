@@ -172,7 +172,7 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
         }
 
         bool visitExpression(const Expression& expr) override {
-            if (expr.is<FunctionCall>() && expr.as<FunctionCall>().fFunction.matches(*fFuncDecl)) {
+            if (expr.is<FunctionCall>() && expr.as<FunctionCall>().function().matches(*fFuncDecl)) {
                 return true;
             }
             return INHERITED::visitExpression(expr);
@@ -378,8 +378,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();
-            return std::make_unique<FunctionCall>(offset, &funcCall.type(), funcCall.fFunction,
-                                                  argList(funcCall.fArguments));
+            return std::make_unique<FunctionCall>(offset, &funcCall.type(), &funcCall.function(),
+                                                  argList(funcCall.arguments()));
         }
         case Expression::Kind::kFunctionReference:
             return expression.clone();
@@ -593,9 +593,9 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     SkASSERT(call);
     SkASSERT(this->isSafeToInline(*call, /*inlineThreshold=*/INT_MAX));
 
-    std::vector<std::unique_ptr<Expression>>& arguments = call->fArguments;
+    std::vector<std::unique_ptr<Expression>>& arguments = call->arguments();
     const int offset = call->fOffset;
-    const FunctionDefinition& function = *call->fFunction.fDefinition;
+    const FunctionDefinition& function = *call->function().fDefinition;
     const bool hasEarlyReturn = has_early_return(function);
 
     InlinedCall inlinedCall;
@@ -611,7 +611,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                    arguments.size() + // Function arguments (copy out-params back)
                                    1);                // Inlined code (Block or do-while loop)
 
-    inlinedBody.children().push_back(std::make_unique<InlineMarker>(call->fFunction));
+    inlinedBody.children().push_back(std::make_unique<InlineMarker>(call->function()));
 
     auto makeInlineVar =
             [&](const String& baseName, const Type* type, Modifiers modifiers,
@@ -747,11 +747,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThreshold) {
     SkASSERT(fSettings);
 
-    if (functionCall.fFunction.fDefinition == nullptr) {
+    if (functionCall.function().fDefinition == nullptr) {
         // Can't inline something if we don't actually have its definition.
         return false;
     }
-    const FunctionDefinition& functionDef = *functionCall.fFunction.fDefinition;
+    const FunctionDefinition& functionDef = *functionCall.function().fDefinition;
     if (inlineThreshold < INT_MAX) {
         if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
             Analysis::NodeCount(functionDef) >= inlineThreshold) {
@@ -1030,7 +1030,7 @@ bool Inliner::analyze(Program& program) {
                 }
                 case Expression::Kind::kFunctionCall: {
                     FunctionCall& funcCallExpr = (*expr)->as<FunctionCall>();
-                    for (std::unique_ptr<Expression>& arg : funcCallExpr.fArguments) {
+                    for (std::unique_ptr<Expression>& arg : funcCallExpr.arguments()) {
                         this->visitExpression(&arg);
                     }
                     this->addInlineCandidate(expr);
@@ -1087,7 +1087,7 @@ bool Inliner::analyze(Program& program) {
     std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, safe-to-inline>
     for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
         const FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
-        const FunctionDeclaration* funcDecl = &funcCall.fFunction;
+        const FunctionDeclaration* funcDecl = &funcCall.function();
         if (inlinableMap.find(funcDecl) == inlinableMap.end()) {
             // We do not perform inlining on recursive calls to avoid an infinite death spiral of
             // inlining.
@@ -1103,7 +1103,7 @@ bool Inliner::analyze(Program& program) {
     bool madeChanges = false;
     for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
         FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
-        const FunctionDeclaration* funcDecl = &funcCall.fFunction;
+        const FunctionDeclaration* funcDecl = &funcCall.function();
 
         // If we determined that this candidate was not actually inlinable, skip it.
         if (!inlinableMap[funcDecl]) {
