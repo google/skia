@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40f65860_79f2ab3e",
+        "filename": "src/gpu/d3d/GrD3DCaps.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T15:41:52Z",
+      "side": 1,
+      "message": "Bytes",
+      "range": {
+        "startLine": 891,
+        "startChar": 51,
+        "endLine": 891,
+        "endChar": 55
+      },
+      "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
