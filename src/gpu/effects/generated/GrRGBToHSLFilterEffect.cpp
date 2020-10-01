@@ -27,7 +27,7 @@ public:
         SkString _sample1173 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 c = %s;
-half4 p = c.y < c.z ? half4(c.zy, -1.0, 0.66666666666666663) : half4(c.yz, 0.0, -0.33333333333333331);
+half4 p = c.y < c.z ? half4(c.zy, -1.0, 0.66666668653488159) : half4(c.yz, 0.0, -0.3333333432674408);
 half4 q = c.x < p.x ? half4(p.x, c.x, p.yw) : half4(c.x, p.x, p.yz);
 
 half pmV = q.x;
