@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "63adb78a_6046b573",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-01T19:00:23Z",
+      "side": 1,
+      "message": "gpu.gni needs updating I think, but raw code changes look good to me.\n\nThe diff between GrTArenaList and GrSTArenaList looks to be just making the head a pointer and allocated in the arena right away, vs. inline. This makes concat() simpler and avoids a copy. Did you see perf wins for this change locally?",
+      "revId": "acf4cf2fb73314974abcf25a5c5621168eb2b1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6d59ea0_fc9ed041",
         "filename": "src/gpu/GrTArenaList.h",
         "patchSetId": 1
