@@ -585,7 +585,9 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // (although you have to press the cursor many times before it moves to the next grapheme).
     TextRange text(fText.size(), fText.size());
     if (start < fUTF8IndexForUTF16Index.size()) {
-        text.start = findGraphemeStart(fUTF8IndexForUTF16Index[start]);
+        //text.start = findGraphemeStart(fUTF8IndexForUTF16Index[start]);
+        // This is a temp change to minimize the differences between txtlib and skparagraph
+        text.start = findClusterStart(fUTF8IndexForUTF16Index[start]);
     }
     if (end < fUTF8IndexForUTF16Index.size()) {
         text.end = findGraphemeStart(fUTF8IndexForUTF16Index[end]);
@@ -888,6 +890,18 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     for (auto& textStyle : fTextStyles) {
         textStyle.fStyle.setBackgroundColor(paint);
     }
+}
+
+TextIndex ParagraphImpl::findClusterStart(TextIndex index) {
+    auto clusterIndex = this->fClustersIndexFromCodeUnit[index];
+    if (index == fText.size()) {
+        return index;
+    }
+    while (index > 0 &&
+          (this->fClustersIndexFromCodeUnit[index - 1] == clusterIndex)) {
+        --index;
+    }
+    return index;
 }
 
 TextIndex ParagraphImpl::findGraphemeStart(TextIndex index) {

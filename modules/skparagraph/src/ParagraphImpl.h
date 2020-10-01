@@ -142,6 +142,7 @@ public:
     void formatLines(SkScalar maxWidth);
     void ensureUTF16Mapping();
     TextIndex findGraphemeStart(TextIndex index);
+    TextIndex findClusterStart(TextIndex index);
     size_t getUTF16Index(TextIndex index) {
         return fUTF16IndexForUTF8Index[index];
     }
