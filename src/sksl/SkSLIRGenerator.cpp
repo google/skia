@@ -193,8 +193,9 @@ void IRGenerator::start(const Program::Settings* settings,
             }
         }
     }
-    SkASSERT(fIntrinsics);
-    fIntrinsics->resetAlreadyIncluded();
+    if (fIntrinsics) {
+        fIntrinsics->resetAlreadyIncluded();
+    }
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
@@ -2028,7 +2029,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
-    if (auto found = fIntrinsics->findAndInclude(function.description())) {
+    if (const ProgramElement* found = fIntrinsics->findAndInclude(function.description())) {
         const FunctionDefinition& original = found->as<FunctionDefinition>();
 
         // Sort the referenced intrinsics into a consistent order; otherwise our output will become
@@ -2062,7 +2063,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         if (function.fDefinition) {
             fReferencedIntrinsics.insert(&function);
         }
-        if (!fIsBuiltinCode) {
+        if (!fIsBuiltinCode && fIntrinsics) {
             this->copyIntrinsicIfNeeded(function);
         }
     }
@@ -2698,9 +2699,11 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
         return result;
     } else {
         // No Enum element? Check the intrinsics, clone it into the program, try again.
-        if (auto found = fIntrinsics->findAndInclude(type.fName)) {
-            fProgramElements->push_back(found->clone());
-            return this->convertTypeField(offset, type, field);
+        if (!fIsBuiltinCode && fIntrinsics) {
+            if (const ProgramElement* found = fIntrinsics->findAndInclude(type.fName)) {
+                fProgramElements->push_back(found->clone());
+                return this->convertTypeField(offset, type, field);
+            }
         }
         fErrors.error(offset,
                       "type '" + type.fName + "' does not have a member named '" + field + "'");
@@ -2882,7 +2885,7 @@ void IRGenerator::cloneBuiltinVariables() {
         using INHERITED::visitProgramElement;
     };
 
-    if (!fIsBuiltinCode) {
+    if (!fIsBuiltinCode && fIntrinsics) {
         BuiltinVariableRemapper remapper(this);
         for (auto& e : *fProgramElements) {
             remapper.visitProgramElement(*e);
