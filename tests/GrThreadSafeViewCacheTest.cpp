@@ -262,8 +262,8 @@ public:
         GrBackendFormat format = fDContext->defaultBackendFormat(kRGBA_8888_SkColorType,
                                                                  GrRenderable::kNo);
 
-        return GrSurface::ComputeSize(*fDContext->priv().caps(), format,
-                                      {wh, wh}, 1, GrMipMapped::kNo, false);
+        return GrSurface::ComputeSize(format, {wh, wh}, /*colorSamplesPerPixel=*/1,
+                                      GrMipMapped::kNo, /*binSize=*/false);
     }
 
 private:

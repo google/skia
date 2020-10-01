@@ -194,7 +194,7 @@ private:
     // point, the proxy is instantiated, and this data is used to perform an ASAP upload.
     std::unique_ptr<GrDeferredProxyUploader> fDeferredUploader;
 
-    size_t onUninstantiatedGpuMemorySize(const GrCaps&) const override;
+    size_t onUninstantiatedGpuMemorySize() const override;
 
     // Methods made available via GrTextureProxy::CacheAccess
     void setUniqueKey(GrProxyProvider*, const GrUniqueKey&);

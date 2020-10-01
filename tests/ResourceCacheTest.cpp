@@ -1652,13 +1652,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         sk_sp<GrTextureProxy> proxy;
 
         proxy = make_mipmap_proxy(context, GrRenderable::kYes, kSize, 1);
-        size_t size = proxy->gpuMemorySize(*caps);
+        size_t size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kArea*4 + (kArea*4)/3 == size);
 
         size_t sampleCount = (size_t)caps->getRenderTargetSampleCount(4, proxy->backendFormat());
         if (sampleCount >= 4) {
             proxy = make_mipmap_proxy(context, GrRenderable::kYes, kSize, sampleCount);
-            size = proxy->gpuMemorySize(*caps);
+            size = proxy->gpuMemorySize();
             REPORTER_ASSERT(reporter,
                kArea*4 + (kArea*4)/3 == size ||                 // msaa4 failed
                kArea*4*sampleCount + (kArea*4)/3 == size ||     // auto-resolving
@@ -1666,7 +1666,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         }
 
         proxy = make_mipmap_proxy(context, GrRenderable::kNo, kSize, 1);
-        size = proxy->gpuMemorySize(*caps);
+        size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kArea*4 + (kArea*4)/3 == size);
     }
 }

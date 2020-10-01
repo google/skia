@@ -568,8 +568,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,
     }
 
     if (levelClearMask) {
-        this->clearTexture(tex.get(), this->mtlCaps().bytesPerPixel(mtlPixelFormat),
-                           levelClearMask);
+        this->clearTexture(tex.get(), GrMtlFormatBytesPerBlock(mtlPixelFormat), levelClearMask);
     }
 
     return std::move(tex);
@@ -942,7 +941,7 @@ bool GrMtlGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
             backendTexture.getBackendFormat());
 
     // Create a transfer buffer and fill with data.
-    size_t bytesPerPixel = fMtlCaps->bytesPerPixel(mtlFormat);
+    size_t bytesPerPixel = GrMtlFormatBytesPerBlock(mtlFormat);
     SkSTArray<16, size_t> individualMipOffsets;
     size_t combinedBufferSize;
 
@@ -1289,7 +1288,7 @@ bool GrMtlGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int wid
     if (offset % bpp) {
         return false;
     }
-    if (this->mtlCaps().bytesPerPixel(texture->backendFormat()) != bpp) {
+    if (GrBackendFormatBytesPerPixel(texture->backendFormat()) != bpp) {
         return false;
     }
 
@@ -1324,7 +1323,7 @@ bool GrMtlGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int w
     if (offset % bpp) {
         return false;
     }
-    if (this->mtlCaps().bytesPerPixel(surface->backendFormat()) != bpp) {
+    if (GrBackendFormatBytesPerPixel(surface->backendFormat()) != bpp) {
         return false;
     }
 

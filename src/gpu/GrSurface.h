@@ -69,8 +69,8 @@ public:
 
     GrInternalSurfaceFlags flags() const { return fSurfaceFlags; }
 
-    static size_t ComputeSize(const GrCaps&, const GrBackendFormat&, SkISize dimensions,
-                              int colorSamplesPerPixel, GrMipmapped, bool binSize = false);
+    static size_t ComputeSize(const GrBackendFormat&, SkISize dimensions, int colorSamplesPerPixel,
+                              GrMipmapped, bool binSize = false);
 
     /**
      * The pixel values of this surface cannot be modified (e.g. doesn't support write pixels or

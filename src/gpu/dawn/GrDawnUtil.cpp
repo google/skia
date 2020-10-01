@@ -7,7 +7,7 @@
 
 #include "src/gpu/dawn/GrDawnUtil.h"
 
-size_t GrDawnBytesPerPixel(wgpu::TextureFormat format) {
+size_t GrDawnBytesPerBlock(wgpu::TextureFormat format) {
     switch (format) {
         case wgpu::TextureFormat::RGBA8Unorm:
         case wgpu::TextureFormat::BGRA8Unorm:

@@ -32,8 +32,8 @@ static constexpr bool operator==(const D3D12_CPU_DESCRIPTOR_HANDLE & first,
  */
 bool GrDxgiFormatIsCompressed(DXGI_FORMAT);
 
-static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT vkFormat) {
-    switch (vkFormat) {
+static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT format) {
+    switch (format) {
         case DXGI_FORMAT_R8G8B8A8_UNORM:           return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R8_UNORM:                 return kRed_SkColorChannelFlag;
         case DXGI_FORMAT_B8G8R8A8_UNORM:           return kRGBA_SkColorChannelFlags;
@@ -43,13 +43,34 @@ static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT vkFormat) {
         case DXGI_FORMAT_R8G8_UNORM:               return kRG_SkColorChannelFlags;
         case DXGI_FORMAT_R10G10B10A2_UNORM:        return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_B4G4R4A4_UNORM:           return kRGBA_SkColorChannelFlags;
-        case DXGI_FORMAT_R32G32B32A32_FLOAT:       return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:      return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_BC1_UNORM:                return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R16_UNORM:                return kRed_SkColorChannelFlag;
         case DXGI_FORMAT_R16G16_UNORM:             return kRG_SkColorChannelFlags;
         case DXGI_FORMAT_R16G16B16A16_UNORM:       return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R16G16_FLOAT:             return kRG_SkColorChannelFlags;
+
+        default:                                   return 0;
+    }
+}
+
+static constexpr size_t GrDxgiFormatBytesPerBlock(DXGI_FORMAT format) {
+    switch (format) {
+        case DXGI_FORMAT_R8G8B8A8_UNORM:           return 4;
+        case DXGI_FORMAT_R8_UNORM:                 return 1;
+        case DXGI_FORMAT_B8G8R8A8_UNORM:           return 4;
+        case DXGI_FORMAT_B5G6R5_UNORM:             return 2;
+        case DXGI_FORMAT_R16G16B16A16_FLOAT:       return 8;
+        case DXGI_FORMAT_R16_FLOAT:                return 2;
+        case DXGI_FORMAT_R8G8_UNORM:               return 2;
+        case DXGI_FORMAT_R10G10B10A2_UNORM:        return 4;
+        case DXGI_FORMAT_B4G4R4A4_UNORM:           return 2;
+        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:      return 4;
+        case DXGI_FORMAT_BC1_UNORM:                return 8;
+        case DXGI_FORMAT_R16_UNORM:                return 2;
+        case DXGI_FORMAT_R16G16_UNORM:             return 4;
+        case DXGI_FORMAT_R16G16B16A16_UNORM:       return 8;
+        case DXGI_FORMAT_R16G16_FLOAT:             return 4;
 
         default:                                   return 0;
     }

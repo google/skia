@@ -96,14 +96,6 @@ bool GrDawnCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {
     return surface->asTexture() != nullptr;
 }
 
-size_t GrDawnCaps::bytesPerPixel(const GrBackendFormat& backendFormat) const {
-    wgpu::TextureFormat dawnFormat;
-    if (!backendFormat.asDawnFormat(&dawnFormat)) {
-        return 0;
-    }
-    return GrDawnBytesPerPixel(dawnFormat);
-}
-
 int GrDawnCaps::getRenderTargetSampleCount(int requestedCount,
                                            const GrBackendFormat& backendFormat) const {
     wgpu::TextureFormat dawnFormat;

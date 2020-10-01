@@ -17,6 +17,8 @@ class GrBackendFormat;
 
 GrMTLPixelFormat GrGetMTLPixelFormatFromMtlTextureInfo(const GrMtlTextureInfo&);
 
+size_t GrMtlBackendFormatBytesPerBlock(const GrBackendFormat& format);
+
 uint32_t GrMtlFormatChannels(GrMTLPixelFormat);
 
 SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendFormat& format);

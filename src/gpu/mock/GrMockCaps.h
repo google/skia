@@ -128,15 +128,6 @@ public:
         return this->maxRenderTargetSampleCount(format.asMockColorType());
     }
 
-    size_t bytesPerPixel(const GrBackendFormat& format) const override {
-        SkImage::CompressionType compression = format.asMockCompressionType();
-        if (compression != SkImage::CompressionType::kNone) {
-            return 0;
-        }
-
-        return GrColorTypeBytesPerPixel(format.asMockColorType());
-    }
-
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
                                                  const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override {
