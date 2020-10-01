@@ -126,7 +126,7 @@ struct BasicBlock {
 #endif
 
     std::vector<Node> fNodes;
-    std::set<BlockId> fEntrances;
+    bool fIsReachable = false;
     std::set<BlockId> fExits;
     // variable definitions upon entering this basic block (null expression = undefined)
     DefinitionMap fBefore;

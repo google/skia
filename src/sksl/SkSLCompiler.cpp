@@ -1420,7 +1420,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
     // check for unreachable code
     for (size_t i = 0; i < cfg.fBlocks.size(); i++) {
         const BasicBlock& block = cfg.fBlocks[i];
-        if (i != cfg.fStart && !block.fEntrances.size() && block.fNodes.size()) {
+        if (i != cfg.fStart && !block.fIsReachable && block.fNodes.size()) {
             int offset;
             const BasicBlock::Node& node = block.fNodes[0];
             if (node.isStatement()) {
@@ -1456,7 +1456,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
         updated = false;
         bool first = true;
         for (BasicBlock& b : cfg.fBlocks) {
-            if (!first && b.fEntrances.empty()) {
+            if (!first && !b.fIsReachable) {
                 // Block was reachable before optimization, but has since become unreachable. In
                 // addition to being dead code, it's broken - since control flow can't reach it, no
                 // prior variable definitions can reach it, and therefore variables might look to
@@ -1559,7 +1559,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
 
     // check for missing return
     if (f.fDeclaration.fReturnType != *fContext->fVoid_Type) {
-        if (cfg.fBlocks[cfg.fExit].fEntrances.size()) {
+        if (cfg.fBlocks[cfg.fExit].fIsReachable) {
             this->error(f.fOffset, String("function '" + String(f.fDeclaration.fName) +
                                           "' can exit without returning a value"));
         }
