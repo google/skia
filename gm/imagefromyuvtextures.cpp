@@ -20,6 +20,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAIndex.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -178,35 +179,31 @@ protected:
             return nullptr;
         }
 
-        auto rgbaReleaseContext = new YUVABackendReleaseContext(dContext);
-
-        GrBackendTexture resultTexture = dContext->createBackendTexture(
-                fRGBABmp.dimensions().width(), fRGBABmp.dimensions().height(),
-                kRGBA_8888_SkColorType, SkColors::kTransparent,
-                GrMipmapped::kNo, GrRenderable::kYes, GrProtected::kNo,
-                YUVABackendReleaseContext::CreationCompleteProc(0),
-                rgbaReleaseContext);
-        if (!resultTexture.isValid()) {
-            YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, false);
-            YUVABackendReleaseContext::Unwind(dContext, rgbaReleaseContext, false);
+        auto resultInfo = SkImageInfo::Make(fRGBABmp.dimensions(),
+                                            kRGBA_8888_SkColorType,
+                                            kPremul_SkAlphaType);
+        auto resultSurface = SkSurface::MakeRenderTarget(dContext,
+                                                         SkBudgeted::kYes,
+                                                         resultInfo,
+                                                         1,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         nullptr);
+        if (!resultSurface) {
             return nullptr;
         }
-
-        rgbaReleaseContext->set(0, resultTexture);
-
-        auto tmp = SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
-                dContext,
-                kJPEG_SkYUVColorSpace,
-                planeReleaseContext->beTextures(),
-                indices,
-                fRGBABmp.dimensions(),
-                kTopLeft_GrSurfaceOrigin,
-                resultTexture,
-                nullptr,
-                YUVABackendReleaseContext::Release,
-                rgbaReleaseContext);
-         YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, true);
-         return tmp;
+        auto tmp = SkImage::MakeFromYUVATextures(dContext,
+                                                 kJPEG_SkYUVColorSpace,
+                                                 planeReleaseContext->beTextures(),
+                                                 indices,
+                                                 fRGBABmp.dimensions(),
+                                                 kTopLeft_GrSurfaceOrigin,
+                                                 nullptr);
+        if (!tmp) {
+            return nullptr;
+        }
+        resultSurface->getCanvas()->drawImage(std::move(tmp), 0, 0);
+        YUVABackendReleaseContext::Unwind(dContext, planeReleaseContext, true);
+        return resultSurface->makeImageSnapshot();
     }
 
     DrawResult onGpuSetup(GrDirectContext* context, SkString* errorMsg) override {

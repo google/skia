@@ -569,30 +569,6 @@ sk_sp<SkImage> SkImage::MakeFromAdoptedTexture(GrRecordingContext*,
     return nullptr;
 }
 
-sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopy(GrRecordingContext*,
-                                                 SkYUVColorSpace,
-                                                 const GrBackendTexture[],
-                                                 const SkYUVAIndex[4],
-                                                 SkISize,
-                                                 GrSurfaceOrigin,
-                                                 sk_sp<SkColorSpace>) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkImage::MakeFromYUVATexturesCopyWithExternalBackend(
-        GrRecordingContext*,
-        SkYUVColorSpace,
-        const GrBackendTexture[],
-        const SkYUVAIndex[4],
-        SkISize,
-        GrSurfaceOrigin,
-        const GrBackendTexture&,
-        sk_sp<SkColorSpace>,
-        TextureReleaseProc,
-        ReleaseContext) {
-    return nullptr;
-}
-
 sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
                                             const SkYUVAPixmaps& pixmaps,
                                             GrMipMapped buildMips,
@@ -600,19 +576,6 @@ sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
                                             sk_sp<SkColorSpace> imageColorSpace) {
     return nullptr;
 }
-
-sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
-        GrContext*, SkYUVColorSpace, const GrBackendTexture[3], GrSurfaceOrigin,
-        const GrBackendTexture&, sk_sp<SkColorSpace>) {
-    return nullptr;
-}
-
-sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext*, SkYUVColorSpace,
-                                                 const GrBackendTexture[2],
-                                                 GrSurfaceOrigin, sk_sp<SkColorSpace>) {
-    return nullptr;
-}
-
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext*, GrMipmapped, SkBudgeted) const {
     return nullptr;
