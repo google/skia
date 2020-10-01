@@ -13,15 +13,15 @@
       "owner": "hcm@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m84",
-      "owner": "hcm@google.com"
-    },
-    {
       "ref": "refs/heads/chrome/m85",
       "owner": "hcm@google.com"
     },
     {
       "ref": "refs/heads/chrome/m86",
+      "owner": "hcm@google.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m87",
       "owner": "hcm@google.com"
     },
     {
