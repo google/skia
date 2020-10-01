@@ -182,7 +182,6 @@ void IRGenerator::start(const Program::Settings* settings,
     fSkPerVertex = nullptr;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
-    fTmpSwizzleCounter = 0;
     if (inherited) {
         for (const auto& e : *inherited) {
             if (e->kind() == ProgramElement::Kind::kInterfaceBlock) {
