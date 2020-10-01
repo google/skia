@@ -46,6 +46,29 @@
       "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f9aa91b_8d0d1a46",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T15:53:10Z",
+      "side": 1,
+      "message": "We control pixel width based on the `type` we pass to glTexImage2D. It looks to me based on this code that this should actually be 3, since GL_UNSIGNED_BYTE + GL_RGB8 means 3 bytes per pixel:\n\nhttps://osscs.corp.google.com/skia/skia/+/master:src/gpu/gl/GrGLCaps.cpp;l\u003d2324;drc\u003dd358cbebd45996c58459f0709977a472b21f5921",
+      "range": {
+        "startLine": 391,
+        "startChar": 8,
+        "endLine": 391,
+        "endChar": 62
+      },
+      "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
