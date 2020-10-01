@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "402e140e_02e93b7a",
+        "filename": "src/sksl/SkSLAnalysis.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T12:39:40Z",
+      "side": 1,
+      "message": "No longer needed?",
+      "revId": "1e69ae8d256e7fe80be154d2249b3914413bd894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa8c7964_7e741337",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T12:39:40Z",
+      "side": 1,
+      "message": "nit: this comment is now off-by-one? Could be: Functions larger than this are *not* inlined...\n\nor, Functions up to this size (inclusive) are inlined... ?",
+      "range": {
+        "startLine": 120,
+        "startChar": 21,
+        "endLine": 120,
+        "endChar": 38
+      },
+      "revId": "1e69ae8d256e7fe80be154d2249b3914413bd894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
