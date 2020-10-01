@@ -117,6 +117,30 @@
       "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "125b9189_c2d5ea5d",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-01T16:29:39Z",
+      "side": 1,
+      "message": "So in general it is used for 2 things in Ganesh. 1) How large of a buffer we need to make to hold data to upload to a texture (also including alignment stuff for buffer). 2) How much gpu memory our objects are taking up.\n\nFor GL 1) is fine to overestimate since we explicitly tell GL the format of the data in the buffer when we are uploading to the texture. 2) Is just a guess on gpu memory as comment says.\n\nOther backends do tend to use 3 bytes here since their specs specifically call out that is the size on the gpu and data in the upload buffers have to match that exactly.\n\nFor now I am just going to leave this as 4 to not cause any real changes with this CL",
+      "parentUuid": "22dc9533_d66468f2",
+      "range": {
+        "startLine": 391,
+        "startChar": 8,
+        "endLine": 391,
+        "endChar": 62
+      },
+      "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
