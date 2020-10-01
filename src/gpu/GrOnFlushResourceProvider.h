@@ -30,17 +30,17 @@ public:
     virtual ~GrOnFlushCallbackObject() {}
 
     /*
-     * The onFlush callback allows subsystems (e.g., text, path renderers) to create atlases
+     * The preFlush callback allows subsystems (e.g., text, path renderers) to create atlases
      * for a specific flush. All the GrOpsTask IDs required for the flush are passed into the
-     * callback. The callback should return the render target contexts used to render the atlases
-     * in 'results'.
+     * callback.
      */
     virtual void preFlush(GrOnFlushResourceProvider*, const uint32_t* opsTaskIDs,
                           int numOpsTaskIDs) = 0;
 
     /**
-     * Called once flushing is complete and all ops indicated by preFlush have been executed and
-     * released. startTokenForNextFlush can be used to track resources used in the current flush.
+     * Called once flushing is complete and all opsTasks indicated by preFlush have been executed
+     * and released. startTokenForNextFlush can be used to track resources used in the current
+     * flush.
      */
     virtual void postFlush(GrDeferredUploadToken startTokenForNextFlush,
                            const uint32_t* opsTaskIDs, int numOpsTaskIDs) {}

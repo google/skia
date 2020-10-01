@@ -42,7 +42,6 @@ private:
                                     const GrRenderTargetContext*,
                                     const SkMatrix& viewMatrix,
                                     const SkClipStack::Element* element,
-                                    GrPathRenderer** prOut,
                                     bool needsStencil);
 
     bool applyClipMask(GrRecordingContext*, GrRenderTargetContext*, const GrReducedClip&,
