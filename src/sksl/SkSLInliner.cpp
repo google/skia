@@ -199,7 +199,8 @@ static const Type* copy_if_needed(const Type* src, SymbolTable& symbolTable) {
     return src;
 }
 
-static Statement* find_parent_statement(const std::vector<std::unique_ptr<Statement>*>& stmtStack) {
+static std::unique_ptr<Statement>* find_parent_statement(
+        const std::vector<std::unique_ptr<Statement>*>& stmtStack) {
     SkASSERT(!stmtStack.empty());
 
     // Walk the statement stack from back to front, ignoring the last element (which is the
@@ -209,8 +210,8 @@ static Statement* find_parent_statement(const std::vector<std::unique_ptr<Statem
 
     // Anything counts as a parent statement other than a scopeless Block.
     for (; iter != stmtStack.rend(); ++iter) {
-        Statement* stmt = (*iter)->get();
-        if (!stmt->is<Block>() || stmt->as<Block>().isScope()) {
+        std::unique_ptr<Statement>* stmt = *iter;
+        if (!(*stmt)->is<Block>() || (*stmt)->as<Block>().isScope()) {
             return stmt;
         }
     }
@@ -782,7 +783,7 @@ bool Inliner::analyze(Program& program) {
     // A candidate function for inlining, containing everything that `inlineCall` needs.
     struct InlineCandidate {
         SymbolTable* fSymbols;                        // the SymbolTable of the candidate
-        Statement* fParentStmt;                       // the parent Statement of the enclosing stmt
+        std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
         std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
         std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
         FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
@@ -1122,7 +1123,7 @@ bool Inliner::analyze(Program& program) {
                                                    &candidate.fEnclosingFunction->fDeclaration);
         if (inlinedCall.fInlinedBody) {
             // Ensure that the inlined body has a scope if it needs one.
-            this->ensureScopedBlocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt);
+            this->ensureScopedBlocks(inlinedCall.fInlinedBody.get(), candidate.fParentStmt->get());
 
             // Move the enclosing statement to the end of the unscoped Block containing the inlined
             // function, then replace the enclosing statement with that Block.
