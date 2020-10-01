@@ -2555,8 +2555,8 @@ SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
     } else {
         constantType = ConstantType::kFloat;
     }
-    float value = (float) f.fValue;
-    std::pair<ConstantValue, ConstantType> key(f.fValue, constantType);
+    float value = (float) f.value();
+    std::pair<ConstantValue, ConstantType> key(f.value(), constantType);
     auto entry = fNumberConstants.find(key);
     if (entry == fNumberConstants.end()) {
         SpvId result = this->nextId();
