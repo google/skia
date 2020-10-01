@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6ebb273_65265d32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2020-10-01T20:38:28Z",
+      "side": 1,
+      "message": "TBR reed, no API changes just version bump",
+      "revId": "2ef53e456f2b47280e823bd5e86473d4a1d97d05",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
