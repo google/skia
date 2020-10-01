@@ -197,6 +197,8 @@ public:
     Type(const char* name, const Type& componentType, int columns)
     : Type(name, TypeKind::kVector, componentType, columns) {}
 
+    static constexpr int kUnsizedArray = -1;
+
     // Create a vector or array type.
     Type(String name, TypeKind kind, const Type& componentType, int columns)
     : INHERITED(-1, kSymbolKind, StringFragment())
@@ -207,6 +209,7 @@ public:
     , fColumns(columns)
     , fRows(1)
     , fDimensions(SpvDim1D) {
+        SkASSERT(fColumns > 0 || (fTypeKind == TypeKind::kArray && fColumns == kUnsizedArray));
         fName.fChars = fNameString.c_str();
         fName.fLength = fNameString.size();
     }

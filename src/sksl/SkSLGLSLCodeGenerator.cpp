@@ -122,7 +122,7 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
         }
         case Type::TypeKind::kArray: {
             String result = this->getTypeName(type.componentType()) + "[";
-            if (type.columns() != -1) {
+            if (type.columns() != Type::kUnsizedArray) {
                 result += to_string(type.columns());
             }
             result += "]";
@@ -1058,7 +1058,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->writeType(*type);
         this->write(" " + param->fName);
         for (int s : sizes) {
-            if (s <= 0) {
+            if (s == Type::kUnsizedArray) {
                 this->write("[]");
             } else {
                 this->write("[" + to_string(s) + "]");
