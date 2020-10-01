@@ -45,7 +45,7 @@ struct Swizzle : public Expression {
                                                         value);
                 } else if (type.isFloat()) {
                     SkASSERT(fComponents.size() == 1);
-                    SKSL_FLOAT value = constructor.getFVecComponent(fComponents[0]);
+                    double value = constructor.getFVecComponent(fComponents[0]);
                     return std::make_unique<FloatLiteral>(irGenerator.fContext, constructor.fOffset,
                                                           value);
                 }

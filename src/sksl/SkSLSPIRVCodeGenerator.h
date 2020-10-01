@@ -47,15 +47,15 @@ union ConstantValue {
     ConstantValue(int64_t i)
         : fInt(i) {}
 
-    ConstantValue(SKSL_FLOAT f)
-        : fFloat(f) {}
+    ConstantValue(double d)
+        : fDouble(d) {}
 
     bool operator==(const ConstantValue& other) const {
         return fInt == other.fInt;
     }
 
     int64_t fInt;
-    SKSL_FLOAT fFloat;
+    double fDouble;
 };
 
 enum class ConstantType {

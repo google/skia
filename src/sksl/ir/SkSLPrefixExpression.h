@@ -43,9 +43,9 @@ struct PrefixExpression : public Expression {
                                                   const DefinitionMap& definitions) override {
         if (fOperand->kind() == Expression::Kind::kFloatLiteral) {
             return std::unique_ptr<Expression>(new FloatLiteral(
-                                                            irGenerator.fContext,
-                                                            fOffset,
-                                                            -fOperand->as<FloatLiteral>().value()));
+                                                             irGenerator.fContext,
+                                                             fOffset,
+                                                             -fOperand->as<FloatLiteral>().fValue));
 
         }
         return nullptr;

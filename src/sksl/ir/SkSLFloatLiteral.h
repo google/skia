@@ -19,18 +19,16 @@ namespace SkSL {
 struct FloatLiteral : public Expression {
     static constexpr Kind kExpressionKind = Kind::kFloatLiteral;
 
-    FloatLiteral(const Context& context, int offset, float value)
-    : INHERITED(offset, FloatLiteralData{context.fFloatLiteral_Type.get(), value}) {}
+    FloatLiteral(const Context& context, int offset, double value)
+    : INHERITED(offset, kExpressionKind, context.fFloatLiteral_Type.get())
+    , fValue(value) {}
 
-    FloatLiteral(int offset, float value, const Type* type)
-    : INHERITED(offset, FloatLiteralData{type, value}) {}
-
-    float value() const {
-        return this->floatLiteralData().fValue;
-    }
+    FloatLiteral(int offset, double value, const Type* type)
+    : INHERITED(offset, kExpressionKind, type)
+    , fValue(value) {}
 
     String description() const override {
-        return to_string(this->value());
+        return to_string(fValue);
     }
 
     bool hasProperty(Property property) const override {
@@ -49,18 +47,19 @@ struct FloatLiteral : public Expression {
     }
 
     bool compareConstant(const Context& context, const Expression& other) const override {
-        return this->value() == other.as<FloatLiteral>().value();
+        return fValue == other.as<FloatLiteral>().fValue;
     }
 
-    SKSL_FLOAT getConstantFloat() const override {
-        return this->value();
+    double getConstantFloat() const override {
+        return fValue;
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FloatLiteral(fOffset, this->value(), &this->type()));
+        return std::unique_ptr<Expression>(new FloatLiteral(fOffset, fValue, &this->type()));
     }
 
-private:
+    const double fValue;
+
     using INHERITED = Expression;
 };
 
