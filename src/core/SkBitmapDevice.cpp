@@ -554,29 +554,6 @@ void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
     BDDraw(this).drawVertices(vertices, bmode, paint);
 }
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {
-    SkASSERT(!origPaint.getImageFilter());
-    SkASSERT(!origPaint.getMaskFilter());
-
-    // todo: can we unify with similar adjustment in SkGpuDevice?
-    SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
-
-    // hack to test coverage
-    SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
-    if (src->fCoverage) {
-        SkDraw draw;
-        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
-        draw.fDst = fBitmap.pixmap();
-        draw.fMatrixProvider = &matrixProvider;
-        draw.fRC = &fRCStack.rc();
-        paint.writable()->setShader(src->fBitmap.makeShader());
-        draw.drawBitmap(*src->fCoverage,
-                        SkMatrix::Translate(SkIntToScalar(x),SkIntToScalar(y)), nullptr, *paint);
-    } else {
-        BDDraw(this).drawSprite(src->fBitmap, x, y, *paint);
-    }
-}
-
 void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
                                const SkRect tex[], const SkColor colors[], int count,
                                SkBlendMode mode, const SkPaint& paint) {
@@ -590,13 +567,31 @@ void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPaint& paint) {
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkImagePaint& paint) {
+    // hack to test coverage
+    SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
+    if (src->fCoverage) {
+        SkDraw draw;
+        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+        draw.fDst = fBitmap.pixmap();
+        draw.fMatrixProvider = &matrixProvider;
+        draw.fRC = &fRCStack.rc();
+
+        SkPaint deviceAsShader = SkPaint(paint);
+        deviceAsShader.setShader(src->fBitmap.makeShader());
+        draw.drawBitmap(*src->fCoverage, SkMatrix::Translate(SkIntToScalar(x),SkIntToScalar(y)),
+                        nullptr, deviceAsShader);
+    } else {
+        BDDraw(this).drawSprite(src->fBitmap, x, y, SkPaint(paint));
+    }
+}
+
+void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkImagePaint& paint) {
     SkASSERT(!src->isTextureBacked());
-    SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
 
     SkBitmap resultBM;
     if (src->getROPixels(&resultBM)) {
-        BDDraw(this).drawSprite(resultBM, x, y, paint);
+        BDDraw(this).drawSprite(resultBM, x, y, SkPaint(paint));
     }
 }
 

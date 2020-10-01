@@ -24,6 +24,7 @@ class SkGlyphRun;
 class SkGlyphRunList;
 class SkImageFilter;
 class SkImageFilterCache;
+struct SkImagePaint;
 struct SkIRect;
 class SkMarkerStack;
 class SkMatrix;
@@ -302,9 +303,9 @@ protected:
     /** The SkDevice passed will be an SkDevice which was returned by a call to
         onCreateDevice on this device with kNeverTile_TileExpectation.
      */
-    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
+    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkImagePaint&) = 0;
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
+    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkImagePaint&);
 
     /**
      * Evaluate 'filter' and draw the final output into this device using 'paint'. The 'mapping'
@@ -316,7 +317,7 @@ protected:
      * The final paint must not have an image filter or mask filter set on it; a shader is ignored.
      */
     virtual void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                                   const SkImageFilter* filter, const SkPaint& paint);
+                                   const SkImageFilter* filter, const SkImagePaint& paint);
 
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
@@ -516,12 +517,12 @@ protected:
     void drawOval(const SkRect&, const SkPaint&) override {}
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
-    void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
 
+    void drawDevice(SkBaseDevice*, int, int, const SkImagePaint&) override {}
     void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                           const SkImageFilter* filter, const SkPaint& paint) override {}
+                           const SkImageFilter* filter, const SkImagePaint&) override {}
 
 private:
     using INHERITED = SkBaseDevice;

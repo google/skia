@@ -441,3 +441,32 @@ uint32_t SkPaint::getHash() const {
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfieldsUInt) + sizeof(fBitfieldsUInt));
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkImagePaint::SkImagePaint()
+        : fColorFilter(nullptr)
+        , fAlpha(1.f)
+        , fBlendMode(SkBlendMode::kSrcOver)
+        , fSamplingMode(SkSamplingMode::kNearest)
+        , fAntiAlias(false) {}
+
+SkImagePaint::SkImagePaint(const SkPaint& paint)
+        : fColorFilter(paint.refColorFilter())
+        , fAlpha(paint.getAlphaf())
+        , fBlendMode(paint.getBlendMode())
+        , fSamplingMode(paint.getFilterQuality() == kNone_SkFilterQuality
+                                ? SkSamplingMode::kNearest
+                                : SkSamplingMode::kLinear)
+        , fAntiAlias(paint.isAntiAlias()) {}
+
+SkImagePaint::operator SkPaint() const {
+    SkPaint p;
+    p.setColorFilter(fColorFilter);
+    p.setColor4f({1.f, 1.f, 1.f, fAlpha});
+    p.setBlendMode(fBlendMode);
+    p.setFilterQuality(fSamplingMode == SkSamplingMode::kNearest ? kNone_SkFilterQuality
+                                                                 : kLow_SkFilterQuality);
+    p.setAntiAlias(fAntiAlias);
+    return p;
+}

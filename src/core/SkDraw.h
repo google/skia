@@ -23,6 +23,7 @@ class SkBaseDevice;
 class SkBlitter;
 class SkMatrix;
 class SkMatrixProvider;
+struct SkImagePaint;
 class SkPath;
 class SkRegion;
 class SkRasterClip;
@@ -61,11 +62,12 @@ public:
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                        const SkPaint&) const;
     void    drawSprite(const SkBitmap&, int x, int y, const SkPaint&) const;
+
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
                              SkGlyphRunListPainter* glyphPainter) const;
     void    drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) const;
-    void  drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
-                    SkBlendMode, const SkPaint&);
+    void    drawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int count,
+                      SkBlendMode, const SkPaint&);
 
     /**
      *  Overwrite the target with the path's coverage (i.e. its mask).
