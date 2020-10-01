@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3268cd44_572ba794",
+        "filename": "src/gpu/GrBackendUtils.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T18:03:46Z",
+      "side": 1,
+      "message": "Unrelated to this CL, but is this naming inconsistency reflecting a similar thing in the GL enums? Can/should we fix this?",
+      "range": {
+        "startLine": 38,
+        "startChar": 33,
+        "endLine": 39,
+        "endChar": 54
+      },
+      "revId": "29e63124e342c81bd5bfd37ff3b08b24181ba30a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
