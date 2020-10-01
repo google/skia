@@ -59,7 +59,6 @@ static constexpr uint32_t GrVkFormatChannels(VkFormat vkFormat) {
         case VK_FORMAT_A2R10G10B10_UNORM_PACK32: return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_B4G4R4A4_UNORM_PACK16:    return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_R4G4B4A4_UNORM_PACK16:    return kRGBA_SkColorChannelFlags;
-        case VK_FORMAT_R32G32B32A32_SFLOAT:      return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_R8G8B8A8_SRGB:            return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:  return kRGB_SkColorChannelFlags;
         case VK_FORMAT_BC1_RGB_UNORM_BLOCK:      return kRGB_SkColorChannelFlags;
@@ -68,6 +67,38 @@ static constexpr uint32_t GrVkFormatChannels(VkFormat vkFormat) {
         case VK_FORMAT_R16G16_UNORM:             return kRG_SkColorChannelFlags;
         case VK_FORMAT_R16G16B16A16_UNORM:       return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_R16G16_SFLOAT:            return kRG_SkColorChannelFlags;
+
+        default:                                 return 0;
+    }
+}
+
+static constexpr size_t GrVkFormatBytesPerBlock(VkFormat vkFormat) {
+    switch (vkFormat) {
+        case VK_FORMAT_R8G8B8A8_UNORM:            return 4;
+        case VK_FORMAT_R8_UNORM:                  return 1;
+        case VK_FORMAT_B8G8R8A8_UNORM:            return 4;
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:       return 2;
+        case VK_FORMAT_R16G16B16A16_SFLOAT:       return 8;
+        case VK_FORMAT_R16_SFLOAT:                return 2;
+        case VK_FORMAT_R8G8B8_UNORM:              return 3;
+        case VK_FORMAT_R8G8_UNORM:                return 2;
+        case VK_FORMAT_A2B10G10R10_UNORM_PACK32:  return 4;
+        case VK_FORMAT_A2R10G10B10_UNORM_PACK32:  return 4;
+        case VK_FORMAT_B4G4R4A4_UNORM_PACK16:     return 2;
+        case VK_FORMAT_R4G4B4A4_UNORM_PACK16:     return 2;
+        case VK_FORMAT_R8G8B8A8_SRGB:             return 4;
+        case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:   return 8;
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:       return 8;
+        case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:      return 8;
+        case VK_FORMAT_R16_UNORM:                 return 2;
+        case VK_FORMAT_R16G16_UNORM:              return 4;
+        case VK_FORMAT_R16G16B16A16_UNORM:        return 8;
+        case VK_FORMAT_R16G16_SFLOAT:             return 4;
+        // Currently we are just over estimating this value to be used in gpu size calculations even
+        // though the actually size is probably less. We should instead treat planar formats similar
+        // to compressed textures that go through their own special query for calculating size.
+        case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM: return 3;
+        case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:  return 3;
 
         default:                                 return 0;
     }

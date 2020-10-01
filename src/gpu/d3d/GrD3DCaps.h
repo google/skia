@@ -46,9 +46,6 @@ public:
     int maxRenderTargetSampleCount(const GrBackendFormat&) const override;
     int maxRenderTargetSampleCount(DXGI_FORMAT) const;
 
-    size_t bytesPerPixel(const GrBackendFormat&) const override;
-    size_t bytesPerPixel(DXGI_FORMAT) const;
-
     GrColorType getFormatColorType(DXGI_FORMAT) const;
 
     SupportedWrite supportedWritePixelsColorType(GrColorType surfaceColorType,
@@ -183,8 +180,6 @@ private:
         uint16_t fFlags = 0;
 
         SkTDArray<int> fColorSampleCounts;
-        // This value is only valid for regular formats. Compressed formats will be 0.
-        size_t fBytesPerPixel = 0;
 
         // This GrColorType represents how the actually GPU format lays out its memory. This is used
         // for uploading data to backend textures to make sure we've arranged the memory in the
