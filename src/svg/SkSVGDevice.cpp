@@ -1093,7 +1093,6 @@ void SkSVGDevice::drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) {
     // todo
 }
 
-void SkSVGDevice::drawDevice(SkBaseDevice*, int x, int y,
-                             const SkPaint&) {
+void SkSVGDevice::drawDevice(SkBaseDevice*, int x, int y, const SkImagePaint&) {
     // todo
 }
