@@ -35,7 +35,7 @@ struct Analysis {
     static bool ReferencesSampleCoords(const Program& program);
     static bool ReferencesFragCoords(const Program& program);
 
-    static int NodeCount(const FunctionDefinition& function);
+    static bool NodeCountExceeds(const FunctionDefinition& function, int limit);
 
     static bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
     static bool IsAssignable(Expression& expr, VariableReference** assignableVar,

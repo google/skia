@@ -117,9 +117,9 @@ struct Program {
         // If true, remove any uncalled functions other than main(). Note that a function which
         // starts out being used may end up being uncalled after optimization.
         bool fRemoveDeadFunctions = true;
-        // Functions smaller than this (measured in IR nodes) will be inlined. Default is arbitrary.
-        // Set to 0 to disable inlining entirely.
-        int fInlineThreshold = 50;
+        // Functions larger than this (measured in IR nodes) will not be inlined. The default value
+        // is arbitrary.
+        int fInlineThreshold = 49;
         // true to enable optimization passes
         bool fOptimize = true;
         // If true, implicit conversions to lower precision numeric types are allowed
