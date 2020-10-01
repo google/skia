@@ -9,6 +9,15 @@ Milestone 87
 
   * <insert new release notes here>
 
+  * GrBackendRenderTargets which are created with a stencilBits param, now require
+    the stencilBits to be 0, 8, or 16.
+    https://review.skia.org/321545
+
+Milestone 87
+------------
+
+  * <insert new release notes here>
+
   * GrVkImageInfo now has a field for sample count. GrBackendRenderTarget constructor
     that took both a GrVkImageInfo and separate sample count is deprecated. Use the
     version without sample count instead. Similarly, GrD3DTextureResourceInfo now
