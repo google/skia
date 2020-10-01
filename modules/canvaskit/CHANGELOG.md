@@ -58,6 +58,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    already have their own representation of Rect. This is experimental because we don't know
    if it's faster/better under real-world use and because we don't want to commit to having these
    for all Rect APIs (and for similar types) until it has baked in a bit.
+ - Added the following to `TextStyle`:
+   - `decorationStyle`
+   - `textBaseline`
+   - `letterSpacing`
+   - `wordSpacing`
+   - `heightMultiplier`
+   - `locale`
+   - `shadows`
+   - `fontFeatures`
+ - Added `strutStyle` to `ParagraphStyle`.
+ - Added `addPlaceholder` to `ParagraphBuilder`.
+ - Added `getRectsForPlaceholders` to `Paragraph`.
  - `SkFont.getGlyphIDs`, `SkFont.getGlyphBounds`, `SkFont.getGlyphWidths` for turning code points
    into GlyphIDs and getting the associated metrics with those glyphs. Note: glyph ids are only
    valid for the font of which they were requested.
