@@ -237,8 +237,10 @@ private:
 
     std::vector<std::unique_ptr<ProgramElement>> fVertexInclude;
     std::shared_ptr<SymbolTable> fVertexSymbolTable;
-    std::vector<std::unique_ptr<ProgramElement>> fFragmentInclude;
+
     std::shared_ptr<SymbolTable> fFragmentSymbolTable;
+    std::unique_ptr<IRIntrinsicMap> fFragmentIntrinsics;
+
     std::vector<std::unique_ptr<ProgramElement>> fGeometryInclude;
     std::shared_ptr<SymbolTable> fGeometrySymbolTable;
 
