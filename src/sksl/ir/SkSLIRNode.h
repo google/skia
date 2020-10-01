@@ -57,8 +57,6 @@ public:
                 return *this->externalValueData().fType;
             case NodeData::Kind::kIntLiteral:
                 return *this->intLiteralData().fType;
-            case NodeData::Kind::kFloatLiteral:
-                return *this->floatLiteralData().fType;
             case NodeData::Kind::kType:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
@@ -93,11 +91,6 @@ protected:
         const ExternalValue* fValue;
     };
 
-    struct FloatLiteralData {
-        const Type* fType;
-        float fValue;
-    };
-
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
@@ -114,7 +107,6 @@ protected:
             kBoolLiteral,
             kEnum,
             kExternalValue,
-            kFloatLiteral,
             kIntLiteral,
             kString,
             kType,
@@ -127,7 +119,6 @@ protected:
             BoolLiteralData fBoolLiteral;
             EnumData fEnum;
             ExternalValueData fExternalValue;
-            FloatLiteralData fFloatLiteral;
             IntLiteralData fIntLiteral;
             String fString;
             const Type* fType;
@@ -156,11 +147,6 @@ protected:
         NodeData(const ExternalValueData& data)
             : fKind(Kind::kExternalValue) {
             *(new(&fContents) ExternalValueData) = data;
-        }
-
-        NodeData(const FloatLiteralData& data)
-            : fKind(Kind::kFloatLiteral) {
-            *(new(&fContents) FloatLiteralData) = data;
         }
 
         NodeData(IntLiteralData data)
@@ -203,9 +189,6 @@ protected:
                 case Kind::kExternalValue:
                     *(new(&fContents) ExternalValueData) = other.fContents.fExternalValue;
                     break;
-                case Kind::kFloatLiteral:
-                    *(new(&fContents) FloatLiteralData) = other.fContents.fFloatLiteral;
-                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
@@ -241,9 +224,6 @@ protected:
                 case Kind::kExternalValue:
                     fContents.fExternalValue.~ExternalValueData();
                     break;
-                case Kind::kFloatLiteral:
-                    fContents.fFloatLiteral.~FloatLiteralData();
-                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
@@ -269,8 +249,6 @@ protected:
     IRNode(int offset, int kind, const ExternalValueData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
-
-    IRNode(int offset, int kind, const FloatLiteralData& data);
 
     IRNode(int offset, int kind, const String& data);
 
@@ -342,11 +320,6 @@ protected:
     const ExternalValueData& externalValueData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kExternalValue);
         return fData.fContents.fExternalValue;
-    }
-
-    const FloatLiteralData& floatLiteralData() const {
-        SkASSERT(fData.fKind == NodeData::Kind::kFloatLiteral);
-        return fData.fContents.fFloatLiteral;
     }
 
     const IntLiteralData& intLiteralData() const {
