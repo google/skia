@@ -1440,6 +1440,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkPath>("SkPath")
         .constructor<>()
+        // TODO(kjlubick) remove this constructor in favor of the .copy() method.
         .constructor<const SkPath&>()
         .class_function("_MakeFromCmds", &MakePathFromCmds)
         .class_function("_MakeFromVerbsPointsWeights", &MakePathFromVerbsPointsWeights)
