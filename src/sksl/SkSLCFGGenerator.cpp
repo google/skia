@@ -45,9 +45,9 @@ BlockId CFG::newIsolatedBlock() {
 }
 
 void CFG::addExit(BlockId from, BlockId to) {
-    if (from == 0 || fBlocks[from].fEntrances.size()) {
+    if (from == 0 || fBlocks[from].fIsReachable) {
         fBlocks[from].fExits.insert(to);
-        fBlocks[to].fEntrances.insert(from);
+        fBlocks[to].fIsReachable = true;
     }
 }
 
@@ -67,13 +67,7 @@ void BasicBlock::dump() const {
                iter->second ? (*iter->second)->description().c_str() : "<undefined>");
         separator = ", ";
     }
-    printf("]\nEntrances: [");
-    separator = "";
-    for (BlockId b : fEntrances) {
-        printf("%s%zu", separator, b);
-        separator = ", ";
-    }
-    printf("]\n");
+    printf("]\nIs Reachable: [%s]\n", fIsReachable ? "yes" : "no");
     for (size_t j = 0; j < fNodes.size(); j++) {
         const BasicBlock::Node& n = fNodes[j];
         printf("Node %zu (%p): %s\n", j, &n, n.description().c_str());
