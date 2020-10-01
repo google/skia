@@ -769,6 +769,19 @@ CanvasKit.onRuntimeInitialized = function() {
     return this;
   };
 
+  // Clients can pass in a Float32Array with length 4 to this and the results
+  // will be copied into that array. Otherwise, a new TypedArray will be allocated
+  // and returned.
+  CanvasKit.SkPath.prototype.computeTightBounds = function(optionalOutputArray) {
+    this._computeTightBounds(_scratchRectPtr);
+    var ta = _scratchRect['toTypedArray']();
+    if (optionalOutputArray) {
+      optionalOutputArray.set(ta);
+      return optionalOutputArray;
+    }
+    return ta.slice();
+  };
+
   CanvasKit.SkPath.prototype.cubicTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
     this._cubicTo(cp1x, cp1y, cp2x, cp2y, x, y);
     return this;

@@ -74,6 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Addressed Memory leak in `SkCanvas.drawText`.
  - Made SkTextBlob hang on to less memory during its lifetime.
+ - `SkPath.computeTightBounds()` works again. Like getBounds() it takes an optional argument
+   to put the bounds into.
 
 ## [0.17.3] - 2020-08-05
 

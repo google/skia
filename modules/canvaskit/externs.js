@@ -494,7 +494,6 @@ var CanvasKit = {
     // public API (from C++ and JS bindings)
     MakeFromCmds: function() {},
     MakeFromVerbsPointsWeights: function() {},
-    computeTightBounds: function() {},
     contains: function() {},
     /** @return {CanvasKit.SkPath} */
     copy: function() {},
@@ -526,6 +525,7 @@ var CanvasKit = {
       arcToTangent: function() {},
       close: function() {},
       conicTo: function() {},
+      computeTightBounds: function() {},
       cubicTo: function() {},
       dash: function() {},
       lineTo: function() {},
@@ -561,6 +561,7 @@ var CanvasKit = {
     _arcToTangent: function() {},
     _close: function() {},
     _conicTo: function() {},
+    _computeTightBounds: function() {},
     _cubicTo: function() {},
     _dash: function() {},
     _lineTo: function() {},

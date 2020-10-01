@@ -1525,7 +1525,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkRect* output = reinterpret_cast<SkRect*>(fPtr);
             output[0] = self.getBounds();
         }))
-        .function("computeTightBounds", &SkPath::computeTightBounds)
+        .function("_computeTightBounds", optional_override([](SkPath& self,
+                                                              uintptr_t /* float* */ fPtr)->void {
+            SkRect* output = reinterpret_cast<SkRect*>(fPtr);
+            output[0] = self.computeTightBounds();
+        }))
         .function("equals", &Equals)
         .function("copy", &CopyPath)
 #ifdef SK_DEBUG
