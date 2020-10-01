@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "2a083914_858eaf5f",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "They can\u0027t any longer. (At least until I get further in this refactor and rearrange how we look them up). The problem is that we\u0027re putting the program elements into a map, indexed by variable name, so we\u0027d have a many-to-one thing (and cloning the element would pull in all of those variables, even if we only used one). I think we can fix this in a future CL, but this was the easiest solution for now, given that we only ever declare things one-at-a-time.",
+      "parentUuid": "253c76e6_77930950",
+      "range": {
+        "startLine": 93,
+        "startChar": 16,
+        "endLine": 93,
+        "endChar": 47
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5c528658_acb41fa7",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 15
@@ -62,6 +86,30 @@
       "revId": "84ef87ef780b36dedbec002191489572510d5001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fcd5d5fc_9dd2a7e8",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2840,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c528658_acb41fa7",
+      "range": {
+        "startLine": 2840,
+        "startChar": 20,
+        "endLine": 2840,
+        "endChar": 24
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "0bf50872_4876032e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2842,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12f44ea1_7e6529e4",
+      "range": {
+        "startLine": 2842,
+        "startChar": 20,
+        "endLine": 2842,
+        "endChar": 24
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b3097a24_a52c8bb3",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 15
@@ -108,6 +180,30 @@
       "revId": "84ef87ef780b36dedbec002191489572510d5001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b6144fe_ab14eda9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2861,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3097a24_a52c8bb3",
+      "range": {
+        "startLine": 2861,
+        "startChar": 34,
+        "endLine": 2861,
+        "endChar": 70
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +230,30 @@
     },
     {
       "key": {
+        "uuid": "afa9c261_9eafb686",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2867,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41be2d5c_cea30a31",
+      "range": {
+        "startLine": 2867,
+        "startChar": 16,
+        "endLine": 2867,
+        "endChar": 19
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad0ffaff_4ab74332",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 15
@@ -145,6 +265,30 @@
       "writtenOn": "2020-10-01T13:44:58Z",
       "side": 1,
       "message": "optional: range-based for here?",
+      "range": {
+        "startLine": 2888,
+        "startChar": 12,
+        "endLine": 2888,
+        "endChar": 61
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "178cdfe3_c9da7b9b",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2888,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "See the comment - I actually had range-based-for originally, and had to debug why it wasn\u0027t working. When we hit builtin variable, we clone the declaration and append it to fProgramElements, which invalidates the iterators. The other option would be to have the helper struct store the cloned elements separately, then append them all after this loop finishes. I figured changing the iteration was simpler...",
+      "parentUuid": "ad0ffaff_4ab74332",
       "range": {
         "startLine": 2888,
         "startChar": 12,
@@ -180,6 +324,30 @@
     },
     {
       "key": {
+        "uuid": "cecc6ba6_f5c631d7",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ace0159_ac0ce388",
+      "range": {
+        "startLine": 299,
+        "startChar": 4,
+        "endLine": 299,
+        "endChar": 23
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "934b78de_fcb20be9",
         "filename": "tests/SkRuntimeEffectTest.cpp",
         "patchSetId": 15
@@ -200,6 +368,30 @@
       "revId": "84ef87ef780b36dedbec002191489572510d5001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d7cddf5_d17c96d1",
+        "filename": "tests/SkRuntimeEffectTest.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T14:33:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "934b78de_fcb20be9",
+      "range": {
+        "startLine": 304,
+        "startChar": 12,
+        "endLine": 304,
+        "endChar": 23
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
