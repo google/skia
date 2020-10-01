@@ -39,6 +39,30 @@
       "revId": "899433309d81d4c4447a8613975d6578ded33c2b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc0fa383_6f011afe",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 2889,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T16:34:40Z",
+      "side": 1,
+      "message": "Oof, good catch.",
+      "parentUuid": "e53035d6_63597d4c",
+      "range": {
+        "startLine": 2888,
+        "startChar": 8,
+        "endLine": 2889,
+        "endChar": 48
+      },
+      "revId": "899433309d81d4c4447a8613975d6578ded33c2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
