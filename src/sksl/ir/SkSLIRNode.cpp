@@ -43,6 +43,11 @@ IRNode::IRNode(int offset, int kind, const String& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, std::shared_ptr<SymbolTable> data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const Type* data)
 : fOffset(offset)
 , fKind(kind)

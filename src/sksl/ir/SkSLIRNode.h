@@ -109,6 +109,7 @@ protected:
             kExternalValue,
             kIntLiteral,
             kString,
+            kSymbolTable,
             kType,
             kTypeToken,
         } fKind = Kind::kType;
@@ -121,6 +122,7 @@ protected:
             ExternalValueData fExternalValue;
             IntLiteralData fIntLiteral;
             String fString;
+            std::shared_ptr<SymbolTable> fSymbolTable;
             const Type* fType;
             TypeTokenData fTypeToken;
 
@@ -159,6 +161,11 @@ protected:
             *(new(&fContents) String) = data;
         }
 
+        NodeData(std::shared_ptr<SymbolTable> data)
+            : fKind(Kind::kSymbolTable) {
+            *(new(&fContents) std::shared_ptr<SymbolTable>) = data;
+        }
+
         NodeData(const Type* data)
             : fKind(Kind::kType) {
             *(new(&fContents) const Type*) = data;
@@ -195,6 +202,9 @@ protected:
                 case Kind::kString:
                     *(new(&fContents) String) = other.fContents.fString;
                     break;
+                case Kind::kSymbolTable:
+                    *(new(&fContents) std::shared_ptr<SymbolTable>) = other.fContents.fSymbolTable;
+                    break;
                 case Kind::kType:
                     *(new(&fContents) const Type*) = other.fContents.fType;
                     break;
@@ -230,6 +240,9 @@ protected:
                 case Kind::kString:
                     fContents.fString.~String();
                     break;
+                case Kind::kSymbolTable:
+                    fContents.fSymbolTable.~shared_ptr();
+                    break;
                 case Kind::kType:
                     break;
                 case Kind::kTypeToken:
@@ -251,6 +264,8 @@ protected:
     IRNode(int offset, int kind, const IntLiteralData& data);
 
     IRNode(int offset, int kind, const String& data);
+
+    IRNode(int offset, int kind, std::shared_ptr<SymbolTable> data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -330,6 +345,11 @@ protected:
     const String& stringData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kString);
         return fData.fContents.fString;
+    }
+
+    const std::shared_ptr<SymbolTable>& symbolTableData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kSymbolTable);
+        return fData.fContents.fSymbolTable;
     }
 
     const Type* typeData() const {

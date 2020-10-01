@@ -49,6 +49,11 @@ struct Statement : public IRNode {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    Statement(int offset, Kind kind, std::shared_ptr<SymbolTable> data)
+    : INHERITED(offset, (int) kind, std::move(data)) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
     Kind kind() const {
         return (Kind) fKind;
     }
