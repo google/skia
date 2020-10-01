@@ -66,6 +66,30 @@
     },
     {
       "key": {
+        "uuid": "866c2f67_ec584533",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T14:40:01Z",
+      "side": 1,
+      "message": "Please add a comment documenting the limitation? \n\n    // TODO: built-in functions can only declare one variable at a time",
+      "parentUuid": "2a083914_858eaf5f",
+      "range": {
+        "startLine": 93,
+        "startChar": 16,
+        "endLine": 93,
+        "endChar": 47
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5c528658_acb41fa7",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 15
@@ -298,6 +322,30 @@
       "revId": "84ef87ef780b36dedbec002191489572510d5001",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c9b123b_8ab6abb9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 2888,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T14:40:01Z",
+      "side": 1,
+      "message": "Oh derp, didn\u0027t notice the comment. Sorry!",
+      "parentUuid": "178cdfe3_c9da7b9b",
+      "range": {
+        "startLine": 2888,
+        "startChar": 12,
+        "endLine": 2888,
+        "endChar": 61
+      },
+      "revId": "84ef87ef780b36dedbec002191489572510d5001",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
