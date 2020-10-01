@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2bdc4920_cc666305",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-01T19:08:43Z",
+      "side": 1,
+      "message": "I don\u0027t see where we\u0027re using any values other than 1 or INT_MAX. Is there value in having this be an int vs. just \"bool recurse\"?",
+      "range": {
+        "startLine": 784,
+        "startChar": 8,
+        "endLine": 784,
+        "endChar": 35
+      },
+      "revId": "b509fddc1a4d993085b9f1111530a4d1f224f792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85edf7e0_81713449",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1182,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-01T19:08:43Z",
+      "side": 1,
+      "message": "This doesn\u0027t look like it\u0027s referenced",
+      "range": {
+        "startLine": 1182,
+        "startChar": 4,
+        "endLine": 1182,
+        "endChar": 42
+      },
+      "revId": "b509fddc1a4d993085b9f1111530a4d1f224f792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a5d968c_9e5ddc97",
+        "filename": "src/sksl/SkSLInliner.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-01T19:08:43Z",
+      "side": 1,
+      "message": "Why a struct instead of a \u0027using\u0027? Are we expecting to add more fields in the future?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 2
+      },
+      "revId": "b509fddc1a4d993085b9f1111530a4d1f224f792",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
