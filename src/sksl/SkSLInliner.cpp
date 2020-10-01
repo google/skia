@@ -7,7 +7,7 @@
 
 #include "src/sksl/SkSLInliner.h"
 
-#include "limits.h"
+#include <limits.h>
 #include <memory>
 #include <unordered_set>
 
@@ -591,7 +591,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     SkASSERT(fSettings);
     SkASSERT(fContext);
     SkASSERT(call);
-    SkASSERT(this->isSafeToInline(*call, /*inlineThreshold=*/INT_MAX));
+    SkASSERT(this->isSafeToInline(call->fFunction.fDefinition));
 
     std::vector<std::unique_ptr<Expression>>& arguments = call->fArguments;
     const int offset = call->fOffset;
@@ -744,369 +744,410 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     return inlinedCall;
 }
 
-bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThreshold) {
+bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
     SkASSERT(fSettings);
 
-    if (functionCall.fFunction.fDefinition == nullptr) {
+    if (functionDef == nullptr) {
         // Can't inline something if we don't actually have its definition.
         return false;
     }
-    const FunctionDefinition& functionDef = *functionCall.fFunction.fDefinition;
-    if (inlineThreshold < INT_MAX) {
-        if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
-            Analysis::NodeCountReaches(functionDef, inlineThreshold)) {
-            // The function exceeds our maximum inline size and is not flagged 'inline'.
-            return false;
-        }
-    }
+
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
         // can't inline functions that have an early return.
-        bool hasEarlyReturn = has_early_return(functionDef);
+        bool hasEarlyReturn = has_early_return(*functionDef);
 
         // If we didn't detect an early return, there shouldn't be any returns in breakable
         // constructs either.
-        SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(functionDef) == 0);
+        SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(*functionDef) == 0);
         return !hasEarlyReturn;
     }
     // We have do-while loops, but we don't have any mechanism to simulate early returns within a
     // breakable construct (switch/for/do/while), so we can't inline if there's a return inside one.
-    bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(functionDef) > 0);
+    bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(*functionDef) > 0);
 
     // If we detected returns in breakable constructs, we should also detect an early return.
-    SkASSERT(!hasReturnInBreakableConstruct || has_early_return(functionDef));
+    SkASSERT(!hasReturnInBreakableConstruct || has_early_return(*functionDef));
     return !hasReturnInBreakableConstruct;
 }
 
-bool Inliner::analyze(Program& program) {
-    // A candidate function for inlining, containing everything that `inlineCall` needs.
-    struct InlineCandidate {
-        SymbolTable* fSymbols;                        // the SymbolTable of the candidate
-        Statement* fParentStmt;                       // the parent Statement of the enclosing stmt
-        std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
-        std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
-        FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
-    };
+// A candidate function for inlining, containing everything that `inlineCall` needs.
+struct InlineCandidate {
+    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
+    Statement* fParentStmt;                       // the parent Statement of the enclosing stmt
+    std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
+    std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
+    FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
+    bool fIsLargeFunction;                        // does candidate exceed the inline threshold?
+};
 
+struct InlineCandidateList {
+    std::vector<InlineCandidate> fCandidates;
+};
+
+class InlineCandidateAnalyzer {
+public:
+    // A list of all the inlining candidates we found during analysis.
+    std::unique_ptr<InlineCandidateList> fCandidateList;
+
+    // A stack of the symbol tables; since most nodes don't have one, expected to be shallower
+    // than the enclosing-statement stack.
+    std::vector<SymbolTable*> fSymbolTableStack;
+    // A stack of "enclosing" statements--these would be suitable for the inliner to use for
+    // adding new instructions. Not all statements are suitable (e.g. a for-loop's initializer).
+    // The inliner might replace a statement with a block containing the statement.
+    std::vector<std::unique_ptr<Statement>*> fEnclosingStmtStack;
+    // The function that we're currently processing (i.e. inlining into).
+    FunctionDefinition* fEnclosingFunction = nullptr;
+
+    void visit(Program& program) {
+        fSymbolTableStack.push_back(program.fSymbols.get());
+
+        for (ProgramElement& pe : program) {
+            this->visitProgramElement(&pe);
+        }
+
+        fSymbolTableStack.pop_back();
+    }
+
+    void visitProgramElement(ProgramElement* pe) {
+        switch (pe->kind()) {
+            case ProgramElement::Kind::kFunction: {
+                FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
+                fEnclosingFunction = &funcDef;
+                this->visitStatement(&funcDef.fBody);
+                break;
+            }
+            default:
+                // The inliner can't operate outside of a function's scope.
+                break;
+        }
+    }
+
+    void visitStatement(std::unique_ptr<Statement>* stmt,
+                        bool isViableAsEnclosingStatement = true) {
+        if (!*stmt) {
+            return;
+        }
+
+        size_t oldEnclosingStmtStackSize = fEnclosingStmtStack.size();
+        size_t oldSymbolStackSize = fSymbolTableStack.size();
+
+        if (isViableAsEnclosingStatement) {
+            fEnclosingStmtStack.push_back(stmt);
+        }
+
+        switch ((*stmt)->kind()) {
+            case Statement::Kind::kBreak:
+            case Statement::Kind::kContinue:
+            case Statement::Kind::kDiscard:
+            case Statement::Kind::kInlineMarker:
+            case Statement::Kind::kNop:
+                break;
+
+            case Statement::Kind::kBlock: {
+                Block& block = (*stmt)->as<Block>();
+                if (block.symbolTable()) {
+                    fSymbolTableStack.push_back(block.symbolTable().get());
+                }
+
+                for (std::unique_ptr<Statement>& stmt : block.children()) {
+                    this->visitStatement(&stmt);
+                }
+                break;
+            }
+            case Statement::Kind::kDo: {
+                DoStatement& doStmt = (*stmt)->as<DoStatement>();
+                // The loop body is a candidate for inlining.
+                this->visitStatement(&doStmt.statement());
+                // The inliner isn't smart enough to inline the test-expression for a do-while
+                // loop at this time. There are two limitations:
+                // - We would need to insert the inlined-body block at the very end of the do-
+                //   statement's inner fStatement. We don't support that today, but it's doable.
+                // - We cannot inline the test expression if the loop uses `continue` anywhere;
+                //   that would skip over the inlined block that evaluates the test expression.
+                //   There isn't a good fix for this--any workaround would be more complex than
+                //   the cost of a function call. However, loops that don't use `continue` would
+                //   still be viable candidates for inlining.
+                break;
+            }
+            case Statement::Kind::kExpression: {
+                ExpressionStatement& expr = (*stmt)->as<ExpressionStatement>();
+                this->visitExpression(&expr.expression());
+                break;
+            }
+            case Statement::Kind::kFor: {
+                ForStatement& forStmt = (*stmt)->as<ForStatement>();
+                if (forStmt.fSymbols) {
+                    fSymbolTableStack.push_back(forStmt.fSymbols.get());
+                }
+
+                // The initializer and loop body are candidates for inlining.
+                this->visitStatement(&forStmt.fInitializer,
+                                     /*isViableAsEnclosingStatement=*/false);
+                this->visitStatement(&forStmt.fStatement);
+
+                // The inliner isn't smart enough to inline the test- or increment-expressions
+                // of a for loop loop at this time. There are a handful of limitations:
+                // - We would need to insert the test-expression block at the very beginning of
+                //   the for-loop's inner fStatement, and the increment-expression block at the
+                //   very end. We don't support that today, but it's doable.
+                // - The for-loop's built-in test-expression would need to be dropped entirely,
+                //   and the loop would be halted via a break statement at the end of the
+                //   inlined test-expression. This is again something we don't support today,
+                //   but it could be implemented.
+                // - We cannot inline the increment-expression if the loop uses `continue`
+                //   anywhere; that would skip over the inlined block that evaluates the
+                //   increment expression. There isn't a good fix for this--any workaround would
+                //   be more complex than the cost of a function call. However, loops that don't
+                //   use `continue` would still be viable candidates for increment-expression
+                //   inlining.
+                break;
+            }
+            case Statement::Kind::kIf: {
+                IfStatement& ifStmt = (*stmt)->as<IfStatement>();
+                this->visitExpression(&ifStmt.fTest);
+                this->visitStatement(&ifStmt.fIfTrue);
+                this->visitStatement(&ifStmt.fIfFalse);
+                break;
+            }
+            case Statement::Kind::kReturn: {
+                ReturnStatement& returnStmt = (*stmt)->as<ReturnStatement>();
+                this->visitExpression(&returnStmt.fExpression);
+                break;
+            }
+            case Statement::Kind::kSwitch: {
+                SwitchStatement& switchStmt = (*stmt)->as<SwitchStatement>();
+                if (switchStmt.fSymbols) {
+                    fSymbolTableStack.push_back(switchStmt.fSymbols.get());
+                }
+
+                this->visitExpression(&switchStmt.fValue);
+                for (std::unique_ptr<SwitchCase>& switchCase : switchStmt.fCases) {
+                    // The switch-case's fValue cannot be a FunctionCall; skip it.
+                    for (std::unique_ptr<Statement>& caseBlock : switchCase->fStatements) {
+                        this->visitStatement(&caseBlock);
+                    }
+                }
+                break;
+            }
+            case Statement::Kind::kVarDeclaration: {
+                VarDeclaration& varDeclStmt = (*stmt)->as<VarDeclaration>();
+                // Don't need to scan the declaration's sizes; those are always IntLiterals.
+                this->visitExpression(&varDeclStmt.fValue);
+                break;
+            }
+            case Statement::Kind::kVarDeclarations: {
+                VarDeclarationsStatement& varDecls = (*stmt)->as<VarDeclarationsStatement>();
+                for (std::unique_ptr<Statement>& varDecl : varDecls.fDeclaration->fVars) {
+                    this->visitStatement(&varDecl, /*isViableAsEnclosingStatement=*/false);
+                }
+                break;
+            }
+            case Statement::Kind::kWhile: {
+                WhileStatement& whileStmt = (*stmt)->as<WhileStatement>();
+                // The loop body is a candidate for inlining.
+                this->visitStatement(&whileStmt.fStatement);
+                // The inliner isn't smart enough to inline the test-expression for a while
+                // loop at this time. There are two limitations:
+                // - We would need to insert the inlined-body block at the very beginning of the
+                //   while loop's inner fStatement. We don't support that today, but it's
+                //   doable.
+                // - The while-loop's built-in test-expression would need to be replaced with a
+                //   `true` BoolLiteral, and the loop would be halted via a break statement at
+                //   the end of the inlined test-expression. This is again something we don't
+                //   support today, but it could be implemented.
+                break;
+            }
+            default:
+                SkUNREACHABLE;
+        }
+
+        // Pop our symbol and enclosing-statement stacks.
+        fSymbolTableStack.resize(oldSymbolStackSize);
+        fEnclosingStmtStack.resize(oldEnclosingStmtStackSize);
+    }
+
+    void visitExpression(std::unique_ptr<Expression>* expr) {
+        if (!*expr) {
+            return;
+        }
+
+        switch ((*expr)->kind()) {
+            case Expression::Kind::kBoolLiteral:
+            case Expression::Kind::kDefined:
+            case Expression::Kind::kExternalValue:
+            case Expression::Kind::kFieldAccess:
+            case Expression::Kind::kFloatLiteral:
+            case Expression::Kind::kFunctionReference:
+            case Expression::Kind::kIntLiteral:
+            case Expression::Kind::kNullLiteral:
+            case Expression::Kind::kSetting:
+            case Expression::Kind::kTypeReference:
+            case Expression::Kind::kVariableReference:
+                // Nothing to scan here.
+                break;
+
+            case Expression::Kind::kBinary: {
+                BinaryExpression& binaryExpr = (*expr)->as<BinaryExpression>();
+                this->visitExpression(&binaryExpr.leftPointer());
+
+                // Logical-and and logical-or binary expressions do not inline the right side,
+                // because that would invalidate short-circuiting. That is, when evaluating
+                // expressions like these:
+                //    (false && x())   // always false
+                //    (true || y())    // always true
+                // It is illegal for side-effects from x() or y() to occur. The simplest way to
+                // enforce that rule is to avoid inlining the right side entirely. However, it
+                // is safe for other types of binary expression to inline both sides.
+                Token::Kind op = binaryExpr.getOperator();
+                bool shortCircuitable = (op == Token::Kind::TK_LOGICALAND ||
+                                         op == Token::Kind::TK_LOGICALOR);
+                if (!shortCircuitable) {
+                    this->visitExpression(&binaryExpr.rightPointer());
+                }
+                break;
+            }
+            case Expression::Kind::kConstructor: {
+                Constructor& constructorExpr = (*expr)->as<Constructor>();
+                for (std::unique_ptr<Expression>& arg : constructorExpr.arguments()) {
+                    this->visitExpression(&arg);
+                }
+                break;
+            }
+            case Expression::Kind::kExternalFunctionCall: {
+                ExternalFunctionCall& funcCallExpr = (*expr)->as<ExternalFunctionCall>();
+                for (std::unique_ptr<Expression>& arg : funcCallExpr.arguments()) {
+                    this->visitExpression(&arg);
+                }
+                break;
+            }
+            case Expression::Kind::kFunctionCall: {
+                FunctionCall& funcCallExpr = (*expr)->as<FunctionCall>();
+                for (std::unique_ptr<Expression>& arg : funcCallExpr.fArguments) {
+                    this->visitExpression(&arg);
+                }
+                this->addInlineCandidate(expr);
+                break;
+            }
+            case Expression::Kind::kIndex:{
+                IndexExpression& indexExpr = (*expr)->as<IndexExpression>();
+                this->visitExpression(&indexExpr.fBase);
+                this->visitExpression(&indexExpr.fIndex);
+                break;
+            }
+            case Expression::Kind::kPostfix: {
+                PostfixExpression& postfixExpr = (*expr)->as<PostfixExpression>();
+                this->visitExpression(&postfixExpr.fOperand);
+                break;
+            }
+            case Expression::Kind::kPrefix: {
+                PrefixExpression& prefixExpr = (*expr)->as<PrefixExpression>();
+                this->visitExpression(&prefixExpr.fOperand);
+                break;
+            }
+            case Expression::Kind::kSwizzle: {
+                Swizzle& swizzleExpr = (*expr)->as<Swizzle>();
+                this->visitExpression(&swizzleExpr.fBase);
+                break;
+            }
+            case Expression::Kind::kTernary: {
+                TernaryExpression& ternaryExpr = (*expr)->as<TernaryExpression>();
+                // The test expression is a candidate for inlining.
+                this->visitExpression(&ternaryExpr.fTest);
+                // The true- and false-expressions cannot be inlined, because we are only
+                // allowed to evaluate one side.
+                break;
+            }
+            default:
+                SkUNREACHABLE;
+        }
+    }
+
+    void addInlineCandidate(std::unique_ptr<Expression>* candidate) {
+        fCandidateList->fCandidates.push_back(
+                InlineCandidate{fSymbolTableStack.back(),
+                                find_parent_statement(fEnclosingStmtStack),
+                                fEnclosingStmtStack.back(),
+                                candidate,
+                                fEnclosingFunction,
+                                /*isLargeFunction=*/false});
+    }
+};
+
+bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache) {
+    const FunctionDeclaration& funcDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().fFunction;
+
+    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
+    if (wasInserted) {
+       iter->second = this->isSafeToInline(funcDecl.fDefinition) &&
+                      !contains_recursive_call(funcDecl);
+    }
+
+    return iter->second;
+}
+
+bool Inliner::isLargeFunction(const FunctionDefinition* functionDef) {
+    return Analysis::NodeCountReaches(*functionDef, fSettings->fInlineThreshold);
+}
+
+bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache) {
+    const FunctionDeclaration& funcDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().fFunction;
+
+    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
+    if (wasInserted) {
+        iter->second = this->isLargeFunction(funcDecl.fDefinition);
+    }
+
+    return iter->second;
+}
+
+std::unique_ptr<InlineCandidateList> Inliner::buildCandidateList(Program& program) {
     // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
     // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
     // that they can later be replaced, and ProgramVisitor does not provide this; it only provides a
     // `const T&`.
-    class InlineCandidateAnalyzer {
-    public:
-        // A list of all the inlining candidates we found during analysis.
-        std::vector<InlineCandidate> fInlineCandidates;
-        // A stack of the symbol tables; since most nodes don't have one, expected to be shallower
-        // than the enclosing-statement stack.
-        std::vector<SymbolTable*> fSymbolTableStack;
-        // A stack of "enclosing" statements--these would be suitable for the inliner to use for
-        // adding new instructions. Not all statements are suitable (e.g. a for-loop's initializer).
-        // The inliner might replace a statement with a block containing the statement.
-        std::vector<std::unique_ptr<Statement>*> fEnclosingStmtStack;
-        // The function that we're currently processing (i.e. inlining into).
-        FunctionDefinition* fEnclosingFunction = nullptr;
-
-        void visit(Program& program) {
-            fSymbolTableStack.push_back(program.fSymbols.get());
-
-            for (ProgramElement& pe : program) {
-                this->visitProgramElement(&pe);
-            }
-
-            fSymbolTableStack.pop_back();
-        }
-
-        void visitProgramElement(ProgramElement* pe) {
-            switch (pe->kind()) {
-                case ProgramElement::Kind::kFunction: {
-                    FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
-                    fEnclosingFunction = &funcDef;
-                    this->visitStatement(&funcDef.fBody);
-                    break;
-                }
-                default:
-                    // The inliner can't operate outside of a function's scope.
-                    break;
-            }
-        }
-
-        void visitStatement(std::unique_ptr<Statement>* stmt,
-                            bool isViableAsEnclosingStatement = true) {
-            if (!*stmt) {
-                return;
-            }
-
-            size_t oldEnclosingStmtStackSize = fEnclosingStmtStack.size();
-            size_t oldSymbolStackSize = fSymbolTableStack.size();
-
-            if (isViableAsEnclosingStatement) {
-                fEnclosingStmtStack.push_back(stmt);
-            }
-
-            switch ((*stmt)->kind()) {
-                case Statement::Kind::kBreak:
-                case Statement::Kind::kContinue:
-                case Statement::Kind::kDiscard:
-                case Statement::Kind::kInlineMarker:
-                case Statement::Kind::kNop:
-                    break;
-
-                case Statement::Kind::kBlock: {
-                    Block& block = (*stmt)->as<Block>();
-                    if (block.symbolTable()) {
-                        fSymbolTableStack.push_back(block.symbolTable().get());
-                    }
-
-                    for (std::unique_ptr<Statement>& stmt : block.children()) {
-                        this->visitStatement(&stmt);
-                    }
-                    break;
-                }
-                case Statement::Kind::kDo: {
-                    DoStatement& doStmt = (*stmt)->as<DoStatement>();
-                    // The loop body is a candidate for inlining.
-                    this->visitStatement(&doStmt.statement());
-                    // The inliner isn't smart enough to inline the test-expression for a do-while
-                    // loop at this time. There are two limitations:
-                    // - We would need to insert the inlined-body block at the very end of the do-
-                    //   statement's inner fStatement. We don't support that today, but it's doable.
-                    // - We cannot inline the test expression if the loop uses `continue` anywhere;
-                    //   that would skip over the inlined block that evaluates the test expression.
-                    //   There isn't a good fix for this--any workaround would be more complex than
-                    //   the cost of a function call. However, loops that don't use `continue` would
-                    //   still be viable candidates for inlining.
-                    break;
-                }
-                case Statement::Kind::kExpression: {
-                    ExpressionStatement& expr = (*stmt)->as<ExpressionStatement>();
-                    this->visitExpression(&expr.expression());
-                    break;
-                }
-                case Statement::Kind::kFor: {
-                    ForStatement& forStmt = (*stmt)->as<ForStatement>();
-                    if (forStmt.fSymbols) {
-                        fSymbolTableStack.push_back(forStmt.fSymbols.get());
-                    }
-
-                    // The initializer and loop body are candidates for inlining.
-                    this->visitStatement(&forStmt.fInitializer,
-                                         /*isViableAsEnclosingStatement=*/false);
-                    this->visitStatement(&forStmt.fStatement);
-
-                    // The inliner isn't smart enough to inline the test- or increment-expressions
-                    // of a for loop loop at this time. There are a handful of limitations:
-                    // - We would need to insert the test-expression block at the very beginning of
-                    //   the for-loop's inner fStatement, and the increment-expression block at the
-                    //   very end. We don't support that today, but it's doable.
-                    // - The for-loop's built-in test-expression would need to be dropped entirely,
-                    //   and the loop would be halted via a break statement at the end of the
-                    //   inlined test-expression. This is again something we don't support today,
-                    //   but it could be implemented.
-                    // - We cannot inline the increment-expression if the loop uses `continue`
-                    //   anywhere; that would skip over the inlined block that evaluates the
-                    //   increment expression. There isn't a good fix for this--any workaround would
-                    //   be more complex than the cost of a function call. However, loops that don't
-                    //   use `continue` would still be viable candidates for increment-expression
-                    //   inlining.
-                    break;
-                }
-                case Statement::Kind::kIf: {
-                    IfStatement& ifStmt = (*stmt)->as<IfStatement>();
-                    this->visitExpression(&ifStmt.fTest);
-                    this->visitStatement(&ifStmt.fIfTrue);
-                    this->visitStatement(&ifStmt.fIfFalse);
-                    break;
-                }
-                case Statement::Kind::kReturn: {
-                    ReturnStatement& returnStmt = (*stmt)->as<ReturnStatement>();
-                    this->visitExpression(&returnStmt.fExpression);
-                    break;
-                }
-                case Statement::Kind::kSwitch: {
-                    SwitchStatement& switchStmt = (*stmt)->as<SwitchStatement>();
-                    if (switchStmt.fSymbols) {
-                        fSymbolTableStack.push_back(switchStmt.fSymbols.get());
-                    }
-
-                    this->visitExpression(&switchStmt.fValue);
-                    for (std::unique_ptr<SwitchCase>& switchCase : switchStmt.fCases) {
-                        // The switch-case's fValue cannot be a FunctionCall; skip it.
-                        for (std::unique_ptr<Statement>& caseBlock : switchCase->fStatements) {
-                            this->visitStatement(&caseBlock);
-                        }
-                    }
-                    break;
-                }
-                case Statement::Kind::kVarDeclaration: {
-                    VarDeclaration& varDeclStmt = (*stmt)->as<VarDeclaration>();
-                    // Don't need to scan the declaration's sizes; those are always IntLiterals.
-                    this->visitExpression(&varDeclStmt.fValue);
-                    break;
-                }
-                case Statement::Kind::kVarDeclarations: {
-                    VarDeclarationsStatement& varDecls = (*stmt)->as<VarDeclarationsStatement>();
-                    for (std::unique_ptr<Statement>& varDecl : varDecls.fDeclaration->fVars) {
-                        this->visitStatement(&varDecl, /*isViableAsEnclosingStatement=*/false);
-                    }
-                    break;
-                }
-                case Statement::Kind::kWhile: {
-                    WhileStatement& whileStmt = (*stmt)->as<WhileStatement>();
-                    // The loop body is a candidate for inlining.
-                    this->visitStatement(&whileStmt.fStatement);
-                    // The inliner isn't smart enough to inline the test-expression for a while
-                    // loop at this time. There are two limitations:
-                    // - We would need to insert the inlined-body block at the very beginning of the
-                    //   while loop's inner fStatement. We don't support that today, but it's
-                    //   doable.
-                    // - The while-loop's built-in test-expression would need to be replaced with a
-                    //   `true` BoolLiteral, and the loop would be halted via a break statement at
-                    //   the end of the inlined test-expression. This is again something we don't
-                    //   support today, but it could be implemented.
-                    break;
-                }
-                default:
-                    SkUNREACHABLE;
-            }
-
-            // Pop our symbol and enclosing-statement stacks.
-            fSymbolTableStack.resize(oldSymbolStackSize);
-            fEnclosingStmtStack.resize(oldEnclosingStmtStackSize);
-        }
-
-        void visitExpression(std::unique_ptr<Expression>* expr) {
-            if (!*expr) {
-                return;
-            }
-
-            switch ((*expr)->kind()) {
-                case Expression::Kind::kBoolLiteral:
-                case Expression::Kind::kDefined:
-                case Expression::Kind::kExternalValue:
-                case Expression::Kind::kFieldAccess:
-                case Expression::Kind::kFloatLiteral:
-                case Expression::Kind::kFunctionReference:
-                case Expression::Kind::kIntLiteral:
-                case Expression::Kind::kNullLiteral:
-                case Expression::Kind::kSetting:
-                case Expression::Kind::kTypeReference:
-                case Expression::Kind::kVariableReference:
-                    // Nothing to scan here.
-                    break;
-
-                case Expression::Kind::kBinary: {
-                    BinaryExpression& binaryExpr = (*expr)->as<BinaryExpression>();
-                    this->visitExpression(&binaryExpr.leftPointer());
-
-                    // Logical-and and logical-or binary expressions do not inline the right side,
-                    // because that would invalidate short-circuiting. That is, when evaluating
-                    // expressions like these:
-                    //    (false && x())   // always false
-                    //    (true || y())    // always true
-                    // It is illegal for side-effects from x() or y() to occur. The simplest way to
-                    // enforce that rule is to avoid inlining the right side entirely. However, it
-                    // is safe for other types of binary expression to inline both sides.
-                    Token::Kind op = binaryExpr.getOperator();
-                    bool shortCircuitable = (op == Token::Kind::TK_LOGICALAND ||
-                                             op == Token::Kind::TK_LOGICALOR);
-                    if (!shortCircuitable) {
-                        this->visitExpression(&binaryExpr.rightPointer());
-                    }
-                    break;
-                }
-                case Expression::Kind::kConstructor: {
-                    Constructor& constructorExpr = (*expr)->as<Constructor>();
-                    for (std::unique_ptr<Expression>& arg : constructorExpr.arguments()) {
-                        this->visitExpression(&arg);
-                    }
-                    break;
-                }
-                case Expression::Kind::kExternalFunctionCall: {
-                    ExternalFunctionCall& funcCallExpr = (*expr)->as<ExternalFunctionCall>();
-                    for (std::unique_ptr<Expression>& arg : funcCallExpr.arguments()) {
-                        this->visitExpression(&arg);
-                    }
-                    break;
-                }
-                case Expression::Kind::kFunctionCall: {
-                    FunctionCall& funcCallExpr = (*expr)->as<FunctionCall>();
-                    for (std::unique_ptr<Expression>& arg : funcCallExpr.fArguments) {
-                        this->visitExpression(&arg);
-                    }
-                    this->addInlineCandidate(expr);
-                    break;
-                }
-                case Expression::Kind::kIndex:{
-                    IndexExpression& indexExpr = (*expr)->as<IndexExpression>();
-                    this->visitExpression(&indexExpr.fBase);
-                    this->visitExpression(&indexExpr.fIndex);
-                    break;
-                }
-                case Expression::Kind::kPostfix: {
-                    PostfixExpression& postfixExpr = (*expr)->as<PostfixExpression>();
-                    this->visitExpression(&postfixExpr.fOperand);
-                    break;
-                }
-                case Expression::Kind::kPrefix: {
-                    PrefixExpression& prefixExpr = (*expr)->as<PrefixExpression>();
-                    this->visitExpression(&prefixExpr.fOperand);
-                    break;
-                }
-                case Expression::Kind::kSwizzle: {
-                    Swizzle& swizzleExpr = (*expr)->as<Swizzle>();
-                    this->visitExpression(&swizzleExpr.fBase);
-                    break;
-                }
-                case Expression::Kind::kTernary: {
-                    TernaryExpression& ternaryExpr = (*expr)->as<TernaryExpression>();
-                    // The test expression is a candidate for inlining.
-                    this->visitExpression(&ternaryExpr.fTest);
-                    // The true- and false-expressions cannot be inlined, because we are only
-                    // allowed to evaluate one side.
-                    break;
-                }
-                default:
-                    SkUNREACHABLE;
-            }
-        }
-
-        void addInlineCandidate(std::unique_ptr<Expression>* candidate) {
-            fInlineCandidates.push_back(InlineCandidate{fSymbolTableStack.back(),
-                                                        find_parent_statement(fEnclosingStmtStack),
-                                                        fEnclosingStmtStack.back(),
-                                                        candidate,
-                                                        fEnclosingFunction});
-        }
-    };
-
     InlineCandidateAnalyzer analyzer;
+    analyzer.fCandidateList = std::make_unique<InlineCandidateList>();
     analyzer.visit(program);
 
-    // For each of our candidate function-call sites, check if it is actually safe to inline.
-    // Memoize our results so we don't check a function more than once.
-    std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, safe-to-inline>
-    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
-        const FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
-        const FunctionDeclaration* funcDecl = &funcCall.fFunction;
-        if (inlinableMap.find(funcDecl) == inlinableMap.end()) {
-            // We do not perform inlining on recursive calls to avoid an infinite death spiral of
-            // inlining.
-            int inlineThreshold = (funcDecl->fCallCount.load() > 1) ? fSettings->fInlineThreshold
-                                                                    : INT_MAX;
-            inlinableMap[funcDecl] = this->isSafeToInline(funcCall, inlineThreshold) &&
-                                     !contains_recursive_call(*funcDecl);
-        }
+    // Remove functions that we cannot inline; this includes all recursive calls, to avoid an
+    // infinite death spiral of inlining.
+    std::vector<InlineCandidate>& candidates = analyzer.fCandidateList->fCandidates;
+    InlinabilityCache cache;
+    candidates.erase(std::remove_if(candidates.begin(),
+                                    candidates.end(),
+                                    [&](const InlineCandidate& candidate) {
+                                        return !this->candidateCanBeInlined(candidate, &cache);
+                                    }),
+                     candidates.end());
+
+    // Determine whether each candidate function exceeds our inlining size threshold or not. These
+    // can still be valid candidates if they are only called one time, so we don't remove them from
+    // the candidate list, but they will not be inlined if they're called more than once.
+    LargeFunctionCache largeFunctionCache;
+    for (InlineCandidate& candidate : candidates) {
+        candidate.fIsLargeFunction = this->isLargeFunction(candidate, &largeFunctionCache);
     }
+
+    return std::move(analyzer.fCandidateList);
+}
+
+bool Inliner::analyze(Program& program) {
+    std::unique_ptr<InlineCandidateList> candidateList = this->buildCandidateList(program);
 
     // Inline the candidates where we've determined that it's safe to do so.
     std::unordered_set<const std::unique_ptr<Statement>*> enclosingStmtSet;
     bool madeChanges = false;
-    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
+    for (const InlineCandidate& candidate : candidateList->fCandidates) {
         FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
         const FunctionDeclaration* funcDecl = &funcCall.fFunction;
 
-        // If we determined that this candidate was not actually inlinable, skip it.
-        if (!inlinableMap[funcDecl]) {
+        // If the function is large, not marked `inline`, and is called more than once, it's a bad
+        // idea to inline it.
+        if (candidate.fIsLargeFunction &&
+            !(funcDecl->fModifiers.fFlags & Modifiers::kInline_Flag) &&
+            funcDecl->fCallCount.load() > 1) {
             continue;
         }
 
