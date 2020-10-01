@@ -634,7 +634,7 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
                                    nullptr, nullptr, &transferTotalBytes);
     SkASSERT(transferTotalBytes);
     size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (this->d3dCaps().bytesPerPixel(texResource->dxgiFormat()) != bpp) {
+    if (GrDxgiFormatBytesPerBlock(texResource->dxgiFormat()) != bpp) {
         return false;
     }
     size_t tightRowBytes = bpp * width;
@@ -1090,14 +1090,14 @@ GrBackendTexture GrD3DGpu::onCreateBackendTexture(SkISize dimensions,
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
 }
 
-static void copy_src_data(GrD3DGpu* gpu, char* mapPtr, DXGI_FORMAT dxgiFormat,
+static void copy_src_data(char* mapPtr, DXGI_FORMAT dxgiFormat,
                           D3D12_PLACED_SUBRESOURCE_FOOTPRINT* placedFootprints,
                           const SkPixmap srcData[], int numMipLevels) {
     SkASSERT(srcData && numMipLevels);
     SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
     SkASSERT(mapPtr);
 
-    size_t bytesPerPixel = gpu->d3dCaps().bytesPerPixel(dxgiFormat);
+    size_t bytesPerPixel = GrDxgiFormatBytesPerBlock(dxgiFormat);
 
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
         const size_t trimRowBytes = srcData[currentMipLevel].width() * bytesPerPixel;
@@ -1186,7 +1186,7 @@ bool GrD3DGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
     SkASSERT(bufferData);
 
     if (data->type() == BackendTextureData::Type::kPixmaps) {
-        copy_src_data(this, bufferData, info.fFormat, placedFootprints.get(), data->pixmaps(),
+        copy_src_data(bufferData, info.fFormat, placedFootprints.get(), data->pixmaps(),
                       info.fLevelCount);
     } else if (data->type() == BackendTextureData::Type::kCompressed) {
         copy_compressed_data(bufferData, info.fFormat, placedFootprints.get(), numRows.get(),

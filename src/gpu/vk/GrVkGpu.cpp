@@ -501,7 +501,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture, int left, int top, int widt
     }
 
     size_t bpp = GrColorTypeBytesPerPixel(bufferColorType);
-    if (this->vkCaps().bytesPerPixel(texture->backendFormat()) != bpp) {
+    if (GrBackendFormatBytesPerPixel(texture->backendFormat()) != bpp) {
         return false;
     }
 
@@ -587,7 +587,7 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface, int left, int top, int wi
         srcImage = static_cast<GrVkTexture*>(surface->asTexture());
     }
 
-    if (this->vkCaps().bytesPerPixel(srcImage->imageFormat()) !=
+    if (GrVkFormatBytesPerBlock(srcImage->imageFormat()) !=
         GrColorTypeBytesPerPixel(surfaceColorType)) {
         return false;
     }
@@ -724,7 +724,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkTexture* tex, int left, int top, int width
 
 // This fills in the 'regions' vector in preparation for copying a buffer to an image.
 // 'individualMipOffsets' is filled in as a side-effect.
-static size_t fill_in_regions(GrVkCaps* vkCaps, GrStagingBufferManager* stagingBufferManager,
+static size_t fill_in_regions(GrStagingBufferManager* stagingBufferManager,
                               SkTArray<VkBufferImageCopy>* regions,
                               SkTArray<size_t>* individualMipOffsets,
                               GrStagingBufferManager::Slice* slice,
@@ -738,11 +738,11 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, GrStagingBufferManager* stagingB
     regions->reserve(numMipLevels);
     individualMipOffsets->reserve(numMipLevels);
 
+    size_t bytesPerBlock = GrVkFormatBytesPerBlock(vkFormat);
+
     size_t combinedBufferSize;
     if (compression == SkImage::CompressionType::kNone) {
-        size_t bytesPerPixel = vkCaps->bytesPerPixel(vkFormat);
-
-        combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerPixel, dimensions,
+        combinedBufferSize = GrComputeTightCombinedBufferSize(bytesPerBlock, dimensions,
                                                               individualMipOffsets,
                                                               numMipLevels);
     } else {
@@ -753,8 +753,7 @@ static size_t fill_in_regions(GrVkCaps* vkCaps, GrStagingBufferManager* stagingB
 
     // Get a staging buffer slice to hold our mip data.
     // Vulkan requires offsets in the buffer to be aligned to multiple of the texel size and 4
-    size_t bytesPerPixel = vkCaps->bytesPerPixel(vkFormat);
-    size_t alignment = SkAlign4(bytesPerPixel);
+    size_t alignment = SkAlign4(bytesPerBlock);
     *slice = stagingBufferManager->allocateStagingBufferSlice(combinedBufferSize, alignment);
     if (!slice->fBuffer) {
         return 0;
@@ -994,7 +993,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkTexture* uploadTexture,
     GrStagingBufferManager::Slice slice;
     SkTArray<VkBufferImageCopy> regions;
     SkTArray<size_t> individualMipOffsets;
-    SkDEBUGCODE(size_t combinedBufferSize =) fill_in_regions(fVkCaps.get(), &fStagingBufferManager,
+    SkDEBUGCODE(size_t combinedBufferSize =) fill_in_regions(&fStagingBufferManager,
                                                              &regions, &individualMipOffsets,
                                                              &slice, compression, vkFormat,
                                                              dimensions, mipMapped);
@@ -1566,15 +1565,14 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool copy_src_data(GrVkGpu* gpu, char* mapPtr, VkFormat vkFormat,
-                   const SkTArray<size_t>& individualMipOffsets,
+bool copy_src_data(char* mapPtr, VkFormat vkFormat, const SkTArray<size_t>& individualMipOffsets,
                    const SkPixmap srcData[], int numMipLevels) {
     SkASSERT(srcData && numMipLevels);
     SkASSERT(!GrVkFormatIsCompressed(vkFormat));
     SkASSERT(individualMipOffsets.count() == numMipLevels);
     SkASSERT(mapPtr);
 
-    size_t bytesPerPixel = gpu->vkCaps().bytesPerPixel(vkFormat);
+    size_t bytesPerPixel = GrVkFormatBytesPerBlock(vkFormat);
 
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].width() * bytesPerPixel;
@@ -1712,7 +1710,7 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
         SkTArray<size_t> individualMipOffsets;
         GrStagingBufferManager::Slice slice;
 
-        fill_in_regions(fVkCaps.get(), &fStagingBufferManager, &regions, &individualMipOffsets,
+        fill_in_regions(&fStagingBufferManager, &regions, &individualMipOffsets,
                         &slice, compression, info.fFormat, backendTexture.dimensions(),
                         backendTexture.fMipmapped);
 
@@ -1722,8 +1720,8 @@ bool GrVkGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
 
         bool result;
         if (data->type() == BackendTextureData::Type::kPixmaps) {
-            result = copy_src_data(this, (char*)slice.fOffsetMapPtr, info.fFormat,
-                                   individualMipOffsets, data->pixmaps(), info.fLevelCount);
+            result = copy_src_data((char*)slice.fOffsetMapPtr, info.fFormat, individualMipOffsets,
+                                   data->pixmaps(), info.fLevelCount);
         } else if (data->type() == BackendTextureData::Type::kCompressed) {
             result = copy_compressed_data(this, (char*)slice.fOffsetMapPtr,
                                           data->compressedData(), data->compressedSize());
@@ -2455,7 +2453,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
                           false);
 
     size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (this->vkCaps().bytesPerPixel(image->imageFormat()) != bpp) {
+    if (GrVkFormatBytesPerBlock(image->imageFormat()) != bpp) {
         return false;
     }
     size_t tightRowBytes = bpp * width;

@@ -155,7 +155,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 // instantiated, it checks that the instantiated size is <= to
                                 // the pre-computation. If the proxy never computed its
                                 // pre-instantiation size then the check is skipped.
-                                proxy->gpuMemorySize(caps);
+                                proxy->gpuMemorySize();
 
                                 check_surface(reporter, proxy.get(), widthHeight, widthHeight,
                                               budgeted);
@@ -190,7 +190,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest, reporter, ctxInfo) {
                                 // instantiated, it checks that the instantiated size is <= to
                                 // the pre-computation. If the proxy never computed its
                                 // pre-instantiation size then the check is skipped.
-                                proxy->gpuMemorySize(caps);
+                                proxy->gpuMemorySize();
 
                                 check_surface(reporter, proxy.get(), widthHeight, widthHeight,
                                               budgeted);
