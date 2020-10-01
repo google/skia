@@ -216,10 +216,12 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
     }
 
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-                                   VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT |
                                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                                    VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     SkASSERT((caps.supportedUsageFlags & usageFlags) == usageFlags);
+    if (caps.supportedUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT) {
+        usageFlags |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    }
     SkASSERT(caps.supportedTransforms & caps.currentTransform);
     SkASSERT(caps.supportedCompositeAlpha & (VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR |
                                              VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR));
