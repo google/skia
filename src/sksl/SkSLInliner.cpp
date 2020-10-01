@@ -541,7 +541,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
             auto name = std::make_unique<String>(
-                    this->uniqueNameForInlineVar(String(old->fName), symbolTableForStatement));
+                    this->uniqueNameForInlineVar(String(old->name()), symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
             const Type* typePtr = copy_if_needed(&old->type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
@@ -663,7 +663,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     std::unique_ptr<Expression> resultExpr;
     if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
-        resultExpr = makeInlineVar(String(function.fDeclaration.fName),
+        resultExpr = makeInlineVar(String(function.fDeclaration.name()),
                                    &function.fDeclaration.fReturnType,
                                    Modifiers{}, &noInitialValue);
    }
@@ -690,7 +690,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             argsToCopyBack.push_back(i);
         }
 
-        varMap[param] = makeInlineVar(String(param->fName), &arguments[i]->type(),
+        varMap[param] = makeInlineVar(String(param->name()), &arguments[i]->type(),
                                       param->fModifiers, &arguments[i]);
     }
 
