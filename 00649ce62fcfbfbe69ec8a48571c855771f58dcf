@@ -69,6 +69,30 @@
       "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "270740f9_6f4a1835",
+        "filename": "src/gpu/gl/GrGLUtil.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-01T16:02:22Z",
+      "side": 1,
+      "message": "Our assumption (backed up by various bits of evidence) has been that GPUs store RGB data as 4-byte pixels.",
+      "parentUuid": "5f9aa91b_8d0d1a46",
+      "range": {
+        "startLine": 391,
+        "startChar": 8,
+        "endLine": 391,
+        "endChar": 62
+      },
+      "revId": "00649ce62fcfbfbe69ec8a48571c855771f58dcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
