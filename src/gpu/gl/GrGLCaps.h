@@ -136,9 +136,6 @@ public:
     }
     int maxRenderTargetSampleCount(GrGLFormat) const;
 
-    size_t bytesPerPixel(GrGLFormat) const;
-    size_t bytesPerPixel(const GrBackendFormat&) const override;
-
     bool isFormatCopyable(const GrBackendFormat&) const override;
 
     bool canFormatBeFBOColorAttachment(GrGLFormat) const;
@@ -719,8 +716,6 @@ private:
         // When the above two values are used to initialize a texture by uploading cleared data to
         // it the data should be of this color type.
         GrColorType fDefaultColorType = GrColorType::kUnknown;
-        // This value is only valid for regular formats. Compressed formats will be 0.
-        GrGLenum fBytesPerPixel = 0;
 
         bool fHaveQueriedImplementationReadSupport = false;
 

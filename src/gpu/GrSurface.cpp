@@ -15,8 +15,7 @@
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/SkGr.h"
 
-size_t GrSurface::ComputeSize(const GrCaps& caps,
-                              const GrBackendFormat& format,
+size_t GrSurface::ComputeSize(const GrBackendFormat& format,
                               SkISize dimensions,
                               int colorSamplesPerPixel,
                               GrMipmapped mipMapped,
@@ -38,7 +37,8 @@ size_t GrSurface::ComputeSize(const GrCaps& caps,
         colorSize = SkCompressedFormatDataSize(compressionType, dimensions,
                                                mipMapped == GrMipmapped::kYes);
     } else {
-        colorSize = (size_t)dimensions.width() * dimensions.height() * caps.bytesPerPixel(format);
+        colorSize = (size_t)dimensions.width() * dimensions.height() *
+                    GrBackendFormatBytesPerPixel(format);
     }
     SkASSERT(colorSize > 0);
 

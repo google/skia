@@ -377,6 +377,36 @@ static constexpr GrGLenum GrGLFormatToEnum(GrGLFormat format) {
     SkUNREACHABLE;
 }
 
+static constexpr size_t GrGLFormatBytesPerBlock(GrGLFormat format) {
+    switch (format) {
+        case GrGLFormat::kRGBA8:                return 4;
+        case GrGLFormat::kR8:                   return 1;
+        case GrGLFormat::kALPHA8:               return 1;
+        case GrGLFormat::kLUMINANCE8:           return 1;
+        case GrGLFormat::kBGRA8:                return 4;
+        case GrGLFormat::kRGB565:               return 2;
+        case GrGLFormat::kRGBA16F:              return 8;
+        case GrGLFormat::kLUMINANCE16F:         return 2;
+        case GrGLFormat::kR16F:                 return 2;
+        // We assume the GPU stores this format 4 byte aligned
+        case GrGLFormat::kRGB8:                 return 4;
+        case GrGLFormat::kRG8:                  return 2;
+        case GrGLFormat::kRGB10_A2:             return 4;
+        case GrGLFormat::kRGBA4:                return 2;
+        case GrGLFormat::kSRGB8_ALPHA8:         return 4;
+        case GrGLFormat::kCOMPRESSED_ETC1_RGB8: return 8;
+        case GrGLFormat::kCOMPRESSED_RGB8_ETC2: return 8;
+        case GrGLFormat::kCOMPRESSED_RGB8_BC1:  return 8;
+        case GrGLFormat::kCOMPRESSED_RGBA8_BC1: return 8;
+        case GrGLFormat::kR16:                  return 2;
+        case GrGLFormat::kRG16:                 return 4;
+        case GrGLFormat::kRGBA16:               return 8;
+        case GrGLFormat::kRG16F:                return 4;
+        case GrGLFormat::kUnknown:              return 0;
+    }
+    SkUNREACHABLE;
+}
+
 #if defined(SK_DEBUG) || GR_TEST_UTILS
 static constexpr const char* GrGLFormatToStr(GrGLenum glFormat) {
     switch (glFormat) {

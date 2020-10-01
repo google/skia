@@ -275,7 +275,6 @@ SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendForm
     return GrMtlFormatToCompressionType(mtlFormat);
 }
 
-
 bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
 #ifdef SK_BUILD_FOR_IOS
@@ -309,6 +308,46 @@ int GrMtlTextureInfoSampleCount(const GrMtlTextureInfo& info) {
         return 0;
     }
     return texture.sampleCount;
+}
+
+size_t GrMtlBackendFormatBytesPerBlock(const GrBackendFormat& format) {
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    return GrMtlFormatBytesPerBlock(mtlFormat);
+}
+
+size_t GrMtlFormatBytesPerBlock(MTLPixelFormat mtlFormat) {
+    switch (mtlFormat) {
+        case MTLPixelFormatInvalid:         return 0;
+        case MTLPixelFormatRGBA8Unorm:      return 4;
+        case MTLPixelFormatR8Unorm:         return 1;
+        case MTLPixelFormatA8Unorm:         return 1;
+        case MTLPixelFormatBGRA8Unorm:      return 4;
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatB5G6R5Unorm:     return 2;
+#endif
+        case MTLPixelFormatRGBA16Float:     return 8;
+        case MTLPixelFormatR16Float:        return 2;
+        case MTLPixelFormatRG8Unorm:        return 2;
+        case MTLPixelFormatRGB10A2Unorm:    return 4;
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBGR10A2Unorm:    return 4;
+#endif
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatABGR4Unorm:      return 2;
+#endif
+        case MTLPixelFormatRGBA8Unorm_sRGB: return 4;
+        case MTLPixelFormatR16Unorm:        return 2;
+        case MTLPixelFormatRG16Unorm:       return 4;
+#ifdef SK_BUILD_FOR_IOS
+        case MTLPixelFormatETC2_RGB8:       return 8;
+#else
+        case MTLPixelFormatBC1_RGBA:        return 8;
+#endif
+        case MTLPixelFormatRGBA16Unorm:     return 8;
+        case MTLPixelFormatRG16Float:       return 4;
+
+        default:                            return 0;
+    }
 }
 
 #if defined(SK_DEBUG) || GR_TEST_UTILS
