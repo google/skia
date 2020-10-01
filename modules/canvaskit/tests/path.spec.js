@@ -252,6 +252,39 @@ describe('Path Behavior', () => {
         paint.delete();
     });
 
+    gm('bounds_path', (canvas) => {
+        const paint = new CanvasKit.SkPaint();
+
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+        paint.setStrokeWidth(5.0);
+        paint.setAntiAlias(true);
+        paint.setColor(CanvasKit.BLACK);
+
+        canvas.clear(CanvasKit.WHITE);
+
+        const path = new CanvasKit.SkPath();
+        // Arbitrary points to make an interesting curve.
+        path.moveTo(97, 225);
+        path.cubicTo(20, 400, 404, 75, 243, 271);
+
+        canvas.drawPath(path, paint);
+
+        const bounds = new Float32Array(4);
+        path.getBounds(bounds);
+
+        paint.setColor(CanvasKit.BLUE);
+        paint.setStrokeWidth(3.0);
+        canvas.drawRect(bounds, paint);
+
+        path.computeTightBounds(bounds);
+        paint.setColor(CanvasKit.RED);
+        paint.setStrokeWidth(3.0);
+        canvas.drawRect(bounds, paint);
+
+        path.delete();
+        paint.delete();
+    });
+
     gm('arcto_path', (canvas) => {
         const paint = new CanvasKit.SkPaint();
 
