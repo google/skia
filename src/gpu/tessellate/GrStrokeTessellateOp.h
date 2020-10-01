@@ -9,7 +9,7 @@
 #define GrStrokeTessellateOp_DEFINED
 
 #include "include/core/SkStrokeRec.h"
-#include "src/gpu/GrSTArenaList.h"
+#include "src/gpu/GrTArenaList.h"
 #include "src/gpu/ops/GrDrawOp.h"
 #include "src/gpu/tessellate/GrStrokePatchBuilder.h"
 
@@ -20,13 +20,15 @@ class GrStrokeTessellateOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-private:
-    // The provided matrix must be a similarity matrix for the time being. This is so we can
-    // bootstrap this Op on top of GrStrokeGeometry with minimal modifications.
-    //
     // Patches can overlap, so until a stencil technique is implemented, the provided paint must be
     // a constant blended color.
-    GrStrokeTessellateOp(GrAAType, const SkMatrix&, const SkStrokeRec&, const SkPath&, GrPaint&&);
+    static std::unique_ptr<GrStrokeTessellateOp> Make(GrRecordingContext::Arenas, GrAAType,
+                                                      const SkMatrix&, const SkStrokeRec&,
+                                                      const SkPath&, GrPaint&&);
+
+private:
+    GrStrokeTessellateOp(SkArenaAlloc* recordTimeAllocator, GrAAType, const SkMatrix&,
+                         const SkStrokeRec&, const SkPath&, GrPaint&&);
 
     const char* name() const override { return "GrStrokeTessellateOp"; }
     void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
@@ -50,7 +52,7 @@ private:
     SkPMColor4f fColor;
     GrProcessorSet fProcessors;
 
-    GrSTArenaList<SkPath> fPaths;
+    GrTArenaList<SkPath> fPathList;
     int fTotalCombinedVerbCnt;
 
     const GrProgramInfo* fColorProgram = nullptr;

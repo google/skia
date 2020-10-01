@@ -20,9 +20,20 @@ static SkPMColor4f get_paint_constant_blended_color(const GrPaint& paint) {
     return constantColor;
 }
 
-GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& viewMatrix,
-                                           const SkStrokeRec& stroke, const SkPath& path,
-                                           GrPaint&& paint)
+std::unique_ptr<GrStrokeTessellateOp> GrStrokeTessellateOp::Make(GrRecordingContext::Arenas arenas,
+                                                                 GrAAType aaType,
+                                                                 const SkMatrix& viewMatrix,
+                                                                 const SkStrokeRec& stroke,
+                                                                 const SkPath& path,
+                                                                 GrPaint&& paint) {
+    return arenas.opMemoryPool()->allocate<GrStrokeTessellateOp>(arenas.recordTimeAllocator(),
+                                                                 aaType, viewMatrix, stroke, path,
+                                                                 std::move(paint));
+}
+
+GrStrokeTessellateOp::GrStrokeTessellateOp(SkArenaAlloc* recordTimeAllocator, GrAAType aaType,
+                                           const SkMatrix& viewMatrix, const SkStrokeRec& stroke,
+                                           const SkPath& path, GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fAAType(aaType)
         , fViewMatrix(viewMatrix)
@@ -30,7 +41,7 @@ GrStrokeTessellateOp::GrStrokeTessellateOp(GrAAType aaType, const SkMatrix& view
         , fStroke(stroke)
         , fColor(get_paint_constant_blended_color(paint))
         , fProcessors(std::move(paint))
-        , fPaths(path)
+        , fPathList(recordTimeAllocator, path)
         , fTotalCombinedVerbCnt(path.countVerbs()) {
     SkASSERT(fAAType != GrAAType::kCoverage);  // No mixed samples support yet.
     SkASSERT(fMatrixScale >= 0);
@@ -70,7 +81,7 @@ GrOp::CombineResult GrStrokeTessellateOp::onCombineIfPossible(GrOp* grOp,
         return CombineResult::kCannotCombine;
     }
 
-    fPaths.concat(std::move(op->fPaths), arenas->recordTimeAllocator());
+    fPathList.concat(std::move(op->fPathList));
     fTotalCombinedVerbCnt += op->fTotalCombinedVerbCnt;
 
     return CombineResult::kMerged;
@@ -113,7 +124,7 @@ void GrStrokeTessellateOp::onPrepare(GrOpFlushState* flushState) {
     }
     GrStrokePatchBuilder builder(flushState, &fPatchChunks, fMatrixScale, fStroke,
                                  fTotalCombinedVerbCnt);
-    for (const SkPath& path : fPaths) {
+    for (const SkPath& path : fPathList) {
         builder.addPath(path);
     }
 }
