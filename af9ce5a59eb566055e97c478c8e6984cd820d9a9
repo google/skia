@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8664ee13_d4690d74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-01T19:51:34Z",
+      "side": 1,
+      "message": "Might be a longer discussion, but I would like to move CK away from mutable path, and towards\n- mutable PathBuilder\n- immutable Path",
+      "revId": "af9ce5a59eb566055e97c478c8e6984cd820d9a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
