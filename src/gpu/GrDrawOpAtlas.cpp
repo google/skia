@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "src/core/SkOpts.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrOnFlushResourceProvider.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProxyProvider.h"
@@ -270,7 +271,8 @@ bool GrDrawOpAtlas::uploadToPage(const GrCaps& caps, unsigned int pageIdx,
     plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
 
     for (Plot* plot = plotIter.get(); plot; plot = plotIter.next()) {
-        SkASSERT(caps.bytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) == plot->bpp());
+        SkASSERT(GrBackendFormatBytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) ==
+                 plot->bpp());
 
         if (plot->addSubImage(width, height, image, atlasLocator)) {
             return this->updatePlot(target, atlasLocator, plot);
@@ -319,7 +321,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
             SkASSERT(plot);
             if (plot->lastUseToken() < target->tokenTracker()->nextTokenToFlush()) {
                 this->processEvictionAndResetRects(plot);
-                SkASSERT(caps.bytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) ==
+                SkASSERT(GrBackendFormatBytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) ==
                          plot->bpp());
                 SkDEBUGCODE(bool verify = )plot->addSubImage(width, height, image, atlasLocator);
                 SkASSERT(verify);
@@ -376,7 +378,8 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     newPlot.reset(plot->clone());
 
     fPages[pageIdx].fPlotList.addToHead(newPlot.get());
-    SkASSERT(caps.bytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) == newPlot->bpp());
+    SkASSERT(GrBackendFormatBytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) ==
+             newPlot->bpp());
     SkDEBUGCODE(bool verify = )newPlot->addSubImage(width, height, image, atlasLocator);
     SkASSERT(verify);
 
