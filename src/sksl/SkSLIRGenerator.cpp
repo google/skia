@@ -435,7 +435,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                 sizes.push_back(std::move(size));
             } else {
                 type = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                        type->name() + "[]", Type::TypeKind::kArray, *type, /*columns=*/-1));
+                        type->name() + "[]", Type::TypeKind::kArray, *type, Type::kUnsizedArray));
                 sizes.push_back(nullptr);
             }
         }
@@ -1143,7 +1143,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                               "initializers are not permitted on interface block fields");
             }
             if (vd.fVar->type().typeKind() == Type::TypeKind::kArray &&
-                vd.fVar->type().columns() == -1) {
+                vd.fVar->type().columns() == Type::kUnsizedArray) {
                 haveRuntimeArray = true;
             }
         }
@@ -1176,8 +1176,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                     std::make_unique<Type>(name, Type::TypeKind::kArray, *type, (int)count));
             sizes.push_back(std::move(converted));
         } else {
-            fErrors.error(intf.fOffset, "array size must be specified");
-            return nullptr;
+            String name = String(type->fName) + "[]";
+            type = symbols->takeOwnershipOfSymbol(std::make_unique<Type>(
+                    name, Type::TypeKind::kArray, *type, Type::kUnsizedArray));
+            sizes.push_back(nullptr);
         }
     }
     const Variable* var = old->takeOwnershipOfSymbol(
@@ -1300,8 +1302,9 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
                 name += to_string(size.getInt());
             }
             name += "]";
-            result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                    name, Type::TypeKind::kArray, result->as<Type>(), size ? size.getInt() : 0));
+            result = fSymbolTable->takeOwnershipOfSymbol(
+                    std::make_unique<Type>(name, Type::TypeKind::kArray, result->as<Type>(),
+                                           size ? size.getInt() : Type::kUnsizedArray));
         }
         return &result->as<Type>();
     }
@@ -2720,7 +2723,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
     } else if (base->kind() == Expression::Kind::kTypeReference) {
         const Type& oldType = base->as<TypeReference>().fValue;
         const Type* newType = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                oldType.name() + "[]", Type::TypeKind::kArray, oldType, /*columns=*/-1));
+                oldType.name() + "[]", Type::TypeKind::kArray, oldType, Type::kUnsizedArray));
         return std::make_unique<TypeReference>(fContext, base->fOffset, newType);
     }
     fErrors.error(index.fOffset, "'[]' must follow a type name");

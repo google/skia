@@ -1045,7 +1045,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->write(" ");
         this->writeName(param->fName);
         for (int s : sizes) {
-            if (s <= 0) {
+            if (s == Type::kUnsizedArray) {
                 this->write("[]");
             } else {
                 this->write("[" + to_string(s) + "]");
@@ -1185,7 +1185,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
         this->write(" ");
         this->writeName(field.fName);
         for (int s : sizes) {
-            if (s <= 0) {
+            if (s == Type::kUnsizedArray) {
                 this->write("[]");
             } else {
                 this->write("[" + to_string(s) + "]");

@@ -132,10 +132,15 @@ const Symbol* Rehydrator::symbol() {
         case kArrayType_Command: {
             uint16_t id = this->readU16();
             const Type* componentType = this->type();
-            uint8_t count = this->readU8();
+            int8_t count = this->readS8();
+            String name = componentType->name();
+            if (count == Type::kUnsizedArray) {
+                name += "[]";
+            } else {
+                name += "[" + to_string(count) + "]";
+            }
             const Type* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Type>(componentType->name() + "[" + to_string(count) + "]",
-                                           Type::TypeKind::kArray, *componentType, count));
+                    std::make_unique<Type>(name, Type::TypeKind::kArray, *componentType, count));
             this->addSymbol(id, result);
             return result;
         }

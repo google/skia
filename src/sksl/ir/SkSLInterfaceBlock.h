@@ -40,7 +40,7 @@ struct InterfaceBlock : public ProgramElement {
     std::unique_ptr<ProgramElement> clone() const override {
         std::vector<std::unique_ptr<Expression>> sizesClone;
         for (const auto& s : fSizes) {
-            sizesClone.push_back(s->clone());
+            sizesClone.push_back(s ? s->clone() : nullptr);
         }
         return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, &fVariable, fTypeName,
                                                                   fInstanceName,
