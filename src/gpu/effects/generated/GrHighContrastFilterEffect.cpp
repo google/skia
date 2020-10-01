@@ -45,7 +45,7 @@ public:
         fragBuilder->emitFunction(kHalf_GrSLType, "HSLToRGB", 3, HSLToRGB_args,
                                   R"SkSL(if (t < 0.0) t += 1.0;
 if (t > 1.0) t -= 1.0;
-return t < 0.1666666716337204 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0.66666668653488159 ? p + ((q - p) * (0.66666668653488159 - t)) * 6.0 : p));
+return t < 0.16666666666666666 ? p + ((q - p) * 6.0) * t : (t < 0.5 ? q : (t < 0.66666666666666663 ? p + ((q - p) * (0.66666666666666663 - t)) * 6.0 : p));
 )SkSL",
                                   &HSLToRGB_name);
         SkString _sample896 = this->invokeChild(0, args);
@@ -87,7 +87,7 @@ half4 color = _0_unpremul;
         } else {
             h = (color.x - color.y) / d + 4.0;
         }
-        h *= 0.1666666716337204;
+        h *= 0.16666666666666666;
     }
     l = 1.0 + l * -0.5;
     if (s == 0.0) {
@@ -95,9 +95,9 @@ half4 color = _0_unpremul;
     } else {
         half q = l < 0.5 ? l * (1.0 + s) : (l + s) - l * s;
         half p = 2.0 * l - q;
-        color.x = %s(p, q, h + 0.3333333432674408);
+        color.x = %s(p, q, h + 0.33333333333333331);
         color.y = %s(p, q, h);
-        color.z = %s(p, q, h - 0.3333333432674408);
+        color.z = %s(p, q, h - 0.33333333333333331);
     }
 }
 @if (%s) {
