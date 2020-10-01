@@ -651,30 +651,48 @@ void draw_tiled_bitmap(GrRecordingContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint) {
-    SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
+void SkGpuDevice::drawSpecial(SkSpecialImage* special,
+                              int left, int top,
+                              const SkImagePaint& paint) {
     SkASSERT(special->isTextureBacked());
 
     SkRect src = SkRect::Make(special->subset());
     SkRect dst = SkRect::MakeXYWH(left, top, special->width(), special->height());
-    SkMatrix srcToDst = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
-    // TODO (michaelludwig): Once drawSpecial uses arbitrary transforms between two SkGpuDevices,
-    // always using kNearest may not be the right choice anymore.
-    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest);
-
-    GrColorInfo colorInfo(SkColorTypeToGrColorType(special->colorType()),
-                          special->alphaType(), sk_ref_sp(special->getColorSpace()));
+    GrSamplerState::Filter filter = paint.fSamplingMode == SkSamplingMode::kLinear ?
+                                            GrSamplerState::Filter::kLinear :
+                                            GrSamplerState::Filter::kNearest;
+    auto colorXform = GrColorSpaceXform::Make(special->getColorSpace(), special->alphaType(),
+                                              fRenderTargetContext->colorInfo().colorSpace(),
+                                              fRenderTargetContext->colorInfo().alphaType());
 
     GrSurfaceProxyView view = special->view(this->recordingContext());
-    GrTextureAdjuster texture(fContext.get(), std::move(view), colorInfo, special->uniqueID());
-    // In most cases this ought to hit draw_texture since there won't be a color filter,
-    // alpha-only texture+shader, or a high filter quality.
-    SkOverrideDeviceMatrixProvider identity(this->asMatrixProvider(), SkMatrix::I());
-    draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                          identity, paint, &texture, src, dst, nullptr, srcToDst, GrAA::kNo,
-                          GrQuadAAFlags::kNone, SkCanvas::kStrict_SrcRectConstraint,
-                          sampler, false);
+    if (paint.fColorFilter) {
+        // Color filter rules out using texture op, so go through regular paint handling. Although
+        // this is the "slow" path here, it's equivalent but short-circuited logic to what happens
+        // in draw_texture_producer.
+        GrPaint grPaint;
+        SkOverrideDeviceMatrixProvider matrixProvider(*this, SkMatrix::I());
+        auto fp = GrTextureEffect::MakeSubset(std::move(view), special->alphaType(), SkMatrix::I(),
+                                              {GrSamplerState::WrapMode::kClamp, filter}, src,
+                                              *fContext->priv().caps());
+        if (!SkPaintToGrPaintWithTexture(fContext.get(), fRenderTargetContext->colorInfo(),
+                                         SkPaint(paint), matrixProvider, std::move(fp), false,
+                                         &grPaint)) {
+            return;
+        }
+        fRenderTargetContext->fillRectToRect(this->clip(), std::move(grPaint),
+                                             GrAA(paint.fAntiAlias), SkMatrix::I(), dst, src);
+    } else {
+        float alpha = SkTPin(paint.fAlpha, 0.f, 1.f);
+        GrQuadAAFlags aaFlags = paint.fAntiAlias ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+        fRenderTargetContext->drawTexture(this->clip(), std::move(view), special->alphaType(),
+                                          filter, GrSamplerState::MipmapMode::kNone,
+                                          paint.fBlendMode, {alpha, alpha, alpha, alpha},
+                                          src, dst, GrAA(paint.fAntiAlias), aaFlags,
+                                          SkCanvas::kStrict_SrcRectConstraint, SkMatrix::I(),
+                                          std::move(colorXform));
+    }
 }
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
