@@ -142,8 +142,8 @@ GrMipmapped GrTextureProxy::mipmapped() const {
     return fMipmapped;
 }
 
-size_t GrTextureProxy::onUninstantiatedGpuMemorySize(const GrCaps& caps) const {
-    return GrSurface::ComputeSize(caps, this->backendFormat(), this->dimensions(), 1,
+size_t GrTextureProxy::onUninstantiatedGpuMemorySize() const {
+    return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(), 1,
                                   this->proxyMipmapped(), !this->priv().isExact());
 }
 
