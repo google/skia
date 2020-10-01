@@ -15,7 +15,6 @@
 class GrGLStencilAttachment : public GrStencilAttachment {
 public:
     static const GrGLenum kUnknownInternalFormat = ~0U;
-    static const GrGLuint kUnknownBitCount = ~0U;
     struct Format {
         GrGLenum  fInternalFormat;
         GrGLuint  fStencilBits;
