@@ -10,6 +10,7 @@ import {
     SkCanvas,
     SkColorFilter,
     SkFont,
+    SkFontMgr,
     SkImage,
     SkImageFilter,
     SkImageInfo,
@@ -22,6 +23,7 @@ import {
     SkShader,
     SkSurface,
     SkTextBlob,
+    SkTypeface,
     SkVertices,
     TypedArray,
 } from "canvaskit-wasm";
@@ -32,6 +34,8 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     colorTests(CK);
     imageFilterTests(CK);
     imageTests(CK);
+    fontTests(CK);
+    fontMgrTests(CK);
     mallocTests(CK);
     maskFilterTests(CK);
     matrixTests(CK);
@@ -188,6 +192,59 @@ function imageFilterTests(CK: CanvasKit, colorFilter?: SkColorFilter) {
                                              CK.FilterQuality.High, null);
     const filter8 = imgf.MakeMatrixTransform(CK.SkM44.identity(),
                                              CK.FilterQuality.None, filter6);
+}
+
+function fontMgrTests(CK: CanvasKit) {
+    const fm = CK.SkFontMgr.RefDefault(); // $ExpectType SkFontMgr
+
+    const buff1 = new ArrayBuffer(10);
+    const buff2 = new ArrayBuffer(20);
+
+    const fm2 = CK.SkFontMgr.FromData(buff1, buff2);
+    fm.countFamilies();
+    fm.getFamilyName(0);
+
+    const tf = fm.makeTypefaceFromData(buff1); // $ExpectType SkTypeface
+}
+
+function fontTests(CK: CanvasKit, face?: SkTypeface, paint?: SkPaint) {
+    if (!face || !paint) return;
+    const font = new CK.SkFont(); // $ExpectType SkFont
+    const f2 = new CK.SkFont(face); // $ExpectType SkFont
+    const f3 = new CK.SkFont(null); // $ExpectType SkFont
+    const f4 = new CK.SkFont(face, 20); // $ExpectType SkFont
+    const f5 = new CK.SkFont(null, 20); // $ExpectType SkFont
+    const f6 = new CK.SkFont(null, 20, 2, 3); // $ExpectType SkFont
+    const f7 = new CK.SkFont(face, 20, 4, 5); // $ExpectType SkFont
+
+    const glyphMalloc = CK.MallocGlyphIDs(20);
+    const someGlyphs = [1, 2, 3, 4, 5];
+
+    const glyphBounds = font.getGlyphBounds(glyphMalloc, paint); // $ExpectType Float32Array
+    font.getGlyphBounds(someGlyphs, null, glyphBounds);
+
+    const ids = font.getGlyphIDs('abcd');
+    font.getGlyphIDs('efgh', 4, ids);
+
+    const widths = font.getGlyphWidths(glyphMalloc, paint);
+    font.getGlyphWidths(someGlyphs, null, widths);
+
+    font.getScaleX();
+    font.getSize();
+    font.getSkewX();
+    font.getTypeface();
+    const w2 = font.getWidths('abcdefg'); // $ExpectType number[]
+    const w = font.measureText('abc'); // $ExpectType number
+    font.setEdging(CK.FontEdging.Alias);
+    font.setEmbeddedBitmaps(true);
+    font.setHinting(CK.FontHinting.Slight);
+    font.setLinearMetrics(true);
+    font.setScaleX(5);
+    font.setSize(15);
+    font.setSkewX(2);
+    font.setSubpixel(true);
+    font.setTypeface(null);
+    font.setTypeface(face);
 }
 
 function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: SkImageFilter,

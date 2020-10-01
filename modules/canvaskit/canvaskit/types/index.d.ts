@@ -135,6 +135,13 @@ export interface CanvasKit {
     Malloc(typedArray: TypedArrayConstructor, len: number): MallocObj;
 
     /**
+     * As Malloc but for GlyphIDs. This helper exists to make sure the JS side and the C++ side
+     * stay in agreement with how wide GlyphIDs are.
+     * @param len - number of GlyphIDs to make space for.
+     */
+    MallocGlyphIDs(len: number): MallocObj;
+
+    /**
      * Free frees the memory returned by Malloc.
      * Any memory allocated by CanvasKit.Malloc needs to be released with CanvasKit.Free.
      */
@@ -205,11 +212,13 @@ export interface CanvasKit {
     getSkDataBytes(data: SkData): Uint8Array;
 
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
+    readonly SkFont: SkFontConstructor;
     readonly SkPaint: DefaultConstructor<SkPaint>;
     readonly SkPath: SkPathConstructorAndFactory;
 
     // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncapsulator()
     readonly SkColorFilter: SkColorFilterFactory;
+    readonly SkFontMgr: SkFontMgrFactory;
     readonly SkImageFilter: SkImageFilterFactory;
     readonly SkMaskFilter: SkMaskFilterFactory;
     readonly SkPathEffect: SkPathEffectFactory;
@@ -225,15 +234,17 @@ export interface CanvasKit {
     readonly BlurStyle: BlurStyleEnumValues;
     readonly ClipOp: ClipOpEnumValues;
     readonly ColorType: ColorTypeEnumValues;
-    readonly ImageFormat: ImageFormatEnumValues;
     readonly FillType: FillTypeEnumValues;
     readonly FilterQuality: FilterQualityEnumValues;
+    readonly FontEdging: FontEdgingEnumValues;
+    readonly FontHinting: FontHintingEnumValues;
+    readonly ImageFormat: ImageFormatEnumValues;
     readonly PaintStyle: PaintStyleEnumValues;
     readonly PathOp: PathOpEnumValues;
     readonly PointMode: PointModeEnumValues;
+    readonly SkColorSpace: ColorSpaceEnumValues;
     readonly StrokeCap: StrokeCapEnumValues;
     readonly StrokeJoin: StrokeJoinEnumValues;
-    readonly SkColorSpace: ColorSpaceEnumValues;
     readonly TileMode: TileModeEnumValues;
 
     // Constants
@@ -811,7 +822,153 @@ export interface SkData extends EmbindObject<SkData> {
  * See SkFont.h for more on this class.
  */
 export interface SkFont extends EmbindObject<SkFont> {
-    todo: number; // TODO(kjlubick)
+    /**
+     * Retrieves the bounds for each glyph in glyphs.
+     * If paint is not null, its stroking, SkPathEffect, and SkMaskFilter fields are respected.
+     * These are returned as flattened rectangles.  For each glyph, there will be 4 floats for
+     * left, top, right, bottom (relative to 0, 0) for that glyph.
+     * @param glyphs
+     * @param paint
+     * @param output - if provided, the results will be copied into this array.
+     */
+    getGlyphBounds(glyphs: InputGlyphIDArray, paint?: SkPaint | null,
+                   output?: Float32Array): Float32Array;
+
+    /**
+     * Retrieves the glyph ids for each code point in the provided string. Note that glyph IDs
+     * are font-dependent; different fonts may have different ids for the same code point.
+     * @param str
+     * @param numCodePoints - the number of code points in the string. Defaults to str.length.
+     * @param output - if provided, the results will be copied into this array.
+     */
+    getGlyphIDs(str: string, numCodePoints?: number,
+                output?: TypedArray): GlyphIDArray;
+
+    /**
+     * Retrieves the advanceX measurements for each glyph.
+     * If paint is not null, its stroking, SkPathEffect, and SkMaskFilter fields are respected.
+     * One width per glyph is returned in the returned array.
+     * @param glyphs
+     * @param paint
+     * @param output - if provided, the results will be copied into this array.
+     */
+    getGlyphWidths(glyphs: InputGlyphIDArray, paint?: SkPaint | null,
+                   output?: Float32Array): Float32Array;
+
+    /**
+     * Returns text scale on x-axis. Default value is 1.
+     */
+    getScaleX(): number;
+
+    /**
+     * Returns text size in points.
+     */
+    getSize(): number;
+
+    /**
+     * Returns text skew on x-axis. Default value is zero.
+     */
+    getSkewX(): number;
+
+    /**
+     * Returns the SkTypeface set for this font.
+     */
+    getTypeface(): SkTypeface | null;
+
+    /**
+     * Retrieves the advanceX measurements for each code point in str.
+     * [deprecated] Use getGlyphIDs and getGlyphWidths instead.
+     * @param str
+     */
+    getWidths(str: string): number[];
+
+    /**
+     * Retrieves the total advance with the given string.
+     * If attempting to shape text to fit into a given width, using getGlyphIDs and getGlyphWidths
+     * is probably easier / more efficient.
+     * @param str
+     */
+    measureText(str: string): number;
+
+    /**
+     * Requests, but does not require, that edge pixels draw opaque or with partial transparency.
+     * @param edging
+     */
+    setEdging(edging: FontEdging): void;
+
+    /**
+     * Requests, but does not require, to use bitmaps in fonts instead of outlines.
+     * @param embeddedBitmaps
+     */
+    setEmbeddedBitmaps(embeddedBitmaps: boolean): void;
+
+    /**
+     * Sets level of glyph outline adjustment.
+     * @param hinting
+     */
+    setHinting(hinting: FontHinting): void;
+
+    /**
+     * Requests, but does not require, linearly scalable font and glyph metrics.
+     *
+     * For outline fonts 'true' means font and glyph metrics should ignore hinting and rounding.
+     * Note that some bitmap formats may not be able to scale linearly and will ignore this flag.
+     * @param linearMetrics
+     */
+    setLinearMetrics(linearMetrics: boolean): void;
+
+    /**
+     * Sets the text scale on the x-axis.
+     * @param sx
+     */
+    setScaleX(sx: number): void;
+
+    /**
+     * Sets the text size in points on this font.
+     * @param points
+     */
+    setSize(points: number): void;
+
+    /**
+     * Sets the text-skew on the x axis for this font.
+     * @param sx
+     */
+    setSkewX(sx: number): void;
+
+    /**
+     * Requests, but does not require, that glyphs respect sub-pixel positioning.
+     * @param subpixel
+     */
+    setSubpixel(subpixel: boolean): void;
+
+    /**
+     * Sets the typeface to use with this font. null means to clear the typeface and use the
+     * default one.
+     * @param face
+     */
+    setTypeface(face: SkTypeface | null): void;
+}
+
+/**
+ * See SkFontMgr.h for more details
+ */
+export interface SkFontMgr extends EmbindObject<SkFontMgr> {
+    /**
+     * Return the number of font families loaded in this manager. Useful for debugging.
+     */
+    countFamilies(): number;
+
+    /**
+     * Return the nth family name. Useful for debugging.
+     * @param index
+     */
+    getFamilyName(index: number): string;
+
+    /**
+     * Create a typeface for the specified bytes and return it.
+     * @param fontData
+     */
+    makeTypefaceFromData(fontData: ArrayBuffer): SkTypeface;
 }
 
 /**
@@ -1575,6 +1732,13 @@ export interface SkTextBlob extends EmbindObject<SkTextBlob> {
 }
 
 /**
+ * See SkTypeface.h for more on this class.
+ */
+export interface SkTypeface extends EmbindObject<SkTypeface> {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
  * See SkVertices.h for more on this class.
  */
 export interface SkVertices extends EmbindObject<SkVertices> {
@@ -1868,6 +2032,43 @@ export interface SkColorFilterFactory {
 }
 
 /**
+ * See SkFont.h for more.
+ */
+export interface SkFontConstructor extends DefaultConstructor<SkFont> {
+    /**
+     * Constructs SkFont with default values with SkTypeface.
+     * @param face
+     * @param size - font size in points. If not specified, uses a default value.
+     */
+    new (face: SkTypeface | null, size?: number): SkFont;
+
+    /**
+     * Constructs SkFont with default values with SkTypeface and size in points,
+     * horizontal scale, and horizontal skew. Horizontal scale emulates condensed
+     * and expanded fonts. Horizontal skew emulates oblique fonts.
+     * @param face
+     * @param size
+     * @param scaleX
+     * @param skewX
+     */
+    new (face: SkTypeface | null, size: number, scaleX: number, skewX: number): SkFont;
+}
+
+export interface SkFontMgrFactory {
+    /**
+     * Create an SkFontMgr with the created font data. Returns null if buffers was empty.
+     * @param buffers
+     */
+    FromData(...buffers: ArrayBuffer[]): SkFontMgr | null;
+
+    /**
+     * Return the default SkFontMgr. This will generally have 0 or 1 fonts in it, depending on if
+     * the demo monospace font was compiled in.
+     */
+    RefDefault(): SkFontMgr;
+}
+
+/**
  * See effects/SkImageFilters.h for more.
  */
 export interface SkImageFilterFactory {
@@ -2044,6 +2245,11 @@ export type FlattenedRectangleArray = MallocObj | Float32Array | number[];
  */
 export type FlattenedRSXFormArray = MallocObj | Float32Array | number[];
 /**
+ * Regardless of the format we use internally for GlyphID (16 bit unsigned atm), we expose them
+ * as 32 bit unsigned.
+ */
+export type GlyphIDArray = Uint32Array;
+/**
  * PathCommand contains a verb and then any arguments needed to fulfill that path verb.
  * Examples:
  *   [CanvasKit.MOVE_VERB, 0, 10]
@@ -2079,6 +2285,11 @@ export type InputColor = MallocObj | SkColor | number[];
  */
 export type InputColorMatrix = MallocObj | SkColorMatrix | number[];
 /**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as glyph IDs.
+ * Length n for n glyph IDs.
+ */
+export type InputGlyphIDArray = MallocObj | GlyphIDArray | number[];
+/**
  * CanvasKit APIs accept all of these matrix types. Under the hood, we generally use 4x4 matrices.
  */
 export type InputMatrix = MallocObj | Matrix4x4 | Matrix3x3 | Matrix3x2 | DOMMatrix | number[];
@@ -2107,6 +2318,8 @@ export type ColorType = EmbindEnumEntity;
 export type EncodedImageFormat = EmbindEnumEntity;
 export type FillType = EmbindEnumEntity;
 export type FilterQuality = EmbindEnumEntity;
+export type FontEdging = EmbindEnumEntity;
+export type FontHinting = EmbindEnumEntity;
 export type PathOp = EmbindEnumEntity;
 export type PaintStyle = EmbindEnumEntity;
 export type PointMode = EmbindEnumEntity;
@@ -2203,6 +2416,19 @@ export interface FilterQualityEnumValues extends EmbindEnum {
     Low: FilterQuality;
     Medium: FilterQuality;
     High: FilterQuality;
+}
+
+export interface FontEdgingEnumValues extends EmbindEnum {
+    Alias: FontEdging;
+    AntiAlias: FontEdging;
+    SubpixelAntiAlias: FontEdging;
+}
+
+export interface FontHintingEnumValues extends EmbindEnum {
+    None: FontHinting;
+    Slight: FontHinting;
+    Normal: FontHinting;
+    Full: FontHinting;
 }
 
 export interface PaintStyleEnumValues extends EmbindEnum {
