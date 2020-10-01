@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d6d59ea0_fc9ed041",
+        "filename": "src/gpu/GrTArenaList.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-01T17:21:05Z",
+      "side": 1,
+      "message": "IDK why this wasn\u0027t detected as a rename...",
+      "range": {
+        "startLine": 14,
+        "startChar": 27,
+        "endLine": 14,
+        "endChar": 39
+      },
+      "revId": "acf4cf2fb73314974abcf25a5c5621168eb2b1b0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
