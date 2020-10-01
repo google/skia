@@ -407,8 +407,7 @@ public:
     }
 
 protected:
-    sk_sp<SkSurface> createDstSurface(GrDirectContext*, SkISize size, GrBackendTexture*,
-                                      GrBackendRenderTarget*) const;
+    sk_sp<SkSurface> createDstSurface(GrDirectContext*, SkISize size, GrBackendTexture*) const;
     bool readBack(SkSurface*, SkBitmap* dst) const;
 
 private:
