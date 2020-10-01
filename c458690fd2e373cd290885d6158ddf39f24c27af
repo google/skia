@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "893fcc24_881e8663",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-10-01T15:00:44Z",
+      "side": 1,
+      "message": "Just a reminder... (SkUnicode as a singleton)",
+      "revId": "c458690fd2e373cd290885d6158ddf39f24c27af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
