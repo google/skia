@@ -1827,8 +1827,8 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
     }
     if (left.kind() == Expression::Kind::kFloatLiteral &&
         right.kind() == Expression::Kind::kFloatLiteral) {
-        double leftVal  = left.as<FloatLiteral>().fValue;
-        double rightVal = right.as<FloatLiteral>().fValue;
+        SKSL_FLOAT leftVal  = left.as<FloatLiteral>().value();
+        SKSL_FLOAT rightVal = right.as<FloatLiteral>().value();
         switch (op) {
             case Token::Kind::TK_PLUS:  return RESULT(Float, +);
             case Token::Kind::TK_MINUS: return RESULT(Float, -);
@@ -1855,8 +1855,8 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
         std::vector<std::unique_ptr<Expression>> args;
         #define RETURN_VEC_COMPONENTWISE_RESULT(op)                              \
             for (int i = 0; i < leftType.columns(); i++) {                       \
-                float value = left.getFVecComponent(i) op                        \
-                              right.getFVecComponent(i);                         \
+                SKSL_FLOAT value = left.getFVecComponent(i) op                        \
+                                   right.getFVecComponent(i);                         \
                 args.emplace_back(new FloatLiteral(fContext, -1, value));        \
             }                                                                    \
             return std::unique_ptr<Expression>(new Constructor(-1, &leftType,    \
@@ -1878,7 +1878,7 @@ std::unique_ptr<Expression> IRGenerator::constantFold(const Expression& left,
                         fErrors.error(right.fOffset, "division by zero");
                         return nullptr;
                     }
-                    float value = left.getFVecComponent(i) / rvalue;
+                    SKSL_FLOAT value = left.getFVecComponent(i) / rvalue;
                     args.emplace_back(new FloatLiteral(fContext, -1, value));
                 }
                 return std::unique_ptr<Expression>(new Constructor(-1, &leftType,
@@ -2230,12 +2230,12 @@ std::unique_ptr<Expression> IRGenerator::convertNumberConstructor(
         return std::move(args[0]);
     }
     if (type.isFloat() && args.size() == 1 && args[0]->is<FloatLiteral>()) {
-        double value = args[0]->as<FloatLiteral>().fValue;
+        SKSL_FLOAT value = args[0]->as<FloatLiteral>().value();
         return std::make_unique<FloatLiteral>(offset, value, &type);
     }
     if (type.isFloat() && args.size() == 1 && args[0]->is<IntLiteral>()) {
         int64_t value = args[0]->as<IntLiteral>().value();
-        return std::make_unique<FloatLiteral>(offset, (double)value, &type);
+        return std::make_unique<FloatLiteral>(offset, (float)value, &type);
     }
     if (args[0]->is<IntLiteral>() && (type == *fContext.fInt_Type ||
                                       type == *fContext.fUInt_Type)) {
@@ -2372,7 +2372,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
             }
             if (base->is<FloatLiteral>()) {
                 return std::make_unique<FloatLiteral>(fContext, base->fOffset,
-                                                      -base->as<FloatLiteral>().fValue);
+                                                      -base->as<FloatLiteral>().value());
             }
             if (!baseType.isNumber() && baseType.typeKind() != Type::TypeKind::kVector) {
                 fErrors.error(expression.fOffset,

@@ -919,7 +919,7 @@ void MetalCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 void MetalCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
-    this->write(to_string(f.fValue));
+    this->write(to_string(f.value()));
 }
 
 void MetalCodeGenerator::writeSetting(const Setting& s) {
