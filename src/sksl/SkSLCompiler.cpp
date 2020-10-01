@@ -1678,6 +1678,8 @@ bool Compiler::optimize(Program& program) {
     fIRGenerator->fKind = program.fKind;
     fIRGenerator->fSettings = &program.fSettings;
 
+    std::unique_ptr<InlineCandidateList> inlineCandidateList;
+
     while (fErrorCount == 0) {
         bool madeChanges = false;
 
@@ -1689,7 +1691,11 @@ bool Compiler::optimize(Program& program) {
         }
 
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        madeChanges |= fInliner.analyze(program);
+        if (!inlineCandidateList) {
+            inlineCandidateList = fInliner.buildCandidateList(program);
+        }
+
+        madeChanges |= fInliner.analyze(program, inlineCandidateList.get());
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
@@ -1704,7 +1710,10 @@ bool Compiler::optimize(Program& program) {
                                        const auto& fn = element->as<FunctionDefinition>();
                                        bool dead = fn.fDeclaration.fCallCount == 0 &&
                                                    fn.fDeclaration.fName != "main";
-                                       madeChanges |= dead;
+                                       if (dead) {
+                                           madeChanges = true;
+                                           fInliner.eliminate(fn, inlineCandidateList.get());
+                                       }
                                        return dead;
                                    }),
                     program.fElements.end());
