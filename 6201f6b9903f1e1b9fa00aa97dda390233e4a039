@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7e339c4_fe2f82f2",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-01T19:31:30Z",
+      "side": 1,
+      "message": "I think I would personally prefer a dedicated ForData struct here. I\u0027m guessing you did it this way since another type might be able to reuse a shared\u003cSymbolTable\u003e without adding a new Contents type, but IMO that\u0027s a minor benefit. Having a dedicated type for the For statement feels clearer and more consistent. (Also I am not actually sure there is actually any reuse opportunity here? Switch uses a SymbolTable but also has an extra boolean.)",
+      "range": {
+        "startLine": 125,
+        "startChar": 13,
+        "endLine": 125,
+        "endChar": 54
+      },
+      "revId": "6201f6b9903f1e1b9fa00aa97dda390233e4a039",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
