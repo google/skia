@@ -634,7 +634,7 @@ bool GrD3DGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
                                    nullptr, nullptr, &transferTotalBytes);
     SkASSERT(transferTotalBytes);
     size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (this->d3dCaps().bytesPerPixel(texResource->dxgiFormat()) != bpp) {
+    if (GrDxgiFormatByesPerBlock(texResource->dxgiFormat()) != bpp) {
         return false;
     }
     size_t tightRowBytes = bpp * width;
@@ -1087,7 +1087,7 @@ static void copy_src_data(GrD3DGpu* gpu, char* mapPtr, DXGI_FORMAT dxgiFormat,
     SkASSERT(!GrDxgiFormatIsCompressed(dxgiFormat));
     SkASSERT(mapPtr);
 
-    size_t bytesPerPixel = gpu->d3dCaps().bytesPerPixel(dxgiFormat);
+    size_t bytesPerPixel = GrDxgiFormatByesPerBlock(dxgiFormat);
 
     for (int currentMipLevel = 0; currentMipLevel < numMipLevels; currentMipLevel++) {
         const size_t trimRowBytes = srcData[currentMipLevel].width() * bytesPerPixel;
