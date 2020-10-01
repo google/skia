@@ -117,10 +117,7 @@ static void reset_call_counts(std::vector<std::unique_ptr<ProgramElement>>* src)
 }
 
 Compiler::Compiler(Flags flags)
-: fGPUIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
-, fInterpreterIntrinsics(std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr))
-, fPipelineIntrinsics(std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get()))
-, fFlags(flags)
+: fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
     fRootSymbolTable = std::make_shared<SymbolTable>(this);
@@ -260,15 +257,17 @@ Compiler::Compiler(Flags flags)
                                                      fContext->fSkCaps_Type.get(),
                                                      /*builtin=*/false, Variable::kGlobal_Storage));
 
+    fGPUIntrinsics = std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr);
     fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
     std::vector<std::unique_ptr<ProgramElement>> gpuIntrinsics;
+    std::vector<std::unique_ptr<ProgramElement>> fragElements;
 #if SKSL_STANDALONE
     this->processIncludeFile(Program::kFragment_Kind, SKSL_GPU_INCLUDE, fRootSymbolTable,
                              &gpuIntrinsics, &fGpuSymbolTable);
     this->processIncludeFile(Program::kVertex_Kind, SKSL_VERT_INCLUDE, fGpuSymbolTable,
                              &fVertexInclude, &fVertexSymbolTable);
     this->processIncludeFile(Program::kFragment_Kind, SKSL_FRAG_INCLUDE, fGpuSymbolTable,
-                             &fFragmentInclude, &fFragmentSymbolTable);
+                             &fragElements, &fFragmentSymbolTable);
 #else
     {
         Rehydrator rehydrator(fContext.get(), fRootSymbolTable, this, SKSL_INCLUDE_sksl_gpu,
@@ -286,7 +285,7 @@ Compiler::Compiler(Flags flags)
         Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_frag,
                               SKSL_INCLUDE_sksl_frag_LENGTH);
         fFragmentSymbolTable = rehydrator.symbolTable();
-        fFragmentInclude = rehydrator.elements();
+        fragElements = rehydrator.elements();
     }
 #endif
     // Call counts are used to track dead-stripping and inlinability within the program being
@@ -296,10 +295,14 @@ Compiler::Compiler(Flags flags)
     // will get new call counts.)
     reset_call_counts(&gpuIntrinsics);
     reset_call_counts(&fVertexInclude);
-    reset_call_counts(&fFragmentInclude);
+    reset_call_counts(&fragElements);
 
     grab_intrinsics(&gpuIntrinsics, fGPUIntrinsics.get());
     SkASSERT(gpuIntrinsics.empty());
+
+    fFragmentIntrinsics = std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get());
+    grab_intrinsics(&fragElements, fFragmentIntrinsics.get());
+    SkASSERT(fragElements.empty());
 }
 
 Compiler::~Compiler() {}
@@ -346,6 +349,7 @@ void Compiler::loadPipelineIntrinsics() {
     if (fPipelineSymbolTable) {
         return;
     }
+    fPipelineIntrinsics = std::make_unique<IRIntrinsicMap>(fGPUIntrinsics.get());
     std::vector<std::unique_ptr<ProgramElement>> pipelineIntrinics;
     #if !SKSL_STANDALONE
         {
@@ -367,6 +371,7 @@ void Compiler::loadInterpreterIntrinsics() {
     if (fInterpreterSymbolTable) {
         return;
     }
+    fInterpreterIntrinsics = std::make_unique<IRIntrinsicMap>(/*parent=*/nullptr);
     std::vector<std::unique_ptr<ProgramElement>> interpIntrinsics;
     #if !SKSL_STANDALONE
         {
@@ -1623,9 +1628,9 @@ std::unique_ptr<Program> Compiler::convertProgram(
             fIRGenerator->start(&settings, fVertexSymbolTable, inherited);
             break;
         case Program::kFragment_Kind:
-            inherited = &fFragmentInclude;
-            fIRGenerator->fIntrinsics = fGPUIntrinsics.get();
-            fIRGenerator->start(&settings, fFragmentSymbolTable, inherited);
+            inherited = nullptr;
+            fIRGenerator->fIntrinsics = fFragmentIntrinsics.get();
+            fIRGenerator->start(&settings, fFragmentSymbolTable, /*inherited=*/nullptr);
             break;
         case Program::kGeometry_Kind:
             this->loadGeometryIntrinsics();
