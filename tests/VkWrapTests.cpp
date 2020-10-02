@@ -134,11 +134,15 @@ void wrap_rt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
 
     // Image has MSAA
     {
-        GrVkImageInfo backendCopy = imageInfo;
-        backendCopy.fSampleCount = 4;
-        GrBackendRenderTarget backendRT(kW, kH, backendCopy);
-        rt = gpu->wrapBackendRenderTarget(backendRT);
-        REPORTER_ASSERT(reporter, !rt);
+        GrColorType ct = SkColorTypeToGrColorType(kColorType);
+        GrGpu* gpu = dContext->priv().getGpu();
+        GrBackendRenderTarget backendRT =
+                gpu->createTestingOnlyBackendRenderTarget({kW, kW}, ct, 4);
+        if (backendRT.isValid()) {
+            rt = gpu->wrapBackendRenderTarget(backendRT);
+            REPORTER_ASSERT(reporter, rt);
+            dContext->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
+        }
     }
 
     // When we wrapBackendRenderTarget it is always borrowed, so we must make sure to free the
