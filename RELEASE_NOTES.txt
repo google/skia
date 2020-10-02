@@ -9,6 +9,8 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * CPU sync bool added to SkSurface::flushAndSubmit() and GrContext::flushAndSubmit()
+
   * GrBackendRenderTargets which are created with a stencilBits param, now require
     the stencilBits to be 0, 8, or 16.
     https://review.skia.org/321545
