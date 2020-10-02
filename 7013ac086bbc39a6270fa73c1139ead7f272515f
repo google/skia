@@ -33,6 +33,24 @@
       "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "628c11f5_66360ab1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T16:02:58Z",
+      "side": 1,
+      "message": "This CL does not include a SkTArray equivalent and I would expect to leave SkTArray as-is (converting those to \u003cvector\u003e is a lot of work).\n\nI would be happy to make a task to deprecate SkSTArray and fix up existing call sites of SkSTArray to use SkInlinedVector, but I can\u0027t promise a timeline for this work since I haven\u0027t scoped it yet, and I don\u0027t know if that\u0027s our highest priority task. Right now though, our CFG is measurably quite slow and improving its performance IS a high priority task. I can\u0027t fix it without proper tools.\n\nMany years ago I attempted to make an allocator like you describe that transparently eats stack instead of heap. I found that it was largely impossible to foist a clever allocator onto a container that doesn\u0027t plan for cleverness and get satisfactory results. An inlined vector needs control over a lot more than malloc and free. Specifically, it has knowledge about the ideal CAPACITY--e.g. if our inline buffer has storage for 8 elements, the vector needs have a starting capacity of 8. If we can\u0027t control this, the vector will malloc 1, then 2, then 4, then 8, etc, and we actually overflow at least one iteration too soon (because when you resize, you temporarily have both allocations booked). It also introduces tons of bookkeeping for unnecessary resizes between the smaller sizes. You end up making something that\u0027s inefficient in both time and space. There were other challenges as well but that was the biggest one.\n\nAbseil uses the same approach as I use here (custom InlinedVector class) because I believe they drew the same conclusions. This CL is designed such that in the event that we eventually do adopt portions of Abseil, we can switch to their implementation. In the short term, I did not base this CL off Abseil to avoid licensing issues, but hcm@ is looking into this now.\n\nhttp://osscs/abseil/abseil-cpp/+/master:absl/container/inlined_vector.h;l\u003d60?q\u003dinlinedvector",
+      "parentUuid": "a065bb4d_980e7b0c",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
