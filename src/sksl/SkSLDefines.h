@@ -10,24 +10,7 @@
 
 #include <cstdint>
 
-#ifdef SKSL_STANDALONE
-#define SkASSERT(x) do { if (!(x)) abort(); } while (false)
-#define SkASSERTF(x, __VA_ARGS__) do { if (!(x)) { printf(__VA_ARGS__); abort(); } } while (false)
-#define SkDEBUGFAIL(x) do { printf("%s", x); abort(); } while (false)
-#define SkDEBUGFAILF(fmt, ...) do { printf(fmt, __VA_ARGS__); abort(); } while (false)
-#define SkAssertResult(x) do { if (!(x)) abort(); } while (false)
-#define SkDEBUGCODE(...) __VA_ARGS__
-#define SK_API
-#if !defined(SkUNREACHABLE)
-#  if defined(_MSC_VER) && !defined(__clang__)
-#    define SkUNREACHABLE __assume(false)
-#  else
-#    define SkUNREACHABLE __builtin_unreachable()
-#  endif
-#endif
-#else
 #include "include/core/SkTypes.h"
-#endif
 
 #if defined(__clang__) || defined(__GNUC__)
 #define SKSL_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))
