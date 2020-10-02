@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "047adfa8_1edc5ed5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-02T15:45:19Z",
+      "side": 1,
+      "message": "Trying to minimize what needs to be replaced when adding new YUVA factories.",
+      "revId": "79fb08942290c0fbb6d04ddb54a50fc87da242e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
