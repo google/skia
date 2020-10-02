@@ -34,6 +34,29 @@
       "revId": "c4e7a9e02e65d5c4161a22c089a764885ddae493",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2ed0eff_7101b9fd",
+        "filename": "modules/canvaskit/canvaskit/types/canvaskit-wasm-tests.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-10-02T14:06:37Z",
+      "side": 1,
+      "message": "Can we have a make target that runs the type checks locally?",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 58
+      },
+      "revId": "c4e7a9e02e65d5c4161a22c089a764885ddae493",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
