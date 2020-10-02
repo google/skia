@@ -183,7 +183,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
 
     dsLayout[GrVkUniformHandler::kInputDescSet] = resourceProvider.getInputDSLayout();
 
-    bool usesInput = fProgramInfo.pipeline().usesInputAttachment();
+    bool usesInput = SkToBool(fProgramInfo.renderPassBarriers() & GrXferBarrierFlags::kTexture);
     uint32_t layoutCount =
             usesInput ? GrVkUniformHandler::kDescSetCount : (GrVkUniformHandler::kDescSetCount - 1);
     // Create the VkPipelineLayout
