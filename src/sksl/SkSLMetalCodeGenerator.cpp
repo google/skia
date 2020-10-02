@@ -958,8 +958,14 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                         if (var.fVar->fModifiers.fLayout.fBinding < 0) {
                             fErrors.error(decls.fOffset,
                                           "Metal samplers must have 'layout(binding=...)'");
+                            return;
                         }
-                        this->write(", texture2d<float> "); // FIXME - support other texture types
+                        if (var.fVar->type().dimensions() != SpvDim2D) {
+                            // TODO: Support other texture types (skbug.com/10797)
+                            fErrors.error(decls.fOffset, "Unsupported texture dimensions");
+                            return;
+                        }
+                        this->write(", texture2d<float> ");
                         this->writeName(var.fVar->fName);
                         this->write("[[texture(");
                         this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
