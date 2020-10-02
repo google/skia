@@ -237,10 +237,9 @@ public:
             }
         }
 
-        // When no text box is present, text is laid out on a single infinite line
-        // (modulo explicit line breaks).
-        const auto shape_width = fBox.isEmpty() ? SK_ScalarMax
-                                                : fBox.width();
+        const auto shape_width = fDesc.fLinebreak == Shaper::LinebreakPolicy::kExplicit
+                                    ? SK_ScalarMax
+                                    : fBox.width();
 
         fUTF8 = start;
         fShaper->shape(start, SkToSizeT(end - start), fFont, true, shape_width, this);
