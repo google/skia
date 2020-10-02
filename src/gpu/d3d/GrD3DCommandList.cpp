@@ -395,8 +395,9 @@ void GrD3DDirectCommandList::clearRenderTargetView(const GrD3DRenderTarget* rend
                                                    const D3D12_RECT* rect) {
     this->addingWork();
     this->addResource(renderTarget->resource());
-    if (renderTarget->numSamples() > 1) {
-        this->addResource(renderTarget->msaaTextureResource()->resource());
+    const GrD3DTextureResource* msaaTextureResource = renderTarget->msaaTextureResource();
+    if (msaaTextureResource && msaaTextureResource != renderTarget) {
+        this->addResource(msaaTextureResource->resource());
     }
     unsigned int numRects = rect ? 1 : 0;
     fCommandList->ClearRenderTargetView(renderTarget->colorRenderTargetView(),
@@ -416,8 +417,9 @@ void GrD3DDirectCommandList::clearDepthStencilView(const GrD3DStencilAttachment*
 void GrD3DDirectCommandList::setRenderTarget(const GrD3DRenderTarget* renderTarget) {
     this->addingWork();
     this->addResource(renderTarget->resource());
-    if (renderTarget->numSamples() > 1) {
-        this->addResource(renderTarget->msaaTextureResource()->resource());
+    const GrD3DTextureResource* msaaTextureResource = renderTarget->msaaTextureResource();
+    if (msaaTextureResource && msaaTextureResource != renderTarget) {
+        this->addResource(msaaTextureResource->resource());
     }
     D3D12_CPU_DESCRIPTOR_HANDLE rtvDescriptor = renderTarget->colorRenderTargetView();
 
