@@ -16,6 +16,23 @@
       "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a065bb4d_980e7b0c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-02T15:45:00Z",
+      "side": 1,
+      "message": "I do not support this.  I would prefer to see a stack-then-heap allocator that slots into std::vector/set, or SkTArray.h refactored to build in skslc\u0027s standalone configuration, or skslc\u0027s standalone configuration to be somehow made moot.  We\u0027re piling up idiosyncrasies to support each other here.",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
