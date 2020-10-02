@@ -412,7 +412,8 @@ public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget();
 
-    // The GrGLTextureInfo must have a valid fFormat.
+    // The GrGLTextureInfo must have a valid fFormat. If wrapping in an SkSurface we require the
+    // stencil bits to be either 0, 8 or 16.
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
@@ -420,6 +421,7 @@ public:
                           const GrGLFramebufferInfo& glInfo);
 
 #ifdef SK_DAWN
+    // If wrapping in an SkSurface we require the stencil bits to be either 0, 8 or 16.
     GrBackendRenderTarget(int width,
                           int height,
                           int sampleCnt,
