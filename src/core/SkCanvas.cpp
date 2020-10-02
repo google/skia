@@ -902,7 +902,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         auto special = src->snapSpecial(snapBounds);
         if (special) {
             // The image is drawn at 1-1 scale with integer translation, so no filtering is needed.
-            dst->drawSpecial(special.get(), 0, 0, paint);
+            dst->drawSpecial(SkMatrix::I(), special.get(), paint);
         }
         return;
     }
@@ -1025,20 +1025,11 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
         // Manually setting the device's CTM requires accounting for the device's origin.
         // TODO (michaelludwig) - This could be simpler if the dst device had its origin configured
-        // before filtering the backdrop device, and if SkAutoDeviceTransformRestore had a way to accept
-        // a global CTM instead of a device CTM.
+        // before filtering the backdrop device and we use skif::Mapping instead.
         SkMatrix dstCTM = toRoot;
         dstCTM.postTranslate(-dstOrigin.x(), -dstOrigin.y());
-        SkAutoDeviceTransformRestore adr(dst, dstCTM);
-
-        // And because devices don't have a special-image draw function that supports arbitrary
-        // matrices, we are abusing the asImage() functionality here...
-        SkRect specialSrc = SkRect::Make(special->subset());
-        auto looseImage = special->asImage();
-        dst->drawImageRect(
-                looseImage.get(), &specialSrc,
-                SkRect::MakeXYWH(offset.x(), offset.y(), special->width(), special->height()),
-                SkPaint(paint), kStrict_SrcRectConstraint);
+        dstCTM.preTranslate(offset.fX, offset.fY);
+        dst->drawSpecial(dstCTM, special.get(), paint);
     }
 }
 
@@ -1263,9 +1254,9 @@ void SkCanvas::internalRestore() {
     if (backImage) {
         SkImagePaint paint;
         paint.fBlendMode = SkBlendMode::kDstOver;
-        const int x = backImage->fLoc.x();
-        const int y = backImage->fLoc.y();
-        this->getTopDevice()->drawSpecial(backImage->fImage.get(), x, y, paint);
+        this->getTopDevice()->drawSpecial(SkMatrix::Translate(backImage->fLoc.x(),
+                                                              backImage->fLoc.y()),
+                                          backImage->fImage.get(), paint);
     }
 
     /*  Time to draw the layer's offscreen. We can't call the public drawSprite,
@@ -1409,10 +1400,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint) {
         if (!filter) {
             // Can draw the src device's buffer w/o any extra image filter evaluation
             // (although this draw may include color filter processing extracted from the IF DAG).
-            // TODO (michaelludwig) - Once drawSpecial can take a matrix, drawDevice should take
-            // no extra arguments and internally just use the relative transform from src to dst.
-            SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
-            dstDev->drawDevice(srcDev, pos.x(), pos.y(), layerPaint);
+            dstDev->drawDevice(srcDev, layerPaint);
         } else {
             // Use the whole device buffer, presumably it was sized appropriately to match the
             // desired output size of the destination when the layer was first saved.
@@ -2444,7 +2432,7 @@ bool SkCanvas::canDrawBitmapAsSprite(SkScalar x, SkScalar y, int w, int h, const
     }
 
     const SkMatrix& ctm = this->getTotalMatrix();
-    if (!SkTreatAsSprite(ctm, SkISize::Make(w, h), paint)) {
+    if (!SkTreatAsSprite(ctm, SkISize::Make(w, h), paint.isAntiAlias())) {
         return false;
     }
 

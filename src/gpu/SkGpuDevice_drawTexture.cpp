@@ -12,6 +12,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkMatrixUtils.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrBlurUtils.h"
@@ -651,13 +652,14 @@ void draw_tiled_bitmap(GrRecordingContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special,
-                              int left, int top,
+void SkGpuDevice::drawSpecial(const SkMatrix& localToDevice,
+                              SkSpecialImage* special,
                               const SkImagePaint& paint) {
     SkASSERT(special->isTextureBacked());
+    SkASSERT(!GrColorTypeIsAlphaOnly(SkColorTypeToGrColorType(special->colorType())));
 
     SkRect src = SkRect::Make(special->subset());
-    SkRect dst = SkRect::MakeXYWH(left, top, special->width(), special->height());
+    SkRect dst = SkRect::MakeWH(special->width(), special->height());
 
     GrSamplerState::Filter filter = paint.fSamplingMode == SkSamplingMode::kLinear ?
                                             GrSamplerState::Filter::kLinear :
@@ -672,7 +674,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special,
         // this is the "slow" path here, it's equivalent but short-circuited logic to what happens
         // in draw_texture_producer.
         GrPaint grPaint;
-        SkOverrideDeviceMatrixProvider matrixProvider(*this, SkMatrix::I());
+        SkOverrideDeviceMatrixProvider matrixProvider(*this, localToDevice);
         auto fp = GrTextureEffect::MakeSubset(std::move(view), special->alphaType(), SkMatrix::I(),
                                               {GrSamplerState::WrapMode::kClamp, filter}, src,
                                               *fContext->priv().caps());
@@ -681,8 +683,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special,
                                          &grPaint)) {
             return;
         }
+
         fRenderTargetContext->fillRectToRect(this->clip(), std::move(grPaint),
-                                             GrAA(paint.fAntiAlias), SkMatrix::I(), dst, src);
+                                             GrAA(paint.fAntiAlias), localToDevice, dst, src);
     } else {
         float alpha = SkTPin(paint.fAlpha, 0.f, 1.f);
         GrQuadAAFlags aaFlags = paint.fAntiAlias ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
@@ -690,8 +693,8 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special,
                                           filter, GrSamplerState::MipmapMode::kNone,
                                           paint.fBlendMode, {alpha, alpha, alpha, alpha},
                                           src, dst, GrAA(paint.fAntiAlias), aaFlags,
-                                          SkCanvas::kStrict_SrcRectConstraint, SkMatrix::I(),
-                                          std::move(colorXform));
+                                          SkCanvas::kStrict_SrcRectConstraint,
+                                          localToDevice, std::move(colorXform));
     }
 }
 

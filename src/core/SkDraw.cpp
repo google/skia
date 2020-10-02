@@ -974,7 +974,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkPaint& paint) cons
     }
 
     SkMatrix ctm = fMatrixProvider->localToDevice();
-    if (SkTreatAsSprite(ctm, bitmap.dimensions(), paint)) {
+    if (SkTreatAsSprite(ctm, bitmap.dimensions(), paint.isAntiAlias())) {
         int ix = SkScalarRoundToInt(ctm.getTranslateX());
         int iy = SkScalarRoundToInt(ctm.getTranslateY());
 
@@ -1092,7 +1092,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     }
 
     if (bitmap.colorType() != kAlpha_8_SkColorType
-        && SkTreatAsSprite(matrix, bitmap.dimensions(), *paint)) {
+        && SkTreatAsSprite(matrix, bitmap.dimensions(), paint->isAntiAlias())) {
         //
         // It is safe to call lock pixels now, since we know the matrix is
         // (more or less) identity.

@@ -317,12 +317,19 @@ void SkBaseDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, Sk
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawSpecial(SkSpecialImage*, int x, int y, const SkImagePaint&) {}
+void SkBaseDevice::drawSpecial(const SkMatrix&, SkSpecialImage*, const SkImagePaint&) {}
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial(const SkIRect&, bool) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
     return this->snapSpecial(SkIRect::MakeWH(this->width(), this->height()));
+}
+
+void SkBaseDevice::drawDevice(SkBaseDevice* device, const SkImagePaint& paint) {
+    sk_sp<SkSpecialImage> deviceImage = device->snapSpecial();
+    if (deviceImage) {
+        this->drawSpecial(device->getRelativeTransform(*this), deviceImage.get(), paint);
+    }
 }
 
 void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
@@ -349,13 +356,9 @@ void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImag
     SkIPoint offset;
     sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(ctx).imageAndOffset(&offset);
     if (result) {
-        // TODO(michaelludwig) - Eventually drawSpecial will take a matrix and we can just
-        // draw using mapping.deviceMatrix() directly. For now, all devices are relative to each
-        // other by a translation, or its a translation-only sprite draw.
-        SkASSERT(mapping.deviceMatrix().isTranslate());
-        offset.fX += SkScalarRoundToInt(mapping.deviceMatrix().getTranslateX());
-        offset.fY += SkScalarRoundToInt(mapping.deviceMatrix().getTranslateY());
-        this->drawSpecial(result.get(), offset.fX, offset.fY, paint);
+        SkMatrix deviceMatrixWithOffset = mapping.deviceMatrix();
+        deviceMatrixWithOffset.preTranslate(offset.fX, offset.fY);
+        this->drawSpecial(deviceMatrixWithOffset, result.get(), paint);
     }
 }
 
