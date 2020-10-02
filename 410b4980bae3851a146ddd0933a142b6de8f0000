@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e7558385_2c9020d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-02T11:42:11Z",
+      "side": 1,
+      "message": "Code lgtm - 2 questions about tests.",
+      "revId": "410b4980bae3851a146ddd0933a142b6de8f0000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0356dc58_18408e82",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-02T11:42:11Z",
+      "side": 1,
+      "message": "If this is the case, it is not apparent to me in the output image.",
+      "range": {
+        "startLine": 264,
+        "startChar": 38,
+        "endLine": 264,
+        "endChar": 44
+      },
+      "revId": "410b4980bae3851a146ddd0933a142b6de8f0000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10d47f5c_4ee75307",
+        "filename": "modules/canvaskit/tests/paragraph.spec.js",
+        "patchSetId": 7
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-02T11:42:11Z",
+      "side": 1,
+      "message": "The placeholders look a little off to me - do you need to adjust their position by 10, 10 because of the offset to the paragraph?",
+      "range": {
+        "startLine": 359,
+        "startChar": 28,
+        "endLine": 359,
+        "endChar": 32
+      },
+      "revId": "410b4980bae3851a146ddd0933a142b6de8f0000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
