@@ -552,7 +552,12 @@ if (skia_lex) {
 if (skia_compile_processors || skia_compile_sksl_tests) {
   executable("skslc") {
     defines = [ "SKSL_STANDALONE" ]
-    sources = [ "src/sksl/SkSLMain.cpp" ]
+    sources = [
+      "src/core/SkMalloc.cpp",
+      "src/core/SkMath.cpp",
+      "src/ports/SkMemory_malloc.cpp",
+      "src/sksl/SkSLMain.cpp",
+    ]
     sources += skia_sksl_sources
     sources += skia_sksl_gpu_sources
     include_dirs = [ "." ]

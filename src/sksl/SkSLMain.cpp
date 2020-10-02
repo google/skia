@@ -15,6 +15,16 @@
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
+#include <stdarg.h>
+#include <stdio.h>
+
+void SkDebugf(const char format[], ...) {
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+}
+
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
 // filename prefix and suffix (e.g. "Gr" and ".fp"), returns the "base name" of the
 // file (in this case, 'FooFragmentProcessor'). If no match, returns the empty string.
