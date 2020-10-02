@@ -9,6 +9,7 @@
 
 #include <map>
 
+#include "src/containers/SkInlinedVector.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
@@ -530,10 +531,11 @@ void Dehydrator::write(const ProgramElement& e) {
             this->writeU16(this->symbolId(&f.fDeclaration));
             this->write(f.fBody.get());
             this->writeU8(f.fReferencedIntrinsics.size());
-            std::set<uint16_t> ordered;
+            SkInlinedVector<16, uint16_t> ordered;
             for (const FunctionDeclaration* ref : f.fReferencedIntrinsics) {
-                ordered.insert(this->symbolId(ref));
+                ordered.push_back(this->symbolId(ref));
             }
+            std::sort(ordered.begin(), ordered.end());
             for (uint16_t ref : ordered) {
                 this->writeU16(ref);
             }
