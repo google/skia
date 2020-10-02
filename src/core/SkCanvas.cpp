@@ -892,6 +892,8 @@ int SkCanvas::only_axis_aligned_saveBehind(const SkRect* bounds) {
 void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filter,
                                     SkBaseDevice* dst, const SkIPoint& dstOrigin,
                                     const SkMatrix& ctm) {
+    SkImagePaint paint;
+
     // The local bounds of the src device; all the bounds passed to snapSpecial must be intersected
     // with this rect.
     const SkIRect srcDevRect = SkIRect::MakeWH(src->width(), src->height());
@@ -911,8 +913,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         auto special = src->snapSpecial(snapBounds);
         if (special) {
             // The image is drawn at 1-1 scale with integer translation, so no filtering is needed.
-            SkPaint p;
-            dst->drawSpecial(special.get(), 0, 0, p);
+            dst->drawSpecial(special.get(), 0, 0, paint);
         }
         return;
     }
@@ -973,13 +974,11 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
     }
     SkColorSpace* colorSpace = src->imageInfo().colorSpace();
 
-    SkPaint p;
     if (!toRoot.isIdentity()) {
         // Drawing the temporary and final filtered image requires a higher filter quality if the
         // 'toRoot' transformation is not identity, in order to minimize the impact on already
         // rendered edges/content.
-        // TODO (michaelludwig) - Explore reducing this quality, identify visual tradeoffs
-        p.setFilterQuality(kHigh_SkFilterQuality);
+        paint.fSamplingMode = SkSamplingMode::kLinear;
 
         // The snapped backdrop content needs to be transformed by fromRoot into the layer space,
         // and stored in a temporary surface, which is then used as the input to the actual filter.
@@ -998,6 +997,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         tmpCanvas->concat(fromRoot);
         tmpCanvas->translate(src->getOrigin().x(), src->getOrigin().y());
 
+        SkPaint p = SkPaint(paint);
         tmpCanvas->drawImageRect(special->asImage(), special->subset(),
                                  SkRect::Make(backdropBounds), &p, kStrict_SrcRectConstraint);
         special = tmpSurface->makeImageSnapshot();
@@ -1012,7 +1012,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
         // Similar to the unfiltered case above, when toRoot is the identity, then the final
         // draw will be 1-1 so there is no need to increase filter quality.
-        p.setFilterQuality(kNone_SkFilterQuality);
+        SkASSERT(paint.fSamplingMode == SkSamplingMode::kNearest);
     }
 
     // Now evaluate the filter on 'special', which contains the backdrop content mapped back into
@@ -1049,7 +1049,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         dst->drawImageRect(
                 looseImage.get(), &specialSrc,
                 SkRect::MakeXYWH(offset.x(), offset.y(), special->width(), special->height()),
-                p, kStrict_SrcRectConstraint);
+                SkPaint(paint), kStrict_SrcRectConstraint);
     }
 }
 
@@ -1272,8 +1272,8 @@ void SkCanvas::internalRestore() {
     }
 
     if (backImage) {
-        SkPaint paint;
-        paint.setBlendMode(SkBlendMode::kDstOver);
+        SkImagePaint paint;
+        paint.fBlendMode = SkBlendMode::kDstOver;
         const int x = backImage->fLoc.x();
         const int y = backImage->fLoc.y();
         this->getTopDevice()->drawSpecial(backImage->fImage.get(), x, y, paint);
@@ -1411,28 +1411,19 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint) {
         check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
                                      srcDev->imageInfo().colorSpace());
 
-        SkTCopyOnFirstWrite<SkPaint> noFilterPaint(*paint);
-        SkImageFilter* filter = paint->getImageFilter();
-        if (filter) {
-            // Check if the image filter was just a color filter (this is the same optimization
-            // we apply in AutoLayerForImageFilter but handles explicitly saved layers).
-            sk_sp<SkColorFilter> cf = image_to_color_filter(*paint);
-            if (cf) {
-                noFilterPaint.writable()->setColorFilter(std::move(cf));
-                filter = nullptr;
-            }
+        SkImagePaint layerPaint(draw.paint());
+        // These are axis-aligned integer translated draws, so disable filtering and AA
+        layerPaint.fAntiAlias = false;
+        layerPaint.fSamplingMode = SkSamplingMode::kNearest;
 
-            noFilterPaint.writable()->setImageFilter(nullptr);
-        }
-
-        SkASSERT(!noFilterPaint->getImageFilter());
+        const SkImageFilter* filter = draw.paint().getImageFilter();
         if (!filter) {
             // Can draw the src device's buffer w/o any extra image filter evaluation
             // (although this draw may include color filter processing extracted from the IF DAG).
             // TODO (michaelludwig) - Once drawSpecial can take a matrix, drawDevice should take
             // no extra arguments and internally just use the relative transform from src to dst.
             SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
-            dstDev->drawDevice(srcDev, pos.x(), pos.y(), *noFilterPaint);
+            dstDev->drawDevice(srcDev, pos.x(), pos.y(), layerPaint);
         } else {
             // Use the whole device buffer, presumably it was sized appropriately to match the
             // desired output size of the destination when the layer was first saved.
@@ -1450,7 +1441,7 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint) {
             SkMatrix srcToDst = srcDev->getRelativeTransform(*dstDev);
             SkMatrix dstToSrc = dstDev->getRelativeTransform(*srcDev);
             skif::Mapping mapping(srcToDst, SkMatrix::Concat(dstToSrc, dstDev->localToDevice()));
-            dstDev->drawFilteredImage(mapping, srcBuffer.get(), filter, *noFilterPaint);
+            dstDev->drawFilteredImage(mapping, srcBuffer.get(), filter, layerPaint);
         }
     }
 
@@ -2518,25 +2509,20 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
     paint = &realPaint;
 
     sk_sp<SkSpecialImage> special;
-    sk_sp<SkImageFilter> filter;
-    bool drawAsSprite = this->canDrawBitmapAsSprite(x, y, image->width(), image->height(),
-                                                    *paint);
+    bool drawAsSprite = this->canDrawBitmapAsSprite(x, y, image->width(), image->height(), *paint);
     if (drawAsSprite && paint->getImageFilter()) {
         special = this->getDevice()->makeSpecial(image);
-        if (special) {
-            filter = paint->refImageFilter();
-            realPaint.setImageFilter(nullptr); // This modifies 'paint' but is not const
-        } else {
-            drawAsSprite = false;
-        }
+        drawAsSprite = SkToBool(special);
     }
 
     DRAW_BEGIN_DRAWBITMAP(*paint, drawAsSprite, &bounds)
 
     while (iter.next()) {
-        const SkPaint& pnt = draw.paint();
-        if (special) {
-            SkASSERT(!pnt.getImageFilter());
+        if (special && draw.paint().getImageFilter()) {
+            SkImagePaint spritePaint(draw.paint());
+            // If we had a special image, we already determined it was suitable for a sprite draw
+            spritePaint.fAntiAlias = false;
+            spritePaint.fSamplingMode = SkSamplingMode::kNearest;
 
             // TODO(michaelludwig) - Many filters could probably be evaluated like this even if the
             // CTM is not translate-only; the post-transformation of the filtered image by the CTM
@@ -2547,11 +2533,12 @@ void SkCanvas::onDrawImage(const SkImage* image, SkScalar x, SkScalar y, const S
             SkMatrix layerToDevice = iter.fDevice->localToDevice();
             layerToDevice.preTranslate(x, y);
             skif::Mapping mapping(layerToDevice, SkMatrix::Translate(-x, -y));
-            iter.fDevice->drawFilteredImage(mapping, special.get(), filter.get(), pnt);
+            iter.fDevice->drawFilteredImage(mapping, special.get(), draw.paint().getImageFilter(),
+                                            spritePaint);
         } else {
             iter.fDevice->drawImageRect(
-                    image, nullptr, SkRect::MakeXYWH(x, y, image->width(), image->height()), pnt,
-                    kStrict_SrcRectConstraint);
+                    image, nullptr, SkRect::MakeXYWH(x, y, image->width(), image->height()),
+                    draw.paint(), kStrict_SrcRectConstraint);
         }
     }
 
