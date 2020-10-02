@@ -5,6 +5,68 @@ This page includes a list of high level updates for each milestone release.
 
 * * *
 
+Milestone 87
+------------
+
+  * GrVkImageInfo now has a field for sample count. GrBackendRenderTarget constructor
+    that took both a GrVkImageInfo and separate sample count is deprecated. Use the
+    version without sample count instead. Similarly, GrD3DTextureResourceInfo now
+    has a sample count field and GrBackendRenderTarget no longer takes a separate
+    sample count for Direct3D. The sample count for GrBackendRenderTarget is now
+    directly queried from MtlTexture rather than passed separately. The version that
+    takes a separate sample count is deprecated and the parameter is ignored.
+    https://review.skia.org/320262
+    https://review.skia.org/320757
+    https://review.skia.org/320956
+
+  * Added deprecation warning for Metal support on MacOS 10.13, iOS 8.3, and older.
+    https://review.skia.org/320260
+
+  * GrVkImageInfo now has a field for sample count. GrBackendRenderTarget constructor
+    that took both a GrVkImageInfo and separate sample count is deprecated. Use the
+    version without sample count instead.
+
+  * Update SkClipOp::kMax_EnumValue to include only intersect and difference when
+    SK_SUPPORT_DEPRECATED_CLIPOPS is not defined.
+    https://review.skia.org/320064
+
+  * Add support for external allocator for Direct3D 12 backend.
+    Defines base classes for an allocation associated with a backend texture and a
+    a memory allocator to create such allocations.
+    Adds memory allocator to backend context.
+    https://review.skia.org/317243
+
+  * Add new optional parameter to GrContext::setBackend[Texture/RenderTarget]State which can
+    be used to return the previous GrBackendSurfaceMutableState before the requested change.
+    https://review.skia.org/318698
+
+  * New optimized clip stack for GPU backends. Enabled by default but old behavior based on
+    SkClipStack can be restored by defining SK_DISABLE_NEW_GR_CLIP_STACK when building. It is not
+    compatible with SK_SUPPORT_DEPRECATED_CLIPOPS and we are targeting the removal of support for
+    the deprecated, expanding clip ops.
+    https://review.skia.org/317209
+
+  * GPU backends now properly honor the SkFilterQuality when calling drawAtlas.
+    https://review.skia.org/313081
+
+  * The signature of 'main' used with SkRuntimeEffect SkSL has changed. There is no longer an
+    'inout half4 color' parameter, effects must return their color instead.
+    Valid signatures are now 'half4 main()' or 'half4 main(float2 coord)'.
+    https://review.skia.org/310756
+
+  * New YUVA planar specifications for SkCodec, SkImageGenerator, SkImage::MakeFromYUVAPixmaps.
+    Chroma subsampling is specified in more structured way. SkCodec and SkImageGenerator
+    don't assume 3 planes with 8bit planar values. Old APIs are deprecated.
+    https://review.skia.org/309658
+    https://review.skia.org/312886
+    https://review.skia.org/314276
+    https://review.skia.org/316837
+    https://review.skia.org/317097
+
+  * Added VkImageUsageFlags to GrVkImageInfo struct.
+
+* * *
+
 Milestone 86
 ------------
 
