@@ -69,6 +69,23 @@
       "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77255cbb_c8c117a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-02T16:36:25Z",
+      "side": 1,
+      "message": "To clarify: We have performance issues in parts of the compiler that are largely caused by poor containers. (vector is the simple case, unordered_map is the more extreme next case). We want to address those problems, but our toolbox in skslc is pretty limited at the moment.\n\nThere don\u0027t seem to be many good options right now:\n\n1) std::allocator\u003c\u003e has severe limitations for this use-case. Chrome has a stack-then-heap allocator, but it\u0027s basically only good for your first reserve(), then it gives up.\n2) absl would be a good long-term solution, but we aren\u0027t there yet.\n3) Make SkSTArray usable by skslc. Perhaps this can be made to work? After trying similar things in the past, I fear that this ends with us partitioning Skia core. Maybe that\u0027s acceptable?\n4) One-off custom containers like this. We could also omit the skia affordances here, and just make this an SkSL thing, if that makes it more palatable. (Though I\u0027m not sure it does).\n\n5) Another idea - can we do an adapter that supports both SkSTArray and std::vector. We don\u0027t actually care about performance in standalone skslc, so we could attempt something like what we did with String (early on), and effectively use SkTArray when built into the library, and std:: containers in standalone mode.",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
