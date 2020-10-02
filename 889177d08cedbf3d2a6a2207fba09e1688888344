@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ca52e5f_3b87415c",
+        "filename": "modules/canvaskit/canvaskit/types/canvaskit-wasm-tests.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-10-02T20:12:35Z",
+      "side": 1,
+      "message": "Where does this name come from, I don\u0027t see any such folder",
+      "range": {
+        "startLine": 3,
+        "startChar": 27,
+        "endLine": 3,
+        "endChar": 41
+      },
+      "revId": "889177d08cedbf3d2a6a2207fba09e1688888344",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
