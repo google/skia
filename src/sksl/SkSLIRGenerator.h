@@ -49,7 +49,7 @@ public:
     }
 
     // Only returns an intrinsic that isn't already marked as included, and then marks it.
-    const ProgramElement* findAndInclude(String key) {
+    const ProgramElement* findAndInclude(const String& key) {
         auto iter = fIntrinsics.find(key);
         if (iter == fIntrinsics.end()) {
             return fParent ? fParent->findAndInclude(key) : nullptr;
