@@ -79,6 +79,30 @@
       "revId": "6333621edbb578580843993550c228082549146d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01868822_0cf5caa6",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 32
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-02T20:09:44Z",
+      "side": 1,
+      "message": "I\u0027m not sure why the assert is there -- I don\u0027t think I wrote that. In case, modifying it to handle the single-texture msaa case, and is_msaa, makes sense to me.",
+      "parentUuid": "e7e97c09_1dead592",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 5
+      },
+      "revId": "6333621edbb578580843993550c228082549146d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
