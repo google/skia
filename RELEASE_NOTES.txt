@@ -4,10 +4,15 @@ This file includes a list of high level updates for each milestone release.
 
 * * *
 
-Milestone 87
+Milestone 88
 ------------
 
   * <insert new release notes here>
+
+* * *
+
+Milestone 87
+------------
 
   * GrVkImageInfo now has a field for sample count. GrBackendRenderTarget constructor
     that took both a GrVkImageInfo and separate sample count is deprecated. Use the
