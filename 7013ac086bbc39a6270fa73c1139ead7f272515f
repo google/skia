@@ -51,6 +51,24 @@
       "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f817610c_98a3da75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-02T16:34:29Z",
+      "side": 1,
+      "message": "We can\u0027t fall into the trap of letting a short term goal undermine our long term goals.  If a CFG being slow is of immediate importance, please just fix the CFG as a one-off instead of landing this new abstraction.\n\nWe as a team do not need to be held back by your past failure to create a stack allocator.  That C++17\u0027s std::pmr exists proves it\u0027s possible, and it\u0027s become a lot easier lately.  Start here?\n\ntemplate \u003ctypename T, size_t N\u003e\nstruct stack_allocator {\n    alignas(T) char buf[N*sizeof(T)];\n    char* next \u003d buf;\n\n    using value_type \u003d T;\n\n    T* allocate(size_t n) {\n        const char* end \u003d buf + sizeof(buf);\n        if (static_cast\u003csize_t\u003e(end-next) \u003e n*sizeof(T)) {\n            T* ptr \u003d reinterpret_cast\u003cT*\u003e(next);\n            next +\u003d n*sizeof(T);\n            return ptr;\n        }\n        return std::allocator\u003cT\u003e{}.allocate(n);\n    }\n\n    void deallocate(T* ptr, size_t n) {\n        const char* end \u003d buf + sizeof(buf);\n        if (!std::less\u003cconst char*\u003e{}(reinterpret_cast\u003cconst char*\u003e(ptr), end)) {\n            std::allocator\u003cT\u003e{}.deallocate(ptr, n);\n        }\n    }\n};",
+      "parentUuid": "628c11f5_66360ab1",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
