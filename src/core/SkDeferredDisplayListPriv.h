@@ -33,6 +33,13 @@ public:
     const SkTArray<GrRecordingContext::ProgramData>& programData() const {
         return fDDL->programData();
     }
+
+    const SkTArray<sk_sp<GrRenderTask>>& renderTasks() const {
+        return fDDL->fRenderTasks;
+    }
+
+    int width() const { return fDDL->fCharacterization.width(); }
+    int height() const { return fDDL->fCharacterization.height(); }
 #endif
 
 private:

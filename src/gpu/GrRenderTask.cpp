@@ -261,15 +261,17 @@ bool GrRenderTask::isInstantiated() const {
     if (0 == this->numTargets()) {
         return true;
     }
-    GrSurfaceProxy* proxy = this->target(0).proxy();
 
-    if (!proxy->isInstantiated()) {
-        return false;
-    }
+    for (int i = 0; i < this->numTargets(); ++i) {
+        GrSurfaceProxy* proxy = this->target(i).proxy();
+        if (!proxy->isInstantiated()) {
+            return false;
+        }
 
-    GrSurface* surface = proxy->peekSurface();
-    if (surface->wasDestroyed()) {
-        return false;
+        GrSurface* surface = proxy->peekSurface();
+        if (surface->wasDestroyed()) {
+            return false;
+        }
     }
 
     return true;
