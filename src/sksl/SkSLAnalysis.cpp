@@ -514,7 +514,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
 
         case ProgramElement::Kind::kInterfaceBlock:
             for (auto& e : pe.template as<InterfaceBlock>().fSizes) {
-                if (this->visitExpression(*e)) {
+                if (e && this->visitExpression(*e)) {
                     return true;
                 }
             }
