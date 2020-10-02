@@ -284,7 +284,7 @@ sksl_blend_tests = [
   "$_tests/sksl/blend/BlendLuminosity.sksl",
   "$_tests/sksl/blend/BlendModulate.sksl",
   "$_tests/sksl/blend/BlendMultiply.sksl",
-  "$_tests/sksl/blend/BlendOverlap.sksl",
+  "$_tests/sksl/blend/BlendOverlay.sksl",
   "$_tests/sksl/blend/BlendPlus.sksl",
   "$_tests/sksl/blend/BlendSaturation.sksl",
   "$_tests/sksl/blend/BlendScreen.sksl",
