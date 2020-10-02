@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1992cd77_fc5f3b71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-02T18:57:53Z",
+      "side": 1,
+      "message": "Greg for general review as this might interact with his related attachment work.\nJim for Metal question (see comment in  GrMtlCaps.mm)\nKevin for canvas kit binding update.\n",
+      "revId": "6333621edbb578580843993550c228082549146d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318dbef2_dc38f213",
+        "filename": "dm/DMSrcSink.cpp",
+        "patchSetId": 32
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-02T18:57:53Z",
+      "side": 1,
+      "message": "I think this could be wrapped up in a similar self-managed way but wanted to keep that for a separate change.",
+      "range": {
+        "startLine": 1486,
+        "startChar": 0,
+        "endLine": 1491,
+        "endChar": 98
+      },
+      "revId": "6333621edbb578580843993550c228082549146d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7e97c09_1dead592",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 32
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-02T18:57:53Z",
+      "side": 1,
+      "message": "I did this because below we call GrGetMTLTextureFromSurface() which has this assert:\nhttps://source.chromium.org/chromium/chromium/src/+/master:third_party/skia/src/gpu/mtl/GrMtlUtil.mm;l\u003d217;drc\u003d8e0aa441a55036c5cf8fa554cd480774b79bec41\n\nHaving this check here means the get_surface_sample_cnt() calls below will always return 1.\n\nI was wondering if the assert in GrGetMTLTextureFromSurface() was there because until now MSAA RTs always had two MTLTextures (msaa and resolve) which made it context-dependent which should be returned. If so, maybe the thing to do here is make is_msaa actually check for dual-texture GrRenderTargets and also update the assert in GetMTLTextureFromSurface to guard against that.\n\nThe end result I believe would just be that the canCopyAsBlit() overload called just below (line 164) would succeed when both src and dst are multisampled, something which probably never happens.",
+      "range": {
+        "startLine": 150,
+        "startChar": 0,
+        "endLine": 152,
+        "endChar": 5
+      },
+      "revId": "6333621edbb578580843993550c228082549146d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
