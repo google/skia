@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5092e7e5_56a10544",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T15:04:16Z",
+      "side": 1,
+      "message": "This is here just as an existence proof that skslc can use SkInlinedVector.",
+      "range": {
+        "startLine": 534,
+        "startChar": 12,
+        "endLine": 534,
+        "endChar": 27
+      },
+      "revId": "b41b68e18e2bc6a3ee486754487a5910555760af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
