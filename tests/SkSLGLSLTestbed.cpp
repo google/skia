@@ -30,7 +30,7 @@ static void test(skiatest::Reporter* r, const SkSL::Program::Settings& settings,
         *inputs = program->fInputs;
         REPORTER_ASSERT(r, compiler.toGLSL(*program, &output));
         REPORTER_ASSERT(r, output != "");
-        //SkDebugf("GLSL output:\n\n%s", output.c_str());
+        SkDebugf("GLSL output:\n\n%s", output.c_str());
     }
 }
 
@@ -47,8 +47,9 @@ DEF_TEST(SkSLGLSLTestbed, r) {
     test(r,
          *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
+             uniform half4 src, dst;
              void main() {
-                 sk_FragColor = half4(0);
+                 sk_FragColor = blend_hue(src,dst);
              }
          )__SkSL__");
 }

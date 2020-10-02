@@ -18,18 +18,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
         float3 _3_dsa = _in.dst.xyz * _in.src.w;
         float3 _6_blend_set_color_luminance;
         {
-            float _11_blend_color_luminance;
-            {
-                _11_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
-            }
-            float _7_lum = _11_blend_color_luminance;
-
-            float _12_blend_color_luminance;
-            {
-                _12_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _2_sda);
-            }
-            float3 _8_result = (_7_lum - _12_blend_color_luminance) + _2_sda;
-
+            float _7_lum = _blend_color_luminance(_3_dsa);
+            float3 _8_result = (_7_lum - _blend_color_luminance(_2_sda)) + _2_sda;
             float _9_minComp = min(min(_8_result.x, _8_result.y), _8_result.z);
             float _10_maxComp = max(max(_8_result.x, _8_result.y), _8_result.z);
             if (_9_minComp < 0.0 && _7_lum != _9_minComp) {
