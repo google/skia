@@ -431,15 +431,22 @@ bool GrDawnGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
     return info.fTexture.Get();
 }
 
-GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int width, int height,
-                                                                      GrColorType colorType) {
-    if (width > this->caps()->maxTextureSize() || height > this->caps()->maxTextureSize()) {
-        return GrBackendRenderTarget();
+GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
+                                                                      GrColorType colorType,
+                                                                      int sampleCnt) {
+    if (dimensions.width()  > this->caps()->maxTextureSize() ||
+        dimensions.height() > this->caps()->maxTextureSize()) {
+        return {};
+    }
+
+    // We don't support MSAA in this backend yet.
+    if (sampleCnt != 1) {
+        return {};
     }
 
     wgpu::TextureFormat format;
     if (!GrColorTypeToDawnFormat(colorType, &format)) {
-        return GrBackendRenderTarget();
+        return {};
     }
 
     wgpu::TextureDescriptor desc;
@@ -447,8 +454,12 @@ GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int width,
         wgpu::TextureUsage::CopySrc |
         wgpu::TextureUsage::OutputAttachment;
 
-    desc.size.width = width;
-    desc.size.height = height;
+    if (color) {
+        desc.usage |= wgpu::TextureUsage::CopyDst;
+    }
+
+    desc.size.width = dimensions.width();
+    desc.size.height = dimensions.height();
     desc.size.depth = 1;
     desc.format = format;
 
@@ -458,7 +469,17 @@ GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(int width,
     info.fTextureView = tex.CreateView();
     info.fFormat = desc.format;
     info.fLevelCount = desc.mipLevelCount;
-    return GrBackendRenderTarget(width, height, 1, 0, info);
+
+    if (color) {
+        GrDawnTextureInfo textureInfo;
+        textureInfo.fTexture = tex;
+        textureInfo.fFormat = desc.format;
+        textureInfo.fLevelCount = 1;
+        GrBackendTexture bet(dimensions.width(), dimensions.height(), textureInfo);
+        BackendTextureData data(SkColor4f{color->fR, color->fG, color->fB, color->fA});
+        this->updateBackendTexture(bet, nullptr, &data);
+    }
+    return GrBackendRenderTarget(dimensions.width(), dimensions.height(), 1, 0, info);
 }
 
 void GrDawnGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
