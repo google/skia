@@ -93,7 +93,8 @@ CanvasKit._extraInitializations.push(function() {
     return rv;
   };
 
-    // Returns an array of the widths of the glyphs in this string.
+  // Returns an array of the widths of the glyphs in this string.
+  // TODO(kjlubick) Remove this API - getGlyphWidths is the better API.
   CanvasKit.SkFont.prototype.getWidths = function(str) {
     // add 1 for null terminator
     var codePoints = str.length + 1;
