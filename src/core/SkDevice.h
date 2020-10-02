@@ -29,6 +29,7 @@ struct SkIRect;
 class SkMarkerStack;
 class SkMatrix;
 class SkRasterHandleAllocator;
+enum class SkSamplingMode;
 class SkSpecialImage;
 
 namespace skif {
@@ -300,12 +301,21 @@ protected:
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
-    /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateDevice on this device with kNeverTile_TileExpectation.
+    /**
+     * The SkDevice passed will be an SkDevice which was returned by a call to
+     * onCreateDevice on this device with kNeverTile_TileExpectation.
+     *
+     * The default implementation calls snapSpecial() and drawSpecial() with the relative transform
+     * from the input device to this device. The provided SkPaint cannot have a mask filter or
+     * image filter, and any shader is ignored.
      */
-    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkImagePaint&) = 0;
+    virtual void drawDevice(SkBaseDevice*, const SkImagePaint&);
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkImagePaint&);
+    /**
+     * Draw the special image's subset to this device, subject to the given matrix transform instead
+     * of the device's current local to device matrix.
+     */
+    virtual void drawSpecial(const SkMatrix& localToDevice, SkSpecialImage*, const SkImagePaint&);
 
     /**
      * Evaluate 'filter' and draw the final output into this device using 'paint'. The 'mapping'
@@ -314,7 +324,7 @@ protected:
      * Since 'mapping' fully specifies the transform, this draw function ignores the current
      * local-to-device matrix (i.e. just like drawSpecial and drawDevice).
      *
-     * The final paint must not have an image filter or mask filter set on it; a shader is ignored.
+     * The image paint is applied to the result of the image filtering as its drawn into this device
      */
     virtual void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
                                    const SkImageFilter* filter, const SkImagePaint& paint);
@@ -520,9 +530,9 @@ protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
 
-    void drawDevice(SkBaseDevice*, int, int, const SkImagePaint&) override {}
+    void drawDevice(SkBaseDevice*, const SkImagePaint&) override {}
     void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                           const SkImageFilter* filter, const SkImagePaint&) override {}
+                           const SkImageFilter* filter, const SkImagePaint& paint) override {}
 
 private:
     using INHERITED = SkBaseDevice;

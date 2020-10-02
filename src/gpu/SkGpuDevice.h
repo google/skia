@@ -123,8 +123,8 @@ public:
     void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count, const SkPoint dstClips[],
                             const SkMatrix[], const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
-    void drawDevice(SkBaseDevice*, int x, int y, const SkImagePaint&) override;
-    void drawSpecial(SkSpecialImage*, int left, int top, const SkImagePaint&) override;
+    void drawDevice(SkBaseDevice*, const SkImagePaint&) override;
+    void drawSpecial(const SkMatrix&, SkSpecialImage*, const SkImagePaint&) override;
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;

@@ -567,31 +567,36 @@ void SkBitmapDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkImagePaint& paint) {
+void SkBitmapDevice::drawDevice(SkBaseDevice* device, const SkImagePaint& paint) {
     // hack to test coverage
     SkBitmapDevice* src = static_cast<SkBitmapDevice*>(device);
     if (src->fCoverage) {
         SkDraw draw;
-        SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
+        SkSimpleMatrixProvider matrixProvider(device->getRelativeTransform(*this));
         draw.fDst = fBitmap.pixmap();
         draw.fMatrixProvider = &matrixProvider;
         draw.fRC = &fRCStack.rc();
 
         SkPaint deviceAsShader = SkPaint(paint);
         deviceAsShader.setShader(src->fBitmap.makeShader());
-        draw.drawBitmap(*src->fCoverage, SkMatrix::Translate(SkIntToScalar(x),SkIntToScalar(y)),
-                        nullptr, deviceAsShader);
+        draw.drawBitmap(*src->fCoverage, SkMatrix::I(), nullptr, deviceAsShader);
     } else {
-        BDDraw(this).drawSprite(src->fBitmap, x, y, SkPaint(paint));
+        this->INHERITED::drawDevice(device, paint);
     }
 }
 
-void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkImagePaint& paint) {
+void SkBitmapDevice::drawSpecial(const SkMatrix& localToDevice, SkSpecialImage* src,
+                                 const SkImagePaint& paint) {
     SkASSERT(!src->isTextureBacked());
 
     SkBitmap resultBM;
     if (src->getROPixels(&resultBM)) {
-        BDDraw(this).drawSprite(resultBM, x, y, SkPaint(paint));
+        SkDraw draw;
+        SkSimpleMatrixProvider matrixProvider(localToDevice);
+        draw.fDst = fBitmap.pixmap();
+        draw.fMatrixProvider = &matrixProvider;
+        draw.fRC = &fRCStack.rc();
+        draw.drawBitmap(resultBM, SkMatrix::I(), nullptr, SkPaint(paint));
     }
 }
 
