@@ -174,6 +174,24 @@
       "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93c1e112_910ff9d9",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T17:33:30Z",
+      "side": 1,
+      "message": "The dehydrator isn\u0027t a hot spot in any way. This is just an existence proof that the class actually builds and works within SKSL_STANDALONE mode. (See comments in earlier patchset)",
+      "parentUuid": "6608ddce_9d80b8a8",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
