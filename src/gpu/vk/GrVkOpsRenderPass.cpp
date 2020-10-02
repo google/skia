@@ -563,9 +563,11 @@ bool GrVkOpsRenderPass::onBindTextures(const GrPrimitiveProcessor& primProc,
                                                    this->currentCommandBuffer())) {
         return false;
     }
-    return fCurrentPipelineState->setAndBindInputAttachment(
-            fGpu, static_cast<GrVkRenderTarget*>(fRenderTarget), pipeline,
-            this->currentCommandBuffer());
+    if (fSelfDependencyFlags == SelfDependencyFlags::kForInputAttachment) {
+        return fCurrentPipelineState->setAndBindInputAttachment(
+                fGpu, static_cast<GrVkRenderTarget*>(fRenderTarget), this->currentCommandBuffer());
+    }
+    return true;
 }
 
 void GrVkOpsRenderPass::onBindBuffers(sk_sp<const GrBuffer> indexBuffer,
