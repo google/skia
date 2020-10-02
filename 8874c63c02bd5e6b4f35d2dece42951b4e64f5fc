@@ -33,6 +33,24 @@
       "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1fc2fa73_e00df0ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-02T18:10:24Z",
+      "side": 1,
+      "message": "Yes, those are real. I think those are showing cases where the assert was getting eaten before, and not captured (due to a different implementation of abort/assert/etc...).",
+      "parentUuid": "6c161688_e6199637",
+      "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
