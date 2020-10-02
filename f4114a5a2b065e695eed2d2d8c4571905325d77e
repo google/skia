@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e05ba979_aa7524ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-02T19:15:44Z",
+      "side": 1,
+      "message": "Now based on another CL that fixes the underlying cause of those asserts.",
+      "revId": "f4114a5a2b065e695eed2d2d8c4571905325d77e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
