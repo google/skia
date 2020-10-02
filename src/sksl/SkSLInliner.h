@@ -21,11 +21,29 @@ class Context;
 struct Expression;
 struct FunctionCall;
 struct FunctionDefinition;
-struct InlineCandidate;
-struct InlineCandidateList;
 struct Statement;
 class SymbolTable;
 struct Variable;
+
+namespace internal {
+
+// A candidate function for inlining, containing everything that `inlineCall` needs.
+// Not really intended for inspection by outside code.
+struct InlineCandidate {
+    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
+    std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
+    std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
+    std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
+    FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
+    bool fIsLargeFunction;                        // does candidate exceed the inline threshold?
+};
+
+}  // namespace internal
+
+struct InlineCandidateList {
+    std::vector<internal::InlineCandidate> fCandidates;
+    bool fIsInitialized = false;
+};
 
 /**
  * Converts a FunctionCall in the IR to a set of statements to be injected ahead of the function
@@ -60,14 +78,16 @@ public:
     bool isLargeFunction(const FunctionDefinition* functionDef);
 
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
-    bool analyze(Program& program);
+    bool analyze(Program& program, InlineCandidateList* candidateList);
+
+    /** Updates the inline candidate list after a function has been eliminated. */
+    void eliminate(const FunctionDefinition& funcDef, InlineCandidateList* candidateList);
 
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, std::unique_ptr<Expression>>;
+    using InlineCandidate = SkSL::internal::InlineCandidate;
 
     String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
-
-    void buildCandidateList(Program& program, InlineCandidateList* candidateList);
 
     std::unique_ptr<Expression> inlineExpression(int offset,
                                                  VariableRewriteMap* varMap,
@@ -85,6 +105,10 @@ private:
 
     using LargeFunctionCache = std::unordered_map<const FunctionDeclaration*, bool>;
     bool isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache);
+
+    void buildCandidateList(Program& program, InlineCandidateList* candidateList);
+    void updateCandidateList(InlineCandidateList* candidateList);
+    void finalizeCandidateList(InlineCandidateList* candidateList);
 
     const Context* fContext = nullptr;
     const Program::Settings* fSettings = nullptr;
