@@ -22,6 +22,30 @@
       "revId": "77e9ff42914a52d9c7b378162b45936420cb5eab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b58f5f33_47bbc881",
+        "filename": "src/sksl/SkSLMetalCodeGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-02T19:46:43Z",
+      "side": 1,
+      "message": "Done. (And updated the comment to reference the bug).",
+      "parentUuid": "a35d3b77_13ed7cb5",
+      "range": {
+        "startLine": 967,
+        "startChar": 60,
+        "endLine": 967,
+        "endChar": 98
+      },
+      "revId": "77e9ff42914a52d9c7b378162b45936420cb5eab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
