@@ -629,6 +629,7 @@ static sk_sp<SkTextBlob> do_shaping(const ShapedTextOpts& opts, SkPoint* pt) {
     return builder.makeBlob();
 }
 
+// TODO(kjlubick) ShapedText is a very thin veneer around SkTextBlob - can probably remove it.
 class ShapedText {
  public:
     ShapedText(ShapedTextOpts opts) : fOpts(opts) {}
