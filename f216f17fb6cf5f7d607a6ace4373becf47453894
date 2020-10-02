@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7135f282_e26f5911",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T19:14:47Z",
+      "side": 1,
+      "message": "Do we actually want a TODO here? \n\nFMA is outside SkSL\u0027s scope--that\u0027s up to the driver.\ncross(a, a) seems like it ought to work, except in cases where we hit Inf/NaN or something, but it sounds like you\u0027ve experienced cases where it doesn\u0027t? \n\nAFAICS, `(X*Y) - (X*Y)` ought to always equal zero as long as (X*Y) evaluates to a number. Even if the precision is bad, it should be consistent?",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 88
+      },
+      "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
