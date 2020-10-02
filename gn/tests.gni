@@ -264,6 +264,7 @@ tests_sources = [
   "$_tests/SkResourceCacheTest.cpp",
   "$_tests/SkRuntimeEffectTest.cpp",
   "$_tests/SkSLGLSLTestbed.cpp",
+  "$_tests/SkSLInlinedVectorTest.cpp",
   "$_tests/SkSLInterpreterTest.cpp",
   "$_tests/SkSLMemoryLayoutTest.cpp",
   "$_tests/SkSLMetalTest.cpp",
