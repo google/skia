@@ -193,8 +193,9 @@ void IRGenerator::start(const Program::Settings* settings,
             }
         }
     }
-    SkASSERT(fIntrinsics);
-    fIntrinsics->resetAlreadyIncluded();
+    if (fIntrinsics) {
+        fIntrinsics->resetAlreadyIncluded();
+    }
 }
 
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
@@ -2031,7 +2032,7 @@ std::unique_ptr<Expression> IRGenerator::convertTernaryExpression(const ASTNode&
 }
 
 void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
-    if (auto found = fIntrinsics->findAndInclude(function.description())) {
+    if (const ProgramElement* found = fIntrinsics->findAndInclude(function.description())) {
         const FunctionDefinition& original = found->as<FunctionDefinition>();
 
         // Sort the referenced intrinsics into a consistent order; otherwise our output will become
@@ -2065,7 +2066,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         if (function.fDefinition) {
             fReferencedIntrinsics.insert(&function);
         }
-        if (!fIsBuiltinCode) {
+        if (!fIsBuiltinCode && fIntrinsics) {
             this->copyIntrinsicIfNeeded(function);
         }
     }
@@ -2703,9 +2704,11 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
         return result;
     } else {
         // No Enum element? Check the intrinsics, clone it into the program, try again.
-        if (auto found = fIntrinsics->findAndInclude(type.fName)) {
-            fProgramElements->push_back(found->clone());
-            return this->convertTypeField(offset, type, field);
+        if (!fIsBuiltinCode && fIntrinsics) {
+            if (const ProgramElement* found = fIntrinsics->findAndInclude(type.fName)) {
+                fProgramElements->push_back(found->clone());
+                return this->convertTypeField(offset, type, field);
+            }
         }
         fErrors.error(offset,
                       "type '" + type.fName + "' does not have a member named '" + field + "'");
@@ -2834,40 +2837,46 @@ void IRGenerator::cloneBuiltinVariables() {
     public:
         BuiltinVariableRemapper(IRGenerator* generator) : fGenerator(generator) {}
 
+        void cloneVariable(const String& name) {
+            // If this is the *first* time we've seen this builtin, findAndInclude will return
+            // the corresponding ProgramElement.
+            if (const ProgramElement* sharedDecls =
+                        fGenerator->fIntrinsics->findAndInclude(name)) {
+                SkASSERT(sharedDecls->is<VarDeclarations>());
+
+                // Clone the VarDeclarations ProgramElement that declares this variable
+                std::unique_ptr<ProgramElement> clonedDecls = sharedDecls->clone();
+                VarDeclarations& varDecls = clonedDecls->as<VarDeclarations>();
+                SkASSERT(varDecls.fVars.size() == 1);
+                VarDeclaration& varDecl = varDecls.fVars.front()->as<VarDeclaration>();
+                const Variable* sharedVar = varDecl.fVar;
+
+                // Now clone the Variable, and add the clone to the Program's symbol table.
+                // Any initial value expression was cloned as part of the VarDeclarations,
+                // so we're pointing at a Program-owned expression.
+                const Variable* clonedVar =
+                        fGenerator->fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
+                                sharedVar->fOffset, sharedVar->fModifiers, sharedVar->fName,
+                                &sharedVar->type(), /*builtin=*/false, sharedVar->fStorage,
+                                varDecl.fValue.get()));
+
+                // Go back and update the VarDeclaration to point at the cloned Variable.
+                varDecl.fVar = clonedVar;
+
+                // Remember this new re-mapping...
+                fRemap.insert({sharedVar, clonedVar});
+
+                // Add the VarDeclarations to this Program
+                fNewElements.push_back(std::move(clonedDecls));
+            }
+        }
+
         bool visitExpression(Expression& e) override {
             // Look for references to builtin variables.
             if (e.is<VariableReference>() && e.as<VariableReference>().fVariable->fBuiltin) {
                 const Variable* sharedVar = e.as<VariableReference>().fVariable;
 
-                // If this is the *first* time we've seen this builtin, findAndInclude will return
-                // the corresponding ProgramElement.
-                if (const ProgramElement* sharedDecls =
-                            fGenerator->fIntrinsics->findAndInclude(sharedVar->fName)) {
-                    // Clone the VarDeclarations ProgramElement that declares this variable
-                    std::unique_ptr<ProgramElement> clonedDecls = sharedDecls->clone();
-                    SkASSERT(clonedDecls->is<VarDeclarations>());
-                    VarDeclarations& varDecls = clonedDecls->as<VarDeclarations>();
-                    SkASSERT(varDecls.fVars.size() == 1);
-                    VarDeclaration& varDecl = varDecls.fVars.front()->as<VarDeclaration>();
-
-                    // Now clone the Variable, and add the clone to the Program's symbol table.
-                    // Any initial value expression was cloned as part of the VarDeclarations,
-                    // so we're pointing at a Program-owned expression.
-                    const Variable* clonedVar = fGenerator->fSymbolTable->takeOwnershipOfSymbol(
-                            std::make_unique<Variable>(sharedVar->fOffset, sharedVar->fModifiers,
-                                                       sharedVar->fName, &sharedVar->type(),
-                                                       /*builtin=*/false, sharedVar->fStorage,
-                                                       varDecl.fValue.get()));
-
-                    // Go back and update the VarDeclaration to point at the cloned Variable.
-                    varDecl.fVar = clonedVar;
-
-                    // Remember this new re-mapping...
-                    fRemap.insert({sharedVar, clonedVar});
-
-                    // Add the VarDeclarations to this Program
-                    fNewElements.push_back(std::move(clonedDecls));
-                }
+                this->cloneVariable(sharedVar->fName);
 
                 // TODO: SkASSERT(found), once all pre-includes are converted?
                 auto found = fRemap.find(sharedVar);
@@ -2887,15 +2896,25 @@ void IRGenerator::cloneBuiltinVariables() {
         using INHERITED::visitProgramElement;
     };
 
-    if (!fIsBuiltinCode) {
-        BuiltinVariableRemapper remapper(this);
-        for (auto& e : *fProgramElements) {
-            remapper.visitProgramElement(*e);
-        }
-        fProgramElements->insert(fProgramElements->begin(),
-                                 std::make_move_iterator(remapper.fNewElements.begin()),
-                                 std::make_move_iterator(remapper.fNewElements.end()));
+    BuiltinVariableRemapper remapper(this);
+    for (auto& e : *fProgramElements) {
+        remapper.visitProgramElement(*e);
     }
+
+    // Vulkan requires certain builtin variables be present, even if they're unused. At one time,
+    // validation errors would result if they were missing. Now, it's just (Adreno) driver bugs
+    // that drop or corrupt draws if they're missing.
+    switch (fKind) {
+        case Program::kFragment_Kind:
+            remapper.cloneVariable("sk_Clockwise");
+            break;
+        default:
+            break;
+    }
+
+    fProgramElements->insert(fProgramElements->begin(),
+                                std::make_move_iterator(remapper.fNewElements.begin()),
+                                std::make_move_iterator(remapper.fNewElements.end()));
 }
 
 void IRGenerator::convertProgram(Program::Kind kind,
@@ -2967,7 +2986,9 @@ void IRGenerator::convertProgram(Program::Kind kind,
     }
 
     // Any variables defined in the pre-includes need to be cloned into the Program
-    this->cloneBuiltinVariables();
+    if (!fIsBuiltinCode && fIntrinsics) {
+        this->cloneBuiltinVariables();
+    }
 
     // Do a final pass looking for dangling FunctionReference or TypeReference expressions
     class FindIllegalExpressions : public ProgramVisitor {
