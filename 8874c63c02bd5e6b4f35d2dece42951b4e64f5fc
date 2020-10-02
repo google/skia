@@ -87,6 +87,24 @@
       "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d84e537e_76a69b6d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-02T18:27:44Z",
+      "side": 1,
+      "message": "Good catch. I think what I\u0027ll do is fix those asserts first. If everything is working correctly, we should *never* actually have assert output in our golden files (just SkSL compiler error messages). The assert indicates a more serious problem that needs to be addressed.",
+      "parentUuid": "94e4d0b2_9983abef",
+      "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
