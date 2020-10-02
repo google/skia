@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61cffc5f_9bd5862c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-02T18:05:22Z",
+      "side": 1,
+      "message": "We could do more here (some of the other things in SkSLDefines.h could be replaced with other standard-isms), but this CL was enough for me to put an SkSTArray in the IR generator and use it.\n\nThis arrangement is technically fragile (if someone adds a new linkage dependency between the code I\u0027m pulling in or the containers we\u0027re going to start using, and the rest of skia)... but in practice I think that risk is pretty low (and it will get caught by the GeneratedFiles bot).",
+      "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
