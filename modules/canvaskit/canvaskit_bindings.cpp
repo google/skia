@@ -1438,8 +1438,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }), allow_raw_pointers())
         .class_function("MakeDiscrete", &SkDiscretePathEffect::Make);
 
+    // TODO(kjlubick, reed) Make SkPath immutable and only creatable via a factory/builder.
     class_<SkPath>("SkPath")
         .constructor<>()
+        // TODO(kjlubick) remove this constructor in favor of the .copy() method.
         .constructor<const SkPath&>()
         .class_function("_MakeFromCmds", &MakePathFromCmds)
         .class_function("_MakeFromVerbsPointsWeights", &MakePathFromVerbsPointsWeights)

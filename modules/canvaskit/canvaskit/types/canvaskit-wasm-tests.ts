@@ -4,6 +4,7 @@ import CanvasKitInit from "canvaskit-wasm/bin/canvaskit";
 import {
     CanvasKit,
     Paragraph,
+    PathCommand,
     ShapedText,
     SkAnimatedImage,
     SkCanvas,
@@ -17,6 +18,7 @@ import {
     SkPath,
     SkPathEffect,
     SkPicture,
+    SkPoint,
     SkShader,
     SkSurface,
     SkTextBlob,
@@ -26,17 +28,18 @@ import {
 
 CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + file}).then((CK: CanvasKit) => {
     canvasTests(CK);
-    colorTests(CK);
     colorFilterTests(CK);
-    imageTests(CK);
+    colorTests(CK);
     imageFilterTests(CK);
-    pathEffectTests(CK);
+    imageTests(CK);
     mallocTests(CK);
     maskFilterTests(CK);
     matrixTests(CK);
     paintTests(CK);
-    surfaceTests(CK);
+    pathEffectTests(CK);
+    pathTests(CK);
     rectangleTests(CK);
+    surfaceTests(CK);
 });
 
 // In an effort to keep these type-checking tests easy to read and understand, we can "inject"
@@ -81,7 +84,9 @@ function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: S
     canvas.drawImageAtCurrentFrame(aImg, 0, -43);
     canvas.drawImageAtCurrentFrame(aImg, 0, -43, paint);
     canvas.drawImageNine(img, someRect, someRect, paint);
+    canvas.drawImageNine(img, CK.XYWHiRect(10, 20, 40, 40), someRect, paint);
     canvas.drawImageRect(img, someRect, someRect, paint);
+    canvas.drawImageRect(img, CK.XYWHRect(90, 90, 40, 40), someRect, paint);
     canvas.drawImageRect(img, someRect, someRect, paint, true);
     canvas.drawLine(1, 2, 3, 4, paint);
     canvas.drawOval(someRect, paint);
@@ -220,6 +225,86 @@ function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: Sk
     paint.setStrokeWidth(20);
     paint.setStyle(CK.PaintStyle.Fill);
     paint.delete();
+}
+
+function pathTests(CK: CanvasKit) {
+    const path = new CK.SkPath();  // $ExpectType SkPath
+    const p2 = CK.SkPath.MakeFromCmds([ // $ExpectType SkPath
+        [CK.MOVE_VERB, 0, 10],
+        [CK.LINE_VERB, 30, 40],
+        [CK.QUAD_VERB, 20, 50, 45, 60],
+    ]);
+    const verbs = CK.Malloc(Uint8Array, 10);
+    const points = CK.Malloc(Float32Array, 10);
+    const p3 = CK.SkPath.MakeFromVerbsPointsWeights(verbs, [1, 2, 3, 4]); // $ExpectType SkPath
+    const p4 = CK.SkPath.MakeFromVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
+
+    const someRect = CK.LTRBRect(10, 20, 30, 40);
+    // Making sure arrays are accepted as rrects.
+    const someRRect = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+    path.addArc(someRect, 0, 270);
+    path.addOval(someRect);
+    path.addOval(someRect, true, 3);
+    path.addPath(p2);
+    path.addPoly([[20, 20], [40, 40], [20, 40]], true);
+    path.addRect(someRect);
+    path.addRect(someRect, true);
+    path.addRRect(someRRect);
+    path.addRRect(someRRect, true);
+    path.addVerbsPointsWeights(verbs, [1, 2, 3, 4]);
+    path.addVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
+    path.arc(0, 0, 10, 0, Math.PI / 2);
+    path.arc(0, 0, 10, 0, Math.PI / 2, true);
+    path.arcToOval(someRect, 15, 60, true);
+    path.arcToRotated(2, 4, 90, false, true, 0, 20);
+    path.arcToTangent(20, 20, 40, 50, 2);
+    path.close();
+    let bounds = path.computeTightBounds(); // $ExpectType Float32Array
+    path.computeTightBounds(bounds);
+    path.conicTo(1, 2, 3, 4, 5);
+    let ok = path.contains(10, 20); // $ExpectType boolean
+    const p5 = path.copy(); // $ExpectType SkPath
+    const count = path.countPoints(); // $ExpectType number
+    path.cubicTo(10, 10, 10, 10, 10, 10);
+    ok = path.dash(8, 4, 1);
+    ok = path.equals(p5);
+    bounds = path.getBounds(); // $ExpectType Float32Array
+    path.getBounds(bounds);
+    const ft = path.getFillType();
+    const pt = path.getPoint(7); // $ExpectType SkPoint
+    ok = path.isEmpty();
+    ok = path.isVolatile();
+    path.lineTo(10, -20);
+    path.moveTo(-20, -30);
+    path.offset(100, 100);
+    ok = path.op(p2, CK.PathOp.Difference);
+    path.quadTo(10, 20, 30, 40);
+    path.rArcTo(10, 10, 90, false, true, 2, 4);
+    path.rConicTo(-1, 2, 4, 9, 3);
+    path.rCubicTo(20, 30, 40, 50, 2, 1);
+    path.reset();
+    path.rewind();
+    path.rLineTo(20, 30);
+    path.rMoveTo(40, 80);
+    path.rQuadTo(1, 2, 3, 4);
+    path.setFillType(CK.FillType.EvenOdd);
+    path.setIsVolatile(true);
+    ok = path.simplify();
+    path.stroke();
+    path.stroke({});
+    path.stroke({
+        width: 20,
+        miter_limit: 9,
+        precision: 0.5,
+        cap: CK.StrokeCap.Butt,
+        join: CK.StrokeJoin.Miter,
+    });
+    const cmds = path.toCmds(); // $ExpectType PathCommand[]
+    const str = path.toSVGString(); // $ExpectType string
+    path.transform(CK.SkMatrix.identity());
+    path.transform(1, 0, 0, 0, 1, 0, 0, 0, 1);
+    path.trim(0.1, 0.7, false);
 }
 
 function pathEffectTests(CK: CanvasKit) {
