@@ -5,10 +5,13 @@ import {
     CanvasKit,
     Paragraph,
     PathCommand,
+    PosTan,
     ShapedText,
     SkAnimatedImage,
     SkCanvas,
     SkColorFilter,
+    SkContourMeasure,
+    SkContourMeasureIter,
     SkFont,
     SkFontMgr,
     SkImage,
@@ -19,34 +22,47 @@ import {
     SkPath,
     SkPathEffect,
     SkPicture,
+    SkPictureRecorder,
     SkPoint,
     SkShader,
     SkSurface,
     SkTextBlob,
     SkTypeface,
     SkVertices,
+    TonalColorsOutput,
     TypedArray,
 } from "canvaskit-wasm";
 
 CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + file}).then((CK: CanvasKit) => {
+    animatedImageTests(CK);
     canvasTests(CK);
+    canvas2DTests(CK);
     colorFilterTests(CK);
     colorTests(CK);
+    contourMeasureTests(CK);
     imageFilterTests(CK);
     imageTests(CK);
     fontTests(CK);
     fontMgrTests(CK);
+    globalTests(CK);
     mallocTests(CK);
     maskFilterTests(CK);
     matrixTests(CK);
     paintTests(CK);
     pathEffectTests(CK);
     pathTests(CK);
+    pictureTests(CK);
     rectangleTests(CK);
     shapedTextTests(CK);
     surfaceTests(CK);
     textBlobTests(CK);
+    verticesTests(CK);
 });
+
+function animatedImageTests(CK: CanvasKit) {
+    const buff = new ArrayBuffer(10);
+    const img = CK.MakeAnimatedImageFromEncoded(buff); // $ExpectType SkAnimatedImage | null
+}
 
 // In an effort to keep these type-checking tests easy to read and understand, we can "inject"
 // types instead of actually having to create them from scratch. To inject them, we define them
@@ -55,9 +71,10 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
 function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: SkPath,
                      img?: SkImage, aImg?: SkAnimatedImage, para?: Paragraph,
                      skp?: SkPicture, font?: SkFont, shapedText?: ShapedText,
-                     textBlob?: SkTextBlob, verts?: SkVertices, imageInfo?: SkImageInfo) {
+                     textBlob?: SkTextBlob, verts?: SkVertices, imageInfo?: SkImageInfo,
+                     imgFilter?: SkImageFilter) {
     if (!canvas || !paint || !path || !img || !aImg || !para || !skp || !font ||
-        !shapedText || !textBlob || !verts || !imageInfo) {
+        !shapedText || !textBlob || !verts || !imageInfo || !imgFilter) {
         return;
     }
     const someColor = [0.9, 0.8, 0.7, 0.6]; // Making sure arrays are accepted as colors.
@@ -124,7 +141,9 @@ function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: S
     const height = canvas.save(); // $ExpectType number
     const h2 = canvas.saveLayer(); // $ExpectType number
     const h3 = canvas.saveLayer(paint); // $ExpectType number
-    const h4 = canvas.saveLayer(paint, someRect); // $ExpectType number
+    const h4 = canvas.saveLayer(paint, someRect);
+    const h5 = canvas.saveLayer(paint, someRect, imgFilter, CK.SaveLayerF16ColorType);
+    const h6 = canvas.saveLayer(paint, someRect, null, CK.SaveLayerInitWithPrevious);
     canvas.scale(5, 10);
     canvas.skew(10, 5);
     canvas.translate(20, 30);
@@ -133,11 +152,33 @@ function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: S
                                    CK.ColorType.Alpha_8, CK.SkColorSpace.DISPLAY_P3);
 }
 
+function canvas2DTests(CK: CanvasKit) {
+    const bytes = new ArrayBuffer(10);
+
+    const canvas = CK.MakeCanvas(100, 200);
+    const img = canvas.decodeImage(bytes);
+    const ctx = canvas.getContext('2d');
+    ctx!.lineTo(2, 4);
+    canvas.loadFont(bytes, {
+        family: 'BungeeNonSystem',
+        style: 'normal',
+        weight: '400',
+    });
+    const p2d = canvas.makePath2D();
+    p2d.quadraticCurveTo(1, 2, 3, 4);
+    const iData = new CK.ImageData(40, 50);
+    const imgStr = canvas.toDataURL();
+}
+
 function colorTests(CK: CanvasKit) {
     const colorOne = CK.Color(200, 200, 200, 0.8); // $ExpectType Float32Array
     const colorTwo = CK.Color4f(0.8, 0.8, 0.8, 0.7); // $ExpectType Float32Array
     const colorThree = CK.ColorAsInt(240, 230, 220); // $ExpectType number
     const colorFour = CK.parseColorString('#887766'); // $ExpectType Float32Array
+    const colors = CK.computeTonalColors({ // $ExpectType TonalColorsOutput
+        ambient: colorOne,
+        spot: [0.2, 0.4, 0.6, 0.8],
+    });
 
     // Deprecated Color functions
     const [r, g, b, a] = CK.getColorComponents(colorTwo);
@@ -162,7 +203,22 @@ function colorFilterTests(CK: CanvasKit) {
     const filterSix = CK.SkColorFilter.MakeMatrix(cm); // $ExpectType SkColorFilter
 }
 
-function imageTests(CK: CanvasKit, img?: SkImage) {
+function contourMeasureTests(CK: CanvasKit, path?: SkPath) {
+    if (!path) return;
+    const iter = new CK.SkContourMeasureIter(path, true, 2); // $ExpectType SkContourMeasureIter
+    const contour = iter.next(); // $ExpectType SkContourMeasure | null
+    if (!contour) return;
+    const pt = contour.getPosTan(2); // $ExpectType PosTan
+    const segment = contour.getSegment(0, 20, true); // $ExpectType SkPath
+    const closed = contour.isClosed(); // $ExpectType boolean
+    const length = contour.length(); // $ExpectType number
+}
+
+function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
+    if (!imgElement) return;
+    const buff = new ArrayBuffer(10);
+    const img = CK.MakeImageFromEncoded(buff); // $ExpectType SkImage | null
+    const img2 = CK.MakeImageFromCanvasImageSource(imgElement); // $ExpectType SkImage
     if (!img) return;
     const dOne = img.encodeToData(); // $ExpectType SkData
     const dTwo = img.encodeToDataWithFormat(CK.ImageFormat.JPEG, 97);
@@ -249,6 +305,14 @@ function fontMgrTests(CK: CanvasKit) {
     const tf = fm.makeTypefaceFromData(buff1); // $ExpectType SkTypeface
 }
 
+function globalTests(CK: CanvasKit) {
+    const ctx = CK.currentContext();
+    CK.setCurrentContext(ctx);
+    const n = CK.getDecodeCacheLimitBytes();
+    const u = CK.getDecodeCacheUsedBytes();
+    CK.setDecodeCacheLimitBytes(1000);
+}
+
 function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: SkImageFilter,
                     maskFilter?: SkMaskFilter, pathEffect?: SkPathEffect, shader?: SkShader) {
     if (!colorFilter || !colorFilter || !imageFilter || !maskFilter || !pathEffect || !shader) {
@@ -297,6 +361,8 @@ function pathTests(CK: CanvasKit) {
     const points = CK.Malloc(Float32Array, 10);
     const p3 = CK.SkPath.MakeFromVerbsPointsWeights(verbs, [1, 2, 3, 4]); // $ExpectType SkPath
     const p4 = CK.SkPath.MakeFromVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
+    const p5 = CK.MakePathFromOp(p4, p2, CK.PathOp.ReverseDifference); // $ExpectType SkPath | null
+    const p6 = CK.MakePathFromSVGString('M 205,5 L 795,5 z'); // $ExpectType SkPath | null
 
     const someRect = CK.LTRBRect(10, 20, 30, 40);
     // Making sure arrays are accepted as rrects.
@@ -323,11 +389,11 @@ function pathTests(CK: CanvasKit) {
     path.computeTightBounds(bounds);
     path.conicTo(1, 2, 3, 4, 5);
     let ok = path.contains(10, 20); // $ExpectType boolean
-    const p5 = path.copy(); // $ExpectType SkPath
+    const pCopy = path.copy(); // $ExpectType SkPath
     const count = path.countPoints(); // $ExpectType number
     path.cubicTo(10, 10, 10, 10, 10, 10);
     ok = path.dash(8, 4, 1);
-    ok = path.equals(p5);
+    ok = path.equals(pCopy);
     bounds = path.getBounds(); // $ExpectType Float32Array
     path.getBounds(bounds);
     const ft = path.getFillType();
@@ -423,6 +489,15 @@ function matrixTests(CK: CanvasKit) {
     const matr13 = m44.transpose([4, 5, 8]); // $ExpectType number[]
 }
 
+function pictureTests(CK: CanvasKit) {
+    const recorder = new CK.SkPictureRecorder(); // $ExpectType SkPictureRecorder
+    const canvas = recorder.beginRecording(CK.LTRBRect(0, 0, 100, 100));  // $ExpectType SkCanvas
+    const pic = recorder.finishRecordingAsPicture(); // $ExpectType SkPicture
+    const data = pic.serialize(); // $ExgeectType SkData
+    const bytes = CK.getSkDataBytes(data);
+    const pic2 = CK.MakeSkPicture(bytes);
+}
+
 function rectangleTests(CK: CanvasKit) {
     const rectOne = CK.LTRBRect(5, 10, 20, 30); // $ExpectType Float32Array
     const rectTwo = CK.XYWHRect(5, 10, 15, 20); // $ExpectType Float32Array
@@ -479,6 +554,15 @@ function surfaceTests(CK: CanvasKit) {
     const grCtx = CK.MakeGrContext(ctx);
     const surfaceEight = CK.MakeOnScreenGLSurface(grCtx, 100, 400, // $ExpectType SkSurface
         CK.SkColorSpace.ADOBE_RGB)!;
+
+    const rt = CK.MakeRenderTarget(grCtx, 100, 200); // $ExpectType SkSurface | null
+    const rt2 = CK.MakeRenderTarget(grCtx, { // $ExpectType SkSurface | null
+        width: 79,
+        height: 205,
+        colorType: CK.ColorType.RGBA_8888,
+        alphaType: CK.AlphaType.Premul,
+        colorSpace: CK.SkColorSpace.SRGB,
+    });
 }
 
 function textBlobTests(CK: CanvasKit, font?: SkFont, path?: SkPath) {
@@ -496,4 +580,27 @@ function textBlobTests(CK: CanvasKit, font?: SkFont, path?: SkPath) {
     const blob6 = tb.MakeFromText('xyz', font); // $ExpectType SkTextBlob
     const blob7 = tb.MakeOnPath('tuv', path, font); // $ExpectType SkTextBlob
     const blob8 = tb.MakeOnPath('tuv', path, font, 10); // $ExpectType SkTextBlob
+}
+
+function verticesTests(CK: CanvasKit) {
+    const points = [
+        [ 70, 170 ], [ 40, 90 ], [ 130, 150 ], [ 100, 50 ],
+        [ 225, 150 ], [ 225, 60 ], [ 310, 180 ], [ 330, 100 ]
+    ];
+    const textureCoordinates = [
+        [ 0, 240 ], [ 0, 0 ], [ 80, 240 ], [ 80, 0 ],
+        [ 160, 240 ], [ 160, 0 ], [ 240, 240 ], [ 240, 0 ]
+    ];
+    const vertices = CK.MakeSkVertices(CK.VertexMode.TrianglesStrip, // $ExpectType SkVertices
+        points, textureCoordinates);
+
+    const points2 = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
+    // 1d float color array
+    const colors = Float32Array.of(
+        1, 0, 0, 1, // red
+        0, 1, 0, 1, // green
+        0, 0, 1, 1, // blue
+        1, 0, 1, 1); // purple
+    const vertices2 = CK.MakeSkVertices(CK.VertexMode.TriangleFan,
+        points, null, colors, null, true);
 }

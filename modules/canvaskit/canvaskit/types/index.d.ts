@@ -68,6 +68,15 @@ export interface CanvasKit {
     multiplyByAlpha(c: SkColor, alpha: number): SkColor;
 
     /**
+     * Computes color values for one-pass tonal alpha.
+     * Note, if malloced colors are passed in, the memory pointed at by the MallocObj
+     * will be overwritten with the computed tonal colors (and thus the return val can be
+     * ignored).
+     * @param colors
+     */
+    computeTonalColors(colors: TonalColorsInput): TonalColorsOutput;
+
+    /**
      * Returns a rectangle with the given paramaters. See SkRect.h for more.
      * @param left - The x coordinate of the upper-left corner.
      * @param top  - The y coordinate of the upper-left corner.
@@ -206,16 +215,136 @@ export interface CanvasKit {
                           colorSpace: ColorSpace): SkSurface | null;
 
     /**
+     * Returns a (non-visible) SkSurface on the GPU. It has the given dimensions and uses 8888
+     * color depth and premultiplied alpha. See SkSurface.h for more details.
+     * @param ctx
+     * @param width
+     * @param height
+     */
+    MakeRenderTarget(ctx: GrContext, width: number, height: number): SkSurface | null;
+
+    /**
+     * Returns a (non-visible) SkSurface on the GPU. It has the settings provided by image info.
+     * See SkSurface.h for more details.
+     * @param ctx
+     * @param info
+     */
+    MakeRenderTarget(ctx: GrContext, info: SkImageInfo): SkSurface | null;
+
+    /**
+     * Returns the current WebGLContext that the wasm code is configured to draw to. It is
+     * recommended to capture this value after creating a new WebGL surface if there are multiple
+     * surfaces on the screen.
+     */
+    currentContext(): WebGLContextHandle;
+
+    /**
+     * Sets the WebGLContext that the wasm code will draw to.
+     *
+     * When a WebGL call is made on the C++ side, it is routed to the JS side to target a specific
+     * WebGL context. WebGL calls are methods on a WebGL context, so CanvasKit needs to know which
+     * context to send the calls to.
+     * @param ctx
+     */
+    setCurrentContext(ctx: WebGLContextHandle): void;
+
+    /**
+     * Returns the max size of the global cache for bitmaps used by CanvasKit.
+     */
+    getDecodeCacheLimitBytes(): number;
+    /**
+     * Returns the current size of the global cache for bitmaps used by CanvasKit.
+     */
+    getDecodeCacheUsedBytes(): number;
+
+    /**
+     * Sets the max size of the global cache for bitmaps used by CanvasKit.
+     * @param size - number of bytes that can be used to cache bitmaps.
+     */
+    setDecodeCacheLimitBytes(size: number): void;
+
+    /**
+     * Decodes the given bytes into an animated image. Returns null if the bytes were invalid.
+     * The passed in bytes will be copied into the WASM heap, so the caller can dispose of them.
+     * @param bytes
+     */
+    MakeAnimatedImageFromEncoded(bytes: Uint8Array | ArrayBuffer): SkAnimatedImage | null;
+
+    /**
+     * Returns an emulated Canvas2D of the given size.
+     * @param width
+     * @param height
+     */
+    MakeCanvas(width: number, height: number): EmulatedCanvas2D;
+
+    /**
+     * Return an SkImage backed by the encoded data, but attempt to defer decoding until the image
+     * is actually used/drawn. This deferral allows the system to cache the result, either on the
+     * CPU or on the GPU, depending on where the image is drawn.
+     * This decoding uses the codecs that have been compiled into CanvasKit. If the bytes are
+     * invalid (or an unrecognized codec), null will be returned. See SkImage.h for more details.
+     * @param bytes
+     */
+    MakeImageFromEncoded(bytes: Uint8Array | ArrayBuffer): SkImage | null;
+
+    /**
+     * Returns an SkImage with the data from the provided CanvasImageSource (e.g. <img>). This will
+     * use the browser's built in codecs, in that src will be drawn to a canvas and then readback
+     * and placed into an SkImage.
+     * @param src
+     */
+    MakeImageFromCanvasImageSource(src: CanvasImageSource): SkImage;
+
+    /**
+     * Creates a new path by combining the given paths according to op. If this fails, null will
+     * be returned instead.
+     * @param one
+     * @param two
+     * @param op
+     */
+    MakePathFromOp(one: SkPath, two: SkPath, op: PathOp): SkPath | null;
+
+    /**
+     * Creates a new path from the provided SVG string. If this fails, null will be
+     * returned instead.
+     * @param str
+     */
+    MakePathFromSVGString(str: string): SkPath | null;
+
+    /**
+     * Returns an SkPicture which has been serialized previously to the given bytes.
+     * @param bytes
+     */
+    MakeSkPicture(bytes: Uint8Array | ArrayBuffer): SkPicture | null;
+
+    /**
+     * Returns an SkVertices based on the given positions and optional parameters.
+     * See SkVertices.h (especially the Builder) for more details.
+     * @param mode
+     * @param positions
+     * @param textureCoordinates
+     * @param colors - either a list of int colors or a flattened color array.
+     * @param indices
+     * @param isVolatile
+     */
+    MakeSkVertices(mode: VertexMode, positions: number[][], textureCoordinates?: number[][] | null,
+                   colors?: Float32Array | ColorIntArray | null, indices?: number[] | null,
+                   isVolatile?: boolean): SkVertices;
+
+    /**
      * Returns the underlying data from SkData as a Uint8Array.
      * @param data
      */
     getSkDataBytes(data: SkData): Uint8Array;
 
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
+    readonly ImageData: ImageDataConstructor;
     readonly ShapedText: ShapedTextConstructor;
+    readonly SkContourMeasureIter: SkContourMeasureIterConstructor;
     readonly SkFont: SkFontConstructor;
     readonly SkPaint: DefaultConstructor<SkPaint>;
     readonly SkPath: SkPathConstructorAndFactory;
+    readonly SkPictureRecorder: DefaultConstructor<SkPictureRecorder>;
 
     // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncapsulator()
     readonly SkColorFilter: SkColorFilterFactory;
@@ -223,14 +352,17 @@ export interface CanvasKit {
     readonly SkImageFilter: SkImageFilterFactory;
     readonly SkMaskFilter: SkMaskFilterFactory;
     readonly SkPathEffect: SkPathEffectFactory;
+    readonly SkShader: SkShaderFactory;
+    readonly SkRuntimeEffect: SkRuntimeEffectFactory;
     readonly SkTextBlob: SkTextBlobFactory;
 
     // Misc
     readonly SkColorMatrix: ColorMatrixHelpers;
     readonly SkMatrix: Matrix3x3Helpers;
     readonly SkM44: Matrix4x4Helpers;
+    readonly SkVector: VectorHelpers;
 
-    // Enums
+    // Core Enums
     readonly AlphaType: AlphaTypeEnumValues;
     readonly BlendMode: BlendModeEnumValues;
     readonly BlurStyle: BlurStyleEnumValues;
@@ -248,8 +380,9 @@ export interface CanvasKit {
     readonly StrokeCap: StrokeCapEnumValues;
     readonly StrokeJoin: StrokeJoinEnumValues;
     readonly TileMode: TileModeEnumValues;
+    readonly VertexMode: VertexModeEnumValues;
 
-    // Constants
+    // Core Constants
     readonly TRANSPARENT: SkColor;
     readonly BLACK: SkColor;
     readonly WHITE: SkColor;
@@ -266,6 +399,11 @@ export interface CanvasKit {
     readonly CONIC_VERB: number;
     readonly CUBIC_VERB: number;
     readonly CLOSE_VERB: number;
+
+    readonly SaveLayerInitWithPrevious: SaveLayerFlag;
+    readonly SaveLayerF16ColorType: SaveLayerFlag;
+
+    readonly gpu: boolean; // if GPU code was compiled in
 }
 
 export interface Camera {
@@ -283,7 +421,7 @@ export interface Camera {
     /** far clipping plane distance */
     far: number;
     /** field of view in radians */
-    angle: angleInRadians;
+    angle: AngleInRadians;
 }
 
 /**
@@ -317,6 +455,49 @@ export interface EmbindEnum {
 export interface EmbindEnumEntity {
     readonly value: number;
 }
+
+export interface EmulatedCanvas2D {
+    /**
+     * Cleans up all resources associated with this emulated canvas.
+     */
+    dispose(): void;
+    /**
+     * Decodes an image with the given bytes.
+     * @param bytes
+     */
+    decodeImage(bytes: ArrayBuffer | Uint8Array): SkImage;
+
+    /**
+     * Returns an emulated canvas2d context if type == '2d', null otherwise.
+     * @param type
+     */
+    getContext(type: string): EmulatedCanvas2DContext | null;
+
+    /**
+     * Loads the given font with the given descriptors. Emulates new FontFace().
+     * @param bytes
+     * @param descriptors
+     */
+    loadFont(bytes: ArrayBuffer | Uint8Array, descriptors: object): void;
+
+    /**
+     * Returns an new emulated Path2D object.
+     * @param str - an SVG string representing a path.
+     */
+    makePath2D(str?: string): EmulatedPath2D;
+
+    /**
+     * Returns the current canvas as a base64 encoded image string.
+     * @param codec - image/png by default; image/jpeg also supported.
+     * @param quality
+     */
+    toDataURL(codec?: string, quality?: number): string;
+}
+
+/** Part of the Canvas2D emulation code */
+export type EmulatedCanvas2DContext = CanvasRenderingContext2D;
+export type EmulatedImageData = ImageData;
+export type EmulatedPath2D = Path2D;
 
 /**
  * See GrContext.h for more on this class.
@@ -445,7 +626,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param useCenter - if true, include the center of the oval
      * @param paint
      */
-    drawArc(oval: InputRect, startAngle: angleInDegrees, sweepAngle: angleInDegrees,
+    drawArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees,
             useCenter: boolean, paint: SkPaint): void;
 
     /**
@@ -755,7 +936,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param rx
      * @param ry
      */
-    rotate(rot: angleInDegrees, rx: number, ry: number): void;
+    rotate(rot: AngleInDegrees, rx: number, ry: number): void;
 
     /**
      * Saves the current matrix and clip and returns current height of the stack.
@@ -769,8 +950,11 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * See SkCanvas.h for more.
      * @param paint
      * @param bounds
+     * @param backdrop
+     * @param flags
      */
-    saveLayer(paint?: SkPaint, bounds?: InputRect): number;
+    saveLayer(paint?: SkPaint, bounds?: InputRect | null, backdrop?: SkImageFilter | null,
+              flags?: SaveLayerFlag): number;
 
     /**
      * Scales the current matrix by sx on the x-axis and sy on the y-axis.
@@ -816,6 +1000,42 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
  * See SkColorFilter.h for more on this class. The objects are opaque.
  */
 export type SkColorFilter = EmbindObject<SkColorFilter>;
+
+export interface SkContourMeasureIter extends EmbindObject<SkContourMeasureIter> {
+    /**
+     *  Iterates through contours in path, returning a contour-measure object for each contour
+     *  in the path. Returns null when it is done.
+     *
+     *  See SkContourMeasure.h for more details.
+     */
+    next(): SkContourMeasure | null;
+}
+
+export interface SkContourMeasure extends EmbindObject<SkContourMeasure> {
+    /**
+     * Returns the given position and tangent line for the distance on the given contour.
+     * @param distance - will be pinned between 0 and length().
+     */
+    getPosTan(distance: number): PosTan;
+
+    /**
+     * Returns an SkPath representing the segement of this contour.
+     * @param startD - will be pinned between 0 and length()
+     * @param stopD - will be pinned between 0 and length()
+     * @param startWithMoveTo
+     */
+    getSegment(startD: number, stopD: number, startWithMoveTo: boolean): SkPath;
+
+    /**
+     * Returns true if the contour is closed.
+     */
+    isClosed(): boolean;
+
+    /**
+     * Returns the length of this contour.
+     */
+    length(): number;
+}
 
 /**
  * Represents a blob of memory. See SkData.h for more on this class.
@@ -1223,7 +1443,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param startAngle
      * @param sweepAngle
      */
-    addArc(oval: InputRect, startAngle: angleInDegrees, sweepAngle: angleInDegrees): SkPath;
+    addArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees): SkPath;
 
     /**
      * Adds oval to SkPath, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
@@ -1302,7 +1522,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param endAngle
      * @param isCCW
      */
-    arc(x: number, y: number, radius: number, startAngle: angleInRadians, endAngle: angleInRadians,
+    arc(x: number, y: number, radius: number, startAngle: AngleInRadians, endAngle: AngleInRadians,
         isCCW?: boolean): SkPath;
 
     /**
@@ -1316,7 +1536,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param endAngle
      * @param forceMoveTo
      */
-    arcToOval(oval: InputRect, startAngle: angleInDegrees, endAngle: angleInDegrees,
+    arcToOval(oval: InputRect, startAngle: AngleInDegrees, endAngle: AngleInDegrees,
               forceMoveTo: boolean): SkPath;
 
     /**
@@ -1333,7 +1553,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param x
      * @param y
      */
-    arcToRotated(rx: number, ry: number, xAxisRotate: angleInDegrees, useSmallArc: boolean,
+    arcToRotated(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
                  isCCW: boolean, x: number, y: number): SkPath;
 
     /**
@@ -1519,7 +1739,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param dx
      * @param dy
      */
-    rArcTo(rx: number, ry: number, xAxisRotate: angleInDegrees, useSmallArc: boolean,
+    rArcTo(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
            isCCW: boolean, dx: number, dy: number): SkPath;
 
     /**
@@ -1663,6 +1883,20 @@ export interface SkPicture extends EmbindObject<SkPicture> {
     serialize(): SkData;
 }
 
+export interface SkPictureRecorder extends EmbindObject<SkPicture> {
+    /**
+     * Returns a canvas on which to draw. When done drawing, call finishRecordingAsPicture()
+     *
+     * @param bounds - a rect to cull the results.
+     */
+    beginRecording(bounds: InputRect): SkCanvas;
+
+    /**
+     * Returns the captured draw commands as a picture and invalidates the canvas returned earlier.
+     */
+    finishRecordingAsPicture(): SkPicture;
+}
+
 export interface SkShader extends EmbindObject<SkShader> {
     todo: number; // TODO(kjlubick)
 }
@@ -1766,6 +2000,16 @@ export interface StrokeOpts {
     cap?: StrokeCap;
 }
 
+export interface TonalColorsInput {
+    ambient: InputColor;
+    spot: InputColor;
+}
+
+export interface TonalColorsOutput {
+    ambient: SkColor;
+    spot: SkColor;
+}
+
 /**
  * Options for configuring a WebGL context. If an option is omitted, a sensible default will
  * be used. These are defined by the WebGL standards.
@@ -1834,6 +2078,14 @@ export interface ColorMatrixHelpers {
 }
 
 /**
+ * A constructor for making an ImageData that is compatible with the Canvas2D emulation code.
+ */
+export interface ImageDataConstructor {
+    new (width: number, height: number): EmulatedImageData;
+    new (pixels: Uint8ClampedArray, width: number, height: number): EmulatedImageData;
+}
+
+/**
  * TODO(kjlubick) Make this API return Float32Arrays
  */
 export interface Matrix3x3Helpers {
@@ -1867,7 +2119,7 @@ export interface Matrix3x3Helpers {
      * @param px - the X value to rotate around, defaults to 0.
      * @param py - the Y value to rotate around, defaults to 0.
      */
-    rotated(radians: angleInRadians, px?: number, py?: number): number[];
+    rotated(radians: AngleInRadians, px?: number, py?: number): number[];
 
     /**
      * Returns a new 3x3 matrix representing a scale in the x and y directions.
@@ -1936,7 +2188,7 @@ export interface Matrix4x4Helpers {
      * @param far
      * @param radians
      */
-    perspective(near: number, far: number, radians: angleInRadians): number[];
+    perspective(near: number, far: number, radians: AngleInRadians): number[];
 
     /**
      * Returns the value at the specified row and column of the given 4x4 matrix.
@@ -1951,7 +2203,7 @@ export interface Matrix4x4Helpers {
      * @param axis
      * @param radians
      */
-    rotated(axis: Vector3, radians: angleInRadians): number[];
+    rotated(axis: Vector3, radians: AngleInRadians): number[];
 
     /**
      * Returns a new 4x4 matrix representing a rotation around the provided vector.
@@ -2045,6 +2297,17 @@ export interface SkColorFilterFactory {
      * Makes a color filter that converts between sRGB colors and linear colors.
      */
     MakeSRGBToLinearGamma(): SkColorFilter;
+}
+
+export interface SkContourMeasureIterConstructor {
+    /**
+     * Creates an SkContourMeasureIter with the given path.
+     * @param path
+     * @param forceClosed - if path should be forced close before measuring it.
+     * @param resScale - controls the precision of the measure. values > 1 increase the
+     *                   precision (and possibly slow down the computation).
+     */
+    new (path: SkPath, forceClosed: boolean, resScale: number): SkContourMeasureIter;
 }
 
 /**
@@ -2196,6 +2459,14 @@ export interface SkPathEffectFactory {
     MakeDiscrete(segLength: number, dev: number, seedAssist: number): SkPathEffect;
 }
 
+export interface SkShaderFactory {
+    todo: number; // TODO(kjlubick)
+}
+
+export interface SkRuntimeEffectFactory {
+    todo: number; // TODO(kjlubick)
+}
+
 /**
  * See SkTextBlob.h for more details.
  */
@@ -2246,7 +2517,7 @@ export interface SkTextBlobFactory {
     /**
      * Returns a TextBlob that has the glyphs following the contours of the given path.
      *
-     * It is a convenience wrapper around MakeFromRSXform and SkPathMeasure.
+     * It is a convenience wrapper around MakeFromRSXform and SkContourMeasureIter.
      * @param str
      * @param path
      * @param font
@@ -2255,6 +2526,15 @@ export interface SkTextBlobFactory {
     MakeOnPath(str: string, path: SkPath, font: SkFont, initialOffset?: number): SkTextBlob;
 }
 
+export interface VectorHelpers {
+    todo: number; // TODO(kjlubick)
+}
+
+/**
+ * A PosTan is an array of 4 values, representing a position and a tangent vector. In order, the
+ * values are [px, py, tx, ty].
+ */
+export type PosTan = number[];
 /**
  * An SkColor is represented by 4 floats, typically with values between 0 and 1.0. In order,
  * the floats correspond to red, green, blue, alpha.
@@ -2294,8 +2574,9 @@ export type SkRect = Float32Array;
 export type SkRRect = Float32Array;
 
 export type WebGLContextHandle = number;
-export type angleInDegrees = number;
-export type angleInRadians = number;
+export type AngleInDegrees = number;
+export type AngleInRadians = number;
+export type SaveLayerFlag = number;
 
 export type TypedArrayConstructor = Float32ArrayConstructor | Int32ArrayConstructor |
     Int16ArrayConstructor | Int8ArrayConstructor | Uint32ArrayConstructor |
@@ -2401,6 +2682,7 @@ export type PointMode = EmbindEnumEntity;
 export type StrokeCap = EmbindEnumEntity;
 export type StrokeJoin = EmbindEnumEntity;
 export type TileMode = EmbindEnumEntity;
+export type VertexMode = EmbindEnumEntity;
 
 export interface AlphaTypeEnumValues extends EmbindEnum {
     Opaque: AlphaType;
@@ -2542,4 +2824,10 @@ export interface TileModeEnumValues extends EmbindEnum {
     Decal: TileMode;
     Mirror: TileMode;
     Repeat: TileMode;
+}
+
+export interface VertexModeEnumValues extends EmbindEnum {
+    Triangles: VertexMode;
+    TrianglesStrip: VertexMode;
+    TriangleFan: VertexMode;
 }
