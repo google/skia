@@ -33,7 +33,7 @@ String PipelineStageCodeGenerator::getTypeName(const Type& type) {
 }
 
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (c.fFunction.fBuiltin && c.fFunction.name() == "sample" &&
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "sample" &&
         c.fArguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
         SkASSERT(c.fArguments.size() <= 2);
         SkDEBUGCODE(const Type& arg0Type = c.fArguments[0]->type());
@@ -152,7 +152,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 this->write("_vtx_attr_");
                 this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
             } else {
-                this->write(ref.fVariable->name());
+                this->write(ref.fVariable->fName);
             }
         }
     }
@@ -177,7 +177,7 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     OutputStream* oldOut = fOut;
     StringStream buffer;
     fOut = &buffer;
-    if (f.fDeclaration.name() == "main") {
+    if (f.fDeclaration.fName == "main") {
         for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
             this->writeStatement(*stmt);
             this->writeLine();
@@ -192,14 +192,14 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
             fErrors.error(f.fOffset, "unsupported return type");
             return;
         }
-        result.fName = decl.name();
+        result.fName = decl.fName;
         for (const Variable* v : decl.fParameters) {
             GrSLType paramSLType;
             if (!type_to_grsltype(fContext, v->type(), &paramSLType)) {
                 fErrors.error(v->fOffset, "unsupported parameter type");
                 return;
             }
-            result.fParameters.emplace_back(v->name(), paramSLType);
+            result.fParameters.emplace_back(v->fName, paramSLType);
         }
         for (const std::unique_ptr<Statement>& stmt : f.fBody->as<Block>().children()) {
             this->writeStatement(*stmt);

@@ -45,7 +45,7 @@ struct VarDeclaration : public Statement {
     }
 
     String description() const override {
-        String result = fVar->fModifiers.description() + fVar->type().name() + " " + fVar->name();
+        String result = fVar->fModifiers.description() + fVar->type().name() + " " + fVar->fName;
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -113,7 +113,7 @@ struct VarDeclarations : public ProgramElement {
             VarDeclaration& var = (VarDeclaration&) *rawVar;
             result += separator;
             separator = ", ";
-            result += var.fVar->name();
+            result += var.fVar->fName;
             if (var.fValue) {
                 result += " = " + var.fValue->description();
             }

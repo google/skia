@@ -19,8 +19,6 @@
 
 namespace SkSL {
 
-class String;
-
 // Represents a (not necessarily null-terminated) slice of a string.
 struct StringFragment {
     StringFragment()
@@ -44,9 +42,6 @@ struct StringFragment {
     bool operator==(StringFragment s) const;
     bool operator!=(StringFragment s) const;
     bool operator<(StringFragment s) const;
-    String operator+(const char* s) const;
-    String operator+(const StringFragment& s) const;
-    String operator+(const String& s) const;
 
 #ifndef SKSL_STANDALONE
     operator SkString() const { return SkString(fChars, fLength); }

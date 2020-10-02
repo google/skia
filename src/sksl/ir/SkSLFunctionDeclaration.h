@@ -38,7 +38,7 @@ struct FunctionDeclaration : public Symbol {
     , fReturnType(returnType) {}
 
     String description() const override {
-        String result = fReturnType.displayName() + " " + this->name() + "(";
+        String result = fReturnType.displayName() + " " + fName + "(";
         String separator;
         for (auto p : fParameters) {
             result += separator;
@@ -50,7 +50,7 @@ struct FunctionDeclaration : public Symbol {
     }
 
     bool matches(const FunctionDeclaration& f) const {
-        if (this->name() != f.name()) {
+        if (fName != f.fName) {
             return false;
         }
         if (fParameters.size() != f.fParameters.size()) {

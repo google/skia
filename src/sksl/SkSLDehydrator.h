@@ -24,7 +24,7 @@ namespace SkSL {
 struct Expression;
 struct ProgramElement;
 struct Statement;
-class Symbol;
+struct Symbol;
 class SymbolTable;
 
 // The file has the structure:
