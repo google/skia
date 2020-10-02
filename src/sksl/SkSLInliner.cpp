@@ -7,7 +7,7 @@
 
 #include "src/sksl/SkSLInliner.h"
 
-#include "limits.h"
+#include <limits.h>
 #include <memory>
 #include <unordered_set>
 
@@ -592,7 +592,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     SkASSERT(fSettings);
     SkASSERT(fContext);
     SkASSERT(call);
-    SkASSERT(this->isSafeToInline(*call, /*inlineThreshold=*/INT_MAX));
+    SkASSERT(this->isSafeToInline(call->fFunction.fDefinition));
 
     std::vector<std::unique_ptr<Expression>>& arguments = call->fArguments;
     const int offset = call->fOffset;
@@ -745,58 +745,52 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     return inlinedCall;
 }
 
-bool Inliner::isSafeToInline(const FunctionCall& functionCall, int inlineThreshold) {
+bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
     SkASSERT(fSettings);
 
-    if (functionCall.fFunction.fDefinition == nullptr) {
+    if (functionDef == nullptr) {
         // Can't inline something if we don't actually have its definition.
         return false;
     }
-    const FunctionDefinition& functionDef = *functionCall.fFunction.fDefinition;
-    if (inlineThreshold < INT_MAX) {
-        if (!(functionDef.fDeclaration.fModifiers.fFlags & Modifiers::kInline_Flag) &&
-            Analysis::NodeCountExceeds(functionDef, inlineThreshold)) {
-            // The function exceeds our maximum inline size and is not flagged 'inline'.
-            return false;
-        }
-    }
+
     if (!fSettings->fCaps || !fSettings->fCaps->canUseDoLoops()) {
         // We don't have do-while loops. We use do-while loops to simulate early returns, so we
         // can't inline functions that have an early return.
-        bool hasEarlyReturn = has_early_return(functionDef);
+        bool hasEarlyReturn = has_early_return(*functionDef);
 
         // If we didn't detect an early return, there shouldn't be any returns in breakable
         // constructs either.
-        SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(functionDef) == 0);
+        SkASSERT(hasEarlyReturn || count_returns_in_breakable_constructs(*functionDef) == 0);
         return !hasEarlyReturn;
     }
     // We have do-while loops, but we don't have any mechanism to simulate early returns within a
     // breakable construct (switch/for/do/while), so we can't inline if there's a return inside one.
-    bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(functionDef) > 0);
+    bool hasReturnInBreakableConstruct = (count_returns_in_breakable_constructs(*functionDef) > 0);
 
     // If we detected returns in breakable constructs, we should also detect an early return.
-    SkASSERT(!hasReturnInBreakableConstruct || has_early_return(functionDef));
+    SkASSERT(!hasReturnInBreakableConstruct || has_early_return(*functionDef));
     return !hasReturnInBreakableConstruct;
 }
 
-bool Inliner::analyze(Program& program) {
-    // A candidate function for inlining, containing everything that `inlineCall` needs.
-    struct InlineCandidate {
-        SymbolTable* fSymbols;                        // the SymbolTable of the candidate
-        std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
-        std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
-        std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
-        FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
-    };
+// A candidate function for inlining, containing everything that `inlineCall` needs.
+struct InlineCandidate {
+    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
+    std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
+    std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
+    std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
+    FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
+    bool fIsLargeFunction;                        // does candidate exceed the inline threshold?
+};
 
-    // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
-    // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
-    // that they can later be replaced, and ProgramVisitor does not provide this; it only provides a
-    // `const T&`.
-    class InlineCandidateAnalyzer {
+struct InlineCandidateList {
+    std::vector<InlineCandidate> fCandidates;
+};
+
+class InlineCandidateAnalyzer {
     public:
         // A list of all the inlining candidates we found during analysis.
-        std::vector<InlineCandidate> fInlineCandidates;
+        InlineCandidateList* fCandidateList;
+
         // A stack of the symbol tables; since most nodes don't have one, expected to be shallower
         // than the enclosing-statement stack.
         std::vector<SymbolTable*> fSymbolTableStack;
@@ -807,7 +801,8 @@ bool Inliner::analyze(Program& program) {
         // The function that we're currently processing (i.e. inlining into).
         FunctionDefinition* fEnclosingFunction = nullptr;
 
-        void visit(Program& program) {
+        void visit(Program& program, InlineCandidateList* candidateList) {
+            fCandidateList = candidateList;
             fSymbolTableStack.push_back(program.fSymbols.get());
 
             for (ProgramElement& pe : program) {
@@ -815,6 +810,7 @@ bool Inliner::analyze(Program& program) {
             }
 
             fSymbolTableStack.pop_back();
+            fCandidateList = nullptr;
         }
 
         void visitProgramElement(ProgramElement* pe) {
@@ -1072,42 +1068,87 @@ bool Inliner::analyze(Program& program) {
         }
 
         void addInlineCandidate(std::unique_ptr<Expression>* candidate) {
-            fInlineCandidates.push_back(InlineCandidate{fSymbolTableStack.back(),
-                                                        find_parent_statement(fEnclosingStmtStack),
-                                                        fEnclosingStmtStack.back(),
-                                                        candidate,
-                                                        fEnclosingFunction});
+            fCandidateList->fCandidates.push_back(
+                    InlineCandidate{fSymbolTableStack.back(),
+                                    find_parent_statement(fEnclosingStmtStack),
+                                    fEnclosingStmtStack.back(),
+                                    candidate,
+                                    fEnclosingFunction,
+                                    /*isLargeFunction=*/false});
         }
-    };
+};
 
-    InlineCandidateAnalyzer analyzer;
-    analyzer.visit(program);
+bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache) {
+    const FunctionDeclaration& funcDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().fFunction;
 
-    // For each of our candidate function-call sites, check if it is actually safe to inline.
-    // Memoize our results so we don't check a function more than once.
-    std::unordered_map<const FunctionDeclaration*, bool> inlinableMap; // <function, safe-to-inline>
-    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
-        const FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
-        const FunctionDeclaration* funcDecl = &funcCall.fFunction;
-        if (inlinableMap.find(funcDecl) == inlinableMap.end()) {
-            // We do not perform inlining on recursive calls to avoid an infinite death spiral of
-            // inlining.
-            int inlineThreshold = (funcDecl->fCallCount.load() > 1) ? fSettings->fInlineThreshold
-                                                                    : INT_MAX;
-            inlinableMap[funcDecl] = this->isSafeToInline(funcCall, inlineThreshold) &&
-                                     !contains_recursive_call(*funcDecl);
-        }
+    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
+    if (wasInserted) {
+        // Recursion is forbidden here to avoid an infinite death spiral of inlining.
+        iter->second = this->isSafeToInline(funcDecl.fDefinition) &&
+                       !contains_recursive_call(funcDecl);
     }
+
+    return iter->second;
+}
+
+bool Inliner::isLargeFunction(const FunctionDefinition* functionDef) {
+    return Analysis::NodeCountExceeds(*functionDef, fSettings->fInlineThreshold);
+}
+
+bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache) {
+    const FunctionDeclaration& funcDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().fFunction;
+
+    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
+    if (wasInserted) {
+        iter->second = this->isLargeFunction(funcDecl.fDefinition);
+    }
+
+    return iter->second;
+}
+
+void Inliner::buildCandidateList(Program& program, InlineCandidateList* candidateList) {
+    // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
+    // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
+    // that they can later be replaced, and ProgramVisitor does not provide this; it only provides a
+    // `const T&`.
+    InlineCandidateAnalyzer analyzer;
+    analyzer.visit(program, candidateList);
+
+    // Remove candidates that are not safe to inline.
+    std::vector<InlineCandidate>& candidates = candidateList->fCandidates;
+    InlinabilityCache cache;
+    candidates.erase(std::remove_if(candidates.begin(),
+                                    candidates.end(),
+                                    [&](const InlineCandidate& candidate) {
+                                        return !this->candidateCanBeInlined(candidate, &cache);
+                                    }),
+                     candidates.end());
+
+    // Determine whether each candidate function exceeds our inlining size threshold or not. These
+    // can still be valid candidates if they are only called one time, so we don't remove them from
+    // the candidate list, but they will not be inlined if they're called more than once.
+    LargeFunctionCache largeFunctionCache;
+    for (InlineCandidate& candidate : candidates) {
+        candidate.fIsLargeFunction = this->isLargeFunction(candidate, &largeFunctionCache);
+    }
+}
+
+bool Inliner::analyze(Program& program) {
+    InlineCandidateList candidateList;
+    this->buildCandidateList(program, &candidateList);
 
     // Inline the candidates where we've determined that it's safe to do so.
     std::unordered_set<const std::unique_ptr<Statement>*> enclosingStmtSet;
     bool madeChanges = false;
-    for (const InlineCandidate& candidate : analyzer.fInlineCandidates) {
+    for (const InlineCandidate& candidate : candidateList.fCandidates) {
         FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
         const FunctionDeclaration* funcDecl = &funcCall.fFunction;
 
-        // If we determined that this candidate was not actually inlinable, skip it.
-        if (!inlinableMap[funcDecl]) {
+        // If the function is large, not marked `inline`, and is called more than once, it's a bad
+        // idea to inline it.
+        if (candidate.fIsLargeFunction &&
+            !(funcDecl->fModifiers.fFlags & Modifiers::kInline_Flag) &&
+            funcDecl->fCallCount.load() > 1) {
             continue;
         }
 
