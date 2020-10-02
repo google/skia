@@ -74,6 +74,21 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                                               ParseDefault<size_t>((*jtxt)["sk_rs"], 0)),
                                      SK_ARRAY_COUNT(gResizeMap))];
 
+    // At the moment, BM uses the paragraph box to discriminate point mode vs. paragraph mode.
+    v->fLineBreak = v->fBox.isEmpty()
+            ? Shaper::LinebreakPolicy::kExplicit
+            : Shaper::LinebreakPolicy::kParagraph;
+
+    // Optional explicit text mode.
+    // N.b.: this is not being exported by BM, only used for testing.
+    auto text_mode = ParseDefault((*jtxt)["m"], -1);
+    if (text_mode >= 0) {
+        // Explicit text mode.
+        v->fLineBreak = (text_mode == 0)
+                ? Shaper::LinebreakPolicy::kExplicit   // 'm': 0 -> point text
+                : Shaper::LinebreakPolicy::kParagraph; // 'm': 1 -> paragraph text
+    }
+
     // In point mode, the text is baseline-aligned.
     v->fVAlign = v->fBox.isEmpty() ? Shaper::VAlign::kTopBaseline
                                    : Shaper::VAlign::kTop;
@@ -108,11 +123,6 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                 break;
             }
         }
-    }
-
-    if (v->fResize != Shaper::ResizePolicy::kNone && v->fBox.isEmpty()) {
-        abuilder.log(Logger::Level::kWarning, jtxt, "Auto-scaled text requires a paragraph box.");
-        v->fResize = Shaper::ResizePolicy::kNone;
     }
 
     const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
