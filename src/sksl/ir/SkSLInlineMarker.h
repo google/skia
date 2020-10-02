@@ -29,7 +29,7 @@ struct InlineMarker : public Statement {
     }
 
     String description() const override {
-        return String("/* inlined: ") + fFuncDecl->name() + String(" */");
+        return String("/* inlined: ") + fFuncDecl->fName + String(" */");
     }
 
     std::unique_ptr<Statement> clone() const override {

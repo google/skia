@@ -19,7 +19,7 @@ struct UnresolvedFunction : public Symbol {
     static constexpr Kind kSymbolKind = Kind::kUnresolvedFunction;
 
     UnresolvedFunction(std::vector<const FunctionDeclaration*> funcs)
-    : INHERITED(-1, kSymbolKind, funcs[0]->name())
+    : INHERITED(-1, kSymbolKind, funcs[0]->fName)
     , fFunctions(std::move(funcs)) {
 #ifdef DEBUG
         for (auto func : funcs) {
@@ -29,7 +29,7 @@ struct UnresolvedFunction : public Symbol {
     }
 
     String description() const override {
-        return this->name();
+        return fName;
     }
 
     const std::vector<const FunctionDeclaration*> fFunctions;

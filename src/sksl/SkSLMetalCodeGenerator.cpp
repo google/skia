@@ -172,7 +172,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
 }
 
 void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
-    auto i = fIntrinsicMap.find(c.fFunction.name());
+    auto i = fIntrinsicMap.find(c.fFunction.fName);
     SkASSERT(i != fIntrinsicMap.end());
     Intrinsic intrinsic = i->second;
     int32_t intrinsicId = intrinsic.second;
@@ -212,26 +212,25 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
 }
 
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    const auto& entry = fIntrinsicMap.find(c.fFunction.name());
+    const auto& entry = fIntrinsicMap.find(c.fFunction.fName);
     if (entry != fIntrinsicMap.end()) {
         this->writeIntrinsicCall(c);
         return;
     }
-    const StringFragment& name = c.fFunction.name();
-    if (c.fFunction.fBuiltin && name == "atan" && 2 == c.fArguments.size()) {
+    if (c.fFunction.fBuiltin && "atan" == c.fFunction.fName && 2 == c.fArguments.size()) {
         this->write("atan2");
-    } else if (c.fFunction.fBuiltin && name == "inversesqrt") {
+    } else if (c.fFunction.fBuiltin && "inversesqrt" == c.fFunction.fName) {
         this->write("rsqrt");
-    } else if (c.fFunction.fBuiltin && name == "inverse") {
+    } else if (c.fFunction.fBuiltin && "inverse" == c.fFunction.fName) {
         SkASSERT(c.fArguments.size() == 1);
         this->writeInverseHack(*c.fArguments[0]);
-    } else if (c.fFunction.fBuiltin && name == "dFdx") {
+    } else if (c.fFunction.fBuiltin && "dFdx" == c.fFunction.fName) {
         this->write("dfdx");
-    } else if (c.fFunction.fBuiltin && name == "dFdy") {
+    } else if (c.fFunction.fBuiltin && "dFdy" == c.fFunction.fName) {
         // Flipping Y also negates the Y derivatives.
         this->write((fProgram.fSettings.fFlipY) ? "-dfdy" : "dfdy");
     } else {
-        this->writeName(name);
+        this->writeName(c.fFunction.fName);
     }
     this->write("(");
     const char* separator = "";
@@ -708,7 +707,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                     this->write("_globals->");
                 }
             }
-            this->writeName(ref.fVariable->name());
+            this->writeName(ref.fVariable->fName);
     }
 }
 
@@ -799,8 +798,8 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
         fExtraFunctions.printf("%s operator*=(thread %s& left, thread const %s& right) {\n"
                                "    left = left * right;\n"
                                "    return left;\n"
-                               "}", String(result.name()).c_str(), String(left.name()).c_str(),
-                                    String(right.name()).c_str());
+                               "}", result.name().c_str(), left.name().c_str(),
+                                    right.name().c_str());
     }
 }
 
@@ -930,7 +929,7 @@ void MetalCodeGenerator::writeSetting(const Setting& s) {
 void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     fRTHeightName = fProgram.fInputs.fRTHeight ? "_globals->_anonInterface0->u_skRTHeight" : "";
     const char* separator = "";
-    if ("main" == f.fDeclaration.name()) {
+    if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
                 this->write("fragment Outputs fragmentMain");
@@ -967,12 +966,12 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                             return;
                         }
                         this->write(", texture2d<float> ");
-                        this->writeName(var.fVar->name());
+                        this->writeName(var.fVar->fName);
                         this->write("[[texture(");
                         this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
                         this->write(")]]");
                         this->write(", sampler ");
-                        this->writeName(var.fVar->name());
+                        this->writeName(var.fVar->fName);
                         this->write(SAMPLER_SUFFIX);
                         this->write("[[sampler(");
                         this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
@@ -1007,7 +1006,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     } else {
         this->writeType(f.fDeclaration.fReturnType);
         this->write(" ");
-        this->writeName(f.fDeclaration.name());
+        this->writeName(f.fDeclaration.fName);
         this->write("(");
         Requirements requirements = this->requirements(f.fDeclaration);
         if (requirements & kInputs_Requirement) {
@@ -1050,7 +1049,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
             this->write("*");
         }
         this->write(" ");
-        this->writeName(param->name());
+        this->writeName(param->fName);
         for (int s : sizes) {
             if (s == Type::kUnsizedArray) {
                 this->write("[]");
@@ -1063,7 +1062,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
 
-    if (f.fDeclaration.name() == "main") {
+    if ("main" == f.fDeclaration.fName) {
         this->writeGlobalInit();
         this->writeLine("    Outputs _outputStruct;");
         this->writeLine("    thread Outputs* _out = &_outputStruct;");
@@ -1080,7 +1079,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
             this->writeLine();
         }
     }
-    if (f.fDeclaration.name() == "main") {
+    if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
                 this->writeLine("return *_out;");
@@ -1232,7 +1231,7 @@ void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool 
             this->write(" ");
             wroteType = true;
         }
-        this->writeName(var.fVar->name());
+        this->writeName(var.fVar->fName);
         for (const auto& size : var.fSizes) {
             this->write("[");
             if (size) {
@@ -1429,7 +1428,7 @@ void MetalCodeGenerator::writeUniformStruct() {
                 this->write(" ");
                 for (const auto& stmt : decls.fVars) {
                     const VarDeclaration& var = stmt->as<VarDeclaration>();
-                    this->writeName(var.fVar->name());
+                    this->writeName(var.fVar->fName);
                 }
                 this->write(";\n");
             }
@@ -1456,7 +1455,7 @@ void MetalCodeGenerator::writeInputStruct() {
                 this->write(" ");
                 for (const auto& stmt : decls.fVars) {
                     const VarDeclaration& var = stmt->as<VarDeclaration>();
-                    this->writeName(var.fVar->name());
+                    this->writeName(var.fVar->fName);
                     if (-1 != var.fVar->fModifiers.fLayout.fLocation) {
                         if (fProgram.fKind == Program::kVertex_Kind) {
                             this->write("  [[attribute(" +
@@ -1495,7 +1494,7 @@ void MetalCodeGenerator::writeOutputStruct() {
                 this->write(" ");
                 for (const auto& stmt : decls.fVars) {
                     const VarDeclaration& var = stmt->as<VarDeclaration>();
-                    this->writeName(var.fVar->name());
+                    this->writeName(var.fVar->fName);
                     if (fProgram.fKind == Program::kVertex_Kind) {
                         this->write("  [[user(locn" +
                                     to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
@@ -1555,8 +1554,8 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
 
                 if (var.fVar->type().typeKind() == Type::TypeKind::kSampler) {
                     // Samplers are represented as a "texture/sampler" duo in the global struct.
-                    visitor->VisitTexture(first.type(), var.fVar->name());
-                    visitor->VisitSampler(first.type(), String(var.fVar->name()) + SAMPLER_SUFFIX);
+                    visitor->VisitTexture(first.type(), var.fVar->fName);
+                    visitor->VisitSampler(first.type(), String(var.fVar->fName) + SAMPLER_SUFFIX);
                 } else {
                     // Visit a regular variable.
                     visitor->VisitVariable(*var.fVar, var.fValue.get());
@@ -1596,7 +1595,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
             fCodeGen->write("    ");
             fCodeGen->writeType(var.type());
             fCodeGen->write(" ");
-            fCodeGen->writeName(var.name());
+            fCodeGen->writeName(var.fName);
             fCodeGen->write(";\n");
         }
         void AddElement() {
