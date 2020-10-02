@@ -132,8 +132,7 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
         }
     }
 
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
     if (SkPathPriv::ConicWeightCnt(path)) {
         return CanDrawPath::kNo;
     }
@@ -159,8 +158,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrOpMemoryPool* pool = args.fContext->priv().opMemoryPool();
     const GrShaderCaps& shaderCaps = *args.fContext->priv().caps()->shaderCaps();
 
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
 
     SkRect devBounds;
     args.fViewMatrix->mapRect(&devBounds, path.getBounds());
@@ -341,8 +339,7 @@ bool GrTessellationPathRenderer::tryAddPathToAtlas(
 }
 
 void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
 
     GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
 

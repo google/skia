@@ -14,8 +14,9 @@
 // need SkDVector
 #include "src/pathops/SkPathOpsPoint.h"
 
-SkPathBuilder::SkPathBuilder() {
+SkPathBuilder::SkPathBuilder(SkPathFillType ft) {
     this->reset();
+    fFillType = ft;
 }
 
 SkPathBuilder::SkPathBuilder(const SkPath& src) {
@@ -171,6 +172,10 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
     this->ensureMove();
     SkPoint base = fPts.back();
     return this->cubicTo(base + p1, base + p2, base + p3);
+}
+
+SkPoint SkPathBuilder::lastPoint() const {
+    return fPts.isEmpty() ? SkPoint{0, 0} : fPts.back();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

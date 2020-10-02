@@ -149,8 +149,7 @@ GrTriangulatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
         case GrAAType::kCoverage:
             // Use analytic AA if we don't have MSAA. In this case, we do not cache, so we accept
             // paths without keys.
-            SkPath path;
-            args.fShape->asPath(&path);
+            SkPath path = args.fShape->asPath();
             if (path.countVerbs() > fMaxVerbCount) {
                 return CanDrawPath::kNo;
             }
@@ -230,9 +229,7 @@ public:
 private:
     SkPath getPath() const {
         SkASSERT(!fShape.style().applies());
-        SkPath path;
-        fShape.asPath(&path);
-        return path;
+        return fShape.asPath();
     }
 
     void draw(Target* target) {

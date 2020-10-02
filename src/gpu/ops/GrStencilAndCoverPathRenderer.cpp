@@ -77,17 +77,13 @@ static sk_sp<GrPath> get_gr_path(GrResourceProvider* resourceProvider, const GrS
         path = resourceProvider->findByUniqueKey<GrPath>(key);
     }
     if (!path) {
-        SkPath skPath;
-        shape.asPath(&skPath);
-        path = resourceProvider->createPath(skPath, shape.style());
+        path = resourceProvider->createPath(shape.asPath(), shape.style());
         if (!isVolatile) {
             resourceProvider->assignUniqueKeyToResource(key, path.get());
         }
     } else {
 #ifdef SK_DEBUG
-        SkPath skPath;
-        shape.asPath(&skPath);
-        SkASSERT(path->isEqualTo(skPath, shape.style()));
+        SkASSERT(path->isEqualTo(shape.asPath(), shape.style()));
 #endif
     }
     return path;

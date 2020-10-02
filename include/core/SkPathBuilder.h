@@ -15,8 +15,7 @@
 
 class SK_API SkPathBuilder {
 public:
-    SkPathBuilder();
-    SkPathBuilder(SkPathFillType);
+    SkPathBuilder(SkPathFillType = SkPathFillType::kWinding);
     SkPathBuilder(const SkPath&);
     SkPathBuilder(const SkPathBuilder&) = default;
     ~SkPathBuilder();
@@ -215,6 +214,8 @@ public:
         fFillType = (SkPathFillType)((unsigned)fFillType ^ 2);
         return *this;
     }
+
+    SkPoint lastPoint() const;
 
 private:
     SkTDArray<SkPoint>  fPts;

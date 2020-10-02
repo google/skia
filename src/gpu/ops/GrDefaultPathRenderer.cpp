@@ -546,8 +546,7 @@ bool GrDefaultPathRenderer::internalDrawPath(GrRenderTargetContext* renderTarget
     auto context = renderTargetContext->surfPriv().getContext();
 
     SkASSERT(GrAAType::kCoverage != aaType);
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
