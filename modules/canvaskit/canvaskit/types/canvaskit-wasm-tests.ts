@@ -10,6 +10,7 @@ import {
     SkCanvas,
     SkColorFilter,
     SkFont,
+    SkFontMgr,
     SkImage,
     SkImageFilter,
     SkImageInfo,
@@ -22,6 +23,7 @@ import {
     SkShader,
     SkSurface,
     SkTextBlob,
+    SkTypeface,
     SkVertices,
     TypedArray,
 } from "canvaskit-wasm";
@@ -32,6 +34,8 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     colorTests(CK);
     imageFilterTests(CK);
     imageTests(CK);
+    fontTests(CK);
+    fontMgrTests(CK);
     mallocTests(CK);
     maskFilterTests(CK);
     matrixTests(CK);
@@ -39,7 +43,9 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     pathEffectTests(CK);
     pathTests(CK);
     rectangleTests(CK);
+    shapedTextTests(CK);
     surfaceTests(CK);
+    textBlobTests(CK);
 });
 
 // In an effort to keep these type-checking tests easy to read and understand, we can "inject"
@@ -188,6 +194,59 @@ function imageFilterTests(CK: CanvasKit, colorFilter?: SkColorFilter) {
                                              CK.FilterQuality.High, null);
     const filter8 = imgf.MakeMatrixTransform(CK.SkM44.identity(),
                                              CK.FilterQuality.None, filter6);
+}
+
+function fontTests(CK: CanvasKit, face?: SkTypeface, paint?: SkPaint) {
+    if (!face || !paint) return;
+    const font = new CK.SkFont(); // $ExpectType SkFont
+    const f2 = new CK.SkFont(face); // $ExpectType SkFont
+    const f3 = new CK.SkFont(null); // $ExpectType SkFont
+    const f4 = new CK.SkFont(face, 20); // $ExpectType SkFont
+    const f5 = new CK.SkFont(null, 20); // $ExpectType SkFont
+    const f6 = new CK.SkFont(null, 20, 2, 3); // $ExpectType SkFont
+    const f7 = new CK.SkFont(face, 20, 4, 5); // $ExpectType SkFont
+
+    const glyphMalloc = CK.MallocGlyphIDs(20);
+    const someGlyphs = [1, 2, 3, 4, 5];
+
+    const glyphBounds = font.getGlyphBounds(glyphMalloc, paint); // $ExpectType Float32Array
+    font.getGlyphBounds(someGlyphs, null, glyphBounds);
+
+    const ids = font.getGlyphIDs('abcd');
+    font.getGlyphIDs('efgh', 4, ids);
+
+    const widths = font.getGlyphWidths(glyphMalloc, paint);
+    font.getGlyphWidths(someGlyphs, null, widths);
+
+    font.getScaleX();
+    font.getSize();
+    font.getSkewX();
+    font.getTypeface();
+    const w2 = font.getWidths('abcdefg'); // $ExpectType number[]
+    const w = font.measureText('abc'); // $ExpectType number
+    font.setEdging(CK.FontEdging.Alias);
+    font.setEmbeddedBitmaps(true);
+    font.setHinting(CK.FontHinting.Slight);
+    font.setLinearMetrics(true);
+    font.setScaleX(5);
+    font.setSize(15);
+    font.setSkewX(2);
+    font.setSubpixel(true);
+    font.setTypeface(null);
+    font.setTypeface(face);
+}
+
+function fontMgrTests(CK: CanvasKit) {
+    const fm = CK.SkFontMgr.RefDefault(); // $ExpectType SkFontMgr
+
+    const buff1 = new ArrayBuffer(10);
+    const buff2 = new ArrayBuffer(20);
+
+    const fm2 = CK.SkFontMgr.FromData(buff1, buff2);
+    fm.countFamilies();
+    fm.getFamilyName(0);
+
+    const tf = fm.makeTypefaceFromData(buff1); // $ExpectType SkTypeface
 }
 
 function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: SkImageFilter,
@@ -364,6 +423,27 @@ function matrixTests(CK: CanvasKit) {
     const matr13 = m44.transpose([4, 5, 8]); // $ExpectType number[]
 }
 
+function rectangleTests(CK: CanvasKit) {
+    const rectOne = CK.LTRBRect(5, 10, 20, 30); // $ExpectType Float32Array
+    const rectTwo = CK.XYWHRect(5, 10, 15, 20); // $ExpectType Float32Array
+    const iRectOne = CK.LTRBiRect(105, 110, 120, 130); // $ExpectType Int32Array
+    const iRectTwo = CK.XYWHiRect(105, 110, 15, 20); // $ExpectType Int32Array
+    const rrectOne = CK.RRectXY(rectOne, 3, 7);  // $ExpectType Float32Array
+}
+
+function shapedTextTests(CK: CanvasKit, textFont?: SkFont) {
+    if (!textFont) return;
+
+    const shaped = new CK.ShapedText({ // $ExpectType ShapedText
+       font: textFont,
+       leftToRight: true,
+       text: 'this is shaped',
+       width: 20,
+    });
+    const bounds = shaped.getBounds();
+    shaped.getBounds(bounds);
+}
+
 function surfaceTests(CK: CanvasKit) {
     const canvasEl = document.querySelector('canvas') as HTMLCanvasElement;
     const surfaceOne = CK.MakeCanvasSurface(canvasEl)!; // $ExpectType SkSurface
@@ -401,10 +481,19 @@ function surfaceTests(CK: CanvasKit) {
         CK.SkColorSpace.ADOBE_RGB)!;
 }
 
-function rectangleTests(CK: CanvasKit) {
-    const rectOne = CK.LTRBRect(5, 10, 20, 30); // $ExpectType Float32Array
-    const rectTwo = CK.XYWHRect(5, 10, 15, 20); // $ExpectType Float32Array
-    const iRectOne = CK.LTRBiRect(105, 110, 120, 130); // $ExpectType Int32Array
-    const iRectTwo = CK.XYWHiRect(105, 110, 15, 20); // $ExpectType Int32Array
-    const rrectOne = CK.RRectXY(rectOne, 3, 7);  // $ExpectType Float32Array
+function textBlobTests(CK: CanvasKit, font?: SkFont, path?: SkPath) {
+    if (!font || !path) return;
+    const tb = CK.SkTextBlob; // less typing
+    const ids = font.getGlyphIDs('abc');
+    const mXforms = CK.Malloc(Float32Array, ids.length * 4);
+
+    const blob = tb.MakeFromGlyphs([5, 6, 7, 8], font); // $ExpectType SkTextBlob
+    const blob1 = tb.MakeFromGlyphs(ids, font); // $ExpectType SkTextBlob
+    const blob2 = tb.MakeFromRSXform('cdf', mXforms, font); // $ExpectType SkTextBlob
+    const blob3 = tb.MakeFromRSXform('c', [-1, 0, 2, 3], font); // $ExpectType SkTextBlob
+    const blob4 = tb.MakeFromRSXformGlyphs([3, 6], mXforms, font); // $ExpectType SkTextBlob
+    const blob5 = tb.MakeFromRSXformGlyphs(ids, [-1, 0, 2, 3], font); // $ExpectType SkTextBlob
+    const blob6 = tb.MakeFromText('xyz', font); // $ExpectType SkTextBlob
+    const blob7 = tb.MakeOnPath('tuv', path, font); // $ExpectType SkTextBlob
+    const blob8 = tb.MakeOnPath('tuv', path, font, 10); // $ExpectType SkTextBlob
 }
