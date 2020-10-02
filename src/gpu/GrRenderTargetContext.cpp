@@ -1179,13 +1179,6 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkPoint3 map(const SkMatrix& m, const SkPoint3& pt) {
-    SkPoint3 result;
-    m.mapXY(pt.fX, pt.fY, (SkPoint*)&result.fX);
-    result.fZ = pt.fZ;
-    return result;
-}
-
 bool GrRenderTargetContext::drawFastShadow(const GrClip* clip,
                                            const SkMatrix& viewMatrix,
                                            const SkPath& path,
@@ -1232,7 +1225,13 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     // transform light
-    SkPoint3 devLightPos = map(viewMatrix, rec.fLightPos);
+    SkPoint3 devLightPos = rec.fLightPos;
+    if (SkToBool(rec.fFlags & kRelativeLightPosition_ShadowFlag)) {
+        devLightPos.fX += viewMatrix.getTranslateX();
+        devLightPos.fY += viewMatrix.getTranslateY();
+    } else {
+        viewMatrix.mapPoints((SkPoint*)&devLightPos.fX, 1);
+    }
 
     // 1/scale
     SkScalar devToSrcScale = viewMatrix.isScaleTranslate() ?
