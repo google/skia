@@ -139,6 +139,41 @@
       "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9480e755_231b2cad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-02T17:21:29Z",
+      "side": 1,
+      "message": "If it\u0027s important that we call reserve(), we\u0027ll just call reserve(), same as any std::vector.  And if we\u0027re using this on the stack, who cares about saving 4 bytes with a union?  I can\u0027t see any of these side concerns as terribly important.\n\nI really want us to not add another std::vector-alike.  I think we\u0027re introducing lots of complexity here in one step with only superstition and appeal to authority backing your claim that it\u0027s important.  Please break this sort of thing down into smaller steps and demonstrate the value of each transformation.  How can you separate the effect of switching from std::set to std::sort from the effect of stack allocation?  And would heap allocation work well enough if we just allocated it all once?\n\nI know std::pmr is not available in C++14, which is why I specifically called it out as \"C++17\u0027s std::pmr\".  I mentioned it only because it serves as a proof-by-existence that a stack allocator can be written.",
+      "parentUuid": "3dac8426_11d67587",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6608ddce_9d80b8a8",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-02T17:21:29Z",
+      "side": 1,
+      "message": "We\u0027re moving several knobs here as proposed in the CL.  Let\u0027s try them in smaller steps?  I.e. why don\u0027t we start with something like this,\n\n   std::vector\u003cuint16_t\u003e ordered(f.fReferencedIntrisics.size());\n   for (int i \u003d 0; i \u003c ordered.size(); i++) {\n       ordered[i] \u003d this-\u003esymbolId(f.fReferencedIntrisics[i]);\n   }\n   std::sort(ordered.begin(), ordered.end());\n\nand then if that\u0027s not fast enough, something like this,\n\n   uint16_t few[16];\n   std::vector\u003cuint16_t\u003e many;\n   uint16_t* ordered \u003d few;\n   const uint16_t* end \u003d few + SK_ARRAY_SIZE(few);\n   if (f.fRefrencedIntrinsics.size() \u003e SK_ARRAY_SIZE(few)) {\n       many.resize(f.fRefrencedIntrinsics.size());\n       ordered \u003d many.data();\n       end \u003d ordered + many.size();\n   }\n   ...",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
