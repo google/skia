@@ -1,7 +1,7 @@
 
 out vec4 sk_FragColor;
-uniform sampler1D one;
-uniform sampler2D two;
+layout (binding = 0) uniform sampler1D one;
+layout (binding = 1) uniform sampler2D two;
 void main() {
     vec4 a = texture(one, 0.0, -0.5);
     vec4 b = texture(two, vec2(0.0), -0.5);
