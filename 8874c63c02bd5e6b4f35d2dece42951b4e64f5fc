@@ -69,6 +69,24 @@
       "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94e4d0b2_9983abef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T18:14:09Z",
+      "side": 1,
+      "message": "Actually, one concern... if we check this in as-is, we\u0027ll break the Housekeeper, because Windows assertions look subtly different.\n\n#  ifdef SK_BUILD_FOR_WIN\n     // This style lets Visual Studio follow errors back to the source file.\n#    define SK_DUMP_LINE_FORMAT \"%s(%d)\"\n#  else\n#    define SK_DUMP_LINE_FORMAT \"%s:%d\"\n#  endif",
+      "parentUuid": "1b72cb26_29812b2f",
+      "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
