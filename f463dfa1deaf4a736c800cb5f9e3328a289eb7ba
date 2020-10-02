@@ -39,6 +39,30 @@
       "revId": "f463dfa1deaf4a736c800cb5f9e3328a289eb7ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "966320e6_3f11e314",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-02T19:04:25Z",
+      "side": 1,
+      "message": "Well, should have look harder... I see the ShapeImpl constructor does this (is_line_break). Though the TODO there about \u0027other explicit breaks?\u0027 implies we\u0027ve probably discussed this at some point in the past as well.",
+      "parentUuid": "2b5baa56_bb504463",
+      "range": {
+        "startLine": 82,
+        "startChar": 54,
+        "endLine": 82,
+        "endChar": 58
+      },
+      "revId": "f463dfa1deaf4a736c800cb5f9e3328a289eb7ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
