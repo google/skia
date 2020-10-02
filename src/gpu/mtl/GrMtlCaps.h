@@ -48,9 +48,10 @@ public:
                                                  const GrBackendFormat& surfaceFormat,
                                                  GrColorType srcColorType) const override;
 
-    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override {
-        return SurfaceReadPixelsSupport::kSupported;
-    }
+    SurfaceReadPixelsSupport surfaceSupportsReadPixels(const GrSurface*) const override;
+
+    DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
+                                               GrColorType ct) const override;
 
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
@@ -59,17 +60,27 @@ public:
         return fPreferredStencilFormat;
     }
 
-    bool canCopyAsBlit(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint,
-                       bool areDstSrcSameObj) const;
+    bool canCopyAsBlit(GrSurface* dst,
+                       GrSurface* src,
+                       const SkIRect& srcRect,
+                       const SkIPoint& dstPoint) const;
 
     bool canCopyAsBlit(MTLPixelFormat dstFormat, int dstSampleCount,
                        MTLPixelFormat srcFormat, int srcSampleCount,
                        const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
-    bool canCopyAsResolve(GrSurface* dst, int dstSampleCount, GrSurface* src, int srcSampleCount,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+    bool canCopyAsResolve(GrSurface* dst,
+                          GrSurface* src,
+                          const SkIRect& srcRect,
+                          const SkIPoint& dstPoint) const;
+
+    bool canCopyAsResolve(MTLPixelFormat dstFormat, int dstSampleCount,
+                          MTLPixelFormat srcFormat, int srcSampleCount,
+                          bool srcIsRenderTarget, const SkISize srcDimensions,
+                          const SkIRect& srcRect,
+                          const SkIPoint& dstPoint,
+                          bool areDstSrcSameObj) const;
 
     GrBackendFormat getBackendFormatFromCompressionType(SkImage::CompressionType) const override;
 

@@ -71,32 +71,39 @@ sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gp
 
     GrMtlRenderTarget* mtlRT;
     if (sampleCnt > 1) {
-        MTLPixelFormat format = texture.pixelFormat;
-        if (!gpu->mtlCaps().isFormatRenderable(format, sampleCnt)) {
-            return nullptr;
-        }
-        MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
-        texDesc.textureType = MTLTextureType2DMultisample;
-        texDesc.pixelFormat = format;
-        texDesc.width = dimensions.fWidth;
-        texDesc.height = dimensions.fHeight;
-        texDesc.depth = 1;
-        texDesc.mipmapLevelCount = 1;
-        texDesc.sampleCount = sampleCnt;
-        texDesc.arrayLength = 1;
-        if (@available(macOS 10.11, iOS 9.0, *)) {
-            texDesc.storageMode = MTLStorageModePrivate;
-            texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
-        }
+        if ([texture sampleCount] == 1) {
+            MTLPixelFormat format = texture.pixelFormat;
+            if (!gpu->mtlCaps().isFormatRenderable(format, sampleCnt)) {
+                return nullptr;
+            }
+            MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+            texDesc.textureType = MTLTextureType2DMultisample;
+            texDesc.pixelFormat = format;
+            texDesc.width = dimensions.fWidth;
+            texDesc.height = dimensions.fHeight;
+            texDesc.depth = 1;
+            texDesc.mipmapLevelCount = 1;
+            texDesc.sampleCount = sampleCnt;
+            texDesc.arrayLength = 1;
+            if (@available(macOS 10.11, iOS 9.0, *)) {
+                texDesc.storageMode = MTLStorageModePrivate;
+                texDesc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
+            }
 
-        id<MTLTexture> colorTexture = [gpu->device() newTextureWithDescriptor:texDesc];
-        if (!colorTexture) {
-            return nullptr;
+            id<MTLTexture> colorTexture = [gpu->device() newTextureWithDescriptor:texDesc];
+            if (!colorTexture) {
+                return nullptr;
+            }
+            if (@available(macOS 10.11, iOS 9.0, *)) {
+                SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) &
+                         colorTexture.usage);
+            }
+            mtlRT = new GrMtlRenderTarget(
+                    gpu, dimensions, sampleCnt, colorTexture, texture, kWrapped);
+        } else {
+            SkASSERT(sampleCnt == static_cast<int>([texture sampleCount]));
+            mtlRT = new GrMtlRenderTarget(gpu, dimensions, sampleCnt, texture, nil, kWrapped);
         }
-        if (@available(macOS 10.11, iOS 9.0, *)) {
-            SkASSERT((MTLTextureUsageShaderRead|MTLTextureUsageRenderTarget) & colorTexture.usage);
-        }
-        mtlRT = new GrMtlRenderTarget(gpu, dimensions, sampleCnt, colorTexture, texture, kWrapped);
     } else {
         mtlRT = new GrMtlRenderTarget(gpu, dimensions, texture, kWrapped);
     }
