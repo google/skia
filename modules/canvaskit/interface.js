@@ -1443,8 +1443,8 @@ CanvasKit.onRuntimeInitialized = function() {
 
 // Accepts an object holding two canvaskit colors.
 // {
-//    ambient: {r, g, b, a},
-//    spot: {r, g, b, a},
+//    ambient: [r, g, b, a],
+//    spot: [r, g, b, a],
 // }
 // Returns the same format. Note, if malloced colors are passed in, the memory
 // housing the passed in colors passed in will be overwritten with the computed
