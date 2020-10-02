@@ -9,6 +9,23 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Some SkImage YUV image factories have been removed. Replacement patterns
+    outlined below.
+    SkImage::MakeFromYUVATexturesCopy
+        1) Make SkImage from YUVA planes using SkImage::MakeFromYUVATextures
+        2) Use Skia to allocate a surface using SkSurface::MakeRenderTarget
+        3) surface->getCanvas()->drawImage(image, 0, 0);
+        4) surface->makeImageSnapShot() produces RGBA image.
+    SkImage::MakeFromYUVATexturesCopyWithExternalBackend
+        1) Make image using MakeFromYUVATextures
+        2) Make a SkSurface around result texture using SkSurface::MakeFromBackendTexture
+        3) surface->getCanvas()->drawImage(image, 0, 0);
+        4) surface->flushAndSubmit()
+        5) Optional: SkImage::MakeFromBackendTexture() to use as SkImage.
+    SkImage::MakeFromNV12TexturesCopy
+        Same as SkImage::MakeFromYUVATexturesCopy
+    https://review.skia.org/321537
+
   * GrBackendRenderTargets which are created with a stencilBits param, now require
     the stencilBits to be 0, 8, or 16.
     https://review.skia.org/321545

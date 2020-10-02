@@ -1080,7 +1080,6 @@ public:
     enum class ImageType {
         kYUVAPixmaps,      // SkImage::MakeFromYUVAPixmaps.
         kYUVATextures,     // SkImage::MakeFromYUVATextures.
-        kYUVATexturesCopy, // SkImage::MakeFromYUVATexturesCopy.
         kGenerator,        // SkImage_Lazy backed by generator that supports YUVA. This is the only
                            // mode that runs on CPU but CPU uses the flattening onGetPixels.
         kResizeOnGpu,      // Planes uploaded to GPU then resized and fed to
@@ -1108,9 +1107,6 @@ protected:
                 name += "_frompixmaps";
                 break;
             case ImageType::kYUVATextures:
-                break;
-            case ImageType::kYUVATexturesCopy:
-                name += "_copy";
                 break;
             case ImageType::kGenerator:
                 name += "_imggen";
@@ -1254,7 +1250,6 @@ protected:
                     SkASSERT(numPlanes == planarConfig.numPlanes());
 
                     if (fImageType == ImageType::kYUVATextures ||
-                        fImageType == ImageType::kYUVATexturesCopy ||
                         fImageType == ImageType::kResizeOnGpu) {
                         SkASSERT(dContext);
 
@@ -1296,19 +1291,6 @@ protected:
                                                       yuvaIndices,
                                                       numPlanes,
                                                       fOriginalBMs[opaque].dimensions());
-                            YUVABackendReleaseContext::Unwind(dContext, releaseCtx, true);
-                        } else if (fImageType == ImageType::kYUVATexturesCopy) {
-                            // This is hard to triage with a subset because bleeding of subsampled
-                            // chroma may occur during the initial copy and is not easily
-                            // distinguished from incorrect bleeding that resulting from a draw.
-                            SkASSERT(!fUseSubset);
-                            fImages[opaque][cs][format] = SkImage::MakeFromYUVATexturesCopy(
-                                    dContext,
-                                    (SkYUVColorSpace)cs,
-                                    releaseCtx->beTextures(),
-                                    yuvaIndices,
-                                    fOriginalBMs[opaque].dimensions(),
-                                    kTopLeft_GrSurfaceOrigin);
                             YUVABackendReleaseContext::Unwind(dContext, releaseCtx, true);
                         } else {
                             SkASSERT(fImageType == ImageType::kYUVATextures);
@@ -1481,9 +1463,6 @@ DEF_GM(return new WackyYUVFormatsGM(/* target cs */ true,
 DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::ImageType::kResizeOnGpu);)
-DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
-                                    /* subset */ false,
-                                    WackyYUVFormatsGM::ImageType::kYUVATexturesCopy);)
 DEF_GM(return new WackyYUVFormatsGM(/* target cs */ false,
                                     /* subset */ false,
                                     WackyYUVFormatsGM::ImageType::kGenerator);)
