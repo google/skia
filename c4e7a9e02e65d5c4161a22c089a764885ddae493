@@ -57,6 +57,30 @@
       "revId": "c4e7a9e02e65d5c4161a22c089a764885ddae493",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62290a3a_c09a21dc",
+        "filename": "modules/canvaskit/canvaskit/types/canvaskit-wasm-tests.ts",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-02T14:23:46Z",
+      "side": 1,
+      "message": "At the moment it\u0027s a bit of a manual process, but when it gets pushed upstream to https://github.com/DefinitelyTyped/DefinitelyTyped it should be possible.",
+      "parentUuid": "c2ed0eff_7101b9fd",
+      "range": {
+        "startLine": 1,
+        "startChar": 16,
+        "endLine": 1,
+        "endChar": 58
+      },
+      "revId": "c4e7a9e02e65d5c4161a22c089a764885ddae493",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
