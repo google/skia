@@ -784,6 +784,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         // Adds a little helper because emscripten doesn't expose default params.
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
+    // TODO(kjlubick) deprecate these path constructors and move them to class functions.
 #ifdef SK_INCLUDE_PATHOPS
     function("MakePathFromOp", &MakePathFromOp);
 #endif
@@ -1204,6 +1205,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
         .function("size", &SkData::size);
 
+    // TODO(kjlubick) I think this can be deleted since AnimatedImage is no longer around.
     class_<SkDrawable>("SkDrawable")
         .smart_ptr<sk_sp<SkDrawable>>("sk_sp<SkDrawable>>");
 
@@ -1542,6 +1544,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
         ;
 
+    // TODO(kjlubick) remove this now that we have SkContourMeasureIter
     class_<SkPathMeasure>("SkPathMeasure")
         .constructor<const SkPath&, bool, SkScalar>()
         .function("getLength", &SkPathMeasure::getLength)

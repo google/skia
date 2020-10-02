@@ -84,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    use `SkPictureRecorder` directly.
  - `CanvasKit.FourFloatArrayHelper` and related helpers (mostly helping with drawAtlas).
    `CanvasKit.Malloc` is the better tool and will replace these soon.
+ - `SkPathMeasure`; SkContourMeasureIter has all the same functionality and a cleaner pattern.
 
 ### Fixed
  - Addressed Memory leak in `SkCanvas.drawText`.

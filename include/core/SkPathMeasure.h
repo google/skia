@@ -19,7 +19,7 @@ public:
      *  are copied, so the client is free to modify/delete the path after this call.
      *
      *  resScale controls the precision of the measure. values > 1 increase the
-     *  precision (and possible slow down the computation).
+     *  precision (and possibly slow down the computation).
      */
     SkPathMeasure(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkPathMeasure();

@@ -95,6 +95,9 @@ public:
      *  Initialize the Iter with a path.
      *  The parts of the path that are needed are copied, so the client is free to modify/delete
      *  the path after this call.
+     *
+     *  resScale controls the precision of the measure. values > 1 increase the
+     *  precision (and possibly slow down the computation).
      */
     SkContourMeasureIter(const SkPath& path, bool forceClosed, SkScalar resScale = 1);
     ~SkContourMeasureIter();
