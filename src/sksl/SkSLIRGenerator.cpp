@@ -186,7 +186,7 @@ void IRGenerator::start(const Program::Settings* settings,
         for (const auto& e : *inherited) {
             if (e->kind() == ProgramElement::Kind::kInterfaceBlock) {
                 InterfaceBlock& intf = e->as<InterfaceBlock>();
-                if (intf.fVariable.fName == Compiler::PERVERTEX_NAME) {
+                if (intf.fVariable.name() == Compiler::PERVERTEX_NAME) {
                     SkASSERT(!fSkPerVertex);
                     fSkPerVertex = &intf.fVariable;
                 }
@@ -245,7 +245,7 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
                 Expression& expr = *result->as<ExpressionStatement>().expression();
                 if (expr.kind() == Expression::Kind::kFunctionCall) {
                     FunctionCall& fc = expr.as<FunctionCall>();
-                    if (fc.fFunction.fBuiltin && fc.fFunction.fName == "EmitVertex") {
+                    if (fc.fFunction.fBuiltin && fc.fFunction.name() == "EmitVertex") {
                         std::vector<std::unique_ptr<Statement>> statements;
                         statements.push_back(getNormalizeSkPositionCode());
                         statements.push_back(std::move(result));
@@ -417,7 +417,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                 if (!size) {
                     return nullptr;
                 }
-                String name(type->fName);
+                String name(type->name());
                 int64_t count;
                 if (size->kind() == Expression::Kind::kIntLiteral) {
                     count = size->as<IntLiteral>().value();
@@ -441,7 +441,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
         }
         auto var = std::make_unique<Variable>(varDecl.fOffset, modifiers, varData.fName, type,
                                               fIsBuiltinCode, storage);
-        if (var->fName == Compiler::RTADJUST_NAME) {
+        if (var->name() == Compiler::RTADJUST_NAME) {
             SkASSERT(!fRTAdjust);
             SkASSERT(var->type() == *fContext.fFloat4_Type);
             fRTAdjust = var.get();
@@ -459,8 +459,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             var->fWriteCount = 1;
             var->fInitialValue = value.get();
         }
-        const Symbol* symbol = (*fSymbolTable)[var->fName];
-        if (symbol && storage == Variable::kGlobal_Storage && var->fName == "sk_FragColor") {
+        const Symbol* symbol = (*fSymbolTable)[var->name()];
+        if (symbol && storage == Variable::kGlobal_Storage && var->name() == "sk_FragColor") {
             // Already defined, ignore.
         } else if (symbol && storage == Variable::kGlobal_Storage &&
                    symbol->kind() == Symbol::Kind::kVariable &&
@@ -470,7 +470,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
         } else {
             variables.emplace_back(std::make_unique<VarDeclaration>(var.get(), std::move(sizes),
                                                                     std::move(value)));
-            StringFragment name = var->fName;
+            StringFragment name = var->name();
             fSymbolTable->add(name, std::move(var));
         }
     }
@@ -706,7 +706,7 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
     // early returns from a vertex main function will bypass the sk_Position normalization, so
     // SkASSERT that we aren't doing that. It is of course possible to fix this by adding a
     // normalization before each return, but it will probably never actually be necessary.
-    SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->fName);
+    SkASSERT(Program::kVertex_Kind != fKind || !fRTAdjust || "main" != fCurrentFunction->name());
     if (r.begin() != r.end()) {
         std::unique_ptr<Expression> result = this->convertExpression(*r.begin());
         if (!result) {
@@ -1011,7 +1011,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 return;
         }
         for (const FunctionDeclaration* other : functions) {
-            SkASSERT(other->fName == funcData.fName);
+            SkASSERT(other->name() == funcData.fName);
             if (parameters.size() == other->fParameters.size()) {
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
@@ -1076,7 +1076,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             }
         }
         for (size_t i = 0; i < parameters.size(); i++) {
-            fSymbolTable->addWithoutOwnership(parameters[i]->fName, decl->fParameters[i]);
+            fSymbolTable->addWithoutOwnership(parameters[i]->name(), decl->fParameters[i]);
         }
         bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
                                           fSettings->fCaps &&
@@ -1136,7 +1136,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 SkASSERT(vd.fVar->type() == *fContext.fFloat4_Type);
                 fRTAdjustFieldIndex = fields.size();
             }
-            fields.push_back(Type::Field(vd.fVar->fModifiers, vd.fVar->fName,
+            fields.push_back(Type::Field(vd.fVar->fModifiers, vd.fVar->name(),
                                          &vd.fVar->type()));
             if (vd.fValue) {
                 fErrors.error(decl->fOffset,
@@ -1159,7 +1159,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
             if (!converted) {
                 return nullptr;
             }
-            String name = type->fName;
+            String name = type->name();
             int64_t count;
             if (converted->kind() == Expression::Kind::kIntLiteral) {
                 count = converted->as<IntLiteral>().value();
@@ -1176,7 +1176,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                     std::make_unique<Type>(name, Type::TypeKind::kArray, *type, (int)count));
             sizes.push_back(std::move(converted));
         } else {
-            String name = String(type->fName) + "[]";
+            String name = String(type->name()) + "[]";
             type = symbols->takeOwnershipOfSymbol(std::make_unique<Type>(
                     name, Type::TypeKind::kArray, *type, Type::kUnsizedArray));
             sizes.push_back(nullptr);
@@ -1196,7 +1196,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
         old->addWithoutOwnership(id.fInstanceName, var);
     } else {
         for (size_t i = 0; i < fields.size(); i++) {
-            old->add(fields[i].fName, std::make_unique<Field>(intf.fOffset, *var, (int)i));
+            old->add(fields[i].fName, std::make_unique<Field>(intf.fOffset, var, (int)i));
         }
     }
     return std::make_unique<InterfaceBlock>(intf.fOffset,
@@ -1280,7 +1280,8 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
                                                 "an array");
                 }
                 result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
-                        String(result->fName) + "?", Type::TypeKind::kNullable, result->as<Type>()));
+                        String(result->name()) + "?", Type::TypeKind::kNullable,
+                               result->as<Type>()));
             } else {
                 fErrors.error(type.fOffset, "type '" + td.fName + "' may not be nullable");
             }
@@ -1296,7 +1297,7 @@ const Type* IRGenerator::convertType(const ASTNode& type, bool allowVoid) {
             }
         }
         for (const auto& size : type) {
-            String name(result->fName);
+            String name(result->name());
             name += "[";
             if (size) {
                 name += to_string(size.getInt());
@@ -1418,11 +1419,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
         }
         case Symbol::Kind::kField: {
             const Field* field = &result->as<Field>();
-            VariableReference* base = new VariableReference(identifier.fOffset, &field->fOwner,
+            VariableReference* base = new VariableReference(identifier.fOffset, &field->owner(),
                                                             VariableReference::kRead_RefKind);
             return std::unique_ptr<Expression>(new FieldAccess(
                                                   std::unique_ptr<Expression>(base),
-                                                  field->fFieldIndex,
+                                                  field->fieldIndex(),
                                                   FieldAccess::kAnonymousInterfaceBlock_OwnerKind));
         }
         case Symbol::Kind::kType: {
@@ -1479,10 +1480,10 @@ std::unique_ptr<Expression> IRGenerator::coerce(std::unique_ptr<Expression> expr
                                                    "int"));
         } else {
             ctor = this->convertIdentifier(ASTNode(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier,
-                                                   type.fName));
+                                                   type.name()));
         }
         if (!ctor) {
-            printf("error, null identifier: %s\n", String(type.fName).c_str());
+            printf("error, null identifier: %s\n", String(type.name()).c_str());
         }
         SkASSERT(ctor);
         return this->call(-1, std::move(ctor), std::move(args));
@@ -2046,8 +2047,8 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
                       if (a->fOffset != b->fOffset) {
                           return a->fOffset < b->fOffset;
                       }
-                      if (a->fName != b->fName) {
-                          return a->fName < b->fName;
+                      if (a->name() != b->name()) {
+                          return a->name() < b->name();
                       }
                       return a->description() < b->description();
                   });
@@ -2070,7 +2071,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
     }
     if (function.fParameters.size() != arguments.size()) {
-        String msg = "call to '" + function.fName + "' expected " +
+        String msg = "call to '" + function.name() + "' expected " +
                                  to_string((uint64_t) function.fParameters.size()) +
                                  " argument";
         if (function.fParameters.size() != 1) {
@@ -2081,14 +2082,14 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         return nullptr;
     }
     if (fKind == Program::kPipelineStage_Kind && !function.fDefinition && !function.fBuiltin) {
-        String msg = "call to undefined function '" + function.fName + "'";
+        String msg = "call to undefined function '" + function.name() + "'";
         fErrors.error(offset, msg);
         return nullptr;
     }
     std::vector<const Type*> types;
     const Type* returnType;
     if (!function.determineFinalTypes(arguments, &types, &returnType)) {
-        String msg = "no match for " + function.fName + "(";
+        String msg = "no match for " + function.name() + "(";
         String separator;
         for (size_t i = 0; i < arguments.size(); i++) {
             msg += separator;
@@ -2200,7 +2201,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                 if (best) {
                     return this->call(offset, *best, std::move(arguments));
                 }
-                String msg = "no match for " + ref.fFunctions[0]->fName + "(";
+                String msg = "no match for " + ref.fFunctions[0]->name() + "(";
                 String separator;
                 for (size_t i = 0; i < arguments.size(); i++) {
                     msg += separator;
@@ -2697,18 +2698,20 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
                     offset, v.fInitialValue->as<IntLiteral>().value(), &type);
         } else {
             fErrors.error(offset,
-                          "type '" + type.fName + "' does not have a member named '" + field + "'");
+                          "type '" + type.name() + "' does not have a member named '" + field +
+                          "'");
         }
         fSymbolTable = old;
         return result;
     } else {
         // No Enum element? Check the intrinsics, clone it into the program, try again.
-        if (auto found = fIntrinsics->findAndInclude(type.fName)) {
+        if (auto found = fIntrinsics->findAndInclude(type.name())) {
             fProgramElements->push_back(found->clone());
             return this->convertTypeField(offset, type, field);
         }
         fErrors.error(offset,
-                      "type '" + type.fName + "' does not have a member named '" + field + "'");
+                      "type '" + type.displayName() + "' does not have a member named '" + field +
+                      "'");
         return nullptr;
     }
 }
@@ -2842,7 +2845,7 @@ void IRGenerator::cloneBuiltinVariables() {
                 // If this is the *first* time we've seen this builtin, findAndInclude will return
                 // the corresponding ProgramElement.
                 if (const ProgramElement* sharedDecls =
-                            fGenerator->fIntrinsics->findAndInclude(sharedVar->fName)) {
+                            fGenerator->fIntrinsics->findAndInclude(sharedVar->name())) {
                     // Clone the VarDeclarations ProgramElement that declares this variable
                     std::unique_ptr<ProgramElement> clonedDecls = sharedDecls->clone();
                     SkASSERT(clonedDecls->is<VarDeclarations>());
@@ -2855,7 +2858,7 @@ void IRGenerator::cloneBuiltinVariables() {
                     // so we're pointing at a Program-owned expression.
                     const Variable* clonedVar = fGenerator->fSymbolTable->takeOwnershipOfSymbol(
                             std::make_unique<Variable>(sharedVar->fOffset, sharedVar->fModifiers,
-                                                       sharedVar->fName, &sharedVar->type(),
+                                                       sharedVar->name(), &sharedVar->type(),
                                                        /*builtin=*/false, sharedVar->fStorage,
                                                        varDecl.fValue.get()));
 
