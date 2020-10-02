@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d3256a3_b3588f7c",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-02T16:22:25Z",
+      "side": 1,
+      "message": "This is the cause of the backdrop filter GM diffs, but I think the changes aren\u0027t visually noticeable so it\u0027s worth the perf improvement.",
+      "range": {
+        "startLine": 981,
+        "startChar": 8,
+        "endLine": 981,
+        "endChar": 54
+      },
+      "revId": "c6bf964939eaedec80f624c534d36f2c58cb623b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "020bba5e_1d70d438",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-02T16:22:25Z",
+      "side": 1,
+      "message": "This will go away in a later CL when the device filtering code is updated to use arbitrary matrices.",
+      "range": {
+        "startLine": 1000,
+        "startChar": 8,
+        "endLine": 1002,
+        "endChar": 94
+      },
+      "revId": "c6bf964939eaedec80f624c534d36f2c58cb623b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "033bbc40_68c6e6b3",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1052,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-02T16:22:25Z",
+      "side": 1,
+      "message": "This promotion will go away in a later CL when we can draw the transformed filter results with arbitrary matrices in drawSpecial",
+      "range": {
+        "startLine": 1052,
+        "startChar": 16,
+        "endLine": 1052,
+        "endChar": 30
+      },
+      "revId": "c6bf964939eaedec80f624c534d36f2c58cb623b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50001fdf_57c59a7d",
+        "filename": "src/core/SkPaintPriv.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-02T16:22:25Z",
+      "side": 1,
+      "message": "This also matches the features we\u0027d take on saveLayer (minus the image filter), but I didn\u0027t want to start modifying public SkCanvas structs.\n\nIf desired, we could probably pack this struct into a pointer + 32 bits, if we\u0027re willing to accept 16-bits worth of alpha. For now I just kept it as convenient as possible.",
+      "range": {
+        "startLine": 83,
+        "startChar": 7,
+        "endLine": 83,
+        "endChar": 20
+      },
+      "revId": "c6bf964939eaedec80f624c534d36f2c58cb623b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

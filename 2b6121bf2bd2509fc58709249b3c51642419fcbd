@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a437d7b7_e13d463b",
+        "filename": "src/core/SkBitmapDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-02T16:22:25Z",
+      "side": 0,
+      "message": "This was moved to be near drawSpecial. The main change is that the SkTCopyOnFirstWrite paint goes away, we just convert the SkImagePaint to an SkPaint and update its SkShader when there\u0027s a coverage bitmap that needs to be applied.",
+      "range": {
+        "startLine": 557,
+        "startChar": 21,
+        "endLine": 557,
+        "endChar": 31
+      },
+      "revId": "2b6121bf2bd2509fc58709249b3c51642419fcbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "87cd37bb_37a33b94",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-02T16:22:25Z",
+      "side": 0,
+      "message": "This was just moved to be by drawSpecial to more closely match declaration order in header.",
+      "range": {
+        "startLine": 972,
+        "startChar": 18,
+        "endLine": 972,
+        "endChar": 28
+      },
+      "revId": "2b6121bf2bd2509fc58709249b3c51642419fcbd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

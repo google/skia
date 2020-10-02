@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b20ecd0_da523f9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-02T16:22:25Z",
+      "side": 1,
+      "message": "Here is an approach to the simpler image paint that we discussed earlier this week. I went with SkImagePaint, but SkLayerPaint, SkDevicePaint, SkSpecialPaint, or SkSimplePaint are all possibilities that make sense to me.",
+      "revId": "91a9bbb69cc8d88cd520910951f7f60111f6ae56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
