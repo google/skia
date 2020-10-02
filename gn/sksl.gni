@@ -9,6 +9,8 @@ _include = get_path_info("../include", "abspath")
 
 skia_sksl_sources = [
   "$_include/private/SkSLSampleUsage.h",
+  "$_src/containers/SkInlinedVector.h",  # TODO: create dedicated .gni for
+                                         # containers
   "$_src/sksl/SkSLASTFile.h",
   "$_src/sksl/SkSLASTNode.cpp",
   "$_src/sksl/SkSLASTNode.h",
