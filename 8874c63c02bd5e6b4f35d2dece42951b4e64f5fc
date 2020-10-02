@@ -51,6 +51,24 @@
       "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1b72cb26_29812b2f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T18:11:25Z",
+      "side": 1,
+      "message": "Intentional or not, I really like that assertions now show up in golden files! That\u0027s a huge bonus.",
+      "parentUuid": "6c161688_e6199637",
+      "revId": "8874c63c02bd5e6b4f35d2dece42951b4e64f5fc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
