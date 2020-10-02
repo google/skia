@@ -121,6 +121,24 @@
       "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3dac8426_11d67587",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T17:01:22Z",
+      "side": 1,
+      "message": "I believe this code would run into the exact issue I explained above; a doubling vector would naively realloc 1 -\u003e 2 -\u003e 4 -\u003e 8 and unnecessarily re-copy your items each time, and would only manage to hold half of your expected capacity before failing out to the heap. (Also, pmr won\u0027t exist on C++14 standard libraries, so I can\u0027t rely on it or any helpfulness that it might provide AFAIK.)\n\nYou can workaround the doubling problem somewhat by creating a vector wrapper class that manually reserves your stack capacity. That helps, but you\u0027re also still missing a big gain. You\u0027re carrying the full baggage of a vector all of the time, even when you\u0027re in stack mode, which is the common case. A dedicated InlinedVector class can be smarter, and put its members in a union, so that in stack mode we can have more stack items for free. In practice this is 20 free bytes. (sizeof(vector) \u003d\u003d 24 and SkInlinedVector needs 4 bookkeeping bytes in stack mode.)\n\nSkSTArray does not have the union optimization either, and it would be difficult to add as-is because it\u0027s implemented as an SkTArray subclass instead of a dedicated class.",
+      "parentUuid": "f817610c_98a3da75",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
