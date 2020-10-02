@@ -160,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "3ea2f287_50eaac15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T17:35:18Z",
+      "side": 1,
+      "message": "My intention was to use this class in heap-based objects like the IRNode, where we plan to make pools of them (e.g. tens of thousands instantiated at startup) and 20 extra bytes per IRNode will make an enormous difference. This is stuff we\u0027ve discussed in our recurring SkSL meetings.",
+      "parentUuid": "9480e755_231b2cad",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6608ddce_9d80b8a8",
         "filename": "src/sksl/SkSLDehydrator.cpp",
         "patchSetId": 7
