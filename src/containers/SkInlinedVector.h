@@ -9,6 +9,7 @@
 #define SKSL_INLINEDVECTOR
 
 #include <algorithm>
+#include "src/sksl/SkSLDefines.h"  // for SkASSERT
 
 #ifndef SKSL_STANDALONE
     #include "include/private/SkMalloc.h"

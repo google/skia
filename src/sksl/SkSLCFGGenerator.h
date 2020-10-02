@@ -8,6 +8,7 @@
 #ifndef SKSL_CFGGENERATOR
 #define SKSL_CFGGENERATOR
 
+#include "src/containers/SkInlinedVector.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 
@@ -127,7 +128,7 @@ struct BasicBlock {
 
     std::vector<Node> fNodes;
     bool fIsReachable = false;
-    std::set<BlockId> fExits;
+    SkInlinedVector<4, BlockId> fExits;
     // variable definitions upon entering this basic block (null expression = undefined)
     DefinitionMap fBefore;
 };
