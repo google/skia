@@ -22,6 +22,30 @@
       "revId": "889177d08cedbf3d2a6a2207fba09e1688888344",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "275dacd5_c45cf5e0",
+        "filename": "modules/canvaskit/canvaskit/types/canvaskit-wasm-tests.ts",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-02T20:16:21Z",
+      "side": 1,
+      "message": "This is what the name will be when we move into DefinitelyTyped.\n\nhttps://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/canvaskit-wasm/bin/canvaskit.d.ts",
+      "parentUuid": "2ca52e5f_3b87415c",
+      "range": {
+        "startLine": 3,
+        "startChar": 27,
+        "endLine": 3,
+        "endChar": 41
+      },
+      "revId": "889177d08cedbf3d2a6a2207fba09e1688888344",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
