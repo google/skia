@@ -149,8 +149,6 @@ bool SkCanvas::wouldOverwriteEntireSurface(const SkRect* rect, const SkPaint* pa
     #define dec_canvas()
 #endif
 
-typedef SkTLazy<SkPaint> SkLazyPaint;
-
 void SkCanvas::predrawNotify(bool willOverwritesEntireSurface) {
     if (fSurfaceBase) {
         fSurfaceBase->aboutToDraw(willOverwritesEntireSurface
@@ -363,21 +361,18 @@ public:
     // "rawBounds" is the original bounds of the primitive about to be drawn, unmodified by the
     // paint. It's used to determine the size of the offscreen layer for filters.
     // If null, the clip will be used instead.
-    AutoLayerForImageFilter(SkCanvas* canvas, const SkPaint& origPaint,
+    AutoLayerForImageFilter(SkCanvas* canvas, const SkPaint& paint,
                             bool skipLayerForImageFilter = false,
-                            const SkRect* rawBounds = nullptr) {
-        fCanvas = canvas;
-        fPaint = &origPaint;
-        fSaveCount = canvas->getSaveCount();
-        fTempLayerForImageFilter = false;
+                            const SkRect* rawBounds = nullptr)
+            : fPaint(paint)
+            , fCanvas(canvas)
+            , fTempLayerForImageFilter(false) {
+        SkDEBUGCODE(fSaveCount = canvas->getSaveCount();)
 
-        if (auto simplifiedCF = image_to_color_filter(origPaint.getImageFilter(),
-                                                      origPaint.getColorFilter())) {
-            SkASSERT(!fLazyPaint.isValid());
-            SkPaint* paint = fLazyPaint.set(origPaint);
-            paint->setColorFilter(std::move(simplifiedCF));
-            paint->setImageFilter(nullptr);
-            fPaint = paint;
+        if (auto simplifiedCF = image_to_color_filter(fPaint->getImageFilter(),
+                                                      fPaint->getColorFilter())) {
+            fPaint.writable()->setColorFilter(std::move(simplifiedCF));
+            fPaint.writable()->setImageFilter(nullptr);
         }
 
         if (!skipLayerForImageFilter && fPaint->getImageFilter()) {
@@ -411,11 +406,8 @@ public:
             fTempLayerForImageFilter = true;
 
             // Remove the restorePaint fields from our "working" paint
-            SkASSERT(!fLazyPaint.isValid());
-            SkPaint* paint = fLazyPaint.set(origPaint);
-            paint->setImageFilter(nullptr);
-            paint->setBlendMode(SkBlendMode::kSrcOver);
-            fPaint = paint;
+            fPaint.writable()->setImageFilter(nullptr);
+            fPaint.writable()->setBlendMode(SkBlendMode::kSrcOver);
         }
     }
 
@@ -426,17 +418,14 @@ public:
         SkASSERT(fCanvas->getSaveCount() == fSaveCount);
     }
 
-    const SkPaint& paint() const {
-        SkASSERT(fPaint);
-        return *fPaint;
-    }
+    const SkPaint& paint() const { return *fPaint; }
 
 private:
-    SkLazyPaint     fLazyPaint; // base paint storage in case we need to modify it
-    SkCanvas*       fCanvas;
-    const SkPaint*  fPaint;     // points to either the original paint, or lazy (if we needed it)
-    int             fSaveCount;
-    bool            fTempLayerForImageFilter;
+    SkTCopyOnFirstWrite<SkPaint> fPaint;
+    SkCanvas*                    fCanvas;
+    bool                         fTempLayerForImageFilter;
+
+    SkDEBUGCODE(int              fSaveCount;)
 };
 
 ////////// macros to place around the internal draw calls //////////////////
