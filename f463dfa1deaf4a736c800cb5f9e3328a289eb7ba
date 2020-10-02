@@ -63,6 +63,30 @@
       "revId": "f463dfa1deaf4a736c800cb5f9e3328a289eb7ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58b4b24f_50ee23ac",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-02T19:32:47Z",
+      "side": 1,
+      "message": "Right, it\u0027s possible AE treats other chars as explicit breaks also, but so far it hasn\u0027t come up.",
+      "parentUuid": "966320e6_3f11e314",
+      "range": {
+        "startLine": 82,
+        "startChar": 54,
+        "endLine": 82,
+        "endChar": 58
+      },
+      "revId": "f463dfa1deaf4a736c800cb5f9e3328a289eb7ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
