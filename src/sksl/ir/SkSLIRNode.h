@@ -22,6 +22,7 @@ class ExternalValue;
 struct Statement;
 class SymbolTable;
 class Type;
+struct Variable;
 
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
@@ -57,8 +58,12 @@ public:
                 return *this->externalValueData().fType;
             case NodeData::Kind::kIntLiteral:
                 return *this->intLiteralData().fType;
+            case NodeData::Kind::kField:
+                return *this->fieldData().fType;
             case NodeData::Kind::kFloatLiteral:
                 return *this->floatLiteralData().fType;
+            case NodeData::Kind::kSymbol:
+                return *this->symbolData().fType;
             case NodeData::Kind::kType:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
@@ -93,6 +98,13 @@ protected:
         const ExternalValue* fValue;
     };
 
+    struct FieldData {
+        StringFragment fName;
+        const Type* fType;
+        const Variable* fOwner;
+        int fFieldIndex;
+    };
+
     struct FloatLiteralData {
         const Type* fType;
         float fValue;
@@ -101,6 +113,11 @@ protected:
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
+    };
+
+    struct SymbolData {
+        StringFragment fName;
+        const Type* fType;
     };
 
     struct TypeTokenData {
@@ -114,9 +131,11 @@ protected:
             kBoolLiteral,
             kEnum,
             kExternalValue,
+            kField,
             kFloatLiteral,
             kIntLiteral,
             kString,
+            kSymbol,
             kType,
             kTypeToken,
         } fKind = Kind::kType;
@@ -127,9 +146,11 @@ protected:
             BoolLiteralData fBoolLiteral;
             EnumData fEnum;
             ExternalValueData fExternalValue;
+            FieldData fField;
             FloatLiteralData fFloatLiteral;
             IntLiteralData fIntLiteral;
             String fString;
+            SymbolData fSymbol;
             const Type* fType;
             TypeTokenData fTypeToken;
 
@@ -158,6 +179,11 @@ protected:
             *(new(&fContents) ExternalValueData) = data;
         }
 
+        NodeData(const FieldData& data)
+            : fKind(Kind::kField) {
+            *(new(&fContents) FieldData) = data;
+        }
+
         NodeData(const FloatLiteralData& data)
             : fKind(Kind::kFloatLiteral) {
             *(new(&fContents) FloatLiteralData) = data;
@@ -171,6 +197,11 @@ protected:
         NodeData(const String& data)
             : fKind(Kind::kString) {
             *(new(&fContents) String) = data;
+        }
+
+        NodeData(const SymbolData& data)
+            : fKind(Kind::kSymbol) {
+            *(new(&fContents) SymbolData) = data;
         }
 
         NodeData(const Type* data)
@@ -203,6 +234,9 @@ protected:
                 case Kind::kExternalValue:
                     *(new(&fContents) ExternalValueData) = other.fContents.fExternalValue;
                     break;
+                case Kind::kField:
+                    *(new(&fContents) FieldData) = other.fContents.fField;
+                    break;
                 case Kind::kFloatLiteral:
                     *(new(&fContents) FloatLiteralData) = other.fContents.fFloatLiteral;
                     break;
@@ -211,6 +245,9 @@ protected:
                     break;
                 case Kind::kString:
                     *(new(&fContents) String) = other.fContents.fString;
+                    break;
+                case Kind::kSymbol:
+                    *(new(&fContents) SymbolData) = other.fContents.fSymbol;
                     break;
                 case Kind::kType:
                     *(new(&fContents) const Type*) = other.fContents.fType;
@@ -241,6 +278,9 @@ protected:
                 case Kind::kExternalValue:
                     fContents.fExternalValue.~ExternalValueData();
                     break;
+                case Kind::kField:
+                    fContents.fField.~FieldData();
+                    break;
                 case Kind::kFloatLiteral:
                     fContents.fFloatLiteral.~FloatLiteralData();
                     break;
@@ -249,6 +289,9 @@ protected:
                     break;
                 case Kind::kString:
                     fContents.fString.~String();
+                    break;
+                case Kind::kSymbol:
+                    fContents.fSymbol.~SymbolData();
                     break;
                 case Kind::kType:
                     break;
@@ -268,11 +311,15 @@ protected:
 
     IRNode(int offset, int kind, const ExternalValueData& data);
 
+    IRNode(int offset, int kind, const FieldData& data);
+
     IRNode(int offset, int kind, const IntLiteralData& data);
 
     IRNode(int offset, int kind, const FloatLiteralData& data);
 
     IRNode(int offset, int kind, const String& data);
+
+    IRNode(int offset, int kind, const SymbolData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -344,6 +391,11 @@ protected:
         return fData.fContents.fExternalValue;
     }
 
+    const FieldData& fieldData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kField);
+        return fData.fContents.fField;
+    }
+
     const FloatLiteralData& floatLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kFloatLiteral);
         return fData.fContents.fFloatLiteral;
@@ -357,6 +409,16 @@ protected:
     const String& stringData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kString);
         return fData.fContents.fString;
+    }
+
+    SymbolData& symbolData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kSymbol);
+        return fData.fContents.fSymbol;
+    }
+
+    const SymbolData& symbolData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kSymbol);
+        return fData.fContents.fSymbol;
     }
 
     const Type* typeData() const {

@@ -54,7 +54,7 @@ struct FunctionCall : public Expression {
     }
 
     String description() const override {
-        String result = String(fFunction.fName) + "(";
+        String result = String(fFunction.name()) + "(";
         String separator;
         for (size_t i = 0; i < fArguments.size(); i++) {
             result += separator;

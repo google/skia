@@ -149,7 +149,7 @@ void Dehydrator::write(const Symbol& s) {
             this->writeU8(Rehydrator::kFunctionDeclaration_Command);
             this->writeId(&f);
             this->write(f.fModifiers);
-            this->write(f.fName);
+            this->write(f.name());
             this->writeU8(f.fParameters.size());
             for (const Variable* p : f.fParameters) {
                 this->writeU16(this->symbolId(p));
@@ -179,7 +179,7 @@ void Dehydrator::write(const Symbol& s) {
                 case Type::TypeKind::kEnum:
                     this->writeU8(Rehydrator::kEnumType_Command);
                     this->writeId(&t);
-                    this->write(t.fName);
+                    this->write(t.name());
                     break;
                 case Type::TypeKind::kNullable:
                     this->writeU8(Rehydrator::kNullableType_Command);
@@ -189,7 +189,7 @@ void Dehydrator::write(const Symbol& s) {
                 case Type::TypeKind::kStruct:
                     this->writeU8(Rehydrator::kStructType_Command);
                     this->writeId(&t);
-                    this->write(t.fName);
+                    this->write(t.name());
                     this->writeU8(t.fields().size());
                     for (const Type::Field& f : t.fields()) {
                         this->write(f.fModifiers);
@@ -200,7 +200,7 @@ void Dehydrator::write(const Symbol& s) {
                 default:
                     this->writeU8(Rehydrator::kSystemType_Command);
                     this->writeId(&t);
-                    this->write(t.fName);
+                    this->write(t.name());
             }
             break;
         }
@@ -209,7 +209,7 @@ void Dehydrator::write(const Symbol& s) {
             this->writeU8(Rehydrator::kVariable_Command);
             this->writeId(&v);
             this->write(v.fModifiers);
-            this->write(v.fName);
+            this->write(v.name());
             this->write(v.type());
             this->writeU8(v.fStorage);
             break;
@@ -217,8 +217,8 @@ void Dehydrator::write(const Symbol& s) {
         case Symbol::Kind::kField: {
             const Field& f = s.as<Field>();
             this->writeU8(Rehydrator::kField_Command);
-            this->writeU16(this->symbolId(&f.fOwner));
-            this->writeU8(f.fFieldIndex);
+            this->writeU16(this->symbolId(&f.owner()));
+            this->writeU8(f.fieldIndex());
             break;
         }
         case Symbol::Kind::kExternal:

@@ -18,7 +18,7 @@
 
 namespace SkSL {
 
-struct Symbol;
+class Symbol;
 
 class Enum : public ProgramElement {
 public:
@@ -53,10 +53,10 @@ public:
             sortedSymbols.push_back(pair.second);
         }
         std::sort(sortedSymbols.begin(), sortedSymbols.end(),
-                  [](const Symbol* a, const Symbol* b) { return a->fName < b->fName; });
+                  [](const Symbol* a, const Symbol* b) { return a->name() < b->name(); });
         for (const auto& s : sortedSymbols) {
             const Expression& initialValue = *s->as<Variable>().fInitialValue;
-            result += separator + "    " + s->fName + " = " +
+            result += separator + "    " + s->name() + " = " +
                       to_string(initialValue.as<IntLiteral>().value());
             separator = ",\n";
         }

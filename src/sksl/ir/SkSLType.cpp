@@ -21,7 +21,7 @@ CoercionCost Type::coercionCost(const Type& other) const {
         }
         return result;
     }
-    if (this->fName == "null" && other.typeKind() == TypeKind::kNullable) {
+    if (this->name() == "null" && other.typeKind() == TypeKind::kNullable) {
         return CoercionCost::Free();
     }
     if (this->typeKind() == TypeKind::kVector && other.typeKind() == TypeKind::kVector) {

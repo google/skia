@@ -67,7 +67,7 @@ public:
                 return this->roundUpIfNeeded(result);
             }
             default:
-                ABORT("cannot determine size of type %s", type.name().c_str());
+                ABORT("cannot determine size of type %s", String(type.name()).c_str());
         }
     }
 
@@ -132,7 +132,7 @@ public:
                 return (total + alignment - 1) & ~(alignment - 1);
             }
             default:
-                ABORT("cannot determine size of type %s", type.name().c_str());
+                ABORT("cannot determine size of type %s", String(type.name()).c_str());
         }
     }
 
