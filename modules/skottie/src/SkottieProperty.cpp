@@ -25,6 +25,7 @@ bool TextPropertyValue::operator==(const TextPropertyValue& other) const {
         && fHAlign == other.fHAlign
         && fVAlign == other.fVAlign
         && fResize == other.fResize
+        && fLineBreak == other.fLineBreak
         && fBox == other.fBox
         && fFillColor == other.fFillColor
         && fStrokeColor == other.fStrokeColor
