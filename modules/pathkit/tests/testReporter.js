@@ -90,7 +90,7 @@ function _report(data, outputType, testname) {
 
 function reportError(done) {
     return (e) => {
-        console.log("Error with fetching. Likely could not connect to aggegator server", e.message);
+        console.log("Error with fetching. Likely could not connect to aggregator server", e.message);
         if (fail_on_no_gold) {
             expect(e).toBeUndefined();
         }

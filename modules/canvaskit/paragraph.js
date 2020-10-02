@@ -8,22 +8,34 @@
      * @type {Float32Array}
      */
       var floatArray = this._getRectsForRange(start, end, hStyle, wStyle);
+      return floatArrayToRects(floatArray);
+    }
 
-      if (!floatArray || !floatArray.length) {
-        return [];
-      }
-      var ret = [];
-      for (var i = 0; i < floatArray.length; i+=5) {
-        var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
-        if (floatArray[i+4] === 0) {
-          r['direction'] = CanvasKit.TextDirection.RTL;
-        } else {
-          r['direction'] = CanvasKit.TextDirection.LTR;
+    CanvasKit.Paragraph.prototype.getRectsForPlaceholders = function() {
+        /**
+        * This is bytes, but we'll want to think about them as float32s
+        * @type {Float32Array}
+        */
+        var floatArray = this._getRectsForPlaceholders();
+        return floatArrayToRects(floatArray);
+    }
+
+    function floatArrayToRects(floatArray) {
+        if (!floatArray || !floatArray.length) {
+            return [];
         }
-        ret.push(r);
-      }
-      CanvasKit._free(floatArray.byteOffset);
-      return ret;
+        var ret = [];
+        for (var i = 0; i < floatArray.length; i+=5) {
+            var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
+            if (floatArray[i+4] === 0) {
+                r['direction'] = CanvasKit.TextDirection.RTL;
+            } else {
+                r['direction'] = CanvasKit.TextDirection.LTR;
+            }
+            ret.push(r);
+        }
+        CanvasKit._free(floatArray.byteOffset);
+        return ret;
     }
 
     // Registers the font (provided as an arrayBuffer) with the alias `family`.
@@ -43,7 +55,6 @@
     // have undefined and it expects, for example, a float.
     CanvasKit.ParagraphStyle = function(s) {
       // Use [''] to tell closure not to minify the names
-      // TODO(kjlubick): strutStyle
       s['disableHinting'] = s['disableHinting'] || false;
       if (s['ellipsis']) {
         var str = s['ellipsis'];
@@ -59,6 +70,7 @@
       s['textAlign'] = s['textAlign'] || CanvasKit.TextAlign.Start;
       s['textDirection'] = s['textDirection'] || CanvasKit.TextDirection.LTR;
       s['textStyle'] = CanvasKit.TextStyle(s['textStyle']);
+      s['strutStyle'] = strutStyle(s['strutStyle']);
       return s;
     };
 
@@ -73,6 +85,34 @@
       return s;
     }
 
+    function strutStyle(s) {
+        s = s || {};
+        s['strutEnabled'] = s['strutEnabled'] || false;
+
+        if (s['strutEnabled'] && Array.isArray(s['fontFamilies']) && s['fontFamilies'].length) {
+            s['_fontFamiliesPtr'] = naiveCopyStrArray(s['fontFamilies']);
+            s['_fontFamiliesLen'] = s['fontFamilies'].length;
+        } else {
+            s['_fontFamiliesPtr'] = nullptr;
+            s['_fontFamiliesLen'] = 0;
+        }
+        s['fontStyle'] = fontStyle(s['fontStyle']);
+        s['fontSize'] = s['fontSize'] || 0;
+        s['heightMultiplier'] = s['heightMultiplier'] || 0;
+        s['leading'] = s['leading'] || 0;
+        s['forceStrutHeight'] = s['forceStrutHeight'] || false;
+        return s;
+    }
+
+    function placeholderStyle(s) {
+        s['width'] = s['width'] || 0;
+        s['height'] = s['height'] || 0;
+        s['alignment'] = s['alignment'] || CanvasKit.PlaceholderAlignment.Baseline;
+        s['baseline'] = s['baseline'] || CanvasKit.TextBaseline.Alphabetic;
+        s['offset'] = s['offset'] || 0;
+        return s;
+    }
+
     CanvasKit.TextStyle = function(s) {
        // Use [''] to tell closure not to minify the names
       if (!s['color']) {
@@ -81,8 +121,49 @@
 
       s['decoration'] = s['decoration'] || 0;
       s['decorationThickness'] = s['decorationThickness'] || 0;
+      s['decorationStyle'] = s['decorationStyle'] || CanvasKit.DecorationStyle.Solid;
+      s['textBaseline'] = s['textBaseline'] || CanvasKit.TextBaseline.Alphabetic;
       s['fontSize'] = s['fontSize'] || 0;
+      s['letterSpacing'] = s['letterSpacing'] || 0;
+      s['wordSpacing'] = s['wordSpacing'] || 0;
+      s['heightMultiplier'] = s['heightMultiplier'] || 0;
+      if (s['locale']) {
+        var str = s['locale'];
+        s['_localePtr'] = cacheOrCopyString(str);
+        s['_localeLen'] = lengthBytesUTF8(str) + 1; // add 1 for the null terminator.
+      } else {
+        s['_localePtr'] = nullptr;
+        s['_localeLen'] = 0;
+      }
       s['fontStyle'] = fontStyle(s['fontStyle']);
+      if (s['shadows']) {
+        var shadows = s['shadows'];
+        var shadowColors = shadows.map(function(s) { return s['color'] || CanvasKit.BLACK; });
+        var shadowOffsets = shadows.map(function(s) { return s['offset'] || [0, 0]; });
+        var shadowBlurRadii = shadows.map(function(s) { return s['blurRadius'] || 0.0; });
+        s['_shadowLen'] = shadows.length;
+        s['_shadowColorsPtr'] = copyFlexibleColorArray(shadowColors).colorPtr;
+        s['_shadowOffsetsPtr'] = copy2dArray(shadowOffsets, 'HEAPF32');
+        s['_shadowBlurRadiiPtr'] = copy1dArray(shadowBlurRadii, 'HEAPF32');
+      } else {
+        s['_shadowLen'] = 0;
+        s['_shadowColorsPtr'] = nullptr;
+        s['_shadowOffsetsPtr'] = nullptr;
+        s['_shadowBlurRadiiPtr'] = nullptr;
+      }
+      if (s['fontFeatures']) {
+        var fontFeatures = s['fontFeatures'];
+        var fontFeatureNames = fontFeatures.map(function(s) { return s['name']; });
+        var fontFeatureValues = fontFeatures.map(function(s) { return s['value']; });
+        s['_fontFeatureLen'] = fontFeatures.length;
+        s['_fontFeatureNamesPtr'] = naiveCopyStrArray(fontFeatureNames);
+        s['_fontFeatureValuesPtr'] = copy1dArray(fontFeatureValues, 'HEAPU32');
+      } else {
+        s['_fontFeatureLen'] = 0;
+        s['_fontFeatureNamesPtr'] = nullptr;
+        s['_fontFeatureValuesPtr'] = nullptr;
+      }
+
       return s;
     };
 
@@ -102,7 +183,7 @@
         var strPtr = cacheOrCopyString(strings[i]);
         sPtrs.push(strPtr);
       }
-      return copy1dArray(sPtrs, "HEAPU32");
+      return copy1dArray(sPtrs, 'HEAPU32');
     }
 
     // maps string -> malloc'd pointer
@@ -129,6 +210,7 @@
     // having to free them after every invocation.
     var scratchForegroundColorPtr = CanvasKit._malloc(4 * 4); // room for 4 32bit floats
     var scratchBackgroundColorPtr = CanvasKit._malloc(4 * 4); // room for 4 32bit floats
+    var scratchDecorationColorPtr = CanvasKit._malloc(4 * 4); // room for 4 32bit floats
 
     function copyArrays(textStyle) {
       // These color fields were arrays, but will set to WASM pointers before we pass this
@@ -136,11 +218,15 @@
       textStyle['_colorPtr'] = copyColorToWasm(textStyle['color']);
       textStyle['_foregroundColorPtr'] = nullptr; // nullptr is 0, from helper.js
       textStyle['_backgroundColorPtr'] = nullptr;
+      textStyle['_decorationColorPtr'] = nullptr;
       if (textStyle['foregroundColor']) {
         textStyle['_foregroundColorPtr'] = copyColorToWasm(textStyle['foregroundColor'], scratchForegroundColorPtr);
       }
       if (textStyle['backgroundColor']) {
         textStyle['_backgroundColorPtr'] = copyColorToWasm(textStyle['backgroundColor'], scratchBackgroundColorPtr);
+      }
+      if (textStyle['decorationColor']) {
+        textStyle['_decorationColorPtr'] = copyColorToWasm(textStyle['decorationColor'], scratchDecorationColorPtr);
       }
 
       if (Array.isArray(textStyle['fontFamilies']) && textStyle['fontFamilies'].length) {
@@ -179,12 +265,22 @@
       copyArrays(textStyle);
       this._pushStyle(textStyle);
       freeArrays(textStyle);
-    }
+    };
 
     CanvasKit.ParagraphBuilder.prototype.pushPaintStyle = function(textStyle, fg, bg) {
       copyArrays(textStyle);
       this._pushPaintStyle(textStyle, fg, bg);
       freeArrays(textStyle);
-    }
+    };
+
+    CanvasKit.ParagraphBuilder.prototype.addPlaceholder =
+          function(width, height, alignment, baseline, offset) {
+      width = width || 0;
+      height = height || 0;
+      alignment = alignment || CanvasKit.PlaceholderAlignment.Baseline;
+      baseline = baseline || CanvasKit.TextBaseline.Alphabetic;
+      offset = offset || 0;
+      this._addPlaceholder(width, height, alignment, baseline, offset);
+    };
 });
 }(Module)); // When this file is loaded in, the high level object is "Module";

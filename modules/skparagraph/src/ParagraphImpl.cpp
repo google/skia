@@ -580,7 +580,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         return results;
     }
 
-  ensureUTF16Mapping();
+    ensureUTF16Mapping();
 
     if (start >= end || start > fUTF8IndexForUTF16Index.size() || end == 0) {
         return results;
