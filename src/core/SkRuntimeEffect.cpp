@@ -162,20 +162,20 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
 
                 // Varyings (only used in conjunction with drawVertices)
                 if (var.fModifiers.fFlags & SkSL::Modifiers::kVarying_Flag) {
-                    varyings.push_back({var.fName,
+                    varyings.push_back({var.name(),
                                         varType.typeKind() == SkSL::Type::TypeKind::kVector
                                                ? varType.columns()
                                                : 1});
                 }
                 // Fragment Processors (aka 'shader'): These are child effects
                 else if (&varType == ctx.fFragmentProcessor_Type.get()) {
-                    children.push_back(var.fName);
+                    children.push_back(var.name());
                     sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
                 }
                 // 'uniform' variables
                 else if (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
                     Uniform uni;
-                    uni.fName = var.fName;
+                    uni.fName = var.name();
                     uni.fFlags = 0;
                     uni.fCount = 1;
 
@@ -216,7 +216,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
         else if (elem.kind() == SkSL::ProgramElement::Kind::kFunction) {
             const auto& func = static_cast<const SkSL::FunctionDefinition&>(elem);
             const SkSL::FunctionDeclaration& decl = func.fDeclaration;
-            if (decl.fName == "main") {
+            if (decl.name() == "main") {
                 hasMain = true;
             }
         }
