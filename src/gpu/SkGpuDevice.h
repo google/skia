@@ -118,14 +118,13 @@ public:
 
     void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas* canvas) override;
 
-    void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
-
-    void drawSpecial(SkSpecialImage*, int left, int top, const SkPaint&) override;
-
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4], SkCanvas::QuadAAFlags aaFlags,
                         const SkColor4f& color, SkBlendMode mode) override;
     void drawEdgeAAImageSet(const SkCanvas::ImageSetEntry[], int count, const SkPoint dstClips[],
                             const SkMatrix[], const SkPaint&, SkCanvas::SrcRectConstraint) override;
+
+    void drawDevice(SkBaseDevice*, int x, int y, const SkImagePaint&) override;
+    void drawSpecial(SkSpecialImage*, int left, int top, const SkImagePaint&) override;
 
     sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
     sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;

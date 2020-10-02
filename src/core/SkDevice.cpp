@@ -317,7 +317,7 @@ void SkBaseDevice::drawDrawable(SkDrawable* drawable, const SkMatrix* matrix, Sk
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkBaseDevice::drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&) {}
+void SkBaseDevice::drawSpecial(SkSpecialImage*, int x, int y, const SkImagePaint&) {}
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial(const SkIRect&, bool) { return nullptr; }
@@ -326,8 +326,7 @@ sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
 }
 
 void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                                     const SkImageFilter* filter, const SkPaint& paint) {
-    SkASSERT(!paint.getImageFilter() && !paint.getMaskFilter());
+                                     const SkImageFilter* filter, const SkImagePaint& paint) {
     using For = skif::Usage;
 
     skif::LayerSpace<SkIRect> targetOutput = mapping.deviceToLayer(

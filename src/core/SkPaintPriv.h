@@ -14,6 +14,8 @@ class SkFont;
 class SkReadBuffer;
 class SkWriteBuffer;
 
+enum class SkSamplingMode;
+
 enum SkReadPaintResult {
     kFailed_ReadPaint,
     kSuccess_JustPaint,
@@ -73,6 +75,26 @@ public:
     // Since we may be filtering now, we need to know what color space to filter in,
     // typically the color space of the device we're drawing into.
     static void RemoveColorFilter(SkPaint*, SkColorSpace* dstCS);
+};
+
+// A subset of SkPaint that holds only the effects applicable to drawing a color image. This
+// is the limit of effects that work with drawDevice and drawSpecial, and most drawImages (other
+// than lacking a mask filter)
+struct SkImagePaint {
+    sk_sp<SkColorFilter> fColorFilter;
+    SkScalar             fAlpha;
+    SkBlendMode          fBlendMode;
+    SkSamplingMode       fSamplingMode;
+    bool                 fAntiAlias;
+
+    // Creates an ImagePaint equivalent to the default SkPaint
+    SkImagePaint();
+
+    // Coverts the SkPaint into an ImagePaint, ignoring any paint slot that is unsupported and
+    // assumes that it is a simple fill.
+    explicit SkImagePaint(const SkPaint& paint);
+
+    explicit operator SkPaint() const;
 };
 
 #endif
