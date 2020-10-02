@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa98141c_712b4b01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-02T15:28:26Z",
+      "side": 1,
+      "message": "This looks good to me. I\u0027d suggest getting mtklein and/or bungeman to take a look?",
+      "revId": "7013ac086bbc39a6270fa73c1139ead7f272515f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
