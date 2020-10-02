@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "657cf111_c3444564",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-02T19:20:29Z",
+      "side": 1,
+      "message": "Having kUnsizedArray looks much cleaner!",
+      "revId": "63dcd44c4d48765fff5d653be4c03d9474179d27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
