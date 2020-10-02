@@ -207,45 +207,75 @@ bool GrSurfaceContext::readPixels(GrDirectContext* dContext, const GrImageInfo& 
     }
 
     if (readFlag == GrCaps::SurfaceReadPixelsSupport::kCopyToTexture2D || canvas2DFastPath) {
-        GrColorType colorType = (canvas2DFastPath || srcIsCompressed)
-                                    ? GrColorType::kRGBA_8888 : this->colorInfo().colorType();
-        sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
+        std::unique_ptr<GrSurfaceContext> tempCtx;
+        if (this->asTextureProxy()) {
+            GrColorType colorType = (canvas2DFastPath || srcIsCompressed)
+                                            ? GrColorType::kRGBA_8888
+                                            : this->colorInfo().colorType();
+            sk_sp<SkColorSpace> cs = canvas2DFastPath ? nullptr : this->colorInfo().refColorSpace();
 
-        auto tempCtx = GrRenderTargetContext::Make(
-                dContext, colorType, std::move(cs), SkBackingFit::kApprox, dstInfo.dimensions(),
-                1, GrMipmapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
-        if (!tempCtx) {
-            return false;
-        }
-
-        std::unique_ptr<GrFragmentProcessor> fp;
-        if (canvas2DFastPath) {
-            fp = dContext->priv().createPMToUPMEffect(
-                    GrTextureEffect::Make(this->readSurfaceView(), this->colorInfo().alphaType()));
-            if (dstInfo.colorType() == GrColorType::kBGRA_8888) {
-                fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
-                dstInfo = dstInfo.makeColorType(GrColorType::kRGBA_8888);
+            tempCtx = GrRenderTargetContext::Make(
+                    dContext, colorType, std::move(cs), SkBackingFit::kApprox, dstInfo.dimensions(),
+                    1, GrMipMapped::kNo, GrProtected::kNo, kTopLeft_GrSurfaceOrigin);
+            if (!tempCtx) {
+                return false;
             }
-            // The render target context is incorrectly tagged as kPremul even though we're writing
-            // unpremul data thanks to the PMToUPM effect. Fake out the dst alpha type so we don't
-            // double unpremul.
-            dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
+
+            std::unique_ptr<GrFragmentProcessor> fp;
+            if (canvas2DFastPath) {
+                fp = dContext->priv().createPMToUPMEffect(GrTextureEffect::Make(
+                        this->readSurfaceView(), this->colorInfo().alphaType()));
+                if (dstInfo.colorType() == GrColorType::kBGRA_8888) {
+                    fp = GrFragmentProcessor::SwizzleOutput(std::move(fp), GrSwizzle::BGRA());
+                    dstInfo = dstInfo.makeColorType(GrColorType::kRGBA_8888);
+                }
+                // The render target context is incorrectly tagged as kPremul even though we're
+                // writing unpremul data thanks to the PMToUPM effect. Fake out the dst alpha type
+                // so we don't double unpremul.
+                dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
+            } else {
+                fp = GrTextureEffect::Make(this->readSurfaceView(), this->colorInfo().alphaType());
+            }
+            if (!fp) {
+                return false;
+            }
+            GrPaint paint;
+            paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+            paint.setColorFragmentProcessor(std::move(fp));
+
+            tempCtx->asRenderTargetContext()->fillRectToRect(
+                    nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                    SkRect::MakeWH(dstInfo.width(), dstInfo.height()),
+                    SkRect::MakeXYWH(pt.fX, pt.fY, dstInfo.width(), dstInfo.height()));
+            pt = {0, 0};
         } else {
-            fp = GrTextureEffect::Make(this->readSurfaceView(), this->colorInfo().alphaType());
+            auto restrictions = this->caps()->getDstCopyRestrictions(this->asRenderTargetProxy(),
+                                                                     this->colorInfo().colorType());
+            sk_sp<GrSurfaceProxy> copy;
+            static constexpr auto kFit = SkBackingFit::kExact;
+            static constexpr auto kBudgeted = SkBudgeted::kYes;
+            static constexpr auto kMipMapped = GrMipMapped::kNo;
+            if (restrictions.fMustCopyWholeSrc) {
+                copy = GrSurfaceProxy::Copy(fContext, srcProxy, this->origin(), kMipMapped, kFit,
+                                            kBudgeted);
+            } else {
+                auto srcRect = SkIRect::MakeXYWH(pt.fX, pt.fY, dstInfo.width(), dstInfo.height());
+                copy = GrSurfaceProxy::Copy(fContext, srcProxy, this->origin(), kMipMapped, srcRect,
+                                            kFit, kBudgeted, restrictions.fRectsMustMatch);
+                pt = {0, 0};
+            }
+            if (!copy) {
+                return false;
+            }
+            GrSurfaceProxyView view{std::move(copy), this->origin(), this->readSwizzle()};
+            tempCtx = GrSurfaceContext::Make(dContext,
+                                             std::move(view),
+                                             this->colorInfo().colorType(),
+                                             this->colorInfo().alphaType(),
+                                             this->colorInfo().refColorSpace());
+            SkASSERT(tempCtx);
         }
-        if (!fp) {
-            return false;
-        }
-        GrPaint paint;
-        paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        paint.setColorFragmentProcessor(std::move(fp));
-
-        tempCtx->asRenderTargetContext()->fillRectToRect(
-                nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(),
-                SkRect::MakeWH(dstInfo.width(), dstInfo.height()),
-                SkRect::MakeXYWH(pt.fX, pt.fY, dstInfo.width(), dstInfo.height()));
-
-        return tempCtx->readPixels(dContext, dstInfo, dst, rowBytes, {0, 0});
+        return tempCtx->readPixels(dContext, dstInfo, dst, rowBytes, pt);
     }
 
     bool flip = this->origin() == kBottomLeft_GrSurfaceOrigin;
