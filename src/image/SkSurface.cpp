@@ -370,8 +370,8 @@ bool SkSurface::isCompatible(const SkSurfaceCharacterization& characterization) 
     return asConstSB(this)->onIsCompatible(characterization);
 }
 
-bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl) {
-    return asSB(this)->onDraw(std::move(ddl));
+bool SkSurface::draw(sk_sp<const SkDeferredDisplayList> ddl, int xOffset, int yOffset) {
+    return asSB(this)->onDraw(std::move(ddl), xOffset, yOffset);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
