@@ -16,6 +16,29 @@
       "revId": "f463dfa1deaf4a736c800cb5f9e3328a289eb7ba",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b5baa56_bb504463",
+        "filename": "modules/skottie/src/text/SkottieShaper.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-02T19:00:32Z",
+      "side": 1,
+      "message": "Do you do this yourself somewhere? Note that SkShaper doesn\u0027t handle markup (like considering \\n or \\r or some combination to be forced line breaks, or \\t to be a logical break in the text which needs layout). If you pass it text with \\r or\\n or such it will probably have a soft line break attached to it (since it\u0027s allowable to break between control codepoints and basically anything) but it won\u0027t hard line break since that\u0027s actually something different. At SkShaper\u0027s level there\u0027s no difference in how to handle \u0027\\t\u0027, \u0027\\r\u0027, \u0027 \u0027, or \u0027a\u0027 except Unicode code point properties. Some fonts do have glyphs for control codepoints like \u0027\\r\u0027, if so they may be shown. Text passed to SkShaper should already be broken up into \"paragraphs\" where that means any text which should be shaped together and isn\u0027t broken up by breaking markup (like \u0027\\t\u0027 and \u0027\\r\u0027 if they are to mean \u0027tab stop\u0027 or \u0027hard line break\u0027). Otherwise such codepoints will be treated like any other codepoints.",
+      "range": {
+        "startLine": 82,
+        "startChar": 54,
+        "endLine": 82,
+        "endChar": 58
+      },
+      "revId": "f463dfa1deaf4a736c800cb5f9e3328a289eb7ba",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
