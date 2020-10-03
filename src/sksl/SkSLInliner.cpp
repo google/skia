@@ -772,25 +772,18 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
     return !hasReturnInBreakableConstruct;
 }
 
-// A candidate function for inlining, containing everything that `inlineCall` needs.
-struct InlineCandidate {
-    SymbolTable* fSymbols;                        // the SymbolTable of the candidate
-    std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
-    std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
-    std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
-    FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
-    bool fIsLargeFunction;                        // does candidate exceed the inline threshold?
-};
-
-struct InlineCandidateList {
-    std::vector<InlineCandidate> fCandidates;
-};
-
+// This is structured much like a ProgramWriter, but does not actually use ProgramWriter.
+// The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so that
+// they can later be replaced, and ProgramWriter does not provide this; it only provides a `T&`.
 class InlineCandidateAnalyzer {
 public:
-    // A list of all the inlining candidates we found during analysis.
-    InlineCandidateList* fCandidateList;
+    using InlineCandidate = SkSL::internal::InlineCandidate;
 
+    // A list of all the inlining candidates we found during analysis.
+    InlineCandidateList* fCandidateList = nullptr;
+    // How many Blocks deep are we willing to recurse? This can be set to INT_MAX to scan an entire
+    // program, or set to 1 in order to rescan a previously-discovered Block.
+    int fSearchDepth = INT_MAX;
     // A stack of the symbol tables; since most nodes don't have one, expected to be shallower than
     // the enclosing-statement stack.
     std::vector<SymbolTable*> fSymbolTableStack;
@@ -803,6 +796,7 @@ public:
 
     void visit(Program& program, InlineCandidateList* candidateList) {
         fCandidateList = candidateList;
+        fSearchDepth = INT_MAX;
         fSymbolTableStack.push_back(program.fSymbols.get());
 
         for (ProgramElement& pe : program) {
@@ -813,12 +807,28 @@ public:
         fCandidateList = nullptr;
     }
 
+    void rescan(const InlineCandidate& candidate, InlineCandidateList* candidateList) {
+        fCandidateList = candidateList;
+        fSearchDepth = candidate.fRescanDepth;
+        fSymbolTableStack.push_back(candidate.fSymbols);
+        fEnclosingStmtStack.push_back(candidate.fParentStmt);
+        fEnclosingFunction = candidate.fEnclosingFunction;
+
+        this->visitStatement(candidate.fParentStmt);
+
+        fSymbolTableStack.pop_back();
+        fEnclosingStmtStack.pop_back();
+        fEnclosingFunction = nullptr;
+        fCandidateList = nullptr;
+    }
+
     void visitProgramElement(ProgramElement* pe) {
         switch (pe->kind()) {
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
                 fEnclosingFunction = &funcDef;
                 this->visitStatement(&funcDef.fBody);
+                fEnclosingFunction = nullptr;
                 break;
             }
             default:
@@ -850,12 +860,21 @@ public:
 
             case Statement::Kind::kBlock: {
                 Block& block = (*stmt)->as<Block>();
-                if (block.symbolTable()) {
-                    fSymbolTableStack.push_back(block.symbolTable().get());
-                }
 
-                for (std::unique_ptr<Statement>& stmt : block.children()) {
-                    this->visitStatement(&stmt);
+                // Don't descend into scoped blocks if we've hit our depth limit.
+                int descentCost = block.isScope() ? 1 : 0;
+                if (fSearchDepth >= descentCost) {
+                    fSearchDepth -= descentCost;
+
+                    if (block.symbolTable()) {
+                        fSymbolTableStack.push_back(block.symbolTable().get());
+                    }
+
+                    for (std::unique_ptr<Statement>& stmt : block.children()) {
+                        this->visitStatement(&stmt);
+                    }
+
+                    fSearchDepth += descentCost;
                 }
                 break;
             }
@@ -863,8 +882,8 @@ public:
                 DoStatement& doStmt = (*stmt)->as<DoStatement>();
                 // The loop body is a candidate for inlining.
                 this->visitStatement(&doStmt.statement());
-                // The inliner isn't smart enough to inline the test-expression for a do-while
-                // loop at this time. There are two limitations:
+                // The inliner isn't smart enough to inline the test-expression for a do-while loop
+                // at this time. There are two limitations:
                 // - We would need to insert the inlined-body block at the very end of the do-
                 //   statement's inner fStatement. We don't support that today, but it's doable.
                 // - We cannot inline the test expression if the loop uses `continue` anywhere; that
@@ -890,13 +909,13 @@ public:
                                      /*isViableAsEnclosingStatement=*/false);
                 this->visitStatement(&forStmt.fStatement);
 
-                // The inliner isn't smart enough to inline the test- or increment-expressions
-                // of a for loop loop at this time. There are a handful of limitations:
+                // The inliner isn't smart enough to inline the test- or increment-expressions of a
+                // for loop loop at this time. There are a handful of limitations:
                 // - We would need to insert the test-expression block at the very beginning of the
                 //   for-loop's inner fStatement, and the increment-expression block at the very
                 //   end. We don't support that today, but it's doable.
-                // - The for-loop's built-in test-expression would need to be dropped entirely,
-                //   and the loop would be halted via a break statement at the end of the inlined
+                // - The for-loop's built-in test-expression would need to be dropped entirely, and
+                //   the loop would be halted via a break statement at the end of the inlined
                 //   test-expression. This is again something we don't support today, but it could
                 //   be implemented.
                 // - We cannot inline the increment-expression if the loop uses `continue` anywhere;
@@ -1105,15 +1124,15 @@ bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCac
 }
 
 void Inliner::buildCandidateList(Program& program, InlineCandidateList* candidateList) {
-    // This is structured much like a ProgramVisitor, but does not actually use ProgramVisitor.
-    // The analyzer needs to keep track of the `unique_ptr<T>*` of statements and expressions so
-    // that they can later be replaced, and ProgramVisitor does not provide this; it only provides a
-    // `const T&`.
     InlineCandidateAnalyzer analyzer;
     analyzer.visit(program, candidateList);
+    this->finalizeCandidateList(candidateList);
+}
+
+void Inliner::finalizeCandidateList(InlineCandidateList* candidateList) {
+    std::vector<InlineCandidate>& candidates = candidateList->fCandidates;
 
     // Remove candidates that are not safe to inline.
-    std::vector<InlineCandidate>& candidates = candidateList->fCandidates;
     InlinabilityCache cache;
     candidates.erase(std::remove_if(candidates.begin(),
                                     candidates.end(),
@@ -1131,14 +1150,61 @@ void Inliner::buildCandidateList(Program& program, InlineCandidateList* candidat
     }
 }
 
-bool Inliner::analyze(Program& program) {
-    InlineCandidateList candidateList;
-    this->buildCandidateList(program, &candidateList);
+void Inliner::updateCandidateList(InlineCandidateList* candidateList) {
+    // Early out if the candidate list is already empty.
+    if (candidateList->fCandidates.empty()) {
+        return;
+    }
+
+    // Move the old candidates out of the list; this leaves the passed-in candidate list blank.
+    std::vector<InlineCandidate> oldCandidates;
+    oldCandidates.swap(candidateList->fCandidates);
+
+    // Rescan all the parent expressions of the unfulfilled candidates.
+    std::unordered_set<const std::unique_ptr<Statement>*> parentStmtSet;
+    LargeFunctionCache largeFunctionCache;
+    InlineCandidateAnalyzer analyzer;
+    analyzer.fCandidateList = candidateList;
+    for (InlineCandidate& candidate : oldCandidates) {
+        if (candidate.fRescanDepth > 0) {
+            // This candidate requested a rescan. This can happen if two expressions share an
+            // enclosing statement (only one can be processed per run), or if we successfully
+            // inlined a block of code containing a function call.
+            auto [iter, wasInserted] = parentStmtSet.insert(candidate.fParentStmt);
+            if (wasInserted) {
+                analyzer.rescan(candidate, candidateList);
+            }
+        } else if (candidate.fCandidateExpr) {
+            // This candidate does not need a rescan, but was not actually inlined either; keep it
+            // around for future attempts. This can happen for large functions, which may eventually
+            // become inlinable after multiple iterations due to dead stripping.
+            candidateList->fCandidates.push_back(candidate);
+        }
+    }
+
+    this->finalizeCandidateList(candidateList);
+}
+
+void Inliner::eliminate(const FunctionDefinition& funcDef, InlineCandidateList* candidateList) {
+    std::vector<InlineCandidate>& candidates = candidateList->fCandidates;
+    candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
+                                    [&](const InlineCandidate& candidate) {
+                                        return candidate.fEnclosingFunction == &funcDef;
+                                    }),
+                     candidates.end());
+}
+
+bool Inliner::analyze(Program& program, InlineCandidateList* candidateList) {
+    // Build the candidate list if we haven't yet.
+    if (!candidateList->fIsInitialized) {
+        this->buildCandidateList(program, candidateList);
+        candidateList->fIsInitialized = true;
+    }
 
     // Inline the candidates where we've determined that it's safe to do so.
     std::unordered_set<const std::unique_ptr<Statement>*> enclosingStmtSet;
     bool madeChanges = false;
-    for (const InlineCandidate& candidate : candidateList.fCandidates) {
+    for (InlineCandidate& candidate : candidateList->fCandidates) {
         FunctionCall& funcCall = (*candidate.fCandidateExpr)->as<FunctionCall>();
         const FunctionDeclaration* funcDecl = &funcCall.fFunction;
 
@@ -1151,9 +1217,10 @@ bool Inliner::analyze(Program& program) {
         }
 
         // Inlining two expressions using the same enclosing statement in the same inlining pass
-        // does not work properly. If this happens, skip it; we'll get it in the next pass.
+        // does not work properly. If this happens, rescan it; we'll get it in the next pass.
         auto [unusedIter, inserted] = enclosingStmtSet.insert(candidate.fEnclosingStmt);
         if (!inserted) {
+            candidate.fRescanDepth = 1;
             continue;
         }
 
@@ -1174,15 +1241,22 @@ bool Inliner::analyze(Program& program) {
             //     fEnclosingStmt = Block{ stmt1, stmt2, stmt3, stmt4 }
             inlinedCall.fInlinedBody->children().push_back(std::move(*candidate.fEnclosingStmt));
             *candidate.fEnclosingStmt = std::move(inlinedCall.fInlinedBody);
+
+            // Rescan the parent statement of this candidate; if any function call expressions were
+            // cloned in, we want to check these for inline opportunities as well.
+            candidate.fRescanDepth = INT_MAX;
         }
 
         // Replace the candidate function call with our replacement expression.
         *candidate.fCandidateExpr = std::move(inlinedCall.fReplacementExpr);
         madeChanges = true;
 
-        // Note that nothing was destroyed except for the FunctionCall. All other nodes should
-        // remain valid.
+        // Replace the candidate expression with null to indicate success.
+        candidate.fCandidateExpr = nullptr;
     }
+
+    // Rebuild the candidate list to prepare for the next pass.
+    this->updateCandidateList(candidateList);
 
     return madeChanges;
 }

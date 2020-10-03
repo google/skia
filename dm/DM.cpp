@@ -931,7 +931,6 @@ static void push_sink(const SkCommandLineConfig& config, Sink* s) {
         info("Could not run %s: %s\n", config.getTag().c_str(), result.c_str());
         exit(1);
     }
-
     TaggedSink& ts = gSinks->push_back();
     ts.reset(sink.release());
     ts.tag = config.getTag();
