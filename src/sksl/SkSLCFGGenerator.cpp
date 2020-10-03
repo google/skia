@@ -654,13 +654,83 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
     }
 }
 
+// Visitor that counts the number of CFG slots that a program will use.
+class CFGReservationVisitor : public ProgramVisitor {
+public:
+    int visit(const Statement& s) {
+        this->visitStatement(s);
+        return fCount;
+    }
+
+    bool visitExpression(const Expression& e) override {
+        switch (e.kind()) {
+            default:
+                break;
+
+            case Expression::Kind::kBinary:
+                switch (e.as<BinaryExpression>().getOperator()) {
+                    case Token::Kind::TK_LOGICALAND:
+                    case Token::Kind::TK_LOGICALOR:
+                        fCount += 2;
+                        break;
+
+                    default:
+                        break;
+                }
+                break;
+
+            case Expression::Kind::kTernary:
+                fCount += 3;
+                break;
+        }
+        return INHERITED::visitExpression(e);
+
+    }
+
+    bool visitStatement(const Statement& s) override {
+        switch (s.kind()) {
+            default:
+                break;
+
+            case Statement::Kind::kBreak:
+            case Statement::Kind::kContinue:
+            case Statement::Kind::kDiscard:
+            case Statement::Kind::kReturn:
+                fCount += 1;
+                break;
+
+            case Statement::Kind::kDo:
+            case Statement::Kind::kSwitch:
+                fCount += 2;
+                break;
+
+            case Statement::Kind::kIf:
+            case Statement::Kind::kWhile:
+                fCount += 3;
+                break;
+
+            case Statement::Kind::kFor:
+                fCount += 4;
+                break;
+        }
+        return INHERITED::visitStatement(s);
+    }
+
+private:
+    int fCount = 2;  // one for the Start block, one for the Exit block
+    using INHERITED = ProgramVisitor;
+};
+
 CFG CFGGenerator::getCFG(FunctionDefinition& f) {
     CFG result;
+    int cfgBlocksNeeded = CFGReservationVisitor{}.visit(*f.fBody);
+    result.fBlocks.reserve(cfgBlocksNeeded);
     result.fStart = result.newBlock();
     result.fCurrent = result.fStart;
     this->addStatement(result, &f.fBody);
     result.newBlock();
     result.fExit = result.fCurrent;
+    SkASSERT(cfgBlocksNeeded >= result.fBlocks.size());
     return result;
 }
 
