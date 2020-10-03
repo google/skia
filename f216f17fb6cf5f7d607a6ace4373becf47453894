@@ -22,6 +22,30 @@
       "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61d36481_c49b379d",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-03T02:31:08Z",
+      "side": 1,
+      "message": "I think a compiler might theoretically be allowed to evaluate \"a*b - c*d\" as:\n\n  fma(a,b, -c*d)\n\nWhich might not evaluate to zero when the two vectors are equal. This is why the \"precise\" keyword exists. Is \"precise\" in sksl?\n\nEither way, I hope determinant(mat2(a,a)) must have to equal zero.. But I\u0027m actually not sure. I\u0027ll consult the spec.",
+      "parentUuid": "7135f282_e26f5911",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 88
+      },
+      "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
