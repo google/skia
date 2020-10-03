@@ -150,7 +150,7 @@ public:
     using INHERITED = ProgramVisitor;
 };
 
-// Visitor that counts the number of nodes visited
+// Visitor that counts the number of statements and expressions visited, up to a limit.
 class NodeCountVisitor : public ProgramVisitor {
 public:
     NodeCountVisitor(int limit) : fLimit(limit) {}
