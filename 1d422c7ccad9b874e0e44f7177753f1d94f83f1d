@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "08b853e7_16194ea8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-05T17:59:08Z",
+      "side": 1,
+      "message": "Do all the same thermal thresholds just work on pixel XL?",
+      "revId": "1d422c7ccad9b874e0e44f7177753f1d94f83f1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
