@@ -150,3 +150,52 @@ size_t GrBackendFormatBytesPerPixel(const GrBackendFormat& format) {
     }
     return GrBackendFormatBytesPerBlock(format);
 }
+
+int GrBackendFormatStencilBits(const GrBackendFormat& format) {
+    switch (format.backend()) {
+        case GrBackendApi::kOpenGL: {
+#ifdef SK_GL
+            GrGLFormat glFormat = format.asGLFormat();
+            return GrGLFormatStencilBits(glFormat);
+#endif
+            break;
+        }
+        case GrBackendApi::kVulkan: {
+#ifdef SK_VULKAN
+            VkFormat vkFormat;
+            SkAssertResult(format.asVkFormat(&vkFormat));
+            return GrVkFormatStencilBits(vkFormat);
+#endif
+            break;
+        }
+        case GrBackendApi::kMetal: {
+#ifdef SK_METAL
+            return GrMtlBackendFormatStencilBits(format);
+#endif
+            break;
+        }
+        case GrBackendApi::kDirect3D: {
+#ifdef SK_DIRECT3D
+            DXGI_FORMAT dxgiFormat;
+            SkAssertResult(format.asDxgiFormat(&dxgiFormat));
+            return GrDxgiFormatStencilBits(dxgiFormat);
+#endif
+            break;
+        }
+        case GrBackendApi::kDawn: {
+#ifdef SK_DAWN
+            wgpu::TextureFormat dawnFormat;
+            SkAssertResult(format.asDawnFormat(&dawnFormat));
+            return GrDawnFormatStencilBits(dawnFormat);
+#endif
+            break;
+        }
+        case GrBackendApi::kMock: {
+            if (format.isMockStencilFormat()) {
+                static constexpr int kBits = 8;
+                return kBits;
+            }
+        }
+    }
+    return 0;
+}
