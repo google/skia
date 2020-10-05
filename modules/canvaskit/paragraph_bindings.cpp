@@ -298,11 +298,10 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("getMaxIntrinsicWidth", &para::Paragraph::getMaxIntrinsicWidth)
         .function("getMaxWidth", &para::Paragraph::getMaxWidth)
         .function("getMinIntrinsicWidth", &para::Paragraph::getMinIntrinsicWidth)
-        .function("_getRectsForRange", &GetRectsForRange)
         .function("_getRectsForPlaceholders", &GetRectsForPlaceholders)
+        .function("_getRectsForRange", &GetRectsForRange)
         .function("getWordBoundary", &para::ParagraphImpl::getWordBoundary)
-        .function("layout", &para::ParagraphImpl::layout)
-        .function("getLineMetrics", &para::ParagraphImpl::getLineMetrics);
+        .function("layout", &para::ParagraphImpl::layout);
 
     class_<para::ParagraphBuilderImpl>("ParagraphBuilder")
             .class_function(
