@@ -306,7 +306,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
     auto declarationsIter = decls.begin();
     const Modifiers& modifiers = declarationsIter++->getModifiers();
     const ASTNode& rawType = *(declarationsIter++);
-    std::vector<std::unique_ptr<VarDeclaration>> variables;
+    std::vector<std::unique_ptr<Statement>> variables;
     const Type* baseType = this->convertType(rawType);
     if (!baseType) {
         return nullptr;
@@ -469,8 +469,8 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             // Already defined, just update the modifiers.
             symbol->as<Variable>().fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(std::make_unique<VarDeclaration>(var.get(), std::move(sizes),
-                                                                    std::move(value)));
+            variables.emplace_back(
+                    new VarDeclaration(var.get(), std::move(sizes), std::move(value)));
             StringFragment name = var->fName;
             fSymbolTable->add(name, std::move(var));
         }
