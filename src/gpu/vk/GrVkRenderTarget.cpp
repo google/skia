@@ -211,7 +211,7 @@ sk_sp<GrVkRenderTarget> GrVkRenderTarget::MakeWrappedRenderTarget(
             gpu, colorImage, pixelFormat, GrVkImageView::kColor_Type, 1, GrVkYcbcrConversionInfo());
     if (!colorAttachmentView) {
         if (sampleCnt > 1) {
-            resolveAttachmentView->unref();
+            resolveAttachmentView.reset();
             GrVkImage::DestroyImageInfo(gpu, &msInfo);
         }
         return nullptr;
