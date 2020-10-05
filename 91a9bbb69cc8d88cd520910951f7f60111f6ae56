@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "bb4e79ae_e8207755",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T18:25:00Z",
+      "side": 1,
+      "message": "I suspect we may not ever want to make this public and will instead figure out a well defined interaction between drawImage, SkShader, and paint color (or remove paint color). +Brian Osman.",
+      "range": {
+        "startLine": 14,
+        "startChar": 57,
+        "endLine": 17,
+        "endChar": 34
+      },
+      "revId": "91a9bbb69cc8d88cd520910951f7f60111f6ae56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "307977a2_10c157f3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T18:25:00Z",
+      "side": 1,
+      "message": "Is this is a significant optimization?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 66
+      },
+      "revId": "91a9bbb69cc8d88cd520910951f7f60111f6ae56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0b20ecd0_da523f9e",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 7
