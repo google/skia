@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "faf97940_e23ea31c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-05T20:04:29Z",
+      "side": 1,
+      "message": "Gets back some of the perf I lost with cloning builtin fragment variables.",
+      "revId": "7066a0e40b46edf3d2e11a24f28ff2a6e3ed3797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
