@@ -191,7 +191,7 @@ void HCodeGenerator::writeMake() {
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             this->writef("%s%s %s", separator, ParameterType(fContext, param->type(),
                                                              param->fModifiers.fLayout).c_str(),
-                         String(param->fName).c_str());
+                         String(param->name()).c_str());
             separator = ", ";
         }
         this->writeSection(kConstructorParamsSection, separator);
@@ -202,9 +202,9 @@ void HCodeGenerator::writeMake() {
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type ||
                 param->type().nonnullable().typeKind() == Type::TypeKind::kSampler) {
-                this->writef("%sstd::move(%s)", separator, String(param->fName).c_str());
+                this->writef("%sstd::move(%s)", separator, String(param->name()).c_str());
             } else {
-                this->writef("%s%s", separator, String(param->fName).c_str());
+                this->writef("%s%s", separator, String(param->name()).c_str());
             }
             separator = ", ";
         }
@@ -235,7 +235,7 @@ void HCodeGenerator::writeConstructor() {
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         this->writef("%s%s %s", separator, ParameterType(fContext, param->type(),
                                                          param->fModifiers.fLayout).c_str(),
-                     String(param->fName).c_str());
+                     String(param->name()).c_str());
         separator = ", ";
     }
     this->writeSection(kConstructorParamsSection, separator);
@@ -247,7 +247,7 @@ void HCodeGenerator::writeConstructor() {
     this->writef(")");
     this->writeSection(kInitializersSection, "\n    , ");
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        String nameString(param->fName);
+        String nameString(param->name());
         const char* name = nameString.c_str();
         const Type& type = param->type().nonnullable();
         if (type.typeKind() == Type::TypeKind::kSampler) {
@@ -279,7 +279,7 @@ void HCodeGenerator::writeConstructor() {
             ++samplerCount;
         } else if (paramType.nonnullable() == *fContext.fFragmentProcessor_Type) {
             if (paramType.typeKind() != Type::TypeKind::kNullable) {
-                this->writef("        SkASSERT(%s);", String(param->fName).c_str());
+                this->writef("        SkASSERT(%s);", String(param->name()).c_str());
             }
 
             SampleUsage usage = Analysis::GetSampleUsage(fProgram, *param);
@@ -288,7 +288,7 @@ void HCodeGenerator::writeConstructor() {
             if (usage.hasUniformMatrix()) {
                 for (const Variable* p : fSectionAndParameterHelper.getParameters()) {
                     if ((p->fModifiers.fFlags & Modifiers::kIn_Flag) &&
-                        usage.fExpression == String(p->fName)) {
+                        usage.fExpression == String(p->name())) {
                         perspExpression = usage.fExpression + ".hasPerspective()";
                         break;
                     }
@@ -297,7 +297,7 @@ void HCodeGenerator::writeConstructor() {
             std::string usageArg = usage.constructor(std::move(perspExpression));
 
             this->writef("        this->registerChild(std::move(%s), %s);",
-                         String(param->fName).c_str(),
+                         String(param->name()).c_str(),
                          usageArg.c_str());
         }
     }
@@ -310,7 +310,7 @@ void HCodeGenerator::writeConstructor() {
 void HCodeGenerator::writeFields() {
     this->writeSection(kFieldsSection);
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
-        String name = FieldName(String(param->fName).c_str());
+        String name = FieldName(String(param->name()).c_str());
         if (param->type().nonnullable() == *fContext.fFragmentProcessor_Type) {
             // Don't need to write any fields, FPs are held as children
         } else {
