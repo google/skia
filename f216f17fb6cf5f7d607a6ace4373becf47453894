@@ -70,6 +70,30 @@
       "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c25f6f2_dffb4a4f",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T19:35:06Z",
+      "side": 1,
+      "message": "Let\u0027s change the TODO to a comment suggesting to use the float() version if you care about cross(a,a) equaling zero, and then we can submit this CL? What do you think?",
+      "parentUuid": "78ffc58c_32cff1ae",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 88
+      },
+      "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
