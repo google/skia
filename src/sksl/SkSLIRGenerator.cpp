@@ -246,7 +246,7 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
                 Expression& expr = *result->as<ExpressionStatement>().expression();
                 if (expr.kind() == Expression::Kind::kFunctionCall) {
                     FunctionCall& fc = expr.as<FunctionCall>();
-                    if (fc.fFunction.fBuiltin && fc.fFunction.name() == "EmitVertex") {
+                    if (fc.function().fBuiltin && fc.function().name() == "EmitVertex") {
                         std::vector<std::unique_ptr<Statement>> statements;
                         statements.push_back(getNormalizeSkPositionCode());
                         statements.push_back(std::move(result));
@@ -2116,11 +2116,11 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
     }
 
-    auto funcCall = std::make_unique<FunctionCall>(offset, returnType, function,
+    auto funcCall = std::make_unique<FunctionCall>(offset, returnType, &function,
                                                    std::move(arguments));
     if (fCanInline &&
-        fInliner->isSafeToInline(funcCall->fFunction.fDefinition) &&
-        !fInliner->isLargeFunction(funcCall->fFunction.fDefinition)) {
+        fInliner->isSafeToInline(funcCall->function().fDefinition) &&
+        !fInliner->isLargeFunction(funcCall->function().fDefinition)) {
         Inliner::InlinedCall inlinedCall = fInliner->inlineCall(funcCall.get(), fSymbolTable.get(),
                                                                 fCurrentFunction);
         if (inlinedCall.fInlinedBody) {
