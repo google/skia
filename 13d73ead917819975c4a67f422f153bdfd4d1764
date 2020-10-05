@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5177ce7_ababbf5f",
+        "filename": "src/image/SkImage_GpuYUVA.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T22:04:34Z",
+      "side": 1,
+      "message": "If we flatten then this view knows the flattened origin.",
+      "range": {
+        "startLine": 112,
+        "startChar": 37,
+        "endLine": 112,
+        "endChar": 45
+      },
+      "revId": "13d73ead917819975c4a67f422f153bdfd4d1764",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

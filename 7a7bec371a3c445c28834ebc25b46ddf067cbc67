@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "386fbf2c_f766d8d5",
+        "filename": "src/image/SkImage_GpuYUVA.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T22:04:34Z",
+      "side": 0,
+      "message": "This used to (sort-of) matter before the old MakeFromYUVAPixmaps was deleted. It took an origin parameter and documented that if flattened this would be the origin of the resulting texture. In practice no one cared as they weren\u0027t accessing the GrBackendTexture of the flattened image. The new MakeFromYUVAPixmaps doesn\u0027t take a GrSurfaceOrigin.",
+      "range": {
+        "startLine": 164,
+        "startChar": 71,
+        "endLine": 164,
+        "endChar": 78
+      },
+      "revId": "7a7bec371a3c445c28834ebc25b46ddf067cbc67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
