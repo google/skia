@@ -15,9 +15,6 @@
 #include "src/image/SkRescaleAndReadPixels.h"
 #include "src/image/SkSurface_Base.h"
 
-SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
-
-#ifdef SK_LEGACY_SURFACE_PROPS
 static SkPixelGeometry compute_default_geometry() {
     SkFontLCDConfig::LCDOrder order = SkFontLCDConfig::GetSubpixelOrder();
     if (SkFontLCDConfig::kNONE_LCDOrder == order) {
@@ -42,13 +39,14 @@ static SkPixelGeometry compute_default_geometry() {
     }
 }
 
+SkSurfaceProps::SkSurfaceProps() : fFlags(0), fPixelGeometry(kUnknown_SkPixelGeometry) {}
+
 SkSurfaceProps::SkSurfaceProps(InitType) : fFlags(0), fPixelGeometry(compute_default_geometry()) {}
 
 SkSurfaceProps::SkSurfaceProps(uint32_t flags, InitType)
     : fFlags(flags)
     , fPixelGeometry(compute_default_geometry())
 {}
-#endif
 
 SkSurfaceProps::SkSurfaceProps(uint32_t flags, SkPixelGeometry pg)
     : fFlags(flags), fPixelGeometry(pg)

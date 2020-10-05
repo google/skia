@@ -369,7 +369,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     displayParams.fGrContextOptions.fShaderErrorHandler = &gShaderErrorHandler;
     displayParams.fGrContextOptions.fSuppressPrints = true;
     fWindow->setRequestedDisplayParams(displayParams);
-    fDisplay = fWindow->getRequestedDisplayParams();
     fRefresh = FLAGS_redraw;
 
     // Configure timers
@@ -494,9 +493,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fCommands.addCommand('G', "Modes", "Geometry", [this]() {
         DisplayParams params = fWindow->getRequestedDisplayParams();
         uint32_t flags = params.fSurfaceProps.flags();
-        SkPixelGeometry defaultPixelGeometry = fDisplay.fSurfaceProps.pixelGeometry();
-        if (!fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
-            fDisplayOverrides.fSurfaceProps.fPixelGeometry = true;
+        if (!fPixelGeometryOverrides) {
+            fPixelGeometryOverrides = true;
             params.fSurfaceProps = SkSurfaceProps(flags, kUnknown_SkPixelGeometry);
         } else {
             switch (params.fSurfaceProps.pixelGeometry()) {
@@ -513,8 +511,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                     params.fSurfaceProps = SkSurfaceProps(flags, kBGR_V_SkPixelGeometry);
                     break;
                 case kBGR_V_SkPixelGeometry:
-                    params.fSurfaceProps = SkSurfaceProps(flags, defaultPixelGeometry);
-                    fDisplayOverrides.fSurfaceProps.fPixelGeometry = false;
+                    params.fSurfaceProps = SkSurfaceProps(flags, SkSurfaceProps::kLegacyFontHost_InitType);
+                    fPixelGeometryOverrides = false;
                     break;
             }
         }
@@ -1024,7 +1022,7 @@ void Viewer::updateTitle() {
     }
 
     const DisplayParams& params = fWindow->getRequestedDisplayParams();
-    if (fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
+    if (fPixelGeometryOverrides) {
         switch (params.fSurfaceProps.pixelGeometry()) {
             case kUnknown_SkPixelGeometry:
                 title.append( " Flat");
@@ -1412,7 +1410,7 @@ void Viewer::drawSlide(SkSurface* surface) {
     }
 
     auto make_surface = [=](int w, int h) {
-        SkSurfaceProps props(fWindow->getRequestedDisplayParams().fSurfaceProps);
+        SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
         slideCanvas->getProps(&props);
 
         SkImageInfo info = SkImageInfo::Make(w, h, colorType, kPremul_SkAlphaType, colorSpace);
@@ -1830,7 +1828,7 @@ void Viewer::drawImGui() {
                 }
 
                 int pixelGeometryIdx = 0;
-                if (fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
+                if (fPixelGeometryOverrides) {
                     pixelGeometryIdx = params.fSurfaceProps.pixelGeometry() + 1;
                 }
                 if (ImGui::Combo("Pixel Geometry", &pixelGeometryIdx,
@@ -1838,11 +1836,10 @@ void Viewer::drawImGui() {
                 {
                     uint32_t flags = params.fSurfaceProps.flags();
                     if (pixelGeometryIdx == 0) {
-                        fDisplayOverrides.fSurfaceProps.fPixelGeometry = false;
-                        SkPixelGeometry pixelGeometry = fDisplay.fSurfaceProps.pixelGeometry();
-                        params.fSurfaceProps = SkSurfaceProps(flags, pixelGeometry);
+                        fPixelGeometryOverrides = false;
+                        params.fSurfaceProps = SkSurfaceProps(flags, SkSurfaceProps::kLegacyFontHost_InitType);
                     } else {
-                        fDisplayOverrides.fSurfaceProps.fPixelGeometry = true;
+                        fPixelGeometryOverrides = true;
                         SkPixelGeometry pixelGeometry = SkTo<SkPixelGeometry>(pixelGeometryIdx - 1);
                         params.fSurfaceProps = SkSurfaceProps(flags, pixelGeometry);
                     }

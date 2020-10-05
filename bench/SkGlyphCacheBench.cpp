@@ -220,9 +220,8 @@ class DiffCanvasBench : public Benchmark {
 
     bool isSuitableFor(Backend b) override { return b == kNonRendering_Backend; }
 
-    void onDraw(int loops, SkCanvas* modelCanvas) override {
-        SkSurfaceProps props;
-        modelCanvas->getProps(&props);
+    void onDraw(int loops, SkCanvas*) override {
+        const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
         SkTextBlobCacheDiffCanvas canvas{1024, 1024, props, fServer.get()};
         loops *= 100;
         while (loops --> 0) {

@@ -43,8 +43,7 @@ class DirectMaskGlyphVertexFillBenchmark : public Benchmark {
         auto glyphRunList = builder.useGlyphRunList();
         SkASSERT(!glyphRunList.empty());
         fBlob = GrTextBlob::Make(glyphRunList, view);
-        SkSurfaceProps props;
-        canvas->getProps(&props);
+        SkSurfaceProps props{SkSurfaceProps::kLegacyFontHost_InitType};
         auto colorSpace = SkColorSpace::MakeSRGB();
         SkGlyphRunListPainter painter{props, kUnknown_SkColorType,
                                       colorSpace.get(), SkStrikeCache::GlobalStrikeCache()};

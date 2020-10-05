@@ -178,7 +178,7 @@ public:
     explicit SkCanvas(sk_sp<SkBaseDevice> device);
 
     /** Constructs a canvas that draws into bitmap.
-        Sets kUnknown_SkPixelGeometry in constructed SkSurface.
+        Sets SkSurfaceProps::kLegacyFontHost_InitType in constructed SkSurface.
 
         SkBitmap is copied so that subsequently editing bitmap will not affect
         constructed SkCanvas.
