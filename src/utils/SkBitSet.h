@@ -58,7 +58,7 @@ public:
     }
 
     // Calls f(size_t index) for each set index.
-    template<typename FN>
+    template <typename FN>
     void forEachSetIndex(FN f) const {
         const Chunk* chunks = fChunks.get();
         const size_t numChunks = NumChunksFor(fSize);
@@ -132,7 +132,7 @@ public:
                 if (bitIndex >= fSize) {
                     break;
                 }
-                return OptionalIndex(i * ChunkBits + SkCTZ(chunk));
+                return OptionalIndex(bitIndex);
             }
         }
         return OptionalIndex();
