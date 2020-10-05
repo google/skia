@@ -33,6 +33,7 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/utils/SkBitSet.h"
 
 #include <fstream>
 
@@ -550,7 +551,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
     }
 }
 
-void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
+void Compiler::scanCFG(CFG* cfg, BlockId blockId, SkBitSet* processedSet) {
     BasicBlock& block = cfg->fBlocks[blockId];
 
     // compute definitions after this block
@@ -569,15 +570,15 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, std::set<BlockId>* workList) {
             std::unique_ptr<Expression>* e1 = pair.second;
             auto found = exit.fBefore.find(pair.first);
             if (found == exit.fBefore.end()) {
-                // exit has no definition for it, just copy it
-                workList->insert(exitId);
+                // exit has no definition for it, just copy it and reprocess exit block
+                processedSet->reset(exitId);
                 exit.fBefore[pair.first] = e1;
             } else {
                 // exit has a (possibly different) value already defined
                 std::unique_ptr<Expression>* e2 = exit.fBefore[pair.first];
                 if (e1 != e2) {
-                    // definition has changed, merge and add exit block to worklist
-                    workList->insert(exitId);
+                    // definition has changed, merge and reprocess the exit block
+                    processedSet->reset(exitId);
                     if (e1 && e2) {
                         exit.fBefore[pair.first] =
                                       (std::unique_ptr<Expression>*) &fContext->fDefined_Expression;
@@ -655,14 +656,12 @@ static bool dead_assignment(const BinaryExpression& b) {
 
 void Compiler::computeDataFlow(CFG* cfg) {
     cfg->fBlocks[cfg->fStart].fBefore = compute_start_state(*cfg);
-    std::set<BlockId> workList;
-    for (BlockId i = 0; i < cfg->fBlocks.size(); i++) {
-        workList.insert(i);
-    }
-    while (workList.size()) {
-        BlockId next = *workList.begin();
-        workList.erase(workList.begin());
-        this->scanCFG(cfg, next, &workList);
+
+    // We set bits in the "processed" set after a block has been scanned.
+    SkBitSet processedSet(cfg->fBlocks.size());
+    while (SkBitSet::OptionalIndex blockId = processedSet.findFirstUnset()) {
+        processedSet.set(*blockId);
+        this->scanCFG(cfg, *blockId, &processedSet);
     }
 }
 
