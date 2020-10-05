@@ -45,10 +45,40 @@ DEF_TEST(BitSet, reporter) {
     REPORTER_ASSERT(reporter, data[1] == 24);
     REPORTER_ASSERT(reporter, data[2] == 35);
 
-    SkBitSet set1(65536);
+    SkBitSet set1(24680);
     set1.set(12345);
+    REPORTER_ASSERT(reporter, set1.size() == 24680);
     REPORTER_ASSERT(reporter, set0.test(12345) == false);
     REPORTER_ASSERT(reporter, set1.test(12345) == true);
     REPORTER_ASSERT(reporter, set1.test(22) == false);
     REPORTER_ASSERT(reporter, set0.test(35) == true);
+
+    // Test swap().
+    set0.swap(set1);
+    REPORTER_ASSERT(reporter, set0.size() == 24680);
+    REPORTER_ASSERT(reporter, set1.size() == 65536);
+    REPORTER_ASSERT(reporter, set1.test(12345) == false);
+    REPORTER_ASSERT(reporter, set0.test(12345) == true);
+    REPORTER_ASSERT(reporter, set0.test(22) == false);
+    REPORTER_ASSERT(reporter, set1.test(35) == true);
+
+    // Test lopping off bits and shrink/grow mechanics with resize().
+    SkBitSet set2(100);
+    for (int index = 0; index < 100; ++index) {
+        set2.set(index);
+    }
+    REPORTER_ASSERT(reporter, !set2.findFirstUnset());
+
+    for (int tempSize = 99; tempSize >= 0; --tempSize) {
+        set2.resize(tempSize);
+        REPORTER_ASSERT(reporter, set2.size() == size_t(tempSize));
+        REPORTER_ASSERT(reporter, !set2.findFirstUnset());
+
+        set2.resize(100);
+        REPORTER_ASSERT(reporter, set2.size() == 100);
+        REPORTER_ASSERT(reporter, *set2.findFirstUnset() == size_t(tempSize));
+        for (int testIdx = tempSize; testIdx < 100; ++testIdx) {
+            REPORTER_ASSERT(reporter, !set2.test(testIdx));
+        }
+    }
 }
