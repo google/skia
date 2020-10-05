@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bec4e098_5e78c3e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-05T17:25:10Z",
+      "side": 1,
+      "message": "Fix is in Patchset #3. The issue was that I had not realized Type was copyable, and after my change it was unsafe to naively copy due to how its name was being stored.\n\nMost of the copying was unnecessary and should have been done via taking references instead. There was only one legitimate spot where a copy was happening, and it was both less code and safer to manually construct a copy there than to implement an actual copy constructor, so for the time being I have made Type uncopyable.",
+      "revId": "180c02d52d9c20b8ca34fdf45fd71b694b81655b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
