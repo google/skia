@@ -306,7 +306,7 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
 
     uint32_t flags = FLAGS_dit ? SkSurfaceProps::kUseDeviceIndependentFonts_Flag
                                : 0;
-    SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
+    SkSurfaceProps props(flags, SkSurfaceProps::kLegacyFontHost_InitType);
 
     sk_sp<SkSurface> surface;
     GrBackendTexture backendTexture;
