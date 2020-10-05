@@ -20,7 +20,7 @@ public:
     explicit SkBitSet(size_t size)
         : fSize(size)
         // May http://wg21.link/p0593 be accepted.
-        , fChunks((Chunk*)sk_calloc_throw(numChunksFor(fSize) * sizeof(Chunk)))
+        , fChunks((Chunk*)sk_calloc_throw(NumChunksFor(fSize) * sizeof(Chunk)))
     {}
 
     SkBitSet(const SkBitSet&) = delete;
@@ -39,18 +39,18 @@ public:
     /** Set the value of the index-th bit to true. */
     void set(size_t index) {
         SkASSERT(index < fSize);
-        *this->chunkFor(index) |= chunkMaskFor(index);
+        *this->chunkFor(index) |= ChunkMaskFor(index);
     }
 
     /** Set the value of the index-th bit to false.  */
     void reset(size_t index) {
         SkASSERT(index < fSize);
-        *this->chunkFor(index) &= ~chunkMaskFor(index);
+        *this->chunkFor(index) &= ~ChunkMaskFor(index);
     }
 
     bool test(size_t index) const {
         SkASSERT(index < fSize);
-        return SkToBool(*this->chunkFor(index) & chunkMaskFor(index));
+        return SkToBool(*this->chunkFor(index) & ChunkMaskFor(index));
     }
 
     size_t size() const {
@@ -61,7 +61,7 @@ public:
     template<typename FN>
     void forEachSetIndex(FN f) const {
         const Chunk* chunks = fChunks.get();
-        const size_t numChunks = numChunksFor(fSize);
+        const size_t numChunks = NumChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = chunks[i]) {  // There are set bits
                 const size_t index = i * ChunkBits;
@@ -110,7 +110,7 @@ public:
     // If any bits are set, returns the index of the first.
     OptionalIndex findFirst() {
         const Chunk* chunks = fChunks.get();
-        const size_t numChunks = numChunksFor(fSize);
+        const size_t numChunks = NumChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = chunks[i]) {  // There are set bits
                 static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
@@ -124,7 +124,7 @@ public:
     // If any bits are not set, returns the index of the first.
     OptionalIndex findFirstUnset() {
         const Chunk* chunks = fChunks.get();
-        const size_t numChunks = numChunksFor(fSize);
+        const size_t numChunks = NumChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = ~chunks[i]) {  // if there are unset bits ...
                 static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
@@ -151,14 +151,13 @@ private:
         return fChunks.get() + (index / ChunkBits);
     }
 
-    static constexpr Chunk chunkMaskFor(size_t index) {
+    static constexpr Chunk ChunkMaskFor(size_t index) {
         return (Chunk)1 << (index & (ChunkBits-1));
     }
 
-    static constexpr size_t numChunksFor(size_t size) {
+    static constexpr size_t NumChunksFor(size_t size) {
         return (size + (ChunkBits-1)) / ChunkBits;
     }
 };
-
 
 #endif
