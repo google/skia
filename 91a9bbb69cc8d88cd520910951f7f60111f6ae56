@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "995b7d90_65e8c9b2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-05T18:52:04Z",
+      "side": 1,
+      "message": "Yeah, I wouldn\u0027t want it to change the SkCanvas::drawImage. It was just a thought on how we may could handle the interactions of image+shader+mask filter that the common use case of drawImage doesn\u0027t need to worry about, and could mean that the SkGpuDevice/SkBitmapDevice code gets a lot simpler.\n\nFor SaveLayerRec, it already ignores so many fields of the SkPaint during restore that that would just make it more self-documenting. But there are other proposals on how to address the restore effects on saveLayer, so also not a big deal.",
+      "parentUuid": "bb4e79ae_e8207755",
+      "range": {
+        "startLine": 14,
+        "startChar": 57,
+        "endLine": 17,
+        "endChar": 34
+      },
+      "revId": "91a9bbb69cc8d88cd520910951f7f60111f6ae56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "307977a2_10c157f3",
         "filename": "/COMMIT_MSG",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2020-10-05T18:25:00Z",
       "side": 1,
       "message": "Is this is a significant optimization?",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 66
+      },
+      "revId": "91a9bbb69cc8d88cd520910951f7f60111f6ae56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9cda92b0_08e882f2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-05T18:52:04Z",
+      "side": 1,
+      "message": "It\u0027s probably not super significant. I got hit with a few memory regressions in Chromium after this CL: https://skia-review.googlesource.com/c/skia/+/308768, which had updated it to use draw_texture_producer instead of creating the specific FPs directly.\n\nIt wasn\u0027t obvious what the cause of that was, so I figured it wouldn\u0027t hurt to go back to the more specific case. In most cases draw_texture_producer should be making these same eventual decisions as either a texture op, or a fill rect op with the color filter.",
+      "parentUuid": "307977a2_10c157f3",
       "range": {
         "startLine": 23,
         "startChar": 0,
