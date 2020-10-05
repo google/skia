@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7642a08a_a288d939",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-05T22:34:49Z",
+      "side": 1,
+      "message": "Any particular reason for this here? I note that it seems we currently have 950 instances of \u0027template \u003c\u0027 and 390 instances of \u0027template\u003c\u0027.",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 13
+      },
+      "revId": "bd4666490a8cbc49656c7f9b63b33a2e06661d7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
