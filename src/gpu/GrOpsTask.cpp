@@ -154,7 +154,12 @@ void GrOpsTask::OpChain::visitProxies(const GrOp::VisitProxyFunc& func) const {
 
 void GrOpsTask::OpChain::deleteOps(GrOpMemoryPool* pool) {
     while (!fList.empty()) {
-        pool->release(fList.popHead());
+        #if defined(GR_OP_ALLOCATE_USE_NEW)
+            // Since the value goes out of scope immediately, the unique_ptr deletes the op.
+            fList.popHead();
+        #else
+            pool->release(fList.popHead());
+        #endif
     }
 }
 
@@ -197,7 +202,12 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(
             if (merged) {
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, a, chainB.head());
                 if (canBackwardMerge) {
-                    arenas->opMemoryPool()->release(chainB.popHead());
+                    #if defined(GR_OP_ALLOCATE_USE_NEW)
+                        // The unique_ptr releases the op.
+                        chainB.popHead();
+                    #else
+                        arenas->opMemoryPool()->release(chainB.popHead());
+                    #endif
                 } else {
                     // We merged the contents of b's head into a. We will replace b's head with a in
                     // chain b.
@@ -206,7 +216,12 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(
                         origATail = a->prevInChain();
                     }
                     std::unique_ptr<GrOp> detachedA = chainA.removeOp(a);
-                    arenas->opMemoryPool()->release(chainB.popHead());
+                    #if defined(GR_OP_ALLOCATE_USE_NEW)
+                        // The unique_ptr releases the op.
+                        chainB.popHead();
+                    #else
+                        arenas->opMemoryPool()->release(chainB.popHead());
+                    #endif
                     chainB.pushHead(std::move(detachedA));
                     if (chainA.empty()) {
                         // We merged all the nodes in chain a to chain b.
@@ -282,7 +297,12 @@ bool GrOpsTask::OpChain::tryConcat(
                           list->tail()->name(), list->tail()->uniqueID(), list->head()->name(),
                           list->head()->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, fList.tail(), list->head());
-                arenas->opMemoryPool()->release(list->popHead());
+                #if defined(GR_OP_ALLOCATE_USE_NEW)
+                    // The unique_ptr releases the op.
+                    list->popHead();
+                #else
+                    arenas->opMemoryPool()->release(list->popHead());
+                #endif
                 break;
             }
         }
@@ -796,7 +816,9 @@ void GrOpsTask::recordOp(
     // A closed GrOpsTask should never receive new/more ops
     SkASSERT(!this->isClosed());
     if (!op->bounds().isFinite()) {
-        fArenas.opMemoryPool()->release(std::move(op));
+        #if !defined(GR_OP_ALLOCATE_USE_NEW)
+            fArenas.opMemoryPool()->release(std::move(op));
+        #endif
         return;
     }
 

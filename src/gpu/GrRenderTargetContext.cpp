@@ -1992,7 +1992,9 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (fContext->abandoned()) {
-        fContext->priv().opMemoryPool()->release(std::move(op));
+        #if !defined(GR_OP_ALLOCATE_USE_NEW)
+            fContext->priv().opMemoryPool()->release(std::move(op));
+        #endif
         return;
     }
     SkDEBUGCODE(this->validate();)
@@ -2025,7 +2027,9 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     }
 
     if (skipDraw) {
-        fContext->priv().opMemoryPool()->release(std::move(op));
+        #if !defined(GR_OP_ALLOCATE_USE_NEW)
+            fContext->priv().opMemoryPool()->release(std::move(op));
+        #endif
         return;
     }
 
@@ -2050,7 +2054,9 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     GrXferProcessor::DstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
         if (!this->setupDstProxyView(*op, &dstProxyView)) {
-            fContext->priv().opMemoryPool()->release(std::move(op));
+            #if !defined(GR_OP_ALLOCATE_USE_NEW)
+                fContext->priv().opMemoryPool()->release(std::move(op));
+            #endif
             return;
         }
     }

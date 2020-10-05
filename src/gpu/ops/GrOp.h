@@ -119,19 +119,24 @@ public:
         SkASSERT(fBoundsFlags != kUninitialized_BoundsFlag);
         return SkToBool(fBoundsFlags & kZeroArea_BoundsFlag);
     }
+    #if defined(GR_OP_ALLOCATE_USE_NEW)
+        // GrOps are allocated using ::operator new in the GrMemoryPool. Doing this style of memory
+        // allocation defeats the delete with size optimization.
+        void* operator new(size_t) { SK_ABORT("All GrOps are created by placement new."); }
+        void* operator new(size_t, void* p) { return p; }
+        void operator delete(void* p) { ::operator delete(p); }
+    #elif defined(SK_DEBUG)
+        // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
+        void* operator new(size_t size);
+        void operator delete(void* target);
 
-#ifdef SK_DEBUG
-    // All GrOp-derived classes should be allocated in and deleted from a GrMemoryPool
-    void* operator new(size_t size);
-    void operator delete(void* target);
-
-    void* operator new(size_t size, void* placement) {
-        return ::operator new(size, placement);
-    }
-    void operator delete(void* target, void* placement) {
-        ::operator delete(target, placement);
-    }
-#endif
+        void* operator new(size_t size, void* placement) {
+            return ::operator new(size, placement);
+        }
+        void operator delete(void* target, void* placement) {
+            ::operator delete(target, placement);
+        }
+    #endif
 
     /**
      * Helper for safely down-casting to a GrOp subclass
