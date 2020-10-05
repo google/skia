@@ -80,10 +80,10 @@ public:
 protected:
     void exportTtxCommon(SkWStream*, const char* type, const SkTArray<GlyfInfo>* = nullptr) const;
 
-    SkScalerContext*                           onCreateScalerContext(const SkScalerContextEffects&,
-                                                                     const SkDescriptor* desc) const override;
-    void                                       onFilterRec(SkScalerContextRec* rec) const override;
-    void                                       getGlyphToUnicodeMap(SkUnichar*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor* desc) const override;
+    void onFilterRec(SkScalerContextRec* rec) const override;
+    void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
 
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
@@ -102,7 +102,8 @@ protected:
 
     int onGetUPEM() const override { return fUpem; }
 
-    void                          onGetFamilyName(SkString* familyName) const override;
+    void onGetFamilyName(SkString* familyName) const override;
+    bool onGetPostScriptName(SkString*) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
