@@ -161,13 +161,13 @@ void GLSLCodeGenerator::writeType(const Type& type) {
         for (const Type* search : fWrittenStructs) {
             if (*search == type) {
                 // already written
-                this->write(type.fName);
+                this->write(type.name());
                 return;
             }
         }
         fWrittenStructs.push_back(&type);
         this->write("struct ");
-        this->write(type.fName);
+        this->write(type.name());
         this->writeLine(" {");
         fIndentation++;
         for (const auto& f : type.fields()) {
@@ -242,7 +242,7 @@ static bool is_abs(Expression& expr) {
     if (expr.kind() != Expression::Kind::kFunctionCall) {
         return false;
     }
-    return expr.as<FunctionCall>().fFunction.fName == "abs";
+    return expr.as<FunctionCall>().fFunction.name() == "abs";
 }
 
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a
@@ -480,7 +480,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 #ifndef SKSL_STANDALONE
     );
 #endif
-    const auto found = c.fFunction.fBuiltin ? fFunctionClasses->find(c.fFunction.fName) :
+    const auto found = c.fFunction.fBuiltin ? fFunctionClasses->find(c.fFunction.name()) :
                                               fFunctionClasses->end();
     bool isTextureFunctionWithBias = false;
     bool nameWritten = false;
@@ -700,7 +700,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
     }
     if (!nameWritten) {
-        this->write(c.fFunction.fName);
+        this->write(c.fFunction.name());
     }
     this->write("(");
     const char* separator = "";
@@ -822,7 +822,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write(fProgram.fSettings.fCaps->fbFetchColorName());
             break;
         default:
-            this->write(ref.fVariable->fName);
+            this->write(ref.fVariable->name());
     }
 }
 
@@ -1042,7 +1042,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
     this->writeTypePrecision(f.fDeclaration.fReturnType);
     this->writeType(f.fDeclaration.fReturnType);
-    this->write(" " + f.fDeclaration.fName + "(");
+    this->write(" " + f.fDeclaration.name() + "(");
     const char* separator = "";
     for (const auto& param : f.fDeclaration.fParameters) {
         this->write(separator);
@@ -1056,7 +1056,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         this->writeTypePrecision(*type);
         this->writeType(*type);
-        this->write(" " + param->fName);
+        this->write(" " + param->name());
         for (int s : sizes) {
             if (s == Type::kUnsizedArray) {
                 this->write("[]");
@@ -1257,7 +1257,7 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
             this->write(" ");
             wroteType = true;
         }
-        this->write(var.fVar->fName);
+        this->write(var.fVar->name());
         for (const auto& size : var.fSizes) {
             this->write("[");
             if (size) {

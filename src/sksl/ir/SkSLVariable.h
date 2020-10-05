@@ -51,7 +51,7 @@ struct Variable : public Symbol {
     }
 
     String description() const override {
-        return fModifiers.description() + this->type().fName + " " + fName;
+        return fModifiers.description() + this->type().name() + " " + this->name();
     }
 
     bool dead() const {

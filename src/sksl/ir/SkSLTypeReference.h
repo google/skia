@@ -29,7 +29,7 @@ struct TypeReference : public Expression {
     }
 
     String description() const override {
-        return String(fValue.fName);
+        return String(fValue.name());
     }
 
     std::unique_ptr<Expression> clone() const override {

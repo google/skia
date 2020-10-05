@@ -16,7 +16,8 @@ namespace SkSL {
 /**
  * Represents a symboltable entry.
  */
-struct Symbol : public IRNode {
+class Symbol : public IRNode {
+public:
     enum class Kind {
         kExternal = (int) ProgramElement::Kind::kLast + 1,
         kField,
@@ -30,10 +31,12 @@ struct Symbol : public IRNode {
     };
 
     Symbol(int offset, Kind kind, StringFragment name, const Type* type = nullptr)
-    : INHERITED(offset, (int) kind, type)
-    , fName(name) {
+    : INHERITED(offset, (int) kind, SymbolData{name, type}) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
+
+    Symbol(int offset, const FieldData& data)
+    : INHERITED(offset, (int) Kind::kField, data) {}
 
     Symbol(const Symbol&) = default;
     Symbol& operator=(const Symbol&) = default;
@@ -42,6 +45,10 @@ struct Symbol : public IRNode {
 
     Kind kind() const {
         return (Kind) fKind;
+    }
+
+    virtual StringFragment name() const {
+        return this->symbolData().fName;
     }
 
     /**
@@ -68,8 +75,7 @@ struct Symbol : public IRNode {
         return static_cast<T&>(*this);
     }
 
-    StringFragment fName;
-
+private:
     using INHERITED = IRNode;
 };
 
