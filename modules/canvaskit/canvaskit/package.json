@@ -1,6 +1,6 @@
 {
   "name": "canvaskit-wasm",
-  "version": "0.17.3",
+  "version": "0.18.0",
   "description": "A WASM version of Skia's Canvas API",
   "main": "bin/canvaskit.js",
   "homepage": "https://github.com/google/skia/tree/master/modules/canvaskit",
@@ -9,7 +9,7 @@
   },
   "permsRepo": "skia-dev/.github",
   "publishConfig": {
-    "registry":"https://wombat-dressing-room.appspot.com"
+    "registry": "https://wombat-dressing-room.appspot.com"
   },
   "license": "BSD-3-Clause"
 }
