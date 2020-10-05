@@ -391,7 +391,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
         // it crams a lazy proxy into the cache and then fills it in later.
         auto [lazyView, trampoline] = CreateLazyView(dContext, wh, stats);
 
-        GrSurfaceProxyView view = threadSafeViewCache->findOrAdd(key, lazyView);
+        GrSurfaceProxyView view = threadSafeViewCache->findOrAdd1(key, lazyView);
         if (view != lazyView) {
             ++stats->fCacheHits;
             return view;
@@ -904,3 +904,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
                                                /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
 }
+
+// Add unit test for data
