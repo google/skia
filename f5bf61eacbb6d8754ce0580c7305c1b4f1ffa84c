@@ -34,6 +34,29 @@
       "revId": "f5bf61eacbb6d8754ce0580c7305c1b4f1ffa84c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b34abb74_5a7ac90f",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-05T19:14:36Z",
+      "side": 1,
+      "message": "The typical pattern for these is to #define SK_OPTS_NS to something unique for the file that\u0027s including _opts.h headers, e.g. sse41, avx2, neon.  It might be clearest to do that here, e.g. #define SK_OPTS_NS skslc_standalone, SkSLMain, something like that?  I don\u0027t think there\u0027s any harm as-is, except perhaps confusion if someone starts to think SK_OPTS_NS is anything more than a placeholder.",
+      "range": {
+        "startLine": 30,
+        "startChar": 32,
+        "endLine": 30,
+        "endChar": 42
+      },
+      "revId": "f5bf61eacbb6d8754ce0580c7305c1b4f1ffa84c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
