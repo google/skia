@@ -49,6 +49,8 @@ static constexpr uint32_t GrDxgiFormatChannels(DXGI_FORMAT format) {
         case DXGI_FORMAT_R16G16_UNORM:             return kRG_SkColorChannelFlags;
         case DXGI_FORMAT_R16G16B16A16_UNORM:       return kRGBA_SkColorChannelFlags;
         case DXGI_FORMAT_R16G16_FLOAT:             return kRG_SkColorChannelFlags;
+        case DXGI_FORMAT_D24_UNORM_S8_UINT:        return 0;
+        case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:     return 0;
 
         default:                                   return 0;
     }
@@ -71,8 +73,21 @@ static constexpr size_t GrDxgiFormatBytesPerBlock(DXGI_FORMAT format) {
         case DXGI_FORMAT_R16G16_UNORM:             return 4;
         case DXGI_FORMAT_R16G16B16A16_UNORM:       return 8;
         case DXGI_FORMAT_R16G16_FLOAT:             return 4;
+        case DXGI_FORMAT_D24_UNORM_S8_UINT:        return 4;
+        case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:     return 8;
 
         default:                                   return 0;
+    }
+}
+
+static constexpr int GrDxgiFormatStencilBits(DXGI_FORMAT format) {
+    switch (format) {
+        case DXGI_FORMAT_D24_UNORM_S8_UINT:
+            return 8;
+        case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
+            return 8;
+        default:
+            return 0;
     }
 }
 
@@ -95,6 +110,8 @@ static constexpr const char* GrDxgiFormatToStr(DXGI_FORMAT dxgiFormat) {
         case DXGI_FORMAT_R16G16_UNORM:             return "R16G16_UNORM";
         case DXGI_FORMAT_R16G16B16A16_UNORM:       return "R16G16B16A16_UNORM";
         case DXGI_FORMAT_R16G16_FLOAT:             return "R16G16_FLOAT";
+        case DXGI_FORMAT_D24_UNORM_S8_UINT:        return "D24_UNORM_S8_UINT";
+        case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:     return "D32_FLOAT_S8X24_UINT";
 
         default:                                   return "Unknown";
     }

@@ -22,6 +22,20 @@ size_t GrDawnBytesPerBlock(wgpu::TextureFormat format) {
     }
 }
 
+int GrDawnFormatStencilBits(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:
+        case wgpu::TextureFormat::BGRA8Unorm:
+        case wgpu::TextureFormat::R8Unorm:
+            return 0;
+        case wgpu::TextureFormat::Depth24PlusStencil8:
+            return 8;
+        default:
+            SkASSERT(false);
+            return 0;
+    }
+}
+
 bool GrDawnFormatIsRenderable(wgpu::TextureFormat format) {
     // For now, all the formats above are renderable. If a non-renderable format is added
     // (see dawn/src/dawn_native/Format.cpp), an exception should be added here.
