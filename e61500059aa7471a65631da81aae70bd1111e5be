@@ -46,6 +46,30 @@
       "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecc8ec1d_4b6843fe",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T19:51:25Z",
+      "side": 1,
+      "message": "Oh, I think I understand--because we use `std::numeric_limits\u003cChunk\u003e::digits`, we only use 31 of a signed integer\u0027s 32 bits?\nWhat do you think of adding a static_assert(!numeric_limits\u003cChunk\u003e::is_signed)? Doesn\u0027t seem like we\u0027d ever want to use a signed int here anyway; it changes the behavior of shifting etc.",
+      "parentUuid": "efcc5892_c3581935",
+      "range": {
+        "startLine": 147,
+        "startChar": 56,
+        "endLine": 147,
+        "endChar": 92
+      },
+      "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
