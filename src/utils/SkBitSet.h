@@ -106,13 +106,32 @@ public:
                                : static_cast<size_t>(std::forward<U>(defaultValue));
         }
     };
-    // If any bits are set returns the index of the first.
+
+    // If any bits are set, returns the index of the first.
     OptionalIndex findFirst() {
         const Chunk* chunks = fChunks.get();
         const size_t numChunks = numChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = chunks[i]) {  // There are set bits
                 static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
+                const size_t bitIndex = i * ChunkBits + SkCTZ(chunk);
+                return OptionalIndex(bitIndex);
+            }
+        }
+        return OptionalIndex();
+    }
+
+    // If any bits are not set, returns the index of the first.
+    OptionalIndex findFirstUnset() {
+        const Chunk* chunks = fChunks.get();
+        const size_t numChunks = numChunksFor(fSize);
+        for (size_t i = 0; i < numChunks; ++i) {
+            if (Chunk chunk = ~chunks[i]) {  // if there are unset bits ...
+                static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
+                const size_t bitIndex = i * ChunkBits + SkCTZ(chunk);
+                if (bitIndex >= fSize) {
+                    break;
+                }
                 return OptionalIndex(i * ChunkBits + SkCTZ(chunk));
             }
         }

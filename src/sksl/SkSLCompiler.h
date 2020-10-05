@@ -40,6 +40,8 @@
 #define SK_INVOCATIONID_BUILTIN            8
 #define SK_POSITION_BUILTIN                0
 
+class SkBitSet;
+
 namespace SkSL {
 
 class ByteCode;
@@ -190,7 +192,7 @@ private:
 
     void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
 
-    void scanCFG(CFG* cfg, BlockId block, std::set<BlockId>* workList);
+    void scanCFG(CFG* cfg, BlockId block, SkBitSet* processedSet);
 
     void computeDataFlow(CFG* cfg);
 
