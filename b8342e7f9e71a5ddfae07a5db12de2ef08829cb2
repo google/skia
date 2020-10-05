@@ -16,6 +16,47 @@
       "revId": "b8342e7f9e71a5ddfae07a5db12de2ef08829cb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dfc30fb7_daa5dd80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-05T17:06:52Z",
+      "side": 1,
+      "message": "Which \u0027o\u0027 did you see that in? Nothing jumped out as objectionable to my eye, but there\u0027s a lot of o\u0027s in that GM so could have missed it.",
+      "parentUuid": "2891e044_cad33053",
+      "revId": "b8342e7f9e71a5ddfae07a5db12de2ef08829cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a6e6402_55be7d9a",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-05T17:06:52Z",
+      "side": 1,
+      "message": "Do we have another research paper to cite for this? Is the same as what was previously linked? I saw they mentioned the F function, is it the same?\n\nI liked the detail in the code comments from the old code that described C, T, etc. To me, A, B, C, D, E are a little vague without a geometric figure to refer to somehow, but I\u0027m assuming they are computing the tangents/F\u0027 and F\u0027\u0027 (B?).\n\nThen the magic -3 should be called out, presumably as part of the coefficient matrix we\u0027re interested in?",
+      "range": {
+        "startLine": 94,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 30
+      },
+      "revId": "b8342e7f9e71a5ddfae07a5db12de2ef08829cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
