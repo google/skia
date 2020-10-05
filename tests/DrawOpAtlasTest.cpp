@@ -195,7 +195,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
 
     auto gpu = context->priv().getGpu();
     auto resourceProvider = context->priv().resourceProvider();
-    auto opMemoryPool = context->priv().opMemoryPool();
 
     auto rtc = GrRenderTargetContext::Make(
             context, GrColorType::kRGBA_8888, nullptr, SkBackingFit::kApprox, {32, 32});
@@ -240,7 +239,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     flushState.setOpArgs(&opArgs);
     op->prepare(&flushState);
     flushState.setOpArgs(nullptr);
-    opMemoryPool->release(std::move(op));
+    #if !defined(GR_OP_ALLOCATE_USE_NEW)
+        auto opMemoryPool = context->priv().opMemoryPool();
+        opMemoryPool->release(std::move(op));
+    #endif
 }
 
 void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t maxBytes,

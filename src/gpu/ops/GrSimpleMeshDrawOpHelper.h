@@ -212,12 +212,21 @@ std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingCon
         makeArgs.fProcessorSet = nullptr;
         return pool->allocate<Op>(makeArgs, paint.getColor4f(), std::forward<OpArgs>(opArgs)...);
     } else {
-        char* mem = (char*) pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
-        char* setMem = mem + sizeof(Op);
-        auto color = paint.getColor4f();
-        makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
-        return std::unique_ptr<GrDrawOp>(new (mem) Op(makeArgs, color,
-                                                      std::forward<OpArgs>(opArgs)...));
+        #if defined(GR_OP_ALLOCATE_USE_NEW)
+            char* mem = (char*) ::operator new(sizeof(Op) + sizeof(GrProcessorSet));
+            char* setMem = mem + sizeof(Op);
+            auto color = paint.getColor4f();
+            makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
+            GrDrawOp* op = new (mem) Op(makeArgs, color, std::forward<OpArgs>(opArgs)...);
+            return std::unique_ptr<GrDrawOp>(op);
+        #else
+            char* mem = (char*) pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
+            char* setMem = mem + sizeof(Op);
+            auto color = paint.getColor4f();
+            makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
+            return std::unique_ptr<GrDrawOp>(new (mem) Op(makeArgs, color,
+                                                          std::forward<OpArgs>(opArgs)...));
+        #endif
     }
 }
 

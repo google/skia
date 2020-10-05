@@ -121,14 +121,21 @@ public:
 
     template <typename Op, typename... OpArgs>
     std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
-        auto mem = this->allocate(sizeof(Op));
-        return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
+        #if defined(GR_OP_ALLOCATE_USE_NEW)
+            void* m = ::operator new(sizeof(Op));
+            Op* op =  new (m) Op(std::forward<OpArgs>(opArgs)...);
+            return std::unique_ptr<Op>(op);
+        #else
+            auto mem = this->allocate(sizeof(Op));
+            return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
+        #endif
     }
 
     void* allocate(size_t size) { return fPool.allocate(size); }
 
-    void release(std::unique_ptr<GrOp> op);
-
+    #if !defined(GR_OP_ALLOCATE_USE_NEW)
+        void release(std::unique_ptr<GrOp> op);
+    #endif
     bool isEmpty() const { return fPool.isEmpty(); }
 
 private:
