@@ -9,6 +9,8 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * CPU sync bool added to SkSurface::flushAndSubmit() and GrContext::flushAndSubmit()
+
   * Removed legacy variant of SkImage::MakeFromYUVAPixmaps. Use the version that
     takes SkYUVAPixmaps instead. It has a more structured description of the
     planar configuration.

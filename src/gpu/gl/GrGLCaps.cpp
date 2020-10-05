@@ -4086,6 +4086,12 @@ GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
         if (tex->target() == GR_GL_TEXTURE_EXTERNAL || GrGLFormatIsCompressed(tex->format())) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
+    } else if (auto rt = static_cast<const GrGLRenderTarget*>(surface->asRenderTarget())) {
+        // glReadPixels does not allow reading back from a MSAA framebuffer. If the underlying
+        // GrSurface doesn't have a second FBO to resolve to then we must make a copy.
+        if (rt->numSamples() > 1 && rt->textureFBOID() == GrGLRenderTarget::kUnresolvableFBOID) {
+            return SurfaceReadPixelsSupport::kCopyToTexture2D;
+        }
     }
     return SurfaceReadPixelsSupport::kSupported;
 }
