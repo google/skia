@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b63e1c07_b5ec6e28",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-05T14:40:21Z",
+      "side": 1,
+      "message": "At this point the only user of the globals is Chromium, which is setting SK_LEGACY_SURFACE_PROPS so that we continue proving these globals until something like https://chromium-review.googlesource.com/c/chromium/src/+/2378763 can land to move the globals over into Chromium.",
+      "revId": "48abd3af56381ea4ec5e85b2b3ff53ffb8dc9128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
