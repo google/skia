@@ -431,33 +431,35 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
 }
 
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    if (c.fFunction.fBuiltin && c.fFunction.name() == "sample" &&
-        c.fArguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
+    const FunctionDeclaration& function = c.function();
+    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    if (function.fBuiltin && function.name() == "sample" &&
+        arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
         // Validity checks that are detected by function definition in sksl_fp.inc
-        SkASSERT(c.fArguments.size() >= 1 && c.fArguments.size() <= 3);
-        SkASSERT("fragmentProcessor"  == c.fArguments[0]->type().name() ||
-                 "fragmentProcessor?" == c.fArguments[0]->type().name());
+        SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
+        SkASSERT("fragmentProcessor"  == arguments[0]->type().name() ||
+                 "fragmentProcessor?" == arguments[0]->type().name());
 
         // Actually fail during compilation if arguments with valid types are
         // provided that are not variable references, since sample() is a
         // special function that impacts code emission.
-        if (!c.fArguments[0]->is<VariableReference>()) {
-            fErrors.error(c.fArguments[0]->fOffset,
+        if (!arguments[0]->is<VariableReference>()) {
+            fErrors.error(arguments[0]->fOffset,
                     "sample()'s fragmentProcessor argument must be a variable reference\n");
             return;
         }
-        const Variable& child = *c.fArguments[0]->as<VariableReference>().fVariable;
+        const Variable& child = *arguments[0]->as<VariableReference>().fVariable;
 
         // Start a new extra emit code section so that the emitted child processor can depend on
         // sksl variables defined in earlier sksl code.
         this->newExtraEmitCodeBlock();
 
         String inputColor;
-        if (c.fArguments.size() > 1 && c.fArguments[1]->type().name() == "half4") {
+        if (arguments.size() > 1 && arguments[1]->type().name() == "half4") {
             // Use the invokeChild() variant that accepts an input color, so convert the 2nd
             // argument's expression into C++ code that produces sksl stored in an SkString.
             String inputColorName = "_input" + to_string(c.fOffset);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputColorName));
+            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments[1], inputColorName));
 
             // invokeChild() needs a char* and a pre-pended comma
             inputColor = ", " + inputColorName + ".c_str()";
@@ -465,19 +467,19 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         String inputCoord;
         String invokeFunction = "invokeChild";
-        if (c.fArguments.back()->type().name() == "float2") {
+        if (arguments.back()->type().name() == "float2") {
             // Invoking child with explicit coordinates at this call site
             inputCoord = "_coords" + to_string(c.fOffset);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), inputCoord));
+            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments.back(), inputCoord));
             inputCoord.append(".c_str()");
-        } else if (c.fArguments.back()->type().name() == "float3x3") {
+        } else if (arguments.back()->type().name() == "float3x3") {
             // Invoking child with a matrix, sampling relative to the input coords.
             invokeFunction = "invokeChildWithMatrix";
             SampleUsage usage = Analysis::GetSampleUsage(fProgram, child);
 
             if (!usage.hasUniformMatrix()) {
                 inputCoord = "_matrix" + to_string(c.fOffset);
-                addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments.back(), inputCoord));
+                addExtraEmitCodeLine(convertSKSLExpressionToCPP(*arguments.back(), inputCoord));
                 inputCoord.append(".c_str()");
             }
             // else pass in the empty string to rely on invokeChildWithMatrix's automatic uniform
@@ -497,26 +499,26 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         fFormatArgs.push_back(childName + ".c_str()");
         return;
     }
-    if (c.fFunction.fBuiltin) {
+    if (function.fBuiltin) {
         INHERITED::writeFunctionCall(c);
     } else {
         this->write("%s");
-        fFormatArgs.push_back((String(c.fFunction.name()) + "_name.c_str()").c_str());
+        fFormatArgs.push_back((String(function.name()) + "_name.c_str()").c_str());
         this->write("(");
         const char* separator = "";
-        for (const auto& arg : c.fArguments) {
+        for (const auto& arg : arguments) {
             this->write(separator);
             separator = ", ";
             this->writeExpression(*arg, kSequence_Precedence);
         }
         this->write(")");
     }
-    if (c.fFunction.fBuiltin && c.fFunction.name() == "sample") {
+    if (function.fBuiltin && function.name() == "sample") {
         this->write(".%s");
-        SkASSERT(c.fArguments.size() >= 1);
-        SkASSERT(c.fArguments[0]->is<VariableReference>());
+        SkASSERT(arguments.size() >= 1);
+        SkASSERT(arguments[0]->is<VariableReference>());
         String sampler =
-                this->getSamplerHandle(*c.fArguments[0]->as<VariableReference>().fVariable);
+                this->getSamplerHandle(*arguments[0]->as<VariableReference>().fVariable);
         fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerSwizzle(" + sampler +
                               ").asString().c_str()");
     }
