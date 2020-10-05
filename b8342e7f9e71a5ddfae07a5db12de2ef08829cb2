@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2891e044_cad33053",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-05T14:54:36Z",
+      "side": 1,
+      "message": "Looks like this is adding some slight artifacts. Look at the \u0027o\u0027 in glyph_pos_h_s for example. The curves at the \u0027corners\u0027 aren\u0027t as smooth.",
+      "revId": "b8342e7f9e71a5ddfae07a5db12de2ef08829cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
