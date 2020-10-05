@@ -16,6 +16,24 @@
       "revId": "1d422c7ccad9b874e0e44f7177753f1d94f83f1d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9df6e92_094fb42f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-05T18:33:59Z",
+      "side": 1,
+      "message": "From the code referenced from _hardware_pixel.py the shell script says: marlfish \nis marlin \u0026 sailfish.\n\nI checked that the values you have in the .py match the .sh.",
+      "parentUuid": "08b853e7_16194ea8",
+      "revId": "1d422c7ccad9b874e0e44f7177753f1d94f83f1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
