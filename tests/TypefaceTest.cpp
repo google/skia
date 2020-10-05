@@ -100,6 +100,22 @@ DEF_TEST(TypefaceStyle, reporter) {
     }
 }
 
+DEF_TEST(TypefacePostScriptName, reporter) {
+    sk_sp<SkTypeface> typeface(MakeResourceAsTypeface("fonts/Em.ttf"));
+    if (!typeface) {
+        // Not all SkFontMgr can MakeFromStream().
+        return;
+    }
+
+    SkString postScriptName;
+    bool hasName = typeface->getPostScriptName(&postScriptName);
+    bool hasName2 = typeface->getPostScriptName(nullptr);
+    REPORTER_ASSERT(reporter, hasName == hasName2);
+    if (hasName) {
+        REPORTER_ASSERT(reporter, postScriptName == SkString("Em"));
+    }
+}
+
 DEF_TEST(TypefaceRoundTrip, reporter) {
     sk_sp<SkTypeface> typeface(MakeResourceAsTypeface("fonts/7630.otf"));
     if (!typeface) {

@@ -154,6 +154,7 @@ DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
         void onGetFamilyName(SkString* familyName) const override {
             familyName->reset();
         }
+        bool onGetPostScriptName(SkString*) const override { return false; }
         SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
             return new EmptyLocalizedStrings;
         }

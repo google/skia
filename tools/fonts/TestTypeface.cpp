@@ -137,6 +137,8 @@ void TestTypeface::onCharsToGlyphs(const SkUnichar* uni, int count, SkGlyphID gl
 
 void TestTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fTestFont->fName; }
 
+bool TestTypeface::onGetPostScriptName(SkString*) const { return false; }
+
 SkTypeface::LocalizedStrings* TestTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fTestFont->fName);
     SkString language("und");  // undetermined
