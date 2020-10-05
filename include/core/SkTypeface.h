@@ -301,6 +301,13 @@ public:
     void getFamilyName(SkString* name) const;
 
     /**
+     *  Return the PostScript name for this typeface.
+     *  Value may change based on variation parameters.
+     *  Returns false if no PostScript name is available.
+     */
+    bool getPostScriptName(SkString* name) const;
+
+    /**
      *  Return a stream for the contents of the font data, or NULL on failure.
      *  If ttcIndex is not null, it is set to the TrueTypeCollection index
      *  of this typeface within the stream, or 0 if the stream is not a
@@ -387,6 +394,7 @@ protected:
      *  This name may or may not be produced by the family name iterator.
      */
     virtual void onGetFamilyName(SkString* familyName) const = 0;
+    virtual bool onGetPostScriptName(SkString*) const = 0;
 
     /** Returns an iterator over the family names in the font. */
     virtual LocalizedStrings* onCreateFamilyNameIterator() const = 0;
