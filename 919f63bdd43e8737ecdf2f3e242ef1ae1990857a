@@ -113,6 +113,30 @@
     },
     {
       "key": {
+        "uuid": "98d2b816_9c191ae1",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-05T16:01:01Z",
+      "side": 1,
+      "message": "Yeah I don\u0027t think it is anything subtle or special going on here. I just missed it in my change here, https://skia-review.googlesource.com/c/skia/+/320065 and we probably never fail to make the color view so never hit this.\n\nBut yeah it doesn\u0027t have to be fixed here.",
+      "parentUuid": "687af724_524b8a5f",
+      "range": {
+        "startLine": 221,
+        "startChar": 12,
+        "endLine": 221,
+        "endChar": 43
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35e8b842_d33d3308",
         "filename": "tools/gpu/BackendSurfaceFactory.h",
         "patchSetId": 33
