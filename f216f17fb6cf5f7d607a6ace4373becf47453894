@@ -94,6 +94,30 @@
       "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d35e499_4546ec8c",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-05T20:38:14Z",
+      "side": 1,
+      "message": "Sorry, that was unclear. I was referring to the \"precise\" qualifier (not precision).\n\nhttps://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Precise_qualifiers\n\n  \"Among other things, precise prevents the use of fused-multiply-add instructions to implement expressions of the form a * b + c\"\n\nI think we\u0027re safe implementing it as a determinant, but I added a test to hopefully catch if cross(a,a) ever !\u003d 0.",
+      "parentUuid": "1c25f6f2_dffb4a4f",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 88
+      },
+      "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
