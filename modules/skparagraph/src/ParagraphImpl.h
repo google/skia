@@ -143,7 +143,8 @@ public:
     sk_sp<FontCollection> fontCollection() const { return fFontCollection; }
     void formatLines(SkScalar maxWidth);
     void ensureUTF16Mapping();
-    TextIndex findGraphemeStart(TextIndex index);
+    TextIndex findNextGraphemeBoundary(TextIndex utf8);
+    TextIndex findPreviousGraphemeBoundary(TextIndex utf8);
     size_t getUTF16Index(TextIndex index) {
         return fUTF16IndexForUTF8Index[index];
     }
