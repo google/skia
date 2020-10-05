@@ -221,7 +221,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kFunctionCall: {
             FunctionCall& f = expr->as<FunctionCall>();
-            for (auto& arg : f.fArguments) {
+            for (auto& arg : f.arguments()) {
                 if (!this->tryRemoveExpressionBefore(iter, arg.get())) {
                     return false;
                 }
@@ -368,7 +368,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         }
         case Expression::Kind::kFunctionCall: {
             FunctionCall& c = e->get()->as<FunctionCall>();
-            for (auto& arg : c.fArguments) {
+            for (auto& arg : c.arguments()) {
                 this->addExpression(cfg, &arg, constantPropagate);
             }
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));

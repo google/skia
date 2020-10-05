@@ -172,7 +172,7 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
 }
 
 void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
-    auto i = fIntrinsicMap.find(c.fFunction.name());
+    auto i = fIntrinsicMap.find(c.function().name());
     SkASSERT(i != fIntrinsicMap.end());
     Intrinsic intrinsic = i->second;
     int32_t intrinsicId = intrinsic.second;
@@ -181,7 +181,7 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
             return this->writeSpecialIntrinsic(c, (SpecialIntrinsic) intrinsicId);
             break;
         case kMetal_IntrinsicKind:
-            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+            this->writeExpression(*c.arguments()[0], kSequence_Precedence);
             switch ((MetalIntrinsic) intrinsicId) {
                 case kEqual_MetalIntrinsic:
                     this->write(" == ");
@@ -204,7 +204,7 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
                 default:
                     ABORT("unsupported metal intrinsic kind");
             }
-            this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+            this->writeExpression(*c.arguments()[1], kSequence_Precedence);
             break;
         default:
             ABORT("unsupported intrinsic kind");
@@ -212,22 +212,24 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
 }
 
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
-    const auto& entry = fIntrinsicMap.find(c.fFunction.name());
+    const FunctionDeclaration& function = c.function();
+    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const auto& entry = fIntrinsicMap.find(function.name());
     if (entry != fIntrinsicMap.end()) {
         this->writeIntrinsicCall(c);
         return;
     }
-    const StringFragment& name = c.fFunction.name();
-    if (c.fFunction.fBuiltin && name == "atan" && 2 == c.fArguments.size()) {
+    const StringFragment& name = function.name();
+    if (function.fBuiltin && name == "atan" && arguments.size() == 2) {
         this->write("atan2");
-    } else if (c.fFunction.fBuiltin && name == "inversesqrt") {
+    } else if (function.fBuiltin && name == "inversesqrt") {
         this->write("rsqrt");
-    } else if (c.fFunction.fBuiltin && name == "inverse") {
-        SkASSERT(c.fArguments.size() == 1);
-        this->writeInverseHack(*c.fArguments[0]);
-    } else if (c.fFunction.fBuiltin && name == "dFdx") {
+    } else if (function.fBuiltin && name == "inverse") {
+        SkASSERT(arguments.size() == 1);
+        this->writeInverseHack(*arguments[0]);
+    } else if (function.fBuiltin && name == "dFdx") {
         this->write("dfdx");
-    } else if (c.fFunction.fBuiltin && name == "dFdy") {
+    } else if (function.fBuiltin && name == "dFdy") {
         // Flipping Y also negates the Y derivatives.
         this->write((fProgram.fSettings.fFlipY) ? "-dfdy" : "dfdy");
     } else {
@@ -235,35 +237,35 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
     this->write("(");
     const char* separator = "";
-    if (this->requirements(c.fFunction) & kInputs_Requirement) {
+    if (this->requirements(function) & kInputs_Requirement) {
         this->write("_in");
         separator = ", ";
     }
-    if (this->requirements(c.fFunction) & kOutputs_Requirement) {
+    if (this->requirements(function) & kOutputs_Requirement) {
         this->write(separator);
         this->write("_out");
         separator = ", ";
     }
-    if (this->requirements(c.fFunction) & kUniforms_Requirement) {
+    if (this->requirements(function) & kUniforms_Requirement) {
         this->write(separator);
         this->write("_uniforms");
         separator = ", ";
     }
-    if (this->requirements(c.fFunction) & kGlobals_Requirement) {
+    if (this->requirements(function) & kGlobals_Requirement) {
         this->write(separator);
         this->write("_globals");
         separator = ", ";
     }
-    if (this->requirements(c.fFunction) & kFragCoord_Requirement) {
+    if (this->requirements(function) & kFragCoord_Requirement) {
         this->write(separator);
         this->write("_fragCoord");
         separator = ", ";
     }
-    for (size_t i = 0; i < c.fArguments.size(); ++i) {
-        const Expression& arg = *c.fArguments[i];
+    for (size_t i = 0; i < arguments.size(); ++i) {
+        const Expression& arg = *arguments[i];
         this->write(separator);
         separator = ", ";
-        if (c.fFunction.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
+        if (function.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
             this->write("&");
         }
         this->writeExpression(arg, kSequence_Precedence);
@@ -353,24 +355,25 @@ void MetalCodeGenerator::writeInverseHack(const Expression& mat) {
 }
 
 void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
+    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
     switch (kind) {
         case kTexture_SpecialIntrinsic: {
-            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+            this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(".sample(");
-            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+            this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(SAMPLER_SUFFIX);
             this->write(", ");
-            const Type& arg1Type = c.fArguments[1]->type();
+            const Type& arg1Type = arguments[1]->type();
             if (arg1Type == *fContext.fFloat3_Type) {
                 // have to store the vector in a temp variable to avoid double evaluating it
                 String tmpVar = "tmpCoord" + to_string(fVarCount++);
                 this->fFunctionHeader += "    " + this->typeName(arg1Type) + " " + tmpVar + ";\n";
                 this->write("(" + tmpVar + " = ");
-                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->writeExpression(*arguments[1], kSequence_Precedence);
                 this->write(", " + tmpVar + ".xy / " + tmpVar + ".z))");
             } else {
                 SkASSERT(arg1Type == *fContext.fFloat2_Type);
-                this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                this->writeExpression(*arguments[1], kSequence_Precedence);
                 this->write(")");
             }
             break;
@@ -379,12 +382,12 @@ void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIn
             // fmod(x, y) in metal calculates x - y * trunc(x / y) instead of x - y * floor(x / y)
             String tmpX = "tmpX" + to_string(fVarCount++);
             String tmpY = "tmpY" + to_string(fVarCount++);
-            this->fFunctionHeader += "    " + this->typeName(c.fArguments[0]->type()) +
+            this->fFunctionHeader += "    " + this->typeName(arguments[0]->type()) +
                                      " " + tmpX + ", " + tmpY + ";\n";
             this->write("(" + tmpX + " = ");
-            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+            this->writeExpression(*arguments[0], kSequence_Precedence);
             this->write(", " + tmpY + " = ");
-            this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+            this->writeExpression(*arguments[1], kSequence_Precedence);
             this->write(", " + tmpX + " - " + tmpY + " * floor(" + tmpX + " / " + tmpY + "))");
             break;
         }
@@ -1713,8 +1716,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
     switch (e->kind()) {
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& f = e->as<FunctionCall>();
-            Requirements result = this->requirements(f.fFunction);
-            for (const auto& arg : f.fArguments) {
+            Requirements result = this->requirements(f.function());
+            for (const auto& arg : f.arguments()) {
                 result |= this->requirements(arg.get());
             }
             return result;

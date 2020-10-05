@@ -242,7 +242,7 @@ static bool is_abs(Expression& expr) {
     if (expr.kind() != Expression::Kind::kFunctionCall) {
         return false;
     }
-    return expr.as<FunctionCall>().fFunction.name() == "abs";
+    return expr.as<FunctionCall>().function().name() == "abs";
 }
 
 // turns min(abs(x), y) into ((tmpVar1 = abs(x)) < (tmpVar2 = y) ? tmpVar1 : tmpVar2) to avoid a
@@ -454,6 +454,8 @@ std::unordered_map<StringFragment, GLSLCodeGenerator::FunctionClass>*
                                                       GLSLCodeGenerator::fFunctionClasses = nullptr;
 
 void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    const FunctionDeclaration& function = c.function();
+    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
 #ifdef SKSL_STANDALONE
     if (!fFunctionClasses) {
 #else
@@ -480,8 +482,8 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 #ifndef SKSL_STANDALONE
     );
 #endif
-    const auto found = c.fFunction.fBuiltin ? fFunctionClasses->find(c.fFunction.name()) :
-                                              fFunctionClasses->end();
+    const auto found = function.fBuiltin ? fFunctionClasses->find(function.name()) :
+                                           fFunctionClasses->end();
     bool isTextureFunctionWithBias = false;
     bool nameWritten = false;
     if (found != fFunctionClasses->end()) {
@@ -489,9 +491,10 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             case FunctionClass::kAbs: {
                 if (!fProgram.fSettings.fCaps->emulateAbsIntFunction())
                     break;
-                SkASSERT(c.fArguments.size() == 1);
-                if (c.fArguments[0]->type() != *fContext.fInt_Type)
-                  break;
+                SkASSERT(arguments.size() == 1);
+                if (arguments[0]->type() != *fContext.fInt_Type) {
+                    break;
+                }
                 // abs(int) on Intel OSX is incorrect, so emulate it:
                 String name = "_absemulation";
                 this->write(name);
@@ -508,12 +511,12 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
             case FunctionClass::kAtan:
                 if (fProgram.fSettings.fCaps->mustForceNegatedAtanParamToFloat() &&
-                    c.fArguments.size() == 2 &&
-                    c.fArguments[1]->kind() == Expression::Kind::kPrefix) {
-                    const PrefixExpression& p = (PrefixExpression&) *c.fArguments[1];
+                    arguments.size() == 2 &&
+                    arguments[1]->kind() == Expression::Kind::kPrefix) {
+                    const PrefixExpression& p = (PrefixExpression&) *arguments[1];
                     if (p.fOperator == Token::Kind::TK_MINUS) {
                         this->write("atan(");
-                        this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                        this->writeExpression(*arguments[0], kSequence_Precedence);
                         this->write(", -1.0 * ");
                         this->writeExpression(*p.fOperand, kMultiplicative_Precedence);
                         this->write(")");
@@ -539,60 +542,60 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 break;
             case FunctionClass::kDeterminant:
                 if (fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
-                    SkASSERT(c.fArguments.size() == 1);
-                    this->writeDeterminantHack(*c.fArguments[0]);
+                    SkASSERT(arguments.size() == 1);
+                    this->writeDeterminantHack(*arguments[0]);
                     return;
                 }
                 break;
             case FunctionClass::kFMA:
                 if (!fProgram.fSettings.fCaps->builtinFMASupport()) {
-                    SkASSERT(c.fArguments.size() == 3);
+                    SkASSERT(arguments.size() == 3);
                     this->write("((");
-                    this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                    this->writeExpression(*arguments[0], kSequence_Precedence);
                     this->write(") * (");
-                    this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+                    this->writeExpression(*arguments[1], kSequence_Precedence);
                     this->write(") + (");
-                    this->writeExpression(*c.fArguments[2], kSequence_Precedence);
+                    this->writeExpression(*arguments[2], kSequence_Precedence);
                     this->write("))");
                     return;
                 }
                 break;
             case FunctionClass::kFract:
                 if (!fProgram.fSettings.fCaps->canUseFractForNegativeValues()) {
-                    SkASSERT(c.fArguments.size() == 1);
+                    SkASSERT(arguments.size() == 1);
                     this->write("(0.5 - sign(");
-                    this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                    this->writeExpression(*arguments[0], kSequence_Precedence);
                     this->write(") * (0.5 - fract(abs(");
-                    this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                    this->writeExpression(*arguments[0], kSequence_Precedence);
                     this->write("))))");
                     return;
                 }
                 break;
             case FunctionClass::kInverse:
                 if (fProgram.fSettings.fCaps->generation() < k140_GrGLSLGeneration) {
-                    SkASSERT(c.fArguments.size() == 1);
-                    this->writeInverseHack(*c.fArguments[0]);
+                    SkASSERT(arguments.size() == 1);
+                    this->writeInverseHack(*arguments[0]);
                     return;
                 }
                 break;
             case FunctionClass::kInverseSqrt:
                 if (fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
-                    SkASSERT(c.fArguments.size() == 1);
-                    this->writeInverseSqrtHack(*c.fArguments[0]);
+                    SkASSERT(arguments.size() == 1);
+                    this->writeInverseSqrtHack(*arguments[0]);
                     return;
                 }
                 break;
             case FunctionClass::kMin:
                 if (!fProgram.fSettings.fCaps->canUseMinAndAbsTogether()) {
-                    SkASSERT(c.fArguments.size() == 2);
-                    if (is_abs(*c.fArguments[0])) {
-                        this->writeMinAbsHack(*c.fArguments[0], *c.fArguments[1]);
+                    SkASSERT(arguments.size() == 2);
+                    if (is_abs(*arguments[0])) {
+                        this->writeMinAbsHack(*arguments[0], *arguments[1]);
                         return;
                     }
-                    if (is_abs(*c.fArguments[1])) {
+                    if (is_abs(*arguments[1])) {
                         // note that this violates the GLSL left-to-right evaluation semantics.
                         // I doubt it will ever end up mattering, but it's worth calling out.
-                        this->writeMinAbsHack(*c.fArguments[1], *c.fArguments[0]);
+                        this->writeMinAbsHack(*arguments[1], *arguments[0]);
                         return;
                     }
                 }
@@ -607,22 +610,22 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
                 // Change pow(x, y) into exp2(y * log2(x))
                 this->write("exp2(");
-                this->writeExpression(*c.fArguments[1], kMultiplicative_Precedence);
+                this->writeExpression(*arguments[1], kMultiplicative_Precedence);
                 this->write(" * log2(");
-                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->writeExpression(*arguments[0], kSequence_Precedence);
                 this->write("))");
                 return;
             case FunctionClass::kSaturate:
-                SkASSERT(c.fArguments.size() == 1);
+                SkASSERT(arguments.size() == 1);
                 this->write("clamp(");
-                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->writeExpression(*arguments[0], kSequence_Precedence);
                 this->write(", 0.0, 1.0)");
                 return;
             case FunctionClass::kTexture: {
                 const char* dim = "";
                 bool proj = false;
-                const Type& arg0Type = c.fArguments[0]->type();
-                const Type& arg1Type = c.fArguments[1]->type();
+                const Type& arg0Type = arguments[0]->type();
+                const Type& arg1Type = arguments[1]->type();
                 switch (arg0Type.dimensions()) {
                     case SpvDim1D:
                         dim = "1D";
@@ -692,19 +695,19 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
             case FunctionClass::kTranspose:
                 if (fProgram.fSettings.fCaps->generation() < k130_GrGLSLGeneration) {
-                    SkASSERT(c.fArguments.size() == 1);
-                    this->writeTransposeHack(*c.fArguments[0]);
+                    SkASSERT(arguments.size() == 1);
+                    this->writeTransposeHack(*arguments[0]);
                     return;
                 }
                 break;
         }
     }
     if (!nameWritten) {
-        this->write(c.fFunction.name());
+        this->write(function.name());
     }
     this->write("(");
     const char* separator = "";
-    for (const auto& arg : c.fArguments) {
+    for (const auto& arg : arguments) {
         this->write(separator);
         separator = ", ";
         this->writeExpression(*arg, kSequence_Precedence);

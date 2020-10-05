@@ -495,10 +495,10 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             }
             case Expression::Kind::kFunctionCall: {
                 const FunctionCall& c = expr->as<FunctionCall>();
-                for (size_t i = 0; i < c.fFunction.fParameters.size(); ++i) {
-                    if (c.fFunction.fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
+                for (size_t i = 0; i < c.function().fParameters.size(); ++i) {
+                    if (c.function().fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
                         this->addDefinition(
-                                  c.fArguments[i].get(),
+                                  c.arguments()[i].get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                   definitions);
                     }

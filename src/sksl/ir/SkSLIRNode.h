@@ -19,6 +19,7 @@ namespace SkSL {
 
 struct Expression;
 class ExternalValue;
+struct FunctionDeclaration;
 struct Statement;
 class SymbolTable;
 class Type;
@@ -56,12 +57,14 @@ public:
                 return *this->boolLiteralData().fType;
             case NodeData::Kind::kExternalValue:
                 return *this->externalValueData().fType;
-            case NodeData::Kind::kIntLiteral:
-                return *this->intLiteralData().fType;
             case NodeData::Kind::kField:
                 return *this->fieldData().fType;
             case NodeData::Kind::kFloatLiteral:
                 return *this->floatLiteralData().fType;
+            case NodeData::Kind::kFunctionCall:
+                return *this->functionCallData().fType;
+            case NodeData::Kind::kIntLiteral:
+                return *this->intLiteralData().fType;
             case NodeData::Kind::kSymbol:
                 return *this->symbolData().fType;
             case NodeData::Kind::kType:
@@ -114,6 +117,11 @@ protected:
         std::shared_ptr<SymbolTable> fSymbolTable;
     };
 
+    struct FunctionCallData {
+        const Type* fType;
+        const FunctionDeclaration* fFunction;
+    };
+
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
@@ -138,6 +146,7 @@ protected:
             kField,
             kFloatLiteral,
             kForStatement,
+            kFunctionCall,
             kIntLiteral,
             kString,
             kSymbol,
@@ -154,6 +163,7 @@ protected:
             FieldData fField;
             FloatLiteralData fFloatLiteral;
             ForStatementData fForStatement;
+            FunctionCallData fFunctionCall;
             IntLiteralData fIntLiteral;
             String fString;
             SymbolData fSymbol;
@@ -198,6 +208,11 @@ protected:
         NodeData(const ForStatementData& data)
             : fKind(Kind::kForStatement) {
             *(new(&fContents) ForStatementData) = data;
+        }
+
+        NodeData(const FunctionCallData& data)
+            : fKind(Kind::kFunctionCall) {
+            *(new(&fContents) FunctionCallData) = data;
         }
 
         NodeData(IntLiteralData data)
@@ -254,6 +269,9 @@ protected:
                 case Kind::kForStatement:
                     *(new(&fContents) ForStatementData) = other.fContents.fForStatement;
                     break;
+                case Kind::kFunctionCall:
+                    *(new(&fContents) FunctionCallData) = other.fContents.fFunctionCall;
+                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
@@ -301,6 +319,9 @@ protected:
                 case Kind::kForStatement:
                     fContents.fForStatement.~ForStatementData();
                     break;
+                case Kind::kFunctionCall:
+                    fContents.fFunctionCall.~FunctionCallData();
+                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
@@ -333,6 +354,8 @@ protected:
     IRNode(int offset, int kind, const FloatLiteralData& data);
 
     IRNode(int offset, int kind, const ForStatementData& data);
+
+    IRNode(int offset, int kind, const FunctionCallData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
 
@@ -423,6 +446,11 @@ protected:
     const ForStatementData& forStatementData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kForStatement);
         return fData.fContents.fForStatement;
+    }
+
+    const FunctionCallData& functionCallData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kFunctionCall);
+        return fData.fContents.fFunctionCall;
     }
 
     const IntLiteralData& intLiteralData() const {
