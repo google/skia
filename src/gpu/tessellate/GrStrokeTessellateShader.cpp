@@ -223,12 +223,12 @@ private:
             float2x2 derivative2AtChops = transpose(float2x2(3*chopT, 1,1) * float2x2(C));
             if (chopT[0] == roots[0] || chopT[0] == roots[1]) {
                 // Point midtangent in the same direction that the curve is turning at chopT[0].
-                float midtangentTurn = determinant(float2x2(midtangent, derivative2AtChops[0]));
+                float midtangentTurn = cross(midtangent, derivative2AtChops[0]);
                 innerTan0 = (midtangentTurn * inflectSignAtInf >= 0) ? +midtangent : -midtangent;
             }
             if (chopT[1] == roots[0] || chopT[1] == roots[1]) {
                 // Point midtangent in the same direction that the curve is turning at chopT[1].
-                float midtangentTurn = determinant(float2x2(midtangent, derivative2AtChops[1]));
+                float midtangentTurn = cross(midtangent, derivative2AtChops[1]);
                 innerTan1 = (midtangentTurn * inflectSignAtInf >= 0) ? +midtangent : -midtangent;
             }
         }
