@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "951ba849_63389af3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-05T18:23:16Z",
+      "side": 1,
+      "message": "With this, I was able to use an SkTHashMap in IR generator.\n\nFor the record, I tried:\n- Adding SkOpts.cpp, as well as deps +\u003d [ \":avx\", \":sse\", ... ]\n- Adding SkOpts.cpp, defining SK_BUILD_NO_OPTS\n\nThe second thing got closer, but SkOpts.cpp still pulls in references to some things in SkImageInfo, so I went for the surgical approach.",
+      "revId": "f5bf61eacbb6d8754ce0580c7305c1b4f1ffa84c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
