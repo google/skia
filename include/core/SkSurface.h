@@ -304,7 +304,8 @@ public:
         @param surfaceProps    LCD striping orientation and setting for device independent
                                fonts; may be nullptr
         @param drawable        Pointer to drawable to be filled in when this surface is
-                               instantiated; may not be nullptr
+                               instantiated; may not be nullptr; If not empty, the provided
+                               drawable will be used instead of acquiring one from layer
         @return                created SkSurface, or nullptr
      */
     static sk_sp<SkSurface> MakeFromCAMetalLayer(GrRecordingContext* context,

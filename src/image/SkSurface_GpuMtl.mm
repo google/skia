@@ -52,7 +52,9 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
             [layer, drawable](GrResourceProvider* resourceProvider,
                               const GrSurfaceProxy::LazySurfaceDesc& desc) {
                 CAMetalLayer* metalLayer = (__bridge CAMetalLayer*)layer;
-                id<CAMetalDrawable> currentDrawable = [metalLayer nextDrawable];
+                id<CAMetalDrawable> currentDrawable =
+                        *drawable ? (__bridge_transfer id<CAMetalDrawable>)*drawable
+                                  : [metalLayer nextDrawable];
 
                 GrMtlGpu* mtlGpu = (GrMtlGpu*) resourceProvider->priv().gpu();
                 sk_sp<GrRenderTarget> surface;
