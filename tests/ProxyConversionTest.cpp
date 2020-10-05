@@ -25,8 +25,7 @@ static sk_sp<GrSurfaceProxy> make_wrapped_rt(GrProxyProvider* provider,
                                              skiatest::Reporter* reporter,
                                              const SkISize& size,
                                              GrColorType colorType) {
-    auto backendRT =
-            gpu->createTestingOnlyBackendRenderTarget(size.width(), size.height(), colorType);
+    auto backendRT = gpu->createTestingOnlyBackendRenderTarget(size, colorType);
     return provider->wrapBackendRenderTarget(backendRT, nullptr);
 }
 
