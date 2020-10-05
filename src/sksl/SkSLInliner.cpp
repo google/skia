@@ -562,9 +562,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kVarDeclarations: {
             const VarDeclarations& decls = *statement.as<VarDeclarationsStatement>().fDeclaration;
-            std::vector<std::unique_ptr<VarDeclaration>> vars;
+            std::vector<std::unique_ptr<Statement>> vars;
+            vars.reserve(decls.fVars.size());
             for (const auto& var : decls.fVars) {
-                vars.emplace_back(&stmt(var).release()->as<VarDeclaration>());
+                vars.push_back(stmt(var));
             }
             const Type* typePtr = copy_if_needed(&decls.fBaseType, *symbolTableForStatement);
             return std::unique_ptr<Statement>(new VarDeclarationsStatement(
@@ -645,7 +646,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
         // initial value).
-        std::vector<std::unique_ptr<VarDeclaration>> variables;
+        std::vector<std::unique_ptr<Statement>> variables;
         if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
             variables.push_back(std::make_unique<VarDeclaration>(
                     variableSymbol, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},

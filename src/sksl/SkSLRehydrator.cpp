@@ -315,12 +315,10 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         case Rehydrator::kVarDeclarations_Command: {
             const Type* baseType = this->type();
             int count = this->readU8();
-            std::vector<std::unique_ptr<VarDeclaration>> vars;
+            std::vector<std::unique_ptr<Statement>> vars;
             vars.reserve(count);
             for (int i = 0 ; i < count; ++i) {
-                std::unique_ptr<Statement> s = this->statement();
-                SkASSERT(s->kind() == Statement::Kind::kVarDeclaration);
-                vars.emplace_back((VarDeclaration*) s.release());
+                vars.push_back(this->statement());
             }
             return std::unique_ptr<ProgramElement>(new VarDeclarations(-1, baseType,
                                                                        std::move(vars)));
@@ -438,12 +436,10 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kVarDeclarations_Command: {
             const Type* baseType = this->type();
             int count = this->readU8();
-            std::vector<std::unique_ptr<VarDeclaration>> vars;
+            std::vector<std::unique_ptr<Statement>> vars;
             vars.reserve(count);
             for (int i = 0 ; i < count; ++i) {
-                std::unique_ptr<Statement> s = this->statement();
-                SkASSERT(s->kind() == Statement::Kind::kVarDeclaration);
-                vars.emplace_back((VarDeclaration*) s.release());
+                vars.push_back(this->statement());
             }
             return std::make_unique<VarDeclarationsStatement>(
                     std::make_unique<VarDeclarations>(-1, baseType, std::move(vars)));
