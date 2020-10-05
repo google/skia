@@ -19,7 +19,6 @@
 // constructor must be explicitly called.
 GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      SkISize dimensions,
-                                     int sampleCnt,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
                                      const GrD3DTextureResourceInfo& msaaInfo,
@@ -30,12 +29,12 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, msaaInfo.fSampleCount, info.fProtected)
         , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState)))
         , fColorRenderTargetView(colorRenderTargetView)
         , fResolveRenderTargetView(resolveRenderTargetView) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
-    SkASSERT(sampleCnt > 1);
+    SkASSERT(msaaInfo.fSampleCount > 1);
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
 }
 
@@ -43,7 +42,6 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
 // constructor must be explicitly called.
 GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      SkISize dimensions,
-                                     int sampleCnt,
                                      const GrD3DTextureResourceInfo& info,
                                      sk_sp<GrD3DResourceState> state,
                                      const GrD3DTextureResourceInfo& msaaInfo,
@@ -53,12 +51,12 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
         // for the moment we only support 1:1 color to stencil
-        , GrRenderTarget(gpu, dimensions, sampleCnt, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, msaaInfo.fSampleCount, info.fProtected)
         , fMSAATextureResource(new GrD3DTextureResource(msaaInfo, std::move(msaaState)))
         , fColorRenderTargetView(colorRenderTargetView)
         , fResolveRenderTargetView(resolveRenderTargetView) {
     SkASSERT(info.fProtected == msaaInfo.fProtected);
-    SkASSERT(sampleCnt > 1);
+    SkASSERT(msaaInfo.fSampleCount > 1);
 }
 
 // We're virtually derived from GrSurface (via GrRenderTarget) so its
@@ -71,7 +69,7 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      Wrapped)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
-        , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected)
         , fMSAATextureResource(nullptr)
         , fColorRenderTargetView(renderTargetView) {
     this->registerWithCacheWrapped(GrWrapCacheable::kNo);
@@ -86,7 +84,7 @@ GrD3DRenderTarget::GrD3DRenderTarget(GrD3DGpu* gpu,
                                      const GrD3DDescriptorHeap::CPUHandle& renderTargetView)
         : GrSurface(gpu, dimensions, info.fProtected)
         , GrD3DTextureResource(info, std::move(state))
-        , GrRenderTarget(gpu, dimensions, 1, info.fProtected)
+        , GrRenderTarget(gpu, dimensions, info.fSampleCount, info.fProtected)
         , fMSAATextureResource(nullptr)
         , fColorRenderTargetView(renderTargetView) {}
 
@@ -94,15 +92,20 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
             GrD3DGpu* gpu, SkISize dimensions, int sampleCnt, const GrD3DTextureResourceInfo& info,
             sk_sp<GrD3DResourceState> state) {
     SkASSERT(info.fResource.get());
+    SkASSERT(info.fLevelCount == 1);
+    SkASSERT(sampleCnt >= 1 && info.fSampleCount >= 1);
 
-    SkASSERT(1 == info.fLevelCount);
+    int wrappedTextureSampleCnt = static_cast<int>(info.fSampleCount);
+    if (sampleCnt != wrappedTextureSampleCnt && wrappedTextureSampleCnt != 1) {
+        return nullptr;
+    }
 
     GrD3DDescriptorHeap::CPUHandle renderTargetView =
             gpu->resourceProvider().createRenderTargetView(info.fResource.get());
 
     // create msaa surface if necessary
     GrD3DRenderTarget* d3dRT;
-    if (sampleCnt > 1) {
+    if (sampleCnt != wrappedTextureSampleCnt) {
         GrD3DTextureResourceInfo msInfo;
         sk_sp<GrD3DResourceState> msState;
         // for wrapped MSAA surface we assume clear to white
@@ -113,9 +116,9 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
         GrD3DDescriptorHeap::CPUHandle msaaRenderTargetView =
                 gpu->resourceProvider().createRenderTargetView(msInfo.fResource.get());
 
-        d3dRT = new GrD3DRenderTarget(gpu, dimensions, sampleCnt, info, std::move(state), msInfo,
-                                      std::move(msState), msaaRenderTargetView,
-                                      renderTargetView, kWrapped);
+        d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), msInfo,
+                                      std::move(msState), msaaRenderTargetView, renderTargetView,
+                                      kWrapped);
     } else {
         d3dRT = new GrD3DRenderTarget(gpu, dimensions, info, std::move(state), renderTargetView,
                                       kWrapped);
@@ -127,6 +130,23 @@ sk_sp<GrD3DRenderTarget> GrD3DRenderTarget::MakeWrappedRenderTarget(
 GrD3DRenderTarget::~GrD3DRenderTarget() {
     // either release or abandon should have been called by the owner of this object.
     SkASSERT(!fMSAATextureResource);
+}
+
+const GrD3DTextureResource* GrD3DRenderTarget::msaaTextureResource() const {
+    if (this->numSamples() == 1) {
+        SkASSERT(!fMSAATextureResource);
+        return nullptr;
+    }
+    if (fMSAATextureResource) {
+        return fMSAATextureResource.get();
+    }
+    SkASSERT(!fMSAATextureResource);
+    return this;
+}
+
+GrD3DTextureResource* GrD3DRenderTarget::msaaTextureResource() {
+    auto* constThis = const_cast<const GrD3DRenderTarget*>(this);
+    return const_cast<GrD3DTextureResource*>(constThis->msaaTextureResource());
 }
 
 void GrD3DRenderTarget::releaseInternalObjects() {
