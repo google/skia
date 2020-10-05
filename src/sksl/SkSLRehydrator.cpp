@@ -174,7 +174,7 @@ const Symbol* Rehydrator::symbol() {
             const Variable* owner = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             uint8_t index = this->readU8();
             const Field* result = fSymbolTable->takeOwnershipOfSymbol(
-                    std::make_unique<Field>(/*offset=*/-1, *owner, index));
+                    std::make_unique<Field>(/*offset=*/-1, owner, index));
             return result;
         }
         case kNullableType_Command: {

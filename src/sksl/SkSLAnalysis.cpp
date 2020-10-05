@@ -66,7 +66,7 @@ namespace {
 
 static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
     const FunctionDeclaration& f = fc.fFunction;
-    return f.fBuiltin && f.fName == "sample" && fc.fArguments.size() >= 1 &&
+    return f.fBuiltin && f.name() == "sample" && fc.fArguments.size() >= 1 &&
            fc.fArguments[0]->is<VariableReference>() &&
            fc.fArguments[0]->as<VariableReference>().fVariable == &fp;
 }
@@ -244,7 +244,7 @@ public:
                 if (var->fModifiers.fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag |
                                               Modifiers::kVarying_Flag)) {
                     fErrors->error(expr.fOffset,
-                                   "cannot modify immutable variable '" + var->fName + "'");
+                                   "cannot modify immutable variable '" + var->name() + "'");
                 } else if (fAssignableVar) {
                     SkASSERT(*fAssignableVar == nullptr);
                     *fAssignableVar = &varRef;
@@ -269,7 +269,7 @@ public:
                 const ExternalValue* var = expr.as<ExternalValueReference>().fValue;
                 if (!var->canWrite()) {
                     fErrors->error(expr.fOffset,
-                                   "cannot modify immutable external value '" + var->fName + "'");
+                                   "cannot modify immutable external value '" + var->name() + "'");
                 }
                 break;
             }
