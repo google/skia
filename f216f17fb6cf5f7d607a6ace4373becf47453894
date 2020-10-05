@@ -46,6 +46,30 @@
       "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78ffc58c_32cff1ae",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 3
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T14:47:31Z",
+      "side": 1,
+      "message": "\u0027float\u0027, \u0027int\u0027, and \u0027uint\u0027 are always high precision.\n\u0027half\u0027, \u0027short\u0027, and \u0027ushort\u0027 are medium precision.",
+      "parentUuid": "61d36481_c49b379d",
+      "range": {
+        "startLine": 580,
+        "startChar": 0,
+        "endLine": 580,
+        "endChar": 88
+      },
+      "revId": "f216f17fb6cf5f7d607a6ace4373becf47453894",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
