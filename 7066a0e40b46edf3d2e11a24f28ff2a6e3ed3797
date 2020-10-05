@@ -16,6 +16,52 @@
       "revId": "7066a0e40b46edf3d2e11a24f28ff2a6e3ed3797",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf8fbab4_a1c43bb7",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T20:20:43Z",
+      "side": 1,
+      "message": "I\u0027m guessing the original code failed once you changed over the vector\u003cunique_ptr\u003cStatement\u003e\u003e? What was the error?\n\nIdeally we should avoid plain `new` and/or the pointer -\u003e unique_ptr implicit constructor wherever we can. Hopefully we can keep make_unique in this scenario without making the code otherwise gross.\n\n(Rationale: https://abseil.io/tips/126\n\n1 - By default, use absl::make_unique() (or std::make_shared() for the rare cases where shared ownership is appropriate) for dynamic allocation. For example, instead of: std::unique_ptr\u003cT\u003e bar(new T()); write auto bar \u003d absl::make_unique\u003cT\u003e(); and instead of bar.reset(new T()); write bar \u003d absl::make_unique\u003cT\u003e();\n)",
+      "range": {
+        "startLine": 651,
+        "startChar": 22,
+        "endLine": 651,
+        "endChar": 53
+      },
+      "revId": "7066a0e40b46edf3d2e11a24f28ff2a6e3ed3797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02cd6b78_d5da0067",
+        "filename": "src/sksl/ir/SkSLVarDeclarations.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T20:20:43Z",
+      "side": 1,
+      "message": "Maybe \"must be\"? \"should be\" implies that they might not be VarDeclarations but we assert it.",
+      "range": {
+        "startLine": 75,
+        "startChar": 12,
+        "endLine": 75,
+        "endChar": 21
+      },
+      "revId": "7066a0e40b46edf3d2e11a24f28ff2a6e3ed3797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
