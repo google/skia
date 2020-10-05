@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "4bbbd572_fc45dda4",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 3724,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T15:56:08Z",
+      "side": 1,
+      "message": "I took a stab at a simpler way of checking this.",
+      "parentUuid": "8b0ca0e9_e8ffef15",
+      "range": {
+        "startLine": 3722,
+        "startChar": 8,
+        "endLine": 3724,
+        "endChar": 73
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "677fafab_9e82ee38",
         "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
         "patchSetId": 33
@@ -65,6 +89,30 @@
     },
     {
       "key": {
+        "uuid": "687af724_524b8a5f",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T15:56:08Z",
+      "side": 1,
+      "message": "I noticed this as well. Just replacing with reset() would cause this to unref one less time. I suspect that would probably fix a ref count underflow bug here unless there is something more subtle going on. I\u0027d prefer to do that in a separate change, though.",
+      "parentUuid": "677fafab_9e82ee38",
+      "range": {
+        "startLine": 221,
+        "startChar": 12,
+        "endLine": 221,
+        "endChar": 43
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35e8b842_d33d3308",
         "filename": "tools/gpu/BackendSurfaceFactory.h",
         "patchSetId": 33
@@ -85,6 +133,30 @@
       "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "accfc132_e9f29922",
+        "filename": "tools/gpu/BackendSurfaceFactory.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T15:56:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35e8b842_d33d3308",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 13
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
