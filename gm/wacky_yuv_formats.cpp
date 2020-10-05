@@ -1728,13 +1728,8 @@ protected:
     void onOnceBeforeDraw() override {
         fOrig = GetResourceAsImage("images/mandrill_256.png");
 
-        SkImageInfo info = SkImageInfo::Make(fOrig->width(), fOrig->height(), kAlpha_8_SkColorType,
-                                             kPremul_SkAlphaType);
+        SkImageInfo info = SkImageInfo::MakeA8(fOrig->dimensions());
         fStorage[0].alloc(info);
-        if (0) {
-            // if you want to scale U,V down by 1/2
-            info = info.makeWH(info.width()/2, info.height()/2);
-        }
         fStorage[1].alloc(info);
         fStorage[2].alloc(info);
         for (int i = 0; i < 3; ++i) {
@@ -1754,10 +1749,13 @@ protected:
         for (auto cs : {kRec709_SkYUVColorSpace, kRec601_SkYUVColorSpace, kJPEG_SkYUVColorSpace,
                         kBT2020_SkYUVColorSpace}) {
             split_into_yuv(fOrig.get(), cs, fPM);
-            auto img = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(), cs, fPM, indices,
-                                                    fPM[0].info().dimensions(),
-                                                    kTopLeft_GrSurfaceOrigin,
-                                                    false, false, nullptr);
+            SkYUVAInfo yuvaInfo(fOrig->dimensions(), SkYUVAInfo::PlanarConfig::kY_U_V_444, cs);
+            auto yuvaPixmaps = SkYUVAPixmaps::FromExternalPixmaps(yuvaInfo, fPM);
+            auto img = SkImage::MakeFromYUVAPixmaps(canvas->recordingContext(),
+                                                    yuvaPixmaps,
+                                                    GrMipMapped::kNo,
+                                                    /* limit to max tex size */ false,
+                                                    /* color space */ nullptr);
             if (img) {
                 canvas->drawImage(img, 0, 0, nullptr);
                 draw_diff(canvas, 0, fOrig->height(), fOrig.get(), img.get());
