@@ -67,30 +67,30 @@ const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
 }
 
 void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
-    const auto& existing = fSymbols.find(name);
-    if (existing == fSymbols.end()) {
-        fSymbols[name] = symbol;
-    } else if (symbol->kind() == Symbol::Kind::kFunctionDeclaration) {
-        const Symbol* oldSymbol = existing->second;
-        if (oldSymbol->kind() == Symbol::Kind::kFunctionDeclaration) {
-            std::vector<const FunctionDeclaration*> functions;
-            functions.push_back(&oldSymbol->as<FunctionDeclaration>());
-            functions.push_back(&symbol->as<FunctionDeclaration>());
-            std::unique_ptr<const Symbol> u = std::unique_ptr<const Symbol>(
-                                                      new UnresolvedFunction(std::move(functions)));
-            fSymbols[name] = this->takeOwnershipOfSymbol(std::move(u));
-        } else if (oldSymbol->kind() == Symbol::Kind::kUnresolvedFunction) {
-            std::vector<const FunctionDeclaration*> functions;
-            for (const auto* f : oldSymbol->as<UnresolvedFunction>().fFunctions) {
-                functions.push_back(f);
-            }
-            functions.push_back(&symbol->as<FunctionDeclaration>());
-            std::unique_ptr<const Symbol> u = std::unique_ptr<const Symbol>(
-                                                      new UnresolvedFunction(std::move(functions)));
-            fSymbols[name] = this->takeOwnershipOfSymbol(std::move(u));
-        }
-    } else {
+    const Symbol*& refInSymbolTable = fSymbols[name];
+    if (refInSymbolTable == nullptr) {
+        refInSymbolTable = symbol;
+        return;
+    }
+
+    if (!symbol->is<FunctionDeclaration>()) {
         fErrorReporter.error(symbol->fOffset, "symbol '" + name + "' was already defined");
+        return;
+    }
+
+    std::vector<const FunctionDeclaration*> functions;
+    if (refInSymbolTable->is<FunctionDeclaration>()) {
+        functions = {&refInSymbolTable->as<FunctionDeclaration>(),
+                     &symbol->as<FunctionDeclaration>()};
+
+        refInSymbolTable = this->takeOwnershipOfSymbol(
+                std::make_unique<UnresolvedFunction>(std::move(functions)));
+    } else if (refInSymbolTable->is<UnresolvedFunction>()) {
+        functions = refInSymbolTable->as<UnresolvedFunction>().fFunctions;
+        functions.push_back(&symbol->as<FunctionDeclaration>());
+
+        refInSymbolTable = this->takeOwnershipOfSymbol(
+                std::make_unique<UnresolvedFunction>(std::move(functions)));
     }
 }
 
