@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bba61d5f_ebc6bf96",
+        "filename": "modules/canvaskit/canvaskit/types/index.d.ts",
+        "patchSetId": 4
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 9065
+      },
+      "writtenOn": "2020-10-05T13:33:26Z",
+      "side": 1,
+      "message": "is that the number of times it\u0027s supposed to repeat or the number of times it\u0027s repeated so far?",
+      "range": {
+        "startLine": 582,
+        "startChar": 18,
+        "endLine": 582,
+        "endChar": 34
+      },
+      "revId": "d81365afff783d63003ee68ec2bbb816aaa49f2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
