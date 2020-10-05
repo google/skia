@@ -39,6 +39,30 @@
       "revId": "2e278e654e2aae9b50209f210fe70aa7ff2123f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5df20c9_7c060ffb",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2908,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-05T14:43:43Z",
+      "side": 1,
+      "message": "Yup, vertex and geometry shaders both have a bunch of builtins, and I have a strong feeling I\u0027m going to need similar logic.",
+      "parentUuid": "356e84a5_0f099fc3",
+      "range": {
+        "startLine": 2907,
+        "startChar": 4,
+        "endLine": 2908,
+        "endChar": 37
+      },
+      "revId": "2e278e654e2aae9b50209f210fe70aa7ff2123f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
