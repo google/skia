@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "af1dce93_e42852cd",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-05T19:41:12Z",
+      "side": 1,
+      "message": "Something of a nit, but this should now be something like \"findFirstUnset requires all bits to be used\" (Chunk can\u0027t be signed anymore, where previously it could be. findFirstUnset assumes that all bits before the fSize bit are in use and part of the bitset, but that wasn\u0027t previously a requirement.)",
+      "range": {
+        "startLine": 147,
+        "startChar": 56,
+        "endLine": 147,
+        "endChar": 92
+      },
+      "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
