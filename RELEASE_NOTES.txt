@@ -9,6 +9,11 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Removed legacy variant of SkImage::MakeFromYUVAPixmaps. Use the version that
+    takes SkYUVAPixmaps instead. It has a more structured description of the
+    planar configuration.
+    https://review.skia.org/322480
+
   * Some SkImage YUV image factories have been removed. Replacement patterns
     outlined below.
     SkImage::MakeFromYUVATexturesCopy
