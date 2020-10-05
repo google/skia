@@ -94,6 +94,30 @@
       "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9554b27b_2ac50c96",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T20:03:45Z",
+      "side": 1,
+      "message": "SGTM! http://review.skia.org/322439",
+      "parentUuid": "4a9ae418_f26a831a",
+      "range": {
+        "startLine": 147,
+        "startChar": 56,
+        "endLine": 147,
+        "endChar": 92
+      },
+      "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
