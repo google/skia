@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "798f7a11_2957d826",
+        "filename": "src/sksl/SkSLInliner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-05T21:02:11Z",
+      "side": 1,
+      "message": "I thought this failed, but I\u0027m clearly mistaken. Switched it back.",
+      "parentUuid": "cf8fbab4_a1c43bb7",
+      "range": {
+        "startLine": 651,
+        "startChar": 22,
+        "endLine": 651,
+        "endChar": 53
+      },
+      "revId": "7066a0e40b46edf3d2e11a24f28ff2a6e3ed3797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "02cd6b78_d5da0067",
         "filename": "src/sksl/ir/SkSLVarDeclarations.h",
         "patchSetId": 2
@@ -62,6 +86,30 @@
       "revId": "7066a0e40b46edf3d2e11a24f28ff2a6e3ed3797",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91d77d87_97381de8",
+        "filename": "src/sksl/ir/SkSLVarDeclarations.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-05T21:02:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "02cd6b78_d5da0067",
+      "range": {
+        "startLine": 75,
+        "startChar": 12,
+        "endLine": 75,
+        "endChar": 21
+      },
+      "revId": "7066a0e40b46edf3d2e11a24f28ff2a6e3ed3797",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
