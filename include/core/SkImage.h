@@ -437,35 +437,6 @@ public:
                                                TextureReleaseProc textureReleaseProc = nullptr,
                                                ReleaseContext releaseContext = nullptr);
 
-    /** Creates SkImage from pixmap array representing YUVA data.
-        SkImage is uploaded to GPU back-end using context.
-
-        Each GrBackendTexture created from yuvaPixmaps array is uploaded to match SkSurface
-        using SkColorSpace of SkPixmap. SkColorSpace of SkImage is determined by imageColorSpace.
-
-        SkImage is returned referring to GPU back-end if context is not nullptr and
-        format of data is recognized and supported. Otherwise, nullptr is returned.
-        Recognized GPU formats vary by platform and GPU back-end.
-
-        @param context                GPU context
-        @param yuvColorSpace          How the YUV values are converted to RGB
-        @param yuvaPixmaps            array of (up to four) SkPixmap which contain the,
-                                      possibly interleaved, YUVA planes
-        @param yuvaIndices            array indicating which pixmap in yuvaPixmaps, and channel
-                                      in that pixmap, maps to each component of YUVA.
-        @param imageSize              size of the resulting image
-        @param imageOrigin            origin of the resulting image.
-        @param buildMips              create internal YUVA textures as mip map if true
-        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
-        @param imageColorSpace        range of colors of the resulting image; may be nullptr
-        @return                       created SkImage, or nullptr
-    */
-    static sk_sp<SkImage> MakeFromYUVAPixmaps(
-            GrRecordingContext* context, SkYUVColorSpace yuvColorSpace,
-            const SkPixmap yuvaPixmaps[], const SkYUVAIndex yuvaIndices[4], SkISize imageSize,
-            GrSurfaceOrigin imageOrigin, bool buildMips, bool limitToMaxTextureSize = false,
-            sk_sp<SkColorSpace> imageColorSpace = nullptr);
-
     /** Creates SkImage from SkYUVAPixmaps.
 
         The image will remain planar with each plane converted to a texture using the passed
