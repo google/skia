@@ -16,6 +16,46 @@
       "revId": "e07732f026730d272f5c24f346fa29ef28a6d1f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c5ca073_80aa55a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 35
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-05T18:18:20Z",
+      "side": 1,
+      "message": "Sorry about the delay. Metal looks okay to me.",
+      "revId": "e07732f026730d272f5c24f346fa29ef28a6d1f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "728bde37_ae2b35cb",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 35
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-05T18:18:20Z",
+      "side": 1,
+      "message": "Nit: Missing .",
+      "range": {
+        "startLine": 918,
+        "startChar": 66,
+        "endLine": 918,
+        "endChar": 69
+      },
+      "revId": "e07732f026730d272f5c24f346fa29ef28a6d1f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
