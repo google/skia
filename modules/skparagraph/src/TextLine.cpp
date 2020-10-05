@@ -1129,8 +1129,10 @@ PositionWithAffinity TextLine::getGlyphPositionAtCoordinate(SkScalar dx) {
                 // Find the grapheme range that contains the point
                 auto clusterIndex8 = context.run->globalClusterIndex(found);
                 auto clusterEnd8 = context.run->globalClusterIndex(found + 1);
-                TextIndex graphemeUtf8Start = fOwner->findGraphemeStart(clusterIndex8);
-                TextIndex graphemeUtf8Width = fOwner->findGraphemeStart(clusterEnd8) - graphemeUtf8Start;
+                TextIndex graphemeUtf8Start =
+                    fOwner->findPreviousGraphemeBoundary(clusterIndex8);
+                TextIndex graphemeUtf8Width =
+                    fOwner->findNextGraphemeBoundary(clusterEnd8) - graphemeUtf8Start;
                 size_t utf16Index = fOwner->getUTF16Index(clusterIndex8);
 
                 SkScalar center = glyphemePosLeft + glyphemePosWidth / 2;
