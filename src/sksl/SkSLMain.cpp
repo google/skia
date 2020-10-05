@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include <fstream>
+#include "src/opts/SkChecksum_opts.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
@@ -15,6 +15,7 @@
 #include "src/sksl/ir/SkSLEnum.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
+#include <fstream>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -23,6 +24,10 @@ void SkDebugf(const char format[], ...) {
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);
+}
+
+namespace SkOpts {
+    decltype(hash_fn) hash_fn = SK_OPTS_NS::hash_fn;
 }
 
 // Given the path to a file (e.g. src/gpu/effects/GrFooFragmentProcessor.fp) and the expected
