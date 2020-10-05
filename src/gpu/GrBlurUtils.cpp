@@ -259,6 +259,92 @@ static bool get_shape_and_clip_bounds(GrRenderTargetContext* renderTargetContext
     return true;
 }
 
+// The key and clip-bounds are computed together because the caching decision can impact the
+// clip-bound.
+// A 'false' return value indicates that the shape is known to be clipped away.
+static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
+                                        SkIRect* boundsForClip,
+                                        const GrCaps* caps,
+                                        const SkMatrix& viewMatrix,
+                                        bool inverseFilled,
+                                        const SkMaskFilterBase* maskFilter,
+                                        const GrStyledShape& shape,
+                                        const SkIRect& unclippedDevShapeBounds,
+                                        const SkIRect& devClipBounds) {
+    *boundsForClip = devClipBounds;
+
+#ifndef SK_DISABLE_MASKFILTERED_MASK_CACHING
+    // To prevent overloading the cache with entries during animations we limit the cache of masks
+    // to cases where the matrix preserves axis alignment.
+    bool useCache = !inverseFilled && viewMatrix.preservesAxisAlignment() &&
+                    shape.hasUnstyledKey() && as_MFB(maskFilter)->asABlur(nullptr);
+
+    if (useCache) {
+        SkIRect clippedMaskRect, unClippedMaskRect;
+        maskFilter->canFilterMaskGPU(shape, unclippedDevShapeBounds, devClipBounds,
+                                     viewMatrix, &clippedMaskRect);
+        maskFilter->canFilterMaskGPU(shape, unclippedDevShapeBounds, unclippedDevShapeBounds,
+                                     viewMatrix, &unClippedMaskRect);
+        if (clippedMaskRect.isEmpty()) {
+            return false;
+        }
+
+        // Use the cache only if >50% of the filtered mask is visible.
+        int unclippedWidth = unClippedMaskRect.width();
+        int unclippedHeight = unClippedMaskRect.height();
+        int64_t unclippedArea = sk_64_mul(unclippedWidth, unclippedHeight);
+        int64_t clippedArea = sk_64_mul(clippedMaskRect.width(), clippedMaskRect.height());
+        int maxTextureSize = caps->maxTextureSize();
+        if (unclippedArea > 2 * clippedArea || unclippedWidth > maxTextureSize ||
+            unclippedHeight > maxTextureSize) {
+            useCache = false;
+        } else {
+            // Make the clip not affect the mask
+            *boundsForClip = unclippedDevShapeBounds;
+        }
+    }
+
+    if (useCache) {
+        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+        GrUniqueKey::Builder builder(maskKey, kDomain, 5 + 2 + shape.unstyledKeySize(),
+                                     "Mask Filtered Masks");
+
+        // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
+        SkScalar sx = viewMatrix.get(SkMatrix::kMScaleX);
+        SkScalar sy = viewMatrix.get(SkMatrix::kMScaleY);
+        SkScalar kx = viewMatrix.get(SkMatrix::kMSkewX);
+        SkScalar ky = viewMatrix.get(SkMatrix::kMSkewY);
+        SkScalar tx = viewMatrix.get(SkMatrix::kMTransX);
+        SkScalar ty = viewMatrix.get(SkMatrix::kMTransY);
+        // Allow 8 bits each in x and y of subpixel positioning.
+        SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
+        SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
+
+        builder[0] = SkFloat2Bits(sx);
+        builder[1] = SkFloat2Bits(sy);
+        builder[2] = SkFloat2Bits(kx);
+        builder[3] = SkFloat2Bits(ky);
+        // Distinguish between hairline and filled paths. For hairlines, we also need to include
+        // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). Note that
+        // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
+        // all cases we might see.
+        uint32_t styleBits = shape.style().isSimpleHairline()
+                                    ? ((shape.style().strokeRec().getCap() << 1) | 1)
+                                    : 0;
+        builder[4] = fracX | (fracY >> 8) | (styleBits << 16);
+
+        SkMaskFilterBase::BlurRec rec;
+        SkAssertResult(as_MFB(maskFilter)->asABlur(&rec));
+
+        builder[5] = rec.fStyle;  // TODO: we could put this with the other style bits
+        builder[6] = SkFloat2Bits(rec.fSigma);
+        shape.writeUnstyledKey(&builder[7]);
+    }
+#endif
+
+    return true;
+}
+
 static void draw_shape_with_mask_filter(GrRecordingContext* context,
                                         GrRenderTargetContext* renderTargetContext,
                                         const GrClip* clip,
@@ -307,86 +393,24 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
         }
     }
 
-    // To prevent overloading the cache with entries during animations we limit the cache of masks
-    // to cases where the matrix preserves axis alignment.
-#ifdef SK_DISABLE_MASKFILTERED_MASK_CACHING
-    bool useCache = false;
-#else
-    bool useCache = !inverseFilled && viewMatrix.preservesAxisAlignment() &&
-                    shape->hasUnstyledKey() && as_MFB(maskFilter)->asABlur(nullptr);
-#endif
-
-    const SkIRect* boundsForClip = &devClipBounds;
-    if (useCache) {
-        SkIRect clippedMaskRect, unClippedMaskRect;
-        maskFilter->canFilterMaskGPU(*shape, unclippedDevShapeBounds, devClipBounds,
-                                     viewMatrix, &clippedMaskRect);
-        maskFilter->canFilterMaskGPU(*shape, unclippedDevShapeBounds, unclippedDevShapeBounds,
-                                     viewMatrix, &unClippedMaskRect);
-        if (clippedMaskRect.isEmpty()) {
-            return;
-        }
-
-        // Use the cache only if >50% of the filtered mask is visible.
-        int unclippedWidth = unClippedMaskRect.width();
-        int unclippedHeight = unClippedMaskRect.height();
-        int64_t unclippedArea = sk_64_mul(unclippedWidth, unclippedHeight);
-        int64_t clippedArea = sk_64_mul(clippedMaskRect.width(), clippedMaskRect.height());
-        int maxTextureSize = renderTargetContext->caps()->maxTextureSize();
-        if (unclippedArea > 2 * clippedArea || unclippedWidth > maxTextureSize ||
-            unclippedHeight > maxTextureSize) {
-            useCache = false;
-        } else {
-            // Make the clip not affect the mask
-            boundsForClip = &unclippedDevShapeBounds;
-        }
-    }
-
     GrUniqueKey maskKey;
-    if (useCache) {
-        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + 2 + shape->unstyledKeySize(),
-                                     "Mask Filtered Masks");
-
-        // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
-        SkScalar sx = viewMatrix.get(SkMatrix::kMScaleX);
-        SkScalar sy = viewMatrix.get(SkMatrix::kMScaleY);
-        SkScalar kx = viewMatrix.get(SkMatrix::kMSkewX);
-        SkScalar ky = viewMatrix.get(SkMatrix::kMSkewY);
-        SkScalar tx = viewMatrix.get(SkMatrix::kMTransX);
-        SkScalar ty = viewMatrix.get(SkMatrix::kMTransY);
-        // Allow 8 bits each in x and y of subpixel positioning.
-        SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
-        SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
-
-        builder[0] = SkFloat2Bits(sx);
-        builder[1] = SkFloat2Bits(sy);
-        builder[2] = SkFloat2Bits(kx);
-        builder[3] = SkFloat2Bits(ky);
-        // Distinguish between hairline and filled paths. For hairlines, we also need to include
-        // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). Note that
-        // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
-        // all cases we might see.
-        uint32_t styleBits = shape->style().isSimpleHairline()
-                                    ? ((shape->style().strokeRec().getCap() << 1) | 1)
-                                    : 0;
-        builder[4] = fracX | (fracY >> 8) | (styleBits << 16);
-
-        SkMaskFilterBase::BlurRec rec;
-        SkAssertResult(as_MFB(maskFilter)->asABlur(&rec));
-
-        builder[5] = rec.fStyle;  // TODO: we could put this with the other style bits
-        builder[6] = SkFloat2Bits(rec.fSigma);
-        shape->writeUnstyledKey(&builder[7]);
+    SkIRect boundsForClip;
+    if (!compute_key_and_clip_bounds(&maskKey, &boundsForClip,
+                                     renderTargetContext->caps(),
+                                     viewMatrix, inverseFilled,
+                                     maskFilter, *shape,
+                                     unclippedDevShapeBounds,
+                                     devClipBounds)) {
+        return;
     }
 
     SkIRect maskRect;
     if (maskFilter->canFilterMaskGPU(*shape,
                                      unclippedDevShapeBounds,
-                                     *boundsForClip,
+                                     boundsForClip,
                                      viewMatrix,
                                      &maskRect)) {
-        if (clip_bounds_quick_reject(*boundsForClip, maskRect)) {
+        if (clip_bounds_quick_reject(boundsForClip, maskRect)) {
             // clipped out
             return;
         }
@@ -433,7 +457,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* context,
     }
 
     sw_draw_with_mask_filter(context, renderTargetContext, clip, viewMatrix, *shape,
-                             maskFilter, *boundsForClip, std::move(paint), maskKey);
+                             maskFilter, boundsForClip, std::move(paint), maskKey);
 }
 
 void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* context,
