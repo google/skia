@@ -332,6 +332,24 @@ export interface CanvasKit {
                    isVolatile?: boolean): SkVertices;
 
     /**
+     * Returns a Skottie animation built from the provided json string.
+     * Requires that Skottie be compiled into CanvasKit.
+     * @param json
+     */
+    MakeAnimation(json: string): SkottieAnimation;
+
+    /**
+     * Returns a managed Skottie animation built from the provided json string and assets.
+     * Requires that Skottie be compiled into CanvasKit.
+     * @param json
+     * @param assets - a dictionary of named blobs: { key: ArrayBuffer, ... }
+     * @param filterPrefix - an optional string acting as a name filter for selecting "interesting"
+     *                       Lottie properties (surfaced in the embedded player controls)
+     */
+    MakeManagedAnimation(json: string, assets?: Record<string, ArrayBuffer>,
+                         filterPrefix?: string): ManagedSkottieAnimation;
+
+    /**
      * Returns the underlying data from SkData as a Uint8Array.
      * @param data
      */
@@ -564,6 +582,14 @@ export interface MallocObj {
      * it will not be copied again, only the pointer will be re-used.
      */
     toTypedArray(): TypedArray;
+}
+
+export interface ManagedSkottieAnimation extends SkottieAnimation {
+    setColor(key: string, color: InputColor): void;
+    setOpacity(key: string, opacity: number): void;
+    getMarkers(): object[];
+    getColorProps(): object[];
+    getOpacityProps(): object[];
 }
 
 /**
@@ -2179,6 +2205,48 @@ export interface SkVertices extends EmbindObject<SkVertices> {
      * Return a unique ID for this vertices object.
      */
     uniqueID(): number;
+}
+
+export interface SkottieAnimation extends EmbindObject<SkottieAnimation> {
+    /**
+     * Returns the animation duration in seconds.
+     */
+    duration(): number;
+    /**
+     * Returns the animation frame rate (frames / second).
+     */
+    fps(): number;
+
+    /**
+     * Draws current animation frame. Must call seek or seekFrame first.
+     * @param canvas
+     * @param dstRect
+     */
+    render(canvas: SkCanvas, dstRect?: InputRect): void;
+
+    /**
+     * [deprecated] - use seekFrame
+     * @param t - value from [0.0, 1.0]; 0 is first frame, 1 is final frame.
+     * @param damageRect - will copy damage frame into this if provided.
+     */
+    seek(t: number, damageRect?: SkRect): SkRect;
+
+    /**
+     * Update the animation state to match |t|, specified as a frame index
+     * i.e. relative to duration() * fps().
+     *
+     * Returns the rectangle that was affected by this animation.
+     *
+     * @param frame - Fractional values are allowed and meaningful - e.g.
+     *                0.0 -> first frame
+     *                1.0 -> second frame
+     *                0.5 -> halfway between first and second frame
+     * @param damageRect - will copy damage frame into this if provided.
+     */
+    seekFrame(frame: number, damageRect?: SkRect): SkRect;
+
+    size(): SkPoint;
+    version(): string;
 }
 
 /**

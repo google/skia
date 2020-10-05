@@ -60,6 +60,7 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     pictureTests(CK);
     rectangleTests(CK);
     runtimeEffectTests(CK);
+    skottieTests(CK);
     shaderTests(CK);
     shapedTextTests(CK);
     surfaceTests(CK);
@@ -597,6 +598,32 @@ function runtimeEffectTests(CK: CanvasKit) {
     const s2 = rt.makeShader([0, 1], true, someMatr); // $ExpectType SkShader
     const s3 = rt.makeShaderWithChildren([4, 5], true, [s1, s2]); // $ExpectType SkShader
     const s4 = rt.makeShaderWithChildren([4, 5], true, [s1, s2], someMatr); // $ExpectType SkShader
+}
+
+function skottieTests(CK: CanvasKit, canvas?: SkCanvas) {
+    if (!canvas) return;
+
+    const anim = CK.MakeAnimation('some json'); // $ExpectType SkottieAnimation
+    const a = anim.duration(); // $ExpectType number
+    const b = anim.fps(); // $ExpectType number
+    const c = anim.version(); // $ExpectType string
+    const d = anim.size(); // $ExpectType SkPoint
+    const rect = anim.seek(0.5);
+    anim.seek(0.6, rect);
+    const rect2 = anim.seekFrame(12.3);
+    anim.seekFrame(12.3, rect2);
+    anim.render(canvas);
+    anim.render(canvas, rect);
+
+    const buff = new ArrayBuffer(10);
+    const mAnim = CK.MakeManagedAnimation('other json', { // $ExpectType ManagedSkottieAnimation
+        'flightAnim.gif': buff,
+    });
+    mAnim.setColor('slider', CK.WHITE);
+    mAnim.setOpacity('slider', 0.8);
+    const e = mAnim.getMarkers();  // $ExpectType object[]
+    const f = mAnim.getColorProps();  // $ExpectType object[]
+    const g = mAnim.getOpacityProps();  // $ExpectType object[]
 }
 
 function shaderTests(CK: CanvasKit) {
