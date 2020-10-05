@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "15ac2288_5819506c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 33
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T16:22:09Z",
+      "side": 1,
+      "message": "Jim, I\u0027m not sure if you looked at all the Metal changes earlier or not. I also made a few more tweaks to some of the copy rules:\n\nPreviously when we had to make a dst-copy for blending with MSAA we would check GrMtlCaps::onCanCopySurface and find we can\u0027t copy-as-blit. The dst-copy setup code would fall back to a draw.\n\nNow we also check copy-as-resolve and find that can work so we copy instead of draw. But that means getDstCopyRestrictions also has to be modified so that the calling code sets up a same-size-as-src dst and copies the whole thing.\n\nThis isn\u0027t great since we resolve the whole buffer and not the just the required rect. However, the draw code was doing that anyway because it resolves before drawing in order to sample the non-msaa texture. So at least we save the draw. Hopefully we can improve this situation when we get further along in render target refactoring.\n\nThe other minor tweak is to re-order GrMtlGpu::onCopySurface to try the more efficient copySurfaceAsBlit before copySurfaceAsResolve. But I think these have mutually exclusive conditions for success and so it probably doesn\u0027t matter. It also matches the order in which we check them in caps.",
+      "parentUuid": "67c43117_4dadaff7",
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b0ca0e9_e8ffef15",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 33
