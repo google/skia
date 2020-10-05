@@ -1647,7 +1647,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
 
     class_<SkSurface>("SkSurface")
         .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
-        .function("_flush", select_overload<void()>(&SkSurface::flushAndSubmit))
+        .function("_flush",  optional_override([](SkSurface& self) {
+            self.flushAndSubmit(false);
+        }))
         .function("getCanvas", &SkSurface::getCanvas, allow_raw_pointers())
         .function("imageInfo", optional_override([](SkSurface& self)->SimpleImageInfo {
             const auto& ii = self.imageInfo();

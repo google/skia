@@ -212,8 +212,10 @@ id<MTLTexture> GrGetMTLTextureFromSurface(GrSurface* surface) {
     GrMtlRenderTarget* renderTarget = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
     GrMtlTexture* texture;
     if (renderTarget) {
-        // We should not be using this for multisampled rendertargets
-        if (renderTarget->numSamples() > 1) {
+        // We should not be using this for multisampled rendertargets with a separate resolve
+        // texture.
+        if (renderTarget->mtlResolveTexture()) {
+            SkASSERT(renderTarget->numSamples() > 1);
             SkASSERT(false);
             return nil;
         }
