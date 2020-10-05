@@ -62,7 +62,7 @@ struct ExternalFunctionCall : public Expression {
     }
 
     String description() const override {
-        String result = String(this->function()->fName) + "(";
+        String result = String(this->function()->name()) + "(";
         String separator;
         for (const std::unique_ptr<Expression>& arg : this->arguments()) {
             result += separator;

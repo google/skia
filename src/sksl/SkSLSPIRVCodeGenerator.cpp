@@ -381,7 +381,7 @@ SpvId SPIRVCodeGenerator::nextId() {
 
 void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memoryLayout,
                                      SpvId resultId) {
-    this->writeInstruction(SpvOpName, resultId, type.name().c_str(), fNameBuffer);
+    this->writeInstruction(SpvOpName, resultId, String(type.name()).c_str(), fNameBuffer);
     // go ahead and write all of the field types, so we don't inadvertently write them while we're
     // in the middle of writing the struct instruction
     std::vector<SpvId> types;
@@ -443,7 +443,7 @@ void SPIRVCodeGenerator::writeStruct(const Type& type, const MemoryLayout& memor
     }
 }
 
-Type SPIRVCodeGenerator::getActualType(const Type& type) {
+const Type& SPIRVCodeGenerator::getActualType(const Type& type) {
     if (type.isFloat()) {
         return *fContext.fFloat_Type;
     }
@@ -474,7 +474,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
-    Type type = this->getActualType(rawType);
+    const Type& type = this->getActualType(rawType);
     String key = type.name() + to_string((int) layout.fStd);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
@@ -640,7 +640,7 @@ SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ stor
 
 SpvId SPIRVCodeGenerator::getPointerType(const Type& rawType, const MemoryLayout& layout,
                                          SpvStorageClass_ storageClass) {
-    Type type = this->getActualType(rawType);
+    const Type& type = this->getActualType(rawType);
     String key = type.displayName() + "*" + to_string(layout.fStd) + to_string(storageClass);
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
@@ -691,7 +691,7 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
 }
 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
-    auto intrinsic = fIntrinsicMap.find(c.fFunction.fName);
+    auto intrinsic = fIntrinsicMap.find(c.fFunction.name());
     SkASSERT(intrinsic != fIntrinsicMap.end());
     int32_t intrinsicId;
     if (c.fArguments.size() > 0) {
@@ -2095,7 +2095,7 @@ std::unique_ptr<Expression> create_literal_1(const Context& context, const Type&
     else if (type.isFloat()) {
         return std::unique_ptr<Expression>(new FloatLiteral(-1, 1.0, &type));
     } else {
-        ABORT("math is unsupported on type '%s'", type.name().c_str());
+        ABORT("math is unsupported on type '%s'", String(type.name()).c_str());
     }
 }
 
@@ -2575,7 +2575,7 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
     SpvId result = fFunctionMap[&f];
     this->writeInstruction(SpvOpFunction, this->getType(f.fReturnType), result,
                            SpvFunctionControlMaskNone, this->getFunctionType(f), out);
-    this->writeInstruction(SpvOpName, result, f.fName, fNameBuffer);
+    this->writeInstruction(SpvOpName, result, f.name(), fNameBuffer);
     for (size_t i = 0; i < f.fParameters.size(); i++) {
         SpvId id = this->nextId();
         fVariableMap[f.fParameters[i]] = id;
@@ -2593,7 +2593,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
     StringStream bodyBuffer;
     this->writeBlock((Block&) *f.fBody, bodyBuffer);
     write_stringstream(fVariableBuffer, out);
-    if (f.fDeclaration.fName == "main") {
+    if (f.fDeclaration.name() == "main") {
         write_stringstream(fGlobalInitializersBuffer, out);
     }
     write_stringstream(bodyBuffer, out);
@@ -2821,7 +2821,7 @@ void SPIRVCodeGenerator::writeGlobalVars(Program::Kind kind, const VarDeclaratio
             typeId = this->getPointerType(type, storageClass);
         }
         this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
-        this->writeInstruction(SpvOpName, id, var->fName, fNameBuffer);
+        this->writeInstruction(SpvOpName, id, var->name(), fNameBuffer);
         this->writePrecisionModifier(type, id);
         if (varDecl.fValue) {
             SkASSERT(!fCurrentBlock);
@@ -2857,7 +2857,7 @@ void SPIRVCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, Outpu
         fVariableMap[var] = id;
         SpvId type = this->getPointerType(var->type(), SpvStorageClassFunction);
         this->writeInstruction(SpvOpVariable, type, id, SpvStorageClassFunction, fVariableBuffer);
-        this->writeInstruction(SpvOpName, id, var->fName, fNameBuffer);
+        this->writeInstruction(SpvOpName, id, var->name(), fNameBuffer);
         if (varDecl.fValue) {
             SpvId value = this->writeExpression(*varDecl.fValue, out);
             this->writeInstruction(SpvOpStore, id, value, out);
@@ -3222,7 +3222,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     const FunctionDeclaration* main = nullptr;
     for (auto entry : fFunctionMap) {
-        if (entry.first->fName == "main") {
+        if (entry.first->name() == "main") {
             main = entry.first;
         }
     }
@@ -3241,7 +3241,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     this->writeCapabilities(out);
     this->writeInstruction(SpvOpExtInstImport, fGLSLExtendedInstructions, "GLSL.std.450", out);
     this->writeInstruction(SpvOpMemoryModel, SpvAddressingModelLogical, SpvMemoryModelGLSL450, out);
-    this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->fName.fLength + 4) / 4) +
+    this->writeOpCode(SpvOpEntryPoint, (SpvId) (3 + (main->name().fLength + 4) / 4) +
                       (int32_t) interfaceVars.size(), out);
     switch (program.fKind) {
         case Program::kVertex_Kind:
@@ -3258,7 +3258,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     SpvId entryPoint = fFunctionMap[main];
     this->writeWord(entryPoint, out);
-    this->writeString(main->fName.fChars, main->fName.fLength, out);
+    this->writeString(main->name().fChars, main->name().fLength, out);
     for (int var : interfaceVars) {
         this->writeWord(var, out);
     }

@@ -152,7 +152,7 @@ private:
 
     SpvId nextId();
 
-    Type getActualType(const Type& type);
+    const Type& getActualType(const Type& type);
 
     SpvId getType(const Type& type);
 
