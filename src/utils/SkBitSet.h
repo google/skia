@@ -144,7 +144,7 @@ private:
     using Chunk = uint32_t;
     static_assert(std::numeric_limits<Chunk>::radix == 2);
     static constexpr size_t ChunkBits = std::numeric_limits<Chunk>::digits;
-    static_assert(ChunkBits == sizeof(Chunk)*CHAR_BIT, "It would work, but don't waste bits.");
+    static_assert(ChunkBits == sizeof(Chunk)*CHAR_BIT, "SkBitSet must use every bit in a Chunk");
     std::unique_ptr<Chunk, SkFunctionWrapper<void(void*), sk_free>> fChunks;
 
     Chunk* chunkFor(size_t index) const {
