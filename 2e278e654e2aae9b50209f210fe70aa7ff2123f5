@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "097db0a9_2bcaead3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-05T14:18:33Z",
+      "side": 1,
+      "message": "PS1 is the original CL (that got reverted). PS1 -\u003e PS4 is the fix for Vulkan on Pixel devices (and some minor cleanup).\n\nI went for the \"simplest thing that works\" approach, along with documentation to explain it. Let me know if you think it should really be a layout bit?",
+      "revId": "2e278e654e2aae9b50209f210fe70aa7ff2123f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
