@@ -48,6 +48,11 @@ IRNode::IRNode(int offset, int kind, const FloatLiteralData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const ForStatementData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const String& data)
 : fOffset(offset)
 , fKind(kind)

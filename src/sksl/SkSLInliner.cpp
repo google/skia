@@ -483,9 +483,9 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             const ForStatement& f = statement.as<ForStatement>();
             // need to ensure initializer is evaluated first so that we've already remapped its
             // declarations by the time we evaluate test & next
-            std::unique_ptr<Statement> initializer = stmt(f.fInitializer);
-            return std::make_unique<ForStatement>(offset, std::move(initializer), expr(f.fTest),
-                                                  expr(f.fNext), stmt(f.fStatement), f.fSymbols);
+            std::unique_ptr<Statement> initializer = stmt(f.initializer());
+            return std::make_unique<ForStatement>(offset, std::move(initializer), expr(f.test()),
+                                                  expr(f.next()), stmt(f.statement()), f.symbols());
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
@@ -884,14 +884,14 @@ public:
             }
             case Statement::Kind::kFor: {
                 ForStatement& forStmt = (*stmt)->as<ForStatement>();
-                if (forStmt.fSymbols) {
-                    fSymbolTableStack.push_back(forStmt.fSymbols.get());
+                if (forStmt.symbols()) {
+                    fSymbolTableStack.push_back(forStmt.symbols().get());
                 }
 
                 // The initializer and loop body are candidates for inlining.
-                this->visitStatement(&forStmt.fInitializer,
+                this->visitStatement(&forStmt.initializer(),
                                      /*isViableAsEnclosingStatement=*/false);
-                this->visitStatement(&forStmt.fStatement);
+                this->visitStatement(&forStmt.statement());
 
                 // The inliner isn't smart enough to inline the test- or increment-expressions
                 // of a for loop loop at this time. There are a handful of limitations:

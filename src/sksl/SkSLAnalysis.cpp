@@ -445,10 +445,10 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
 
         case Statement::Kind::kFor: {
             auto& f = s.template as<ForStatement>();
-            return (f.fInitializer && this->visitStatement(*f.fInitializer)) ||
-                   (f.fTest && this->visitExpression(*f.fTest)) ||
-                   (f.fNext && this->visitExpression(*f.fNext)) ||
-                   this->visitStatement(*f.fStatement);
+            return (f.initializer() && this->visitStatement(*f.initializer())) ||
+                   (f.test() && this->visitExpression(*f.test())) ||
+                   (f.next() && this->visitExpression(*f.next())) ||
+                   this->visitStatement(*f.statement());
         }
         case Statement::Kind::kIf: {
             auto& i = s.template as<IfStatement>();

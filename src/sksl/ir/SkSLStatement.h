@@ -49,6 +49,11 @@ struct Statement : public IRNode {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    Statement(int offset, Kind kind, const ForStatementData& data)
+    : INHERITED(offset, (int) kind, data) {
+        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
     Kind kind() const {
         return (Kind) fKind;
     }

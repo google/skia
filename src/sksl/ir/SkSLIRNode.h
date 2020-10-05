@@ -110,6 +110,10 @@ protected:
         float fValue;
     };
 
+    struct ForStatementData {
+        std::shared_ptr<SymbolTable> fSymbolTable;
+    };
+
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
@@ -133,6 +137,7 @@ protected:
             kExternalValue,
             kField,
             kFloatLiteral,
+            kForStatement,
             kIntLiteral,
             kString,
             kSymbol,
@@ -148,6 +153,7 @@ protected:
             ExternalValueData fExternalValue;
             FieldData fField;
             FloatLiteralData fFloatLiteral;
+            ForStatementData fForStatement;
             IntLiteralData fIntLiteral;
             String fString;
             SymbolData fSymbol;
@@ -187,6 +193,11 @@ protected:
         NodeData(const FloatLiteralData& data)
             : fKind(Kind::kFloatLiteral) {
             *(new(&fContents) FloatLiteralData) = data;
+        }
+
+        NodeData(const ForStatementData& data)
+            : fKind(Kind::kForStatement) {
+            *(new(&fContents) ForStatementData) = data;
         }
 
         NodeData(IntLiteralData data)
@@ -240,6 +251,9 @@ protected:
                 case Kind::kFloatLiteral:
                     *(new(&fContents) FloatLiteralData) = other.fContents.fFloatLiteral;
                     break;
+                case Kind::kForStatement:
+                    *(new(&fContents) ForStatementData) = other.fContents.fForStatement;
+                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
@@ -284,6 +298,9 @@ protected:
                 case Kind::kFloatLiteral:
                     fContents.fFloatLiteral.~FloatLiteralData();
                     break;
+                case Kind::kForStatement:
+                    fContents.fForStatement.~ForStatementData();
+                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
@@ -313,9 +330,11 @@ protected:
 
     IRNode(int offset, int kind, const FieldData& data);
 
-    IRNode(int offset, int kind, const IntLiteralData& data);
-
     IRNode(int offset, int kind, const FloatLiteralData& data);
+
+    IRNode(int offset, int kind, const ForStatementData& data);
+
+    IRNode(int offset, int kind, const IntLiteralData& data);
 
     IRNode(int offset, int kind, const String& data);
 
@@ -399,6 +418,11 @@ protected:
     const FloatLiteralData& floatLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kFloatLiteral);
         return fData.fContents.fFloatLiteral;
+    }
+
+    const ForStatementData& forStatementData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kForStatement);
+        return fData.fContents.fForStatement;
     }
 
     const IntLiteralData& intLiteralData() const {

@@ -2952,8 +2952,8 @@ void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream&
 }
 
 void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, OutputStream& out) {
-    if (f.fInitializer) {
-        this->writeStatement(*f.fInitializer, out);
+    if (f.initializer()) {
+        this->writeStatement(*f.initializer(), out);
     }
     SpvId header = this->nextId();
     SpvId start = this->nextId();
@@ -2967,18 +2967,18 @@ void SPIRVCodeGenerator::writeForStatement(const ForStatement& f, OutputStream& 
     this->writeInstruction(SpvOpLoopMerge, end, next, SpvLoopControlMaskNone, out);
     this->writeInstruction(SpvOpBranch, start, out);
     this->writeLabel(start, out);
-    if (f.fTest) {
-        SpvId test = this->writeExpression(*f.fTest, out);
+    if (f.test()) {
+        SpvId test = this->writeExpression(*f.test(), out);
         this->writeInstruction(SpvOpBranchConditional, test, body, end, out);
     }
     this->writeLabel(body, out);
-    this->writeStatement(*f.fStatement, out);
+    this->writeStatement(*f.statement(), out);
     if (fCurrentBlock) {
         this->writeInstruction(SpvOpBranch, next, out);
     }
     this->writeLabel(next, out);
-    if (f.fNext) {
-        this->writeExpression(*f.fNext, out);
+    if (f.next()) {
+        this->writeExpression(*f.next(), out);
     }
     this->writeInstruction(SpvOpBranch, header, out);
     this->writeLabel(end, out);

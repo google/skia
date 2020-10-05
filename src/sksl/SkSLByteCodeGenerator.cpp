@@ -1703,21 +1703,21 @@ void ByteCodeGenerator::writeDoStatement(const DoStatement& d) {
 void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
     fContinueTargets.emplace();
     fBreakTargets.emplace();
-    if (f.fInitializer) {
-        this->writeStatement(*f.fInitializer);
+    if (f.initializer()) {
+        this->writeStatement(*f.initializer());
     }
     this->write(ByteCodeInstruction::kLoopBegin);
     size_t start = fCode->size();
-    if (f.fTest) {
-        this->writeExpression(*f.fTest);
+    if (f.test()) {
+        this->writeExpression(*f.test());
         this->write(ByteCodeInstruction::kLoopMask);
     }
     this->write(ByteCodeInstruction::kBranchIfAllFalse);
     DeferredLocation endLocation(this);
-    this->writeStatement(*f.fStatement);
+    this->writeStatement(*f.statement());
     this->write(ByteCodeInstruction::kLoopNext);
-    if (f.fNext) {
-        this->writeExpression(*f.fNext, true);
+    if (f.next()) {
+        this->writeExpression(*f.next(), true);
     }
     this->write(ByteCodeInstruction::kBranch);
     this->write16(start);

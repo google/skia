@@ -582,16 +582,16 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kFor: {
             ForStatement& f = (*s)->as<ForStatement>();
-            if (f.fInitializer) {
-                this->addStatement(cfg, &f.fInitializer);
+            if (f.initializer()) {
+                this->addStatement(cfg, &f.initializer());
             }
             BlockId loopStart = cfg.newBlock();
             BlockId next = cfg.newIsolatedBlock();
             fLoopContinues.push(next);
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
-            if (f.fTest) {
-                this->addExpression(cfg, &f.fTest, /*constantPropagate=*/true);
+            if (f.test()) {
+                this->addExpression(cfg, &f.test(), /*constantPropagate=*/true);
                 // this isn't quite right; we should have an exit from here to the loop exit, and
                 // remove the exit from the loop body to the loop exit. Structuring it like this
                 // forces the optimizer to believe that the loop body is always executed at least
@@ -601,11 +601,11 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
                 // guaranteed to happen, but for the time being we take the easy way out.
             }
             cfg.newBlock();
-            this->addStatement(cfg, &f.fStatement);
+            this->addStatement(cfg, &f.statement());
             cfg.addExit(cfg.fCurrent, next);
             cfg.fCurrent = next;
-            if (f.fNext) {
-                this->addExpression(cfg, &f.fNext, /*constantPropagate=*/true);
+            if (f.next()) {
+                this->addExpression(cfg, &f.next(), /*constantPropagate=*/true);
             }
             cfg.addExit(cfg.fCurrent, loopStart);
             cfg.addExit(cfg.fCurrent, loopExit);

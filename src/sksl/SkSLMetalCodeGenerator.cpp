@@ -1332,20 +1332,20 @@ void MetalCodeGenerator::writeIfStatement(const IfStatement& stmt) {
 
 void MetalCodeGenerator::writeForStatement(const ForStatement& f) {
     this->write("for (");
-    if (f.fInitializer && !f.fInitializer->isEmpty()) {
-        this->writeStatement(*f.fInitializer);
+    if (f.initializer() && !f.initializer()->isEmpty()) {
+        this->writeStatement(*f.initializer());
     } else {
         this->write("; ");
     }
-    if (f.fTest) {
-        this->writeExpression(*f.fTest, kTopLevel_Precedence);
+    if (f.test()) {
+        this->writeExpression(*f.test(), kTopLevel_Precedence);
     }
     this->write("; ");
-    if (f.fNext) {
-        this->writeExpression(*f.fNext, kTopLevel_Precedence);
+    if (f.next()) {
+        this->writeExpression(*f.next(), kTopLevel_Precedence);
     }
     this->write(") ");
-    this->writeStatement(*f.fStatement);
+    this->writeStatement(*f.statement());
 }
 
 void MetalCodeGenerator::writeWhileStatement(const WhileStatement& w) {
@@ -1816,10 +1816,10 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
         }
         case Statement::Kind::kFor: {
             const ForStatement& f = s->as<ForStatement>();
-            return this->requirements(f.fInitializer.get()) |
-                   this->requirements(f.fTest.get()) |
-                   this->requirements(f.fNext.get()) |
-                   this->requirements(f.fStatement.get());
+            return this->requirements(f.initializer().get()) |
+                   this->requirements(f.test().get()) |
+                   this->requirements(f.next().get()) |
+                   this->requirements(f.statement().get());
         }
         case Statement::Kind::kWhile: {
             const WhileStatement& w = s->as<WhileStatement>();
