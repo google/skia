@@ -15,7 +15,11 @@
 #include "src/gpu/GrContextPriv.h"
 #endif
 
+#if 0
+#define GL_CALL(X)
+#else
 #define GL_CALL(X) GR_GL_CALL(fGpu->glInterface(), X)
+#endif
 
 void GrGLOpsRenderPass::set(GrRenderTarget* rt, const SkIRect& contentBounds,
                             GrSurfaceOrigin origin, const LoadAndStoreInfo& colorInfo,

@@ -77,6 +77,7 @@ static DEFINE_string(png, "", "if set, save a .png proof to disk at this file lo
 static DEFINE_int(verbosity, 4, "level of verbosity (0=none to 5=debug)");
 static DEFINE_bool(suppressHeader, false, "don't print a header row before the results");
 static DEFINE_double(scale, 1, "Scale the size of the canvas and the zoom level by this factor.");
+static DEFINE_bool(latencyMode, false, "Time latency of CPU and GPU together. No pipelining.");
 
 static const char header[] =
 "   accum    median       max       min   stddev  samples  sample_ms  clock  metric  config    bench";
@@ -149,6 +150,24 @@ public:
                             SkSurface* surface,
                             GpuSync& gpuSync) override {
         draw_skp_and_flush_with_sync(context, surface, fSkp.get(), gpuSync);
+        return 1;
+    }
+
+private:
+    sk_sp<SkPicture> fSkp;
+};
+
+class StaticLatencySkp : public SkpProducer {
+public:
+    StaticLatencySkp(sk_sp<SkPicture> skp) : fSkp(skp) {}
+
+    int drawAndFlushAndSync(GrDirectContext* context,
+                            SkSurface* surface,
+                            GpuSync& gpuSync) override {
+        auto canvas = surface->getCanvas();
+        canvas->drawPicture(fSkp);
+        context->flush(GrFlushInfo());
+        context->submit(true);
         return 1;
     }
 
@@ -581,7 +600,7 @@ int main(int argc, char** argv) {
     if (!testCtx) {
         exitf(ExitErr::kSoftware, "testContext is null");
     }
-    if (!testCtx->fenceSyncSupport()) {
+    if (!testCtx->fenceSyncSupport() && !FLAGS_latencyMode) {
         exitf(ExitErr::kUnavailable, "GPU does not support fence sync");
     }
 
@@ -615,7 +634,12 @@ int main(int argc, char** argv) {
         if (FLAGS_ddl) {
             run_ddl_benchmark(testCtx, ctx, surface, skp.get(), &samples);
         } else if (!mskp) {
-            auto s = std::make_unique<StaticSkp>(skp);
+            std::unique_ptr<SkpProducer> s;
+                if (FLAGS_latencyMode) {
+                    s = std::make_unique<StaticLatencySkp>(skp);
+                } else {
+                    s = std::make_unique<StaticSkp>(skp);
+                }
             run_benchmark(ctx, surface.get(), s.get(), &samples);
         } else {
             run_benchmark(ctx, surface.get(), mskp.get(), &samples);
