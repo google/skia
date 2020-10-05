@@ -38,12 +38,17 @@ IRNode::IRNode(int offset, int kind, const FieldData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
+IRNode::IRNode(int offset, int kind, const FloatLiteralData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const FloatLiteralData& data)
+IRNode::IRNode(int offset, int kind, const FunctionCallData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
+IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}

@@ -65,10 +65,10 @@ namespace SkSL {
 namespace {
 
 static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
-    const FunctionDeclaration& f = fc.fFunction;
-    return f.fBuiltin && f.name() == "sample" && fc.fArguments.size() >= 1 &&
-           fc.fArguments[0]->is<VariableReference>() &&
-           fc.fArguments[0]->as<VariableReference>().fVariable == &fp;
+    const FunctionDeclaration& f = fc.function();
+    return f.fBuiltin && f.name() == "sample" && fc.arguments().size() >= 1 &&
+           fc.arguments()[0]->is<VariableReference>() &&
+           fc.arguments()[0]->as<VariableReference>().fVariable == &fp;
 }
 
 // Visitor that determines the merged SampleUsage for a given child 'fp' in the program.
@@ -94,7 +94,7 @@ protected:
             const FunctionCall& fc = e.as<FunctionCall>();
             if (is_sample_call_to_fp(fc, fFP)) {
                 // Determine the type of call at this site, and merge it with the accumulated state
-                const Expression* lastArg = fc.fArguments.back().get();
+                const Expression* lastArg = fc.arguments().back().get();
 
                 if (lastArg->type() == *fContext.fFloat2_Type) {
                     fUsage.merge(SampleUsage::Explicit());
@@ -389,7 +389,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
 
         case Expression::Kind::kFunctionCall: {
             auto& c = e.template as<FunctionCall>();
-            for (auto& arg : c.fArguments) {
+            for (auto& arg : c.arguments()) {
                 if (this->visitExpression(*arg)) { return true; }
             }
             return false;
