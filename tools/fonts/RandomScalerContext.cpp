@@ -193,6 +193,10 @@ void SkRandomTypeface::onGetFamilyName(SkString* familyName) const {
     fProxy->getFamilyName(familyName);
 }
 
+bool SkRandomTypeface::onGetPostScriptName(SkString* postScriptName) const {
+    return fProxy->getPostScriptName(postScriptName);
+}
+
 SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateFamilyNameIterator() const {
     return fProxy->createFamilyNameIterator();
 }

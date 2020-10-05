@@ -1096,6 +1096,17 @@ void SkTypeface_Mac::onGetFamilyName(SkString* familyName) const {
     get_str(CTFontCopyFamilyName(fFontRef.get()), familyName);
 }
 
+bool SkTypeface_Mac::onGetPostScriptName(SkString* skPostScriptName) const {
+    SkUniqueCFRef<CFStringRef> ctPostScriptName(CTFontCopyPostScriptName(fFontRef.get()));
+    if (!ctPostScriptName) {
+        return false;
+    }
+    if (skPostScriptName) {
+        SkStringFromCFString(ctPostScriptName.get(), skPostScriptName);
+    }
+    return true;
+}
+
 void SkTypeface_Mac::onGetFontDescriptor(SkFontDescriptor* desc,
                                          bool* isLocalStream) const {
     SkString tmpStr;
