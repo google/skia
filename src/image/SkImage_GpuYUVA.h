@@ -31,7 +31,6 @@ public:
                     GrSurfaceProxyView views[],
                     int numViews,
                     const SkYUVAIndex[4],
-                    GrSurfaceOrigin,
                     sk_sp<SkColorSpace>);
 
     GrSemaphoresSubmitted onFlush(GrDirectContext*, const GrFlushInfo&) override;
@@ -77,7 +76,7 @@ public:
                                                  const SkYUVAIndex yuvaIndices[4],
                                                  int width,
                                                  int height,
-                                                 GrSurfaceOrigin imageOrigin,
+                                                 GrSurfaceOrigin textureOrigin,
                                                  sk_sp<SkColorSpace> imageColorSpace,
                                                  PromiseImageTextureFulfillProc textureFulfillProc,
                                                  PromiseImageTextureReleaseProc textureReleaseProc,
@@ -96,7 +95,7 @@ private:
     int                              fNumViews;
     SkYUVAIndex                      fYUVAIndices[4];
     const SkYUVColorSpace            fYUVColorSpace;
-    GrSurfaceOrigin                  fOrigin;
+
     // If this is non-null then the planar data should be converted from fFromColorSpace to
     // this->colorSpace(). Otherwise we assume the planar data (post YUV->RGB conversion) is already
     // in this->colorSpace().
