@@ -22,6 +22,30 @@
       "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efcc5892_c3581935",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T19:45:05Z",
+      "side": 1,
+      "message": "I\u0027m not sure what you mean by \"Chunk can\u0027t be signed anymore\". Could you please clarify? (Operator~ works fine on signed numbers and does the same as unsigned)",
+      "parentUuid": "af1dce93_e42852cd",
+      "range": {
+        "startLine": 147,
+        "startChar": 56,
+        "endLine": 147,
+        "endChar": 92
+      },
+      "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
