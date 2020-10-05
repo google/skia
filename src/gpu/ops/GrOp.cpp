@@ -10,18 +10,18 @@
 std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
 std::atomic<uint32_t> GrOp::gCurrOpUniqueID{GrOp::kIllegalOpID + 1};
 
-#ifdef SK_DEBUG
-void* GrOp::operator new(size_t size) {
-    // All GrOp-derived class should be allocated in a GrMemoryPool
-    SkASSERT(0);
-    return ::operator new(size);
-}
+#if !defined(GR_OP_ALLOCATE_USE_NEW) && defined(SK_DEBUG)
+    void* GrOp::operator new(size_t size) {
+        // All GrOp-derived class should be allocated in a GrMemoryPool
+        SkASSERT(0);
+        return ::operator new(size);
+    }
 
-void GrOp::operator delete(void* target) {
-    // All GrOp-derived class should be released from their owning GrMemoryPool
-    SkASSERT(0);
-    ::operator delete(target);
-}
+    void GrOp::operator delete(void* target) {
+        // All GrOp-derived class should be released from their owning GrMemoryPool
+        SkASSERT(0);
+        ::operator delete(target);
+    }
 #endif
 
 GrOp::GrOp(uint32_t classID) : fClassID(classID) {
