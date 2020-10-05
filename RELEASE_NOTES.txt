@@ -7,7 +7,10 @@ This file includes a list of high level updates for each milestone release.
 Milestone 88
 ------------
 
-  * <insert new release notes here>
+  * New variant of SkImage::MakeFromYUVATextures. Takes a new type GrYUVATextures
+    which wraps an SkYUVAInfo and compatible set of GrBackendTextures. The provides
+    a more complete and structured specification of the planar configuraion. Previous
+    version is deprecated.
 
   * Removed legacy variant of SkImage::MakeFromYUVAPixmaps. Use the version that
     takes SkYUVAPixmaps instead. It has a more structured description of the
