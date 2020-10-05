@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67c43117_4dadaff7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 33
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-05T13:23:11Z",
+      "side": 1,
+      "message": "I looked at all the backends except Metal. I\u0027ll let Jim handle that one. All looks good modulo the few comments.",
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b0ca0e9_e8ffef15",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 3724,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-05T13:23:11Z",
+      "side": 1,
+      "message": "Can this all be some sort of helper function in GrGLCaps? I hate when extensions and checking GL vs GLES leaks out of caps",
+      "range": {
+        "startLine": 3722,
+        "startChar": 8,
+        "endLine": 3724,
+        "endChar": 73
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "677fafab_9e82ee38",
+        "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-05T13:23:11Z",
+      "side": 1,
+      "message": "This is a bug not from this change, but we shouldn\u0027t be unrefing the resolve attachment which is an sk_sp. Though I\u0027m not sure if it is safe to delete the msaa image below if the view is still around or not, so to be safe we should probably do resolveAttachmentView.reset().",
+      "range": {
+        "startLine": 221,
+        "startChar": 12,
+        "endLine": 221,
+        "endChar": 43
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35e8b842_d33d3308",
+        "filename": "tools/gpu/BackendSurfaceFactory.h",
+        "patchSetId": 33
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-05T13:23:11Z",
+      "side": 1,
+      "message": "nit: an SkSurface",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 13
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
