@@ -159,6 +159,8 @@ void TestSVGTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphI
 
 void TestSVGTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fName; }
 
+bool TestSVGTypeface::onGetPostScriptName(SkString*) const { return false; }
+
 SkTypeface::LocalizedStrings* TestSVGTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fName);
     SkString language("und");  // undetermined
