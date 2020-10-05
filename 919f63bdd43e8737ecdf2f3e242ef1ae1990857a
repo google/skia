@@ -84,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "af354217_062cade8",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 33
+      },
+      "lineNbr": 3724,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-05T18:04:13Z",
+      "side": 1,
+      "message": "Looks like this needs a little more tweaking for ios/GL/bgra. But metal is passing now with no GM changes.",
+      "parentUuid": "4bbbd572_fc45dda4",
+      "range": {
+        "startLine": 3722,
+        "startChar": 8,
+        "endLine": 3724,
+        "endChar": 73
+      },
+      "revId": "919f63bdd43e8737ecdf2f3e242ef1ae1990857a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "677fafab_9e82ee38",
         "filename": "src/gpu/vk/GrVkRenderTarget.cpp",
         "patchSetId": 33
