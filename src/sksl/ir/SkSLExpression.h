@@ -8,6 +8,7 @@
 #ifndef SKSL_EXPRESSION
 #define SKSL_EXPRESSION
 
+#include "src/sksl/SkSLTinyUnorderedMap.h"
 #include "src/sksl/ir/SkSLStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -19,7 +20,7 @@ struct Expression;
 class IRGenerator;
 struct Variable;
 
-typedef std::unordered_map<const Variable*, std::unique_ptr<Expression>*> DefinitionMap;
+using DefinitionMap = TinyUnorderedMap<const Variable*, std::unique_ptr<Expression>*>;
 
 /**
  * Abstract supertype of all expressions.
