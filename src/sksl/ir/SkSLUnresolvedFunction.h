@@ -21,9 +21,9 @@ struct UnresolvedFunction : public Symbol {
     UnresolvedFunction(std::vector<const FunctionDeclaration*> funcs)
     : INHERITED(-1, kSymbolKind, funcs[0]->name())
     , fFunctions(std::move(funcs)) {
-#ifdef DEBUG
+#ifdef SK_DEBUG
         for (auto func : funcs) {
-            SkASSERT(func->fName == fName);
+            SkASSERT(func->name() == name());
         }
 #endif
     }
