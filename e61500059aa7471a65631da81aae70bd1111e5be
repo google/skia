@@ -70,6 +70,30 @@
       "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a9ae418_f26a831a",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-05T20:00:25Z",
+      "side": 1,
+      "message": "The existing assert is ensuring that we\u0027re using all the bits (we don\u0027t actually even care if some crazy system stores sign bits in shadow memory somewhere, we just want to make sure we\u0027re using them all). The issue here is just the static_assert message itself. I just didn\u0027t want to mislead any future editor of this file about the invariants of this class. Before the change the message was pedantically correct and now it isn\u0027t, it should just say \"hey, we require the bits to be dense\". It\u0027s the same assert, but now it\u0027s really a hard requirement instead of nice to have.",
+      "parentUuid": "ecc8ec1d_4b6843fe",
+      "range": {
+        "startLine": 147,
+        "startChar": 56,
+        "endLine": 147,
+        "endChar": 92
+      },
+      "revId": "e61500059aa7471a65631da81aae70bd1111e5be",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
