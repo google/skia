@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a50afd3d_1881e859",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-05T18:09:25Z",
+      "side": 1,
+      "message": "I think what you have here works and is fine, but just to throw out another proposal that would also work. When we create this GpuSync object here we can pass a flag to set its maxFrameLag to 1. Then you wouldn\u0027t need a new SkpProducer and IMO it makes more sense to connect the latency flag to the sync functionality and not the skp producer/drawer object.",
+      "range": {
+        "startLine": 367,
+        "startChar": 4,
+        "endLine": 367,
+        "endChar": 20
+      },
+      "revId": "3c1302be13947faf68f33f91a328e744877d481a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
