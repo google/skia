@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "52e7b8d1_21a19791",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-05T17:00:33Z",
+      "side": 1,
+      "message": "I\u0027m going to defer to Greg, who know more about the timing logic here than I do.",
+      "revId": "8b36641b6d54c1928a4f6edcdc2e17e75c6b5955",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
