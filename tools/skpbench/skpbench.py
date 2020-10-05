@@ -342,7 +342,7 @@ def main():
     if model == 'Pixel C':
       from _hardware_pixel_c import HardwarePixelC
       hardware = HardwarePixelC(adb)
-    elif model == 'Pixel':
+    elif model == 'Pixel' or model == "Pixel XL":
       from _hardware_pixel import HardwarePixel
       hardware = HardwarePixel(adb)
     elif model == 'Pixel 2':
