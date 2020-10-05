@@ -11,9 +11,11 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkMathPriv.h"
+
 #include <climits>
 #include <limits>
 #include <memory>
+#include <utility>
 
 class SkBitSet {
 public:
@@ -57,8 +59,48 @@ public:
         return fSize;
     }
 
+    void resize(size_t newSize) {
+        // Copy shared chunk data from this bitset to our replacement.
+        const size_t numOldChunks = NumChunksFor(fSize);
+        const size_t numReplacementChunks = NumChunksFor(newSize);
+
+        if (numReplacementChunks > numOldChunks) {
+            SkBitSet replacement(newSize);
+
+            int sharedChunks = std::min(numOldChunks, numReplacementChunks);
+            memcpy(replacement.fChunks.get(), fChunks.get(), sharedChunks * sizeof(Chunk));
+
+            // The last chunk in our replacement needs to have bits past `newSize` masked off.
+            const int numBitsInLastReplacementChunk = newSize & (kChunkBits - 1);
+            if (numBitsInLastReplacementChunk > 0) {
+                const int maskForLastReplacementChunk = (1 << numBitsInLastReplacementChunk) - 1;
+                replacement.fChunks.get()[numReplacementChunks - 1] &= maskForLastReplacementChunk;
+            }
+
+            // Jettison old data and switch to our replacement.
+            this->swap(replacement);
+        } else {
+            // We don't need to reallocate to shrink; we just need to mask off bits past `newSize`
+            // in our last chunk. Chunks past `fSize` will never be accessed again and can be left
+            // as-is. Note that capacity isn't tracked anywhere, so if we shrink and then later
+            // grow, we will realloc even if the original allocation could have feasibly handled it.
+            const int numBitsInLastChunk = newSize & (kChunkBits - 1);
+            if (numBitsInLastChunk > 0) {
+                const int maskForLastChunk = (1 << numBitsInLastChunk) - 1;
+                fChunks.get()[numReplacementChunks - 1] &= maskForLastChunk;
+            }
+
+            fSize = newSize;
+        }
+    }
+
+    void swap(SkBitSet& that) {
+        std::swap(fSize, that.fSize);
+        std::swap(fChunks, that.fChunks);
+    }
+
     // Calls f(size_t index) for each set index.
-    template<typename FN>
+    template <typename FN>
     void forEachSetIndex(FN f) const {
         const Chunk* chunks = fChunks.get();
         const size_t numChunks = NumChunksFor(fSize);
