@@ -64,8 +64,8 @@ public:
         const size_t numChunks = NumChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = chunks[i]) {  // There are set bits
-                const size_t index = i * ChunkBits;
-                for (size_t j = 0; j < ChunkBits; ++j) {
+                const size_t index = i * kChunkBits;
+                for (size_t j = 0; j < kChunkBits; ++j) {
                     if (0x1 & (chunk >> j)) {
                         f(index + j);
                     }
@@ -113,8 +113,8 @@ public:
         const size_t numChunks = NumChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = chunks[i]) {  // There are set bits
-                static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
-                const size_t bitIndex = i * ChunkBits + SkCTZ(chunk);
+                static_assert(kChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
+                const size_t bitIndex = i * kChunkBits + SkCTZ(chunk);
                 return OptionalIndex(bitIndex);
             }
         }
@@ -127,12 +127,12 @@ public:
         const size_t numChunks = NumChunksFor(fSize);
         for (size_t i = 0; i < numChunks; ++i) {
             if (Chunk chunk = ~chunks[i]) {  // if there are unset bits ...
-                static_assert(ChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
-                const size_t bitIndex = i * ChunkBits + SkCTZ(chunk);
+                static_assert(kChunkBits <= std::numeric_limits<uint32_t>::digits, "SkCTZ");
+                const size_t bitIndex = i * kChunkBits + SkCTZ(chunk);
                 if (bitIndex >= fSize) {
                     break;
                 }
-                return OptionalIndex(i * ChunkBits + SkCTZ(chunk));
+                return OptionalIndex(i * kChunkBits + SkCTZ(chunk));
             }
         }
         return OptionalIndex();
@@ -143,20 +143,20 @@ private:
 
     using Chunk = uint32_t;
     static_assert(std::numeric_limits<Chunk>::radix == 2);
-    static constexpr size_t ChunkBits = std::numeric_limits<Chunk>::digits;
-    static_assert(ChunkBits == sizeof(Chunk)*CHAR_BIT, "SkBitSet must use every bit in a Chunk");
+    static constexpr size_t kChunkBits = std::numeric_limits<Chunk>::digits;
+    static_assert(kChunkBits == sizeof(Chunk)*CHAR_BIT, "SkBitSet must use every bit in a Chunk");
     std::unique_ptr<Chunk, SkFunctionWrapper<void(void*), sk_free>> fChunks;
 
     Chunk* chunkFor(size_t index) const {
-        return fChunks.get() + (index / ChunkBits);
+        return fChunks.get() + (index / kChunkBits);
     }
 
     static constexpr Chunk ChunkMaskFor(size_t index) {
-        return (Chunk)1 << (index & (ChunkBits-1));
+        return (Chunk)1 << (index & (kChunkBits-1));
     }
 
     static constexpr size_t NumChunksFor(size_t size) {
-        return (size + (ChunkBits-1)) / ChunkBits;
+        return (size + (kChunkBits-1)) / kChunkBits;
     }
 };
 
