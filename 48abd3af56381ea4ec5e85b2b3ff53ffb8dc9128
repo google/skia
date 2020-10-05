@@ -16,6 +16,29 @@
       "revId": "48abd3af56381ea4ec5e85b2b3ff53ffb8dc9128",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2036d143_da99cbd8",
+        "filename": "gm/textblobmixedsizes.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-05T14:50:35Z",
+      "side": 1,
+      "message": "Line too long",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 102
+      },
+      "revId": "48abd3af56381ea4ec5e85b2b3ff53ffb8dc9128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
