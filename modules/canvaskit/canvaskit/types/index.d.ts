@@ -352,8 +352,8 @@ export interface CanvasKit {
     readonly SkImageFilter: SkImageFilterFactory;
     readonly SkMaskFilter: SkMaskFilterFactory;
     readonly SkPathEffect: SkPathEffectFactory;
-    readonly SkShader: SkShaderFactory;
     readonly SkRuntimeEffect: SkRuntimeEffectFactory;
+    readonly SkShader: SkShaderFactory;
     readonly SkTextBlob: SkTextBlobFactory;
 
     // Misc
@@ -568,7 +568,40 @@ export interface ShapedTextOpts {
  * See SkAnimatedImage.h for more information on this class.
  */
 export interface SkAnimatedImage extends EmbindObject<SkAnimatedImage> {
-    todo: number; // TODO(kjlubick)
+    /**
+     * Decodes the next frame. Returns -1 when the animation is on the last frame.
+     */
+    decodeNextFrame(): number;
+
+    /**
+     * Return the total number of frames in the animation.
+     */
+    getFrameCount(): number;
+
+    /**
+     * Return the repetition count for this animation.
+     */
+    getRepetitionCount(): number;
+
+    /**
+     * Returns the possibly scaled height of the image.
+     */
+    height(): number;
+
+    /**
+     * Returns a still image of the current frame or null if there is no current frame.
+     */
+    makeImageAtCurrentFrame(): SkImage | null;
+
+    /**
+     * Reset the animation to the beginning.
+     */
+    reset(): void;
+
+    /**
+     * Returns the possibly scaled width of the image.
+     */
+    width(): number;
 }
 
 /**
@@ -1897,9 +1930,34 @@ export interface SkPictureRecorder extends EmbindObject<SkPicture> {
     finishRecordingAsPicture(): SkPicture;
 }
 
-export interface SkShader extends EmbindObject<SkShader> {
-    todo: number; // TODO(kjlubick)
+/**
+ * See SkRuntimeEffect.h for more details.
+ */
+export interface SkRuntimeEffect extends EmbindObject<SkRuntimeEffect> {
+    /**
+     * Returns a shader executed using the given uniform data.
+     * @param uniforms
+     * @param isOpaque
+     * @param localMatrix
+     */
+    makeShader(uniforms: Float32Array | number[], isOpaque?: boolean,
+               localMatrix?: InputMatrix): SkShader;
+
+    /**
+     * Returns a shader executed using the given uniform data and the children as inputs.
+     * @param uniforms
+     * @param isOpaque
+     * @param children
+     * @param localMatrix
+     */
+    makeShaderWithChildren(uniforms: Float32Array | number[], isOpaque?: boolean,
+                           children?: SkShader[], localMatrix?: InputMatrix): SkShader;
 }
+
+/**
+ * See SkShader.h for more on this class. The objects are opaque.
+ */
+export type SkShader = EmbindObject<SkShader>;
 
 export interface SkSurface extends EmbindObject<SkSurface> {
     /**
@@ -1981,7 +2039,17 @@ export type SkTypeface = EmbindObject<SkTypeface>;
  * See SkVertices.h for more on this class.
  */
 export interface SkVertices extends EmbindObject<SkVertices> {
-    todo: number; // TODO(kjlubick)
+    /**
+     * Return the bounding area for the vertices.
+     * @param outputArray - if provided, the bounding box will be copied into this array instead of
+     *                      allocating a new one.
+     */
+    bounds(outputArray?: SkRect): SkRect;
+
+    /**
+     * Return a unique ID for this vertices object.
+     */
+    uniqueID(): number;
 }
 
 /**
@@ -2459,12 +2527,44 @@ export interface SkPathEffectFactory {
     MakeDiscrete(segLength: number, dev: number, seedAssist: number): SkPathEffect;
 }
 
-export interface SkShaderFactory {
-    todo: number; // TODO(kjlubick)
+/**
+ * See SkRuntimeEffect.h for more details.
+ */
+export interface SkRuntimeEffectFactory {
+    /**
+     * Compiles a SkRuntimeEffect from the given shader code.
+     * @param sksl - Source code for a shader written in SkSL
+     */
+    Make(sksl: string): SkRuntimeEffect | null;
 }
 
-export interface SkRuntimeEffectFactory {
-    todo: number; // TODO(kjlubick)
+/**
+ * For more information, see SkShaders.h.
+ * TODO(kjlubick) Rename these to Make* as per the convention
+ */
+export interface SkShaderFactory {
+    /**
+     * Returns a shader that combines the given shaders with a BlendMode.
+     * @param mode
+     * @param one
+     * @param two
+     */
+    Blend(mode: BlendMode, one: SkShader, two: SkShader): SkShader;
+
+    /**
+     * Returns a shader with a given color and colorspace.
+     * @param color
+     * @param space
+     */
+    Color(color: InputColor, space: ColorSpace): SkShader;
+
+    /**
+     * Returns a shader is a linear interpolation combines the given shaders with a BlendMode.
+     * @param t - range of [0.0, 1.0], indicating how far we should be between one and two.
+     * @param one
+     * @param two
+     */
+    Lerp(t: number, one: SkShader, two: SkShader): SkShader;
 }
 
 /**
@@ -2526,8 +2626,70 @@ export interface SkTextBlobFactory {
     MakeOnPath(str: string, path: SkPath, font: SkFont, initialOffset?: number): SkTextBlob;
 }
 
+/**
+ * Functions for manipulating vectors. It is Loosely based off of SkV3 in SkM44.h but Skia
+ * also has SkVec2 and Skv4. This combines them and works on vectors of any length.
+ */
 export interface VectorHelpers {
-    todo: number; // TODO(kjlubick)
+    /**
+     * Adds 2 vectors together, term by term, returning a new Vector.
+     * @param a
+     * @param b
+     */
+    add(a: VectorN, b: VectorN): VectorN;
+
+    /**
+     * Returns the cross product of the two vectors. Only works for length 3.
+     * @param a
+     * @param b
+     */
+    cross(a: Vector3, b: Vector3): Vector3;
+
+    /**
+     * Returns the length(sub(a, b))
+     * @param a
+     * @param b
+     */
+    dist(a: VectorN, b: VectorN): number;
+
+    /**
+     * Returns the dot product of the two vectors.
+     * @param a
+     * @param b
+     */
+    dot(a: VectorN, b: VectorN): number;
+
+    /**
+     * Returns the length of this vector, which is always positive.
+     * @param v
+     */
+    length(v: VectorN): number;
+
+    /**
+     * Returns the length squared of this vector.
+     * @param v
+     */
+    lengthSquared(v: VectorN): number;
+
+    /**
+     * Returns a new vector which is v multiplied by the scalar s.
+     * @param v
+     * @param s
+     */
+    mulScalar(v: VectorN, s: number): VectorN;
+
+    /**
+     * Returns a normalized vector.
+     * @param v
+     */
+    normalize(v: VectorN): VectorN;
+
+    /**
+     * Subtracts vector b from vector a (termwise).
+     * @param a
+     * @param b
+     */
+    sub(a: VectorN, b: VectorN): VectorN;
 }
 
 /**
@@ -2629,6 +2791,11 @@ export type Matrix3x2 = Float32Array;
  * Vector3 represents an x, y, z coordinate or vector. It has length 3.
  */
 export type Vector3 = number[]; // TODO(kjlubick) make this include typed array and malloc'd.
+
+/**
+ * VectorN represents a vector of length n.
+ */
+export type VectorN = number[];
 
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as colors.

@@ -31,6 +31,8 @@ import {
     SkVertices,
     TonalColorsOutput,
     TypedArray,
+    Vector3,
+    VectorN,
 } from "canvaskit-wasm";
 
 CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + file}).then((CK: CanvasKit) => {
@@ -53,15 +55,26 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     pathTests(CK);
     pictureTests(CK);
     rectangleTests(CK);
+    runtimeEffectTests(CK);
+    shaderTests(CK);
     shapedTextTests(CK);
     surfaceTests(CK);
     textBlobTests(CK);
+    vectorTests(CK);
     verticesTests(CK);
 });
 
 function animatedImageTests(CK: CanvasKit) {
     const buff = new ArrayBuffer(10);
     const img = CK.MakeAnimatedImageFromEncoded(buff); // $ExpectType SkAnimatedImage | null
+    if (!img) return;
+    const n = img.decodeNextFrame(); // $ExpectType number
+    const f = img.getFrameCount(); // $ExpectType number
+    const r = img.getRepetitionCount(); // $ExpectType number
+    const h = img.height(); // $ExpectType number
+    const still = img.makeImageAtCurrentFrame(); // $ExpectType SkImage | null
+    img.reset();
+    const w = img.width(); // $ExpectType number
 }
 
 // In an effort to keep these type-checking tests easy to read and understand, we can "inject"
@@ -506,6 +519,23 @@ function rectangleTests(CK: CanvasKit) {
     const rrectOne = CK.RRectXY(rectOne, 3, 7);  // $ExpectType Float32Array
 }
 
+function runtimeEffectTests(CK: CanvasKit) {
+    const rt = CK.SkRuntimeEffect.Make('not real sksl code'); // $ExpectType SkRuntimeEffect | null
+    if (!rt) return;
+    const someMatr = CK.SkMatrix.translated(2, 60);
+    const s1 = rt.makeShader([0, 1]); // $ExpectType SkShader
+    const s2 = rt.makeShader([0, 1], true, someMatr); // $ExpectType SkShader
+    const s3 = rt.makeShaderWithChildren([4, 5], true, [s1, s2]); // $ExpectType SkShader
+    const s4 = rt.makeShaderWithChildren([4, 5], true, [s1, s2], someMatr); // $ExpectType SkShader
+}
+
+function shaderTests(CK: CanvasKit) {
+    const s1 = CK.SkShader.Color([0.8, 0.2, 0.5, 0.9], // $ExpectType SkShader
+                                 CK.SkColorSpace.SRGB);
+    const s2 = CK.SkShader.Blend(CK.BlendMode.Src, s1, s1); // $ExpectType SkShader
+    const s3 = CK.SkShader.Lerp(0.3, s1, s2); // $ExpectType SkShader
+}
+
 function shapedTextTests(CK: CanvasKit, textFont?: SkFont) {
     if (!textFont) return;
 
@@ -582,6 +612,22 @@ function textBlobTests(CK: CanvasKit, font?: SkFont, path?: SkPath) {
     const blob8 = tb.MakeOnPath('tuv', path, font, 10); // $ExpectType SkTextBlob
 }
 
+function vectorTests(CK: CanvasKit) {
+    const a = [1, 2, 3];
+    const b = [4, 5, 6];
+
+    const vec = CK.SkVector; // less typing
+    const v1 = vec.add(a, b); // $ExpectType VectorN
+    const v2 = vec.cross(a, b); // $ExpectType Vector3
+    const n1 = vec.dist(a, b); // $ExpectType number
+    const n2 = vec.dot(a, b); // $ExpectType number
+    const n3 = vec.length(a); // $ExpectType number
+    const n4 = vec.lengthSquared(a); // $ExpectType number
+    const v3 = vec.mulScalar(a, 10); // $ExpectType VectorN
+    const v4 = vec.normalize(a); // $ExpectType VectorN
+    const v5 = vec.sub(a, b); // $ExpectType VectorN
+}
+
 function verticesTests(CK: CanvasKit) {
     const points = [
         [ 70, 170 ], [ 40, 90 ], [ 130, 150 ], [ 100, 50 ],
@@ -603,4 +649,8 @@ function verticesTests(CK: CanvasKit) {
         1, 0, 1, 1); // purple
     const vertices2 = CK.MakeSkVertices(CK.VertexMode.TriangleFan,
         points, null, colors, null, true);
+
+    const rect = vertices.bounds(); // $ExpectType Float32Array
+    vertices.bounds(rect);
+    const id = vertices.uniqueID(); // $ExpectType number
 }
