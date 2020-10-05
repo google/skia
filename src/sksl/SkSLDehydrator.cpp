@@ -426,11 +426,11 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kFor: {
                 const ForStatement& f = s->as<ForStatement>();
                 this->writeU8(Rehydrator::kFor_Command);
-                this->write(f.fInitializer.get());
-                this->write(f.fTest.get());
-                this->write(f.fNext.get());
-                this->write(f.fStatement.get());
-                this->write(f.fSymbols);
+                this->write(f.initializer().get());
+                this->write(f.test().get());
+                this->write(f.next().get());
+                this->write(f.statement().get());
+                this->write(f.symbols());
                 break;
             }
             case Statement::Kind::kIf: {

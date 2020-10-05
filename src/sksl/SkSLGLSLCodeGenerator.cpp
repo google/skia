@@ -1370,28 +1370,28 @@ void GLSLCodeGenerator::writeIfStatement(const IfStatement& stmt) {
 
 void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
     this->write("for (");
-    if (f.fInitializer && !f.fInitializer->isEmpty()) {
-        this->writeStatement(*f.fInitializer);
+    if (f.initializer() && !f.initializer()->isEmpty()) {
+        this->writeStatement(*f.initializer());
     } else {
         this->write("; ");
     }
-    if (f.fTest) {
+    if (f.test()) {
         if (fProgram.fSettings.fCaps->addAndTrueToLoopCondition()) {
             std::unique_ptr<Expression> and_true(new BinaryExpression(
-                    -1, f.fTest->clone(), Token::Kind::TK_LOGICALAND,
+                    -1, f.test()->clone(), Token::Kind::TK_LOGICALAND,
                     std::make_unique<BoolLiteral>(fContext, -1, true),
                     fContext.fBool_Type.get()));
             this->writeExpression(*and_true, kTopLevel_Precedence);
         } else {
-            this->writeExpression(*f.fTest, kTopLevel_Precedence);
+            this->writeExpression(*f.test(), kTopLevel_Precedence);
         }
     }
     this->write("; ");
-    if (f.fNext) {
-        this->writeExpression(*f.fNext, kTopLevel_Precedence);
+    if (f.next()) {
+        this->writeExpression(*f.next(), kTopLevel_Precedence);
     }
     this->write(") ");
-    this->writeStatement(*f.fStatement);
+    this->writeStatement(*f.statement());
 }
 
 void GLSLCodeGenerator::writeWhileStatement(const WhileStatement& w) {
