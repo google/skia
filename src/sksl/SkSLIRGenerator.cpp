@@ -306,7 +306,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
     auto declarationsIter = decls.begin();
     const Modifiers& modifiers = declarationsIter++->getModifiers();
     const ASTNode& rawType = *(declarationsIter++);
-    std::vector<std::unique_ptr<VarDeclaration>> variables;
+    std::vector<std::unique_ptr<Statement>> variables;
     const Type* baseType = this->convertType(rawType);
     if (!baseType) {
         return nullptr;
