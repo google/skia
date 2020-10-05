@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a45ede26_9c7d234b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-05T21:27:39Z",
+      "side": 1,
+      "message": "I\u0027m surprised this makes a difference. When the GPU does nothing I would expect the sync to just return immediately and we would still get a direct measurement of the CPU time. What differences do you see from this change?",
+      "revId": "3c1302be13947faf68f33f91a328e744877d481a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a50afd3d_1881e859",
         "filename": "tools/skpbench/skpbench.cpp",
         "patchSetId": 4
