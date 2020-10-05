@@ -570,6 +570,25 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
                                                      unsigned end,
                                                      RectHeightStyle rectHeightStyle,
                                                      RectWidthStyle rectWidthStyle) {
+    if (start == 0 && end == 2) {
+        ensureUTF16Mapping();
+        /*
+        SkDebugf("fUTF8IndexForUTF16Index\n");
+        size_t ii = 0;
+        for (auto i : fUTF8IndexForUTF16Index) {
+            auto grapheme = (fCodeUnitProperties[i] & CodeUnitFlags::kGraphemeStart) != 0;
+            SkDebugf("[%d] = %d %s\n", ii, i, grapheme ? "grapheme" : "");
+            ++ii;
+        }
+        SkDebugf("fUTF16IndexForUTF8Index:\n");
+        ii = 0;
+        for (auto i : fUTF16IndexForUTF8Index) {
+            auto grapheme = (fCodeUnitProperties[ii] & CodeUnitFlags::kGraphemeStart) != 0;
+            SkDebugf("[%d] = %d %s\n", ii, i, grapheme ? "grapheme" : "");
+            ++ii;
+        }
+       */
+    }
     std::vector<TextBox> results;
     if (fText.isEmpty()) {
         if (start == 0 && end > 0) {
@@ -596,12 +615,24 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // (although you have to press the cursor many times before it moves to the next grapheme).
     TextRange text(fText.size(), fText.size());
     if (start < fUTF8IndexForUTF16Index.size()) {
-        text.start = findGraphemeStart(fUTF8IndexForUTF16Index[start]);
+        // Shift to the left if it's inside a grapheme
+        auto utf8 = fUTF8IndexForUTF16Index[start];
+        if (start > 0 && fUTF8IndexForUTF16Index[start - 1] == utf8) {
+            // Not really the start
+            ++utf8;
+        }
+        text.start = findGraphemeStart(utf8);
     }
     if (end < fUTF8IndexForUTF16Index.size()) {
-        text.end = findGraphemeStart(fUTF8IndexForUTF16Index[end]);
+        // Shift to the right if it's inside a grapheme
+        auto utf8 = findGraphemeEnd(fUTF8IndexForUTF16Index[end]);
+        if (utf8 > 0 && fUTF16IndexForUTF8Index[utf8 - 1] == fUTF16IndexForUTF8Index[utf8]) {
+            // Not really the end
+            --utf8;
+        }
+        text.end = utf8;
     }
-
+    //SkDebugf("getRectsForRange(%d,%d) -> (%d:%d)\n", start, end, text.start, text.end);
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
@@ -901,15 +932,20 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     }
 }
 
-TextIndex ParagraphImpl::findGraphemeStart(TextIndex index) {
-    if (index == fText.size()) {
-        return index;
+TextIndex ParagraphImpl::findGraphemeEnd(TextIndex utf8) {
+    while (utf8 > 0 &&
+          (fCodeUnitProperties[utf8] & CodeUnitFlags::kGraphemeStart) == 0) {
+        --utf8;
     }
-    while (index > 0 &&
-          (fCodeUnitProperties[index] & CodeUnitFlags::kGraphemeStart) == 0) {
-        --index;
+    return utf8;
+}
+
+TextIndex ParagraphImpl::findGraphemeStart(TextIndex utf8) {
+    while (utf8 < fText.size() &&
+          (fCodeUnitProperties[utf8] & CodeUnitFlags::kGraphemeStart) == 0) {
+        ++utf8;
     }
-    return index;
+    return utf8;
 }
 
 void ParagraphImpl::ensureUTF16Mapping() {
