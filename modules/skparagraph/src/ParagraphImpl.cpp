@@ -595,13 +595,28 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // One flutter test fails because of it but the editing experience is correct
     // (although you have to press the cursor many times before it moves to the next grapheme).
     TextRange text(fText.size(), fText.size());
+    // TODO: This is probably a temp change that makes SkParagraph work as TxtLib
+    //  (so we can compare the results). We now include in the selection box only the graphemes
+    //  that belongs to the given [start:end) range entirely (not the ones that intersect with it)
     if (start < fUTF8IndexForUTF16Index.size()) {
-        text.start = findGraphemeStart(fUTF8IndexForUTF16Index[start]);
+        // Shift to the left if it's inside a grapheme
+        auto utf8 = fUTF8IndexForUTF16Index[start];
+        if (start > 0 && fUTF8IndexForUTF16Index[start - 1] == utf8) {
+            // Not really the start (need to move utf8 up to the next utf16 if this utf8 points to the middle of utf16)
+            ++utf8;
+        }
+        text.start = findGraphemeStart(utf8);
     }
     if (end < fUTF8IndexForUTF16Index.size()) {
-        text.end = findGraphemeStart(fUTF8IndexForUTF16Index[end]);
+        // Shift to the right if it's inside a grapheme
+        auto utf8 = findGraphemeEnd(fUTF8IndexForUTF16Index[end]);
+        if (utf8 > 0 && fUTF16IndexForUTF8Index[utf8 - 1] == fUTF16IndexForUTF8Index[utf8]) {
+            // Not really the end (need to shift to the lowest utf8 byte that is part of this utf16)
+            --utf8;
+        }
+        text.end = utf8;
     }
-
+    //SkDebugf("getRectsForRange(%d,%d) -> (%d:%d)\n", start, end, text.start, text.end);
     for (auto& line : fLines) {
         auto lineText = line.textWithSpaces();
         auto intersect = lineText * text;
@@ -901,15 +916,20 @@ void ParagraphImpl::updateBackgroundPaint(size_t from, size_t to, SkPaint paint)
     }
 }
 
-TextIndex ParagraphImpl::findGraphemeStart(TextIndex index) {
-    if (index == fText.size()) {
-        return index;
+TextIndex ParagraphImpl::findGraphemeEnd(TextIndex utf8) {
+    while (utf8 > 0 &&
+          (fCodeUnitProperties[utf8] & CodeUnitFlags::kGraphemeStart) == 0) {
+        --utf8;
     }
-    while (index > 0 &&
-          (fCodeUnitProperties[index] & CodeUnitFlags::kGraphemeStart) == 0) {
-        --index;
+    return utf8;
+}
+
+TextIndex ParagraphImpl::findGraphemeStart(TextIndex utf8) {
+    while (utf8 < fText.size() &&
+          (fCodeUnitProperties[utf8] & CodeUnitFlags::kGraphemeStart) == 0) {
+        ++utf8;
     }
-    return index;
+    return utf8;
 }
 
 void ParagraphImpl::ensureUTF16Mapping() {
