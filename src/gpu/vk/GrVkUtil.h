@@ -67,7 +67,9 @@ static constexpr uint32_t GrVkFormatChannels(VkFormat vkFormat) {
         case VK_FORMAT_R16G16_UNORM:             return kRG_SkColorChannelFlags;
         case VK_FORMAT_R16G16B16A16_UNORM:       return kRGBA_SkColorChannelFlags;
         case VK_FORMAT_R16G16_SFLOAT:            return kRG_SkColorChannelFlags;
-
+        case VK_FORMAT_S8_UINT:                  return 0;
+        case VK_FORMAT_D24_UNORM_S8_UINT:        return 0;
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:       return 0;
         default:                                 return 0;
     }
 }
@@ -99,8 +101,24 @@ static constexpr size_t GrVkFormatBytesPerBlock(VkFormat vkFormat) {
         // to compressed textures that go through their own special query for calculating size.
         case VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM: return 3;
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:  return 3;
+        case VK_FORMAT_S8_UINT:                   return 1;
+        case VK_FORMAT_D24_UNORM_S8_UINT:         return 4;
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:        return 8;
 
         default:                                 return 0;
+    }
+}
+
+static constexpr int GrVkFormatStencilBits(VkFormat format) {
+    switch (format) {
+        case VK_FORMAT_S8_UINT:
+            return 8;
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+            return 8;
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            return 8;
+        default:
+            return 0;
     }
 }
 
@@ -152,6 +170,9 @@ static constexpr const char* GrVkFormatToStr(VkFormat vkFormat) {
         case VK_FORMAT_R16G16_UNORM:             return "R16G16_UNORM";
         case VK_FORMAT_R16G16B16A16_UNORM:       return "R16G16B16A16_UNORM";
         case VK_FORMAT_R16G16_SFLOAT:            return "R16G16_SFLOAT";
+        case VK_FORMAT_S8_UINT:                  return "S8_UINT";
+        case VK_FORMAT_D24_UNORM_S8_UINT:        return "D24_UNORM_S8_UINT";
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:       return "D32_SFLOAT_S8_UINT";
 
         default:                                 return "Unknown";
     }
