@@ -249,13 +249,21 @@ public:
                                           sk_sp<GrColorSpaceXform> textureColorSpaceXform) {
         // Allocate size based on proxyRunCnt, since that determines number of ViewCountPairs.
         SkASSERT(proxyRunCnt <= cnt);
-
         size_t size = sizeof(TextureOp) + sizeof(ViewCountPair) * (proxyRunCnt - 1);
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
-        void* mem = pool->allocate(size);
-        return std::unique_ptr<GrDrawOp>(
-                new (mem) TextureOp(set, cnt, proxyRunCnt, filter, mm, saturate, aaType, constraint,
-                                    viewMatrix, std::move(textureColorSpaceXform)));
+        #if defined(GR_OP_ALLOCATE_USE_NEW)
+            void* mem = ::operator new(size);
+            return std::unique_ptr<GrDrawOp>(
+                    new (mem) TextureOp(
+                            set, cnt, proxyRunCnt, filter, mm, saturate, aaType, constraint,
+                            viewMatrix, std::move(textureColorSpaceXform)));
+        #else
+            GrOpMemoryPool* pool = context->priv().opMemoryPool();
+            void* mem = pool->allocate(size);
+            return std::unique_ptr<GrDrawOp>(
+                    new (mem) TextureOp(
+                            set, cnt, proxyRunCnt, filter, mm, saturate, aaType, constraint,
+                            viewMatrix, std::move(textureColorSpaceXform)));
+        #endif
     }
 
     ~TextureOp() override {
