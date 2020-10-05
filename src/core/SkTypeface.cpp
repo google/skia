@@ -63,6 +63,9 @@ protected:
     void onGetFamilyName(SkString* familyName) const override {
         familyName->reset();
     }
+    bool onGetPostScriptName(SkString*) const override {
+        return false;
+    }
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         return new EmptyLocalizedStrings;
     }
@@ -330,6 +333,10 @@ SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
 void SkTypeface::getFamilyName(SkString* name) const {
     SkASSERT(name);
     this->onGetFamilyName(name);
+}
+
+bool SkTypeface::getPostScriptName(SkString* name) const {
+    return this->onGetPostScriptName(name);
 }
 
 void SkTypeface::getGlyphToUnicodeMap(SkUnichar* dst) const {

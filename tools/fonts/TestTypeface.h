@@ -72,8 +72,8 @@ public:
 protected:
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
                                            const SkDescriptor* desc) const override;
-    void             onFilterRec(SkScalerContextRec* rec) const override;
-    void             getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
+    void onFilterRec(SkScalerContextRec* rec) const override;
+    void getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
 
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override { return nullptr; }
@@ -92,7 +92,8 @@ protected:
 
     int onGetUPEM() const override { return 2048; }
 
-    void                          onGetFamilyName(SkString* familyName) const override;
+    void onGetFamilyName(SkString* familyName) const override;
+    bool onGetPostScriptName(SkString*) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],

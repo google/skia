@@ -20,24 +20,25 @@ class SkRandomTypeface : public SkTypeface {
 public:
     SkRandomTypeface(sk_sp<SkTypeface> proxy, const SkPaint&, bool fakeit);
 
-    SkTypeface*    proxy() const { return fProxy.get(); }
+    SkTypeface* proxy() const { return fProxy.get(); }
     const SkPaint& paint() const { return fPaint; }
 
 protected:
-    SkScalerContext*                           onCreateScalerContext(const SkScalerContextEffects&,
-                                                                     const SkDescriptor*) const override;
-    void                                       onFilterRec(SkScalerContextRec*) const override;
-    void                                       getGlyphToUnicodeMap(SkUnichar*) const override;
+    SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
+                                           const SkDescriptor*) const override;
+    void onFilterRec(SkScalerContextRec*) const override;
+    void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
-    std::unique_ptr<SkStreamAsset>             onOpenStream(int* ttcIndex) const override;
+    std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
-    void              onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
+    void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const override;
 
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;
     int onGetUPEM() const override;
 
-    void                          onGetFamilyName(SkString* familyName) const override;
+    void onGetFamilyName(SkString* familyName) const override;
+    bool onGetPostScriptName(SkString*) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
     void getPostScriptGlyphNames(SkString*) const override;
