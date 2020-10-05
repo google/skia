@@ -42,7 +42,7 @@
 #include <cmath>
 #include <memory>
 
-#define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
+#define GL_CALL(X) //GR_GL_CALL(this->glInterface(), X)
 #define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
 
 #define GL_ALLOC_CALL(call)                                   \
