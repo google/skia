@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "641a98cd_026ae1da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-05T22:09:38Z",
+      "side": 1,
+      "message": "I assumed the intention of this CL was to run a real GPU and measure single non pipelined frames (i.e. submit one frame to the GPU and wait to see how long it takes). This is different than trying to measure just the cpu time right?",
+      "parentUuid": "a45ede26_9c7d234b",
+      "revId": "3c1302be13947faf68f33f91a328e744877d481a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a50afd3d_1881e859",
         "filename": "tools/skpbench/skpbench.cpp",
         "patchSetId": 4
