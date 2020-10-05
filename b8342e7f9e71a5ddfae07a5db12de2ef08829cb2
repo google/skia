@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1f8aceac_9b294ef5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-05T22:29:30Z",
+      "side": 1,
+      "message": "I also looked at the o\u0027s and saw some corners that I liked better in the \"before\" and some that I liked better in the \"after\". I think this is just a result of 4x msaa and linearizing curves.",
+      "parentUuid": "dfc30fb7_daa5dd80",
+      "revId": "b8342e7f9e71a5ddfae07a5db12de2ef08829cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a6e6402_55be7d9a",
         "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
         "patchSetId": 4
@@ -57,6 +75,30 @@
       "revId": "b8342e7f9e71a5ddfae07a5db12de2ef08829cb2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91710ebd_fcd6c21a",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-05T22:29:30Z",
+      "side": 1,
+      "message": "Thanks for pointing that out. I updated the comments to be more descriptive.",
+      "parentUuid": "3a6e6402_55be7d9a",
+      "range": {
+        "startLine": 94,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 30
+      },
+      "revId": "b8342e7f9e71a5ddfae07a5db12de2ef08829cb2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
