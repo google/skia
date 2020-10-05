@@ -71,6 +71,8 @@ __argparse.add_argument('-c', '--config',
   default='gl', help="comma- or space-separated list of GPU configs")
 __argparse.add_argument('-a', '--resultsfile',
   help="optional file to append results into")
+__argparse.add_argument('--latencyMode',
+  action='store_true', help="Measure CPU and GPU together. No pipelining.")
 __argparse.add_argument('--ddl',
   action='store_true', help="record the skp into DDLs before rendering")
 __argparse.add_argument('--ddlNumRecordingThreads',
@@ -147,6 +149,8 @@ class SKPBench:
     ARGV.extend(['--gpuThreads', str(FLAGS.gpuThreads)])
   if FLAGS.internalSamples != -1:
     ARGV.extend(['--internalSamples', str(FLAGS.internalSamples)])
+  if FLAGS.latencyMode:
+    ARGV.extend(['--latencyMode', 'true'])
 
   # DDL parameters
   if FLAGS.ddl:
