@@ -16,6 +16,29 @@
       "revId": "2e278e654e2aae9b50209f210fe70aa7ff2123f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "356e84a5_0f099fc3",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 2908,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-05T14:29:18Z",
+      "side": 1,
+      "message": "Not sure why a switch here, unless we anticipate more workaround variable cloning in the near future.",
+      "range": {
+        "startLine": 2907,
+        "startChar": 4,
+        "endLine": 2908,
+        "endChar": 37
+      },
+      "revId": "2e278e654e2aae9b50209f210fe70aa7ff2123f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
