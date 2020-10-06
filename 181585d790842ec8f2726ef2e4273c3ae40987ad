@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e9ac23f_8d71e0f2",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-06T19:50:04Z",
+      "side": 1,
+      "message": "Yeah, these don\u0027t seem to line up. The rehydrator is expecting an id, but that\u0027s not written here. I think you want name + id of original symbol?",
+      "revId": "181585d790842ec8f2726ef2e4273c3ae40987ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5976c5c6_e5a7de44",
+        "filename": "src/sksl/ir/SkSLSymbolAlias.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-06T19:50:04Z",
+      "side": 1,
+      "message": "nit: 2020, LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "181585d790842ec8f2726ef2e4273c3ae40987ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
