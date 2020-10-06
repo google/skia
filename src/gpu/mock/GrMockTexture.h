@@ -8,8 +8,8 @@
 #define GrMockTexture_DEFINED
 
 #include "include/gpu/mock/GrMockTypes.h"
+#include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/mock/GrMockGpu.h"
 
@@ -115,7 +115,7 @@ public:
 
     GrBackendRenderTarget getBackendRenderTarget() const override {
         int numStencilBits = 0;
-        if (GrStencilAttachment* stencil = this->getStencilAttachment()) {
+        if (GrAttachment* stencil = this->getStencilAttachment()) {
             numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
         }
         return {this->width(), this->height(), this->numSamples(), numStencilBits, fInfo};
