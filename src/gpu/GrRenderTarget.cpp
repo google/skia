@@ -9,6 +9,7 @@
 #include "src/gpu/GrRenderTarget.h"
 
 #include "src/core/SkRectPriv.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
@@ -68,7 +69,7 @@ void GrRenderTarget::attachStencilAttachment(sk_sp<GrStencilAttachment> stencil)
 
 int GrRenderTarget::numStencilBits() const {
     SkASSERT(this->getStencilAttachment());
-    return this->getStencilAttachment()->bits();
+    return GrBackendFormatStencilBits(this->getStencilAttachment()->backendFormat());
 }
 
 int GrRenderTarget::getSamplePatternKey() {

@@ -31,7 +31,7 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    GrDawnStencilAttachment(GrDawnGpu* gpu, SkISize dimensions, int bits, int samples,
+    GrDawnStencilAttachment(GrDawnGpu* gpu, SkISize dimensions, int samples,
                             wgpu::Texture texture, wgpu::TextureView view);
 
     GrDawnGpu* getDawnGpu() const;
