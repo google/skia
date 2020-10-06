@@ -16,6 +16,115 @@
       "message": "Experiment to only declare one variable per declaration in the IR. This version works, though there is more that can/should be done:\n\n- Avoid the third tier of classes. Probably just have VarDeclaration (statement), and VarDeclarationElement (element, pointing to one of those). No need for the Statement that points to an element, pointing to another statement. Doing this will require yet another way of changes, but will further simplify all of the code.\n- As part of that, the CFG logic can get simpler - the old code replaced the individual VD statements with Nops, then later noticed the nops and removed them from the vector\u003c\u003e, and we could end up with VDS statements that had empty variable lists. The code generators were handling this by checking for empty vectors... Instead, I kept the same basic structure, but we can end up with a VDS where the one var is a Nop now, which is what things are checking for. If we switch to only one tier of statements, we can directly Nop the VD statements, and there will never be an \"invalid\" VarDeclarationElement in the program. I was tempted to try and do some of this now, but it\u0027s tricky enough that I\u0027d rather save it for a follow-up.",
       "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e35dec0_b966ef3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T21:25:55Z",
+      "side": 1,
+      "message": "This basically LGTM once we have a fix for the bot errors. (Maybe trying to cast a Nop to VarDecl?)",
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4960e6de_4b177f40",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T21:25:55Z",
+      "side": 1,
+      "message": "/*isScope\u003d*/false",
+      "range": {
+        "startLine": 308,
+        "startChar": 93,
+        "endLine": 308,
+        "endChar": 98
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90a5c0b7_47a21ecf",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2853,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T21:25:55Z",
+      "side": 1,
+      "message": "nice",
+      "range": {
+        "startLine": 2853,
+        "startChar": 4,
+        "endLine": 2853,
+        "endChar": 9
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "320381c7_5339f135",
+        "filename": "src/sksl/ir/SkSLVarDeclarations.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T21:25:55Z",
+      "side": 1,
+      "message": "a Statement",
+      "range": {
+        "startLine": 76,
+        "startChar": 39,
+        "endLine": 76,
+        "endChar": 49
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a453fe18_f8a8ec4c",
+        "filename": "tests/sksl/blend/golden/BlendClear.metal",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T21:25:55Z",
+      "side": 1,
+      "message": "nice",
+      "range": {
+        "startLine": 5,
+        "startChar": 14,
+        "endLine": 6,
+        "endChar": 10
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
