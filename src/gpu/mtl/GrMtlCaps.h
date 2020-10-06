@@ -21,8 +21,6 @@ class GrShaderCaps;
  */
 class GrMtlCaps : public GrCaps {
 public:
-    typedef GrMtlStencilAttachment::Format StencilFormat;
-
     GrMtlCaps(const GrContextOptions& contextOptions, id<MTLDevice> device,
               MTLFeatureSet featureSet);
 
@@ -56,7 +54,7 @@ public:
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
-    const StencilFormat& preferredStencilFormat() const {
+    MTLPixelFormat preferredStencilFormat() const {
         return fPreferredStencilFormat;
     }
 
@@ -189,7 +187,7 @@ private:
 
     SkTDArray<int> fSampleCounts;
 
-    StencilFormat fPreferredStencilFormat;
+    MTLPixelFormat fPreferredStencilFormat;
 
     using INHERITED = GrCaps;
 };

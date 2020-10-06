@@ -29,8 +29,6 @@ class GrGLRenderTarget;
  */
 class GrGLCaps : public GrCaps {
 public:
-    typedef GrGLStencilAttachment::Format StencilFormat;
-
     /**
      * The type of MSAA for FBOs supported. Different extensions have different
      * semantics of how / when a resolve is performed.
@@ -187,7 +185,7 @@ public:
     * to be supported by the driver but are legal GLenum names given the GL
     * version and extensions supported.
     */
-    const SkTArray<StencilFormat, true>& stencilFormats() const {
+    const SkTArray<GrGLFormat, true>& stencilFormats() const {
         return fStencilFormats;
     }
 
@@ -519,7 +517,7 @@ private:
 
     GrGLStandard fStandard = kNone_GrGLStandard;
 
-    SkTArray<StencilFormat, true> fStencilFormats;
+    SkTArray<GrGLFormat, true> fStencilFormats;
 
     int fMaxFragmentUniformVectors = 0;
 
