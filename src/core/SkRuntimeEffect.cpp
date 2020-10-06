@@ -153,68 +153,66 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     // Go through program elements, pulling out information that we need
     for (const auto& elem : *program) {
         // Variables (uniform, varying, etc.)
-        if (elem.kind() == SkSL::ProgramElement::Kind::kVar) {
-            const auto& varDecls = static_cast<const SkSL::VarDeclarations&>(elem);
-            for (const auto& varDecl : varDecls.fVars) {
-                const SkSL::Variable& var =
-                        *(static_cast<const SkSL::VarDeclaration&>(*varDecl).fVar);
-                const SkSL::Type& varType = var.type();
+        if (elem.is<SkSL::GlobalVarDeclaration>()) {
+            const auto& varDecl = elem.as<SkSL::GlobalVarDeclaration>().fDecl;
 
-                // Varyings (only used in conjunction with drawVertices)
-                if (var.fModifiers.fFlags & SkSL::Modifiers::kVarying_Flag) {
-                    varyings.push_back({var.name(),
-                                        varType.typeKind() == SkSL::Type::TypeKind::kVector
-                                               ? varType.columns()
-                                               : 1});
+            const SkSL::Variable& var = *varDecl->fVar;
+            const SkSL::Type& varType = var.type();
+
+            // Varyings (only used in conjunction with drawVertices)
+            if (var.fModifiers.fFlags & SkSL::Modifiers::kVarying_Flag) {
+                varyings.push_back({var.name(),
+                                    varType.typeKind() == SkSL::Type::TypeKind::kVector
+                                            ? varType.columns()
+                                            : 1});
+            }
+            // Fragment Processors (aka 'shader'): These are child effects
+            else if (&varType == ctx.fFragmentProcessor_Type.get()) {
+                children.push_back(var.name());
+                sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
+            }
+            // 'uniform' variables
+            else if (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                Uniform uni;
+                uni.fName = var.name();
+                uni.fFlags = 0;
+                uni.fCount = 1;
+
+                const SkSL::Type* type = &var.type();
+                if (type->typeKind() == SkSL::Type::TypeKind::kArray) {
+                    uni.fFlags |= Uniform::kArray_Flag;
+                    uni.fCount = type->columns();
+                    type = &type->componentType();
                 }
-                // Fragment Processors (aka 'shader'): These are child effects
-                else if (&varType == ctx.fFragmentProcessor_Type.get()) {
-                    children.push_back(var.name());
-                    sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
+
+                if (!init_uniform_type(ctx, type, &uni)) {
+                    RETURN_FAILURE("Invalid uniform type: '%s'", type->displayName().c_str());
                 }
-                // 'uniform' variables
-                else if (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
-                    Uniform uni;
-                    uni.fName = var.name();
-                    uni.fFlags = 0;
-                    uni.fCount = 1;
 
-                    const SkSL::Type* type = &var.type();
-                    if (type->typeKind() == SkSL::Type::TypeKind::kArray) {
-                        uni.fFlags |= Uniform::kArray_Flag;
-                        uni.fCount = type->columns();
-                        type = &type->componentType();
+                const SkSL::StringFragment& marker(var.fModifiers.fLayout.fMarker);
+                if (marker.fLength) {
+                    uni.fFlags |= Uniform::kMarker_Flag;
+                    allowColorFilter = false;
+                    if (!parse_marker(marker, &uni.fMarker, &uni.fFlags)) {
+                        RETURN_FAILURE("Invalid 'marker' string: '%.*s'", (int)marker.fLength,
+                                        marker.fChars);
                     }
-
-                    if (!init_uniform_type(ctx, type, &uni)) {
-                        RETURN_FAILURE("Invalid uniform type: '%s'", type->displayName().c_str());
-                    }
-
-                    const SkSL::StringFragment& marker(var.fModifiers.fLayout.fMarker);
-                    if (marker.fLength) {
-                        uni.fFlags |= Uniform::kMarker_Flag;
-                        allowColorFilter = false;
-                        if (!parse_marker(marker, &uni.fMarker, &uni.fFlags)) {
-                            RETURN_FAILURE("Invalid 'marker' string: '%.*s'", (int)marker.fLength,
-                                            marker.fChars);
-                        }
-                    }
-
-                    if (var.fModifiers.fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
-                        uni.fFlags |= Uniform::kSRGBUnpremul_Flag;
-                    }
-
-                    uni.fOffset = offset;
-                    offset += uni.sizeInBytes();
-                    SkASSERT(SkIsAlign4(offset));
-
-                    uniforms.push_back(uni);
                 }
+
+                if (var.fModifiers.fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
+                    uni.fFlags |= Uniform::kSRGBUnpremul_Flag;
+                }
+
+                uni.fOffset = offset;
+                offset += uni.sizeInBytes();
+                SkASSERT(SkIsAlign4(offset));
+
+                uniforms.push_back(uni);
             }
         }
         // Functions
-        else if (elem.kind() == SkSL::ProgramElement::Kind::kFunction) {
-            const auto& func = static_cast<const SkSL::FunctionDefinition&>(elem);
+        else if (elem.is<SkSL::FunctionDefinition>()) {
+            const auto& func = elem.as<SkSL::FunctionDefinition>();
             const SkSL::FunctionDeclaration& decl = func.fDeclaration;
             if (decl.name() == "main") {
                 hasMain = true;

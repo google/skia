@@ -127,8 +127,8 @@ private:
     void popSymbolTable();
 
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
-    std::unique_ptr<VarDeclarations> convertVarDeclarations(const ASTNode& decl,
-                                                            Variable::Storage storage);
+    std::vector<std::unique_ptr<Statement>> convertVarDeclarations(const ASTNode& decl,
+                                                                   Variable::Storage storage);
     void convertFunction(const ASTNode& f);
     std::unique_ptr<Statement> convertSingleStatement(const ASTNode& statement);
     std::unique_ptr<Statement> convertStatement(const ASTNode& statement);

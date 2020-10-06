@@ -47,7 +47,6 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 
@@ -323,15 +322,9 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                                                                       std::move(sizes), nullptr));
         }
         case Rehydrator::kVarDeclarations_Command: {
-            const Type* baseType = this->type();
-            int count = this->readU8();
-            std::vector<std::unique_ptr<Statement>> vars;
-            vars.reserve(count);
-            for (int i = 0 ; i < count; ++i) {
-                vars.push_back(this->statement());
-            }
-            return std::unique_ptr<ProgramElement>(new VarDeclarations(-1, baseType,
-                                                                       std::move(vars)));
+            std::unique_ptr<Statement> decl = this->statement();
+            return std::unique_ptr<ProgramElement>(
+                    new GlobalVarDeclaration(/*offset=*/-1, std::move(decl)));
         }
         default:
             printf("unsupported element %d\n", kind);
@@ -427,6 +420,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         }
         case Rehydrator::kVarDeclaration_Command: {
             Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
+            const Type* baseType = this->type();
             uint8_t sizeCount = this->readU8();
             std::vector<std::unique_ptr<Expression>> sizes;
             sizes.reserve(sizeCount);
@@ -439,20 +433,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
                 SkASSERT(var->fWriteCount == 0);
                 ++var->fWriteCount;
             }
-            return std::unique_ptr<Statement>(new VarDeclaration(var,
-                                                                 std::move(sizes),
-                                                                 std::move(value)));
-        }
-        case Rehydrator::kVarDeclarations_Command: {
-            const Type* baseType = this->type();
-            int count = this->readU8();
-            std::vector<std::unique_ptr<Statement>> vars;
-            vars.reserve(count);
-            for (int i = 0 ; i < count; ++i) {
-                vars.push_back(this->statement());
-            }
-            return std::make_unique<VarDeclarationsStatement>(
-                    std::make_unique<VarDeclarations>(-1, baseType, std::move(vars)));
+            return std::unique_ptr<Statement>(
+                    new VarDeclaration(var, baseType, std::move(sizes), std::move(value)));
         }
         case Rehydrator::kVoid_Command:
             return nullptr;

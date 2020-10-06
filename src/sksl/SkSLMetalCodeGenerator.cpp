@@ -951,36 +951,31 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                         to_string(fUniformBuffer) + ")]]");
         }
         for (const auto& e : fProgram) {
-            if (e.kind() == ProgramElement::Kind::kVar) {
-                const VarDeclarations& decls = e.as<VarDeclarations>();
-                if (!decls.fVars.size()) {
-                    continue;
-                }
-                for (const auto& stmt: decls.fVars) {
-                    VarDeclaration& var = stmt->as<VarDeclaration>();
-                    if (var.fVar->type().typeKind() == Type::TypeKind::kSampler) {
-                        if (var.fVar->fModifiers.fLayout.fBinding < 0) {
-                            fErrors.error(decls.fOffset,
-                                          "Metal samplers must have 'layout(binding=...)'");
-                            return;
-                        }
-                        if (var.fVar->type().dimensions() != SpvDim2D) {
-                            // TODO: Support other texture types (skbug.com/10797)
-                            fErrors.error(decls.fOffset, "Unsupported texture dimensions");
-                            return;
-                        }
-                        this->write(", texture2d<float> ");
-                        this->writeName(var.fVar->name());
-                        this->write("[[texture(");
-                        this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
-                        this->write(")]]");
-                        this->write(", sampler ");
-                        this->writeName(var.fVar->name());
-                        this->write(SAMPLER_SUFFIX);
-                        this->write("[[sampler(");
-                        this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
-                        this->write(")]]");
+            if (e.is<GlobalVarDeclaration>()) {
+                const GlobalVarDeclaration& decls = e.as<GlobalVarDeclaration>();
+                const VarDeclaration& var = *decls.fDecl;
+                if (var.fVar->type().typeKind() == Type::TypeKind::kSampler) {
+                    if (var.fVar->fModifiers.fLayout.fBinding < 0) {
+                        fErrors.error(decls.fOffset,
+                                        "Metal samplers must have 'layout(binding=...)'");
+                        return;
                     }
+                    if (var.fVar->type().dimensions() != SpvDim2D) {
+                        // TODO: Support other texture types (skbug.com/10797)
+                        fErrors.error(decls.fOffset, "Unsupported texture dimensions");
+                        return;
+                    }
+                    this->write(", texture2d<float> ");
+                    this->writeName(var.fVar->name());
+                    this->write("[[texture(");
+                    this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
+                    this->write(")]]");
+                    this->write(", sampler ");
+                    this->writeName(var.fVar->name());
+                    this->write(SAMPLER_SUFFIX);
+                    this->write("[[sampler(");
+                    this->write(to_string(var.fVar->fModifiers.fLayout.fBinding));
+                    this->write(")]]");
                 }
             } else if (e.kind() == ProgramElement::Kind::kInterfaceBlock) {
                 InterfaceBlock& intf = (InterfaceBlock&) e;
@@ -1219,38 +1214,26 @@ void MetalCodeGenerator::writeName(const String& name) {
     this->write(name);
 }
 
-void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool global) {
-    SkASSERT(decl.fVars.size() > 0);
-    bool wroteType = false;
-    for (const auto& stmt : decl.fVars) {
-        VarDeclaration& var = (VarDeclaration&) *stmt;
-        if (global && !(var.fVar->fModifiers.fFlags & Modifiers::kConst_Flag)) {
-            continue;
-        }
-        if (wroteType) {
-            this->write(", ");
-        } else {
-            this->writeModifiers(var.fVar->fModifiers, global);
-            this->writeType(decl.fBaseType);
-            this->write(" ");
-            wroteType = true;
-        }
-        this->writeName(var.fVar->name());
-        for (const auto& size : var.fSizes) {
-            this->write("[");
-            if (size) {
-                this->writeExpression(*size, kTopLevel_Precedence);
-            }
-            this->write("]");
-        }
-        if (var.fValue) {
-            this->write(" = ");
-            this->writeVarInitializer(*var.fVar, *var.fValue);
-        }
+void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool global) {
+    if (global && !(var.fVar->fModifiers.fFlags & Modifiers::kConst_Flag)) {
+        return;
     }
-    if (wroteType) {
-        this->write(";");
+    this->writeModifiers(var.fVar->fModifiers, global);
+    this->writeType(var.fBaseType);
+    this->write(" ");
+    this->writeName(var.fVar->name());
+    for (const auto& size : var.fSizes) {
+        this->write("[");
+        if (size) {
+            this->writeExpression(*size, kTopLevel_Precedence);
+        }
+        this->write("]");
     }
+    if (var.fValue) {
+        this->write(" = ");
+        this->writeVarInitializer(*var.fVar, *var.fValue);
+    }
+    this->write(";");
 }
 
 void MetalCodeGenerator::writeStatement(const Statement& s) {
@@ -1265,8 +1248,8 @@ void MetalCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
-        case Statement::Kind::kVarDeclarations:
-            this->writeVarDeclarations(*s.as<VarDeclarationsStatement>().fDeclaration, false);
+        case Statement::Kind::kVarDeclaration:
+            this->writeVarDeclaration(s.as<VarDeclaration>(), false);
             break;
         case Statement::Kind::kIf:
             this->writeIfStatement(s.as<IfStatement>());
@@ -1407,33 +1390,27 @@ void MetalCodeGenerator::writeHeader() {
 
 void MetalCodeGenerator::writeUniformStruct() {
     for (const auto& e : fProgram) {
-        if (e.kind() == ProgramElement::Kind::kVar) {
-            const VarDeclarations& decls = e.as<VarDeclarations>();
-            if (!decls.fVars.size()) {
-                continue;
-            }
-            const Variable& first = *decls.fVars[0]->as<VarDeclaration>().fVar;
-            if (first.fModifiers.fFlags & Modifiers::kUniform_Flag &&
-                first.type().typeKind() != Type::TypeKind::kSampler) {
+        if (e.is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& decls = e.as<GlobalVarDeclaration>();
+            const Variable& var = *decls.fDecl->fVar;
+            if (var.fModifiers.fFlags & Modifiers::kUniform_Flag &&
+                var.type().typeKind() != Type::TypeKind::kSampler) {
                 if (-1 == fUniformBuffer) {
                     this->write("struct Uniforms {\n");
-                    fUniformBuffer = first.fModifiers.fLayout.fSet;
+                    fUniformBuffer = var.fModifiers.fLayout.fSet;
                     if (-1 == fUniformBuffer) {
                         fErrors.error(decls.fOffset, "Metal uniforms must have 'layout(set=...)'");
                     }
-                } else if (first.fModifiers.fLayout.fSet != fUniformBuffer) {
+                } else if (var.fModifiers.fLayout.fSet != fUniformBuffer) {
                     if (-1 == fUniformBuffer) {
                         fErrors.error(decls.fOffset, "Metal backend requires all uniforms to have "
                                     "the same 'layout(set=...)'");
                     }
                 }
                 this->write("    ");
-                this->writeType(first.type());
+                this->writeType(var.type());
                 this->write(" ");
-                for (const auto& stmt : decls.fVars) {
-                    const VarDeclaration& var = stmt->as<VarDeclaration>();
-                    this->writeName(var.fVar->name());
-                }
+                this->writeName(var.name());
                 this->write(";\n");
             }
         }
@@ -1446,28 +1423,22 @@ void MetalCodeGenerator::writeUniformStruct() {
 void MetalCodeGenerator::writeInputStruct() {
     this->write("struct Inputs {\n");
     for (const auto& e : fProgram) {
-        if (e.kind() == ProgramElement::Kind::kVar) {
-            const VarDeclarations& decls = e.as<VarDeclarations>();
-            if (!decls.fVars.size()) {
-                continue;
-            }
-            const Variable& first = *decls.fVars[0]->as<VarDeclaration>().fVar;
-            if (first.fModifiers.fFlags & Modifiers::kIn_Flag &&
-                -1 == first.fModifiers.fLayout.fBuiltin) {
+        if (e.is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& decls = e.as<GlobalVarDeclaration>();
+            const Variable& var = *decls.fDecl->fVar;
+            if (var.fModifiers.fFlags & Modifiers::kIn_Flag &&
+                -1 == var.fModifiers.fLayout.fBuiltin) {
                 this->write("    ");
-                this->writeType(first.type());
+                this->writeType(var.type());
                 this->write(" ");
-                for (const auto& stmt : decls.fVars) {
-                    const VarDeclaration& var = stmt->as<VarDeclaration>();
-                    this->writeName(var.fVar->name());
-                    if (-1 != var.fVar->fModifiers.fLayout.fLocation) {
-                        if (fProgram.fKind == Program::kVertex_Kind) {
-                            this->write("  [[attribute(" +
-                                        to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
-                        } else if (fProgram.fKind == Program::kFragment_Kind) {
-                            this->write("  [[user(locn" +
-                                        to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
-                        }
+                this->writeName(var.name());
+                if (-1 != var.fModifiers.fLayout.fLocation) {
+                    if (fProgram.fKind == Program::kVertex_Kind) {
+                        this->write("  [[attribute(" +
+                                    to_string(var.fModifiers.fLayout.fLocation) + ")]]");
+                    } else if (fProgram.fKind == Program::kFragment_Kind) {
+                        this->write("  [[user(locn" +
+                                    to_string(var.fModifiers.fLayout.fLocation) + ")]]");
                     }
                 }
                 this->write(";\n");
@@ -1485,32 +1456,26 @@ void MetalCodeGenerator::writeOutputStruct() {
         this->write("    float4 sk_FragColor [[color(0)]];\n");
     }
     for (const auto& e : fProgram) {
-        if (e.kind() == ProgramElement::Kind::kVar) {
-            const VarDeclarations& decls = e.as<VarDeclarations>();
-            if (!decls.fVars.size()) {
-                continue;
-            }
-            const Variable& first = *decls.fVars[0]->as<VarDeclaration>().fVar;
-            if (first.fModifiers.fFlags & Modifiers::kOut_Flag &&
-                -1 == first.fModifiers.fLayout.fBuiltin) {
+        if (e.is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& decls = e.as<GlobalVarDeclaration>();
+            const Variable& var = *decls.fDecl->fVar;
+            if (var.fModifiers.fFlags & Modifiers::kOut_Flag &&
+                -1 == var.fModifiers.fLayout.fBuiltin) {
                 this->write("    ");
-                this->writeType(first.type());
+                this->writeType(var.type());
                 this->write(" ");
-                for (const auto& stmt : decls.fVars) {
-                    const VarDeclaration& var = stmt->as<VarDeclaration>();
-                    this->writeName(var.fVar->name());
-                    if (fProgram.fKind == Program::kVertex_Kind) {
-                        this->write("  [[user(locn" +
-                                    to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
-                    } else if (fProgram.fKind == Program::kFragment_Kind) {
-                        this->write(" [[color(" +
-                                    to_string(var.fVar->fModifiers.fLayout.fLocation) +")");
-                        int colorIndex = var.fVar->fModifiers.fLayout.fIndex;
-                        if (colorIndex) {
-                            this->write(", index(" + to_string(colorIndex) + ")");
-                        }
-                        this->write("]]");
+                this->writeName(var.name());
+                if (fProgram.fKind == Program::kVertex_Kind) {
+                    this->write("  [[user(locn" +
+                                to_string(var.fModifiers.fLayout.fLocation) + ")]]");
+                } else if (fProgram.fKind == Program::kFragment_Kind) {
+                    this->write(" [[color(" +
+                                to_string(var.fModifiers.fLayout.fLocation) +")");
+                    int colorIndex = var.fModifiers.fLayout.fIndex;
+                    if (colorIndex) {
+                        this->write(", index(" + to_string(colorIndex) + ")");
                     }
+                    this->write("]]");
                 }
                 this->write(";\n");
             }
@@ -1543,27 +1508,21 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         visitor->VisitInterfaceBlock(*interfaceType, interfaceName);
     }
     for (const ProgramElement& element : fProgram) {
-        if (element.kind() != ProgramElement::Kind::kVar) {
+        if (!element.is<GlobalVarDeclaration>()) {
             continue;
         }
-        const VarDeclarations& decls = static_cast<const VarDeclarations&>(element);
-        if (decls.fVars.empty()) {
-            continue;
-        }
-        const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
-        if ((!first.fModifiers.fFlags && -1 == first.fModifiers.fLayout.fBuiltin) ||
-            first.type().typeKind() == Type::TypeKind::kSampler) {
-            for (const auto& stmt : decls.fVars) {
-                VarDeclaration& var = static_cast<VarDeclaration&>(*stmt);
-
-                if (var.fVar->type().typeKind() == Type::TypeKind::kSampler) {
-                    // Samplers are represented as a "texture/sampler" duo in the global struct.
-                    visitor->VisitTexture(first.type(), var.fVar->name());
-                    visitor->VisitSampler(first.type(), String(var.fVar->name()) + SAMPLER_SUFFIX);
-                } else {
-                    // Visit a regular variable.
-                    visitor->VisitVariable(*var.fVar, var.fValue.get());
-                }
+        const GlobalVarDeclaration& decls = element.as<GlobalVarDeclaration>();
+        const VarDeclaration& decl = *decls.fDecl;
+        const Variable& var = *decl.fVar;
+        if ((!var.fModifiers.fFlags && -1 == var.fModifiers.fLayout.fBuiltin) ||
+            var.type().typeKind() == Type::TypeKind::kSampler) {
+            if (var.type().typeKind() == Type::TypeKind::kSampler) {
+                // Samplers are represented as a "texture/sampler" duo in the global struct.
+                visitor->VisitTexture(var.type(), var.name());
+                visitor->VisitSampler(var.type(), String(var.name()) + SAMPLER_SUFFIX);
+            } else {
+                // Visit a regular variable.
+                visitor->VisitVariable(var, decl.fValue.get());
             }
         }
     }
@@ -1677,17 +1636,15 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.kind()) {
         case ProgramElement::Kind::kExtension:
             break;
-        case ProgramElement::Kind::kVar: {
-            const VarDeclarations& decl = e.as<VarDeclarations>();
-            if (decl.fVars.size() > 0) {
-                int builtin = decl.fVars[0]->as<VarDeclaration>().fVar->fModifiers.fLayout.fBuiltin;
-                if (-1 == builtin) {
-                    // normal var
-                    this->writeVarDeclarations(decl, true);
-                    this->writeLine();
-                } else if (SK_FRAGCOLOR_BUILTIN == builtin) {
-                    // ignore
-                }
+        case ProgramElement::Kind::kGlobalVar: {
+            const VarDeclaration& decl = *e.as<GlobalVarDeclaration>().fDecl;
+            int builtin = decl.fVar->fModifiers.fLayout.fBuiltin;
+            if (-1 == builtin) {
+                // normal var
+                this->writeVarDeclaration(decl, true);
+                this->writeLine();
+            } else if (SK_FRAGCOLOR_BUILTIN == builtin) {
+                // ignore
             }
             break;
         }
@@ -1796,14 +1753,6 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& var = s->as<VarDeclaration>();
             return this->requirements(var.fValue.get());
-        }
-        case Statement::Kind::kVarDeclarations: {
-            Requirements result = kNo_Requirements;
-            const VarDeclarations& decls = *s->as<VarDeclarationsStatement>().fDeclaration;
-            for (const auto& stmt : decls.fVars) {
-                result |= this->requirements(stmt.get());
-            }
-            return result;
         }
         case Statement::Kind::kExpression:
             return this->requirements(s->as<ExpressionStatement>().expression().get());
