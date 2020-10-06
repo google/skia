@@ -53,6 +53,8 @@
 
     // These helpers fill out all fields, because emscripten complains if we
     // have undefined and it expects, for example, a float.
+    // TODO(kjlubick) For efficiency, we should probably just return opaque WASM objects so we do
+    //   not have to keep copying them across the wire.
     CanvasKit.ParagraphStyle = function(s) {
       // Use [''] to tell closure not to minify the names
       s['disableHinting'] = s['disableHinting'] || false;
@@ -101,15 +103,6 @@
         s['heightMultiplier'] = s['heightMultiplier'] || 0;
         s['leading'] = s['leading'] || 0;
         s['forceStrutHeight'] = s['forceStrutHeight'] || false;
-        return s;
-    }
-
-    function placeholderStyle(s) {
-        s['width'] = s['width'] || 0;
-        s['height'] = s['height'] || 0;
-        s['alignment'] = s['alignment'] || CanvasKit.PlaceholderAlignment.Baseline;
-        s['baseline'] = s['baseline'] || CanvasKit.TextBaseline.Alphabetic;
-        s['offset'] = s['offset'] || 0;
         return s;
     }
 
