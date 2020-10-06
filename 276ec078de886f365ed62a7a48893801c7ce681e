@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5897845e_d18a16ac",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T15:43:38Z",
+      "side": 1,
+      "message": "This isn\u0027t much context; might be useful to (very briefly) indicate the sort of hazards that might occur. Roll/google3 issues? Crashing?",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "276ec078de886f365ed62a7a48893801c7ce681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e560b488_d86cb302",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T15:43:38Z",
+      "side": 1,
+      "message": "mtklein",
+      "range": {
+        "startLine": 13,
+        "startChar": 50,
+        "endLine": 13,
+        "endChar": 57
+      },
+      "revId": "276ec078de886f365ed62a7a48893801c7ce681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
