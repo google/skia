@@ -42,7 +42,7 @@
         // Since we are sending these pixels directly into the HTML canvas,
         // (and those pixels are un-premultiplied, i.e. straight r,g,b,a)
         'alphaType': CanvasKit.AlphaType.Unpremul,
-        'colorSpace': CanvasKit.SkColorSpace.SRGB,
+        'colorSpace': CanvasKit.ColorSpace.SRGB,
       }
       var pixelLen = width * height * 4; // it's 8888, so 4 bytes per pixel
       // Allocate the buffer of pixels to be drawn into.
@@ -65,7 +65,7 @@
 
     // For GPU builds, simply proxies to native code flush.  For CPU builds,
     // also updates the underlying HTML canvas, optionally with dirtyRect.
-    CanvasKit.SkSurface.prototype.flush = function(dirtyRect) {
+    CanvasKit.Surface.prototype.flush = function(dirtyRect) {
       this._flush();
       // Do we have an HTML canvas to write the pixels to?
       // We will not if this a GPU build or a raster surface, for example.
@@ -86,7 +86,7 @@
 
     // Call dispose() instead of delete to clean up the underlying memory.
     // TODO(kjlubick) get rid of this and just wrap around delete().
-    CanvasKit.SkSurface.prototype.dispose = function() {
+    CanvasKit.Surface.prototype.dispose = function() {
       if (this._pixelPtr) {
         CanvasKit._free(this._pixelPtr);
       }
