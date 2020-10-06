@@ -1,6 +1,7 @@
 
 out vec4 sk_FragColor;
-in vec4 src, dst;
+in vec4 src;
+in vec4 dst;
 float _soft_light_component(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
         float _1_guarded_divide;

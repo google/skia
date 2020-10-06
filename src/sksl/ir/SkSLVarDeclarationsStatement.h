@@ -12,7 +12,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
 namespace SkSL {
-
+#if 0
 /**
  * One or more variable declarations appearing as a statement within a function.
  */
@@ -24,12 +24,7 @@ struct VarDeclarationsStatement : public Statement {
     , fDeclaration(std::move(decl)) {}
 
     bool isEmpty() const override {
-        for (const auto& s : fDeclaration->fVars) {
-            if (!s->isEmpty()) {
-                return false;
-            }
-        }
-        return true;
+        return fDeclaration->fVar->isEmpty();
     }
 
     std::unique_ptr<Statement> clone() const override {
@@ -45,7 +40,7 @@ struct VarDeclarationsStatement : public Statement {
 
     using INHERITED = Statement;
 };
-
+#endif
 }  // namespace SkSL
 
 #endif
