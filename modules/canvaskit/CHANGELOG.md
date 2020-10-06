@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1] - 2020-10-06
+
+### Added
+ - Typescript types (and documentation) are now in the types subfolder. We will keep these updated
+   as we make changes to the CanvasKit library.
+
 ## [0.18.0] - 2020-10-05
 
 ### Breaking
