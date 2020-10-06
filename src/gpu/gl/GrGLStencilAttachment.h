@@ -14,14 +14,6 @@
 
 class GrGLStencilAttachment : public GrStencilAttachment {
 public:
-    static const GrGLenum kUnknownInternalFormat = ~0U;
-    struct Format {
-        GrGLenum  fInternalFormat;
-        GrGLuint  fStencilBits;
-        GrGLuint  fTotalBits;
-        bool      fPacked;
-    };
-
     struct IDDesc {
         IDDesc() : fRenderbufferID(0) {}
         GrGLuint fRenderbufferID;
@@ -31,8 +23,8 @@ public:
                           const IDDesc& idDesc,
                           SkISize dimensions,
                           int sampleCnt,
-                          const Format& format)
-        : GrStencilAttachment(gpu, dimensions, format.fStencilBits, sampleCnt, GrProtected::kNo)
+                          GrGLFormat format)
+        : GrStencilAttachment(gpu, dimensions, sampleCnt, GrProtected::kNo)
         , fFormat(format)
         , fRenderbufferID(idDesc.fRenderbufferID) {
         this->registerWithCache(SkBudgeted::kYes);
@@ -44,7 +36,7 @@ public:
         return fRenderbufferID;
     }
 
-    const Format& format() const { return fFormat; }
+    GrGLFormat format() const { return fFormat; }
 
 protected:
     // overrides of GrResource
@@ -56,7 +48,8 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    Format fFormat;
+    GrGLFormat fFormat;
+
     // may be zero for external SBs associated with external RTs
     // (we don't require the client to give us the id, just tell
     // us how many bits of stencil there are).
