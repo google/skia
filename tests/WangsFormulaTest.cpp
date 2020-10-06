@@ -30,7 +30,7 @@ static float wangs_formula_quadratic_reference_impl(float intolerance, const SkP
     Sk2f p0 = Sk2f::Load(pts);
     Sk2f p1 = Sk2f::Load(pts + 1);
     Sk2f p2 = Sk2f::Load(pts + 2);
-    float k = GrWangsFormula::quadratic_k(intolerance);
+    float k = GrWangsFormula::quadratic_constant(intolerance);
     return SkScalarSqrt(k * length(p0 - p1*2 + p2));
 }
 
@@ -39,7 +39,7 @@ static float wangs_formula_cubic_reference_impl(float intolerance, const SkPoint
     Sk2f p1 = Sk2f::Load(pts + 1);
     Sk2f p2 = Sk2f::Load(pts + 2);
     Sk2f p3 = Sk2f::Load(pts + 3);
-    float k = GrWangsFormula::cubic_k(intolerance);
+    float k = GrWangsFormula::cubic_constant(intolerance);
     return SkScalarSqrt(k * length(Sk2f::Max((p0 - p1*2 + p2).abs(),
                                              (p1 - p2*2 + p3).abs())));
 }

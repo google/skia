@@ -28,7 +28,7 @@ SK_ALWAYS_INLINE static int ceil_log2_sqrt_sqrt(float x) {
 }
 
 // Constant term for the quatratic formula.
-constexpr float quadratic_k(float intolerance) {
+constexpr float quadratic_constant(float intolerance) {
     return .25f * intolerance;
 }
 
@@ -43,7 +43,7 @@ SK_ALWAYS_INLINE static float quadratic_pow4(float intolerance, const SkPoint pt
     Sk2f v = p0 + p1*-2 + p2;
     v = vectorXform(v);
     Sk2f vv = v*v;
-    float k = quadratic_k(intolerance);
+    float k = quadratic_constant(intolerance);
     return k*k * (vv[0] + vv[1]);
 }
 
@@ -62,7 +62,7 @@ SK_ALWAYS_INLINE static int quadratic_log2(float intolerance, const SkPoint pts[
 }
 
 // Constant term for the cubic formula.
-constexpr float cubic_k(float intolerance) {
+constexpr float cubic_constant(float intolerance) {
     return .75f * intolerance;
 }
 
@@ -78,7 +78,7 @@ SK_ALWAYS_INLINE static float cubic_pow4(float intolerance, const SkPoint pts[],
     v = vectorXform(v);
     Sk4f vv = v*v;
     vv = Sk4f::Max(vv, SkNx_shuffle<2,3,0,1>(vv));
-    float k = cubic_k(intolerance);
+    float k = cubic_constant(intolerance);
     return k*k * (vv[0] + vv[1]);
 }
 
@@ -100,7 +100,7 @@ SK_ALWAYS_INLINE static int cubic_log2(float intolerance, const SkPoint pts[],
 // would ever need to be divided into. This is simply a special case of the cubic formula where we
 // maximize its value by placing control points on specific corners of the bounding box.
 SK_ALWAYS_INLINE static float worst_case_cubic(float intolerance, float devWidth, float devHeight) {
-    float k = cubic_k(intolerance);
+    float k = cubic_constant(intolerance);
     return SkScalarSqrt(2*k * SkVector::Length(devWidth, devHeight));
 }
 
@@ -108,7 +108,7 @@ SK_ALWAYS_INLINE static float worst_case_cubic(float intolerance, float devWidth
 // size would ever need to be divided into.
 SK_ALWAYS_INLINE static int worst_case_cubic_log2(float intolerance, float devWidth,
                                                   float devHeight) {
-    float k = cubic_k(intolerance);
+    float k = cubic_constant(intolerance);
     return ceil_log2_sqrt_sqrt(4*k*k * (devWidth * devWidth + devHeight * devHeight));
 }
 
