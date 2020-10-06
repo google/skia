@@ -9,6 +9,12 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * GrContext has been replaced by two separate classes: GrDirectContext which is
+    the traditional notion of GrContext, and GrRecordingContext which is a context
+    that is recording an SkDeferredDisplayList and therefore has reduced functionality.
+    Unless you are using SkDeferredDisplayList, migrate directly to GrDirectContext in
+    all cases.
+
   * CPU sync bool added to SkSurface::flushAndSubmit() and GrContext::flushAndSubmit()
 
   * Removed legacy variant of SkImage::MakeFromYUVAPixmaps. Use the version that
