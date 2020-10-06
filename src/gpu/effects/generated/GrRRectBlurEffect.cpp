@@ -48,17 +48,13 @@ static void make_blurred_rrect_key(GrUniqueKey* key,
     builder.finish();
 }
 
-class Trampoline : public SkRefCnt {
-public:
-    sk_sp<GrTextureProxy> fProxy;
-};
-
-static bool fillin_view_on_gpu(GrDirectContext* dContext,
-                               const GrSurfaceProxyView& lazyView,
-                               sk_sp<Trampoline> trampoline,
-                               const SkRRect& rrectToDraw,
-                               const SkISize& dimensions,
-                               float xformedSigma) {
+static bool fillin_view_on_gpu(
+        GrDirectContext* dContext,
+        const GrSurfaceProxyView& lazyView,
+        sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline> trampoline,
+        const SkRRect& rrectToDraw,
+        const SkISize& dimensions,
+        float xformedSigma) {
     std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::MakeWithFallback(
             dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
             GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
@@ -228,54 +224,6 @@ static GrSurfaceProxyView create_mask_on_cpu(GrRecordingContext* rContext,
     return view;
 }
 
-static std::tuple<GrSurfaceProxyView, sk_sp<Trampoline>> create_lazy_view(GrDirectContext* dContext,
-                                                                          SkISize dimensions) {
-    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
-
-    constexpr int kSampleCnt = 1;
-    auto[ct, format] = GrRenderTargetContext::GetFallbackColorTypeAndFormat(
-            dContext, GrColorType::kAlpha_8, kSampleCnt);
-
-    if (ct == GrColorType::kUnknown) {
-        return {GrSurfaceProxyView(nullptr), nullptr};
-    }
-
-    sk_sp<Trampoline> trampoline(new Trampoline);
-
-    GrProxyProvider::TextureInfo texInfo{GrMipMapped::kNo, GrTextureType::k2D};
-
-    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
-            [trampoline](
-                    GrResourceProvider* resourceProvider,
-                    const GrSurfaceProxy::LazySurfaceDesc&) -> GrSurfaceProxy::LazyCallbackResult {
-                if (!resourceProvider || !trampoline->fProxy ||
-                    !trampoline->fProxy->isInstantiated()) {
-                    return GrSurfaceProxy::LazyCallbackResult(nullptr, true);
-                }
-
-                SkASSERT(!trampoline->fProxy->peekTexture()->getUniqueKey().isValid());
-                return GrSurfaceProxy::LazyCallbackResult(
-                        sk_ref_sp(trampoline->fProxy->peekTexture()));
-            },
-            format,
-            dimensions,
-            kSampleCnt,
-            GrInternalSurfaceFlags::kNone,
-            &texInfo,
-            GrMipmapStatus::kNotAllocated,
-            SkBackingFit::kExact,
-            SkBudgeted::kYes,
-            GrProtected::kNo,
-            /* wrapsVkSecondaryCB */ false,
-            GrSurfaceProxy::UseAllocator::kYes);
-
-    // TODO: It seems like this 'ct' usage should be 'GrColorType::kAlpha_8' but this is
-    // what GrRenderTargetContext::MakeWithFallback does
-    GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, ct);
-
-    return {{std::move(proxy), kBlurredRRectMaskOrigin, swizzle}, std::move(trampoline)};
-}
-
 static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
         GrRecordingContext* rContext,
         const SkRRect& rrectToDraw,
@@ -299,7 +247,8 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
         // it crams a lazy proxy into the cache and then fills it in later.
-        auto[lazyView, trampoline] = create_lazy_view(dContext, dimensions);
+        auto[lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
+                dContext, dimensions, GrColorType::kAlpha_8, kBlurredRRectMaskOrigin);
         if (!lazyView) {
             return nullptr;
         }
@@ -427,18 +376,18 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _sample19396 = this->invokeChild(0, args);
+        SkString _sample17246 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample19396.c_str());
-        SkString _coords19444("float2(texCoord)");
-        SkString _sample19444 = this->invokeChild(1, args, _coords19444.c_str());
+                _sample17246.c_str());
+        SkString _coords17294("float2(texCoord)");
+        SkString _sample17294 = this->invokeChild(1, args, _coords17294.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample19444.c_str());
+                args.fOutputColor, _sample17294.c_str());
     }
 
 private:

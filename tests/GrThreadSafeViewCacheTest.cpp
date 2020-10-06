@@ -288,25 +288,15 @@ public:
     }
 
 private:
-    // In the gpu-creation case, we need to pre-emptively place a lazy proxy in the shared
-    // cache. This object allows that lazy proxy to be instantiated with some rendering result
-    // generated after the fact.
-    class Trampoline : public SkRefCnt {
-    public:
-        sk_sp<GrTextureProxy> fProxy;
-    };
-
     static GrSurfaceProxyView AccessCachedView(GrRecordingContext*,
                                                GrThreadSafeUniquelyKeyedProxyViewCache*,
                                                int wh,
                                                bool failLookup, bool failFillingIn, int id,
                                                Stats*);
     static GrSurfaceProxyView CreateViewOnCpu(GrRecordingContext*, int wh, Stats*);
-    static std::tuple<GrSurfaceProxyView, sk_sp<Trampoline>> CreateLazyView(GrDirectContext*,
-                                                                            int wh, Stats*);
     static bool FillInViewOnGpu(GrDirectContext*, int wh, Stats*,
                                 const GrSurfaceProxyView& lazyView,
-                                sk_sp<Trampoline>);
+                                sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline>);
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
@@ -335,49 +325,10 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
     return {std::move(proxy), kImageOrigin, swizzle};
 }
 
-std::tuple<GrSurfaceProxyView, sk_sp<TestHelper::Trampoline>> TestHelper::CreateLazyView(
-            GrDirectContext* dContext, int wh, Stats* stats) {
-
-    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
-
-    sk_sp<Trampoline> trampoline(new Trampoline);
-
-    GrProxyProvider::TextureInfo texInfo { GrMipMapped::kNo, GrTextureType::k2D };
-
-    GrBackendFormat format = dContext->defaultBackendFormat(kRGBA_8888_SkColorType,
-                                                            GrRenderable::kYes);
-    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
-        [trampoline] (GrResourceProvider* resourceProvider, const GrSurfaceProxy::LazySurfaceDesc&)
-                -> GrSurfaceProxy::LazyCallbackResult {
-            if (!resourceProvider || !trampoline->fProxy || !trampoline->fProxy->isInstantiated()) {
-                return GrSurfaceProxy::LazyCallbackResult(nullptr, true);
-
-            }
-
-            SkASSERT(!trampoline->fProxy->peekTexture()->getUniqueKey().isValid());
-            return GrSurfaceProxy::LazyCallbackResult(sk_ref_sp(trampoline->fProxy->peekTexture()));
-        },
-        format,
-        {wh, wh},
-        /* renderTargetSampleCnt */ 1,
-        GrInternalSurfaceFlags::kNone,
-        &texInfo,
-        GrMipmapStatus::kNotAllocated,
-        SkBackingFit::kExact,
-        SkBudgeted::kYes,
-        GrProtected::kNo,
-        /* wrapsVkSecondaryCB */ false,
-        GrSurfaceProxy::UseAllocator::kYes);
-
-    GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(format, GrColorType::kRGBA_8888);
-
-    ++stats->fNumLazyCreations;
-    return {{std::move(proxy), kImageOrigin, swizzle}, std::move(trampoline)};
-}
-
-bool TestHelper::FillInViewOnGpu(GrDirectContext* dContext, int wh, Stats* stats,
-                                 const GrSurfaceProxyView& lazyView,
-                                 sk_sp<Trampoline> trampoline) {
+bool TestHelper::FillInViewOnGpu(
+                    GrDirectContext* dContext, int wh, Stats* stats,
+                    const GrSurfaceProxyView& lazyView,
+                    sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline> trampoline) {
 
     std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext, wh);
 
@@ -410,7 +361,9 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
         // it crams a lazy proxy into the cache and then fills it in later.
-        auto [lazyView, trampoline] = CreateLazyView(dContext, wh, stats);
+        auto [lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
+            dContext, {wh, wh}, GrColorType::kRGBA_8888, kImageOrigin);
+        ++stats->fNumLazyCreations;
 
         auto [view, data] = threadSafeViewCache->findOrAddWithData(key, lazyView);
         if (view != lazyView) {
