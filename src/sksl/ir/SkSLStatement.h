@@ -32,7 +32,6 @@ struct Statement : public IRNode {
         kSwitch,
         kSwitchCase,
         kVarDeclaration,
-        kVarDeclarations,
         kWhile,
 
         kFirst = kBlock,

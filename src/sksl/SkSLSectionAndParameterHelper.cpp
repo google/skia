@@ -21,7 +21,6 @@
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
@@ -31,12 +30,10 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
     for (const auto& p : fProgram) {
         switch (p.kind()) {
             case ProgramElement::Kind::kVar: {
-                const VarDeclarations& decls = (const VarDeclarations&) p;
-                for (const auto& raw : decls.fVars) {
-                    const VarDeclaration& decl = (VarDeclaration&) *raw;
-                    if (IsParameter(*decl.fVar)) {
-                        fParameters.push_back(decl.fVar);
-                    }
+                const VarDeclarations& decls = p.as<VarDeclarations>();
+                const VarDeclaration& decl = decls.fVar->as<VarDeclaration>();
+                if (IsParameter(*decl.fVar)) {
+                    fParameters.push_back(decl.fVar);
                 }
                 break;
             }

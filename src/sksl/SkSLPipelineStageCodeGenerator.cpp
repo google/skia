@@ -47,13 +47,11 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         for (const auto& p : fProgram) {
             if (p.kind() == ProgramElement::Kind::kVar) {
                 const VarDeclarations& decls = p.as<VarDeclarations>();
-                for (const std::unique_ptr<Statement>& raw : decls.fVars) {
-                    VarDeclaration& decl = raw->as<VarDeclaration>();
-                    if (decl.fVar == arguments[0]->as<VariableReference>().fVariable) {
-                        found = true;
-                    } else if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
-                        ++index;
-                    }
+                const VarDeclaration& decl = decls.fVar->as<VarDeclaration>();
+                if (decl.fVar == arguments[0]->as<VariableReference>().fVariable) {
+                    found = true;
+                } else if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
+                    ++index;
                 }
             }
             if (found) {
@@ -129,15 +127,13 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                     }
                     if (e.kind() == ProgramElement::Kind::kVar) {
                         const VarDeclarations& decls = e.as<VarDeclarations>();
-                        for (const auto& decl : decls.fVars) {
-                            const Variable& var = *decl->as<VarDeclaration>().fVar;
-                            if (&var == ref.fVariable) {
-                                found = true;
-                                break;
-                            }
-                            if (var.fModifiers.fFlags & flag) {
-                                ++index;
-                            }
+                        const Variable& var = *decls.fVar->as<VarDeclaration>().fVar;
+                        if (&var == ref.fVariable) {
+                            found = true;
+                            break;
+                        }
+                        if (var.fModifiers.fFlags & flag) {
+                            ++index;
                         }
                     }
                 }
@@ -220,10 +216,7 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
     }
     if (p.kind() == ProgramElement::Kind::kVar) {
         const VarDeclarations& decls = p.as<VarDeclarations>();
-        if (!decls.fVars.size()) {
-            return;
-        }
-        const Variable& var = *decls.fVars[0]->as<VarDeclaration>().fVar;
+        const Variable& var = *decls.fVar->as<VarDeclaration>().fVar;
         if (var.fModifiers.fFlags &
                     (Modifiers::kIn_Flag | Modifiers::kUniform_Flag | Modifiers::kVarying_Flag) ||
             -1 != var.fModifiers.fLayout.fBuiltin) {
