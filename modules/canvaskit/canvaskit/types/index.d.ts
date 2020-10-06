@@ -1,4 +1,6 @@
 // Minimum TypeScript Version: 3.7
+export function CanvasKitInit(opts: CanvasKitInitOptions): Promise<CanvasKit>;
+
 export interface CanvasKitInitOptions {
     /**
      * This callback will be invoked when the CanvasKit loader needs to fetch a file (e.g.

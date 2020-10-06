@@ -1,7 +1,7 @@
 // This file is type-checked by the Typescript definitions. It is not actually executed.
-
-import CanvasKitInit from "canvaskit-wasm/bin/canvaskit";
+// Test it by running `npm run dtslint` in the parent directory.
 import {
+    CanvasKitInit,
     CanvasKit,
     Paragraph,
     ShapedText,
