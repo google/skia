@@ -46,6 +46,30 @@
       "revId": "bd4666490a8cbc49656c7f9b63b33a2e06661d7f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46bdb560_0d0a72ea",
+        "filename": "src/utils/SkBitSet.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T13:00:01Z",
+      "side": 1,
+      "message": "It\u0027s certainly not an important change. Our team .clang-format guidelines have `SpaceAfterTemplateKeyword: true` so I\u0027d imagine new code will generally hew to that style:\n\nhttps://osscs.corp.google.com/skia/skia/+/master:.clang-format;l\u003d91;drc\u003d4132355fdc2412c83f79d32f4de271b590464890",
+      "parentUuid": "19b5c90b_9c4467b8",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 13
+      },
+      "revId": "bd4666490a8cbc49656c7f9b63b33a2e06661d7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
