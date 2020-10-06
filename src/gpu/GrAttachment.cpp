@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/GrResourceKey.h"
-#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrAttachment.h"
 
-void GrStencilAttachment::ComputeSharedStencilAttachmentKey(SkISize dimensions,
+#include "include/private/GrResourceKey.h"
+
+void GrAttachment::ComputeSharedStencilAttachmentKey(SkISize dimensions,
                                                             int sampleCnt,
                                                             GrUniqueKey* key) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();

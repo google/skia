@@ -12,7 +12,7 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
+GrMtlAttachment::GrMtlAttachment(GrMtlGpu* gpu,
                                                SkISize dimensions,
                                                const id<MTLTexture> stencilView)
     : GrStencilAttachment(gpu, dimensions, stencilView.sampleCount, GrProtected::kNo)
@@ -20,7 +20,7 @@ GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
+GrMtlAttachment* GrMtlAttachment::Create(GrMtlGpu* gpu,
                                                        SkISize dimensions,
                                                        int sampleCnt,
                                                        MTLPixelFormat format) {
@@ -37,16 +37,16 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;
     }
-    return new GrMtlStencilAttachment(gpu, dimensions,
+    return new GrMtlAttachment(gpu, dimensions,
                                       [gpu->device() newTextureWithDescriptor:desc]);
 }
 
-GrMtlStencilAttachment::~GrMtlStencilAttachment() {
+GrMtlAttachment::~GrMtlAttachment() {
     // should have been released or abandoned first
     SkASSERT(!fStencilView);
 }
 
-size_t GrMtlStencilAttachment::onGpuMemorySize() const {
+size_t GrMtlAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= GrMtlFormatBytesPerBlock(this->mtlFormat());
@@ -54,17 +54,17 @@ size_t GrMtlStencilAttachment::onGpuMemorySize() const {
     return static_cast<size_t>(size);
 }
 
-void GrMtlStencilAttachment::onRelease() {
+void GrMtlAttachment::onRelease() {
     fStencilView = nullptr;
     GrStencilAttachment::onRelease();
 }
 
-void GrMtlStencilAttachment::onAbandon() {
+void GrMtlAttachment::onAbandon() {
     fStencilView = nullptr;
     GrStencilAttachment::onAbandon();
 }
 
-GrMtlGpu* GrMtlStencilAttachment::getMtlGpu() const {
+GrMtlGpu* GrMtlAttachment::getMtlGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrMtlGpu*>(this->getGpu());
 }

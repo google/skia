@@ -26,7 +26,7 @@ public:
 
     GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget*,
-            GrStencilAttachment*,
+            GrAttachment*,
             GrSurfaceOrigin,
             const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
@@ -145,7 +145,7 @@ private:
         return true;
     }
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(
+    GrAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,

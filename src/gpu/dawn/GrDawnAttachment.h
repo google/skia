@@ -8,17 +8,17 @@
 #ifndef GrDawnStencil_DEFINED
 #define GrDawnStencil_DEFINED
 
-#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrAttachment.h"
 
 #include "dawn/webgpu_cpp.h"
 
 class GrDawnGpu;
 
-class GrDawnStencilAttachment : public GrStencilAttachment {
+class GrDawnAttachment : public GrAttachment {
 public:
-    static GrDawnStencilAttachment* Create(GrDawnGpu* gpu, SkISize dimensions, int sampleCnt);
+    static GrDawnAttachment* Create(GrDawnGpu* gpu, SkISize dimensions, int sampleCnt);
 
-    ~GrDawnStencilAttachment() override;
+    ~GrDawnAttachment() override;
     wgpu::TextureView view() const { return fView; }
     GrBackendFormat backendFormat() const override {
         return GrBackendFormat::MakeDawn(wgpu::TextureFormat::Depth24PlusStencil8);
@@ -31,7 +31,7 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    GrDawnStencilAttachment(GrDawnGpu* gpu, SkISize dimensions, int samples,
+    GrDawnAttachment(GrDawnGpu* gpu, SkISize dimensions, int samples,
                             wgpu::Texture texture, wgpu::TextureView view);
 
     GrDawnGpu* getDawnGpu() const;
@@ -39,7 +39,7 @@ private:
     wgpu::Texture fTexture;
     wgpu::TextureView fView;
 
-    using INHERITED = GrStencilAttachment;
+    using INHERITED = GrAttachment;
 };
 
 #endif

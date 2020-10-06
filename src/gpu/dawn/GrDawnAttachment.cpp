@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/dawn/GrDawnStencilAttachment.h"
+#include "src/gpu/dawn/GrDawnAttachment.h"
 
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-GrDawnStencilAttachment::GrDawnStencilAttachment(GrDawnGpu* gpu,
+GrDawnAttachment::GrDawnAttachment(GrDawnGpu* gpu,
                                                  SkISize dimensions,
                                                  int samples,
                                                  wgpu::Texture texture,
@@ -23,7 +23,7 @@ GrDawnStencilAttachment::GrDawnStencilAttachment(GrDawnGpu* gpu,
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
+GrDawnAttachment* GrDawnAttachment::Create(GrDawnGpu* gpu,
                                                          SkISize dimensions,
                                                          int sampleCnt) {
     wgpu::TextureDescriptor desc;
@@ -40,13 +40,13 @@ GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
     if (!view) {
         return nullptr;
     }
-    return new GrDawnStencilAttachment(gpu, dimensions, sampleCnt, texture, view);
+    return new GrDawnAttachment(gpu, dimensions, sampleCnt, texture, view);
 }
 
-GrDawnStencilAttachment::~GrDawnStencilAttachment() {
+GrDawnAttachment::~GrDawnAttachment() {
 }
 
-size_t GrDawnStencilAttachment::onGpuMemorySize() const {
+size_t GrDawnAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= 32;
@@ -54,15 +54,15 @@ size_t GrDawnStencilAttachment::onGpuMemorySize() const {
     return static_cast<size_t>(size / 8);
 }
 
-void GrDawnStencilAttachment::onRelease() {
-    GrStencilAttachment::onRelease();
+void GrDawnAttachment::onRelease() {
+    GrAttachment::onRelease();
 }
 
-void GrDawnStencilAttachment::onAbandon() {
-    GrStencilAttachment::onAbandon();
+void GrDawnAttachment::onAbandon() {
+    GrAttachment::onAbandon();
 }
 
-GrDawnGpu* GrDawnStencilAttachment::getDawnGpu() const {
+GrDawnGpu* GrDawnAttachment::getDawnGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrDawnGpu*>(this->getGpu());
 }

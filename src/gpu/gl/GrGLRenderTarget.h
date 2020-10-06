@@ -15,7 +15,7 @@
 
 class GrGLCaps;
 class GrGLGpu;
-class GrGLStencilAttachment;
+class GrGLAttachment;
 
 class GrGLRenderTarget : public GrRenderTarget {
 public:
@@ -80,7 +80,7 @@ private:
                      GrGLFormat,
                      int sampleCount,
                      const IDs&,
-                     GrGLStencilAttachment*);
+                     GrGLAttachment*);
 
     void setFlags(const GrGLCaps&, const IDs&);
 

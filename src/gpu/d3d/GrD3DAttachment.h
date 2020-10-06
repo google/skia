@@ -5,10 +5,10 @@
 * found in the LICENSE file.
 */
 
-#ifndef GrD3DStencilAttachment_DEFINED
-#define GrD3DStencilAttachment_DEFINED
+#ifndef GrD3DMtlAttachment_DEFINED
+#define GrD3DMtlAttachment_DEFINED
 
-#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrAttachment.h"
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "src/gpu/d3d/GrD3DDescriptorHeap.h"
@@ -16,12 +16,12 @@
 
 class GrD3DGpu;
 
-class GrD3DStencilAttachment : public GrStencilAttachment, public GrD3DTextureResource {
+class GrD3DAttachment : public GrAttachment, public GrD3DTextureResource {
 public:
-    static GrD3DStencilAttachment* Make(GrD3DGpu* gpu, SkISize dimensions, int sampleCnt,
+    static GrD3DAttachment* Make(GrD3DGpu* gpu, SkISize dimensions, int sampleCnt,
                                         DXGI_FORMAT format);
 
-    ~GrD3DStencilAttachment() override {}
+    ~GrD3DAttachment() override {}
 
     GrBackendFormat backendFormat() const override { return GrBackendFormat::MakeDxgi(fFormat); }
 
@@ -36,7 +36,7 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    GrD3DStencilAttachment(GrD3DGpu* gpu,
+    GrD3DAttachment(GrD3DGpu* gpu,
                            SkISize dimensions,
                            DXGI_FORMAT format,
                            const D3D12_RESOURCE_DESC&,

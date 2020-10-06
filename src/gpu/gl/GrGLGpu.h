@@ -17,11 +17,11 @@
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrWindowRectsState.h"
 #include "src/gpu/GrXferProcessor.h"
+#include "src/gpu/gl/GrGLAttachment.h"
 #include "src/gpu/gl/GrGLContext.h"
 #include "src/gpu/gl/GrGLPathRendering.h"
 #include "src/gpu/gl/GrGLProgram.h"
 #include "src/gpu/gl/GrGLRenderTarget.h"
-#include "src/gpu/gl/GrGLStencilAttachment.h"
 #include "src/gpu/gl/GrGLTexture.h"
 #include "src/gpu/gl/GrGLVertexArray.h"
 
@@ -120,7 +120,7 @@ public:
                           const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilLoadStore);
 
     GrOpsRenderPass* getOpsRenderPass(
-            GrRenderTarget*, GrStencilAttachment*,
+            GrRenderTarget*, GrAttachment*,
             GrSurfaceOrigin, const SkIRect&,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
@@ -131,7 +131,7 @@ public:
         fHWBoundRenderTargetUniqueID.makeInvalid();
     }
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(
+    GrAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) override;
     void deleteBackendTexture(const GrBackendTexture&) override;
 

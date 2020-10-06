@@ -6,25 +6,25 @@
  */
 
 
-#ifndef GrGLStencilAttachment_DEFINED
-#define GrGLStencilAttachment_DEFINED
+#ifndef GrGLMtlAttachment_DEFINED
+#define GrGLMtlAttachment_DEFINED
 
 #include "include/gpu/gl/GrGLInterface.h"
-#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrAttachment.h"
 
-class GrGLStencilAttachment : public GrStencilAttachment {
+class GrGLAttachment : public GrAttachment {
 public:
     struct IDDesc {
         IDDesc() : fRenderbufferID(0) {}
         GrGLuint fRenderbufferID;
     };
 
-    GrGLStencilAttachment(GrGpu* gpu,
-                          const IDDesc& idDesc,
-                          SkISize dimensions,
-                          int sampleCnt,
-                          GrGLFormat format)
-        : GrStencilAttachment(gpu, dimensions, sampleCnt, GrProtected::kNo)
+    GrGLAttachment(GrGpu* gpu,
+                   const IDDesc& idDesc,
+                   SkISize dimensions,
+                   int sampleCnt,
+                   GrGLFormat format)
+        : GrAttachment(gpu, dimensions, sampleCnt, GrProtected::kNo)
         , fFormat(format)
         , fRenderbufferID(idDesc.fRenderbufferID) {
         this->registerWithCache(SkBudgeted::kYes);
@@ -55,7 +55,7 @@ private:
     // us how many bits of stencil there are).
     GrGLuint fRenderbufferID;
 
-    using INHERITED = GrStencilAttachment;
+    using INHERITED = GrAttachment;
 };
 
 #endif

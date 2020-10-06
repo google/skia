@@ -61,12 +61,12 @@ public:
     void testingOnly_flushGpuAndSync() override;
 #endif
 
-    GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
+    GrAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 SkISize dimensions,
                                                                 int numStencilSamples) override;
 
     GrOpsRenderPass* getOpsRenderPass(
-            GrRenderTarget*, GrStencilAttachment*,
+            GrRenderTarget*, GrAttachment*,
             GrSurfaceOrigin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,

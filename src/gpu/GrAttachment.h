@@ -6,8 +6,8 @@
  */
 
 
-#ifndef GrStencilAttachment_DEFINED
-#define GrStencilAttachment_DEFINED
+#ifndef GrMtlAttachment_DEFINED
+#define GrMtlAttachment_DEFINED
 
 #include "src/core/SkClipStack.h"
 #include "src/gpu/GrSurface.h"
@@ -15,9 +15,9 @@
 class GrRenderTarget;
 class GrResourceKey;
 
-class GrStencilAttachment : public GrSurface {
+class GrAttachment : public GrSurface {
 public:
-    ~GrStencilAttachment() override {
+    ~GrAttachment() override {
         // TODO: allow SB to be purged and detach itself from rts
     }
 
@@ -32,7 +32,7 @@ public:
                                                   GrUniqueKey* key);
 
 protected:
-    GrStencilAttachment(GrGpu* gpu, SkISize dimensions, int sampleCnt, GrProtected isProtected)
+    GrAttachment(GrGpu* gpu, SkISize dimensions, int sampleCnt, GrProtected isProtected)
             : INHERITED(gpu, dimensions, isProtected)
             , fSampleCnt(sampleCnt) {
     }

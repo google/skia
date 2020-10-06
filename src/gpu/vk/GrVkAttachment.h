@@ -9,18 +9,18 @@
 #define GrVkStencil_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/GrAttachment.h"
 #include "src/gpu/vk/GrVkImage.h"
 
 class GrVkImageView;
 class GrVkGpu;
 
-class GrVkStencilAttachment : public GrStencilAttachment, public GrVkImage {
+class GrVkAttachment : public GrAttachment, public GrVkImage {
 public:
-    static GrVkStencilAttachment* Create(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
+    static GrVkAttachment* Create(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
                                          VkFormat format);
 
-    ~GrVkStencilAttachment() override;
+    ~GrVkAttachment() override;
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
@@ -34,7 +34,7 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    GrVkStencilAttachment(GrVkGpu* gpu,
+    GrVkAttachment(GrVkGpu* gpu,
                           SkISize dimensions,
                           VkFormat format,
                           const GrVkImage::ImageDesc&,

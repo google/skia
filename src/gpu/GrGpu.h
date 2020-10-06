@@ -36,7 +36,7 @@ class GrRenderTarget;
 class GrRingBuffer;
 class GrSemaphore;
 class GrStagingBufferManager;
-class GrStencilAttachment;
+class GrAttachment;
 class GrStencilSettings;
 class GrSurface;
 class GrTexture;
@@ -354,7 +354,7 @@ public:
     // render target's stencil buffer should be ignored.
     virtual GrOpsRenderPass* getOpsRenderPass(
             GrRenderTarget* renderTarget,
-            GrStencilAttachment* stencil,
+            GrAttachment* stencil,
             GrSurfaceOrigin,
             const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
@@ -706,8 +706,8 @@ public:
 
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
-    // the GrStencilAttachment.
-    virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(
+    // the GrAttachment.
+    virtual GrAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, SkISize dimensions, int numStencilSamples) = 0;
 
     void handleDirtyContext() {

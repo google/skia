@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/vk/GrVkAttachment.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkImage.h"
 #include "src/gpu/vk/GrVkImageView.h"
-#include "src/gpu/vk/GrVkStencilAttachment.h"
 #include "src/gpu/vk/GrVkUtil.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
+GrVkAttachment::GrVkAttachment(GrVkGpu* gpu,
                                              SkISize dimensions,
                                              VkFormat format,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImageInfo& info,
                                              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                              sk_sp<const GrVkImageView> stencilView)
-        : GrStencilAttachment(gpu, dimensions, desc.fSamples, info.fProtected)
+        : GrAttachment(gpu, dimensions, desc.fSamples, info.fProtected)
     , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
     , fStencilView(std::move(stencilView)) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
+GrVkAttachment* GrVkAttachment::Create(GrVkGpu* gpu,
                                                      SkISize dimensions,
                                                      int sampleCnt,
                                                      VkFormat format) {
@@ -57,19 +57,19 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
 
     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(new GrBackendSurfaceMutableStateImpl(
         info.fImageLayout, info.fCurrentQueueFamily));
-    GrVkStencilAttachment* stencil = new GrVkStencilAttachment(gpu, dimensions, format, imageDesc,
+    GrVkAttachment* stencil = new GrVkAttachment(gpu, dimensions, format, imageDesc,
                                                                info, std::move(mutableState),
                                                                std::move(imageView));
 
     return stencil;
 }
 
-GrVkStencilAttachment::~GrVkStencilAttachment() {
+GrVkAttachment::~GrVkAttachment() {
     // should have been released or abandoned first
     SkASSERT(!fStencilView);
 }
 
-size_t GrVkStencilAttachment::onGpuMemorySize() const {
+size_t GrVkAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= GrVkCaps::GetStencilFormatTotalBitCount(this->imageFormat());
@@ -77,21 +77,21 @@ size_t GrVkStencilAttachment::onGpuMemorySize() const {
     return static_cast<size_t>(size / 8);
 }
 
-void GrVkStencilAttachment::onRelease() {
+void GrVkAttachment::onRelease() {
     this->releaseImage();
     fStencilView.reset();
 
-    GrStencilAttachment::onRelease();
+    GrAttachment::onRelease();
 }
 
-void GrVkStencilAttachment::onAbandon() {
+void GrVkAttachment::onAbandon() {
     this->releaseImage();
     fStencilView.reset();
 
-    GrStencilAttachment::onAbandon();
+    GrAttachment::onAbandon();
 }
 
-GrVkGpu* GrVkStencilAttachment::getVkGpu() const {
+GrVkGpu* GrVkAttachment::getVkGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrVkGpu*>(this->getGpu());
 }

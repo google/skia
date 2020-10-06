@@ -15,11 +15,11 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/d3d/GrD3DAMDMemoryAllocator.h"
+#include "src/gpu/d3d/GrD3DAttachment.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
 #include "src/gpu/d3d/GrD3DSemaphore.h"
-#include "src/gpu/d3d/GrD3DStencilAttachment.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
@@ -116,7 +116,7 @@ void GrD3DGpu::destroyResources() {
 }
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
-        GrRenderTarget* rt, GrStencilAttachment*,
+        GrRenderTarget* rt, GrAttachment*,
         GrSurfaceOrigin origin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
@@ -964,7 +964,7 @@ sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType 
     return std::move(buffer);
 }
 
-GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
+GrAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
         const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
     SkASSERT(numStencilSamples == rt->numSamples() || this->caps()->mixedSamplesSupport());
     SkASSERT(dimensions.width() >= rt->width());
@@ -972,7 +972,7 @@ GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
 
     DXGI_FORMAT sFmt = this->d3dCaps().preferredStencilFormat();
 
-    GrD3DStencilAttachment* stencil(GrD3DStencilAttachment::Make(this,
+    GrD3DAttachment* stencil(GrD3DAttachment::Make(this,
                                                                  dimensions,
                                                                  numStencilSamples,
                                                                  sFmt));

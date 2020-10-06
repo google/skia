@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/mock/GrMockAttachment.h"
 #include "src/gpu/mock/GrMockBuffer.h"
 #include "src/gpu/mock/GrMockCaps.h"
 #include "src/gpu/mock/GrMockGpu.h"
 #include "src/gpu/mock/GrMockOpsRenderPass.h"
-#include "src/gpu/mock/GrMockStencilAttachment.h"
 #include "src/gpu/mock/GrMockTexture.h"
 #include <atomic>
 
@@ -53,7 +53,7 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
 }
 
 GrOpsRenderPass* GrMockGpu::getOpsRenderPass(
-                                GrRenderTarget* rt, GrStencilAttachment*,
+                                GrRenderTarget* rt, GrAttachment*,
                                 GrSurfaceOrigin origin, const SkIRect& bounds,
                                 const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                                 const GrOpsRenderPass::StencilLoadAndStoreInfo&,
@@ -266,11 +266,11 @@ sk_sp<GrGpuBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType
     return sk_sp<GrGpuBuffer>(new GrMockBuffer(this, sizeInBytes, type, accessPattern));
 }
 
-GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(
+GrAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(
         const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
     SkASSERT(numStencilSamples == rt->numSamples());
     fStats.incStencilAttachmentCreates();
-    return new GrMockStencilAttachment(this, dimensions, rt->numSamples());
+    return new GrMockAttachment(this, dimensions, rt->numSamples());
 }
 
 GrBackendTexture GrMockGpu::onCreateBackendTexture(SkISize dimensions,

@@ -33,7 +33,7 @@ public:
 
     using SelfDependencyFlags = GrVkRenderPass::SelfDependencyFlags;
 
-    bool set(GrRenderTarget*, GrStencilAttachment*,
+    bool set(GrRenderTarget*, GrAttachment*,
              GrSurfaceOrigin, const SkIRect& bounds,
              const GrOpsRenderPass::LoadAndStoreInfo&,
              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
