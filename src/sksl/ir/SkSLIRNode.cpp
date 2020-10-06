@@ -68,6 +68,11 @@ IRNode::IRNode(int offset, int kind, const SymbolData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const SymbolAliasData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const Type* data)
 : fOffset(offset)
 , fKind(kind)
