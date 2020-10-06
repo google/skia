@@ -412,8 +412,8 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* path,
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
+        SkDEBUGFAILF("%s %s\n", path, this->fErrorText.c_str());
     }
-    SkASSERT(!fErrorCount);
     *outSymbolTable = fIRGenerator->fSymbolTable;
 #ifdef SK_DEBUG
     fSource = nullptr;
