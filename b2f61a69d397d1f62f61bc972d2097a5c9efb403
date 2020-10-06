@@ -16,6 +16,29 @@
       "revId": "b2f61a69d397d1f62f61bc972d2097a5c9efb403",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32a727d9_359ef299",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-06T14:57:46Z",
+      "side": 1,
+      "message": "Yeah. That would be bad.",
+      "range": {
+        "startLine": 81,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 5
+      },
+      "revId": "b2f61a69d397d1f62f61bc972d2097a5c9efb403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
