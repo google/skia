@@ -510,10 +510,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kVarDeclarations: {
             VarDeclarationsStatement& decls = (*s)->as<VarDeclarationsStatement>();
-            for (auto& stmt : decls.fDeclaration->fVars) {
-                if (stmt->kind() == Statement::Kind::kNop) {
-                    continue;
-                }
+            auto& stmt = decls.fDeclaration->fVar;
+            if (!stmt->is<Nop>()) {
                 VarDeclaration& vd = stmt->as<VarDeclaration>();
                 if (vd.fValue) {
                     this->addExpression(cfg, &vd.fValue, /*constantPropagate=*/true);
