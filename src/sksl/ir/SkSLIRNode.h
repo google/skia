@@ -21,6 +21,7 @@ struct Expression;
 class ExternalValue;
 struct FunctionDeclaration;
 struct Statement;
+class Symbol;
 class SymbolTable;
 class Type;
 struct Variable;
@@ -132,6 +133,11 @@ protected:
         const Type* fType;
     };
 
+    struct SymbolAliasData {
+        StringFragment fName;
+        const Symbol* fOrigSymbol;
+    };
+
     struct TypeTokenData {
         const Type* fType;
         Token::Kind fToken;
@@ -150,6 +156,7 @@ protected:
             kIntLiteral,
             kString,
             kSymbol,
+            kSymbolAlias,
             kType,
             kTypeToken,
         } fKind = Kind::kType;
@@ -167,6 +174,7 @@ protected:
             IntLiteralData fIntLiteral;
             String fString;
             SymbolData fSymbol;
+            SymbolAliasData fSymbolAlias;
             const Type* fType;
             TypeTokenData fTypeToken;
 
@@ -230,6 +238,11 @@ protected:
             *(new(&fContents) SymbolData) = data;
         }
 
+        NodeData(const SymbolAliasData& data)
+            : fKind(Kind::kSymbolAlias) {
+            *(new(&fContents) SymbolAliasData) = data;
+        }
+
         NodeData(const Type* data)
             : fKind(Kind::kType) {
             *(new(&fContents) const Type*) = data;
@@ -281,6 +294,9 @@ protected:
                 case Kind::kSymbol:
                     *(new(&fContents) SymbolData) = other.fContents.fSymbol;
                     break;
+                case Kind::kSymbolAlias:
+                    *(new(&fContents) SymbolAliasData) = other.fContents.fSymbolAlias;
+                    break;
                 case Kind::kType:
                     *(new(&fContents) const Type*) = other.fContents.fType;
                     break;
@@ -331,6 +347,9 @@ protected:
                 case Kind::kSymbol:
                     fContents.fSymbol.~SymbolData();
                     break;
+                case Kind::kSymbolAlias:
+                    fContents.fSymbolAlias.~SymbolAliasData();
+                    break;
                 case Kind::kType:
                     break;
                 case Kind::kTypeToken:
@@ -362,6 +381,8 @@ protected:
     IRNode(int offset, int kind, const String& data);
 
     IRNode(int offset, int kind, const SymbolData& data);
+
+    IRNode(int offset, int kind, const SymbolAliasData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
 
@@ -471,6 +492,11 @@ protected:
     const SymbolData& symbolData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kSymbol);
         return fData.fContents.fSymbol;
+    }
+
+    const SymbolAliasData& symbolAliasData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kSymbolAlias);
+        return fData.fContents.fSymbolAlias;
     }
 
     const Type* typeData() const {

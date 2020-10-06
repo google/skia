@@ -22,6 +22,7 @@ public:
         kExternal = (int) ProgramElement::Kind::kLast + 1,
         kField,
         kFunctionDeclaration,
+        kSymbolAlias,
         kType,
         kUnresolvedFunction,
         kVariable,
@@ -37,6 +38,9 @@ public:
 
     Symbol(int offset, const FieldData& data)
     : INHERITED(offset, (int) Kind::kField, data) {}
+
+    Symbol(int offset, const SymbolAliasData& data)
+    : INHERITED(offset, (int) Kind::kSymbolAlias, data) {}
 
     Symbol(const Symbol&) = default;
     Symbol& operator=(const Symbol&) = default;
