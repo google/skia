@@ -666,9 +666,9 @@ describe('Paragraph Behavior', function() {
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
         // Register Noto Serif as 'sans-serif'.
-        const fontMgr = CanvasKit.TypefaceFontProvider.Make();
-        fontMgr.registerFont(notoSerifFontBuffer, 'sans-serif');
-        fontMgr.registerFont(notoSerifBoldItalicFontBuffer, 'sans-serif');
+        const fontSrc = CanvasKit.TypefaceFontProvider.Make();
+        fontSrc.registerFont(notoSerifFontBuffer, 'sans-serif');
+        fontSrc.registerFont(notoSerifBoldItalicFontBuffer, 'sans-serif');
 
         const wrapTo = 250;
 
@@ -684,7 +684,7 @@ describe('Paragraph Behavior', function() {
             disableHinting: true,
         });
 
-        const builder = CanvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, fontMgr);
+        const builder = CanvasKit.ParagraphBuilder.MakeFromFontProvider(paraStyle, fontSrc);
         builder.addText('Default text\n');
 
         const boldItalic = new CanvasKit.TextStyle({
@@ -713,7 +713,7 @@ describe('Paragraph Behavior', function() {
         paint.delete();
         paragraph.delete();
         builder.delete();
-        fontMgr.delete();
+        fontSrc.delete();
     });
 
     gm('paragraph_text_styles', (canvas) => {

@@ -5,6 +5,7 @@ import {
     CanvasKit,
     Paragraph,
     PathCommand,
+    PositionWithAffinity,
     PosTan,
     ShapedText,
     SkAnimatedImage,
@@ -31,6 +32,7 @@ import {
     SkVertices,
     TonalColorsOutput,
     TypedArray,
+    URange,
     Vector3,
     VectorN,
 } from "canvaskit-wasm";
@@ -51,6 +53,8 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
     maskFilterTests(CK);
     matrixTests(CK);
     paintTests(CK);
+    paragraphBuilderTests(CK);
+    paragraphTests(CK);
     pathEffectTests(CK);
     pathTests(CK);
     pictureTests(CK);
@@ -443,6 +447,72 @@ function pathTests(CK: CanvasKit) {
     path.transform(CK.SkMatrix.identity());
     path.transform(1, 0, 0, 0, 1, 0, 0, 0, 1);
     path.trim(0.1, 0.7, false);
+}
+
+function paragraphTests(CK: CanvasKit, p?: Paragraph) {
+    if (!p) return;
+    const a = p.didExceedMaxLines(); // $ExpectType boolean
+    const b = p.getAlphabeticBaseline(); // $ExpectType number
+    const c = p.getGlyphPositionAtCoordinate(10, 3); // $ExpectType PositionWithAffinity
+    const d = p.getHeight(); // $ExpectType number
+    const e = p.getIdeographicBaseline(); // $ExpectType number
+    const f = p.getLongestLine(); // $ExpectType number
+    const g = p.getMaxIntrinsicWidth(); // $ExpectType number
+    const h = p.getMaxWidth(); // $ExpectType number
+    const i = p.getMinIntrinsicWidth(); // $ExpectType number
+    const j = p.getRectsForPlaceholders(); // $ExpectType Float32Array
+    const k = p.getRectsForRange(2, 10, CK.RectHeightStyle.Max,  // $ExpectType Float32Array
+        CK.RectWidthStyle.Tight);
+    const l = p.getWordBoundary(10); // $ExpectType URange
+    p.layout(300);
+}
+
+function paragraphBuilderTests(CK: CanvasKit, fontMgr?: SkFontMgr, paint?: SkPaint) {
+    if (!fontMgr || !paint) return;
+    const paraStyle = new CK.ParagraphStyle({ // $ExpectType ParagraphStyle
+        textStyle: {
+            color: CK.BLACK,
+            fontFamilies: ['Noto Serif'],
+            fontSize: 20,
+        },
+        textAlign: CK.TextAlign.Center,
+        maxLines: 8,
+        ellipsis: '.._.',
+        strutStyle: {
+            strutEnabled: true,
+            fontFamilies: ['Roboto'],
+            fontSize: 28,
+            heightMultiplier: 1.5,
+            forceStrutHeight: true,
+        },
+    });
+    const blueText = new CK.TextStyle({ // $ExpectType TextStyle
+        backgroundColor: CK.Color(234, 208, 232), // light pink
+        color: CK.Color(48, 37, 199),
+        fontFamilies: ['Noto Serif'],
+        decoration: CK.LineThroughDecoration,
+        decorationThickness: 1.5, // multiplier based on font size
+        fontSize: 24,
+        fontFeatures: [{name: 'smcp', value: 1}],
+        shadows: [{color: CK.BLACK, blurRadius: 15},
+                  {color: CK.RED, blurRadius: 5, offset: [10, 10]}],
+    });
+
+    const builder = CK.ParagraphBuilder.Make(paraStyle, fontMgr); // $ExpectType ParagraphBuilder
+
+    builder.pushStyle(blueText);
+    builder.addText('VAVAVAVAVAVAVA\nVAVA\n');
+    builder.pop();
+    const paragraph = builder.build(); // $ExpectType Paragraph
+
+    const buf = new ArrayBuffer(10);
+    const fontSrc = CK.TypefaceFontProvider.Make(); // $ExpectType TypefaceFontProvider
+    fontSrc.registerFont(buf, 'sans-serif');
+    const builder2 = CK.ParagraphBuilder.MakeFromFontProvider(// $ExpectType ParagraphBuilder
+                                paraStyle, fontSrc);
+    builder2.pushPaintStyle(blueText, paint, paint);
+    builder2.addPlaceholder();
+    builder2.addPlaceholder(10, 20, CK.PlaceholderAlignment.Top, CK.TextBaseline.Ideographic, 3);
 }
 
 function pathEffectTests(CK: CanvasKit) {

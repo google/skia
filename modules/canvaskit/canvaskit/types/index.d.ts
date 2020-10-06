@@ -339,14 +339,17 @@ export interface CanvasKit {
 
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
     readonly ImageData: ImageDataConstructor;
+    readonly ParagraphStyle: ParagraphStyleConstructor;
     readonly ShapedText: ShapedTextConstructor;
     readonly SkContourMeasureIter: SkContourMeasureIterConstructor;
     readonly SkFont: SkFontConstructor;
     readonly SkPaint: DefaultConstructor<SkPaint>;
     readonly SkPath: SkPathConstructorAndFactory;
     readonly SkPictureRecorder: DefaultConstructor<SkPictureRecorder>;
+    readonly TextStyle: TextStyleConstructor;
 
     // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncapsulator()
+    readonly ParagraphBuilder: ParagraphBuilderFactory;
     readonly SkColorFilter: SkColorFilterFactory;
     readonly SkFontMgr: SkFontMgrFactory;
     readonly SkImageFilter: SkImageFilterFactory;
@@ -355,6 +358,7 @@ export interface CanvasKit {
     readonly SkRuntimeEffect: SkRuntimeEffectFactory;
     readonly SkShader: SkShaderFactory;
     readonly SkTextBlob: SkTextBlobFactory;
+    readonly TypefaceFontProvider: TypefaceFontProviderFactory;
 
     // Misc
     readonly SkColorMatrix: ColorMatrixHelpers;
@@ -404,6 +408,25 @@ export interface CanvasKit {
     readonly SaveLayerF16ColorType: SaveLayerFlag;
 
     readonly gpu: boolean; // if GPU code was compiled in
+
+    // Paragraph Enums
+    readonly Affinity: AffinityEnumValues;
+    readonly DecorationStyle: DecorationStyleEnumValues;
+    readonly FontSlant: FontSlantEnumValues;
+    readonly FontWeight: FontWeightEnumValues;
+    readonly FontWidth: FontWidthEnumValues;
+    readonly PlaceholderAlignment: PlaceholderAlignmentEnumValues;
+    readonly RectHeightStyle: RectHeightStyleEnumValues;
+    readonly RectWidthStyle: RectWidthStyleEnumValues;
+    readonly TextAlign: TextAlignEnumValues;
+    readonly TextBaseline: TextBaselineEnumValues;
+    readonly TextDirection: TextDirectionEnumValues;
+
+    // Paragraph Constants
+    readonly NoDecoration: number;
+    readonly UnderlineDecoration: number;
+    readonly OverlineDecoration: number;
+    readonly LineThroughDecoration: number;
 }
 
 export interface Camera {
@@ -499,6 +522,12 @@ export type EmulatedCanvas2DContext = CanvasRenderingContext2D;
 export type EmulatedImageData = ImageData;
 export type EmulatedPath2D = Path2D;
 
+export interface FontStyle {
+    weight?: FontWeight;
+    width?: FontWidth;
+    slant?: FontSlant;
+}
+
 /**
  * See GrContext.h for more on this class.
  */
@@ -542,7 +571,107 @@ export interface MallocObj {
  * been compiled in.
  */
 export interface Paragraph extends EmbindObject<Paragraph> {
-    todo: number; // TODO(kjlubick)
+    didExceedMaxLines(): boolean;
+    getAlphabeticBaseline(): number;
+
+    /**
+     * Returns the index of the glyph that corresponds to the provided coordinate,
+     * with the top left corner as the origin, and +y direction as down.
+     */
+    getGlyphPositionAtCoordinate(dx: number, dy: number): PositionWithAffinity;
+
+    getHeight(): number;
+    getIdeographicBaseline(): number;
+    getLongestLine(): number;
+    getMaxIntrinsicWidth(): number;
+    getMaxWidth(): number;
+    getMinIntrinsicWidth(): number;
+    getRectsForPlaceholders(): FlattenedRectangleArray;
+
+    /**
+     * Returns bounding boxes that enclose all text in the range of glpyh indexes [start, end).
+     * @param start
+     * @param end
+     * @param hStyle
+     * @param wStyle
+     */
+    getRectsForRange(start: number, end: number, hStyle: RectHeightStyle,
+                     wStyle: RectWidthStyle): FlattenedRectangleArray;
+
+    /**
+     * Finds the first and last glyphs that define a word containing the glyph at index offset.
+     * @param offset
+     */
+    getWordBoundary(offset: number): URange;
+
+    /**
+     * Lays out the text in the paragraph so it is wrapped to the given width.
+     * @param width
+     */
+    layout(width: number): void;
+}
+
+export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
+    /**
+     * Pushes the information required to leave an open space.
+     * @param width
+     * @param height
+     * @param alignment
+     * @param baseline
+     * @param offset
+     */
+    addPlaceholder(width?: number, height?: number, alignment?: PlaceholderAlignment,
+                   baseline?: TextBaseline, offset?: number): void;
+
+    /**
+     * Adds text to the builder. Forms the proper runs to use the upper-most style
+     * on the style_stack.
+     * @param str
+     */
+    addText(str: string): void;
+
+    /**
+     * Returns a Paragraph object that can be used to be layout and paint the text to an
+     * SkCanvas.
+     */
+    build(): Paragraph;
+
+    /**
+     * Remove a style from the stack. Useful to apply different styles to chunks
+     * of text such as bolding.
+     */
+    pop(): void;
+
+    /**
+     * Push a style to the stack. The corresponding text added with addText will
+     * use the top-most style.
+     * @param text
+     */
+    pushStyle(text: TextStyle): void;
+
+    /**
+     * Pushes a TextStyle using paints instead of colors for foreground and background.
+     * @param textStyle
+     * @param fg
+     * @param bg
+     */
+    pushPaintStyle(textStyle: TextStyle, fg: SkPaint, bg: SkPaint): void;
+}
+
+export interface ParagraphStyle {
+    disableHinting?: boolean;
+    ellipsis?: string;
+    heightMultiplier?: number;
+    maxLines?: number;
+    strutStyle?: StrutStyle;
+    textAlign?: TextAlign;
+    textDirection?: TextDirection;
+    textStyle?: TextStyle;
+}
+
+export interface PositionWithAffinity {
+    pos: number;
+    affinity: Affinity;
 }
 
 /**
@@ -671,8 +800,8 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param blendMode - BlendMode combining colors and sprites
      * @param colors - If provided, will be blended with sprite using blendMode.
      */
-    drawAtlas(atlas: SkImage, srcRects: FlattenedRectangleArray,
-              dstXforms: FlattenedRSXFormArray, paint: SkPaint,
+    drawAtlas(atlas: SkImage, srcRects: InputFlattenedRectangleArray,
+              dstXforms: InputFlattenedRSXFormArray, paint: SkPaint,
               blendMode?: BlendMode, colors?: ColorIntArray): void;
 
     /**
@@ -815,7 +944,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param points
      * @param paint
      */
-    drawPoints(mode: PointMode, points: FlattenedPointArray, paint: SkPaint): void;
+    drawPoints(mode: PointMode, points: InputFlattenedPointArray, paint: SkPaint): void;
 
     /**
      * Draws the given rectangle using the current clip, current matrix, and the provided paint.
@@ -1542,7 +1671,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param points - represents n points with 2n floats.
      * @param weights - used if any of the verbs are conics, can be omitted otherwise.
      */
-    addVerbsPointsWeights(verbs: VerbList, points: FlattenedPointArray,
+    addVerbsPointsWeights(verbs: VerbList, points: InputFlattenedPointArray,
                           weights?: WeightList): SkPath;
 
     /**
@@ -2068,6 +2197,50 @@ export interface StrokeOpts {
     cap?: StrokeCap;
 }
 
+export interface StrutStyle {
+    strutEnabled?: boolean;
+    fontFamilies?: string[];
+    fontStyle?: FontStyle;
+    fontSize?: number;
+    heightMultiplier?: number;
+    leading?: number;
+    forceStrutHeight?: boolean;
+}
+
+export interface TextFontFeatures {
+    name: string;
+    value: number;
+}
+
+export interface TextShadow {
+    color?: InputColor;
+    /**
+     * 2d array for x and y offset. Defaults to [0, 0]
+     */
+    offset?: number[];
+    blurRadius?: number;
+}
+
+export interface TextStyle {
+    backgroundColor?: InputColor;
+    color?: InputColor;
+    decoration?: number;
+    decorationColor?: InputColor;
+    decorationThickness?: number;
+    decrationStyle?: DecorationStyle;
+    fontFamilies?: string[];
+    fontFeatures?: TextFontFeatures[];
+    fontSize?: number;
+    fontStyle?: FontStyle;
+    foregroundColor?: InputColor;
+    heightMultiplier?: number;
+    letterSpacing?: number;
+    locale?: string;
+    shadows?: TextShadow[];
+    textBaseline?: TextBaseline;
+    wordSpacing?: number;
+}
+
 export interface TonalColorsInput {
     ambient: InputColor;
     spot: InputColor;
@@ -2076,6 +2249,21 @@ export interface TonalColorsInput {
 export interface TonalColorsOutput {
     ambient: SkColor;
     spot: SkColor;
+}
+
+export interface TypefaceFontProvider extends EmbindObject<TypefaceFontProvider> {
+    /**
+     * Registers a given typeface with the given family name (ignoring whatever name the
+     * typface has for itself).
+     * @param bytes - the raw bytes for a typeface.
+     * @param family
+     */
+    registerFont(bytes: ArrayBuffer | Uint8Array, family: string): void;
+}
+
+export interface URange {
+    start: number;
+    end: number;
 }
 
 /**
@@ -2171,9 +2359,9 @@ export interface Matrix3x3Helpers {
     /**
      * Maps the given 2d points according to the given 3x3 matrix.
      * @param m
-     * @param points - the points to map; the results are computed in place on this array.
+     * @param points - the flattened points to map; the results are computed in place on this array.
      */
-    mapPoints(m: Matrix3x3 | number[], points: FlattenedPointArray): FlattenedPointArray;
+    mapPoints(m: Matrix3x3 | number[], points: number[]): number[];
 
     /**
      * Multiplies the provided 3x3 matrices together from left to right.
@@ -2311,6 +2499,31 @@ export interface Matrix4x4Helpers {
      * @param matrix
      */
     transpose(matrix: Matrix4x4 | number[]): number[];
+}
+
+export interface ParagraphBuilderFactory {
+    /**
+     * Creates a ParagraphBuilder using the fonts available from the given font manager.
+     * @param style
+     * @param fontManager
+     */
+    Make(style: ParagraphStyle, fontManager: SkFontMgr): ParagraphBuilder;
+
+    /**
+     * Creates a ParagraphBuilder using the fonts available from the given font provider.
+     * @param style
+     * @param fontSrc
+     */
+    MakeFromFontProvider(style: ParagraphStyle, fontSrc: TypefaceFontProvider): ParagraphBuilder;
+}
+
+export interface ParagraphStyleConstructor {
+    /**
+     * Fills out all optional fields with defaults. The emscripten bindings complain if there
+     * is a field undefined and it was expecting a float (for example).
+     * @param ps
+     */
+    new(ps: ParagraphStyle): ParagraphStyle;
 }
 
 /**
@@ -2492,7 +2705,7 @@ export interface SkPathConstructorAndFactory extends DefaultConstructor<SkPath> 
      * @param points - represents n points with 2n floats.
      * @param weights - used if any of the verbs are conics, can be omitted otherwise.
      */
-    MakeFromVerbsPointsWeights(verbs: VerbList, points: FlattenedPointArray,
+    MakeFromVerbsPointsWeights(verbs: VerbList, points: InputFlattenedPointArray,
                                weights?: WeightList): SkPath;
 }
 
@@ -2590,7 +2803,7 @@ export interface SkTextBlobFactory {
      * @param rsxforms
      * @param font
      */
-    MakeFromRSXform(str: string, rsxforms: FlattenedRSXFormArray, font: SkFont): SkTextBlob;
+    MakeFromRSXform(str: string, rsxforms: InputFlattenedRSXFormArray, font: SkFont): SkTextBlob;
 
     /**
      * Returns a TextBlob built from a single run of text with rotation, scale, and translations.
@@ -2599,7 +2812,7 @@ export interface SkTextBlobFactory {
      * @param rsxforms
      * @param font
      */
-    MakeFromRSXformGlyphs(glyphs: InputGlyphIDArray, rsxforms: FlattenedRSXFormArray,
+    MakeFromRSXformGlyphs(glyphs: InputGlyphIDArray, rsxforms: InputFlattenedRSXFormArray,
                           font: SkFont): SkTextBlob;
 
     /**
@@ -2624,6 +2837,22 @@ export interface SkTextBlobFactory {
      * @param initialOffset - the length in pixels to start along the path.
      */
     MakeOnPath(str: string, path: SkPath, font: SkFont, initialOffset?: number): SkTextBlob;
+}
+
+export interface TextStyleConstructor {
+    /**
+     * Fills out all optional fields with defaults. The emscripten bindings complain if there
+     * is a field undefined and it was expecting a float (for example).
+     * @param ts
+     */
+    new(ts: TextStyle): TextStyle;
+}
+
+export interface TypefaceFontProviderFactory {
+    /**
+     * Return an empty TypefaceFontProvider
+     */
+    Make(): TypefaceFontProvider;
 }
 
 /**
@@ -2751,17 +2980,12 @@ export type ColorIntArray = MallocObj | Uint32Array | number[];
  * FlattenedPointArray represents n points by 2*n float values. In order, the values should
  * be the x, y for each point.
  */
-export type FlattenedPointArray = MallocObj | Float32Array | number[];
+export type FlattenedPointArray = Float32Array;
 /**
  * FlattenedRectangleArray represents n rectangles by 4*n float values. In order, the values should
  * be the top, left, right, bottom point for each rectangle.
  */
-export type FlattenedRectangleArray = MallocObj | Float32Array | number[];
-/**
- * FlattenedRSXFormArray represents n RSXforms by 4*n float values. In order, the values should
- * be scos, ssin, tx, ty for each RSXForm. See RSXForm.h for more details.
- */
-export type FlattenedRSXFormArray = MallocObj | Float32Array | number[];
+export type FlattenedRectangleArray = Float32Array;
 /**
  * Regardless of the format we use internally for GlyphID (16 bit unsigned atm), we expose them
  * as 32 bit unsigned.
@@ -2813,6 +3037,16 @@ export type InputColorMatrix = MallocObj | SkColorMatrix | number[];
  */
 export type InputGlyphIDArray = MallocObj | GlyphIDArray | number[];
 /**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as flattened points.
+ * Length 2 * n for n points.
+ */
+export type InputFlattenedPointArray = MallocObj | FlattenedPointArray | number[];
+/**
+ * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as flattened rectangles.
+ * Length 4 * n for n rectangles.
+ */
+export type InputFlattenedRectangleArray = MallocObj | FlattenedRectangleArray | number[];
+/**
  * CanvasKit APIs accept all of these matrix types. Under the hood, we generally use 4x4 matrices.
  */
 export type InputMatrix = MallocObj | Matrix4x4 | Matrix3x3 | Matrix3x2 | DOMMatrix | number[];
@@ -2831,6 +3065,11 @@ export type InputIRect = MallocObj | SkIRect | number[];
  * rounded corners. Length 12.
  */
 export type InputRRect = MallocObj | SkRRect | number[];
+/**
+ * This represents n RSXforms by 4*n float values. In order, the values should
+ * be scos, ssin, tx, ty for each RSXForm. See RSXForm.h for more details.
+ */
+export type InputFlattenedRSXFormArray = MallocObj | Float32Array | number[];
 
 export type AlphaType = EmbindEnumEntity;
 export type BlendMode = EmbindEnumEntity;
@@ -2850,6 +3089,23 @@ export type StrokeCap = EmbindEnumEntity;
 export type StrokeJoin = EmbindEnumEntity;
 export type TileMode = EmbindEnumEntity;
 export type VertexMode = EmbindEnumEntity;
+
+export type Affinity = EmbindEnumEntity;
+export type DecorationStyle = EmbindEnumEntity;
+export type FontSlant = EmbindEnumEntity;
+export type FontWeight = EmbindEnumEntity;
+export type FontWidth = EmbindEnumEntity;
+export type PlaceholderAlignment = EmbindEnumEntity;
+export type RectHeightStyle = EmbindEnumEntity;
+export type RectWidthStyle = EmbindEnumEntity;
+export type TextAlign = EmbindEnumEntity;
+export type TextBaseline = EmbindEnumEntity;
+export type TextDirection = EmbindEnumEntity;
+
+export interface AffinityEnumValues extends EmbindEnum {
+    Upstream: Affinity;
+    Downstream: Affinity;
+}
 
 export interface AlphaTypeEnumValues extends EmbindEnum {
     Opaque: AlphaType;
@@ -2922,12 +3178,12 @@ export interface ColorTypeEnumValues extends EmbindEnum {
     RGBA_F32: ColorType;
 }
 
-export interface ImageFormatEnumValues extends EmbindEnum {
-    // TODO(kjlubick) When these are compiled in depending on the availability of the codecs,
-    //   be sure to make these nullable.
-    PNG: EncodedImageFormat;
-    JPEG: EncodedImageFormat;
-    WEBP: EncodedImageFormat;
+export interface DecorationStyleEnumValues extends EmbindEnum {
+    Solid: DecorationStyle;
+    Double: DecorationStyle;
+    Dotted: DecorationStyle;
+    Dashed: DecorationStyle;
+    Wavy: DecorationStyle;
 }
 
 export interface FillTypeEnumValues extends EmbindEnum {
@@ -2955,6 +3211,46 @@ export interface FontHintingEnumValues extends EmbindEnum {
     Full: FontHinting;
 }
 
+export interface FontSlantEnumValues extends EmbindEnum {
+    Upright: FontSlant;
+    Italic: FontSlant;
+    Oblique: FontSlant;
+}
+
+export interface FontWeightEnumValues extends EmbindEnum {
+    Invisible: FontWeight;
+    Thin: FontWeight;
+    ExtraLight: FontWeight;
+    Light: FontWeight;
+    Normal: FontWeight;
+    Medium: FontWeight;
+    SemiBold: FontWeight;
+    Bold: FontWeight;
+    ExtraBold: FontWeight;
+    Black: FontWeight;
+    ExtraBlack: FontWeight;
+}
+
+export interface FontWidthEnumValues extends EmbindEnum {
+    UltraCondensed: FontWidth;
+    ExtraCondensed: FontWidth;
+    Condensed: FontWidth;
+    SemiCondensed: FontWidth;
+    Normal: FontWidth;
+    SemiExpanded: FontWidth;
+    Expanded: FontWidth;
+    ExtraExpanded: FontWidth;
+    UltraExpanded: FontWidth;
+}
+
+export interface ImageFormatEnumValues extends EmbindEnum {
+    // TODO(kjlubick) When these are compiled in depending on the availability of the codecs,
+    //   be sure to make these nullable.
+    PNG: EncodedImageFormat;
+    JPEG: EncodedImageFormat;
+    WEBP: EncodedImageFormat;
+}
+
 export interface PaintStyleEnumValues extends EmbindEnum {
     Fill: PaintStyle;
     Stroke: PaintStyle;
@@ -2968,10 +3264,32 @@ export interface PathOpEnumValues extends EmbindEnum {
     ReverseDifference: PathOp;
 }
 
+export interface PlaceholderAlignmentEnumValues extends EmbindEnum {
+    Baseline: PlaceholderAlignment;
+    AboveBaseline: PlaceholderAlignment;
+    BelowBaseline: PlaceholderAlignment;
+    Top: PlaceholderAlignment;
+    Bottom: PlaceholderAlignment;
+    Middle: PlaceholderAlignment;
+}
+
 export interface PointModeEnumValues extends EmbindEnum {
     Points: PointMode;
     Lines: PointMode;
     Polygon: PointMode;
+}
+
+export interface RectHeightStyleEnumValues extends EmbindEnum {
+    Tight: RectHeightStyle;
+    Max: RectHeightStyle;
+    IncludeLineSpacingMiddle: RectHeightStyle;
+    IncludeLineSpacingTop: RectHeightStyle;
+    IncludeLineSpacingBottom: RectHeightStyle;
+}
+
+export interface RectWidthStyleEnumValues extends EmbindEnum {
+    Tight: RectWidthStyle;
+    Max: RectWidthStyle;
 }
 
 export interface StrokeCapEnumValues extends EmbindEnum {
@@ -2984,6 +3302,25 @@ export interface StrokeJoinEnumValues extends EmbindEnum {
     Bevel: StrokeJoin;
     Miter: StrokeJoin;
     Round: StrokeJoin;
+}
+
+export interface TextAlignEnumValues extends EmbindEnum {
+    Left: TextAlign;
+    Right: TextAlign;
+    Center: TextAlign;
+    Justify: TextAlign;
+    Start: TextAlign;
+    End: TextAlign;
+}
+
+export interface TextBaselineEnumValues extends EmbindEnum {
+    Alphabetic: TextBaseline;
+    Ideographic: TextBaseline;
+}
+
+export interface TextDirectionEnumValues extends EmbindEnum {
+    LTR: TextDirection;
+    RTL: TextDirection;
 }
 
 export interface TileModeEnumValues extends EmbindEnum {

@@ -294,6 +294,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .function("getGlyphPositionAtCoordinate", &para::ParagraphImpl::getGlyphPositionAtCoordinate)
         .function("getHeight", &para::Paragraph::getHeight)
         .function("getIdeographicBaseline", &para::Paragraph::getIdeographicBaseline)
+        .function("getLineMetrics", &para::ParagraphImpl::getLineMetrics)
         .function("getLongestLine", &para::Paragraph::getLongestLine)
         .function("getMaxIntrinsicWidth", &para::Paragraph::getMaxIntrinsicWidth)
         .function("getMaxWidth", &para::Paragraph::getMaxWidth)
@@ -383,6 +384,13 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .value("Upstream",   para::Affinity::kUpstream)
         .value("Downstream", para::Affinity::kDownstream);
 
+    enum_<para::TextDecorationStyle>("DecorationStyle")
+        .value("Solid",  para::TextDecorationStyle::kSolid)
+        .value("Double", para::TextDecorationStyle::kDouble)
+        .value("Dotted", para::TextDecorationStyle::kDotted)
+        .value("Dashed", para::TextDecorationStyle::kDashed)
+        .value("Wavy",   para::TextDecorationStyle::kWavy);
+
     enum_<SkFontStyle::Slant>("FontSlant")
         .value("Upright",              SkFontStyle::Slant::kUpright_Slant)
         .value("Italic",               SkFontStyle::Slant::kItalic_Slant)
@@ -412,6 +420,14 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .value("ExtraExpanded",        SkFontStyle::Width::kExtraExpanded_Width)
         .value("UltraExpanded",        SkFontStyle::Width::kUltraExpanded_Width);
 
+    enum_<para::PlaceholderAlignment>("PlaceholderAlignment")
+        .value("Baseline",      para::PlaceholderAlignment::kBaseline)
+        .value("AboveBaseline", para::PlaceholderAlignment::kAboveBaseline)
+        .value("BelowBaseline", para::PlaceholderAlignment::kBelowBaseline)
+        .value("Top",           para::PlaceholderAlignment::kTop)
+        .value("Bottom",        para::PlaceholderAlignment::kBottom)
+        .value("Middle",        para::PlaceholderAlignment::kMiddle);
+
     enum_<para::RectHeightStyle>("RectHeightStyle")
         .value("Tight",                     para::RectHeightStyle::kTight)
         .value("Max",                       para::RectHeightStyle::kMax)
@@ -431,29 +447,15 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .value("Start",   para::TextAlign::kStart)
         .value("End",     para::TextAlign::kEnd);
 
-    enum_<para::TextDirection>("TextDirection")
-        .value("LTR",    para::TextDirection::kLtr)
-        .value("RTL",    para::TextDirection::kRtl);
-
-    enum_<para::TextDecorationStyle>("DecorationStyle")
-        .value("Solid",  para::TextDecorationStyle::kSolid)
-        .value("Double", para::TextDecorationStyle::kDouble)
-        .value("Dotted", para::TextDecorationStyle::kDotted)
-        .value("Dashed", para::TextDecorationStyle::kDashed)
-        .value("Wavy",   para::TextDecorationStyle::kWavy);
-
-    enum_<para::PlaceholderAlignment>("PlaceholderAlignment")
-        .value("Baseline",      para::PlaceholderAlignment::kBaseline)
-        .value("AboveBaseline", para::PlaceholderAlignment::kAboveBaseline)
-        .value("BelowBaseline", para::PlaceholderAlignment::kBelowBaseline)
-        .value("Top",           para::PlaceholderAlignment::kTop)
-        .value("Bottom",        para::PlaceholderAlignment::kBottom)
-        .value("Middle",        para::PlaceholderAlignment::kMiddle);
-
     enum_<para::TextBaseline>("TextBaseline")
         .value("Alphabetic",  para::TextBaseline::kAlphabetic)
         .value("Ideographic", para::TextBaseline::kIdeographic);
 
+    enum_<para::TextDirection>("TextDirection")
+        .value("LTR",    para::TextDirection::kLtr)
+        .value("RTL",    para::TextDirection::kRtl);
+
+    // These value objects make it easier to send data across the wire.
     value_object<para::PositionWithAffinity>("PositionWithAffinity")
         .field("pos",      &para::PositionWithAffinity::position)
         .field("affinity", &para::PositionWithAffinity::affinity);
@@ -511,6 +513,7 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
 
     // The U stands for unsigned - we can't bind a generic/template object, so we have to specify it
     // with the type we are using.
+    // TODO(kjlubick) make this a typedarray.
     value_object<para::SkRange<size_t>>("URange")
         .field("start",    &para::SkRange<size_t>::start)
         .field("end",      &para::SkRange<size_t>::end);
