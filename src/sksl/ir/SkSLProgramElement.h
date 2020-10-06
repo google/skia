@@ -25,10 +25,10 @@ struct ProgramElement : public IRNode {
         kInterfaceBlock,
         kModifiers,
         kSection,
-        kVar,
+        kGlobalVar,
 
         kFirst = kEnum,
-        kLast = kVar
+        kLast = kGlobalVar
     };
 
     ProgramElement(int offset, Kind kind)

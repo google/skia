@@ -45,7 +45,6 @@
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 #include "src/sksl/spirv.h"
@@ -245,7 +244,7 @@ private:
 
     std::unique_ptr<ByteCodeFunction> writeFunction(const FunctionDefinition& f);
 
-    void writeVarDeclarations(const VarDeclarations& decl);
+    void writeVarDeclaration(const VarDeclaration& decl);
 
     void writeVariableExpression(const Expression& expr);
 

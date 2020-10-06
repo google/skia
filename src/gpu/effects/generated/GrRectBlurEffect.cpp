@@ -49,7 +49,9 @@ public:
         }
         fragBuilder->codeAppendf(
                 R"SkSL(/* key */ bool highp = %s;
-half xCoverage, yCoverage;
+half xCoverage;
+half yCoverage;
+
 float2 pos = sk_FragCoord.xy;
 @if (%s) {
     pos = (%s * float3(pos, 1.0)).xy;

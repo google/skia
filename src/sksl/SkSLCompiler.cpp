@@ -89,13 +89,9 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
                 iter = src->erase(iter);
                 break;
             }
-            case ProgramElement::Kind::kVar: {
-                // TODO: For now, we only support one variable per declaration. We map names to
-                // declarations, and each declaration pulls in all of it's variables, so this rule
-                // ensures that we never pull in variables that aren't actually used.
-                const VarDeclarations& vd = element->as<VarDeclarations>();
-                SkASSERT(vd.fVars.size() == 1);
-                const Variable* var = vd.fVars[0]->as<VarDeclaration>().fVar;
+            case ProgramElement::Kind::kGlobalVar: {
+                const GlobalVarDeclaration& vd = element->as<GlobalVarDeclaration>();
+                const Variable* var = vd.fDecl->fVar;
                 target->insertOrDie(var->name(), std::move(element));
                 iter = src->erase(iter);
                 break;
@@ -599,13 +595,8 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
         for (const auto& node : block.fNodes) {
             if (node.isStatement()) {
                 const Statement* s = node.statement()->get();
-                if (s->is<VarDeclarationsStatement>()) {
-                    const VarDeclarationsStatement* vd = &s->as<VarDeclarationsStatement>();
-                    for (const auto& decl : vd->fDeclaration->fVars) {
-                        if (decl->kind() == Statement::Kind::kVarDeclaration) {
-                            result[decl->as<VarDeclaration>().fVar] = nullptr;
-                        }
-                    }
+                if (s->is<VarDeclaration>()) {
+                    result[s->as<VarDeclaration>().fVar] = nullptr;
                 }
             }
         }
@@ -1495,21 +1486,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                 // Block was reachable before optimization, but has since become unreachable. In
                 // addition to being dead code, it's broken - since control flow can't reach it, no
                 // prior variable definitions can reach it, and therefore variables might look to
-                // have not been properly assigned. Kill it.
-
-                // We need to do this in two steps. For any variable declarations, the node list
-                // will contain statement nodes for each VarDeclaration, and then a statement for
-                // the VarDeclarationsStatement. When we replace the VDS with a Nop, we delete the
-                // storage of the unique_ptr that the VD nodes are pointing to. So we remove those
-                // from the node list entirely, first.
-                b.fNodes.erase(std::remove_if(b.fNodes.begin(), b.fNodes.end(),
-                                              [](const BasicBlock::Node& node) {
-                                                  return node.isStatement() &&
-                                                         (*node.statement())->is<VarDeclaration>();
-                                              }),
-                               b.fNodes.end());
-
-                // Now replace any remaining statements in the block with Nops.
+                // have not been properly assigned. Kill it by replacing all statements with Nops.
                 for (BasicBlock::Node& node : b.fNodes) {
                     if (node.isStatement() && !(*node.statement())->is<Nop>()) {
                         node.setStatement(std::make_unique<Nop>());
@@ -1565,23 +1542,6 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                         }
                         ++iter;
                         break;
-                    case Statement::Kind::kVarDeclarations: {
-                        VarDeclarations& decls = *s.as<VarDeclarationsStatement>().fDeclaration;
-                        decls.fVars.erase(
-                                std::remove_if(decls.fVars.begin(), decls.fVars.end(),
-                                               [&](const std::unique_ptr<Statement>& var) {
-                                                   bool nop = var->is<Nop>();
-                                                   madeChanges |= nop;
-                                                   return nop;
-                                               }),
-                                decls.fVars.end());
-                        if (decls.fVars.empty()) {
-                            iter = b.fNodes.erase(iter);
-                        } else {
-                            ++iter;
-                        }
-                        break;
-                    }
                     default:
                         ++iter;
                         break;
@@ -1717,30 +1677,15 @@ bool Compiler::optimize(Program& program) {
         }
 
         if (program.fKind != Program::kFragmentProcessor_Kind) {
-            // Remove dead variables.
-            for (ProgramElement& element : program) {
-                if (!element.is<VarDeclarations>()) {
-                    continue;
-                }
-                VarDeclarations& vars = element.as<VarDeclarations>();
-                vars.fVars.erase(
-                        std::remove_if(vars.fVars.begin(), vars.fVars.end(),
-                                       [&](const std::unique_ptr<Statement>& stmt) {
-                                           bool dead = stmt->as<VarDeclaration>().fVar->dead();
-                                           madeChanges |= dead;
-                                           return dead;
-                                       }),
-                        vars.fVars.end());
-            }
-
-            // Remove empty variable declarations with no variables left inside of them.
+            // Remove declarations of dead global variables
             program.fElements.erase(
                     std::remove_if(program.fElements.begin(), program.fElements.end(),
                                    [&](const std::unique_ptr<ProgramElement>& element) {
-                                       if (!element->is<VarDeclarations>()) {
+                                       if (!element->is<GlobalVarDeclaration>()) {
                                            return false;
                                        }
-                                       bool dead = element->as<VarDeclarations>().fVars.empty();
+                                       const auto& varDecl = element->as<GlobalVarDeclaration>();
+                                       bool dead = varDecl.fDecl->fVar->dead();
                                        madeChanges |= dead;
                                        return dead;
                                    }),

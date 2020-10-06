@@ -40,7 +40,9 @@ half alpha;
         alpha = half(all(greaterThan(float4(sk_FragCoord.xy, %s.zw), float4(%s.xy, sk_FragCoord.xy))) ? 1 : 0);
         break;
     default:
-        half xSub, ySub;
+        half xSub;
+        half ySub;
+
         xSub = min(half(sk_FragCoord.x - %s.x), 0.0);
         xSub += min(half(%s.z - sk_FragCoord.x), 0.0);
         ySub = min(half(sk_FragCoord.y - %s.y), 0.0);

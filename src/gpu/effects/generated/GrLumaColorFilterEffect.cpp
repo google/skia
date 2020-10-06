@@ -27,7 +27,7 @@ public:
         SkString _sample870 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(half4 inputColor = %s;
-
+;
 half luma = clamp(dot(half3(0.2125999927520752, 0.71520000696182251, 0.072200000286102295), inputColor.xyz), 0.0, 1.0);
 %s = half4(0.0, 0.0, 0.0, luma);
 )SkSL",

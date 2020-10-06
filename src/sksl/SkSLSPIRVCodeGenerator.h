@@ -38,7 +38,6 @@
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 #include "src/sksl/spirv.h"
@@ -189,9 +188,9 @@ private:
 
     SpvId writeFunction(const FunctionDefinition& f, OutputStream& out);
 
-    void writeGlobalVars(Program::Kind kind, const VarDeclarations& v, OutputStream& out);
+    void writeGlobalVar(Program::Kind kind, const VarDeclaration& v, OutputStream& out);
 
-    void writeVarDeclarations(const VarDeclarations& decl, OutputStream& out);
+    void writeVarDeclaration(const VarDeclaration& var, OutputStream& out);
 
     SpvId writeVariableReference(const VariableReference& ref, OutputStream& out);
 

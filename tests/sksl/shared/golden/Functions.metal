@@ -11,7 +11,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     thread Outputs* _out = &_outputStruct;
     float x = 10.0;
     {
-        float _1_y[2], _2_z;
+        float _1_y[2];
+        float _2_z;
+
         _1_y[0] = 10.0;
         _1_y[1] = 20.0;
         float _3_0_foo;

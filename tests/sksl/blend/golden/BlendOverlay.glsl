@@ -1,8 +1,9 @@
 #version 400
 out vec4 sk_FragColor;
-in vec4 src, dst;
+in vec4 src;
+in vec4 dst;
 void main() {
-    vec4 _1_blend_overlay;
+    vec4 _0_blend_overlay;
     {
         float _3_blend_overlay_component;
         {
@@ -16,13 +17,14 @@ void main() {
         {
             _5_blend_overlay_component = 2.0 * dst.z <= dst.w ? (2.0 * src.z) * dst.z : src.w * dst.w - (2.0 * (dst.w - dst.z)) * (src.w - src.z);
         }
-        vec4 _2_result = vec4(_3_blend_overlay_component, _4_blend_overlay_component, _5_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
+        vec4 _1_result = vec4(_3_blend_overlay_component, _4_blend_overlay_component, _5_blend_overlay_component, src.w + (1.0 - src.w) * dst.w);
 
 
 
-        _2_result.xyz += dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
-        _1_blend_overlay = _2_result;
+        _1_result.xyz += dst.xyz * (1.0 - src.w) + src.xyz * (1.0 - dst.w);
+        _0_blend_overlay = _1_result;
     }
-    sk_FragColor = _1_blend_overlay;
+
+    sk_FragColor = _0_blend_overlay;
 
 }

@@ -47,7 +47,9 @@ public:
                                                         kHalf_GrSLType, "threshold");
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x);
-float4 scale, bias;
+float4 scale;
+float4 bias;
+
 if (t < %s) {
     scale = %s;
     bias = %s;

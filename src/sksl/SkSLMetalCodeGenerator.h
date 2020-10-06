@@ -42,7 +42,6 @@
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 
@@ -177,7 +176,7 @@ protected:
 
     void writeName(const String& name);
 
-    void writeVarDeclarations(const VarDeclarations& decl, bool global);
+    void writeVarDeclaration(const VarDeclaration& decl, bool global);
 
     void writeFragCoord();
 

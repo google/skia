@@ -49,7 +49,6 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
@@ -547,6 +546,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             auto name = std::make_unique<String>(
                     this->uniqueNameForInlineVar(String(old->name()), symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
+            const Type* baseTypePtr = copy_if_needed(&decl.fBaseType, *symbolTableForStatement);
             const Type* typePtr = copy_if_needed(&old->type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
@@ -557,19 +557,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                                old->fStorage,
                                                initialValue.get()));
             (*varMap)[old] = std::make_unique<VariableReference>(offset, clone);
-            return std::make_unique<VarDeclaration>(clone, std::move(sizes),
+            return std::make_unique<VarDeclaration>(clone, baseTypePtr, std::move(sizes),
                                                     std::move(initialValue));
-        }
-        case Statement::Kind::kVarDeclarations: {
-            const VarDeclarations& decls = *statement.as<VarDeclarationsStatement>().fDeclaration;
-            std::vector<std::unique_ptr<Statement>> vars;
-            vars.reserve(decls.fVars.size());
-            for (const auto& var : decls.fVars) {
-                vars.push_back(stmt(var));
-            }
-            const Type* typePtr = copy_if_needed(&decls.fBaseType, *symbolTableForStatement);
-            return std::unique_ptr<Statement>(new VarDeclarationsStatement(
-                    std::make_unique<VarDeclarations>(offset, typePtr, std::move(vars))));
         }
         case Statement::Kind::kWhile: {
             const WhileStatement& w = statement.as<WhileStatement>();
@@ -646,20 +635,19 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
         // initial value).
-        std::vector<std::unique_ptr<Statement>> variables;
+        std::unique_ptr<Statement> variable;
         if (initialValue && (modifiers.fFlags & Modifiers::kOut_Flag)) {
-            variables.push_back(std::make_unique<VarDeclaration>(
-                    variableSymbol, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
-                    (*initialValue)->clone()));
+            variable = std::make_unique<VarDeclaration>(
+                    variableSymbol, type, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
+                    (*initialValue)->clone());
         } else {
-            variables.push_back(std::make_unique<VarDeclaration>(
-                    variableSymbol, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
-                    std::move(*initialValue)));
+            variable = std::make_unique<VarDeclaration>(
+                    variableSymbol, type, /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
+                    std::move(*initialValue));
         }
 
         // Add the new variable-declaration statement to our block of extra statements.
-        inlinedBody.children().push_back(std::make_unique<VarDeclarationsStatement>(
-                std::make_unique<VarDeclarations>(offset, type, std::move(variables))));
+        inlinedBody.children().push_back(std::move(variable));
 
         return std::make_unique<VariableReference>(offset, variableSymbol);
     };
@@ -941,13 +929,6 @@ public:
                 VarDeclaration& varDeclStmt = (*stmt)->as<VarDeclaration>();
                 // Don't need to scan the declaration's sizes; those are always IntLiterals.
                 this->visitExpression(&varDeclStmt.fValue);
-                break;
-            }
-            case Statement::Kind::kVarDeclarations: {
-                VarDeclarationsStatement& varDecls = (*stmt)->as<VarDeclarationsStatement>();
-                for (std::unique_ptr<Statement>& varDecl : varDecls.fDeclaration->fVars) {
-                    this->visitStatement(&varDecl, /*isViableAsEnclosingStatement=*/false);
-                }
                 break;
             }
             case Statement::Kind::kWhile: {

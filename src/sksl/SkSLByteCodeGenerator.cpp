@@ -159,21 +159,19 @@ bool ByteCodeGenerator::generateCode() {
                 fFunctions.push_back(&e.as<FunctionDefinition>());
                 break;
             }
-            case ProgramElement::Kind::kVar: {
-                const VarDeclarations& decl = e.as<VarDeclarations>();
-                for (const auto& v : decl.fVars) {
-                    const Variable* declVar = v->as<VarDeclaration>().fVar;
-                    if (declVar->type() == *fContext.fFragmentProcessor_Type) {
-                        fOutput->fChildFPCount++;
-                    }
-                    if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
-                        continue;
-                    }
-                    if (is_uniform(*declVar)) {
-                        this->gatherUniforms(declVar->type(), declVar->name());
-                    } else {
-                        fOutput->fGlobalSlotCount += SlotCount(declVar->type());
-                    }
+            case ProgramElement::Kind::kGlobalVar: {
+                const GlobalVarDeclaration& decl = e.as<GlobalVarDeclaration>();
+                const Variable* declVar = decl.fDecl->fVar;
+                if (declVar->type() == *fContext.fFragmentProcessor_Type) {
+                    fOutput->fChildFPCount++;
+                }
+                if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
+                    continue;
+                }
+                if (is_uniform(*declVar)) {
+                    this->gatherUniforms(declVar->type(), declVar->name());
+                } else {
+                    fOutput->fGlobalSlotCount += SlotCount(declVar->type());
                 }
                 break;
             }
@@ -457,19 +455,17 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             if (var.type() == *fContext.fFragmentProcessor_Type) {
                 int offset = 0;
                 for (const auto& e : fProgram) {
-                    if (e.kind() == ProgramElement::Kind::kVar) {
-                        const VarDeclarations& decl = e.as<VarDeclarations>();
-                        for (const auto& v : decl.fVars) {
-                            const Variable* declVar = v->as<VarDeclaration>().fVar;
-                            if (declVar->type() != *fContext.fFragmentProcessor_Type) {
-                                continue;
-                            }
-                            if (declVar == &var) {
-                                SkASSERT(offset <= 255);
-                                return { offset, Storage::kChildFP };
-                            }
-                            offset++;
+                    if (e.is<GlobalVarDeclaration>()) {
+                        const GlobalVarDeclaration& decl = e.as<GlobalVarDeclaration>();
+                        const Variable* declVar = decl.fDecl->fVar;
+                        if (declVar->type() != *fContext.fFragmentProcessor_Type) {
+                            continue;
                         }
+                        if (declVar == &var) {
+                            SkASSERT(offset <= 255);
+                            return { offset, Storage::kChildFP };
+                        }
+                        offset++;
                     }
                 }
                 SkASSERT(false);
@@ -487,22 +483,20 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             int offset = 0;
             bool isUniform = is_uniform(var);
             for (const auto& e : fProgram) {
-                if (e.kind() == ProgramElement::Kind::kVar) {
-                    const VarDeclarations& decl = e.as<VarDeclarations>();
-                    for (const auto& v : decl.fVars) {
-                        const Variable* declVar = v->as<VarDeclaration>().fVar;
-                        if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
-                            continue;
-                        }
-                        if (isUniform != is_uniform(*declVar)) {
-                            continue;
-                        }
-                        if (declVar == &var) {
-                            SkASSERT(offset <= 255);
-                            return  { offset, isUniform ? Storage::kUniform : Storage::kGlobal };
-                        }
-                        offset += SlotCount(declVar->type());
+                if (e.is<GlobalVarDeclaration>()) {
+                    const GlobalVarDeclaration& decl = e.as<GlobalVarDeclaration>();
+                    const Variable* declVar = decl.fDecl->fVar;
+                    if (declVar->fModifiers.fLayout.fBuiltin >= 0 || is_in(*declVar)) {
+                        continue;
                     }
+                    if (isUniform != is_uniform(*declVar)) {
+                        continue;
+                    }
+                    if (declVar == &var) {
+                        SkASSERT(offset <= 255);
+                        return  { offset, isUniform ? Storage::kUniform : Storage::kGlobal };
+                    }
+                    offset += SlotCount(declVar->type());
                 }
             }
             SkASSERT(false);
@@ -1763,17 +1757,14 @@ void ByteCodeGenerator::writeSwitchStatement(const SwitchStatement& r) {
     abort();
 }
 
-void ByteCodeGenerator::writeVarDeclarations(const VarDeclarations& v) {
-    for (const auto& declStatement : v.fVars) {
-        const VarDeclaration& decl = declStatement->as<VarDeclaration>();
-        // we need to grab the location even if we don't use it, to ensure it has been allocated
-        Location location = this->getLocation(*decl.fVar);
-        if (decl.fValue) {
-            this->writeExpression(*decl.fValue);
-            int count = SlotCount(decl.fValue->type());
-            this->write(ByteCodeInstruction::kStore, count);
-            this->write8(location.fSlot);
-        }
+void ByteCodeGenerator::writeVarDeclaration(const VarDeclaration& decl) {
+    // we need to grab the location even if we don't use it, to ensure it has been allocated
+    Location location = this->getLocation(*decl.fVar);
+    if (decl.fValue) {
+        this->writeExpression(*decl.fValue);
+        int count = SlotCount(decl.fValue->type());
+        this->write(ByteCodeInstruction::kStore, count);
+        this->write8(location.fSlot);
     }
 }
 
@@ -1824,8 +1815,8 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kSwitch:
             this->writeSwitchStatement(s.as<SwitchStatement>());
             break;
-        case Statement::Kind::kVarDeclarations:
-            this->writeVarDeclarations(*s.as<VarDeclarationsStatement>().fDeclaration);
+        case Statement::Kind::kVarDeclaration:
+            this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
         case Statement::Kind::kWhile:
             this->writeWhileStatement(s.as<WhileStatement>());

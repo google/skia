@@ -23,7 +23,6 @@
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 
 namespace SkSL {
@@ -508,17 +507,10 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             break;
         }
-        case Statement::Kind::kVarDeclarations: {
-            VarDeclarationsStatement& decls = (*s)->as<VarDeclarationsStatement>();
-            for (auto& stmt : decls.fDeclaration->fVars) {
-                if (stmt->kind() == Statement::Kind::kNop) {
-                    continue;
-                }
-                VarDeclaration& vd = stmt->as<VarDeclaration>();
-                if (vd.fValue) {
-                    this->addExpression(cfg, &vd.fValue, /*constantPropagate=*/true);
-                }
-                cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(&stmt));
+        case Statement::Kind::kVarDeclaration: {
+            VarDeclaration& vd = (*s)->as<VarDeclaration>();
+            if (vd.fValue) {
+                this->addExpression(cfg, &vd.fValue, /*constantPropagate=*/true);
             }
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             break;

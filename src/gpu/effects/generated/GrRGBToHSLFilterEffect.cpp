@@ -29,7 +29,7 @@ public:
                 R"SkSL(half4 c = %s;
 half4 p = c.y < c.z ? half4(c.zy, -1.0, 0.66666668653488159) : half4(c.yz, 0.0, -0.3333333432674408);
 half4 q = c.x < p.x ? half4(p.x, c.x, p.yw) : half4(c.x, p.x, p.yz);
-
+;
 half pmV = q.x;
 half pmC = pmV - min(q.y, q.z);
 half pmL = pmV - pmC * 0.5;

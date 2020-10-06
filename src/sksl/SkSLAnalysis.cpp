@@ -35,7 +35,6 @@
 #include "src/sksl/ir/SkSLNop.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 
 // Expressions
@@ -486,10 +485,6 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
             }
             return v.fValue && this->visitExpression(*v.fValue);
         }
-        case Statement::Kind::kVarDeclarations:
-            return this->visitProgramElement(
-                    *s.template as<VarDeclarationsStatement>().fDeclaration);
-
         case Statement::Kind::kWhile: {
             auto& w = s.template as<WhileStatement>();
             return this->visitExpression(*w.fTest) || this->visitStatement(*w.fStatement);
@@ -520,11 +515,9 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
             }
             return false;
 
-        case ProgramElement::Kind::kVar:
-            for (auto& v : pe.template as<VarDeclarations>().fVars) {
-                if (this->visitStatement(*v)) {
-                    return true;
-                }
+        case ProgramElement::Kind::kGlobalVar:
+            if (this->visitStatement(*pe.template as<GlobalVarDeclaration>().fDecl)) {
+                return true;
             }
             return false;
 

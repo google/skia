@@ -45,7 +45,6 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVarDeclarationsStatement.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLWhileStatement.h"
 
@@ -489,16 +488,12 @@ void Dehydrator::write(const Statement* s) {
                 const VarDeclaration& v = s->as<VarDeclaration>();
                 this->writeU8(Rehydrator::kVarDeclaration_Command);
                 this->writeU16(this->symbolId(v.fVar));
+                this->write(v.fBaseType);
                 this->writeU8(v.fSizes.size());
                 for (const std::unique_ptr<Expression>& sizeExpr : v.fSizes) {
                     this->write(sizeExpr.get());
                 }
                 this->write(v.fValue.get());
-                break;
-            }
-            case Statement::Kind::kVarDeclarations: {
-                const VarDeclarationsStatement& v = s->as<VarDeclarationsStatement>();
-                this->write(*v.fDeclaration);
                 break;
             }
             case Statement::Kind::kWhile: {
@@ -566,14 +561,10 @@ void Dehydrator::write(const ProgramElement& e) {
         case ProgramElement::Kind::kSection:
             SkASSERT(false);
             break;
-        case ProgramElement::Kind::kVar: {
-            const VarDeclarations& v = e.as<VarDeclarations>();
+        case ProgramElement::Kind::kGlobalVar: {
+            const GlobalVarDeclaration& v = e.as<GlobalVarDeclaration>();
             this->writeU8(Rehydrator::kVarDeclarations_Command);
-            this->write(v.fBaseType);
-            this->writeU8(v.fVars.size());
-            for (const auto& var : v.fVars) {
-                this->write(var.get());
-            }
+            this->write(v.fDecl.get());
             break;
         }
     }
