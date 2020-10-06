@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "2e6c241b_6cdbd7fb",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-06T15:48:10Z",
+      "side": 1,
+      "message": "From my research, the big issue was dynamic_annotations.cc messing up our TSAN annotations. It looks like they\u0027ve removed that from ToT (the .cc file no longer exists, just a .h).",
+      "parentUuid": "884ade72_94bbbdf7",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "276ec078de886f365ed62a7a48893801c7ce681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e560b488_d86cb302",
         "filename": "third_party/absl/BUILD.gn",
         "patchSetId": 4
