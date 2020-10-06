@@ -16,9 +16,9 @@ To use the library, run `npm install canvaskit-wasm` and then simply include it:
 
 As with all npm packages, there's a freely available CDN via unpkg.com:
 
-    <script src="https://unpkg.com/canvaskit-wasm@0.16.0/bin/canvaskit.js"></script>
+    <script src="https://unpkg.com/canvaskit-wasm@0.18.1/bin/canvaskit.js"></script>
     CanvasKitInit({
-         locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.16.0/bin/'+file,
+         locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.18.1/bin/'+file,
     }).then(...)
 
 ## Node
@@ -75,7 +75,8 @@ See `example.html` and `node.example.js` for demos of how to use the core API.
 See `extra.html` for some optional add-ins like an animation player (Skottie)
 and a particles system.
 
-More detailed docs will be coming soon.
+See `types/index.d.ts` for a typescript definition file that contains all the
+APIs and some documentation about them.
 
 ## Drop-in Canvas2D replacement
 For environments where an HTML canvas is not available (e.g. Node, headless servers),
