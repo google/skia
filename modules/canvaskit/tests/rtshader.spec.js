@@ -40,10 +40,10 @@ half4 main(float2 p) {
         if (!surface) {
             return;
         }
-        const spiral = CanvasKit.SkRuntimeEffect.Make(spiralSkSL);
+        const spiral = CanvasKit.RuntimeEffect.Make(spiralSkSL);
         expect(spiral).toBeTruthy('could not compile program');
         const canvas = surface.getCanvas();
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         canvas.clear(CanvasKit.BLACK); // black should not be visible
         const shader = spiral.makeShader([
             0.3,
@@ -67,7 +67,7 @@ half4 main(float2 p) {
     });
 
     it('can apply a matrix to the shader', (done) => {
-        testRTShader('rtshader_spiral_translated', done, CanvasKit.SkMatrix.translated(-200, 100));
+        testRTShader('rtshader_spiral_translated', done, CanvasKit.Matrix.translated(-200, 100));
     });
 
     const loadBrick = fetch(
@@ -108,18 +108,18 @@ half4 main(float2 xy) {
                 const mandrillImg = CanvasKit.MakeImageFromEncoded(mandrillData);
                 expect(mandrillImg).toBeTruthy('mandrill image could not be loaded');
 
-                const thresholdEffect = CanvasKit.SkRuntimeEffect.Make(thresholdSkSL);
+                const thresholdEffect = CanvasKit.RuntimeEffect.Make(thresholdSkSL);
                 expect(thresholdEffect).toBeTruthy('threshold did not compile');
-                const spiralEffect = CanvasKit.SkRuntimeEffect.Make(spiralSkSL);
+                const spiralEffect = CanvasKit.RuntimeEffect.Make(spiralSkSL);
                 expect(spiralEffect).toBeTruthy('spiral did not compile');
 
                 const brickShader = brickImg.makeShader(
                     CanvasKit.TileMode.Decal, CanvasKit.TileMode.Decal,
-                    CanvasKit.SkMatrix.scaled(CANVAS_WIDTH/brickImg.width(),
+                    CanvasKit.Matrix.scaled(CANVAS_WIDTH/brickImg.width(),
                                               CANVAS_HEIGHT/brickImg.height()));
                 const mandrillShader = mandrillImg.makeShader(
                     CanvasKit.TileMode.Decal, CanvasKit.TileMode.Decal,
-                    CanvasKit.SkMatrix.scaled(CANVAS_WIDTH/mandrillImg.width(),
+                    CanvasKit.Matrix.scaled(CANVAS_WIDTH/mandrillImg.width(),
                                               CANVAS_HEIGHT/mandrillImg.height()));
                 const spiralShader = spiralEffect.makeShader([
                     0.8,
@@ -134,7 +134,7 @@ half4 main(float2 xy) {
                 const surface = CanvasKit.MakeCanvasSurface('test');
                 expect(surface).toBeTruthy('Could not make surface');
                 const canvas = surface.getCanvas();
-                const paint = new CanvasKit.SkPaint();
+                const paint = new CanvasKit.Paint();
                 canvas.clear(CanvasKit.WHITE);
 
                 paint.setShader(blendShader);
@@ -160,6 +160,6 @@ half4 main(float2 xy) {
     });
 
     it('apply a local matrix to the children-based shader', (done) => {
-        testChildrenShader('rtshader_children_rotated', done, CanvasKit.SkMatrix.rotated(Math.PI/12));
+        testChildrenShader('rtshader_children_rotated', done, CanvasKit.Matrix.rotated(Math.PI/12));
     });
 });
