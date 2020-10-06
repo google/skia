@@ -33,6 +33,7 @@ public:
 
     const Symbol* operator[](StringFragment name);
 
+    void addAlias(StringFragment name, const Symbol* symbol);
     void addWithoutOwnership(StringFragment name, const Symbol* symbol);
 
     template <typename T>

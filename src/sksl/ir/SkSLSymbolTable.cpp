@@ -6,6 +6,8 @@
  */
 
 #include "src/sksl/ir/SkSLSymbolTable.h"
+
+#include "src/sksl/ir/SkSLSymbolAlias.h"
 #include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 namespace SkSL {
@@ -57,7 +59,11 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
             }
         }
     }
-    return entry->second;
+    const Symbol* symbol = entry->second;
+    while (symbol && symbol->is<SymbolAlias>()) {
+        symbol = symbol->as<SymbolAlias>().origSymbol();
+    }
+    return symbol;
 }
 
 const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
@@ -66,7 +72,13 @@ const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
     return result;
 }
 
+void SymbolTable::addAlias(StringFragment name, const Symbol* symbol) {
+    this->add(name, std::make_unique<SymbolAlias>(symbol->fOffset, name, symbol));
+}
+
 void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
+    SkASSERT(symbol->name() == name);
+
     const Symbol*& refInSymbolTable = fSymbols[name];
     if (refInSymbolTable == nullptr) {
         refInSymbolTable = symbol;
