@@ -12,7 +12,7 @@ third_party("absl") {
   # so please vet each new source file you add here carefully.  If you're
   # not sure what you're looking for, please R += mtklein@google.com.
   #
-  # In particular, please do not add absl::Mutex or dynamic_annotations.cc.
+  # In particular, please do not use absl::Mutex.
   sources = [
     "../externals/abseil-cpp/absl/base/internal/raw_logging.cc",
     "../externals/abseil-cpp/absl/base/internal/throw_delegate.cc",
