@@ -169,6 +169,30 @@
     },
     {
       "key": {
+        "uuid": "42ead678_d7da4c11",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-06T16:28:38Z",
+      "side": 1,
+      "message": "oh no no no.  That comment is about unknown unknowns.  That you think the comment is unnecessary is exactly why it\u0027s necessary.",
+      "parentUuid": "7a02abf7_0d0c5e35",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "276ec078de886f365ed62a7a48893801c7ce681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e560b488_d86cb302",
         "filename": "third_party/absl/BUILD.gn",
         "patchSetId": 4
