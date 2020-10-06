@@ -56,7 +56,6 @@ private:
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                              SkBudgeted budgeted,
                              SkISize dimensions,
-                             int sampleCnt,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
                              const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
@@ -79,7 +78,6 @@ private:
     // MSAA, wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
                              SkISize dimensions,
-                             int sampleCnt,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
                              const GrD3DDescriptorHeap::CPUHandle& shaderResourceView,
