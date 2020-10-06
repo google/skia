@@ -105,10 +105,11 @@ public:
         virtual void store(SpvId value, OutputStream& out) = 0;
     };
 
-    SPIRVCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
+    SPIRVCodeGenerator(IRGenerator* irGenerator, const Program* program, ErrorReporter* errors,
                        OutputStream* out)
     : INHERITED(program, errors, out)
-    , fContext(*context)
+    , fIRGenerator(*irGenerator)
+    , fContext(fIRGenerator.fContext)
     , fDefaultLayout(MemoryLayout::k140_Standard)
     , fCapabilities(0)
     , fIdCount(1)
@@ -366,6 +367,7 @@ private:
 
     void writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out);
 
+    IRGenerator& fIRGenerator;
     const Context& fContext;
     const MemoryLayout fDefaultLayout;
 

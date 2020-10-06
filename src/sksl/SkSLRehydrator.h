@@ -20,6 +20,7 @@ namespace SkSL {
 class Context;
 class ErrorReporter;
 struct Expression;
+class IRGenerator;
 struct ProgramElement;
 struct Statement;
 class SymbolTable;
@@ -142,9 +143,9 @@ public:
     };
 
     // src must remain in memory as long as the objects created from it do
-    Rehydrator(Context* context, std::shared_ptr<SymbolTable> symbolTable,
+    Rehydrator(IRGenerator* irGenerator, std::shared_ptr<SymbolTable> symbolTable,
                ErrorReporter* errorReporter, const uint8_t* src, size_t length)
-        : fContext(*context)
+        : fIRGenerator(*irGenerator)
         , fErrors(errorReporter)
         , fSymbolTable(std::move(symbolTable))
         , fStart(src)
@@ -198,7 +199,7 @@ private:
         return StringFragment(chars, length);
     }
 
-    void addSymbol(int id, const Symbol* symbol) {
+    void addSymbol(int id, Symbol* symbol) {
         while ((size_t) id >= fSymbols.size()) {
             fSymbols.push_back(nullptr);
         }
@@ -216,7 +217,7 @@ private:
 
     Modifiers modifiers();
 
-    const Symbol* symbol();
+    Symbol* symbol();
 
     std::unique_ptr<ProgramElement> element();
 
@@ -226,10 +227,10 @@ private:
 
     const Type* type();
 
-    Context& fContext;
+    IRGenerator& fIRGenerator;
     ErrorReporter* fErrors;
     std::shared_ptr<SymbolTable> fSymbolTable;
-    std::vector<const Symbol*> fSymbols;
+    std::vector<Symbol*> fSymbols;
 
     const uint8_t* fStart;
     const uint8_t* fIP;

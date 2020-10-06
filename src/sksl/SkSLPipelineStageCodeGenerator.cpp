@@ -110,7 +110,7 @@ void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable->fModifiers.fLayout.fBuiltin) {
+    switch (ref.fVariable->modifiers().fLayout.fBuiltin) {
         case SK_OUTCOLOR_BUILTIN:
             this->write(Compiler::kFormatArgPlaceholderStr);
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
@@ -135,7 +135,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                                 found = true;
                                 break;
                             }
-                            if (var.fModifiers.fFlags & flag) {
+                            if (var.modifiers().fFlags & flag) {
                                 ++index;
                             }
                         }
@@ -145,12 +145,12 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 return index;
             };
 
-            if (ref.fVariable->fModifiers.fFlags & Modifiers::kUniform_Flag) {
+            if (ref.fVariable->modifiers().fFlags & Modifiers::kUniform_Flag) {
                 this->write(Compiler::kFormatArgPlaceholderStr);
                 fArgs->fFormatArgs.push_back(
                         Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                             varIndexByFlag(Modifiers::kUniform_Flag)));
-            } else if (ref.fVariable->fModifiers.fFlags & Modifiers::kVarying_Flag) {
+            } else if (ref.fVariable->modifiers().fFlags & Modifiers::kVarying_Flag) {
                 this->write("_vtx_attr_");
                 this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
             } else {
@@ -224,9 +224,9 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
             return;
         }
         const Variable& var = *decls.fVars[0]->as<VarDeclaration>().fVar;
-        if (var.fModifiers.fFlags &
+        if (var.modifiers().fFlags &
                     (Modifiers::kIn_Flag | Modifiers::kUniform_Flag | Modifiers::kVarying_Flag) ||
-            -1 != var.fModifiers.fLayout.fBuiltin) {
+            var.modifiers().fLayout.fBuiltin == -1) {
             return;
         }
     }
