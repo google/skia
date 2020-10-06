@@ -8,7 +8,6 @@ _tests = get_path_info("../tests", "abspath")
 
 tests_sources = [
   "$_tests/AAClipTest.cpp",
-  "$_tests/AbseilTest.cpp",
   "$_tests/AdvancedBlendTest.cpp",
   "$_tests/AndroidCodecTest.cpp",
   "$_tests/AnimatedImageTest.cpp",
