@@ -103,6 +103,8 @@ public:
                                              Token::Kind op,
                                              const Expression& right) const;
 
+    Modifiers::Handle modifiersHandle(const Modifiers& modifiers);
+
     Program::Inputs fInputs;
     const Program::Settings* fSettings;
     const Context& fContext;
@@ -122,6 +124,11 @@ private:
      * Performs cleanup after compilation is complete.
      */
     void finish();
+
+    /**
+     * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
+     */
+    std::unique_ptr<std::vector<Modifiers>> releaseModifiers();
 
     void pushSymbolTable();
     void popSymbolTable();
@@ -224,6 +231,8 @@ private:
     bool fCanInline = true;
     // true if we are currently processing one of the built-in SkSL include files
     bool fIsBuiltinCode;
+    std::unique_ptr<std::vector<Modifiers>> fModifiers;
+    std::unordered_map<Modifiers, int> fModifiersMap;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

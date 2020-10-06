@@ -10,12 +10,35 @@
 
 #include "src/sksl/ir/SkSLLayout.h"
 
+#include <vector>
+
 namespace SkSL {
 
 /**
  * A set of modifier keywords (in, out, uniform, etc.) appearing before a declaration.
  */
 struct Modifiers {
+    /**
+     * Modifiers is a relatively large object, and so we jump through some hoops to avoid storing it
+     * directly in IRNode, using this handle instead.
+     */
+    class Handle {
+    public:
+        Handle() = default;
+
+        Handle(const std::vector<Modifiers>* collection, int index)
+            : fCollection(collection)
+            , fIndex(index) {}
+
+        const Modifiers& get() const {
+            return (*fCollection)[fIndex];
+        }
+
+    private:
+        const std::vector<Modifiers>* fCollection;
+        int fIndex;
+    };
+
     enum Flag {
         kNo_Flag             =       0,
         kConst_Flag          = 1 <<  0,
@@ -116,6 +139,17 @@ struct Modifiers {
     int fFlags;
 };
 
-}  // namespace SkSL
+} // namespace SkSL
+
+namespace std {
+
+template <>
+struct hash<SkSL::Modifiers> {
+    size_t operator()(const SkSL::Modifiers& key) const {
+        return key.fFlags ^ (key.fLayout.fFlags << 8) ^ (key.fLayout.fBuiltin << 16);
+    }
+};
+
+} // namespace std
 
 #endif

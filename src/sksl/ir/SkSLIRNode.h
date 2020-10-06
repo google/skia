@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLString.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 #include <algorithm>
 #include <vector>
@@ -23,7 +24,7 @@ struct FunctionDeclaration;
 struct Statement;
 class SymbolTable;
 class Type;
-struct Variable;
+class Variable;
 
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
@@ -71,6 +72,8 @@ public:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
                 return *this->typeTokenData().fType;
+            case NodeData::Kind::kVariable:
+                return *this->variableData().fType;
             default:
                 SkUNREACHABLE;
         }
@@ -137,6 +140,21 @@ protected:
         Token::Kind fToken;
     };
 
+    struct VariableData {
+        StringFragment fName;
+        const Type* fType;
+        const Expression* fInitialValue = nullptr;
+        Modifiers::Handle fModifiersHandle;
+        // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
+        // becomes zero during optimization), the variable is dead and may be eliminated.
+        mutable int16_t fReadCount;
+        // Tracks how many sites write to the variable. If this is zero, the variable is dead and
+        // may be eliminated.
+        mutable int16_t fWriteCount;
+        /*Variable::Storage*/int8_t fStorage;
+        bool fBuiltin;
+    };
+
     struct NodeData {
         enum class Kind {
             kBlock,
@@ -152,6 +170,7 @@ protected:
             kSymbol,
             kType,
             kTypeToken,
+            kVariable,
         } fKind = Kind::kType;
         // it doesn't really matter what kind we default to, as long as it's a POD type
 
@@ -169,6 +188,7 @@ protected:
             SymbolData fSymbol;
             const Type* fType;
             TypeTokenData fTypeToken;
+            VariableData fVariable;
 
             Contents() {}
 
@@ -240,6 +260,11 @@ protected:
             *(new(&fContents) TypeTokenData) = data;
         }
 
+        NodeData(const VariableData& data)
+            : fKind(Kind::kVariable) {
+            *(new(&fContents) VariableData) = data;
+        }
+
         NodeData(const NodeData& other) {
             *this = other;
         }
@@ -286,6 +311,9 @@ protected:
                     break;
                 case Kind::kTypeToken:
                     *(new(&fContents) TypeTokenData) = other.fContents.fTypeToken;
+                    break;
+                case Kind::kVariable:
+                    *(new(&fContents) VariableData) = other.fContents.fVariable;
                     break;
             }
             return *this;
@@ -336,6 +364,9 @@ protected:
                 case Kind::kTypeToken:
                     fContents.fTypeToken.~TypeTokenData();
                     break;
+                case Kind::kVariable:
+                    fContents.fVariable.~VariableData();
+                    break;
             }
         }
     };
@@ -367,7 +398,7 @@ protected:
 
     IRNode(int offset, int kind, const TypeTokenData& data);
 
-    IRNode(const IRNode& other);
+    IRNode(int offset, int kind, const VariableData& data);
 
     Expression& expressionChild(int index) const {
         SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
@@ -481,6 +512,16 @@ protected:
     const TypeTokenData& typeTokenData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kTypeToken);
         return fData.fContents.fTypeToken;
+    }
+
+    VariableData& variableData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kVariable);
+        return fData.fContents.fVariable;
+    }
+
+    const VariableData& variableData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kVariable);
+        return fData.fContents.fVariable;
     }
 
     int fKind;
