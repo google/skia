@@ -735,7 +735,7 @@ private:
         int fColorTypeInfoCount = 0;
     };
 
-    FormatInfo fFormatTable[kGrGLFormatCount];
+    FormatInfo fFormatTable[kGrGLColorFormatCount];
 
     FormatInfo& getFormatInfo(GrGLFormat format) { return fFormatTable[static_cast<int>(format)]; }
     const FormatInfo& getFormatInfo(GrGLFormat format) const {
