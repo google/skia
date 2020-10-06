@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "25d0f452_0605adf8",
+        "filename": "src/sksl/SkSLDehydrator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T20:10:13Z",
+      "side": 1,
+      "message": "PTAL again, I fixed a few mixups.",
+      "parentUuid": "3e9ac23f_8d71e0f2",
+      "revId": "181585d790842ec8f2726ef2e4273c3ae40987ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5976c5c6_e5a7de44",
@@ -31,6 +49,30 @@
       "writtenOn": "2020-10-06T19:50:04Z",
       "side": 1,
       "message": "nit: 2020, LLC",
+      "range": {
+        "startLine": 2,
+        "startChar": 12,
+        "endLine": 2,
+        "endChar": 28
+      },
+      "revId": "181585d790842ec8f2726ef2e4273c3ae40987ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d0ab779_61f8d821",
+        "filename": "src/sksl/ir/SkSLSymbolAlias.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T20:10:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5976c5c6_e5a7de44",
       "range": {
         "startLine": 2,
         "startChar": 12,
