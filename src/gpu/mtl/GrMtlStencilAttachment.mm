@@ -14,11 +14,8 @@
 
 GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
                                                SkISize dimensions,
-                                               const Format& format,
                                                const id<MTLTexture> stencilView)
-    : GrStencilAttachment(gpu, dimensions, format.fStencilBits,
-                          stencilView.sampleCount, GrProtected::kNo)
-    , fFormat(format)
+    : GrStencilAttachment(gpu, dimensions, stencilView.sampleCount, GrProtected::kNo)
     , fStencilView(stencilView) {
     this->registerWithCache(SkBudgeted::kYes);
 }
@@ -26,9 +23,9 @@ GrMtlStencilAttachment::GrMtlStencilAttachment(GrMtlGpu* gpu,
 GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
                                                        SkISize dimensions,
                                                        int sampleCnt,
-                                                       const Format& format) {
+                                                       MTLPixelFormat format) {
     MTLTextureDescriptor* desc =
-        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format.fInternalFormat
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:format
                                                            width:dimensions.width()
                                                           height:dimensions.height()
                                                        mipmapped:NO];
@@ -40,7 +37,7 @@ GrMtlStencilAttachment* GrMtlStencilAttachment::Create(GrMtlGpu* gpu,
     if (sampleCnt > 1) {
         desc.textureType = MTLTextureType2DMultisample;
     }
-    return new GrMtlStencilAttachment(gpu, dimensions, format,
+    return new GrMtlStencilAttachment(gpu, dimensions,
                                       [gpu->device() newTextureWithDescriptor:desc]);
 }
 
@@ -52,9 +49,9 @@ GrMtlStencilAttachment::~GrMtlStencilAttachment() {
 size_t GrMtlStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
-    size *= fFormat.fTotalBits;
+    size *= GrMtlFormatBytesPerBlock(this->mtlFormat());
     size *= this->numSamples();
-    return static_cast<size_t>(size / 8);
+    return static_cast<size_t>(size);
 }
 
 void GrMtlStencilAttachment::onRelease() {

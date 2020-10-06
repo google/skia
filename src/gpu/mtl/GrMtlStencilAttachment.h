@@ -17,15 +17,8 @@ class GrMtlGpu;
 
 class GrMtlStencilAttachment : public GrStencilAttachment {
 public:
-    struct Format {
-        MTLPixelFormat fInternalFormat;
-        int  fStencilBits;
-        int  fTotalBits;
-        bool fPacked;
-    };
-
     static GrMtlStencilAttachment* Create(GrMtlGpu* gpu, SkISize dimensions,
-                                          int sampleCnt, const Format& format);
+                                          int sampleCnt, MTLPixelFormat format);
 
     ~GrMtlStencilAttachment() override;
 
@@ -33,7 +26,7 @@ public:
         return GrBackendFormat::MakeMtl(fStencilView.pixelFormat);
     }
 
-    MTLPixelFormat mtlFormat() const { return fFormat.fInternalFormat; }
+    MTLPixelFormat mtlFormat() const { return fStencilView.pixelFormat; }
 
     id<MTLTexture> stencilView() const { return fStencilView; }
 
@@ -46,12 +39,9 @@ private:
 
     GrMtlStencilAttachment(GrMtlGpu* gpu,
                            SkISize dimensions,
-                           const Format& format,
                            const id<MTLTexture> stencilView);
 
     GrMtlGpu* getMtlGpu() const;
-
-    Format fFormat;
 
     id<MTLTexture> fStencilView;
 };

@@ -681,22 +681,13 @@ bool stencil_format_supported(const GrVkInterface* interface,
 }
 
 void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevice physDev) {
-    // List of legal stencil formats (though perhaps not supported on
-    // the particular gpu/driver) from most preferred to least. We are guaranteed to have either
-    // VK_FORMAT_D24_UNORM_S8_UINT or VK_FORMAT_D32_SFLOAT_S8_UINT.
-    static const StencilFormat
-                  // internal Format             stencil bits
-        gS8    = { VK_FORMAT_S8_UINT,            8 },
-        gD24S8 = { VK_FORMAT_D24_UNORM_S8_UINT,  8 },
-        gD32S8 = { VK_FORMAT_D32_SFLOAT_S8_UINT, 8 };
-
     if (stencil_format_supported(interface, physDev, VK_FORMAT_S8_UINT)) {
-        fPreferredStencilFormat = gS8;
+        fPreferredStencilFormat = VK_FORMAT_S8_UINT;
     } else if (stencil_format_supported(interface, physDev, VK_FORMAT_D24_UNORM_S8_UINT)) {
-        fPreferredStencilFormat = gD24S8;
+        fPreferredStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
     } else {
         SkASSERT(stencil_format_supported(interface, physDev, VK_FORMAT_D32_SFLOAT_S8_UINT));
-        fPreferredStencilFormat = gD32S8;
+        fPreferredStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
     }
 }
 

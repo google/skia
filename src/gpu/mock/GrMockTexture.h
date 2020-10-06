@@ -116,7 +116,7 @@ public:
     GrBackendRenderTarget getBackendRenderTarget() const override {
         int numStencilBits = 0;
         if (GrStencilAttachment* stencil = this->getStencilAttachment()) {
-            numStencilBits = stencil->bits();
+            numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
         }
         return {this->width(), this->height(), this->numSamples(), numStencilBits, fInfo};
     }
