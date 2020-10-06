@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da4de8f4_235c4d6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T14:52:42Z",
+      "side": 1,
+      "message": "The only internal failure seems to be unrelated (someone moved a BUILD file).",
+      "revId": "b2f61a69d397d1f62f61bc972d2097a5c9efb403",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
