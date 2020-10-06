@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "6015f403_5957cadd",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T15:53:09Z",
+      "side": 1,
+      "message": "I remember dynamic_allocations and TSAN didn\u0027t get along, and that one needs to be excluded specifically. My only recollection of absl::Mutex problems were that we didn\u0027t like the idea of adding one more mutex class that could be used inside Skia, but I don\u0027t know that it actually caused any concrete problems.\n\nOther things I remember that don\u0027t seem to apply:\n- stack crawls weren\u0027t functional in OS X, but it wasn\u0027t breaking anything else and this could be a config issue\n- we hypothesized that it could cause problems if we were static linked into a client that included a mismatched version of Abseil. This sounds ODR-dangerous. Static linking in general seems dicey in this case unless we distinguish our copy somehow (namespace?).",
+      "parentUuid": "884ade72_94bbbdf7",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "276ec078de886f365ed62a7a48893801c7ce681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e560b488_d86cb302",
         "filename": "third_party/absl/BUILD.gn",
         "patchSetId": 4
