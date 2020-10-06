@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "758b8be3_7af06c02",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-10-06T20:07:17Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "5facf030_674d7bd3",
+      "range": {
+        "startLine": 599,
+        "startChar": 21,
+        "endLine": 599,
+        "endChar": 38
+      },
+      "revId": "f165f799aec778065e4ec97b8a2da0f049b499af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f5cdf25c_44473108",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-06T19:34:57Z",
       "side": 0,
       "message": "This seems like it should be just findPreviousGraphemeBoundary?",
+      "range": {
+        "startLine": 602,
+        "startChar": 19,
+        "endLine": 602,
+        "endChar": 36
+      },
+      "revId": "f165f799aec778065e4ec97b8a2da0f049b499af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "726e5b8b_84b8e24a",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-10-06T20:07:17Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "f5cdf25c_44473108",
       "range": {
         "startLine": 602,
         "startChar": 19,

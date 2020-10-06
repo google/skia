@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3d116b5b_037fad62",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-10-06T20:07:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e77e737_75a24c71",
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "557f90d4_f7b84a03",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -75,6 +93,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "888227d6_f5859893",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 919,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-10-06T20:07:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d72b1dd4_34e16eed",
+      "range": {
+        "startLine": 919,
+        "startChar": 25,
+        "endLine": 919,
+        "endChar": 40
+      },
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4732d586_0f86419a",
@@ -88,6 +130,30 @@
       "writtenOn": "2020-10-06T19:34:57Z",
       "side": 1,
       "message": "This is more like, findNextGraphemeBoundary\n\nThis is a confusing change because findGraphemeStart is now named findGraphemeEnd and this new \u0027findGraphemeStart\u0027 has been added with different behavior.",
+      "range": {
+        "startLine": 927,
+        "startChar": 25,
+        "endLine": 927,
+        "endChar": 42
+      },
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1508760_9be86ebb",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-10-06T20:07:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4732d586_0f86419a",
       "range": {
         "startLine": 927,
         "startChar": 25,
