@@ -18,13 +18,8 @@ class GrD3DGpu;
 
 class GrD3DStencilAttachment : public GrStencilAttachment, public GrD3DTextureResource {
 public:
-    struct Format {
-        DXGI_FORMAT fInternalFormat;
-        int  fStencilBits;
-    };
-
     static GrD3DStencilAttachment* Make(GrD3DGpu* gpu, SkISize dimensions, int sampleCnt,
-                                        const Format& format);
+                                        DXGI_FORMAT format);
 
     ~GrD3DStencilAttachment() override {}
 
@@ -43,7 +38,7 @@ private:
 
     GrD3DStencilAttachment(GrD3DGpu* gpu,
                            SkISize dimensions,
-                           const Format& format,
+                           DXGI_FORMAT format,
                            const D3D12_RESOURCE_DESC&,
                            const GrD3DTextureResourceInfo&,
                            sk_sp<GrD3DResourceState>,

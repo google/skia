@@ -21,8 +21,6 @@ struct GrVkInterface;
  */
 class GrVkCaps : public GrCaps {
 public:
-    typedef GrVkStencilAttachment::Format StencilFormat;
-
     /**
      * Creates a GrVkCaps that is set such that nothing is supported. The init function should
      * be called to fill out the caps.
@@ -92,7 +90,7 @@ public:
     /**
      * Returns both a supported and most preferred stencil format to use in draws.
      */
-    const StencilFormat& preferredStencilFormat() const {
+    VkFormat preferredStencilFormat() const {
         return fPreferredStencilFormat;
     }
 
@@ -304,7 +302,7 @@ private:
     VkFormat fColorTypeToFormatTable[kGrColorTypeCnt];
     void setColorType(GrColorType, std::initializer_list<VkFormat> formats);
 
-    StencilFormat fPreferredStencilFormat;
+    VkFormat fPreferredStencilFormat;
 
     SkSTArray<1, GrVkYcbcrConversionInfo> fYcbcrInfos;
 
