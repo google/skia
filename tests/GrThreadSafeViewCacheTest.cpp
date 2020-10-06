@@ -21,6 +21,7 @@
 
 static constexpr int kImageWH = 32;
 static constexpr auto kImageOrigin = kBottomLeft_GrSurfaceOrigin;
+static constexpr int kNoID = -1;
 
 static SkImageInfo default_ii(int wh) {
     return SkImageInfo::Make(wh, wh, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -39,11 +40,15 @@ static std::unique_ptr<GrRenderTargetContext> new_RTC(GrRecordingContext* rConte
                                        SkBudgeted::kYes);
 }
 
-static void create_key(GrUniqueKey* key, int wh) {
+static void create_key(GrUniqueKey* key, int wh, int id) {
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey::Builder builder(key, kDomain, 1);
     builder[0] = wh;
     builder.finish();
+
+    if (id != kNoID) {
+        key->setCustomData(SkData::MakeWithCopy(&id, sizeof(id)));
+    }
 };
 
 static SkBitmap create_bitmap(int wh) {
@@ -134,12 +139,13 @@ public:
     // Add a draw on 'canvas' that will introduce a ref on the 'wh' view
     void accessCachedView(SkCanvas* canvas,
                           int wh,
+                          int id = kNoID,
                           bool failLookup = false,
                           bool failFillingIn = false) {
         GrRecordingContext* rContext = canvas->recordingContext();
 
         auto view = AccessCachedView(rContext, this->threadSafeViewCache(),
-                                     wh, failLookup, failFillingIn, &fStats);
+                                     wh, failLookup, failFillingIn, id, &fStats);
         SkASSERT(view);
 
         auto rtc = canvas->internal_private_accessTopLayerRenderTargetContext();
@@ -162,7 +168,7 @@ public:
 
     // Besides checking that the number of refs and cache hits and misses are as expected, this
     // method also validates that the unique key doesn't appear in any of the other caches.
-    bool checkView(SkCanvas* canvas, int wh, int hits, int misses, int numRefs) {
+    bool checkView(SkCanvas* canvas, int wh, int hits, int misses, int numRefs, int expectedID) {
         if (fStats.fCacheHits != hits || fStats.fCacheMisses != misses) {
             SkDebugf("Hits E: %d A: %d --- Misses E: %d A: %d\n",
                      hits, fStats.fCacheHits, misses, fStats.fCacheMisses);
@@ -170,13 +176,28 @@ public:
         }
 
         GrUniqueKey key;
-        create_key(&key, wh);
+        create_key(&key, wh, kNoID);
 
         auto threadSafeViewCache = this->threadSafeViewCache();
 
-        GrSurfaceProxyView view = threadSafeViewCache->find(key);
+        auto [view, data] = threadSafeViewCache->findWithData(key);
         if (!view.proxy()) {
             return false;
+        }
+
+        if (expectedID < 0) {
+            if (data) {
+                return false;
+            }
+        } else {
+            if (!data) {
+                return false;
+            }
+
+            const int* cachedID = static_cast<const int*>(data->data());
+            if (*cachedID != expectedID) {
+                return false;
+            }
         }
 
         if (!view.proxy()->refCntGreaterThan(numRefs+1) ||  // +1 for 'view's ref
@@ -278,7 +299,7 @@ private:
     static GrSurfaceProxyView AccessCachedView(GrRecordingContext*,
                                                GrThreadSafeUniquelyKeyedProxyViewCache*,
                                                int wh,
-                                               bool failLookup, bool failFillingIn,
+                                               bool failLookup, bool failFillingIn, int id,
                                                Stats*);
     static GrSurfaceProxyView CreateViewOnCpu(GrRecordingContext*, int wh, Stats*);
     static std::tuple<GrSurfaceProxyView, sk_sp<Trampoline>> CreateLazyView(GrDirectContext*,
@@ -381,20 +402,25 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
                                     GrRecordingContext* rContext,
                                     GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache,
                                     int wh,
-                                    bool failLookup, bool failFillingIn,
+                                    bool failLookup, bool failFillingIn, int id,
                                     Stats* stats) {
     GrUniqueKey key;
-    create_key(&key, wh);
+    create_key(&key, wh, id);
 
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
         // it crams a lazy proxy into the cache and then fills it in later.
         auto [lazyView, trampoline] = CreateLazyView(dContext, wh, stats);
 
-        GrSurfaceProxyView view = threadSafeViewCache->findOrAdd(key, lazyView);
+        auto [view, data] = threadSafeViewCache->findOrAddWithData(key, lazyView);
         if (view != lazyView) {
             ++stats->fCacheHits;
             return view;
+        } else if (id != kNoID) {
+            // Make sure, in this case, that the customData stuck
+            SkASSERT(data);
+            SkDEBUGCODE(const int* cachedID = static_cast<const int*>(data->data());)
+            SkASSERT(*cachedID == id);
         }
 
         ++stats->fCacheMisses;
@@ -427,7 +453,14 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
         view = CreateViewOnCpu(rContext, wh, stats);
         SkASSERT(view);
 
-        return threadSafeViewCache->add(key, view);
+        auto [newView, data] = threadSafeViewCache->addWithData(key, view);
+        if (view == newView && id != kNoID) {
+            // Make sure, in this case, that the customData stuck
+            SkASSERT(data);
+            SkDEBUGCODE(const int* cachedID = static_cast<const int*>(data->data());)
+            SkASSERT(*cachedID == id);
+        }
+        return newView;
     }
 }
 
@@ -435,13 +468,13 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
 
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
+    helper.accessCachedView(helper.ddlCanvas2(), kImageWH, 2);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
@@ -456,17 +489,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    helper.accessCachedView(helper.liveCanvas(), kImageWH, 1);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 2);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
 
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
+    helper.accessCachedView(helper.ddlCanvas2(), kImageWH, 3);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
+                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -482,13 +515,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    helper.accessCachedView(helper.liveCanvas(), kImageWH, 2);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -503,14 +536,14 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
 
     static const bool kFailLookup = true;
-    helper.accessCachedView(helper.ddlCanvas2(), kImageWH, kFailLookup);
+    helper.accessCachedView(helper.ddlCanvas2(), kImageWH, 2, kFailLookup);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 0);
@@ -526,9 +559,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_5, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
-    helper.accessCachedView(helper.liveCanvas(), kImageWH);
+    helper.accessCachedView(helper.liveCanvas(), kImageWH, 1);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -536,9 +569,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_5, reporter, ctxInfo) 
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 
     static const bool kFailLookup = true;
-    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, kFailLookup);
+    helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 2, kFailLookup);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 2, /*id*/ 1));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -557,9 +590,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo)
     TestHelper helper(dContext);
 
     static const bool kFailFillingIn = true;
-    helper.accessCachedView(helper.liveCanvas(), kImageWH, false, kFailFillingIn);
+    helper.accessCachedView(helper.liveCanvas(), kImageWH, kNoID, false, kFailFillingIn);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -570,7 +603,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo)
     dContext->submit(true);
 
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 0));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 0, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -578,20 +611,29 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo)
     REPORTER_ASSERT(reporter, helper.stats()->fNumSWCreations == 0);
 }
 
-// Case 5: ensure that expanding the map works
+// Case 5: ensure that expanding the map works (esp. wrt custom data)
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     auto threadSafeViewCache = helper.threadSafeViewCache();
 
     int size = 16;
-    helper.accessCachedView(helper.ddlCanvas1(), size);
+    helper.accessCachedView(helper.ddlCanvas1(), size, /*id*/ size);
 
     size_t initialSize = threadSafeViewCache->approxBytesUsedForHash();
 
     while (initialSize == threadSafeViewCache->approxBytesUsedForHash()) {
         size *= 2;
-        helper.accessCachedView(helper.ddlCanvas1(), size);
+        helper.accessCachedView(helper.ddlCanvas1(), size, /*id*/ size);
+    }
+
+    for (int i = 16; i <= size; i *= 2) {
+        REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(),
+                                                   /*wh*/ i,
+                                                   /*hits*/ 0,
+                                                   /*misses*/ threadSafeViewCache->numEntries(),
+                                                   /*refs*/ 1,
+                                                   /*id*/ i));
     }
 }
 
@@ -603,28 +645,28 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
     ddl1 = nullptr;
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     ddl2 = nullptr;
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0, kNoID));
 
     // The cache still has its ref
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 0, kNoID));
 }
 
 // Case 7: Check that invoking dropAllRefs and dropUniqueRefs directly works as expected; i.e.,
@@ -635,12 +677,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
@@ -652,7 +694,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
     helper.threadSafeViewCache()->dropUniqueRefs(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     helper.threadSafeViewCache()->dropAllRefs();
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
@@ -668,16 +710,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache8, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
+                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -702,16 +744,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache9, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas2(), kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3));
+                                               /*hits*/ 2, /*misses*/ 1, /*refs*/ 3, kNoID));
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.stats()->fNumLazyCreations == 1);
@@ -744,21 +786,21 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
     helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1));
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), 2*kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 2));
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 2, kNoID));
 
     dContext->flush();
     dContext->submit(true);
@@ -771,9 +813,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0));
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0));
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
 
     // Regardless of which image is MRU, this should force the other out
     size_t desiredBytes = helper.gpuSize(2*kImageWH) + helper.gpuSize(kImageWH)/2;
@@ -790,7 +832,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
 
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0));
+                                               /*hits*/ 2, /*misses*/ 2, /*refs*/ 0, kNoID));
 }
 
 // Case 11: This checks that scratch-only variant of GrContext::purgeUnlockedResources works as
@@ -803,20 +845,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache11, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
 
     helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     dContext->flush();
     dContext->submit(true);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
 
     // This shouldn't remove anything from the cache
     dContext->purgeUnlockedResources(/* scratchResourcesOnly */ true);
@@ -838,24 +880,24 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache12, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2));
+                                               /*hits*/ 1, /*misses*/ 1, /*refs*/ 2, kNoID));
 
     helper.accessCachedView(helper.liveCanvas(), 2*kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1));
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
 
     dContext->flush();
     dContext->submit(true);
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1));
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 1, kNoID));
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 0));
+                                               /*hits*/ 1, /*misses*/ 2, /*refs*/ 0, kNoID));
 
     dContext->setResourceCacheLimit(0);
 
@@ -878,7 +920,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
 
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(), kImageWH,
-                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 1, /*refs*/ 1, kNoID));
     sk_sp<SkDeferredDisplayList> ddl1 = helper.snap1();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -887,7 +929,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
 
     helper.accessCachedView(helper.ddlCanvas2(), 2*kImageWH);
     REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas2(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
     sk_sp<SkDeferredDisplayList> ddl2 = helper.snap2();
 
     ddl1 = nullptr;
@@ -902,5 +944,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.checkView(helper.liveCanvas(), 2*kImageWH,
-                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0));
+                                               /*hits*/ 0, /*misses*/ 2, /*refs*/ 0, kNoID));
 }

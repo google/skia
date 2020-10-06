@@ -266,6 +266,7 @@ public:
 
     void setCustomData(sk_sp<SkData> data) { fData = std::move(data); }
     SkData* getCustomData() const { return fData.get(); }
+    sk_sp<SkData> refCustomData() const { return fData; }
 
     const char* tag() const { return fTag; }
 
