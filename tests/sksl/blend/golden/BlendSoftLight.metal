@@ -2,11 +2,13 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Inputs {
-    float4 srcdst;
+    float4 src;
+    float4 dst;
 };
 struct Outputs {
     float4 sk_FragColor [[color(0)]];
 };
+
 
 float _soft_light_component(float2 s, float2 d) {
     if (2.0 * s.x <= s.y) {
