@@ -95,6 +95,18 @@ public:
 
     void remove(const GrUniqueKey&)  SK_EXCLUDES(fSpinLock);
 
+    // To allow gpu-created resources to have priority, we pre-emptively place a lazy proxy
+    // in the thread-safe cache (with findOrAdd). The Trampoline object allows that lazy proxy to
+    // be instantiated with some later generated rendering result.
+    class Trampoline : public SkRefCnt {
+    public:
+        sk_sp<GrTextureProxy> fProxy;
+    };
+
+    static std::tuple<GrSurfaceProxyView, sk_sp<Trampoline>> CreateLazyView(GrDirectContext*,
+                                                                            SkISize dimensions,
+                                                                            GrColorType,
+                                                                            GrSurfaceOrigin);
 private:
     struct Entry {
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
