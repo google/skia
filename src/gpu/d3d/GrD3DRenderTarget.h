@@ -31,7 +31,13 @@ public:
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
-    GrD3DTextureResource* msaaTextureResource() const { return fMSAATextureResource.get(); }
+    /**
+     * If this render target is multisampled, this returns the MSAA texture for rendering. This
+     * will be different than *this* when we have separate render/resolve images. If not
+     * multisampled returns nullptr.
+     */
+    const GrD3DTextureResource* msaaTextureResource() const;
+    GrD3DTextureResource* msaaTextureResource();
 
     bool canAttemptStencilAttachment() const override {
         return true;
@@ -51,7 +57,6 @@ public:
 protected:
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
-                      int sampleCnt,
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
                       const GrD3DTextureResourceInfo& msaaInfo,
@@ -84,7 +89,6 @@ private:
     enum Wrapped { kWrapped };
     GrD3DRenderTarget(GrD3DGpu* gpu,
                       SkISize dimensions,
-                      int sampleCnt,
                       const GrD3DTextureResourceInfo& info,
                       sk_sp<GrD3DResourceState> state,
                       const GrD3DTextureResourceInfo& msaaInfo,
