@@ -34,12 +34,12 @@ public:
     const Symbol* operator[](StringFragment name);
 
     void addAlias(StringFragment name, const Symbol* symbol);
-    void addWithoutOwnership(StringFragment name, const Symbol* symbol);
+    void addWithoutOwnership(const Symbol* symbol);
 
     template <typename T>
-    const T* add(StringFragment name, std::unique_ptr<T> symbol) {
+    const T* add(std::unique_ptr<T> symbol) {
         const T* ptr = symbol.get();
-        this->addWithoutOwnership(name, ptr);
+        this->addWithoutOwnership(ptr);
         this->takeOwnershipOfSymbol(std::move(symbol));
         return ptr;
     }
