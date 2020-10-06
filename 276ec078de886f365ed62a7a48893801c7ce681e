@@ -145,6 +145,30 @@
     },
     {
       "key": {
+        "uuid": "7a02abf7_0d0c5e35",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T16:25:52Z",
+      "side": 1,
+      "message": "SGTM, although it sounds like maybe the comment isn\u0027t even needed now?",
+      "parentUuid": "1b3f9a74_e9c63acc",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "276ec078de886f365ed62a7a48893801c7ce681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e560b488_d86cb302",
         "filename": "third_party/absl/BUILD.gn",
         "patchSetId": 4
