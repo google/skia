@@ -81,7 +81,14 @@ enum class GrGLFormat {
     kRG16F,
     kLUMINANCE16F,
 
-    kLast = kLUMINANCE16F
+    kLastColorFormat = kLUMINANCE16F,
+
+    // Depth/Stencil formats
+    kSTENCIL_INDEX8,
+    kSTENCIL_INDEX16,
+    kDEPTH24_STENCIL8,
+
+    kLast = kDEPTH24_STENCIL8
 };
 
 ///////////////////////////////////////////////////////////////////////////////

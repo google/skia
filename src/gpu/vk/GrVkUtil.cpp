@@ -37,6 +37,9 @@ bool GrVkFormatIsSupported(VkFormat format) {
         case VK_FORMAT_G8_B8R8_2PLANE_420_UNORM:
         case VK_FORMAT_R16G16B16A16_UNORM:
         case VK_FORMAT_R16G16_SFLOAT:
+        case VK_FORMAT_S8_UINT:
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
             return true;
         default:
             return false;
