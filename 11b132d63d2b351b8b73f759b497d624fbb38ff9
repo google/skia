@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e632eb6_e79cf779",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-06T20:33:13Z",
+      "side": 1,
+      "message": "Experiment to only declare one variable per declaration in the IR. This version works, though there is more that can/should be done:\n\n- Avoid the third tier of classes. Probably just have VarDeclaration (statement), and VarDeclarationElement (element, pointing to one of those). No need for the Statement that points to an element, pointing to another statement. Doing this will require yet another way of changes, but will further simplify all of the code.\n- As part of that, the CFG logic can get simpler - the old code replaced the individual VD statements with Nops, then later noticed the nops and removed them from the vector\u003c\u003e, and we could end up with VDS statements that had empty variable lists. The code generators were handling this by checking for empty vectors... Instead, I kept the same basic structure, but we can end up with a VDS where the one var is a Nop now, which is what things are checking for. If we switch to only one tier of statements, we can directly Nop the VD statements, and there will never be an \"invalid\" VarDeclarationElement in the program. I was tempted to try and do some of this now, but it\u0027s tricky enough that I\u0027d rather save it for a follow-up.",
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
