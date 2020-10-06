@@ -121,6 +121,30 @@
     },
     {
       "key": {
+        "uuid": "1b3f9a74_e9c63acc",
+        "filename": "third_party/absl/BUILD.gn",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-06T16:19:20Z",
+      "side": 1,
+      "message": "Gotcha.  Looks like once we roll the dynamic_allocations issue is fixed, and Abseil\u0027s got a mechanism for namespacing if we run into that, so I think that\u0027ll wrap up all our known issues.",
+      "parentUuid": "6015f403_5957cadd",
+      "range": {
+        "startLine": 11,
+        "startChar": 4,
+        "endLine": 11,
+        "endChar": 23
+      },
+      "revId": "276ec078de886f365ed62a7a48893801c7ce681e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e560b488_d86cb302",
         "filename": "third_party/absl/BUILD.gn",
         "patchSetId": 4
