@@ -970,7 +970,7 @@ GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 
-    const GrD3DCaps::StencilFormat& sFmt = this->d3dCaps().preferredStencilFormat();
+    DXGI_FORMAT sFmt = this->d3dCaps().preferredStencilFormat();
 
     GrD3DStencilAttachment* stencil(GrD3DStencilAttachment::Make(this,
                                                                  dimensions,
