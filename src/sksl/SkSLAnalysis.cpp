@@ -140,7 +140,7 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<VariableReference>()) {
             const VariableReference& var = e.as<VariableReference>();
-            return var.fVariable->fModifiers.fLayout.fBuiltin == fBuiltin;
+            return var.fVariable->modifiers().fLayout.fBuiltin == fBuiltin;
         }
         return INHERITED::visitExpression(e);
     }
@@ -241,8 +241,8 @@ public:
             case Expression::Kind::kVariableReference: {
                 VariableReference& varRef = expr.as<VariableReference>();
                 const Variable* var = varRef.fVariable;
-                if (var->fModifiers.fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag |
-                                              Modifiers::kVarying_Flag)) {
+                if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag |
+                                               Modifiers::kVarying_Flag)) {
                     fErrors->error(expr.fOffset,
                                    "cannot modify immutable variable '" + var->name() + "'");
                 } else if (fAssignableVar) {

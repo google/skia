@@ -45,7 +45,7 @@ struct VarDeclaration : public Statement {
     }
 
     String description() const override {
-        String result = fVar->fModifiers.description() + fVar->type().name() + " " + fVar->name();
+        String result = fVar->modifiers().description() + fVar->type().name() + " " + fVar->name();
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";
@@ -99,7 +99,7 @@ struct VarDeclarations : public ProgramElement {
         for (const auto& var : fVars) {
             if (var->kind() != Statement::Kind::kNop) {
                 SkASSERT(var->kind() == Statement::Kind::kVarDeclaration);
-                result = ((const VarDeclaration&) *var).fVar->fModifiers.description();
+                result = ((const VarDeclaration&) *var).fVar->modifiers().description();
                 break;
             }
         }

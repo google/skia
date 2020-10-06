@@ -250,6 +250,7 @@ struct Program {
             std::shared_ptr<Context> context,
             std::vector<std::unique_ptr<ProgramElement>>* inheritedElements,
             std::vector<std::unique_ptr<ProgramElement>> elements,
+            std::unique_ptr<std::vector<Modifiers>> modifiers,
             std::shared_ptr<SymbolTable> symbols,
             Inputs inputs)
     : fKind(kind)
@@ -259,7 +260,8 @@ struct Program {
     , fSymbols(symbols)
     , fInputs(inputs)
     , fInheritedElements(inheritedElements)
-    , fElements(std::move(elements)) {}
+    , fElements(std::move(elements))
+    , fModifiers(std::move(modifiers)) {}
 
     iterator begin() {
         if (fInheritedElements) {
@@ -305,6 +307,7 @@ struct Program {
 private:
     std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
+    std::unique_ptr<std::vector<Modifiers>> fModifiers;
 
     friend class Compiler;
 };

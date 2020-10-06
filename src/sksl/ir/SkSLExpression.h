@@ -18,7 +18,7 @@ namespace SkSL {
 
 struct Expression;
 class IRGenerator;
-struct Variable;
+class Variable;
 
 using DefinitionMap = TinyUnorderedMap<const Variable*, std::unique_ptr<Expression>*>;
 

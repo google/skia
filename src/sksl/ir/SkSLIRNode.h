@@ -11,6 +11,7 @@
 #include "src/sksl/SkSLASTNode.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLString.h"
+#include "src/sksl/ir/SkSLModifiers.h"
 
 #include <algorithm>
 #include <vector>
@@ -22,7 +23,7 @@ class ExternalValue;
 struct Statement;
 class SymbolTable;
 class Type;
-struct Variable;
+class Variable;
 
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
@@ -68,12 +69,14 @@ public:
                 return *this->typeData();
             case NodeData::Kind::kTypeToken:
                 return *this->typeTokenData().fType;
+            case NodeData::Kind::kVariable:
+                return *this->variableData().fType;
             default:
                 SkUNREACHABLE;
         }
     }
 
-protected:
+//protected:
     struct BlockData {
         std::shared_ptr<SymbolTable> fSymbolTable;
         // if isScope is false, this is just a group of statements rather than an actual
@@ -129,23 +132,22 @@ protected:
         Token::Kind fToken;
     };
 
-    struct NodeData {
-        enum class Kind {
-            kBlock,
-            kBoolLiteral,
-            kEnum,
-            kExternalValue,
-            kField,
-            kFloatLiteral,
-            kForStatement,
-            kIntLiteral,
-            kString,
-            kSymbol,
-            kType,
-            kTypeToken,
-        } fKind = Kind::kType;
-        // it doesn't really matter what kind we default to, as long as it's a POD type
+    struct VariableData {
+        StringFragment fName;
+        const Type* fType;
+        const Expression* fInitialValue = nullptr;
+        Modifiers::Handle fModifiersHandle;
+        // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
+        // becomes zero during optimization), the variable is dead and may be eliminated.
+        mutable int16_t fReadCount;
+        // Tracks how many sites write to the variable. If this is zero, the variable is dead and
+        // may be eliminated.
+        mutable int16_t fWriteCount;
+        /*Variable::Storage*/int8_t fStorage;
+        bool fBuiltin;
+    };
 
+    struct NodeData {
         union Contents {
             BlockData fBlock;
             BoolLiteralData fBoolLiteral;
@@ -159,11 +161,29 @@ protected:
             SymbolData fSymbol;
             const Type* fType;
             TypeTokenData fTypeToken;
+            VariableData fVariable;
 
             Contents() {}
 
             ~Contents() {}
         } fContents;
+
+        enum class Kind : int8_t {
+            kBlock,
+            kBoolLiteral,
+            kEnum,
+            kExternalValue,
+            kField,
+            kFloatLiteral,
+            kForStatement,
+            kIntLiteral,
+            kString,
+            kSymbol,
+            kType,
+            kTypeToken,
+            kVariable,
+        } fKind = Kind::kType;
+        // it doesn't really matter what kind we default to, as long as it's a POD type
 
         NodeData(const BlockData& data)
             : fKind(Kind::kBlock) {
@@ -225,6 +245,11 @@ protected:
             *(new(&fContents) TypeTokenData) = data;
         }
 
+        NodeData(const VariableData& data)
+            : fKind(Kind::kVariable) {
+            *(new(&fContents) VariableData) = data;
+        }
+
         NodeData(const NodeData& other) {
             *this = other;
         }
@@ -268,6 +293,9 @@ protected:
                     break;
                 case Kind::kTypeToken:
                     *(new(&fContents) TypeTokenData) = other.fContents.fTypeToken;
+                    break;
+                case Kind::kVariable:
+                    *(new(&fContents) VariableData) = other.fContents.fVariable;
                     break;
             }
             return *this;
@@ -315,6 +343,9 @@ protected:
                 case Kind::kTypeToken:
                     fContents.fTypeToken.~TypeTokenData();
                     break;
+                case Kind::kVariable:
+                    fContents.fVariable.~VariableData();
+                    break;
             }
         }
     };
@@ -344,7 +375,7 @@ protected:
 
     IRNode(int offset, int kind, const TypeTokenData& data);
 
-    IRNode(const IRNode& other);
+    IRNode(int offset, int kind, const VariableData& data);
 
     Expression& expressionChild(int index) const {
         SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
@@ -453,6 +484,16 @@ protected:
     const TypeTokenData& typeTokenData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kTypeToken);
         return fData.fContents.fTypeToken;
+    }
+
+    VariableData& variableData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kVariable);
+        return fData.fContents.fVariable;
+    }
+
+    const VariableData& variableData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kVariable);
+        return fData.fContents.fVariable;
     }
 
     int fKind;

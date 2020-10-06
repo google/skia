@@ -302,9 +302,9 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
     }
 }
 
-void Inliner::reset(const Context& context, const Program::Settings& settings) {
-    fContext = &context;
-    fSettings = &settings;
+void Inliner::reset(IRGenerator* irGenerator, const Program::Settings* settings) {
+    fIRGenerator = irGenerator;
+    fSettings = settings;
     fInlineVarCounter = 0;
 }
 
@@ -389,7 +389,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = expression.as<IndexExpression>();
-            return std::make_unique<IndexExpression>(*fContext, expr(idx.fBase), expr(idx.fIndex));
+            return std::make_unique<IndexExpression>(fIRGenerator->fContext, expr(idx.fBase),
+                                                     expr(idx.fIndex));
         }
         case Expression::Kind::kPrefix: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
@@ -403,7 +404,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kSwizzle: {
             const Swizzle& s = expression.as<Swizzle>();
-            return std::make_unique<Swizzle>(*fContext, expr(s.fBase), s.fComponents);
+            return std::make_unique<Swizzle>(fIRGenerator->fContext, expr(s.fBase), s.fComponents);
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = expression.as<TernaryExpression>();
@@ -550,11 +551,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             const Type* typePtr = copy_if_needed(&old->type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
-                                               old->fModifiers,
+                                               old->modifiersHandle(),
                                                namePtr->c_str(),
                                                typePtr,
                                                isBuiltinCode,
-                                               old->fStorage,
+                                               old->storage(),
                                                initialValue.get()));
             (*varMap)[old] = std::make_unique<VariableReference>(offset, clone);
             return std::make_unique<VarDeclaration>(clone, std::move(sizes),
@@ -593,7 +594,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     // statements), we wrap the whole function in a loop and use break statements to jump to the
     // end.
     SkASSERT(fSettings);
-    SkASSERT(fContext);
+    SkASSERT(fIRGenerator);
     SkASSERT(call);
     SkASSERT(this->isSafeToInline(call->fFunction.fDefinition));
 
@@ -623,12 +624,12 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // $floatLiteral or $intLiteral aren't real types that we can use for scratch variables, so
         // replace them if they ever appear here. If this happens, we likely forgot to coerce a type
         // somewhere during compilation.
-        if (type == fContext->fFloatLiteral_Type.get()) {
+        if (type == fIRGenerator->fContext.fFloatLiteral_Type.get()) {
             SkDEBUGFAIL("found a $floatLiteral type while inlining");
-            type = fContext->fFloat_Type.get();
-        } else if (type == fContext->fIntLiteral_Type.get()) {
+            type = fIRGenerator->fContext.fFloat_Type.get();
+        } else if (type == fIRGenerator->fContext.fIntLiteral_Type.get()) {
             SkDEBUGFAIL("found an $intLiteral type while inlining");
-            type = fContext->fInt_Type.get();
+            type = fIRGenerator->fContext.fInt_Type.get();
         }
 
         // Provide our new variable with a unique name, and add it to our symbol table.
@@ -638,9 +639,10 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
         // Add our new variable to the symbol table.
-        auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
-                                                 caller->fBuiltin, Variable::kLocal_Storage,
-                                                 initialValue->get());
+        auto newVar = std::make_unique<Variable>(/*offset=*/-1,
+                                                 fIRGenerator->modifiersHandle(Modifiers()),
+                                                 nameFrag, type, caller->fBuiltin,
+                                                 Variable::kLocal_Storage, initialValue->get());
         const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
@@ -665,7 +667,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     // Create a variable to hold the result in the extra statements (excepting void).
     std::unique_ptr<Expression> resultExpr;
-    if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
+    if (function.fDeclaration.fReturnType != *fIRGenerator->fContext.fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
         resultExpr = makeInlineVar(String(function.fDeclaration.name()),
                                    &function.fDeclaration.fReturnType,
@@ -678,7 +680,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     std::vector<int> argsToCopyBack;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
-        bool isOutParam = param->fModifiers.fFlags & Modifiers::kOut_Flag;
+        bool isOutParam = param->modifiers().fFlags & Modifiers::kOut_Flag;
 
         // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
         if (is_trivial_argument(*arguments[i])) {
@@ -695,7 +697,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         }
 
         varMap[param] = makeInlineVar(String(param->name()), &arguments[i]->type(),
-                                      param->fModifiers, &arguments[i]);
+                                      param->modifiers(), &arguments[i]);
     }
 
     const Block& body = function.fBody->as<Block>();
@@ -714,7 +716,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlinedBody.children().push_back(std::make_unique<DoStatement>(
                 /*offset=*/-1,
                 std::move(inlineBlock),
-                std::make_unique<BoolLiteral>(*fContext, offset, /*value=*/false)));
+                std::make_unique<BoolLiteral>(fIRGenerator->fContext, offset, /*value=*/false)));
     } else {
         // No early returns, so we can just dump the code in. We still need to keep the block so we
         // don't get name conflicts with locals.
@@ -741,7 +743,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.
-        inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(*fContext, offset,
+        inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(fIRGenerator->fContext,
+                                                                     offset,
                                                                      /*value=*/false);
     }
 
