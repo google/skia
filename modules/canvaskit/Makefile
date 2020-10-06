@@ -104,3 +104,6 @@ docker-compile:
                --volume ${SKIA_ROOT}/out/canvaskit_wasm_docker:/OUT \
                gcr.io/skia-public/canvaskit-emsdk:2.0.0_v1 \
                /SRC/infra/canvaskit/build_canvaskit.sh
+
+typecheck:
+	cd canvaskit && npm run dtslint
