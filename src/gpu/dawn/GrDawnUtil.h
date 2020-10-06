@@ -12,6 +12,7 @@
 #include "dawn/webgpu_cpp.h"
 
 size_t GrDawnBytesPerBlock(wgpu::TextureFormat format);
+int GrDawnFormatStencilBits(wgpu::TextureFormat format);
 bool GrDawnFormatIsRenderable(wgpu::TextureFormat format);
 bool GrColorTypeToDawnFormat(GrColorType colorType, wgpu::TextureFormat* format);
 bool GrDawnFormatToGrColorType(wgpu::TextureFormat format, GrColorType* colorType);
