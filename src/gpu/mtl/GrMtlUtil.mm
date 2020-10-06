@@ -267,6 +267,7 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
 #endif
         case MTLPixelFormatRGBA16Unorm:     return kRGBA_SkColorChannelFlags;
         case MTLPixelFormatRG16Float:       return kRG_SkColorChannelFlags;
+        case MTLPixelFormatStencil8:        return 0;
 
         default:                            return 0;
     }
@@ -347,8 +348,23 @@ size_t GrMtlFormatBytesPerBlock(MTLPixelFormat mtlFormat) {
 #endif
         case MTLPixelFormatRGBA16Unorm:     return 8;
         case MTLPixelFormatRG16Float:       return 4;
+        case MTLPixelFormatStencil8:        return 1;
 
         default:                            return 0;
+    }
+}
+
+int GrMtlBackendFormatStencilBits(const GrBackendFormat& format) {
+    MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
+    return GrMtlFormatStencilBits(mtlFormat);
+}
+
+int GrMtlFormatStencilBits(MTLPixelFormat mtlFormat) {
+    switch(mtlFormat) {
+     case MTLPixelFormatStencil8:
+         return 8;
+     default:
+         return 0;
     }
 }
 
@@ -387,6 +403,7 @@ const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
 #endif
         case MTLPixelFormatRGBA16Unorm:     return "RGBA16Unorm";
         case MTLPixelFormatRG16Float:       return "RG16Float";
+        case MTLPixelFormatStencil8:        return "Stencil8";
 
         default:                            return "Unknown";
     }

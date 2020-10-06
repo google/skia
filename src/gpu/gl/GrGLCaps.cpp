@@ -1231,7 +1231,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     writer->beginArray("formats");
 
-    for (int i = 0; i < kGrGLFormatCount; ++i) {
+    for (int i = 0; i < kGrGLColorFormatCount; ++i) {
         writer->beginObject(nullptr, false);
         writer->appendHexU32("flags", fFormatTable[i].fFlags);
         writer->appendHexU32("f_type", (uint32_t)fFormatTable[i].fFormatType);
@@ -3073,7 +3073,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
     this->setupSampleCounts(ctxInfo, gli);
 
 #ifdef SK_DEBUG
-    for (int i = 0; i < kGrGLFormatCount; ++i) {
+    for (int i = 0; i < kGrGLColorFormatCount; ++i) {
         if (GrGLFormat::kUnknown == static_cast<GrGLFormat>(i)) {
             continue;
         }
@@ -3107,7 +3107,7 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
     sk_ignore_unused_variable(standard);
     GrGLVersion version = ctxInfo.version();
 
-    for (int i = 0; i < kGrGLFormatCount; ++i) {
+    for (int i = 0; i < kGrGLColorFormatCount; ++i) {
         if (FormatInfo::kFBOColorAttachmentWithMSAA_Flag & fFormatTable[i].fFlags) {
             // We assume that MSAA rendering is supported only if we support non-MSAA rendering.
             SkASSERT(FormatInfo::kFBOColorAttachment_Flag & fFormatTable[i].fFlags);
