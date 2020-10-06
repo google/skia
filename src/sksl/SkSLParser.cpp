@@ -357,7 +357,7 @@ ASTNode::ID Parser::enumDeclaration() {
     if (!this->expect(Token::Kind::TK_LBRACE, "'{'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(this->text(name), std::make_unique<Type>(this->text(name), Type::TypeKind::kEnum));
+    fSymbols.add(std::make_unique<Type>(this->text(name), Type::TypeKind::kEnum));
     CREATE_NODE(result, name.fOffset, ASTNode::Kind::kEnum, this->text(name));
     if (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token id;
@@ -530,7 +530,7 @@ ASTNode::ID Parser::structDeclaration() {
     if (!this->expect(Token::Kind::TK_RBRACE, "'}'")) {
         return ASTNode::ID::Invalid();
     }
-    fSymbols.add(this->text(name), std::make_unique<Type>(name.fOffset, this->text(name), fields));
+    fSymbols.add(std::make_unique<Type>(name.fOffset, this->text(name), fields));
     RETURN_NODE(name.fOffset, ASTNode::Kind::kType,
                 ASTNode::TypeData(this->text(name), true, false));
 }
