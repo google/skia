@@ -5,16 +5,16 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrMockStencilAttachment_DEFINED
-#define GrMockStencilAttachment_DEFINED
+#ifndef GrMockMtlAttachment_DEFINED
+#define GrMockMtlAttachment_DEFINED
 
+#include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrBackendUtils.h"
-#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/mock/GrMockGpu.h"
 
-class GrMockStencilAttachment : public GrStencilAttachment {
+class GrMockAttachment : public GrAttachment {
 public:
-    GrMockStencilAttachment(GrMockGpu* gpu, SkISize dimensions, int sampleCnt)
+    GrMockAttachment(GrMockGpu* gpu, SkISize dimensions, int sampleCnt)
             : INHERITED(gpu, dimensions, sampleCnt, GrProtected::kNo) {
         this->registerWithCache(SkBudgeted::kYes);
     }
@@ -30,7 +30,7 @@ private:
         return std::max(1, (int)(bpp)) * this->width() * this->height();
     }
 
-    using INHERITED = GrStencilAttachment;
+    using INHERITED = GrAttachment;
 };
 
 #endif

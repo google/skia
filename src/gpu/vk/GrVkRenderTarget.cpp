@@ -374,9 +374,9 @@ void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescr
     uint32_t attachmentCount = 1;
 
     if (withStencil) {
-        const GrStencilAttachment* stencil = this->getStencilAttachment();
+        const GrAttachment* stencil = this->getStencilAttachment();
         SkASSERT(stencil);
-        const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
+        const GrVkAttachment* vkStencil = static_cast<const GrVkAttachment*>(stencil);
         desc->fStencil.fFormat = vkStencil->imageFormat();
         desc->fStencil.fSamples = vkStencil->numSamples();
 #ifdef SK_DEBUG
@@ -554,9 +554,9 @@ GrVkImage* GrVkRenderTarget::msaaImage() {
 
 const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    const GrStencilAttachment* stencil = this->getStencilAttachment();
+    const GrAttachment* stencil = this->getStencilAttachment();
     if (stencil) {
-        const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
+        const GrVkAttachment* vkStencil = static_cast<const GrVkAttachment*>(stencil);
         return vkStencil->imageResource();
     }
 
@@ -565,9 +565,9 @@ const GrManagedResource* GrVkRenderTarget::stencilImageResource() const {
 
 const GrVkImageView* GrVkRenderTarget::stencilAttachmentView() const {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
-    const GrStencilAttachment* stencil = this->getStencilAttachment();
+    const GrAttachment* stencil = this->getStencilAttachment();
     if (stencil) {
-        const GrVkStencilAttachment* vkStencil = static_cast<const GrVkStencilAttachment*>(stencil);
+        const GrVkAttachment* vkStencil = static_cast<const GrVkAttachment*>(stencil);
         return vkStencil->stencilView();
     }
 
