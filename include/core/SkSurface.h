@@ -317,6 +317,31 @@ public:
                                                  GrMTLHandle* drawable)
                                                  SK_API_AVAILABLE_CA_METAL_LAYER;
 
+    /** Creates SkSurface from MTLTexture.
+        Returned SkSurface takes a reference on the MTLTexture. The ref on the texture will be
+        released when the SkSurface is destroyed.
+
+        Only available when Metal API is enabled.
+
+        @param context         GPU context
+        @param texture         GrMTLHandle (expected to be a id<MTLTexture>)
+        @param sampleCnt       samples per pixel, or 0 to disable full scene anti-aliasing
+        @param colorSpace      range of colors; may be nullptr
+        @param surfaceProps    LCD striping orientation and setting for device independent
+                               fonts; may be nullptr
+        @param drawable        Pointer to drawable to be filled in when this surface is
+                               instantiated; may not be nullptr
+        @return                created SkSurface, or nullptr
+     */
+    static sk_sp<SkSurface> MakeFromMTLTexture(GrRecordingContext* context,
+                                               GrMTLHandle texture,
+                                               GrSurfaceOrigin origin,
+                                               int sampleCnt,
+                                               SkColorType colorType,
+                                               sk_sp<SkColorSpace> colorSpace,
+                                               const SkSurfaceProps* surfaceProps)
+                                               SK_API_AVAILABLE(macos(10.11), ios(8.0));
+
     /** Creates SkSurface from MTKView.
         Returned SkSurface takes a reference on the MTKView. The ref on the layer will be
         released when the SkSurface is destroyed.

@@ -98,6 +98,69 @@ sk_sp<SkSurface> SkSurface::MakeFromCAMetalLayer(GrRecordingContext* rContext,
     return surface;
 }
 
+sk_sp<SkSurface> SkSurface::MakeFromMTLTexture(GrRecordingContext* rContext,
+                                               GrMTLHandle texture,
+                                               GrSurfaceOrigin origin,
+                                               int sampleCnt,
+                                               SkColorType colorType,
+                                               sk_sp<SkColorSpace> colorSpace,
+                                               const SkSurfaceProps* surfaceProps) {
+    GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+    const GrCaps* caps = rContext->priv().caps();
+
+    id<MTLTexture> metalTexture = (__bridge id<MTLTexture>) texture;
+    GrBackendFormat backendFormat = GrBackendFormat::MakeMtl(metalTexture.pixelFormat);
+
+    GrColorType grColorType = SkColorTypeToGrColorType(colorType);
+
+    SkISize dims = {(int)metalTexture.width, (int)metalTexture.height};
+
+    GrProxyProvider::TextureInfo texInfo;
+    texInfo.fMipmapped = GrMipmapped::kNo;
+    texInfo.fTextureType = GrTextureType::k2D;
+
+    sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
+            [metalTexture](GrResourceProvider* resourceProvider,
+                      const GrSurfaceProxy::LazySurfaceDesc& desc) {
+                GrMtlGpu* mtlGpu = (GrMtlGpu*)resourceProvider->priv().gpu();
+                sk_sp<GrRenderTarget> surface;
+
+                surface = GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(
+                        mtlGpu, desc.fDimensions, desc.fSampleCnt, metalTexture, GrWrapCacheable::kNo);
+
+                if (surface && desc.fSampleCnt > 1) {
+                    surface->setRequiresManualMSAAResolve();
+                }
+
+                return GrSurfaceProxy::LazyCallbackResult(std::move(surface));
+            },
+            backendFormat,
+            dims,
+            sampleCnt,
+            sampleCnt > 1 ? GrInternalSurfaceFlags::kRequiresManualMSAAResolve
+                          : GrInternalSurfaceFlags::kNone,
+            &texInfo,
+            GrMipmapStatus::kNotAllocated,
+            SkBackingFit::kExact,
+            SkBudgeted::kYes,
+            GrProtected::kNo,
+            false,
+            GrSurfaceProxy::UseAllocator::kYes);
+
+    GrSwizzle readSwizzle = caps->getReadSwizzle(backendFormat, grColorType);
+    GrSwizzle writeSwizzle = caps->getWriteSwizzle(backendFormat, grColorType);
+
+    GrSurfaceProxyView readView(proxy, origin, readSwizzle);
+    GrSurfaceProxyView writeView(std::move(proxy), origin, writeSwizzle);
+
+    auto rtc = std::make_unique<GrRenderTargetContext>(rContext, std::move(readView),
+                                                       std::move(writeView), grColorType,
+                                                       colorSpace, surfaceProps);
+
+    sk_sp<SkSurface> surface = SkSurface_Gpu::MakeWrappedRenderTarget(rContext, std::move(rtc));
+    return surface;
+}
+
 sk_sp<SkSurface> SkSurface::MakeFromMTKView(GrRecordingContext* rContext,
                                             GrMTLHandle view,
                                             GrSurfaceOrigin origin,
