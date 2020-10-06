@@ -208,7 +208,7 @@ void Dehydrator::write(const Symbol& s) {
             const Variable& v = s.as<Variable>();
             this->writeU8(Rehydrator::kVariable_Command);
             this->writeId(&v);
-            this->write(v.fModifiers);
+            this->write(v.modifiers());
             this->write(v.name());
             this->write(v.type());
             this->writeU8(v.fStorage);
