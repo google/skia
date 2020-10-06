@@ -1605,6 +1605,8 @@ if (skia_enable_tools) {
     deps = []
     public_deps = []
     sources = [
+      "tools/gpu/BackendSurfaceFactory.cpp",
+      "tools/gpu/BackendSurfaceFactory.h",
       "tools/gpu/BackendTextureImageFactory.cpp",
       "tools/gpu/BackendTextureImageFactory.h",
       "tools/gpu/FlushFinishTracker.cpp",

@@ -1805,13 +1805,10 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         // requires the src and dst be bindable to FBOs. However, we can't do this in the current
         // world since some devices (e.g. chromium & angle) require the formats in glBlitFramebuffer
         // to match. We don't have a way to really check this during resolve since we only actually
-        // have GrBackendFormat that is shared by the GrGLRenderTarget.
+        // have GrBackendFormat that is shared by the GrGLRenderTarget. We always set the
+        // renderbuffer format to RGBA8 but disable MSAA unless we have the APPLE extension.
         // Once we break those up into different surface we can revisit doing this change.
-        if (ctxInfo.hasExtension("GL_APPLE_texture_format_BGRA8888")) {
-            info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
-        } else {
-            info.fInternalFormatForRenderbuffer = GR_GL_BGRA8;
-        }
+        info.fInternalFormatForRenderbuffer = GR_GL_RGBA8;
 
         info.fDefaultExternalFormat = GR_GL_BGRA;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
@@ -4084,6 +4081,12 @@ GrCaps::SurfaceReadPixelsSupport GrGLCaps::surfaceSupportsReadPixels(
         // binding the texture to a FBO. For now we also disallow reading back directly
         // from compressed textures.
         if (tex->target() == GR_GL_TEXTURE_EXTERNAL || GrGLFormatIsCompressed(tex->format())) {
+            return SurfaceReadPixelsSupport::kCopyToTexture2D;
+        }
+    } else if (auto rt = static_cast<const GrGLRenderTarget*>(surface->asRenderTarget())) {
+        // glReadPixels does not allow reading back from a MSAA framebuffer. If the underlying
+        // GrSurface doesn't have a second FBO to resolve to then we must make a copy.
+        if (rt->numSamples() > 1 && rt->textureFBOID() == GrGLRenderTarget::kUnresolvableFBOID) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
     }

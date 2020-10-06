@@ -911,8 +911,14 @@ GrCaps::SurfaceReadPixelsSupport GrD3DCaps::surfaceSupportsReadPixels(
         if (GrDxgiFormatIsCompressed(tex->dxgiFormat())) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
+        return SurfaceReadPixelsSupport::kSupported;
+    } else if (auto rt = static_cast<const GrD3DRenderTarget*>(surface->asRenderTarget())) {
+        if (rt->numSamples() > 1) {
+            return SurfaceReadPixelsSupport::kCopyToTexture2D;
+        }
+        return SurfaceReadPixelsSupport::kSupported;
     }
-    return SurfaceReadPixelsSupport::kSupported;
+    return SurfaceReadPixelsSupport::kUnsupported;
 }
 
 bool GrD3DCaps::onSurfaceSupportsWritePixels(const GrSurface* surface) const {

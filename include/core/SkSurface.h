@@ -900,9 +900,9 @@ public:
         correct ordering when the surface backing store is accessed outside Skia (e.g. direct use of
         the 3D API or a windowing system). GrContext has additional flush and submit methods that
         apply to all surfaces and images created from a GrContext. This is equivalent to calling
-        SkSurface::flush with a default GrFlushInfo followed by GrContext::submit.
+        SkSurface::flush with a default GrFlushInfo followed by GrContext::submit(syncCpu).
     */
-    void flushAndSubmit();
+    void flushAndSubmit(bool syncCpu = false);
 
     enum class BackendSurfaceAccess {
         kNoAccess,  //!< back-end object will not be used by client

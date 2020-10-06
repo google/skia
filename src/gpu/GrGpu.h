@@ -666,9 +666,22 @@ public:
     /** Check a handle represents an actual texture in the backend API that has not been freed. */
     virtual bool isTestingOnlyBackendTexture(const GrBackendTexture&) const = 0;
 
-    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                       GrColorType) = 0;
+    /**
+     * Creates a GrBackendRenderTarget that can be wrapped using
+     * SkSurface::MakeFromBackendRenderTarget. Ideally this is a non-textureable allocation to
+     * differentiate from testing with SkSurface::MakeFromBackendTexture. When sampleCnt > 1 this
+     * is used to test client wrapped allocations with MSAA where Skia does not allocate a separate
+     * buffer for resolving. If the color is non-null the backing store should be cleared to the
+     * passed in color.
+     */
+    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize,
+                                                                       GrColorType,
+                                                                       int sampleCount = 1) = 0;
 
+    /**
+     * Deletes a GrBackendRenderTarget allocated with the above. Synchronization to make this safe
+     * is up to the caller.
+     */
     virtual void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) = 0;
 
     // This is only to be used in GL-specific tests.

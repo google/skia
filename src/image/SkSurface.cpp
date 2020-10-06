@@ -435,7 +435,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
     return nullptr;
 }
 
-void SkSurface::flushAndSubmit() {
+void SkSurface::flushAndSubmit(bool syncCpu) {
     this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 }
 

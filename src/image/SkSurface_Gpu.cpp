@@ -767,12 +767,12 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
 }
 #endif
 
-void SkSurface::flushAndSubmit() {
+void SkSurface::flushAndSubmit(bool syncCpu) {
     this->flush(BackendSurfaceAccess::kNoAccess, GrFlushInfo());
 
     auto direct = GrAsDirectContext(this->recordingContext());
     if (direct) {
-        direct->submit();
+        direct->submit(syncCpu);
     }
 }
 
