@@ -15,10 +15,10 @@ describe('Core canvas behavior', () => {
     });
 
     gm('picture_test', (canvas) => {
-        const spr = new CanvasKit.SkPictureRecorder();
+        const spr = new CanvasKit.PictureRecorder();
         const rcanvas = spr.beginRecording(
                         CanvasKit.LTRBRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT));
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setStrokeWidth(2.0);
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
@@ -26,7 +26,7 @@ describe('Core canvas behavior', () => {
 
         rcanvas.drawRRect(CanvasKit.RRectXY([5, 35, 45, 80], 15, 10), paint);
 
-        const font = new CanvasKit.SkFont(null, 20);
+        const font = new CanvasKit.Font(null, 20);
         rcanvas.drawText('this picture has a round rect', 5, 100, paint, font);
         const pic = spr.finishRecordingAsPicture();
         spr.delete();
@@ -103,7 +103,7 @@ describe('Core canvas behavior', () => {
                     return;
                 }
                 const canvas = surface.getCanvas();
-                let paint = new CanvasKit.SkPaint();
+                let paint = new CanvasKit.Paint();
                 canvas.drawImage(img, 0, 0, paint);
 
                 paint.delete();
@@ -130,7 +130,7 @@ describe('Core canvas behavior', () => {
         decodeAndDrawSingleFrameImage('/assets/color_wheel.webp', 'drawImage_webp', done);
     });
 
-   it('can readPixels from an SkImage', (done) => {
+   it('can readPixels from an Image', (done) => {
         const imgPromise = fetch('/assets/mandrill_512.png')
             .then((response) => response.arrayBuffer());
         Promise.all([imgPromise, LoadCanvasKit]).then((values) => {
@@ -142,7 +142,7 @@ describe('Core canvas behavior', () => {
                 const imageInfo = {
                     alphaType: CanvasKit.AlphaType.Unpremul,
                     colorType: CanvasKit.ColorType.RGBA_8888,
-                    colorSpace: CanvasKit.SkColorSpace.SRGB,
+                    colorSpace: CanvasKit.ColorSpace.SRGB,
                     width: img.width(),
                     height: img.height(),
                 };
@@ -189,9 +189,9 @@ describe('Core canvas behavior', () => {
 
     gm('1x4_from_scratch', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
-        // This creates and draws an SkImage that is 1 pixel wide, 4 pixels tall with
+        // This creates and draws an Image that is 1 pixel wide, 4 pixels tall with
         // the colors listed below.
         const pixels = Uint8Array.from([
             255,   0,   0, 255, // opaque red
@@ -200,7 +200,7 @@ describe('Core canvas behavior', () => {
             255,   0, 255, 100, // transparent purple
         ]);
         const img = CanvasKit.MakeImage(pixels, 1, 4, CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888,
-            CanvasKit.SkColorSpace.SRGB);
+            CanvasKit.ColorSpace.SRGB);
         canvas.drawImage(img, 1, 1, paint);
         img.delete();
         paint.delete();
@@ -211,10 +211,10 @@ describe('Core canvas behavior', () => {
         expect(atlas).toBeTruthy();
         canvas.clear(CanvasKit.WHITE);
 
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
 
-        const srcs = new CanvasKit.SkRectBuilder();
+        const srcs = new CanvasKit.RectBuilder();
         // left top right bottom
         srcs.push(  0,   0, 256, 256);
         srcs.push(256,   0, 512, 256);
@@ -228,8 +228,8 @@ describe('Core canvas behavior', () => {
         dsts.push(0.5, 0,  20, 300);
         dsts.push(0.5, 0, 300, 300);
 
-        const colors = new CanvasKit.SkColorBuilder();
-        // note that the SkColorBuilder expects int colors to be pushed.
+        const colors = new CanvasKit.ColorBuilder();
+        // note that the ColorBuilder expects int colors to be pushed.
         // pushing float colors to it only causes weird problems way downstream.
         // It does no type checking.
         colors.push(CanvasKit.ColorAsInt( 85, 170,  10, 128)); // light green
@@ -248,7 +248,7 @@ describe('Core canvas behavior', () => {
         expect(atlas).toBeTruthy();
         canvas.clear(CanvasKit.WHITE);
 
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
 
         const srcs = [
@@ -290,7 +290,7 @@ describe('Core canvas behavior', () => {
         let row = 1;
         // Test 4 different methods of decoding an image for each of the three images in
         // IMAGE_FILE_PATHS.
-        // Resulting SkImages are drawn to visually show that all methods decode correctly.
+        // Resulting Images are drawn to visually show that all methods decode correctly.
         for (const imageFilePath of IMAGE_FILE_PATHS) {
             const response = await fetch(imageFilePath);
             const arrayBuffer = await response.arrayBuffer();
@@ -341,8 +341,8 @@ describe('Core canvas behavior', () => {
             row++;
         }
         //Label images with the method used to decode them
-        const paint = new CanvasKit.SkPaint();
-        const textFont = new CanvasKit.SkFont(null, 7);
+        const paint = new CanvasKit.Paint();
+        const textFont = new CanvasKit.Font(null, 7);
         canvas.drawText('WASM Decoding', 0, 90, paint, textFont);
         canvas.drawText('ImageBitmap Decoding', 100, 90, paint, textFont);
         canvas.drawText('HTMLImageEl Decoding', 200, 90, paint, textFont);
@@ -350,8 +350,8 @@ describe('Core canvas behavior', () => {
     });
 
     gm('sweep_gradient', (canvas) => {
-        const paint = new CanvasKit.SkPaint();
-        const shader = CanvasKit.SkShader.MakeSweepGradient(
+        const paint = new CanvasKit.Paint();
+        const shader = CanvasKit.Shader.MakeSweepGradient(
             100, 100, // X, Y coordinates
             [CanvasKit.GREEN, CanvasKit.BLUE],
             [0.0, 1.0],
@@ -372,15 +372,15 @@ describe('Core canvas behavior', () => {
     gm('linear_gradients', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
-        const strokePaint = new CanvasKit.SkPaint();
+        const strokePaint = new CanvasKit.Paint();
         strokePaint.setStyle(CanvasKit.PaintStyle.Stroke);
         strokePaint.setColor(CanvasKit.BLACK);
 
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setStyle(CanvasKit.PaintStyle.Fill);
         const transparentGreen = CanvasKit.Color(0, 255, 255, 0);
 
-        const lgs = CanvasKit.SkShader.MakeLinearGradient(
+        const lgs = CanvasKit.Shader.MakeLinearGradient(
             [0, 0], [50, 100], // start and stop points
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
@@ -391,7 +391,7 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const lgsPremul = CanvasKit.SkShader.MakeLinearGradient(
+        const lgsPremul = CanvasKit.Shader.MakeLinearGradient(
             [100, 0], [150, 100], // start and stop points
             Uint32Array.of(
                 CanvasKit.ColorAsInt(0, 255, 255, 0),
@@ -407,12 +407,12 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const lgs45 = CanvasKit.SkShader.MakeLinearGradient(
+        const lgs45 = CanvasKit.Shader.MakeLinearGradient(
             [0, 100], [50, 200], // start and stop points
             Float32Array.of(...transparentGreen, ...CanvasKit.BLUE, ...CanvasKit.RED),
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
+            CanvasKit.Matrix.rotated(Math.PI/4, 0, 100),
         );
         paint.setShader(lgs45);
         r = CanvasKit.LTRBRect(0, 100, 100, 200);
@@ -425,12 +425,12 @@ describe('Core canvas behavior', () => {
         typedColorsArray.set(transparentGreen, 0);
         typedColorsArray.set(CanvasKit.BLUE, 4);
         typedColorsArray.set(CanvasKit.RED, 8);
-        const lgs45Premul = CanvasKit.SkShader.MakeLinearGradient(
+        const lgs45Premul = CanvasKit.Shader.MakeLinearGradient(
             [100, 100], [150, 200], // start and stop points
             typedColorsArray,
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
+            CanvasKit.Matrix.rotated(Math.PI/4, 100, 100),
             1 // interpolate colors in premul
         );
         CanvasKit.Free(colors);
@@ -450,15 +450,15 @@ describe('Core canvas behavior', () => {
     gm('radial_gradients', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
-        const strokePaint = new CanvasKit.SkPaint();
+        const strokePaint = new CanvasKit.Paint();
         strokePaint.setStyle(CanvasKit.PaintStyle.Stroke);
         strokePaint.setColor(CanvasKit.BLACK);
 
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setStyle(CanvasKit.PaintStyle.Fill);
         const transparentGreen = CanvasKit.Color(0, 255, 255, 0);
 
-        const rgs = CanvasKit.SkShader.MakeRadialGradient(
+        const rgs = CanvasKit.Shader.MakeRadialGradient(
             [50, 50], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
@@ -469,7 +469,7 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const rgsPremul = CanvasKit.SkShader.MakeRadialGradient(
+        const rgsPremul = CanvasKit.Shader.MakeRadialGradient(
             [150, 50], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
@@ -482,12 +482,12 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const rgsSkew = CanvasKit.SkShader.MakeRadialGradient(
+        const rgsSkew = CanvasKit.Shader.MakeRadialGradient(
             [50, 150], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.skewed(0.5, 0, 100, 100),
+            CanvasKit.Matrix.skewed(0.5, 0, 100, 100),
             null, // color space
         );
         paint.setShader(rgsSkew);
@@ -495,12 +495,12 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const rgsSkewPremul = CanvasKit.SkShader.MakeRadialGradient(
+        const rgsSkewPremul = CanvasKit.Shader.MakeRadialGradient(
             [150, 150], 50, // center, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.skewed(0.5, 0, 100, 100),
+            CanvasKit.Matrix.skewed(0.5, 0, 100, 100),
             1, // interpolate colors in premul
             null, // color space
         );
@@ -520,16 +520,16 @@ describe('Core canvas behavior', () => {
     gm('conical_gradients', (canvas) => {
         canvas.clear(CanvasKit.WHITE);
         canvas.scale(2, 2);
-        const strokePaint = new CanvasKit.SkPaint();
+        const strokePaint = new CanvasKit.Paint();
         strokePaint.setStyle(CanvasKit.PaintStyle.Stroke);
         strokePaint.setColor(CanvasKit.BLACK);
 
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setStyle(CanvasKit.PaintStyle.Fill);
         paint.setAntiAlias(true);
         const transparentGreen = CanvasKit.Color(0, 255, 255, 0);
 
-        const cgs = CanvasKit.SkShader.MakeTwoPointConicalGradient(
+        const cgs = CanvasKit.Shader.MakeTwoPointConicalGradient(
             [80, 10], 15, // start, radius
             [10, 110], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
@@ -542,7 +542,7 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const cgsPremul = CanvasKit.SkShader.MakeTwoPointConicalGradient(
+        const cgsPremul = CanvasKit.Shader.MakeTwoPointConicalGradient(
             [180, 10], 15, // start, radius
             [110, 110], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
@@ -557,13 +557,13 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const cgs45 = CanvasKit.SkShader.MakeTwoPointConicalGradient(
+        const cgs45 = CanvasKit.Shader.MakeTwoPointConicalGradient(
             [80, 110], 15, // start, radius
             [10, 210], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.rotated(Math.PI/4, 0, 100),
+            CanvasKit.Matrix.rotated(Math.PI/4, 0, 100),
             null, // color space
         );
         paint.setShader(cgs45);
@@ -571,13 +571,13 @@ describe('Core canvas behavior', () => {
         canvas.drawRect(r, paint);
         canvas.drawRect(r, strokePaint);
 
-        const cgs45Premul = CanvasKit.SkShader.MakeTwoPointConicalGradient(
+        const cgs45Premul = CanvasKit.Shader.MakeTwoPointConicalGradient(
             [180, 110], 15, // start, radius
             [110, 210], 60, // end, radius
             [transparentGreen, CanvasKit.BLUE, CanvasKit.RED],
             [0, 0.65, 1.0],
             CanvasKit.TileMode.Mirror,
-            CanvasKit.SkMatrix.rotated(Math.PI/4, 100, 100),
+            CanvasKit.Matrix.rotated(Math.PI/4, 100, 100),
             1, // interpolate colors in premul
             null, // color space
         );
@@ -596,19 +596,19 @@ describe('Core canvas behavior', () => {
     gm('blur_filters', (canvas) => {
         const pathUL = starPath(CanvasKit, 100, 100, 80);
         const pathBR = starPath(CanvasKit, 400, 300, 80);
-        const paint = new CanvasKit.SkPaint();
-        const textFont = new CanvasKit.SkFont(null, 24);
+        const paint = new CanvasKit.Paint();
+        const textFont = new CanvasKit.Font(null, 24);
 
         canvas.drawText('Above: MaskFilter', 20, 220, paint, textFont);
         canvas.drawText('Right: ImageFilter', 20, 260, paint, textFont);
 
         paint.setColor(CanvasKit.BLUE);
 
-        const blurMask = CanvasKit.SkMaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal, 5, true);
+        const blurMask = CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal, 5, true);
         paint.setMaskFilter(blurMask);
         canvas.drawPath(pathUL, paint);
 
-        const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 1, CanvasKit.TileMode.Decal, null);
+        const blurIF = CanvasKit.ImageFilter.MakeBlur(8, 1, CanvasKit.TileMode.Decal, null);
         paint.setImageFilter(blurIF);
         canvas.drawPath(pathBR, paint);
 
@@ -625,18 +625,18 @@ describe('Core canvas behavior', () => {
         expect(img).toBeTruthy();
 
         canvas.clear(CanvasKit.WHITE);
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.Color(0, 255, 0, 1.0));
-        const redCF =  CanvasKit.SkColorFilter.MakeBlend(
+        const redCF =  CanvasKit.ColorFilter.MakeBlend(
                 CanvasKit.Color(255, 0, 0, 0.1), CanvasKit.BlendMode.SrcOver);
-        const redIF = CanvasKit.SkImageFilter.MakeColorFilter(redCF, null);
-        const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
-        const combined = CanvasKit.SkImageFilter.MakeCompose(redIF, blurIF);
+        const redIF = CanvasKit.ImageFilter.MakeColorFilter(redCF, null);
+        const blurIF = CanvasKit.ImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
+        const combined = CanvasKit.ImageFilter.MakeCompose(redIF, blurIF);
 
         // rotate 10 degrees centered on 200, 200
-        const m = CanvasKit.SkMatrix.rotated(Math.PI/18, 200, 200);
-        const rotated = CanvasKit.SkImageFilter.MakeMatrixTransform(m, CanvasKit.FilterQuality.Medium, combined);
+        const m = CanvasKit.Matrix.rotated(Math.PI/18, 200, 200);
+        const rotated = CanvasKit.ImageFilter.MakeMatrixTransform(m, CanvasKit.FilterQuality.Medium, combined);
         paint.setImageFilter(rotated);
 
         //canvas.rotate(10, 200, 200);
@@ -658,14 +658,14 @@ describe('Core canvas behavior', () => {
         img.decodeNextFrame();
         img.decodeNextFrame();
         canvas.clear(CanvasKit.WHITE);
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setAntiAlias(true);
         paint.setColor(CanvasKit.Color(0, 255, 0, 1.0));
-        const redCF =  CanvasKit.SkColorFilter.MakeBlend(
+        const redCF =  CanvasKit.ColorFilter.MakeBlend(
                 CanvasKit.Color(255, 0, 0, 0.1), CanvasKit.BlendMode.SrcOver);
-        const redIF = CanvasKit.SkImageFilter.MakeColorFilter(redCF, null);
-        const blurIF = CanvasKit.SkImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
-        const combined = CanvasKit.SkImageFilter.MakeCompose(redIF, blurIF);
+        const redIF = CanvasKit.ImageFilter.MakeColorFilter(redCF, null);
+        const blurIF = CanvasKit.ImageFilter.MakeBlur(8, 0.2, CanvasKit.TileMode.Decal, null);
+        const combined = CanvasKit.ImageFilter.MakeCompose(redIF, blurIF);
         paint.setImageFilter(combined);
 
         const frame = img.getCurrentFrame();
@@ -681,7 +681,7 @@ describe('Core canvas behavior', () => {
     }, '/assets/flightAnim.gif');
 
     gm('drawImage_skp', (canvas, fetchedByteBuffers) => {
-        const pic = CanvasKit.MakeSkPicture(fetchedByteBuffers[0]);
+        const pic = CanvasKit.MakePicture(fetchedByteBuffers[0]);
         expect(pic).toBeTruthy();
 
         canvas.clear(CanvasKit.TRANSPARENT);
@@ -697,12 +697,12 @@ describe('Core canvas behavior', () => {
         }
 
         const drawFrame = (canvas) => {
-            const paint = new CanvasKit.SkPaint();
+            const paint = new CanvasKit.Paint();
             paint.setStrokeWidth(1.0);
             paint.setAntiAlias(true);
             paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
             paint.setStyle(CanvasKit.PaintStyle.Stroke);
-            const path = new CanvasKit.SkPath();
+            const path = new CanvasKit.Path();
             path.moveTo(20, 5);
             path.lineTo(30, 20);
             path.lineTo(40, 10);
@@ -730,12 +730,12 @@ describe('Core canvas behavior', () => {
         }
 
         const drawFrame = (canvas) => {
-            const paint = new CanvasKit.SkPaint();
+            const paint = new CanvasKit.Paint();
             paint.setStrokeWidth(1.0);
             paint.setAntiAlias(true);
             paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
             paint.setStyle(CanvasKit.PaintStyle.Stroke);
-            const path = new CanvasKit.SkPath();
+            const path = new CanvasKit.Path();
             path.moveTo(20, 5);
             path.lineTo(30, 20);
             path.lineTo(40, 10);
@@ -763,17 +763,17 @@ describe('Core canvas behavior', () => {
     });
 
     gm('combined_shaders', (canvas) => {
-        const rShader = CanvasKit.SkShader.Color(CanvasKit.Color(255, 0, 0, 1.0));
-        const gShader = CanvasKit.SkShader.Color(CanvasKit.Color(0, 255, 0, 0.6));
-        const bShader = CanvasKit.SkShader.Color(CanvasKit.Color(0, 0, 255, 1.0));
+        const rShader = CanvasKit.Shader.Color(CanvasKit.Color(255, 0, 0, 1.0));
+        const gShader = CanvasKit.Shader.Color(CanvasKit.Color(0, 255, 0, 0.6));
+        const bShader = CanvasKit.Shader.Color(CanvasKit.Color(0, 0, 255, 1.0));
 
-        const rgShader = CanvasKit.SkShader.Blend(CanvasKit.BlendMode.SrcOver, rShader, gShader);
+        const rgShader = CanvasKit.Shader.Blend(CanvasKit.BlendMode.SrcOver, rShader, gShader);
 
-        const p = new CanvasKit.SkPaint();
+        const p = new CanvasKit.Paint();
         p.setShader(rgShader);
         canvas.drawPaint(p);
 
-        const gbShader = CanvasKit.SkShader.Lerp(0.5, gShader, bShader);
+        const gbShader = CanvasKit.Shader.Lerp(0.5, gShader, bShader);
 
         p.setShader(gbShader);
         canvas.drawRect(CanvasKit.LTRBRect(5, 100, 300, 400), p);
@@ -797,7 +797,7 @@ describe('Core canvas behavior', () => {
     });
 
     it('can set color on a paint and get it as four floats', () => {
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color4f(3.3, 2.2, 1.1, 0.5));
         expect(paint.getColor()).toEqual(Float32Array.of(3.3, 2.2, 1.1, 0.5));
 
@@ -829,13 +829,13 @@ describe('Core canvas behavior', () => {
 
     describe('ColorSpace Support', () => {
         it('Can create an SRGB 8888 surface', () => {
-            const colorSpace = CanvasKit.SkColorSpace.SRGB;
-            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SkColorSpace.SRGB);
+            const colorSpace = CanvasKit.ColorSpace.SRGB;
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.ColorSpace.SRGB);
             expect(surface).toBeTruthy('Could not make surface');
             let info = surface.imageInfo()
             expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
             expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_8888);
-            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+            expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
                 .toBeTruthy("Surface not created with correct color space.");
 
             const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
@@ -843,8 +843,8 @@ describe('Core canvas behavior', () => {
             expect(pixels).toBeTruthy('Could not read pixels from surface');
         });
         it('Can create a Display P3 surface', () => {
-            const colorSpace = CanvasKit.SkColorSpace.DISPLAY_P3;
-            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SkColorSpace.DISPLAY_P3);
+            const colorSpace = CanvasKit.ColorSpace.DISPLAY_P3;
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.ColorSpace.DISPLAY_P3);
             expect(surface).toBeTruthy('Could not make surface');
             if (!surface.reportBackendTypeIsGPU()) {
                 console.log('Not expecting color space support in cpu backed suface.');
@@ -853,7 +853,7 @@ describe('Core canvas behavior', () => {
             let info = surface.imageInfo()
             expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
             expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
-            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+            expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
                 .toBeTruthy("Surface not created with correct color space.");
 
             const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
@@ -861,8 +861,8 @@ describe('Core canvas behavior', () => {
             expect(pixels).toBeTruthy('Could not read pixels from surface');
         });
         it('Can create an Adobe RGB surface', () => {
-            const colorSpace = CanvasKit.SkColorSpace.ADOBE_RGB;
-            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SkColorSpace.ADOBE_RGB);
+            const colorSpace = CanvasKit.ColorSpace.ADOBE_RGB;
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.ColorSpace.ADOBE_RGB);
             expect(surface).toBeTruthy('Could not make surface');
             if (!surface.reportBackendTypeIsGPU()) {
                 console.log('Not expecting color space support in cpu backed suface.');
@@ -871,7 +871,7 @@ describe('Core canvas behavior', () => {
             let info = surface.imageInfo()
             expect(info.alphaType).toEqual(CanvasKit.AlphaType.Unpremul);
             expect(info.colorType).toEqual(CanvasKit.ColorType.RGBA_F16);
-            expect(CanvasKit.SkColorSpace.Equals(info.colorSpace, colorSpace))
+            expect(CanvasKit.ColorSpace.Equals(info.colorSpace, colorSpace))
                 .toBeTruthy("Surface not created with correct color space.");
 
             const pixels = surface.getCanvas().readPixels(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT,
@@ -880,7 +880,7 @@ describe('Core canvas behavior', () => {
         });
 
         it('combine draws from several color spaces', () => {
-            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.SkColorSpace.ADOBE_RGB);
+            const surface = CanvasKit.MakeCanvasSurface('test', CanvasKit.ColorSpace.ADOBE_RGB);
             expect(surface).toBeTruthy('Could not make surface');
             if (!surface.reportBackendTypeIsGPU()) {
                 console.log('Not expecting color space support in cpu backed suface.');
@@ -888,12 +888,12 @@ describe('Core canvas behavior', () => {
             }
             const canvas = surface.getCanvas();
 
-            let paint = new CanvasKit.SkPaint();
-            paint.setColor(CanvasKit.RED, CanvasKit.SkColorSpace.ADOBE_RGB);
+            let paint = new CanvasKit.Paint();
+            paint.setColor(CanvasKit.RED, CanvasKit.ColorSpace.ADOBE_RGB);
             canvas.drawPaint(paint);
-            paint.setColor(CanvasKit.RED, CanvasKit.SkColorSpace.DISPLAY_P3); // 93.7 in adobeRGB
+            paint.setColor(CanvasKit.RED, CanvasKit.ColorSpace.DISPLAY_P3); // 93.7 in adobeRGB
             canvas.drawRect(CanvasKit.LTRBRect(200, 0, 400, 600), paint);
-            paint.setColor(CanvasKit.RED, CanvasKit.SkColorSpace.SRGB); // 85.9 in adobeRGB
+            paint.setColor(CanvasKit.RED, CanvasKit.ColorSpace.SRGB); // 85.9 in adobeRGB
             canvas.drawRect(CanvasKit.LTRBRect(400, 0, 600, 600), paint);
 
             // this test paints three bands of red, each the maximum red that a color space supports.
@@ -906,8 +906,8 @@ describe('Core canvas behavior', () => {
 
     describe('DOMMatrix support', () => {
         gm('sweep_gradient_dommatrix', (canvas) => {
-            const paint = new CanvasKit.SkPaint();
-            const shader = CanvasKit.SkShader.MakeSweepGradient(
+            const paint = new CanvasKit.Paint();
+            const shader = CanvasKit.Shader.MakeSweepGradient(
                 100, 100, // x y coordinates
                 [CanvasKit.GREEN, CanvasKit.BLUE],
                 [0.0, 1.0],
@@ -933,7 +933,7 @@ describe('Core canvas behavior', () => {
         // this should draw the same as concat_with4x4_canvas
         gm('concat_dommatrix', (canvas) => {
             const path = starPath(CanvasKit, CANVAS_WIDTH/2, CANVAS_HEIGHT/2);
-            const paint = new CanvasKit.SkPaint();
+            const paint = new CanvasKit.Paint();
             paint.setAntiAlias(true);
             canvas.clear(CanvasKit.WHITE);
             canvas.concat(new DOMMatrix().translate(CANVAS_WIDTH/2, 0, 0));
