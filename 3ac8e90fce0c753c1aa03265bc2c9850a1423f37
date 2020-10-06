@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb4e9c3b_74433329",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-06T17:27:57Z",
+      "side": 1,
+      "message": "g3 canary failure is unrelated, just some tooling flakes. landing.",
+      "revId": "3ac8e90fce0c753c1aa03265bc2c9850a1423f37",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
