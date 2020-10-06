@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1791237_d6015f5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-06T19:21:37Z",
+      "side": 1,
+      "message": "Please review the dehydrator/rehydrator code closely. It\u0027s not currently being exercised AFAICS and I am not 100% confident in it.",
+      "revId": "b68dce2e8fd510ada6bb83b457f4a1dc3d45296e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
