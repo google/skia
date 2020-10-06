@@ -169,7 +169,10 @@ config("default") {
 
   if (is_android) {
     cflags += [ "--sysroot=$ndk/sysroot" ]
-    cflags_cc += [ "-isystem$ndk/sources/cxx-stl/llvm-libc++/include" ]
+    cflags_cc += [
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++/include",
+      "-isystem$ndk/sources/cxx-stl/llvm-libc++abi/include",
+    ]
     ldflags += [ "-static-libstdc++" ]
   }
 
