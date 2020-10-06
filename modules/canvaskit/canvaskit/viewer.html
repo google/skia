@@ -16,7 +16,7 @@
 
 <script type="text/javascript" charset="utf-8">
   const flags = {};
-  for (pair of location.hash.substring(1).split(',')) {
+  for (const pair of location.hash.substring(1).split(',')) {
     // Parse "values" as an array in case the value has a colon (e.g., "slide:http://...").
     const [key, ...values] = pair.split(':');
     flags[key] = values.join(':');
