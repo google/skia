@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e77e737_75a24c71",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T19:34:57Z",
+      "side": 1,
+      "message": "Need a lot more explanation of what is actually changing.",
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "557f90d4_f7b84a03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T19:34:57Z",
+      "side": 1,
+      "message": "Even with the change to the test I\u0027m not sure what the desired behavior is.",
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41214ce2_58f09d7b",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T19:34:57Z",
+      "side": 1,
+      "message": "I am super confused because your comment is talking about graphemes, but you\u0027re actually doing comparisons on code units? Does libtxt even know what graphemes are, or is it just working in terms of utf-16 code units?\n\nI ask because if libtxt is just working in utf-16 code units then the actual grapheme boundaries shouldn\u0027t even come into this. If the issue if that a request was made with an index which points to a utf-16 trailing surrogate for a start (inclusive) or a utf-16 leading surrogate for an end (inclusive) then the passed start and end should be adjusted then that should be done purely in utf-16 (and frankly should be considered undefined and it would be nice to crash in such situations). If this is really about fully included graphemes and not partially included ones then the utf-16 bits aren\u0027t interesting.",
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d72b1dd4_34e16eed",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 919,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T19:34:57Z",
+      "side": 1,
+      "message": "findPreviousGraphemeBoundary",
+      "range": {
+        "startLine": 919,
+        "startChar": 25,
+        "endLine": 919,
+        "endChar": 40
+      },
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4732d586_0f86419a",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 927,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T19:34:57Z",
+      "side": 1,
+      "message": "This is more like, findNextGraphemeBoundary\n\nThis is a confusing change because findGraphemeStart is now named findGraphemeEnd and this new \u0027findGraphemeStart\u0027 has been added with different behavior.",
+      "range": {
+        "startLine": 927,
+        "startChar": 25,
+        "endLine": 927,
+        "endChar": 42
+      },
+      "revId": "6e8f922a11e28038a7a0658a3fd393ac341751e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

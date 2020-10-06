@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5facf030_674d7bd3",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T19:34:57Z",
+      "side": 0,
+      "message": "This seems fine if it just called findNextGraphemeBoundary without all the added stuff?",
+      "range": {
+        "startLine": 599,
+        "startChar": 21,
+        "endLine": 599,
+        "endChar": 38
+      },
+      "revId": "f165f799aec778065e4ec97b8a2da0f049b499af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5cdf25c_44473108",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-06T19:34:57Z",
+      "side": 0,
+      "message": "This seems like it should be just findPreviousGraphemeBoundary?",
+      "range": {
+        "startLine": 602,
+        "startChar": 19,
+        "endLine": 602,
+        "endChar": 36
+      },
+      "revId": "f165f799aec778065e4ec97b8a2da0f049b499af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
