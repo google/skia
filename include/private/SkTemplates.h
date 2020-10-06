@@ -115,8 +115,8 @@ public:
     }
 
     // aliases matching other types like std::vector
-    const T* data() const { return fArray; }
-    T* data() { return fArray; }
+    const T* data() const { return fArray.get(); }
+    T* data() { return fArray.get(); }
 
 private:
     std::unique_ptr<T[]> fArray;
