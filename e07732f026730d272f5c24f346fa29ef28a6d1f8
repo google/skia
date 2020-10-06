@@ -56,6 +56,30 @@
       "revId": "e07732f026730d272f5c24f346fa29ef28a6d1f8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f78e6c86_82f4528c",
+        "filename": "src/gpu/mtl/GrMtlCaps.mm",
+        "patchSetId": 35
+      },
+      "lineNbr": 918,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-06T15:30:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "728bde37_ae2b35cb",
+      "range": {
+        "startLine": 918,
+        "startChar": 66,
+        "endLine": 918,
+        "endChar": 69
+      },
+      "revId": "e07732f026730d272f5c24f346fa29ef28a6d1f8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
