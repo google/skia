@@ -10,6 +10,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
     float b = 2.0;
+
     float d = 3.0;
     b++;
     d++;

@@ -129,7 +129,9 @@ public:
                                                              kHalf4_GrSLType, "thresholds9_13");
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x);
-float4 scale, bias;
+float4 scale;
+float4 bias;
+
 if (%d <= 4 || t < %s.w) {
     if (%d <= 2 || t < %s.y) {
         if (%d <= 1 || t < %s.x) {

@@ -521,10 +521,8 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitProgramElement(ELEM pe) {
             return false;
 
         case ProgramElement::Kind::kVar:
-            for (auto& v : pe.template as<VarDeclarations>().fVars) {
-                if (this->visitStatement(*v)) {
-                    return true;
-                }
+            if (this->visitStatement(*pe.template as<VarDeclarations>().fVar)) {
+                return true;
             }
             return false;
 
