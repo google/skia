@@ -332,6 +332,32 @@ export interface CanvasKit {
                    isVolatile?: boolean): SkVertices;
 
     /**
+     * Returns a Skottie animation built from the provided json string.
+     * Requires that Skottie be compiled into CanvasKit.
+     * @param json
+     */
+    MakeAnimation(json: string): SkottieAnimation;
+
+    /**
+     * Returns a managed Skottie animation built from the provided json string and assets.
+     * Requires that Skottie be compiled into CanvasKit.
+     * @param json
+     * @param assets - a dictionary of named blobs: { key: ArrayBuffer, ... }
+     * @param filterPrefix - an optional string acting as a name filter for selecting "interesting"
+     *                       Lottie properties (surfaced in the embedded player controls)
+     */
+    MakeManagedAnimation(json: string, assets?: Record<string, ArrayBuffer>,
+                         filterPrefix?: string): ManagedSkottieAnimation;
+
+    /**
+     * Returns a Particles effect built from the provided json string and assets.
+     * Requires that Particles be compiled into CanvasKit
+     * @param json
+     * @param assets
+     */
+    MakeParticles(json: string, assets?: Record<string, ArrayBuffer>): Particles;
+
+    /**
      * Returns the underlying data from SkData as a Uint8Array.
      * @param data
      */
@@ -566,6 +592,14 @@ export interface MallocObj {
     toTypedArray(): TypedArray;
 }
 
+export interface ManagedSkottieAnimation extends SkottieAnimation {
+    setColor(key: string, color: InputColor): void;
+    setOpacity(key: string, opacity: number): void;
+    getMarkers(): object[];
+    getColorProps(): object[];
+    getOpacityProps(): object[];
+}
+
 /**
  * See Paragraph.h for more information on this class. This is only available if Paragraph has
  * been compiled in.
@@ -672,6 +706,105 @@ export interface ParagraphStyle {
 export interface PositionWithAffinity {
     pos: number;
     affinity: Affinity;
+}
+
+/**
+ * See SkParticleEffect.h for more details.
+ */
+export interface Particles extends EmbindObject<Particles> {
+    /**
+     * Draws the current state of the particles on the given canvas.
+     * @param canvas
+     */
+    draw(canvas: SkCanvas): void;
+
+    /**
+     * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
+     * floats will change the corresponding uniforms instantly.
+     */
+    effectUniforms(): Float32Array;
+
+    /**
+     * Returns the nth uniform from the effect.
+     * @param index
+     */
+    getEffectUniform(index: number): ParticlesUniform;
+
+    /**
+     * Returns the number of uniforms on the effect.
+     */
+    getEffectUniformCount(): number;
+
+    /**
+     * Returns the number of float uniforms on the effect.
+     */
+    getEffectUniformFloatCount(): number;
+
+    /**
+     * Returns the name of the nth effect uniform.
+     * @param index
+     */
+    getEffectUniformName(index: number): string;
+
+    /**
+     * Returns the nth uniform on the particles.
+     * @param index
+     */
+    getParticleUniform(index: number): ParticlesUniform;
+
+    /**
+     * Returns the count of uniforms on the particles.
+     */
+    getParticleUniformCount(): number;
+
+    /**
+     * Returns the number of float uniforms on the particles.
+     */
+    getParticleUniformFloatCount(): number;
+
+    /**
+     * Returns the name of the nth particle uniform.
+     * @param index
+     */
+    getParticleUniformName(index: number): string;
+
+    /**
+     * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
+     * floats will change the corresponding uniforms instantly.
+     */
+    particleUniforms(): Float32Array;
+
+    /**
+     * Sets the base position of the effect.
+     * @param point
+     */
+    setPosition(point: SkPoint): void;
+
+    /**
+     * Sets the base rate of the effect.
+     * @param rate
+     */
+    setRate(rate: number): void;
+
+    /**
+     * Starts playing the effect.
+     * @param now
+     * @param looping
+     */
+    start(now: number, looping: boolean): void;
+
+    /**
+     * Updates the effect using the new time.
+     * @param now
+     */
+    update(now: number): void;
+}
+
+export interface ParticlesUniform {
+    columns: number;
+    rows: number;
+    /** The index into the uniforms array that this uniform begins. */
+    slot: number;
 }
 
 /**
@@ -2179,6 +2312,48 @@ export interface SkVertices extends EmbindObject<SkVertices> {
      * Return a unique ID for this vertices object.
      */
     uniqueID(): number;
+}
+
+export interface SkottieAnimation extends EmbindObject<SkottieAnimation> {
+    /**
+     * Returns the animation duration in seconds.
+     */
+    duration(): number;
+    /**
+     * Returns the animation frame rate (frames / second).
+     */
+    fps(): number;
+
+    /**
+     * Draws current animation frame. Must call seek or seekFrame first.
+     * @param canvas
+     * @param dstRect
+     */
+    render(canvas: SkCanvas, dstRect?: InputRect): void;
+
+    /**
+     * [deprecated] - use seekFrame
+     * @param t - value from [0.0, 1.0]; 0 is first frame, 1 is final frame.
+     * @param damageRect - will copy damage frame into this if provided.
+     */
+    seek(t: number, damageRect?: SkRect): SkRect;
+
+    /**
+     * Update the animation state to match |t|, specified as a frame index
+     * i.e. relative to duration() * fps().
+     *
+     * Returns the rectangle that was affected by this animation.
+     *
+     * @param frame - Fractional values are allowed and meaningful - e.g.
+     *                0.0 -> first frame
+     *                1.0 -> second frame
+     *                0.5 -> halfway between first and second frame
+     * @param damageRect - will copy damage frame into this if provided.
+     */
+    seekFrame(frame: number, damageRect?: SkRect): SkRect;
+
+    size(): SkPoint;
+    version(): string;
 }
 
 /**
