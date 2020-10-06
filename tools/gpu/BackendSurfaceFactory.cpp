@@ -8,7 +8,7 @@
 #include "tools/gpu/BackendSurfaceFactory.h"
 
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 

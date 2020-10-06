@@ -84,7 +84,7 @@ has been made current to the current thread when Skia calls are made.
 
 <!--?prettify lang=cc?-->
 
-    #include "GrContext.h"
+    #include "GrDirectContext.h"
     #include "gl/GrGLInterface.h"
     #include "SkData.h"
     #include "SkImage.h"

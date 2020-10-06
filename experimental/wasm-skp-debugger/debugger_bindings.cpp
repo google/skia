@@ -33,7 +33,7 @@
 
 #ifdef SK_GL
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContext.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLInterface.h"
 #include "include/gpu/gl/GrGLTypes.h"
 
@@ -436,7 +436,7 @@ sk_sp<GrContext> MakeGrContext(EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context)
         return nullptr;
     }
     // setup contexts
-    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
+    sk_sp<GrContext> grContext(GrDirectContext::MakeGL(interface));
     return grContext;
 }
 
