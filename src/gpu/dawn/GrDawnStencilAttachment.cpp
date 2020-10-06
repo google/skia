@@ -14,11 +14,10 @@
 
 GrDawnStencilAttachment::GrDawnStencilAttachment(GrDawnGpu* gpu,
                                                  SkISize dimensions,
-                                                 int bits,
                                                  int samples,
                                                  wgpu::Texture texture,
                                                  wgpu::TextureView view)
-    : INHERITED(gpu, dimensions, bits, samples, GrProtected::kNo)
+    : INHERITED(gpu, dimensions, samples, GrProtected::kNo)
     , fTexture(texture)
     , fView(view) {
     this->registerWithCache(SkBudgeted::kYes);
@@ -41,7 +40,7 @@ GrDawnStencilAttachment* GrDawnStencilAttachment::Create(GrDawnGpu* gpu,
     if (!view) {
         return nullptr;
     }
-    return new GrDawnStencilAttachment(gpu, dimensions, 8, sampleCnt, texture, view);
+    return new GrDawnStencilAttachment(gpu, dimensions, sampleCnt, texture, view);
 }
 
 GrDawnStencilAttachment::~GrDawnStencilAttachment() {

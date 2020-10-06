@@ -55,7 +55,7 @@ public:
     /**
      * Returns both a supported and most prefered stencil format to use in draws.
      */
-    const StencilFormat& preferredStencilFormat() const {
+    MTLPixelFormat preferredStencilFormat() const {
         return fPreferredStencilFormat;
     }
 
@@ -178,7 +178,7 @@ private:
 
     SkTDArray<int> fSampleCounts;
 
-    StencilFormat fPreferredStencilFormat;
+    MTLPixelFormat fPreferredStencilFormat;
 
     using INHERITED = GrCaps;
 };

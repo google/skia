@@ -1098,14 +1098,8 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
     // Build up list of legal stencil formats (though perhaps not supported on
     // the particular gpu/driver) from most preferred to least.
 
-    // these consts are in order of most preferred to least preferred
-    // we don't bother with GL_STENCIL_INDEX1 or GL_DEPTH32F_STENCIL8
-
-    static const StencilFormat
-                  // internal Format      stencil bits      total bits        packed?
-        gS8    = {GR_GL_STENCIL_INDEX8,   8,                8,                false},
-        gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
-        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true };
+    // We push back stencil formats onto the fStencilFormats array in order of most preferred to
+    // least preferred.
 
     if (GR_IS_GR_GL(ctxInfo.standard())) {
         bool supportsPackedDS =
@@ -1116,24 +1110,24 @@ void GrGLCaps::initStencilSupport(const GrGLContextInfo& ctxInfo) {
         // S1 thru S16 formats are in GL 3.0+, EXT_FBO, and ARB_FBO since we
         // require FBO support we can expect these are legal formats and don't
         // check.
-        fStencilFormats.push_back() = gS8;
-        fStencilFormats.push_back() = gS16;
+        fStencilFormats.push_back() = GrGLFormat::kSTENCIL_INDEX8;
+        fStencilFormats.push_back() = GrGLFormat::kSTENCIL_INDEX16;
         if (supportsPackedDS) {
-            fStencilFormats.push_back() = gD24S8;
+            fStencilFormats.push_back() = GrGLFormat::kDEPTH24_STENCIL8;
         }
     } else if (GR_IS_GR_GL_ES(ctxInfo.standard())) {
         // ES2 has STENCIL_INDEX8 without extensions but requires extensions
         // for other formats.
 
-        fStencilFormats.push_back() = gS8;
+        fStencilFormats.push_back() = GrGLFormat::kSTENCIL_INDEX8;
         if (ctxInfo.version() >= GR_GL_VER(3,0) ||
             ctxInfo.hasExtension("GL_OES_packed_depth_stencil")) {
-            fStencilFormats.push_back() = gD24S8;
+            fStencilFormats.push_back() = GrGLFormat::kDEPTH24_STENCIL8;
         }
     } else if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
-        fStencilFormats.push_back() = gS8;
+        fStencilFormats.push_back() = GrGLFormat::kSTENCIL_INDEX8;
         if (ctxInfo.version() >= GR_GL_VER(2,0)) {
-            fStencilFormats.push_back() = gD24S8;
+            fStencilFormats.push_back() = GrGLFormat::kDEPTH24_STENCIL8;
         }
     }
 }
@@ -1149,8 +1143,8 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     for (int i = 0; i < fStencilFormats.count(); ++i) {
         writer->beginObject(nullptr, false);
-        writer->appendS32("stencil bits", fStencilFormats[i].fStencilBits);
-        writer->appendS32("total bits", fStencilFormats[i].fTotalBits);
+        writer->appendS32("stencil bits", GrGLFormatStencilBits(fStencilFormats[i]));
+        writer->appendS32("total bytes", GrGLFormatBytesPerBlock(fStencilFormats[i]));
         writer->endObject();
     }
 
