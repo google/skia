@@ -19,9 +19,8 @@ public:
                                      wgpu::TextureFormat format, GrRenderable, int sampleCnt,
                                      SkBudgeted, int mipLevels, GrMipmapStatus);
 
-    static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, SkISize dimensions,
-                                            GrRenderable, int sampleCnt,
-                                            GrMipmapStatus, GrWrapCacheable, GrIOType,
+    static sk_sp<GrDawnTexture> MakeWrapped(GrDawnGpu*, SkISize dimensions, GrRenderable,
+                                            int sampleCnt, GrWrapCacheable, GrIOType,
                                             const GrDawnTextureInfo&);
 
     ~GrDawnTexture() override;
@@ -37,6 +36,7 @@ public:
                 const SkIRect& dstRect, wgpu::CommandEncoder copyEncoder);
 
     wgpu::Texture texture() const { return fInfo.fTexture; }
+    wgpu::TextureFormat format() const { return fInfo.fFormat; }
 protected:
     GrDawnTexture(GrDawnGpu*, SkISize dimensions, const GrDawnTextureInfo&, GrMipmapStatus);
 
