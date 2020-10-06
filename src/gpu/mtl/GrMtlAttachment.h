@@ -1,26 +1,28 @@
 /*
-* Copyright 2018 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #ifndef GrMtlStencil_DEFINED
 #define GrMtlStencil_DEFINED
 
-#include "src/gpu/GrStencilAttachment.h"
+#include "src/gpu/mtl/GrMtlAttachment.h"
 
 #import <Metal/Metal.h>
 
 class GrMtlImageView;
 class GrMtlGpu;
 
-class GrMtlStencilAttachment : public GrStencilAttachment {
+class GrMtlAttachment : public GrAttachment {
 public:
-    static GrMtlStencilAttachment* Create(GrMtlGpu* gpu, SkISize dimensions,
-                                          int sampleCnt, MTLPixelFormat format);
+    static GrMtlAttachment* Create(GrMtlGpu* gpu,
+                                   SkISize dimensions,
+                                   int sampleCnt,
+                                   MTLPixelFormat format);
 
-    ~GrMtlStencilAttachment() override;
+    ~GrMtlAttachment() override;
 
     GrBackendFormat backendFormat() const override {
         return GrBackendFormat::MakeMtl(fStencilView.pixelFormat);
@@ -37,9 +39,7 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
-    GrMtlStencilAttachment(GrMtlGpu* gpu,
-                           SkISize dimensions,
-                           const id<MTLTexture> stencilView);
+    GrMtlAttachment(GrMtlGpu* gpu, SkISize dimensions, const id<MTLTexture> stencilView);
 
     GrMtlGpu* getMtlGpu() const;
 

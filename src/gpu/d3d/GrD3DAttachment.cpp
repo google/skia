@@ -5,28 +5,28 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/d3d/GrD3DStencilAttachment.h"
+#include "src/gpu/d3d/GrD3DAttachment.h"
 
 #include "src/gpu/d3d/GrD3DGpu.h"
 
-GrD3DStencilAttachment::GrD3DStencilAttachment(GrD3DGpu* gpu,
-                                               SkISize dimensions,
-                                               DXGI_FORMAT format,
-                                               const D3D12_RESOURCE_DESC& desc,
-                                               const GrD3DTextureResourceInfo& info,
-                                               sk_sp<GrD3DResourceState> state,
-                                               const GrD3DDescriptorHeap::CPUHandle& view)
-        : GrStencilAttachment(gpu, dimensions, desc.SampleDesc.Count, GrProtected::kNo)
+GrD3DAttachment::GrD3DAttachment(GrD3DGpu* gpu,
+                                 SkISize dimensions,
+                                 DXGI_FORMAT format,
+                                 const D3D12_RESOURCE_DESC& desc,
+                                 const GrD3DTextureResourceInfo& info,
+                                 sk_sp<GrD3DResourceState> state,
+                                 const GrD3DDescriptorHeap::CPUHandle& view)
+        : GrAttachment(gpu, dimensions, desc.SampleDesc.Count, GrProtected::kNo)
         , GrD3DTextureResource(info, state)
         , fView(view)
         , fFormat(format) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
-GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
-                                                     SkISize dimensions,
-                                                     int sampleCnt,
-                                                     DXGI_FORMAT format) {
+GrD3DAttachment* GrD3DAttachment::Make(GrD3DGpu* gpu,
+                                       SkISize dimensions,
+                                       int sampleCnt,
+                                       DXGI_FORMAT format) {
     D3D12_RESOURCE_DESC resourceDesc = {};
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resourceDesc.Alignment = 0;  // default alignment
@@ -56,13 +56,12 @@ GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
             gpu->resourceProvider().createDepthStencilView(info.fResource.get());
 
     sk_sp<GrD3DResourceState> state(new GrD3DResourceState(info.fResourceState));
-    GrD3DStencilAttachment* stencil = new GrD3DStencilAttachment(gpu, dimensions, format,
-                                                                 resourceDesc, info,
-                                                                 std::move(state), view);
+    GrD3DAttachment* stencil = new GrD3DAttachment(gpu, dimensions, format, resourceDesc, info,
+                                                   std::move(state), view);
     return stencil;
 }
 
-size_t GrD3DStencilAttachment::onGpuMemorySize() const {
+size_t GrD3DAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
     size *= GrD3DCaps::GetStencilFormatTotalBitCount(this->dxgiFormat());
@@ -70,21 +69,21 @@ size_t GrD3DStencilAttachment::onGpuMemorySize() const {
     return static_cast<size_t>(size / 8);
 }
 
-void GrD3DStencilAttachment::onRelease() {
+void GrD3DAttachment::onRelease() {
     GrD3DGpu* gpu = this->getD3DGpu();
     this->releaseResource(gpu);
 
-    GrStencilAttachment::onRelease();
+    GrAttachment::onRelease();
 }
 
-void GrD3DStencilAttachment::onAbandon() {
+void GrD3DAttachment::onAbandon() {
     GrD3DGpu* gpu = this->getD3DGpu();
     this->releaseResource(gpu);
 
-    GrStencilAttachment::onAbandon();
+    GrAttachment::onAbandon();
 }
 
-GrD3DGpu* GrD3DStencilAttachment::getD3DGpu() const {
+GrD3DGpu* GrD3DAttachment::getD3DGpu() const {
     SkASSERT(!this->wasDestroyed());
     return static_cast<GrD3DGpu*>(this->getGpu());
 }
