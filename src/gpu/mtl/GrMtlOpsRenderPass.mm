@@ -220,7 +220,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
     renderPassDesc.colorAttachments[0].storeAction =
             mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    auto* stencil = static_cast<GrMtlStencilAttachment*>(fRenderTarget->getStencilAttachment());
+    auto* stencil = static_cast<GrMtlAttachment*>(fRenderTarget->getStencilAttachment());
     if (stencil) {
         renderPassDesc.stencilAttachment.texture = stencil->stencilView();
     }

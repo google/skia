@@ -507,10 +507,8 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
 
     MTLPixelFormat sFmt = this->mtlCaps().preferredStencilFormat();
 
-    GrMtlStencilAttachment* stencil(GrMtlStencilAttachment::Create(this,
-                                                                   dimensions,
-                                                                   samples,
-                                                                   sFmt));
+    GrMtlAttachment* stencil(GrMtlAttachment::Create(
+            this, dimensions, GrAttachment::UsageFlags::kStencil, samples, sFmt));
     fStats.incStencilAttachmentCreates();
     return stencil;
 }
