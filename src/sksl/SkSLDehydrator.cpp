@@ -561,10 +561,7 @@ void Dehydrator::write(const ProgramElement& e) {
             const VarDeclarations& v = e.as<VarDeclarations>();
             this->writeU8(Rehydrator::kVarDeclarations_Command);
             this->write(v.fBaseType);
-            this->writeU8(v.fVars.size());
-            for (const auto& var : v.fVars) {
-                this->write(var.get());
-            }
+            this->write(v.fVar.get());
             break;
         }
     }

@@ -293,23 +293,32 @@ std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(const ASTNode& s) {
     SkASSERT(s.fKind == ASTNode::Kind::kVarDeclarations);
-    auto decl = this->convertVarDeclarations(s, Variable::kLocal_Storage);
-    if (!decl) {
+    auto decls = this->convertVarDeclarations(s, Variable::kLocal_Storage);
+    if (decls.empty()) {
         return nullptr;
     }
-    return std::unique_ptr<Statement>(new VarDeclarationsStatement(std::move(decl)));
+    if (decls.size() == 1) {
+        return std::make_unique<VarDeclarationsStatement>(std::move(decls.front()));
+    } else {
+        std::vector<std::unique_ptr<Statement>> declStmts;
+        declStmts.reserve(decls.size());
+        for (auto& decl : decls) {
+            declStmts.push_back(std::make_unique<VarDeclarationsStatement>(std::move(decl)));
+        }
+        return std::make_unique<Block>(s.fOffset, std::move(declStmts), /*symbols=*/nullptr, false);
+    }
 }
 
-std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNode& decls,
-                                                                     Variable::Storage storage) {
+std::vector<std::unique_ptr<VarDeclarations>> IRGenerator::convertVarDeclarations(
+        const ASTNode& decls, Variable::Storage storage) {
     SkASSERT(decls.fKind == ASTNode::Kind::kVarDeclarations);
     auto declarationsIter = decls.begin();
     const Modifiers& modifiers = declarationsIter++->getModifiers();
     const ASTNode& rawType = *(declarationsIter++);
-    std::vector<std::unique_ptr<Statement>> variables;
+    std::vector<std::unique_ptr<VarDeclarations>> varDecls;
     const Type* baseType = this->convertType(rawType);
     if (!baseType) {
-        return nullptr;
+        return {};
     }
     if (baseType->nonnullable() == *fContext.fFragmentProcessor_Type &&
         storage != Variable::kGlobal_Storage) {
@@ -416,7 +425,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             if (rawSize) {
                 auto size = this->coerce(this->convertExpression(rawSize), *fContext.fInt_Type);
                 if (!size) {
-                    return nullptr;
+                    return {};
                 }
                 String name(type->name());
                 int64_t count;
@@ -424,12 +433,12 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
                     count = size->as<IntLiteral>().value();
                     if (count <= 0) {
                         fErrors.error(size->fOffset, "array size must be positive");
-                        return nullptr;
+                        return {};
                     }
                     name += "[" + to_string(count) + "]";
                 } else {
                     fErrors.error(size->fOffset, "array size must be specified");
-                    return nullptr;
+                    return {};
                 }
                 type = fSymbolTable->takeOwnershipOfSymbol(
                         std::make_unique<Type>(name, Type::TypeKind::kArray, *type, (int)count));
@@ -451,11 +460,11 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
         if (iter != varDecl.end()) {
             value = this->convertExpression(*iter);
             if (!value) {
-                return nullptr;
+                return {};
             }
             value = this->coerce(std::move(value), *type);
             if (!value) {
-                return nullptr;
+                return {};
             }
             var->fWriteCount = 1;
             var->fInitialValue = value.get();
@@ -469,13 +478,15 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
             // Already defined, just update the modifiers.
             symbol->as<Variable>().fModifiers = var->fModifiers;
         } else {
-            variables.emplace_back(std::make_unique<VarDeclaration>(var.get(), std::move(sizes),
-                                                                    std::move(value)));
+            auto varDecl =
+                    std::make_unique<VarDeclaration>(var.get(), std::move(sizes), std::move(value));
+            varDecls.emplace_back(
+                    std::make_unique<VarDeclarations>(decls.fOffset, baseType, std::move(varDecl)));
             StringFragment name = var->name();
             fSymbolTable->add(name, std::move(var));
         }
     }
-    return std::make_unique<VarDeclarations>(decls.fOffset, baseType, std::move(variables));
+    return varDecls;
 }
 
 std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(const ASTNode& m) {
@@ -1119,18 +1130,17 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     bool foundRTAdjust = false;
     auto iter = intf.begin();
     for (size_t i = 0; i < id.fDeclarationCount; ++i) {
-        std::unique_ptr<VarDeclarations> decl = this->convertVarDeclarations(
-                                                                 *(iter++),
-                                                                 Variable::kInterfaceBlock_Storage);
-        if (!decl) {
+        std::vector<std::unique_ptr<VarDeclarations>> decls =
+                this->convertVarDeclarations(*(iter++), Variable::kInterfaceBlock_Storage);
+        if (decls.empty()) {
             return nullptr;
         }
-        for (const auto& stmt : decl->fVars) {
-            VarDeclaration& vd = stmt->as<VarDeclaration>();
+        for (const auto& decl : decls) {
+            const VarDeclaration& vd = decl->fVar->as<VarDeclaration>();
             if (haveRuntimeArray) {
                 fErrors.error(decl->fOffset,
-                              "only the last entry in an interface block may be a runtime-sized "
-                              "array");
+                            "only the last entry in an interface block may be a runtime-sized "
+                            "array");
             }
             if (vd.fVar == fRTAdjust) {
                 foundRTAdjust = true;
@@ -1138,10 +1148,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                 fRTAdjustFieldIndex = fields.size();
             }
             fields.push_back(Type::Field(vd.fVar->fModifiers, vd.fVar->name(),
-                                         &vd.fVar->type()));
+                                        &vd.fVar->type()));
             if (vd.fValue) {
                 fErrors.error(decl->fOffset,
-                              "initializers are not permitted on interface block fields");
+                            "initializers are not permitted on interface block fields");
             }
             if (vd.fVar->type().typeKind() == Type::TypeKind::kArray &&
                 vd.fVar->type().columns() == Type::kUnsizedArray) {
@@ -2850,8 +2860,7 @@ void IRGenerator::cloneBuiltinVariables() {
                 // Clone the VarDeclarations ProgramElement that declares this variable
                 std::unique_ptr<ProgramElement> clonedDecls = sharedDecls->clone();
                 VarDeclarations& varDecls = clonedDecls->as<VarDeclarations>();
-                SkASSERT(varDecls.fVars.size() == 1);
-                VarDeclaration& varDecl = varDecls.fVars.front()->as<VarDeclaration>();
+                VarDeclaration& varDecl = varDecls.fVar->as<VarDeclaration>();
                 const Variable* sharedVar = varDecl.fVar;
 
                 // Now clone the Variable, and add the clone to the Program's symbol table.
@@ -2935,11 +2944,10 @@ void IRGenerator::convertProgram(Program::Kind kind,
     for (const auto& decl : fFile->root()) {
         switch (decl.fKind) {
             case ASTNode::Kind::kVarDeclarations: {
-                std::unique_ptr<VarDeclarations> s = this->convertVarDeclarations(
-                                                                         decl,
-                                                                         Variable::kGlobal_Storage);
-                if (s) {
-                    fProgramElements->push_back(std::move(s));
+                std::vector<std::unique_ptr<VarDeclarations>> decls =
+                        this->convertVarDeclarations(decl, Variable::kGlobal_Storage);
+                for (auto& decl : decls) {
+                    fProgramElements->push_back(std::move(decl));
                 }
                 break;
             }
