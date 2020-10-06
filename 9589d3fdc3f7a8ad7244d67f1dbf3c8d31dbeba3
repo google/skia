@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce2dfe3b_22ec6aa6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-06T16:49:49Z",
+      "side": 1,
+      "message": "Note that I didn\u0027t really change our logic about having a \"preferred\" stencil format and using that. If/when we get to a world we where use depth all this should be updated in some way. But for now I want to leave this all as is so there aren\u0027t too many changes happening at once. ",
+      "revId": "9589d3fdc3f7a8ad7244d67f1dbf3c8d31dbeba3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
