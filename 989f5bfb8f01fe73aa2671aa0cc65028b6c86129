@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7b39de2_6bb01d9b",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-07T19:56:50Z",
+      "side": 0,
+      "message": "Is this round-out behavior still preserved after the change?",
+      "range": {
+        "startLine": 253,
+        "startChar": 83,
+        "endLine": 253,
+        "endChar": 91
+      },
+      "revId": "989f5bfb8f01fe73aa2671aa0cc65028b6c86129",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

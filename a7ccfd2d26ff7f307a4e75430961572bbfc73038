@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ea25fe1_fc386387",
+        "filename": "src/core/SkImageFilter_Base.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-07T19:56:50Z",
+      "side": 1,
+      "message": "I can\u0027t easily find any callers, is this being used at all?",
+      "range": {
+        "startLine": 73,
+        "startChar": 30,
+        "endLine": 73,
+        "endChar": 44
+      },
+      "revId": "a7ccfd2d26ff7f307a4e75430961572bbfc73038",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
