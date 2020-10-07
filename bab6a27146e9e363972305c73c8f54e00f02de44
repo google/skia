@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea288247_0463274d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-07T18:56:52Z",
+      "side": 1,
+      "message": "See https://screencast.googleplex.com/cast/NTMxODg4MDUxMzc1MzA4OHw5ZGQwNzhmMC1lZQ for what it looks like to run gmtests.html locally.",
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
