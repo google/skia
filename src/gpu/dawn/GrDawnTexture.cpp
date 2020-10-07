@@ -73,12 +73,12 @@ GrBackendFormat GrDawnTexture::backendFormat() const {
 }
 
 sk_sp<GrDawnTexture> GrDawnTexture::MakeWrapped(GrDawnGpu* gpu, SkISize dimensions,
-                                                GrRenderable renderable,
-                                                int sampleCnt, GrMipmapStatus status,
-                                                GrWrapCacheable cacheable,
-                                                GrIOType ioType,
+                                                GrRenderable renderable, int sampleCnt,
+                                                GrWrapCacheable cacheable, GrIOType ioType,
                                                 const GrDawnTextureInfo& info) {
     sk_sp<GrDawnTexture> tex;
+    GrMipmapStatus status = info.fLevelCount > 1 ? GrMipmapStatus::kValid
+                                                 : GrMipmapStatus::kNotAllocated;
     if (GrRenderable::kYes == renderable) {
         tex = sk_sp<GrDawnTexture>(new GrDawnTextureRenderTarget(
                 gpu, dimensions, sampleCnt, info, status));
