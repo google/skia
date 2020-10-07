@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d64d84e_a88bde3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-07T15:32:41Z",
+      "side": 1,
+      "message": "Thanks!",
+      "revId": "1fe38e100b7ff02fada27e22344689919b280f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "234bd482_7f872550",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-07T15:32:41Z",
+      "side": 1,
+      "message": "Do we ever need to close this stream ourselves or is that handled automatically in the destructor?",
+      "range": {
+        "startLine": 1394,
+        "startChar": 22,
+        "endLine": 1394,
+        "endChar": 26
+      },
+      "revId": "1fe38e100b7ff02fada27e22344689919b280f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59ff0c52_1c7923ac",
+        "filename": "tools/HashAndEncode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-07T15:32:41Z",
+      "side": 1,
+      "message": "Should this be a lambda to call SkWStream.flush()? Mainly for writing to disk?",
+      "range": {
+        "startLine": 118,
+        "startChar": 47,
+        "endLine": 118,
+        "endChar": 54
+      },
+      "revId": "1fe38e100b7ff02fada27e22344689919b280f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
