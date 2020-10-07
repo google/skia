@@ -84,6 +84,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "57823116_edda0af9",
+        "filename": "src/gpu/effects/generated/GrHighContrastFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T14:15:38Z",
+      "side": 1,
+      "message": "I think this happens because simplifyStatement on a dead variable declaration now replaces it with a Nop. We don\u0027t remove those, and Nop\u0027s description() is \";\"",
+      "parentUuid": "406169cf_bc69bc0a",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 32
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7ecf9484_58c23c0c",
         "filename": "src/gpu/effects/generated/GrLumaColorFilterEffect.cpp",
         "patchSetId": 5
