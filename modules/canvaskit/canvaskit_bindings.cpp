@@ -774,16 +774,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         return SkSurface::MakeRasterN32Premul(width, height, nullptr);
     }), allow_raw_pointers());
 
-    function("getSkDataBytes", &getSkDataBytes, allow_raw_pointers());
-    // Deprecated: use Canvaskit.SkPathEffect.MakeCorner
-    function("MakeSkCornerPathEffect", &SkCornerPathEffect::Make, allow_raw_pointers());
-    // Deprecated: use Canvaskit.SkPathEffect.MakeDiscrete
-    function("MakeSkDiscretePathEffect", &SkDiscretePathEffect::Make, allow_raw_pointers());
-    // Deprecated: use Canvaskit.SkMaskFilter.MakeBlur
-    function("MakeBlurMaskFilter", optional_override([](SkBlurStyle style, SkScalar sigma, bool respectCTM)->sk_sp<SkMaskFilter> {
-        // Adds a little helper because emscripten doesn't expose default params.
-        return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
-    }), allow_raw_pointers());
+    function("getDataBytes", &getSkDataBytes, allow_raw_pointers());
     // TODO(kjlubick) deprecate these path constructors and move them to class functions.
 #ifdef SK_INCLUDE_PATHOPS
     function("MakePathFromOp", &MakePathFromOp);
@@ -828,7 +819,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }
     }), allow_raw_pointers());
 #ifdef SK_SERIALIZE_SKP
-    function("_MakeSkPicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
+    function("_MakePicture", optional_override([](uintptr_t /* unint8_t* */ dPtr,
                                                     size_t bytes)->sk_sp<SkPicture> {
         uint8_t* d = reinterpret_cast<uint8_t*>(dPtr);
         sk_sp<SkData> data = SkData::MakeFromMalloc(d, bytes);
@@ -910,7 +901,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 
 #ifdef SK_GL
-    class_<GrDirectContext>("GrDirectContext")
+    class_<GrDirectContext>("GrContext")
         .smart_ptr<sk_sp<GrDirectContext>>("sk_sp<GrDirectContext>")
         .function("getResourceCacheLimitBytes",
                 optional_override([](GrDirectContext& self)->size_t {
@@ -937,8 +928,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }));
 #endif
 
-    class_<SkAnimatedImage>("SkAnimatedImage")
-        .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<SkAnimatedImage>")
+    class_<SkAnimatedImage>("AnimatedImage")
+        .smart_ptr<sk_sp<SkAnimatedImage>>("sk_sp<AnimatedImage>")
         .function("decodeNextFrame", &SkAnimatedImage::decodeNextFrame)
         // Deprecated; prefer makeImageAtCurrentFrame
         .function("getCurrentFrame", &SkAnimatedImage::getCurrentFrame)
@@ -953,7 +944,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.dimensions().width();
         }));
 
-    class_<SkCanvas>("SkCanvas")
+    class_<SkCanvas>("Canvas")
         .constructor<>()
         .function("_clear", optional_override([](SkCanvas& self, uintptr_t /* float* */ cPtr) {
             self.clear(ptrToSkColor4f(cPtr));
@@ -1163,8 +1154,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.writePixels(dstInfo, pixels, srcRowBytes, dstX, dstY);
         }));
 
-    class_<SkColorFilter>("SkColorFilter")
-        .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<SkColorFilter>>")
+    class_<SkColorFilter>("ColorFilter")
+        .smart_ptr<sk_sp<SkColorFilter>>("sk_sp<ColorFilter>>")
         .class_function("_MakeBlend", optional_override([](uintptr_t /* float* */ cPtr, SkBlendMode mode)->sk_sp<SkColorFilter> {
             return SkColorFilters::Blend(ptrToSkColor4f(cPtr).toSkColor(), mode);
         }))
@@ -1177,12 +1168,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }))
         .class_function("MakeSRGBToLinearGamma", &SkColorFilters::SRGBToLinearGamma);
 
-    class_<SkContourMeasureIter>("SkContourMeasureIter")
+    class_<SkContourMeasureIter>("ContourMeasureIter")
         .constructor<const SkPath&, bool, SkScalar>()
         .function("next", &SkContourMeasureIter::next);
 
-    class_<SkContourMeasure>("SkContourMeasure")
-        .smart_ptr<sk_sp<SkContourMeasure>>("sk_sp<SkContourMeasure>>")
+    class_<SkContourMeasure>("ContourMeasure")
+        .smart_ptr<sk_sp<SkContourMeasure>>("sk_sp<ContourMeasure>>")
         .function("getPosTan", optional_override([](SkContourMeasure& self,
                                                     SkScalar distance) -> PosTan {
             SkPoint p{0, 0};
@@ -1205,16 +1196,16 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("length", &SkContourMeasure::length);
 
     // TODO(kjlubick) Don't expose SkData - just expose ways to get the bytes.
-    class_<SkData>("SkData")
-        .smart_ptr<sk_sp<SkData>>("sk_sp<SkData>>")
+    class_<SkData>("Data")
+        .smart_ptr<sk_sp<SkData>>("sk_sp<Data>>")
         .function("size", &SkData::size);
 
     // TODO(kjlubick) I think this can be deleted since AnimatedImage is no longer around.
-    class_<SkDrawable>("SkDrawable")
-        .smart_ptr<sk_sp<SkDrawable>>("sk_sp<SkDrawable>>");
+    class_<SkDrawable>("Drawable")
+        .smart_ptr<sk_sp<SkDrawable>>("sk_sp<Drawable>>");
 
 #ifndef SK_NO_FONTS
-    class_<SkFont>("SkFont")
+    class_<SkFont>("Font")
         .constructor<>()
         .constructor<sk_sp<SkTypeface>>()
         .constructor<sk_sp<SkTypeface>, SkScalar>()
@@ -1286,8 +1277,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             output[0] = self.getBounds();
         }));
 
-    class_<SkFontMgr>("SkFontMgr")
-        .smart_ptr<sk_sp<SkFontMgr>>("sk_sp<SkFontMgr>")
+    class_<SkFontMgr>("FontMgr")
+        .smart_ptr<sk_sp<SkFontMgr>>("sk_sp<FontMgr>")
         .class_function("_fromData", optional_override([](uintptr_t /* uint8_t**  */ dPtr,
                                                           uintptr_t /* size_t*  */ sPtr,
                                                           int numFonts)->sk_sp<SkFontMgr> {
@@ -1327,8 +1318,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
     }), allow_raw_pointers());
 #endif // SK_NO_FONTS
 
-    class_<SkImage>("SkImage")
-        .smart_ptr<sk_sp<SkImage>>("sk_sp<SkImage>")
+    class_<SkImage>("Image")
+        .smart_ptr<sk_sp<SkImage>>("sk_sp<Image>")
         .function("height", &SkImage::height)
         .function("width", &SkImage::width)
         .function("_encodeToData", select_overload<sk_sp<SkData>()const>(&SkImage::encodeToData))
@@ -1352,8 +1343,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self->readPixels(dContext, ii, pixels, dstRowBytes, srcX, srcY);
         }), allow_raw_pointers());
 
-    class_<SkImageFilter>("SkImageFilter")
-        .smart_ptr<sk_sp<SkImageFilter>>("sk_sp<SkImageFilter>")
+    class_<SkImageFilter>("ImageFilter")
+        .smart_ptr<sk_sp<SkImageFilter>>("sk_sp<ImageFilter>")
         .class_function("MakeBlur", optional_override([](SkScalar sigmaX, SkScalar sigmaY,
                                                          SkTileMode tileMode, sk_sp<SkImageFilter> input)->sk_sp<SkImageFilter> {
             return SkImageFilters::Blur(sigmaX, sigmaY, tileMode, input);
@@ -1369,14 +1360,14 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkImageFilters::MatrixTransform(matr, fq, input);
         }));
 
-    class_<SkMaskFilter>("SkMaskFilter")
-        .smart_ptr<sk_sp<SkMaskFilter>>("sk_sp<SkMaskFilter>")
+    class_<SkMaskFilter>("MaskFilter")
+        .smart_ptr<sk_sp<SkMaskFilter>>("sk_sp<MaskFilter>")
         .class_function("MakeBlur", optional_override([](SkBlurStyle style, SkScalar sigma, bool respectCTM)->sk_sp<SkMaskFilter> {
         // Adds a little helper because emscripten doesn't expose default params.
         return SkMaskFilter::MakeBlur(style, sigma, respectCTM);
     }), allow_raw_pointers());
 
-    class_<SkPaint>("SkPaint")
+    class_<SkPaint>("Paint")
         .constructor<>()
         .function("copy", optional_override([](const SkPaint& self)->SkPaint {
             SkPaint p(self);
@@ -1420,8 +1411,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("setStrokeWidth", &SkPaint::setStrokeWidth)
         .function("setStyle", &SkPaint::setStyle);
 
-    class_<SkColorSpace>("SkColorSpace")
-        .smart_ptr<sk_sp<SkColorSpace>>("sk_sp<SkColorSpace>")
+    class_<SkColorSpace>("ColorSpace")
+        .smart_ptr<sk_sp<SkColorSpace>>("sk_sp<ColorSpace>")
         .class_function("Equals", optional_override([](sk_sp<SkColorSpace> a, sk_sp<SkColorSpace> b)->bool {
             return SkColorSpace::Equals(a.get(), b.get());
         }))
@@ -1435,8 +1426,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB);
         }));
 
-    class_<SkPathEffect>("SkPathEffect")
-        .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<SkPathEffect>")
+    class_<SkPathEffect>("PathEffect")
+        .smart_ptr<sk_sp<SkPathEffect>>("sk_sp<PathEffect>")
         .class_function("MakeCorner", &SkCornerPathEffect::Make)
         .class_function("_MakeDash", optional_override([](uintptr_t /* float* */ cptr, int count,
                                                           SkScalar phase)->sk_sp<SkPathEffect> {
@@ -1446,7 +1437,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .class_function("MakeDiscrete", &SkDiscretePathEffect::Make);
 
     // TODO(kjlubick, reed) Make SkPath immutable and only creatable via a factory/builder.
-    class_<SkPath>("SkPath")
+    class_<SkPath>("Path")
         .constructor<>()
         // TODO(kjlubick) remove this constructor in favor of the .copy() method.
         .constructor<const SkPath&>()
@@ -1549,7 +1540,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         ;
 
     // TODO(kjlubick) remove this now that we have SkContourMeasureIter
-    class_<SkPathMeasure>("SkPathMeasure")
+    class_<SkPathMeasure>("PathMeasure")
         .constructor<const SkPath&, bool, SkScalar>()
         .function("getLength", &SkPathMeasure::getLength)
         .function("getPosTan", optional_override([](SkPathMeasure& self,
@@ -1573,7 +1564,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("isClosed", &SkPathMeasure::isClosed)
         .function("nextContour", &SkPathMeasure::nextContour);
 
-    class_<SkPictureRecorder>("SkPictureRecorder")
+    class_<SkPictureRecorder>("PictureRecorder")
         .constructor<>()
         .function("_beginRecording", optional_override([](SkPictureRecorder& self,
                                                           uintptr_t /* float* */ fPtr) -> SkCanvas* {
@@ -1585,8 +1576,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return self.finishRecordingAsPicture();
         }), allow_raw_pointers());
 
-    class_<SkPicture>("SkPicture")
-        .smart_ptr<sk_sp<SkPicture>>("sk_sp<SkPicture>")
+    class_<SkPicture>("Picture")
+        .smart_ptr<sk_sp<SkPicture>>("sk_sp<Picture>")
 #ifdef SK_SERIALIZE_SKP
         // The serialized format of an SkPicture (informally called an "skp"), is not something
         // that clients should ever rely on.  The format may change at anytime and no promises
@@ -1599,8 +1590,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #endif
     ;
 
-    class_<SkShader>("SkShader")
-        .smart_ptr<sk_sp<SkShader>>("sk_sp<SkShader>")
+    class_<SkShader>("Shader")
+        .smart_ptr<sk_sp<SkShader>>("sk_sp<Shader>")
         .class_function("Blend", select_overload<sk_sp<SkShader>(SkBlendMode, sk_sp<SkShader>, sk_sp<SkShader>)>(&SkShaders::Blend))
         .class_function("_Color",
             optional_override([](uintptr_t /* float* */ cPtr, sk_sp<SkColorSpace> colorSpace)->sk_sp<SkShader> {
@@ -1610,8 +1601,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .class_function("Lerp", select_overload<sk_sp<SkShader>(float, sk_sp<SkShader>, sk_sp<SkShader>)>(&SkShaders::Lerp));
 
 #ifdef SK_INCLUDE_RUNTIME_EFFECT
-    class_<SkRuntimeEffect>("SkRuntimeEffect")
-        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<SkRuntimeEffect>")
+    class_<SkRuntimeEffect>("RuntimeEffect")
+        .smart_ptr<sk_sp<SkRuntimeEffect>>("sk_sp<RuntimeEffect>")
         .class_function("Make", optional_override([](std::string sksl)->sk_sp<SkRuntimeEffect> {
             SkString s(sksl.c_str(), sksl.length());
             auto [effect, errorText] = SkRuntimeEffect::Make(s);
@@ -1649,8 +1640,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         }));
 #endif
 
-    class_<SkSurface>("SkSurface")
-        .smart_ptr<sk_sp<SkSurface>>("sk_sp<SkSurface>")
+    class_<SkSurface>("Surface")
+        .smart_ptr<sk_sp<SkSurface>>("sk_sp<Surface>")
         .function("_flush", optional_override([](SkSurface& self) {
             self.flushAndSubmit(false);
         }))
@@ -1686,8 +1677,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("width", &SkSurface::width);
 
 #ifndef SK_NO_FONTS
-    class_<SkTextBlob>("SkTextBlob")
-        .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<SkTextBlob>>")
+    class_<SkTextBlob>("TextBlob")
+        .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<TextBlob>")
         .class_function("_MakeFromRSXform", optional_override([](uintptr_t /* char* */ sptr,
                                                               size_t strBtyes,
                                                               uintptr_t /* SkRSXform* */ xptr,
@@ -1717,12 +1708,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
             return SkTextBlob::MakeFromText(glyphs, byteLen, font, SkTextEncoding::kGlyphID);
         }), allow_raw_pointers());
 
-    class_<SkTypeface>("SkTypeface")
-        .smart_ptr<sk_sp<SkTypeface>>("sk_sp<SkTypeface>");
+    class_<SkTypeface>("Typeface")
+        .smart_ptr<sk_sp<SkTypeface>>("sk_sp<Typeface>");
 #endif
 
-    class_<SkVertices>("SkVertices")
-        .smart_ptr<sk_sp<SkVertices>>("sk_sp<SkVertices>")
+    class_<SkVertices>("Vertices")
+        .smart_ptr<sk_sp<SkVertices>>("sk_sp<Vertices>")
         .function("_bounds", optional_override([](SkVertices& self,
                                                   uintptr_t /* float* */ fPtr)->void {
             SkRect* output = reinterpret_cast<SkRect*>(fPtr);
@@ -1731,7 +1722,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("uniqueID", &SkVertices::uniqueID);
 
     // Not intended to be called directly by clients
-    class_<SkVertices::Builder>("_SkVerticesBuilder")
+    class_<SkVertices::Builder>("_VerticesBuilder")
         .constructor<SkVertices::VertexMode, int, int, uint32_t>()
         .function("colors", optional_override([](SkVertices::Builder& self)->uintptr_t /* SkColor* */{
             // Emscripten won't let us return bare pointers, but we can return ints just fine.
@@ -1891,7 +1882,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("width",       &ShapedTextOpts::width);
 #endif
 
-    value_object<SimpleImageInfo>("SkImageInfo")
+    value_object<SimpleImageInfo>("ImageInfo")
         .field("width",      &SimpleImageInfo::width)
         .field("height",     &SimpleImageInfo::height)
         .field("colorType",  &SimpleImageInfo::colorType)
@@ -1899,12 +1890,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .field("colorSpace", &SimpleImageInfo::colorSpace);
 
     // SkPoints can be represented by [x, y]
-    value_array<SkPoint>("SkPoint")
+    value_array<SkPoint>("Point")
         .element(&SkPoint::fX)
         .element(&SkPoint::fY);
 
     // SkPoint3s can be represented by [x, y, z]
-    value_array<SkPoint3>("SkPoint3")
+    value_array<SkPoint3>("Point3")
         .element(&SkPoint3::fX)
         .element(&SkPoint3::fY)
         .element(&SkPoint3::fZ);
@@ -1917,11 +1908,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .element(&PosTan::ty);
 
     // {"w": Number, "h", Number}
-    value_object<SkSize>("SkSize")
+    value_object<SkSize>("Size")
         .field("w",   &SkSize::fWidth)
         .field("h",   &SkSize::fHeight);
 
-    value_object<SkISize>("SkISize")
+    value_object<SkISize>("ISize")
         .field("w",   &SkISize::fWidth)
         .field("h",   &SkISize::fHeight);
 

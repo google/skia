@@ -47,12 +47,12 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_basic', (canvas) => {
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
 
@@ -117,7 +117,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_foreground_and_background_color', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
 
@@ -149,7 +149,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_foreground_stroke_paint', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
 
@@ -165,11 +165,11 @@ describe('Paragraph Behavior', function() {
         });
         const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
 
-        const fg = new CanvasKit.SkPaint();
+        const fg = new CanvasKit.Paint();
         fg.setColor(CanvasKit.BLACK);
         fg.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const bg = new CanvasKit.SkPaint();
+        const bg = new CanvasKit.Paint();
         bg.setColor(CanvasKit.TRANSPARENT);
 
         builder.pushPaintStyle(textStyle, fg, bg);
@@ -191,7 +191,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_letter_word_spacing', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
 
@@ -223,7 +223,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_shadows', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
 
@@ -254,7 +254,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_strut_style', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(robotoFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
 
@@ -327,7 +327,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_font_features', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(robotoFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
 
@@ -355,7 +355,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_placeholders', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(robotoFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
 
@@ -391,7 +391,7 @@ describe('Paragraph Behavior', function() {
         canvas.drawParagraph(paragraph, 10, 10);
 
         for (const rect of rects) {
-            const p = new CanvasKit.SkPaint();
+            const p = new CanvasKit.Paint();
             p.setColor(CanvasKit.Color(0, 0, 255));
             p.setStyle(CanvasKit.PaintStyle.Stroke);
             // Account for the (10, 10) offset when we painted the paragraph.
@@ -408,7 +408,7 @@ describe('Paragraph Behavior', function() {
 
     // loosely based on SkParagraph_GetRectsForRangeParagraph test in c++ code.
     gm('paragraph_rects', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
 
         const wrapTo = 550;
         const hStyle = CanvasKit.RectHeightStyle.Max;
@@ -482,7 +482,7 @@ describe('Paragraph Behavior', function() {
 
             for (const rect of rects) {
                 expect(rect.direction.value).toEqual(CanvasKit.TextDirection.LTR.value);
-                const p = new CanvasKit.SkPaint();
+                const p = new CanvasKit.Paint();
                 p.setColor(test.color);
                 p.setStyle(CanvasKit.PaintStyle.Stroke);
                 canvas.drawRect(rect, p);
@@ -496,7 +496,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_emoji', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData([notoSerifFontBuffer, emojiFontBuffer]);
+        const fontMgr = CanvasKit.FontMgr.FromData([notoSerifFontBuffer, emojiFontBuffer]);
         expect(fontMgr.countFamilies()).toEqual(2);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
         expect(fontMgr.getFamilyName(1)).toEqual('Noto Color Emoji');
@@ -536,7 +536,7 @@ describe('Paragraph Behavior', function() {
         canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
@@ -548,7 +548,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_hits', (canvas) => {
-        const fontMgr = CanvasKit.SkFontMgr.FromData([notoSerifFontBuffer]);
+        const fontMgr = CanvasKit.FontMgr.FromData([notoSerifFontBuffer]);
 
         const wrapTo = 300;
 
@@ -571,7 +571,7 @@ describe('Paragraph Behavior', function() {
         canvas.translate(10, 10);
         canvas.drawParagraph(paragraph, 0, 0);
 
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.Color(255, 0, 0));
         paint.setStyle(CanvasKit.PaintStyle.Fill);
@@ -606,12 +606,12 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_styles', (canvas) => {
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;
 
@@ -660,7 +660,7 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_font_provider', (canvas) => {
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -717,12 +717,12 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_text_styles', (canvas) => {
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.GREEN);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
 
@@ -792,12 +792,12 @@ describe('Paragraph Behavior', function() {
         expect(surface).toBeTruthy('Could not make surface');
 
         const canvas = surface.getCanvas();
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;
 
@@ -844,12 +844,12 @@ describe('Paragraph Behavior', function() {
         expect(surface).toBeTruthy('Could not make surface');
 
         const canvas = surface.getCanvas();
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-        const fontMgr = CanvasKit.SkFontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;
 

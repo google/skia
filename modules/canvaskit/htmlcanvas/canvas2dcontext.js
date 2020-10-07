@@ -1,6 +1,6 @@
 function CanvasRenderingContext2D(skcanvas) {
   this._canvas = skcanvas;
-  this._paint = new CanvasKit.SkPaint();
+  this._paint = new CanvasKit.Paint();
   this._paint.setAntiAlias(true);
 
   this._paint.setStrokeMiter(10);
@@ -8,7 +8,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setStrokeJoin(CanvasKit.StrokeJoin.Miter);
   this._fontString = '10px monospace';
 
-  this._font = new CanvasKit.SkFont(null, 10);
+  this._font = new CanvasKit.Font(null, 10);
   this._font.setSubpixel(true);
 
   this._strokeStyle    = CanvasKit.BLACK;
@@ -21,7 +21,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this._strokeWidth    = 1;
   this._lineDashOffset = 0;
   this._lineDashList   = [];
-  // aka SkBlendMode
+  // aka BlendMode
   this._globalCompositeOperation = CanvasKit.BlendMode.SrcOver;
   this._imageFilterQuality = CanvasKit.FilterQuality.Low;
   this._imageSmoothingEnabled = true;
@@ -30,8 +30,8 @@ function CanvasRenderingContext2D(skcanvas) {
   this._paint.setStrokeWidth(this._strokeWidth);
   this._paint.setBlendMode(this._globalCompositeOperation);
 
-  this._currentPath = new CanvasKit.SkPath();
-  this._currentTransform = CanvasKit.SkMatrix.identity();
+  this._currentPath = new CanvasKit.Path();
+  this._currentTransform = CanvasKit.Matrix.identity();
 
   // Use this for save/restore
   this._canvasStateStack = [];
@@ -501,7 +501,7 @@ function CanvasRenderingContext2D(skcanvas) {
   // clears out any previous paths.
   this.beginPath = function() {
     this._currentPath.delete();
-    this._currentPath = new CanvasKit.SkPath();
+    this._currentPath = new CanvasKit.Path();
   }
 
   this.bezierCurveTo = function(cp1x, cp1y, cp2x, cp2y, x, y) {
@@ -702,7 +702,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this.fillText = function(text, x, y, maxWidth) {
     // TODO do something with maxWidth, probably involving measure
     var fillPaint = this._fillPaint();
-    var blob = CanvasKit.SkTextBlob.MakeFromText(text, this._font);
+    var blob = CanvasKit.TextBlob.MakeFromText(text, this._font);
 
     var shadowPaint = this._shadowPaint(fillPaint);
     if (shadowPaint) {
@@ -734,8 +734,8 @@ function CanvasRenderingContext2D(skcanvas) {
   }
 
   this._mapToLocalCoordinates = function(pts) {
-    var inverted = CanvasKit.SkMatrix.invert(this._currentTransform);
-    CanvasKit.SkMatrix.mapPoints(inverted, pts);
+    var inverted = CanvasKit.Matrix.invert(this._currentTransform);
+    CanvasKit.Matrix.mapPoints(inverted, pts);
     return pts;
   }
 
@@ -849,10 +849,10 @@ function CanvasRenderingContext2D(skcanvas) {
     var img = CanvasKit.MakeImage(imageData.data, imageData.width, imageData.height,
                                   CanvasKit.AlphaType.Unpremul,
                                   CanvasKit.ColorType.RGBA_8888,
-                                  CanvasKit.SkColorSpace.SRGB);
+                                  CanvasKit.ColorSpace.SRGB);
     var src = CanvasKit.XYWHRect(dirtyX, dirtyY, dirtyWidth, dirtyHeight);
     var dst = CanvasKit.XYWHRect(x+dirtyX, y+dirtyY, dirtyWidth, dirtyHeight);
-    var inverted = CanvasKit.SkMatrix.invert(this._currentTransform);
+    var inverted = CanvasKit.Matrix.invert(this._currentTransform);
     this._canvas.save();
     // putImageData() operates in device space.
     this._canvas.concat(inverted);
@@ -873,7 +873,7 @@ function CanvasRenderingContext2D(skcanvas) {
     // Apply the current transform to the path and then reset
     // to the identity. Essentially "commit" the transform.
     this._currentPath.transform(this._currentTransform);
-    var inverted = CanvasKit.SkMatrix.invert(this._currentTransform);
+    var inverted = CanvasKit.Matrix.invert(this._currentTransform);
     this._canvas.concat(inverted);
     // This should be identity, modulo floating point drift.
     this._currentTransform = this._canvas.getTotalMatrix();
@@ -887,9 +887,9 @@ function CanvasRenderingContext2D(skcanvas) {
     // "commit" the current transform. We pop, then apply the inverse of the
     // popped state, which has the effect of applying just the delta of
     // transforms between old and new.
-    var combined = CanvasKit.SkMatrix.multiply(
+    var combined = CanvasKit.Matrix.multiply(
       this._currentTransform,
-      CanvasKit.SkMatrix.invert(newState.ctm)
+      CanvasKit.Matrix.invert(newState.ctm)
     );
     this._currentPath.transform(combined);
     this._paint.delete();
@@ -923,7 +923,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     // retroactively apply the inverse of this transform to the previous
     // path so it cancels out when we apply the transform at draw time.
-    var inverted = CanvasKit.SkMatrix.rotated(-radians);
+    var inverted = CanvasKit.Matrix.rotated(-radians);
     this._currentPath.transform(inverted);
     this._canvas.rotate(radiansToDegrees(radians), 0, 0);
     this._currentTransform = this._canvas.getTotalMatrix();
@@ -973,7 +973,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     // retroactively apply the inverse of this transform to the previous
     // path so it cancels out when we apply the transform at draw time.
-    var inverted = CanvasKit.SkMatrix.scaled(1/sx, 1/sy);
+    var inverted = CanvasKit.Matrix.scaled(1/sx, 1/sy);
     this._currentPath.transform(inverted);
     this._canvas.scale(sx, sy);
     this._currentTransform = this._canvas.getTotalMatrix();
@@ -982,7 +982,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this.setLineDash = function(dashes) {
     for (var i = 0; i < dashes.length; i++) {
       if (!isFinite(dashes[i]) || dashes[i] < 0) {
-        SkDebug('dash list must have positive, finite values');
+        Debug('dash list must have positive, finite values');
         return;
       }
     }
@@ -1005,9 +1005,9 @@ function CanvasRenderingContext2D(skcanvas) {
   // We need to apply the shadowOffsets on the device coordinates, so we undo
   // the CTM, apply the offsets, then re-apply the CTM.
   this._applyShadowOffsetMatrix = function() {
-    var inverted = CanvasKit.SkMatrix.invert(this._currentTransform);
+    var inverted = CanvasKit.Matrix.invert(this._currentTransform);
     this._canvas.concat(inverted);
-    this._canvas.concat(CanvasKit.SkMatrix.translated(this._shadowOffsetX, this._shadowOffsetY));
+    this._canvas.concat(CanvasKit.Matrix.translated(this._shadowOffsetX, this._shadowOffsetY));
     this._canvas.concat(this._currentTransform);
   }
 
@@ -1028,8 +1028,8 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     var shadowPaint = basePaint.copy();
     shadowPaint.setColor(alphaColor);
-    var blurEffect = CanvasKit.SkMaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal,
-      SkBlurRadiusToSigma(this._shadowBlur),
+    var blurEffect = CanvasKit.MaskFilter.MakeBlur(CanvasKit.BlurStyle.Normal,
+      BlurRadiusToSigma(this._shadowBlur),
       false);
     shadowPaint.setMaskFilter(blurEffect);
 
@@ -1060,7 +1060,7 @@ function CanvasRenderingContext2D(skcanvas) {
     paint.setStrokeWidth(this._strokeWidth);
 
     if (this._lineDashList.length) {
-      var dashedEffect = CanvasKit.SkPathEffect.MakeDash(this._lineDashList, this._lineDashOffset);
+      var dashedEffect = CanvasKit.PathEffect.MakeDash(this._lineDashList, this._lineDashOffset);
       paint.setPathEffect(dashedEffect);
     }
 
@@ -1106,7 +1106,7 @@ function CanvasRenderingContext2D(skcanvas) {
   this.strokeText = function(text, x, y, maxWidth) {
     // TODO do something with maxWidth, probably involving measure
     var strokePaint = this._strokePaint();
-    var blob = CanvasKit.SkTextBlob.MakeFromText(text, this._font);
+    var blob = CanvasKit.TextBlob.MakeFromText(text, this._font);
 
     var shadowPaint = this._shadowPaint(strokePaint);
     if (shadowPaint) {
@@ -1127,7 +1127,7 @@ function CanvasRenderingContext2D(skcanvas) {
     }
     // retroactively apply the inverse of this transform to the previous
     // path so it cancels out when we apply the transform at draw time.
-    var inverted = CanvasKit.SkMatrix.translated(-dx, -dy);
+    var inverted = CanvasKit.Matrix.translated(-dx, -dy);
     this._currentPath.transform(inverted);
     this._canvas.translate(dx, dy);
     this._currentTransform = this._canvas.getTotalMatrix();
@@ -1139,7 +1139,7 @@ function CanvasRenderingContext2D(skcanvas) {
                         0, 0, 1];
     // retroactively apply the inverse of this transform to the previous
     // path so it cancels out when we apply the transform at draw time.
-    var inverted = CanvasKit.SkMatrix.invert(newTransform);
+    var inverted = CanvasKit.Matrix.invert(newTransform);
     this._currentPath.transform(inverted);
     this._canvas.concat(newTransform);
     this._currentTransform = this._canvas.getTotalMatrix();
@@ -1158,7 +1158,7 @@ function CanvasRenderingContext2D(skcanvas) {
   });
 }
 
-function SkBlurRadiusToSigma(radius) {
+function BlurRadiusToSigma(radius) {
   // Blink (Chrome) does the following, for legacy reasons, even though it
   // is against the spec. https://bugs.chromium.org/p/chromium/issues/detail?id=179006
   // This may change in future releases.

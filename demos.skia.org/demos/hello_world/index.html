@@ -26,11 +26,11 @@
       throw 'Could not make surface';
     }
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.RED);
 
-    const textPaint = new CanvasKit.SkPaint();
-    const textFont = new CanvasKit.SkFont(null, 20);
+    const textPaint = new CanvasKit.Paint();
+    const textFont = new CanvasKit.Font(null, 20);
 
     function drawFrame(canvas) {
       canvas.drawRect(CanvasKit.LTRBRect(10, 10, 50, 50), paint);

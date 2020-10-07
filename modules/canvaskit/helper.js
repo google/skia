@@ -138,7 +138,7 @@ CanvasKit.parseColorString = function(colorStr, colorMap) {
       return nc;
     }
   }
-  SkDebug('unrecognized color ' + colorStr);
+  Debug('unrecognized color ' + colorStr);
   return CanvasKit.BLACK;
 }
 
@@ -424,7 +424,7 @@ function copy4x4MatrixToWasm(matr) {
 // copies a 4x4 matrix at the given pointer into a JS array. It is the caller's
 // responsibility to free the matrPtr if needed.
 function copy4x4MatrixFromWasm(matrPtr) {
-  // read them out into an array. TODO(kjlubick): If we change SkMatrix to be
+  // read them out into an array. TODO(kjlubick): If we change Matrix to be
   // typedArrays, then we should return a typed array here too.
   var rv = new Array(16);
   for (var i = 0; i < 16; i++) {
@@ -583,7 +583,7 @@ CanvasKit.FourFloatArrayHelper = function() {
  */
 CanvasKit.FourFloatArrayHelper.prototype.push = function(f1, f2, f3, f4) {
   if (this._ptr) {
-    SkDebug('Cannot push more points - already built');
+    Debug('Cannot push more points - already built');
     return;
   }
   this._floats.push(f1, f2, f3, f4);
@@ -595,7 +595,7 @@ CanvasKit.FourFloatArrayHelper.prototype.push = function(f1, f2, f3, f4) {
  */
 CanvasKit.FourFloatArrayHelper.prototype.set = function(idx, f1, f2, f3, f4) {
   if (idx < 0 || idx >= this._floats.length/4) {
-    SkDebug('Cannot set index ' + idx + ', it is out of range', this._floats.length/4);
+    Debug('Cannot set index ' + idx + ', it is out of range', this._floats.length/4);
     return;
   }
   idx *= 4;
@@ -662,7 +662,7 @@ CanvasKit.OneUIntArrayHelper = function() {
  */
 CanvasKit.OneUIntArrayHelper.prototype.push = function(u) {
   if (this._ptr) {
-    SkDebug('Cannot push more points - already built');
+    Debug('Cannot push more points - already built');
     return;
   }
   this._uints.push(u);
@@ -674,7 +674,7 @@ CanvasKit.OneUIntArrayHelper.prototype.push = function(u) {
  */
 CanvasKit.OneUIntArrayHelper.prototype.set = function(idx, u) {
   if (idx < 0 || idx >= this._uints.length) {
-    SkDebug('Cannot set index ' + idx + ', it is out of range', this._uints.length);
+    Debug('Cannot set index ' + idx + ', it is out of range', this._uints.length);
     return;
   }
   idx *= 4;
@@ -715,7 +715,7 @@ CanvasKit.OneUIntArrayHelper.prototype.delete = function() {
 }
 
 /**
- * Helper for building an array of SkRects (which are just structs
+ * Helper for building an array of Rects (which are just structs
  * of 4 floats).
  *
  * It can be more performant to use this helper, as
@@ -726,7 +726,7 @@ CanvasKit.OneUIntArrayHelper.prototype.delete = function() {
  *
  * Input points are taken as left, top, right, bottom
  */
-CanvasKit.SkRectBuilder = CanvasKit.FourFloatArrayHelper;
+CanvasKit.RectBuilder = CanvasKit.FourFloatArrayHelper;
 /**
  * Helper for building an array of RSXForms (which are just structs
  * of 4 floats).
@@ -748,7 +748,7 @@ CanvasKit.SkRectBuilder = CanvasKit.FourFloatArrayHelper;
 CanvasKit.RSXFormBuilder = CanvasKit.FourFloatArrayHelper;
 
 /**
- * Helper for building an array of SkColor
+ * Helper for building an array of Color
  *
  * It can be more performant to use this helper, as
  * the C++-side array is only allocated once (on the first call)
@@ -756,7 +756,7 @@ CanvasKit.RSXFormBuilder = CanvasKit.FourFloatArrayHelper;
  * the C++-side array, avoiding having to re-allocate (and free)
  * the array every time.
  */
-CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
+CanvasKit.ColorBuilder = CanvasKit.OneUIntArrayHelper;
 
 /**
  * Malloc returns a TypedArray backed by the C++ memory of the
@@ -770,7 +770,7 @@ CanvasKit.SkColorBuilder = CanvasKit.OneUIntArrayHelper;
  * Get a TypedArray view around the malloc'd memory (this does not copy anything).
  * const ta = mObj.toTypedArray();
  * // store data into ta
- * const cf = CanvasKit.SkColorFilter.MakeMatrix(ta); // mObj could also be used.
+ * const cf = CanvasKit.ColorFilter.MakeMatrix(ta); // mObj could also be used.
  *
  * // eventually...
  * CanvasKit.Free(mObj);
