@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bce59bf4_989c5169",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-07T15:30:13Z",
+      "side": 1,
+      "message": "Think it\u0027s time to try std::vector\u003cbool\u003e yet?",
+      "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
