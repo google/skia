@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a51430db_62173b40",
+        "filename": "modules/canvaskit/canvaskit_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-07T12:08:07Z",
+      "side": 1,
+      "message": "I would have preferred not to change this string (i.e. the JS name) without making an entry in the CanvasKit notes. Please include me on changes to the binding code.",
+      "range": {
+        "startLine": 911,
+        "startChar": 29,
+        "endLine": 911,
+        "endChar": 44
+      },
+      "revId": "d2daa94edeca88281796524fae45f38f11a7bef2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
