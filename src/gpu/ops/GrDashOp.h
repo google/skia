@@ -10,6 +10,7 @@
 
 #include "include/core/SkPathEffect.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrDrawOp;
 class GrPaint;
@@ -25,13 +26,13 @@ enum class AAMode {
 };
 static const int kAAModeCnt = static_cast<int>(AAMode::kCoverageWithMSAA) + 1;
 
-std::unique_ptr<GrDrawOp> MakeDashLineOp(GrRecordingContext*,
-                                         GrPaint&&,
-                                         const SkMatrix& viewMatrix,
-                                         const SkPoint pts[2],
-                                         AAMode,
-                                         const GrStyle& style,
-                                         const GrUserStencilSettings*);
+GrOp::Owner MakeDashLineOp(GrRecordingContext*,
+                           GrPaint&&,
+                           const SkMatrix& viewMatrix,
+                           const SkPoint pts[2],
+                           AAMode,
+                           const GrStyle& style,
+                           const GrUserStencilSettings*);
 bool CanDrawDashLine(const SkPoint pts[2], const GrStyle& style, const SkMatrix& viewMatrix);
 }  // namespace GrDashOp
 

@@ -14,11 +14,10 @@
 #include "src/gpu/GrOpsRenderPass.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 
-std::unique_ptr<GrDrawableOp> GrDrawableOp::Make(
+GrOp::Owner GrDrawableOp::Make(
         GrRecordingContext* context, std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
         const SkRect& bounds) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    return pool->allocate<GrDrawableOp>(std::move(drawable), bounds);
+    return GrOp::Make<GrDrawableOp>(context, std::move(drawable), bounds);
 }
 
 GrDrawableOp::GrDrawableOp(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,

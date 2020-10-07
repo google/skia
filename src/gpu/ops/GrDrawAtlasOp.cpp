@@ -30,7 +30,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    DrawAtlasOp(const Helper::MakeArgs&, const SkPMColor4f& color,
+    DrawAtlasOp(GrProcessorSet*, const SkPMColor4f& color,
                 const SkMatrix& viewMatrix, GrAAType, int spriteCount, const SkRSXform* xforms,
                 const SkRect* rects, const SkColor* colors);
 
@@ -104,10 +104,10 @@ static GrGeometryProcessor* make_gp(SkArenaAlloc* arena,
                                          LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
-DrawAtlasOp::DrawAtlasOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+DrawAtlasOp::DrawAtlasOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
                          const SkMatrix& viewMatrix, GrAAType aaType, int spriteCount,
                          const SkRSXform* xforms, const SkRect* rects, const SkColor* colors)
-        : INHERITED(ClassID()), fHelper(helperArgs, aaType), fColor(color) {
+        : INHERITED(ClassID()), fHelper(processorSet, aaType), fColor(color) {
     SkASSERT(xforms);
     SkASSERT(rects);
 
@@ -303,14 +303,14 @@ GrProcessorSet::Analysis DrawAtlasOp::finalize(
 
 } // anonymous namespace
 
-std::unique_ptr<GrDrawOp> GrDrawAtlasOp::Make(GrRecordingContext* context,
-                                              GrPaint&& paint,
-                                              const SkMatrix& viewMatrix,
-                                              GrAAType aaType,
-                                              int spriteCount,
-                                              const SkRSXform* xforms,
-                                              const SkRect* rects,
-                                              const SkColor* colors) {
+GrOp::Owner GrDrawAtlasOp::Make(GrRecordingContext* context,
+                                GrPaint&& paint,
+                                const SkMatrix& viewMatrix,
+                                GrAAType aaType,
+                                int spriteCount,
+                                const SkRSXform* xforms,
+                                const SkRect* rects,
+                                const SkColor* colors) {
     return GrSimpleMeshDrawOpHelper::FactoryHelper<DrawAtlasOp>(context, std::move(paint),
                                                                 viewMatrix, aaType,
                                                                 spriteCount, xforms,

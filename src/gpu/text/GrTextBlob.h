@@ -219,7 +219,7 @@ public:
     virtual size_t vertexStride() const = 0;
     virtual int glyphCount() const = 0;
 
-    virtual std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    virtual std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
@@ -305,7 +305,7 @@ public:
 
     int glyphCount() const override;
 
-    std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
@@ -367,7 +367,7 @@ public:
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
-    std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,
@@ -434,7 +434,7 @@ public:
 
     bool canReuse(const SkPaint& paint, const SkMatrix& drawMatrix) override;
 
-    std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+    std::tuple<const GrClip*, GrOp::Owner>
     makeAtlasTextOp(const GrClip* clip,
                     const SkMatrixProvider& viewMatrix,
                     const SkGlyphRunList& glyphRunList,

@@ -441,7 +441,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    DrawVerticesOp(const Helper::MakeArgs&, const SkPMColor4f&, sk_sp<SkVertices>,
+    DrawVerticesOp(GrProcessorSet*, const SkPMColor4f&, sk_sp<SkVertices>,
                    GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>, const SkMatrixProvider&,
                    const SkRuntimeEffect*);
 
@@ -537,7 +537,7 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs,
+DrawVerticesOp::DrawVerticesOp(GrProcessorSet* processorSet,
                                const SkPMColor4f& color,
                                sk_sp<SkVertices> vertices,
                                GrPrimitiveType primitiveType,
@@ -546,7 +546,7 @@ DrawVerticesOp::DrawVerticesOp(const Helper::MakeArgs& helperArgs,
                                const SkMatrixProvider& matrixProvider,
                                const SkRuntimeEffect* effect)
         : INHERITED(ClassID())
-        , fHelper(helperArgs, aaType)
+        , fHelper(processorSet, aaType)
         , fPrimitiveType(primitiveType)
         , fMultipleViewMatrices(false)
         , fColorSpaceXform(std::move(colorSpaceXform)) {
@@ -845,14 +845,14 @@ static GrPrimitiveType SkVertexModeToGrPrimitiveType(SkVertices::VertexMode mode
     SK_ABORT("Invalid mode");
 }
 
-std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrRecordingContext* context,
-                                                 GrPaint&& paint,
-                                                 sk_sp<SkVertices> vertices,
-                                                 const SkMatrixProvider& matrixProvider,
-                                                 GrAAType aaType,
-                                                 sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                                 GrPrimitiveType* overridePrimType,
-                                                 const SkRuntimeEffect* effect) {
+GrOp::Owner GrDrawVerticesOp::Make(GrRecordingContext* context,
+                                   GrPaint&& paint,
+                                   sk_sp<SkVertices> vertices,
+                                   const SkMatrixProvider& matrixProvider,
+                                   GrAAType aaType,
+                                   sk_sp<GrColorSpaceXform> colorSpaceXform,
+                                   GrPrimitiveType* overridePrimType,
+                                   const SkRuntimeEffect* effect) {
     SkASSERT(vertices);
     GrPrimitiveType primType = overridePrimType
                                        ? *overridePrimType

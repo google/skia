@@ -800,13 +800,13 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          const GrStyle& style,
-                                          const SkIRect& devClipBounds,
-                                          const GrUserStencilSettings* stencilSettings) {
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            GrPaint&& paint,
+                            const SkMatrix& viewMatrix,
+                            const SkPath& path,
+                            const GrStyle& style,
+                            const SkIRect& devClipBounds,
+                            const GrUserStencilSettings* stencilSettings) {
         SkScalar hairlineCoverage;
         uint8_t newCoverage = 0xff;
         if (GrPathRenderer::IsStrokeHairlineOrEquivalent(style, viewMatrix, &hairlineCoverage)) {
@@ -821,7 +821,7 @@ public:
                                                    devClipBounds, capLength, stencilSettings);
     }
 
-    AAHairlineOp(const Helper::MakeArgs& helperArgs,
+    AAHairlineOp(GrProcessorSet* processorSet,
                  const SkPMColor4f& color,
                  uint8_t coverage,
                  const SkMatrix& viewMatrix,
@@ -830,7 +830,7 @@ public:
                  SkScalar capLength,
                  const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings)
+            , fHelper(processorSet, GrAAType::kCoverage, stencilSettings)
             , fColor(color)
             , fCoverage(coverage) {
         fPaths.emplace_back(PathData{viewMatrix, path, devClipBounds, capLength});
@@ -1306,7 +1306,7 @@ bool GrAAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
 
     SkPath path;
     args.fShape->asPath(&path);
-    std::unique_ptr<GrDrawOp> op =
+    GrOp::Owner op =
             AAHairlineOp::Make(args.fContext, std::move(args.fPaint), *args.fViewMatrix, path,
                                args.fShape->style(), *args.fClipConservativeBounds,
                                args.fUserStencilSettings);

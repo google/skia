@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrDrawOp;
 class GrPaint;
@@ -17,14 +18,14 @@ class GrRecordingContext;
 class SkMatrix;
 
 namespace GrDrawAtlasOp {
-    std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                   GrPaint&&,
-                                   const SkMatrix& viewMatrix,
-                                   GrAAType,
-                                   int spriteCount,
-                                   const SkRSXform* xforms,
-                                   const SkRect* rects,
-                                   const SkColor* colors);
+GrOp::Owner Make(GrRecordingContext*,
+                 GrPaint&&,
+                 const SkMatrix& viewMatrix,
+                 GrAAType,
+                 int spriteCount,
+                 const SkRSXform* xforms,
+                 const SkRect* rects,
+                 const SkColor* colors);
 }  // namespace GrDrawAtlasOp
 
 #endif

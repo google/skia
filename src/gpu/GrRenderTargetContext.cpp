@@ -849,10 +849,9 @@ void GrRenderTargetContext::drawRect(const GrClip* clip,
                (rect.width() && rect.height())) {
         // Only use the StrokeRectOp for non-empty rectangles. Empty rectangles will be processed by
         // GrStyledShape to handle stroke caps and dashing properly.
-        std::unique_ptr<GrDrawOp> op;
-
         GrAAType aaType = this->chooseAAType(aa);
-        op = GrStrokeRectOp::Make(fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
+        GrOp::Owner op = GrStrokeRectOp::Make(
+                fContext, std::move(paint), aaType, viewMatrix, rect, stroke);
         // op may be null if the stroke is not supported or if using coverage aa and the view matrix
         // does not preserve rectangles.
         if (op) {
@@ -980,12 +979,12 @@ void GrRenderTargetContextPriv::stencilPath(const GrHardClip* clip,
     // but as it is, we're just using the full render target so intersecting the two bounds would
     // do nothing.
 
-    std::unique_ptr<GrOp> op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
-                                                     viewMatrix,
-                                                     GrAA::kYes == doStencilMSAA,
-                                                     appliedClip.hasStencilClip(),
-                                                     appliedClip.scissorState(),
-                                                     std::move(path));
+    GrOp::Owner op = GrStencilPathOp::Make(fRenderTargetContext->fContext,
+                                           viewMatrix,
+                                             GrAA::kYes == doStencilMSAA,
+                                           appliedClip.hasStencilClip(),
+                                           appliedClip.scissorState(),
+                                           std::move(path));
     if (!op) {
         return;
     }
@@ -1037,7 +1036,7 @@ void GrRenderTargetContext::drawVertices(const GrClip* clip,
 
     SkASSERT(vertices);
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
-    std::unique_ptr<GrDrawOp> op =
+    GrOp::Owner op =
             GrDrawVerticesOp::Make(fContext, std::move(paint), std::move(vertices), matrixProvider,
                                    aaType, this->colorInfo().refColorSpaceXformFromSRGB(),
                                    overridePrimType, effect);
@@ -1061,8 +1060,8 @@ void GrRenderTargetContext::drawAtlas(const GrClip* clip,
     AutoCheckFlush acf(this->drawingManager());
 
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
-    std::unique_ptr<GrDrawOp> op = GrDrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
-                                                       aaType, spriteCount, xform, texRect, colors);
+    GrOp::Owner op = GrDrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
+                                         aaType, spriteCount, xform, texRect, colors);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1129,7 +1128,7 @@ void GrRenderTargetContext::drawRRect(const GrClip* origClip,
 
     GrAAType aaType = this->chooseAAType(aa);
 
-    std::unique_ptr<GrDrawOp> op;
+    GrOp::Owner op;
     if (GrAAType::kCoverage == aaType && rrect.isSimple() &&
         rrect.getSimpleRadii().fX == rrect.getSimpleRadii().fY &&
         viewMatrix.rectStaysRect() && viewMatrix.isSimilarity()) {
@@ -1248,12 +1247,12 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip* clip,
             devSpaceInsetWidth = ambientRRect.width();
         }
 
-        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(fContext,
-                                                             ambientColor,
-                                                             viewMatrix,
-                                                             ambientRRect,
-                                                             devSpaceAmbientBlur,
-                                                             devSpaceInsetWidth);
+        GrOp::Owner op = GrShadowRRectOp::Make(fContext,
+                                               ambientColor,
+                                               viewMatrix,
+                                               ambientRRect,
+                                               devSpaceAmbientBlur,
+                                               devSpaceInsetWidth);
         if (op) {
             this->addDrawOp(clip, std::move(op));
         }
@@ -1346,12 +1345,12 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip* clip,
 
         GrColor spotColor = SkColorToPremulGrColor(rec.fSpotColor);
 
-        std::unique_ptr<GrDrawOp> op = GrShadowRRectOp::Make(fContext,
-                                                             spotColor,
-                                                             viewMatrix,
-                                                             spotShadowRRect,
-                                                             2.0f * devSpaceSpotBlur,
-                                                             insetWidth);
+        GrOp::Owner op = GrShadowRRectOp::Make(fContext,
+                                               spotColor,
+                                               viewMatrix,
+                                               spotShadowRRect,
+                                                 2.0f * devSpaceSpotBlur,
+                                               insetWidth);
         if (op) {
             this->addDrawOp(clip, std::move(op));
         }
@@ -1512,8 +1511,8 @@ void GrRenderTargetContext::drawRegion(const GrClip* clip,
     }
 
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
-    std::unique_ptr<GrDrawOp> op = GrRegionOp::Make(fContext, std::move(paint), viewMatrix, region,
-                                                    aaType, ss);
+    GrOp::Owner op = GrRegionOp::Make(fContext, std::move(paint), viewMatrix, region,
+                                      aaType, ss);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1543,7 +1542,7 @@ void GrRenderTargetContext::drawOval(const GrClip* clip,
 
     GrAAType aaType = this->chooseAAType(aa);
 
-    std::unique_ptr<GrDrawOp> op;
+    GrOp::Owner op;
     if (GrAAType::kCoverage == aaType && oval.width() > SK_ScalarNearlyZero &&
         oval.width() == oval.height() && viewMatrix.isSimilarity()) {
         // We don't draw true circles as round rects in coverage mode, because it can
@@ -1597,15 +1596,15 @@ void GrRenderTargetContext::drawArc(const GrClip* clip,
     GrAAType aaType = this->chooseAAType(aa);
     if (GrAAType::kCoverage == aaType) {
         const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(fContext,
-                                                                  std::move(paint),
-                                                                  viewMatrix,
-                                                                  oval,
-                                                                  startAngle,
-                                                                  sweepAngle,
-                                                                  useCenter,
-                                                                  style,
-                                                                  shaderCaps);
+        GrOp::Owner op = GrOvalOpFactory::MakeArcOp(fContext,
+                                                    std::move(paint),
+                                                    viewMatrix,
+                                                    oval,
+                                                    startAngle,
+                                                    sweepAngle,
+                                                    useCenter,
+                                                    style,
+                                                    shaderCaps);
         if (op) {
             this->addDrawOp(clip, std::move(op));
             return;
@@ -1633,7 +1632,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip* clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    std::unique_ptr<GrDrawOp> op =
+    GrOp::Owner op =
             GrLatticeOp::MakeNonAA(fContext, std::move(paint), viewMatrix, std::move(view),
                                    alphaType, std::move(csxf), filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
@@ -1641,7 +1640,7 @@ void GrRenderTargetContext::drawImageLattice(const GrClip* clip,
 
 void GrRenderTargetContext::drawDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable,
                                          const SkRect& bounds) {
-    std::unique_ptr<GrOp> op(GrDrawableOp::Make(fContext, std::move(drawable), bounds));
+    GrOp::Owner op(GrDrawableOp::Make(fContext, std::move(drawable), bounds));
     SkASSERT(op);
     this->addOp(std::move(op));
 }
@@ -1739,7 +1738,7 @@ void GrRenderTargetContext::drawShape(const GrClip* clip,
             SkRect rects[2];
             if (shape.asNestedRects(rects)) {
                 // Concave AA paths are expensive - try to avoid them for special cases
-                std::unique_ptr<GrDrawOp> op = GrStrokeRectOp::MakeNested(
+                GrOp::Owner op = GrStrokeRectOp::MakeNested(
                                 fContext, std::move(paint), viewMatrix, rects);
                 if (op) {
                     this->addDrawOp(clip, std::move(op));
@@ -1963,30 +1962,28 @@ static void op_bounds(SkRect* bounds, const GrOp* op) {
     }
 }
 
-void GrRenderTargetContext::addOp(std::unique_ptr<GrOp> op) {
+void GrRenderTargetContext::addOp(GrOp::Owner op) {
     GrDrawingManager* drawingMgr = this->drawingManager();
     this->getOpsTask()->addOp(drawingMgr,
             std::move(op), GrTextureResolveManager(drawingMgr), *this->caps());
 }
 
-void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDrawOp> op,
+void GrRenderTargetContext::addDrawOp(const GrClip* clip, GrOp::Owner op,
                                       const std::function<WillAddOpFn>& willAddFn) {
     ASSERT_SINGLE_OWNER
     if (fContext->abandoned()) {
-        #if !defined(GR_OP_ALLOCATE_USE_NEW)
-            fContext->priv().opMemoryPool()->release(std::move(op));
-        #endif
         return;
     }
+    GrDrawOp* drawOp = (GrDrawOp*)op.get();
     SkDEBUGCODE(this->validate();)
-    SkDEBUGCODE(op->fAddDrawOpCalled = true;)
+    SkDEBUGCODE(drawOp->fAddDrawOpCalled = true;)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "addDrawOp", fContext);
 
     // Setup clip
     SkRect bounds;
     op_bounds(&bounds, op.get());
     GrAppliedClip appliedClip(this->dimensions(), this->asSurfaceProxy()->backingStoreDimensions());
-    GrDrawOp::FixedFunctionFlags fixedFunctionFlags = op->fixedFunctionFlags();
+    GrDrawOp::FixedFunctionFlags fixedFunctionFlags = drawOp->fixedFunctionFlags();
     bool usesHWAA = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesHWAA;
     bool usesUserStencilBits = fixedFunctionFlags & GrDrawOp::FixedFunctionFlags::kUsesStencil;
 
@@ -2008,9 +2005,6 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     }
 
     if (skipDraw) {
-        #if !defined(GR_OP_ALLOCATE_USE_NEW)
-            fContext->priv().opMemoryPool()->release(std::move(op));
-        #endif
         return;
     }
 
@@ -2026,7 +2020,7 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
              this->asRenderTargetProxy()->canUseMixedSamples(*this->caps()));
 
     GrClampType clampType = GrColorTypeClampType(this->colorInfo().colorType());
-    GrProcessorSet::Analysis analysis = op->finalize(
+    GrProcessorSet::Analysis analysis = drawOp->finalize(
             *this->caps(), &appliedClip, hasMixedSampledCoverage, clampType);
 
     // Must be called before setDstProxyView so that it sees the final bounds of the op.
@@ -2035,9 +2029,6 @@ void GrRenderTargetContext::addDrawOp(const GrClip* clip, std::unique_ptr<GrDraw
     GrXferProcessor::DstProxyView dstProxyView;
     if (analysis.requiresDstTexture()) {
         if (!this->setupDstProxyView(*op, &dstProxyView)) {
-            #if !defined(GR_OP_ALLOCATE_USE_NEW)
-                fContext->priv().opMemoryPool()->release(std::move(op));
-            #endif
             return;
         }
     }

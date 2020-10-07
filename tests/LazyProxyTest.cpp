@@ -54,13 +54,11 @@ public:
     public:
         DEFINE_OP_CLASS_ID
 
-        static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                              GrProxyProvider* proxyProvider,
-                                              LazyProxyTest* test,
-                                              bool nullTexture) {
-            GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-            return pool->allocate<Op>(context, proxyProvider, test, nullTexture);
+        static GrOp::Owner Make(GrRecordingContext* context,
+                                GrProxyProvider* proxyProvider,
+                                LazyProxyTest* test,
+                                bool nullTexture) {
+            return GrOp::Make<Op>(context, context, proxyProvider, test, nullTexture);
         }
 
         void visitProxies(const VisitProxyFunc& func) const override {
@@ -73,7 +71,7 @@ public:
         }
 
     private:
-        friend class GrOpMemoryPool; // for ctor
+        friend class GrOp; // for ctor
 
         Op(GrRecordingContext* ctx, GrProxyProvider* proxyProvider,
            LazyProxyTest* test, bool nullTexture)
@@ -304,16 +302,15 @@ class LazyFailedInstantiationTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext,
-                                          GrProxyProvider* proxyProvider,
-                                          int* testExecuteValue,
-                                          bool shouldFailInstantiation) {
-        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
-
-        return pool->allocate<LazyFailedInstantiationTestOp>(rContext->priv().caps(),
-                                                             proxyProvider,
-                                                             testExecuteValue,
-                                                             shouldFailInstantiation);
+    static GrOp::Owner Make(GrRecordingContext* rContext,
+                            GrProxyProvider* proxyProvider,
+                            int* testExecuteValue,
+                            bool shouldFailInstantiation) {
+        return GrOp::Make<LazyFailedInstantiationTestOp>(rContext,
+                                                         rContext->priv().caps(),
+                                                         proxyProvider,
+                                                         testExecuteValue,
+                                                         shouldFailInstantiation);
     }
 
     void visitProxies(const VisitProxyFunc& func) const override {
@@ -321,7 +318,7 @@ public:
     }
 
 private:
-    friend class GrOpMemoryPool; // for ctor
+    friend class GrOp; // for ctor
 
     LazyFailedInstantiationTestOp(const GrCaps* caps, GrProxyProvider* proxyProvider,
                                   int* testExecuteValue, bool shouldFailInstantiation)
