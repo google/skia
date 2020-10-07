@@ -104,9 +104,11 @@ public:
     };
 
     static std::tuple<GrSurfaceProxyView, sk_sp<Trampoline>> CreateLazyView(GrDirectContext*,
-                                                                            SkISize dimensions,
                                                                             GrColorType,
-                                                                            GrSurfaceOrigin);
+                                                                            SkISize dimensions,
+                                                                            int sampleCnt,
+                                                                            GrSurfaceOrigin,
+                                                                            SkBackingFit);
 private:
     struct Entry {
         Entry(const GrUniqueKey& key, const GrSurfaceProxyView& view) : fKey(key), fView(view) {}
