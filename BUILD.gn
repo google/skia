@@ -1184,11 +1184,6 @@ component("skia") {
     ":xml",
   ]
 
-  # This file (and all GN files in Skia) are designed to work with an
-  # empty sources assignment filter; we handle all that explicitly.
-  # We clear the filter here for clients who may have set up a global filter.
-  set_sources_assignment_filter([])
-
   public = skia_core_public
   public += skia_utils_public
   public += skia_effects_public
@@ -1350,11 +1345,6 @@ static_library("pathkit") {
     ":sse42",
     ":ssse3",
   ]
-
-  # This file (and all GN files in Skia) are designed to work with an
-  # empty sources assignment filter; we handle all that explicitly.
-  # We clear the filter here for clients who may have set up a global filter.
-  set_sources_assignment_filter([])
 
   sources = []
   sources += skia_pathops_sources
