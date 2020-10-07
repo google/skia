@@ -443,10 +443,10 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kIf: {
                 const IfStatement& i = s->as<IfStatement>();
                 this->writeU8(Rehydrator::kIf_Command);
-                this->writeU8(i.fIsStatic);
-                this->write(i.fTest.get());
-                this->write(i.fIfTrue.get());
-                this->write(i.fIfFalse.get());
+                this->writeU8(i.isStatic());
+                this->write(i.test().get());
+                this->write(i.ifTrue().get());
+                this->write(i.ifFalse().get());
                 break;
             }
             case Statement::Kind::kInlineMarker: {

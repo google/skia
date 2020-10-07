@@ -451,9 +451,9 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         }
         case Statement::Kind::kIf: {
             auto& i = s.template as<IfStatement>();
-            return this->visitExpression(*i.fTest) ||
-                   this->visitStatement(*i.fIfTrue) ||
-                   (i.fIfFalse && this->visitStatement(*i.fIfFalse));
+            return this->visitExpression(*i.test()) ||
+                   this->visitStatement(*i.ifTrue()) ||
+                   (i.ifFalse() && this->visitStatement(*i.ifFalse()));
         }
         case Statement::Kind::kReturn: {
             auto& r = s.template as<ReturnStatement>();

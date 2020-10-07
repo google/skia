@@ -155,7 +155,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
 }
 
 void PipelineStageCodeGenerator::writeIfStatement(const IfStatement& s) {
-    if (s.fIsStatic) {
+    if (s.isStatic()) {
         this->write("@");
     }
     INHERITED::writeIfStatement(s);

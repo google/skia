@@ -49,10 +49,11 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
-    Statement(int offset, Kind kind, const ForStatementData& data)
-    : INHERITED(offset, (int) kind, data) {
-        SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
-    }
+    Statement(int offset, const IfStatementData& data)
+    : INHERITED(offset, (int) Kind::kIf, data) {}
+
+    Statement(int offset, const ForStatementData& data)
+    : INHERITED(offset, (int) Kind::kFor, data) {}
 
     Kind kind() const {
         return (Kind) fKind;

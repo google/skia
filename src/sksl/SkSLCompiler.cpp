@@ -1338,14 +1338,14 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
         }
         case Statement::Kind::kIf: {
             IfStatement& i = stmt->as<IfStatement>();
-            if (i.fTest->kind() == Expression::Kind::kBoolLiteral) {
+            if (i.test()->kind() == Expression::Kind::kBoolLiteral) {
                 // constant if, collapse down to a single branch
-                if (i.fTest->as<BoolLiteral>().value()) {
-                    SkASSERT(i.fIfTrue);
-                    (*iter)->setStatement(std::move(i.fIfTrue));
+                if (i.test()->as<BoolLiteral>().value()) {
+                    SkASSERT(i.ifTrue());
+                    (*iter)->setStatement(std::move(i.ifTrue()));
                 } else {
-                    if (i.fIfFalse) {
-                        (*iter)->setStatement(std::move(i.fIfFalse));
+                    if (i.ifFalse()) {
+                        (*iter)->setStatement(std::move(i.ifFalse()));
                     } else {
                         (*iter)->setStatement(std::unique_ptr<Statement>(new Nop()));
                     }
@@ -1354,18 +1354,18 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                 *outNeedsRescan = true;
                 break;
             }
-            if (i.fIfFalse && i.fIfFalse->isEmpty()) {
+            if (i.ifFalse() && i.ifFalse()->isEmpty()) {
                 // else block doesn't do anything, remove it
-                i.fIfFalse.reset();
+                i.ifFalse().reset();
                 *outUpdated = true;
                 *outNeedsRescan = true;
             }
-            if (!i.fIfFalse && i.fIfTrue->isEmpty()) {
+            if (!i.ifFalse() && i.ifTrue()->isEmpty()) {
                 // if block doesn't do anything, no else block
-                if (i.fTest->hasSideEffects()) {
+                if (i.test()->hasSideEffects()) {
                     // test has side effects, keep it
                     (*iter)->setStatement(std::unique_ptr<Statement>(
-                                                      new ExpressionStatement(std::move(i.fTest))));
+                                                     new ExpressionStatement(std::move(i.test()))));
                 } else {
                     // no if, no else, no test side effects, kill the whole if
                     // statement
@@ -1540,7 +1540,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                 const Statement& s = **iter->statement();
                 switch (s.kind()) {
                     case Statement::Kind::kIf:
-                        if (s.as<IfStatement>().fIsStatic &&
+                        if (s.as<IfStatement>().isStatic() &&
                             !(fFlags & kPermitInvalidStaticTests_Flag)) {
                             this->error(s.fOffset, "static if has non-static test");
                         }

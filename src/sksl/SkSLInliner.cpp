@@ -490,8 +490,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
-            return std::make_unique<IfStatement>(offset, i.fIsStatic, expr(i.fTest),
-                                                 stmt(i.fIfTrue), stmt(i.fIfFalse));
+            return std::make_unique<IfStatement>(offset, i.isStatic(), expr(i.test()),
+                                                 stmt(i.ifTrue()), stmt(i.ifFalse()));
         }
         case Statement::Kind::kInlineMarker:
         case Statement::Kind::kNop:
@@ -903,9 +903,9 @@ public:
             }
             case Statement::Kind::kIf: {
                 IfStatement& ifStmt = (*stmt)->as<IfStatement>();
-                this->visitExpression(&ifStmt.fTest);
-                this->visitStatement(&ifStmt.fIfTrue);
-                this->visitStatement(&ifStmt.fIfFalse);
+                this->visitExpression(&ifStmt.test());
+                this->visitStatement(&ifStmt.ifTrue());
+                this->visitStatement(&ifStmt.ifFalse());
                 break;
             }
             case Statement::Kind::kReturn: {

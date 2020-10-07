@@ -556,8 +556,8 @@ std::unique_ptr<Statement> IRGenerator::convertIf(const ASTNode& n) {
     }
     auto ifStmt = std::make_unique<IfStatement>(n.fOffset, n.getBool(), std::move(test),
                                                 std::move(ifTrue), std::move(ifFalse));
-    fInliner->ensureScopedBlocks(ifStmt->fIfTrue.get(), ifStmt.get());
-    fInliner->ensureScopedBlocks(ifStmt->fIfFalse.get(), ifStmt.get());
+    fInliner->ensureScopedBlocks(ifStmt->ifTrue().get(), ifStmt.get());
+    fInliner->ensureScopedBlocks(ifStmt->ifFalse().get(), ifStmt.get());
     return std::move(ifStmt);
 }
 

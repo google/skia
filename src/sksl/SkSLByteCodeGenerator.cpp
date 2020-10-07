@@ -1720,17 +1720,17 @@ void ByteCodeGenerator::writeForStatement(const ForStatement& f) {
 }
 
 void ByteCodeGenerator::writeIfStatement(const IfStatement& i) {
-    this->writeExpression(*i.fTest);
+    this->writeExpression(*i.test());
     this->write(ByteCodeInstruction::kMaskPush);
     this->write(ByteCodeInstruction::kBranchIfAllFalse);
     DeferredLocation falseLocation(this);
-    this->writeStatement(*i.fIfTrue);
+    this->writeStatement(*i.ifTrue());
     falseLocation.set();
-    if (i.fIfFalse) {
+    if (i.ifFalse()) {
         this->write(ByteCodeInstruction::kMaskNegate);
         this->write(ByteCodeInstruction::kBranchIfAllFalse);
         DeferredLocation endLocation(this);
-        this->writeStatement(*i.fIfFalse);
+        this->writeStatement(*i.ifFalse());
         endLocation.set();
     }
     this->write(ByteCodeInstruction::kMaskPop);

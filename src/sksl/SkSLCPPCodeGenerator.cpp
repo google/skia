@@ -364,7 +364,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
 }
 
 void CPPCodeGenerator::writeIfStatement(const IfStatement& s) {
-    if (s.fIsStatic) {
+    if (s.isStatic()) {
         this->write("@");
     }
     INHERITED::writeIfStatement(s);

@@ -1307,12 +1307,12 @@ void MetalCodeGenerator::writeBlock(const Block& b) {
 
 void MetalCodeGenerator::writeIfStatement(const IfStatement& stmt) {
     this->write("if (");
-    this->writeExpression(*stmt.fTest, kTopLevel_Precedence);
+    this->writeExpression(*stmt.test(), kTopLevel_Precedence);
     this->write(") ");
-    this->writeStatement(*stmt.fIfTrue);
-    if (stmt.fIfFalse) {
+    this->writeStatement(*stmt.ifTrue());
+    if (stmt.ifFalse()) {
         this->write(" else ");
-        this->writeStatement(*stmt.fIfFalse);
+        this->writeStatement(*stmt.ifFalse());
     }
 }
 
@@ -1763,9 +1763,9 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = s->as<IfStatement>();
-            return this->requirements(i.fTest.get()) |
-                   this->requirements(i.fIfTrue.get()) |
-                   this->requirements(i.fIfFalse.get());
+            return this->requirements(i.test().get()) |
+                   this->requirements(i.ifTrue().get()) |
+                   this->requirements(i.ifFalse().get());
         }
         case Statement::Kind::kFor: {
             const ForStatement& f = s->as<ForStatement>();

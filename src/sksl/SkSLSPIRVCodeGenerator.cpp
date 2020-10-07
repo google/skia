@@ -2918,20 +2918,20 @@ void SPIRVCodeGenerator::writeBlock(const Block& b, OutputStream& out) {
 }
 
 void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream& out) {
-    SpvId test = this->writeExpression(*stmt.fTest, out);
+    SpvId test = this->writeExpression(*stmt.test(), out);
     SpvId ifTrue = this->nextId();
     SpvId ifFalse = this->nextId();
-    if (stmt.fIfFalse) {
+    if (stmt.ifFalse()) {
         SpvId end = this->nextId();
         this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
         this->writeInstruction(SpvOpBranchConditional, test, ifTrue, ifFalse, out);
         this->writeLabel(ifTrue, out);
-        this->writeStatement(*stmt.fIfTrue, out);
+        this->writeStatement(*stmt.ifTrue(), out);
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, end, out);
         }
         this->writeLabel(ifFalse, out);
-        this->writeStatement(*stmt.fIfFalse, out);
+        this->writeStatement(*stmt.ifFalse(), out);
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, end, out);
         }
@@ -2940,7 +2940,7 @@ void SPIRVCodeGenerator::writeIfStatement(const IfStatement& stmt, OutputStream&
         this->writeInstruction(SpvOpSelectionMerge, ifFalse, SpvSelectionControlMaskNone, out);
         this->writeInstruction(SpvOpBranchConditional, test, ifTrue, ifFalse, out);
         this->writeLabel(ifTrue, out);
-        this->writeStatement(*stmt.fIfTrue, out);
+        this->writeStatement(*stmt.ifTrue(), out);
         if (fCurrentBlock) {
             this->writeInstruction(SpvOpBranch, ifFalse, out);
         }
