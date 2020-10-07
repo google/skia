@@ -13,10 +13,10 @@
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
-GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args,
+GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(GrProcessorSet* processorSet,
                                                    GrAAType aaType,
                                                    InputFlags inputFlags)
-        : fProcessors(args.fProcessorSet)
+        : fProcessors(processorSet)
         , fPipelineFlags((GrPipeline::InputFlags)inputFlags)
         , fAAType((int)aaType)
         , fUsesLocalCoords(false)
