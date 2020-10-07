@@ -52,6 +52,24 @@
       "parentUuid": "fa130ea1_0f83ed25",
       "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3e7e947_a4810cb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:23:54Z",
+      "side": 1,
+      "message": "How much bloat do we actually incur if we just jam Layout into the IRNode as a stopgap solution for now? Or, if that\u0027s just untenable, how bad would it be to have a unique_ptr\u003cLayout\u003e in the VariableData for now until we have a better/poolable solution? We already know that the current IRNode class is in a halfway state where it\u0027s not as efficient as it will be once we\u0027re through, so I\u0027m not worried about a bit of extra bloat in the short-term as long as we\u0027re confident that the end state will be good. But I am a little concerned about putting in new temporary systems for bloat control that might become difficult to untangle later.",
+      "parentUuid": "03769f97_6c7ec689",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
