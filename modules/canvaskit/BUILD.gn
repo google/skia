@@ -13,3 +13,9 @@ component("viewer_wasm") {
   ]
   deps = [ "../..:samples" ]
 }
+
+component("gm_wasm") {
+  testonly = true
+  include_dirs = [ "../.." ]
+  deps = [ "../..:tool_utils" ]
+}
