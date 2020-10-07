@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ff04d3b_7809b359",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-07T13:22:31Z",
+      "side": 0,
+      "message": "This assert still seems useful to ensure the two conditionals remain exclusive (hmm, wonder if they could be explicitly exclusive?).  Maybe SkAssert(fPaint.get() \u003d\u003d \u0026paint)?",
+      "range": {
+        "startLine": 413,
+        "startChar": 12,
+        "endLine": 413,
+        "endChar": 44
+      },
+      "revId": "df47abcbb993c7b9ff8ca958d80968f5d577f6a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
