@@ -32,6 +32,7 @@ public:
             }
         }
 #endif
+        SkDebugf("Registering %s\n", value);
         fChain = gHead;
         gHead  = this;
     }
