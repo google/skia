@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d769c36_38f21461",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-07T20:43:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6b936af2_09abbbe3",
+      "range": {
+        "startLine": 11,
+        "startChar": 1,
+        "endLine": 11,
+        "endChar": 7
+      },
+      "revId": "60a35039b6f923f30f6e411ff21d62db8f4b4232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa22bcde_11ffd675",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "844ad9d5_544568b0",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-07T20:43:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa22bcde_11ffd675",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 30
+      },
+      "revId": "60a35039b6f923f30f6e411ff21d62db8f4b4232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9ca8479_f4684c79",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-10-07T20:19:08Z",
       "side": 1,
       "message": "micro-nit: return fModifiers.empty();",
+      "range": {
+        "startLine": 41,
+        "startChar": 26,
+        "endLine": 41,
+        "endChar": 37
+      },
+      "revId": "60a35039b6f923f30f6e411ff21d62db8f4b4232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c96bd0ca_a799f807",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-07T20:43:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9ca8479_f4684c79",
       "range": {
         "startLine": 41,
         "startChar": 26,
