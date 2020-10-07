@@ -142,7 +142,7 @@ void GrMtlOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
     // Partial clears are not supported
     SkASSERT(!scissor.enabled());
 
-    GrStencilAttachment* sb = fRenderTarget->getStencilAttachment();
+    GrAttachment* sb = fRenderTarget->getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
@@ -220,7 +220,7 @@ void GrMtlOpsRenderPass::setupRenderPass(
     renderPassDesc.colorAttachments[0].storeAction =
             mtlStoreAction[static_cast<int>(colorInfo.fStoreOp)];
 
-    auto* stencil = static_cast<GrMtlStencilAttachment*>(fRenderTarget->getStencilAttachment());
+    auto* stencil = static_cast<GrMtlAttachment*>(fRenderTarget->getStencilAttachment());
     if (stencil) {
         renderPassDesc.stencilAttachment.texture = stencil->stencilView();
     }
