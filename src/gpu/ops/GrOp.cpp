@@ -7,8 +7,19 @@
 
 #include "src/gpu/ops/GrOp.h"
 
+#include "src/gpu/GrProcessorSet.h"
+
 std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
 std::atomic<uint32_t> GrOp::gCurrOpUniqueID{GrOp::kIllegalOpID + 1};
+
+#if !defined(GR_OP_ALLOCATE_USE_NEW)
+    void GrOp::DeleteFromPool::operator() (GrOp* op) {
+        if (op != nullptr) {
+            op->~GrOp();
+            fPool->release(op);
+        }
+    }
+#endif
 
 #if !defined(GR_OP_ALLOCATE_USE_NEW) && defined(SK_DEBUG)
     void* GrOp::operator new(size_t size) {
@@ -43,7 +54,7 @@ GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, GrRecordingContext::Aren
     return result;
 }
 
-void GrOp::chainConcat(std::unique_ptr<GrOp> next) {
+void GrOp::chainConcat(GrOp::OpOwner next) {
     SkASSERT(next);
     SkASSERT(this->classID() == next->classID());
     SkASSERT(this->isChainTail());
@@ -52,7 +63,7 @@ void GrOp::chainConcat(std::unique_ptr<GrOp> next) {
     fNextInChain->fPrevInChain = this;
 }
 
-std::unique_ptr<GrOp> GrOp::cutChain() {
+GrOp::OpOwner GrOp::cutChain() {
     if (fNextInChain) {
         fNextInChain->fPrevInChain = nullptr;
         return std::move(fNextInChain);

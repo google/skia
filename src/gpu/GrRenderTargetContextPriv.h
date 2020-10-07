@@ -97,8 +97,8 @@ public:
     uint32_t testingOnly_getOpsTaskID();
 
     using WillAddOpFn = GrRenderTargetContext::WillAddOpFn;
-    void testingOnly_addDrawOp(std::unique_ptr<GrDrawOp>);
-    void testingOnly_addDrawOp(const GrClip*, std::unique_ptr<GrDrawOp>,
+    void testingOnly_addDrawOp(GrOp::OpOwner);
+    void testingOnly_addDrawOp(const GrClip*, GrOp::OpOwner ,
                                const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     SkGlyphRunListPainter* testingOnly_glyphRunPainter() {
@@ -109,7 +109,7 @@ public:
         return fRenderTargetContext->asRenderTargetProxy()->refsWrappedObjects();
     }
 
-    void addDrawOp(const GrClip* clip, std::unique_ptr<GrDrawOp> op) {
+    void addDrawOp(const GrClip* clip, GrOp::OpOwner op) {
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
