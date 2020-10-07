@@ -88,6 +88,24 @@
       "parentUuid": "e3e7e947_a4810cb3",
       "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3015a18_b8cea8c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:32:15Z",
+      "side": 1,
+      "message": "Right, I guess that\u0027s my concern; the IR generator shouldn\u0027t become a god class. We don\u0027t need it to be in charge of pools.",
+      "parentUuid": "aafb6f4c_64ad8ff2",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
