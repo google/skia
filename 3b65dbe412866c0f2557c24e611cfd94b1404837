@@ -18,6 +18,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94a6e1ef_0501596a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-07T17:08:29Z",
+      "side": 1,
+      "message": "Well this would also mean adding color types for the depth/stencil formats right? I just wonder what exactly that gains us. In general the color types are \"how we interpret the data\" and outside of saying I need a stencil or I need a depth buffer I don\u0027t think any of the calling code really cares about a specific color type here.",
+      "parentUuid": "7773cb73_d961edaf",
+      "revId": "3b65dbe412866c0f2557c24e611cfd94b1404837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "70e6b7ea_9215d321",
@@ -41,6 +59,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bb00ad0_27099cf5",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-07T17:08:29Z",
+      "side": 1,
+      "message": "Ha well looks like when this was original written the fGL, fVk and fMtl were all aligned (d3d and dawn broke the trend). But at this point I don\u0027t think aligning those adds any sort of readability and just makes it worse. Changed to unalign everything.",
+      "parentUuid": "70e6b7ea_9215d321",
+      "range": {
+        "startLine": 228,
+        "startChar": 25,
+        "endLine": 228,
+        "endChar": 30
+      },
+      "revId": "3b65dbe412866c0f2557c24e611cfd94b1404837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24594538_ab64e37e",
@@ -54,6 +96,30 @@
       "writtenOn": "2020-10-07T14:54:11Z",
       "side": 1,
       "message": "Could replace both with SkUNREACHABLE",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 21
+      },
+      "revId": "3b65dbe412866c0f2557c24e611cfd94b1404837",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41f05b1a_4a70082e",
+        "filename": "src/gpu/dawn/GrDawnUtil.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-07T17:08:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24594538_ab64e37e",
       "range": {
         "startLine": 34,
         "startChar": 0,
