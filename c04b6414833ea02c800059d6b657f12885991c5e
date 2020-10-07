@@ -106,6 +106,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "18651d27_af6d4248",
+        "filename": "src/gpu/effects/generated/GrHighContrastFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:27:24Z",
+      "side": 1,
+      "message": "I see; we did previously remove empty VarDeclarations, but we don\u0027t remove Nops.\nI considered blanking out Nop\u0027s description but that could cause other bugs with statements like\n\n     if (foo) int x \u003d 0;\n--\u003e\n     if (foo) NOP\n--\u003e\n     if (foo) /* must have a semicolon */\n\nSo I guess this is OK.",
+      "parentUuid": "57823116_edda0af9",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 32
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ecf9484_58c23c0c",
