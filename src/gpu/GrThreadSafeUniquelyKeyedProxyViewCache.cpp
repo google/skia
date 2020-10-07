@@ -229,9 +229,10 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::remove(const GrUniqueKey& key) {
 
 std::tuple<GrSurfaceProxyView, sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline>>
 GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(GrDirectContext* dContext,
-                                                        SkISize dimensions,
                                                         GrColorType origCT,
-                                                        GrSurfaceOrigin origin) {
+                                                        SkISize dimensions,
+                                                        GrSurfaceOrigin origin,
+                                                        SkBackingFit fit) {
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
     constexpr int kSampleCnt = 1;
@@ -265,7 +266,7 @@ GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(GrDirectContext* dContex
             GrInternalSurfaceFlags::kNone,
             &texInfo,
             GrMipmapStatus::kNotAllocated,
-            SkBackingFit::kExact,
+            fit,
             SkBudgeted::kYes,
             GrProtected::kNo,
             /* wrapsVkSecondaryCB */ false,

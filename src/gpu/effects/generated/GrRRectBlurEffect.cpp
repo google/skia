@@ -248,7 +248,8 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
         // it crams a lazy proxy into the cache and then fills it in later.
         auto[lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
-                dContext, dimensions, GrColorType::kAlpha_8, kBlurredRRectMaskOrigin);
+                dContext, GrColorType::kAlpha_8, dimensions, kBlurredRRectMaskOrigin,
+                SkBackingFit::kExact);
         if (!lazyView) {
             return nullptr;
         }
@@ -376,18 +377,18 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _sample17246 = this->invokeChild(0, args);
+        SkString _sample17268 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample17246.c_str());
-        SkString _coords17294("float2(texCoord)");
-        SkString _sample17294 = this->invokeChild(1, args, _coords17294.c_str());
+                _sample17268.c_str());
+        SkString _coords17316("float2(texCoord)");
+        SkString _sample17316 = this->invokeChild(1, args, _coords17316.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample17294.c_str());
+                args.fOutputColor, _sample17316.c_str());
     }
 
 private:
