@@ -33,6 +33,75 @@
       "message": "... also, the line counts look intimidating, but a huge percentage of the code changes are just un-indenting blocks that were previously iterating over all declarations in a VarDeclarations, and now only need to look at one thing.",
       "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ef20b55_0a66b01b",
+        "filename": "src/gpu/effects/generated/GrHighContrastFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:03:08Z",
+      "side": 1,
+      "message": "This is noteworthy. Several of the goldens have additional blank lines but none of them generate empty `;` statements. It\u0027s basically harmless, but do you have any idea why this might be occurring?",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 32
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ecf9484_58c23c0c",
+        "filename": "src/gpu/effects/generated/GrLumaColorFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:03:08Z",
+      "side": 1,
+      "message": "More empty statements.",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 1
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "315c9078_9fcb4de3",
+        "filename": "src/gpu/effects/generated/GrRGBToHSLFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:03:08Z",
+      "side": 1,
+      "message": ";",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 1
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
