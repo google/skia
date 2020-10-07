@@ -16,6 +16,24 @@
       "message": "I think this looks good. Two things:\n\n1) Why the removal of all the const (especially around Symbol, but also on Variables in FunctionDeclaration)?\n2) Passing the entire IR generator around to the backends so they can make new modifiers feels funny, but is probably okay as we\u0027ve tried to condense the public interaction with the compiler to a single pass anyway?",
       "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa130ea1_0f83ed25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T13:47:44Z",
+      "side": 1,
+      "message": "I haven\u0027t read the whole thing yet, but I had similar concerns.\n\nI would definitely like to come up with a better answer for Layout storage; I\u0027m also not satisfied with this approach. Maybe they could be IRNodes that come out of the pool, or due to their large size, maybe we need a dedicated pool just for Layout nodes. \n\nThis might be the opportunity for us to actually experiment with using a pool class. Do we have anything in Gr/Sk that we can start with? I found GrTBlockList but that is more like a deque than a pool. (TBH I don\u0027t actually see from the GrTBlockList doc-comment how it meaningfully differs from deque for most operations; it\u0027s got better concat and slightly worse random-access, I guess?)",
+      "parentUuid": "4c5c5e4a_1517a85e",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
