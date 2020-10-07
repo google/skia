@@ -55,7 +55,7 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
  * Takes a name, a callback, and any number of assets or promises. It executes the
  * callback (presumably, the test) and reports the resulting surface to Gold.
  * @param name {string}
- * @param callback {Function}, has two params, the first is a CanvasKit.SkCanvas
+ * @param callback {Function}, has two params, the first is a CanvasKit.Canvas
  *    and the second is an array of results from the passed in assets or promises.
  *    If a given assetOrPromise was a string, the result will be an ArrayBuffer.
  * @param assetsToFetchOrPromisesToWaitOn {string|Promise}. If a string, it will
@@ -137,10 +137,10 @@ const _commonMultipleCanvasGM = (it, pause, name, callback) => {
 
 /**
  * Takes a name and a callback. It executes the callback (presumably, the test)
- * for both a CanvasKit.SkCanvas and a native Canvas2D. The result of both will be
+ * for both a CanvasKit.Canvas and a native Canvas2D. The result of both will be
  * uploaded to Gold.
  * @param name {string}
- * @param callback {Function}, has one param, either a CanvasKit.SkCanvas or a native
+ * @param callback {Function}, has one param, either a CanvasKit.Canvas or a native
  *    Canvas2D object.
  */
 const multipleCanvasGM = (name, callback) => {
@@ -200,7 +200,7 @@ function reportSurface(surface, testname, done) {
 
 
 function starPath(CanvasKit, X=128, Y=128, R=116) {
-    const p = new CanvasKit.SkPath();
+    const p = new CanvasKit.Path();
     p.moveTo(X + R, Y);
     for (let i = 1; i < 8; i++) {
       let a = 2.6927937 * i;

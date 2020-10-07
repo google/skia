@@ -92,7 +92,7 @@ SimpleUniform fromUniform(SkSL::ByteCode::Uniform u) {
 }
 
 EMSCRIPTEN_BINDINGS(Particles) {
-    class_<SkParticleEffect>("SkParticleEffect")
+    class_<SkParticleEffect>("ParticleEffect")
         .smart_ptr<sk_sp<SkParticleEffect>>("sk_sp<SkParticleEffect>")
         .function("draw", &SkParticleEffect::draw, allow_raw_pointers())
         .function("_effectUniformPtr", optional_override([](SkParticleEffect& self)->uintptr_t {
