@@ -631,7 +631,7 @@ int main(int argc, char** argv) {
             {
                 SkMD5 hash;
                 if (image) {
-                    hashAndEncode.write(&hash);
+                    hashAndEncode.feedHash(&hash);
                 } else {
                     hash.write(blob->data(), blob->size());
                 }
@@ -647,13 +647,13 @@ int main(int argc, char** argv) {
                 SkString path = SkStringPrintf("%s/%s%s",
                                                FLAGS_writePath[0], source.name.c_str(), ext);
 
+                SkFILEWStream file(path.c_str());
                 if (image) {
-                    if (!hashAndEncode.writePngTo(path.c_str(), md5.c_str(),
-                                                  FLAGS_key, FLAGS_properties)) {
+                    if (!hashAndEncode.encodePNG(&file, md5.c_str(),
+                                                 FLAGS_key, FLAGS_properties)) {
                         SK_ABORT("Could not write .png.");
                     }
                 } else {
-                    SkFILEWStream file(path.c_str());
                     file.write(blob->data(), blob->size());
                 }
             }

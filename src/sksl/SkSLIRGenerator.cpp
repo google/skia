@@ -471,8 +471,7 @@ std::unique_ptr<VarDeclarations> IRGenerator::convertVarDeclarations(const ASTNo
         } else {
             variables.emplace_back(std::make_unique<VarDeclaration>(var.get(), std::move(sizes),
                                                                     std::move(value)));
-            StringFragment name = var->name();
-            fSymbolTable->add(name, std::move(var));
+            fSymbolTable->add(std::move(var));
         }
     }
     return std::make_unique<VarDeclarations>(decls.fOffset, baseType, std::move(variables));
@@ -760,13 +759,13 @@ std::unique_ptr<Statement> IRGenerator::convertDiscard(const ASTNode& d) {
 std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<Block> main) {
     Layout invokeLayout;
     Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
-    const FunctionDeclaration* invokeDecl = fSymbolTable->add(
-            "_invoke", std::make_unique<FunctionDeclaration>(/*offset=*/-1,
-                                                             invokeModifiers,
-                                                             "_invoke",
-                                                             std::vector<const Variable*>(),
-                                                             *fContext.fVoid_Type,
-                                                             /*builtin=*/false));
+    const FunctionDeclaration* invokeDecl =
+            fSymbolTable->add(std::make_unique<FunctionDeclaration>(/*offset=*/-1,
+                                                                    invokeModifiers,
+                                                                    "_invoke",
+                                                                    std::vector<const Variable*>(),
+                                                                    *fContext.fVoid_Type,
+                                                                    /*builtin=*/false));
     fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
                                                                      *invokeDecl,
                                                                      std::move(main)));
@@ -1055,8 +1054,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
 
         // Create a new declaration.
-        decl = fSymbolTable->add(funcData.fName,
-                                 std::make_unique<FunctionDeclaration>(f.fOffset,
+        decl = fSymbolTable->add(std::make_unique<FunctionDeclaration>(f.fOffset,
                                                                        declModifiers,
                                                                        funcData.fName,
                                                                        parameters,
@@ -1077,7 +1075,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
             }
         }
         for (size_t i = 0; i < parameters.size(); i++) {
-            fSymbolTable->addWithoutOwnership(parameters[i]->name(), decl->fParameters[i]);
+            fSymbolTable->addWithoutOwnership(decl->fParameters[i]);
         }
         bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
                                           fSettings->fCaps &&
@@ -1194,10 +1192,10 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
         fRTAdjustInterfaceBlock = var;
     }
     if (id.fInstanceName.fLength) {
-        old->addWithoutOwnership(id.fInstanceName, var);
+        old->addWithoutOwnership(var);
     } else {
         for (size_t i = 0; i < fields.size(); i++) {
-            old->add(fields[i].fName, std::make_unique<Field>(intf.fOffset, var, (int)i));
+            old->add(std::make_unique<Field>(intf.fOffset, var, (int)i));
         }
     }
     return std::make_unique<InterfaceBlock>(intf.fOffset,
@@ -1257,10 +1255,9 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         }
         value = std::unique_ptr<Expression>(new IntLiteral(fContext, e.fOffset, currentValue));
         ++currentValue;
-        fSymbolTable->add(
-                child.getString(),
-                std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), type,
-                                           fIsBuiltinCode, Variable::kGlobal_Storage, value.get()));
+        fSymbolTable->add(std::make_unique<Variable>(e.fOffset, modifiers, child.getString(), type,
+                                                     fIsBuiltinCode, Variable::kGlobal_Storage,
+                                                     value.get()));
         fSymbolTable->takeOwnershipOfIRNode(std::move(value));
     }
     // Now we orphanize the Enum's symbol table, so that future lookups in it are strict
