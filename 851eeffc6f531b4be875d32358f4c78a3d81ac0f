@@ -16,6 +16,24 @@
       "message": "Think it\u0027s time to try std::vector\u003cbool\u003e yet?",
       "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ef55a90_28231b27",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T15:39:35Z",
+      "side": 1,
+      "message": "vector\u003cbool\u003e actually lacks a lot of basics that we would want, e.g. there\u0027s no real equivalent to `forEachSetIndex` or `forEachUnsetIndex`. It tries so hard to pretend it\u0027s a vector that it doesn\u0027t support doing anything in bulk 32/64-bits at a time (e.g. no way to XOR one vector\u003cbool\u003e against another other than one bit at a time). It doesn\u0027t even seem to include a `data()` method to expose the underlying bits.",
+      "parentUuid": "bce59bf4_989c5169",
+      "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
