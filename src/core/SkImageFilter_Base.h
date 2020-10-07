@@ -71,7 +71,7 @@ public:
      * @return The layer-space bounding box to use for an SkDevice when drawing the source image.
      */
     skif::LayerSpace<SkIRect> getInputBounds(
-            const skif::Mapping& mapping, const skif::DeviceSpace<SkRect>& desiredOutput,
+            const skif::Mapping& mapping, const skif::DeviceSpace<SkIRect>& desiredOutput,
             const skif::ParameterSpace<SkRect>* knownContentBounds) const;
 
     /**
@@ -129,24 +129,6 @@ public:
      *  and all of its (non-null) inputs can handle these more complex matrices.
      */
     bool canHandleComplexCTM() const;
-
-    /**
-     * Return an image filter representing this filter applied with the given ctm. This will modify
-     * the DAG as needed if this filter does not support complex CTMs and 'ctm' is not simple. The
-     * ctm matrix will be decomposed such that ctm = A*B; B will be incorporated directly into the
-     * DAG and A must be the ctm set on the context passed to filterImage(). 'remainder' will be set
-     * to A.
-     *
-     * If this filter supports complex ctms, or 'ctm' is not complex, then A = ctm and B = I. When
-     * the filter does not support complex ctms, and the ctm is complex, then A represents the
-     * extracted simple portion of the ctm, and the complex portion is baked into a new DAG using a
-     * matrix filter.
-     *
-     * This will never return null.
-     *
-     * DEPRECATED - Should draw the results of filterImage() directly with the remainder matrix.
-     */
-    sk_sp<SkImageFilter> applyCTM(const SkMatrix& ctm, SkMatrix* remainder) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
 

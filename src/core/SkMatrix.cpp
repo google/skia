@@ -1628,12 +1628,16 @@ void SkMatrix::dump() const {
 #include "src/core/SkMatrixUtils.h"
 
 bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkPaint& paint) {
+    return SkTreatAsSprite(mat, size, paint.isAntiAlias());
+}
+
+bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, bool antiAlias) {
     // Our path aa is 2-bits, and our rect aa is 8, so we could use 8,
     // but in practice 4 seems enough (still looks smooth) and allows
     // more slightly fractional cases to fall into the fast (sprite) case.
     static const unsigned kAntiAliasSubpixelBits = 4;
 
-    const unsigned subpixelBits = paint.isAntiAlias() ? kAntiAliasSubpixelBits : 0;
+    const unsigned subpixelBits = antiAlias ? kAntiAliasSubpixelBits : 0;
 
     // quick reject on affine or perspective
     if (mat.getType() & ~(SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {

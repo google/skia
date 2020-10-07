@@ -338,6 +338,8 @@ public:
     explicit operator const SkIRect&() const { return fData; }
 
     // Parrot the SkIRect API while preserving coord space
+    bool isEmpty() const { return fData.isEmpty(); }
+
     int32_t left() const { return fData.fLeft; }
     int32_t top() const { return fData.fTop; }
     int32_t right() const { return fData.fRight; }
@@ -368,6 +370,8 @@ public:
     explicit operator const SkRect&() const { return fData; }
 
     // Parrot the SkRect API while preserving coord space and usage
+    bool isEmpty() const { return fData.isEmpty(); }
+
     SkScalar left() const { return fData.fLeft; }
     SkScalar top() const { return fData.fTop; }
     SkScalar right() const { return fData.fRight; }
@@ -401,18 +405,60 @@ private:
 // variants, which can then be used and reasoned about by SkImageFilter implementations.
 class Mapping {
 public:
+    Mapping() = default;
+
     // This constructor allows the decomposition to be explicitly provided
     Mapping(const SkMatrix& layerToDev, const SkMatrix& paramToLayer)
             : fLayerToDevMatrix(layerToDev)
             , fParamToLayerMatrix(paramToLayer) {}
 
     // Make the default decomposition Mapping, given the total CTM and the root image filter.
-    static Mapping Make(const SkMatrix& ctm, const SkImageFilter* filter);
+    // 'filter' can be null, in which case the returned mapping has an identity layer-to-device
+    // matrix and the ctm is the entire parameter-to-layer matrix.
+    static Mapping DecomposeCTM(const SkMatrix& ctm, const SkImageFilter* filter);
 
     // Return a new Mapping object whose parameter-to-layer matrix is equal to this->layerMatrix() *
     // local, but both share the same layer-to-device matrix.
     Mapping concatLocal(const SkMatrix& local) const {
-        return Mapping(fLayerToDevMatrix, SkMatrix::Concat(fParamToLayerMatrix, local));
+        Mapping adjusted = *this;
+        adjusted.fParamToLayerMatrix.preConcat(local);
+        return adjusted;
+    }
+
+    // Return a new Mapping object whose layer-to-device matrix is equal to
+    // "device * this->deviceMatrix()", but both share the same parameter-to-layer matrix.
+    Mapping postConcatDevice(const SkMatrix& device) const {
+        Mapping adjusted = *this;
+        adjusted.fLayerToDevMatrix.postConcat(device);
+        return adjusted;
+    }
+
+    // Return a new Mapping that maps the point 'origin' in this mapping's current layer space to
+    // (0, 0) in the returned Mapping's layer space. The returned Mapping's device space is also
+    // adjusted so the total matrix is identical to this Mappings.
+    Mapping applyOrigin(const LayerSpace<SkIPoint>& origin) const {
+        Mapping adjusted = *this;
+        adjusted.fLayerToDevMatrix.preTranslate(origin.x(), origin.y());
+        adjusted.fParamToLayerMatrix.postTranslate(-origin.x(), -origin.y());
+        return adjusted;
+    }
+
+    Mapping applyScale(SkScalar scale) const {
+        Mapping adjusted = *this;
+        SkScalar invScale = SkScalarInvert(scale);
+        adjusted.fLayerToDevMatrix.preScale(invScale, invScale);
+        adjusted.fParamToLayerMatrix.postScale(scale, scale);
+        return adjusted;
+    }
+
+    Mapping applyMatrix(const SkMatrix& m) const {
+        Mapping adjusted = *this;
+        SkMatrix invM;
+        if (m.invert(&invM)) {
+            adjusted.fLayerToDevMatrix.preConcat(invM);
+            adjusted.fParamToLayerMatrix.postConcat(m);
+        }
+        return adjusted;
     }
 
     const SkMatrix& deviceMatrix() const { return fLayerToDevMatrix; }

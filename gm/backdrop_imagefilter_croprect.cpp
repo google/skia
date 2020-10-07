@@ -29,9 +29,12 @@ static void draw_backdrop_filter_gm(SkCanvas* canvas, float outsetX, float outse
     sk_sp<SkImageFilter> imageFilter = factory(&cropRect);
 
     SkPaint p;
-    for (int i = 0; i < 2; ++i) {
+    p.setAntiAlias(true);
+    for (int i = 0; i < 1; ++i) {
         canvas->save();
         canvas->translate(origin.fX, origin.fY);
+
+        canvas->save();
 
         canvas->clipRect(clip);
 
@@ -61,6 +64,21 @@ static void draw_backdrop_filter_gm(SkCanvas* canvas, float outsetX, float outse
         // Restore the saved layer (either a main layer that was just drawn into and needs to be
         // filtered, or an "empty" layer initialized with the previously filtered backdrop)
         canvas->restore();
+
+        canvas->restore(); // pre-clip, post-translate
+        SkPaint borderPaint;
+        borderPaint.setAntiAlias(true);
+        borderPaint.setStrokeWidth(1.f);
+        borderPaint.setStroke(true);
+
+        canvas->drawRect(clip, borderPaint);
+        borderPaint.setColor(SK_ColorRED);
+        canvas->drawRect(cropInLocal.makeOutset(2.f, 2.f), borderPaint);
+
+        borderPaint.setColor(SK_ColorBLUE);
+        SkMatrix m = canvas->getTotalMatrix();
+        canvas->setMatrix(SkMatrix::I());
+        canvas->drawRect(m.mapRect(clip), borderPaint);
 
         // Move down
         canvas->restore();
