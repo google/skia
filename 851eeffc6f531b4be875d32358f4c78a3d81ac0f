@@ -70,6 +70,24 @@
       "parentUuid": "bce59bf4_989c5169",
       "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "709a417f_67a6c0ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-07T15:49:53Z",
+      "side": 1,
+      "message": "Note that the reason this class doesn\u0027t have the operators std::bitset does (xor and whatnot) is because the size is no longer part of the type, which makes it awkward to say what to do in cases where the two instances aren\u0027t the same size. Basically anything that had N in the type somewhere isn\u0027t implemented. Also we didn\u0027t need them.",
+      "parentUuid": "88fb152b_cb861df2",
+      "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
