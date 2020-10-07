@@ -9,11 +9,11 @@
 #define SKSL_VARIABLEREFERENCE
 
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLVariable.h"
 
 namespace SkSL {
 
 class IRGenerator;
+class Variable;
 
 /**
  * A reference to a variable, through which it can be read or written. In the statement:
@@ -48,27 +48,15 @@ struct VariableReference : public Expression {
     void setRefKind(RefKind refKind);
     void setVariable(const Variable* variable);
 
-    bool hasProperty(Property property) const override {
-        switch (property) {
-            case Property::kSideEffects:      return false;
-            case Property::kContainsRTAdjust: return fVariable->name() == "sk_RTAdjust";
-            default:
-                SkASSERT(false);
-                return false;
-        }
-    }
+    bool hasProperty(Property property) const override;
 
-    bool isConstantOrUniform() const override {
-        return (fVariable->fModifiers.fFlags & Modifiers::kUniform_Flag) != 0;
-    }
+    bool isConstantOrUniform() const override;
 
     std::unique_ptr<Expression> clone() const override {
         return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
     }
 
-    String description() const override {
-        return fVariable->name();
-    }
+    String description() const override;
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
@@ -77,9 +65,6 @@ struct VariableReference : public Expression {
     RefKind fRefKind;
 
 private:
-    void incrementRefs() const;
-    void decrementRefs() const;
-
     using INHERITED = Expression;
 };
 

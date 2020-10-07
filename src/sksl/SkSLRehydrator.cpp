@@ -127,7 +127,7 @@ Modifiers Rehydrator::modifiers() {
     }
 }
 
-const Symbol* Rehydrator::symbol() {
+Symbol* Rehydrator::symbol() {
     int kind = this->readU8();
     switch (kind) {
         case kArrayType_Command: {
@@ -140,7 +140,7 @@ const Symbol* Rehydrator::symbol() {
             } else {
                 name += "[" + to_string(count) + "]";
             }
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(
+            Type* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Type>(name, Type::TypeKind::kArray, *componentType, count));
             this->addSymbol(id, result);
             return result;
@@ -148,7 +148,7 @@ const Symbol* Rehydrator::symbol() {
         case kEnumType_Command: {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(
+            Type* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Type>(name, Type::TypeKind::kEnum));
             this->addSymbol(id, result);
             return result;
@@ -158,13 +158,13 @@ const Symbol* Rehydrator::symbol() {
             Modifiers modifiers = this->modifiers();
             StringFragment name = this->readString();
             int parameterCount = this->readU8();
-            std::vector<const Variable*> parameters;
+            std::vector<Variable*> parameters;
             parameters.reserve(parameterCount);
             for (int i = 0; i < parameterCount; ++i) {
                 parameters.push_back(this->symbolRef<Variable>(Symbol::Kind::kVariable));
             }
             const Type* returnType = this->type();
-            const FunctionDeclaration* result =
+            FunctionDeclaration* result =
                     fSymbolTable->takeOwnershipOfSymbol(std::make_unique<FunctionDeclaration>(
                             /*offset=*/-1, modifiers, name, std::move(parameters), *returnType,
                             /*builtin=*/true));
@@ -174,14 +174,14 @@ const Symbol* Rehydrator::symbol() {
         case kField_Command: {
             const Variable* owner = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             uint8_t index = this->readU8();
-            const Field* result = fSymbolTable->takeOwnershipOfSymbol(
+            Field* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Field>(/*offset=*/-1, owner, index));
             return result;
         }
         case kNullableType_Command: {
             uint16_t id = this->readU16();
             const Type* base = this->type();
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(
+            Type* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Type>(base->name() + "?", Type::TypeKind::kNullable, *base));
             this->addSymbol(id, result);
             return result;
@@ -198,7 +198,7 @@ const Symbol* Rehydrator::symbol() {
                 const Type* type = this->type();
                 fields.emplace_back(m, fieldName, type);
             }
-            const Type* result = fSymbolTable->takeOwnershipOfSymbol(
+            Type* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Type>(/*offset=*/-1, name, std::move(fields)));
             this->addSymbol(id, result);
             return result;
@@ -211,8 +211,8 @@ const Symbol* Rehydrator::symbol() {
         case kSymbolAlias_Command: {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
-            const Symbol* origSymbol = this->symbol();
-            const SymbolAlias* symbolAlias = fSymbolTable->takeOwnershipOfSymbol(
+            Symbol* origSymbol = this->symbol();
+            SymbolAlias* symbolAlias = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<SymbolAlias>(/*offset=*/-1, name, origSymbol));
             this->addSymbol(id, symbolAlias);
             return symbolAlias;
@@ -220,7 +220,7 @@ const Symbol* Rehydrator::symbol() {
         case kSystemType_Command: {
             uint16_t id = this->readU16();
             StringFragment name = this->readString();
-            const Symbol* result = (*fSymbolTable)[name];
+            Symbol* result = (*fSymbolTable)[name];
             SkASSERT(result && result->kind() == Symbol::Kind::kType);
             this->addSymbol(id, result);
             return result;
@@ -235,18 +235,18 @@ const Symbol* Rehydrator::symbol() {
                 SkASSERT(f && f->kind() == Symbol::Kind::kFunctionDeclaration);
                 functions.push_back((const FunctionDeclaration*) f);
             }
-            const UnresolvedFunction* result = fSymbolTable->takeOwnershipOfSymbol(
+            UnresolvedFunction* result = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<UnresolvedFunction>(std::move(functions)));
             this->addSymbol(id, result);
             return result;
         }
         case kVariable_Command: {
             uint16_t id = this->readU16();
-            Modifiers m = this->modifiers();
+            Modifiers::Handle m = fIRGenerator.modifiersHandle(this->modifiers());
             StringFragment name = this->readString();
             const Type* type = this->type();
             Variable::Storage storage = (Variable::Storage) this->readU8();
-            const Variable* result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
+            Variable* result = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Variable>(
                     /*offset=*/-1, m, name, type, /*builtin=*/true, storage));
             this->addSymbol(id, result);
             return result;
@@ -286,9 +286,8 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
                 SkASSERT(s->kind() == Symbol::Kind::kVariable);
                 Variable& v = (Variable&) *s;
                 int value = this->readS32();
-                v.fInitialValue = symbols->takeOwnershipOfIRNode(
-                        std::make_unique<IntLiteral>(fContext, /*offset=*/-1, value));
-                v.fWriteCount = 1;
+                v.setInitialValue(symbols->takeOwnershipOfIRNode(
+                        std::make_unique<IntLiteral>(fIRGenerator.fContext, /*offset=*/-1, value)));
             }
             return std::unique_ptr<ProgramElement>(new Enum(-1, typeName, std::move(symbols)));
         }
@@ -435,9 +434,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             }
             std::unique_ptr<Expression> value = this->expression();
             if (value) {
-                var->fInitialValue = value.get();
-                SkASSERT(var->fWriteCount == 0);
-                ++var->fWriteCount;
+                var->setInitialValue(value.get());
             }
             return std::unique_ptr<Statement>(new VarDeclaration(var,
                                                                  std::move(sizes),
@@ -482,7 +479,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         }
         case Rehydrator::kBoolLiteral_Command: {
             bool value = this->readU8();
-            return std::make_unique<BoolLiteral>(fContext, -1, value);
+            return std::make_unique<BoolLiteral>(fIRGenerator.fContext, -1, value);
         }
         case Rehydrator::kConstructor_Command: {
             const Type* type = this->type();
@@ -503,7 +500,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kFloatLiteral_Command: {
             FloatIntUnion u;
             u.fInt = this->readS32();
-            return std::make_unique<FloatLiteral>(fContext, -1, u.fFloat);
+            return std::make_unique<FloatLiteral>(fIRGenerator.fContext, -1, u.fFloat);
         }
         case Rehydrator::kFunctionCall_Command: {
             const Type* type = this->type();
@@ -520,14 +517,15 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         case Rehydrator::kIndex_Command: {
             std::unique_ptr<Expression> base = this->expression();
             std::unique_ptr<Expression> index = this->expression();
-            return std::make_unique<IndexExpression>(fContext, std::move(base), std::move(index));
+            return std::make_unique<IndexExpression>(fIRGenerator.fContext, std::move(base),
+                                                     std::move(index));
         }
         case Rehydrator::kIntLiteral_Command: {
             int value = this->readS32();
-            return std::make_unique<IntLiteral>(fContext, -1, value);
+            return std::make_unique<IntLiteral>(fIRGenerator.fContext, -1, value);
         }
         case Rehydrator::kNullLiteral_Command:
-            return std::make_unique<NullLiteral>(fContext, -1);
+            return std::make_unique<NullLiteral>(fIRGenerator.fContext, -1);
         case Rehydrator::kPostfix_Command: {
             Token::Kind op = (Token::Kind) this->readU8();
             std::unique_ptr<Expression> operand = this->expression();
@@ -551,7 +549,8 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             for (int i = 0; i < count; ++i) {
                 components.push_back(this->readU8());
             }
-            return std::make_unique<Swizzle>(fContext, std::move(base), std::move(components));
+            return std::make_unique<Swizzle>(fIRGenerator.fContext, std::move(base),
+                                             std::move(components));
         }
         case Rehydrator::kTernary_Command: {
             std::unique_ptr<Expression> test = this->expression();
@@ -585,7 +584,7 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable(bool inherit) {
     std::shared_ptr<SymbolTable> result = inherit ? std::make_shared<SymbolTable>(fSymbolTable)
                                                   : std::make_shared<SymbolTable>(fErrors);
     fSymbolTable = result;
-    std::vector<const Symbol*> ownedSymbols;
+    std::vector<Symbol*> ownedSymbols;
     ownedSymbols.reserve(ownedCount);
     for (int i = 0; i < ownedCount; ++i) {
         ownedSymbols.push_back(this->symbol());

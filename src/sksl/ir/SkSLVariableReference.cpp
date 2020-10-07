@@ -19,41 +19,41 @@ VariableReference::VariableReference(int offset, const Variable* variable, RefKi
         , fVariable(variable)
         , fRefKind(refKind) {
     SkASSERT(fVariable);
-    this->incrementRefs();
+    fVariable->referenceCreated(fRefKind);
 }
 
 VariableReference::~VariableReference() {
-    this->decrementRefs();
+    fVariable->referenceDestroyed(fRefKind);
 }
 
-void VariableReference::incrementRefs() const {
-    if (fRefKind != kRead_RefKind) {
-        fVariable->fWriteCount++;
-    }
-    if (fRefKind != kWrite_RefKind) {
-        fVariable->fReadCount++;
+bool VariableReference::hasProperty(Property property) const {
+    switch (property) {
+        case Property::kSideEffects:      return false;
+        case Property::kContainsRTAdjust: return fVariable->name() == "sk_RTAdjust";
+        default:
+            SkASSERT(false);
+            return false;
     }
 }
 
-void VariableReference::decrementRefs() const {
-    if (fRefKind != kRead_RefKind) {
-        fVariable->fWriteCount--;
-    }
-    if (fRefKind != kWrite_RefKind) {
-        fVariable->fReadCount--;
-    }
+bool VariableReference::isConstantOrUniform() const {
+    return (fVariable->modifiers().fFlags & Modifiers::kUniform_Flag) != 0;
+}
+
+String VariableReference::description() const {
+    return fVariable->name();
 }
 
 void VariableReference::setRefKind(RefKind refKind) {
-    this->decrementRefs();
+    fVariable->referenceDestroyed(fRefKind);
     fRefKind = refKind;
-    this->incrementRefs();
+    fVariable->referenceCreated(fRefKind);
 }
 
 void VariableReference::setVariable(const Variable* variable) {
-    this->decrementRefs();
+    fVariable->referenceDestroyed(fRefKind);
     fVariable = variable;
-    this->incrementRefs();
+    fVariable->referenceCreated(fRefKind);
 }
 
 std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerator& irGenerator,
@@ -61,10 +61,11 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     if (fRefKind != kRead_RefKind) {
         return nullptr;
     }
-    if ((fVariable->fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable->fInitialValue &&
-        fVariable->fInitialValue->isCompileTimeConstant() &&
+    const Expression* initialValue = fVariable->initialValue();
+    if ((fVariable->modifiers().fFlags & Modifiers::kConst_Flag) && initialValue &&
+        initialValue->isCompileTimeConstant() &&
         this->type().typeKind() != Type::TypeKind::kArray) {
-        return fVariable->fInitialValue->clone();
+        return initialValue->clone();
     }
     auto exprIter = definitions.find(fVariable);
     if (exprIter != definitions.end() && exprIter->second &&

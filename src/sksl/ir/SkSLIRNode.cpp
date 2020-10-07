@@ -83,15 +83,10 @@ IRNode::IRNode(int offset, int kind, const TypeTokenData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(const IRNode& other)
-    : fOffset(other.fOffset)
-    , fKind(other.fKind)
-    , fData(other.fData) {
-    // For now, we can't use a default copy constructor because of the std::unique_ptr children.
-    // Since we never copy nodes containing children, it's easiest just to assert we don't have any
-    // than bother with cloning them.
-    SkASSERT(other.fExpressionChildren.empty());
-}
+IRNode::IRNode(int offset, int kind, const VariableData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
 
 IRNode::~IRNode() {}
 

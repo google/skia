@@ -55,7 +55,7 @@ public:
         std::sort(sortedSymbols.begin(), sortedSymbols.end(),
                   [](const Symbol* a, const Symbol* b) { return a->name() < b->name(); });
         for (const auto& s : sortedSymbols) {
-            const Expression& initialValue = *s->as<Variable>().fInitialValue;
+            const Expression& initialValue = *s->as<Variable>().initialValue();
             result += separator + "    " + s->name() + " = " +
                       to_string(initialValue.as<IntLiteral>().value());
             separator = ",\n";
