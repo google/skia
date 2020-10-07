@@ -135,6 +135,7 @@ public:
 
     #if !defined(GR_OP_ALLOCATE_USE_NEW)
         void release(std::unique_ptr<GrOp> op);
+        void release(void *);
     #endif
     bool isEmpty() const { return fPool.isEmpty(); }
 
