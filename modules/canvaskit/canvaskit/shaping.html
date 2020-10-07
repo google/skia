@@ -49,16 +49,16 @@
       return;
     }
 
-    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const fontMgr = CanvasKit.FontMgr.RefDefault();
     const typeface = fontMgr.MakeTypefaceFromData(fontData);
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
 
     paint.setColor(CanvasKit.BLUE);
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-    const textPaint = new CanvasKit.SkPaint();
-    const textFont = new CanvasKit.SkFont(typeface, 20);
+    const textPaint = new CanvasKit.Paint();
+    const textFont = new CanvasKit.Font(typeface, 20);
     textFont.setLinearMetrics(true);
     textFont.setSubpixel(true);
     textFont.setHinting(CanvasKit.FontHinting.Slight);
@@ -154,7 +154,7 @@
 
       // Draw all those runs.
       for (let i = 0; i < glyphRuns.length; i++) {
-        const blob = CanvasKit.SkTextBlob.MakeFromGlyphs(glyphRuns[i], font);
+        const blob = CanvasKit.TextBlob.MakeFromGlyphs(glyphRuns[i], font);
         if (blob) {
           canvas.drawTextBlob(blob, x, y + LINE_SPACING*i, paint);
         }
