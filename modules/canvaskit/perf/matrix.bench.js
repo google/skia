@@ -1,16 +1,16 @@
-describe('SkMatrix (3x3)', () => {
+describe('Matrix (3x3)', () => {
 
     beforeEach(async () => {
         await LoadCanvasKit;
     });
 
     it('can multiply matrices together', () => {
-        const first = CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20);
-        const second = CanvasKit.SkMatrix.scaled(1, 2, 3, 4);
+        const first = CanvasKit.Matrix.rotated(Math.PI/2, 10, 20);
+        const second = CanvasKit.Matrix.scaled(1, 2, 3, 4);
         function setup(ctx) {}
 
         function test(ctx) {
-            ctx.result = CanvasKit.SkMatrix.multiply(first, second);
+            ctx.result = CanvasKit.Matrix.multiply(first, second);
             if (ctx.result.length === 18) {
                 throw 'this is here to keep the result from being optimized away';
             }
@@ -22,15 +22,15 @@ describe('SkMatrix (3x3)', () => {
     });
 
     it('can transform a point using a matrix (mapPoint)', () => {
-        const matr = CanvasKit.SkMatrix.multiply(
-            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
-            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        const matr = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.Matrix.scaled(1, 2, 3, 4),
         ); // make an arbitrary, but interesting matrix
         function setup(ctx) {}
 
         function test(ctx) {
             for (let i = 0; i < 30; i++) {
-                const pt = CanvasKit.SkMatrix.mapPoints(matr, [i, i]);
+                const pt = CanvasKit.Matrix.mapPoints(matr, [i, i]);
                 if (pt.length === 18) {
                     throw 'this is here to keep pt from being optimized away';
                 }
@@ -43,14 +43,14 @@ describe('SkMatrix (3x3)', () => {
     });
 
     it('can invert a matrix', () => {
-        const matr = CanvasKit.SkMatrix.multiply(
-            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
-            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        const matr = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.Matrix.scaled(1, 2, 3, 4),
         );
         function setup(ctx) {}
 
         function test(ctx) {
-            ctx.result = CanvasKit.SkMatrix.invert(matr);
+            ctx.result = CanvasKit.Matrix.invert(matr);
             if (ctx.result.length === 18) {
                 throw 'this is here to keep the result from being optimized away';
             }
@@ -62,14 +62,14 @@ describe('SkMatrix (3x3)', () => {
     });
 
     it('can be used to create a shader', () => {
-        const matr = CanvasKit.SkMatrix.multiply(
-            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
-            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        const matr = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.Matrix.scaled(1, 2, 3, 4),
         );
         function setup(ctx) {}
 
         function test(ctx) {
-            const shader = CanvasKit.SkShader.MakeSweepGradient(
+            const shader = CanvasKit.Shader.MakeSweepGradient(
                 100, 100,
                 [CanvasKit.GREEN, CanvasKit.BLUE],
                 [0.0, 1.0],
@@ -85,19 +85,19 @@ describe('SkMatrix (3x3)', () => {
     });
 });
 
-describe('SkM44 (4x4 matrix)', () => {
+describe('M44 (4x4 matrix)', () => {
 
     beforeEach(async () => {
         await LoadCanvasKit;
     });
 
     it('can multiply matrices together', () => {
-        const first = CanvasKit.SkM44.rotated([10, 20], Math.PI/2);
-        const second = CanvasKit.SkM44.scaled([1, 2, 3]);
+        const first = CanvasKit.M44.rotated([10, 20, 30], Math.PI/2);
+        const second = CanvasKit.M44.scaled([1, 2, 3]);
         function setup(ctx) {}
 
         function test(ctx) {
-            ctx.result = CanvasKit.SkM44.multiply(first, second);
+            ctx.result = CanvasKit.M44.multiply(first, second);
             if (ctx.result.length === 18) {
                 throw 'this is here to keep the result from being optimized away';
             }
@@ -109,14 +109,14 @@ describe('SkM44 (4x4 matrix)', () => {
     });
 
     it('can invert a matrix', () => {
-        const matr = CanvasKit.SkM44.multiply(
-            CanvasKit.SkM44.rotated([10, 20], Math.PI/2),
-            CanvasKit.SkM44.scaled([1, 2, 3]),
+        const matr = CanvasKit.M44.multiply(
+            CanvasKit.M44.rotated([10, 20, 30], Math.PI/2),
+            CanvasKit.M44.scaled([1, 2, 3]),
         );
         function setup(ctx) {}
 
         function test(ctx) {
-            ctx.result = CanvasKit.SkM44.invert(matr);
+            ctx.result = CanvasKit.M44.invert(matr);
             if (ctx.result.length === 18) {
                 throw 'this is here to keep the result from being optimized away';
             }
@@ -128,12 +128,12 @@ describe('SkM44 (4x4 matrix)', () => {
     });
 
     it('can be used on a canvas', () => {
-        const matr = CanvasKit.SkM44.multiply(
-            CanvasKit.SkM44.rotated([10, 20], Math.PI/2),
-            CanvasKit.SkM44.scaled([1, 2, 3]),
+        const matr = CanvasKit.M44.multiply(
+            CanvasKit.M44.rotated([10, 20, 30], Math.PI/2),
+            CanvasKit.M44.scaled([1, 2, 3]),
         );
         function setup(ctx) {
-            ctx.canvas = new CanvasKit.SkCanvas();
+            ctx.canvas = new CanvasKit.Canvas();
         }
 
         function test(ctx) {
@@ -216,7 +216,7 @@ describe('DOMMatrix', () => {
         function setup(ctx) {}
 
         function test(ctx) {
-            const shader = CanvasKit.SkShader.MakeSweepGradient(
+            const shader = CanvasKit.Shader.MakeSweepGradient(
                 100, 100,
                 [CanvasKit.GREEN, CanvasKit.BLUE],
                 [0.0, 1.0],
