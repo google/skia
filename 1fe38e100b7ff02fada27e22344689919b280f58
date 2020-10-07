@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ed5caa01_f9c3a7e5",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-07T15:51:42Z",
+      "side": 1,
+      "message": "Right, the stream destructor closes the file.",
+      "parentUuid": "234bd482_7f872550",
+      "range": {
+        "startLine": 1394,
+        "startChar": 22,
+        "endLine": 1394,
+        "endChar": 26
+      },
+      "revId": "1fe38e100b7ff02fada27e22344689919b280f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "59ff0c52_1c7923ac",
         "filename": "tools/HashAndEncode.cpp",
         "patchSetId": 1
@@ -54,6 +78,30 @@
       "writtenOn": "2020-10-07T15:32:41Z",
       "side": 1,
       "message": "Should this be a lambda to call SkWStream.flush()? Mainly for writing to disk?",
+      "range": {
+        "startLine": 118,
+        "startChar": 47,
+        "endLine": 118,
+        "endChar": 54
+      },
+      "revId": "1fe38e100b7ff02fada27e22344689919b280f58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "060e5f6c_f2148bca",
+        "filename": "tools/HashAndEncode.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-07T15:51:42Z",
+      "side": 1,
+      "message": "Boy what a can of worms this turned out to be...\n\nAt a high level, I think we actually don\u0027t want to flush here.  We\u0027d rather fail with no PNG than with a half-written PNG file, right?\n\nAnyway, reading the docs would make you think you need to set this to at least a non-null noop function or the default implementation will call fflush() on our SkWStream*:\n\n    Supplying NULL for the read, write, or flush functions sets them back\n    to using the default C stream functions, which expect the io_ptr to\n    point to a standard *FILE structure.  It is probably a mistake\n    to use NULL for one of write_data_fn and output_flush_fn but not both\n    of them, unless you have built libpng with PNG_NO_WRITE_FLUSH defined.\n\nThat turns out to be incorrect for the flush function.  If you read the code, you\u0027ll see a null flush function is ignored:\n\n    void png_flush(png_structrp png_ptr)\n    {\n       if (png_ptr-\u003eoutput_flush_fn !\u003d NULL)\n          (*(png_ptr-\u003eoutput_flush_fn))(png_ptr);\n    }\n\nThis is why we can use nullptr here safely, and why SkPngEncoder, which also passes nullptr, isn\u0027t exploding catastrophically.\n\nWe could pass +[](png_structp){} as that noop if we feel like it?",
+      "parentUuid": "59ff0c52_1c7923ac",
       "range": {
         "startLine": 118,
         "startChar": 47,
