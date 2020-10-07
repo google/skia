@@ -465,27 +465,6 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* ctx, SkBudgeted
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
-                                             const SkImageInfo& imageInfo,
-                                             int sampleCount, GrSurfaceOrigin surfaceOrigin,
-                                             const SkSurfaceProps* surfaceProps,
-                                             bool shouldCreateWithMips) {
-    return MakeRenderTarget(static_cast<GrRecordingContext*>(context), budgeted, imageInfo,
-                            sampleCount, surfaceOrigin, surfaceProps, shouldCreateWithMips);
-}
-
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
-                                             const SkImageInfo& imageInfo, int sampleCount,
-                                             const SkSurfaceProps* surfaceProps) {
-    return MakeRenderTarget(static_cast<GrRecordingContext*>(context), budgeted, imageInfo,
-                            sampleCount, surfaceProps);
-}
-
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrContext* context, SkBudgeted budgeted,
-                                             const SkImageInfo& imageInfo) {
-    return MakeRenderTarget(static_cast<GrRecordingContext*>(context), budgeted, imageInfo);
-}
-
 sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(
         GrRecordingContext* context, std::unique_ptr<GrRenderTargetContext> rtc) {
     if (!context) {
@@ -500,7 +479,8 @@ sk_sp<SkSurface> SkSurface_Gpu::MakeWrappedRenderTarget(
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrContext* context, const GrBackendTexture& tex,
+sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* context,
+                                                   const GrBackendTexture& tex,
                                                    GrSurfaceOrigin origin, int sampleCnt,
                                                    SkColorType colorType,
                                                    sk_sp<SkColorSpace> colorSpace,
@@ -616,7 +596,7 @@ bool validate_backend_render_target(const GrCaps* caps, const GrBackendRenderTar
     return true;
 }
 
-sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
+sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* context,
                                                         const GrBackendRenderTarget& rt,
                                                         GrSurfaceOrigin origin,
                                                         SkColorType colorType,
@@ -662,7 +642,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
 }
 
 #if GR_TEST_UTILS
-sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* context,
+sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrRecordingContext* context,
                                                                  const GrBackendTexture& tex,
                                                                  GrSurfaceOrigin origin,
                                                                  int sampleCnt,
@@ -698,7 +678,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
 #endif
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
-sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
+sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
                                                     AHardwareBuffer* hardwareBuffer,
                                                     GrSurfaceOrigin origin,
                                                     sk_sp<SkColorSpace> colorSpace,
@@ -719,13 +699,7 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         return nullptr;
     }
 
-    auto direct = GrAsDirectContext(context);
-    if (!direct) {
-        SkDebugf("Direct context required\n");
-        return nullptr;
-    }
-
-    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(direct,
+    GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(dContext,
                                                                              hardwareBuffer,
                                                                              bufferDesc.format,
                                                                              true);
@@ -739,7 +713,7 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         GrAHardwareBufferUtils::TexImageCtx deleteImageCtx = nullptr;
 
         GrBackendTexture backendTexture =
-                GrAHardwareBufferUtils::MakeBackendTexture(direct, hardwareBuffer,
+                GrAHardwareBufferUtils::MakeBackendTexture(dContext, hardwareBuffer,
                                                            bufferDesc.width, bufferDesc.height,
                                                            &deleteImageProc, &updateImageProc,
                                                            &deleteImageCtx, isProtectedContent,
@@ -751,7 +725,7 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         SkColorType colorType =
                 GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
-        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(direct, backendTexture,
+        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(dContext, backendTexture,
                 origin, 0, colorType, std::move(colorSpace), surfaceProps, deleteImageProc,
                 deleteImageCtx);
 
