@@ -268,18 +268,11 @@ bool stencil_format_supported(ID3D12Device* device, DXGI_FORMAT format) {
 }
 
 void GrD3DCaps::initStencilFormat(ID3D12Device* device) {
-    // List of legal stencil formats (though perhaps not supported on
-    // the particular gpu/driver) from most preferred to least.
-    static const StencilFormat
-                   // internal Format             stencil bits
-        gD24S8 = { DXGI_FORMAT_D24_UNORM_S8_UINT,    8 },
-        gD32S8 = { DXGI_FORMAT_D32_FLOAT_S8X24_UINT, 8 };
-
     if (stencil_format_supported(device, DXGI_FORMAT_D24_UNORM_S8_UINT)) {
-        fPreferredStencilFormat = gD24S8;
+        fPreferredStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
     } else {
         SkASSERT(stencil_format_supported(device, DXGI_FORMAT_D32_FLOAT_S8X24_UINT));
-        fPreferredStencilFormat = gD32S8;
+        fPreferredStencilFormat = DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
     }
 }
 

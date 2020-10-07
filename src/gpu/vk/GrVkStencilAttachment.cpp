@@ -15,12 +15,12 @@
 
 GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
                                              SkISize dimensions,
-                                             const Format& format,
+                                             VkFormat format,
                                              const GrVkImage::ImageDesc& desc,
                                              const GrVkImageInfo& info,
                                              sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                              sk_sp<const GrVkImageView> stencilView)
-        : GrStencilAttachment(gpu, dimensions, format.fStencilBits, desc.fSamples, info.fProtected)
+        : GrStencilAttachment(gpu, dimensions, desc.fSamples, info.fProtected)
     , GrVkImage(gpu, info, std::move(mutableState), GrBackendObjectOwnership::kOwned)
     , fStencilView(std::move(stencilView)) {
     this->registerWithCache(SkBudgeted::kYes);
@@ -29,10 +29,10 @@ GrVkStencilAttachment::GrVkStencilAttachment(GrVkGpu* gpu,
 GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
                                                      SkISize dimensions,
                                                      int sampleCnt,
-                                                     const Format& format) {
+                                                     VkFormat format) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
-    imageDesc.fFormat = format.fInternalFormat;
+    imageDesc.fFormat = format;
     imageDesc.fWidth = dimensions.width();
     imageDesc.fHeight = dimensions.height();
     imageDesc.fLevels = 1;
@@ -47,8 +47,7 @@ GrVkStencilAttachment* GrVkStencilAttachment::Create(GrVkGpu* gpu,
         return nullptr;
     }
 
-    sk_sp<const GrVkImageView> imageView = GrVkImageView::Make(gpu, info.fImage,
-                                                               format.fInternalFormat,
+    sk_sp<const GrVkImageView> imageView = GrVkImageView::Make(gpu, info.fImage, format,
                                                                GrVkImageView::kStencil_Type, 1,
                                                                GrVkYcbcrConversionInfo());
     if (!imageView) {

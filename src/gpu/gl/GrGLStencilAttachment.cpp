@@ -13,9 +13,9 @@
 size_t GrGLStencilAttachment::onGpuMemorySize() const {
     uint64_t size = this->width();
     size *= this->height();
-    size *= fFormat.fTotalBits;
+    size *= GrGLFormatBytesPerBlock(fFormat);
     size *= this->numSamples();
-    return static_cast<size_t>(size / 8);
+    return static_cast<size_t>(size);
 }
 
 void GrGLStencilAttachment::onRelease() {
@@ -36,7 +36,7 @@ void GrGLStencilAttachment::onAbandon() {
 }
 
 GrBackendFormat GrGLStencilAttachment::backendFormat() const {
-    return GrBackendFormat::MakeGL(fFormat.fInternalFormat, GR_GL_TEXTURE_NONE);
+    return GrBackendFormat::MakeGL(GrGLFormatToEnum(fFormat), GR_GL_TEXTURE_NONE);
 }
 
 void GrGLStencilAttachment::setMemoryBacking(SkTraceMemoryDump* traceMemoryDump,

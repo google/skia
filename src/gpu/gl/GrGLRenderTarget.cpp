@@ -9,6 +9,7 @@
 
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpuResourcePriv.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -58,6 +59,22 @@ void GrGLRenderTarget::init(GrGLFormat format, const IDs& idDesc) {
     fNumSamplesOwnedPerPixel = this->totalSamples();
 }
 
+GrGLFormat stencil_bits_to_format(int stencilBits) {
+    SkASSERT(stencilBits);
+    switch (stencilBits) {
+        case 8:
+            // We pick the packed format here so when we query total size we are at least not
+            // underestimating the total size of the stencil buffer. However, in reality this
+            // rarely matters since we usually don't care about the size of wrapped objects.
+            return GrGLFormat::kDEPTH24_STENCIL8;
+        case 16:
+            return GrGLFormat::kSTENCIL_INDEX16;
+        default:
+            SkASSERT(false);
+            return GrGLFormat::kUnknown;
+    }
+}
+
 sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       const SkISize& dimensions,
                                                       GrGLFormat format,
@@ -67,13 +84,15 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
     GrGLStencilAttachment* sb = nullptr;
     if (stencilBits) {
         GrGLStencilAttachment::IDDesc sbDesc;
-        GrGLStencilAttachment::Format format;
-        format.fInternalFormat = GrGLStencilAttachment::kUnknownInternalFormat;
-        format.fPacked = false;
-        format.fStencilBits = stencilBits;
-        format.fTotalBits = stencilBits;
+        // We pick a "fake" actual format that matches the number of stencil bits. When wrapping
+        // an FBO with some number of stencil bits all we care about in the future is that we have
+        // a format with the same number of stencil bits. We don't even directly use the format or
+        // any other properties. Thus it is fine for us to just assign an arbitrary format that
+        // matches the stencil bit count.
+        GrGLFormat sFmt = stencil_bits_to_format(stencilBits);
+
         // Ownership of sb is passed to the GrRenderTarget so doesn't need to be deleted
-        sb = new GrGLStencilAttachment(gpu, sbDesc, dimensions, sampleCount, format);
+        sb = new GrGLStencilAttachment(gpu, sbDesc, dimensions, sampleCount, sFmt);
     }
     return sk_sp<GrGLRenderTarget>(
             new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, sb));
@@ -85,7 +104,7 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
     if (GrStencilAttachment* stencil = this->getStencilAttachment()) {
-        numStencilBits = stencil->bits();
+        numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
     }
 
     return GrBackendRenderTarget(
@@ -133,7 +152,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
                                                       GR_GL_RENDERBUFFER, rb));
-        if (glStencil->format().fPacked) {
+        if (GrGLFormatIsPackedDepthStencil(glStencil->format())) {
             GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                           GR_GL_DEPTH_ATTACHMENT,
                                                           GR_GL_RENDERBUFFER, rb));

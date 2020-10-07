@@ -21,7 +21,6 @@ public:
         // TODO: allow SB to be purged and detach itself from rts
     }
 
-    int bits() const { return fBits; }
     int numSamples() const { return fSampleCnt; }
 
     bool hasPerformedInitialClear() const { return fHasPerformedInitialClear; }
@@ -33,17 +32,14 @@ public:
                                                   GrUniqueKey* key);
 
 protected:
-    GrStencilAttachment(GrGpu* gpu, SkISize dimensions, int bits, int sampleCnt,
-                        GrProtected isProtected)
+    GrStencilAttachment(GrGpu* gpu, SkISize dimensions, int sampleCnt, GrProtected isProtected)
             : INHERITED(gpu, dimensions, isProtected)
-            , fBits(bits)
             , fSampleCnt(sampleCnt) {
     }
 
 private:
     const char* getResourceType() const override { return "Stencil"; }
 
-    int fBits;
     int fSampleCnt;
     bool fHasPerformedInitialClear = false;
 

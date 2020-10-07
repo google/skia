@@ -17,13 +17,8 @@ class GrVkGpu;
 
 class GrVkStencilAttachment : public GrStencilAttachment, public GrVkImage {
 public:
-    struct Format {
-        VkFormat  fInternalFormat;
-        int  fStencilBits;
-    };
-
     static GrVkStencilAttachment* Create(GrVkGpu* gpu, SkISize dimensions, int sampleCnt,
-                                         const Format& format);
+                                         VkFormat format);
 
     ~GrVkStencilAttachment() override;
 
@@ -41,7 +36,7 @@ private:
 
     GrVkStencilAttachment(GrVkGpu* gpu,
                           SkISize dimensions,
-                          const Format& format,
+                          VkFormat format,
                           const GrVkImage::ImageDesc&,
                           const GrVkImageInfo&,
                           sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,

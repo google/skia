@@ -20,8 +20,6 @@ class GrShaderCaps;
  */
 class GrD3DCaps : public GrCaps {
 public:
-    typedef GrD3DStencilAttachment::Format StencilFormat;
-
     /**
      * Creates a GrD3DCaps that is set such that nothing is supported. The init function should
      * be called to fill out the caps.
@@ -57,7 +55,7 @@ public:
     /**
      * Returns both a supported and most preferred stencil format to use in draws.
      */
-    const StencilFormat& preferredStencilFormat() const {
+    DXGI_FORMAT preferredStencilFormat() const {
         return fPreferredStencilFormat;
     }
     static int GetStencilFormatTotalBitCount(DXGI_FORMAT format) {
@@ -201,7 +199,7 @@ private:
     int fMaxPerStageShaderResourceViews;
     int fMaxPerStageUnorderedAccessViews;
 
-    StencilFormat fPreferredStencilFormat;
+    DXGI_FORMAT fPreferredStencilFormat;
 
     using INHERITED = GrCaps;
 };

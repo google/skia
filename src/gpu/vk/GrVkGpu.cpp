@@ -1546,7 +1546,7 @@ GrStencilAttachment* GrVkGpu::createStencilAttachmentForRenderTarget(
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 
-    const GrVkCaps::StencilFormat& sFmt = this->vkCaps().preferredStencilFormat();
+    VkFormat sFmt = this->vkCaps().preferredStencilFormat();
 
     GrVkStencilAttachment* stencil(GrVkStencilAttachment::Create(this,
                                                                  dimensions,

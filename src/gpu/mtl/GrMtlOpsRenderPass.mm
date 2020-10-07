@@ -7,6 +7,7 @@
 
 #include "src/gpu/mtl/GrMtlOpsRenderPass.h"
 
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrColor.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
@@ -145,7 +146,7 @@ void GrMtlOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
-    int stencilBitCount = sb->bits();
+    int stencilBitCount = GrBackendFormatStencilBits(sb->backendFormat());
 
     // The contract with the callers does not guarantee that we preserve all bits in the stencil
     // during this clear. Thus we will clear the entire stencil to the desired value.

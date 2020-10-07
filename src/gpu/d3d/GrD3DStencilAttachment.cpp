@@ -11,23 +11,22 @@
 
 GrD3DStencilAttachment::GrD3DStencilAttachment(GrD3DGpu* gpu,
                                                SkISize dimensions,
-                                               const Format& format,
+                                               DXGI_FORMAT format,
                                                const D3D12_RESOURCE_DESC& desc,
                                                const GrD3DTextureResourceInfo& info,
                                                sk_sp<GrD3DResourceState> state,
                                                const GrD3DDescriptorHeap::CPUHandle& view)
-        : GrStencilAttachment(gpu, dimensions, format.fStencilBits,
-                              desc.SampleDesc.Count, GrProtected::kNo)
+        : GrStencilAttachment(gpu, dimensions, desc.SampleDesc.Count, GrProtected::kNo)
         , GrD3DTextureResource(info, state)
         , fView(view)
-        , fFormat(format.fInternalFormat) {
+        , fFormat(format) {
     this->registerWithCache(SkBudgeted::kYes);
 }
 
 GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
                                                      SkISize dimensions,
                                                      int sampleCnt,
-                                                     const Format& format) {
+                                                     DXGI_FORMAT format) {
     D3D12_RESOURCE_DESC resourceDesc = {};
     resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
     resourceDesc.Alignment = 0;  // default alignment
@@ -35,14 +34,14 @@ GrD3DStencilAttachment* GrD3DStencilAttachment::Make(GrD3DGpu* gpu,
     resourceDesc.Height = dimensions.height();
     resourceDesc.DepthOrArraySize = 1;
     resourceDesc.MipLevels = 1;
-    resourceDesc.Format = format.fInternalFormat;
+    resourceDesc.Format = format;
     resourceDesc.SampleDesc.Count = sampleCnt;
     resourceDesc.SampleDesc.Quality = DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN;
     resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;  // use driver-selected swizzle
     resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
     D3D12_CLEAR_VALUE clearValue = {};
-    clearValue.Format = format.fInternalFormat;
+    clearValue.Format = format;
     clearValue.DepthStencil.Depth = 0;
     clearValue.DepthStencil.Stencil = 0;
 

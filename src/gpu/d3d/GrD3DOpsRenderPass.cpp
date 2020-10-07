@@ -7,6 +7,7 @@
 
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
 
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrOpFlushState.h"
 #include "src/gpu/GrProgramDesc.h"
 #include "src/gpu/GrRenderTarget.h"
@@ -325,7 +326,7 @@ void GrD3DOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool 
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
-    int stencilBitCount = sb->bits();
+    int stencilBitCount = GrBackendFormatStencilBits(sb->backendFormat());
 
     // The contract with the callers does not guarantee that we preserve all bits in the stencil
     // during this clear. Thus we will clear the entire stencil to the desired value.

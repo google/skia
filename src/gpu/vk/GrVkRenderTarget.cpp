@@ -406,8 +406,8 @@ void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,
 
     SkASSERT(!programInfo.isStencilEnabled() || programInfo.numStencilSamples());
     if (programInfo.numStencilSamples()) {
-        const GrVkCaps::StencilFormat& stencilFormat = vkCaps.preferredStencilFormat();
-        desc->fStencil.fFormat = stencilFormat.fInternalFormat;
+        VkFormat stencilFormat = vkCaps.preferredStencilFormat();
+        desc->fStencil.fFormat = stencilFormat;
         desc->fStencil.fSamples = programInfo.numStencilSamples();
 #ifdef SK_DEBUG
         if (vkCaps.mixedSamplesSupport()) {
