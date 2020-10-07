@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fbfe1d9_bf75a81f",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abb638b7_4879a30f",
+      "range": {
+        "startLine": 417,
+        "startChar": 16,
+        "endLine": 417,
+        "endChar": 28
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "791493bb_992cb45c",
@@ -206,6 +230,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f530f978_3c771d13",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac83badb_594a19a3",
+      "range": {
+        "startLine": 713,
+        "startChar": 34,
+        "endLine": 713,
+        "endChar": 36
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a313595_89507496",
@@ -240,6 +288,30 @@
         "id": 5631
       },
       "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a313595_89507496",
+      "range": {
+        "startLine": 966,
+        "startChar": 29,
+        "endLine": 966,
+        "endChar": 32
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b47dd59_3f13d381",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
       "side": 1,
       "message": "Done",
       "parentUuid": "7a313595_89507496",
@@ -300,6 +372,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dda83d4f_74d01486",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aefaf2b6_7b96d746",
+      "range": {
+        "startLine": 1079,
+        "startChar": 33,
+        "endLine": 1079,
+        "endChar": 36
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9f6f1c99_46a16e27",
@@ -334,6 +430,30 @@
         "id": 5631
       },
       "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f6f1c99_46a16e27",
+      "range": {
+        "startLine": 1277,
+        "startChar": 37,
+        "endLine": 1277,
+        "endChar": 40
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7297d12c_4b2f31fe",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1277,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
       "side": 1,
       "message": "Done",
       "parentUuid": "9f6f1c99_46a16e27",
@@ -394,6 +514,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac0080a8_c2cf92b8",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a92ba06_0500475e",
+      "range": {
+        "startLine": 1680,
+        "startChar": 38,
+        "endLine": 1680,
+        "endChar": 52
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d760a92_b37af85d",
@@ -428,6 +572,30 @@
         "id": 5631
       },
       "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d760a92_b37af85d",
+      "range": {
+        "startLine": 1269,
+        "startChar": 32,
+        "endLine": 1270,
+        "endChar": 34
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14fc9f82_4a804fdf",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
       "side": 1,
       "message": "Done",
       "parentUuid": "2d760a92_b37af85d",
@@ -488,6 +656,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "35da51e9_715cd2f3",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d1dc5a8_17521068",
+      "range": {
+        "startLine": 326,
+        "startChar": 76,
+        "endLine": 326,
+        "endChar": 78
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0a57d941_c4909cc4",
@@ -501,6 +693,24 @@
       "writtenOn": "2020-10-07T15:44:09Z",
       "side": 1,
       "message": "Sorry that I keep expanding the scope on this CL, but the cleanup is just snowballing. Now that we use VarDeclaration directly, GlobalVarDeclaration (previously VarDeclarations) is no longer part of the CFG. That means that the rationale for storing a statement went away, so I switched it to storing an actual VarDeclaration (and renamed it, to help catch all instances as well as make the code more readable).",
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6e97f3b_c65ddb82",
+        "filename": "src/sksl/ir/SkSLVarDeclarations.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:45:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0a57d941_c4909cc4",
       "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
