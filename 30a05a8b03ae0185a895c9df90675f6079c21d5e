@@ -16,6 +16,23 @@
       "message": "Please take a look.",
       "revId": "30a05a8b03ae0185a895c9df90675f6079c21d5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49d5ba4b_0001e453",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-07T16:48:27Z",
+      "side": 1,
+      "message": "Chromium does not use BUILD.gn, but Flutter and Fuchsia do.  We need to check with them.",
+      "revId": "30a05a8b03ae0185a895c9df90675f6079c21d5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
