@@ -16,7 +16,7 @@
 #include "include/private/SkTHash.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrSwizzle.h"
-#include "src/gpu/gl/GrGLStencilAttachment.h"
+#include "src/gpu/gl/GrGLAttachment.h"
 #include "src/gpu/gl/GrGLUtil.h"
 
 class GrGLContextInfo;

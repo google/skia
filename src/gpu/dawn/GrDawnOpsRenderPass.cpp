@@ -11,11 +11,11 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrTexture.h"
+#include "src/gpu/dawn/GrDawnAttachment.h"
 #include "src/gpu/dawn/GrDawnBuffer.h"
 #include "src/gpu/dawn/GrDawnGpu.h"
 #include "src/gpu/dawn/GrDawnProgramBuilder.h"
 #include "src/gpu/dawn/GrDawnRenderTarget.h"
-#include "src/gpu/dawn/GrDawnStencilAttachment.h"
 #include "src/gpu/dawn/GrDawnTexture.h"
 #include "src/gpu/dawn/GrDawnUtil.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -54,8 +54,7 @@ GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, GrS
 
 wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorOp,
                                                              wgpu::LoadOp stencilOp) {
-    auto stencilAttachment =
-            static_cast<GrDawnStencilAttachment*>(fRenderTarget->getStencilAttachment());
+    auto stencilAttachment = static_cast<GrDawnAttachment*>(fRenderTarget->getStencilAttachment());
     const float *c = fColorInfo.fClearColor.vec();
 
     wgpu::RenderPassColorAttachmentDescriptor colorAttachment;
