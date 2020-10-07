@@ -73,12 +73,11 @@ const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
 }
 
 void SymbolTable::addAlias(StringFragment name, const Symbol* symbol) {
-    this->add(name, std::make_unique<SymbolAlias>(symbol->fOffset, name, symbol));
+    this->add(std::make_unique<SymbolAlias>(symbol->fOffset, name, symbol));
 }
 
-void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
-    SkASSERT(symbol->name() == name);
-
+void SymbolTable::addWithoutOwnership(const Symbol* symbol) {
+    const StringFragment& name = symbol->name();
     const Symbol*& refInSymbolTable = fSymbols[name];
     if (refInSymbolTable == nullptr) {
         refInSymbolTable = symbol;
