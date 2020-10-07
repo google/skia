@@ -20,7 +20,7 @@ Promise.all([
         throw 'Could not make main thread canvas surface';
     }
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.RED);
 
     let decodedImage;
@@ -64,7 +64,7 @@ Promise.all([
         const decodedBuffer = e.data.decodedArrayBuffer;
         const pixels = new Uint8Array(decodedBuffer);
         decodedImage = CanvasKit.MakeImage(pixels, e.data.width, e.data.height,
-            CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, CanvasKit.SkColorSpace.SRGB);
+            CanvasKit.AlphaType.Unpremul, CanvasKit.ColorType.RGBA_8888, CanvasKit.ColorSpace.SRGB);
     });
     document.getElementById('clear-button').addEventListener('click', () => {
         if (decodedImage) {

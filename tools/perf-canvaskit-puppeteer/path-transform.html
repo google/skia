@@ -76,7 +76,7 @@ Available query param options:
       const svgElement = svgObjectElement.contentDocument;
       const svgPathAndFillColorPairs = svgToPathAndFillColorPairs(svgElement, CanvasKit);
 
-      const paint = new CanvasKit.SkPaint();
+      const paint = new CanvasKit.Paint();
       paint.setAntiAlias(true);
       paint.setStyle(CanvasKit.PaintStyle.Fill);
       let paintColor = CanvasKit.BLACK;

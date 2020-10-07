@@ -2,26 +2,26 @@
 // Test it by running `npm run dtslint` in the parent directory.
 import {
     CanvasKitInit,
+    AnimatedImage,
+    Canvas,
     CanvasKit,
+    ColorFilter,
+    Font,
+    FontMgr,
+    Image,
+    ImageFilter,
+    ImageInfo,
+    MaskFilter,
+    Paint,
     Paragraph,
+    Path,
+    PathEffect,
+    Shader,
     ShapedText,
-    SkAnimatedImage,
-    SkCanvas,
-    SkColorFilter,
-    SkFont,
-    SkFontMgr,
-    SkImage,
-    SkImageFilter,
-    SkImageInfo,
-    SkMaskFilter,
-    SkPaint,
-    SkPath,
-    SkPathEffect,
     SkPicture,
-    SkShader,
-    SkTextBlob,
-    SkTypeface,
-    SkVertices,
+    TextBlob,
+    Typeface,
+    Vertices,
 } from "canvaskit-wasm";
 
 CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + file}).then((CK: CanvasKit) => {
@@ -59,13 +59,13 @@ CanvasKitInit({locateFile: (file: string) => '/node_modules/canvaskit/bin/' + fi
 
 function animatedImageTests(CK: CanvasKit) {
     const buff = new ArrayBuffer(10);
-    const img = CK.MakeAnimatedImageFromEncoded(buff); // $ExpectType SkAnimatedImage | null
+    const img = CK.MakeAnimatedImageFromEncoded(buff); // $ExpectType AnimatedImage | null
     if (!img) return;
     const n = img.decodeNextFrame(); // $ExpectType number
     const f = img.getFrameCount(); // $ExpectType number
     const r = img.getRepetitionCount(); // $ExpectType number
     const h = img.height(); // $ExpectType number
-    const still = img.makeImageAtCurrentFrame(); // $ExpectType SkImage | null
+    const still = img.makeImageAtCurrentFrame(); // $ExpectType Image | null
     img.reset();
     const w = img.width(); // $ExpectType number
 }
@@ -74,11 +74,11 @@ function animatedImageTests(CK: CanvasKit) {
 // types instead of actually having to create them from scratch. To inject them, we define them
 // as an optional parameter and then have a null check to make sure that optional-ness does not
 // cause errors.
-function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: SkPath,
-                     img?: SkImage, aImg?: SkAnimatedImage, para?: Paragraph,
-                     skp?: SkPicture, font?: SkFont, shapedText?: ShapedText,
-                     textBlob?: SkTextBlob, verts?: SkVertices, imageInfo?: SkImageInfo,
-                     imgFilter?: SkImageFilter) {
+function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
+                     img?: Image, aImg?: AnimatedImage, para?: Paragraph,
+                     skp?: SkPicture, font?: Font, shapedText?: ShapedText,
+                     textBlob?: TextBlob, verts?: Vertices, imageInfo?: ImageInfo,
+                     imgFilter?: ImageFilter) {
     if (!canvas || !paint || !path || !img || !aImg || !para || !skp || !font ||
         !shapedText || !textBlob || !verts || !imageInfo || !imgFilter) {
         return;
@@ -136,11 +136,11 @@ function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: S
     const matrTwo = canvas.getLocalToDevice(); // $ExpectType Float32Array
     const sc = canvas.getSaveCount(); // $ExpectType number
     const matrThree = canvas.getTotalMatrix(); // $ExpectType number[]
-    const surface = canvas.makeSurface(imageInfo); // $ExpectType SkSurface | null
+    const surface = canvas.makeSurface(imageInfo); // $ExpectType Surface | null
     canvas.markCTM('more ctm');
     const pixels = canvas.readPixels(0, 1, 2, 3); // $ExpectType Uint8Array
     const pixelsTwo = canvas.readPixels(4, 5, 6, 7, CK.AlphaType.Opaque, CK.ColorType.RGBA_1010102,
-                                        CK.SkColorSpace.DISPLAY_P3, 16);
+                                        CK.ColorSpace.DISPLAY_P3, 16);
     canvas.restore();
     canvas.restoreToCount(2);
     canvas.rotate(1, 2, 3);
@@ -155,7 +155,7 @@ function canvasTests(CK: CanvasKit, canvas?: SkCanvas, paint?: SkPaint, path?: S
     canvas.translate(20, 30);
     const ok = canvas.writePixels([1, 2, 3, 4], 1, 1, 10, 20); // $ExpectType boolean
     const ok2 = canvas.writePixels([1, 2, 3, 4], 1, 1, 10, 20, CK.AlphaType.Premul,
-                                   CK.ColorType.Alpha_8, CK.SkColorSpace.DISPLAY_P3);
+                                   CK.ColorType.Alpha_8, CK.ColorSpace.DISPLAY_P3);
 }
 
 function canvas2DTests(CK: CanvasKit) {
@@ -192,30 +192,30 @@ function colorTests(CK: CanvasKit) {
 }
 
 function colorFilterTests(CK: CanvasKit) {
-    const cf = CK.SkColorFilter; // less typing
-    const filterOne = cf.MakeBlend(CK.CYAN, CK.BlendMode.ColorBurn); // $ExpectType SkColorFilter
-    const filterTwo = cf.MakeLinearToSRGBGamma(); // $ExpectType SkColorFilter
-    const filterThree = cf.MakeSRGBToLinearGamma(); // $ExpectType SkColorFilter
-    const filterFour = cf.MakeCompose(filterOne, filterTwo); // $ExpectType SkColorFilter
-    const filterFive = cf.MakeLerp(0.7, filterThree, filterFour); // $ExpectType SkColorFilter
+    const cf = CK.ColorFilter; // less typing
+    const filterOne = cf.MakeBlend(CK.CYAN, CK.BlendMode.ColorBurn); // $ExpectType ColorFilter
+    const filterTwo = cf.MakeLinearToSRGBGamma(); // $ExpectType ColorFilter
+    const filterThree = cf.MakeSRGBToLinearGamma(); // $ExpectType ColorFilter
+    const filterFour = cf.MakeCompose(filterOne, filterTwo); // $ExpectType ColorFilter
+    const filterFive = cf.MakeLerp(0.7, filterThree, filterFour); // $ExpectType ColorFilter
 
-    const r = CK.SkColorMatrix.rotated(0, .707, -.707);  // $ExpectType Float32Array
-    const b = CK.SkColorMatrix.rotated(2, .5, .866);
-    const s = CK.SkColorMatrix.scaled(0.9, 1.5, 0.8, 0.8);
-    let cm = CK.SkColorMatrix.concat(r, s);
-    cm = CK.SkColorMatrix.concat(cm, b);
-    CK.SkColorMatrix.postTranslate(cm, 20, 0, -10, 0);
+    const r = CK.ColorMatrix.rotated(0, .707, -.707);  // $ExpectType Float32Array
+    const b = CK.ColorMatrix.rotated(2, .5, .866);
+    const s = CK.ColorMatrix.scaled(0.9, 1.5, 0.8, 0.8);
+    let cm = CK.ColorMatrix.concat(r, s);
+    cm = CK.ColorMatrix.concat(cm, b);
+    CK.ColorMatrix.postTranslate(cm, 20, 0, -10, 0);
 
-    const filterSix = CK.SkColorFilter.MakeMatrix(cm); // $ExpectType SkColorFilter
+    const filterSix = CK.ColorFilter.MakeMatrix(cm); // $ExpectType ColorFilter
 }
 
-function contourMeasureTests(CK: CanvasKit, path?: SkPath) {
+function contourMeasureTests(CK: CanvasKit, path?: Path) {
     if (!path) return;
-    const iter = new CK.SkContourMeasureIter(path, true, 2); // $ExpectType SkContourMeasureIter
-    const contour = iter.next(); // $ExpectType SkContourMeasure | null
+    const iter = new CK.ContourMeasureIter(path, true, 2); // $ExpectType ContourMeasureIter
+    const contour = iter.next(); // $ExpectType ContourMeasure | null
     if (!contour) return;
     const pt = contour.getPosTan(2); // $ExpectType PosTan
-    const segment = contour.getSegment(0, 20, true); // $ExpectType SkPath
+    const segment = contour.getSegment(0, 20, true); // $ExpectType Path
     const closed = contour.isClosed(); // $ExpectType boolean
     const length = contour.length(); // $ExpectType number
 }
@@ -223,50 +223,50 @@ function contourMeasureTests(CK: CanvasKit, path?: SkPath) {
 function imageTests(CK: CanvasKit, imgElement?: HTMLImageElement) {
     if (!imgElement) return;
     const buff = new ArrayBuffer(10);
-    const img = CK.MakeImageFromEncoded(buff); // $ExpectType SkImage | null
-    const img2 = CK.MakeImageFromCanvasImageSource(imgElement); // $ExpectType SkImage
+    const img = CK.MakeImageFromEncoded(buff); // $ExpectType Image | null
+    const img2 = CK.MakeImageFromCanvasImageSource(imgElement); // $ExpectType Image
     if (!img) return;
-    const dOne = img.encodeToData(); // $ExpectType SkData
+    const dOne = img.encodeToData(); // $ExpectType Data
     const dTwo = img.encodeToDataWithFormat(CK.ImageFormat.JPEG, 97);
-    const bytes = CK.getSkDataBytes(dTwo); // $ExpectType Uint8Array
+    const bytes = CK.getDataBytes(dTwo); // $ExpectType Uint8Array
     const h = img.height();
     const w = img.width();
-    const shader = img.makeShader(CK.TileMode.Decal, CK.TileMode.Repeat); // $ExpectType SkShader
+    const shader = img.makeShader(CK.TileMode.Decal, CK.TileMode.Repeat); // $ExpectType Shader
     const pixels = img.readPixels({
         width: 79,
         height: 205,
         colorType: CK.ColorType.RGBA_8888,
         alphaType: CK.AlphaType.Unpremul,
-        colorSpace: CK.SkColorSpace.SRGB,
+        colorSpace: CK.ColorSpace.SRGB,
     }, 85, 1000);
     img.delete();
 }
 
-function imageFilterTests(CK: CanvasKit, colorFilter?: SkColorFilter) {
+function imageFilterTests(CK: CanvasKit, colorFilter?: ColorFilter) {
     if (!colorFilter) return;
-    const imgf = CK.SkImageFilter; // less typing
-    const filter = imgf.MakeBlur(2, 4, CK.TileMode.Mirror, null); // $ExpectType SkImageFilter
-    const filter1 = imgf.MakeBlur(2, 4, CK.TileMode.Decal, filter); // $ExpectType SkImageFilter
-    const filter2 = imgf.MakeColorFilter(colorFilter, null); // $ExpectType SkImageFilter
-    const filter3 = imgf.MakeColorFilter(colorFilter, filter); // $ExpectType SkImageFilter
-    const filter4 = imgf.MakeCompose(null, filter2); // $ExpectType SkImageFilter
-    const filter5 = imgf.MakeCompose(filter3, null); // $ExpectType SkImageFilter
-    const filter6 = imgf.MakeCompose(filter4, filter2); // $ExpectType SkImageFilter
-    const filter7 = imgf.MakeMatrixTransform(CK.SkMatrix.scaled(2, 3, 10, 10),
+    const imgf = CK.ImageFilter; // less typing
+    const filter = imgf.MakeBlur(2, 4, CK.TileMode.Mirror, null); // $ExpectType ImageFilter
+    const filter1 = imgf.MakeBlur(2, 4, CK.TileMode.Decal, filter); // $ExpectType ImageFilter
+    const filter2 = imgf.MakeColorFilter(colorFilter, null); // $ExpectType ImageFilter
+    const filter3 = imgf.MakeColorFilter(colorFilter, filter); // $ExpectType ImageFilter
+    const filter4 = imgf.MakeCompose(null, filter2); // $ExpectType ImageFilter
+    const filter5 = imgf.MakeCompose(filter3, null); // $ExpectType ImageFilter
+    const filter6 = imgf.MakeCompose(filter4, filter2); // $ExpectType ImageFilter
+    const filter7 = imgf.MakeMatrixTransform(CK.Matrix.scaled(2, 3, 10, 10),
                                              CK.FilterQuality.High, null);
-    const filter8 = imgf.MakeMatrixTransform(CK.SkM44.identity(),
+    const filter8 = imgf.MakeMatrixTransform(CK.M44.identity(),
                                              CK.FilterQuality.None, filter6);
 }
 
-function fontTests(CK: CanvasKit, face?: SkTypeface, paint?: SkPaint) {
+function fontTests(CK: CanvasKit, face?: Typeface, paint?: Paint) {
     if (!face || !paint) return;
-    const font = new CK.SkFont(); // $ExpectType SkFont
-    const f2 = new CK.SkFont(face); // $ExpectType SkFont
-    const f3 = new CK.SkFont(null); // $ExpectType SkFont
-    const f4 = new CK.SkFont(face, 20); // $ExpectType SkFont
-    const f5 = new CK.SkFont(null, 20); // $ExpectType SkFont
-    const f6 = new CK.SkFont(null, 20, 2, 3); // $ExpectType SkFont
-    const f7 = new CK.SkFont(face, 20, 4, 5); // $ExpectType SkFont
+    const font = new CK.Font(); // $ExpectType Font
+    const f2 = new CK.Font(face); // $ExpectType Font
+    const f3 = new CK.Font(null); // $ExpectType Font
+    const f4 = new CK.Font(face, 20); // $ExpectType Font
+    const f5 = new CK.Font(null, 20); // $ExpectType Font
+    const f6 = new CK.Font(null, 20, 2, 3); // $ExpectType Font
+    const f7 = new CK.Font(face, 20, 4, 5); // $ExpectType Font
 
     const glyphMalloc = CK.MallocGlyphIDs(20);
     const someGlyphs = [1, 2, 3, 4, 5];
@@ -299,16 +299,16 @@ function fontTests(CK: CanvasKit, face?: SkTypeface, paint?: SkPaint) {
 }
 
 function fontMgrTests(CK: CanvasKit) {
-    const fm = CK.SkFontMgr.RefDefault(); // $ExpectType SkFontMgr
+    const fm = CK.FontMgr.RefDefault(); // $ExpectType FontMgr
 
     const buff1 = new ArrayBuffer(10);
     const buff2 = new ArrayBuffer(20);
 
-    const fm2 = CK.SkFontMgr.FromData(buff1, buff2);
+    const fm2 = CK.FontMgr.FromData(buff1, buff2);
     fm.countFamilies();
     fm.getFamilyName(0);
 
-    const tf = fm.makeTypefaceFromData(buff1); // $ExpectType SkTypeface
+    const tf = fm.makeTypefaceFromData(buff1); // $ExpectType Typeface
 }
 
 function globalTests(CK: CanvasKit) {
@@ -319,13 +319,13 @@ function globalTests(CK: CanvasKit) {
     CK.setDecodeCacheLimitBytes(1000);
 }
 
-function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: SkImageFilter,
-                    maskFilter?: SkMaskFilter, pathEffect?: SkPathEffect, shader?: SkShader) {
+function paintTests(CK: CanvasKit, colorFilter?: ColorFilter, imageFilter?: ImageFilter,
+                    maskFilter?: MaskFilter, pathEffect?: PathEffect, shader?: Shader) {
     if (!colorFilter || !colorFilter || !imageFilter || !maskFilter || !pathEffect || !shader) {
         return;
     }
-    const paint = new CK.SkPaint(); // $ExpectType SkPaint
-    const newPaint = paint.copy(); // $ExpectType SkPaint
+    const paint = new CK.Paint(); // $ExpectType Paint
+    const newPaint = paint.copy(); // $ExpectType Paint
     const bm = paint.getBlendMode();
     const color = paint.getColor(); // $ExpectType Float32Array
     const fq = paint.getFilterQuality();
@@ -337,12 +337,12 @@ function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: Sk
     paint.setAntiAlias(true);
     paint.setBlendMode(bm);
     paint.setColor(CK.RED);
-    paint.setColor([0, 0, 1.2, 0.5], CK.SkColorSpace.DISPLAY_P3);
+    paint.setColor([0, 0, 1.2, 0.5], CK.ColorSpace.DISPLAY_P3);
     paint.setColorComponents(0, 0, 0.9, 1.0);
-    paint.setColorComponents(0, 0, 1.2, 0.5, CK.SkColorSpace.DISPLAY_P3);
+    paint.setColorComponents(0, 0, 1.2, 0.5, CK.ColorSpace.DISPLAY_P3);
     paint.setColorFilter(colorFilter);
     paint.setColorInt(CK.ColorAsInt(20, 30, 40));
-    paint.setColorInt(CK.ColorAsInt(20, 30, 40), CK.SkColorSpace.SRGB);
+    paint.setColorInt(CK.ColorAsInt(20, 30, 40), CK.ColorSpace.SRGB);
     paint.setFilterQuality(CK.FilterQuality.Medium);
     paint.setImageFilter(imageFilter);
     paint.setMaskFilter(maskFilter);
@@ -357,18 +357,18 @@ function paintTests(CK: CanvasKit, colorFilter?: SkColorFilter, imageFilter?: Sk
 }
 
 function pathTests(CK: CanvasKit) {
-    const path = new CK.SkPath();  // $ExpectType SkPath
-    const p2 = CK.SkPath.MakeFromCmds([ // $ExpectType SkPath
+    const path = new CK.Path();  // $ExpectType Path
+    const p2 = CK.Path.MakeFromCmds([ // $ExpectType Path
         [CK.MOVE_VERB, 0, 10],
         [CK.LINE_VERB, 30, 40],
         [CK.QUAD_VERB, 20, 50, 45, 60],
     ]);
     const verbs = CK.Malloc(Uint8Array, 10);
     const points = CK.Malloc(Float32Array, 10);
-    const p3 = CK.SkPath.MakeFromVerbsPointsWeights(verbs, [1, 2, 3, 4]); // $ExpectType SkPath
-    const p4 = CK.SkPath.MakeFromVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
-    const p5 = CK.MakePathFromOp(p4, p2, CK.PathOp.ReverseDifference); // $ExpectType SkPath | null
-    const p6 = CK.MakePathFromSVGString('M 205,5 L 795,5 z'); // $ExpectType SkPath | null
+    const p3 = CK.Path.MakeFromVerbsPointsWeights(verbs, [1, 2, 3, 4]); // $ExpectType Path
+    const p4 = CK.Path.MakeFromVerbsPointsWeights([CK.CONIC_VERB], points, [2.3]);
+    const p5 = CK.MakePathFromOp(p4, p2, CK.PathOp.ReverseDifference); // $ExpectType Path | null
+    const p6 = CK.MakePathFromSVGString('M 205,5 L 795,5 z'); // $ExpectType Path | null
 
     const someRect = CK.LTRBRect(10, 20, 30, 40);
     // Making sure arrays are accepted as rrects.
@@ -395,7 +395,7 @@ function pathTests(CK: CanvasKit) {
     path.computeTightBounds(bounds);
     path.conicTo(1, 2, 3, 4, 5);
     let ok = path.contains(10, 20); // $ExpectType boolean
-    const pCopy = path.copy(); // $ExpectType SkPath
+    const pCopy = path.copy(); // $ExpectType Path
     const count = path.countPoints(); // $ExpectType number
     path.cubicTo(10, 10, 10, 10, 10, 10);
     ok = path.dash(8, 4, 1);
@@ -403,7 +403,7 @@ function pathTests(CK: CanvasKit) {
     bounds = path.getBounds(); // $ExpectType Float32Array
     path.getBounds(bounds);
     const ft = path.getFillType();
-    const pt = path.getPoint(7); // $ExpectType SkPoint
+    const pt = path.getPoint(7); // $ExpectType Point
     ok = path.isEmpty();
     ok = path.isVolatile();
     path.lineTo(10, -20);
@@ -433,7 +433,7 @@ function pathTests(CK: CanvasKit) {
     });
     const cmds = path.toCmds(); // $ExpectType PathCommand[]
     const str = path.toSVGString(); // $ExpectType string
-    path.transform(CK.SkMatrix.identity());
+    path.transform(CK.Matrix.identity());
     path.transform(1, 0, 0, 0, 1, 0, 0, 0, 1);
     path.trim(0.1, 0.7, false);
 }
@@ -456,7 +456,7 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     p.layout(300);
 }
 
-function paragraphBuilderTests(CK: CanvasKit, fontMgr?: SkFontMgr, paint?: SkPaint) {
+function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) {
     if (!fontMgr || !paint) return;
     const paraStyle = new CK.ParagraphStyle({ // $ExpectType ParagraphStyle
         textStyle: {
@@ -504,7 +504,7 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: SkFontMgr, paint?: SkPai
     builder2.addPlaceholder(10, 20, CK.PlaceholderAlignment.Top, CK.TextBaseline.Ideographic, 3);
 }
 
-function particlesTests(CK: CanvasKit, canvas?: SkCanvas) {
+function particlesTests(CK: CanvasKit, canvas?: Canvas) {
     if (!canvas) return;
 
     const par = CK.MakeParticles('some json'); // $ExpectType Particles
@@ -531,10 +531,10 @@ function particlesTests(CK: CanvasKit, canvas?: SkCanvas) {
 }
 
 function pathEffectTests(CK: CanvasKit) {
-    const pe1 = CK.SkPathEffect.MakeCorner(2); // $ExpectType SkPathEffect | null
-    const pe2 = CK.SkPathEffect.MakeDash([2, 4]); // $ExpectType SkPathEffect
-    const pe3 = CK.SkPathEffect.MakeDash([2, 4, 6, 8], 10); // $ExpectType SkPathEffect
-    const pe4 = CK.SkPathEffect.MakeDiscrete(10, 2, 0); // $ExpectType SkPathEffect
+    const pe1 = CK.PathEffect.MakeCorner(2); // $ExpectType PathEffect | null
+    const pe2 = CK.PathEffect.MakeDash([2, 4]); // $ExpectType PathEffect
+    const pe3 = CK.PathEffect.MakeDash([2, 4, 6, 8], 10); // $ExpectType PathEffect
+    const pe4 = CK.PathEffect.MakeDiscrete(10, 2, 0); // $ExpectType PathEffect
 }
 
 function mallocTests(CK: CanvasKit) {
@@ -547,11 +547,11 @@ function mallocTests(CK: CanvasKit) {
 }
 
 function maskFilterTests(CK: CanvasKit) {
-    const mf = CK.SkMaskFilter.MakeBlur(CK.BlurStyle.Solid, 8, false); // $ExpectType SkMaskFilter
+    const mf = CK.MaskFilter.MakeBlur(CK.BlurStyle.Solid, 8, false); // $ExpectType MaskFilter
 }
 
 function matrixTests(CK: CanvasKit) {
-    const m33 = CK.SkMatrix; // less typing
+    const m33 = CK.Matrix; // less typing
     const matrA = m33.identity(); // $ExpectType number[]
     const matrB = m33.rotated(0.1); // $ExpectType number[]
     const matrC = m33.rotated(0.1, 15, 20); // $ExpectType number[]
@@ -564,7 +564,7 @@ function matrixTests(CK: CanvasKit) {
     const matrJ = m33.translated(1, 2); // $ExpectType number[]
     const matrK = m33.invert(matrJ);
 
-    const m44 = CK.SkM44;
+    const m44 = CK.M44;
     const matr1 = m44.identity(); // $ExpectType number[]
     const matr2 = m44.invert(matr1);
     const matr3 = m44.lookat([1, 2, 3], [4, 5, 6], [7, 8, 9]); // $ExpectType number[]
@@ -588,12 +588,12 @@ function matrixTests(CK: CanvasKit) {
 }
 
 function pictureTests(CK: CanvasKit) {
-    const recorder = new CK.SkPictureRecorder(); // $ExpectType SkPictureRecorder
-    const canvas = recorder.beginRecording(CK.LTRBRect(0, 0, 100, 100));  // $ExpectType SkCanvas
+    const recorder = new CK.PictureRecorder(); // $ExpectType PictureRecorder
+    const canvas = recorder.beginRecording(CK.LTRBRect(0, 0, 100, 100));  // $ExpectType Canvas
     const pic = recorder.finishRecordingAsPicture(); // $ExpectType SkPicture
-    const data = pic.serialize(); // $ExgeectType SkData
-    const bytes = CK.getSkDataBytes(data);
-    const pic2 = CK.MakeSkPicture(bytes);
+    const data = pic.serialize(); // $ExpectType Data
+    const bytes = CK.getDataBytes(data);
+    const pic2 = CK.MakePicture(bytes);
 }
 
 function rectangleTests(CK: CanvasKit) {
@@ -605,23 +605,23 @@ function rectangleTests(CK: CanvasKit) {
 }
 
 function runtimeEffectTests(CK: CanvasKit) {
-    const rt = CK.SkRuntimeEffect.Make('not real sksl code'); // $ExpectType SkRuntimeEffect | null
+    const rt = CK.RuntimeEffect.Make('not real sksl code'); // $ExpectType RuntimeEffect | null
     if (!rt) return;
-    const someMatr = CK.SkMatrix.translated(2, 60);
-    const s1 = rt.makeShader([0, 1]); // $ExpectType SkShader
-    const s2 = rt.makeShader([0, 1], true, someMatr); // $ExpectType SkShader
-    const s3 = rt.makeShaderWithChildren([4, 5], true, [s1, s2]); // $ExpectType SkShader
-    const s4 = rt.makeShaderWithChildren([4, 5], true, [s1, s2], someMatr); // $ExpectType SkShader
+    const someMatr = CK.Matrix.translated(2, 60);
+    const s1 = rt.makeShader([0, 1]); // $ExpectType Shader
+    const s2 = rt.makeShader([0, 1], true, someMatr); // $ExpectType Shader
+    const s3 = rt.makeShaderWithChildren([4, 5], true, [s1, s2]); // $ExpectType Shader
+    const s4 = rt.makeShaderWithChildren([4, 5], true, [s1, s2], someMatr); // $ExpectType Shader
 }
 
-function skottieTests(CK: CanvasKit, canvas?: SkCanvas) {
+function skottieTests(CK: CanvasKit, canvas?: Canvas) {
     if (!canvas) return;
 
     const anim = CK.MakeAnimation('some json'); // $ExpectType SkottieAnimation
     const a = anim.duration(); // $ExpectType number
     const b = anim.fps(); // $ExpectType number
     const c = anim.version(); // $ExpectType string
-    const d = anim.size(); // $ExpectType SkPoint
+    const d = anim.size(); // $ExpectType Point
     const rect = anim.seek(0.5);
     anim.seek(0.6, rect);
     const rect2 = anim.seekFrame(12.3);
@@ -641,13 +641,13 @@ function skottieTests(CK: CanvasKit, canvas?: SkCanvas) {
 }
 
 function shaderTests(CK: CanvasKit) {
-    const s1 = CK.SkShader.Color([0.8, 0.2, 0.5, 0.9], // $ExpectType SkShader
-                                 CK.SkColorSpace.SRGB);
-    const s2 = CK.SkShader.Blend(CK.BlendMode.Src, s1, s1); // $ExpectType SkShader
-    const s3 = CK.SkShader.Lerp(0.3, s1, s2); // $ExpectType SkShader
+    const s1 = CK.Shader.Color([0.8, 0.2, 0.5, 0.9], // $ExpectType Shader
+                                 CK.ColorSpace.SRGB);
+    const s2 = CK.Shader.Blend(CK.BlendMode.Src, s1, s1); // $ExpectType Shader
+    const s3 = CK.Shader.Lerp(0.3, s1, s2); // $ExpectType Shader
 }
 
-function shapedTextTests(CK: CanvasKit, textFont?: SkFont) {
+function shapedTextTests(CK: CanvasKit, textFont?: Font) {
     if (!textFont) return;
 
     const shaped = new CK.ShapedText({ // $ExpectType ShapedText
@@ -662,72 +662,70 @@ function shapedTextTests(CK: CanvasKit, textFont?: SkFont) {
 
 function surfaceTests(CK: CanvasKit) {
     const canvasEl = document.querySelector('canvas') as HTMLCanvasElement;
-    const surfaceOne = CK.MakeCanvasSurface(canvasEl)!; // $ExpectType SkSurface
+    const surfaceOne = CK.MakeCanvasSurface(canvasEl)!; // $ExpectType Surface
     const surfaceTwo = CK.MakeCanvasSurface('my_canvas')!;
-    const surfaceThree = CK.MakeSWCanvasSurface(canvasEl)!; // $ExpectType SkSurface
+    const surfaceThree = CK.MakeSWCanvasSurface(canvasEl)!; // $ExpectType Surface
     const surfaceFour = CK.MakeSWCanvasSurface('my_canvas')!;
-    const surfaceFive = CK.MakeWebGLCanvasSurface(canvasEl, // $ExpectType SkSurface
-        CK.SkColorSpace.SRGB, {
+    const surfaceFive = CK.MakeWebGLCanvasSurface(canvasEl, // $ExpectType Surface
+        CK.ColorSpace.SRGB, {
         majorVersion: 2,
         preferLowPowerToHighPerformance: 1,
     })!;
-    const surfaceSix = CK.MakeWebGLCanvasSurface('my_canvas', CK.SkColorSpace.DISPLAY_P3, {
+    const surfaceSix = CK.MakeWebGLCanvasSurface('my_canvas', CK.ColorSpace.DISPLAY_P3, {
         enableExtensionsByDefault: 2,
     })!;
-    const surfaceSeven = CK.MakeSurface(200, 200)!; // $ExpectType SkSurface
+    const surfaceSeven = CK.MakeSurface(200, 200)!; // $ExpectType Surface
 
     surfaceOne.flush();
-    const canvas = surfaceTwo.getCanvas(); // $ExpectType SkCanvas
-    const ii = surfaceThree.imageInfo(); // $ExpectType SkImageInfo
+    const canvas = surfaceTwo.getCanvas(); // $ExpectType Canvas
+    const ii = surfaceThree.imageInfo(); // $ExpectType ImageInfo
     const h = surfaceFour.height(); // $ExpectType number
     const w = surfaceFive.width(); // $ExpectType number
-    const subsurface = surfaceOne.makeSurface(ii); // $ExpectType SkSurface
+    const subsurface = surfaceOne.makeSurface(ii); // $ExpectType Surface
     const isGPU = subsurface.reportBackendTypeIsGPU(); // $ExpectType boolean
     const count = surfaceThree.sampleCnt(); // $ExpectType number
-    const img = surfaceFour.makeImageSnapshot([0, 3, 2, 5]); // $ExpectType SkImage
-    const img2 = surfaceSix.makeImageSnapshot(); // $ExpectType SkImage
-    const pic = surfaceSeven.captureFrameAsSkPicture(// $ExpectType SkPicture
-        (_: SkCanvas) => {});
+    const img = surfaceFour.makeImageSnapshot([0, 3, 2, 5]); // $ExpectType Image
+    const img2 = surfaceSix.makeImageSnapshot(); // $ExpectType Image
 
     surfaceSeven.delete();
 
     const ctx = CK.GetWebGLContext(canvasEl); // $ExpectType number
     const grCtx = CK.MakeGrContext(ctx);
-    const surfaceEight = CK.MakeOnScreenGLSurface(grCtx, 100, 400, // $ExpectType SkSurface
-        CK.SkColorSpace.ADOBE_RGB)!;
+    const surfaceEight = CK.MakeOnScreenGLSurface(grCtx, 100, 400, // $ExpectType Surface
+        CK.ColorSpace.ADOBE_RGB)!;
 
-    const rt = CK.MakeRenderTarget(grCtx, 100, 200); // $ExpectType SkSurface | null
-    const rt2 = CK.MakeRenderTarget(grCtx, { // $ExpectType SkSurface | null
+    const rt = CK.MakeRenderTarget(grCtx, 100, 200); // $ExpectType Surface | null
+    const rt2 = CK.MakeRenderTarget(grCtx, { // $ExpectType Surface | null
         width: 79,
         height: 205,
         colorType: CK.ColorType.RGBA_8888,
         alphaType: CK.AlphaType.Premul,
-        colorSpace: CK.SkColorSpace.SRGB,
+        colorSpace: CK.ColorSpace.SRGB,
     });
 }
 
-function textBlobTests(CK: CanvasKit, font?: SkFont, path?: SkPath) {
+function textBlobTests(CK: CanvasKit, font?: Font, path?: Path) {
     if (!font || !path) return;
-    const tb = CK.SkTextBlob; // less typing
+    const tb = CK.TextBlob; // less typing
     const ids = font.getGlyphIDs('abc');
     const mXforms = CK.Malloc(Float32Array, ids.length * 4);
 
-    const blob = tb.MakeFromGlyphs([5, 6, 7, 8], font); // $ExpectType SkTextBlob
-    const blob1 = tb.MakeFromGlyphs(ids, font); // $ExpectType SkTextBlob
-    const blob2 = tb.MakeFromRSXform('cdf', mXforms, font); // $ExpectType SkTextBlob
-    const blob3 = tb.MakeFromRSXform('c', [-1, 0, 2, 3], font); // $ExpectType SkTextBlob
-    const blob4 = tb.MakeFromRSXformGlyphs([3, 6], mXforms, font); // $ExpectType SkTextBlob
-    const blob5 = tb.MakeFromRSXformGlyphs(ids, [-1, 0, 2, 3], font); // $ExpectType SkTextBlob
-    const blob6 = tb.MakeFromText('xyz', font); // $ExpectType SkTextBlob
-    const blob7 = tb.MakeOnPath('tuv', path, font); // $ExpectType SkTextBlob
-    const blob8 = tb.MakeOnPath('tuv', path, font, 10); // $ExpectType SkTextBlob
+    const blob = tb.MakeFromGlyphs([5, 6, 7, 8], font); // $ExpectType TextBlob
+    const blob1 = tb.MakeFromGlyphs(ids, font); // $ExpectType TextBlob
+    const blob2 = tb.MakeFromRSXform('cdf', mXforms, font); // $ExpectType TextBlob
+    const blob3 = tb.MakeFromRSXform('c', [-1, 0, 2, 3], font); // $ExpectType TextBlob
+    const blob4 = tb.MakeFromRSXformGlyphs([3, 6], mXforms, font); // $ExpectType TextBlob
+    const blob5 = tb.MakeFromRSXformGlyphs(ids, [-1, 0, 2, 3], font); // $ExpectType TextBlob
+    const blob6 = tb.MakeFromText('xyz', font); // $ExpectType TextBlob
+    const blob7 = tb.MakeOnPath('tuv', path, font); // $ExpectType TextBlob
+    const blob8 = tb.MakeOnPath('tuv', path, font, 10); // $ExpectType TextBlob
 }
 
 function vectorTests(CK: CanvasKit) {
     const a = [1, 2, 3];
     const b = [4, 5, 6];
 
-    const vec = CK.SkVector; // less typing
+    const vec = CK.Vector; // less typing
     const v1 = vec.add(a, b); // $ExpectType VectorN
     const v2 = vec.cross(a, b); // $ExpectType Vector3
     const n1 = vec.dist(a, b); // $ExpectType number
@@ -748,7 +746,7 @@ function verticesTests(CK: CanvasKit) {
         [ 0, 240 ], [ 0, 0 ], [ 80, 240 ], [ 80, 0 ],
         [ 160, 240 ], [ 160, 0 ], [ 240, 240 ], [ 240, 0 ]
     ];
-    const vertices = CK.MakeSkVertices(CK.VertexMode.TrianglesStrip, // $ExpectType SkVertices
+    const vertices = CK.MakeVertices(CK.VertexMode.TrianglesStrip, // $ExpectType Vertices
         points, textureCoordinates);
 
     const points2 = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
@@ -758,7 +756,7 @@ function verticesTests(CK: CanvasKit) {
         0, 1, 0, 1, // green
         0, 0, 1, 1, // blue
         1, 0, 1, 1); // purple
-    const vertices2 = CK.MakeSkVertices(CK.VertexMode.TriangleFan,
+    const vertices2 = CK.MakeVertices(CK.VertexMode.TriangleFan,
         points, null, colors, null, true);
 
     const rect = vertices.bounds(); // $ExpectType Float32Array

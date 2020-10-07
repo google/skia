@@ -49,20 +49,20 @@ function fancyAPI(CanvasKit) {
   let surface = CanvasKit.MakeSurface(300, 300);
   const canvas = surface.getCanvas();
 
-  const paint = new CanvasKit.SkPaint();
+  const paint = new CanvasKit.Paint();
 
-  const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+  const fontMgr = CanvasKit.FontMgr.RefDefault();
   let robotoData = fs.readFileSync(path.join(__dirname, './Roboto-Regular.woff'));
   const roboto = fontMgr.MakeTypefaceFromData(robotoData);
 
-  const textPaint = new CanvasKit.SkPaint();
+  const textPaint = new CanvasKit.Paint();
   textPaint.setColor(CanvasKit.Color(40, 0, 0));
   textPaint.setAntiAlias(true);
 
-  const textFont = new CanvasKit.SkFont(roboto, 30);
+  const textFont = new CanvasKit.Font(roboto, 30);
 
   const skpath = starPath(CanvasKit);
-  const dpe = CanvasKit.SkPathEffect.MakeDash([15, 5, 5, 10], 1);
+  const dpe = CanvasKit.PathEffect.MakeDash([15, 5, 5, 10], 1);
 
   paint.setPathEffect(dpe);
   paint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -87,7 +87,7 @@ function fancyAPI(CanvasKit) {
     console.error('encoding failure');
     return
   }
-  const pngBytes = CanvasKit.getSkDataBytes(png);
+  const pngBytes = CanvasKit.getDataBytes(png);
   // See https://stackoverflow.com/a/12713326
   let b64encoded = Buffer.from(pngBytes).toString('base64');
   console.log(`<img src="data:image/png;base64,${b64encoded}" />`);
@@ -104,7 +104,7 @@ function fancyAPI(CanvasKit) {
 }
 
 function starPath(CanvasKit, X=128, Y=128, R=116) {
-  let p = new CanvasKit.SkPath();
+  let p = new CanvasKit.Path();
   p.moveTo(X + R, Y);
   for (let i = 1; i < 8; i++) {
     let a = 2.6927937 * i;

@@ -55,10 +55,10 @@
       //          canvas element.
       //  - HTMLCanvasElement - in which the provided canvas element will
       //          be used directly.
-      // colorSpace - sk_sp<SkColorSpace> - one of the supported color spaces:
-      //          CanvasKit.SkColorSpace.SRGB
-      //          CanvasKit.SkColorSpace.DISPLAY_P3
-      //          CanvasKit.SkColorSpace.ADOBE_RGB
+      // colorSpace - sk_sp<ColorSpace> - one of the supported color spaces:
+      //          CanvasKit.ColorSpace.SRGB
+      //          CanvasKit.ColorSpace.DISPLAY_P3
+      //          CanvasKit.ColorSpace.ADOBE_RGB
       CanvasKit.MakeWebGLCanvasSurface = function(idOrElement, colorSpace, attrs) {
         colorSpace = colorSpace || null;
         var canvas = idOrElement;
@@ -85,7 +85,7 @@
         // constrolled by css, and available in canvas.clientWidth/height.
         var surface = this.MakeOnScreenGLSurface(grcontext, canvas.width, canvas.height, colorSpace);
         if (!surface) {
-          SkDebug('falling back from GPU implementation to a SW based one');
+          Debug('falling back from GPU implementation to a SW based one');
           // we need to throw away the old canvas (which was locked to
           // a webGL context) and create a new one so we can
           var newCanvas = canvas.cloneNode(true);

@@ -206,13 +206,13 @@ Samples
 
     const canvas = surface.getCanvas();
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
 
-    const textPaint = new CanvasKit.SkPaint();
+    const textPaint = new CanvasKit.Paint();
     textPaint.setColor(CanvasKit.Color(40, 0, 0, 1.0));
     textPaint.setAntiAlias(true);
 
-    const textFont = new CanvasKit.SkFont(null, 30);
+    const textFont = new CanvasKit.Font(null, 30);
 
     let i = 0;
 
@@ -222,7 +222,7 @@ Samples
     function drawFrame() {
       const path = starPath(CanvasKit, X, Y);
       CanvasKit.setCurrentContext(context);
-      const dpe = CanvasKit.SkPathEffect.MakeDash([15, 5, 5, 10], i/5);
+      const dpe = CanvasKit.PathEffect.MakeDash([15, 5, 5, 10], i/5);
       i++;
 
       paint.setPathEffect(dpe);
@@ -268,16 +268,16 @@ Samples
 
     const canvas = surface.getCanvas();
 
-    let paint = new CanvasKit.SkPaint();
+    let paint = new CanvasKit.Paint();
     paint.setAntiAlias(true);
     paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setStrokeWidth(4.0);
     // This effect smooths out the drawn lines a bit.
-    paint.setPathEffect(CanvasKit.SkPathEffect.MakeCorner(50));
+    paint.setPathEffect(CanvasKit.PathEffect.MakeCorner(50));
 
     // Draw I N K
-    let path = new CanvasKit.SkPath();
+    let path = new CanvasKit.Path();
     path.moveTo(80, 30);
     path.lineTo(80, 80);
 
@@ -319,7 +319,7 @@ Samples
         paint = paint.copy();
         paint.setColor(CanvasKit.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255, Math.random() + .2));
         paints.push(paint);
-        path = new CanvasKit.SkPath();
+        path = new CanvasKit.Path();
         paths.push(path);
         path.moveTo(e.offsetX, e.offsetY);
       }
@@ -357,8 +357,8 @@ Samples
 
     const skcanvas = surface.getCanvas();
 
-    const font = new CanvasKit.SkFont(null, 18);
-    const fontPaint = new CanvasKit.SkPaint();
+    const font = new CanvasKit.Font(null, 18);
+    const fontPaint = new CanvasKit.Paint();
     fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
     fontPaint.setAntiAlias(true);
 
@@ -374,7 +374,7 @@ Samples
 
     function drawFrame() {
       if (robotoData && emojiData && !paragraph) {
-        const fontMgr = CanvasKit.SkFontMgr.FromData([robotoData, emojiData]);
+        const fontMgr = CanvasKit.FontMgr.FromData([robotoData, emojiData]);
 
         const paraStyle = new CanvasKit.ParagraphStyle({
           textStyle: {
@@ -430,7 +430,7 @@ Samples
   }
 
   function starPath(CanvasKit, X=128, Y=128, R=116) {
-    let p = new CanvasKit.SkPath();
+    let p = new CanvasKit.Path();
     p.moveTo(X + R, Y);
     for (let i = 1; i < 8; i++) {
       let a = 2.6927937 * i;
@@ -481,7 +481,7 @@ Samples
       throw 'Could not make surface';
     }
     const skcanvas = surface.getCanvas();
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
 
     const prog = `
 uniform float rad_scale;
@@ -504,7 +504,7 @@ half4 main(float2 p) {
     // If there are multiple contexts on the screen, we need to make sure
     // we switch to this one before we draw.
     const context = CanvasKit.currentContext();
-    const fact = CanvasKit.SkRuntimeEffect.Make(prog);
+    const fact = CanvasKit.RuntimeEffect.Make(prog);
     function drawFrame() {
       CanvasKit.setCurrentContext(context);
       skcanvas.clear(CanvasKit.WHITE);
@@ -534,12 +534,12 @@ half4 main(float2 p) {
     const sizeX = document.getElementById('camera3d').width;
     const sizeY = document.getElementById('camera3d').height;
 
-    let clickToWorld = CanvasKit.SkM44.identity();
-    let worldToClick = CanvasKit.SkM44.identity();
+    let clickToWorld = CanvasKit.M44.identity();
+    let worldToClick = CanvasKit.M44.identity();
     // rotation of the cube shown in the demo
-    let rotation = CanvasKit.SkM44.identity();
+    let rotation = CanvasKit.M44.identity();
     // temporary during a click and drag
-    let clickRotation = CanvasKit.SkM44.identity();
+    let clickRotation = CanvasKit.M44.identity();
 
     // A virtual sphere used for tumbling the object on screen.
     const vSphereCenter = [sizeX/2, sizeY/2];
@@ -571,7 +571,7 @@ half4 main(float2 p) {
     let lastRadians = 0;
     let spinning = setInterval(keepSpinning, 30);
 
-    const imgscale = CanvasKit.SkMatrix.scaled(2, 2);
+    const imgscale = CanvasKit.Matrix.scaled(2, 2);
     const textureShader = CanvasKit.MakeImageFromEncoded(textureImgData).makeShader(
       CanvasKit.TileMode.Clamp, CanvasKit.TileMode.Clamp, imgscale);
     const normalShader = CanvasKit.MakeImageFromEncoded(normalImgData).makeShader(
@@ -607,7 +607,7 @@ half4 main(float2 p) {
       }
 `;
 
-    const fact = CanvasKit.SkRuntimeEffect.Make(prog);
+    const fact = CanvasKit.RuntimeEffect.Make(prog);
 
     // properties of light
     let lightLocation = [...vSphereCenter];
@@ -616,14 +616,14 @@ half4 main(float2 p) {
     let draggingLight = false;
 
     function computeLightWorldPos() {
-      return CanvasKit.SkVector.add(CanvasKit.SkVector.mulScalar([...vSphereCenter, 0], 0.5),
-        CanvasKit.SkVector.mulScalar(vSphereUnitV3(lightLocation), lightDistance));
+      return CanvasKit.Vector.add(CanvasKit.Vector.mulScalar([...vSphereCenter, 0], 0.5),
+        CanvasKit.Vector.mulScalar(vSphereUnitV3(lightLocation), lightDistance));
     }
 
     let lightWorldPos = computeLightWorldPos();
 
     function drawLight(canvas) {
-      const paint = new CanvasKit.SkPaint();
+      const paint = new CanvasKit.Paint();
       paint.setAntiAlias(true);
       paint.setColor(CanvasKit.WHITE);
       canvas.drawCircle(...lightLocation, lightIconRadius + 2, paint);
@@ -634,10 +634,10 @@ half4 main(float2 p) {
     // Takes an x and y rotation in radians and a scale and returns a 4x4 matrix used to draw a
     // face of the cube in that orientation.
     function faceM44(rx, ry, scale) {
-      return CanvasKit.SkM44.multiply(
-        CanvasKit.SkM44.rotated([0,1,0], ry),
-        CanvasKit.SkM44.rotated([1,0,0], rx),
-        CanvasKit.SkM44.translated([0, 0, scale]));
+      return CanvasKit.M44.multiply(
+        CanvasKit.M44.rotated([0,1,0], ry),
+        CanvasKit.M44.rotated([1,0,0], rx),
+        CanvasKit.M44.translated([0, 0, scale]));
     }
 
     const faceScale = vSphereRadius/2
@@ -657,9 +657,9 @@ half4 main(float2 p) {
     // that face is currently in front.
     function front(m) {
       // Is this invertible?
-      var m2 = CanvasKit.SkM44.invert(m);
+      var m2 = CanvasKit.M44.invert(m);
       if (m2 === null) {
-        m2 = CanvasKit.SkM44.identity();
+        m2 = CanvasKit.M44.identity();
       }
       // look at the sign of the z-scale of the inverse of m.
       // that's the number in row 2, col 2.
@@ -668,13 +668,13 @@ half4 main(float2 p) {
 
     function setClickToWorld(canvas, matrix) {
       const l2d = canvas.getLocalToDevice();
-      worldToClick = CanvasKit.SkM44.multiply(CanvasKit.SkM44.mustInvert(matrix), l2d);
-      clickToWorld = CanvasKit.SkM44.mustInvert(worldToClick);
+      worldToClick = CanvasKit.M44.multiply(CanvasKit.M44.mustInvert(matrix), l2d);
+      clickToWorld = CanvasKit.M44.mustInvert(worldToClick);
     }
 
     function drawCubeFace(canvas, m, color) {
-      const trans = new CanvasKit.SkM44.translated([vSphereRadius/2, vSphereRadius/2, 0]);
-      canvas.concat(CanvasKit.SkM44.multiply(trans, m, CanvasKit.SkM44.mustInvert(trans)));
+      const trans = new CanvasKit.M44.translated([vSphereRadius/2, vSphereRadius/2, 0]);
+      canvas.concat(CanvasKit.M44.multiply(trans, m, CanvasKit.M44.mustInvert(trans)));
       const znormal = front(canvas.getLocalToDevice());
       if (znormal < 0) {
         return; // skip faces facing backwards
@@ -682,7 +682,7 @@ half4 main(float2 p) {
       // Pad with space for two 4x4 matrices. Even though the shader uses a layout()
       // statement to populate them, we still have to reserve space for them.
       const uniforms = [...lightWorldPos, ...Array(32).fill(0)];
-      const paint = new CanvasKit.SkPaint();
+      const paint = new CanvasKit.Paint();
       paint.setAntiAlias(true);
       const shader = fact.makeShaderWithChildren(uniforms, true /*=opaque*/, children);
       paint.setShader(shader);
@@ -694,7 +694,7 @@ half4 main(float2 p) {
       canvas.save();
       canvas.translate(vSphereCenter[0] - vSphereRadius/2, vSphereCenter[1] - vSphereRadius/2);
       // pass surface dimensions as viewport size.
-      canvas.concat(CanvasKit.SkM44.setupCamera(
+      canvas.concat(CanvasKit.M44.setupCamera(
         CanvasKit.LTRBRect(0, 0, vSphereRadius, vSphereRadius), vSphereRadius/2, cam));
       // Mark the matrix to make it available to the shader by this name.
       canvas.markCTM('local_to_world');
@@ -702,14 +702,14 @@ half4 main(float2 p) {
       for (let f of faces) {
         const saveCount = canvas.getSaveCount();
         canvas.save();
-        drawCubeFace(canvas, CanvasKit.SkM44.multiply(clickRotation, rotation, f.matrix), f.color);
+        drawCubeFace(canvas, CanvasKit.M44.multiply(clickRotation, rotation, f.matrix), f.color);
         canvas.restoreToCount(saveCount);
       }
       canvas.restore();  // camera
       canvas.restore();  // center the following content in the window
 
       // draw virtual sphere outline.
-      const paint = new CanvasKit.SkPaint();
+      const paint = new CanvasKit.Paint();
       paint.setAntiAlias(true);
       paint.setStyle(CanvasKit.PaintStyle.Stroke);
       paint.setColor(CanvasKit.Color(64, 255, 0, 1.0));
@@ -727,12 +727,12 @@ half4 main(float2 p) {
     // of a hemisphere.
     function vSphereUnitV3(p) {
       // v = (v - fCenter) * (1 / fRadius);
-      let v = CanvasKit.SkVector.mulScalar(CanvasKit.SkVector.sub(p, vSphereCenter), 1/vSphereRadius);
+      let v = CanvasKit.Vector.mulScalar(CanvasKit.Vector.sub(p, vSphereCenter), 1/vSphereRadius);
 
       // constrain the clicked point within the circle.
-      let len2 = CanvasKit.SkVector.lengthSquared(v);
+      let len2 = CanvasKit.Vector.lengthSquared(v);
       if (len2 > 1) {
-          v = CanvasKit.SkVector.normalize(v);
+          v = CanvasKit.Vector.normalize(v);
           len2 = 1;
       }
       // the closer to the edge of the circle you are, the closer z is to zero.
@@ -745,14 +745,14 @@ half4 main(float2 p) {
       const u = vSphereUnitV3(start);
       const v = vSphereUnitV3(end);
       // Axis is in the scope of the Camera3D function so it can be used in keepSpinning.
-      axis = CanvasKit.SkVector.cross(u, v);
-      const sinValue = CanvasKit.SkVector.length(axis);
-      const cosValue = CanvasKit.SkVector.dot(u, v);
+      axis = CanvasKit.Vector.cross(u, v);
+      const sinValue = CanvasKit.Vector.length(axis);
+      const cosValue = CanvasKit.Vector.dot(u, v);
 
-      let m = new CanvasKit.SkM44.identity();
+      let m = new CanvasKit.M44.identity();
       if (Math.abs(sinValue) > 0.000000001) {
-          m = CanvasKit.SkM44.rotatedUnitSinCos(
-            CanvasKit.SkVector.mulScalar(axis, 1/sinValue), sinValue, cosValue);
+          m = CanvasKit.M44.rotatedUnitSinCos(
+            CanvasKit.Vector.mulScalar(axis, 1/sinValue), sinValue, cosValue);
           const radians = Math.atan(cosValue / sinValue);
           spinRate = lastRadians - radians;
           lastRadians = radians;
@@ -762,7 +762,7 @@ half4 main(float2 p) {
 
     function keepSpinning() {
       totalSpin += spinRate;
-      clickRotation = CanvasKit.SkM44.rotated(axis, totalSpin);
+      clickRotation = CanvasKit.M44.rotated(axis, totalSpin);
       spinRate *= .998;
       if (spinRate < 0.01) {
         stopSpinning();
@@ -772,8 +772,8 @@ half4 main(float2 p) {
 
     function stopSpinning() {
         clearInterval(spinning);
-        rotation = CanvasKit.SkM44.multiply(clickRotation, rotation);
-        clickRotation = CanvasKit.SkM44.identity();
+        rotation = CanvasKit.M44.multiply(clickRotation, rotation);
+        clickRotation = CanvasKit.M44.identity();
     }
 
     function interact(e) {
@@ -804,7 +804,7 @@ half4 main(float2 p) {
         }
       } else if (type === 'pointerdown') {
         // Are we repositioning the light?
-        if (CanvasKit.SkVector.dist(eventPos, lightLocation) < lightIconRadius) {
+        if (CanvasKit.Vector.dist(eventPos, lightLocation) < lightIconRadius) {
           draggingLight = true;
           return;
         }

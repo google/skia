@@ -55,7 +55,7 @@ function RadialCanvasGradient(x1, y1, r1, x2, y2, r2) {
     // From the spec: "The points in the linear gradient must be transformed
     // as described by the current transformation matrix when rendering."
     var pts = [x1, y1, x2, y2];
-    CanvasKit.SkMatrix.mapPoints(currentTransform, pts);
+    CanvasKit.Matrix.mapPoints(currentTransform, pts);
     var sx1 = pts[0];
     var sy1 = pts[1];
     var sx2 = pts[2];
@@ -69,7 +69,7 @@ function RadialCanvasGradient(x1, y1, r1, x2, y2, r2) {
     var sr2 = r2 * scaleFactor;
 
     this._dispose();
-    this._shader = CanvasKit.SkShader.MakeTwoPointConicalGradient(
+    this._shader = CanvasKit.Shader.MakeTwoPointConicalGradient(
         [sx1, sy1], sr1, [sx2, sy2], sr2, this._colors, this._pos,
         CanvasKit.TileMode.Clamp);
     return this._shader;

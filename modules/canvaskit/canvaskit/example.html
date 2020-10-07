@@ -99,16 +99,16 @@
       return;
     }
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
 
-    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const fontMgr = CanvasKit.FontMgr.RefDefault();
     const roboto = fontMgr.MakeTypefaceFromData(robotoData);
 
-    const textPaint = new CanvasKit.SkPaint();
+    const textPaint = new CanvasKit.Paint();
     textPaint.setColor(CanvasKit.RED);
     textPaint.setAntiAlias(true);
 
-    const textFont = new CanvasKit.SkFont(roboto, 30);
+    const textFont = new CanvasKit.Font(roboto, 30);
 
     let i = 0;
 
@@ -120,7 +120,7 @@
       // Some animations see performance improvements by marking their
       // paths as volatile.
       path.setIsVolatile(true);
-      const dpe = CanvasKit.SkPathEffect.MakeDash([15, 5, 5, 10], i/5);
+      const dpe = CanvasKit.PathEffect.MakeDash([15, 5, 5, 10], i/5);
       i++;
 
       paint.setPathEffect(dpe);
@@ -165,13 +165,13 @@
     }
 
     function drawFrame(canvas) {
-      const paint = new CanvasKit.SkPaint();
+      const paint = new CanvasKit.Paint();
       paint.setStrokeWidth(1.0);
       paint.setAntiAlias(true);
       paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
       paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-      const path = new CanvasKit.SkPath();
+      const path = new CanvasKit.Path();
       path.moveTo(10, 10);
       path.lineTo(100, 10);
       path.moveTo(10, 10);
@@ -197,13 +197,13 @@
     }
 
     function drawFrame(canvas) {
-      const paint = new CanvasKit.SkPaint();
+      const paint = new CanvasKit.Paint();
       paint.setStrokeWidth(1.0);
       paint.setAntiAlias(true);
       paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
       paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-      const path = new CanvasKit.SkPath();
+      const path = new CanvasKit.Path();
       path.moveTo(20, 5);
       path.lineTo(30, 20);
       path.lineTo(40, 10);
@@ -229,7 +229,7 @@
 
       const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
 
-      const rrectPath = new CanvasKit.SkPath().addRRect(rrect, true);
+      const rrectPath = new CanvasKit.Path().addRRect(rrect, true);
 
       canvas.drawPath(rrectPath, paint);
 
@@ -256,15 +256,15 @@
       return;
     }
 
-    let paint = new CanvasKit.SkPaint();
+    let paint = new CanvasKit.Paint();
     paint.setAntiAlias(true);
     paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setStrokeWidth(4.0);
-    paint.setPathEffect(CanvasKit.SkPathEffect.MakeCorner(50));
+    paint.setPathEffect(CanvasKit.PathEffect.MakeCorner(50));
 
     // Draw I N K
-    let path = new CanvasKit.SkPath();
+    let path = new CanvasKit.Path();
     path.moveTo(80, 30);
     path.lineTo(80, 80);
 
@@ -305,7 +305,7 @@
         paint = paint.copy();
         paint.setColor(CanvasKit.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255, Math.random() + .2));
         paints.push(paint);
-        path = new CanvasKit.SkPath();
+        path = new CanvasKit.Path();
         paths.push(path);
         path.moveTo(e.offsetX, e.offsetY);
       }
@@ -320,7 +320,7 @@
   }
 
   function starPath(CanvasKit, X=128, Y=128, R=116) {
-    let p = new CanvasKit.SkPath();
+    let p = new CanvasKit.Path();
     p.moveTo(X + R, Y);
     for (let i = 1; i < 8; i++) {
       let a = 2.6927937 * i;
@@ -864,14 +864,14 @@
       return;
     }
     const canvas = surface.getCanvas();
-    let paint = new CanvasKit.SkPaint();
+    let paint = new CanvasKit.Paint();
 
     // See https://fiddle.skia.org/c/f48b22eaad1bb7adcc3faaa321754af6
     // for original c++ version.
     let points = [[ 0, 0 ], [ 250, 0 ], [ 100, 100 ], [ 0, 250 ]];
     let colors = [CanvasKit.RED, CanvasKit.BLUE,
                   CanvasKit.YELLOW, CanvasKit.CYAN];
-    let vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+    let vertices = CanvasKit.MakeVertices(CanvasKit.VertexMode.TriangleFan,
                                             points, null, colors,
                                             false /*isVolatile*/);
 
@@ -883,10 +883,10 @@
     // for original c++ version.
     points   = [[ 300, 300 ], [ 50, 300 ], [ 200, 200 ], [ 300, 50 ]];
     let texs = [[   0,   0 ], [  0, 250 ], [ 250, 250 ], [ 250,  0 ]];
-    vertices = CanvasKit.MakeSkVertices(CanvasKit.VertexMode.TriangleFan,
+    vertices = CanvasKit.MakeVertices(CanvasKit.VertexMode.TriangleFan,
                                             points, texs, colors);
 
-    let shader = CanvasKit.SkShader.MakeLinearGradient([0, 0], [250, 0],
+    let shader = CanvasKit.Shader.MakeLinearGradient([0, 0], [250, 0],
             colors, null, CanvasKit.TileMode.Clamp);
     paint.setShader(shader);
 
@@ -905,7 +905,7 @@
       return;
     }
     const canvas = surface.getCanvas();
-    let paint = new CanvasKit.SkPaint();
+    let paint = new CanvasKit.Paint();
 
     // See https://fiddle.skia.org/c/f48b22eaad1bb7adcc3faaa321754af6
     // for original c++ version.
@@ -915,12 +915,12 @@
     let transform = [2, 0, 0,
                      0, 2, 0,
                      0, 0, 1]
-    let shader = CanvasKit.SkShader.MakeRadialGradient([150,150], 130, colors,
+    let shader = CanvasKit.Shader.MakeRadialGradient([150,150], 130, colors,
                               pos, CanvasKit.TileMode.Mirror, transform);
 
     paint.setShader(shader);
-    const textFont = new CanvasKit.SkFont(null, 75);
-    const textBlob = CanvasKit.SkTextBlob.MakeFromText('Radial', textFont);
+    const textFont = new CanvasKit.Font(null, 75);
+    const textBlob = CanvasKit.TextBlob.MakeFromText('Radial', textFont);
 
     canvas.drawTextBlob(textBlob, 10, 200, paint);
     paint.delete()
@@ -939,15 +939,15 @@
       return;
     }
     const canvas = surface.getCanvas();
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.BLUE);
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const fontMgr = CanvasKit.FontMgr.RefDefault();
     const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
 
-    const textPaint = new CanvasKit.SkPaint();
-    const textFont = new CanvasKit.SkFont(notoSerif, 20);
+    const textPaint = new CanvasKit.Paint();
+    const textFont = new CanvasKit.Font(notoSerif, 20);
 
     canvas.drawRect(CanvasKit.LTRBRect(30, 30, 200, 200), paint);
     canvas.drawText('This text is not shaped, and overflows the boundry',
@@ -971,7 +971,7 @@
 
     canvas.drawRect(bounds, paint);
     const SHAPE_TEST_TEXT = 'VAVAVAVAVAFIfi';
-    const textFont2 = new CanvasKit.SkFont(notoSerif, 60);
+    const textFont2 = new CanvasKit.Font(notoSerif, 60);
     const shapedText2 = new CanvasKit.ShapedText({
       font: textFont2,
       leftToRight: true,
@@ -1006,16 +1006,16 @@
       console.error('Could not make surface');
       return;
     }
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.BLUE);
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-    const fontMgr = CanvasKit.SkFontMgr.RefDefault();
+    const fontMgr = CanvasKit.FontMgr.RefDefault();
     const notoSerif = fontMgr.MakeTypefaceFromData(notoserifData);
 
-    const textPaint = new CanvasKit.SkPaint();
-    const bigFont = new CanvasKit.SkFont(notoSerif, 40);
-    const smallFont = new CanvasKit.SkFont(notoSerif, 25);
+    const textPaint = new CanvasKit.Paint();
+    const bigFont = new CanvasKit.Font(notoSerif, 40);
+    const smallFont = new CanvasKit.Font(notoSerif, 25);
 
     const TEXT = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris ac leo vitae ipsum hendrerit euismod quis rutrum nibh. Quisque non suscipit urna. Donec enim urna, facilisis vitae volutpat in, mattis at elit. Sed quis augue et dolor dignissim fringilla. Sed non massa eu neque tristique malesuada. ';
 
@@ -1062,22 +1062,22 @@
       return;
     }
     const canvas = surface.getCanvas();
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setAntiAlias(true);
 
-    const font = new CanvasKit.SkFont(null, 24);
-    const fontPaint = new CanvasKit.SkPaint();
+    const font = new CanvasKit.Font(null, 24);
+    const fontPaint = new CanvasKit.Paint();
     fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
     fontPaint.setAntiAlias(true);
 
-    const arc = new CanvasKit.SkPath();
+    const arc = new CanvasKit.Path();
     arc.arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
     arc.lineTo(210, 140);
     arc.arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
 
     const str = 'This téxt should follow the curve across contours...';
-    const textBlob = CanvasKit.SkTextBlob.MakeOnPath(str, arc, font);
+    const textBlob = CanvasKit.TextBlob.MakeOnPath(str, arc, font);
 
     canvas.drawPath(arc, paint);
     canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
@@ -1105,7 +1105,7 @@
       height: 50,
       alphaType: CanvasKit.AlphaType.Premul,
       colorType: CanvasKit.ColorType.RGBA_8888,
-      colorSpace: CanvasKit.SkColorSpace.SRGB,
+      colorSpace: CanvasKit.ColorSpace.SRGB,
     });
 
     if (!subSurface) {
@@ -1114,7 +1114,7 @@
     }
 
     // draw a small "scene"
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.Color(139, 228, 135, 0.95)); // greenish
     paint.setStyle(CanvasKit.PaintStyle.Fill);
     paint.setAntiAlias(true);
@@ -1131,7 +1131,7 @@
       subCanvas.drawOval(CanvasKit.XYWHRect(x, y, 6, 6), paint);
     }
 
-    // Snap it off as an SkImage - this image will be in the form the
+    // Snap it off as an Image - this image will be in the form the
     // parent surface prefers (e.g. Texture for GPU / Raster for CPU).
     const img = subSurface.makeImageSnapshot();
 
@@ -1141,7 +1141,7 @@
 
     // Make it repeat a bunch with a shader
     const pattern = img.makeShader(CanvasKit.TileMode.Repeat, CanvasKit.TileMode.Mirror);
-    const patternPaint = new CanvasKit.SkPaint();
+    const patternPaint = new CanvasKit.Paint();
     patternPaint.setShader(pattern);
 
     let i = 0;
@@ -1170,10 +1170,10 @@
     }
     const img = CanvasKit.MakeImageFromEncoded(imgData);
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.Color(0, 0, 0, 0.8));
 
-    const srcs = new CanvasKit.SkRectBuilder();
+    const srcs = new CanvasKit.RectBuilder();
     srcs.push(0, 0, 250, 250 ); // LTRB
     srcs.push(250, 0, 500, 250 );
 
@@ -1181,7 +1181,7 @@
     dsts.push(.5, 0, 0, 0); // scos, ssin, tx, ty
     dsts.push(0, .8, 200, 100);
 
-    const colors = new CanvasKit.SkColorBuilder();
+    const colors = new CanvasKit.ColorBuilder();
     colors.push(CanvasKit.ColorAsInt(85, 170, 10, 128)); // light green
     colors.push(CanvasKit.ColorAsInt(51, 51, 191, 128)); // light blue
 
@@ -1199,18 +1199,7 @@
       dsts.set(1, scale*Math.sin(i/20), scale*Math.cos(i/20), 200, 100);
 
       canvas.drawAtlas(img, srcs, dsts, paint, CanvasKit.BlendMode.Plus, colors);
-
-      // Skip drawing the 17th frame to the screen, and instead draw it to
-      // an SkPicture - a format which can be useful for debugging.
-      // The C++ version of Skia can open a SKP created by the WASM version,
-      // which can aid performance diagnosis.
-      //if (i === 17) {
-      //   const pic = surface.captureFrameAsSkPicture(drawFrame, "frame17.skp");
-      //   pic.DEBUGONLY_saveAsFile("frame17.skp");
-      //   pic.delete();
-      // } else {
-        surface.requestAnimationFrame(drawFrame);
-       // }
+      surface.requestAnimationFrame(drawFrame);
     }
     surface.requestAnimationFrame(drawFrame);
 

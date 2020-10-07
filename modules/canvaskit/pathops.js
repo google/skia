@@ -1,14 +1,14 @@
-// Adds in the code to use pathops with SkPath
+// Adds in the code to use pathops with Path
 CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
 CanvasKit._extraInitializations.push(function() {
-  CanvasKit.SkPath.prototype.op = function(otherPath, op) {
+  CanvasKit.Path.prototype.op = function(otherPath, op) {
     if (this._op(otherPath, op)) {
       return this;
     }
     return null;
   };
 
-  CanvasKit.SkPath.prototype.simplify = function() {
+  CanvasKit.Path.prototype.simplify = function() {
     if (this._simplify()) {
       return this;
     }

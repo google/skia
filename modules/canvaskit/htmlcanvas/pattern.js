@@ -1,8 +1,8 @@
 function CanvasPattern(image, repetition) {
   this._shader = null;
-  // image should be an SkImage returned from HTMLCanvas.decodeImage()
+  // image should be an Image returned from HTMLCanvas.decodeImage()
   this._image = image;
-  this._transform = CanvasKit.SkMatrix.identity();
+  this._transform = CanvasKit.Matrix.identity();
 
   if (repetition === '') {
     repetition = 'repeat';

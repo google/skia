@@ -1,6 +1,6 @@
 CanvasKit._extraInitializations = CanvasKit._extraInitializations || [];
 CanvasKit._extraInitializations.push(function() {
-  CanvasKit.SkRuntimeEffect.prototype.makeShader = function(floats, isOpaque, localMatrix) {
+  CanvasKit.RuntimeEffect.prototype.makeShader = function(floats, isOpaque, localMatrix) {
     // We don't need to free these floats because they will become owned by the shader.
     var fptr = copy1dArray(floats, "HEAPF32");
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);
@@ -9,8 +9,8 @@ CanvasKit._extraInitializations.push(function() {
     return this._makeShader(fptr, floats.length * 4, !!isOpaque, localMatrixPtr);
   }
 
-  // childrenWithShaders is an array of other shaders (e.g. SkImage.makeShader())
-  CanvasKit.SkRuntimeEffect.prototype.makeShaderWithChildren = function(floats, isOpaque, childrenShaders, localMatrix) {
+  // childrenWithShaders is an array of other shaders (e.g. Image.makeShader())
+  CanvasKit.RuntimeEffect.prototype.makeShaderWithChildren = function(floats, isOpaque, childrenShaders, localMatrix) {
     // We don't need to free these floats because they will become owned by the shader.
     var fptr = copy1dArray(floats, "HEAPF32");
     var localMatrixPtr = copy3x3MatrixToWasm(localMatrix);

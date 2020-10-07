@@ -23,7 +23,7 @@ export interface CanvasKit {
      * @param b - blue value, clamped to [0, 255].
      * @param a - alpha value, from 0 to 1.0. By default is 1.0 (opaque).
      */
-    Color(r: number, g: number, b: number, a?: number): SkColor;
+    Color(r: number, g: number, b: number, a?: number): Color;
 
     /**
      * Construct a 4-float color. Float values are typically between 0.0 and 1.0.
@@ -32,7 +32,7 @@ export interface CanvasKit {
      * @param b - blue value.
      * @param a - alpha value. By default is 1.0 (opaque).
      */
-    Color4f(r: number, g: number, b: number, a?: number): SkColor;
+    Color4f(r: number, g: number, b: number, a?: number): Color;
 
     /**
      * Constructs a Color as a 32 bit unsigned integer, with 8 bits assigned to each channel.
@@ -45,14 +45,14 @@ export interface CanvasKit {
      * @param b - blue value, clamped to [0, 255].
      * @param a - alpha value, from 0 to 1.0. By default is 1.0 (opaque).
      */
-    ColorAsInt(r: number, g: number, b: number, a?: number): SkColorInt;
+    ColorAsInt(r: number, g: number, b: number, a?: number): ColorInt;
 
     /**
      * Returns a css style [r, g, b, a] where r, g, b are returned as
      * ints in the range [0, 255] and where a is scaled between 0 and 1.0.
-     * [Deprecated] - this is trivial now that SkColor is 4 floats.
+     * [Deprecated] - this is trivial now that Color is 4 floats.
      */
-    getColorComponents(c: SkColor): number[];
+    getColorComponents(c: Color): number[];
 
     /**
      * Takes in a CSS color value and returns a CanvasKit.Color
@@ -61,13 +61,13 @@ export interface CanvasKit {
      * In the CanvasKit canvas2d shim layer, we provide this map for processing
      * canvas2d calls, but not here for code size reasons.
      */
-    parseColorString(color: string, colorMap?: object): SkColor;
+    parseColorString(color: string, colorMap?: object): Color;
 
     /**
      * Returns a copy of the passed in color with a new alpha value applied.
-     * [Deprecated] - this is trivial now that SkColor is 4 floats.
+     * [Deprecated] - this is trivial now that Color is 4 floats.
      */
-    multiplyByAlpha(c: SkColor, alpha: number): SkColor;
+    multiplyByAlpha(c: Color, alpha: number): Color;
 
     /**
      * Computes color values for one-pass tonal alpha.
@@ -79,40 +79,40 @@ export interface CanvasKit {
     computeTonalColors(colors: TonalColorsInput): TonalColorsOutput;
 
     /**
-     * Returns a rectangle with the given paramaters. See SkRect.h for more.
+     * Returns a rectangle with the given paramaters. See Rect.h for more.
      * @param left - The x coordinate of the upper-left corner.
      * @param top  - The y coordinate of the upper-left corner.
      * @param right - The x coordinate of the lower-right corner.
      * @param bottom - The y coordinate of the lower-right corner.
      */
-    LTRBRect(left: number, top: number, right: number, bottom: number): SkRect;
+    LTRBRect(left: number, top: number, right: number, bottom: number): Rect;
 
     /**
-     * Returns a rectangle with the given paramaters. See SkRect.h for more.
+     * Returns a rectangle with the given paramaters. See Rect.h for more.
      * @param x - The x coordinate of the upper-left corner.
      * @param y  - The y coordinate of the upper-left corner.
      * @param width - The width of the rectangle.
      * @param height - The height of the rectangle.
      */
-    XYWHRect(x: number, y: number, width: number, height: number): SkRect;
+    XYWHRect(x: number, y: number, width: number, height: number): Rect;
 
     /**
-     * Returns a rectangle with the given integer paramaters. See SkRect.h for more.
+     * Returns a rectangle with the given integer paramaters. See Rect.h for more.
      * @param left - The x coordinate of the upper-left corner.
      * @param top  - The y coordinate of the upper-left corner.
      * @param right - The x coordinate of the lower-right corner.
      * @param bottom - The y coordinate of the lower-right corner.
      */
-    LTRBiRect(left: number, top: number, right: number, bottom: number): SkIRect;
+    LTRBiRect(left: number, top: number, right: number, bottom: number): IRect;
 
     /**
-     * Returns a rectangle with the given paramaters. See SkRect.h for more.
+     * Returns a rectangle with the given paramaters. See Rect.h for more.
      * @param x - The x coordinate of the upper-left corner.
      * @param y  - The y coordinate of the upper-left corner.
      * @param width - The width of the rectangle.
      * @param height - The height of the rectangle.
      */
-    XYWHiRect(x: number, y: number, width: number, height: number): SkIRect;
+    XYWHiRect(x: number, y: number, width: number, height: number): IRect;
 
     /**
      * Returns a rectangle with rounded corners consisting of the given rectangle and
@@ -121,7 +121,7 @@ export interface CanvasKit {
      * @param rx - The radius of the corners in the x direction.
      * @param ry - The radius of the corners in the y direction.
      */
-    RRectXY(rect: InputRect, rx: number, ry: number): SkRRect;
+    RRectXY(rect: InputRect, rx: number, ry: number): RRect;
 
     /**
      * Malloc returns a TypedArray backed by the C++ memory of the
@@ -135,7 +135,7 @@ export interface CanvasKit {
      * Get a TypedArray view around the malloc'd memory (this does not copy anything).
      * const ta = mObj.toTypedArray();
      * // store data into ta
-     * const cf = CanvasKit.SkColorFilter.MakeMatrix(ta); // mObj could also be used.
+     * const cf = CanvasKit.ColorFilter.MakeMatrix(ta); // mObj could also be used.
      *
      * // eventually...
      * CanvasKit.Free(mObj);
@@ -165,13 +165,13 @@ export interface CanvasKit {
      * the CPU mode has been compiled in, a CPU surface will be created.
      * @param canvas - either the canvas element itself or a string with the DOM id of it.
      */
-    MakeCanvasSurface(canvas: HTMLCanvasElement | string): SkSurface | null;
+    MakeCanvasSurface(canvas: HTMLCanvasElement | string): Surface | null;
 
     /**
      * Creates a CPU backed (aka raster) surface.
      * @param canvas - either the canvas element itself or a string with the DOM id of it.
      */
-    MakeSWCanvasSurface(canvas: HTMLCanvasElement | string): SkSurface | null;
+    MakeSWCanvasSurface(canvas: HTMLCanvasElement | string): Surface | null;
 
     /**
      * A helper for creating a WebGL backed (aka GPU) surface and falling back to a CPU surface if
@@ -181,7 +181,7 @@ export interface CanvasKit {
      * @param opts - Options that will get passed to the creation of the WebGL context.
      */
     MakeWebGLCanvasSurface(canvas: HTMLCanvasElement | string, colorSpace?: ColorSpace,
-                           opts?: WebGLOptions): SkSurface | null;
+                           opts?: WebGLOptions): Surface | null;
 
     /**
      * Returns a CPU backed surface with the given dimensions, an SRGB colorspace, Unpremul
@@ -190,7 +190,7 @@ export interface CanvasKit {
      * @param width - number of pixels of the width of the drawable area.
      * @param height - number of pixels of the height of the drawable area.
      */
-    MakeSurface(width: number, height: number): SkSurface | null;
+    MakeSurface(width: number, height: number): Surface | null;
 
     /**
      * Creates a WebGL Context from the given canvas with the given options. If options are omitted,
@@ -214,24 +214,24 @@ export interface CanvasKit {
      * @param colorSpace
      */
     MakeOnScreenGLSurface(ctx: GrContext, width: number, height: number,
-                          colorSpace: ColorSpace): SkSurface | null;
+                          colorSpace: ColorSpace): Surface | null;
 
     /**
-     * Returns a (non-visible) SkSurface on the GPU. It has the given dimensions and uses 8888
-     * color depth and premultiplied alpha. See SkSurface.h for more details.
+     * Returns a (non-visible) Surface on the GPU. It has the given dimensions and uses 8888
+     * color depth and premultiplied alpha. See Surface.h for more details.
      * @param ctx
      * @param width
      * @param height
      */
-    MakeRenderTarget(ctx: GrContext, width: number, height: number): SkSurface | null;
+    MakeRenderTarget(ctx: GrContext, width: number, height: number): Surface | null;
 
     /**
-     * Returns a (non-visible) SkSurface on the GPU. It has the settings provided by image info.
-     * See SkSurface.h for more details.
+     * Returns a (non-visible) Surface on the GPU. It has the settings provided by image info.
+     * See Surface.h for more details.
      * @param ctx
      * @param info
      */
-    MakeRenderTarget(ctx: GrContext, info: SkImageInfo): SkSurface | null;
+    MakeRenderTarget(ctx: GrContext, info: ImageInfo): Surface | null;
 
     /**
      * Returns the current WebGLContext that the wasm code is configured to draw to. It is
@@ -270,7 +270,7 @@ export interface CanvasKit {
      * The passed in bytes will be copied into the WASM heap, so the caller can dispose of them.
      * @param bytes
      */
-    MakeAnimatedImageFromEncoded(bytes: Uint8Array | ArrayBuffer): SkAnimatedImage | null;
+    MakeAnimatedImageFromEncoded(bytes: Uint8Array | ArrayBuffer): AnimatedImage | null;
 
     /**
      * Returns an emulated Canvas2D of the given size.
@@ -280,22 +280,22 @@ export interface CanvasKit {
     MakeCanvas(width: number, height: number): EmulatedCanvas2D;
 
     /**
-     * Return an SkImage backed by the encoded data, but attempt to defer decoding until the image
+     * Return an Image backed by the encoded data, but attempt to defer decoding until the image
      * is actually used/drawn. This deferral allows the system to cache the result, either on the
      * CPU or on the GPU, depending on where the image is drawn.
      * This decoding uses the codecs that have been compiled into CanvasKit. If the bytes are
-     * invalid (or an unrecognized codec), null will be returned. See SkImage.h for more details.
+     * invalid (or an unrecognized codec), null will be returned. See Image.h for more details.
      * @param bytes
      */
-    MakeImageFromEncoded(bytes: Uint8Array | ArrayBuffer): SkImage | null;
+    MakeImageFromEncoded(bytes: Uint8Array | ArrayBuffer): Image | null;
 
     /**
-     * Returns an SkImage with the data from the provided CanvasImageSource (e.g. <img>). This will
+     * Returns an Image with the data from the provided CanvasImageSource (e.g. <img>). This will
      * use the browser's built in codecs, in that src will be drawn to a canvas and then readback
-     * and placed into an SkImage.
+     * and placed into an Image.
      * @param src
      */
-    MakeImageFromCanvasImageSource(src: CanvasImageSource): SkImage;
+    MakeImageFromCanvasImageSource(src: CanvasImageSource): Image;
 
     /**
      * Creates a new path by combining the given paths according to op. If this fails, null will
@@ -304,23 +304,23 @@ export interface CanvasKit {
      * @param two
      * @param op
      */
-    MakePathFromOp(one: SkPath, two: SkPath, op: PathOp): SkPath | null;
+    MakePathFromOp(one: Path, two: Path, op: PathOp): Path | null;
 
     /**
      * Creates a new path from the provided SVG string. If this fails, null will be
      * returned instead.
      * @param str
      */
-    MakePathFromSVGString(str: string): SkPath | null;
+    MakePathFromSVGString(str: string): Path | null;
 
     /**
      * Returns an SkPicture which has been serialized previously to the given bytes.
      * @param bytes
      */
-    MakeSkPicture(bytes: Uint8Array | ArrayBuffer): SkPicture | null;
+    MakePicture(bytes: Uint8Array | ArrayBuffer): SkPicture | null;
 
     /**
-     * Returns an SkVertices based on the given positions and optional parameters.
+     * Returns an Vertices based on the given positions and optional parameters.
      * See SkVertices.h (especially the Builder) for more details.
      * @param mode
      * @param positions
@@ -329,9 +329,9 @@ export interface CanvasKit {
      * @param indices
      * @param isVolatile
      */
-    MakeSkVertices(mode: VertexMode, positions: number[][], textureCoordinates?: number[][] | null,
+    MakeVertices(mode: VertexMode, positions: number[][], textureCoordinates?: number[][] | null,
                    colors?: Float32Array | ColorIntArray | null, indices?: number[] | null,
-                   isVolatile?: boolean): SkVertices;
+                   isVolatile?: boolean): Vertices;
 
     /**
      * Returns a Skottie animation built from the provided json string.
@@ -360,39 +360,39 @@ export interface CanvasKit {
     MakeParticles(json: string, assets?: Record<string, ArrayBuffer>): Particles;
 
     /**
-     * Returns the underlying data from SkData as a Uint8Array.
+     * Returns the underlying data from Data as a Uint8Array.
      * @param data
      */
-    getSkDataBytes(data: SkData): Uint8Array;
+    getDataBytes(data: Data): Uint8Array;
 
     // Constructors, i.e. things made with `new CanvasKit.Foo()`;
     readonly ImageData: ImageDataConstructor;
     readonly ParagraphStyle: ParagraphStyleConstructor;
     readonly ShapedText: ShapedTextConstructor;
-    readonly SkContourMeasureIter: SkContourMeasureIterConstructor;
-    readonly SkFont: SkFontConstructor;
-    readonly SkPaint: DefaultConstructor<SkPaint>;
-    readonly SkPath: SkPathConstructorAndFactory;
-    readonly SkPictureRecorder: DefaultConstructor<SkPictureRecorder>;
+    readonly ContourMeasureIter: ContourMeasureIterConstructor;
+    readonly Font: FontConstructor;
+    readonly Paint: DefaultConstructor<Paint>;
+    readonly Path: PathConstructorAndFactory;
+    readonly PictureRecorder: DefaultConstructor<PictureRecorder>;
     readonly TextStyle: TextStyleConstructor;
 
     // Factories, i.e. things made with CanvasKit.Foo.MakeTurboEncapsulator()
     readonly ParagraphBuilder: ParagraphBuilderFactory;
-    readonly SkColorFilter: SkColorFilterFactory;
-    readonly SkFontMgr: SkFontMgrFactory;
-    readonly SkImageFilter: SkImageFilterFactory;
-    readonly SkMaskFilter: SkMaskFilterFactory;
-    readonly SkPathEffect: SkPathEffectFactory;
-    readonly SkRuntimeEffect: SkRuntimeEffectFactory;
-    readonly SkShader: SkShaderFactory;
-    readonly SkTextBlob: SkTextBlobFactory;
+    readonly ColorFilter: ColorFilterFactory;
+    readonly FontMgr: FontMgrFactory;
+    readonly ImageFilter: ImageFilterFactory;
+    readonly MaskFilter: MaskFilterFactory;
+    readonly PathEffect: PathEffectFactory;
+    readonly RuntimeEffect: RuntimeEffectFactory;
+    readonly Shader: ShaderFactory;
+    readonly TextBlob: TextBlobFactory;
     readonly TypefaceFontProvider: TypefaceFontProviderFactory;
 
     // Misc
-    readonly SkColorMatrix: ColorMatrixHelpers;
-    readonly SkMatrix: Matrix3x3Helpers;
-    readonly SkM44: Matrix4x4Helpers;
-    readonly SkVector: VectorHelpers;
+    readonly ColorMatrix: ColorMatrixHelpers;
+    readonly Matrix: Matrix3x3Helpers;
+    readonly M44: Matrix4x4Helpers;
+    readonly Vector: VectorHelpers;
 
     // Core Enums
     readonly AlphaType: AlphaTypeEnumValues;
@@ -408,22 +408,22 @@ export interface CanvasKit {
     readonly PaintStyle: PaintStyleEnumValues;
     readonly PathOp: PathOpEnumValues;
     readonly PointMode: PointModeEnumValues;
-    readonly SkColorSpace: ColorSpaceEnumValues;
+    readonly ColorSpace: ColorSpaceEnumValues;
     readonly StrokeCap: StrokeCapEnumValues;
     readonly StrokeJoin: StrokeJoinEnumValues;
     readonly TileMode: TileModeEnumValues;
     readonly VertexMode: VertexModeEnumValues;
 
     // Core Constants
-    readonly TRANSPARENT: SkColor;
-    readonly BLACK: SkColor;
-    readonly WHITE: SkColor;
-    readonly RED: SkColor;
-    readonly GREEN: SkColor;
-    readonly BLUE: SkColor;
-    readonly YELLOW: SkColor;
-    readonly CYAN: SkColor;
-    readonly MAGENTA: SkColor;
+    readonly TRANSPARENT: Color;
+    readonly BLACK: Color;
+    readonly WHITE: Color;
+    readonly RED: Color;
+    readonly GREEN: Color;
+    readonly BLUE: Color;
+    readonly YELLOW: Color;
+    readonly CYAN: Color;
+    readonly MAGENTA: Color;
 
     readonly MOVE_VERB: number;
     readonly LINE_VERB: number;
@@ -516,7 +516,7 @@ export interface EmulatedCanvas2D {
      * Decodes an image with the given bytes.
      * @param bytes
      */
-    decodeImage(bytes: ArrayBuffer | Uint8Array): SkImage;
+    decodeImage(bytes: ArrayBuffer | Uint8Array): Image;
 
     /**
      * Returns an emulated canvas2d context if type == '2d', null otherwise.
@@ -668,7 +668,7 @@ export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
 
     /**
      * Returns a Paragraph object that can be used to be layout and paint the text to an
-     * SkCanvas.
+     * Canvas.
      */
     build(): Paragraph;
 
@@ -691,7 +691,7 @@ export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
      * @param fg
      * @param bg
      */
-    pushPaintStyle(textStyle: TextStyle, fg: SkPaint, bg: SkPaint): void;
+    pushPaintStyle(textStyle: TextStyle, fg: Paint, bg: Paint): void;
 }
 
 export interface ParagraphStyle {
@@ -718,7 +718,7 @@ export interface Particles extends EmbindObject<Particles> {
      * Draws the current state of the particles on the given canvas.
      * @param canvas
      */
-    draw(canvas: SkCanvas): void;
+    draw(canvas: Canvas): void;
 
     /**
      * Returns a Float32Array bound to the WASM memory of these uniforms. Changing these
@@ -780,7 +780,7 @@ export interface Particles extends EmbindObject<Particles> {
      * Sets the base position of the effect.
      * @param point
      */
-    setPosition(point: SkPoint): void;
+    setPosition(point: Point): void;
 
     /**
      * Sets the base rate of the effect.
@@ -810,7 +810,7 @@ export interface ParticlesUniform {
 }
 
 /**
- * A simple wrapper around SkTextBlob and the simple Text Shaper.
+ * A simple wrapper around TextBlob and the simple Text Shaper.
  */
 export interface ShapedText extends EmbindObject<ShapedText> {
     /**
@@ -818,12 +818,12 @@ export interface ShapedText extends EmbindObject<ShapedText> {
      * @param outputArray - if provided, the bounding box will be copied into this array instead of
      *                      allocating a new one.
      */
-    getBounds(outputArray?: SkRect): SkRect;
+    getBounds(outputArray?: Rect): Rect;
 }
 
 export interface ShapedTextOpts {
     text: string;
-    font: SkFont;
+    font: Font;
     leftToRight: boolean;
     width: number;
 }
@@ -831,7 +831,7 @@ export interface ShapedTextOpts {
 /**
  * See SkAnimatedImage.h for more information on this class.
  */
-export interface SkAnimatedImage extends EmbindObject<SkAnimatedImage> {
+export interface AnimatedImage extends EmbindObject<AnimatedImage> {
     /**
      * Decodes the next frame. Returns -1 when the animation is on the last frame.
      */
@@ -855,7 +855,7 @@ export interface SkAnimatedImage extends EmbindObject<SkAnimatedImage> {
     /**
      * Returns a still image of the current frame or null if there is no current frame.
      */
-    makeImageAtCurrentFrame(): SkImage | null;
+    makeImageAtCurrentFrame(): Image | null;
 
     /**
      * Reset the animation to the beginning.
@@ -871,7 +871,7 @@ export interface SkAnimatedImage extends EmbindObject<SkAnimatedImage> {
 /**
  * See SkCanvas.h for more information on this class.
  */
-export interface SkCanvas extends EmbindObject<SkCanvas> {
+export interface Canvas extends EmbindObject<Canvas> {
     /**
      * Fills the current clip with the given color using Src BlendMode.
      * This has the effect of replacing all pixels contained by clip with color.
@@ -886,7 +886,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param op
      * @param doAntiAlias
      */
-    clipPath(path: SkPath, op: ClipOp, doAntiAlias: boolean): void;
+    clipPath(path: Path, op: ClipOp, doAntiAlias: boolean): void;
 
     /**
      * Replaces clip with the intersection or difference of the current clip and rect,
@@ -913,7 +913,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
     concat(m: InputMatrix): void;
 
     /**
-     * Draws arc using clip, SkMatrix, and SkPaint paint.
+     * Draws arc using clip, Matrix, and Paint paint.
      *
      * Arc is part of oval bounded by oval, sweeping from startAngle to startAngle plus
      * sweepAngle. startAngle and sweepAngle are in degrees.
@@ -924,19 +924,19 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param paint
      */
     drawArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees,
-            useCenter: boolean, paint: SkPaint): void;
+            useCenter: boolean, paint: Paint): void;
 
     /**
-     * Draws a set of sprites from atlas, using clip, SkMatrix, and optional SkPaint paint.
-     * @param atlas - SkImage containing sprites
-     * @param srcRects - SkRect locations of sprites in atlas
-     * @param dstXforms - SkRSXform mappings for sprites in atlas
+     * Draws a set of sprites from atlas, using clip, Matrix, and optional Paint paint.
+     * @param atlas - Image containing sprites
+     * @param srcRects - Rect locations of sprites in atlas
+     * @param dstXforms - RSXform mappings for sprites in atlas
      * @param paint
      * @param blendMode - BlendMode combining colors and sprites
      * @param colors - If provided, will be blended with sprite using blendMode.
      */
-    drawAtlas(atlas: SkImage, srcRects: InputFlattenedRectangleArray,
-              dstXforms: InputFlattenedRSXFormArray, paint: SkPaint,
+    drawAtlas(atlas: Image, srcRects: InputFlattenedRectangleArray,
+              dstXforms: InputFlattenedRSXFormArray, paint: Paint,
               blendMode?: BlendMode, colors?: ColorIntArray): void;
 
     /**
@@ -946,7 +946,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param radius
      * @param paint
      */
-    drawCircle(cx: number, cy: number, radius: number, paint: SkPaint): void;
+    drawCircle(cx: number, cy: number, radius: number, paint: Paint): void;
 
     /**
      * Fills clip with the given color.
@@ -970,16 +970,16 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param color
      * @param blendMode - defaults to SrcOver.
      */
-    drawColorInt(color: SkColorInt, blendMode?: BlendMode): void;
+    drawColorInt(color: ColorInt, blendMode?: BlendMode): void;
 
     /**
-     * Draws SkRRect outer and inner using clip, SkMatrix, and SkPaint paint.
+     * Draws RRect outer and inner using clip, Matrix, and Paint paint.
      * outer must contain inner or the drawing is undefined.
      * @param outer
      * @param inner
      * @param paint
      */
-    drawDRRect(outer: InputRRect, inner: InputRRect, paint: SkPaint): void;
+    drawDRRect(outer: InputRRect, inner: InputRRect, paint: Paint): void;
 
     /**
      * Draws the given image with its top-left corner at (left, top) using the current clip,
@@ -989,7 +989,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param top
      * @param paint
      */
-    drawImage(img: SkImage, left: number, top: number, paint?: SkPaint): void;
+    drawImage(img: Image, left: number, top: number, paint?: Paint): void;
 
     /**
      * Draws the current frame of the given animated image with its top-left corner at
@@ -999,8 +999,8 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param top
      * @param paint
      */
-    drawImageAtCurrentFrame(aImg: SkAnimatedImage, left: number, top: number,
-                            paint?: SkPaint): void;
+    drawImageAtCurrentFrame(aImg: AnimatedImage, left: number, top: number,
+                            paint?: Paint): void;
 
     /**
      *  Draws the provided image stretched proportionally to fit into dst rectangle.
@@ -1011,7 +1011,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param dest
      * @param paint
      */
-    drawImageNine(img: SkImage, center: InputIRect, dest: InputRect, paint: SkPaint): void;
+    drawImageNine(img: Image, center: InputIRect, dest: InputRect, paint: Paint): void;
 
     /**
      * Draws sub-rectangle src from provided image, scaled and translated to fill dst rectangle.
@@ -1021,7 +1021,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param paint
      * @param fastSample - if false, will filter strictly within src.
      */
-    drawImageRect(img: SkImage, src: InputRect, dest: InputRect, paint: SkPaint,
+    drawImageRect(img: Image, src: InputRect, dest: InputRect, paint: Paint,
                   fastSample?: boolean): void;
 
     /**
@@ -1033,7 +1033,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param y1
      * @param paint
      */
-    drawLine(x0: number, y0: number, x1: number, y1: number, paint: SkPaint): void;
+    drawLine(x0: number, y0: number, x1: number, y1: number, paint: Paint): void;
 
     /**
      * Draws an oval bounded by the given rectangle using the current clip, current matrix,
@@ -1041,13 +1041,13 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param oval
      * @param paint
      */
-    drawOval(oval: InputRect, paint: SkPaint): void;
+    drawOval(oval: InputRect, paint: Paint): void;
 
     /**
      * Fills clip with the given paint.
      * @param paint
      */
-    drawPaint(paint: SkPaint): void;
+    drawPaint(paint: Paint): void;
 
     /**
      * Draws the given Paragraph at the provided coordinates.
@@ -1063,7 +1063,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param path
      * @param paint
      */
-    drawPath(path: SkPath, paint: SkPaint): void;
+    drawPath(path: Path, paint: Paint): void;
 
     /**
      * Draws the given picture using the current clip, current matrix, and the provided paint.
@@ -1074,19 +1074,19 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
     /**
      * Draws the given points using the current clip, current matrix, and the provided paint.
      *
-     * See SkCanvas.h for more on the mode and its interaction with paint.
+     * See Canvas.h for more on the mode and its interaction with paint.
      * @param mode
      * @param points
      * @param paint
      */
-    drawPoints(mode: PointMode, points: InputFlattenedPointArray, paint: SkPaint): void;
+    drawPoints(mode: PointMode, points: InputFlattenedPointArray, paint: Paint): void;
 
     /**
      * Draws the given rectangle using the current clip, current matrix, and the provided paint.
      * @param rect
      * @param paint
      */
-    drawRect(rect: InputRect, paint: SkPaint): void;
+    drawRect(rect: InputRect, paint: Paint): void;
 
     /**
      * Draws the given rectangle using the current clip, current matrix, and the provided paint.
@@ -1096,7 +1096,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param bottom
      * @param paint
      */
-    drawRect4f(left: number, top: number, right: number, bottom: number, paint: SkPaint): void;
+    drawRect4f(left: number, top: number, right: number, bottom: number, paint: Paint): void;
 
     /**
      * Draws the given rectangle with rounded corners using the current clip, current matrix,
@@ -1104,7 +1104,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param rrect
      * @param paint
      */
-    drawRRect(rrect: InputRRect, paint: SkPaint): void;
+    drawRRect(rrect: InputRRect, paint: Paint): void;
 
     /**
      * Draw an offset spot shadow and outlining ambient shadow for the given path using a disc
@@ -1120,7 +1120,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param spotColor -  The color of the spot shadow.
      * @param flags - See SkShadowFlags.h; 0 means use default options.
      */
-    drawShadow(path: SkPath, zPlaneParams: Vector3, lightPos: Vector3, lightRadius: number,
+    drawShadow(path: Path, zPlaneParams: Vector3, lightPos: Vector3, lightRadius: number,
                ambientColor: InputColor, spotColor: InputColor, flags: number): void;
 
     /**
@@ -1132,7 +1132,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param paint
      * @param font
      */
-    drawText(str: string | ShapedText, x: number, y: number, paint: SkPaint, font: SkFont): void;
+    drawText(str: string | ShapedText, x: number, y: number, paint: Paint, font: Font): void;
 
     /**
      * Draws the given TextBlob at (x, y) using the current clip, current matrix, and the
@@ -1142,20 +1142,20 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
      * @param y
      * @param paint
      */
-    drawTextBlob(blob: SkTextBlob, x: number, y: number, paint: SkPaint): void;
+    drawTextBlob(blob: TextBlob, x: number, y: number, paint: Paint): void;
 
     /**
      * Draws the given vertices (a triangle mesh) using the current clip, current matrix, and the
      * provided paint.
-     *  If paint contains an SkShader and vertices does not contain texCoords, the shader
+     *  If paint contains an Shader and vertices does not contain texCoords, the shader
      *  is mapped using the vertices' positions.
-     *  If vertices colors are defined in vertices, and SkPaint paint contains SkShader,
-     *  SkBlendMode mode combines vertices colors with SkShader.
+     *  If vertices colors are defined in vertices, and Paint paint contains Shader,
+     *  BlendMode mode combines vertices colors with Shader.
      * @param verts
      * @param mode
      * @param paint
      */
-    drawVertices(verts: SkVertices, mode: BlendMode, paint: SkPaint): void;
+    drawVertices(verts: Vertices, mode: BlendMode, paint: Paint): void;
 
     /**
      * Returns the 4x4 matrix matching the given marker or null if there was none.
@@ -1171,7 +1171,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
     getLocalToDevice(): Matrix4x4;
 
     /**
-     * Returns the number of saved states, each containing: SkMatrix and clip.
+     * Returns the number of saved states, each containing: Matrix and clip.
      * Equals the number of save() calls less the number of restore() calls plus one.
      * The save count of a new canvas is one.
      */
@@ -1184,11 +1184,11 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
     getTotalMatrix(): number[];
 
     /**
-     * Creates SkSurface matching info and props, and associates it with SkCanvas.
+     * Creates Surface matching info and props, and associates it with Canvas.
      * Returns null if no match found.
      * @param info
      */
-    makeSurface(info: SkImageInfo): SkSurface | null;
+    makeSurface(info: ImageInfo): Surface | null;
 
     /**
      * Record a marker (provided by caller) for the current CTM. This does not change anything
@@ -1215,7 +1215,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
                colorType?: ColorType, colorSpace?: ColorSpace, dstRowBytes?: number): Uint8Array;
 
     /**
-     * Removes changes to the current matrix and clip since SkCanvas state was
+     * Removes changes to the current matrix and clip since Canvas state was
      * last saved. The state is removed from the stack.
      * Does nothing if the stack is empty.
      */
@@ -1241,16 +1241,16 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
     save(): number;
 
     /**
-     * Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
-     * Calling restore() discards changes to SkMatrix and clip, and draws the SkBitmap.
+     * Saves Matrix and clip, and allocates a SkBitmap for subsequent drawing.
+     * Calling restore() discards changes to Matrix and clip, and draws the SkBitmap.
      * It returns the height of the stack.
-     * See SkCanvas.h for more.
+     * See Canvas.h for more.
      * @param paint
      * @param bounds
      * @param backdrop
      * @param flags
      */
-    saveLayer(paint?: SkPaint, bounds?: InputRect | null, backdrop?: SkImageFilter | null,
+    saveLayer(paint?: Paint, bounds?: InputRect | null, backdrop?: ImageFilter | null,
               flags?: SaveLayerFlag): number;
 
     /**
@@ -1261,7 +1261,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
     scale(sx: number, sy: number): void;
 
     /**
-     *  Skews SkMatrix by sx on the x-axis and sy on the y-axis. A positive value of sx
+     *  Skews Matrix by sx on the x-axis and sy on the y-axis. A positive value of sx
      *  skews the drawing right as y-axis values increase; a positive value of sy skews
      *  the drawing down as x-axis values increase.
      * @param sx
@@ -1270,7 +1270,7 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
     skew(sx: number, sy: number): void;
 
     /**
-     * Translates SkMatrix by dx along the x-axis and dy along the y-axis.
+     * Translates Matrix by dx along the x-axis and dy along the y-axis.
      * @param dx
      * @param dy
      */
@@ -1296,19 +1296,19 @@ export interface SkCanvas extends EmbindObject<SkCanvas> {
 /**
  * See SkColorFilter.h for more on this class. The objects are opaque.
  */
-export type SkColorFilter = EmbindObject<SkColorFilter>;
+export type ColorFilter = EmbindObject<ColorFilter>;
 
-export interface SkContourMeasureIter extends EmbindObject<SkContourMeasureIter> {
+export interface ContourMeasureIter extends EmbindObject<ContourMeasureIter> {
     /**
      *  Iterates through contours in path, returning a contour-measure object for each contour
      *  in the path. Returns null when it is done.
      *
      *  See SkContourMeasure.h for more details.
      */
-    next(): SkContourMeasure | null;
+    next(): ContourMeasure | null;
 }
 
-export interface SkContourMeasure extends EmbindObject<SkContourMeasure> {
+export interface ContourMeasure extends EmbindObject<ContourMeasure> {
     /**
      * Returns the given position and tangent line for the distance on the given contour.
      * @param distance - will be pinned between 0 and length().
@@ -1316,12 +1316,12 @@ export interface SkContourMeasure extends EmbindObject<SkContourMeasure> {
     getPosTan(distance: number): PosTan;
 
     /**
-     * Returns an SkPath representing the segement of this contour.
+     * Returns an Path representing the segement of this contour.
      * @param startD - will be pinned between 0 and length()
      * @param stopD - will be pinned between 0 and length()
      * @param startWithMoveTo
      */
-    getSegment(startD: number, stopD: number, startWithMoveTo: boolean): SkPath;
+    getSegment(startD: number, stopD: number, startWithMoveTo: boolean): Path;
 
     /**
      * Returns true if the contour is closed.
@@ -1335,9 +1335,9 @@ export interface SkContourMeasure extends EmbindObject<SkContourMeasure> {
 }
 
 /**
- * Represents a blob of memory. See SkData.h for more on this class.
+ * Represents a blob of memory. See Data.h for more on this class.
  */
-export interface SkData extends EmbindObject<SkData> {
+export interface Data extends EmbindObject<Data> {
     /**
      * Return the number of bytes in this container.
      */
@@ -1347,17 +1347,17 @@ export interface SkData extends EmbindObject<SkData> {
 /**
  * See SkFont.h for more on this class.
  */
-export interface SkFont extends EmbindObject<SkFont> {
+export interface Font extends EmbindObject<Font> {
     /**
      * Retrieves the bounds for each glyph in glyphs.
-     * If paint is not null, its stroking, SkPathEffect, and SkMaskFilter fields are respected.
+     * If paint is not null, its stroking, PathEffect, and MaskFilter fields are respected.
      * These are returned as flattened rectangles.  For each glyph, there will be 4 floats for
      * left, top, right, bottom (relative to 0, 0) for that glyph.
      * @param glyphs
      * @param paint
      * @param output - if provided, the results will be copied into this array.
      */
-    getGlyphBounds(glyphs: InputGlyphIDArray, paint?: SkPaint | null,
+    getGlyphBounds(glyphs: InputGlyphIDArray, paint?: Paint | null,
                    output?: Float32Array): Float32Array;
 
     /**
@@ -1372,13 +1372,13 @@ export interface SkFont extends EmbindObject<SkFont> {
 
     /**
      * Retrieves the advanceX measurements for each glyph.
-     * If paint is not null, its stroking, SkPathEffect, and SkMaskFilter fields are respected.
+     * If paint is not null, its stroking, PathEffect, and MaskFilter fields are respected.
      * One width per glyph is returned in the returned array.
      * @param glyphs
      * @param paint
      * @param output - if provided, the results will be copied into this array.
      */
-    getGlyphWidths(glyphs: InputGlyphIDArray, paint?: SkPaint | null,
+    getGlyphWidths(glyphs: InputGlyphIDArray, paint?: Paint | null,
                    output?: Float32Array): Float32Array;
 
     /**
@@ -1397,9 +1397,9 @@ export interface SkFont extends EmbindObject<SkFont> {
     getSkewX(): number;
 
     /**
-     * Returns the SkTypeface set for this font.
+     * Returns the Typeface set for this font.
      */
-    getTypeface(): SkTypeface | null;
+    getTypeface(): Typeface | null;
 
     /**
      * Retrieves the advanceX measurements for each code point in str.
@@ -1472,13 +1472,13 @@ export interface SkFont extends EmbindObject<SkFont> {
      * default one.
      * @param face
      */
-    setTypeface(face: SkTypeface | null): void;
+    setTypeface(face: Typeface | null): void;
 }
 
 /**
  * See SkFontMgr.h for more details
  */
-export interface SkFontMgr extends EmbindObject<SkFontMgr> {
+export interface FontMgr extends EmbindObject<FontMgr> {
     /**
      * Return the number of font families loaded in this manager. Useful for debugging.
      */
@@ -1494,17 +1494,17 @@ export interface SkFontMgr extends EmbindObject<SkFontMgr> {
      * Create a typeface for the specified bytes and return it.
      * @param fontData
      */
-    makeTypefaceFromData(fontData: ArrayBuffer): SkTypeface;
+    makeTypefaceFromData(fontData: ArrayBuffer): Typeface;
 }
 
 /**
  * See SkImage.h for more information on this class.
  */
-export interface SkImage extends EmbindObject<SkImage> {
+export interface Image extends EmbindObject<Image> {
     /**
      * Encodes this image's pixels to PNG and returns them. Must be built with the PNG codec.
      */
-    encodeToData(): SkData;
+    encodeToData(): Data;
 
     /**
      * Encodes this image's pixels to the specified format and returns them. Must be built with
@@ -1512,7 +1512,7 @@ export interface SkImage extends EmbindObject<SkImage> {
      * @param fmt
      * @param quality - a value from 0 to 100; 100 is the least lossy. May be ignored.
      */
-    encodeToDataWithFormat(fmt: EncodedImageFormat, quality: number): SkData;
+    encodeToDataWithFormat(fmt: EncodedImageFormat, quality: number): Data;
 
     /**
      * Return the height in pixels of the image.
@@ -1525,18 +1525,18 @@ export interface SkImage extends EmbindObject<SkImage> {
      * @param ty - tile mode in the y direction.
      * @param localMatrix
      */
-    makeShader(tx: TileMode, ty: TileMode, localMatrix?: InputMatrix): SkShader;
+    makeShader(tx: TileMode, ty: TileMode, localMatrix?: InputMatrix): Shader;
 
     /**
      * Returns a TypedArray containing the pixels reading starting at (srcX, srcY) and does not
-     * exceed the size indicated by imageInfo. See SkImage.h for more on the caveats.
+     * exceed the size indicated by imageInfo. See Image.h for more on the caveats.
      *
      * @param imageInfo - describes the destination format of the pixels.
      * @param srcX
      * @param srcY
      * @returns a Uint8Array if RGB_8888 was requested, Float32Array if RGBA_F32 was requested.
      */
-    readPixels(imageInfo: SkImageInfo, srcX: number, srcY: number): Uint8Array | Float32Array | null;
+    readPixels(imageInfo: ImageInfo, srcX: number, srcY: number): Uint8Array | Float32Array | null;
 
     /**
      * Return the width in pixels of the image.
@@ -1545,11 +1545,11 @@ export interface SkImage extends EmbindObject<SkImage> {
 }
 
 /**
- * See SkImageFilter.h for more on this class. The objects are opaque.
+ * See ImageFilter.h for more on this class. The objects are opaque.
  */
-export type SkImageFilter = EmbindObject<SkImageFilter>;
+export type ImageFilter = EmbindObject<ImageFilter>;
 
-export interface SkImageInfo {
+export interface ImageInfo {
     alphaType: AlphaType;
     colorSpace: ColorSpace;
     colorType: ColorType;
@@ -1560,16 +1560,16 @@ export interface SkImageInfo {
 /**
  * See SkMaskFilter.h for more on this class. The objects are opaque.
  */
-export type SkMaskFilter = EmbindObject<SkMaskFilter>;
+export type MaskFilter = EmbindObject<MaskFilter>;
 
 /**
  * See SkPaint.h for more information on this class.
  */
-export interface SkPaint extends EmbindObject<SkPaint> {
+export interface Paint extends EmbindObject<Paint> {
     /**
      * Returns a copy of this paint.
      */
-    copy(): SkPaint;
+    copy(): Paint;
 
     /**
      * Returns the blend mode, that is, the mode used to combine source color
@@ -1581,7 +1581,7 @@ export interface SkPaint extends EmbindObject<SkPaint> {
      * Retrieves the alpha and RGB unpremultiplied. RGB are extended sRGB values
      * (sRGB gamut, and encoded with the sRGB transfer function).
      */
-    getColor(): SkColor;
+    getColor(): Color;
 
     /**
      * Returns the image filtering level.
@@ -1654,7 +1654,7 @@ export interface SkPaint extends EmbindObject<SkPaint> {
      * Sets the current color filter, replacing the existing one if there was one.
      * @param filter
      */
-    setColorFilter(filter: SkColorFilter): void;
+    setColorFilter(filter: ColorFilter): void;
 
     /**
      * Sets the color used when stroking and filling. The color values are interpreted as being in
@@ -1662,7 +1662,7 @@ export interface SkPaint extends EmbindObject<SkPaint> {
      * @param color
      * @param colorSpace - defaults to sRGB.
      */
-    setColorInt(color: SkColorInt, colorSpace?: ColorSpace): void;
+    setColorInt(color: ColorInt, colorSpace?: ColorSpace): void;
 
     /**
      * Sets the image filtering level.
@@ -1675,25 +1675,25 @@ export interface SkPaint extends EmbindObject<SkPaint> {
      * Sets the current image filter, replacing the existing one if there was one.
      * @param filter
      */
-    setImageFilter(filter: SkImageFilter): void;
+    setImageFilter(filter: ImageFilter): void;
 
     /**
      * Sets the current mask filter, replacing the existing one if there was one.
      * @param filter
      */
-    setMaskFilter(filter: SkMaskFilter): void;
+    setMaskFilter(filter: MaskFilter): void;
 
     /**
      * Sets the current path effect, replacing the existing one if there was one.
      * @param effect
      */
-    setPathEffect(effect: SkPathEffect): void;
+    setPathEffect(effect: PathEffect): void;
 
     /**
      * Sets the current shader, replacing the existing one if there was one.
      * @param shader
      */
-    setShader(shader: SkShader): void;
+    setShader(shader: Shader): void;
 
     /**
      * Sets the geometry drawn at the beginning and end of strokes.
@@ -1729,9 +1729,9 @@ export interface SkPaint extends EmbindObject<SkPaint> {
 /**
  * See SkPath.h for more information on this class.
  */
-export interface SkPath extends EmbindObject<SkPath> {
+export interface Path extends EmbindObject<Path> {
     /**
-     * Appends arc to SkPath, as the start of new contour. Arc added is part of ellipse
+     * Appends arc to Path, as the start of new contour. Arc added is part of ellipse
      * bounded by oval, from startAngle through sweepAngle. Both startAngle and
      * sweepAngle are measured in degrees, where zero degrees is aligned with the
      * positive x-axis, and positive sweeps extends arc clockwise.
@@ -1740,18 +1740,18 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param startAngle
      * @param sweepAngle
      */
-    addArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees): SkPath;
+    addArc(oval: InputRect, startAngle: AngleInDegrees, sweepAngle: AngleInDegrees): Path;
 
     /**
-     * Adds oval to SkPath, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
-     * Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
+     * Adds oval to Path, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
+     * Oval is upright ellipse bounded by Rect oval with radii equal to half oval width
      * and half oval height. Oval begins at start and continues clockwise by default.
      * Returns the modified path for easier chaining.
      * @param oval
      * @param isCCW - if the path should be drawn counter-clockwise or not
      * @param startIndex - index of initial point of ellipse
      */
-    addOval(oval: InputRect, isCCW?: boolean, startIndex?: number): SkPath;
+    addOval(oval: InputRect, isCCW?: boolean, startIndex?: number): Path;
 
     /**
      * Takes 1, 2, 7, or 10 required args, where the first arg is always the path.
@@ -1763,38 +1763,38 @@ export interface SkPath extends EmbindObject<SkPath> {
      * Returns the modified path for easier chaining (or null if params were incorrect).
      * @param args
      */
-    addPath(...args: any[]): SkPath | null;
+    addPath(...args: any[]): Path | null;
 
     /**
      * Adds contour created from array of n points, adding (count - 1) line segments.
      * Contour added starts at pts[0], then adds a line for every additional point
-     * in pts array. If close is true, appends kClose_Verb to SkPath, connecting
+     * in pts array. If close is true, appends kClose_Verb to Path, connecting
      * pts[count - 1] and pts[0].
      * Returns the modified path for easier chaining.
      * @param points - either an array of 2-arrays representing points or a malloc'd object of
      *                 length n to represent 2*n points. Even indices are x, odd are y.
      * @param close - should add a line connecting last point to the first point.
      */
-    addPoly(points: MallocObj | number[][], close: boolean): SkPath;
+    addPoly(points: MallocObj | number[][], close: boolean): Path;
 
     /**
-     * Adds SkRect to SkPath, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
-     * starting with top-left corner of SkRect; followed by top-right, bottom-right,
+     * Adds Rect to Path, appending kMove_Verb, three kLine_Verb, and kClose_Verb,
+     * starting with top-left corner of Rect; followed by top-right, bottom-right,
      * and bottom-left if isCCW is false; or followed by bottom-left,
      * bottom-right, and top-right if isCCW is true.
      * Returns the modified path for easier chaining.
      * @param rect
      * @param isCCW
      */
-    addRect(rect: InputRect, isCCW?: boolean): SkPath;
+    addRect(rect: InputRect, isCCW?: boolean): Path;
 
     /**
-     * Adds rrect to SkPath, creating a new closed contour.
+     * Adds rrect to Path, creating a new closed contour.
      * Returns the modified path for easier chaining.
      * @param rrect
      * @param isCCW
      */
-    addRRect(rrect: InputRRect, isCCW?: boolean): SkPath;
+    addRRect(rrect: InputRRect, isCCW?: boolean): Path;
 
     /**
      * Adds the given verbs and associated points/weights to the path. The process
@@ -1807,7 +1807,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param weights - used if any of the verbs are conics, can be omitted otherwise.
      */
     addVerbsPointsWeights(verbs: VerbList, points: InputFlattenedPointArray,
-                          weights?: WeightList): SkPath;
+                          weights?: WeightList): Path;
 
     /**
      * Adds an arc to this path, emulating the Canvas2D behavior.
@@ -1820,10 +1820,10 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param isCCW
      */
     arc(x: number, y: number, radius: number, startAngle: AngleInRadians, endAngle: AngleInRadians,
-        isCCW?: boolean): SkPath;
+        isCCW?: boolean): Path;
 
     /**
-     * Appends arc to SkPath. Arc added is part of ellipse
+     * Appends arc to Path. Arc added is part of ellipse
      * bounded by oval, from startAngle through sweepAngle. Both startAngle and
      * sweepAngle are measured in degrees, where zero degrees is aligned with the
      * positive x-axis, and positive sweeps extends arc clockwise.
@@ -1834,12 +1834,12 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param forceMoveTo
      */
     arcToOval(oval: InputRect, startAngle: AngleInDegrees, endAngle: AngleInDegrees,
-              forceMoveTo: boolean): SkPath;
+              forceMoveTo: boolean): Path;
 
     /**
-     * Appends arc to SkPath. Arc is implemented by one or more conics weighted to
+     * Appends arc to Path. Arc is implemented by one or more conics weighted to
      * describe part of oval with radii (rx, ry) rotated by xAxisRotate degrees. Arc
-     * curves from last SkPath SkPoint to (x, y), choosing one of four possible routes:
+     * curves from last Path Point to (x, y), choosing one of four possible routes:
      * clockwise or counterclockwise, and smaller or larger. See SkPath.h for more details.
      * Returns the modified path for easier chaining.
      * @param rx
@@ -1851,12 +1851,12 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param y
      */
     arcToRotated(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
-                 isCCW: boolean, x: number, y: number): SkPath;
+                 isCCW: boolean, x: number, y: number): Path;
 
     /**
-     * Appends arc to SkPath, after appending line if needed. Arc is implemented by conic
+     * Appends arc to Path, after appending line if needed. Arc is implemented by conic
      * weighted to describe part of circle. Arc is contained by tangent from
-     * last SkPath point to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
+     * last Path point to (x1, y1), and tangent from (x1, y1) to (x2, y2). Arc
      * is part of circle sized to radius, positioned so it touches both tangent lines.
      * Returns the modified path for easier chaining.
      * @param x1
@@ -1865,33 +1865,33 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param y2
      * @param radius
      */
-    arcToTangent(x1: number, y1: number, x2: number, y2: number, radius: number): SkPath;
+    arcToTangent(x1: number, y1: number, x2: number, y2: number, radius: number): Path;
 
     /**
-     * Appends CLOSE_VERB to SkPath. A closed contour connects the first and last point
+     * Appends CLOSE_VERB to Path. A closed contour connects the first and last point
      * with a line, forming a continuous loop.
      * Returns the modified path for easier chaining.
      */
-    close(): SkPath;
+    close(): Path;
 
     /**
-     * Returns minimum and maximum axes values of the lines and curves in SkPath.
-     * Returns (0, 0, 0, 0) if SkPath contains no points.
+     * Returns minimum and maximum axes values of the lines and curves in Path.
+     * Returns (0, 0, 0, 0) if Path contains no points.
      * Returned bounds width and height may be larger or smaller than area affected
-     * when SkPath is drawn.
+     * when Path is drawn.
      *
-     * Behaves identically to getBounds() when SkPath contains
-     * only lines. If SkPath contains curves, computed bounds includes
+     * Behaves identically to getBounds() when Path contains
+     * only lines. If Path contains curves, computed bounds includes
      * the maximum extent of the quad, conic, or cubic; is slower than getBounds();
      * and unlike getBounds(), does not cache the result.
      * @param outputArray - if provided, the bounding box will be copied into this array instead of
      *                      allocating a new one.
      */
-    computeTightBounds(outputArray?: SkRect): SkRect;
+    computeTightBounds(outputArray?: Rect): Rect;
 
     /**
      * Adds conic from last point towards (x1, y1), to (x2, y2), weighted by w.
-     * If SkPath is empty, or path is closed, the last point is set to (0, 0)
+     * If Path is empty, or path is closed, the last point is set to (0, 0)
      * before adding conic.
      * Returns the modified path for easier chaining.
      * @param x1
@@ -1900,10 +1900,10 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param y2
      * @param w
      */
-    conicTo(x1: number, y1: number, x2: number, y2: number, w: number): SkPath;
+    conicTo(x1: number, y1: number, x2: number, y2: number, w: number): Path;
 
     /**
-     * Returns true if the point (x, y) is contained by SkPath, taking into
+     * Returns true if the point (x, y) is contained by Path, taking into
      * account FillType.
      * @param x
      * @param y
@@ -1911,9 +1911,9 @@ export interface SkPath extends EmbindObject<SkPath> {
     contains(x: number, y: number): boolean;
 
     /**
-     * Returns a copy of this SkPath.
+     * Returns a copy of this Path.
      */
-    copy(): SkPath;
+    copy(): Path;
 
     /**
      * Returns the number of points in this path. Initially zero.
@@ -1922,7 +1922,7 @@ export interface SkPath extends EmbindObject<SkPath> {
 
     /**
      *  Adds cubic from last point towards (x1, y1), then towards (x2, y2), ending at
-     * (x3, y3). If SkPath is empty, or path is closed, the last point is set to
+     * (x3, y3). If Path is empty, or path is closed, the last point is set to
      * (0, 0) before adding cubic.
      * @param cpx1
      * @param cpy1
@@ -1931,11 +1931,11 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param x
      * @param y
      */
-    cubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): SkPath;
+    cubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): Path;
 
     /**
      * Changes this path to be the dashed version of itself. This is the same effect as creating
-     * an SkDashPathEffect and calling filterPath on this path.
+     * a DashPathEffect and calling filterPath on this path.
      * @param on
      * @param off
      * @param phase
@@ -1946,16 +1946,16 @@ export interface SkPath extends EmbindObject<SkPath> {
      * Returns true if other path is equal to this path.
      * @param other
      */
-    equals(other: SkPath): boolean;
+    equals(other: Path): boolean;
 
     /**
-     * Returns minimum and maximum axes values of SkPoint array.
-     * Returns (0, 0, 0, 0) if SkPath contains no points. Returned bounds width and height may
-     * be larger or smaller than area affected when SkPath is drawn.
+     * Returns minimum and maximum axes values of Point array.
+     * Returns (0, 0, 0, 0) if Path contains no points. Returned bounds width and height may
+     * be larger or smaller than area affected when Path is drawn.
      * @param outputArray - if provided, the bounding box will be copied into this array instead of
      *                      allocating a new one.
      */
-    getBounds(outputArray?: SkRect): SkRect;
+    getBounds(outputArray?: Rect): Rect;
 
     /**
      * Return the FillType for this path.
@@ -1963,11 +1963,11 @@ export interface SkPath extends EmbindObject<SkPath> {
     getFillType(): FillType;
 
     /**
-     * Returns SkPoint at index in SkPoint array. Valid range for index is
+     * Returns the Point at index in Point array. Valid range for index is
      * 0 to countPoints() - 1.
      * @param index
      */
-    getPoint(index: number): SkPoint;
+    getPoint(index: number): Point;
 
     /**
      * Returns true if there are no verbs in the path.
@@ -1976,20 +1976,20 @@ export interface SkPath extends EmbindObject<SkPath> {
 
     /**
      * Returns true if the path is volatile; it will not be altered or discarded
-     * by the caller after it is drawn. SkPath by default have volatile set false, allowing
-     * SkSurface to attach a cache of data which speeds repeated drawing. If true, SkSurface
+     * by the caller after it is drawn. Path by default have volatile set false, allowing
+     * Surface to attach a cache of data which speeds repeated drawing. If true, Surface
      * may not speed repeated drawing.
      */
     isVolatile(): boolean;
 
     /**
-     * Adds line from last point to (x, y). If SkPath is empty, or last path is closed,
+     * Adds line from last point to (x, y). If Path is empty, or last path is closed,
      * last point is set to (0, 0) before adding line.
      * Returns the modified path for easier chaining.
      * @param x
      * @param y
      */
-    lineTo(x: number, y: number): SkPath;
+    lineTo(x: number, y: number): Path;
 
     /**
      * Adds begininning of contour at the given point.
@@ -1997,7 +1997,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param x
      * @param y
      */
-    moveTo(x: number, y: number): SkPath;
+    moveTo(x: number, y: number): Path;
 
     /**
      * Translates all the points in the path by dx, dy.
@@ -2005,7 +2005,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param dx
      * @param dy
      */
-    offset(dx: number, dy: number): SkPath;
+    offset(dx: number, dy: number): Path;
 
     /**
      * Combines this path with the other path using the given PathOp. Returns false if the operation
@@ -2013,18 +2013,18 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param other
      * @param op
      */
-    op(other: SkPath, op: PathOp): boolean;
+    op(other: Path, op: PathOp): boolean;
 
     /**
      * Adds quad from last point towards (x1, y1), to (x2, y2).
-     * If SkPath is empty, or path is closed, last point is set to (0, 0) before adding quad.
+     * If Path is empty, or path is closed, last point is set to (0, 0) before adding quad.
      * Returns the modified path for easier chaining.
      * @param x1
      * @param y1
      * @param x2
      * @param y2
      */
-    quadTo(x1: number, y1: number, x2: number, y2: number): SkPath;
+    quadTo(x1: number, y1: number, x2: number, y2: number): Path;
 
     /**
      * Relative version of arcToRotated.
@@ -2037,7 +2037,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param dy
      */
     rArcTo(rx: number, ry: number, xAxisRotate: AngleInDegrees, useSmallArc: boolean,
-           isCCW: boolean, dx: number, dy: number): SkPath;
+           isCCW: boolean, dx: number, dy: number): Path;
 
     /**
      * Relative version of conicTo.
@@ -2047,7 +2047,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param dy2
      * @param w
      */
-    rConicTo(dx1: number, dy1: number, dx2: number, dy2: number, w: number): SkPath;
+    rConicTo(dx1: number, dy1: number, dx2: number, dy2: number, w: number): Path;
 
     /**
      * Relative version of cubicTo.
@@ -2058,20 +2058,20 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param x
      * @param y
      */
-    rCubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): SkPath;
+    rCubicTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): Path;
 
     /**
-     * Sets SkPath to its initial state.
+     * Sets Path to its initial state.
      * Removes verb array, point array, and weights, and sets FillType to Winding.
-     * Internal storage associated with SkPath is released
+     * Internal storage associated with Path is released
      */
     reset(): void;
 
     /**
-     * Sets SkPath to its initial state.
+     * Sets Path to its initial state.
      * Removes verb array, point array, and weights, and sets FillType to Winding.
-     * Internal storage associated with SkPath is *not* released.
-     * Use rewind() instead of reset() if SkPath storage will be reused and performance
+     * Internal storage associated with Path is *not* released.
+     * Use rewind() instead of reset() if Path storage will be reused and performance
      * is critical.
      */
     rewind(): void;
@@ -2081,14 +2081,14 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param x
      * @param y
      */
-    rLineTo(x: number, y: number): SkPath;
+    rLineTo(x: number, y: number): Path;
 
     /**
      * Relative version of moveTo.
      * @param x
      * @param y
      */
-    rMoveTo(x: number, y: number): SkPath;
+    rMoveTo(x: number, y: number): Path;
 
     /**
      * Relative version of quadTo.
@@ -2097,20 +2097,20 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param x2
      * @param y2
      */
-    rQuadTo(x1: number, y1: number, x2: number, y2: number): SkPath;
+    rQuadTo(x1: number, y1: number, x2: number, y2: number): Path;
 
     /**
-     * Sets FillType, the rule used to fill SkPath.
+     * Sets FillType, the rule used to fill Path.
      * @param fill
      */
     setFillType(fill: FillType): void;
 
     /**
-     * Specifies whether SkPath is volatile; whether it will be altered or discarded
-     * by the caller after it is drawn. SkPath by default have volatile set false.
+     * Specifies whether Path is volatile; whether it will be altered or discarded
+     * by the caller after it is drawn. Path by default have volatile set false.
      *
      * Mark animating or temporary paths as volatile to improve performance.
-     * Mark unchanging SkPath non-volatile to improve repeated rendering.
+     * Mark unchanging Path non-volatile to improve repeated rendering.
      * @param volatile
      */
     setIsVolatile(volatile: boolean): void;
@@ -2130,7 +2130,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * fails (e.g. the path is a hairline).
      * @param opts - describe how stroked path should look.
      */
-    stroke(opts?: StrokeOpts): SkPath | null;
+    stroke(opts?: StrokeOpts): Path | null;
 
     /**
      * Serializes the contents of this path as a series of commands.
@@ -2146,7 +2146,7 @@ export interface SkPath extends EmbindObject<SkPath> {
      * Takes a 3x3 matrix as either an array or as 9 individual params.
      * @param args
      */
-    transform(...args: any[]): SkPath;
+    transform(...args: any[]): Path;
 
     /**
      * Take start and stop "t" values (values between 0...1), and modify this path such that
@@ -2158,13 +2158,13 @@ export interface SkPath extends EmbindObject<SkPath> {
      * @param stopT  - a value in the range [0.0, 1.0]. 1.0 is the end of the path.
      * @param isComplement
      */
-    trim(startT: number, stopT: number, isComplement: boolean): SkPath | null;
+    trim(startT: number, stopT: number, isComplement: boolean): Path | null;
 }
 
 /**
  * See SkPathEffect.h for more on this class. The objects are opaque.
  */
-export type SkPathEffect = EmbindObject<SkPathEffect>;
+export type PathEffect = EmbindObject<PathEffect>;
 
 /**
  * See SkPicture.h for more information on this class.
@@ -2177,16 +2177,16 @@ export interface SkPicture extends EmbindObject<SkPicture> {
      * Returns the serialized format of this SkPicture. The format may change at anytime and
      * no promises are made for backwards or forward compatibility.
      */
-    serialize(): SkData;
+    serialize(): Data;
 }
 
-export interface SkPictureRecorder extends EmbindObject<SkPicture> {
+export interface PictureRecorder extends EmbindObject<PictureRecorder> {
     /**
      * Returns a canvas on which to draw. When done drawing, call finishRecordingAsPicture()
      *
      * @param bounds - a rect to cull the results.
      */
-    beginRecording(bounds: InputRect): SkCanvas;
+    beginRecording(bounds: InputRect): Canvas;
 
     /**
      * Returns the captured draw commands as a picture and invalidates the canvas returned earlier.
@@ -2197,7 +2197,7 @@ export interface SkPictureRecorder extends EmbindObject<SkPicture> {
 /**
  * See SkRuntimeEffect.h for more details.
  */
-export interface SkRuntimeEffect extends EmbindObject<SkRuntimeEffect> {
+export interface RuntimeEffect extends EmbindObject<RuntimeEffect> {
     /**
      * Returns a shader executed using the given uniform data.
      * @param uniforms
@@ -2205,7 +2205,7 @@ export interface SkRuntimeEffect extends EmbindObject<SkRuntimeEffect> {
      * @param localMatrix
      */
     makeShader(uniforms: Float32Array | number[], isOpaque?: boolean,
-               localMatrix?: InputMatrix): SkShader;
+               localMatrix?: InputMatrix): Shader;
 
     /**
      * Returns a shader executed using the given uniform data and the children as inputs.
@@ -2215,22 +2215,15 @@ export interface SkRuntimeEffect extends EmbindObject<SkRuntimeEffect> {
      * @param localMatrix
      */
     makeShaderWithChildren(uniforms: Float32Array | number[], isOpaque?: boolean,
-                           children?: SkShader[], localMatrix?: InputMatrix): SkShader;
+                           children?: Shader[], localMatrix?: InputMatrix): Shader;
 }
 
 /**
  * See SkShader.h for more on this class. The objects are opaque.
  */
-export type SkShader = EmbindObject<SkShader>;
+export type Shader = EmbindObject<Shader>;
 
-export interface SkSurface extends EmbindObject<SkSurface> {
-    /**
-     * Call the given callback and save the result of that draw to a SkPicture with the
-     * same dimensions as this surface. The SkPicture will be returned.
-     * @param drawFrame - callback in which the client should draw something.
-     */
-    captureFrameAsSkPicture(drawFrame: (canvas: SkCanvas) => void): SkPicture;
-
+export interface Surface extends EmbindObject<Surface> {
     /**
      * Clean up the surface and any extra memory.
      * [Deprecated]: In the future, calls to delete() will be sufficient to clean up the memory.
@@ -2247,7 +2240,7 @@ export interface SkSurface extends EmbindObject<SkSurface> {
      * show up on the surface. The returned canvas is owned by the surface and does NOT need to
      * be cleaned up by the client.
      */
-    getCanvas(): SkCanvas;
+    getCanvas(): Canvas;
 
     /**
      * Returns the height of this surface in pixels.
@@ -2257,21 +2250,21 @@ export interface SkSurface extends EmbindObject<SkSurface> {
     /**
      * Returns the ImageInfo associated with this surface.
      */
-    imageInfo(): SkImageInfo;
+    imageInfo(): ImageInfo;
 
     /**
-     * Returns current contents of the surface as an SkImage. This image will be optimized to be
+     * Returns current contents of the surface as an Image. This image will be optimized to be
      * drawn to another surface of the same type. For example, if this surface is backed by the
-     * GPU, the returned SkImage will be backed by a GPU texture.
+     * GPU, the returned Image will be backed by a GPU texture.
      */
-    makeImageSnapshot(bounds?: InputIRect): SkImage;
+    makeImageSnapshot(bounds?: InputIRect): Image;
 
     /**
-     * Returns a compatible SkSurface, haring the same raster or GPU properties of the original.
+     * Returns a compatible Surface, haring the same raster or GPU properties of the original.
      * The pixels are not shared.
-     * @param info - width, height, etc of the SkSurface.
+     * @param info - width, height, etc of the Surface.
      */
-    makeSurface(info: SkImageInfo): SkSurface;
+    makeSurface(info: ImageInfo): Surface;
 
     /**
      * Returns if this Surface is a GPU-backed surface or not.
@@ -2292,23 +2285,23 @@ export interface SkSurface extends EmbindObject<SkSurface> {
 /**
  * See SkTextBlob.h for more on this class. The objects are opaque.
  */
-export type SkTextBlob = EmbindObject<SkTextBlob>;
+export type TextBlob = EmbindObject<TextBlob>;
 
 /**
  * See SkTypeface.h for more on this class. The objects are opaque.
  */
-export type SkTypeface = EmbindObject<SkTypeface>;
+export type Typeface = EmbindObject<Typeface>;
 
 /**
  * See SkVertices.h for more on this class.
  */
-export interface SkVertices extends EmbindObject<SkVertices> {
+export interface Vertices extends EmbindObject<Vertices> {
     /**
      * Return the bounding area for the vertices.
      * @param outputArray - if provided, the bounding box will be copied into this array instead of
      *                      allocating a new one.
      */
-    bounds(outputArray?: SkRect): SkRect;
+    bounds(outputArray?: Rect): Rect;
 
     /**
      * Return a unique ID for this vertices object.
@@ -2331,14 +2324,14 @@ export interface SkottieAnimation extends EmbindObject<SkottieAnimation> {
      * @param canvas
      * @param dstRect
      */
-    render(canvas: SkCanvas, dstRect?: InputRect): void;
+    render(canvas: Canvas, dstRect?: InputRect): void;
 
     /**
      * [deprecated] - use seekFrame
      * @param t - value from [0.0, 1.0]; 0 is first frame, 1 is final frame.
      * @param damageRect - will copy damage frame into this if provided.
      */
-    seek(t: number, damageRect?: SkRect): SkRect;
+    seek(t: number, damageRect?: Rect): Rect;
 
     /**
      * Update the animation state to match |t|, specified as a frame index
@@ -2352,14 +2345,14 @@ export interface SkottieAnimation extends EmbindObject<SkottieAnimation> {
      *                0.5 -> halfway between first and second frame
      * @param damageRect - will copy damage frame into this if provided.
      */
-    seekFrame(frame: number, damageRect?: SkRect): SkRect;
+    seekFrame(frame: number, damageRect?: Rect): Rect;
 
-    size(): SkPoint;
+    size(): Point;
     version(): string;
 }
 
 /**
- * Options used for SkPath.stroke(). If an option is omitted, a sensible default will be used.
+ * Options used for Path.stroke(). If an option is omitted, a sensible default will be used.
  */
 export interface StrokeOpts {
     /** The width of the stroked lines. */
@@ -2424,8 +2417,8 @@ export interface TonalColorsInput {
 }
 
 export interface TonalColorsOutput {
-    ambient: SkColor;
-    spot: SkColor;
+    ambient: Color;
+    spot: Color;
 }
 
 export interface TypefaceFontProvider extends EmbindObject<TypefaceFontProvider> {
@@ -2469,16 +2462,16 @@ export interface DefaultConstructor<T> {
 
 export interface ColorMatrixHelpers {
     /**
-     * Returns a new SkColorMatrix that is the result of multiplying outer*inner
+     * Returns a new ColorMatrix that is the result of multiplying outer*inner
      * @param outer
      * @param inner
      */
-    concat(outer: SkColorMatrix, inner: SkColorMatrix): SkColorMatrix;
+    concat(outer: ColorMatrix, inner: ColorMatrix): ColorMatrix;
 
     /**
-     * Returns an identity SkColorMatrix.
+     * Returns an identity ColorMatrix.
      */
-    identity(): SkColorMatrix;
+    identity(): ColorMatrix;
 
     /**
      * Sets the 4 "special" params that will translate the colors after they are multiplied
@@ -2489,25 +2482,25 @@ export interface ColorMatrixHelpers {
      * @param db - delta blue
      * @param da - delta alpha
      */
-    postTranslate(m: SkColorMatrix, dr: number, dg: number, db: number, da: number): SkColorMatrix;
+    postTranslate(m: ColorMatrix, dr: number, dg: number, db: number, da: number): ColorMatrix;
 
     /**
-     * Returns a new SkColorMatrix that is rotated around a given axis.
+     * Returns a new ColorMatrix that is rotated around a given axis.
      * @param axis - 0 for red, 1 for green, 2 for blue
      * @param sine - sin(angle)
      * @param cosine - cos(angle)
      */
-    rotated(axis: number, sine: number, cosine: number): SkColorMatrix;
+    rotated(axis: number, sine: number, cosine: number): ColorMatrix;
 
     /**
-     * Returns a new SkColorMatrix that scales the colors as specified.
+     * Returns a new ColorMatrix that scales the colors as specified.
      * @param redScale
      * @param greenScale
      * @param blueScale
      * @param alphaScale
      */
     scaled(redScale: number, greenScale: number, blueScale: number,
-           alphaScale: number): SkColorMatrix;
+           alphaScale: number): ColorMatrix;
 }
 
 /**
@@ -2684,7 +2677,7 @@ export interface ParagraphBuilderFactory {
      * @param style
      * @param fontManager
      */
-    Make(style: ParagraphStyle, fontManager: SkFontMgr): ParagraphBuilder;
+    Make(style: ParagraphStyle, fontManager: FontMgr): ParagraphBuilder;
 
     /**
      * Creates a ParagraphBuilder using the fonts available from the given font provider.
@@ -2717,20 +2710,20 @@ export interface ShapedTextConstructor {
 /**
  * See SkColorFilter.h for more.
  */
-export interface SkColorFilterFactory {
+export interface ColorFilterFactory {
     /**
      * Makes a color filter with the given color and blend mode.
      * @param color
      * @param mode
      */
-    MakeBlend(color: InputColor, mode: BlendMode): SkColorFilter;
+    MakeBlend(color: InputColor, mode: BlendMode): ColorFilter;
 
     /**
      * Makes a color filter composing two color filters.
      * @param outer
      * @param inner
      */
-    MakeCompose(outer: SkColorFilter, inner: SkColorFilter): SkColorFilter;
+    MakeCompose(outer: ColorFilter, inner: ColorFilter): ColorFilter;
 
     /**
      * Makes a color filter that is linearly interpolated between two other color filters.
@@ -2738,49 +2731,49 @@ export interface SkColorFilterFactory {
      * @param dst
      * @param src
      */
-    MakeLerp(t: number, dst: SkColorFilter, src: SkColorFilter): SkColorFilter;
+    MakeLerp(t: number, dst: ColorFilter, src: ColorFilter): ColorFilter;
 
     /**
      * Makes a color filter that converts between linear colors and sRGB colors.
      */
-    MakeLinearToSRGBGamma(): SkColorFilter;
+    MakeLinearToSRGBGamma(): ColorFilter;
 
     /**
      * Creates a color filter using the provided color matrix.
      * @param cMatrix
      */
-    MakeMatrix(cMatrix: InputColorMatrix): SkColorFilter;
+    MakeMatrix(cMatrix: InputColorMatrix): ColorFilter;
 
     /**
      * Makes a color filter that converts between sRGB colors and linear colors.
      */
-    MakeSRGBToLinearGamma(): SkColorFilter;
+    MakeSRGBToLinearGamma(): ColorFilter;
 }
 
-export interface SkContourMeasureIterConstructor {
+export interface ContourMeasureIterConstructor {
     /**
-     * Creates an SkContourMeasureIter with the given path.
+     * Creates an ContourMeasureIter with the given path.
      * @param path
      * @param forceClosed - if path should be forced close before measuring it.
      * @param resScale - controls the precision of the measure. values > 1 increase the
      *                   precision (and possibly slow down the computation).
      */
-    new (path: SkPath, forceClosed: boolean, resScale: number): SkContourMeasureIter;
+    new (path: Path, forceClosed: boolean, resScale: number): ContourMeasureIter;
 }
 
 /**
  * See SkFont.h for more.
  */
-export interface SkFontConstructor extends DefaultConstructor<SkFont> {
+export interface FontConstructor extends DefaultConstructor<Font> {
     /**
-     * Constructs SkFont with default values with SkTypeface.
+     * Constructs Font with default values with Typeface.
      * @param face
      * @param size - font size in points. If not specified, uses a default value.
      */
-    new (face: SkTypeface | null, size?: number): SkFont;
+    new (face: Typeface | null, size?: number): Font;
 
     /**
-     * Constructs SkFont with default values with SkTypeface and size in points,
+     * Constructs Font with default values with Typeface and size in points,
      * horizontal scale, and horizontal skew. Horizontal scale emulates condensed
      * and expanded fonts. Horizontal skew emulates oblique fonts.
      * @param face
@@ -2788,27 +2781,27 @@ export interface SkFontConstructor extends DefaultConstructor<SkFont> {
      * @param scaleX
      * @param skewX
      */
-    new (face: SkTypeface | null, size: number, scaleX: number, skewX: number): SkFont;
+    new (face: Typeface | null, size: number, scaleX: number, skewX: number): Font;
 }
 
-export interface SkFontMgrFactory {
+export interface FontMgrFactory {
     /**
-     * Create an SkFontMgr with the created font data. Returns null if buffers was empty.
+     * Create an FontMgr with the created font data. Returns null if buffers was empty.
      * @param buffers
      */
-    FromData(...buffers: ArrayBuffer[]): SkFontMgr | null;
+    FromData(...buffers: ArrayBuffer[]): FontMgr | null;
 
     /**
-     * Return the default SkFontMgr. This will generally have 0 or 1 fonts in it, depending on if
+     * Return the default FontMgr. This will generally have 0 or 1 fonts in it, depending on if
      * the demo monospace font was compiled in.
      */
-    RefDefault(): SkFontMgr;
+    RefDefault(): FontMgr;
 }
 
 /**
- * See effects/SkImageFilters.h for more.
+ * See effects/ImageFilters.h for more.
  */
-export interface SkImageFilterFactory {
+export interface ImageFilterFactory {
     /**
      * Create a filter that blurs its input by the separate X and Y sigmas. The provided tile mode
      * is used when the blur kernel goes outside the input image.
@@ -2819,14 +2812,14 @@ export interface SkImageFilterFactory {
      * @param input - if null, it will use the dynamic source image (e.g. a saved layer)
      */
     MakeBlur(sigmaX: number, sigmaY: number, mode: TileMode,
-             input: SkImageFilter | null): SkImageFilter;
+             input: ImageFilter | null): ImageFilter;
 
     /**
      * Create a filter that applies the color filter to the input filter results.
      * @param cf
      * @param input - if null, it will use the dynamic source image (e.g. a saved layer)
      */
-    MakeColorFilter(cf: SkColorFilter, input: SkImageFilter | null): SkImageFilter;
+    MakeColorFilter(cf: ColorFilter, input: ImageFilter | null): ImageFilter;
 
     /**
      * Create a filter that composes 'inner' with 'outer', such that the results of 'inner' are
@@ -2835,42 +2828,42 @@ export interface SkImageFilterFactory {
      * @param outer
      * @param inner - if null, it will use the dynamic source image (e.g. a saved layer)
      */
-    MakeCompose(outer: SkImageFilter | null, inner: SkImageFilter | null): SkImageFilter;
+    MakeCompose(outer: ImageFilter | null, inner: ImageFilter | null): ImageFilter;
 
     /**
      * Create a filter that transforms the input image by 'matrix'. This matrix transforms the
      * local space, which means it effectively happens prior to any transformation coming from the
-     * SkCanvas initiating the filtering.
+     * Canvas initiating the filtering.
      * @param matr
      * @param fq
      * @param input - if null, it will use the dynamic source image (e.g. a saved layer)
      */
     MakeMatrixTransform(matr: InputMatrix, fq: FilterQuality,
-                        input: SkImageFilter | null): SkImageFilter;
+                        input: ImageFilter | null): ImageFilter;
 }
 
 /**
  * See SkMaskFilter.h for more details.
  */
-export interface SkMaskFilterFactory {
+export interface MaskFilterFactory {
     /**
      * Create a blur maskfilter
      * @param style
      * @param sigma - Standard deviation of the Gaussian blur to apply. Must be > 0.
      * @param respectCTM - if true the blur's sigma is modified by the CTM.
      */
-    MakeBlur(style: BlurStyle, sigma: number, respectCTM: boolean): SkMaskFilter;
+    MakeBlur(style: BlurStyle, sigma: number, respectCTM: boolean): MaskFilter;
 }
 
 /**
- * Contains the ways to create an SkPath.
+ * Contains the ways to create an Path.
  */
-export interface SkPathConstructorAndFactory extends DefaultConstructor<SkPath> {
+export interface PathConstructorAndFactory extends DefaultConstructor<Path> {
     /**
      * Creates a new path from the given list of path commands.
      * @param cmds
      */
-    MakeFromCmds(cmds: PathCommand[]): SkPath;
+    MakeFromCmds(cmds: PathCommand[]): Path;
 
     /**
      * Creates a new path using the provided verbs and associated points and weights. The process
@@ -2883,18 +2876,18 @@ export interface SkPathConstructorAndFactory extends DefaultConstructor<SkPath> 
      * @param weights - used if any of the verbs are conics, can be omitted otherwise.
      */
     MakeFromVerbsPointsWeights(verbs: VerbList, points: InputFlattenedPointArray,
-                               weights?: WeightList): SkPath;
+                               weights?: WeightList): Path;
 }
 
 /**
  * See SkPathEffect.h for more details.
  */
-export interface SkPathEffectFactory {
+export interface PathEffectFactory {
     /**
      * Returns a PathEffect that can turn sharp corners into rounded corners.
      * @param radius - if <=0, returns null
      */
-    MakeCorner(radius: number): SkPathEffect | null;
+    MakeCorner(radius: number): PathEffect | null;
 
     /**
      * Returns a PathEffect that add dashes to the path.
@@ -2905,7 +2898,7 @@ export interface SkPathEffectFactory {
      *                    the "on" intervals, and the odd indices specifying the length of "off".
      * @param phase - offset length into the intervals array. Defaults to 0.
      */
-    MakeDash(intervals: number[], phase?: number): SkPathEffect;
+    MakeDash(intervals: number[], phase?: number): PathEffect;
 
     /**
      * Returns a PathEffect that breaks path into segments of segLength length, and randomly move
@@ -2914,39 +2907,39 @@ export interface SkPathEffectFactory {
      * @param dev - limit of the movement of the endpoints.
      * @param seedAssist - modifies the randomness. See SkDiscretePathEffect.h for more.
      */
-    MakeDiscrete(segLength: number, dev: number, seedAssist: number): SkPathEffect;
+    MakeDiscrete(segLength: number, dev: number, seedAssist: number): PathEffect;
 }
 
 /**
- * See SkRuntimeEffect.h for more details.
+ * See RuntimeEffect.h for more details.
  */
-export interface SkRuntimeEffectFactory {
+export interface RuntimeEffectFactory {
     /**
-     * Compiles a SkRuntimeEffect from the given shader code.
+     * Compiles a RuntimeEffect from the given shader code.
      * @param sksl - Source code for a shader written in SkSL
      */
-    Make(sksl: string): SkRuntimeEffect | null;
+    Make(sksl: string): RuntimeEffect | null;
 }
 
 /**
  * For more information, see SkShaders.h.
  * TODO(kjlubick) Rename these to Make* as per the convention
  */
-export interface SkShaderFactory {
+export interface ShaderFactory {
     /**
      * Returns a shader that combines the given shaders with a BlendMode.
      * @param mode
      * @param one
      * @param two
      */
-    Blend(mode: BlendMode, one: SkShader, two: SkShader): SkShader;
+    Blend(mode: BlendMode, one: Shader, two: Shader): Shader;
 
     /**
      * Returns a shader with a given color and colorspace.
      * @param color
      * @param space
      */
-    Color(color: InputColor, space: ColorSpace): SkShader;
+    Color(color: InputColor, space: ColorSpace): Shader;
 
     /**
      * Returns a shader is a linear interpolation combines the given shaders with a BlendMode.
@@ -2954,23 +2947,23 @@ export interface SkShaderFactory {
      * @param one
      * @param two
      */
-    Lerp(t: number, one: SkShader, two: SkShader): SkShader;
+    Lerp(t: number, one: Shader, two: Shader): Shader;
 }
 
 /**
  * See SkTextBlob.h for more details.
  */
-export interface SkTextBlobFactory {
+export interface TextBlobFactory {
     /**
      * Return a TextBlob with a single run of text.
      *
-     * It does not perform typeface fallback for characters not found in the SkTypeface.
+     * It does not perform typeface fallback for characters not found in the Typeface.
      * It does not perform kerning or other complex shaping; glyphs are positioned based on their
      * default advances.
      * @param glyphs - if using Malloc'd array, be sure to use CanvasKit.MallocGlyphIDs().
      * @param font
      */
-    MakeFromGlyphs(glyphs: InputGlyphIDArray, font: SkFont): SkTextBlob;
+    MakeFromGlyphs(glyphs: InputGlyphIDArray, font: Font): TextBlob;
 
     /**
      * Returns a TextBlob built from a single run of text with rotation, scale, and translations.
@@ -2980,7 +2973,7 @@ export interface SkTextBlobFactory {
      * @param rsxforms
      * @param font
      */
-    MakeFromRSXform(str: string, rsxforms: InputFlattenedRSXFormArray, font: SkFont): SkTextBlob;
+    MakeFromRSXform(str: string, rsxforms: InputFlattenedRSXFormArray, font: Font): TextBlob;
 
     /**
      * Returns a TextBlob built from a single run of text with rotation, scale, and translations.
@@ -2990,30 +2983,30 @@ export interface SkTextBlobFactory {
      * @param font
      */
     MakeFromRSXformGlyphs(glyphs: InputGlyphIDArray, rsxforms: InputFlattenedRSXFormArray,
-                          font: SkFont): SkTextBlob;
+                          font: Font): TextBlob;
 
     /**
      * Return a TextBlob with a single run of text.
      *
      * It uses the default character-to-glyph mapping from the typeface in the font.
-     * It does not perform typeface fallback for characters not found in the SkTypeface.
+     * It does not perform typeface fallback for characters not found in the Typeface.
      * It does not perform kerning or other complex shaping; glyphs are positioned based on their
      * default advances.
      * @param str
      * @param font
      */
-    MakeFromText(str: string, font: SkFont): SkTextBlob;
+    MakeFromText(str: string, font: Font): TextBlob;
 
     /**
      * Returns a TextBlob that has the glyphs following the contours of the given path.
      *
-     * It is a convenience wrapper around MakeFromRSXform and SkContourMeasureIter.
+     * It is a convenience wrapper around MakeFromRSXform and ContourMeasureIter.
      * @param str
      * @param path
      * @param font
      * @param initialOffset - the length in pixels to start along the path.
      */
-    MakeOnPath(str: string, path: SkPath, font: SkFont, initialOffset?: number): SkTextBlob;
+    MakeOnPath(str: string, path: Path, font: Font, initialOffset?: number): TextBlob;
 }
 
 export interface TextStyleConstructor {
@@ -3104,13 +3097,13 @@ export interface VectorHelpers {
  */
 export type PosTan = number[];
 /**
- * An SkColor is represented by 4 floats, typically with values between 0 and 1.0. In order,
+ * An Color is represented by 4 floats, typically with values between 0 and 1.0. In order,
  * the floats correspond to red, green, blue, alpha.
  */
-export type SkColor = Float32Array;
-export type SkColorInt = number; // deprecated, prefer SkColor
+export type Color = Float32Array;
+export type ColorInt = number; // deprecated, prefer Color
 /**
- * An SkColorMatrix is a 4x4 color matrix that transforms the 4 color channels
+ * An ColorMatrix is a 4x4 color matrix that transforms the 4 color channels
  * with a 1x4 matrix that post-translates those 4 channels.
  * For example, the following is the layout with the scale (S) and post-transform
  * (PT) items indicated.
@@ -3119,27 +3112,27 @@ export type SkColorInt = number; // deprecated, prefer SkColor
  *  0,  0, BS,  0 | BPT
  *  0,  0,  0, AS | APT
  */
-export type SkColorMatrix = Float32Array;
+export type ColorMatrix = Float32Array;
 /**
- * An SkIRect is represented by 4 ints. In order, the ints correspond to left, top,
- * right, bottom. See SkRect.h for more
+ * An IRect is represented by 4 ints. In order, the ints correspond to left, top,
+ * right, bottom. See Rect.h for more
  */
-export type SkIRect = Int32Array;
+export type IRect = Int32Array;
 /**
- * An SkPoint is represented by 2 floats: (x, y).
+ * An Point is represented by 2 floats: (x, y).
  */
-export type SkPoint = number[];
+export type Point = number[];
 /**
- * An SkRect is represented by 4 floats. In order, the floats correspond to left, top,
- * right, bottom. See SkRect.h for more
+ * An Rect is represented by 4 floats. In order, the floats correspond to left, top,
+ * right, bottom. See Rect.h for more
  */
-export type SkRect = Float32Array;
+export type Rect = Float32Array;
 /**
- * An SkRRect (rectangle with rounded corners) is represented by 12 floats. In order, the floats
+ * An RRect (rectangle with rounded corners) is represented by 12 floats. In order, the floats
  * correspond to left, top, right, bottom and then in pairs, the radiusX, radiusY for upper-left,
- * upper-right, lower-right, lower-left. See SkRRect.h for more.
+ * upper-right, lower-right, lower-left. See RRect.h for more.
  */
-export type SkRRect = Float32Array;
+export type RRect = Float32Array;
 
 export type WebGLContextHandle = number;
 export type AngleInDegrees = number;
@@ -3202,12 +3195,12 @@ export type VectorN = number[];
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as colors.
  * Length 4.
  */
-export type InputColor = MallocObj | SkColor | number[];
+export type InputColor = MallocObj | Color | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as color matrices.
  * Length 20.
  */
-export type InputColorMatrix = MallocObj | SkColorMatrix | number[];
+export type InputColorMatrix = MallocObj | ColorMatrix | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as glyph IDs.
  * Length n for n glyph IDs.
@@ -3231,17 +3224,17 @@ export type InputMatrix = MallocObj | Matrix4x4 | Matrix3x3 | Matrix3x2 | DOMMat
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles.
  * Length 4.
  */
-export type InputRect = MallocObj | SkRect | number[];
+export type InputRect = MallocObj | Rect | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as (int) rectangles.
  * Length 4.
  */
-export type InputIRect = MallocObj | SkIRect | number[];
+export type InputIRect = MallocObj | IRect | number[];
 /**
  * CanvasKit APIs accept normal arrays, typed arrays, or Malloc'd memory as rectangles with
  * rounded corners. Length 12.
  */
-export type InputRRect = MallocObj | SkRRect | number[];
+export type InputRRect = MallocObj | RRect | number[];
 /**
  * This represents n RSXforms by 4*n float values. In order, the values should
  * be scos, ssin, tx, ty for each RSXForm. See RSXForm.h for more details.

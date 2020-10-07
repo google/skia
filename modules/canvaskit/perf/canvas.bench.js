@@ -66,7 +66,7 @@ describe('Basic Canvas ops', () => {
 
     it('can get and set the color to a paint', () => {
         function setup(ctx) {
-            ctx.paint = new CanvasKit.SkPaint();
+            ctx.paint = new CanvasKit.Paint();
         };
 
         function test(ctx) {
@@ -89,7 +89,7 @@ describe('Basic Canvas ops', () => {
 
     it('can set the color to a paint by components', () => {
         function setup(ctx) {
-            ctx.paint = new CanvasKit.SkPaint();
+            ctx.paint = new CanvasKit.Paint();
         };
 
         function test(ctx) {
@@ -156,12 +156,12 @@ describe('Basic Canvas ops', () => {
                 positions[i] = i/num;
             }
 
-            const shader = CanvasKit.SkShader.MakeRadialGradient(
+            const shader = CanvasKit.Shader.MakeRadialGradient(
                 [300, 300], 50, // center, radius
                 colors, positions,
                 CanvasKit.TileMode.Mirror,
             );
-            const paint = new CanvasKit.SkPaint();
+            const paint = new CanvasKit.Paint();
             paint.setStyle(CanvasKit.PaintStyle.Fill);
             paint.setShader(shader);
             ctx.canvas.drawPaint(paint);

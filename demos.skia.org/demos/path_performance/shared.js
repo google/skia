@@ -113,7 +113,7 @@ class CanvasKitRenderer {
         }
         this.canvas = this.surface.getCanvas();
 
-        this.paint = new CanvasKit.SkPaint();
+        this.paint = new CanvasKit.Paint();
         this.paint.setAntiAlias(true);
         this.paint.setStyle(CanvasKit.PaintStyle.Fill);
     }

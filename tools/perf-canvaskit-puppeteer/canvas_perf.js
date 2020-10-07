@@ -16,7 +16,7 @@ function randomColor(CanvasKit) {
 }
 
 function starPath(CanvasKit, X=128, Y=128, R=116) {
-    const p = new CanvasKit.SkPath();
+    const p = new CanvasKit.Path();
     p.moveTo(X + R, Y);
     for (let i = 1; i < 8; i++) {
       let a = 2.6927937 * i;
@@ -52,7 +52,7 @@ tests.push({
     setup: function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
 
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
         ctx.paint.setAntiAlias(true);
         ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
     },
@@ -75,7 +75,7 @@ tests.push({
     setup: function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
 
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
         ctx.paint.setAntiAlias(true);
         ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
     },
@@ -99,7 +99,7 @@ tests.push({
     setup: function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
 
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
         ctx.paint.setAntiAlias(true);
         ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
     },
@@ -122,7 +122,7 @@ tests.push({
     setup: function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
 
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
         ctx.paint.setAntiAlias(true);
         ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
         ctx.rect = CanvasKit.Malloc(Float32Array, 4);
@@ -150,7 +150,7 @@ tests.push({
     setup: function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
 
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
         ctx.paint.setAntiAlias(true);
         ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
     },
@@ -191,7 +191,7 @@ tests.push({
 tests.push({
     description: 'Get and set the color to a paint',
     setup: function(CanvasKit, ctx) {
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
     },
     test: function(CanvasKit, ctx) {
         for (let i = 0; i < 10; i++) {
@@ -212,7 +212,7 @@ tests.push({
 tests.push({
     description: 'Set the color to a paint by components',
     setup: function(CanvasKit, ctx) {
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
     },
     test: function(CanvasKit, ctx) {
         const r = Math.random();
@@ -270,13 +270,13 @@ tests.push({
             positions[i] = i/num;
         }
         // make a gradient from those colors
-        const shader = CanvasKit.SkShader.MakeRadialGradient(
+        const shader = CanvasKit.Shader.MakeRadialGradient(
             [300, 300], 50, // center, radius
             colors, positions,
             CanvasKit.TileMode.Mirror,
         );
         // Fill the canvas using the gradient shader.
-        const paint = new CanvasKit.SkPaint();
+        const paint = new CanvasKit.Paint();
         paint.setStyle(CanvasKit.PaintStyle.Fill);
         paint.setShader(shader);
         ctx.canvas.drawPaint(paint);
@@ -292,7 +292,7 @@ tests.push({
     description: 'Draw a png image',
     setup: async function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
         ctx.img = CanvasKit.MakeImageFromEncoded(ctx.files['test_512x512.png']);
         ctx.frame = 0;
     },
@@ -371,11 +371,11 @@ for (const testImageFilename of ['test_64x64.png', 'test_512x512.png', 'test_150
 tests.push({
     description: 'Multiply 3x3 matrices together',
     setup: function(CanvasKit, ctx) {
-        ctx.first = CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20);
-        ctx.second = CanvasKit.SkMatrix.scaled(1, 2, 3, 4);
+        ctx.first = CanvasKit.Matrix.rotated(Math.PI/2, 10, 20);
+        ctx.second = CanvasKit.Matrix.scaled(1, 2, 3, 4);
     },
     test: function(CanvasKit, ctx) {
-        ctx.result = CanvasKit.SkMatrix.multiply(ctx.first, ctx.second);
+        ctx.result = CanvasKit.Matrix.multiply(ctx.first, ctx.second);
         if (ctx.result.length === 18) {
             throw 'this is here to keep the result from being optimized away';
         }
@@ -387,14 +387,14 @@ tests.push({
 tests.push({
     description: 'Transform a point using a matrix (mapPoint)',
     setup: function(CanvasKit, ctx) {
-        ctx.matr = CanvasKit.SkMatrix.multiply(
-            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
-            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        ctx.matr = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.Matrix.scaled(1, 2, 3, 4),
         ); // make an arbitrary, but interesting matrix
     },
     test: function(CanvasKit, ctx) {
         for (let i = 0; i < 30; i++) {
-            const pt = CanvasKit.SkMatrix.mapPoints(ctx.matr, [i, i]);
+            const pt = CanvasKit.Matrix.mapPoints(ctx.matr, [i, i]);
             if (pt.length === 18) {
                 throw 'this is here to keep pt from being optimized away';
             }
@@ -407,13 +407,13 @@ tests.push({
 tests.push({
     description: 'Invert a 3x3 matrix',
     setup: function(CanvasKit, ctx) {
-        ctx.matr = CanvasKit.SkMatrix.multiply(
-            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
-            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        ctx.matr = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.Matrix.scaled(1, 2, 3, 4),
         );
     },
     test: function(CanvasKit, ctx) {
-        ctx.result = CanvasKit.SkMatrix.invert(ctx.matr);
+        ctx.result = CanvasKit.Matrix.invert(ctx.matr);
         if (ctx.result.length === 18) {
             throw 'this is here to keep the result from being optimized away';
         }
@@ -425,13 +425,13 @@ tests.push({
 tests.push({
     description: 'Create a shader from a 3x3 matrix',
     setup: function(CanvasKit, ctx) {
-        ctx.matr = CanvasKit.SkMatrix.multiply(
-            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
-            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        ctx.matr = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.Matrix.scaled(1, 2, 3, 4),
         );
     },
     test: function(CanvasKit, ctx) {
-        const shader = CanvasKit.SkShader.MakeSweepGradient(
+        const shader = CanvasKit.Shader.MakeSweepGradient(
             100, 100,
             [CanvasKit.GREEN, CanvasKit.BLUE],
             [0.0, 1.0],
@@ -446,10 +446,10 @@ tests.push({
 tests.push({
     description: 'Concat 3x3 matrix on a canvas',
     setup: function(CanvasKit, ctx) {
-        ctx.canvas = new CanvasKit.SkCanvas();
-        ctx.matr = CanvasKit.SkMatrix.multiply(
-            CanvasKit.SkMatrix.rotated(Math.PI/2, 10, 20),
-            CanvasKit.SkMatrix.scaled(1, 2, 3, 4),
+        ctx.canvas = new CanvasKit.Canvas();
+        ctx.matr = CanvasKit.Matrix.multiply(
+            CanvasKit.Matrix.rotated(Math.PI/2, 10, 20),
+            CanvasKit.Matrix.scaled(1, 2, 3, 4),
         );
     },
     test: function(CanvasKit, ctx) {
@@ -465,11 +465,11 @@ tests.push({
 tests.push({
     description: 'Multiply 4x4 matrices together',
     setup: function(CanvasKit, ctx) {
-        ctx.first = CanvasKit.SkM44.rotated([10, 20], Math.PI/2);
-        ctx.second = CanvasKit.SkM44.scaled([1, 2, 3]);
+        ctx.first = CanvasKit.M44.rotated([10, 20, 30], Math.PI/2);
+        ctx.second = CanvasKit.M44.scaled([1, 2, 3]);
     },
     test: function(CanvasKit, ctx) {
-        ctx.result = CanvasKit.SkM44.multiply(ctx.first, ctx.second);
+        ctx.result = CanvasKit.M44.multiply(ctx.first, ctx.second);
         if (ctx.result.length === 18) {
             throw 'this is here to keep the result from being optimized away';
         }
@@ -481,14 +481,14 @@ tests.push({
 tests.push({
     description: 'Invert a 4x4 matrix',
     setup: function(CanvasKit, ctx) {
-        ctx.matr = CanvasKit.SkM44.multiply(
-            CanvasKit.SkM44.rotated([10, 20], Math.PI/2),
-            CanvasKit.SkM44.scaled([1, 2, 3]),
+        ctx.matr = CanvasKit.M44.multiply(
+            CanvasKit.M44.rotated([10, 20, 30], Math.PI/2),
+            CanvasKit.M44.scaled([1, 2, 3]),
         );
     },
     test: function(CanvasKit, ctx) {
-        ctx.result = CanvasKit.SkM44.invert(ctx.matr);
-        if (ctx.result.length === 18) {
+        const result = CanvasKit.M44.invert(ctx.matr);
+        if (result.length === 18) {
             throw 'this is here to keep the result from being optimized away';
         }
     },
@@ -499,10 +499,10 @@ tests.push({
 tests.push({
     description: 'Concat 4x4 matrix on a canvas',
     setup: function(CanvasKit, ctx) {
-        ctx.canvas = new CanvasKit.SkCanvas();
-        ctx.matr = CanvasKit.SkM44.multiply(
-            CanvasKit.SkM44.rotated([10, 20], Math.PI/2),
-            CanvasKit.SkM44.scaled([1, 2, 3]),
+        ctx.canvas = new CanvasKit.Canvas();
+        ctx.matr = CanvasKit.M44.multiply(
+            CanvasKit.M44.rotated([10, 20, 30], Math.PI/2),
+            CanvasKit.M44.scaled([1, 2, 3]),
         );
     },
     test: function(CanvasKit, ctx) {
@@ -575,7 +575,7 @@ tests.push({
             .multiply(new DOMMatrix().translate(3, 4).scale(1, 2).translate(-3, -4));
     },
     test: function(CanvasKit, ctx) {
-        const shader = CanvasKit.SkShader.MakeSweepGradient(
+        const shader = CanvasKit.Shader.MakeSweepGradient(
             100, 100,
             [CanvasKit.GREEN, CanvasKit.BLUE],
             [0.0, 1.0],
@@ -597,7 +597,7 @@ for (const variant of ['static', 'color_changing', 'size_changing', 'layout_chan
         description: `Layout and draw a ${variant} paragraph`,
         setup: function(CanvasKit, ctx) {
             ctx.canvas = ctx.surface.getCanvas();
-            ctx.fontMgr = CanvasKit.SkFontMgr.FromData([ctx.files['Roboto-Regular.ttf']]);
+            ctx.fontMgr = CanvasKit.FontMgr.FromData([ctx.files['Roboto-Regular.ttf']]);
             ctx.paraStyle = new CanvasKit.ParagraphStyle({
                 textStyle: {
                         color: CanvasKit.WHITE,
@@ -661,7 +661,7 @@ tests.push({
     description: 'Draw a path with a blur mask',
     setup: function(CanvasKit, ctx) {
         ctx.canvas = ctx.surface.getCanvas();
-        ctx.paint = new CanvasKit.SkPaint();
+        ctx.paint = new CanvasKit.Paint();
         ctx.paint.setAntiAlias(true);
         ctx.paint.setStyle(CanvasKit.PaintStyle.Fill);
         ctx.paint.setColor(CanvasKit.Color4f(0.1, 0.7, 0.0, 1.0));
@@ -670,7 +670,7 @@ tests.push({
     },
     test: function(CanvasKit, ctx) {
         const sigma = 0.1 + (ctx.frame/10);
-        const blurMask = CanvasKit.SkMaskFilter.MakeBlur(
+        const blurMask = CanvasKit.MaskFilter.MakeBlur(
             CanvasKit.BlurStyle.Normal, sigma, true);
         ctx.paint.setMaskFilter(blurMask);
         ctx.canvas.drawPath(ctx.path, ctx.paint);

@@ -52,14 +52,14 @@ function LinearCanvasGradient(x1, y1, x2, y2) {
     // From the spec: "The points in the linear gradient must be transformed
     // as described by the current transformation matrix when rendering."
     var pts = [x1, y1, x2, y2];
-    CanvasKit.SkMatrix.mapPoints(currentTransform, pts);
+    CanvasKit.Matrix.mapPoints(currentTransform, pts);
     var sx1 = pts[0];
     var sy1 = pts[1];
     var sx2 = pts[2];
     var sy2 = pts[3];
 
     this._dispose();
-    this._shader = CanvasKit.SkShader.MakeLinearGradient([sx1, sy1], [sx2, sy2],
+    this._shader = CanvasKit.Shader.MakeLinearGradient([sx1, sy1], [sx2, sy2],
       this._colors, this._pos, CanvasKit.TileMode.Clamp);
     return this._shader;
   }
