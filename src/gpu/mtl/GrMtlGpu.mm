@@ -497,7 +497,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     return true;
 }
 
-GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
+GrAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
         const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
     SkASSERT(numStencilSamples == rt->numSamples());
     SkASSERT(dimensions.width() >= rt->width());
@@ -507,10 +507,8 @@ GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
 
     MTLPixelFormat sFmt = this->mtlCaps().preferredStencilFormat();
 
-    GrMtlStencilAttachment* stencil(GrMtlStencilAttachment::Create(this,
-                                                                   dimensions,
-                                                                   samples,
-                                                                   sFmt));
+    GrMtlAttachment* stencil(GrMtlAttachment::Create(
+            this, dimensions, GrAttachment::UsageFlags::kStencil, samples, sFmt));
     fStats.incStencilAttachmentCreates();
     return stencil;
 }

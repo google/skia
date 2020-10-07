@@ -16,10 +16,10 @@
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrTexture.h"
 
+#include "src/gpu/mtl/GrMtlAttachment.h"
 #include "src/gpu/mtl/GrMtlCaps.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
-#include "src/gpu/mtl/GrMtlStencilAttachment.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 #import <Metal/Metal.h>
