@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96441934_a60e99ec",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-07T19:58:15Z",
+      "side": 1,
+      "message": "Maybe something like:\n\n    // If start points to a trailing surrogate, skip this codepoint.\n\nI understand why this works, but it seems like what you want is more like\n\n    auto utf8 \u003d fUTF8IndexForUTF16Index[start];\n    // If start points to a trailing surrogate, skip it.\n    if (0 \u003c start \u0026\u0026 fUTF8IndexForUTF16Index[start - 1] \u003d\u003d utf8) {\n        utf8 \u003d fUTF8IndexForUTF16Index[start + 1];\n    }\n    text.start \u003d findNextGraphemeBoundary(utf8);\n\nor something like it which makes it obvious that the idea is to first advance \u0027start\u0027 to the next starting code unit (non-trailing surrogate). Note that this \"start + 1\" works because fUTF8IndexForUTF16Index adds (by necessity) the one past the end location which can never be the same as the previous entry (the offset of code unit beginning the encoding of the last code point).",
+      "range": {
+        "startLine": 603,
+        "startChar": 11,
+        "endLine": 603,
+        "endChar": 96
+      },
+      "revId": "9f44b92e1ae55442871e04cd4aaf45058a7c8f3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
