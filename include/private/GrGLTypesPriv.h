@@ -11,7 +11,7 @@
 #ifndef GrGLTypesPriv_DEFINED
 #define GrGLTypesPriv_DEFINED
 
-static constexpr int kGrGLFormatCount = static_cast<int>(GrGLFormat::kLast) + 1;
+static constexpr int kGrGLColorFormatCount = static_cast<int>(GrGLFormat::kLastColorFormat) + 1;
 
 class GrGLTextureParameters : public SkNVRefCnt<GrGLTextureParameters> {
 public:

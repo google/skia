@@ -104,7 +104,8 @@ public:
     }
 #endif
 
-    static GrBackendFormat MakeMock(GrColorType colorType, SkImage::CompressionType compression);
+    static GrBackendFormat MakeMock(GrColorType colorType, SkImage::CompressionType compression,
+                                    bool isStencilFormat = false);
 
     bool operator==(const GrBackendFormat& that) const;
     bool operator!=(const GrBackendFormat& that) const { return !(*this == that); }
@@ -157,12 +158,13 @@ public:
 #endif
 
     /**
-     * If the backend API is not Mock these two calls will return kUnknown and kNone, respectively.
-     * Otherwise, if the compression type is kNone then the GrColorType will be valid. If the
-     * compression type is anything other then kNone than the GrColorType will be kUnknown.
+     * If the backend API is not Mock these three calls will return kUnknown, kNone or false,
+     * respectively. Otherwise, only one of the following can be true. The GrColorType is not
+     * kUnknown, the compression type is not kNone, or this is a mock stencil format.
      */
     GrColorType asMockColorType() const;
     SkImage::CompressionType asMockCompressionType() const;
+    bool isMockStencilFormat() const;
 
     // If possible, copies the GrBackendFormat and forces the texture type to be Texture2D. If the
     // GrBackendFormat was for Vulkan and it originally had a GrVkYcbcrConversionInfo, we will
@@ -193,17 +195,21 @@ private:
     GrBackendFormat(DXGI_FORMAT dxgiFormat);
 #endif
 
-    GrBackendFormat(GrColorType, SkImage::CompressionType);
+    GrBackendFormat(GrColorType, SkImage::CompressionType, bool isStencilFormat);
+
+#ifdef SK_DEBUG
+    bool validateMock() const;
+#endif
 
     GrBackendApi fBackend = GrBackendApi::kMock;
     bool         fValid = false;
 
     union {
-        GrGLenum         fGLFormat; // the sized, internal format of the GL resource
+        GrGLenum fGLFormat; // the sized, internal format of the GL resource
         struct {
             VkFormat                 fFormat;
             GrVkYcbcrConversionInfo  fYcbcrConversionInfo;
-        }                fVk;
+        } fVk;
 #ifdef SK_DAWN
         wgpu::TextureFormat fDawnFormat;
 #endif
@@ -218,7 +224,8 @@ private:
         struct {
             GrColorType              fColorType;
             SkImage::CompressionType fCompressionType;
-        }                fMock;
+            bool                     fIsStencilFormat;
+        } fMock;
     };
     GrTextureType fTextureType = GrTextureType::kNone;
 };

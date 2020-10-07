@@ -21,4 +21,6 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format);
 // Returns the number of bytes per pixel for the given format. All compressed formats will return 0.
 size_t GrBackendFormatBytesPerPixel(const GrBackendFormat& format);
 
+int GrBackendFormatStencilBits(const GrBackendFormat& format);
+
 #endif
