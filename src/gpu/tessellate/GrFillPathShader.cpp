@@ -76,9 +76,9 @@ void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const 
             float2 v1 = P[1] - P[0], v2 = P[2] - P[0], v3 = P[3] - P[0];
 
             // Reorder the points so v2 bisects v1 and v3.
-            if (sign(determinant(float2x2(v2,v1))) == sign(determinant(float2x2(v2,v3)))) {
+            if (sign(cross(v2,v1)) == sign(cross(v2,v3))) {
                 float2 tmp = P[2];
-                if (sign(determinant(float2x2(v1,v2))) != sign(determinant(float2x2(v1,v3)))) {
+                if (sign(cross(v1,v2)) != sign(cross(v1,v3))) {
                     P[2] = P[1];  // swap(P2, P1)
                     P[1] = tmp;
                 } else {
@@ -92,7 +92,7 @@ void GrFillCubicHullShader::emitVertexCode(Impl*, GrGLSLVertexBuilder* v, const 
             float netdir = 0.0;
             for (int i = 0; i < 4; ++i) {
                 float2 prev = P[i] - P[(i + 3) & 3], next = P[(i + 1) & 3] - P[i];
-                dir[i] = sign(determinant(float2x2(prev, next)));
+                dir[i] = sign(cross(prev, next));
                 netdir += dir[i];
             }
 
