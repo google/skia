@@ -16,6 +16,23 @@
       "message": "Chrome unblocking CL is here: https://chromium-review.googlesource.com/c/chromium/src/+/2456511/",
       "revId": "7aa01446e74abf6f96b7431cae94b734cba3518e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fb8e33b_a9025562",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-07T17:31:40Z",
+      "side": 1,
+      "message": "Android unblocker is here: https://googleplex-android-review.googlesource.com/c/platform/frameworks/base/+/12784569/\nFlutter roll is unrelated, broken on their side.",
+      "revId": "7aa01446e74abf6f96b7431cae94b734cba3518e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
