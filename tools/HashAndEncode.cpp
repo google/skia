@@ -75,7 +75,7 @@ HashAndEncode::HashAndEncode(const SkBitmap& bitmap) : fSize(bitmap.info().dimen
     }
 }
 
-void HashAndEncode::write(SkWStream* st) const {
+void HashAndEncode::feedHash(SkWStream* st) const {
     st->write(&fSize, sizeof(fSize));
     if (const uint64_t* px = fPixels.get()) {
         st->write(px, sizeof(*px) * fSize.width() * fSize.height());
@@ -87,31 +87,35 @@ void HashAndEncode::write(SkWStream* st) const {
     st->write(&salt, sizeof(salt));
 }
 
-bool HashAndEncode::writePngTo(const char* path,
-                               const char* md5,
-                               CommandLineFlags::StringArray key,
-                               CommandLineFlags::StringArray properties) const {
-    if (!fPixels) {
-        return false;
-    }
+// NOTE: HashAndEncode uses libpng directly rather than through an abstraction
+// like SkPngEncoder to make sure we get stable, portable results independent
+// of any changes to Skia production encoder.
 
-    FILE* f = fopen(path, "wb");
-    if (!f) {
+bool HashAndEncode::encodePNG(SkWStream* st,
+                              const char* md5,
+                              CommandLineFlags::StringArray key,
+                              CommandLineFlags::StringArray properties) const {
+    if (!fPixels) {
         return false;
     }
 
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) {
-        fclose(f);
         return false;
     }
 
     png_infop info = png_create_info_struct(png);
     if (!info) {
         png_destroy_write_struct(&png, &info);
-        fclose(f);
         return false;
     }
+    auto write_to_stream = +[](png_structp png, png_bytep ptr, png_size_t len) {
+        auto st = (SkWStream*)png_get_io_ptr(png);
+        if (!st->write(ptr, len)) {
+            png_error(png, "HashAndEncode::encodePNG() failed writing stream");
+        }
+    };
+    png_set_write_fn(png, st, write_to_stream, nullptr);
 
     SkString description;
     description.append("Key: ");
@@ -133,7 +137,6 @@ bool HashAndEncode::writePngTo(const char* path,
     text[1].compression = PNG_TEXT_COMPRESSION_NONE;
     png_set_text(png, info, text, SK_ARRAY_COUNT(text));
 
-    png_init_io(png, f);
     png_set_IHDR(png, info, (png_uint_32)fSize.width()
                           , (png_uint_32)fSize.height()
                           , 16/*bits per channel*/
@@ -161,7 +164,6 @@ bool HashAndEncode::writePngTo(const char* path,
     png_write_end(png, info);
 
     png_destroy_write_struct(&png, &info);
-    fclose(f);
     return true;
 }
 
