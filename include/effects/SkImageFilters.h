@@ -251,6 +251,9 @@ public:
      *  @param paint    The paint to fill
      *  @param cropRect Optional rectangle that will be filled. If null, the source bitmap's bounds
      *                  are filled even though the source bitmap itself is not used.
+     *
+     * DEPRECATED: Use Shader() instead, since many features of SkPaint are ignored when filling
+     *             the target output, and paint color/alpha can be emulated with SkShaders::Color().
      */
     static sk_sp<SkImageFilter> Paint(const SkPaint& paint, const SkIRect* cropRect = nullptr);
 
@@ -267,6 +270,18 @@ public:
         SkRect target = pic ? pic->cullRect() : SkRect::MakeEmpty();
         return Picture(std::move(pic), target);
     }
+
+    /**
+     *  Create a filter that fills the output with the per-pixel evaluation of the SkShader. The
+     *  shader is defined in the image filter's local coordinate system, so will automatically
+     *  be affected by SkCanvas' transform.
+     *
+     *  Like Image() and Picture(), this is a leaf filter that can be used to introduce inputs to
+     *  a complex filter graph, but should generally be combined with a filter that as at least
+     *  one null input to use the implicit source image.
+     *  @param shader The shader that
+     */
+    static sk_sp<SkImageFilter> Shader(sk_sp<SkShader> shader, const SkIRect* cropRect = nullptr);
 
     /**
      *  Create a tile image filter.

@@ -135,10 +135,8 @@ protected:
         }
         canvas->restore();
 
-        SkPaint noisePaint;
-        noisePaint.setShader(SkPerlinNoiseShader::MakeFractalNoise(0.1f, 0.05f, 1, 0));
-
-        sk_sp<SkImageFilter> rectFilter(SkImageFilters::Paint(noisePaint));
+        sk_sp<SkImageFilter> rectFilter(SkImageFilters::Shader(
+                SkPerlinNoiseShader::MakeFractalNoise(0.1f, 0.05f, 1, 0)));
         canvas->translate(SK_ARRAY_COUNT(filters)*(r.width() + margin), 0);
         for (int xOffset = 0; xOffset < 80; xOffset += 16) {
             bounds.fLeft = SkIntToScalar(xOffset);

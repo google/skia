@@ -9,6 +9,10 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Add new SkImageFilters::Shader factory and deprecate SkImageFilters::Paint factory. All
+    supported/valid Paint() filters can be represented more cleanly as a Shader image filter.
+    https://review.skia.org/323680
+
   * GrContext has been replaced by two separate classes: GrDirectContext which is
     the traditional notion of GrContext, and GrRecordingContext which is a context
     that is recording an SkDeferredDisplayList and therefore has reduced functionality.

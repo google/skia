@@ -7,6 +7,8 @@
 
 #include "include/effects/SkImageFilters.h"
 
+#include "include/core/SkPaint.h"
+
 // TODO (michaelludwig) - Right now there is a bit of a weird dependency where the implementations
 // of the new, preferred filter factories depends on the per-filter headers in include/effects,
 // which have themselves been marked as deprecated. But, once clients are updated to use the
@@ -177,6 +179,13 @@ sk_sp<SkImageFilter> SkImageFilters::Paint(const SkPaint& paint, const SkIRect* 
 
 sk_sp<SkImageFilter> SkImageFilters::Picture(sk_sp<SkPicture> pic, const SkRect& targetRect) {
     return SkPictureImageFilter::Make(std::move(pic), targetRect);
+}
+
+sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, const SkIRect* cropRect) {
+    SkImageFilter::CropRect r = make_crop_rect(cropRect);
+    SkPaint paint;
+    paint.setShader(std::move(shader));
+    return SkPaintImageFilter::Make(paint, &r);
 }
 
 sk_sp<SkImageFilter> SkImageFilters::Tile(
