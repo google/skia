@@ -1,6 +1,253 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c90934c_85c73a03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "This is a great change! Thank you for iterating on it :) ",
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abb638b7_4879a30f",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "return index;",
+      "range": {
+        "startLine": 417,
+        "startChar": 16,
+        "endLine": 417,
+        "endChar": 28
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "791493bb_992cb45c",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "Eliminate",
+      "range": {
+        "startLine": 422,
+        "startChar": 8,
+        "endLine": 424,
+        "endChar": 9
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "180523ba_3ee6d496",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "SkDEBUGFAIL(\"child fragment processor not found\");\nreturn 0;",
+      "range": {
+        "startLine": 426,
+        "startChar": 0,
+        "endLine": 427,
+        "endChar": 17
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac83badb_594a19a3",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "tiny tiny nit: indentation (lots like this throughout file)",
+      "range": {
+        "startLine": 713,
+        "startChar": 34,
+        "endLine": 713,
+        "endChar": 36
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a313595_89507496",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "tiny nit: indentation",
+      "range": {
+        "startLine": 966,
+        "startChar": 29,
+        "endLine": 966,
+        "endChar": 32
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aefaf2b6_7b96d746",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 1079,
+        "startChar": 33,
+        "endLine": 1079,
+        "endChar": 36
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f6f1c99_46a16e27",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1277,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "indentation",
+      "range": {
+        "startLine": 1277,
+        "startChar": 37,
+        "endLine": 1277,
+        "endChar": 40
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a92ba06_0500475e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "\"dead global variables\"?",
+      "range": {
+        "startLine": 1680,
+        "startChar": 38,
+        "endLine": 1680,
+        "endChar": 52
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d760a92_b37af85d",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "tiny nit: This can fit on one line now",
+      "range": {
+        "startLine": 1269,
+        "startChar": 32,
+        "endLine": 1270,
+        "endChar": 34
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d1dc5a8_17521068",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:19:20Z",
+      "side": 1,
+      "message": "tiny nit:\n    /*offset\u003d*/-1",
+      "range": {
+        "startLine": 326,
+        "startChar": 76,
+        "endLine": 326,
+        "endChar": 78
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0a57d941_c4909cc4",
