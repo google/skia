@@ -76,6 +76,12 @@ npm:
 	cp ../../out/canvaskit_wasm/canvaskit.js       ./canvaskit/bin/core
 	cp ../../out/canvaskit_wasm/canvaskit.wasm     ./canvaskit/bin/core
 
+gm_tests:
+	./compile_gm.sh
+	mkdir -p ./out
+	cp ../../out/wasm_gm_tests/wasm_gm_tests.js       ./out
+	cp ../../out/wasm_gm_tests/wasm_gm_tests.wasm     ./out
+
 local-example:
 	rm -rf node_modules/canvaskit
 	mkdir -p node_modules
