@@ -41,6 +41,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17355be4_a28bf46d",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abb638b7_4879a30f",
+      "range": {
+        "startLine": 417,
+        "startChar": 16,
+        "endLine": 417,
+        "endChar": 28
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "791493bb_992cb45c",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-10-07T16:19:20Z",
       "side": 1,
       "message": "Eliminate",
+      "range": {
+        "startLine": 422,
+        "startChar": 8,
+        "endLine": 424,
+        "endChar": 9
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "336554ab_16e520f9",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "791493bb_992cb45c",
       "range": {
         "startLine": 422,
         "startChar": 8,
@@ -87,6 +135,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "85e3f48d_d87295e3",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "180523ba_3ee6d496",
+      "range": {
+        "startLine": 426,
+        "startChar": 0,
+        "endLine": 427,
+        "endChar": 17
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ac83badb_594a19a3",
@@ -100,6 +172,30 @@
       "writtenOn": "2020-10-07T16:19:20Z",
       "side": 1,
       "message": "tiny tiny nit: indentation (lots like this throughout file)",
+      "range": {
+        "startLine": 713,
+        "startChar": 34,
+        "endLine": 713,
+        "endChar": 36
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09313fd1_6dd2636e",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac83badb_594a19a3",
       "range": {
         "startLine": 713,
         "startChar": 34,
@@ -133,6 +229,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d09477a2_db38bf35",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 966,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a313595_89507496",
+      "range": {
+        "startLine": 966,
+        "startChar": 29,
+        "endLine": 966,
+        "endChar": 32
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aefaf2b6_7b96d746",
@@ -146,6 +266,30 @@
       "writtenOn": "2020-10-07T16:19:20Z",
       "side": 1,
       "message": "indentation",
+      "range": {
+        "startLine": 1079,
+        "startChar": 33,
+        "endLine": 1079,
+        "endChar": 36
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd670dc5_305cfe99",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aefaf2b6_7b96d746",
       "range": {
         "startLine": 1079,
         "startChar": 33,
@@ -179,6 +323,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e7d2330_7850a97e",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1277,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f6f1c99_46a16e27",
+      "range": {
+        "startLine": 1277,
+        "startChar": 37,
+        "endLine": 1277,
+        "endChar": 40
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1a92ba06_0500475e",
@@ -192,6 +360,30 @@
       "writtenOn": "2020-10-07T16:19:20Z",
       "side": 1,
       "message": "\"dead global variables\"?",
+      "range": {
+        "startLine": 1680,
+        "startChar": 38,
+        "endLine": 1680,
+        "endChar": 52
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f788ae6_f1ccbd67",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1680,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a92ba06_0500475e",
       "range": {
         "startLine": 1680,
         "startChar": 38,
@@ -225,6 +417,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "881a9713_e9411663",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d760a92_b37af85d",
+      "range": {
+        "startLine": 1269,
+        "startChar": 32,
+        "endLine": 1270,
+        "endChar": 34
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d1dc5a8_17521068",
@@ -238,6 +454,30 @@
       "writtenOn": "2020-10-07T16:19:20Z",
       "side": 1,
       "message": "tiny nit:\n    /*offset\u003d*/-1",
+      "range": {
+        "startLine": 326,
+        "startChar": 76,
+        "endLine": 326,
+        "endChar": 78
+      },
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a391a4e_4528e63a",
+        "filename": "src/sksl/SkSLRehydrator.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d1dc5a8_17521068",
       "range": {
         "startLine": 326,
         "startChar": 76,
