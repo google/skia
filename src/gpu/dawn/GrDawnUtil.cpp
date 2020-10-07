@@ -17,8 +17,20 @@ size_t GrDawnBytesPerBlock(wgpu::TextureFormat format) {
         case wgpu::TextureFormat::Depth24PlusStencil8:
             return 4;
         default:
-            SkASSERT(false);
-            return 4;
+            SkUNREACHABLE;
+    }
+}
+
+int GrDawnFormatStencilBits(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:
+        case wgpu::TextureFormat::BGRA8Unorm:
+        case wgpu::TextureFormat::R8Unorm:
+            return 0;
+        case wgpu::TextureFormat::Depth24PlusStencil8:
+            return 8;
+        default:
+            SkUNREACHABLE;
     }
 }
 
@@ -78,8 +90,7 @@ const char* GrDawnFormatToStr(wgpu::TextureFormat format) {
         case wgpu::TextureFormat::Depth24PlusStencil8:
             return "Depth24PlusStencil8";
         default:
-            SkASSERT(false);
-            return "Unknown";
+            SkUNREACHABLE;
     }
 }
 #endif
