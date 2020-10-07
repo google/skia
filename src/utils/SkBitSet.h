@@ -132,7 +132,7 @@ public:
                 if (bitIndex >= fSize) {
                     break;
                 }
-                return OptionalIndex(i * kChunkBits + SkCTZ(chunk));
+                return OptionalIndex(bitIndex);
             }
         }
         return OptionalIndex();
