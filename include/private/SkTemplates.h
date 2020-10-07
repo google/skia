@@ -114,9 +114,9 @@ public:
         return fArray[index];
     }
 
-    // aliases matching other types like std::vector
-    const T* data() const { return fArray; }
-    T* data() { return fArray; }
+    /** Aliases matching other types, like std::vector. */
+    const T* data() const { return fArray.get(); }
+    T* data() { return fArray.get(); }
 
 private:
     std::unique_ptr<T[]> fArray;
@@ -207,7 +207,7 @@ public:
         return fArray[index];
     }
 
-    // aliases matching other types like std::vector
+    /** Aliases matching other types, like std::vector. */
     const T* data() const { return fArray; }
     T* data() { return fArray; }
     size_t size() const { return fCount; }
@@ -265,6 +265,10 @@ public:
     T& operator[](int index) { return fPtr.get()[index]; }
 
     const T& operator[](int index) const { return fPtr.get()[index]; }
+
+    /** Aliases matching other types, like std::vector. */
+    const T* data() const { return fPtr.get(); }
+    T* data() { return fPtr.get(); }
 
     /**
      *  Transfer ownership of the ptr to the caller, setting the internal
@@ -334,6 +338,10 @@ public:
     const T& operator[](int index) const {
         return fPtr[index];
     }
+
+    /** Aliases matching other types, like std::vector. */
+    const T* data() const { return fPtr; }
+    T* data() { return fPtr; }
 
     // Reallocs the array, can be used to shrink the allocation.  Makes no attempt to be intelligent
     void realloc(size_t count) {
