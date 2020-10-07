@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bcb3012_2b5b3125",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-07T20:01:16Z",
+      "side": 1,
+      "message": "Change LGTM as it fixes the crash.  Deferring to Derek/Stan for approval.",
+      "revId": "acbe11c17dd097be319cb70f11b0dfac33806f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf14828e_aac5a3c6",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-07T20:01:16Z",
+      "side": 1,
+      "message": "Is there a way to assert this in the method?",
+      "range": {
+        "startLine": 369,
+        "startChar": 11,
+        "endLine": 369,
+        "endChar": 40
+      },
+      "revId": "acbe11c17dd097be319cb70f11b0dfac33806f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
