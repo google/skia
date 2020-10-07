@@ -631,7 +631,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
                                                  caller->fBuiltin, Variable::kLocal_Storage,
                                                  initialValue->get());
-        const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
+        const Variable* variableSymbol = symbolTableForCall->add(std::move(newVar));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
         // initial value).
