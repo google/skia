@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7beac88b_271d7700",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T16:49:19Z",
+      "side": 1,
+      "message": "Didn\u0027t autosubmit - I suspect this is going to merge conflict with my CL.",
+      "revId": "015a29c38a475872cd5bfd2a72020f5db3291e6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
