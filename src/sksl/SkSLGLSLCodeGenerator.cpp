@@ -785,7 +785,7 @@ void GLSLCodeGenerator::writeFragCoord() {
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable->fModifiers.fLayout.fBuiltin) {
+    switch (ref.fVariable->modifiers().fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             if (fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput()) {
                 this->write("sk_FragColor");
@@ -1050,7 +1050,7 @@ void GLSLCodeGenerator::writeFunction(const FunctionDefinition& f) {
     for (const auto& param : f.fDeclaration.fParameters) {
         this->write(separator);
         separator = ", ";
-        this->writeModifiers(param->fModifiers, false);
+        this->writeModifiers(param->modifiers(), false);
         std::vector<int> sizes;
         const Type* type = &param->type();
         while (type->typeKind() == Type::TypeKind::kArray) {
@@ -1177,7 +1177,7 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if (intf.fTypeName == "sk_PerVertex") {
         return;
     }
-    this->writeModifiers(intf.fVariable.fModifiers, true);
+    this->writeModifiers(intf.fVariable.modifiers(), true);
     this->writeLine(intf.fTypeName + " {");
     fIndentation++;
     const Type* structType = &intf.fVariable.type();
@@ -1245,7 +1245,7 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool global) {
-    this->writeModifiers(var.fVar->fModifiers, global);
+    this->writeModifiers(var.fVar->modifiers(), global);
     this->writeTypePrecision(var.fBaseType);
     this->writeType(var.fBaseType);
     this->write(" ");
@@ -1487,14 +1487,14 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             break;
         case ProgramElement::Kind::kGlobalVar: {
             const VarDeclaration& decl = *e.as<GlobalVarDeclaration>().fDecl;
-            int builtin = decl.fVar->fModifiers.fLayout.fBuiltin;
+            int builtin = decl.fVar->modifiers().fLayout.fBuiltin;
             if (builtin == -1) {
                 // normal var
                 this->writeVarDeclaration(decl, true);
                 this->writeLine();
             } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                        fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput() &&
-                       decl.fVar->fWriteCount) {
+                       decl.fVar->writeCount()) {
                 if (fProgram.fSettings.fFragColorIsInOut) {
                     this->write("inout ");
                 } else {
