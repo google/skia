@@ -340,13 +340,13 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
             break;
 
         case SurfaceType::kBackendRenderTarget:
-            surface = MakeBackendRenderTargetSurface(context,
-                                                     info.dimensions(),
-                                                     FLAGS_samples,
-                                                     kBottomLeft_GrSurfaceOrigin,
-                                                     info.colorType(),
-                                                     info.refColorSpace(),
-                                                     &props);
+            surface = sk_gpu_test::MakeBackendRenderTargetSurface(context,
+                                                                  info.dimensions(),
+                                                                  kBottomLeft_GrSurfaceOrigin,
+                                                                  FLAGS_samples,
+                                                                  info.colorType(),
+                                                                  info.refColorSpace(),
+                                                                  &props);
             break;
     }
 
