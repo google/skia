@@ -20,8 +20,8 @@
 namespace SkSL {
 
 static bool needs_uniform_var(const Variable& var) {
-    return (var.fModifiers.fFlags & Modifiers::kUniform_Flag) &&
-           var.type().typeKind() != Type::TypeKind::kSampler;
+    return (var.modifiers().fFlags & Modifiers::kUniform_Flag) &&
+            var.type().typeKind() != Type::TypeKind::kSampler;
 }
 
 CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* program,
@@ -128,22 +128,24 @@ static String default_value(const Type& type) {
 }
 
 static String default_value(const Variable& var) {
-    if (var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kSkPMColor4f) {
+    if (var.modifiers().fLayout.fCType == SkSL::Layout::CType::kSkPMColor4f) {
         return "{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN}";
     }
     return default_value(var.type());
 }
 
 static bool is_private(const Variable& var) {
-    return !(var.fModifiers.fFlags & Modifiers::kUniform_Flag) &&
-           !(var.fModifiers.fFlags & Modifiers::kIn_Flag) &&
-           var.fStorage == Variable::kGlobal_Storage &&
-           var.fModifiers.fLayout.fBuiltin == -1;
+    const Modifiers& modifiers = var.modifiers();
+    return !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
+           !(modifiers.fFlags & Modifiers::kIn_Flag) &&
+           var.storage() == Variable::kGlobal_Storage &&
+           modifiers.fLayout.fBuiltin == -1;
 }
 
 static bool is_uniform_in(const Variable& var) {
-    return (var.fModifiers.fFlags & Modifiers::kUniform_Flag) &&
-           (var.fModifiers.fFlags & Modifiers::kIn_Flag) &&
+    const Modifiers& modifiers = var.modifiers();
+    return (modifiers.fFlags & Modifiers::kUniform_Flag) &&
+           (modifiers.fFlags & Modifiers::kIn_Flag) &&
            var.type().typeKind() != Type::TypeKind::kSampler;
 }
 
@@ -260,7 +262,7 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
 
 void CPPCodeGenerator::writeVarInitializer(const Variable& var, const Expression& value) {
     if (is_private(var)) {
-        this->writeRuntimeValue(var.type(), var.fModifiers.fLayout, var.name());
+        this->writeRuntimeValue(var.type(), var.modifiers().fLayout, var.name());
     } else {
         this->writeExpression(value, kTopLevel_Precedence);
     }
@@ -312,7 +314,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
         this->write(ref.fVariable->name());
         return;
     }
-    switch (ref.fVariable->fModifiers.fLayout.fBuiltin) {
+    switch (ref.fVariable->modifiers().fLayout.fBuiltin) {
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
@@ -336,13 +338,13 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
                                       this->getSamplerHandle(*ref.fVariable) + ")");
                 return;
             }
-            if (ref.fVariable->fModifiers.fFlags & Modifiers::kUniform_Flag) {
+            if (ref.fVariable->modifiers().fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
                 String name = ref.fVariable->name();
                 String var = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
                                             HCodeGenerator::FieldName(name.c_str()).c_str());
                 String code;
-                if (ref.fVariable->fModifiers.fLayout.fWhen.fLength) {
+                if (ref.fVariable->modifiers().fLayout.fWhen.fLength) {
                     code = String::printf("%sVar.isValid() ? %s : \"%s\"",
                                           HCodeGenerator::FieldName(name.c_str()).c_str(),
                                           var.c_str(),
@@ -353,7 +355,7 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 fFormatArgs.push_back(code);
             } else if (SectionAndParameterHelper::IsParameter(*ref.fVariable)) {
                 String name(ref.fVariable->name());
-                this->writeRuntimeValue(ref.fVariable->type(), ref.fVariable->fModifiers.fLayout,
+                this->writeRuntimeValue(ref.fVariable->type(), ref.fVariable->modifiers().fLayout,
                                         String::printf("_outer.%s", name.c_str()).c_str());
             } else {
                 this->write(ref.fVariable->name());
@@ -657,8 +659,8 @@ void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
         case ProgramElement::Kind::kGlobalVar: {
             const GlobalVarDeclaration& decl = p.as<GlobalVarDeclaration>();
             const Variable& var = *decl.fDecl->fVar;
-            if (var.fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
-                -1 != var.fModifiers.fLayout.fBuiltin) {
+            if (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
+                -1 != var.modifiers().fLayout.fBuiltin) {
                 return;
             }
             break;
@@ -673,8 +675,8 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     if (!needs_uniform_var(var)) {
         return;
     }
-    if (var.fModifiers.fLayout.fWhen.fLength) {
-        this->writef("        if (%s) {\n    ", String(var.fModifiers.fLayout.fWhen).c_str());
+    if (var.modifiers().fLayout.fWhen.fLength) {
+        this->writef("        if (%s) {\n    ", String(var.modifiers().fLayout.fWhen).c_str());
     }
     String name(var.name());
     if (var.type().typeKind() != Type::TypeKind::kArray) {
@@ -691,7 +693,7 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
                      name.c_str(),
                      var.type().columns());
     }
-    if (var.fModifiers.fLayout.fWhen.fLength) {
+    if (var.modifiers().fLayout.fWhen.fLength) {
         this->write("        }\n");
     }
 }
@@ -711,11 +713,11 @@ void CPPCodeGenerator::writePrivateVars() {
                 }
                 this->writef("%s %s = %s;\n",
                              HCodeGenerator::FieldType(fContext, decl.fVar->type(),
-                                                       decl.fVar->fModifiers.fLayout)
+                                                       decl.fVar->modifiers().fLayout)
                                      .c_str(),
                              String(decl.fVar->name()).c_str(),
                              default_value(*decl.fVar).c_str());
-            } else if (decl.fVar->fModifiers.fLayout.fFlags & Layout::kTracked_Flag) {
+            } else if (decl.fVar->modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                 // An auto-tracked uniform in variable, so add a field to hold onto the prior
                 // state. Note that tracked variables must be uniform in's and that is validated
                 // before writePrivateVars() is called.
@@ -1010,8 +1012,8 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
             const char* name = nameString.c_str();
 
             // Switches for setData behavior in the generated code
-            bool conditionalUniform = u->fModifiers.fLayout.fWhen != "";
-            bool isTracked = u->fModifiers.fLayout.fFlags & Layout::kTracked_Flag;
+            bool conditionalUniform = u->modifiers().fLayout.fWhen != "";
+            bool isTracked = u->modifiers().fLayout.fFlags & Layout::kTracked_Flag;
             bool needsValueDeclaration = isTracked || !mapper->canInlineUniformValue();
 
             String uniformName = HCodeGenerator::FieldName(name) + "Var";
@@ -1029,7 +1031,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                 valueVar.appendf("%sValue", name);
                 // Use AccessType since that will match the return type of _outer's public API.
                 String valueType = HCodeGenerator::AccessType(fContext, u->type(),
-                                                              u->fModifiers.fLayout);
+                                                              u->modifiers().fLayout);
                 this->writef("%s%s %s = _outer.%s;\n",
                              indent.c_str(), valueType.c_str(), valueVar.c_str(), name);
             } else {
@@ -1189,7 +1191,7 @@ void CPPCodeGenerator::writeDumpInfo() {
             // Add this field onto the format string and argument list.
             String fieldName = HCodeGenerator::FieldName(String(param->name()).c_str());
             String runtimeValue = this->formatRuntimeValue(param->type(),
-                                                           param->fModifiers.fLayout,
+                                                           param->modifiers().fLayout,
                                                            param->name(),
                                                            &argumentList);
             formatString.appendf("%s%s=%s",
@@ -1245,16 +1247,16 @@ void CPPCodeGenerator::writeGetKey() {
             const Type& varType = var.type();
             String nameString(var.name());
             const char* name = nameString.c_str();
-            if (var.fModifiers.fLayout.fKey != Layout::kNo_Key &&
-                (var.fModifiers.fFlags & Modifiers::kUniform_Flag)) {
+            if (var.modifiers().fLayout.fKey != Layout::kNo_Key &&
+                (var.modifiers().fFlags & Modifiers::kUniform_Flag)) {
                 fErrors.error(var.fOffset, "layout(key) may not be specified on uniforms");
             }
-            switch (var.fModifiers.fLayout.fKey) {
+            switch (var.modifiers().fLayout.fKey) {
                 case Layout::kKey_Key:
                     if (is_private(var)) {
                         this->writef("%s %s =",
                                         HCodeGenerator::FieldType(fContext, varType,
-                                                                var.fModifiers.fLayout).c_str(),
+                                                                  var.modifiers().fLayout).c_str(),
                                         String(var.name()).c_str());
                         if (decl.fValue) {
                             fCPPMode = true;
@@ -1265,8 +1267,8 @@ void CPPCodeGenerator::writeGetKey() {
                         }
                         this->write(";\n");
                     }
-                    if (var.fModifiers.fLayout.fWhen.fLength) {
-                        this->writef("if (%s) {", String(var.fModifiers.fLayout.fWhen).c_str());
+                    if (var.modifiers().fLayout.fWhen.fLength) {
+                        this->writef("if (%s) {", String(var.modifiers().fLayout.fWhen).c_str());
                     }
                     if (varType == *fContext.fHalf4_Type) {
                         this->writef("    uint16_t red = SkFloatToHalf(%s.fR);\n",
@@ -1291,7 +1293,7 @@ void CPPCodeGenerator::writeGetKey() {
                         ABORT("NOT YET IMPLEMENTED: automatic key handling for %s\n",
                               varType.displayName().c_str());
                     }
-                    if (var.fModifiers.fLayout.fWhen.fLength) {
+                    if (var.modifiers().fLayout.fWhen.fLength) {
                         this->write("}");
                     }
                     break;
@@ -1315,7 +1317,7 @@ bool CPPCodeGenerator::generateCode() {
     for (const auto& p : fProgram) {
         if (p.is<GlobalVarDeclaration>()) {
             const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
-            if ((decl.fVar->fModifiers.fFlags & Modifiers::kUniform_Flag) &&
+            if ((decl.fVar->modifiers().fFlags & Modifiers::kUniform_Flag) &&
                         decl.fVar->type().typeKind() != Type::TypeKind::kSampler) {
                 uniforms.push_back(decl.fVar);
             }
@@ -1330,7 +1332,7 @@ bool CPPCodeGenerator::generateCode() {
                             + "'s type is not supported for use as a 'uniform in'");
                     return false;
                 }
-                if (decl.fVar->fModifiers.fLayout.fFlags & Layout::kTracked_Flag) {
+                if (decl.fVar->modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                     if (!mapper->supportsTracking()) {
                         fErrors.error(decl.fOffset, String(decl.fVar->name())
                                 + "'s type does not support state tracking");
@@ -1340,7 +1342,7 @@ bool CPPCodeGenerator::generateCode() {
 
             } else {
                 // If it's not a uniform_in, it's an error to be tracked
-                if (decl.fVar->fModifiers.fLayout.fFlags & Layout::kTracked_Flag) {
+                if (decl.fVar->modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                     fErrors.error(decl.fOffset, "Non-'in uniforms' cannot be tracked");
                     return false;
                 }
@@ -1369,7 +1371,7 @@ bool CPPCodeGenerator::generateCode() {
     this->writeSetData(uniforms);
     this->writePrivateVars();
     for (const auto& u : uniforms) {
-        if (needs_uniform_var(*u) && !(u->fModifiers.fFlags & Modifiers::kIn_Flag)) {
+        if (needs_uniform_var(*u) && !(u->modifiers().fFlags & Modifiers::kIn_Flag)) {
             this->writef("    UniformHandle %sVar;\n",
                          HCodeGenerator::FieldName(String(u->name()).c_str()).c_str());
         }

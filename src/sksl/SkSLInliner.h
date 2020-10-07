@@ -23,9 +23,10 @@ struct FunctionCall;
 struct FunctionDefinition;
 struct InlineCandidate;
 struct InlineCandidateList;
+class ModifiersPool;
 struct Statement;
 class SymbolTable;
-struct Variable;
+class Variable;
 
 /**
  * Converts a FunctionCall in the IR to a set of statements to be injected ahead of the function
@@ -37,7 +38,7 @@ class Inliner {
 public:
     Inliner() {}
 
-    void reset(const Context&, const Program::Settings&);
+    void reset(const Context*, ModifiersPool* modifiers, const Program::Settings*);
 
     /**
      * Processes the passed-in FunctionCall expression. The FunctionCall expression should be
@@ -87,6 +88,7 @@ private:
     bool isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache);
 
     const Context* fContext = nullptr;
+    ModifiersPool* fModifiers = nullptr;
     const Program::Settings* fSettings = nullptr;
     int fInlineVarCounter = 0;
 };

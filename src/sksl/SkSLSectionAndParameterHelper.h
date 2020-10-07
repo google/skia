@@ -63,8 +63,8 @@ public:
     }
 
     static bool IsParameter(const Variable& var) {
-        return (var.fModifiers.fFlags & Modifiers::kIn_Flag) &&
-               -1 == var.fModifiers.fLayout.fBuiltin;
+        return (var.modifiers().fFlags & Modifiers::kIn_Flag) &&
+               -1 == var.modifiers().fLayout.fBuiltin;
     }
 
     static bool IsSupportedSection(const char* name) {

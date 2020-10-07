@@ -250,8 +250,9 @@ Compiler::Compiler(Flags flags)
     // treat it as builtin (ie, no need to clone it into the Program).
     StringFragment skCapsName("sk_Caps");
     fRootSymbolTable->add(skCapsName,
-                          std::make_unique<Variable>(/*offset=*/-1, Modifiers(), skCapsName,
-                                                     fContext->fSkCaps_Type.get(),
+                          std::make_unique<Variable>(/*offset=*/-1,
+                                                     fIRGenerator->fModifiers->handle(Modifiers()),
+                                                     skCapsName, fContext->fSkCaps_Type.get(),
                                                      /*builtin=*/false, Variable::kGlobal_Storage));
 
     fIRGenerator->fIntrinsics = nullptr;
@@ -266,22 +267,28 @@ Compiler::Compiler(Flags flags)
                              &fragElements, &fFragmentSymbolTable);
 #else
     {
-        Rehydrator rehydrator(fContext.get(), fRootSymbolTable, this, SKSL_INCLUDE_sksl_gpu,
+        Rehydrator rehydrator(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(),
+                              fRootSymbolTable, this, SKSL_INCLUDE_sksl_gpu,
                               SKSL_INCLUDE_sksl_gpu_LENGTH);
         fGpuSymbolTable = rehydrator.symbolTable();
         gpuElements = rehydrator.elements();
+        fModifiers.push_back(fIRGenerator->releaseModifiers());
     }
     {
-        Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_vert,
+        Rehydrator rehydrator(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(),
+                              fGpuSymbolTable, this, SKSL_INCLUDE_sksl_vert,
                               SKSL_INCLUDE_sksl_vert_LENGTH);
         fVertexSymbolTable = rehydrator.symbolTable();
         fVertexInclude = rehydrator.elements();
+        fModifiers.push_back(fIRGenerator->releaseModifiers());
     }
     {
-        Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_frag,
+        Rehydrator rehydrator(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(),
+                              fGpuSymbolTable, this, SKSL_INCLUDE_sksl_frag,
                               SKSL_INCLUDE_sksl_frag_LENGTH);
         fFragmentSymbolTable = rehydrator.symbolTable();
         fragElements = rehydrator.elements();
+        fModifiers.push_back(fIRGenerator->releaseModifiers());
     }
 #endif
     // Call counts are used to track dead-stripping and inlinability within the program being
@@ -308,10 +315,12 @@ void Compiler::loadGeometryIntrinsics() {
     }
     #if !SKSL_STANDALONE
         {
-            Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_geom,
-                              SKSL_INCLUDE_sksl_geom_LENGTH);
+            Rehydrator rehydrator(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(),
+                                  fGpuSymbolTable, this, SKSL_INCLUDE_sksl_geom,
+                                  SKSL_INCLUDE_sksl_geom_LENGTH);
             fGeometrySymbolTable = rehydrator.symbolTable();
             fGeometryInclude = rehydrator.elements();
+            fModifiers.push_back(fIRGenerator->releaseModifiers());
         }
     #else
         this->processIncludeFile(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE, fGpuSymbolTable,
@@ -327,7 +336,8 @@ void Compiler::loadFPIntrinsics() {
     std::vector<std::unique_ptr<ProgramElement>> fpElements;
     #if !SKSL_STANDALONE
         {
-            Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this, SKSL_INCLUDE_sksl_fp,
+            Rehydrator rehydrator(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(),
+                                  fGpuSymbolTable, this, SKSL_INCLUDE_sksl_fp,
                                   SKSL_INCLUDE_sksl_fp_LENGTH);
             fFPSymbolTable = rehydrator.symbolTable();
             fpElements = rehydrator.elements();
@@ -347,11 +357,12 @@ void Compiler::loadPipelineIntrinsics() {
     std::vector<std::unique_ptr<ProgramElement>> pipelineIntrinics;
     #if !SKSL_STANDALONE
         {
-            Rehydrator rehydrator(fContext.get(), fGpuSymbolTable, this,
-                                  SKSL_INCLUDE_sksl_pipeline,
+            Rehydrator rehydrator(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(),
+                                  fGpuSymbolTable, this, SKSL_INCLUDE_sksl_pipeline,
                                   SKSL_INCLUDE_sksl_pipeline_LENGTH);
             fPipelineSymbolTable = rehydrator.symbolTable();
             pipelineIntrinics = rehydrator.elements();
+            fModifiers.push_back(fIRGenerator->releaseModifiers());
         }
     #else
         this->processIncludeFile(Program::kPipelineStage_Kind, SKSL_PIPELINE_INCLUDE,
@@ -368,11 +379,12 @@ void Compiler::loadInterpreterIntrinsics() {
     std::vector<std::unique_ptr<ProgramElement>> interpElements;
     #if !SKSL_STANDALONE
         {
-            Rehydrator rehydrator(fContext.get(), fRootSymbolTable, this,
-                                  SKSL_INCLUDE_sksl_interp,
+            Rehydrator rehydrator(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(),
+                                  fRootSymbolTable, this, SKSL_INCLUDE_sksl_interp,
                                   SKSL_INCLUDE_sksl_interp_LENGTH);
             fInterpreterSymbolTable = rehydrator.symbolTable();
             interpElements = rehydrator.elements();
+            fModifiers.push_back(fIRGenerator->releaseModifiers());
         }
     #else
         this->processIncludeFile(Program::kGeneric_Kind, SKSL_INTERP_INCLUDE,
@@ -414,6 +426,7 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* path,
 #ifdef SK_DEBUG
     fSource = nullptr;
 #endif
+    fModifiers.push_back(fIRGenerator->releaseModifiers());
     fIRGenerator->finish();
 }
 
@@ -423,7 +436,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
     switch (lvalue->kind()) {
         case Expression::Kind::kVariableReference: {
             const Variable& var = *lvalue->as<VariableReference>().fVariable;
-            if (var.fStorage == Variable::kLocal_Storage) {
+            if (var.storage() == Variable::kLocal_Storage) {
                 (*definitions)[&var] = expr;
             }
             break;
@@ -492,7 +505,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             case Expression::Kind::kFunctionCall: {
                 const FunctionCall& c = expr->as<FunctionCall>();
                 for (size_t i = 0; i < c.function().fParameters.size(); ++i) {
-                    if (c.function().fParameters[i]->fModifiers.fFlags & Modifiers::kOut_Flag) {
+                    if (c.function().fParameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
                         this->addDefinition(
                                   c.arguments()[i].get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
@@ -905,7 +918,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
             const Variable* var = ref.fVariable;
             if (ref.refKind() != VariableReference::kWrite_RefKind &&
                 ref.refKind() != VariableReference::kPointer_RefKind &&
-                var->fStorage == Variable::kLocal_Storage && !definitions[var] &&
+                var->storage() == Variable::kLocal_Storage && !definitions[var] &&
                 (*undefinedVariables).find(var) == (*undefinedVariables).end()) {
                 (*undefinedVariables).insert(var);
                 this->error(expr->fOffset,
@@ -1572,7 +1585,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
 
     fErrorText = "";
     fErrorCount = 0;
-    fInliner.reset(context(), settings);
+    fInliner.reset(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(), &settings);
     std::vector<std::unique_ptr<ProgramElement>>* inherited;
     std::vector<std::unique_ptr<ProgramElement>> elements;
     switch (kind) {
@@ -1627,6 +1640,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
                                             fContext,
                                             inherited,
                                             std::move(elements),
+                                            fIRGenerator->releaseModifiers(),
                                             fIRGenerator->fSymbolTable,
                                             fIRGenerator->fInputs);
     fIRGenerator->finish();
@@ -1696,6 +1710,7 @@ bool Compiler::optimize(Program& program) {
             break;
         }
     }
+    program.finish();
     return fErrorCount == 0;
 }
 
@@ -1705,7 +1720,8 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     fSource = program.fSource.get();
-    SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
+    SPIRVCodeGenerator cg(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(), &program, this,
+                          &buffer);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
@@ -1723,7 +1739,8 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     }
 #else
     fSource = program.fSource.get();
-    SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
+    SPIRVCodeGenerator cg(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(), &program, this,
+                          &out);
     bool result = cg.generateCode();
     fSource = nullptr;
 #endif

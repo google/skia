@@ -49,7 +49,7 @@ struct InterfaceBlock : public ProgramElement {
     }
 
     String description() const override {
-        String result = fVariable.fModifiers.description() + fTypeName + " {\n";
+        String result = fVariable.modifiers().description() + fTypeName + " {\n";
         const Type* structType = &fVariable.type();
         while (structType->typeKind() == Type::TypeKind::kArray) {
             structType = &structType->componentType();

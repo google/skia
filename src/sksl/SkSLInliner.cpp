@@ -301,9 +301,11 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
     }
 }
 
-void Inliner::reset(const Context& context, const Program::Settings& settings) {
-    fContext = &context;
-    fSettings = &settings;
+void Inliner::reset(const Context* context, ModifiersPool* modifiers,
+                    const Program::Settings* settings) {
+    fContext = context;
+    fModifiers = modifiers;
+    fSettings = settings;
     fInlineVarCounter = 0;
 }
 
@@ -550,11 +552,11 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             const Type* typePtr = copy_if_needed(&old->type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
-                                               old->fModifiers,
+                                               old->modifiersHandle(),
                                                namePtr->c_str(),
                                                typePtr,
                                                isBuiltinCode,
-                                               old->fStorage,
+                                               old->storage(),
                                                initialValue.get()));
             (*varMap)[old] = std::make_unique<VariableReference>(offset, clone);
             return std::make_unique<VarDeclaration>(clone, baseTypePtr, std::move(sizes),
@@ -628,9 +630,10 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         StringFragment nameFrag{namePtr->c_str(), namePtr->length()};
 
         // Add our new variable to the symbol table.
-        auto newVar = std::make_unique<Variable>(/*offset=*/-1, Modifiers(), nameFrag, type,
-                                                 caller->fBuiltin, Variable::kLocal_Storage,
-                                                 initialValue->get());
+        auto newVar = std::make_unique<Variable>(/*offset=*/-1,
+                                                 fModifiers->handle(Modifiers()),
+                                                 nameFrag, type, caller->fBuiltin,
+                                                 Variable::kLocal_Storage, initialValue->get());
         const Variable* variableSymbol = symbolTableForCall->add(nameFrag, std::move(newVar));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
@@ -667,7 +670,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     std::vector<int> argsToCopyBack;
     for (int i = 0; i < (int) arguments.size(); ++i) {
         const Variable* param = function.fDeclaration.fParameters[i];
-        bool isOutParam = param->fModifiers.fFlags & Modifiers::kOut_Flag;
+        bool isOutParam = param->modifiers().fFlags & Modifiers::kOut_Flag;
 
         // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
         if (is_trivial_argument(*arguments[i])) {
@@ -684,7 +687,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         }
 
         varMap[param] = makeInlineVar(String(param->name()), &arguments[i]->type(),
-                                      param->fModifiers, &arguments[i]);
+                                      param->modifiers(), &arguments[i]);
     }
 
     const Block& body = function.fBody->as<Block>();
@@ -730,7 +733,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return
         // something non-null as a standin.
-        inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(*fContext, offset,
+        inlinedCall.fReplacementExpr = std::make_unique<BoolLiteral>(*fContext,
+                                                                     offset,
                                                                      /*value=*/false);
     }
 

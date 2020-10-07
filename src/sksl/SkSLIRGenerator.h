@@ -123,6 +123,11 @@ private:
      */
     void finish();
 
+    /**
+     * Relinquishes ownership of the Modifiers that have been collected so far and returns them.
+     */
+    std::unique_ptr<ModifiersPool> releaseModifiers();
+
     void pushSymbolTable();
     void popSymbolTable();
 
@@ -224,6 +229,7 @@ private:
     bool fCanInline = true;
     // true if we are currently processing one of the built-in SkSL include files
     bool fIsBuiltinCode;
+    std::unique_ptr<ModifiersPool> fModifiers;
 
     friend class AutoSymbolTable;
     friend class AutoLoopLevel;

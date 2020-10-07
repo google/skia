@@ -47,8 +47,8 @@ struct VarDeclaration : public Statement {
     }
 
     String description() const override {
-        String result =
-                fVar->fModifiers.description() + fBaseType.description() + " " + fVar->name();
+        String result = fVar->modifiers().description() + fBaseType.description() + " " +
+                        fVar->name();
         for (const auto& size : fSizes) {
             if (size) {
                 result += "[" + size->description() + "]";

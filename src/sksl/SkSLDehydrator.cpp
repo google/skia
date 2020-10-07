@@ -216,10 +216,10 @@ void Dehydrator::write(const Symbol& s) {
             const Variable& v = s.as<Variable>();
             this->writeU8(Rehydrator::kVariable_Command);
             this->writeId(&v);
-            this->write(v.fModifiers);
+            this->write(v.modifiers());
             this->write(v.name());
             this->write(v.type());
-            this->writeU8(v.fStorage);
+            this->writeU8(v.storage());
             break;
         }
         case Symbol::Kind::kField: {
@@ -519,8 +519,8 @@ void Dehydrator::write(const ProgramElement& e) {
             for (const std::unique_ptr<const Symbol>& s : en.symbols()->fOwnedSymbols) {
                 SkASSERT(s->kind() == Symbol::Kind::kVariable);
                 Variable& v = (Variable&) *s;
-                SkASSERT(v.fInitialValue);
-                const IntLiteral& i = v.fInitialValue->as<IntLiteral>();
+                SkASSERT(v.initialValue());
+                const IntLiteral& i = v.initialValue()->as<IntLiteral>();
                 this->writeS32(i.value());
             }
             break;

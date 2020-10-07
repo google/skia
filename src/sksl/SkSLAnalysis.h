@@ -21,7 +21,7 @@ struct FunctionDefinition;
 struct Program;
 struct ProgramElement;
 struct Statement;
-struct Variable;
+class Variable;
 struct VariableReference;
 
 /**

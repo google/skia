@@ -190,7 +190,7 @@ void HCodeGenerator::writeMake() {
         separator = "";
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             this->writef("%s%s %s", separator, ParameterType(fContext, param->type(),
-                                                             param->fModifiers.fLayout).c_str(),
+                                                             param->modifiers().fLayout).c_str(),
                          String(param->name()).c_str());
             separator = ", ";
         }
@@ -234,7 +234,7 @@ void HCodeGenerator::writeConstructor() {
     const char* separator = "";
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         this->writef("%s%s %s", separator, ParameterType(fContext, param->type(),
-                                                         param->fModifiers.fLayout).c_str(),
+                                                         param->modifiers().fLayout).c_str(),
                      String(param->name()).c_str());
         separator = ", ";
     }
@@ -287,7 +287,7 @@ void HCodeGenerator::writeConstructor() {
             std::string perspExpression;
             if (usage.hasUniformMatrix()) {
                 for (const Variable* p : fSectionAndParameterHelper.getParameters()) {
-                    if ((p->fModifiers.fFlags & Modifiers::kIn_Flag) &&
+                    if ((p->modifiers().fFlags & Modifiers::kIn_Flag) &&
                         usage.fExpression == String(p->name())) {
                         perspExpression = usage.fExpression + ".hasPerspective()";
                         break;
@@ -315,7 +315,7 @@ void HCodeGenerator::writeFields() {
             // Don't need to write any fields, FPs are held as children
         } else {
             this->writef("    %s %s;\n", FieldType(fContext, param->type(),
-                                                   param->fModifiers.fLayout).c_str(),
+                                                   param->modifiers().fLayout).c_str(),
                                          name.c_str());
         }
     }

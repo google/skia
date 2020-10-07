@@ -252,6 +252,9 @@ private:
     std::shared_ptr<SymbolTable> fFPSymbolTable;
     std::unique_ptr<IRIntrinsicMap> fFPIntrinsics;
 
+    // holds ModifiersPools belonging to the core includes for lifetime purposes
+    std::vector<std::unique_ptr<ModifiersPool>> fModifiers;
+
     Inliner fInliner;
     std::unique_ptr<IRGenerator> fIRGenerator;
     int fFlags;

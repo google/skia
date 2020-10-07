@@ -19,14 +19,14 @@ class SymbolAlias : public Symbol {
 public:
     static constexpr Kind kSymbolKind = Kind::kSymbolAlias;
 
-    SymbolAlias(int offset, StringFragment name, const Symbol* origSymbol)
+    SymbolAlias(int offset, StringFragment name, Symbol* origSymbol)
     : INHERITED(offset, SymbolAliasData{name, origSymbol}) {}
 
     StringFragment name() const override {
         return this->symbolAliasData().fName;
     }
 
-    const Symbol* origSymbol() const {
+    Symbol* origSymbol() const {
         return this->symbolAliasData().fOrigSymbol;
     }
 
