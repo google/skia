@@ -25,6 +25,32 @@
       },
       "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005399467",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/322956?revision\u003d11",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "18829517_907de1ec",
+        "filename": "modules/canvaskit/compile_gm.sh",
+        "patchSetId": 11
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-10-07T18:56:57Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 86,
+        "startChar": 60,
+        "endLine": 86,
+        "endChar": 66
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
