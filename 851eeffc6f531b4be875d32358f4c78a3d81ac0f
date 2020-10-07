@@ -88,6 +88,24 @@
       "parentUuid": "88fb152b_cb861df2",
       "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ec439e6_329ad2e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T15:56:13Z",
+      "side": 1,
+      "message": "OK, I can do my stuff some other way if we don\u0027t want SkBitSet to be resizable. After testing this approach a bit locally, I think I actually want to land on something that doesn\u0027t malloc at all in the common case anyway (SkSTArray-style) and so maybe SkBitSet isn\u0027t the right approach anyway. I can just custom-write something for my particular use case.\n\nWant to keep swap()?",
+      "parentUuid": "709a417f_67a6c0ad",
+      "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
