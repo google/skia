@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fbf61a2_32e273e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T16:24:20Z",
+      "side": 1,
+      "message": "Last few patchsets are just rebases plus rebuilding the dehydrated files. This is review-ready.",
+      "revId": "155fde7446968ea66f950c7e9f761fa7215b6b71",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
