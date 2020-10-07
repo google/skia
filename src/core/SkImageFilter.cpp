@@ -247,10 +247,10 @@ skif::FilterResult<For::kOutput> SkImageFilter_Base::filterImage(const skif::Con
 }
 
 skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
-        const skif::Mapping& mapping, const skif::DeviceSpace<SkRect>& desiredOutput,
+        const skif::Mapping& mapping, const skif::DeviceSpace<SkIRect>& desiredOutput,
         const skif::ParameterSpace<SkRect>* knownContentBounds) const {
     // Map both the device-space desired coverage area and the known content bounds to layer space
-    skif::LayerSpace<SkIRect> desiredBounds = mapping.deviceToLayer(desiredOutput).roundOut();
+    skif::LayerSpace<SkIRect> desiredBounds = mapping.deviceToLayer(desiredOutput);
     // If we have no known content bounds use the desired coverage area, because that is the most
     // conservative possibility.
     skif::LayerSpace<SkIRect> contentBounds =
