@@ -22,7 +22,7 @@ sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext* context,
     auto ct = SkColorTypeToGrColorType(colorType);
 
     struct ReleaseContext {
-        GrContext* fContext;
+        GrDirectContext* fContext;
         GrBackendRenderTarget fRenderTarget;
     };
 
