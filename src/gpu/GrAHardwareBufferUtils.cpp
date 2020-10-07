@@ -60,14 +60,8 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
     }
 }
 
-GrBackendFormat GetBackendFormat(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendFormat GetBackendFormat(GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat) {
-    // CONTEXT TODO: Elevate direct context requirement to Android API.
-    auto dContext = GrAsDirectContext(context);
-    if (!dContext) {
-        SkDEBUGFAIL("Requires direct context.");
-        return GrBackendFormat();
-    }
     GrBackendApi backend = dContext->backend();
 
     if (backend == GrBackendApi::kOpenGL) {
@@ -205,13 +199,7 @@ void delete_gl_texture(void* context) {
     delete cleanupHelper;
 }
 
-void update_gl_texture(void* context, GrContext* grContext) {
-    // CONTEXT TODO: Elevate direct context requirement to Android API.
-    auto dContext = GrAsDirectContext(grContext);
-    if (!dContext) {
-        SkDEBUGFAIL("Direct context required.");
-        return;
-    }
+void update_gl_texture(void* context, GrDirectContext* dContext) {
     GLTextureHelper* cleanupHelper = static_cast<GLTextureHelper*>(context);
     cleanupHelper->rebind(dContext);
 }
@@ -306,9 +294,7 @@ void delete_vk_image(void* context) {
     delete cleanupHelper;
 }
 
-void update_vk_image(void* context, GrContext* grContext) {
-    // CONTEXT TODO: Elevate direct context requirement to Android API.
-    SkASSERT(GrAsDirectContext(grContext));
+void update_vk_image(void* context, GrDirectContext* dContext) {
     // no op
 }
 
@@ -539,7 +525,7 @@ static bool can_import_protected_content(GrDirectContext* dContext) {
     return false;
 }
 
-GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwareBuffer,
+GrBackendTexture MakeBackendTexture(GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
                                     int width, int height,
                                     DeleteImageProc* deleteProc,
                                     UpdateImageProc* updateProc,
@@ -547,8 +533,6 @@ GrBackendTexture MakeBackendTexture(GrContext* context, AHardwareBuffer* hardwar
                                     bool isProtectedContent,
                                     const GrBackendFormat& backendFormat,
                                     bool isRenderable) {
-    // CONTEXT TODO: Elevate direct context requirement to Android API.
-    auto dContext = GrAsDirectContext(context);
     SkASSERT(dContext);
     if (!dContext || dContext->abandoned()) {
         return GrBackendTexture();
