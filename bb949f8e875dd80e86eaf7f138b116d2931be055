@@ -124,6 +124,24 @@
       "parentUuid": "a3015a18_b8cea8c1",
       "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99e85116_3ca9bd88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T14:37:15Z",
+      "side": 1,
+      "message": "Yeah, I like the Handle stuff, I think the API is pretty good, but having a dedicated ModifierPool or whatever would limit the new dependencies.",
+      "parentUuid": "88d6079e_6f1ee97e",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
