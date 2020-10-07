@@ -71,7 +71,7 @@ public:
      * @return The layer-space bounding box to use for an SkDevice when drawing the source image.
      */
     skif::LayerSpace<SkIRect> getInputBounds(
-            const skif::Mapping& mapping, const skif::DeviceSpace<SkRect>& desiredOutput,
+            const skif::Mapping& mapping, const skif::DeviceSpace<SkIRect>& desiredOutput,
             const skif::ParameterSpace<SkRect>* knownContentBounds) const;
 
     /**
