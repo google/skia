@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee811db9_fd255f65",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-07T14:52:46Z",
+      "side": 1,
+      "message": "I think what you\u0027re trying to do here is to say that if \u0027start\u0027 was actually pointing to a trailing surrogate code unit then increment \u0027start\u0027. Then just do findNextGraphemeBoundary. I don\u0027t understand the comment about \u0027Shift to the left if it\u0027s inside a grapheme\u0027 because you\u0027re really doing a shift if you\u0027re not at the first code unit of a utf-16 encoded codepoint.",
+      "range": {
+        "startLine": 601,
+        "startChar": 0,
+        "endLine": 607,
+        "endChar": 9
+      },
+      "revId": "225517c99a1236737a3a975124d4970494237695",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a653aad_93d1983b",
+        "filename": "modules/skparagraph/src/ParagraphImpl.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-07T14:52:46Z",
+      "side": 1,
+      "message": "None of this makes any sense to me, and leaves utf8 possibly pointing to somewhere not at a leading utf-8 code unit, which is awkward. I think just findPreviousGraphemeBoundary is fine here without any other adjustments. Though if you really wanted to be obvious if \u0027end\u0027 were pointing to a trailing surrogate you could reduce \u0027end\u0027 by one, though that wouldn\u0027t make a difference here.",
+      "range": {
+        "startLine": 611,
+        "startChar": 0,
+        "endLine": 617,
+        "endChar": 24
+      },
+      "revId": "225517c99a1236737a3a975124d4970494237695",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
