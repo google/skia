@@ -12,6 +12,7 @@
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
 namespace SkSL {
 
@@ -22,7 +23,8 @@ struct Expression;
  * variable itself (the storage location), which is shared between all VariableReferences which
  * read or write that storage location.
  */
-struct Variable : public Symbol {
+class Variable : public Symbol {
+public:
     static constexpr Kind kSymbolKind = Kind::kVariable;
 
     enum Storage {
@@ -32,53 +34,102 @@ struct Variable : public Symbol {
         kParameter_Storage
     };
 
-    Variable(int offset, Modifiers modifiers, StringFragment name, const Type* type,
+    Variable(int offset, ModifiersPool::Handle modifiers, StringFragment name, const Type* type,
              bool builtin, Storage storage, Expression* initialValue = nullptr)
-    : INHERITED(offset, kSymbolKind, name, type)
-    , fModifiers(modifiers)
-    , fStorage(storage)
-    , fInitialValue(initialValue)
-    , fBuiltin(builtin)
-    , fReadCount(0)
-    , fWriteCount(initialValue ? 1 : 0) {}
+    : INHERITED(offset, VariableData{name, type, initialValue, modifiers, /*readCount=*/0,
+                                     /*writeCount=*/(int16_t) (initialValue ? 1 : 0),
+                                     (int8_t) storage, builtin}) {}
 
     ~Variable() override {
         // can't destroy a variable while there are remaining references to it
-        if (fInitialValue) {
-            --fWriteCount;
+        if (this->initialValue()) {
+            --this->variableData().fWriteCount;
         }
-        SkASSERT(!fReadCount && !fWriteCount);
+        SkASSERT(!this->variableData().fReadCount && !this->variableData().fWriteCount);
+    }
+
+    const Modifiers& modifiers() const {
+        return *this->variableData().fModifiersHandle;
+    }
+
+    const ModifiersPool::Handle& modifiersHandle() const {
+        return this->variableData().fModifiersHandle;
+    }
+
+    void setModifiersHandle(const ModifiersPool::Handle& handle) {
+        this->variableData().fModifiersHandle = handle;
+    }
+
+    bool isBuiltin() const {
+        return this->variableData().fBuiltin;
+    }
+
+    Storage storage() const {
+        return (Storage) this->variableData().fStorage;
+    }
+
+    const Expression* initialValue() const {
+        return this->variableData().fInitialValue;
+    }
+
+    void setInitialValue(const Expression* initialValue) {
+        SkASSERT(!this->initialValue());
+        SkASSERT(this->variableData().fWriteCount == 0);
+        this->variableData().fInitialValue = initialValue;
+        ++this->variableData().fWriteCount;
+    }
+
+    int readCount() const {
+        return this->variableData().fReadCount;
+    }
+
+    int writeCount() const {
+        return this->variableData().fWriteCount;
+    }
+
+    StringFragment name() const override {
+        return this->variableData().fName;
     }
 
     String description() const override {
-        return fModifiers.description() + this->type().name() + " " + this->name();
+        return this->modifiers().description() + this->type().name() + " " + this->name();
     }
 
     bool dead() const {
-        if ((fStorage != kLocal_Storage && fReadCount) ||
-            (fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag |
+        const VariableData& data = this->variableData();
+        const Modifiers& modifiers = this->modifiers();
+        if ((data.fStorage != kLocal_Storage && this->variableData().fReadCount) ||
+            (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag |
                                  Modifiers::kUniform_Flag | Modifiers::kVarying_Flag))) {
             return false;
         }
-        return !fWriteCount ||
-               (!fReadCount && !(fModifiers.fFlags & (Modifiers::kPLS_Flag |
-                                                      Modifiers::kPLSOut_Flag)));
+        return !data.fWriteCount ||
+               (!data.fReadCount && !(modifiers.fFlags & (Modifiers::kPLS_Flag |
+                                                          Modifiers::kPLSOut_Flag)));
     }
 
-    mutable Modifiers fModifiers;
-    const Storage fStorage;
+private:
+    void referenceCreated(VariableReference::RefKind refKind) const {
+        if (refKind != VariableReference::kRead_RefKind) {
+            ++this->variableData().fWriteCount;
+        }
+        if (refKind != VariableReference::kWrite_RefKind) {
+            ++this->variableData().fReadCount;
+        }
+    }
 
-    const Expression* fInitialValue = nullptr;
-    bool fBuiltin;
-
-    // Tracks how many sites read from the variable. If this is zero for a non-out variable (or
-    // becomes zero during optimization), the variable is dead and may be eliminated.
-    mutable int fReadCount;
-    // Tracks how many sites write to the variable. If this is zero, the variable is dead and may be
-    // eliminated.
-    mutable int fWriteCount;
+    void referenceDestroyed(VariableReference::RefKind refKind) const {
+        if (refKind != VariableReference::kRead_RefKind) {
+            --this->variableData().fWriteCount;
+        }
+        if (refKind != VariableReference::kWrite_RefKind) {
+            --this->variableData().fReadCount;
+        }
+    }
 
     using INHERITED = Symbol;
+
+    friend struct VariableReference;
 };
 
 } // namespace SkSL

@@ -160,7 +160,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             const SkSL::Type& varType = var.type();
 
             // Varyings (only used in conjunction with drawVertices)
-            if (var.fModifiers.fFlags & SkSL::Modifiers::kVarying_Flag) {
+            if (var.modifiers().fFlags & SkSL::Modifiers::kVarying_Flag) {
                 varyings.push_back({var.name(),
                                     varType.typeKind() == SkSL::Type::TypeKind::kVector
                                             ? varType.columns()
@@ -172,7 +172,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                 sampleUsages.push_back(SkSL::Analysis::GetSampleUsage(*program, var));
             }
             // 'uniform' variables
-            else if (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+            else if (var.modifiers().fFlags & SkSL::Modifiers::kUniform_Flag) {
                 Uniform uni;
                 uni.fName = var.name();
                 uni.fFlags = 0;
@@ -189,7 +189,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                     RETURN_FAILURE("Invalid uniform type: '%s'", type->displayName().c_str());
                 }
 
-                const SkSL::StringFragment& marker(var.fModifiers.fLayout.fMarker);
+                const SkSL::StringFragment& marker(var.modifiers().fLayout.fMarker);
                 if (marker.fLength) {
                     uni.fFlags |= Uniform::kMarker_Flag;
                     allowColorFilter = false;
@@ -199,7 +199,7 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
                     }
                 }
 
-                if (var.fModifiers.fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
+                if (var.modifiers().fLayout.fFlags & SkSL::Layout::Flag::kSRGBUnpremul_Flag) {
                     uni.fFlags |= Uniform::kSRGBUnpremul_Flag;
                 }
 
