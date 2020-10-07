@@ -22,6 +22,30 @@
       },
       "revId": "df47abcbb993c7b9ff8ca958d80968f5d577f6a6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "871ca593_10bd84f1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-07T14:10:50Z",
+      "side": 0,
+      "message": "I added back the assert + comment, but I also made the two if\u0027s exclusive since, as-written, they are effectively exclusive. The assert is then more defensive for any future changes down the road.",
+      "parentUuid": "8ff04d3b_7809b359",
+      "range": {
+        "startLine": 413,
+        "startChar": 12,
+        "endLine": 413,
+        "endChar": 44
+      },
+      "revId": "df47abcbb993c7b9ff8ca958d80968f5d577f6a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
