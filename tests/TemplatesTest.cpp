@@ -77,24 +77,32 @@ constexpr int static kStackPreallocCount = 10;
 template<typename TContainer, typename TCount>
 static void test_container_apis(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !TContainer((TCount)0).get());
+    REPORTER_ASSERT(reporter, !TContainer((TCount)0).data());
     REPORTER_ASSERT(reporter, TContainer((TCount)1).get());
+    REPORTER_ASSERT(reporter, TContainer((TCount)1).data());
     REPORTER_ASSERT(reporter, TContainer((TCount)kStackPreallocCount).get());
+    REPORTER_ASSERT(reporter, TContainer((TCount)kStackPreallocCount).data());
     REPORTER_ASSERT(reporter, TContainer((TCount)kStackPreallocCount + 1).get());
+    REPORTER_ASSERT(reporter, TContainer((TCount)kStackPreallocCount + 1).data());
 
     TContainer container;
     // The default constructor may or may not init to empty, depending on the type of container.
 
     container.reset((TCount)1);
     REPORTER_ASSERT(reporter, container.get());
+    REPORTER_ASSERT(reporter, container.get() == container.data());
 
     container.reset((TCount)kStackPreallocCount);
     REPORTER_ASSERT(reporter, container.get());
+    REPORTER_ASSERT(reporter, container.get() == container.data());
 
     container.reset((TCount)kStackPreallocCount + 1);
     REPORTER_ASSERT(reporter, container.get());
+    REPORTER_ASSERT(reporter, container.get() == container.data());
 
     container.reset((TCount)0);
     REPORTER_ASSERT(reporter, !container.get());
+    REPORTER_ASSERT(reporter, !container.data());
 }
 
 DEF_TEST(TemplateContainerAPIs, reporter) {
