@@ -34,6 +34,24 @@
       "parentUuid": "bce59bf4_989c5169",
       "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e63a566c_84850d5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T15:42:59Z",
+      "side": 1,
+      "message": "(Rather, findFirstUnset--we don\u0027t yet have a forEachUnsetIndex, but I like that we could potentially add it if we need it!)",
+      "parentUuid": "2ef55a90_28231b27",
+      "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
