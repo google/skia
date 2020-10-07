@@ -16,6 +16,24 @@
       "message": "FYI Doc preview seems to not reflect the MD file changes, but otherwise LGTM\n\nDid you test both example.html and extra.html?",
       "revId": "d849764857d6b79f683f630ca63c0564452c82fd",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0765128_f2c8c747",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-07T19:24:22Z",
+      "side": 1,
+      "message": "The canvaskit.md is (expectedly) failing because it is trying to use the names that haven\u0027t been updated yet. I\u0027m going to undo the changes to quickstart for now and land them after 0.19.0 is pushed to npm (and unpkg) since that\u0027s the version it uses.\n\nI am testing extra.html and example.html once more locally just to be sure.",
+      "parentUuid": "650bcbea_f5535001",
+      "revId": "d849764857d6b79f683f630ca63c0564452c82fd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
