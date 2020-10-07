@@ -51,6 +51,24 @@
       "parentUuid": "49d5ba4b_0001e453",
       "revId": "30a05a8b03ae0185a895c9df90675f6079c21d5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b139cb07_b13dfeac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5970
+      },
+      "writtenOn": "2020-10-07T17:32:01Z",
+      "side": 1,
+      "message": "Flutter does not specify the sources assignment filter for filtering out platform specific translation units. I am not sure but neither does Fuchsia.",
+      "parentUuid": "b23c1193_37d9a9ad",
+      "revId": "30a05a8b03ae0185a895c9df90675f6079c21d5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
