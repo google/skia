@@ -106,6 +106,24 @@
       "parentUuid": "aafb6f4c_64ad8ff2",
       "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88d6079e_6f1ee97e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-07T14:35:46Z",
+      "side": 1,
+      "message": "Alright, let me move the ownership to a new class and hopefully that\u0027s more palatable.",
+      "parentUuid": "a3015a18_b8cea8c1",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
