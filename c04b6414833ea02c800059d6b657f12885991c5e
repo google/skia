@@ -60,6 +60,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "406169cf_bc69bc0a",
+        "filename": "src/gpu/effects/generated/GrHighContrastFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:12:44Z",
+      "side": 1,
+      "message": "This originally contained\n    const half3 SK_ITU_BT709_LUM_COEFF \u003d half3(0.2126, 0.7152, 0.0722);\n\nBefore constant propagation.",
+      "parentUuid": "6ef20b55_0a66b01b",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 32
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7ecf9484_58c23c0c",
         "filename": "src/gpu/effects/generated/GrLumaColorFilterEffect.cpp",
         "patchSetId": 5
@@ -83,6 +107,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b9ee4dbc_2a08c375",
+        "filename": "src/gpu/effects/generated/GrLumaColorFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:12:44Z",
+      "side": 1,
+      "message": "For reference, this was (before constant propagation)\n\n    const half3 SK_ITU_BT709_LUM_COEFF \u003d half3(0.2126, 0.7152, 0.0722);",
+      "parentUuid": "7ecf9484_58c23c0c",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 1
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "315c9078_9fcb4de3",
         "filename": "src/gpu/effects/generated/GrRGBToHSLFilterEffect.cpp",
         "patchSetId": 5
@@ -94,6 +142,30 @@
       "writtenOn": "2020-10-07T14:03:08Z",
       "side": 1,
       "message": ";",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 1
+      },
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4047f1ad_3e32921b",
+        "filename": "src/gpu/effects/generated/GrRGBToHSLFilterEffect.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-07T14:12:44Z",
+      "side": 1,
+      "message": "Before constant propagation this contained\n    half eps \u003d 0.0001;",
+      "parentUuid": "315c9078_9fcb4de3",
       "range": {
         "startLine": 32,
         "startChar": 0,
