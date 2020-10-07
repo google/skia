@@ -52,6 +52,24 @@
       "parentUuid": "2ef55a90_28231b27",
       "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88fb152b_cb861df2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-07T15:44:28Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m kinda against this. The point of SkBitSet was to be like std::bitset but with the flexibility of N being a runtime thing (which is fairly straight forward to layer on top). If you want to start resizing and whatnot, that\u0027s what std::vector\u003cbool\u003e is for. libc++ actually does optimize std::find_* for std::vector\u003cbool\u003e to do the same thing we do here (though notably libstdc++ and msvc STL do not).",
+      "parentUuid": "bce59bf4_989c5169",
+      "revId": "851eeffc6f531b4be875d32358f4c78a3d81ac0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
