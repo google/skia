@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8af1468f_68f2a7c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-07T15:47:00Z",
+      "side": 1,
+      "message": "Chrome unblocking CL is here: https://chromium-review.googlesource.com/c/chromium/src/+/2456511/",
+      "revId": "7aa01446e74abf6f96b7431cae94b734cba3518e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
