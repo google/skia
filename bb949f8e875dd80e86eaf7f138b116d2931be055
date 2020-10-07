@@ -34,6 +34,24 @@
       "parentUuid": "4c5c5e4a_1517a85e",
       "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03769f97_6c7ec689",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-07T14:14:33Z",
+      "side": 1,
+      "message": "SymbolTable symbols were originally const, and then I discovered the need to be able to modify variables\u0027 modifiers when redeclaring them. I originally handled this with a mutable Modifiers to avoid having to un-const everything, but that never sat well with me and, given that I was already knee-deep in the relevant code, I thought it was a good opportunity to fix it to be honest.\n\nI\u0027m of course open to other suggestions for how to handle the Modifiers storage, but are we talking \"it\u0027d be nice to sort out a pool in a future CL\", or is it more \"I\u0027m not comfortable landing this CL as-is\"?",
+      "parentUuid": "fa130ea1_0f83ed25",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
