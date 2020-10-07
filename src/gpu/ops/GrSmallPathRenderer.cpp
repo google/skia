@@ -97,21 +97,21 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const GrStyledShape& shape,
-                                          const SkMatrix& viewMatrix,
-                                          bool gammaCorrect,
-                                          const GrUserStencilSettings* stencilSettings) {
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            GrPaint&& paint,
+                            const GrStyledShape& shape,
+                            const SkMatrix& viewMatrix,
+                            bool gammaCorrect,
+                            const GrUserStencilSettings* stencilSettings) {
         return Helper::FactoryHelper<SmallPathOp>(context, std::move(paint), shape, viewMatrix,
                                                   gammaCorrect, stencilSettings);
     }
 
-    SmallPathOp(Helper::MakeArgs helperArgs, const SkPMColor4f& color, const GrStyledShape& shape,
+    SmallPathOp(GrProcessorSet* processorSet, const SkPMColor4f& color, const GrStyledShape& shape,
                 const SkMatrix& viewMatrix, bool gammaCorrect,
                 const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
+            , fHelper(processorSet, GrAAType::kCoverage, stencilSettings) {
         SkASSERT(shape.hasUnstyledKey());
         // Compute bounds
         this->setTransformedBounds(shape.bounds(), viewMatrix, HasAABloat::kYes, IsHairline::kNo);
@@ -694,7 +694,7 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(args.fShape->hasUnstyledKey());
 
-    std::unique_ptr<GrDrawOp> op = SmallPathOp::Make(
+    GrOp::Owner op = SmallPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix,
             args.fGammaCorrect, args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
@@ -705,14 +705,14 @@ bool GrSmallPathRenderer::onDrawPath(const DrawPathArgs& args) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if GR_TEST_UTILS
-std::unique_ptr<GrDrawOp> GrSmallPathRenderer::createOp_TestingOnly(
-                                                        GrRecordingContext* context,
-                                                        GrPaint&& paint,
-                                                        const GrStyledShape& shape,
-                                                        const SkMatrix& viewMatrix,
-                                                        bool gammaCorrect,
-                                                        const GrUserStencilSettings* stencil) {
 
+GrOp::Owner GrSmallPathRenderer::createOp_TestingOnly(
+        GrRecordingContext* context,
+        GrPaint&& paint,
+        const GrStyledShape& shape,
+        const SkMatrix& viewMatrix,
+        bool gammaCorrect,
+        const GrUserStencilSettings* stencil) {
     return GrSmallPathRenderer::SmallPathOp::Make(context, std::move(paint), shape, viewMatrix,
                                                   gammaCorrect, stencil);
 }

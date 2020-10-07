@@ -9,6 +9,7 @@
 #define GrStrokeRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrDrawOp;
 class GrPaint;
@@ -25,20 +26,20 @@ class SkStrokeRec;
  */
 namespace GrStrokeRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                               GrPaint&& paint,
-                               GrAAType aaType,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const SkStrokeRec& stroke);
+GrOp::Owner Make(GrRecordingContext* context,
+                 GrPaint&& paint,
+                 GrAAType aaType,
+                 const SkMatrix& viewMatrix,
+                 const SkRect& rect,
+                 const SkStrokeRec& stroke);
 
 // rects[0] == outer rectangle, rects[1] == inner rectangle. Null return means there is nothing to
 // draw rather than failure. The area between the rectangles will be filled by the paint, and it
 // will be anti-aliased with coverage AA. viewMatrix.rectStaysRect() must be true.
-std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
-                                     GrPaint&& paint,
-                                     const SkMatrix& viewMatrix,
-                                     const SkRect rects[2]);
+GrOp::Owner MakeNested(GrRecordingContext* context,
+                       GrPaint&& paint,
+                       const SkMatrix& viewMatrix,
+                       const SkRect rects[2]);
 
 }  // namespace GrStrokeRectOp
 

@@ -30,11 +30,9 @@ namespace {
 class TestOp : public GrMeshDrawOp {
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext,
-                                          std::unique_ptr<GrFragmentProcessor> fp) {
-        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
-
-        return pool->allocate<TestOp>(std::move(fp));
+    static GrOp::Owner Make(GrRecordingContext* rContext,
+                            std::unique_ptr<GrFragmentProcessor> fp) {
+        return GrOp::Make<TestOp>(rContext, std::move(fp));
     }
 
     const char* name() const override { return "TestOp"; }
@@ -57,7 +55,7 @@ public:
     }
 
 private:
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     TestOp(std::unique_ptr<GrFragmentProcessor> fp)
             : INHERITED(ClassID()), fProcessors(std::move(fp)) {
@@ -176,7 +174,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                     if (makeClone) {
                         clone = fp->clone();
                     }
-                    std::unique_ptr<GrDrawOp> op(TestOp::Make(context, std::move(fp)));
+                    GrOp::Owner op = TestOp::Make(context, std::move(fp));
                     renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
                     if (clone) {
                         op = TestOp::Make(context, std::move(clone));

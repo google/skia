@@ -23,27 +23,27 @@ namespace sk_gpu_test::test_ops {
  * rect drawing code doesn't exercise this because it applies any local matrix to pre-transformed
  * local coord vertex attributes.
  */
-std::unique_ptr<GrDrawOp> MakeRect(GrRecordingContext*,
-                                   GrPaint&&,
-                                   const SkRect& drawRect,
-                                   const SkRect& localRect,
-                                   const SkMatrix& localM = SkMatrix::I());
+GrOp::Owner MakeRect(GrRecordingContext*,
+                     GrPaint&&,
+                     const SkRect& drawRect,
+                     const SkRect& localRect,
+                     const SkMatrix& localM = SkMatrix::I());
 
 /**
  * A simpler version of MakeRect that takes a single color FP instead of a full paint. Uses
  * SkBlendMode::kSrcOver.
  */
-std::unique_ptr<GrDrawOp> MakeRect(GrRecordingContext*,
-                                   std::unique_ptr<GrFragmentProcessor>,
-                                   const SkRect& drawRect,
-                                   const SkRect& localRect,
-                                   const SkMatrix& localM = SkMatrix::I());
+GrOp::Owner MakeRect(GrRecordingContext*,
+                     std::unique_ptr<GrFragmentProcessor>,
+                     const SkRect& drawRect,
+                     const SkRect& localRect,
+                     const SkMatrix& localM = SkMatrix::I());
 
 /**
  * A simpler version of MakeRect that uses the same rect as the device space rect to draw as well as
  * the local rect. The local matrix is identity.
  */
-std::unique_ptr<GrDrawOp> MakeRect(GrRecordingContext*, GrPaint&&, const SkRect& rect);
+GrOp::Owner MakeRect(GrRecordingContext*, GrPaint&&, const SkRect& rect);
 
 }  // namespace sk_gpu_test::test_ops
 

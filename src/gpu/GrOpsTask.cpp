@@ -46,7 +46,7 @@ static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRec
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline GrOpsTask::OpChain::List::List(std::unique_ptr<GrOp> op)
+inline GrOpsTask::OpChain::List::List(GrOp::Owner op)
         : fHead(std::move(op)), fTail(fHead.get()) {
     this->validate();
 }
@@ -61,7 +61,7 @@ inline GrOpsTask::OpChain::List& GrOpsTask::OpChain::List::operator=(List&& that
     return *this;
 }
 
-inline std::unique_ptr<GrOp> GrOpsTask::OpChain::List::popHead() {
+inline GrOp::Owner GrOpsTask::OpChain::List::popHead() {
     SkASSERT(fHead);
     auto temp = fHead->cutChain();
     std::swap(temp, fHead);
@@ -72,7 +72,7 @@ inline std::unique_ptr<GrOp> GrOpsTask::OpChain::List::popHead() {
     return temp;
 }
 
-inline std::unique_ptr<GrOp> GrOpsTask::OpChain::List::removeOp(GrOp* op) {
+inline GrOp::Owner GrOpsTask::OpChain::List::removeOp(GrOp* op) {
 #ifdef SK_DEBUG
     auto head = op;
     while (head->prevInChain()) { head = head->prevInChain(); }
@@ -94,7 +94,7 @@ inline std::unique_ptr<GrOp> GrOpsTask::OpChain::List::removeOp(GrOp* op) {
     return temp;
 }
 
-inline void GrOpsTask::OpChain::List::pushHead(std::unique_ptr<GrOp> op) {
+inline void GrOpsTask::OpChain::List::pushHead(GrOp::Owner op) {
     SkASSERT(op);
     SkASSERT(op->isChainHead());
     SkASSERT(op->isChainTail());
@@ -107,7 +107,7 @@ inline void GrOpsTask::OpChain::List::pushHead(std::unique_ptr<GrOp> op) {
     }
 }
 
-inline void GrOpsTask::OpChain::List::pushTail(std::unique_ptr<GrOp> op) {
+inline void GrOpsTask::OpChain::List::pushTail(GrOp::Owner op) {
     SkASSERT(op->isChainTail());
     fTail->chainConcat(std::move(op));
     fTail = fTail->nextInChain();
@@ -124,7 +124,7 @@ inline void GrOpsTask::OpChain::List::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrOpsTask::OpChain::OpChain(std::unique_ptr<GrOp> op,
+GrOpsTask::OpChain::OpChain(GrOp::Owner op,
                             GrProcessorSet::Analysis processorAnalysis,
                             GrAppliedClip* appliedClip, const DstProxyView* dstProxyView)
         : fList{std::move(op)}
@@ -154,12 +154,8 @@ void GrOpsTask::OpChain::visitProxies(const GrOp::VisitProxyFunc& func) const {
 
 void GrOpsTask::OpChain::deleteOps(GrOpMemoryPool* pool) {
     while (!fList.empty()) {
-        #if defined(GR_OP_ALLOCATE_USE_NEW)
-            // Since the value goes out of scope immediately, the unique_ptr deletes the op.
-            fList.popHead();
-        #else
-            pool->release(fList.popHead());
-        #endif
+        // Since the value goes out of scope immediately, the GrOp::Owner deletes the op.
+        fList.popHead();
     }
 }
 
@@ -202,12 +198,8 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(
             if (merged) {
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, a, chainB.head());
                 if (canBackwardMerge) {
-                    #if defined(GR_OP_ALLOCATE_USE_NEW)
-                        // The unique_ptr releases the op.
-                        chainB.popHead();
-                    #else
-                        arenas->opMemoryPool()->release(chainB.popHead());
-                    #endif
+                    // The GrOp::Owner releases the op.
+                    chainB.popHead();
                 } else {
                     // We merged the contents of b's head into a. We will replace b's head with a in
                     // chain b.
@@ -215,13 +207,9 @@ GrOpsTask::OpChain::List GrOpsTask::OpChain::DoConcat(
                     if (a == origATail) {
                         origATail = a->prevInChain();
                     }
-                    std::unique_ptr<GrOp> detachedA = chainA.removeOp(a);
-                    #if defined(GR_OP_ALLOCATE_USE_NEW)
-                        // The unique_ptr releases the op.
-                        chainB.popHead();
-                    #else
-                        arenas->opMemoryPool()->release(chainB.popHead());
-                    #endif
+                    GrOp::Owner detachedA = chainA.removeOp(a);
+                    // The GrOp::Owner releases the op.
+                    chainB.popHead();
                     chainB.pushHead(std::move(detachedA));
                     if (chainA.empty()) {
                         // We merged all the nodes in chain a to chain b.
@@ -297,12 +285,8 @@ bool GrOpsTask::OpChain::tryConcat(
                           list->tail()->name(), list->tail()->uniqueID(), list->head()->name(),
                           list->head()->uniqueID());
                 GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(auditTrail, fList.tail(), list->head());
-                #if defined(GR_OP_ALLOCATE_USE_NEW)
-                    // The unique_ptr releases the op.
-                    list->popHead();
-                #else
-                    arenas->opMemoryPool()->release(list->popHead());
-                #endif
+                // The GrOp::Owner releases the op.
+                list->popHead();
                 break;
             }
         }
@@ -338,8 +322,8 @@ bool GrOpsTask::OpChain::prependChain(OpChain* that, const GrCaps& caps,
     return true;
 }
 
-std::unique_ptr<GrOp> GrOpsTask::OpChain::appendOp(
-        std::unique_ptr<GrOp> op, GrProcessorSet::Analysis processorAnalysis,
+GrOp::Owner GrOpsTask::OpChain::appendOp(
+        GrOp::Owner op, GrProcessorSet::Analysis processorAnalysis,
         const DstProxyView* dstProxyView, const GrAppliedClip* appliedClip, const GrCaps& caps,
         GrRecordingContext::Arenas* arenas, GrAuditTrail* auditTrail) {
     const GrXferProcessor::DstProxyView noDstProxyView;
@@ -811,7 +795,7 @@ void GrOpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
 }
 
 void GrOpsTask::recordOp(
-        std::unique_ptr<GrOp> op, GrProcessorSet::Analysis processorAnalysis, GrAppliedClip* clip,
+        GrOp::Owner op, GrProcessorSet::Analysis processorAnalysis, GrAppliedClip* clip,
         const DstProxyView* dstProxyView, const GrCaps& caps) {
     SkDEBUGCODE(op->validate();)
     SkASSERT(processorAnalysis.requiresDstTexture() == (dstProxyView && dstProxyView->proxy()));
@@ -821,9 +805,6 @@ void GrOpsTask::recordOp(
     // A closed GrOpsTask should never receive new/more ops
     SkASSERT(!this->isClosed());
     if (!op->bounds().isFinite()) {
-        #if !defined(GR_OP_ALLOCATE_USE_NEW)
-            fArenas.opMemoryPool()->release(std::move(op));
-        #endif
         return;
     }
 

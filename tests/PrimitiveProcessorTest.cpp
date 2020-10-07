@@ -36,10 +36,8 @@ public:
 
     const char* name() const override { return "Dummy Op"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext, int numAttribs) {
-        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
-
-        return pool->allocate<Op>(numAttribs);
+    static GrOp::Owner Make(GrRecordingContext* rContext, int numAttribs) {
+        return GrOp::Make<Op>(rContext, numAttribs);
     }
 
     FixedFunctionFlags fixedFunctionFlags() const override {
@@ -52,7 +50,7 @@ public:
     }
 
 private:
-    friend class ::GrOpMemoryPool;
+    friend class ::GrOp;
 
     Op(int numAttribs) : INHERITED(ClassID()), fNumAttribs(numAttribs) {
         this->setBounds(SkRect::MakeWH(1.f, 1.f), HasAABloat::kNo, IsHairline::kNo);

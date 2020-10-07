@@ -132,22 +132,23 @@ private:
 
 public:
     DEFINE_OP_CLASS_ID
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkMatrix& viewMatrix,
-                                          const SkPath& path,
-                                          SkScalar strokeWidth,
-                                          SkStrokeRec::Style style,
-                                          SkPaint::Join join,
-                                          SkScalar miterLimit,
-                                          const GrUserStencilSettings* stencilSettings) {
+
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            GrPaint&& paint,
+                            const SkMatrix& viewMatrix,
+                            const SkPath& path,
+                            SkScalar strokeWidth,
+                            SkStrokeRec::Style style,
+                            SkPaint::Join join,
+                            SkScalar miterLimit,
+                            const GrUserStencilSettings* stencilSettings) {
         return Helper::FactoryHelper<AAFlatteningConvexPathOp>(context, std::move(paint),
                                                                viewMatrix, path,
                                                                strokeWidth, style, join, miterLimit,
                                                                stencilSettings);
     }
 
-    AAFlatteningConvexPathOp(const Helper::MakeArgs& helperArgs,
+    AAFlatteningConvexPathOp(GrProcessorSet* processorSet,
                              const SkPMColor4f& color,
                              const SkMatrix& viewMatrix,
                              const SkPath& path,
@@ -156,7 +157,7 @@ public:
                              SkPaint::Join join,
                              SkScalar miterLimit,
                              const GrUserStencilSettings* stencilSettings)
-            : INHERITED(ClassID()), fHelper(helperArgs, GrAAType::kCoverage, stencilSettings) {
+            : INHERITED(ClassID()), fHelper(processorSet, GrAAType::kCoverage, stencilSettings) {
         fPaths.emplace_back(
                 PathData{viewMatrix, path, color, strokeWidth, miterLimit, style, join});
 
@@ -402,7 +403,7 @@ bool GrAALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkPaint::Join join = fill ? SkPaint::Join::kMiter_Join : stroke.getJoin();
     SkScalar miterLimit = stroke.getMiter();
 
-    std::unique_ptr<GrDrawOp> op = AAFlatteningConvexPathOp::Make(
+    GrOp::Owner op = AAFlatteningConvexPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fViewMatrix, path, strokeWidth,
             stroke.getStyle(), join, miterLimit, args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));

@@ -161,7 +161,6 @@ GrPathRenderer::CanDrawPath GrTessellationPathRenderer::onCanDrawPath(
 
 bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GrRenderTargetContext* renderTargetContext = args.fRenderTargetContext;
-    GrOpMemoryPool* pool = args.fContext->priv().opMemoryPool();
     const GrShaderCaps& shaderCaps = *args.fContext->priv().caps()->shaderCaps();
 
     SkPath path;
@@ -194,7 +193,7 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
             SkASSERT(worstCaseNumSegments <= shaderCaps.maxTessellationSegments());
         }
 #endif
-        auto op = pool->allocate<GrDrawAtlasPathOp>(
+        auto op = GrOp::Make<GrDrawAtlasPathOp>(args.fContext,
                 renderTargetContext->numSamples(), sk_ref_sp(fAtlas.textureProxy()),
                 devIBounds, locationInAtlas, transposedInAtlas, *args.fViewMatrix,
                 std::move(args.fPaint));
@@ -259,8 +258,9 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         path.transform(*args.fViewMatrix, &devPath);
         SkStrokeRec devStroke = args.fShape->style().strokeRec();
         devStroke.setStrokeStyle(1);
-        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, SkMatrix::I(), devStroke,
-                                                       devPath, std::move(args.fPaint));
+        auto op = GrOp::Make<GrStrokeTessellateOp>(
+                args.fContext, args.fAAType, SkMatrix::I(), devStroke,
+                devPath, std::move(args.fPaint));
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -268,8 +268,9 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     if (!args.fShape->style().isSimpleFill()) {
         const SkStrokeRec& stroke = args.fShape->style().strokeRec();
         SkASSERT(stroke.getStyle() == SkStrokeRec::kStroke_Style);
-        auto op = pool->allocate<GrStrokeTessellateOp>(args.fAAType, *args.fViewMatrix, stroke,
-                                                       path, std::move(args.fPaint));
+        auto op = GrOp::Make<GrStrokeTessellateOp>(
+                args.fContext, args.fAAType, *args.fViewMatrix, stroke,
+                path, std::move(args.fPaint));
         renderTargetContext->addDrawOp(args.fClip, std::move(op));
         return true;
     }
@@ -282,8 +283,9 @@ bool GrTessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
         drawPathFlags |= OpFlags::kDisableHWTessellation;
     }
 
-    auto op = pool->allocate<GrPathTessellateOp>(*args.fViewMatrix, path, std::move(args.fPaint),
-                                                 args.fAAType, drawPathFlags);
+    auto op = GrOp::Make<GrPathTessellateOp>(
+            args.fContext, *args.fViewMatrix, path, std::move(args.fPaint),
+            args.fAAType, drawPathFlags);
     renderTargetContext->addDrawOp(args.fClip, std::move(op));
     return true;
 }
@@ -353,8 +355,8 @@ void GrTessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
 
     GrAAType aaType = (GrAA::kYes == args.fDoStencilMSAA) ? GrAAType::kMSAA : GrAAType::kNone;
 
-    auto op = args.fContext->priv().opMemoryPool()->allocate<GrPathTessellateOp>(
-            *args.fViewMatrix, path, GrPaint(), aaType, OpFlags::kStencilOnly);
+    auto op = GrOp::Make<GrPathTessellateOp>(
+            args.fContext, *args.fViewMatrix, path, GrPaint(), aaType, OpFlags::kStencilOnly);
     args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));
 }
 
@@ -402,7 +404,7 @@ void GrTessellationPathRenderer::renderAtlas(GrOnFlushResourceProvider* onFlushR
             }
             uberPath->setFillType(fillType);
             GrAAType aaType = (antialias) ? GrAAType::kMSAA : GrAAType::kNone;
-            auto op = onFlushRP->opMemoryPool()->allocate<GrPathTessellateOp>(
+            auto op = GrOp::Make<GrPathTessellateOp>(onFlushRP->recordingContext(),
                     SkMatrix::I(), *uberPath, GrPaint(), aaType, fStencilAtlasFlags);
             rtc->addDrawOp(nullptr, std::move(op));
         }

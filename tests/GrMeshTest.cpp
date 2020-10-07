@@ -405,16 +405,14 @@ class GrMeshTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext,
-                                          std::function<void(DrawMeshHelper*)> prepareFn,
-                                          std::function<void(DrawMeshHelper*)> executeFn) {
-        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
-
-        return pool->allocate<GrMeshTestOp>(prepareFn, executeFn);
+    static GrOp::Owner Make(GrRecordingContext* rContext,
+                            std::function<void(DrawMeshHelper*)> prepareFn,
+                            std::function<void(DrawMeshHelper*)> executeFn) {
+        return GrOp::Make<GrMeshTestOp>(rContext, prepareFn, executeFn);
     }
 
 private:
-    friend class GrOpMemoryPool; // for ctor
+    friend class GrOp; // for ctor
 
     GrMeshTestOp(std::function<void(DrawMeshHelper*)> prepareFn,
                  std::function<void(DrawMeshHelper*)> executeFn)
