@@ -70,6 +70,24 @@
       "parentUuid": "03769f97_6c7ec689",
       "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aafb6f4c_64ad8ff2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T14:30:44Z",
+      "side": 1,
+      "message": "I guess I saw what was here as a pooling solution, I just wasn\u0027t sure about ownership. If we\u0027re going to just be pooling modifiers, then we could encapsulate this thing so that the IR generator doesn\u0027t become the gatekeeper (and a necessary dependency of yet more code). If we anticipate pooling other things, we could accept that IR generator does fill that role, or add a more general pooled object manager, or just pass around a couple pools.",
+      "parentUuid": "e3e7e947_a4810cb3",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
