@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c8c3c13_055a414e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-07T19:31:54Z",
+      "side": 1,
+      "message": "PTAL, this is going back and addressing the original feedback from Mike and Rob, and isolating it from the SkImagePaint experiment. Namely, I\u0027ve named the matrix arg to drawSpecial \u0027localToDevice\u0027 and got rid of the extra pre-translate parameters.",
+      "revId": "7cc7f4d97aea3b06d0f3eb7c5780b2f74b6b1c01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
