@@ -16,6 +16,23 @@
       "message": "Just a little clean up I noticed was possible while redoing how image filters are applied in SkCanvas.",
       "revId": "161d9a18d40a34989a8f0f70e198b7e837c4e95e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14b95638_879da2ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-07T13:39:56Z",
+      "side": 1,
+      "message": "This is a nice clean up!  I agree about the assert.",
+      "revId": "161d9a18d40a34989a8f0f70e198b7e837c4e95e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
