@@ -270,8 +270,8 @@ uniform half blurRadius;
             // The gpu thread gets priority over the recording threads. If the gpu thread is first,
             // it crams a lazy proxy into the cache and then fills it in later.
             auto[lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
-                                    dContext, dimensions, GrColorType::kAlpha_8,
-                                    kBlurredRRectMaskOrigin);
+                                    dContext, GrColorType::kAlpha_8, dimensions,
+                                    kBlurredRRectMaskOrigin, SkBackingFit::kExact);
             if (!lazyView) {
                 return nullptr;
             }

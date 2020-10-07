@@ -362,7 +362,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
         // it crams a lazy proxy into the cache and then fills it in later.
         auto [lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
-            dContext, {wh, wh}, GrColorType::kRGBA_8888, kImageOrigin);
+            dContext, GrColorType::kRGBA_8888, {wh, wh}, kImageOrigin, SkBackingFit::kExact);
         ++stats->fNumLazyCreations;
 
         auto [view, data] = threadSafeViewCache->findOrAddWithData(key, lazyView);

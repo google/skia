@@ -7,9 +7,11 @@
 
 #include "src/gpu/GrBlurUtils.h"
 
+#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrFixedClip.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
@@ -34,11 +36,6 @@ static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& r
 }
 
 static constexpr auto kMaskOrigin = kTopLeft_GrSurfaceOrigin;
-
-static GrSurfaceProxyView find_filtered_mask(GrProxyProvider* provider, const GrUniqueKey& key) {
-    return provider->findCachedProxyWithColorTypeFallback(key, kMaskOrigin, GrColorType::kAlpha_8,
-                                                          1);
-}
 
 // Draw a mask using the supplied paint. Since the coverage/geometry
 // is already burnt into the mask this boils down to a rect draw.
@@ -381,7 +378,7 @@ static bool compute_key_and_clip_bounds(GrUniqueKey* maskKey,
     return true;
 }
 
-static GrSurfaceProxyView hw_create_filtered_mask(GrRecordingContext* rContext,
+static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
                                                   GrRenderTargetContext* renderTargetContext,
                                                   const SkMatrix& viewMatrix,
                                                   const GrStyledShape& shape,
@@ -390,48 +387,87 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrRecordingContext* rContext,
                                                   const SkIRect& clipBounds,
                                                   SkIRect* maskRect,
                                                   GrUniqueKey* key) {
-    GrSurfaceProxyView filteredMaskView;
+    if (!filter->canFilterMaskGPU(shape,
+                                  unclippedDevShapeBounds,
+                                  clipBounds,
+                                  viewMatrix,
+                                  maskRect)) {
+        return {};
+    }
 
-    if (filter->canFilterMaskGPU(shape,
-                                 unclippedDevShapeBounds,
-                                 clipBounds,
-                                 viewMatrix,
-                                 maskRect)) {
-        if (clip_bounds_quick_reject(clipBounds, *maskRect)) {
-            // clipped out
-            return {};
+    if (clip_bounds_quick_reject(clipBounds, *maskRect)) {
+        // clipped out
+        return {};
+    }
+
+    auto threadSafeViewCache = dContext->priv().threadSafeViewCache();
+
+    GrSurfaceProxyView lazyView;
+    sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline> trampoline;
+
+    if (key->isValid()) {
+        // In this case, we want GPU-filtered masks to have priority over SW-generated ones so
+        // we pre-emptively add a lazy-view to the cache and fill it in later.
+        std::tie(lazyView, trampoline) = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
+                dContext, GrColorType::kAlpha_8, maskRect->size(),
+                kMaskOrigin, SkBackingFit::kApprox);
+        if (!lazyView) {
+            return {}; // fall back to a SW-created mask - 'create_mask_GPU' probably won't succeed
         }
 
-        GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
+        key->setCustomData(create_data(*maskRect, unclippedDevShapeBounds));
+        auto [cachedView, data] = threadSafeViewCache->findOrAddWithData(*key, lazyView);
+        if (cachedView != lazyView) {
+            // In this case, the gpu-thread lost out to a recording thread - use its result.
+            SkASSERT(data);
+            SkASSERT(cachedView.asTextureProxy());
+            SkASSERT(cachedView.origin() == kMaskOrigin);
 
-        // TODO: this path should also use the thread-safe proxy-view cache!
+            *maskRect = extract_draw_rect_from_data(data.get(), unclippedDevShapeBounds);
+            return cachedView;
+        }
+    }
+
+    std::unique_ptr<GrRenderTargetContext> maskRTC(create_mask_GPU(
+                                                            dContext,
+                                                            *maskRect,
+                                                            viewMatrix,
+                                                            shape,
+                                                            renderTargetContext->numSamples()));
+    if (!maskRTC) {
         if (key->isValid()) {
-            filteredMaskView = find_filtered_mask(proxyProvider, *key);
+            // It is very unlikely that 'create_mask_GPU' will fail after 'CreateLazyView'
+            // succeeded but, if it does, remove the lazy-view from the cache and fallback to
+            // a SW-created mask. Note that any recording threads that glommed onto the
+            // lazy-view will have to, later, drop those draws.
+            threadSafeViewCache->remove(*key);
         }
+        return {};
+    }
 
-        if (!filteredMaskView) {
-            std::unique_ptr<GrRenderTargetContext> maskRTC(create_mask_GPU(
-                                                           rContext,
-                                                           *maskRect,
-                                                           viewMatrix,
-                                                           shape,
-                                                           renderTargetContext->numSamples()));
-            if (maskRTC) {
-                filteredMaskView = filter->filterMaskGPU(rContext,
-                                                         maskRTC->readSurfaceView(),
-                                                         maskRTC->colorInfo().colorType(),
-                                                         maskRTC->colorInfo().alphaType(),
-                                                         viewMatrix,
-                                                         *maskRect);
-                if (filteredMaskView && key->isValid()) {
-                    SkASSERT(filteredMaskView.asTextureProxy());
-
-                    // This customData isn't being used yet
-                    key->setCustomData(create_data(*maskRect, unclippedDevShapeBounds));
-                    proxyProvider->assignUniqueKeyToProxy(*key, filteredMaskView.asTextureProxy());
-                }
-            }
+    auto filteredMaskView = filter->filterMaskGPU(dContext,
+                                                  maskRTC->readSurfaceView(),
+                                                  maskRTC->colorInfo().colorType(),
+                                                  maskRTC->colorInfo().alphaType(),
+                                                  viewMatrix,
+                                                  *maskRect);
+    if (!filteredMaskView) {
+        if (key->isValid()) {
+            // Remove the lazy-view from the cache and fallback to a SW-created mask. Note that
+            // any recording threads that glommed onto the lazy-view will have to, later, drop
+            // those draws.
+            threadSafeViewCache->remove(*key);
         }
+        return {};
+    }
+
+    if (key->isValid()) {
+        SkASSERT(filteredMaskView.dimensions() == lazyView.dimensions());
+        SkASSERT(filteredMaskView.swizzle() == lazyView.swizzle());
+        SkASSERT(filteredMaskView.origin() == lazyView.origin());
+
+        trampoline->fProxy = filteredMaskView.asTextureProxyRef();
+        return lazyView;
     }
 
     return filteredMaskView;
@@ -499,8 +535,8 @@ static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
     GrSurfaceProxyView filteredMaskView;
     SkIRect maskRect;
 
-    if (rContext->asDirectContext()) {
-        filteredMaskView = hw_create_filtered_mask(rContext, renderTargetContext,
+    if (auto dContext = rContext->asDirectContext()) {
+        filteredMaskView = hw_create_filtered_mask(dContext, renderTargetContext,
                                                    viewMatrix, *shape, maskFilter,
                                                    unclippedDevShapeBounds, boundsForClip,
                                                    &maskRect, &maskKey);
