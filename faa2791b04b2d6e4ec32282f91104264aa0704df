@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9241fbc0_2c808f9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:03:31Z",
+      "side": 1,
+      "message": "lgtm with one nit",
+      "revId": "faa2791b04b2d6e4ec32282f91104264aa0704df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a768db79_1c78ee81",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:03:31Z",
+      "side": 1,
+      "message": "Can we say:\n\n return sk_Caps.builtinDeterminantSupport ? determinant(float2x2(a,b))\n                                          : a.x*b.y - a.y*b.x;",
+      "range": {
+        "startLine": 583,
+        "startChar": 4,
+        "endLine": 584,
+        "endChar": 85
+      },
+      "revId": "faa2791b04b2d6e4ec32282f91104264aa0704df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
