@@ -58,6 +58,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7854854_54862224",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T13:55:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4960e6de_4b177f40",
+      "range": {
+        "startLine": 308,
+        "startChar": 93,
+        "endLine": 308,
+        "endChar": 98
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90a5c0b7_47a21ecf",
@@ -71,6 +95,30 @@
       "writtenOn": "2020-10-06T21:25:55Z",
       "side": 1,
       "message": "nice",
+      "range": {
+        "startLine": 2853,
+        "startChar": 4,
+        "endLine": 2853,
+        "endChar": 9
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "533acb46_ea76cce8",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2853,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T13:55:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "90a5c0b7_47a21ecf",
       "range": {
         "startLine": 2853,
         "startChar": 4,
@@ -104,6 +152,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b386207_e415630a",
+        "filename": "src/sksl/ir/SkSLVarDeclarations.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T13:55:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "320381c7_5339f135",
+      "range": {
+        "startLine": 76,
+        "startChar": 39,
+        "endLine": 76,
+        "endChar": 49
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a453fe18_f8a8ec4c",
@@ -117,6 +189,30 @@
       "writtenOn": "2020-10-06T21:25:55Z",
       "side": 1,
       "message": "nice",
+      "range": {
+        "startLine": 5,
+        "startChar": 14,
+        "endLine": 6,
+        "endChar": 10
+      },
+      "revId": "11b132d63d2b351b8b73f759b497d624fbb38ff9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70eed7c6_94eb3f5f",
+        "filename": "tests/sksl/blend/golden/BlendClear.metal",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T13:55:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a453fe18_f8a8ec4c",
       "range": {
         "startLine": 5,
         "startChar": 14,

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "006e6440_bfa1d03c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T13:55:40Z",
+      "side": 1,
+      "message": "I had already started the follow-up CL when the bots complained on the first pass. I realized two things:\n1) The correct fix for the bot issues was to finish the refactor, and...\n2) The final version was going to touch all the same code, again...\n\nSo I just went ahead and did that. PS5 is the much better version (modulo naming). There are now just VarDeclaration and VarDeclarations. (The latter should be renamed to GlobalVarDeclaration, perhaps). No double-indirection for local variable declarations, and the CFG/optimizer logic is much simpler, because the declaration statements appear directly as top-level statements in the IR, so we just Nop them out when a variable is dead. This has the benefit of removing *all* the checks from the backends - there\u0027s no way to get a \"dead\" variable declaration statement - such a thing literally can\u0027t exist. (It could as a program element, but we never do that - we either remove them entirely, or leave them intact).",
+      "revId": "c04b6414833ea02c800059d6b657f12885991c5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
