@@ -35,7 +35,7 @@ public:
     };
 
     Variable(int offset, ModifiersPool::Handle modifiers, StringFragment name, const Type* type,
-             bool builtin, Storage storage, Expression* initialValue = nullptr)
+             bool builtin, Storage storage, const Expression* initialValue = nullptr)
     : INHERITED(offset, VariableData{name, type, initialValue, modifiers, /*readCount=*/0,
                                      /*writeCount=*/(int16_t) (initialValue ? 1 : 0),
                                      (int8_t) storage, builtin}) {}
