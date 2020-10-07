@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a57d941_c4909cc4",
+        "filename": "src/sksl/ir/SkSLVarDeclarations.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T15:44:09Z",
+      "side": 1,
+      "message": "Sorry that I keep expanding the scope on this CL, but the cleanup is just snowballing. Now that we use VarDeclaration directly, GlobalVarDeclaration (previously VarDeclarations) is no longer part of the CFG. That means that the rationale for storing a statement went away, so I switched it to storing an actual VarDeclaration (and renamed it, to help catch all instances as well as make the code more readable).",
+      "revId": "8f37a543d6b2f7197bd22d87cf018d97c55d2026",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
