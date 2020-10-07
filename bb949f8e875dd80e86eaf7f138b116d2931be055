@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c5c5e4a_1517a85e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T13:35:22Z",
+      "side": 1,
+      "message": "I think this looks good. Two things:\n\n1) Why the removal of all the const (especially around Symbol, but also on Variables in FunctionDeclaration)?\n2) Passing the entire IR generator around to the backends so they can make new modifiers feels funny, but is probably okay as we\u0027ve tried to condense the public interaction with the compiler to a single pass anyway?",
+      "revId": "bb949f8e875dd80e86eaf7f138b116d2931be055",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
