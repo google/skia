@@ -86,7 +86,7 @@ public:
 
     uint32_t contextID() const;
     const GrCaps* caps() const;
-    GrOpMemoryPool* opMemoryPool() const;
+    GrRecordingContext* recordingContext() const;
 
     void printWarningMessage(const char* msg) const;
 
