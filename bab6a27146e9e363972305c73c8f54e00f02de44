@@ -16,6 +16,190 @@
       "message": "See https://screencast.googleplex.com/cast/NTMxODg4MDUxMzc1MzA4OHw5ZGQwNzhmMC1lZQ for what it looks like to run gmtests.html locally.",
       "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15289bd9_6adb334e",
+        "filename": "modules/canvaskit/gm.js",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "Depth and stencil can be zero since we create offscreen surfaces for gms instead of rendering to the canvas.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 18
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6854f973_340c83f2",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "We control that with the --config flag currently. There are configs for different color types, etc. Maybe the TODO could say something about eventually making them configurable via config flag?",
+      "range": {
+        "startLine": 87,
+        "startChar": 22,
+        "endLine": 87,
+        "endChar": 50
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd3765a2_71bb7d2f",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "kSkip?\n\nThe purpose of kSkip is to avoid noisy output for tests that are simply not applicable. I think we should return silently here.",
+      "range": {
+        "startLine": 110,
+        "startChar": 53,
+        "endLine": 110,
+        "endChar": 58
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ac42bcd_ee580658",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 119,
+        "startChar": 49,
+        "endLine": 119,
+        "endChar": 54
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ff0db77_e57394d5",
+        "filename": "modules/canvaskit/gm_bindings.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "This will probably slow tests down significantly. Are there future plans to put this behind a flag if/when running locally and not interested in the PNGs?",
+      "range": {
+        "startLine": 147,
+        "startChar": 19,
+        "endLine": 147,
+        "endChar": 28
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a818f0dc_449e6997",
+        "filename": "modules/canvaskit/wasm_tools/gmtests.html",
+        "patchSetId": 11
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "Is this a candidate for OffscreenCanvas?\n\nhttps://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 30
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15782c50_c733cf14",
+        "filename": "modules/canvaskit/wasm_tools/gmtests.html",
+        "patchSetId": 11
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "I like it!!",
+      "range": {
+        "startLine": 59,
+        "startChar": 5,
+        "endLine": 59,
+        "endChar": 81
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e30163b_4934e643",
+        "filename": "modules/canvaskit/wasm_tools/gmtests.html",
+        "patchSetId": 11
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-07T22:19:32Z",
+      "side": 1,
+      "message": "Low priority. Might be fun to draw a checkerboard here to see alpha better. Or maybe just do it with css?",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 17
+      },
+      "revId": "bab6a27146e9e363972305c73c8f54e00f02de44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
