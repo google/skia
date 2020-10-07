@@ -222,15 +222,13 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
         auto ctx = canvas->recordingContext();
         SkASSERT(ctx);
 
-        GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
-
         int width = this->width();
         int height = this->height();
         auto ccbuff = GrRenderTargetContext::Make(
                 ctx, GrColorType::kAlpha_F16, nullptr, SkBackingFit::kApprox, {width, height});
         SkASSERT(ccbuff);
         ccbuff->clear(SK_PMColor4fTRANSPARENT);
-        ccbuff->priv().testingOnly_addDrawOp(pool->allocate<DrawCoverageCountOp>(this));
+        ccbuff->priv().testingOnly_addDrawOp(GrOp::Make<DrawCoverageCountOp>(ctx, this));
 
         // Visualize coverage count in main canvas.
         GrPaint paint;

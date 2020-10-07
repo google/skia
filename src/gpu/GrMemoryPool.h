@@ -119,23 +119,8 @@ public:
     static std::unique_ptr<GrOpMemoryPool> Make(size_t preallocSize, size_t minAllocSize);
     void operator delete(void* p) { ::operator delete(p); }
 
-    template <typename Op, typename... OpArgs>
-    std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
-        #if defined(GR_OP_ALLOCATE_USE_NEW)
-            void* m = ::operator new(sizeof(Op));
-            Op* op =  new (m) Op(std::forward<OpArgs>(opArgs)...);
-            return std::unique_ptr<Op>(op);
-        #else
-            auto mem = this->allocate(sizeof(Op));
-            return std::unique_ptr<Op>(new (mem) Op(std::forward<OpArgs>(opArgs)...));
-        #endif
-    }
-
     void* allocate(size_t size) { return fPool.allocate(size); }
-
-    #if !defined(GR_OP_ALLOCATE_USE_NEW)
-        void release(std::unique_ptr<GrOp> op);
-    #endif
+    void release(void *);
     bool isEmpty() const { return fPool.isEmpty(); }
 
 private:
