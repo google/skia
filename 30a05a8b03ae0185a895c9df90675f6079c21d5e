@@ -69,6 +69,24 @@
       "parentUuid": "b23c1193_37d9a9ad",
       "revId": "30a05a8b03ae0185a895c9df90675f6079c21d5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8faf4bd4_a90a97ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-07T17:33:56Z",
+      "side": 1,
+      "message": "Thanks!  I think that means this should all land fine.",
+      "parentUuid": "b139cb07_b13dfeac",
+      "revId": "30a05a8b03ae0185a895c9df90675f6079c21d5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
