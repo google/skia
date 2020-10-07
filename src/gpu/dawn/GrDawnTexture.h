@@ -31,11 +31,6 @@ public:
 
     void textureParamsModified() override {}
 
-    void upload(GrColorType, const GrMipLevel texels[], int mipLevels,
-                wgpu::CommandEncoder copyEncoder);
-    void upload(GrColorType, const GrMipLevel texels[], int mipLevels,
-                const SkIRect& dstRect, wgpu::CommandEncoder copyEncoder);
-
     wgpu::Texture texture() const { return fInfo.fTexture; }
 protected:
     GrDawnTexture(GrDawnGpu*, SkISize dimensions, const GrDawnTextureInfo&, GrMipmapStatus);

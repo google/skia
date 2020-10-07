@@ -198,6 +198,9 @@ private:
 
     bool onSubmitToGpu(bool syncCpu) override;
 
+    void uploadTextureData(GrColorType srcColorType, const GrMipLevel texels[], int mipLevelCount,
+                           const SkIRect& rect, wgpu::Texture texture);
+
     void moveStagingBuffersToBusyAndMapAsync();
     void checkForCompletedStagingBuffers();
 
