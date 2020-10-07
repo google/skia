@@ -33,20 +33,21 @@ static void test_unscaled(skiatest::Reporter* reporter) {
     SkScalar pos[] = {0, SK_ScalarHalf, SK_Scalar1};
     SkScalar radius = SkIntToScalar(5);
 
-    SkPaint gradientPaint;
-    gradientPaint.setShader(SkGradientShader::MakeRadial(
-        center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
+    sk_sp<SkShader> gradient = SkGradientShader::MakeRadial(
+            center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkTileMode::kClamp);
 
     // Test using the image filter
     {
         SkPaint paint;
-        paint.setImageFilter(SkImageFilters::Paint(gradientPaint, &ir));
+        paint.setImageFilter(SkImageFilters::Shader(gradient, &ir));
         canvasFilter.drawRect(SkRect::Make(ir), paint);
     }
 
     // Test using the paint directly
     {
-        canvasPaint.drawRect(SkRect::Make(ir), gradientPaint);
+        SkPaint paint;
+        paint.setShader(gradient);
+        canvasPaint.drawRect(SkRect::Make(ir), paint);
     }
 
     // Assert that both paths yielded the same result
@@ -80,22 +81,23 @@ static void test_scaled(skiatest::Reporter* reporter) {
     SkScalar pos[] = {0, SK_ScalarHalf, SK_Scalar1};
     SkScalar radius = SkIntToScalar(5);
 
-    SkPaint gradientPaint;
-    gradientPaint.setShader(SkGradientShader::MakeRadial(
-        center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkTileMode::kClamp));
+    sk_sp<SkShader> gradient = SkGradientShader::MakeRadial(
+        center, radius, colors, pos, SK_ARRAY_COUNT(colors), SkTileMode::kClamp);
 
     // Test using the image filter
     {
         SkPaint paint;
-        paint.setImageFilter(SkImageFilters::Paint(gradientPaint, &ir));
+        paint.setImageFilter(SkImageFilters::Shader(gradient, &ir));
         canvasFilter.scale(SkIntToScalar(2), SkIntToScalar(2));
         canvasFilter.drawRect(SkRect::Make(ir), paint);
     }
 
     // Test using the paint directly
     {
+        SkPaint paint;
+        paint.setShader(gradient);
         canvasPaint.scale(SkIntToScalar(2), SkIntToScalar(2));
-        canvasPaint.drawRect(SkRect::Make(ir), gradientPaint);
+        canvasPaint.drawRect(SkRect::Make(ir), paint);
     }
 
     // Assert that both paths yielded the same result

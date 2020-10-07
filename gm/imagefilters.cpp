@@ -264,12 +264,10 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     testMaskPaint.setMaskFilter(maskFilter);
     testMaskPaint.setImageFilter(edgeBlend);
 
-    SkPaint alphaPaint;
-    alphaPaint.setShader(alphaMaskShader);
     SkPaint expectedMaskPaint;
     expectedMaskPaint.setImageFilter(SkImageFilters::Compose(edgeBlend,
             SkImageFilters::Xfermode(SkBlendMode::kSrcIn,
-                                     SkImageFilters::Paint(alphaPaint))));
+                                     SkImageFilters::Shader(alphaMaskShader))));
 
     canvas->save();
     canvas->translate(0, image->height());

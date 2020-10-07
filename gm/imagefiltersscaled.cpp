@@ -83,10 +83,6 @@ protected:
         sk_sp<SkImageFilter> gradient(SkImageFilters::Image(fGradientCircle));
         sk_sp<SkImageFilter> checkerboard(SkImageFilters::Image(fCheckerboard));
 
-        SkPaint noisePaint;
-        noisePaint.setShader(SkPerlinNoiseShader::MakeFractalNoise(SkDoubleToScalar(0.1),
-                                                                   SkDoubleToScalar(0.05), 1, 0));
-
         SkPoint3 pointLocation = SkPoint3::Make(0, 0, SkIntToScalar(10));
         SkPoint3 spotLocation = SkPoint3::Make(SkIntToScalar(-10),
                                                SkIntToScalar(-10),
@@ -109,7 +105,8 @@ protected:
             SkImageFilters::Erode(1, 1, checkerboard),
             SkImageFilters::Offset(SkIntToScalar(32), 0, nullptr),
             SkImageFilters::MatrixTransform(resizeMatrix, kNone_SkFilterQuality, nullptr),
-            SkImageFilters::Paint(noisePaint),
+            SkImageFilters::Shader(SkPerlinNoiseShader::MakeFractalNoise(
+                    SkDoubleToScalar(0.1), SkDoubleToScalar(0.05), 1, 0)),
             SkImageFilters::PointLitDiffuse(pointLocation, white, surfaceScale, kd, nullptr),
             SkImageFilters::SpotLitDiffuse(spotLocation, spotTarget, spotExponent,
                                            cutoffAngle, white, surfaceScale, kd, nullptr),
