@@ -22,6 +22,30 @@
       },
       "revId": "989f5bfb8f01fe73aa2671aa0cc65028b6c86129",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d59d181_7a4a9abb",
+        "filename": "src/core/SkImageFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-07T20:37:53Z",
+      "side": 0,
+      "message": "Now it happens automatically as part of skif::Mapping\u0027s template magic. Previously, deviceToLayer() processed a wrapped SkRect, so produced an SkRect and we had to round it out manually. Now, deviceToLayer processes an SkIRect, which has its specialization to round out and return an SkIRect.",
+      "parentUuid": "b7b39de2_6bb01d9b",
+      "range": {
+        "startLine": 253,
+        "startChar": 83,
+        "endLine": 253,
+        "endChar": 91
+      },
+      "revId": "989f5bfb8f01fe73aa2671aa0cc65028b6c86129",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
