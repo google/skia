@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2254795d_e9c24065",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "nit: Please add\n\nBug: skia: 10799\n\nSo that it will automatically update the bug.",
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3b64dce_ea28d191",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "It looks like this is only intended to be used in this file? Please mark it static, and rename to something like\n\n  static bool parse_encoded_origin",
+      "range": {
+        "startLine": 11,
+        "startChar": 5,
+        "endLine": 11,
+        "endChar": 25
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f772f8f_a6016e8d",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "Why not make this a single line?\n\n  auto data \u003d exifData + offset + 2;\n\n?",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 23
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d040c4e6_34fe24d9",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "nit: since we always want count to be 1, maybe this is clearer as:\n\n  if (1 \u003d\u003d count) {\n    if (kOriginTag \u003d\u003d tag \u0026\u0026 kOriginType \u003d\u003d type) {\n      ...\n    } else if (kSubIFDOffsetTag \u003d\u003d tag \u0026\u0026 kSubIFDOffsetType \u003d\u003d type) {\n      ...\n    }\n  }\n\n? I don\u0027t have a strong preference, though.",
+      "range": {
+        "startLine": 40,
+        "startChar": 56,
+        "endLine": 40,
+        "endChar": 66
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b371e127_07cbda3f",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "If I\u0027m reading this correctly, this will use the *last* subifd, if there\u0027s more than one? Does that match the spec?\n\n(It looks like Chromium uses the first one. See https://source.chromium.org/chromium/chromium/src/+/master:third_party/blink/renderer/platform/image-decoders/jpeg/jpeg_image_decoder.cc;l\u003d381;drc\u003dce29422a5a0922393f61efe899ec80e9894e09ed)",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 13
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9205abb_25721fac",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "nit: Though this function is already comment-heavy (so this arguably matches), I don\u0027t think this comment is necessary.",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 51
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5dc7020_14fd4bc9",
+        "filename": "tests/ExifTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "nit: line length. We keep our lines limited to 100 characters.",
+      "range": {
+        "startLine": 31,
+        "startChar": 120,
+        "endLine": 31,
+        "endChar": 121
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e885c95c_7cb81725",
+        "filename": "tests/ExifTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-07T16:27:03Z",
+      "side": 1,
+      "message": "nit: I might put these in images/orientation/, where we already have files that we test.\n\nThat said, this one is perhaps redundant, since the rest of our test files with a non-default orientation have it in exif.\n\nAre these images copyright free? Can you add a comment in the commit message?",
+      "range": {
+        "startLine": 31,
+        "startChar": 82,
+        "endLine": 31,
+        "endChar": 117
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
