@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c9f3caf_7833e0df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-07T20:02:19Z",
+      "side": 1,
+      "message": "Do we like this better? I went with the name\"ModifiersPool\" for now; obviously we may end up pooling other things down the road, but we can revisit the name then.",
+      "revId": "e4fd1504556e53e743ef1c9c33d6004a057a3b3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
