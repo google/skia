@@ -125,7 +125,7 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
+    static GrOp::OpOwner Make(GrRecordingContext* context,
                                           GrPaint&& paint,
                                           const SkMatrix& viewMatrix,
                                           GrSurfaceProxyView view,
@@ -141,13 +141,13 @@ public:
                                                      std::move(iter), dst);
     }
 
-    NonAALatticeOp(Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+    NonAALatticeOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
                    const SkMatrix& viewMatrix, GrSurfaceProxyView view,
                    SkAlphaType alphaType, sk_sp<GrColorSpaceXform> colorSpaceXform,
                    GrSamplerState::Filter filter, std::unique_ptr<SkLatticeIter> iter,
                    const SkRect& dst)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kNone)
+            , fHelper(processorSet, GrAAType::kNone)
             , fView(std::move(view))
             , fAlphaType(alphaType)
             , fColorSpaceXform(std::move(colorSpaceXform))
@@ -366,15 +366,15 @@ private:
 }  // anonymous namespace
 
 namespace GrLatticeOp {
-std::unique_ptr<GrDrawOp> MakeNonAA(GrRecordingContext* context,
-                                    GrPaint&& paint,
-                                    const SkMatrix& viewMatrix,
-                                    GrSurfaceProxyView view,
-                                    SkAlphaType alphaType,
-                                    sk_sp<GrColorSpaceXform> colorSpaceXform,
-                                    GrSamplerState::Filter filter,
-                                    std::unique_ptr<SkLatticeIter> iter,
-                                    const SkRect& dst) {
+GrOp::OpOwner MakeNonAA(GrRecordingContext* context,
+                        GrPaint&& paint,
+                        const SkMatrix& viewMatrix,
+                        GrSurfaceProxyView view,
+                        SkAlphaType alphaType,
+                        sk_sp<GrColorSpaceXform> colorSpaceXform,
+                        GrSamplerState::Filter filter,
+                        std::unique_ptr<SkLatticeIter> iter,
+                        const SkRect& dst) {
     return NonAALatticeOp::Make(context, std::move(paint), viewMatrix, std::move(view), alphaType,
                                 std::move(colorSpaceXform), filter, std::move(iter), dst);
 }
