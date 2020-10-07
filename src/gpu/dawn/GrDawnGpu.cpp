@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGeometryProcessor.h"
@@ -165,8 +166,8 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface, int left, int top, int width, 
     if (!texture) {
         return false;
     }
-    texture->upload(srcColorType, texels, mipLevelCount,
-                    SkIRect::MakeXYWH(left, top, width, height), this->getCopyEncoder());
+    this->uploadTextureData(srcColorType, texels, mipLevelCount,
+                            SkIRect::MakeXYWH(left, top, width, height), texture->texture());
     return true;
 }
 
@@ -338,6 +339,45 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
     info.fFormat = desc.format;
     info.fLevelCount = desc.mipLevelCount;
     return GrBackendTexture(dimensions.width(), dimensions.height(), info);
+}
+
+void GrDawnGpu::uploadTextureData(GrColorType srcColorType, const GrMipLevel texels[],
+                                  int mipLevelCount, const SkIRect& rect,
+                                  wgpu::Texture texture) {
+    uint32_t x = rect.x();
+    uint32_t y = rect.y();
+    uint32_t width = rect.width();
+    uint32_t height = rect.height();
+
+    for (int i = 0; i < mipLevelCount; i++) {
+        const void* src = texels[i].fPixels;
+        size_t srcRowBytes = texels[i].fRowBytes;
+        SkColorType colorType = GrColorTypeToSkColorType(srcColorType);
+        size_t trimRowBytes = width * SkColorTypeBytesPerPixel(colorType);
+        size_t dstRowBytes = GrDawnRoundRowBytes(trimRowBytes);
+        size_t size = dstRowBytes * height;
+        GrStagingBufferManager::Slice slice =
+                this->stagingBufferManager()->allocateStagingBufferSlice(size);
+        SkRectMemcpy(slice.fOffsetMapPtr, dstRowBytes, src, srcRowBytes, trimRowBytes, height);
+
+        wgpu::BufferCopyView srcBuffer = {};
+        srcBuffer.buffer = static_cast<GrDawnBuffer*>(slice.fBuffer)->get();
+        srcBuffer.layout.offset = slice.fOffset;
+        srcBuffer.layout.bytesPerRow = dstRowBytes;
+        srcBuffer.layout.rowsPerImage = height;
+
+        wgpu::TextureCopyView dstTexture;
+        dstTexture.texture = texture;
+        dstTexture.mipLevel = i;
+        dstTexture.origin = {x, y, 0};
+
+        wgpu::Extent3D copySize = {width, height, 1};
+        this->getCopyEncoder().CopyBufferToTexture(&srcBuffer, &dstTexture, &copySize);
+        x /= 2;
+        y /= 2;
+        width = std::max(1u, width / 2);
+        height = std::max(1u, height / 2);
+    }
 }
 
 bool GrDawnGpu::onUpdateBackendTexture(const GrBackendTexture& backendTexture,
