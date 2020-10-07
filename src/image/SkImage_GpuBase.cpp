@@ -477,9 +477,9 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
             // we can't unref in our destructor because we may be on another thread then. So we
             // let the cache know it is waiting on an unref message. We will send that message from
             // our destructor.
-            GrContext* context = fTexture->getContext();
-            context->priv().getResourceCache()->insertDelayedTextureUnref(fTexture);
-            fTextureContextID = context->priv().contextID();
+            auto dContext = fTexture->getContext();
+            dContext->priv().getResourceCache()->insertDelayedTextureUnref(fTexture);
+            fTextureContextID = dContext->priv().contextID();
             return {std::move(tex), kReleaseCallbackOnInstantiation, kKeySyncMode};
         }
 

@@ -549,12 +549,14 @@ public:
 
         Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 
+        @param context         GPU context
         @param pixmap          SkPixmap that contains data to be uploaded to the AHardwareBuffer
         @param hardwareBuffer  AHardwareBuffer Android hardware buffer
+        @param surfaceOrigin   surface origin for resulting image
         @return                created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeFromAHardwareBufferWithData(
-            GrContext* context,
+            GrDirectContext* context,
             const SkPixmap& pixmap,
             AHardwareBuffer* hardwareBuffer,
             GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
