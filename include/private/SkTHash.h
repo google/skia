@@ -48,6 +48,24 @@ public:
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fCapacity * sizeof(Slot); }
 
+    // Make a clone of this hash table. We don't allow cloning via copy-construction or operator=
+    // to avoid accidental copies.
+    SkTHashTable clone() const {
+        SkTHashTable table;
+        table.fCapacity = fCapacity;
+        table.fSlots = SkAutoTArray<Slot>(fCapacity);
+
+        for (int i = 0; i < fCapacity; i++) {
+            const Slot& slot = fSlots[i];
+            if (!slot.empty()) {
+                T val = slot.val;
+                table.uncheckedSet(std::move(val));
+            }
+        }
+
+        return table;
+    }
+
     // !!!!!!!!!!!!!!!!!                 CAUTION                   !!!!!!!!!!!!!!!!!
     // set(), find() and foreach() all allow mutable access to table entries.
     // If you change an entry so that it no longer has the same key, all hell
@@ -263,6 +281,13 @@ public:
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
 
+    // Make a clone of this hash map.
+    SkTHashMap clone() const {
+        SkTHashMap map;
+        map.fTable = fTable.clone();
+        return map;
+    }
+
     // N.B. The pointers returned by set() and find() are valid only until the next call to set().
 
     // Set key to val in the table, replacing any previous value with the same key.
@@ -339,6 +364,13 @@ public:
 
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fTable.approxBytesUsed(); }
+
+    // Make a clone of this hash set.
+    SkTHashSet clone() const {
+        SkTHashSet set;
+        set.fTable = fTable.clone();
+        return set;
+    }
 
     // Copy an item into the set.
     void add(T item) { fTable.set(std::move(item)); }
