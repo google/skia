@@ -484,16 +484,16 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kIf: {
             IfStatement& ifs = (*s)->as<IfStatement>();
-            this->addExpression(cfg, &ifs.fTest, /*constantPropagate=*/true);
+            this->addExpression(cfg, &ifs.test(), /*constantPropagate=*/true);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             BlockId start = cfg.fCurrent;
             cfg.newBlock();
-            this->addStatement(cfg, &ifs.fIfTrue);
+            this->addStatement(cfg, &ifs.ifTrue());
             BlockId next = cfg.newBlock();
-            if (ifs.fIfFalse) {
+            if (ifs.ifFalse()) {
                 cfg.fCurrent = start;
                 cfg.newBlock();
-                this->addStatement(cfg, &ifs.fIfFalse);
+                this->addStatement(cfg, &ifs.ifFalse());
                 cfg.addExit(cfg.fCurrent, next);
                 cfg.fCurrent = next;
             } else {

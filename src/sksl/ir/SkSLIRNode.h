@@ -123,6 +123,10 @@ protected:
         const FunctionDeclaration* fFunction;
     };
 
+    struct IfStatementData {
+        bool fIsStatic;
+    };
+
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
@@ -153,6 +157,7 @@ protected:
             kFloatLiteral,
             kForStatement,
             kFunctionCall,
+            kIfStatement,
             kIntLiteral,
             kString,
             kSymbol,
@@ -171,6 +176,7 @@ protected:
             FloatLiteralData fFloatLiteral;
             ForStatementData fForStatement;
             FunctionCallData fFunctionCall;
+            IfStatementData fIfStatement;
             IntLiteralData fIntLiteral;
             String fString;
             SymbolData fSymbol;
@@ -221,6 +227,11 @@ protected:
         NodeData(const FunctionCallData& data)
             : fKind(Kind::kFunctionCall) {
             *(new(&fContents) FunctionCallData) = data;
+        }
+
+        NodeData(IfStatementData data)
+            : fKind(Kind::kIfStatement) {
+            *(new(&fContents) IfStatementData) = data;
         }
 
         NodeData(IntLiteralData data)
@@ -285,6 +296,9 @@ protected:
                 case Kind::kFunctionCall:
                     *(new(&fContents) FunctionCallData) = other.fContents.fFunctionCall;
                     break;
+                case Kind::kIfStatement:
+                    *(new(&fContents) IfStatementData) = other.fContents.fIfStatement;
+                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
@@ -338,6 +352,9 @@ protected:
                 case Kind::kFunctionCall:
                     fContents.fFunctionCall.~FunctionCallData();
                     break;
+                case Kind::kIfStatement:
+                    fContents.fIfStatement.~IfStatementData();
+                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
@@ -375,6 +392,8 @@ protected:
     IRNode(int offset, int kind, const ForStatementData& data);
 
     IRNode(int offset, int kind, const FunctionCallData& data);
+
+    IRNode(int offset, int kind, const IfStatementData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
 
@@ -472,6 +491,11 @@ protected:
     const FunctionCallData& functionCallData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kFunctionCall);
         return fData.fContents.fFunctionCall;
+    }
+
+    const IfStatementData& ifStatementData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kIfStatement);
+        return fData.fContents.fIfStatement;
     }
 
     const IntLiteralData& intLiteralData() const {

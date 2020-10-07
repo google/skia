@@ -21,34 +21,60 @@ struct IfStatement : public Statement {
 
     IfStatement(int offset, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-    : INHERITED(offset, kStatementKind)
-    , fIsStatic(isStatic)
-    , fTest(std::move(test))
-    , fIfTrue(std::move(ifTrue))
-    , fIfFalse(std::move(ifFalse)) {}
+    : INHERITED(offset, IfStatementData{isStatic}) {
+        fExpressionChildren.push_back(std::move(test));
+        fStatementChildren.reserve(2);
+        fStatementChildren.push_back(std::move(ifTrue));
+        fStatementChildren.push_back(std::move(ifFalse));
+    }
+
+    bool isStatic() const {
+        return this->ifStatementData().fIsStatic;
+    }
+
+    std::unique_ptr<Expression>& test() {
+        return this->fExpressionChildren[0];
+    }
+
+    const std::unique_ptr<Expression>& test() const {
+        return this->fExpressionChildren[0];
+    }
+
+    std::unique_ptr<Statement>& ifTrue() {
+        return this->fStatementChildren[0];
+    }
+
+    const std::unique_ptr<Statement>& ifTrue() const {
+        return this->fStatementChildren[0];
+    }
+
+    std::unique_ptr<Statement>& ifFalse() {
+        return this->fStatementChildren[1];
+    }
+
+    const std::unique_ptr<Statement>& ifFalse() const {
+        return this->fStatementChildren[1];
+    }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new IfStatement(fOffset, fIsStatic, fTest->clone(),
-                fIfTrue->clone(), fIfFalse ? fIfFalse->clone() : nullptr));
+        return std::unique_ptr<Statement>(new IfStatement(fOffset, this->isStatic(),
+                                                          this->test()->clone(),
+                                                          this->ifTrue()->clone(),
+                                                          this->ifFalse() ? this->ifFalse()->clone()
+                                                                          : nullptr));
     }
 
     String description() const override {
         String result;
-        if (fIsStatic) {
+        if (this->isStatic()) {
             result += "@";
         }
-        result += "if (" + fTest->description() + ") " + fIfTrue->description();
-        if (fIfFalse) {
-            result += " else " + fIfFalse->description();
+        result += "if (" + this->test()->description() + ") " + this->ifTrue()->description();
+        if (this->ifFalse()) {
+            result += " else " + this->ifFalse()->description();
         }
         return result;
     }
-
-    bool fIsStatic;
-    std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Statement> fIfTrue;
-    // may be null
-    std::unique_ptr<Statement> fIfFalse;
 
     using INHERITED = Statement;
 };
