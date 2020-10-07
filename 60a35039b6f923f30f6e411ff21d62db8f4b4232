@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b936af2_09abbbe3",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T20:19:08Z",
+      "side": 1,
+      "message": "include?",
+      "range": {
+        "startLine": 11,
+        "startChar": 1,
+        "endLine": 11,
+        "endChar": 7
+      },
+      "revId": "60a35039b6f923f30f6e411ff21d62db8f4b4232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa22bcde_11ffd675",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T20:19:08Z",
+      "side": 1,
+      "message": "nit: I think code might read nicer if we instead provided:\n\nconst Modifiers* operator-\u003e() const {\n  return \u0026fPool-\u003efModifiers[fIndex];\n}\n\nconst Modifiers\u0026 operator*() const {\n  return fPool-\u003efModifiers[fIndex];\n}\n\n... although most access is gated behind the Variable\u0027s accessor function, so probably not worth the trouble.",
+      "range": {
+        "startLine": 31,
+        "startChar": 8,
+        "endLine": 31,
+        "endChar": 30
+      },
+      "revId": "60a35039b6f923f30f6e411ff21d62db8f4b4232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9ca8479_f4684c79",
+        "filename": "src/sksl/SkSLModifiersPool.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-07T20:19:08Z",
+      "side": 1,
+      "message": "micro-nit: return fModifiers.empty();",
+      "range": {
+        "startLine": 41,
+        "startChar": 26,
+        "endLine": 41,
+        "endChar": 37
+      },
+      "revId": "60a35039b6f923f30f6e411ff21d62db8f4b4232",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
