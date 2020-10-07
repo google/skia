@@ -28,7 +28,7 @@ struct FunctionDeclaration : public Symbol {
     static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
     FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
-                        std::vector<const Variable*> parameters, const Type& returnType,
+                        std::vector<Variable*> parameters, const Type& returnType,
                         bool builtin)
     : INHERITED(offset, kSymbolKind, std::move(name))
     , fDefinition(nullptr)
@@ -118,7 +118,7 @@ struct FunctionDeclaration : public Symbol {
     mutable FunctionDefinition* fDefinition;
     bool fBuiltin;
     Modifiers fModifiers;
-    const std::vector<const Variable*> fParameters;
+    const std::vector<Variable*> fParameters;
     const Type& fReturnType;
     mutable std::atomic<int> fCallCount = 0;
 

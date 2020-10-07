@@ -10,6 +10,8 @@
 
 #include "src/sksl/ir/SkSLLayout.h"
 
+#include <vector>
+
 namespace SkSL {
 
 /**
@@ -116,6 +118,17 @@ struct Modifiers {
     int fFlags;
 };
 
-}  // namespace SkSL
+} // namespace SkSL
+
+namespace std {
+
+template <>
+struct hash<SkSL::Modifiers> {
+    size_t operator()(const SkSL::Modifiers& key) const {
+        return key.fFlags ^ (key.fLayout.fFlags << 8) ^ ((unsigned) key.fLayout.fBuiltin << 16);
+    }
+};
+
+} // namespace std
 
 #endif

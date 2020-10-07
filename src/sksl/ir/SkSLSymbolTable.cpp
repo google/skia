@@ -23,8 +23,8 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
     }
 }
 
-const Symbol* SymbolTable::operator[](StringFragment name) {
-    const auto& entry = fSymbols.find(name);
+Symbol* SymbolTable::operator[](StringFragment name) {
+    auto entry = fSymbols.find(name);
     if (entry == fSymbols.end()) {
         if (fParent) {
             return (*fParent)[name];
@@ -59,7 +59,7 @@ const Symbol* SymbolTable::operator[](StringFragment name) {
             }
         }
     }
-    const Symbol* symbol = entry->second;
+    Symbol* symbol = entry->second;
     while (symbol && symbol->is<SymbolAlias>()) {
         symbol = symbol->as<SymbolAlias>().origSymbol();
     }
@@ -72,14 +72,14 @@ const String* SymbolTable::takeOwnershipOfString(std::unique_ptr<String> n) {
     return result;
 }
 
-void SymbolTable::addAlias(StringFragment name, const Symbol* symbol) {
+void SymbolTable::addAlias(StringFragment name, Symbol* symbol) {
     this->add(name, std::make_unique<SymbolAlias>(symbol->fOffset, name, symbol));
 }
 
-void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol) {
+void SymbolTable::addWithoutOwnership(StringFragment name, Symbol* symbol) {
     SkASSERT(symbol->name() == name);
 
-    const Symbol*& refInSymbolTable = fSymbols[name];
+    Symbol*& refInSymbolTable = fSymbols[name];
     if (refInSymbolTable == nullptr) {
         refInSymbolTable = symbol;
         return;
@@ -106,11 +106,11 @@ void SymbolTable::addWithoutOwnership(StringFragment name, const Symbol* symbol)
     }
 }
 
-std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::begin() {
+std::unordered_map<StringFragment, Symbol*>::iterator SymbolTable::begin() {
     return fSymbols.begin();
 }
 
-std::unordered_map<StringFragment, const Symbol*>::iterator SymbolTable::end() {
+std::unordered_map<StringFragment, Symbol*>::iterator SymbolTable::end() {
     return fSymbols.end();
 }
 

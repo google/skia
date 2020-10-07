@@ -42,7 +42,9 @@ public:
     Symbol(int offset, const SymbolAliasData& data)
     : INHERITED(offset, (int) Kind::kSymbolAlias, data) {}
 
-    Symbol(const Symbol&) = default;
+    Symbol(int offset, const VariableData& data)
+    : INHERITED(offset, (int) Kind::kVariable, data) {}
+
     Symbol& operator=(const Symbol&) = default;
 
     ~Symbol() override {}
