@@ -7,8 +7,17 @@
 
 #include "src/gpu/ops/GrOp.h"
 
+#include "src/gpu/GrProcessorSet.h"
+
 std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
 std::atomic<uint32_t> GrOp::gCurrOpUniqueID{GrOp::kIllegalOpID + 1};
+
+void GrOp::DeleteFromPool::operator() (GrOp* op) {
+    if (op != nullptr) {
+        op->~GrOp();
+        fPool->release(op);
+    }
+}
 
 #if !defined(GR_OP_ALLOCATE_USE_NEW) && defined(SK_DEBUG)
     void* GrOp::operator new(size_t size) {
@@ -30,6 +39,14 @@ GrOp::GrOp(uint32_t classID) : fClassID(classID) {
     SkDEBUGCODE(fBoundsFlags = kUninitialized_BoundsFlag);
 }
 
+size_t GrOp::CalculateSizeWithProcessorSet(size_t opSize) {
+    return opSize + sizeof(GrProcessorSet);
+}
+
+GrProcessorSet* GrOp::InitializeProcessorSet(void* processorSetMem, GrPaint&& paint) {
+    return new (processorSetMem) GrProcessorSet{std::move(paint)};
+}
+
 GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, GrRecordingContext::Arenas* arenas,
                                             const GrCaps& caps) {
     SkASSERT(this != that);
@@ -43,7 +60,7 @@ GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, GrRecordingContext::Aren
     return result;
 }
 
-void GrOp::chainConcat(std::unique_ptr<GrOp> next) {
+void GrOp::chainConcat(GrOp::OpOwner next) {
     SkASSERT(next);
     SkASSERT(this->classID() == next->classID());
     SkASSERT(this->isChainTail());
@@ -52,12 +69,12 @@ void GrOp::chainConcat(std::unique_ptr<GrOp> next) {
     fNextInChain->fPrevInChain = this;
 }
 
-std::unique_ptr<GrOp> GrOp::cutChain() {
+GrOp::OpOwner GrOp::cutChain() {
     if (fNextInChain) {
         fNextInChain->fPrevInChain = nullptr;
         return std::move(fNextInChain);
     }
-    return nullptr;
+    return {nullptr, nullptr};
 }
 
 #ifdef SK_DEBUG

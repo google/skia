@@ -31,11 +31,11 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                          GrPaint&&,
-                                          const SkMatrix& viewMatrix,
-                                          const SkRRect&,
-                                          GrAAType);
+    static GrOp::OpOwner Make(GrRecordingContext*,
+                              GrPaint&&,
+                              const SkMatrix& viewMatrix,
+                              const SkRRect&,
+                              GrAAType);
 
     const char* name() const final { return "GrFillRRectOp"; }
 
@@ -59,7 +59,7 @@ public:
 
 private:
     friend class ::GrSimpleMeshDrawOpHelper; // for access to ctor
-    friend class ::GrOpMemoryPool;         // for access to ctor
+    friend class ::GrOp;         // for access to ctor
 
     enum class ProcessorFlags {
         kNone             = 0,
@@ -73,7 +73,7 @@ private:
 
     class Processor;
 
-    FillRRectOp(const Helper::MakeArgs&,
+    FillRRectOp(GrProcessorSet*,
                 const SkPMColor4f& paintColor,
                 const SkMatrix& totalShapeMatrix,
                 const SkRRect&,
@@ -137,17 +137,17 @@ static bool can_use_hw_derivatives_with_coverage(const GrShaderCaps&,
                                                  const SkMatrix&,
                                                  const SkRRect&);
 
-std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
-                                            GrPaint&& paint,
-                                            const SkMatrix& viewMatrix,
-                                            const SkRRect& rrect,
-                                            GrAAType aaType) {
+GrOp::OpOwner FillRRectOp::Make(GrRecordingContext* ctx,
+                                GrPaint&& paint,
+                                const SkMatrix& viewMatrix,
+                                const SkRRect& rrect,
+                                GrAAType aaType) {
     using Helper = GrSimpleMeshDrawOpHelper;
 
     const GrCaps* caps = ctx->priv().caps();
 
     if (!caps->drawInstancedSupport()) {
-        return nullptr;
+        return {nullptr, nullptr};
     }
 
     ProcessorFlags flags = ProcessorFlags::kNone;
@@ -156,7 +156,7 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
         // already use HW derivatives. The only trick will be adjusting the AA outset to account for
         // perspective. (i.e., outset = 0.5 * z.)
         if (viewMatrix.hasPerspective()) {
-            return nullptr;
+            return {nullptr, nullptr};
         }
         if (can_use_hw_derivatives_with_coverage(*caps->shaderCaps(), viewMatrix, rrect)) {
             // HW derivatives (more specifically, fwidth()) are consistently faster on all platforms
@@ -167,7 +167,7 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
         if (GrAAType::kMSAA == aaType) {
             if (!caps->sampleLocationsSupport() || !caps->shaderCaps()->sampleMaskSupport() ||
                 caps->shaderCaps()->canOnlyUseSampleMaskWithStencil()) {
-                return nullptr;
+                return {nullptr, nullptr};
             }
         }
         if (viewMatrix.hasPerspective()) {
@@ -204,7 +204,7 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
         // default path renderer instead. The 200x200 threshold was arrived at using the
         // "shapes_rrect" benchmark on an ARM Galaxy S9.
         if (devBounds.height() * devBounds.width() > 200 * 200) {
-            return nullptr;
+            return {nullptr, nullptr};
         }
     }
 
@@ -212,7 +212,7 @@ std::unique_ptr<GrDrawOp> FillRRectOp::Make(GrRecordingContext* ctx,
                                               flags, devBounds);
 }
 
-FillRRectOp::FillRRectOp(const GrSimpleMeshDrawOpHelper::MakeArgs& helperArgs,
+FillRRectOp::FillRRectOp(GrProcessorSet* processorSet,
                          const SkPMColor4f& paintColor,
                          const SkMatrix& totalShapeMatrix,
                          const SkRRect& rrect,
@@ -220,7 +220,7 @@ FillRRectOp::FillRRectOp(const GrSimpleMeshDrawOpHelper::MakeArgs& helperArgs,
                          ProcessorFlags processorFlags,
                          const SkRect& devBounds)
         : INHERITED(ClassID())
-        , fHelper(helperArgs, aaType)
+        , fHelper(processorSet, aaType)
         , fColor(paintColor)
         , fLocalRect(rrect.rect())
         , fProcessorFlags(processorFlags & ~(ProcessorFlags::kHasLocalCoords |
@@ -943,11 +943,11 @@ static bool can_use_hw_derivatives_with_coverage(
 } // anonymous namespace
 
 
-std::unique_ptr<GrDrawOp> GrFillRRectOp::Make(GrRecordingContext* ctx,
-                                              GrPaint&& paint,
-                                              const SkMatrix& viewMatrix,
-                                              const SkRRect& rrect,
-                                              GrAAType aaType) {
+GrOp::OpOwner GrFillRRectOp::Make(GrRecordingContext* ctx,
+                                  GrPaint&& paint,
+                                  const SkMatrix& viewMatrix,
+                                  const SkRRect& rrect,
+                                  GrAAType aaType) {
     return FillRRectOp::Make(ctx, std::move(paint), viewMatrix, rrect, aaType);
 }
 

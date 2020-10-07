@@ -38,21 +38,21 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkMatrix& viewMatrix,
-                                          const SkRegion& region,
-                                          GrAAType aaType,
-                                          const GrUserStencilSettings* stencilSettings = nullptr) {
+    static GrOp::OpOwner Make(GrRecordingContext* context,
+                              GrPaint&& paint,
+                              const SkMatrix& viewMatrix,
+                              const SkRegion& region,
+                              GrAAType aaType,
+                              const GrUserStencilSettings* stencilSettings = nullptr) {
         return Helper::FactoryHelper<RegionOp>(context, std::move(paint), viewMatrix, region,
                                                aaType, stencilSettings);
     }
 
-    RegionOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+    RegionOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
              const SkMatrix& viewMatrix, const SkRegion& region, GrAAType aaType,
              const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, stencilSettings)
+            , fHelper(processorSet, aaType, stencilSettings)
             , fViewMatrix(viewMatrix) {
         RegionInfo& info = fRegions.push_back();
         info.fColor = color;
@@ -201,14 +201,14 @@ private:
 
 namespace GrRegionOp {
 
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                               GrPaint&& paint,
-                               const SkMatrix& viewMatrix,
-                               const SkRegion& region,
-                               GrAAType aaType,
-                               const GrUserStencilSettings* stencilSettings) {
+GrOp::OpOwner Make(GrRecordingContext* context,
+                   GrPaint&& paint,
+                   const SkMatrix& viewMatrix,
+                   const SkRegion& region,
+                   GrAAType aaType,
+                   const GrUserStencilSettings* stencilSettings) {
     if (aaType != GrAAType::kNone && aaType != GrAAType::kMSAA) {
-        return nullptr;
+        return {nullptr, nullptr};
     }
     return RegionOp::Make(context, std::move(paint), viewMatrix, region, aaType, stencilSettings);
 }

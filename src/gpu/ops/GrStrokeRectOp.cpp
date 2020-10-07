@@ -99,15 +99,15 @@ public:
         }
     }
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkMatrix& viewMatrix,
-                                          const SkRect& rect,
-                                          const SkStrokeRec& stroke,
-                                          GrAAType aaType) {
+    static GrOp::OpOwner Make(GrRecordingContext* context,
+                              GrPaint&& paint,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkStrokeRec& stroke,
+                              GrAAType aaType) {
         bool isMiter;
         if (!allowed_stroke(stroke, GrAA::kNo, &isMiter)) {
-            return nullptr;
+            return {nullptr, nullptr};
         }
         Helper::InputFlags inputFlags = Helper::InputFlags::kNone;
         // Depending on sub-pixel coordinates and the particular GPU, we may lose a corner of
@@ -121,11 +121,11 @@ public:
                                                         stroke, aaType);
     }
 
-    NonAAStrokeRectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+    NonAAStrokeRectOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
                       Helper::InputFlags inputFlags, const SkMatrix& viewMatrix, const SkRect& rect,
                       const SkStrokeRec& stroke, GrAAType aaType)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, inputFlags) {
+            , fHelper(processorSet, aaType, inputFlags) {
         fColor = color;
         fViewMatrix = viewMatrix;
         fRect = rect;
@@ -355,21 +355,21 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkMatrix& viewMatrix,
-                                          const SkRect& devOutside,
-                                          const SkRect& devInside,
-                                          const SkVector& devHalfStrokeSize) {
+    static GrOp::OpOwner Make(GrRecordingContext* context,
+                              GrPaint&& paint,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& devOutside,
+                              const SkRect& devInside,
+                              const SkVector& devHalfStrokeSize) {
         return Helper::FactoryHelper<AAStrokeRectOp>(context, std::move(paint), viewMatrix,
                                                      devOutside, devInside, devHalfStrokeSize);
     }
 
-    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+    AAStrokeRectOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
                    const SkMatrix& viewMatrix, const SkRect& devOutside, const SkRect& devInside,
                    const SkVector& devHalfStrokeSize)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fHelper(processorSet, GrAAType::kCoverage)
             , fViewMatrix(viewMatrix) {
         SkASSERT(!devOutside.isEmpty());
         SkASSERT(!devInside.isEmpty());
@@ -379,24 +379,24 @@ public:
         fMiterStroke = true;
     }
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkMatrix& viewMatrix,
-                                          const SkRect& rect,
-                                          const SkStrokeRec& stroke) {
+    static GrOp::OpOwner Make(GrRecordingContext* context,
+                              GrPaint&& paint,
+                              const SkMatrix& viewMatrix,
+                              const SkRect& rect,
+                              const SkStrokeRec& stroke) {
         bool isMiter;
         if (!allowed_stroke(stroke, GrAA::kYes, &isMiter)) {
-            return nullptr;
+            return {nullptr, nullptr};
         }
         return Helper::FactoryHelper<AAStrokeRectOp>(context, std::move(paint), viewMatrix, rect,
                                                      stroke, isMiter);
     }
 
-    AAStrokeRectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color,
+    AAStrokeRectOp(GrProcessorSet* processorSet, const SkPMColor4f& color,
                    const SkMatrix& viewMatrix, const SkRect& rect, const SkStrokeRec& stroke,
                    bool isMiter)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, GrAAType::kCoverage)
+            , fHelper(processorSet, GrAAType::kCoverage)
             , fViewMatrix(viewMatrix) {
         fMiterStroke = isMiter;
         RectInfo& info = fRects.push_back();
@@ -825,16 +825,16 @@ void AAStrokeRectOp::generateAAStrokeRectGeometry(GrVertexWriter& vertices,
 
 namespace GrStrokeRectOp {
 
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                               GrPaint&& paint,
-                               GrAAType aaType,
-                               const SkMatrix& viewMatrix,
-                               const SkRect& rect,
-                               const SkStrokeRec& stroke) {
+GrOp::OpOwner Make(GrRecordingContext* context,
+                   GrPaint&& paint,
+                   GrAAType aaType,
+                   const SkMatrix& viewMatrix,
+                   const SkRect& rect,
+                   const SkStrokeRec& stroke) {
     if (aaType == GrAAType::kCoverage) {
         // The AA op only supports axis-aligned rectangles
         if (!viewMatrix.rectStaysRect()) {
-            return nullptr;
+            return {nullptr, nullptr};
         }
         return AAStrokeRectOp::Make(context, std::move(paint), viewMatrix, rect, stroke);
     } else {
@@ -842,10 +842,10 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     }
 }
 
-std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
-                                     GrPaint&& paint,
-                                     const SkMatrix& viewMatrix,
-                                     const SkRect rects[2]) {
+GrOp::OpOwner MakeNested(GrRecordingContext* context,
+                         GrPaint&& paint,
+                         const SkMatrix& viewMatrix,
+                         const SkRect rects[2]) {
     SkASSERT(viewMatrix.rectStaysRect());
     SkASSERT(!rects[0].isEmpty() && !rects[1].isEmpty());
 
@@ -854,7 +854,7 @@ std::unique_ptr<GrDrawOp> MakeNested(GrRecordingContext* context,
     viewMatrix.mapRect(&devInside, rects[1]);
     if (devInside.isEmpty()) {
         if (devOutside.isEmpty()) {
-            return nullptr;
+            return {nullptr, nullptr};
         }
         DrawQuad quad{GrQuad::MakeFromRect(rects[0], viewMatrix), GrQuad(rects[0]),
                       GrQuadAAFlags::kAll};

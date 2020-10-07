@@ -703,18 +703,18 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* rContext) {
 }
 
 
-std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                               GrColor color,
-                               const SkMatrix& viewMatrix,
-                               const SkRRect& rrect,
-                               SkScalar blurWidth,
-                               SkScalar insetWidth) {
+GrOp::OpOwner Make(GrRecordingContext* context,
+                   GrColor color,
+                   const SkMatrix& viewMatrix,
+                   const SkRRect& rrect,
+                   SkScalar blurWidth,
+                   SkScalar insetWidth) {
     // Shadow rrect ops only handle simple circular rrects.
     SkASSERT(viewMatrix.isSimilarity() && SkRRectPriv::EqualRadii(rrect));
 
     GrSurfaceProxyView falloffView = create_falloff_texture(context);
     if (!falloffView) {
-        return nullptr;
+        return {nullptr, nullptr};
     }
 
     // Do any matrix crunching before we reset the draw state for device coords.
@@ -729,17 +729,17 @@ std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
     SkScalar scaledInsetWidth = SkScalarAbs(insetWidth*matrixFactor);
 
     if (scaledInsetWidth <= 0) {
-        return nullptr;
+        return {nullptr, nullptr};
     }
 
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-    return pool->allocate<ShadowCircularRRectOp>(color, bounds,
-                                                 scaledRadius,
-                                                 rrect.isOval(),
-                                                 blurWidth,
-                                                 scaledInsetWidth,
-                                                 std::move(falloffView));
+    return GrOp::Make<ShadowCircularRRectOp>(context,
+                                             color,
+                                             bounds,
+                                             scaledRadius,
+                                             rrect.isOval(),
+                                             blurWidth,
+                                             scaledInsetWidth,
+                                             std::move(falloffView));
 }
 }  // namespace GrShadowRRectOp
 

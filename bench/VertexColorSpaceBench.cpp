@@ -298,6 +298,7 @@ public:
             return;
         }
 
+        GrRecordingContextPriv priv = canvas->recordingContext()->priv();
         GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
         auto p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
@@ -315,11 +316,11 @@ public:
 
             for (int j = 0; j < kDrawsPerLoop; ++j) {
                 SkColor c = r.nextU();
-                std::unique_ptr<GrDrawOp> op = nullptr;
+                GrOpMemoryPool::OpPtr op = nullptr;
 
                 switch (fMode) {
                     case kBaseline_Mode:
-                        op = pool->allocate<Op>(SkColorToPremulGrColor(c));
+                        op = pool->makeOp<Op>(SkColorToPremulGrColor(c));
                         break;
                     case kShader_Mode:
                         op = pool->allocate<Op>(SkColorToUnpremulGrColor(c), xform);

@@ -456,13 +456,14 @@ GrGeometryProcessor* GrAtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 }
 
 #if GR_TEST_UTILS
-std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
-                                                             const SkPaint& skPaint,
-                                                             const SkFont& font,
-                                                             const SkMatrixProvider& mtxProvider,
-                                                             const char* text,
-                                                             int x,
-                                                             int y) {
+
+GrOp::OpOwner GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetContext* rtc,
+                                                 const SkPaint& skPaint,
+                                                 const SkFont& font,
+                                                 const SkMatrixProvider& mtxProvider,
+                                                 const char* text,
+                                                 int x,
+                                                 int y) {
     size_t textLen = (int)strlen(text);
 
     const SkMatrix& drawMatrix(mtxProvider.localToDevice());
@@ -473,7 +474,7 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
 
     auto glyphRunList = builder.useGlyphRunList();
     if (glyphRunList.empty()) {
-        return nullptr;
+        return {nullptr, nullptr};
     }
 
 
@@ -487,11 +488,11 @@ std::unique_ptr<GrDrawOp> GrAtlasTextOp::CreateOpTestingOnly(GrRenderTargetConte
             rContext->priv().caps()->shaderCaps()->supportsDistanceFieldText(),
             SDFOptions, blob.get());
     if (!blob->subRunList().head()) {
-        return nullptr;
+        return {nullptr, nullptr};
     }
 
     GrAtlasSubRun* subRun = static_cast<GrAtlasSubRun*>(blob->subRunList().head());
-    std::unique_ptr<GrDrawOp> op;
+    GrOp::OpOwner op;
     std::tie(std::ignore, op) = subRun->makeAtlasTextOp(nullptr, mtxProvider, glyphRunList, rtc);
     return op;
 }
