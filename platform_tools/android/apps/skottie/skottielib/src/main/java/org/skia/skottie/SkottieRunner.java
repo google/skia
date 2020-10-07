@@ -97,6 +97,7 @@ class SkottieRunner {
      */
     public void updateAnimationSurface(Animatable animation, SurfaceTexture surfaceTexture,
                                        int width, int height) {
+        // TODO: when testing, make sure thread management handles crashes
         ((SkottieAnimationImpl) animation).setSurfaceTexture(surfaceTexture);
         ((SkottieAnimationImpl) animation).updateSurface(width, height);
     }
@@ -290,19 +291,22 @@ class SkottieRunner {
         private long mAnimationStartTime; // time in System.nanoTime units, when started
 
         SkottieAnimationImpl(SurfaceTexture surfaceTexture, InputStream is) {
-            init(is);
-            mSurfaceTexture = surfaceTexture;
+            if (init(is)) {
+                mSurfaceTexture = surfaceTexture;
+            }
         }
 
         SkottieAnimationImpl(TextureView view, InputStream is) {
-            init(is);
-            mSurfaceTexture = view.getSurfaceTexture();
+            if (init(is)) {
+                mSurfaceTexture = view.getSurfaceTexture();
+            }
             view.setSurfaceTextureListener(this);
         }
 
         SkottieAnimationImpl(SurfaceView view, InputStream is, int backgroundColor) {
-            init(is);
-            mSurfaceHolder = view.getHolder();
+            if (init(is)) {
+                mSurfaceHolder = view.getHolder();
+            }
             mSurfaceHolder.addCallback(this);
             mBackgroundColor = backgroundColor;
         }
@@ -334,20 +338,21 @@ class SkottieRunner {
             return buffer.asReadOnlyBuffer();
         }
 
-        private void init(InputStream is) {
+        private boolean init(InputStream is) {
 
             ByteBuffer byteBuffer;
             try {
                 byteBuffer = convertToByteBuffer(is);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "failed to read input stream", e);
-                return;
+                return false;
             }
 
             long proxy = SkottieRunner.getInstance().getNativeProxy();
             mNativeProxy = nCreateProxy(proxy, byteBuffer);
             mDuration = nGetDuration(mNativeProxy);
             mProgress = 0f;
+            return true;
         }
 
         @Override
@@ -361,20 +366,12 @@ class SkottieRunner {
             }
         }
 
+        // Always call this on GL thread
         public void updateSurface(int width, int height) {
-            try {
-                runOnGLThread(() -> {
-                    mSurfaceWidth = width;
-                    mSurfaceHeight = height;
-                    mNewSurface = true;
-
-                    drawFrame();
-                });
-            }
-            catch (Throwable t) {
-                Log.e(LOG_TAG, "updateSurface failed", t);
-                throw new RuntimeException(t);
-            }
+            mSurfaceWidth = width;
+            mSurfaceHeight = height;
+            mNewSurface = true;
+            drawFrame();
         }
 
         @Override
@@ -588,8 +585,16 @@ class SkottieRunner {
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             // will be called on UI thread
             mValidSurface = true;
-            mSurfaceTexture = surface;
-            updateSurface(width, height);
+            try {
+                runOnGLThread(() -> {
+                    mSurfaceTexture = surface;
+                    updateSurface(width, height);
+                });
+            }
+            catch (Throwable t) {
+                Log.e(LOG_TAG, "updateSurface failed", t);
+                throw new RuntimeException(t);
+            }
         }
 
         @Override
@@ -619,8 +624,17 @@ class SkottieRunner {
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            mSurfaceHolder = holder;
-            updateSurface(width, height);
+            mValidSurface = true;
+            try {
+                runOnGLThread(() -> {
+                    mSurfaceHolder = holder;
+                    updateSurface(width, height);
+                });
+            }
+            catch (Throwable t) {
+                Log.e(LOG_TAG, "updateSurface failed", t);
+                throw new RuntimeException(t);
+            }
         }
 
         @Override
