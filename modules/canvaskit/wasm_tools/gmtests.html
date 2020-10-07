@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<title>GMs and unit tests against WASM/WebGL</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  #debug_canvas {
+      width: 1000px;
+      height: 1000px;
+      border: 1px grey dashed;
+  }
+</style>
+
+<canvas id=debug_canvas height=1000 width=1000></canvas>
+
+<canvas id=gm_canvas></canvas>
+
+<script type="text/javascript" src="/out/wasm_gm_tests.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+  const loadTests = InitWasmGMTests({
+    locateFile: (file) => '/out/'+file,
+  });
+
+  Promise.all([loadTests]).then(([GM]) => {
+    RunGMs(GM);
+  });
+
+  function RunGMs(GM) {
+    console.log('Going to run GMs');
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = GM.GetWebGLContext(canvas, 2);
+    const grcontext = GM.MakeGrContext(ctx);
+
+    const names = GM.ListGMs();
+    names.sort();
+    for (const name of names) {
+      const pngAndHash = GM.runGM(grcontext, name);
+      if (!pngAndHash) {
+        continue;
+      }
+      // Of note, this draw is asynchronous. Might need to make a list of bitmaps and have each
+      // draw and be visible for a few frames.
+      drawDebugPNG(pngAndHash.png);
+      // We need to know the digest of the image as well as which gm produced it.
+      // As such, we include both parts in the name.
+      outputPNG(pngAndHash.png, pngAndHash.digest + '_' + name + '.png');
+    }
+  }
+
+  function drawDebugPNG(pngBytes) {
+    const debugCanvas = document.getElementById('debug_canvas');
+    const ctx = debugCanvas.getContext('2d');
+    const blob = new Blob([pngBytes], {type: 'image/png'});
+    createImageBitmap(blob).then((bitmap) => {
+        ctx.drawImage(bitmap, 0, 0);
+    });
+  }
+
+  function outputPNG(pngBytes, fileName) {
+    // https://stackoverflow.com/a/32094834
+    const blob = new Blob([pngBytes], {type: 'image/png'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    // clean up after because FF might not download it synchronously
+    setTimeout(function() {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 50);
+  }
+
+</script>
