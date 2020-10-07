@@ -36,29 +36,29 @@ public:
     DEFINE_OP_CLASS_ID
 
     // This creates an instance of a simple non-AA solid color rect-drawing Op
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkRect& r) {
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            GrPaint&& paint,
+                            const SkRect& r) {
         return Helper::FactoryHelper<NonAARectOp>(context, std::move(paint), r, nullptr, ClassID());
     }
 
     // This creates an instance of a simple non-AA textured rect-drawing Op
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const SkRect& r,
-                                          const SkRect& local) {
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            GrPaint&& paint,
+                            const SkRect& r,
+                            const SkRect& local) {
         return Helper::FactoryHelper<NonAARectOp>(context, std::move(paint), r, &local, ClassID());
     }
 
     const SkPMColor4f& color() const { return fColor; }
 
-    NonAARectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkRect& r,
+    NonAARectOp(GrProcessorSet* processorSet, const SkPMColor4f& color, const SkRect& r,
                 const SkRect* localRect, int32_t classID)
             : INHERITED(classID)
             , fColor(color)
             , fHasLocalRect(SkToBool(localRect))
             , fRect(r)
-            , fHelper(helperArgs, GrAAType::kNone) {
+            , fHelper(processorSet, GrAAType::kNone) {
         if (fHasLocalRect) {
             fLocalQuad = GrQuad(*localRect);
         }
@@ -227,21 +227,19 @@ public:
 
     int id() const { return fID; }
 
-    static std::unique_ptr<AtlasedRectOp> Make(GrRecordingContext* rContext,
-                                               GrPaint&& paint,
-                                               const SkRect& r,
-                                               int id) {
-        GrDrawOp* op = Helper::FactoryHelper<AtlasedRectOp>(rContext, std::move(paint),
-                                                            r, id).release();
-        return std::unique_ptr<AtlasedRectOp>(static_cast<AtlasedRectOp*>(op));
+    static GrOp::Owner Make(GrRecordingContext* rContext,
+                            GrPaint&& paint,
+                            const SkRect& r,
+                            int id) {
+        return Helper::FactoryHelper<AtlasedRectOp>(rContext, std::move(paint), r, id);
     }
 
     // We set the initial color of the NonAARectOp based on the ID.
     // Note that we force creation of a NonAARectOp that has local coords in anticipation of
     // pulling from the atlas.
-    AtlasedRectOp(const Helper::MakeArgs& helperArgs, const SkPMColor4f& color, const SkRect& r,
+    AtlasedRectOp(GrProcessorSet* processorSet, const SkPMColor4f& color, const SkRect& r,
                   int id)
-            : INHERITED(helperArgs, SkPMColor4f::FromBytes_RGBA(kColors[id]), r, &kEmptyRect,
+            : INHERITED(processorSet, SkPMColor4f::FromBytes_RGBA(kColors[id]), r, &kEmptyRect,
                         ClassID())
             , fID(id)
             , fNext(nullptr) {
@@ -482,10 +480,8 @@ static GrSurfaceProxyView make_upstream_image(GrRecordingContext* rContext,
         GrPaint paint;
         paint.setColorFragmentProcessor(std::move(fp));
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
-        std::unique_ptr<AtlasedRectOp> op(AtlasedRectOp::Make(rContext,
-                                                              std::move(paint), r, start + i));
-
-        AtlasedRectOp* sparePtr = op.get();
+        GrOp::Owner op = AtlasedRectOp::Make(rContext, std::move(paint), r, start + i);
+        AtlasedRectOp* sparePtr = (AtlasedRectOp*)op.get();
 
         uint32_t opsTaskID;
         rtc->priv().testingOnly_addDrawOp(nullptr, std::move(op),

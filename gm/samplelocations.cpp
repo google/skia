@@ -219,10 +219,9 @@ class SampleLocationsTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(
+    static GrOp::Owner Make(
             GrRecordingContext* ctx, const SkMatrix& viewMatrix, GradType gradType) {
-        GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
-        return pool->allocate<SampleLocationsTestOp>(gradType);
+        return GrOp::Make<SampleLocationsTestOp>(ctx, gradType);
     }
 
 private:
@@ -307,7 +306,7 @@ private:
     // guaranteed to have the same lifetime as the program info.
     GrProgramInfo*  fProgramInfo = nullptr;
 
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     using INHERITED = GrDrawOp;
 };

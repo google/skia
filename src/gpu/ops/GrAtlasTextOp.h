@@ -61,17 +61,17 @@ public:
     MaskType maskType() const { return fMaskType; }
 
 #if GR_TEST_UTILS
-    static std::unique_ptr<GrDrawOp> CreateOpTestingOnly(GrRenderTargetContext* rtc,
-                                                         const SkPaint& skPaint,
-                                                         const SkFont& font,
-                                                         const SkMatrixProvider& mtxProvider,
-                                                         const char* text,
-                                                         int x,
-                                                         int y);
+    static GrOp::Owner CreateOpTestingOnly(GrRenderTargetContext* rtc,
+                                           const SkPaint& skPaint,
+                                           const SkFont& font,
+                                           const SkMatrixProvider& mtxProvider,
+                                           const char* text,
+                                           int x,
+                                           int y);
 #endif
 
 private:
-    friend class GrOpMemoryPool; // for ctor
+    friend class GrOp; // for ctor
 
     // The minimum number of Geometry we will try to allocate.
     static constexpr auto kMinGeometryAllocated = 12;

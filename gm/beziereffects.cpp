@@ -149,17 +149,15 @@ public:
 
     const char* name() const final { return "BezierConicTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          const SkRect& rect,
-                                          const SkPMColor4f& color,
-                                          const SkMatrix& klm) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-        return pool->allocate<BezierConicTestOp>(rect, color, klm);
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            const SkRect& rect,
+                            const SkPMColor4f& color,
+                            const SkMatrix& klm) {
+        return GrOp::Make<BezierConicTestOp>(context, rect, color, klm);
     }
 
 private:
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     BezierConicTestOp(const SkRect& rect, const SkPMColor4f& color, const SkMatrix& klm)
             : INHERITED(rect, color, ClassID())
@@ -296,8 +294,8 @@ protected:
 
                 canvas->drawRect(bounds, boundsPaint);
 
-                std::unique_ptr<GrDrawOp> op = BezierConicTestOp::Make(context, bounds,
-                                                                       kOpaqueBlack, klm);
+                GrOp::Owner op = BezierConicTestOp::Make(context, bounds,
+                                                         kOpaqueBlack, klm);
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
             }
         }
@@ -354,17 +352,15 @@ public:
     DEFINE_OP_CLASS_ID
     const char* name() const override { return "BezierQuadTestOp"; }
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          const SkRect& rect,
-                                          const SkPMColor4f& color,
-                                          const GrPathUtils::QuadUVMatrix& devToUV) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-        return pool->allocate<BezierQuadTestOp>(rect, color, devToUV);
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            const SkRect& rect,
+                            const SkPMColor4f& color,
+                            const GrPathUtils::QuadUVMatrix& devToUV) {
+        return GrOp::Make<BezierQuadTestOp>(context, rect, color, devToUV);
     }
 
 private:
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     BezierQuadTestOp(const SkRect& rect, const SkPMColor4f& color,
                      const GrPathUtils::QuadUVMatrix& devToUV)
@@ -491,8 +487,8 @@ protected:
 
                 GrPathUtils::QuadUVMatrix DevToUV(pts);
 
-                std::unique_ptr<GrDrawOp> op = BezierQuadTestOp::Make(context, bounds,
-                                                                      kOpaqueBlack, DevToUV);
+                GrOp::Owner op = BezierQuadTestOp::Make(context, bounds,
+                                                        kOpaqueBlack, DevToUV);
                 renderTargetContext->priv().testingOnly_addDrawOp(std::move(op));
             }
         }

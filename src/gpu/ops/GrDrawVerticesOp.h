@@ -27,14 +27,14 @@ namespace GrDrawVerticesOp {
      * specified. If an SkRuntimeEffect is provided, it may expect some number of input varyings,
      * which should match the number of extra per-vertex values in the SkVertices.
      */
-    std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                   GrPaint&&,
-                                   sk_sp<SkVertices>,
-                                   const SkMatrixProvider&,
-                                   GrAAType,
-                                   sk_sp<GrColorSpaceXform>,
-                                   GrPrimitiveType* overridePrimType,
-                                   const SkRuntimeEffect*);
+    GrOp::Owner Make(GrRecordingContext*,
+                     GrPaint&&,
+                     sk_sp<SkVertices>,
+                     const SkMatrixProvider&,
+                     GrAAType,
+                     sk_sp<GrColorSpaceXform>,
+                     GrPrimitiveType* overridePrimType,
+                     const SkRuntimeEffect*);
 
 }  // namespace GrDrawVerticesOp
 

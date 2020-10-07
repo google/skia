@@ -25,7 +25,7 @@ static bool uses_varying_coords(const GrPaint& paint) {
     return false;
 }
 
-std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
+GrOp::Owner GrCCDrawPathsOp::Make(
         GrRecordingContext* context, const SkIRect& clipIBounds, const SkMatrix& m,
         const GrStyledShape& shape, GrPaint&& paint) {
     SkRect conservativeDevBounds;
@@ -74,7 +74,7 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
                         std::move(paint));
 }
 
-std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
+GrOp::Owner GrCCDrawPathsOp::InternalMake(
         GrRecordingContext* context, const SkIRect& clipIBounds, const SkMatrix& m,
         const GrStyledShape& shape, float strokeDevWidth, const SkRect& conservativeDevBounds,
         GrPaint&& paint) {
@@ -92,9 +92,8 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
         return nullptr;
     }
 
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    return pool->allocate<GrCCDrawPathsOp>(m, shape, strokeDevWidth, shapeConservativeIBounds,
-                                           maskDevIBounds, conservativeDevBounds, std::move(paint));
+    return GrOp::Make<GrCCDrawPathsOp>(context, m, shape, strokeDevWidth, shapeConservativeIBounds,
+                                       maskDevIBounds, conservativeDevBounds, std::move(paint));
 }
 
 GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrStyledShape& shape,

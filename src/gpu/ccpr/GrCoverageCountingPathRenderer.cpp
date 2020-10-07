@@ -173,7 +173,7 @@ bool GrCoverageCountingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> op,
+void GrCoverageCountingPathRenderer::recordOp(GrOp::Owner op,
                                               const DrawPathArgs& args) {
     if (op) {
         auto addToOwningPerOpsTaskPaths = [this](GrOp* op, uint32_t opsTaskID) {

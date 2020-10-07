@@ -139,8 +139,8 @@ const GrCaps* GrOnFlushResourceProvider::caps() const {
     return fDrawingMgr->getContext()->priv().caps();
 }
 
-GrOpMemoryPool* GrOnFlushResourceProvider::opMemoryPool() const {
-    return fDrawingMgr->getContext()->priv().opMemoryPool();
+GrRecordingContext* GrOnFlushResourceProvider::recordingContext() const {
+    return fDrawingMgr->getContext();
 }
 
 void GrOnFlushResourceProvider::printWarningMessage(const char* msg) const {

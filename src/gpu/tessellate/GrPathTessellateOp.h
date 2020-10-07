@@ -195,7 +195,7 @@ private:
     int fIndirectDrawCount;
     sk_sp<const GrBuffer> fIndirectIndexBuffer;
 
-    friend class GrOpMemoryPool;  // For ctor.
+    friend class GrOp;  // For ctor.
 
 public:
     // This serves as a base class for benchmarking individual methods on GrPathTessellateOp.

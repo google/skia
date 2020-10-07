@@ -99,7 +99,7 @@ private:
     bool onDrawPath(const DrawPathArgs&) override;
 
     GrCCPerOpsTaskPaths* lookupPendingPaths(uint32_t opsTaskID);
-    void recordOp(std::unique_ptr<GrCCDrawPathsOp>, const DrawPathArgs&);
+    void recordOp(GrOp::Owner, const DrawPathArgs&);
 
     const CoverageType fCoverageType;
 

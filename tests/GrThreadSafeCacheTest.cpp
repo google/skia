@@ -393,16 +393,15 @@ class GrThreadSafeVertexTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* rContext, TestHelper::Stats* stats,
-                                          int wh, int id, bool failLookup, bool failFillingIn) {
-        GrOpMemoryPool* pool = rContext->priv().opMemoryPool();
+    static GrOp::Owner Make(GrRecordingContext* rContext, TestHelper::Stats* stats,
+                            int wh, int id, bool failLookup, bool failFillingIn) {
 
-        return pool->allocate<GrThreadSafeVertexTestOp>(rContext, stats, wh, id,
-                                                        failLookup, failFillingIn);
+        return GrOp::Make<GrThreadSafeVertexTestOp>(
+                rContext, rContext, stats, wh, id, failLookup, failFillingIn);
     }
 
 private:
-    friend class GrOpMemoryPool; // for ctor
+    friend class GrOp; // for ctor
 
     GrThreadSafeVertexTestOp(GrRecordingContext* rContext, TestHelper::Stats* stats, int wh, int id,
                              bool failLookup, bool failFillingIn)

@@ -537,7 +537,7 @@ int GrDirectMaskSubRun::glyphCount() const {
     return fGlyphs.glyphs().count();
 }
 
-std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+std::tuple<const GrClip*, GrOp::Owner>
 GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& viewMatrix,
                                     const SkGlyphRunList& glyphRunList,
                                     GrRenderTargetContext* rtc) const {
@@ -589,13 +589,14 @@ GrDirectMaskSubRun::makeAtlasTextOp(const GrClip* clip, const SkMatrixProvider& 
             drawingColor
     };
 
-    GrOpMemoryPool* const pool = rtc->priv().recordingContext()->priv().opMemoryPool();
-    std::unique_ptr<GrDrawOp> op = pool->allocate<GrAtlasTextOp>(op_mask_type(fMaskFormat),
-                                                                 false,
-                                                                 this->glyphCount(),
-                                                                 subRunBounds,
-                                                                 geometry,
-                                                                 std::move(grPaint));
+    GrRecordingContext* const context = rtc->priv().recordingContext();
+    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(context,
+                                               op_mask_type(fMaskFormat),
+                                               false,
+                                               this->glyphCount(),
+                                               subRunBounds,
+                                               geometry,
+                                               std::move(grPaint));
 
     return {clip, std::move(op)};
 }
@@ -723,7 +724,7 @@ bool GrTransformedMaskSubRun::canReuse(const SkPaint& paint, const SkMatrix& dra
     return true;
 }
 
-std::tuple<const GrClip*, std::unique_ptr<GrDrawOp>>
+std::tuple<const GrClip*, GrOp::Owner>
 GrTransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
                                          const SkMatrixProvider& viewMatrix,
                                          const SkGlyphRunList& glyphRunList,
@@ -733,7 +734,6 @@ GrTransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
     SkPoint drawOrigin = glyphRunList.origin();
     const SkPaint& drawPaint = glyphRunList.paint();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    GrOpMemoryPool* pool = rtc->priv().recordingContext()->priv().opMemoryPool();
 
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
@@ -749,7 +749,9 @@ GrTransformedMaskSubRun::makeAtlasTextOp(const GrClip* clip,
             drawingColor
     };
 
-    std::unique_ptr<GrDrawOp> op = pool->allocate<GrAtlasTextOp>(
+    GrRecordingContext* context = rtc->priv().recordingContext();
+    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
+            context,
             op_mask_type(fMaskFormat),
             true,
             this->glyphCount(),
@@ -905,7 +907,7 @@ GrSubRun* GrSDFTSubRun::Make(
             runFont.hasSomeAntiAliasing());
 }
 
-std::tuple<const GrClip*, std::unique_ptr<GrDrawOp> >
+std::tuple<const GrClip*, GrOp::Owner >
 GrSDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                               const SkMatrixProvider& viewMatrix,
                               const SkGlyphRunList& glyphRunList,
@@ -915,7 +917,6 @@ GrSDFTSubRun::makeAtlasTextOp(const GrClip* clip,
     SkPoint drawOrigin = glyphRunList.origin();
     const SkPaint& drawPaint = glyphRunList.paint();
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
-    GrOpMemoryPool* pool = rtc->priv().recordingContext()->priv().opMemoryPool();
 
     GrPaint grPaint;
     SkPMColor4f drawingColor = calculate_colors(rtc, drawPaint, viewMatrix, fMaskFormat, &grPaint);
@@ -953,7 +954,9 @@ GrSDFTSubRun::makeAtlasTextOp(const GrClip* clip,
             drawingColor
     };
 
-    std::unique_ptr<GrDrawOp> op = pool->allocate<GrAtlasTextOp>(
+    GrRecordingContext* context = rtc->priv().recordingContext();
+    GrOp::Owner op = GrOp::Make<GrAtlasTextOp>(
+            context,
             maskType,
             true,
             this->glyphCount(),

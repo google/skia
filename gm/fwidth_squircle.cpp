@@ -149,9 +149,8 @@ class FwidthSquircleTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* ctx, const SkMatrix& viewMatrix) {
-        GrOpMemoryPool* pool = ctx->priv().opMemoryPool();
-        return pool->allocate<FwidthSquircleTestOp>(viewMatrix);
+    static GrOp::Owner Make(GrRecordingContext* ctx, const SkMatrix& viewMatrix) {
+        return GrOp::Make<FwidthSquircleTestOp>(ctx, viewMatrix);
     }
 
 private:
@@ -248,7 +247,7 @@ private:
     // guaranteed to have the same lifetime as the program info.
     GrProgramInfo*  fProgramInfo = nullptr;
 
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     using INHERITED = GrDrawOp;
 };

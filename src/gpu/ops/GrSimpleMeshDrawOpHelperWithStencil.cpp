@@ -8,11 +8,11 @@
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelperWithStencil.h"
 
 GrSimpleMeshDrawOpHelperWithStencil::GrSimpleMeshDrawOpHelperWithStencil(
-                                                    const MakeArgs& args,
+                                                    GrProcessorSet* processorSet,
                                                     GrAAType aaType,
                                                     const GrUserStencilSettings* stencilSettings,
                                                     InputFlags inputFlags)
-        : INHERITED(args, aaType, inputFlags)
+        : INHERITED(processorSet, aaType, inputFlags)
         , fStencilSettings(stencilSettings ? stencilSettings : &GrUserStencilSettings::kUnused) {}
 
 GrDrawOp::FixedFunctionFlags GrSimpleMeshDrawOpHelperWithStencil::fixedFunctionFlags() const {

@@ -29,8 +29,8 @@ public:
     DEFINE_OP_CLASS_ID
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCDrawPathsOp);
 
-    static std::unique_ptr<GrCCDrawPathsOp> Make(GrRecordingContext*, const SkIRect& clipIBounds,
-                                                 const SkMatrix&, const GrStyledShape&, GrPaint&&);
+    static GrOp::Owner Make(GrRecordingContext*, const SkIRect& clipIBounds,
+                            const SkMatrix&, const GrStyledShape&, GrPaint&&);
     ~GrCCDrawPathsOp() override;
 
     const char* name() const override { return "GrCCDrawPathsOp"; }
@@ -77,14 +77,14 @@ private:
                       const GrXferProcessor::DstProxyView&,
                       GrXferBarrierFlags renderPassXferBarriers) override {}
 
-    friend class GrOpMemoryPool;
+    friend class GrOp;
 
-    static std::unique_ptr<GrCCDrawPathsOp> InternalMake(GrRecordingContext*,
-                                                         const SkIRect& clipIBounds,
-                                                         const SkMatrix&, const GrStyledShape&,
-                                                         float strokeDevWidth,
-                                                         const SkRect& conservativeDevBounds,
-                                                         GrPaint&&);
+    static GrOp::Owner InternalMake(GrRecordingContext*,
+                                    const SkIRect& clipIBounds,
+                                    const SkMatrix&, const GrStyledShape&,
+                                    float strokeDevWidth,
+                                    const SkRect& conservativeDevBounds,
+                                    GrPaint&&);
 
     GrCCDrawPathsOp(const SkMatrix&, const GrStyledShape&, float strokeDevWidth,
                     const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,

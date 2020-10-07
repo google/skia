@@ -14,6 +14,7 @@
 #include "src/gpu/GrPipeline.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "src/gpu/ops/GrOp.h"
 #include <new>
 
 struct SkRect;
@@ -26,17 +27,14 @@ struct SkRect;
  */
 class GrSimpleMeshDrawOpHelper {
 public:
-    struct MakeArgs;
-
     /**
      * This can be used by a Op class to perform allocation and initialization such that a
      * GrProcessorSet (if required) is allocated as part of the the same allocation that as
      * the Op instance. It requires that Op implements a constructor of the form:
-     *      Op(MakeArgs, GrColor, OpArgs...)
-     * which is public or made accessible via 'friend'.
+     *      Op(ProcessorSet*, GrColor, OpArgs...).
      */
     template <typename Op, typename... OpArgs>
-    static std::unique_ptr<GrDrawOp> FactoryHelper(GrRecordingContext*, GrPaint&&, OpArgs&&...);
+    static GrOp::Owner FactoryHelper(GrRecordingContext*, GrPaint&&, OpArgs&&...);
 
     // Here we allow callers to specify a subset of the GrPipeline::InputFlags upon creation.
     enum class InputFlags : uint8_t {
@@ -46,7 +44,7 @@ public:
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(InputFlags);
 
-    GrSimpleMeshDrawOpHelper(const MakeArgs&, GrAAType, InputFlags = InputFlags::kNone);
+    GrSimpleMeshDrawOpHelper(GrProcessorSet*, GrAAType, InputFlags = InputFlags::kNone);
     ~GrSimpleMeshDrawOpHelper();
 
     GrSimpleMeshDrawOpHelper() = delete;
@@ -98,15 +96,6 @@ public:
     }
 
     bool compatibleWithCoverageAsAlpha() const { return fCompatibleWithCoverageAsAlpha; }
-
-    struct MakeArgs {
-    private:
-        MakeArgs() = default;
-
-        GrProcessorSet* fProcessorSet;
-
-        friend class GrSimpleMeshDrawOpHelper;
-    };
 
     void visitProxies(const GrOp::VisitProxyFunc& func) const {
         if (fProcessors) {
@@ -200,33 +189,34 @@ protected:
     SkDEBUGCODE(unsigned fDidAnalysis : 1;)
 };
 
-template <typename Op, typename... OpArgs>
-std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingContext* context,
-                                                                  GrPaint&& paint,
-                                                                  OpArgs&&... opArgs) {
+template<typename Op, typename... Args>
+GrOp::Owner GrOp::MakeWithProcessorSet(
+        GrRecordingContext* context, const SkPMColor4f& color,
+        GrPaint&& paint, Args&&... args) {
+#if defined(GR_OP_ALLOCATE_USE_NEW)
+    char* bytes = (char*)::operator new(sizeof(Op) + sizeof(GrProcessorSet));
+    char* setMem = bytes + sizeof(Op);
+    GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};
+    return Owner{new (bytes) Op(processorSet, color, std::forward<Args>(args)...)};
+#else
     GrOpMemoryPool* pool = context->priv().opMemoryPool();
+    char* bytes = (char*)pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
+    char* setMem = bytes + sizeof(Op);
+    GrProcessorSet* processorSet = new (setMem)  GrProcessorSet{std::move(paint)};
+    return Owner{new (bytes) Op(processorSet, color, std::forward<Args>(args)...), pool};
+#endif
+}
 
-    MakeArgs makeArgs;
-
+template <typename Op, typename... OpArgs>
+GrOp::Owner GrSimpleMeshDrawOpHelper::FactoryHelper(GrRecordingContext* context,
+                                                    GrPaint&& paint,
+                                                    OpArgs&& ... opArgs) {
+    auto color = paint.getColor4f();
     if (paint.isTrivial()) {
-        makeArgs.fProcessorSet = nullptr;
-        return pool->allocate<Op>(makeArgs, paint.getColor4f(), std::forward<OpArgs>(opArgs)...);
+        return GrOp::Make<Op>(context, nullptr, color, std::forward<OpArgs>(opArgs)...);
     } else {
-        #if defined(GR_OP_ALLOCATE_USE_NEW)
-            char* mem = (char*) ::operator new(sizeof(Op) + sizeof(GrProcessorSet));
-            char* setMem = mem + sizeof(Op);
-            auto color = paint.getColor4f();
-            makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
-            GrDrawOp* op = new (mem) Op(makeArgs, color, std::forward<OpArgs>(opArgs)...);
-            return std::unique_ptr<GrDrawOp>(op);
-        #else
-            char* mem = (char*) pool->allocate(sizeof(Op) + sizeof(GrProcessorSet));
-            char* setMem = mem + sizeof(Op);
-            auto color = paint.getColor4f();
-            makeArgs.fProcessorSet = new (setMem) GrProcessorSet(std::move(paint));
-            return std::unique_ptr<GrDrawOp>(new (mem) Op(makeArgs, color,
-                                                          std::forward<OpArgs>(opArgs)...));
-        #endif
+        return GrOp::MakeWithProcessorSet<Op>(
+                context, color, std::move(paint), std::forward<OpArgs>(opArgs)...);
     }
 }
 

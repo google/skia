@@ -683,7 +683,7 @@ private:
     void drawShapeUsingPathRenderer(const GrClip*, GrPaint&&, GrAA, const SkMatrix&,
                                     const GrStyledShape&, bool attemptShapeFallback = true);
 
-    void addOp(std::unique_ptr<GrOp>);
+    void addOp(GrOp::Owner);
 
     // Allows caller of addDrawOp to know which op list an op will be added to.
     using WillAddOpFn = void(GrOp*, uint32_t opsTaskID);
@@ -693,7 +693,7 @@ private:
     // another op after the function is called (either before addDrawOp returns or some time later).
     //
     // If the clip pointer is null, no clipping will be performed.
-    void addDrawOp(const GrClip*, std::unique_ptr<GrDrawOp>,
+    void addDrawOp(const GrClip*, GrOp::Owner,
                    const std::function<WillAddOpFn>& = std::function<WillAddOpFn>());
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should

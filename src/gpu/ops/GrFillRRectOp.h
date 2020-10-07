@@ -9,6 +9,7 @@
 #define GrFillRRectOp_DEFINED
 
 #include "include/private/GrTypesPriv.h"
+#include "src/gpu/ops/GrOp.h"
 
 class GrCaps;
 class GrDrawOp;
@@ -18,11 +19,11 @@ class SkMatrix;
 class SkRRect;
 
 namespace GrFillRRectOp {
-    std::unique_ptr<GrDrawOp> Make(GrRecordingContext*,
-                                   GrPaint&&,
-                                   const SkMatrix& viewMatrix,
-                                   const SkRRect&,
-                                   GrAAType);
+    GrOp::Owner Make(GrRecordingContext*,
+                     GrPaint&&,
+                     const SkMatrix& viewMatrix,
+                     const SkRRect&,
+                     GrAAType);
 }  // namespace GrFillRRectOp
 
 #endif

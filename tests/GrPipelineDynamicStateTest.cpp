@@ -119,16 +119,14 @@ class GrPipelineDynamicStateTestOp : public GrDrawOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrScissorTest scissorTest,
-                                          sk_sp<const GrBuffer> vbuff) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-        return pool->allocate<GrPipelineDynamicStateTestOp>(scissorTest, std::move(vbuff));
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            GrScissorTest scissorTest,
+                            sk_sp<const GrBuffer> vbuff) {
+        return GrOp::Make<GrPipelineDynamicStateTestOp>(context, scissorTest, std::move(vbuff));
     }
 
 private:
-    friend class GrOpMemoryPool;
+    friend class GrOp;
 
     GrPipelineDynamicStateTestOp(GrScissorTest scissorTest, sk_sp<const GrBuffer> vbuff)
         : INHERITED(ClassID())

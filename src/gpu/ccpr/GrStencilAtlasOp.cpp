@@ -67,14 +67,13 @@ GrGLSLPrimitiveProcessor* StencilResolveProcessor::createGLSLInstance(const GrSh
 
 }  // namespace
 
-std::unique_ptr<GrDrawOp> GrStencilAtlasOp::Make(
+GrOp::Owner GrStencilAtlasOp::Make(
         GrRecordingContext* context, sk_sp<const GrCCPerFlushResources> resources,
         FillBatchID fillBatchID, StrokeBatchID strokeBatchID, int baseStencilResolveInstance,
         int endStencilResolveInstance, const SkISize& drawBounds) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
 
-    return pool->allocate<GrStencilAtlasOp>(
-            std::move(resources), fillBatchID, strokeBatchID, baseStencilResolveInstance,
+    return GrOp::Make<GrStencilAtlasOp>(
+            context, std::move(resources), fillBatchID, strokeBatchID, baseStencilResolveInstance,
             endStencilResolveInstance, drawBounds);
 }
 

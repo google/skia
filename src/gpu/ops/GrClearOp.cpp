@@ -18,18 +18,16 @@ static bool contains_scissor(const GrScissorState& a, const GrScissorState& b) {
     return !a.enabled() || (b.enabled() && a.rect().contains(b.rect()));
 }
 
-std::unique_ptr<GrClearOp> GrClearOp::MakeColor(GrRecordingContext* context,
-                                                const GrScissorState& scissor,
-                                                const SkPMColor4f& color) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    return pool->allocate<GrClearOp>(Buffer::kColor, scissor, color, false);
+GrOp::Owner GrClearOp::MakeColor(GrRecordingContext* context,
+                                 const GrScissorState& scissor,
+                                 const SkPMColor4f& color) {
+    return GrOp::Make<GrClearOp>(context, Buffer::kColor, scissor, color, false);
 }
 
-std::unique_ptr<GrClearOp> GrClearOp::MakeStencilClip(GrRecordingContext* context,
-                                                      const GrScissorState& scissor,
-                                                      bool insideMask) {
-    GrOpMemoryPool* pool = context->priv().opMemoryPool();
-    return pool->allocate<GrClearOp>(Buffer::kStencilClip, scissor, SkPMColor4f(), insideMask);
+GrOp::Owner GrClearOp::MakeStencilClip(GrRecordingContext* context,
+                                       const GrScissorState& scissor,
+                                       bool insideMask) {
+    return GrOp::Make<GrClearOp>(context, Buffer::kStencilClip, scissor, SkPMColor4f(), insideMask);
 }
 
 GrClearOp::GrClearOp(Buffer buffer, const GrScissorState& scissor,

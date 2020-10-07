@@ -65,7 +65,7 @@ private:
     // S=1 because we will almost always fit everything into one single chunk.
     SkSTArray<1, GrStrokePatchBuilder::PatchChunk> fPatchChunks;
 
-    friend class GrOpMemoryPool;  // For ctor.
+    friend class GrOp;  // For ctor.
 };
 
 #endif

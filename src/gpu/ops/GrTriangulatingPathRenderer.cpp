@@ -173,13 +173,13 @@ private:
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(GrRecordingContext* context,
-                                          GrPaint&& paint,
-                                          const GrStyledShape& shape,
-                                          const SkMatrix& viewMatrix,
-                                          SkIRect devClipBounds,
-                                          GrAAType aaType,
-                                          const GrUserStencilSettings* stencilSettings) {
+    static GrOp::Owner Make(GrRecordingContext* context,
+                            GrPaint&& paint,
+                            const GrStyledShape& shape,
+                            const SkMatrix& viewMatrix,
+                            SkIRect devClipBounds,
+                            GrAAType aaType,
+                            const GrUserStencilSettings* stencilSettings) {
         return Helper::FactoryHelper<TriangulatingPathOp>(context, std::move(paint), shape,
                                                           viewMatrix, devClipBounds, aaType,
                                                           stencilSettings);
@@ -195,7 +195,7 @@ public:
         }
     }
 
-    TriangulatingPathOp(Helper::MakeArgs helperArgs,
+    TriangulatingPathOp(GrProcessorSet* processorSet,
                         const SkPMColor4f& color,
                         const GrStyledShape& shape,
                         const SkMatrix& viewMatrix,
@@ -203,7 +203,7 @@ public:
                         GrAAType aaType,
                         const GrUserStencilSettings* stencilSettings)
             : INHERITED(ClassID())
-            , fHelper(helperArgs, aaType, stencilSettings)
+            , fHelper(processorSet, aaType, stencilSettings)
             , fColor(color)
             , fShape(shape)
             , fViewMatrix(viewMatrix)
@@ -467,7 +467,7 @@ bool GrTriangulatingPathRenderer::onDrawPath(const DrawPathArgs& args) {
     GR_AUDIT_TRAIL_AUTO_FRAME(args.fRenderTargetContext->auditTrail(),
                               "GrTriangulatingPathRenderer::onDrawPath");
 
-    std::unique_ptr<GrDrawOp> op = TriangulatingPathOp::Make(
+    GrOp::Owner op = TriangulatingPathOp::Make(
             args.fContext, std::move(args.fPaint), *args.fShape, *args.fViewMatrix,
             *args.fClipConservativeBounds, args.fAAType, args.fUserStencilSettings);
     args.fRenderTargetContext->addDrawOp(args.fClip, std::move(op));

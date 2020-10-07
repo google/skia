@@ -208,7 +208,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     const char* text = "a";
     SkSimpleMatrixProvider matrixProvider(SkMatrix::I());
 
-    std::unique_ptr<GrDrawOp> op =
+    GrOp::Owner op =
             GrAtlasTextOp::CreateOpTestingOnly(
                     rtc.get(), paint, font, matrixProvider, text, 16, 16);
     if (!op) {
@@ -216,7 +216,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     }
 
     bool hasMixedSampledCoverage = false;
-    op->finalize(*context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
+    GrAtlasTextOp* atlasTextOp = (GrAtlasTextOp*)op.get();
+    atlasTextOp->finalize(
+            *context->priv().caps(), nullptr, hasMixedSampledCoverage, GrClampType::kAuto);
 
     TestingUploadTarget uploadTarget;
 
@@ -239,10 +241,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     flushState.setOpArgs(&opArgs);
     op->prepare(&flushState);
     flushState.setOpArgs(nullptr);
-    #if !defined(GR_OP_ALLOCATE_USE_NEW)
-        auto opMemoryPool = context->priv().opMemoryPool();
-        opMemoryPool->release(std::move(op));
-    #endif
 }
 
 void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t maxBytes,

@@ -47,7 +47,7 @@ public:
         return CombineResult::kCannotCombine;
     }
 
-    static std::unique_ptr<GrDrawOp> Make(
+    static GrOp::Owner Make(
             GrRecordingContext*, sk_sp<const GrCCPerFlushResources>, FillBatchID, StrokeBatchID,
             int baseStencilResolveInstance, int endStencilResolveInstance,
             const SkISize& drawBounds);
@@ -63,7 +63,7 @@ private:
     void drawResolve(GrOpFlushState*, const GrPipeline&, const GrUserStencilSettings*,
                      const GrPrimitiveProcessor&, const SkIRect& drawBounds) const;
 
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     GrStencilAtlasOp(sk_sp<const GrCCPerFlushResources> resources, FillBatchID fillBatchID,
                      StrokeBatchID strokeBatchID, int baseStencilResolveInstance,

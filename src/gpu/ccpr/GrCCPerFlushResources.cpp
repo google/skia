@@ -70,14 +70,13 @@ class CopyAtlasOp : public AtlasOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(
+    static GrOp::Owner Make(
             GrRecordingContext* context, sk_sp<const GrCCPerFlushResources> resources,
             sk_sp<GrTextureProxy> copyProxy, int baseInstance, int endInstance,
             const SkISize& drawBounds) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-        return pool->allocate<CopyAtlasOp>(std::move(resources), std::move(copyProxy), baseInstance,
-                                           endInstance, drawBounds);
+        return GrOp::Make<CopyAtlasOp>(
+                context, std::move(resources), std::move(copyProxy), baseInstance,
+                endInstance, drawBounds);
     }
 
     const char* name() const override { return "CopyAtlasOp (CCPR)"; }
@@ -107,7 +106,7 @@ public:
     }
 
 private:
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     CopyAtlasOp(sk_sp<const GrCCPerFlushResources> resources, sk_sp<GrTextureProxy> srcProxy,
                 int baseInstance, int endInstance, const SkISize& drawBounds)
@@ -126,12 +125,10 @@ template<typename ProcessorType> class RenderAtlasOp : public AtlasOp {
 public:
     DEFINE_OP_CLASS_ID
 
-    static std::unique_ptr<GrDrawOp> Make(
+    static GrOp::Owner Make(
             GrRecordingContext* context, sk_sp<const GrCCPerFlushResources> resources,
             FillBatchID fillBatchID, StrokeBatchID strokeBatchID, const SkISize& drawBounds) {
-        GrOpMemoryPool* pool = context->priv().opMemoryPool();
-
-        return pool->allocate<RenderAtlasOp>(
+        return GrOp::Make<RenderAtlasOp>(context,
                 std::move(resources), fillBatchID, strokeBatchID, drawBounds);
     }
 
@@ -147,7 +144,7 @@ public:
     }
 
 private:
-    friend class ::GrOpMemoryPool; // for ctor
+    friend class ::GrOp; // for ctor
 
     RenderAtlasOp(sk_sp<const GrCCPerFlushResources> resources, FillBatchID fillBatchID,
                   StrokeBatchID strokeBatchID, const SkISize& drawBounds)
@@ -567,7 +564,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP) {
         }
 
         if (auto rtc = atlas.instantiate(onFlushRP, std::move(backingTexture))) {
-            std::unique_ptr<GrDrawOp> op;
+            GrOp::Owner op;
             if (CoverageType::kA8_Multisample == fRenderedAtlasStack.coverageType()) {
                 op = GrStencilAtlasOp::Make(
                         rtc->surfPriv().getContext(), sk_ref_sp(this), atlas.getFillBatchID(),

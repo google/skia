@@ -88,7 +88,7 @@ public:
         fSampledProxies.push_back(proxy);
     }
 
-    void addOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrOp> op,
+    void addOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
                GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
         auto addDependency = [ drawingMgr, textureResolveManager, &caps, this ] (
                 GrSurfaceProxy* p, GrMipmapped mipmapped) {
@@ -100,7 +100,7 @@ public:
         this->recordOp(std::move(op), GrProcessorSet::EmptySetAnalysis(), nullptr, nullptr, caps);
     }
 
-    void addDrawOp(GrDrawingManager* drawingMgr, std::unique_ptr<GrDrawOp> op,
+    void addDrawOp(GrDrawingManager* drawingMgr, GrOp::Owner op,
                    const GrProcessorSet::Analysis& processorAnalysis,
                    GrAppliedClip&& clip, const DstProxyView& dstProxyView,
                    GrTextureResolveManager textureResolveManager, const GrCaps& caps) {
@@ -205,8 +205,7 @@ private:
 
     class OpChain {
     public:
-        OpChain(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
-                const DstProxyView*);
+        OpChain(GrOp::Owner, GrProcessorSet::Analysis, GrAppliedClip*, const DstProxyView*);
         ~OpChain() {
             // The ops are stored in a GrMemoryPool and must be explicitly deleted via the pool.
             SkASSERT(fList.empty());
@@ -236,9 +235,9 @@ private:
         // Attempts to add 'op' to this chain either by merging or adding to the tail. Returns
         // 'op' to the caller upon failure, otherwise null. Fails when the op and chain aren't of
         // the same op type, have different clips or dst proxies.
-        std::unique_ptr<GrOp> appendOp(std::unique_ptr<GrOp> op, GrProcessorSet::Analysis,
-                                       const DstProxyView*, const GrAppliedClip*, const GrCaps&,
-                                       GrRecordingContext::Arenas*, GrAuditTrail*);
+        GrOp::Owner appendOp(GrOp::Owner op, GrProcessorSet::Analysis,
+                             const DstProxyView*, const GrAppliedClip*, const GrCaps&,
+                             GrRecordingContext::Arenas*, GrAuditTrail*);
 
         void setSkipExecuteFlag() { fSkipExecute = true; }
         bool shouldExecute() const {
@@ -249,7 +248,7 @@ private:
         class List {
         public:
             List() = default;
-            List(std::unique_ptr<GrOp>);
+            List(GrOp::Owner);
             List(List&&);
             List& operator=(List&& that);
 
@@ -257,16 +256,16 @@ private:
             GrOp* head() const { return fHead.get(); }
             GrOp* tail() const { return fTail; }
 
-            std::unique_ptr<GrOp> popHead();
-            std::unique_ptr<GrOp> removeOp(GrOp* op);
-            void pushHead(std::unique_ptr<GrOp> op);
-            void pushTail(std::unique_ptr<GrOp>);
+            GrOp::Owner popHead();
+            GrOp::Owner removeOp(GrOp* op);
+            void pushHead(GrOp::Owner op);
+            void pushTail(GrOp::Owner);
 
             void validate() const;
 
         private:
-            std::unique_ptr<GrOp> fHead;
-            GrOp* fTail = nullptr;
+            GrOp::Owner fHead{nullptr};
+            GrOp* fTail{nullptr};
         };
 
         void validate() const;
@@ -294,7 +293,7 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    void recordOp(std::unique_ptr<GrOp>, GrProcessorSet::Analysis, GrAppliedClip*,
+    void recordOp(GrOp::Owner, GrProcessorSet::Analysis, GrAppliedClip*,
                   const DstProxyView*, const GrCaps& caps);
 
     void forwardCombine(const GrCaps&);
