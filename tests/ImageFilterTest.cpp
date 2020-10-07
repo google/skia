@@ -158,19 +158,18 @@ public:
         this->addFilter("merge", SkImageFilters::Merge(input, input, cropRect));
 
         {
-            SkPaint greenColorShaderPaint;
-            greenColorShaderPaint.setShader(SkShaders::Color(SK_ColorGREEN));
+            sk_sp<SkShader> greenColorShader = SkShaders::Color(SK_ColorGREEN);
 
             SkIRect leftSideCropRect = SkIRect::MakeXYWH(0, 0, 32, 64);
-            sk_sp<SkImageFilter> paintFilterLeft(SkImageFilters::Paint(greenColorShaderPaint,
-                                                                       &leftSideCropRect));
+            sk_sp<SkImageFilter> shaderFilterLeft(SkImageFilters::Shader(greenColorShader,
+                                                                         &leftSideCropRect));
             SkIRect rightSideCropRect = SkIRect::MakeXYWH(32, 0, 32, 64);
-            sk_sp<SkImageFilter> paintFilterRight(SkImageFilters::Paint(greenColorShaderPaint,
-                                                                        &rightSideCropRect));
+            sk_sp<SkImageFilter> shaderFilterRight(SkImageFilters::Shader(greenColorShader,
+                                                                          &rightSideCropRect));
 
 
             this->addFilter("merge with disjoint inputs", SkImageFilters::Merge(
-                    std::move(paintFilterLeft), std::move(paintFilterRight), cropRect));
+                    std::move(shaderFilterLeft), std::move(shaderFilterRight), cropRect));
         }
 
         this->addFilter("offset", SkImageFilters::Offset(SK_Scalar1, SK_Scalar1, input, cropRect));
@@ -210,9 +209,8 @@ public:
                     kBlurSigma, kBlurSigma, std::move(pictureFilter), cropRect));
         }
         {
-            SkPaint paint;
-            paint.setShader(SkPerlinNoiseShader::MakeTurbulence(SK_Scalar1, SK_Scalar1, 1, 0));
-            sk_sp<SkImageFilter> paintFilter(SkImageFilters::Paint(paint));
+            sk_sp<SkImageFilter> paintFilter(SkImageFilters::Shader(
+                    SkPerlinNoiseShader::MakeTurbulence(SK_Scalar1, SK_Scalar1, 1, 0)));
 
             this->addFilter("paint and blur", SkImageFilters::Blur(
                     kBlurSigma, kBlurSigma,  std::move(paintFilter), cropRect));
@@ -1936,10 +1934,9 @@ DEF_TEST(ArithmeticImageFilterBounds, reporter) {
 
 // Test SkDisplacementMapEffect::filterBounds.
 DEF_TEST(DisplacementMapBounds, reporter) {
-    SkPaint greenPaint;
-    greenPaint.setColor(SK_ColorGREEN);
     SkIRect floodBounds(SkIRect::MakeXYWH(20, 30, 10, 10));
-    sk_sp<SkImageFilter> flood(SkImageFilters::Paint(greenPaint, &floodBounds));
+    sk_sp<SkImageFilter> flood(SkImageFilters::Shader(SkShaders::Color(SK_ColorGREEN),
+                                                      &floodBounds));
     SkIRect tilingBounds(SkIRect::MakeXYWH(0, 0, 200, 100));
     sk_sp<SkImageFilter> tiling(SkImageFilters::Tile(SkRect::Make(floodBounds),
                                                      SkRect::Make(tilingBounds),
