@@ -14,14 +14,14 @@ It pulls the wasm binary from unpkg.com but you can also build and host it yours
 <canvas id=foo width=300 height=300></canvas>
 
 <script type="text/javascript"
-  src="https://unpkg.com/canvaskit-wasm@0.17.2/bin/canvaskit.js"></script>
+  src="https://unpkg.com/canvaskit-wasm@0.19.0/bin/canvaskit.js"></script>
 <script type="text/javascript">
   const ckLoaded = CanvasKitInit({
-    locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.17.2/bin/'+file});
+    locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.19.0/bin/'+file});
   ckLoaded.then((CanvasKit) => {
     const surface = CanvasKit.MakeCanvasSurface('foo');
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setAntiAlias(true);
@@ -39,14 +39,14 @@ It pulls the wasm binary from unpkg.com but you can also build and host it yours
 <canvas id=foo width=300 height=300></canvas>
 
 <script type="text/javascript"
-  src="https://unpkg.com/canvaskit-wasm@0.17.2/bin/canvaskit.js"></script>
+  src="https://unpkg.com/canvaskit-wasm@0.19.0/bin/canvaskit.js"></script>
 <script type="text/javascript">
   const ckLoaded = CanvasKitInit({
-    locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.17.2/bin/'+file});
+    locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.19.0/bin/'+file});
   ckLoaded.then((CanvasKit) => {
     const surface = CanvasKit.MakeCanvasSurface('foo');
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setAntiAlias(true);
@@ -72,14 +72,14 @@ then sending commands to the GPU at the end of each frame.
 <!--?prettify?-->
 ``` html
 <script type="text/javascript"
-  src="https://unpkg.com/canvaskit-wasm@0.17.2/bin/canvaskit.js"></script>
+  src="https://unpkg.com/canvaskit-wasm@0.19.0/bin/canvaskit.js"></script>
 ```
 and
 
 <!--?prettify?-->
 ``` js
 const ckLoaded = CanvasKitInit({
-  locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.17.2/bin/'+file});
+  locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.19.0/bin/'+file});
 ckLoaded.then((CanvasKit) => {
 ```
 are loading the canvaskit helper js and wasm binary respectively. CanvasKitInit accepts a function
@@ -90,14 +90,14 @@ that resolves with the loaded module, which we typically name `CanvasKit`.
 ``` js
 const surface = CanvasKit.MakeCanvasSurface('foo');
 ```
-Creates an SkSurface associated with the HTML canvas element above.
+Creates a Surface associated with the HTML canvas element above.
 Hardware acceleration is the default behavior, but can be overridden by calling
 `MakeSWCanvasSurface` instead. `MakeCanvasSurface` is also where alternative color spaces or gl
 attrtributes can be specified.
 
 <!--?prettify?-->
 ``` js
-const paint = new CanvasKit.SkPaint();
+const paint = new CanvasKit.Paint();
 paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
 paint.setStyle(CanvasKit.PaintStyle.Stroke);
 paint.setAntiAlias(true);
@@ -114,7 +114,7 @@ function draw(canvas) {
   canvas.drawRRect(rr, paint);
 }
 ```
-Defines a function that will draw our frame. The function is provided an SkCanvas object on which we
+Defines a function that will draw our frame. The function is provided a Canvas object on which we
 make draw calls. One to clear the entire canvas, and one to draw the rounded rect with the
 paint from above.
 
@@ -144,7 +144,7 @@ bounces a rounded rect around like a 90s screensaver.
 ckLoaded.then((CanvasKit) => {
   const surface = CanvasKit.MakeCanvasSurface('foo2');
 
-  const paint = new CanvasKit.SkPaint();
+  const paint = new CanvasKit.Paint();
   paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
   paint.setStyle(CanvasKit.PaintStyle.Stroke);
   paint.setAntiAlias(true);
@@ -183,7 +183,7 @@ ckLoaded.then((CanvasKit) => {
   ckLoaded.then((CanvasKit) => {
     const surface = CanvasKit.MakeCanvasSurface('foo2');
 
-    const paint = new CanvasKit.SkPaint();
+    const paint = new CanvasKit.Paint();
     paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
     paint.setStyle(CanvasKit.PaintStyle.Stroke);
     paint.setAntiAlias(true);
@@ -259,7 +259,7 @@ Promise.all([ckLoaded, loadFont]).then(([CanvasKit, robotoData]) => {
   const canvas = surface.getCanvas();
   canvas.clear(CanvasKit.Color4f(0.9, 0.9, 0.9, 1.0));
 
-  const fontMgr = CanvasKit.SkFontMgr.FromData([robotoData]);
+  const fontMgr = CanvasKit.FontMgr.FromData([robotoData]);
   const paraStyle = new CanvasKit.ParagraphStyle({
     textStyle: {
       color: CanvasKit.BLACK,
@@ -289,7 +289,7 @@ Promise.all([ckLoaded, loadFont]).then(([CanvasKit, robotoData]) => {
   const canvas = surface.getCanvas();
   canvas.clear(CanvasKit.Color4f(0.9, 0.9, 0.9, 1.0));
 
-  const fontMgr = CanvasKit.SkFontMgr.FromData([robotoData]);
+  const fontMgr = CanvasKit.FontMgr.FromData([robotoData]);
   const paraStyle = new CanvasKit.ParagraphStyle({
     textStyle: {
       color: CanvasKit.BLACK,
@@ -310,7 +310,7 @@ Promise.all([ckLoaded, loadFont]).then(([CanvasKit, robotoData]) => {
 
 <!--?prettify?-->
 ``` js
-const fontMgr = CanvasKit.SkFontMgr.FromData([robotoData]);
+const fontMgr = CanvasKit.FontMgr.FromData([robotoData]);
 ```
 Creates an object that provides fonts by name to various text facilities in CanvasKit. You could
 load more than one font in this statement if needed.
@@ -328,7 +328,9 @@ const paraStyle = new CanvasKit.ParagraphStyle({
 ```
 Specifies the style of the text. The font's name, Roboto, will be used to fetch it from the font
 manager. You can specify either (color) or (foregroundColor and backgroundColor) in order to have
-a highlight. TODO(nifong): link to the full reference for ParagraphStyle / TextStyle
+a highlight. For the full documentation of the API, check out the Typescript definitions in the
+`types/` subfolder of the npm package or in the
+[Skia repo](https://github.com/google/skia/tree/master/modules/canvaskit/canvaskit/types).
 
 <!--?prettify?-->
 ``` js
