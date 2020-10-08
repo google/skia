@@ -641,7 +641,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
 }
 
 void CPPCodeGenerator::writeSetting(const Setting& s) {
-    this->write(s.fName.c_str());
+    this->writef("sk_Caps.%s", s.name().c_str());
 }
 
 bool CPPCodeGenerator::writeSection(const char* name, const char* prefix) {

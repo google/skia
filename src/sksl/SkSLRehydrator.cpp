@@ -519,8 +519,8 @@ std::unique_ptr<Expression> Rehydrator::expression() {
         }
         case Rehydrator::kSetting_Command: {
             StringFragment name = this->readString();
-            std::unique_ptr<Expression> value = this->expression();
-            return std::make_unique<Setting>(-1, name, std::move(value));
+            const Type* type = this->type();
+            return std::make_unique<Setting>(-1, name, type);
         }
         case Rehydrator::kSwizzle_Command: {
             std::unique_ptr<Expression> base = this->expression();
