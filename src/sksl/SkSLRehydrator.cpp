@@ -573,9 +573,8 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable(bool inherit) {
     std::vector<std::pair<StringFragment, int>> symbols;
     symbols.reserve(symbolCount);
     for (int i = 0; i < symbolCount; ++i) {
-        StringFragment name = this->readString();
         int index = this->readU16();
-        fSymbolTable->addWithoutOwnership(name, ownedSymbols[index]);
+        fSymbolTable->addWithoutOwnership(ownedSymbols[index]);
     }
     fSymbolTable = oldTable;
     return result;

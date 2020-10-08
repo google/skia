@@ -247,7 +247,6 @@ void Dehydrator::write(const SymbolTable& symbols) {
         ordered.insert(p);
     }
     for (std::pair<StringFragment, const Symbol*> p : ordered) {
-        this->write(p.first);
         bool found = false;
         for (size_t i = 0; i < symbols.fOwnedSymbols.size(); ++i) {
             if (symbols.fOwnedSymbols[i].get() == p.second) {
