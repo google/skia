@@ -65,6 +65,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15c0f0e0_9128333e",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-08T19:46:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b5259c3_8bdf47f2",
+      "range": {
+        "startLine": 391,
+        "startChar": 4,
+        "endLine": 391,
+        "endChar": 51
+      },
+      "revId": "c03733293da41362822d73847b82d4c6704cecef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb827c2f_e258c0f1",
