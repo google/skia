@@ -408,8 +408,8 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
 
         case Expression::Kind::kTernary: {
             auto& t = e.template as<TernaryExpression>();
-            return this->visitExpression(*t.fTest) || this->visitExpression(*t.fIfTrue) ||
-                   this->visitExpression(*t.fIfFalse);
+            return this->visitExpression(*t.test()) || this->visitExpression(*t.ifTrue()) ||
+                   this->visitExpression(*t.ifFalse());
         }
         default:
             SkUNREACHABLE;

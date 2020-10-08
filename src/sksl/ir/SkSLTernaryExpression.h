@@ -16,43 +16,66 @@ namespace SkSL {
 /**
  * A ternary expression (test ? ifTrue : ifFalse).
  */
-struct TernaryExpression : public Expression {
+class TernaryExpression : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kTernary;
 
     TernaryExpression(int offset, std::unique_ptr<Expression> test,
                       std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
-    : INHERITED(offset, kExpressionKind, &ifTrue->type())
-    , fTest(std::move(test))
-    , fIfTrue(std::move(ifTrue))
-    , fIfFalse(std::move(ifFalse)) {
-        SkASSERT(fIfTrue->type() == fIfFalse->type());
+    : INHERITED(offset, kExpressionKind, &ifTrue->type()) {
+        SkASSERT(ifTrue->type() == ifFalse->type());
+        fExpressionChildren.reserve(3);
+        fExpressionChildren.push_back(std::move(test));
+        fExpressionChildren.push_back(std::move(ifTrue));
+        fExpressionChildren.push_back(std::move(ifFalse));
+    }
+
+    std::unique_ptr<Expression>& test() {
+        return fExpressionChildren[0];
+    }
+
+    const std::unique_ptr<Expression>& test() const {
+        return fExpressionChildren[0];
+    }
+
+    std::unique_ptr<Expression>& ifTrue() {
+        return fExpressionChildren[1];
+    }
+
+    const std::unique_ptr<Expression>& ifTrue() const {
+        return fExpressionChildren[1];
+    }
+
+    std::unique_ptr<Expression>& ifFalse() {
+        return fExpressionChildren[2];
+    }
+
+    const std::unique_ptr<Expression>& ifFalse() const {
+        return fExpressionChildren[2];
     }
 
     bool hasProperty(Property property) const override {
-        return fTest->hasProperty(property) || fIfTrue->hasProperty(property) ||
-               fIfFalse->hasProperty(property);
+        return this->test()->hasProperty(property) || this->ifTrue()->hasProperty(property) ||
+               this->ifFalse()->hasProperty(property);
     }
 
     bool isConstantOrUniform() const override {
-        return fTest->isConstantOrUniform() && fIfTrue->isConstantOrUniform() &&
-               fIfFalse->isConstantOrUniform();
+        return this->test()->isConstantOrUniform() && this->ifTrue()->isConstantOrUniform() &&
+               this->ifFalse()->isConstantOrUniform();
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new TernaryExpression(fOffset, fTest->clone(),
-                                                                 fIfTrue->clone(),
-                                                                 fIfFalse->clone()));
+        return std::unique_ptr<Expression>(new TernaryExpression(fOffset, this->test()->clone(),
+                                                                 this->ifTrue()->clone(),
+                                                                 this->ifFalse()->clone()));
     }
 
     String description() const override {
-        return "(" + fTest->description() + " ? " + fIfTrue->description() + " : " +
-               fIfFalse->description() + ")";
+        return "(" + this->test()->description() + " ? " + this->ifTrue()->description() + " : " +
+               this->ifFalse()->description() + ")";
     }
 
-    std::unique_ptr<Expression> fTest;
-    std::unique_ptr<Expression> fIfTrue;
-    std::unique_ptr<Expression> fIfFalse;
-
+private:
     using INHERITED = Expression;
 };
 

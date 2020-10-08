@@ -876,11 +876,11 @@ void MetalCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
     if (kTernary_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->writeExpression(*t.fTest, kTernary_Precedence);
+    this->writeExpression(*t.test(), kTernary_Precedence);
     this->write(" ? ");
-    this->writeExpression(*t.fIfTrue, kTernary_Precedence);
+    this->writeExpression(*t.ifTrue(), kTernary_Precedence);
     this->write(" : ");
-    this->writeExpression(*t.fIfFalse, kTernary_Precedence);
+    this->writeExpression(*t.ifFalse(), kTernary_Precedence);
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
     }
@@ -1711,8 +1711,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             return this->requirements(e->as<PostfixExpression>().fOperand.get());
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = e->as<TernaryExpression>();
-            return this->requirements(t.fTest.get()) | this->requirements(t.fIfTrue.get()) |
-                   this->requirements(t.fIfFalse.get());
+            return this->requirements(t.test().get()) | this->requirements(t.ifTrue().get()) |
+                   this->requirements(t.ifFalse().get());
         }
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = e->as<VariableReference>();
