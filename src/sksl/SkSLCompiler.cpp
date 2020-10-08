@@ -1533,8 +1533,6 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
 
     // verify static ifs & switches, clean up dead variable decls
     for (BasicBlock& b : cfg.fBlocks) {
-        DefinitionMap definitions = b.fBefore;
-
         for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan;) {
             if (iter->isStatement()) {
                 const Statement& s = **iter->statement();
