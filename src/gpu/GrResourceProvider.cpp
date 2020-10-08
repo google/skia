@@ -12,7 +12,6 @@
 #include "include/private/GrSingleOwner.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMathPriv.h"
-#include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrGpu.h"
@@ -24,6 +23,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/SkGr.h"
 
@@ -491,7 +491,7 @@ sk_sp<GrGpuBuffer> GrResourceProvider::createBuffer(size_t size, GrGpuBufferType
 
 bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples) {
     SkASSERT(rt);
-    GrAttachment* stencil = rt->getStencilAttachment();
+    GrStencilAttachment* stencil = rt->getStencilAttachment();
     if (stencil && stencil->numSamples() == numStencilSamples) {
         return true;
     }
@@ -505,13 +505,13 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
             height = SkNextPow2(height);
         }
 #endif
-        GrAttachment::ComputeSharedAttachmentUniqueKey(
-                rt->dimensions(), GrAttachment::UsageFlags::kStencil, numStencilSamples, &sbKey);
-        auto stencil = this->findByUniqueKey<GrAttachment>(sbKey);
+        GrStencilAttachment::ComputeSharedStencilAttachmentKey(
+                rt->dimensions(), numStencilSamples, &sbKey);
+        auto stencil = this->findByUniqueKey<GrStencilAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil
-            stencil = this->gpu()->makeStencilAttachmentForRenderTarget(rt, rt->dimensions(),
-                                                                        numStencilSamples);
+            stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(
+                    rt, rt->dimensions(), numStencilSamples));
             if (!stencil) {
                 return false;
             }
@@ -520,7 +520,7 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
         rt->attachStencilAttachment(std::move(stencil));
     }
 
-    if (GrAttachment* stencil = rt->getStencilAttachment()) {
+    if (GrStencilAttachment* stencil = rt->getStencilAttachment()) {
         return stencil->numSamples() == numStencilSamples;
     }
     return false;

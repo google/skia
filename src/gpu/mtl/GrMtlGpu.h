@@ -16,10 +16,10 @@
 #include "src/gpu/GrStagingBufferManager.h"
 #include "src/gpu/GrTexture.h"
 
-#include "src/gpu/mtl/GrMtlAttachment.h"
 #include "src/gpu/mtl/GrMtlCaps.h"
 #include "src/gpu/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/mtl/GrMtlResourceProvider.h"
+#include "src/gpu/mtl/GrMtlStencilAttachment.h"
 #include "src/gpu/mtl/GrMtlUtil.h"
 
 #import <Metal/Metal.h>
@@ -87,7 +87,7 @@ public:
                        const SkIPoint& dstPoint) override;
 
     GrOpsRenderPass* getOpsRenderPass(
-            GrRenderTarget*, GrAttachment*,
+            GrRenderTarget*, GrStencilAttachment*,
             GrSurfaceOrigin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo&,
             const GrOpsRenderPass::StencilLoadAndStoreInfo&,
@@ -239,7 +239,7 @@ private:
                               GrColorType dstColorType, id<MTLBuffer> transferBuffer, size_t offset,
                               size_t imageBytes, size_t rowBytes);
 
-    sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(
+    GrStencilAttachment* createStencilAttachmentForRenderTarget(
             const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
 
     bool createMtlTextureForBackendSurface(MTLPixelFormat,

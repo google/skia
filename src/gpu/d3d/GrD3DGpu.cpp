@@ -15,11 +15,11 @@
 #include "src/gpu/GrDataUtils.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/d3d/GrD3DAMDMemoryAllocator.h"
-#include "src/gpu/d3d/GrD3DAttachment.h"
 #include "src/gpu/d3d/GrD3DBuffer.h"
 #include "src/gpu/d3d/GrD3DCaps.h"
 #include "src/gpu/d3d/GrD3DOpsRenderPass.h"
 #include "src/gpu/d3d/GrD3DSemaphore.h"
+#include "src/gpu/d3d/GrD3DStencilAttachment.h"
 #include "src/gpu/d3d/GrD3DTexture.h"
 #include "src/gpu/d3d/GrD3DTextureRenderTarget.h"
 #include "src/gpu/d3d/GrD3DUtil.h"
@@ -116,10 +116,8 @@ void GrD3DGpu::destroyResources() {
 }
 
 GrOpsRenderPass* GrD3DGpu::getOpsRenderPass(
-        GrRenderTarget* rt,
-        GrAttachment*,
-        GrSurfaceOrigin origin,
-        const SkIRect& bounds,
+        GrRenderTarget* rt, GrStencilAttachment*,
+        GrSurfaceOrigin origin, const SkIRect& bounds,
         const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
         const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
@@ -966,17 +964,20 @@ sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType 
     return std::move(buffer);
 }
 
-sk_sp<GrAttachment> GrD3DGpu::makeStencilAttachmentForRenderTarget(const GrRenderTarget* rt,
-                                                                   SkISize dimensions,
-                                                                   int numStencilSamples) {
+GrStencilAttachment* GrD3DGpu::createStencilAttachmentForRenderTarget(
+        const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
     SkASSERT(numStencilSamples == rt->numSamples() || this->caps()->mixedSamplesSupport());
     SkASSERT(dimensions.width() >= rt->width());
     SkASSERT(dimensions.height() >= rt->height());
 
     DXGI_FORMAT sFmt = this->d3dCaps().preferredStencilFormat();
 
+    GrD3DStencilAttachment* stencil(GrD3DStencilAttachment::Make(this,
+                                                                 dimensions,
+                                                                 numStencilSamples,
+                                                                 sFmt));
     fStats.incStencilAttachmentCreates();
-    return GrD3DAttachment::MakeStencil(this, dimensions, numStencilSamples, sFmt);
+    return stencil;
 }
 
 bool GrD3DGpu::createTextureResourceForBackendSurface(DXGI_FORMAT dxgiFormat,

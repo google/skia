@@ -36,7 +36,7 @@ class GrRenderTarget;
 class GrRingBuffer;
 class GrSemaphore;
 class GrStagingBufferManager;
-class GrAttachment;
+class GrStencilAttachment;
 class GrStencilSettings;
 class GrSurface;
 class GrTexture;
@@ -352,14 +352,15 @@ public:
     // If a 'stencil' is provided it will be the one bound to 'renderTarget'. If one is not
     // provided but 'renderTarget' has a stencil buffer then that is a signal that the
     // render target's stencil buffer should be ignored.
-    virtual GrOpsRenderPass* getOpsRenderPass(GrRenderTarget* renderTarget,
-                                              GrAttachment* stencil,
-                                              GrSurfaceOrigin,
-                                              const SkIRect& bounds,
-                                              const GrOpsRenderPass::LoadAndStoreInfo&,
-                                              const GrOpsRenderPass::StencilLoadAndStoreInfo&,
-                                              const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                                              GrXferBarrierFlags renderPassXferBarriers) = 0;
+    virtual GrOpsRenderPass* getOpsRenderPass(
+            GrRenderTarget* renderTarget,
+            GrStencilAttachment* stencil,
+            GrSurfaceOrigin,
+            const SkIRect& bounds,
+            const GrOpsRenderPass::LoadAndStoreInfo&,
+            const GrOpsRenderPass::StencilLoadAndStoreInfo&,
+            const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+            GrXferBarrierFlags renderPassXferBarriers) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
@@ -707,10 +708,9 @@ public:
 
     // width and height may be larger than rt (if underlying API allows it).
     // Returns nullptr if compatible sb could not be created, otherwise the caller owns the ref on
-    // the GrAttachment.
-    virtual sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(const GrRenderTarget*,
-                                                                     SkISize dimensions,
-                                                                     int numStencilSamples) = 0;
+    // the GrStencilAttachment.
+    virtual GrStencilAttachment* createStencilAttachmentForRenderTarget(
+            const GrRenderTarget*, SkISize dimensions, int numStencilSamples) = 0;
 
     void handleDirtyContext() {
         if (fResetBits) {

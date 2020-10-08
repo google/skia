@@ -11,7 +11,6 @@
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrAuditTrail.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrGpu.h"
@@ -22,6 +21,7 @@
 #include "src/gpu/GrRenderTarget.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceAllocator.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/geometry/GrRect.h"
 #include "src/gpu/ops/GrClearOp.h"
@@ -484,17 +484,12 @@ void GrOpsTask::onPrepare(GrOpFlushState* flushState) {
     flushState->setSampledProxyArray(nullptr);
 }
 
-static GrOpsRenderPass* create_render_pass(GrGpu* gpu,
-                                           GrRenderTarget* rt,
-                                           GrAttachment* stencil,
-                                           GrSurfaceOrigin origin,
-                                           const SkIRect& bounds,
-                                           GrLoadOp colorLoadOp,
-                                           const SkPMColor4f& loadClearColor,
-                                           GrLoadOp stencilLoadOp,
-                                           GrStoreOp stencilStoreOp,
-                                           const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
-                                           GrXferBarrierFlags renderPassXferBarriers) {
+static GrOpsRenderPass* create_render_pass(
+        GrGpu* gpu, GrRenderTarget* rt, GrStencilAttachment* stencil, GrSurfaceOrigin origin,
+        const SkIRect& bounds, GrLoadOp colorLoadOp, const SkPMColor4f& loadClearColor,
+        GrLoadOp stencilLoadOp, GrStoreOp stencilStoreOp,
+        const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
+        GrXferBarrierFlags renderPassXferBarriers) {
     const GrOpsRenderPass::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -541,7 +536,7 @@ bool GrOpsTask::onExecute(GrOpFlushState* flushState) {
     GrRenderTarget* renderTarget = proxy->peekRenderTarget();
     SkASSERT(renderTarget);
 
-    GrAttachment* stencil = nullptr;
+    GrStencilAttachment* stencil = nullptr;
     if (int numStencilSamples = proxy->numStencilSamples()) {
         if (!flushState->resourceProvider()->attachStencilAttachment(
                 renderTarget, numStencilSamples)) {

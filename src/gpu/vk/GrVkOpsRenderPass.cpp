@@ -101,7 +101,8 @@ bool GrVkOpsRenderPass::init(const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
 
     // If we are using a stencil attachment we also need to update its layout
     if (withStencil) {
-        auto* vkStencil = static_cast<GrVkAttachment*>(fRenderTarget->getStencilAttachment());
+        auto* vkStencil =
+                static_cast<GrVkStencilAttachment*>(fRenderTarget->getStencilAttachment());
         SkASSERT(vkStencil);
 
         // We need the write and read access bits since we may load and store the stencil.
@@ -217,10 +218,8 @@ void GrVkOpsRenderPass::submit() {
     fGpu->endRenderPass(fRenderTarget, fOrigin, fBounds);
 }
 
-bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
-                            GrAttachment* stencil,
-                            GrSurfaceOrigin origin,
-                            const SkIRect& bounds,
+bool GrVkOpsRenderPass::set(GrRenderTarget* rt, GrStencilAttachment* stencil,
+                            GrSurfaceOrigin origin, const SkIRect& bounds,
                             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
                             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
                             const SkTArray<GrSurfaceProxy*, true>& sampledProxies,
@@ -304,7 +303,7 @@ void GrVkOpsRenderPass::onClearStencilClip(const GrScissorState& scissor, bool i
         return;
     }
 
-    GrAttachment* sb = fRenderTarget->getStencilAttachment();
+    GrStencilAttachment* sb = fRenderTarget->getStencilAttachment();
     // this should only be called internally when we know we have a
     // stencil buffer.
     SkASSERT(sb);
