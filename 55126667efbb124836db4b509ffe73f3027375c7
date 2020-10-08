@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b601de7d_f6dc2505",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-08T14:10:57Z",
+      "side": 1,
+      "message": "Let\u0027s spell clone() this way?",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 58
+      },
+      "revId": "55126667efbb124836db4b509ffe73f3027375c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
