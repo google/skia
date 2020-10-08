@@ -842,4 +842,9 @@ Test your code on our [CanvasKit Fiddle](https://jsfiddle.skia.org/canvaskit)
 
 Download
 --------
-Get [CanvasKit on NPM](https://www.npmjs.com/package/canvaskit-wasm)
+Get [CanvasKit on NPM](https://www.npmjs.com/package/canvaskit-wasm).
+Documentation and Typescript definitions are available in the `types/` subfolder
+of the npm package or from the
+[Skia repo](https://github.com/google/skia/tree/master/modules/canvaskit/canvaskit/types).
+
+Check out the [quickstart guide](../modules/quickstart) as well.
