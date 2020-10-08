@@ -22,6 +22,76 @@
       },
       "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d3f9b28_ddce7e85",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T19:53:49Z",
+      "side": 1,
+      "message": "The baked file could export a ModuleData struct, e.g. g_FragModuleData, g_PipelineModuleData, etc.",
+      "parentUuid": "26865b0d_529864bb",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5645335a_b8b79090",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T19:53:49Z",
+      "side": 1,
+      "message": "We basically have two different functions at this point; one when SKSL_STANDALONE is on and a significantly different one when it is off. Its input `ModuleData` is a totally different type too. I\u0027d really prefer it if we just had two different functions and if `ModuleData` always meant the same thing regardless of what I\u0027m working on.",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 6
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2afa0132_e5800bae",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T19:53:49Z",
+      "side": 1,
+      "message": "Unless there\u0027s a really strong rationale for it, we should avoid using pair\u003c\u003e where we could create a struct with named elements. i.e. there doesn\u0027t seem to be any reason not to have:\n\n  struct LoadedModule { \n    std::shared_ptr\u003cSymbolTable\u003e fSymbolTable;\n    std::vector\u003cstd::unique_ptr\u003cProgramElement\u003e\u003e fProgramElements; \n  }\n\nhttps://google.github.io/styleguide/cppguide.html#Structs_vs._Tuples\n\nNote that capture syntax (`auto [symbols, elements] \u003d `) should still work even on a struct, if you want to keep that, but it should be less necessary overall.",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 68
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
