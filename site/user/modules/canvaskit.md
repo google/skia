@@ -55,7 +55,7 @@ Samples
   <figure>
     <canvas id=shaping width=500 height=500></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/56cb197c724dfdfad0c3d8133d4fcab587e4c4e7f31576e62c17251637d3745c"
+      <a href="https://jsfiddle.skia.org/canvaskit/48c67bde53f66a2f1e578e14b88a85bd062fdcf80c143c5eb92071233d4d86ae"
           target=_blank rel=noopener>
         SkParagraph JSFiddle</a>
     </figcaption>
@@ -63,7 +63,7 @@ Samples
   <figure>
     <canvas id=shader1 width=512 height=512></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/8ab89ac8f24840509debec604030b9abded5a73de8f6dbc376433f08ed3fba56"
+      <a href="https://jsfiddle.skia.org/canvaskit/b9a8d33dc9853e491d5e464bc3b212560d9c546c44d71f00c9db15180ab6d5b8"
           target=_blank rel=noopener>
         Shader JSFiddle</a>
     </figcaption>
@@ -71,26 +71,26 @@ Samples
   <figure>
     <canvas id=camera3d width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/146208fef1df1a3dea1f1c6125bd9adeee818676133105b1158310f01963ba87"
+      <a href="https://jsfiddle.skia.org/canvaskit/47d4b2eee53519aaa95e8cf01fcae0596e99ddee8662b2d3aee7649471fddbb0"
           target=_blank rel=noopener>
         3D Cube JSFiddle</a>
     </figcaption>
   </figure>
 
   <h3>Play back bodymovin lottie files with skottie (click for fiddles)</h3>
-  <a href="https://jsfiddle.skia.org/canvaskit/092690b273b41076d2f00f0d43d004893d6bb9992c387c0385efa8e6f6bc83d7"
+  <a href="https://jsfiddle.skia.org/canvaskit/6f4540a485ecbb8f0663b5ab3e04d9f3626a45234595d65f1b87942b90678aff"
      target=_blank rel=noopener>
     <canvas id=sk_legos width=300 height=300></canvas>
   </a>
-  <a href="https://jsfiddle.skia.org/canvaskit/e7ac983d9859f89aff1b6d385190919202c2eb53d028a79992892cacceffd209"
+  <a href="https://jsfiddle.skia.org/canvaskit/2fdbd163e5a4ec55e38e84b6c3e069738d3b12fd858362265192109917f9dd2c"
      target=_blank rel=noopener>
     <canvas id=sk_drinks width=500 height=500></canvas>
   </a>
-  <a href="https://jsfiddle.skia.org/canvaskit/0e06547181759731e7369d3e3613222a0826692f48c41b16504ed68d671583e1"
+  <a href="https://jsfiddle.skia.org/canvaskit/73624637ee6d96a8ce8ff8d523b90acdae3ec75b3fe16ddf3040990544c870ec"
      target=_blank rel=noopener>
     <canvas id=sk_party width=500 height=500></canvas>
   </a>
-  <a href="https://jsfiddle.skia.org/canvaskit/be3fc1c5c351e7f43cc2840033f80b44feb3475925264808f321bb9e2a21174a"
+  <a href="https://jsfiddle.skia.org/canvaskit/d63a544b87ccbe6bf8f15c772355d1c6dbc5eafc355bcd27457eca41da843cb5"
      target=_blank rel=noopener>
     <canvas id=sk_onboarding width=500 height=500></canvas>
   </a>
@@ -99,7 +99,7 @@ Samples
   <figure>
     <canvas id=patheffect width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/43b38b83ca77dabe47f18f31cafe83f3018b3a24e569db27fe711c70bc3f7d62"
+      <a href="https://jsfiddle.skia.org/canvaskit/97d4b9ce527a7ffb0f4bed77d9b7f01f889c8dbe68ac053d56739a5122c65b53"
           target=_blank rel=noopener>
         Star JSFiddle</a>
     </figcaption>
@@ -107,7 +107,7 @@ Samples
   <figure>
     <canvas id=ink width=400 height=400></canvas>
     <figcaption>
-      <a href="https://jsfiddle.skia.org/canvaskit/ad0a5454db3ac757684ed2fa8ce9f1f0175f1c043d2cbe33597d81481cdb4baa"
+      <a href="https://jsfiddle.skia.org/canvaskit/07c83d37d8115413442fda2c8b7f1bc56823d1c597473970638480e95cba42ee"
           target=_blank rel=noopener>
         Ink JSFiddle</a>
     </figcaption>
