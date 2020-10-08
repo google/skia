@@ -147,20 +147,20 @@ void ByteCodeGenerator::gatherUniforms(const Type& type, const String& name) {
 }
 
 bool ByteCodeGenerator::generateCode() {
-    for (const auto& e : fProgram) {
-        switch (e.kind()) {
+    for (const auto& e : fProgram.elements()) {
+        switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
                 std::unique_ptr<ByteCodeFunction> f =
-                        this->writeFunction(e.as<FunctionDefinition>());
+                        this->writeFunction(e->as<FunctionDefinition>());
                 if (!f) {
                     return false;
                 }
                 fOutput->fFunctions.push_back(std::move(f));
-                fFunctions.push_back(&e.as<FunctionDefinition>());
+                fFunctions.push_back(&e->as<FunctionDefinition>());
                 break;
             }
             case ProgramElement::Kind::kGlobalVar: {
-                const GlobalVarDeclaration& decl = e.as<GlobalVarDeclaration>();
+                const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                 const Variable* declVar = decl.fDecl->fVar;
                 if (declVar->type() == *fContext.fFragmentProcessor_Type) {
                     fOutput->fChildFPCount++;
@@ -454,9 +454,9 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
         case Variable::kGlobal_Storage: {
             if (var.type() == *fContext.fFragmentProcessor_Type) {
                 int offset = 0;
-                for (const auto& e : fProgram) {
-                    if (e.is<GlobalVarDeclaration>()) {
-                        const GlobalVarDeclaration& decl = e.as<GlobalVarDeclaration>();
+                for (const auto& e : fProgram.elements()) {
+                    if (e->is<GlobalVarDeclaration>()) {
+                        const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                         const Variable* declVar = decl.fDecl->fVar;
                         if (declVar->type() != *fContext.fFragmentProcessor_Type) {
                             continue;
@@ -482,9 +482,9 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             }
             int offset = 0;
             bool isUniform = is_uniform(var);
-            for (const auto& e : fProgram) {
-                if (e.is<GlobalVarDeclaration>()) {
-                    const GlobalVarDeclaration& decl = e.as<GlobalVarDeclaration>();
+            for (const auto& e : fProgram.elements()) {
+                if (e->is<GlobalVarDeclaration>()) {
+                    const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
                     const Variable* declVar = decl.fDecl->fVar;
                     if (declVar->modifiers().fLayout.fBuiltin >= 0 || is_in(*declVar)) {
                         continue;

@@ -1659,9 +1659,9 @@ bool Compiler::optimize(Program& program) {
         bool madeChanges = false;
 
         // Scan and optimize based on the control-flow graph for each function.
-        for (ProgramElement& element : program) {
-            if (element.is<FunctionDefinition>()) {
-                madeChanges |= this->scanCFG(element.as<FunctionDefinition>());
+        for (const auto& element : program.elements()) {
+            if (element->is<FunctionDefinition>()) {
+                madeChanges |= this->scanCFG(element->as<FunctionDefinition>());
             }
         }
 

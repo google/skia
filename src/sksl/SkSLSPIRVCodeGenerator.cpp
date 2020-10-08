@@ -2715,9 +2715,9 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
     SpvId typeId;
     Modifiers intfModifiers = intf.fVariable->modifiers();
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
-        for (const auto& e : fProgram) {
-            if (e.kind() == ProgramElement::Kind::kModifiers) {
-                const Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
+        for (const auto& e : fProgram.elements()) {
+            if (e->is<ModifiersDeclaration>()) {
+                const Modifiers& m = e->as<ModifiersDeclaration>().fModifiers;
                 update_sk_in_count(m, &fSkInCount);
             }
         }
@@ -3092,9 +3092,9 @@ void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputSt
 void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, OutputStream& out) {
     SkASSERT(fProgram.fKind == Program::kGeometry_Kind);
     int invocations = 1;
-    for (const auto& e : fProgram) {
-        if (e.kind() == ProgramElement::Kind::kModifiers) {
-            const Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
+    for (const auto& e : fProgram.elements()) {
+        if (e->is<ModifiersDeclaration>()) {
+            const Modifiers& m = e->as<ModifiersDeclaration>().fModifiers;
             if (m.fFlags & Modifiers::kIn_Flag) {
                 if (m.fLayout.fInvocations != -1) {
                     invocations = m.fLayout.fInvocations;
@@ -3161,15 +3161,15 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     std::set<SpvId> interfaceVars;
     // assign IDs to functions, determine sk_in size
     int skInSize = -1;
-    for (const auto& e : program) {
-        switch (e.kind()) {
+    for (const auto& e : program.elements()) {
+        switch (e->kind()) {
             case ProgramElement::Kind::kFunction: {
-                FunctionDefinition& f = (FunctionDefinition&) e;
+                const FunctionDefinition& f = e->as<FunctionDefinition>();
                 fFunctionMap[&f.fDeclaration] = this->nextId();
                 break;
             }
             case ProgramElement::Kind::kModifiers: {
-                Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
+                Modifiers& m = e->as<ModifiersDeclaration>().fModifiers;
                 if (m.fFlags & Modifiers::kIn_Flag) {
                     switch (m.fLayout.fPrimitive) {
                         case Layout::kPoints_Primitive: // break
@@ -3193,9 +3193,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                 break;
         }
     }
-    for (const auto& e : program) {
-        if (e.kind() == ProgramElement::Kind::kInterfaceBlock) {
-            InterfaceBlock& intf = (InterfaceBlock&) e;
+    for (const auto& e : program.elements()) {
+        if (e->is<InterfaceBlock>()) {
+            InterfaceBlock& intf = e->as<InterfaceBlock>();
             const Modifiers& modifiers = intf.fVariable->modifiers();
             if (SK_IN_BUILTIN == modifiers.fLayout.fBuiltin) {
                 SkASSERT(skInSize != -1);
@@ -3210,14 +3210,14 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             }
         }
     }
-    for (const auto& e : program) {
-        if (e.is<GlobalVarDeclaration>()) {
-            this->writeGlobalVar(program.fKind, *e.as<GlobalVarDeclaration>().fDecl, body);
+    for (const auto& e : program.elements()) {
+        if (e->is<GlobalVarDeclaration>()) {
+            this->writeGlobalVar(program.fKind, *e->as<GlobalVarDeclaration>().fDecl, body);
         }
     }
-    for (const auto& e : program) {
-        if (e.kind() == ProgramElement::Kind::kFunction) {
-            this->writeFunction(((FunctionDefinition&) e), body);
+    for (const auto& e : program.elements()) {
+        if (e->is<FunctionDefinition>()) {
+            this->writeFunction(e->as<FunctionDefinition>(), body);
         }
     }
     const FunctionDeclaration* main = nullptr;
@@ -3271,9 +3271,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                                SpvExecutionModeOriginUpperLeft,
                                out);
     }
-    for (const auto& e : program) {
-        if (e.kind() == ProgramElement::Kind::kExtension) {
-            this->writeInstruction(SpvOpSourceExtension, ((Extension&) e).name().c_str(), out);
+    for (const auto& e : program.elements()) {
+        if (e->is<Extension>()) {
+            this->writeInstruction(SpvOpSourceExtension, e->as<Extension>().name().c_str(), out);
         }
     }
 

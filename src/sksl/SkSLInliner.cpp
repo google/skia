@@ -800,8 +800,8 @@ public:
         fCandidateList = candidateList;
         fSymbolTableStack.push_back(program.fSymbols.get());
 
-        for (ProgramElement& pe : program) {
-            this->visitProgramElement(&pe);
+        for (const auto& pe : program.elements()) {
+            this->visitProgramElement(pe.get());
         }
 
         fSymbolTableStack.pop_back();

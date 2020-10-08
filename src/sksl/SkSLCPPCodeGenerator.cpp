@@ -412,9 +412,9 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
 
 int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
     int index = 0;
-    for (const auto& p : fProgram) {
-        if (p.is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<GlobalVarDeclaration>()) {
+            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
             if (decl.fVar == &var) {
                 return index;
             } else if (decl.fVar->type().nonnullable() == *fContext.fFragmentProcessor_Type) {
@@ -703,9 +703,9 @@ void CPPCodeGenerator::writeInputVars() {
 }
 
 void CPPCodeGenerator::writePrivateVars() {
-    for (const auto& p : fProgram) {
-        if (p.is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<GlobalVarDeclaration>()) {
+            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
             if (is_private(*decl.fVar)) {
                 if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
                     fErrors.error(decl.fOffset,
@@ -741,9 +741,9 @@ void CPPCodeGenerator::writePrivateVars() {
 }
 
 void CPPCodeGenerator::writePrivateVarValues() {
-    for (const auto& p : fProgram) {
-        if (p.is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<GlobalVarDeclaration>()) {
+            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
             if (is_private(*decl.fVar) && decl.fValue) {
                 this->writef("%s = ", String(decl.fVar->name()).c_str());
                 fCPPMode = true;
@@ -955,9 +955,9 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     this->writef("        const %s& _outer = args.fFp.cast<%s>();\n"
                  "        (void) _outer;\n",
                  fFullName.c_str(), fFullName.c_str());
-    for (const auto& p : fProgram) {
-        if (p.is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<GlobalVarDeclaration>()) {
+            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
             String nameString(decl.fVar->name());
             const char* name = nameString.c_str();
             if (SectionAndParameterHelper::IsParameter(*decl.fVar) &&
@@ -1068,9 +1068,9 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     }
     if (section) {
         int samplerIndex = 0;
-        for (const auto& p : fProgram) {
-            if (p.is<GlobalVarDeclaration>()) {
-                const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+        for (const auto& p : fProgram.elements()) {
+            if (p->is<GlobalVarDeclaration>()) {
+                const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
                 const Variable& variable = *decl.fVar;
                 String nameString(variable.name());
                 const char* name = nameString.c_str();
@@ -1241,9 +1241,9 @@ void CPPCodeGenerator::writeGetKey() {
     this->writef("void %s::onGetGLSLProcessorKey(const GrShaderCaps& caps, "
                                                 "GrProcessorKeyBuilder* b) const {\n",
                  fFullName.c_str());
-    for (const auto& p : fProgram) {
-        if (p.is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<GlobalVarDeclaration>()) {
+            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
             const Variable& var = *decl.fVar;
             const Type& varType = var.type();
             String nameString(var.name());
@@ -1315,9 +1315,9 @@ void CPPCodeGenerator::writeGetKey() {
 
 bool CPPCodeGenerator::generateCode() {
     std::vector<const Variable*> uniforms;
-    for (const auto& p : fProgram) {
-        if (p.is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+    for (const auto& p : fProgram.elements()) {
+        if (p->is<GlobalVarDeclaration>()) {
+            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
             if ((decl.fVar->modifiers().fFlags & Modifiers::kUniform_Flag) &&
                         decl.fVar->type().typeKind() != Type::TypeKind::kSampler) {
                 uniforms.push_back(decl.fVar);

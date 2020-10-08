@@ -44,9 +44,9 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT(arguments[0]->is<VariableReference>());
         int index = 0;
         bool found = false;
-        for (const auto& p : fProgram) {
-            if (p.is<GlobalVarDeclaration>()) {
-                const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+        for (const auto& p : fProgram.elements()) {
+            if (p->is<GlobalVarDeclaration>()) {
+                const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
                 if (decl.fVar == arguments[0]->as<VariableReference>().variable()) {
                     found = true;
                 } else if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
@@ -80,9 +80,9 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         INHERITED::writeFunctionCall(c);
     } else {
         int index = 0;
-        for (const ProgramElement& e : fProgram) {
-            if (e.kind() == ProgramElement::Kind::kFunction) {
-                if (&e.as<FunctionDefinition>().fDeclaration == &function) {
+        for (const auto& e : fProgram.elements()) {
+            if (e->is<FunctionDefinition>()) {
+                if (&e->as<FunctionDefinition>().fDeclaration == &function) {
                     break;
                 }
                 ++index;
@@ -120,12 +120,12 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             auto varIndexByFlag = [this, &ref](uint32_t flag) {
                 int index = 0;
                 bool found = false;
-                for (const ProgramElement& e : fProgram) {
+                for (const auto& e : fProgram.elements()) {
                     if (found) {
                         break;
                     }
-                    if (e.is<GlobalVarDeclaration>()) {
-                        const Variable& var = *e.as<GlobalVarDeclaration>().fDecl->fVar;
+                    if (e->is<GlobalVarDeclaration>()) {
+                        const Variable& var = *e->as<GlobalVarDeclaration>().fDecl->fVar;
                         if (&var == ref.variable()) {
                             found = true;
                             break;

@@ -149,46 +149,6 @@ struct Program {
         }
     };
 
-    class iterator {
-    public:
-        ProgramElement& operator*() { return **fIter; }
-
-        iterator& operator++() {
-            ++fIter;
-            return *this;
-        }
-
-        bool operator==(const iterator& other) const { return fIter == other.fIter; }
-        bool operator!=(const iterator& other) const { return !(*this == other); }
-
-    private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::iterator;
-        iterator(inner iter) : fIter(iter) {}
-
-        inner fIter;
-        friend struct Program;
-    };
-
-    class const_iterator {
-    public:
-        const ProgramElement& operator*() { return **fIter; }
-
-        const_iterator& operator++() {
-            ++fIter;
-            return *this;
-        }
-
-        bool operator==(const const_iterator& other) const { return fIter == other.fIter; }
-        bool operator!=(const const_iterator& other) const { return !(*this == other); }
-
-    private:
-        using inner = std::vector<std::unique_ptr<ProgramElement>>::const_iterator;
-        const_iterator(inner iter) : fIter(iter) {}
-
-        inner fIter;
-        friend struct Program;
-    };
-
     enum Kind {
         kFragment_Kind,
         kVertex_Kind,
@@ -215,11 +175,7 @@ struct Program {
     , fElements(std::move(elements))
     , fModifiers(std::move(modifiers)) {}
 
-    iterator begin() { return iterator(fElements.begin()); }
-    iterator end()   { return iterator(fElements.end()); }
-
-    const_iterator begin() const { return const_iterator(fElements.begin()); }
-    const_iterator end()   const { return const_iterator(fElements.end()); }
+    const std::vector<std::unique_ptr<ProgramElement>>& elements() const { return fElements; }
 
     void finish() {
         fModifiers->finish();
