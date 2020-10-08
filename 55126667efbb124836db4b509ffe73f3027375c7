@@ -46,6 +46,30 @@
       },
       "revId": "55126667efbb124836db4b509ffe73f3027375c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43c9c7e3_ab08edbc",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-08T14:20:39Z",
+      "side": 1,
+      "message": "Yeah, I don\u0027t think hash maps need to be weird.\n\nI think the copy constructors are just deleted because the default implementations would have been wrong a long time ago.  But it looks like even they might work correctly.",
+      "parentUuid": "b4096d2c_202642da",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 58
+      },
+      "revId": "55126667efbb124836db4b509ffe73f3027375c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
