@@ -48,6 +48,23 @@ public:
     // Approximately how many bytes of memory do we use beyond sizeof(*this)?
     size_t approxBytesUsed() const { return fCapacity * sizeof(Slot); }
 
+    // Returns a clone of this hash table.
+    SkTHashTable clone() const {
+        SkTHashTable clone;
+        clone.fCount = fCount;
+        clone.fCapacity = fCapacity;
+        clone.fSlots = SkAutoTArray<Slot>(fCapacity);
+
+        for (int i = 0; i < fCapacity; i++) {
+            const Slot& origSlot = fSlots[i];
+            Slot& cloneSlot = clone.fSlots[i];
+            cloneSlot.val  = origSlot.val;
+            cloneSlot.hash = origSlot.hash;
+        }
+
+        return clone;
+    }
+
     // !!!!!!!!!!!!!!!!!                 CAUTION                   !!!!!!!!!!!!!!!!!
     // set(), find() and foreach() all allow mutable access to table entries.
     // If you change an entry so that it no longer has the same key, all hell
@@ -253,6 +270,14 @@ public:
     SkTHashMap() {}
     SkTHashMap(SkTHashMap&&) = default;
     SkTHashMap& operator=(SkTHashMap&&) = default;
+    SkTHashMap(const SkTHashMap& that) {
+        fTable = that.fTable.clone();
+    }
+    SkTHashMap& operator=(const SkTHashMap& that) {
+        if (this != *that) {
+            fTable = that.fTable.clone();
+        }
+    }
 
     // Clear the map.
     void reset() { fTable.reset(); }
@@ -315,9 +340,6 @@ private:
     };
 
     SkTHashTable<Pair, K> fTable;
-
-    SkTHashMap(const SkTHashMap&) = delete;
-    SkTHashMap& operator=(const SkTHashMap&) = delete;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
@@ -327,6 +349,14 @@ public:
     SkTHashSet() {}
     SkTHashSet(SkTHashSet&&) = default;
     SkTHashSet& operator=(SkTHashSet&&) = default;
+    SkTHashSet(const SkTHashSet& that) {
+        fTable = that.fTable.clone();
+    }
+    SkTHashSet& operator=(const SkTHashSet& that) {
+        if (this != *that) {
+            fTable = that.fTable.clone();
+        }
+    }
 
     // Clear the set.
     void reset() { fTable.reset(); }
@@ -368,9 +398,6 @@ private:
         static auto Hash(const T& item) { return HashT()(item); }
     };
     SkTHashTable<T, T, Traits> fTable;
-
-    SkTHashSet(const SkTHashSet&) = delete;
-    SkTHashSet& operator=(const SkTHashSet&) = delete;
 };
 
 #endif//SkTHash_DEFINED
