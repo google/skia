@@ -186,9 +186,9 @@ void IRGenerator::start(const Program::Settings* settings,
         for (const auto& e : *inherited) {
             if (e->kind() == ProgramElement::Kind::kInterfaceBlock) {
                 InterfaceBlock& intf = e->as<InterfaceBlock>();
-                if (intf.fVariable.name() == Compiler::PERVERTEX_NAME) {
+                if (intf.fVariable->name() == Compiler::PERVERTEX_NAME) {
                     SkASSERT(!fSkPerVertex);
-                    fSkPerVertex = &intf.fVariable;
+                    fSkPerVertex = intf.fVariable;
                 }
             }
         }
@@ -1433,12 +1433,11 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
         }
         case Symbol::Kind::kField: {
             const Field* field = &result->as<Field>();
-            VariableReference* base = new VariableReference(identifier.fOffset, &field->owner(),
+            auto base = std::make_unique<VariableReference>(identifier.fOffset, &field->owner(),
                                                             VariableReference::kRead_RefKind);
-            return std::unique_ptr<Expression>(new FieldAccess(
-                                                  std::unique_ptr<Expression>(base),
-                                                  field->fieldIndex(),
-                                                  FieldAccess::kAnonymousInterfaceBlock_OwnerKind));
+            return std::make_unique<FieldAccess>(std::move(base),
+                                                 field->fieldIndex(),
+                                                 FieldAccess::kAnonymousInterfaceBlock_OwnerKind);
         }
         case Symbol::Kind::kType: {
             const Type* t = &result->as<Type>();

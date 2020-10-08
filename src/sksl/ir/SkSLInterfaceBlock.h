@@ -31,7 +31,7 @@ struct InterfaceBlock : public ProgramElement {
                    std::vector<std::unique_ptr<Expression>> sizes,
                    std::shared_ptr<SymbolTable> typeOwner)
     : INHERITED(offset, kProgramElementKind)
-    , fVariable(*var)
+    , fVariable(var)
     , fTypeName(std::move(typeName))
     , fInstanceName(std::move(instanceName))
     , fSizes(std::move(sizes))
@@ -39,18 +39,19 @@ struct InterfaceBlock : public ProgramElement {
 
     std::unique_ptr<ProgramElement> clone() const override {
         std::vector<std::unique_ptr<Expression>> sizesClone;
+        sizesClone.reserve(fSizes.size());
         for (const auto& s : fSizes) {
             sizesClone.push_back(s ? s->clone() : nullptr);
         }
-        return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, &fVariable, fTypeName,
+        return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, fVariable, fTypeName,
                                                                   fInstanceName,
                                                                   std::move(sizesClone),
                                                                   fTypeOwner));
     }
 
     String description() const override {
-        String result = fVariable.modifiers().description() + fTypeName + " {\n";
-        const Type* structType = &fVariable.type();
+        String result = fVariable->modifiers().description() + fTypeName + " {\n";
+        const Type* structType = &fVariable->type();
         while (structType->typeKind() == Type::TypeKind::kArray) {
             structType = &structType->componentType();
         }
@@ -71,7 +72,7 @@ struct InterfaceBlock : public ProgramElement {
         return result + ";";
     }
 
-    const Variable& fVariable;
+    const Variable* fVariable;
     const String fTypeName;
     const String fInstanceName;
     std::vector<std::unique_ptr<Expression>> fSizes;

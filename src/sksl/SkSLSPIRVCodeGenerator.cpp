@@ -2693,14 +2693,14 @@ static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTHeight) {
-    bool isBuffer = (0 != (intf.fVariable.modifiers().fFlags & Modifiers::kBuffer_Flag));
-    bool pushConstant = (0 != (intf.fVariable.modifiers().fLayout.fFlags &
+    bool isBuffer = (0 != (intf.fVariable->modifiers().fFlags & Modifiers::kBuffer_Flag));
+    bool pushConstant = (0 != (intf.fVariable->modifiers().fLayout.fFlags &
                                Layout::kPushConstant_Flag));
     MemoryLayout memoryLayout = (pushConstant || isBuffer) ?
                                 MemoryLayout(MemoryLayout::k430_Standard) :
                                 fDefaultLayout;
     SpvId result = this->nextId();
-    const Type* type = &intf.fVariable.type();
+    const Type* type = &intf.fVariable->type();
     if (fProgram.fInputs.fRTHeight && appendRTHeight) {
         SkASSERT(fRTHeightStructId == (SpvId) -1);
         SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
@@ -2711,7 +2711,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         type = new Type(type->fOffset, type->name(), fields);
     }
     SpvId typeId;
-    Modifiers intfModifiers = intf.fVariable.modifiers();
+    Modifiers intfModifiers = intf.fVariable->modifiers();
     if (intfModifiers.fLayout.fBuiltin == SK_IN_BUILTIN) {
         for (const auto& e : fProgram) {
             if (e.kind() == ProgramElement::Kind::kModifiers) {
@@ -2720,7 +2720,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
             }
         }
         typeId = this->getType(Type("sk_in", Type::TypeKind::kArray,
-                                    intf.fVariable.type().componentType(),
+                                    intf.fVariable->type().componentType(),
                                     fSkInCount),
                                memoryLayout);
     } else {
@@ -2740,7 +2740,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
         layout.fSet = 0;
     }
     this->writeLayout(layout, result);
-    fVariableMap[&intf.fVariable] = result;
+    fVariableMap[intf.fVariable] = result;
     if (fProgram.fInputs.fRTHeight && appendRTHeight) {
         delete type;
     }
@@ -3194,7 +3194,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (const auto& e : program) {
         if (e.kind() == ProgramElement::Kind::kInterfaceBlock) {
             InterfaceBlock& intf = (InterfaceBlock&) e;
-            const Modifiers& modifiers = intf.fVariable.modifiers();
+            const Modifiers& modifiers = intf.fVariable->modifiers();
             if (SK_IN_BUILTIN == modifiers.fLayout.fBuiltin) {
                 SkASSERT(skInSize != -1);
                 intf.fSizes.emplace_back(new IntLiteral(fContext, -1, skInSize));
@@ -3203,7 +3203,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             if (((modifiers.fFlags & Modifiers::kIn_Flag) ||
                 (modifiers.fFlags & Modifiers::kOut_Flag)) &&
                 modifiers.fLayout.fBuiltin == -1 &&
-                !is_dead(intf.fVariable)) {
+                !is_dead(*intf.fVariable)) {
                 interfaceVars.insert(id);
             }
         }

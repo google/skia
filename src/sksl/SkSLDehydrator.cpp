@@ -545,7 +545,7 @@ void Dehydrator::write(const ProgramElement& e) {
         case ProgramElement::Kind::kInterfaceBlock: {
             const InterfaceBlock& i = e.as<InterfaceBlock>();
             this->writeU8(Rehydrator::kInterfaceBlock_Command);
-            this->write(i.fVariable);
+            this->write(*i.fVariable);
             this->write(i.fTypeName);
             this->write(i.fInstanceName);
             this->writeU8(i.fSizes.size());
