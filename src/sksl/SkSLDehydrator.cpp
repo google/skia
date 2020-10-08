@@ -370,9 +370,9 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kTernary: {
                 const TernaryExpression& t = e->as<TernaryExpression>();
                 this->writeU8(Rehydrator::kTernary_Command);
-                this->write(t.fTest.get());
-                this->write(t.fIfTrue.get());
-                this->write(t.fIfFalse.get());
+                this->write(t.test().get());
+                this->write(t.ifTrue().get());
+                this->write(t.ifFalse().get());
                 break;
             }
             case Expression::Kind::kVariableReference: {

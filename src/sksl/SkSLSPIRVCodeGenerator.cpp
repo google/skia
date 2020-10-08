@@ -1788,18 +1788,18 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
         }
         case Expression::Kind::kTernary: {
             TernaryExpression& t = (TernaryExpression&) expr;
-            SpvId test = this->writeExpression(*t.fTest, out);
+            SpvId test = this->writeExpression(*t.test(), out);
             SpvId end = this->nextId();
             SpvId ifTrueLabel = this->nextId();
             SpvId ifFalseLabel = this->nextId();
             this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
             this->writeInstruction(SpvOpBranchConditional, test, ifTrueLabel, ifFalseLabel, out);
             this->writeLabel(ifTrueLabel, out);
-            SpvId ifTrue = this->getLValue(*t.fIfTrue, out)->getPointer();
+            SpvId ifTrue = this->getLValue(*t.ifTrue(), out)->getPointer();
             SkASSERT(ifTrue);
             this->writeInstruction(SpvOpBranch, end, out);
             ifTrueLabel = fCurrentBlock;
-            SpvId ifFalse = this->getLValue(*t.fIfFalse, out)->getPointer();
+            SpvId ifFalse = this->getLValue(*t.ifFalse(), out)->getPointer();
             SkASSERT(ifFalse);
             ifFalseLabel = fCurrentBlock;
             this->writeInstruction(SpvOpBranch, end, out);
@@ -2389,14 +2389,14 @@ SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream
 
 SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, OutputStream& out) {
     const Type& type = t.type();
-    SpvId test = this->writeExpression(*t.fTest, out);
-    if (t.fIfTrue->type().columns() == 1 &&
-        t.fIfTrue->isCompileTimeConstant() &&
-        t.fIfFalse->isCompileTimeConstant()) {
+    SpvId test = this->writeExpression(*t.test(), out);
+    if (t.ifTrue()->type().columns() == 1 &&
+        t.ifTrue()->isCompileTimeConstant() &&
+        t.ifFalse()->isCompileTimeConstant()) {
         // both true and false are constants, can just use OpSelect
         SpvId result = this->nextId();
-        SpvId trueId = this->writeExpression(*t.fIfTrue, out);
-        SpvId falseId = this->writeExpression(*t.fIfFalse, out);
+        SpvId trueId = this->writeExpression(*t.ifTrue(), out);
+        SpvId falseId = this->writeExpression(*t.ifFalse(), out);
         this->writeInstruction(SpvOpSelect, this->getType(type), result, test, trueId, falseId,
                                out);
         return result;
@@ -2412,10 +2412,10 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
     this->writeInstruction(SpvOpSelectionMerge, end, SpvSelectionControlMaskNone, out);
     this->writeInstruction(SpvOpBranchConditional, test, trueLabel, falseLabel, out);
     this->writeLabel(trueLabel, out);
-    this->writeInstruction(SpvOpStore, var, this->writeExpression(*t.fIfTrue, out), out);
+    this->writeInstruction(SpvOpStore, var, this->writeExpression(*t.ifTrue(), out), out);
     this->writeInstruction(SpvOpBranch, end, out);
     this->writeLabel(falseLabel, out);
-    this->writeInstruction(SpvOpStore, var, this->writeExpression(*t.fIfFalse, out), out);
+    this->writeInstruction(SpvOpStore, var, this->writeExpression(*t.ifFalse(), out), out);
     this->writeInstruction(SpvOpBranch, end, out);
     this->writeLabel(end, out);
     SpvId result = this->nextId();

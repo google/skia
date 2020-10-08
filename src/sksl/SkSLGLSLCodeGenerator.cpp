@@ -976,11 +976,11 @@ void GLSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
     if (kTernary_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->writeExpression(*t.fTest, kTernary_Precedence);
+    this->writeExpression(*t.test(), kTernary_Precedence);
     this->write(" ? ");
-    this->writeExpression(*t.fIfTrue, kTernary_Precedence);
+    this->writeExpression(*t.ifTrue(), kTernary_Precedence);
     this->write(" : ");
-    this->writeExpression(*t.fIfFalse, kTernary_Precedence);
+    this->writeExpression(*t.ifFalse(), kTernary_Precedence);
     if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
     }

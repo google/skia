@@ -1427,14 +1427,14 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
 
 void ByteCodeGenerator::writeTernaryExpression(const TernaryExpression& t) {
     int count = SlotCount(t.type());
-    SkASSERT(count == SlotCount(t.fIfTrue->type()));
-    SkASSERT(count == SlotCount(t.fIfFalse->type()));
+    SkASSERT(count == SlotCount(t.ifTrue()->type()));
+    SkASSERT(count == SlotCount(t.ifFalse()->type()));
 
-    this->writeExpression(*t.fTest);
+    this->writeExpression(*t.test());
     this->write(ByteCodeInstruction::kMaskPush);
-    this->writeExpression(*t.fIfTrue);
+    this->writeExpression(*t.ifTrue());
     this->write(ByteCodeInstruction::kMaskNegate);
-    this->writeExpression(*t.fIfFalse);
+    this->writeExpression(*t.ifFalse());
     this->write(ByteCodeInstruction::kMaskBlend, count);
 }
 

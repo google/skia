@@ -141,13 +141,13 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
         }
         case Expression::Kind::kTernary: {
             TernaryExpression& ternary = lvalue->as<TernaryExpression>();
-            if (!this->tryRemoveExpressionBefore(iter, ternary.fTest.get())) {
+            if (!this->tryRemoveExpressionBefore(iter, ternary.test().get())) {
                 return false;
             }
-            if (!this->tryRemoveLValueBefore(iter, ternary.fIfTrue.get())) {
+            if (!this->tryRemoveLValueBefore(iter, ternary.ifTrue().get())) {
                 return false;
             }
-            return this->tryRemoveLValueBefore(iter, ternary.fIfFalse.get());
+            return this->tryRemoveLValueBefore(iter, ternary.ifFalse().get());
         }
         default:
 #ifdef SK_DEBUG
@@ -413,15 +413,15 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             break;
         case Expression::Kind::kTernary: {
             TernaryExpression& t = e->get()->as<TernaryExpression>();
-            this->addExpression(cfg, &t.fTest, constantPropagate);
+            this->addExpression(cfg, &t.test(), constantPropagate);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             BlockId start = cfg.fCurrent;
             cfg.newBlock();
-            this->addExpression(cfg, &t.fIfTrue, constantPropagate);
+            this->addExpression(cfg, &t.ifTrue(), constantPropagate);
             BlockId next = cfg.newBlock();
             cfg.fCurrent = start;
             cfg.newBlock();
-            this->addExpression(cfg, &t.fIfFalse, constantPropagate);
+            this->addExpression(cfg, &t.ifFalse(), constantPropagate);
             cfg.addExit(cfg.fCurrent, next);
             cfg.fCurrent = next;
             break;
@@ -454,12 +454,12 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
             break;
         case Expression::Kind::kTernary: {
             TernaryExpression& ternary = e->get()->as<TernaryExpression>();
-            this->addExpression(cfg, &ternary.fTest, /*constantPropagate=*/true);
+            this->addExpression(cfg, &ternary.test(), /*constantPropagate=*/true);
             // Technically we will of course only evaluate one or the other, but if the test turns
             // out to be constant, the ternary will get collapsed down to just one branch anyway. So
             // it should be ok to pretend that we always evaluate both branches here.
-            this->addLValue(cfg, &ternary.fIfTrue);
-            this->addLValue(cfg, &ternary.fIfFalse);
+            this->addLValue(cfg, &ternary.ifTrue());
+            this->addLValue(cfg, &ternary.ifFalse());
             break;
         }
         default:

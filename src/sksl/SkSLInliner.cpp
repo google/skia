@@ -408,8 +408,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = expression.as<TernaryExpression>();
-            return std::make_unique<TernaryExpression>(offset, expr(t.fTest),
-                                                       expr(t.fIfTrue), expr(t.fIfFalse));
+            return std::make_unique<TernaryExpression>(offset, expr(t.test()),
+                                                       expr(t.ifTrue()), expr(t.ifFalse()));
         }
         case Expression::Kind::kTypeReference:
             return expression.clone();
@@ -1043,7 +1043,7 @@ public:
             case Expression::Kind::kTernary: {
                 TernaryExpression& ternaryExpr = (*expr)->as<TernaryExpression>();
                 // The test expression is a candidate for inlining.
-                this->visitExpression(&ternaryExpr.fTest);
+                this->visitExpression(&ternaryExpr.test());
                 // The true- and false-expressions cannot be inlined, because we are only allowed to
                 // evaluate one side.
                 break;

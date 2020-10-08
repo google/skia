@@ -466,10 +466,10 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
             // To simplify analysis, we just pretend that we write to both sides of the ternary.
             // This allows for false positives (meaning we fail to detect that a variable might not
             // have been assigned), but is preferable to false negatives.
-            this->addDefinition(lvalue->as<TernaryExpression>().fIfTrue.get(),
+            this->addDefinition(lvalue->as<TernaryExpression>().ifTrue().get(),
                                 (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
-            this->addDefinition(lvalue->as<TernaryExpression>().fIfFalse.get(),
+            this->addDefinition(lvalue->as<TernaryExpression>().ifFalse().get(),
                                 (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
@@ -633,7 +633,7 @@ static bool is_dead(const Expression& lvalue) {
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = lvalue.as<TernaryExpression>();
-            return !t.fTest->hasSideEffects() && is_dead(*t.fIfTrue) && is_dead(*t.fIfFalse);
+            return !t.test()->hasSideEffects() && is_dead(*t.ifTrue()) && is_dead(*t.ifFalse());
         }
         case Expression::Kind::kExternalValue:
             return false;
@@ -926,13 +926,13 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         }
         case Expression::Kind::kTernary: {
             TernaryExpression* t = &expr->as<TernaryExpression>();
-            if (t->fTest->kind() == Expression::Kind::kBoolLiteral) {
+            if (t->test()->is<BoolLiteral>()) {
                 // ternary has a constant test, replace it with either the true or
                 // false branch
-                if (t->fTest->as<BoolLiteral>().value()) {
-                    (*iter)->setExpression(std::move(t->fIfTrue));
+                if (t->test()->as<BoolLiteral>().value()) {
+                    (*iter)->setExpression(std::move(t->ifTrue()));
                 } else {
-                    (*iter)->setExpression(std::move(t->fIfFalse));
+                    (*iter)->setExpression(std::move(t->ifFalse()));
                 }
                 *outUpdated = true;
                 *outNeedsRescan = true;
