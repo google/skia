@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac6995cc_271b3536",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-08T15:28:41Z",
+      "side": 1,
+      "message": "I\u0027m confused on these two numbers. I would thing this would be:\n\n\"viewDesc.mipLevelCount \u003d GrSamplerState::MipmapMode::kNone \u003d\u003d state.mipmapMode() ? 1 : tex-\u003enumLevels();\"\n\nI guess if 0 is a shorthand in Dawn to say include all levels, can you add a comment to make that clear here?",
+      "range": {
+        "startLine": 466,
+        "startChar": 87,
+        "endLine": 466,
+        "endChar": 92
+      },
+      "revId": "aba7cef38d988c09599a50caa63a6661e0796134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "125e0c22_7cf7e201",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-08T15:28:41Z",
+      "side": 1,
+      "message": "nit: 100 chars",
+      "range": {
+        "startLine": 242,
+        "startChar": 5,
+        "endLine": 242,
+        "endChar": 110
+      },
+      "revId": "aba7cef38d988c09599a50caa63a6661e0796134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66aab0c1_e4c8984f",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-08T15:28:41Z",
+      "side": 1,
+      "message": "nit: 100 chars",
+      "range": {
+        "startLine": 244,
+        "startChar": 6,
+        "endLine": 244,
+        "endChar": 111
+      },
+      "revId": "aba7cef38d988c09599a50caa63a6661e0796134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
