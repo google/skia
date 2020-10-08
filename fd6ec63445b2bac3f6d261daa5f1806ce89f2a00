@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4dfd4ea9_b156676d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-08T18:29:39Z",
+      "side": 1,
+      "message": "Ahhh yes I forgot I upload the pure rename as a patch set. So to the rename is a patch set 3. So to see the functional changes diff patch set 3 and the latest.",
+      "parentUuid": "30826ee0_2749aac1",
+      "revId": "fd6ec63445b2bac3f6d261daa5f1806ce89f2a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e8607c4_92ad09ce",
