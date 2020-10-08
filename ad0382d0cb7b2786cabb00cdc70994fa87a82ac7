@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f94a33cf_4ff92a6c",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T15:55:38Z",
+      "side": 1,
+      "message": "Do we have a gameplan for making these proper enums again eventually? These sort of changes really inhibit debuggability. It can be as simple as \"all these enums just live in IRNode now\" as far as I\u0027m concerned.",
+      "range": {
+        "startLine": 140,
+        "startChar": 8,
+        "endLine": 140,
+        "endChar": 44
+      },
+      "revId": "ad0382d0cb7b2786cabb00cdc70994fa87a82ac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
