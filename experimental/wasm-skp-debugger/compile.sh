@@ -72,7 +72,7 @@ echo "Compiling bitcode"
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
   extra_cflags_cc=[\"-frtti\"] \
-  extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
+  extra_cflags=[\"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\", \"-DSK_DISABLE_NEW_GR_CLIP_STACK\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
     ${GN_GPU_FLAGS}
@@ -151,7 +151,6 @@ EMCC_DEBUG=1 ${EMCXX} \
     -s NO_EXIT_RUNTIME=1 \
     -s STRICT=1 \
     -s INITIAL_MEMORY=128MB \
-    -s WARN_UNALIGNED=1 \
     -s WASM=1 \
     -s USE_WEBGL2=1 \
     -o $BUILD_DIR/debugger.js
