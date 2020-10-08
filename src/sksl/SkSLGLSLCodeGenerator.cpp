@@ -1177,10 +1177,10 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if (intf.fTypeName == "sk_PerVertex") {
         return;
     }
-    this->writeModifiers(intf.fVariable.modifiers(), true);
+    this->writeModifiers(intf.fVariable->modifiers(), true);
     this->writeLine(intf.fTypeName + " {");
     fIndentation++;
-    const Type* structType = &intf.fVariable.type();
+    const Type* structType = &intf.fVariable->type();
     while (structType->typeKind() == Type::TypeKind::kArray) {
         structType = &structType->componentType();
     }

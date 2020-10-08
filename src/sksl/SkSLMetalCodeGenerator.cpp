@@ -983,11 +983,11 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                     continue;
                 }
                 this->write(", constant ");
-                this->writeType(intf.fVariable.type());
+                this->writeType(intf.fVariable->type());
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
-                this->write(to_string(intf.fVariable.modifiers().fLayout.fBinding));
+                this->write(to_string(intf.fVariable->modifiers().fLayout.fBinding));
                 this->write(")]]");
             }
         }
@@ -1113,10 +1113,10 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if ("sk_PerVertex" == intf.fTypeName) {
         return;
     }
-    this->writeModifiers(intf.fVariable.modifiers(), true);
+    this->writeModifiers(intf.fVariable->modifiers(), true);
     this->write("struct ");
     this->writeLine(intf.fTypeName + " {");
-    const Type* structType = &intf.fVariable.type();
+    const Type* structType = &intf.fVariable->type();
     fWrittenStructs.push_back(structType);
     while (structType->typeKind() == Type::TypeKind::kArray) {
         structType = &structType->componentType();
