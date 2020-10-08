@@ -49,7 +49,7 @@ fi
 # Use -O0 for larger builds (but generally quicker)
 # Use -Oz for (much slower, but smaller/faster) production builds
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
-RELEASE_CONF="-Oz --closure 1 -s EVAL_CTORS=1 --llvm-lto 3 -s ELIMINATE_DUPLICATE_FUNCTIONS=1 -DSK_RELEASE"
+RELEASE_CONF="-Oz --closure 1 -s EVAL_CTORS=1 -DSK_RELEASE"
 # It is very important for the -DSK_RELEASE/-DSK_DEBUG to match on the libskia.a, otherwise
 # things like SKDEBUGCODE are sometimes compiled in and sometimes not, which can cause headaches
 # like sizeof() mismatching between .cpp files and .h files.
@@ -121,7 +121,6 @@ $WASM_CONF \
 -s NO_EXIT_RUNTIME=1 \
 -s NO_FILESYSTEM=1 \
 -s STRICT=1 \
--s WARN_UNALIGNED=1 \
 $OUTPUT \
 $BASE_DIR/pathkit_wasm_bindings.cpp \
 ${BUILD_DIR}/libpathkit.a
