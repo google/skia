@@ -17,25 +17,30 @@ namespace SkSL {
  * Represents a compile-time constant setting, such as sk_Caps.fbFetchSupport. These are generally
  * collapsed down to their constant representations during the compilation process.
  */
-struct Setting : public Expression {
+class Setting : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kSetting;
 
-    Setting(int offset, String name, std::unique_ptr<Expression> value)
-    : INHERITED(offset, kExpressionKind, &value->type())
-    , fName(std::move(name))
-    , fValue(std::move(value)) {
-        SkASSERT(fValue->isCompileTimeConstant());
-    }
+    Setting(int offset, String name, const Type* type)
+    : INHERITED(offset, SettingData{std::move(name), type}) {}
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new Setting(fOffset, fName, fValue->clone()));
+        return std::unique_ptr<Expression>(new Setting(fOffset, this->name(), &this->type()));
+    }
+
+    const String& name() const {
+        return this->settingData().fName;
+    }
+
+    const Type& type() const override {
+        return *this->settingData().fType;
     }
 
     String description() const override {
-        return fName;
+        return this->name();
     }
 
     bool hasProperty(Property property) const override {
@@ -46,9 +51,7 @@ struct Setting : public Expression {
         return true;
     }
 
-    const String fName;
-    std::unique_ptr<Expression> fValue;
-
+private:
     using INHERITED = Expression;
 };
 

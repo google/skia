@@ -77,6 +77,10 @@ public:
         : INHERITED(offset, (int) Kind::kIntLiteral, data) {
     }
 
+    Expression(int offset, const SettingData& data)
+        : INHERITED(offset, (int) Kind::kSetting, data) {
+    }
+
     Expression(int offset, Kind kind, const Type* type)
         : INHERITED(offset, (int) kind, type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
