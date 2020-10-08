@@ -16,6 +16,24 @@
       "message": "So annoyingly git did not do a good job at just renaming the files and instead it mostly deleted and added new ones. So the main things to look for in this change:\n\n1) Rename from GrStencilAttachment to GrAttachment (vast majority of LOC listed in the change are unchanged parts of files, but moved to different files).\n2) A UsageFlag was added to GrAttachment and the unique key static was updated to handle this\n3) Factories return sk_sp instead of raw pointers.",
       "revId": "fd6ec63445b2bac3f6d261daa5f1806ce89f2a00",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30826ee0_2749aac1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-08T17:56:41Z",
+      "side": 1,
+      "message": "Yeah this often happens. I think in general it\u0027s good to split the class and file renaming from functional changes entirely. Or upload two patchsets (one rename, one functional in either order) to the same issue so the reviewer can see the two steps.",
+      "parentUuid": "da6bebb2_a53a46e8",
+      "revId": "fd6ec63445b2bac3f6d261daa5f1806ce89f2a00",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
