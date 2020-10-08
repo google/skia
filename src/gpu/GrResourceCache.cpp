@@ -685,7 +685,7 @@ void GrResourceCache::addToNonpurgeableArray(GrGpuResource* resource) {
 
 void GrResourceCache::removeFromNonpurgeableArray(GrGpuResource* resource) {
     int* index = resource->cacheAccess().accessCacheIndex();
-    // Fill the hole we will create in the array with the tail object, adjust its index, and
+    // Fill the whole we will create in the array with the tail object, adjust its index, and
     // then pop the array
     GrGpuResource* tail = *(fNonpurgeableResources.end() - 1);
     SkASSERT(fNonpurgeableResources[*index] == resource);
