@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7dcd9ff_00f4cb74",
+        "filename": "src/gpu/GrGpu.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 678,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-08T19:47:12Z",
+      "side": 1,
+      "message": "This could probably use a \u0027dimensions\u0027 attached to it.",
+      "range": {
+        "startLine": 678,
+        "startChar": 12,
+        "endLine": 678,
+        "endChar": 19
+      },
+      "revId": "31555bc47bcb8a2a6ed0504493ff3d34d764499e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc3209d6_3cb2f085",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-08T19:47:12Z",
+      "side": 1,
+      "message": "Here too",
+      "range": {
+        "startLine": 68,
+        "startChar": 63,
+        "endLine": 68,
+        "endChar": 70
+      },
+      "revId": "31555bc47bcb8a2a6ed0504493ff3d34d764499e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb78df32_e3ce8870",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-08T19:47:12Z",
+      "side": 1,
+      "message": "Do you want to SkASSERT here ?",
+      "range": {
+        "startLine": 269,
+        "startChar": 12,
+        "endLine": 269,
+        "endChar": 35
+      },
+      "revId": "31555bc47bcb8a2a6ed0504493ff3d34d764499e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1ad6351_6275efa4",
+        "filename": "tools/gpu/ManagedBackendTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-08T19:47:12Z",
+      "side": 1,
+      "message": "extra \u0027 \u0027 ?",
+      "range": {
+        "startLine": 27,
+        "startChar": 88,
+        "endLine": 27,
+        "endChar": 90
+      },
+      "revId": "31555bc47bcb8a2a6ed0504493ff3d34d764499e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bb1fbb4_6173f2c0",
+        "filename": "tools/gpu/ManagedBackendTexture.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-08T19:47:12Z",
+      "side": 1,
+      "message": "to ?",
+      "range": {
+        "startLine": 44,
+        "startChar": 7,
+        "endLine": 44,
+        "endChar": 11
+      },
+      "revId": "31555bc47bcb8a2a6ed0504493ff3d34d764499e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
