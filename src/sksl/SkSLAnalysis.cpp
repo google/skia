@@ -67,7 +67,7 @@ static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
     const FunctionDeclaration& f = fc.function();
     return f.fBuiltin && f.name() == "sample" && fc.arguments().size() >= 1 &&
            fc.arguments()[0]->is<VariableReference>() &&
-           fc.arguments()[0]->as<VariableReference>().fVariable == &fp;
+           fc.arguments()[0]->as<VariableReference>().variable() == &fp;
 }
 
 // Visitor that determines the merged SampleUsage for a given child 'fp' in the program.
@@ -139,7 +139,7 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<VariableReference>()) {
             const VariableReference& var = e.as<VariableReference>();
-            return var.fVariable->modifiers().fLayout.fBuiltin == fBuiltin;
+            return var.variable()->modifiers().fLayout.fBuiltin == fBuiltin;
         }
         return INHERITED::visitExpression(e);
     }
@@ -193,9 +193,9 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<VariableReference>()) {
             const VariableReference& ref = e.as<VariableReference>();
-            if (ref.fVariable == fVar && (ref.fRefKind == VariableReference::kWrite_RefKind ||
-                                          ref.fRefKind == VariableReference::kReadWrite_RefKind ||
-                                          ref.fRefKind == VariableReference::kPointer_RefKind)) {
+            if (ref.variable() == fVar && (ref.refKind() == VariableReference::kWrite_RefKind ||
+                                           ref.refKind() == VariableReference::kReadWrite_RefKind ||
+                                           ref.refKind() == VariableReference::kPointer_RefKind)) {
                 return true;
             }
         }
@@ -239,7 +239,7 @@ public:
         switch (expr.kind()) {
             case Expression::Kind::kVariableReference: {
                 VariableReference& varRef = expr.as<VariableReference>();
-                const Variable* var = varRef.fVariable;
+                const Variable* var = varRef.variable();
                 if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag |
                                                Modifiers::kVarying_Flag)) {
                     fErrors->error(expr.fOffset,

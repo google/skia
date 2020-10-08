@@ -31,6 +31,10 @@ public:
         --this->function().fCallCount;
     }
 
+    const Type& type() const override {
+        return *this->functionCallData().fType;
+    }
+
     const FunctionDeclaration& function() const {
         return *this->functionCallData().fFunction;
     }

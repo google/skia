@@ -443,7 +443,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
                              DefinitionMap* definitions) {
     switch (lvalue->kind()) {
         case Expression::Kind::kVariableReference: {
-            const Variable& var = *lvalue->as<VariableReference>().fVariable;
+            const Variable& var = *lvalue->as<VariableReference>().variable();
             if (var.storage() == Variable::kLocal_Storage) {
                 (*definitions)[&var] = expr;
             }
@@ -546,7 +546,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             }
             case Expression::Kind::kVariableReference: {
                 const VariableReference* v = &expr->as<VariableReference>();
-                if (v->fRefKind != VariableReference::kRead_RefKind) {
+                if (v->refKind() != VariableReference::kRead_RefKind) {
                     this->addDefinition(
                                   v,
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
@@ -631,7 +631,7 @@ static DefinitionMap compute_start_state(const CFG& cfg) {
 static bool is_dead(const Expression& lvalue) {
     switch (lvalue.kind()) {
         case Expression::Kind::kVariableReference:
-            return lvalue.as<VariableReference>().fVariable->dead();
+            return lvalue.as<VariableReference>().variable()->dead();
         case Expression::Kind::kSwizzle:
             return is_dead(*lvalue.as<Swizzle>().fBase);
         case Expression::Kind::kFieldAccess:
@@ -923,7 +923,7 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
     switch (expr->kind()) {
         case Expression::Kind::kVariableReference: {
             const VariableReference& ref = expr->as<VariableReference>();
-            const Variable* var = ref.fVariable;
+            const Variable* var = ref.variable();
             if (ref.refKind() != VariableReference::kWrite_RefKind &&
                 ref.refKind() != VariableReference::kPointer_RefKind &&
                 var->storage() == Variable::kLocal_Storage && !definitions[var] &&

@@ -26,6 +26,7 @@ class Symbol;
 class SymbolTable;
 class Type;
 class Variable;
+class VariableReference;
 
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
@@ -52,33 +53,6 @@ public:
     // character offset of this element within the program being compiled, for error reporting
     // purposes
     int fOffset;
-
-    const Type& type() const {
-        switch (fData.fKind) {
-            case NodeData::Kind::kBoolLiteral:
-                return *this->boolLiteralData().fType;
-            case NodeData::Kind::kExternalValue:
-                return *this->externalValueData().fType;
-            case NodeData::Kind::kField:
-                return *this->fieldData().fType;
-            case NodeData::Kind::kFloatLiteral:
-                return *this->floatLiteralData().fType;
-            case NodeData::Kind::kFunctionCall:
-                return *this->functionCallData().fType;
-            case NodeData::Kind::kIntLiteral:
-                return *this->intLiteralData().fType;
-            case NodeData::Kind::kSymbol:
-                return *this->symbolData().fType;
-            case NodeData::Kind::kType:
-                return *this->typeData();
-            case NodeData::Kind::kTypeToken:
-                return *this->typeTokenData().fType;
-            case NodeData::Kind::kVariable:
-                return *this->variableData().fType;
-            default:
-                SkUNREACHABLE;
-        }
-    }
 
 protected:
     struct BlockData {
@@ -165,6 +139,11 @@ protected:
         bool fBuiltin;
     };
 
+    struct VariableReferenceData {
+        const Variable* fVariable;
+        /*VariableReference::RefKind*/int8_t fRefKind;
+    };
+
     struct NodeData {
         enum class Kind {
             kBlock,
@@ -183,6 +162,7 @@ protected:
             kType,
             kTypeToken,
             kVariable,
+            kVariableReference,
         } fKind = Kind::kType;
         // it doesn't really matter what kind we default to, as long as it's a POD type
 
@@ -203,6 +183,7 @@ protected:
             const Type* fType;
             TypeTokenData fTypeToken;
             VariableData fVariable;
+            VariableReferenceData fVariableReference;
 
             Contents() {}
 
@@ -289,6 +270,11 @@ protected:
             *(new(&fContents) VariableData) = data;
         }
 
+        NodeData(const VariableReferenceData& data)
+            : fKind(Kind::kVariableReference) {
+            *(new(&fContents) VariableReferenceData) = data;
+        }
+
         NodeData(const NodeData& other) {
             *this = other;
         }
@@ -344,6 +330,9 @@ protected:
                     break;
                 case Kind::kVariable:
                     *(new(&fContents) VariableData) = other.fContents.fVariable;
+                    break;
+                case Kind::kVariableReference:
+                    *(new(&fContents) VariableReferenceData) = other.fContents.fVariableReference;
                     break;
             }
             return *this;
@@ -403,6 +392,9 @@ protected:
                 case Kind::kVariable:
                     fContents.fVariable.~VariableData();
                     break;
+                case Kind::kVariableReference:
+                    fContents.fVariableReference.~VariableReferenceData();
+                    break;
             }
         }
     };
@@ -439,6 +431,8 @@ protected:
     IRNode(int offset, int kind, const TypeTokenData& data);
 
     IRNode(int offset, int kind, const VariableData& data);
+
+    IRNode(int offset, int kind, const VariableReferenceData& data);
 
     Expression& expressionChild(int index) const {
         SkASSERT(index >= 0 && index < (int) fExpressionChildren.size());
@@ -572,6 +566,16 @@ protected:
     const VariableData& variableData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kVariable);
         return fData.fContents.fVariable;
+    }
+
+    VariableReferenceData& variableReferenceData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kVariableReference);
+        return fData.fContents.fVariableReference;
+    }
+
+    const VariableReferenceData& variableReferenceData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kVariableReference);
+        return fData.fContents.fVariableReference;
     }
 
     int fKind;

@@ -415,9 +415,9 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kVariableReference: {
             const VariableReference& v = expression.as<VariableReference>();
-            auto varMapIter = varMap->find(v.fVariable);
+            auto varMapIter = varMap->find(v.variable());
             if (varMapIter != varMap->end()) {
-                return clone_with_ref_kind(*varMapIter->second, v.fRefKind);
+                return clone_with_ref_kind(*varMapIter->second, v.refKind());
             }
             return v.clone();
         }
@@ -727,7 +727,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     if (resultExpr != nullptr) {
         // Return our result variable as our replacement expression.
-        SkASSERT(resultExpr->as<VariableReference>().fRefKind == VariableReference::kRead_RefKind);
+        SkASSERT(resultExpr->as<VariableReference>().refKind() == VariableReference::kRead_RefKind);
         inlinedCall.fReplacementExpr = std::move(resultExpr);
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return

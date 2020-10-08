@@ -22,7 +22,8 @@ class Variable;
  *
  * there is only one Variable 'x', but two VariableReferences to it.
  */
-struct VariableReference : public Expression {
+class VariableReference : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kVariableReference;
 
     enum RefKind {
@@ -41,8 +42,14 @@ struct VariableReference : public Expression {
     VariableReference(const VariableReference&) = delete;
     VariableReference& operator=(const VariableReference&) = delete;
 
+    const Type& type() const override;
+
+    const Variable* variable() const {
+        return this->variableReferenceData().fVariable;
+    }
+
     RefKind refKind() const {
-        return fRefKind;
+        return (RefKind) this->variableReferenceData().fRefKind;
     }
 
     void setRefKind(RefKind refKind);
@@ -53,16 +60,14 @@ struct VariableReference : public Expression {
     bool isConstantOrUniform() const override;
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
+        return std::unique_ptr<Expression>(new VariableReference(fOffset, this->variable(),
+                                                                 this->refKind()));
     }
 
     String description() const override;
 
     std::unique_ptr<Expression> constantPropagate(const IRGenerator& irGenerator,
                                                   const DefinitionMap& definitions) override;
-
-    const Variable* fVariable;
-    RefKind fRefKind;
 
 private:
     using INHERITED = Expression;

@@ -1220,7 +1220,7 @@ bool IRGenerator::getConstantInt(const Expression& value, int64_t* out) {
             *out = value.as<IntLiteral>().value();
             return true;
         case Expression::Kind::kVariableReference: {
-            const Variable& var = *value.as<VariableReference>().fVariable;
+            const Variable& var = *value.as<VariableReference>().variable();
             return (var.modifiers().fFlags & Modifiers::kConst_Flag) &&
                    var.initialValue() && this->getConstantInt(*var.initialValue(), out);
         }
@@ -2696,7 +2696,7 @@ std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type
         std::unique_ptr<Expression> result = convertIdentifier(
                 ASTNode(&fFile->fNodes, offset, ASTNode::Kind::kIdentifier, field));
         if (result) {
-            const Variable& v = *result->as<VariableReference>().fVariable;
+            const Variable& v = *result->as<VariableReference>().variable();
             SkASSERT(v.initialValue());
             result = std::make_unique<IntLiteral>(
                     offset, v.initialValue()->as<IntLiteral>().value(), &type);
@@ -2889,8 +2889,8 @@ void IRGenerator::cloneBuiltinVariables() {
 
         bool visitExpression(Expression& e) override {
             // Look for references to builtin variables.
-            if (e.is<VariableReference>() && e.as<VariableReference>().fVariable->isBuiltin()) {
-                const Variable* sharedVar = e.as<VariableReference>().fVariable;
+            if (e.is<VariableReference>() && e.as<VariableReference>().variable()->isBuiltin()) {
+                const Variable* sharedVar = e.as<VariableReference>().variable();
 
                 this->cloneVariable(sharedVar->name());
 

@@ -87,8 +87,16 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    Expression(int offset, const VariableReferenceData& data)
+        : INHERITED(offset, (int) Kind::kVariableReference, data) {
+    }
+
     Kind kind() const {
         return (Kind) fKind;
+    }
+
+    virtual const Type& type() const {
+        return *this->typeData();
     }
 
     /**

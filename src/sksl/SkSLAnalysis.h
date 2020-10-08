@@ -22,7 +22,7 @@ struct Program;
 class ProgramElement;
 class Statement;
 class Variable;
-struct VariableReference;
+class VariableReference;
 
 /**
  * Provides utilities for analyzing SkSL statically before it's composed into a full program.

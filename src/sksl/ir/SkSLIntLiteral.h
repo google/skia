@@ -28,6 +28,10 @@ public:
     IntLiteral(int offset, int64_t value, const Type* type = nullptr)
     : INHERITED(offset, IntLiteralData{type, value}) {}
 
+    const Type& type() const override {
+        return *this->intLiteralData().fType;
+    }
+
     int64_t value() const {
         return this->intLiteralData().fValue;
     }

@@ -47,7 +47,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         for (const auto& p : fProgram) {
             if (p.is<GlobalVarDeclaration>()) {
                 const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
-                if (decl.fVar == arguments[0]->as<VariableReference>().fVariable) {
+                if (decl.fVar == arguments[0]->as<VariableReference>().variable()) {
                     found = true;
                 } else if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
                     ++index;
@@ -107,7 +107,7 @@ void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 }
 
 void PipelineStageCodeGenerator::writeVariableReference(const VariableReference& ref) {
-    switch (ref.fVariable->modifiers().fLayout.fBuiltin) {
+    switch (ref.variable()->modifiers().fLayout.fBuiltin) {
         case SK_OUTCOLOR_BUILTIN:
             this->write(Compiler::kFormatArgPlaceholderStr);
             fArgs->fFormatArgs.push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
@@ -126,7 +126,7 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                     }
                     if (e.is<GlobalVarDeclaration>()) {
                         const Variable& var = *e.as<GlobalVarDeclaration>().fDecl->fVar;
-                        if (&var == ref.fVariable) {
+                        if (&var == ref.variable()) {
                             found = true;
                             break;
                         }
@@ -139,16 +139,16 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                 return index;
             };
 
-            if (ref.fVariable->modifiers().fFlags & Modifiers::kUniform_Flag) {
+            if (ref.variable()->modifiers().fFlags & Modifiers::kUniform_Flag) {
                 this->write(Compiler::kFormatArgPlaceholderStr);
                 fArgs->fFormatArgs.push_back(
                         Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
                                             varIndexByFlag(Modifiers::kUniform_Flag)));
-            } else if (ref.fVariable->modifiers().fFlags & Modifiers::kVarying_Flag) {
+            } else if (ref.variable()->modifiers().fFlags & Modifiers::kVarying_Flag) {
                 this->write("_vtx_attr_");
                 this->write(to_string(varIndexByFlag(Modifiers::kVarying_Flag)));
             } else {
-                this->write(ref.fVariable->name());
+                this->write(ref.variable()->name());
             }
         }
     }

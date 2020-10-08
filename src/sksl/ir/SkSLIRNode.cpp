@@ -93,6 +93,11 @@ IRNode::IRNode(int offset, int kind, const VariableData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const VariableReferenceData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::~IRNode() {}
 
 } // namespace SkSL

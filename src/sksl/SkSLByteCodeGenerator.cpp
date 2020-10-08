@@ -217,7 +217,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
 // Otherwise, return -1.
 static int expression_as_builtin(const Expression& e) {
     if (e.is<VariableReference>()) {
-        const Variable& var(*e.as<VariableReference>().fVariable);
+        const Variable& var(*e.as<VariableReference>().variable());
         if (var.storage() == Variable::kGlobal_Storage) {
             return var.modifiers().fLayout.fBuiltin;
         }
@@ -601,7 +601,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
             }
         }
         case Expression::Kind::kVariableReference: {
-            const Variable& var = *expr.as<VariableReference>().fVariable;
+            const Variable& var = *expr.as<VariableReference>().variable();
             return this->getLocation(var);
         }
         default:
