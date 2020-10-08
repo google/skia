@@ -58,9 +58,7 @@ public:
     GrStrikeCache* getGrStrikeCache() { return fContext->fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
-    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
-        return fContext->threadSafeViewCache();
-    }
+    GrThreadSafeCache* threadSafeCache() { return fContext->threadSafeCache(); }
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)

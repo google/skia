@@ -42,7 +42,7 @@ uniform half4 circleData;
     #include "src/gpu/GrBitmapTextureMaker.h"
     #include "src/gpu/GrProxyProvider.h"
     #include "src/gpu/GrRecordingContextPriv.h"
-    #include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+    #include "src/gpu/GrThreadSafeCache.h"
 
     // Computes an unnormalized half kernel (right side). Returns the summation of all the half
     // kernel values.
@@ -205,7 +205,7 @@ uniform half4 circleData;
             return nullptr;
         }
 
-        auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+        auto threadSafeCache = rContext->priv().threadSafeCache();
 
         // Profile textures are cached by the ratio of sigma to circle radius and by the size of the
         // profile texture (binned by powers of 2).
@@ -247,7 +247,7 @@ uniform half4 circleData;
         builder[0] = sigmaToCircleRRatioFixed;
         builder.finish();
 
-        GrSurfaceProxyView profileView = threadSafeViewCache->find(key);
+        GrSurfaceProxyView profileView = threadSafeCache->find(key);
         if (profileView) {
             SkASSERT(profileView.asTextureProxy());
             SkASSERT(profileView.origin() == kTopLeft_GrSurfaceOrigin);
@@ -276,7 +276,7 @@ uniform half4 circleData;
             return nullptr;
         }
 
-        profileView = threadSafeViewCache->add(key, profileView);
+        profileView = threadSafeCache->add(key, profileView);
         return GrTextureEffect::Make(std::move(profileView), kPremul_SkAlphaType, texM);
     }
 
