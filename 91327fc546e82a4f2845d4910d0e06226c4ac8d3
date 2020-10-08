@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08bf235a_afd345e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2020-10-08T14:46:46Z",
+      "side": 1,
+      "message": "lgtm. I\u0027m updating our toolchain to 2.0.6 which should have this extension.",
+      "revId": "91327fc546e82a4f2845d4910d0e06226c4ac8d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
