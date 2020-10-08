@@ -614,7 +614,7 @@ std::unique_ptr<Statement> IRGenerator::convertWhile(const ASTNode& w) {
     }
     auto whileStmt = std::make_unique<WhileStatement>(w.fOffset, std::move(test),
                                                       std::move(statement));
-    fInliner->ensureScopedBlocks(whileStmt->fStatement.get(), whileStmt.get());
+    fInliner->ensureScopedBlocks(whileStmt->statement().get(), whileStmt.get());
     return std::move(whileStmt);
 }
 

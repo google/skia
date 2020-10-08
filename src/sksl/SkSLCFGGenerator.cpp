@@ -138,10 +138,10 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
             return this->tryRemoveLValueBefore(iter, lvalue->as<FieldAccess>().fBase.get());
         case Expression::Kind::kIndex: {
             IndexExpression& indexExpr = lvalue->as<IndexExpression>();
-            if (!this->tryRemoveLValueBefore(iter, indexExpr.fBase.get())) {
+            if (!this->tryRemoveLValueBefore(iter, indexExpr.base().get())) {
                 return false;
             }
-            return this->tryRemoveExpressionBefore(iter, indexExpr.fIndex.get());
+            return this->tryRemoveExpressionBefore(iter, indexExpr.index().get());
         }
         case Expression::Kind::kTernary: {
             TernaryExpression& ternary = lvalue->as<TernaryExpression>();
@@ -202,10 +202,10 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kIndex: {
             IndexExpression& idx = expr->as<IndexExpression>();
-            if (!this->tryRemoveExpressionBefore(iter, idx.fBase.get())) {
+            if (!this->tryRemoveExpressionBefore(iter, idx.base().get())) {
                 return false;
             }
-            if (!this->tryRemoveExpressionBefore(iter, idx.fIndex.get())) {
+            if (!this->tryRemoveExpressionBefore(iter, idx.index().get())) {
                 return false;
             }
             *iter = fNodes.erase(*iter);
@@ -385,8 +385,8 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         case Expression::Kind::kIndex: {
             IndexExpression& indexExpr = e->get()->as<IndexExpression>();
 
-            this->addExpression(cfg, &indexExpr.fBase, constantPropagate);
-            this->addExpression(cfg, &indexExpr.fIndex, constantPropagate);
+            this->addExpression(cfg, &indexExpr.base(), constantPropagate);
+            this->addExpression(cfg, &indexExpr.index(), constantPropagate);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         }
@@ -446,8 +446,8 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
             break;
         case Expression::Kind::kIndex: {
             IndexExpression& indexExpr = e->get()->as<IndexExpression>();
-            this->addLValue(cfg, &indexExpr.fBase);
-            this->addExpression(cfg, &indexExpr.fIndex, /*constantPropagate=*/true);
+            this->addLValue(cfg, &indexExpr.base());
+            this->addExpression(cfg, &indexExpr.index(), /*constantPropagate=*/true);
             break;
         }
         case Expression::Kind::kSwizzle:
@@ -525,8 +525,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             break;
         case Statement::Kind::kReturn: {
             ReturnStatement& r = (*s)->as<ReturnStatement>();
-            if (r.fExpression) {
-                this->addExpression(cfg, &r.fExpression, /*constantPropagate=*/true);
+            if (r.expression()) {
+                this->addExpression(cfg, &r.expression(), /*constantPropagate=*/true);
             }
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             cfg.fCurrent = cfg.newIsolatedBlock();
@@ -548,13 +548,13 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
             fLoopContinues.push(loopStart);
             BlockId loopExit = cfg.newIsolatedBlock();
             fLoopExits.push(loopExit);
-            this->addExpression(cfg, &w.fTest, /*constantPropagate=*/true);
+            this->addExpression(cfg, &w.test(), /*constantPropagate=*/true);
             BlockId test = cfg.fCurrent;
-            if (!is_true(*w.fTest)) {
+            if (!is_true(*w.test())) {
                 cfg.addExit(test, loopExit);
             }
             cfg.newBlock();
-            this->addStatement(cfg, &w.fStatement);
+            this->addStatement(cfg, &w.statement());
             cfg.addExit(cfg.fCurrent, loopStart);
             fLoopContinues.pop();
             fLoopExits.pop();

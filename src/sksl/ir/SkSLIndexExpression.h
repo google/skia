@@ -46,36 +46,53 @@ struct IndexExpression : public Expression {
 
     IndexExpression(const Context& context, std::unique_ptr<Expression> base,
                     std::unique_ptr<Expression> index)
-    : INHERITED(base->fOffset, kExpressionKind, &index_type(context, base->type()))
-    , fBase(std::move(base))
-    , fIndex(std::move(index)) {
-        SkASSERT(fIndex->type() == *context.fInt_Type || fIndex->type() == *context.fUInt_Type);
+    : INHERITED(base->fOffset, kExpressionKind, &index_type(context, base->type())) {
+        SkASSERT(index->type() == *context.fInt_Type || index->type() == *context.fUInt_Type);
+        fExpressionChildren.reserve(2);
+        fExpressionChildren.push_back(std::move(base));
+        fExpressionChildren.push_back(std::move(index));
+    }
+
+    std::unique_ptr<Expression>& base() {
+        return fExpressionChildren[0];
+    }
+
+    const std::unique_ptr<Expression>& base() const {
+        return fExpressionChildren[0];
+    }
+
+    std::unique_ptr<Expression>& index() {
+        return fExpressionChildren[1];
+    }
+
+    const std::unique_ptr<Expression>& index() const {
+        return fExpressionChildren[1];
     }
 
     bool hasProperty(Property property) const override {
-        return fBase->hasProperty(property) || fIndex->hasProperty(property);
+        return this->base()->hasProperty(property) || this->index()->hasProperty(property);
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new IndexExpression(fBase->clone(), fIndex->clone(),
+        return std::unique_ptr<Expression>(new IndexExpression(this->base()->clone(),
+                                                               this->index()->clone(),
                                                                &this->type()));
     }
 
     String description() const override {
-        return fBase->description() + "[" + fIndex->description() + "]";
+        return this->base()->description() + "[" + this->index()->description() + "]";
     }
-
-    std::unique_ptr<Expression> fBase;
-    std::unique_ptr<Expression> fIndex;
 
     using INHERITED = Expression;
 
 private:
     IndexExpression(std::unique_ptr<Expression> base, std::unique_ptr<Expression> index,
                     const Type* type)
-    : INHERITED(base->fOffset, Kind::kIndex, type)
-    , fBase(std::move(base))
-    , fIndex(std::move(index)) {}
+    : INHERITED(base->fOffset, Kind::kIndex, type) {
+        fExpressionChildren.reserve(2);
+        fExpressionChildren.push_back(std::move(base));
+        fExpressionChildren.push_back(std::move(index));
+    }
 };
 
 }  // namespace SkSL

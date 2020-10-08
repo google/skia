@@ -323,8 +323,8 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kIndex: {
                 const IndexExpression& i = e->as<IndexExpression>();
                 this->writeCommand(Rehydrator::kIndex_Command);
-                this->write(i.fBase.get());
-                this->write(i.fIndex.get());
+                this->write(i.base().get());
+                this->write(i.index().get());
                 break;
             }
             case Expression::Kind::kIntLiteral: {
@@ -460,7 +460,7 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kReturn: {
                 const ReturnStatement& r = s->as<ReturnStatement>();
                 this->writeCommand(Rehydrator::kReturn_Command);
-                this->write(r.fExpression.get());
+                this->write(r.expression().get());
                 break;
             }
             case Statement::Kind::kSwitch: {
@@ -497,8 +497,8 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kWhile: {
                 const WhileStatement& w = s->as<WhileStatement>();
                 this->writeCommand(Rehydrator::kWhile_Command);
-                this->write(w.fTest.get());
-                this->write(w.fStatement.get());
+                this->write(w.test().get());
+                this->write(w.statement().get());
                 break;
             }
         }

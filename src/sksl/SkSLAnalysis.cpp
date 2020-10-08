@@ -261,7 +261,7 @@ public:
                 break;
             }
             case Expression::Kind::kIndex:
-                this->visitExpression(*expr.as<IndexExpression>().fBase);
+                this->visitExpression(*expr.as<IndexExpression>().base());
                 break;
 
             case Expression::Kind::kExternalValue: {
@@ -395,7 +395,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
         }
         case Expression::Kind::kIndex: {
             auto& i = e.template as<IndexExpression>();
-            return this->visitExpression(*i.fBase) || this->visitExpression(*i.fIndex);
+            return this->visitExpression(*i.base()) || this->visitExpression(*i.index());
         }
         case Expression::Kind::kPostfix:
             return this->visitExpression(*e.template as<PostfixExpression>().fOperand);
@@ -457,7 +457,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         }
         case Statement::Kind::kReturn: {
             auto& r = s.template as<ReturnStatement>();
-            return r.fExpression && this->visitExpression(*r.fExpression);
+            return r.expression() && this->visitExpression(*r.expression());
         }
         case Statement::Kind::kSwitch: {
             auto& sw = s.template as<SwitchStatement>();
@@ -487,7 +487,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitStatement(STMT s) {
         }
         case Statement::Kind::kWhile: {
             auto& w = s.template as<WhileStatement>();
-            return this->visitExpression(*w.fTest) || this->visitStatement(*w.fStatement);
+            return this->visitExpression(*w.test()) || this->visitStatement(*w.statement());
         }
         default:
             SkUNREACHABLE;

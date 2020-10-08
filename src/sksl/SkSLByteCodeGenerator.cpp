@@ -531,25 +531,27 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
         case Expression::Kind::kIndex: {
             const IndexExpression& i = expr.as<IndexExpression>();
             int stride = SlotCount(i.type());
-            int length = i.fBase->type().columns();
+            int length = i.base()->type().columns();
             SkASSERT(length <= 255);
             int offset = -1;
-            if (i.fIndex->isCompileTimeConstant()) {
-                int64_t index = i.fIndex->getConstantInt();
-                if (index < 0 || index >= length) {
-                    fErrors.error(i.fIndex->fOffset, "Array index out of bounds.");
+            const Expression& base = *i.base();
+            const Expression& index = *i.index();
+            if (index.isCompileTimeConstant()) {
+                int64_t indexValue = index.getConstantInt();
+                if (indexValue < 0 || indexValue >= length) {
+                    fErrors.error(index.fOffset, "Array index out of bounds.");
                     return Location::MakeInvalid();
                 }
-                offset = index * stride;
+                offset = indexValue * stride;
             } else {
-                if (i.fIndex->hasSideEffects()) {
+                if (index.hasSideEffects()) {
                     // Having a side-effect in an indexer is technically safe for an rvalue,
                     // but with lvalues we have to evaluate the indexer twice, so make it an error.
-                    fErrors.error(i.fIndex->fOffset,
+                    fErrors.error(index.fOffset,
                             "Index expressions with side-effects not supported in byte code.");
                     return Location::MakeInvalid();
                 }
-                this->writeExpression(*i.fIndex);
+                this->writeExpression(index);
                 this->write(ByteCodeInstruction::kClampIndex);
                 this->write8(length);
                 if (stride != 1) {
@@ -558,7 +560,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
                     this->write(ByteCodeInstruction::kMultiplyI, 1);
                 }
             }
-            Location baseLoc = this->getLocation(*i.fBase);
+            Location baseLoc = this->getLocation(base);
 
             // Are both components known statically?
             if (!baseLoc.isOnStack() && offset >= 0) {
@@ -1741,8 +1743,8 @@ void ByteCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
         fErrors.error(r.fOffset, "return not allowed inside conditional or loop");
         return;
     }
-    int count = SlotCount(r.fExpression->type());
-    this->writeExpression(*r.fExpression);
+    int count = SlotCount(r.expression()->type());
+    this->writeExpression(*r.expression());
 
     // Technically, the kReturn also pops fOutput->fLocalCount values from the stack, too, but we
     // haven't counted pushing those (they're outside the scope of our stack tracking). Instead,
@@ -1771,11 +1773,11 @@ void ByteCodeGenerator::writeVarDeclaration(const VarDeclaration& decl) {
 void ByteCodeGenerator::writeWhileStatement(const WhileStatement& w) {
     this->write(ByteCodeInstruction::kLoopBegin);
     size_t cond = fCode->size();
-    this->writeExpression(*w.fTest);
+    this->writeExpression(*w.test());
     this->write(ByteCodeInstruction::kLoopMask);
     this->write(ByteCodeInstruction::kBranchIfAllFalse);
     DeferredLocation endLocation(this);
-    this->writeStatement(*w.fStatement);
+    this->writeStatement(*w.statement());
     this->write(ByteCodeInstruction::kLoopNext);
     this->write(ByteCodeInstruction::kBranch);
     this->write16(cond);

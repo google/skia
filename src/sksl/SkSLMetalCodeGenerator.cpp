@@ -719,9 +719,9 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
 }
 
 void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
-    this->writeExpression(*expr.fBase, kPostfix_Precedence);
+    this->writeExpression(*expr.base(), kPostfix_Precedence);
     this->write("[");
-    this->writeExpression(*expr.fIndex, kTopLevel_Precedence);
+    this->writeExpression(*expr.index(), kTopLevel_Precedence);
     this->write("]");
 }
 
@@ -1339,9 +1339,9 @@ void MetalCodeGenerator::writeForStatement(const ForStatement& f) {
 
 void MetalCodeGenerator::writeWhileStatement(const WhileStatement& w) {
     this->write("while (");
-    this->writeExpression(*w.fTest, kTopLevel_Precedence);
+    this->writeExpression(*w.test(), kTopLevel_Precedence);
     this->write(") ");
-    this->writeStatement(*w.fStatement);
+    this->writeStatement(*w.statement());
 }
 
 void MetalCodeGenerator::writeDoStatement(const DoStatement& d) {
@@ -1378,9 +1378,9 @@ void MetalCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
 void MetalCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write("return");
-    if (r.fExpression) {
+    if (r.expression()) {
         this->write(" ");
-        this->writeExpression(*r.fExpression, kTopLevel_Precedence);
+        this->writeExpression(*r.expression(), kTopLevel_Precedence);
     }
     this->write(";");
 }
@@ -1706,7 +1706,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         }
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = e->as<IndexExpression>();
-            return this->requirements(idx.fBase.get()) | this->requirements(idx.fIndex.get());
+            return this->requirements(idx.base().get()) | this->requirements(idx.index().get());
         }
         case Expression::Kind::kPrefix:
             return this->requirements(e->as<PrefixExpression>().fOperand.get());
@@ -1762,7 +1762,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
             return this->requirements(s->as<ExpressionStatement>().expression().get());
         case Statement::Kind::kReturn: {
             const ReturnStatement& r = s->as<ReturnStatement>();
-            return this->requirements(r.fExpression.get());
+            return this->requirements(r.expression().get());
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = s->as<IfStatement>();
@@ -1779,8 +1779,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
         }
         case Statement::Kind::kWhile: {
             const WhileStatement& w = s->as<WhileStatement>();
-            return this->requirements(w.fTest.get()) |
-                   this->requirements(w.fStatement.get());
+            return this->requirements(w.test().get()) |
+                   this->requirements(w.statement().get());
         }
         case Statement::Kind::kDo: {
             const DoStatement& d = s->as<DoStatement>();

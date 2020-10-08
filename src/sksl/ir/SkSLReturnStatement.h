@@ -16,33 +16,44 @@ namespace SkSL {
 /**
  * A 'return' statement.
  */
-struct ReturnStatement : public Statement {
+class ReturnStatement : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kReturn;
 
     ReturnStatement(int offset)
-    : INHERITED(offset, kStatementKind) {}
+    : INHERITED(offset, kStatementKind) {
+        fExpressionChildren.push_back(nullptr);
+    }
 
     ReturnStatement(std::unique_ptr<Expression> expression)
-    : INHERITED(expression->fOffset, kStatementKind)
-    , fExpression(std::move(expression)) {}
+    : INHERITED(expression->fOffset, kStatementKind) {
+        fExpressionChildren.push_back(std::move(expression));
+    }
+
+    std::unique_ptr<Expression>& expression() {
+        return fExpressionChildren[0];
+    }
+
+    const std::unique_ptr<Expression>& expression() const {
+        return fExpressionChildren[0];
+    }
 
     std::unique_ptr<Statement> clone() const override {
-        if (fExpression) {
-            return std::unique_ptr<Statement>(new ReturnStatement(fExpression->clone()));
+        if (this->expression()) {
+            return std::unique_ptr<Statement>(new ReturnStatement(this->expression()->clone()));
         }
         return std::unique_ptr<Statement>(new ReturnStatement(fOffset));
     }
 
     String description() const override {
-        if (fExpression) {
-            return "return " + fExpression->description() + ";";
+        if (this->expression()) {
+            return "return " + this->expression()->description() + ";";
         } else {
             return String("return;");
         }
     }
 
-    std::unique_ptr<Expression> fExpression;
-
+private:
     using INHERITED = Statement;
 };
 

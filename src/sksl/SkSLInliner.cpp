@@ -253,8 +253,8 @@ bool is_trivial_argument(const Expression& argument) {
             argument.as<Constructor>().arguments().size() == 1 &&
             is_trivial_argument(*argument.as<Constructor>().arguments().front())) ||
            (argument.is<IndexExpression>() &&
-            argument.as<IndexExpression>().fIndex->is<IntLiteral>() &&
-            is_trivial_argument(*argument.as<IndexExpression>().fBase));
+            argument.as<IndexExpression>().index()->is<IntLiteral>() &&
+            is_trivial_argument(*argument.as<IndexExpression>().base()));
 }
 
 }  // namespace
@@ -390,7 +390,8 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = expression.as<IndexExpression>();
-            return std::make_unique<IndexExpression>(*fContext, expr(idx.fBase), expr(idx.fIndex));
+            return std::make_unique<IndexExpression>(*fContext, expr(idx.base()),
+                                                     expr(idx.index()));
         }
         case Expression::Kind::kPrefix: {
             const PrefixExpression& p = expression.as<PrefixExpression>();
@@ -498,14 +499,14 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
             return statement.clone();
         case Statement::Kind::kReturn: {
             const ReturnStatement& r = statement.as<ReturnStatement>();
-            if (r.fExpression) {
+            if (r.expression()) {
                 SkASSERT(resultExpr);
                 auto assignment =
                         std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                                 offset,
                                 clone_with_ref_kind(*resultExpr, VariableReference::kWrite_RefKind),
                                 Token::Kind::TK_EQ,
-                                expr(r.fExpression),
+                                expr(r.expression()),
                                 &resultExpr->type()));
                 if (haveEarlyReturns) {
                     std::vector<std::unique_ptr<Statement>> block;
@@ -564,7 +565,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         }
         case Statement::Kind::kWhile: {
             const WhileStatement& w = statement.as<WhileStatement>();
-            return std::make_unique<WhileStatement>(offset, expr(w.fTest), stmt(w.fStatement));
+            return std::make_unique<WhileStatement>(offset, expr(w.test()), stmt(w.statement()));
         }
         default:
             SkASSERT(false);
@@ -910,7 +911,7 @@ public:
             }
             case Statement::Kind::kReturn: {
                 ReturnStatement& returnStmt = (*stmt)->as<ReturnStatement>();
-                this->visitExpression(&returnStmt.fExpression);
+                this->visitExpression(&returnStmt.expression());
                 break;
             }
             case Statement::Kind::kSwitch: {
@@ -937,7 +938,7 @@ public:
             case Statement::Kind::kWhile: {
                 WhileStatement& whileStmt = (*stmt)->as<WhileStatement>();
                 // The loop body is a candidate for inlining.
-                this->visitStatement(&whileStmt.fStatement);
+                this->visitStatement(&whileStmt.statement());
                 // The inliner isn't smart enough to inline the test-expression for a while loop at
                 // this time. There are two limitations:
                 // - We would need to insert the inlined-body block at the very beginning of the
@@ -1021,8 +1022,8 @@ public:
             }
             case Expression::Kind::kIndex:{
                 IndexExpression& indexExpr = (*expr)->as<IndexExpression>();
-                this->visitExpression(&indexExpr.fBase);
-                this->visitExpression(&indexExpr.fIndex);
+                this->visitExpression(&indexExpr.base());
+                this->visitExpression(&indexExpr.index());
                 break;
             }
             case Expression::Kind::kPostfix: {

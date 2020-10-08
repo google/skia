@@ -830,9 +830,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
 }
 
 void GLSLCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
-    this->writeExpression(*expr.fBase, kPostfix_Precedence);
+    this->writeExpression(*expr.base(), kPostfix_Precedence);
     this->write("[");
-    this->writeExpression(*expr.fIndex, kTopLevel_Precedence);
+    this->writeExpression(*expr.index(), kTopLevel_Precedence);
     this->write("]");
 }
 
@@ -1384,9 +1384,9 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
 
 void GLSLCodeGenerator::writeWhileStatement(const WhileStatement& w) {
     this->write("while (");
-    this->writeExpression(*w.fTest, kTopLevel_Precedence);
+    this->writeExpression(*w.test(), kTopLevel_Precedence);
     this->write(") ");
-    this->writeStatement(*w.fStatement);
+    this->writeStatement(*w.statement());
 }
 
 void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
@@ -1468,9 +1468,9 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
 void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
     this->write("return");
-    if (r.fExpression) {
+    if (r.expression()) {
         this->write(" ");
-        this->writeExpression(*r.fExpression, kTopLevel_Precedence);
+        this->writeExpression(*r.expression(), kTopLevel_Precedence);
     }
     this->write(";");
 }
