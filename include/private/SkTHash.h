@@ -25,27 +25,31 @@
 template <typename T, typename K, typename Traits = T>
 class SkTHashTable {
 public:
-    SkTHashTable() : fCount(0), fCapacity(0) {}
-    SkTHashTable(SkTHashTable&& other)
-        : fCount(other.fCount)
-        , fCapacity(other.fCapacity)
-        , fSlots(std::move(other.fSlots)) { other.fCount = other.fCapacity = 0; }
+    SkTHashTable()  = default;
+    ~SkTHashTable() = default;
 
-    SkTHashTable& operator=(SkTHashTable&& other) {
-        if (this != &other) {
-            this->~SkTHashTable();
-            new (this) SkTHashTable(std::move(other));
+    SkTHashTable(const SkTHashTable&  that) { *this = that; }
+    SkTHashTable(      SkTHashTable&& that) { *this = std::move(that); }
+
+    SkTHashTable& operator=(const SkTHashTable& that) {
+        if (this != &that) {
+            fCount     = that.fCount;
+            fCapacity  = that.fCapacity;
+            fSlots.reset(that.fCapacity);
+            for (int i = 0; i < fCapacity; i++) {
+                fSlots[i] = that.fSlots[i];
+            }
         }
         return *this;
     }
 
-    SkTHashTable(const SkTHashTable& that) {
-        this->copyFrom(that);
-    }
-
-    SkTHashTable& operator=(const SkTHashTable& that) {
+    SkTHashTable& operator=(SkTHashTable&& that) {
         if (this != &that) {
-            this->copyFrom(that);
+            fCount    = that.fCount;
+            fCapacity = that.fCapacity;
+            fSlots    = std::move(that.fSlots);
+
+            that.fCount = that.fCapacity = 0;
         }
         return *this;
     }
@@ -146,16 +150,6 @@ public:
     }
 
 private:
-    // Copy from another hash table into this one.
-    void copyFrom(const SkTHashTable& that) {
-        fCount = that.fCount;
-        fCapacity = that.fCapacity;
-        fSlots = SkAutoTArray<Slot>(fCapacity);
-        for (int i = 0; i < fCapacity; i++) {
-            fSlots[i] = that.fSlots[i];
-        }
-    }
-
     T* uncheckedSet(T&& val) {
         const K& key = Traits::GetKey(val);
         uint32_t hash = Hash(key);
@@ -245,10 +239,6 @@ private:
 
     struct Slot {
         Slot() = default;
-        Slot(const Slot& o) = default;
-        Slot(Slot&& o) = default;
-        Slot& operator=(const Slot& o) = default;
-        Slot& operator=(Slot&& o) = default;
         Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
 
         bool empty() const { return this->hash == 0; }
@@ -257,7 +247,8 @@ private:
         uint32_t hash = 0;
     };
 
-    int fCount, fCapacity;
+    int fCount    = 0,
+        fCapacity = 0;
     SkAutoTArray<Slot> fSlots;
 };
 
@@ -266,12 +257,6 @@ private:
 template <typename K, typename V, typename HashK = SkGoodHash>
 class SkTHashMap {
 public:
-    SkTHashMap() {}
-    SkTHashMap(SkTHashMap&&) = default;
-    SkTHashMap& operator=(SkTHashMap&&) = default;
-    SkTHashMap(const SkTHashMap& that) = default;
-    SkTHashMap& operator=(const SkTHashMap& that) = default;
-
     // Clear the map.
     void reset() { fTable.reset(); }
 
@@ -339,12 +324,6 @@ private:
 template <typename T, typename HashT = SkGoodHash>
 class SkTHashSet {
 public:
-    SkTHashSet() {}
-    SkTHashSet(SkTHashSet&&) = default;
-    SkTHashSet& operator=(SkTHashSet&&) = default;
-    SkTHashSet(const SkTHashSet& that) = default;
-    SkTHashSet& operator=(const SkTHashSet& that) = default;
-
     // Clear the set.
     void reset() { fTable.reset(); }
 
