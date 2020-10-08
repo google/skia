@@ -1,0 +1,8 @@
+/*#pragma settings BlendModesFailRandomlyForAllZeroVec*/
+
+in half4 src, dst;
+
+void main() {
+    sk_FragColor = blend_src_in(src, dst);
+    sk_FragColor = blend_dst_in(src, dst);
+}
