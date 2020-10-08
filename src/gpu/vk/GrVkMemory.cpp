@@ -115,6 +115,8 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
 
     allocator->getAllocInfo(memory, alloc);
 
+    fprintf(stderr, "%s %lu \n", __func__, memReqs.size);
+
     // Bind buffer
     VkResult err;
     GR_VK_CALL_RESULT(gpu, err, BindImageMemory(gpu->device(), image, alloc->fMemory,
@@ -198,4 +200,3 @@ void GrVkMemory::InvalidateMappedAlloc(GrVkGpu* gpu, const GrVkAlloc& alloc,
         gpu->checkVkResult(result);
     }
 }
-
