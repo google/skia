@@ -16,6 +16,24 @@
       "message": "I was initially a little leery of this, as merging binary data seems inherently dangerous... but I guess the housekeeper bot will catch anything that goes wrong, so I guess it sgtm.",
       "revId": "d6c270d9a68b7279a61cc58b881ee787e92a4571",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04859460_99c0c1d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T18:03:20Z",
+      "side": 1,
+      "message": "If we find that this doesn\u0027t actually work well in practice, we can always disable it. At the rate we\u0027re going, we\u0027ll discover any problems right away :)",
+      "parentUuid": "fffc61d4_eb735414",
+      "revId": "d6c270d9a68b7279a61cc58b881ee787e92a4571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
