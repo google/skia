@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26865b0d_529864bb",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T19:27:41Z",
+      "side": 1,
+      "message": "Per discussion in the chat room - I was trying to find a way to not need to list all the includes here. Note that in standalone mode (above), I don\u0027t need to - I can emit the necessary \"data\" for the module loader from the name fragment.\n\nHere, if the dehydrated data files were compiled separately, I could almost do it - but I\u0027d still need the extern declarations, which don\u0027t really work inline at the point that I\u0027d be using the MODULE_DATA() macro. So I\u0027m happy to leave this as-is ... it\u0027s still far less work to add another module than it was before.",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
