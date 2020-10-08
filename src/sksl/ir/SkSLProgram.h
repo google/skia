@@ -151,87 +151,41 @@ struct Program {
 
     class iterator {
     public:
-        ProgramElement& operator*() {
-            if (fIter1 != fEnd1) {
-                return **fIter1;
-            }
-            return **fIter2;
-        }
+        ProgramElement& operator*() { return **fIter; }
 
         iterator& operator++() {
-            if (fIter1 != fEnd1) {
-                ++fIter1;
-                return *this;
-            }
-            ++fIter2;
+            ++fIter;
             return *this;
         }
 
-        bool operator==(const iterator& other) const {
-            return fIter1 == other.fIter1 && fIter2 == other.fIter2;
-        }
-
-        bool operator!=(const iterator& other) const {
-            return !(*this == other);
-        }
+        bool operator==(const iterator& other) const { return fIter == other.fIter; }
+        bool operator!=(const iterator& other) const { return !(*this == other); }
 
     private:
         using inner = std::vector<std::unique_ptr<ProgramElement>>::iterator;
+        iterator(inner iter) : fIter(iter) {}
 
-        iterator(inner begin1, inner end1, inner begin2, inner end2)
-        : fIter1(begin1)
-        , fEnd1(end1)
-        , fIter2(begin2)
-        , fEnd2(end2) {}
-
-        inner fIter1;
-        inner fEnd1;
-        inner fIter2;
-        inner fEnd2;
-
+        inner fIter;
         friend struct Program;
     };
 
     class const_iterator {
     public:
-        const ProgramElement& operator*() {
-            if (fIter1 != fEnd1) {
-                return **fIter1;
-            }
-            return **fIter2;
-        }
+        const ProgramElement& operator*() { return **fIter; }
 
         const_iterator& operator++() {
-            if (fIter1 != fEnd1) {
-                ++fIter1;
-                return *this;
-            }
-            ++fIter2;
+            ++fIter;
             return *this;
         }
 
-        bool operator==(const const_iterator& other) const {
-            return fIter1 == other.fIter1 && fIter2 == other.fIter2;
-        }
-
-        bool operator!=(const const_iterator& other) const {
-            return !(*this == other);
-        }
+        bool operator==(const const_iterator& other) const { return fIter == other.fIter; }
+        bool operator!=(const const_iterator& other) const { return !(*this == other); }
 
     private:
         using inner = std::vector<std::unique_ptr<ProgramElement>>::const_iterator;
+        const_iterator(inner iter) : fIter(iter) {}
 
-        const_iterator(inner begin1, inner end1, inner begin2, inner end2)
-        : fIter1(begin1)
-        , fEnd1(end1)
-        , fIter2(begin2)
-        , fEnd2(end2) {}
-
-        inner fIter1;
-        inner fEnd1;
-        inner fIter2;
-        inner fEnd2;
-
+        inner fIter;
         friend struct Program;
     };
 
@@ -248,7 +202,6 @@ struct Program {
             std::unique_ptr<String> source,
             Settings settings,
             std::shared_ptr<Context> context,
-            std::vector<std::unique_ptr<ProgramElement>>* inheritedElements,
             std::vector<std::unique_ptr<ProgramElement>> elements,
             std::unique_ptr<ModifiersPool> modifiers,
             std::shared_ptr<SymbolTable> symbols,
@@ -259,41 +212,14 @@ struct Program {
     , fContext(context)
     , fSymbols(symbols)
     , fInputs(inputs)
-    , fInheritedElements(inheritedElements)
     , fElements(std::move(elements))
     , fModifiers(std::move(modifiers)) {}
 
-    iterator begin() {
-        if (fInheritedElements) {
-            return iterator(fInheritedElements->begin(), fInheritedElements->end(),
-                            fElements.begin(), fElements.end());
-        }
-        return iterator(fElements.begin(), fElements.end(), fElements.end(), fElements.end());
-    }
+    iterator begin() { return iterator(fElements.begin()); }
+    iterator end()   { return iterator(fElements.end()); }
 
-    iterator end() {
-        if (fInheritedElements) {
-            return iterator(fInheritedElements->end(), fInheritedElements->end(),
-                            fElements.end(), fElements.end());
-        }
-        return iterator(fElements.end(), fElements.end(), fElements.end(), fElements.end());
-    }
-
-    const_iterator begin() const {
-        if (fInheritedElements) {
-            return const_iterator(fInheritedElements->begin(), fInheritedElements->end(),
-                                  fElements.begin(), fElements.end());
-        }
-        return const_iterator(fElements.begin(), fElements.end(), fElements.end(), fElements.end());
-    }
-
-    const_iterator end() const {
-        if (fInheritedElements) {
-            return const_iterator(fInheritedElements->end(), fInheritedElements->end(),
-                                  fElements.end(), fElements.end());
-        }
-        return const_iterator(fElements.end(), fElements.end(), fElements.end(), fElements.end());
-    }
+    const_iterator begin() const { return const_iterator(fElements.begin()); }
+    const_iterator end()   const { return const_iterator(fElements.end()); }
 
     void finish() {
         fModifiers->finish();
@@ -309,7 +235,6 @@ struct Program {
     Inputs fInputs;
 
 private:
-    std::vector<std::unique_ptr<ProgramElement>>* fInheritedElements;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
     std::unique_ptr<ModifiersPool> fModifiers;
 
