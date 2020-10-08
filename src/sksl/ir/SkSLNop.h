@@ -16,7 +16,8 @@ namespace SkSL {
 /**
  * A no-op statement that does nothing.
  */
-struct Nop : public Statement {
+class Nop : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kNop;
 
     Nop()
@@ -34,6 +35,7 @@ struct Nop : public Statement {
         return std::unique_ptr<Statement>(new Nop());
     }
 
+private:
     using INHERITED = Statement;
 };
 

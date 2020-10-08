@@ -26,7 +26,7 @@ static inline bool check_ref(const Expression& expr) {
         case Expression::Kind::kFieldAccess:
             return check_ref(*expr.as<FieldAccess>().fBase);
         case Expression::Kind::kIndex:
-            return check_ref(*expr.as<IndexExpression>().fBase);
+            return check_ref(*expr.as<IndexExpression>().base());
         case Expression::Kind::kSwizzle:
             return check_ref(*expr.as<Swizzle>().fBase);
         case Expression::Kind::kTernary: {
