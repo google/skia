@@ -17,7 +17,7 @@
 namespace SkSL {
 
 class  ExternalValue;
-struct FunctionDeclaration;
+class FunctionDeclaration;
 
 enum class ByteCodeInstruction : uint8_t {
     // B = bool, F = float, I = int, S = signed, U = unsigned

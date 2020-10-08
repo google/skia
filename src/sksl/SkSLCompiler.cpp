@@ -78,7 +78,7 @@ static void grab_intrinsics(std::vector<std::unique_ptr<ProgramElement>>* src,
         switch (element->kind()) {
             case ProgramElement::Kind::kFunction: {
                 FunctionDefinition& f = element->as<FunctionDefinition>();
-                SkASSERT(f.fDeclaration.fBuiltin);
+                SkASSERT(f.fDeclaration.isBuiltin());
                 target->insertOrDie(f.fDeclaration.description(), std::move(element));
                 iter = src->erase(iter);
                 break;
@@ -108,7 +108,7 @@ static void reset_call_counts(std::vector<std::unique_ptr<ProgramElement>>* src)
     for (std::unique_ptr<ProgramElement>& element : *src) {
         if (element->is<FunctionDefinition>()) {
             const FunctionDeclaration& fnDecl = element->as<FunctionDefinition>().fDeclaration;
-            fnDecl.fCallCount = 0;
+            fnDecl.callCount() = 0;
         }
     }
 }
@@ -502,8 +502,9 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
             }
             case Expression::Kind::kFunctionCall: {
                 const FunctionCall& c = expr->as<FunctionCall>();
-                for (size_t i = 0; i < c.function().fParameters.size(); ++i) {
-                    if (c.function().fParameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+                const std::vector<Variable*>& parameters = c.function().parameters();
+                for (size_t i = 0; i < parameters.size(); ++i) {
+                    if (parameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
                         this->addDefinition(
                                   c.arguments()[i].get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
@@ -1564,7 +1565,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
     }
 
     // check for missing return
-    if (f.fDeclaration.fReturnType != *fContext->fVoid_Type) {
+    if (f.fDeclaration.returnType() != *fContext->fVoid_Type) {
         if (cfg.fBlocks[cfg.fExit].fIsReachable) {
             this->error(f.fOffset, String("function '" + String(f.fDeclaration.name()) +
                                           "' can exit without returning a value"));
@@ -1680,7 +1681,7 @@ bool Compiler::optimize(Program& program) {
                                            return false;
                                        }
                                        const auto& fn = element->as<FunctionDefinition>();
-                                       bool dead = fn.fDeclaration.fCallCount == 0 &&
+                                       bool dead = fn.fDeclaration.callCount() == 0 &&
                                                    fn.fDeclaration.name() != "main";
                                        madeChanges |= dead;
                                        return dead;

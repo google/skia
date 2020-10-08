@@ -204,7 +204,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
     result->fLoopCount      = fMaxLoopCount;
     result->fStackCount     = fMaxStackCount;
 
-    const Type& returnType = f.fDeclaration.fReturnType;
+    const Type& returnType = f.fDeclaration.returnType();
     if (returnType != *fContext.fVoid_Type) {
         result->fReturnCount = SlotCount(returnType);
     }
@@ -441,7 +441,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
         }
         case Variable::kParameter_Storage: {
             int offset = 0;
-            for (const auto& p : fFunction->fDeclaration.fParameters) {
+            for (const auto& p : fFunction->fDeclaration.parameters()) {
                 if (p == &var) {
                     SkASSERT(offset <= 255);
                     return { offset, Storage::kLocal };
@@ -1263,7 +1263,7 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
     int argCount = f.arguments().size();
     std::vector<std::unique_ptr<LValue>> lvalues;
     for (int i = 0; i < argCount; ++i) {
-        const auto& param = f.function().fParameters[i];
+        const auto& param = f.function().parameters()[i];
         const auto& arg = f.arguments()[i];
         if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
             lvalues.emplace_back(this->getLValue(*arg));
@@ -1296,7 +1296,7 @@ void ByteCodeGenerator::writeFunctionCall(const FunctionCall& f) {
     };
 
     for (int i = argCount - 1; i >= 0; --i) {
-        const auto& param = f.function().fParameters[i];
+        const auto& param = f.function().parameters()[i];
         const auto& arg = f.arguments()[i];
         if (param->modifiers().fFlags & Modifiers::kOut_Flag) {
             pop();
@@ -1832,7 +1832,7 @@ void ByteCodeGenerator::writeStatement(const Statement& s) {
 ByteCodeFunction::ByteCodeFunction(const FunctionDeclaration* declaration)
         : fName(declaration->name()) {
     fParameterCount = 0;
-    for (const auto& p : declaration->fParameters) {
+    for (const auto& p : declaration->parameters()) {
         int slots = ByteCodeGenerator::SlotCount(p->type());
         fParameters.push_back({ slots, (bool)(p->modifiers().fFlags & Modifiers::kOut_Flag) });
         fParameterCount += slots;
