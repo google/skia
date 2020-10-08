@@ -16,6 +16,46 @@
       "message": "PTAL, this is going back and addressing the original feedback from Mike and Rob, and isolating it from the SkImagePaint experiment. Namely, I\u0027ve named the matrix arg to drawSpecial \u0027localToDevice\u0027 and got rid of the extra pre-translate parameters.",
       "revId": "7cc7f4d97aea3b06d0f3eb7c5780b2f74b6b1c01",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84d12fcc_ed35d741",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-08T17:16:02Z",
+      "side": 1,
+      "message": "I don\u0027t know this code well enough to really 👍 it, but what I read and do understand makes sense.\n\nI do have one tedious, unimportant suggestion...",
+      "revId": "7cc7f4d97aea3b06d0f3eb7c5780b2f74b6b1c01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b2b0643_876bca6b",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-08T17:16:02Z",
+      "side": 1,
+      "message": "Think things read better if you swap these args?",
+      "range": {
+        "startLine": 316,
+        "startChar": 29,
+        "endLine": 316,
+        "endChar": 75
+      },
+      "revId": "7cc7f4d97aea3b06d0f3eb7c5780b2f74b6b1c01",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
