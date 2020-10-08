@@ -70,6 +70,30 @@
       },
       "revId": "55126667efbb124836db4b509ffe73f3027375c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6591437f_f62a94e9",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T14:24:53Z",
+      "side": 1,
+      "message": "SkAutoTArray turns out to be a failure point with `\u003ddefault`. But yeah, it\u0027s darn close.",
+      "parentUuid": "43c9c7e3_ab08edbc",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 58
+      },
+      "revId": "55126667efbb124836db4b509ffe73f3027375c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
