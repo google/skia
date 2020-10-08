@@ -20,7 +20,8 @@ namespace SkSL {
 
 struct Expression;
 class ExternalValue;
-struct FunctionDeclaration;
+class FunctionDeclaration;
+struct FunctionDefinition;
 struct Statement;
 class Symbol;
 class SymbolTable;
@@ -126,6 +127,29 @@ protected:
         const FunctionDeclaration* fFunction;
     };
 
+    struct FunctionDeclarationData {
+        StringFragment fName;
+        mutable const FunctionDefinition* fDefinition;
+        bool fBuiltin;
+        ModifiersPool::Handle fModifiersHandle;
+        // FIXME after killing fExpressionChildren / fStatementChildren in favor of just fChildren,
+        // the parameters should move into that vector
+        std::vector<Variable*> fParameters;
+        const Type* fReturnType;
+        mutable std::atomic<int> fCallCount;
+
+        FunctionDeclarationData& operator=(const FunctionDeclarationData& other) {
+            fName = other.fName;
+            fDefinition = other.fDefinition;
+            fBuiltin = other.fBuiltin;
+            fModifiersHandle = other.fModifiersHandle;
+            fParameters = other.fParameters;
+            fReturnType = other.fReturnType;
+            fCallCount = other.fCallCount.load();
+            return *this;
+        }
+    };
+
     struct IntLiteralData {
         const Type* fType;
         int64_t fValue;
@@ -171,6 +195,7 @@ protected:
             kFloatLiteral,
             kForStatement,
             kFunctionCall,
+            kFunctionDeclaration,
             kIntLiteral,
             kString,
             kSymbol,
@@ -190,6 +215,7 @@ protected:
             FloatLiteralData fFloatLiteral;
             ForStatementData fForStatement;
             FunctionCallData fFunctionCall;
+            FunctionDeclarationData fFunctionDeclaration;
             IntLiteralData fIntLiteral;
             String fString;
             SymbolData fSymbol;
@@ -241,6 +267,11 @@ protected:
         NodeData(const FunctionCallData& data)
             : fKind(Kind::kFunctionCall) {
             *(new(&fContents) FunctionCallData) = data;
+        }
+
+        NodeData(const FunctionDeclarationData& data)
+            : fKind(Kind::kFunctionDeclaration) {
+            *(new(&fContents) FunctionDeclarationData) = data;
         }
 
         NodeData(IntLiteralData data)
@@ -310,6 +341,10 @@ protected:
                 case Kind::kFunctionCall:
                     *(new(&fContents) FunctionCallData) = other.fContents.fFunctionCall;
                     break;
+                case Kind::kFunctionDeclaration:
+                    *(new(&fContents) FunctionDeclarationData) =
+                                                               other.fContents.fFunctionDeclaration;
+                    break;
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
@@ -366,6 +401,9 @@ protected:
                 case Kind::kFunctionCall:
                     fContents.fFunctionCall.~FunctionCallData();
                     break;
+                case Kind::kFunctionDeclaration:
+                    fContents.fFunctionDeclaration.~FunctionDeclarationData();
+                    break;
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
@@ -406,6 +444,8 @@ protected:
     IRNode(int offset, int kind, const ForStatementData& data);
 
     IRNode(int offset, int kind, const FunctionCallData& data);
+
+    IRNode(int offset, int kind, const FunctionDeclarationData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
 
@@ -503,6 +543,16 @@ protected:
     const FunctionCallData& functionCallData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kFunctionCall);
         return fData.fContents.fFunctionCall;
+    }
+
+    FunctionDeclarationData& functionDeclarationData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDeclaration);
+        return fData.fContents.fFunctionDeclaration;
+    }
+
+    const FunctionDeclarationData& functionDeclarationData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kFunctionDeclaration);
+        return fData.fContents.fFunctionDeclaration;
     }
 
     const IntLiteralData& intLiteralData() const {

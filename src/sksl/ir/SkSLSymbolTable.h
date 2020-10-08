@@ -16,7 +16,7 @@
 
 namespace SkSL {
 
-struct FunctionDeclaration;
+class FunctionDeclaration;
 
 /**
  * Maps identifiers to symbols. Functions, in particular, are mapped to either FunctionDeclaration

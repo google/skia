@@ -254,7 +254,7 @@ std::unique_ptr<Statement> IRGenerator::convertSingleStatement(const ASTNode& st
                 Expression& expr = *result->as<ExpressionStatement>().expression();
                 if (expr.kind() == Expression::Kind::kFunctionCall) {
                     FunctionCall& fc = expr.as<FunctionCall>();
-                    if (fc.function().fBuiltin && fc.function().name() == "EmitVertex") {
+                    if (fc.function().isBuiltin() && fc.function().name() == "EmitVertex") {
                         std::vector<std::unique_ptr<Statement>> statements;
                         statements.push_back(getNormalizeSkPositionCode());
                         statements.push_back(std::move(result));
@@ -727,20 +727,20 @@ std::unique_ptr<Statement> IRGenerator::convertReturn(const ASTNode& r) {
         if (!result) {
             return nullptr;
         }
-        if (fCurrentFunction->fReturnType == *fContext.fVoid_Type) {
+        if (fCurrentFunction->returnType() == *fContext.fVoid_Type) {
             fErrors.error(result->fOffset, "may not return a value from a void function");
             return nullptr;
         } else {
-            result = this->coerce(std::move(result), fCurrentFunction->fReturnType);
+            result = this->coerce(std::move(result), fCurrentFunction->returnType());
             if (!result) {
                 return nullptr;
             }
         }
         return std::unique_ptr<Statement>(new ReturnStatement(std::move(result)));
     } else {
-        if (fCurrentFunction->fReturnType != *fContext.fVoid_Type) {
+        if (fCurrentFunction->returnType() != *fContext.fVoid_Type) {
             fErrors.error(r.fOffset, "expected function to return '" +
-                                     fCurrentFunction->fReturnType.displayName() + "'");
+                                     fCurrentFunction->returnType().displayName() + "'");
         }
         return std::unique_ptr<Statement>(new ReturnStatement(r.fOffset));
     }
@@ -776,10 +776,10 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
     Modifiers invokeModifiers(invokeLayout, Modifiers::kHasSideEffects_Flag);
     const FunctionDeclaration* invokeDecl = fSymbolTable->add(
             "_invoke", std::make_unique<FunctionDeclaration>(/*offset=*/-1,
-                                                             invokeModifiers,
+                                                             fModifiers->handle(invokeModifiers),
                                                              "_invoke",
                                                              std::vector<Variable*>(),
-                                                             *fContext.fVoid_Type,
+                                                             fContext.fVoid_Type.get(),
                                                              /*builtin=*/false));
     fProgramElements->push_back(std::make_unique<FunctionDefinition>(/*offset=*/-1,
                                                                      *invokeDecl,
@@ -1028,18 +1028,22 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
         for (const FunctionDeclaration* other : functions) {
             SkASSERT(other->name() == funcData.fName);
-            if (parameters.size() == other->fParameters.size()) {
+            if (parameters.size() == other->parameters().size()) {
                 bool match = true;
                 for (size_t i = 0; i < parameters.size(); i++) {
-                    if (parameters[i]->type() != other->fParameters[i]->type()) {
+                    if (parameters[i]->type() != other->parameters()[i]->type()) {
                         match = false;
                         break;
                     }
                 }
                 if (match) {
-                    if (*returnType != other->fReturnType) {
-                        FunctionDeclaration newDecl(f.fOffset, funcData.fModifiers, funcData.fName,
-                                                    parameters, *returnType, fIsBuiltinCode);
+                    if (*returnType != other->returnType()) {
+                        FunctionDeclaration newDecl(f.fOffset,
+                                                    fModifiers->handle(funcData.fModifiers),
+                                                    funcData.fName,
+                                                    parameters,
+                                                    returnType,
+                                                    fIsBuiltinCode);
                         fErrors.error(f.fOffset, "functions '" + newDecl.description() +
                                                  "' and '" + other->description() +
                                                  "' differ only in return type");
@@ -1047,14 +1051,14 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                     }
                     decl = other;
                     for (size_t i = 0; i < parameters.size(); i++) {
-                        if (parameters[i]->modifiers() != other->fParameters[i]->modifiers()) {
+                        if (parameters[i]->modifiers() != other->parameters()[i]->modifiers()) {
                             fErrors.error(f.fOffset, "modifiers on parameter " +
                                                      to_string((uint64_t) i + 1) +
                                                      " differ between declaration and definition");
                             return;
                         }
                     }
-                    if (other->fDefinition && !other->fBuiltin) {
+                    if (other->definition() && !other->isBuiltin()) {
                         fErrors.error(f.fOffset, "duplicate definition of " + other->description());
                     }
                     break;
@@ -1071,12 +1075,13 @@ void IRGenerator::convertFunction(const ASTNode& f) {
 
         // Create a new declaration.
         decl = fSymbolTable->add(funcData.fName,
-                                 std::make_unique<FunctionDeclaration>(f.fOffset,
-                                                                       declModifiers,
-                                                                       funcData.fName,
-                                                                       parameters,
-                                                                       *returnType,
-                                                                       fIsBuiltinCode));
+                                 std::make_unique<FunctionDeclaration>(
+                                                                  f.fOffset,
+                                                                  fModifiers->handle(declModifiers),
+                                                                  funcData.fName,
+                                                                  parameters,
+                                                                  returnType,
+                                                                  fIsBuiltinCode));
     }
     if (iter != f.end()) {
         // compile body
@@ -1093,8 +1098,9 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                 parameters[0]->setModifiersHandle(fModifiers->handle(m));
             }
         }
+        const std::vector<Variable*>& declParameters = decl->parameters();
         for (size_t i = 0; i < parameters.size(); i++) {
-            fSymbolTable->addWithoutOwnership(parameters[i]->name(), decl->fParameters[i]);
+            fSymbolTable->addWithoutOwnership(parameters[i]->name(), declParameters[i]);
         }
         bool needInvocationIDWorkaround = fInvocations != -1 && funcData.fName == "main" &&
                                           fSettings->fCaps &&
@@ -1112,7 +1118,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         }
         auto result = std::make_unique<FunctionDefinition>(f.fOffset, *decl, std::move(body),
                                                            std::move(fReferencedIntrinsics));
-        decl->fDefinition = result.get();
+        decl->setDefinition(result.get());
         result->fSource = &f;
         fProgramElements->push_back(std::move(result));
     }
@@ -2058,8 +2064,8 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
                                                            original.fReferencedIntrinsics.end());
         std::sort(intrinsics.begin(), intrinsics.end(),
                   [](const FunctionDeclaration* a, const FunctionDeclaration* b) {
-                      if (a->fBuiltin != b->fBuiltin) {
-                          return a->fBuiltin < b->fBuiltin;
+                      if (a->isBuiltin() != b->isBuiltin()) {
+                          return a->isBuiltin() < b->isBuiltin();
                       }
                       if (a->fOffset != b->fOffset) {
                           return a->fOffset < b->fOffset;
@@ -2079,26 +2085,26 @@ void IRGenerator::copyIntrinsicIfNeeded(const FunctionDeclaration& function) {
 std::unique_ptr<Expression> IRGenerator::call(int offset,
                                               const FunctionDeclaration& function,
                                               std::vector<std::unique_ptr<Expression>> arguments) {
-    if (function.fBuiltin) {
-        if (function.fDefinition) {
+    if (function.isBuiltin()) {
+        if (function.definition()) {
             fReferencedIntrinsics.insert(&function);
         }
         if (!fIsBuiltinCode && fIntrinsics) {
             this->copyIntrinsicIfNeeded(function);
         }
     }
-    if (function.fParameters.size() != arguments.size()) {
+    if (function.parameters().size() != arguments.size()) {
         String msg = "call to '" + function.name() + "' expected " +
-                                 to_string((uint64_t) function.fParameters.size()) +
+                                 to_string((uint64_t) function.parameters().size()) +
                                  " argument";
-        if (function.fParameters.size() != 1) {
+        if (function.parameters().size() != 1) {
             msg += "s";
         }
         msg += ", but found " + to_string((uint64_t) arguments.size());
         fErrors.error(offset, msg);
         return nullptr;
     }
-    if (fKind == Program::kPipelineStage_Kind && !function.fDefinition && !function.fBuiltin) {
+    if (fKind == Program::kPipelineStage_Kind && !function.definition() && !function.isBuiltin()) {
         String msg = "call to undefined function '" + function.name() + "'";
         fErrors.error(offset, msg);
         return nullptr;
@@ -2122,7 +2128,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         if (!arguments[i]) {
             return nullptr;
         }
-        const Modifiers& paramModifiers = function.fParameters[i]->modifiers();
+        const Modifiers& paramModifiers = function.parameters()[i]->modifiers();
         if (paramModifiers.fFlags & Modifiers::kOut_Flag) {
             if (!this->setRefKind(*arguments[i], paramModifiers.fFlags & Modifiers::kIn_Flag
                                                          ? VariableReference::kReadWrite_RefKind
@@ -2135,8 +2141,8 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
     auto funcCall = std::make_unique<FunctionCall>(offset, returnType, &function,
                                                    std::move(arguments));
     if (fCanInline &&
-        fInliner->isSafeToInline(funcCall->function().fDefinition) &&
-        !fInliner->isLargeFunction(funcCall->function().fDefinition)) {
+        fInliner->isSafeToInline(funcCall->function().definition()) &&
+        !fInliner->isLargeFunction(funcCall->function().definition())) {
         Inliner::InlinedCall inlinedCall = fInliner->inlineCall(funcCall.get(), fSymbolTable.get(),
                                                                 fCurrentFunction);
         if (inlinedCall.fInlinedBody) {
@@ -2155,7 +2161,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
  */
 CoercionCost IRGenerator::callCost(const FunctionDeclaration& function,
                                    const std::vector<std::unique_ptr<Expression>>& arguments) {
-    if (function.fParameters.size() != arguments.size()) {
+    if (function.parameters().size() != arguments.size()) {
         return CoercionCost::Impossible();
     }
     std::vector<const Type*> types;

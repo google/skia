@@ -165,8 +165,8 @@ Symbol* Rehydrator::symbol() {
             const Type* returnType = this->type();
             FunctionDeclaration* result =
                     fSymbolTable->takeOwnershipOfSymbol(std::make_unique<FunctionDeclaration>(
-                            /*offset=*/-1, modifiers, name, std::move(parameters), *returnType,
-                            /*builtin=*/true));
+                                              /*offset=*/-1, fModifiers.handle(modifiers), name,
+                                              std::move(parameters), returnType, /*builtin=*/true));
             this->addSymbol(id, result);
             return result;
         }
@@ -302,7 +302,7 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
             }
             FunctionDefinition* result = new FunctionDefinition(-1, *decl, std::move(body),
                                                                 std::move(refs));
-            decl->fDefinition = result;
+            decl->setDefinition(result);
             return std::unique_ptr<ProgramElement>(result);
         }
         case Rehydrator::kInterfaceBlock_Command: {

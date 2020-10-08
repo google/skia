@@ -23,11 +23,11 @@ struct FunctionCall : public Expression {
                  std::vector<std::unique_ptr<Expression>> arguments)
     : INHERITED(offset, FunctionCallData{type, function}) {
         fExpressionChildren = std::move(arguments);
-        ++this->function().fCallCount;
+        ++this->function().callCount();
     }
 
     ~FunctionCall() override {
-        --this->function().fCallCount;
+        --this->function().callCount();
     }
 
     const FunctionDeclaration& function() const {
@@ -43,7 +43,7 @@ struct FunctionCall : public Expression {
     }
 
     bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects && (this->function().fModifiers.fFlags &
+        if (property == Property::kSideEffects && (this->function().modifiers().fFlags &
                                                    Modifiers::kHasSideEffects_Flag)) {
             return true;
         }
