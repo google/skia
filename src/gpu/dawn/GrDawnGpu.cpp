@@ -433,7 +433,8 @@ bool GrDawnGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                       GrColorType colorType,
-                                                                      int sampleCnt) {
+                                                                      int sampleCnt,
+                                                                      GrProtected isProtected) {
     if (dimensions.width()  > this->caps()->maxTextureSize() ||
         dimensions.height() > this->caps()->maxTextureSize()) {
         return {};
@@ -441,6 +442,10 @@ GrBackendRenderTarget GrDawnGpu::createTestingOnlyBackendRenderTarget(SkISize di
 
     // We don't support MSAA in this backend yet.
     if (sampleCnt != 1) {
+        return {};
+    }
+
+    if (isProtected == GrProtected::kYes) {
         return {};
     }
 
