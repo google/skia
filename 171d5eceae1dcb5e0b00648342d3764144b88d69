@@ -22,6 +22,30 @@
       },
       "revId": "171d5eceae1dcb5e0b00648342d3764144b88d69",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89c1de10_e00336bf",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1135,
+      "author": {
+        "id": 8956
+      },
+      "writtenOn": "2020-10-08T18:06:27Z",
+      "side": 1,
+      "message": "No, it\u0027s not intentional. It has to be findPreviousGraphemeBoundary now.\nWhat is weird that I went through all rounds of testing (skia/txtlib/flutter) and this problem didn\u0027t show up.\nAnyway, I don\u0027t think it was right before. We need surrounding grapheme boundaries.",
+      "parentUuid": "7bf33c6b_097b81cc",
+      "range": {
+        "startLine": 1135,
+        "startChar": 28,
+        "endLine": 1135,
+        "endChar": 52
+      },
+      "revId": "171d5eceae1dcb5e0b00648342d3764144b88d69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
