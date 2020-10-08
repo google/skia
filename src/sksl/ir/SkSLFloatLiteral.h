@@ -16,7 +16,8 @@ namespace SkSL {
 /**
  * A literal floating point number.
  */
-struct FloatLiteral : public Expression {
+class FloatLiteral : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kFloatLiteral;
 
     FloatLiteral(const Context& context, int offset, float value)

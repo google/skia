@@ -16,7 +16,7 @@
 
 namespace SkSL {
 
-struct Expression;
+class Expression;
 
 /**
  * Represents a variable, whether local, global, or a function parameter. This represents the

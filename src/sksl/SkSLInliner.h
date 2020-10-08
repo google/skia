@@ -18,13 +18,13 @@ namespace SkSL {
 
 class Block;
 class Context;
-struct Expression;
-struct FunctionCall;
+class Expression;
+class FunctionCall;
 struct FunctionDefinition;
 struct InlineCandidate;
 struct InlineCandidateList;
 class ModifiersPool;
-struct Statement;
+class Statement;
 class SymbolTable;
 class Variable;
 

@@ -33,8 +33,8 @@
 
 namespace SkSL {
 
+class FunctionCall;
 struct Swizzle;
-struct FunctionCall;
 
 /**
  * Intrinsics are passed between the Compiler and the IRGenerator using IRIntrinsicMaps.

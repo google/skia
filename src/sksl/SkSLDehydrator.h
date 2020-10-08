@@ -21,9 +21,9 @@
 
 namespace SkSL {
 
-struct Expression;
-struct ProgramElement;
-struct Statement;
+class Expression;
+class ProgramElement;
+class Statement;
 class Symbol;
 class SymbolTable;
 

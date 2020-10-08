@@ -16,7 +16,7 @@
 
 namespace SkSL {
 
-struct Expression;
+class Expression;
 class IRGenerator;
 class Variable;
 
@@ -25,7 +25,8 @@ using DefinitionMap = TinyUnorderedMap<const Variable*, std::unique_ptr<Expressi
 /**
  * Abstract supertype of all expressions.
  */
-struct Expression : public IRNode {
+class Expression : public IRNode {
+public:
     enum class Kind {
         kBinary = (int) Statement::Kind::kLast + 1,
         kBoolLiteral,
@@ -212,6 +213,7 @@ struct Expression : public IRNode {
 
     virtual std::unique_ptr<Expression> clone() const = 0;
 
+private:
     using INHERITED = IRNode;
 };
 

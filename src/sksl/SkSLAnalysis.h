@@ -16,11 +16,11 @@
 namespace SkSL {
 
 class ErrorReporter;
-struct Expression;
+class Expression;
 struct FunctionDefinition;
 struct Program;
-struct ProgramElement;
-struct Statement;
+class ProgramElement;
+class Statement;
 class Variable;
 struct VariableReference;
 
