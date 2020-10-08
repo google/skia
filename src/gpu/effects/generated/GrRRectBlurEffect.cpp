@@ -24,7 +24,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 
 static constexpr auto kBlurredRRectMaskOrigin = kTopLeft_GrSurfaceOrigin;
@@ -48,13 +48,12 @@ static void make_blurred_rrect_key(GrUniqueKey* key,
     builder.finish();
 }
 
-static bool fillin_view_on_gpu(
-        GrDirectContext* dContext,
-        const GrSurfaceProxyView& lazyView,
-        sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline> trampoline,
-        const SkRRect& rrectToDraw,
-        const SkISize& dimensions,
-        float xformedSigma) {
+static bool fillin_view_on_gpu(GrDirectContext* dContext,
+                               const GrSurfaceProxyView& lazyView,
+                               sk_sp<GrThreadSafeCache::Trampoline> trampoline,
+                               const SkRRect& rrectToDraw,
+                               const SkISize& dimensions,
+                               float xformedSigma) {
     std::unique_ptr<GrRenderTargetContext> rtc = GrRenderTargetContext::MakeWithFallback(
             dContext, GrColorType::kAlpha_8, nullptr, SkBackingFit::kExact, dimensions, 1,
             GrMipmapped::kNo, GrProtected::kNo, kBlurredRRectMaskOrigin);
@@ -232,7 +231,7 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
     GrUniqueKey key;
     make_blurred_rrect_key(&key, rrectToDraw, xformedSigma);
 
-    auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+    auto threadSafeCache = rContext->priv().threadSafeCache();
 
     // It seems like we could omit this matrix and modify the shader code to not normalize
     // the coords used to sample the texture effect. However, the "proxyDims" value in the
@@ -247,14 +246,14 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
         // it crams a lazy proxy into the cache and then fills it in later.
-        auto[lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
-                dContext, GrColorType::kAlpha_8, dimensions, kBlurredRRectMaskOrigin,
-                SkBackingFit::kExact);
+        auto[lazyView, trampoline] =
+                GrThreadSafeCache::CreateLazyView(dContext, GrColorType::kAlpha_8, dimensions,
+                                                  kBlurredRRectMaskOrigin, SkBackingFit::kExact);
         if (!lazyView) {
             return nullptr;
         }
 
-        view = threadSafeViewCache->findOrAdd(key, lazyView);
+        view = threadSafeCache->findOrAdd(key, lazyView);
         if (view != lazyView) {
             SkASSERT(view.asTextureProxy());
             SkASSERT(view.origin() == kBlurredRRectMaskOrigin);
@@ -265,11 +264,11 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
                                 xformedSigma)) {
             // In this case something has gone disastrously wrong so set up to drop the draw
             // that needed this resource and reduce future pollution of the cache.
-            threadSafeViewCache->remove(key);
+            threadSafeCache->remove(key);
             return nullptr;
         }
     } else {
-        view = threadSafeViewCache->find(key);
+        view = threadSafeCache->find(key);
         if (view) {
             SkASSERT(view.asTextureProxy());
             SkASSERT(view.origin() == kBlurredRRectMaskOrigin);
@@ -281,7 +280,7 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
             return nullptr;
         }
 
-        view = threadSafeViewCache->add(key, view);
+        view = threadSafeCache->add(key, view);
     }
 
     SkASSERT(view.asTextureProxy());
@@ -377,18 +376,18 @@ half2 texCoord = translatedFragPos / proxyDims;)SkSL",
                 args.fUniformHandler->getUniformCStr(proxyRectVar),
                 args.fUniformHandler->getUniformCStr(blurRadiusVar),
                 args.fUniformHandler->getUniformCStr(cornerRadiusVar));
-        SkString _sample17268 = this->invokeChild(0, args);
+        SkString _sample17178 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample17268.c_str());
-        SkString _coords17316("float2(texCoord)");
-        SkString _sample17316 = this->invokeChild(1, args, _coords17316.c_str());
+                _sample17178.c_str());
+        SkString _coords17226("float2(texCoord)");
+        SkString _sample17226 = this->invokeChild(1, args, _coords17226.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s;
 )SkSL",
-                args.fOutputColor, _sample17316.c_str());
+                args.fOutputColor, _sample17226.c_str());
     }
 
 private:

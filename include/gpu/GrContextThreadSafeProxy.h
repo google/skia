@@ -19,7 +19,7 @@ class GrBackendFormat;
 class GrCaps;
 class GrContextThreadSafeProxyPriv;
 class GrTextBlobCache;
-class GrThreadSafeUniquelyKeyedProxyViewCache;
+class GrThreadSafeCache;
 class SkSurfaceCharacterization;
 class SkSurfaceProps;
 
@@ -113,13 +113,13 @@ private:
     // `init` method on GrContext_Base).
     void init(sk_sp<const GrCaps>);
 
-    const GrBackendApi               fBackend;
-    const GrContextOptions           fOptions;
-    const uint32_t                   fContextID;
-    sk_sp<const GrCaps>              fCaps;
-    std::unique_ptr<GrTextBlobCache> fTextBlobCache;
-    std::unique_ptr<GrThreadSafeUniquelyKeyedProxyViewCache> fThreadSafeViewCache;
-    std::atomic<bool>                fAbandoned{false};
+    const GrBackendApi                 fBackend;
+    const GrContextOptions             fOptions;
+    const uint32_t                     fContextID;
+    sk_sp<const GrCaps>                fCaps;
+    std::unique_ptr<GrTextBlobCache>   fTextBlobCache;
+    std::unique_ptr<GrThreadSafeCache> fThreadSafeCache;
+    std::atomic<bool>                  fAbandoned{false};
 };
 
 #endif

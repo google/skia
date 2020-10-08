@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
-#define GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
+#ifndef GrThreadSafeCache_DEFINED
+#define GrThreadSafeCache_DEFINED
 
 #include "include/private/SkSpinlock.h"
 #include "src/core/SkArenaAlloc.h"
@@ -60,10 +60,10 @@
 //
 //    For GrContext::performDeferredCleanup, any uniquely held resources that haven't been accessed
 //    w/in 'msNotUsed' will be released from this cache prior to the resource cache being cleaned.
-class GrThreadSafeUniquelyKeyedProxyViewCache {
+class GrThreadSafeCache {
 public:
-    GrThreadSafeUniquelyKeyedProxyViewCache();
-    ~GrThreadSafeUniquelyKeyedProxyViewCache();
+    GrThreadSafeCache();
+    ~GrThreadSafeCache();
 
 #if GR_TEST_UTILS
     int numEntries() const  SK_EXCLUDES(fSpinLock);
@@ -146,4 +146,4 @@ private:
     Entry*                       fFreeEntryList  SK_GUARDED_BY(fSpinLock);
 };
 
-#endif // GrThreadSafeUniquelyKeyedProxyViewCache_DEFINED
+#endif // GrThreadSafeCache_DEFINED

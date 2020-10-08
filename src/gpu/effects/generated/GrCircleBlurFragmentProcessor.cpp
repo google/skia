@@ -14,7 +14,7 @@
 #include "src/gpu/GrBitmapTextureMaker.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeCache.h"
 
 // Computes an unnormalized half kernel (right side). Returns the summation of all the half
 // kernel values.
@@ -187,7 +187,7 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
         return nullptr;
     }
 
-    auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+    auto threadSafeCache = rContext->priv().threadSafeCache();
 
     // Profile textures are cached by the ratio of sigma to circle radius and by the size of the
     // profile texture (binned by powers of 2).
@@ -229,7 +229,7 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
     builder[0] = sigmaToCircleRRatioFixed;
     builder.finish();
 
-    GrSurfaceProxyView profileView = threadSafeViewCache->find(key);
+    GrSurfaceProxyView profileView = threadSafeCache->find(key);
     if (profileView) {
         SkASSERT(profileView.asTextureProxy());
         SkASSERT(profileView.origin() == kTopLeft_GrSurfaceOrigin);
@@ -258,7 +258,7 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
         return nullptr;
     }
 
-    profileView = threadSafeViewCache->add(key, profileView);
+    profileView = threadSafeCache->add(key, profileView);
     return GrTextureEffect::Make(std::move(profileView), kPremul_SkAlphaType, texM);
 }
 
@@ -307,18 +307,18 @@ half dist = length(vec) + (0.5 - %s.z) * %s.w;)SkSL",
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar),
                 args.fUniformHandler->getUniformCStr(circleDataVar));
-        SkString _sample13801 = this->invokeChild(0, args);
+        SkString _sample13763 = this->invokeChild(0, args);
         fragBuilder->codeAppendf(
                 R"SkSL(
 half4 inputColor = %s;)SkSL",
-                _sample13801.c_str());
-        SkString _coords13849("float2(half2(dist, 0.5))");
-        SkString _sample13849 = this->invokeChild(1, args, _coords13849.c_str());
+                _sample13763.c_str());
+        SkString _coords13811("float2(half2(dist, 0.5))");
+        SkString _sample13811 = this->invokeChild(1, args, _coords13811.c_str());
         fragBuilder->codeAppendf(
                 R"SkSL(
 %s = inputColor * %s.w;
 )SkSL",
-                args.fOutputColor, _sample13849.c_str());
+                args.fOutputColor, _sample13811.c_str());
     }
 
 private:

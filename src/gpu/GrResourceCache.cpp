@@ -21,7 +21,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxyCacheAccess.h"
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/GrTracing.h"
 #include "src/gpu/SkGr.h"
 
@@ -201,7 +201,7 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 void GrResourceCache::abandonAll() {
     AutoValidate av(this);
 
-    fThreadSafeViewCache->dropAllRefs();
+    fThreadSafeCache->dropAllRefs();
 
     // We need to make sure to free any resources that were waiting on a free message but never
     // received one.
@@ -233,7 +233,7 @@ void GrResourceCache::abandonAll() {
 void GrResourceCache::releaseAll() {
     AutoValidate av(this);
 
-    fThreadSafeViewCache->dropAllRefs();
+    fThreadSafeCache->dropAllRefs();
 
     this->processFreedGpuResources();
 
@@ -242,7 +242,7 @@ void GrResourceCache::releaseAll() {
     fTexturesAwaitingUnref.reset();
 
     SkASSERT(fProxyProvider); // better have called setProxyProvider
-    SkASSERT(fThreadSafeViewCache); // better have called setThreadSafeViewCache too
+    SkASSERT(fThreadSafeCache); // better have called setThreadSafeCache too
 
     // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
     // they also have a raw pointer back to this class (which is presumably going away)!
@@ -530,7 +530,7 @@ void GrResourceCache::purgeAsNeeded() {
     }
 
     if (stillOverbudget) {
-        fThreadSafeViewCache->dropUniqueRefs(this);
+        fThreadSafeCache->dropUniqueRefs(this);
 
         while (stillOverbudget && fPurgeableQueue.count()) {
             GrGpuResource* resource = fPurgeableQueue.peek();
@@ -546,7 +546,7 @@ void GrResourceCache::purgeAsNeeded() {
 void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
 
     if (!scratchResourcesOnly) {
-        fThreadSafeViewCache->dropUniqueRefs(nullptr);
+        fThreadSafeCache->dropUniqueRefs(nullptr);
 
         // We could disable maintaining the heap property here, but it would add a lot of
         // complexity. Moreover, this is rarely called.
@@ -580,7 +580,7 @@ void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
 }
 
 void GrResourceCache::purgeResourcesNotUsedSince(GrStdSteadyClock::time_point purgeTime) {
-    fThreadSafeViewCache->dropUniqueRefsOlderThan(purgeTime);
+    fThreadSafeCache->dropUniqueRefsOlderThan(purgeTime);
 
     while (fPurgeableQueue.count()) {
         const GrStdSteadyClock::time_point resourceTime =

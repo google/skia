@@ -131,12 +131,12 @@ const GrTextBlobCache* GrRecordingContext::getTextBlobCache() const {
     return fThreadSafeProxy->priv().getTextBlobCache();
 }
 
-GrThreadSafeUniquelyKeyedProxyViewCache* GrRecordingContext::threadSafeViewCache() {
-    return fThreadSafeProxy->priv().threadSafeViewCache();
+GrThreadSafeCache* GrRecordingContext::threadSafeCache() {
+    return fThreadSafeProxy->priv().threadSafeCache();
 }
 
-const GrThreadSafeUniquelyKeyedProxyViewCache* GrRecordingContext::threadSafeViewCache() const {
-    return fThreadSafeProxy->priv().threadSafeViewCache();
+const GrThreadSafeCache* GrRecordingContext::threadSafeCache() const {
+    return fThreadSafeProxy->priv().threadSafeCache();
 }
 
 void GrRecordingContext::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlushCBObject) {
