@@ -24,23 +24,53 @@ struct FunctionDefinition;
 /**
  * A function declaration (not a definition -- does not contain a body).
  */
-struct FunctionDeclaration : public Symbol {
+class FunctionDeclaration : public Symbol {
+public:
     static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
-    FunctionDeclaration(int offset, Modifiers modifiers, StringFragment name,
-                        std::vector<Variable*> parameters, const Type& returnType,
+    FunctionDeclaration(int offset, ModifiersPool::Handle modifiers, StringFragment name,
+                        std::vector<Variable*> parameters, const Type* returnType,
                         bool builtin)
-    : INHERITED(offset, kSymbolKind, std::move(name))
-    , fDefinition(nullptr)
-    , fBuiltin(builtin)
-    , fModifiers(modifiers)
-    , fParameters(std::move(parameters))
-    , fReturnType(returnType) {}
+    : INHERITED(offset, FunctionDeclarationData{name, /*fDefiniition=*/nullptr, modifiers,
+                                                std::move(parameters), returnType,
+                                                /*fCallCount=*/0, builtin}) {}
+
+    const Modifiers& modifiers() const {
+        return *this->functionDeclarationData().fModifiersHandle;
+    }
+
+    StringFragment name() const override {
+        return this->functionDeclarationData().fName;
+    }
+
+    const FunctionDefinition* definition() const {
+        return this->functionDeclarationData().fDefinition;
+    }
+
+    void setDefinition(const FunctionDefinition* definition) const {
+        this->functionDeclarationData().fDefinition = definition;
+    }
+
+    const std::vector<Variable*>& parameters() const {
+        return this->functionDeclarationData().fParameters;
+    }
+
+    const Type& returnType() const {
+        return *this->functionDeclarationData().fReturnType;
+    }
+
+    bool isBuiltin() const {
+        return this->functionDeclarationData().fBuiltin;
+    }
+
+    std::atomic<int>& callCount() const {
+        return this->functionDeclarationData().fCallCount;
+    }
 
     String description() const override {
-        String result = fReturnType.displayName() + " " + this->name() + "(";
+        String result = this->returnType().displayName() + " " + this->name() + "(";
         String separator;
-        for (auto p : fParameters) {
+        for (auto p : this->parameters()) {
             result += separator;
             separator = ", ";
             result += p->type().displayName();
@@ -53,11 +83,13 @@ struct FunctionDeclaration : public Symbol {
         if (this->name() != f.name()) {
             return false;
         }
-        if (fParameters.size() != f.fParameters.size()) {
+        const std::vector<Variable*>& parameters = this->parameters();
+        const std::vector<Variable*>& otherParameters = f.parameters();
+        if (parameters.size() != otherParameters.size()) {
             return false;
         }
-        for (size_t i = 0; i < fParameters.size(); i++) {
-            if (fParameters[i]->type() != f.fParameters[i]->type()) {
+        for (size_t i = 0; i < parameters.size(); i++) {
+            if (parameters[i]->type() != otherParameters[i]->type()) {
                 return false;
             }
         }
@@ -82,10 +114,11 @@ struct FunctionDeclaration : public Symbol {
     bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
                              std::vector<const Type*>* outParameterTypes,
                              const Type** outReturnType) const {
-        SkASSERT(arguments.size() == fParameters.size());
+        const std::vector<Variable*>& parameters = this->parameters();
+        SkASSERT(arguments.size() == parameters.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
-            const Type& parameterType = fParameters[i]->type();
+            const Type& parameterType = parameters[i]->type();
             if (parameterType.typeKind() == Type::TypeKind::kGeneric) {
                 std::vector<const Type*> types = parameterType.coercibleTypes();
                 if (genericIndex == -1) {
@@ -104,24 +137,19 @@ struct FunctionDeclaration : public Symbol {
                 outParameterTypes->push_back(&parameterType);
             }
         }
-        if (fReturnType.typeKind() == Type::TypeKind::kGeneric) {
+        const Type& returnType = this->returnType();
+        if (returnType.typeKind() == Type::TypeKind::kGeneric) {
             if (genericIndex == -1) {
                 return false;
             }
-            *outReturnType = fReturnType.coercibleTypes()[genericIndex];
+            *outReturnType = returnType.coercibleTypes()[genericIndex];
         } else {
-            *outReturnType = &fReturnType;
+            *outReturnType = &returnType;
         }
         return true;
     }
 
-    mutable FunctionDefinition* fDefinition;
-    bool fBuiltin;
-    Modifiers fModifiers;
-    const std::vector<Variable*> fParameters;
-    const Type& fReturnType;
-    mutable std::atomic<int> fCallCount = 0;
-
+private:
     using INHERITED = Symbol;
 };
 

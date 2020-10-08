@@ -39,6 +39,9 @@ public:
     Symbol(int offset, const FieldData& data)
     : INHERITED(offset, (int) Kind::kField, data) {}
 
+    Symbol(int offset, const FunctionDeclarationData& data)
+    : INHERITED(offset, (int) Kind::kFunctionDeclaration, data) {}
+
     Symbol(int offset, const SymbolAliasData& data)
     : INHERITED(offset, (int) Kind::kSymbolAlias, data) {}
 

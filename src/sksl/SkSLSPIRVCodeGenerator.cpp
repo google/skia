@@ -578,21 +578,22 @@ SpvId SPIRVCodeGenerator::getImageType(const Type& type) {
 }
 
 SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
-    String key = to_string(this->getType(function.fReturnType)) + "(";
+    String key = to_string(this->getType(function.returnType())) + "(";
     String separator;
-    for (size_t i = 0; i < function.fParameters.size(); i++) {
+    const std::vector<Variable*>& parameters = function.parameters();
+    for (size_t i = 0; i < parameters.size(); i++) {
         key += separator;
         separator = ", ";
-        key += to_string(this->getType(function.fParameters[i]->type()));
+        key += to_string(this->getType(parameters[i]->type()));
     }
     key += ")";
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();
-        int32_t length = 3 + (int32_t) function.fParameters.size();
-        SpvId returnType = this->getType(function.fReturnType);
+        int32_t length = 3 + (int32_t) parameters.size();
+        SpvId returnType = this->getType(function.returnType());
         std::vector<SpvId> parameterTypes;
-        for (size_t i = 0; i < function.fParameters.size(); i++) {
+        for (size_t i = 0; i < parameters.size(); i++) {
             // glslang seems to treat all function arguments as pointers whether they need to be or
             // not. I  was initially puzzled by this until I ran bizarre failures with certain
             // patterns of function calls and control constructs, as exemplified by this minimal
@@ -616,7 +617,7 @@ SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
             // as glslang does, fixes it. It's entirely possible I simply missed whichever part of
             // the spec makes this make sense.
 //            if (is_out(function->fParameters[i])) {
-                parameterTypes.push_back(this->getPointerType(function.fParameters[i]->type(),
+                parameterTypes.push_back(this->getPointerType(parameters[i]->type(),
                                                               SpvStorageClassFunction));
 //            } else {
 //                parameterTypes.push_back(this->getType(function.fParameters[i]->fType));
@@ -717,7 +718,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             SpvId result = this->nextId();
             std::vector<SpvId> argumentIds;
             for (size_t i = 0; i < arguments.size(); i++) {
-                if (function.fParameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+                if (function.parameters()[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
                     argumentIds.push_back(this->getLValue(*arguments[i], out)->getPointer());
                 } else {
                     argumentIds.push_back(this->writeExpression(*arguments[i], out));
@@ -737,7 +738,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             SpvId result = this->nextId();
             std::vector<SpvId> argumentIds;
             for (size_t i = 0; i < arguments.size(); i++) {
-                if (function.fParameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+                if (function.parameters()[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
                     argumentIds.push_back(this->getLValue(*arguments[i], out)->getPointer());
                 } else {
                     argumentIds.push_back(this->writeExpression(*arguments[i], out));
@@ -1032,7 +1033,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
         SpvId tmpVar;
         // if we need a temporary var to store this argument, this is the value to store in the var
         SpvId tmpValueId;
-        if (is_out(*function.fParameters[i])) {
+        if (is_out(*function.parameters()[i])) {
             std::unique_ptr<LValue> lv = this->getLValue(*arguments[i], out);
             SpvId ptr = lv->getPointer();
             if (ptr) {
@@ -2579,14 +2580,15 @@ SpvId SPIRVCodeGenerator::writeFloatLiteral(const FloatLiteral& f) {
 
 SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, OutputStream& out) {
     SpvId result = fFunctionMap[&f];
-    this->writeInstruction(SpvOpFunction, this->getType(f.fReturnType), result,
+    this->writeInstruction(SpvOpFunction, this->getType(f.returnType()), result,
                            SpvFunctionControlMaskNone, this->getFunctionType(f), out);
     this->writeInstruction(SpvOpName, result, f.name(), fNameBuffer);
-    for (size_t i = 0; i < f.fParameters.size(); i++) {
+    const std::vector<Variable*>& parameters = f.parameters();
+    for (size_t i = 0; i < parameters.size(); i++) {
         SpvId id = this->nextId();
-        fVariableMap[f.fParameters[i]] = id;
+        fVariableMap[parameters[i]] = id;
         SpvId type;
-        type = this->getPointerType(f.fParameters[i]->type(), SpvStorageClassFunction);
+        type = this->getPointerType(parameters[i]->type(), SpvStorageClassFunction);
         this->writeInstruction(SpvOpFunctionParameter, type, id, out);
     }
     return result;
@@ -2604,7 +2606,7 @@ SpvId SPIRVCodeGenerator::writeFunction(const FunctionDefinition& f, OutputStrea
     }
     write_stringstream(bodyBuffer, out);
     if (fCurrentBlock) {
-        if (f.fDeclaration.fReturnType == *fContext.fVoid_Type) {
+        if (f.fDeclaration.returnType() == *fContext.fVoid_Type) {
             this->writeInstruction(SpvOpReturn, out);
         } else {
             this->writeInstruction(SpvOpUnreachable, out);

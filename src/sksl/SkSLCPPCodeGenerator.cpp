@@ -429,7 +429,7 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
-    if (function.fBuiltin && function.name() == "sample" &&
+    if (function.isBuiltin() && function.name() == "sample" &&
         arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
         // Validity checks that are detected by function definition in sksl_fp.inc
         SkASSERT(arguments.size() >= 1 && arguments.size() <= 3);
@@ -495,7 +495,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         fFormatArgs.push_back(childName + ".c_str()");
         return;
     }
-    if (function.fBuiltin) {
+    if (function.isBuiltin()) {
         INHERITED::writeFunctionCall(c);
     } else {
         this->write("%s");
@@ -509,7 +509,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         this->write(")");
     }
-    if (function.fBuiltin && function.name() == "sample") {
+    if (function.isBuiltin() && function.name() == "sample") {
         this->write(".%s");
         SkASSERT(arguments.size() >= 1);
         SkASSERT(arguments[0]->is<VariableReference>());
@@ -594,7 +594,7 @@ static const char* glsltype_string(const Context& context, const Type& type) {
 
 void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
     const FunctionDeclaration& decl = f.fDeclaration;
-    if (decl.fBuiltin) {
+    if (decl.isBuiltin()) {
         return;
     }
     fFunctionHeader = "";
@@ -616,7 +616,7 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         this->addExtraEmitCodeLine("SkString " + decl.name() + "_name;");
         String args = "const GrShaderVar " + decl.name() + "_args[] = { ";
         const char* separator = "";
-        for (const Variable* param : decl.fParameters) {
+        for (const Variable* param : decl.parameters()) {
             args += String(separator) + "GrShaderVar(\"" + param->name() + "\", " +
                     glsltype_string(fContext, param->type()) + ")";
             separator = ", ";
@@ -630,9 +630,9 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
 
         fOut = oldOut;
         String emit = "fragBuilder->emitFunction(";
-        emit += glsltype_string(fContext, decl.fReturnType);
+        emit += glsltype_string(fContext, decl.returnType());
         emit += ", \"" + decl.name() + "\"";
-        emit += ", " + to_string((int64_t) decl.fParameters.size());
+        emit += ", " + to_string((int64_t) decl.parameters().size());
         emit += ", " + decl.name() + "_args";
         emit += ",\nR\"SkSL(" + buffer.str() + ")SkSL\"";
         emit += ", &" + decl.name() + "_name);";

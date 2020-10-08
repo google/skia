@@ -65,7 +65,7 @@ namespace {
 
 static bool is_sample_call_to_fp(const FunctionCall& fc, const Variable& fp) {
     const FunctionDeclaration& f = fc.function();
-    return f.fBuiltin && f.name() == "sample" && fc.arguments().size() >= 1 &&
+    return f.isBuiltin() && f.name() == "sample" && fc.arguments().size() >= 1 &&
            fc.arguments()[0]->is<VariableReference>() &&
            fc.arguments()[0]->as<VariableReference>().variable() == &fp;
 }

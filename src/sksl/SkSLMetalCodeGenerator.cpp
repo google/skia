@@ -220,16 +220,17 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         return;
     }
     const StringFragment& name = function.name();
-    if (function.fBuiltin && name == "atan" && arguments.size() == 2) {
+    bool builtin = function.isBuiltin();
+    if (builtin && name == "atan" && arguments.size() == 2) {
         this->write("atan2");
-    } else if (function.fBuiltin && name == "inversesqrt") {
+    } else if (builtin && name == "inversesqrt") {
         this->write("rsqrt");
-    } else if (function.fBuiltin && name == "inverse") {
+    } else if (builtin && name == "inverse") {
         SkASSERT(arguments.size() == 1);
         this->writeInverseHack(*arguments[0]);
-    } else if (function.fBuiltin && name == "dFdx") {
+    } else if (builtin && name == "dFdx") {
         this->write("dfdx");
-    } else if (function.fBuiltin && name == "dFdy") {
+    } else if (builtin && name == "dFdy") {
         // Flipping Y also negates the Y derivatives.
         this->write((fProgram.fSettings.fFlipY) ? "-dfdy" : "dfdy");
     } else {
@@ -261,11 +262,12 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->write("_fragCoord");
         separator = ", ";
     }
+    const std::vector<Variable*>& parameters = function.parameters();
     for (size_t i = 0; i < arguments.size(); ++i) {
         const Expression& arg = *arguments[i];
         this->write(separator);
         separator = ", ";
-        if (function.fParameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+        if (parameters[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
             this->write("&");
         }
         this->writeExpression(arg, kSequence_Precedence);
@@ -1004,7 +1006,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         separator = ", ";
     } else {
-        this->writeType(f.fDeclaration.fReturnType);
+        this->writeType(f.fDeclaration.returnType());
         this->write(" ");
         this->writeName(f.fDeclaration.name());
         this->write("(");
@@ -1034,7 +1036,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
             separator = ", ";
         }
     }
-    for (const auto& param : f.fDeclaration.fParameters) {
+    for (const auto& param : f.fDeclaration.parameters()) {
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers(), false);
@@ -1801,7 +1803,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
 }
 
 MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const FunctionDeclaration& f) {
-    if (f.fBuiltin) {
+    if (f.isBuiltin()) {
         return kNo_Requirements;
     }
     auto found = fRequirements.find(&f);

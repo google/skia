@@ -35,7 +35,7 @@ String PipelineStageCodeGenerator::getTypeName(const Type& type) {
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
     const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
-    if (function.fBuiltin && function.name() == "sample" &&
+    if (function.isBuiltin() && function.name() == "sample" &&
         arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
         SkASSERT(arguments.size() <= 2);
         SkDEBUGCODE(const Type& arg0Type = arguments[0]->type());
@@ -76,7 +76,7 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         return;
     }
-    if (function.fBuiltin) {
+    if (function.isBuiltin()) {
         INHERITED::writeFunctionCall(c);
     } else {
         int index = 0;
@@ -184,12 +184,12 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
     } else {
         const FunctionDeclaration& decl = f.fDeclaration;
         Compiler::GLSLFunction result;
-        if (!type_to_grsltype(fContext, decl.fReturnType, &result.fReturnType)) {
+        if (!type_to_grsltype(fContext, decl.returnType(), &result.fReturnType)) {
             fErrors.error(f.fOffset, "unsupported return type");
             return;
         }
         result.fName = decl.name();
-        for (const Variable* v : decl.fParameters) {
+        for (const Variable* v : decl.parameters()) {
             GrSLType paramSLType;
             if (!type_to_grsltype(fContext, v->type(), &paramSLType)) {
                 fErrors.error(v->fOffset, "unsupported parameter type");
