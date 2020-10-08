@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c94c93b9_3d181ba9",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-08T18:22:47Z",
+      "side": 1,
+      "message": "flushes are only necessary because of dangling rt-proxy ptr in SkDDL (not to clean up backend objects).",
+      "revId": "f0970cf6dff5263260eb9af9d28097d3b1a92726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99a9ec92_e20db56f",
+        "filename": "tools/gpu/ManagedBackendTexture.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-08T18:22:47Z",
+      "side": 1,
+      "message": "I went to deep down a dark template/SFINAE path to have a single Make() that would always call the proc/ctx version if it exists but it gets really really tricky because parameter types of member function template args don\u0027t get deduced (e.g. if you have \u003ctypename Args...\u003e and then inside that have a template argument like GrBackendTexture(GrContext::*)(Args...) and one of Args is const SkPixmap*\u0026 it won\u0027t find deduce to a method on GrContext that takes const SkPixmap*, no \u0026).",
+      "range": {
+        "startLine": 28,
+        "startChar": 83,
+        "endLine": 32,
+        "endChar": 24
+      },
+      "revId": "f0970cf6dff5263260eb9af9d28097d3b1a92726",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
