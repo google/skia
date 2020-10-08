@@ -176,7 +176,16 @@ public:
     // (e.g. '+=' becomes '+')
     static Token::Kind RemoveAssignment(Token::Kind op);
 
-    void processIncludeFile(Program::Kind kind, const char* path,
+#if defined(SKSL_STANDALONE)
+    using PreIncludeData = const char*;
+#else
+    struct PreIncludeData {
+        const uint8_t* fData;
+        size_t         fSize;
+    };
+#endif
+
+    void processIncludeFile(Program::Kind kind, PreIncludeData data,
                             std::shared_ptr<SymbolTable> base,
                             std::vector<std::unique_ptr<ProgramElement>>* outElements,
                             std::shared_ptr<SymbolTable>* outSymbolTable);
