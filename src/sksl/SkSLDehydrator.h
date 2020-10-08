@@ -10,6 +10,7 @@
 
 #ifdef SKSL_STANDALONE
 
+#include "include/private/SkTHash.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/ir/SkSLModifiers.h"
@@ -49,10 +50,18 @@ public:
 
     void finish(OutputStream& out);
 
+    // Inserts line breaks at meaningful offsets.
+    const char* prefixAtOffset(size_t byte);
+
 private:
     void writeS8(int32_t i) {
         SkASSERT(i >= -128 && i <= 127);
         fBody.write8(i);
+    }
+
+    void writeCommand(int32_t c) {
+        fCommandBreaks.add(fBody.bytesWritten());
+        fBody.write8(c);
     }
 
     void writeU8(int32_t i) {
@@ -118,6 +127,10 @@ private:
     std::unordered_map<String, int> fStrings;
 
     std::vector<std::unordered_map<const Symbol*, int>> fSymbolMap;
+    SkTHashSet<size_t> fStringBreaks;
+    SkTHashSet<size_t> fCommandBreaks;
+    size_t fStringBufferStart;
+    size_t fCommandStart;
 
     friend class AutoDehydratorSymbolTable;
 };

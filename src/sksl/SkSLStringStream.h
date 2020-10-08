@@ -29,6 +29,10 @@ public:
         fBuffer.append((const char*) s, size);
     }
 
+    size_t bytesWritten() const {
+        return fBuffer.size();
+    }
+
     const String& str() const {
         return fBuffer;
     }
@@ -60,6 +64,10 @@ public:
 
     void write(const void* s, size_t size) override {
         fStream.write(s, size);
+    }
+
+    size_t bytesWritten() const {
+        return fStream.bytesWritten();
     }
 
     const String& str() const {
