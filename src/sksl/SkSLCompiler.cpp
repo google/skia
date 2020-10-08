@@ -462,7 +462,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
             break;
         case Expression::Kind::kIndex:
             // see comments in Swizzle
-            this->addDefinition(lvalue->as<IndexExpression>().fBase.get(),
+            this->addDefinition(lvalue->as<IndexExpression>().base().get(),
                                 (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
@@ -637,8 +637,8 @@ static bool is_dead(const Expression& lvalue) {
             return is_dead(*lvalue.as<FieldAccess>().fBase);
         case Expression::Kind::kIndex: {
             const IndexExpression& idx = lvalue.as<IndexExpression>();
-            return is_dead(*idx.fBase) &&
-                   !idx.fIndex->hasProperty(Expression::Property::kSideEffects);
+            return is_dead(*idx.base()) &&
+                   !idx.index()->hasProperty(Expression::Property::kSideEffects);
         }
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = lvalue.as<TernaryExpression>();
@@ -889,7 +889,7 @@ static void clear_write(Expression& expr) {
             clear_write(*expr.as<Swizzle>().fBase);
             break;
         case Expression::Kind::kIndex:
-            clear_write(*expr.as<IndexExpression>().fBase);
+            clear_write(*expr.as<IndexExpression>().base());
             break;
         default:
             ABORT("shouldn't be writing to this kind of expression\n");

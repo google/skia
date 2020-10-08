@@ -1577,7 +1577,7 @@ SpvStorageClass_ get_storage_class(const Expression& expr) {
         case Expression::Kind::kFieldAccess:
             return get_storage_class(*expr.as<FieldAccess>().fBase);
         case Expression::Kind::kIndex:
-            return get_storage_class(*expr.as<IndexExpression>().fBase);
+            return get_storage_class(*expr.as<IndexExpression>().base());
         default:
             return SpvStorageClassFunction;
     }
@@ -1588,8 +1588,8 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
     switch (expr.kind()) {
         case Expression::Kind::kIndex: {
             IndexExpression& indexExpr = (IndexExpression&) expr;
-            chain = this->getAccessChain(*indexExpr.fBase, out);
-            chain.push_back(this->writeExpression(*indexExpr.fIndex, out));
+            chain = this->getAccessChain(*indexExpr.base(), out);
+            chain.push_back(this->writeExpression(*indexExpr.index(), out));
             break;
         }
         case Expression::Kind::kFieldAccess: {
@@ -1961,9 +1961,9 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
 }
 
 SpvId SPIRVCodeGenerator::writeIndexExpression(const IndexExpression& expr, OutputStream& out) {
-    if (expr.fBase->type().typeKind() == Type::TypeKind::kVector) {
-        SpvId base = this->writeExpression(*expr.fBase, out);
-        SpvId index = this->writeExpression(*expr.fIndex, out);
+    if (expr.base()->type().typeKind() == Type::TypeKind::kVector) {
+        SpvId base = this->writeExpression(*expr.base(), out);
+        SpvId index = this->writeExpression(*expr.index(), out);
         SpvId result = this->nextId();
         this->writeInstruction(SpvOpVectorExtractDynamic, this->getType(expr.type()), result, base,
                                index, out);
@@ -2998,10 +2998,10 @@ void SPIRVCodeGenerator::writeWhileStatement(const WhileStatement& w, OutputStre
     this->writeInstruction(SpvOpLoopMerge, end, continueTarget, SpvLoopControlMaskNone, out);
     this->writeInstruction(SpvOpBranch, start, out);
     this->writeLabel(start, out);
-    SpvId test = this->writeExpression(*w.fTest, out);
+    SpvId test = this->writeExpression(*w.test(), out);
     this->writeInstruction(SpvOpBranchConditional, test, body, end, out);
     this->writeLabel(body, out);
-    this->writeStatement(*w.fStatement, out);
+    this->writeStatement(*w.statement(), out);
     if (fCurrentBlock) {
         this->writeInstruction(SpvOpBranch, continueTarget, out);
     }
@@ -3081,8 +3081,8 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
 }
 
 void SPIRVCodeGenerator::writeReturnStatement(const ReturnStatement& r, OutputStream& out) {
-    if (r.fExpression) {
-        this->writeInstruction(SpvOpReturnValue, this->writeExpression(*r.fExpression, out),
+    if (r.expression()) {
+        this->writeInstruction(SpvOpReturnValue, this->writeExpression(*r.expression(), out),
                                out);
     } else {
         this->writeInstruction(SpvOpReturn, out);
