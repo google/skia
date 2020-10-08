@@ -69,10 +69,9 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
         this->type().typeKind() != Type::TypeKind::kArray) {
         return initialValue->clone();
     }
-    auto exprIter = definitions.find(this->variable());
-    if (exprIter != definitions.end() && exprIter->second &&
-        (*exprIter->second)->isCompileTimeConstant()) {
-        return (*exprIter->second)->clone();
+    std::unique_ptr<Expression>** exprPPtr = definitions.find(this->variable());
+    if (exprPPtr && *exprPPtr && (**exprPPtr)->isCompileTimeConstant()) {
+        return (**exprPPtr)->clone();
     }
     return nullptr;
 }
