@@ -555,14 +555,17 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
         bool mipmapRepeatY = m[1] == ShaderMode::kRepeat_Nearest_Mipmap ||
                              m[1] == ShaderMode::kRepeat_Linear_Mipmap;
 
+        if (mipmapRepeatX || mipmapRepeatY) {
+            fb->codeAppend("float2 extraRepeatCoord;");
+        }
         if (mipmapRepeatX) {
-            fb->codeAppend("float extraRepeatCoordX; half repeatCoordWeightX;");
-            extraRepeatCoordX   = "extraRepeatCoordX";
+            fb->codeAppend("half repeatCoordWeightX;");
+            extraRepeatCoordX   = "extraRepeatCoord.x";
             repeatCoordWeightX  = "repeatCoordWeightX";
         }
         if (mipmapRepeatY) {
-            fb->codeAppend("float extraRepeatCoordY; half repeatCoordWeightY;");
-            extraRepeatCoordY   = "extraRepeatCoordY";
+            fb->codeAppend("half repeatCoordWeightY;");
+            extraRepeatCoordY   = "extraRepeatCoord.y";
             repeatCoordWeightY  = "repeatCoordWeightY";
         }
 
@@ -578,13 +581,15 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
             clampCoord(useClamp[1], ".y", ".y", ".w");
         }
         // Additional clamping for the extra coords for kRepeat with mip maps.
-        if (mipmapRepeatX) {
-            fb->codeAppendf("extraRepeatCoordX = clamp(extraRepeatCoordX, %s.x, %s.z);", clampName,
-                            clampName);
-        }
-        if (mipmapRepeatY) {
-            fb->codeAppendf("extraRepeatCoordY = clamp(extraRepeatCoordY, %s.y, %s.w);", clampName,
-                            clampName);
+        if (mipmapRepeatX && mipmapRepeatY) {
+            fb->codeAppendf("extraRepeatCoord = clamp(extraRepeatCoord, %s.xy, %s.zw);",
+                            clampName, clampName);
+        } else if (mipmapRepeatX) {
+            fb->codeAppendf("extraRepeatCoord.x = clamp(extraRepeatCoord.x, %s.x, %s.z);",
+                            clampName, clampName);
+        } else if (mipmapRepeatY) {
+            fb->codeAppendf("extraRepeatCoord.y = clamp(extraRepeatCoord.y, %s.y, %s.w);",
+                            clampName, clampName);
         }
 
         // Do the 2 or 4 texture reads for kRepeatMipMap and then apply the weight(s)
@@ -597,18 +602,18 @@ void GrTextureEffect::Impl::emitCode(EmitArgs& args) {
                     "       mix(%s, %s, repeatCoordWeightX),"
                     "       repeatCoordWeightY);",
                     read("clampedCoord").c_str(),
-                    read("float2(extraRepeatCoordX, clampedCoord.y)").c_str(),
-                    read("float2(clampedCoord.x, extraRepeatCoordY)").c_str(),
-                    read("float2(extraRepeatCoordX, extraRepeatCoordY)").c_str());
+                    read("float2(extraRepeatCoord.x, clampedCoord.y)").c_str(),
+                    read("float2(clampedCoord.x, extraRepeatCoord.y)").c_str(),
+                    read("float2(extraRepeatCoord.x, extraRepeatCoord.y)").c_str());
 
         } else if (mipmapRepeatX) {
             fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightX);",
                             read("clampedCoord").c_str(),
-                            read("float2(extraRepeatCoordX, clampedCoord.y)").c_str());
+                            read("float2(extraRepeatCoord.x, clampedCoord.y)").c_str());
         } else if (mipmapRepeatY) {
             fb->codeAppendf("half4 textureColor = mix(%s, %s, repeatCoordWeightY);",
                             read("clampedCoord").c_str(),
-                            read("float2(clampedCoord.x, extraRepeatCoordY)").c_str());
+                            read("float2(clampedCoord.x, extraRepeatCoord.y)").c_str());
         } else {
             fb->codeAppendf("half4 textureColor = %s;", read("clampedCoord").c_str());
         }
