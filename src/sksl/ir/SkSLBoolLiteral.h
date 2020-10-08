@@ -23,6 +23,10 @@ public:
     BoolLiteral(const Context& context, int offset, bool value)
     : INHERITED(offset, BoolLiteralData{context.fBool_Type.get(), value}) {}
 
+    const Type& type() const override {
+        return *this->boolLiteralData().fType;
+    }
+
     bool value() const {
         return this->boolLiteralData().fValue;
     }

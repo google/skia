@@ -89,9 +89,9 @@ void CPPCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                right.kind() == Expression::Kind::kNullLiteral) {
         const Variable* var;
         if (left.kind() != Expression::Kind::kNullLiteral) {
-            var = left.as<VariableReference>().fVariable;
+            var = left.as<VariableReference>().variable();
         } else {
-            var = right.as<VariableReference>().fVariable;
+            var = right.as<VariableReference>().variable();
         }
         SkASSERT(var->type().typeKind() == Type::TypeKind::kNullable &&
                  var->type().componentType() == *fContext.fFragmentProcessor_Type);
@@ -311,10 +311,10 @@ void CPPCodeGenerator::setReturnType(int offset, ReturnType typeToSet) {
 
 void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     if (fCPPMode) {
-        this->write(ref.fVariable->name());
+        this->write(ref.variable()->name());
         return;
     }
-    switch (ref.fVariable->modifiers().fLayout.fBuiltin) {
+    switch (ref.variable()->modifiers().fLayout.fBuiltin) {
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
@@ -332,33 +332,34 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write("sk_Height");
             break;
         default:
-            if (ref.fVariable->type().typeKind() == Type::TypeKind::kSampler) {
+            const Variable& var = *ref.variable();
+            if (var.type().typeKind() == Type::TypeKind::kSampler) {
                 this->write("%s");
                 fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerVariable(" +
-                                      this->getSamplerHandle(*ref.fVariable) + ")");
+                                      this->getSamplerHandle(*ref.variable()) + ")");
                 return;
             }
-            if (ref.fVariable->modifiers().fFlags & Modifiers::kUniform_Flag) {
+            if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
                 this->write("%s");
-                String name = ref.fVariable->name();
-                String var = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
-                                            HCodeGenerator::FieldName(name.c_str()).c_str());
+                String name = var.name();
+                String varCode = String::printf("args.fUniformHandler->getUniformCStr(%sVar)",
+                                                HCodeGenerator::FieldName(name.c_str()).c_str());
                 String code;
-                if (ref.fVariable->modifiers().fLayout.fWhen.fLength) {
+                if (var.modifiers().fLayout.fWhen.fLength) {
                     code = String::printf("%sVar.isValid() ? %s : \"%s\"",
                                           HCodeGenerator::FieldName(name.c_str()).c_str(),
-                                          var.c_str(),
-                                          default_value(ref.fVariable->type()).c_str());
+                                          varCode.c_str(),
+                                          default_value(var.type()).c_str());
                 } else {
-                    code = var;
+                    code = varCode;
                 }
                 fFormatArgs.push_back(code);
-            } else if (SectionAndParameterHelper::IsParameter(*ref.fVariable)) {
-                String name(ref.fVariable->name());
-                this->writeRuntimeValue(ref.fVariable->type(), ref.fVariable->modifiers().fLayout,
+            } else if (SectionAndParameterHelper::IsParameter(var)) {
+                String name(var.name());
+                this->writeRuntimeValue(var.type(), var.modifiers().fLayout,
                                         String::printf("_outer.%s", name.c_str()).c_str());
             } else {
-                this->write(ref.fVariable->name());
+                this->write(var.name());
             }
     }
 }
@@ -394,7 +395,7 @@ void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
         }
 
         const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
-        const Variable& var = *access.fBase->as<VariableReference>().fVariable;
+        const Variable& var = *access.fBase->as<VariableReference>().variable();
         String cppAccess = String::printf("_outer.childProcessor(%d)->%s()",
                                           this->getChildFPIndex(var),
                                           String(field.fName).c_str());
@@ -443,7 +444,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     "sample()'s fragmentProcessor argument must be a variable reference\n");
             return;
         }
-        const Variable& child = *arguments[0]->as<VariableReference>().fVariable;
+        const Variable& child = *arguments[0]->as<VariableReference>().variable();
 
         // Start a new extra emit code section so that the emitted child processor can depend on
         // sksl variables defined in earlier sksl code.
@@ -513,7 +514,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         SkASSERT(arguments.size() >= 1);
         SkASSERT(arguments[0]->is<VariableReference>());
         String sampler =
-                this->getSamplerHandle(*arguments[0]->as<VariableReference>().fVariable);
+                this->getSamplerHandle(*arguments[0]->as<VariableReference>().variable());
         fFormatArgs.push_back("fragBuilder->getProgramBuilder()->samplerSwizzle(" + sampler +
                               ").asString().c_str()");
     }

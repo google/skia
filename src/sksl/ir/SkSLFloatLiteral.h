@@ -25,6 +25,10 @@ struct FloatLiteral : public Expression {
     FloatLiteral(int offset, float value, const Type* type)
     : INHERITED(offset, FloatLiteralData{type, value}) {}
 
+    const Type& type() const override {
+        return *this->floatLiteralData().fType;
+    }
+
     float value() const {
         return this->floatLiteralData().fValue;
     }
