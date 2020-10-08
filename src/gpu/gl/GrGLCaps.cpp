@@ -978,6 +978,8 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
         shaderCaps->fBuiltinFMASupport = ctxInfo.glslGeneration() >= k320es_GrGLSLGeneration;
     }
 
+    shaderCaps->fBuiltinDeterminantSupport = ctxInfo.glslGeneration() >= k150_GrGLSLGeneration;
+
     if (GR_IS_GR_WEBGL(standard)) {
       // WebGL 1.0 doesn't support do-while loops.
       shaderCaps->fCanUseDoLoops = version >= GR_GL_VER(2, 0);

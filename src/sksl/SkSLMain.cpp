@@ -332,13 +332,13 @@ int main(int argc, const char** argv) {
         SkSL::StringStream buffer;
         dehydrator.finish(buffer);
         const SkSL::String& data = buffer.str();
-        out.printf("static constexpr size_t SKSL_INCLUDE_%s_LENGTH = %d;\n", baseName.c_str(),
-                   (int) data.length());
-        out.printf("static uint8_t SKSL_INCLUDE_%s[%d] = {", baseName.c_str(), (int) data.length());
+        out.printf("static uint8_t SKSL_INCLUDE_%s[] = {", baseName.c_str());
         for (size_t i = 0; i < data.length(); ++i) {
-            out.printf("%d,", (uint8_t) data[i]);
+            out.printf("%s%d,", dehydrator.prefixAtOffset(i), uint8_t(data[i]));
         }
         out.printf("};\n");
+        out.printf("static constexpr size_t SKSL_INCLUDE_%s_LENGTH = sizeof(SKSL_INCLUDE_%s);\n",
+                   baseName.c_str(), baseName.c_str());
         if (!out.close()) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);

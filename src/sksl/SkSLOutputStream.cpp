@@ -11,7 +11,7 @@
 
 namespace SkSL {
 
-void OutputStream::writeString(String s) {
+void OutputStream::writeString(const String& s) {
     this->write(s.c_str(), s.size());
 }
 

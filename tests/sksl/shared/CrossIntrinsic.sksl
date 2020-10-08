@@ -1,0 +1,12 @@
+/*#pragma settings Default*/
+
+uniform half2  h2;
+uniform float2 f2;
+
+void main() {
+    sk_FragColor = cross( half2(1, 2),  half2(3, 4)).xxxx;
+    sk_FragColor = half(cross(float2(5, 6), float2(7, 8))).xxxx;
+
+    sk_FragColor = cross(h2, h2).xxxx;
+    sk_FragColor = half(cross(f2, f2)).xxxx;
+}
