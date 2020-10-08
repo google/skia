@@ -9,18 +9,18 @@
 #include "src/gpu/GrRenderTarget.h"
 
 #include "src/core/SkRectPriv.h"
-#include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrSamplePatternDictionary.h"
+#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrStencilSettings.h"
 
 GrRenderTarget::GrRenderTarget(GrGpu* gpu,
                                const SkISize& dimensions,
                                int sampleCount,
                                GrProtected isProtected,
-                               GrAttachment* stencil)
+                               GrStencilAttachment* stencil)
         : INHERITED(gpu, dimensions, isProtected)
         , fStencilAttachment(stencil)
         , fSampleCnt(sampleCount)
@@ -40,7 +40,7 @@ void GrRenderTarget::onAbandon() {
     INHERITED::onAbandon();
 }
 
-void GrRenderTarget::attachStencilAttachment(sk_sp<GrAttachment> stencil) {
+void GrRenderTarget::attachStencilAttachment(sk_sp<GrStencilAttachment> stencil) {
 #ifdef SK_DEBUG
     if (fSampleCnt == 1) {
         // TODO: We don't expect a mixed sampled render target to ever change its stencil buffer

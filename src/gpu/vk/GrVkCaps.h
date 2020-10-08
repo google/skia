@@ -10,7 +10,7 @@
 
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/vk/GrVkAttachment.h"
+#include "src/gpu/vk/GrVkStencilAttachment.h"
 
 class GrShaderCaps;
 class GrVkExtensions;

@@ -12,7 +12,7 @@
 #include "src/gpu/GrSurface.h"
 
 class GrCaps;
-class GrAttachment;
+class GrStencilAttachment;
 class GrBackendRenderTarget;
 
 /**
@@ -41,11 +41,11 @@ public:
 
     virtual GrBackendRenderTarget getBackendRenderTarget() const = 0;
 
-    GrAttachment* getStencilAttachment() const { return fStencilAttachment.get(); }
+    GrStencilAttachment* getStencilAttachment() const { return fStencilAttachment.get(); }
     // Checked when this object is asked to attach a stencil buffer.
     virtual bool canAttemptStencilAttachment() const = 0;
 
-    void attachStencilAttachment(sk_sp<GrAttachment> stencil);
+    void attachStencilAttachment(sk_sp<GrStencilAttachment> stencil);
 
     int numStencilBits() const;
 
@@ -63,7 +63,8 @@ public:
     const SkTArray<SkPoint>& getSampleLocations();
 
 protected:
-    GrRenderTarget(GrGpu*, const SkISize&, int sampleCount, GrProtected, GrAttachment* = nullptr);
+    GrRenderTarget(GrGpu*, const SkISize&, int sampleCount, GrProtected,
+                   GrStencilAttachment* = nullptr);
     ~GrRenderTarget() override;
 
     // override of GrResource
@@ -72,12 +73,12 @@ protected:
 
 private:
     // Allows the backends to perform any additional work that is required for attaching a
-    // GrAttachment. When this is called, the GrAttachment has already been put onto
+    // GrStencilAttachment. When this is called, the GrStencilAttachment has already been put onto
     // the GrRenderTarget. This function must return false if any failures occur when completing the
     // stencil attachment.
     virtual bool completeStencilAttachment() = 0;
 
-    sk_sp<GrAttachment> fStencilAttachment;
+    sk_sp<GrStencilAttachment> fStencilAttachment;
     int fSampleCnt;
     int fSamplePatternKey;
 

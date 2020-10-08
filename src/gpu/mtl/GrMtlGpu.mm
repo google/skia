@@ -183,7 +183,7 @@ void GrMtlGpu::destroyResources() {
 }
 
 GrOpsRenderPass* GrMtlGpu::getOpsRenderPass(
-            GrRenderTarget* renderTarget, GrAttachment*,
+            GrRenderTarget* renderTarget, GrStencilAttachment*,
             GrSurfaceOrigin origin, const SkIRect& bounds,
             const GrOpsRenderPass::LoadAndStoreInfo& colorInfo,
             const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
@@ -497,7 +497,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
     return true;
 }
 
-sk_sp<GrAttachment> GrMtlGpu::makeStencilAttachmentForRenderTarget(
+GrStencilAttachment* GrMtlGpu::createStencilAttachmentForRenderTarget(
         const GrRenderTarget* rt, SkISize dimensions, int numStencilSamples) {
     SkASSERT(numStencilSamples == rt->numSamples());
     SkASSERT(dimensions.width() >= rt->width());
@@ -507,8 +507,12 @@ sk_sp<GrAttachment> GrMtlGpu::makeStencilAttachmentForRenderTarget(
 
     MTLPixelFormat sFmt = this->mtlCaps().preferredStencilFormat();
 
+    GrMtlStencilAttachment* stencil(GrMtlStencilAttachment::Create(this,
+                                                                   dimensions,
+                                                                   samples,
+                                                                   sFmt));
     fStats.incStencilAttachmentCreates();
-    return GrMtlAttachment::GrMtlAttachment::MakeStencil(this, dimensions, samples, sFmt);
+    return stencil;
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(SkISize dimensions,

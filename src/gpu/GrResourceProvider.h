@@ -23,7 +23,7 @@ class GrRenderTarget;
 class GrResourceProviderPriv;
 class GrSemaphore;
 class GrSingleOwner;
-class GrAttachment;
+class GrStencilAttachment;
 class GrTexture;
 struct GrVkDrawableInfo;
 

@@ -5,32 +5,36 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGLMtlAttachment_DEFINED
-#define GrGLMtlAttachment_DEFINED
+
+#ifndef GrGLStencilAttachment_DEFINED
+#define GrGLStencilAttachment_DEFINED
 
 #include "include/gpu/gl/GrGLInterface.h"
-#include "src/gpu/GrAttachment.h"
+#include "src/gpu/GrStencilAttachment.h"
 
-class GrGLAttachment : public GrAttachment {
+class GrGLStencilAttachment : public GrStencilAttachment {
 public:
     struct IDDesc {
         IDDesc() : fRenderbufferID(0) {}
         GrGLuint fRenderbufferID;
     };
 
-    GrGLAttachment(
-            GrGpu* gpu, const IDDesc& idDesc, SkISize dimensions, UsageFlags supportedUsages,
-            int sampleCnt, GrGLFormat format)
-            : GrAttachment(gpu, dimensions, supportedUsages, sampleCnt, GrProtected::kNo)
-            , fFormat(format)
-            , fRenderbufferID(idDesc.fRenderbufferID) {
-        SkASSERT(supportedUsages == UsageFlags::kStencil);
+    GrGLStencilAttachment(GrGpu* gpu,
+                          const IDDesc& idDesc,
+                          SkISize dimensions,
+                          int sampleCnt,
+                          GrGLFormat format)
+        : GrStencilAttachment(gpu, dimensions, sampleCnt, GrProtected::kNo)
+        , fFormat(format)
+        , fRenderbufferID(idDesc.fRenderbufferID) {
         this->registerWithCache(SkBudgeted::kYes);
     }
 
     GrBackendFormat backendFormat() const override;
 
-    GrGLuint renderbufferID() const { return fRenderbufferID; }
+    GrGLuint renderbufferID() const {
+        return fRenderbufferID;
+    }
 
     GrGLFormat format() const { return fFormat; }
 
@@ -51,7 +55,7 @@ private:
     // us how many bits of stencil there are).
     GrGLuint fRenderbufferID;
 
-    using INHERITED = GrAttachment;
+    using INHERITED = GrStencilAttachment;
 };
 
 #endif
