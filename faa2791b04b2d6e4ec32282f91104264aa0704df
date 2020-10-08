@@ -39,6 +39,30 @@
       },
       "revId": "faa2791b04b2d6e4ec32282f91104264aa0704df",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8cba1f3_a4ae8899",
+        "filename": "src/sksl/sksl_gpu.sksl",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T03:40:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a768db79_1c78ee81",
+      "range": {
+        "startLine": 583,
+        "startChar": 4,
+        "endLine": 584,
+        "endChar": 85
+      },
+      "revId": "faa2791b04b2d6e4ec32282f91104264aa0704df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
