@@ -16,6 +16,24 @@
       "message": "I don\u0027t think the cap bit is actually working as intended--I think every platform is getting the polyfilled determinant. Investigating further.",
       "revId": "e903033d2b4b449b87a1a05327ae90c2fd5604bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1bd3a0b_7888d598",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T15:56:30Z",
+      "side": 1,
+      "message": "Ethan is landing a fix for the caps-bit bug in http://review.skia.org/323978",
+      "parentUuid": "aabaa946_0bbe06dc",
+      "revId": "e903033d2b4b449b87a1a05327ae90c2fd5604bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
