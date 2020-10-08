@@ -26,3 +26,21 @@ DEF_TEST(ExifOrientation, r) {
     origin = codec->getOrigin();
     REPORTER_ASSERT(r, kTopLeft_SkEncodedOrigin == origin);
 }
+
+DEF_TEST(ExifOrientationInExif, r) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("images/orientation/exif.jpg"));
+
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    REPORTER_ASSERT(r, nullptr != codec);
+    SkEncodedOrigin origin = codec->getOrigin();
+    REPORTER_ASSERT(r, kLeftBottom_SkEncodedOrigin == origin);
+}
+
+DEF_TEST(ExifOrientationInSubIFD, r) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream("images/orientation/subifd.jpg"));
+
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    REPORTER_ASSERT(r, nullptr != codec);
+    SkEncodedOrigin origin = codec->getOrigin();
+    REPORTER_ASSERT(r, kLeftBottom_SkEncodedOrigin == origin);
+}
