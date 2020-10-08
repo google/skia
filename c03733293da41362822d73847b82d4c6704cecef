@@ -16,6 +16,29 @@
       "message": "Push constants seems to be the generic term for this from what I see in the GPU discussions.",
       "revId": "c03733293da41362822d73847b82d4c6704cecef",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb827c2f_e258c0f1",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-08T18:41:37Z",
+      "side": 1,
+      "message": "this is in the workaround section. I think you want to move this qcom check down to where you\u0027re setting the value for real",
+      "range": {
+        "startLine": 527,
+        "startChar": 5,
+        "endLine": 528,
+        "endChar": 34
+      },
+      "revId": "c03733293da41362822d73847b82d4c6704cecef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
