@@ -50,7 +50,10 @@ GrGpuResource::~GrGpuResource() {
 void GrGpuResource::release() {
     SkASSERT(fGpu);
     this->onRelease();
-    get_resource_cache(fGpu)->resourceAccess().removeResource(this);
+    // If this release is called because the cache is being destroyed, don't call out to it.
+    if (GrResourceCache* cache = get_resource_cache(fGpu)) {
+        cache->resourceAccess().removeResource(this);
+    }
     fGpu = nullptr;
     fGpuMemorySize = 0;
 }
