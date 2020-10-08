@@ -14,6 +14,7 @@
 #include "src/sksl/SkSLString.h"
 
 #include <algorithm>
+#include <atomic>
 #include <vector>
 
 namespace SkSL {
