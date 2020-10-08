@@ -133,6 +133,11 @@ protected:
         int64_t fValue;
     };
 
+    struct SettingData {
+        String fName;
+        const Type* fType;
+    };
+
     struct SymbolData {
         StringFragment fName;
         const Type* fType;
@@ -181,6 +186,7 @@ protected:
             kFunctionDeclaration,
             kIfStatement,
             kIntLiteral,
+            kSetting,
             kString,
             kSymbol,
             kSymbolAlias,
@@ -203,6 +209,7 @@ protected:
             FunctionDeclarationData fFunctionDeclaration;
             IfStatementData fIfStatement;
             IntLiteralData fIntLiteral;
+            SettingData fSetting;
             String fString;
             SymbolData fSymbol;
             SymbolAliasData fSymbolAlias;
@@ -269,6 +276,11 @@ protected:
         NodeData(IntLiteralData data)
             : fKind(Kind::kIntLiteral) {
             *(new(&fContents) IntLiteralData) = data;
+        }
+
+        NodeData(const SettingData& data)
+            : fKind(Kind::kSetting) {
+            *(new(&fContents) SettingData) = data;
         }
 
         NodeData(const String& data)
@@ -348,6 +360,9 @@ protected:
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
+                case Kind::kSetting:
+                    *(new(&fContents) SettingData) = other.fContents.fSetting;
+                    break;
                 case Kind::kString:
                     *(new(&fContents) String) = other.fContents.fString;
                     break;
@@ -413,6 +428,9 @@ protected:
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
+                case Kind::kSetting:
+                    fContents.fSetting.~SettingData();
+                    break;
                 case Kind::kString:
                     fContents.fString.~String();
                     break;
@@ -459,6 +477,8 @@ protected:
     IRNode(int offset, int kind, const FunctionDeclarationData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
+
+    IRNode(int offset, int kind, const SettingData& data);
 
     IRNode(int offset, int kind, const String& data);
 
@@ -576,6 +596,11 @@ protected:
     const IntLiteralData& intLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kIntLiteral);
         return fData.fContents.fIntLiteral;
+    }
+
+    const SettingData& settingData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kSetting);
+        return fData.fContents.fSetting;
     }
 
     const String& stringData() const {

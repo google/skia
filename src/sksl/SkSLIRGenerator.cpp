@@ -2674,15 +2674,28 @@ std::unique_ptr<Expression> IRGenerator::convertSwizzle(std::unique_ptr<Expressi
     return expr;
 }
 
-std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
+const Type* IRGenerator::typeForSetting(int offset, String name) const {
     auto found = fCapsMap.find(name);
     if (found == fCapsMap.end()) {
         fErrors.error(offset, "unknown capability flag '" + name + "'");
         return nullptr;
     }
-    String fullName = "sk_Caps." + name;
-    return std::unique_ptr<Expression>(new Setting(offset, fullName,
-                                                   found->second.literal(fContext, offset)));
+    switch (found->second.fKind) {
+        case Program::Settings::Value::kBool_Kind:  return fContext.fBool_Type.get();
+        case Program::Settings::Value::kFloat_Kind: return fContext.fFloat_Type.get();
+        case Program::Settings::Value::kInt_Kind:   return fContext.fInt_Type.get();
+    }
+    SkUNREACHABLE;
+    return nullptr;
+}
+
+std::unique_ptr<Expression> IRGenerator::valueForSetting(int offset, String name) const {
+    auto found = fCapsMap.find(name);
+    if (found == fCapsMap.end()) {
+        fErrors.error(offset, "unknown capability flag '" + name + "'");
+        return nullptr;
+    }
+    return found->second.literal(fContext, offset);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertTypeField(int offset, const Type& type,
@@ -2774,7 +2787,11 @@ std::unique_ptr<Expression> IRGenerator::convertFieldExpression(const ASTNode& f
     StringFragment field = fieldNode.getString();
     const Type& baseType = base->type();
     if (baseType == *fContext.fSkCaps_Type) {
-        return this->getCap(fieldNode.fOffset, field);
+        const Type* type = this->typeForSetting(fieldNode.fOffset, field);
+        if (!type) {
+            return nullptr;
+        }
+        return std::make_unique<Setting>(fieldNode.fOffset, field, type);
     }
     if (base->kind() == Expression::Kind::kExternalValue) {
         return this->convertField(std::move(base), field);
