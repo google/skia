@@ -271,7 +271,7 @@ EXTRA_CFLAGS+="\"-Wno-tautological-value-range-compare\","
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
-  extra_cflags_cc=[\"-frtti\"] \
+  extra_cflags_cc=[\"-fno-rtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
