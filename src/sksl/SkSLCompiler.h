@@ -50,6 +50,16 @@ class IRGenerator;
 class IRIntrinsicMap;
 struct PipelineStageArgs;
 
+struct LoadedModule {
+    std::shared_ptr<SymbolTable>                 fSymbols;
+    std::vector<std::unique_ptr<ProgramElement>> fElements;
+};
+
+struct ParsedModule {
+    std::shared_ptr<SymbolTable>    fSymbols;
+    std::shared_ptr<IRIntrinsicMap> fIntrinsics;
+};
+
 /**
  * Main compiler entry point. This is a traditional compiler design which first parses the .sksl
  * file into an abstract syntax tree (a tree of ASTNodes), then performs semantic analysis to
@@ -176,10 +186,24 @@ public:
     // (e.g. '+=' becomes '+')
     static Token::Kind RemoveAssignment(Token::Kind op);
 
-    void processIncludeFile(Program::Kind kind, const char* path,
-                            std::shared_ptr<SymbolTable> base,
-                            std::vector<std::unique_ptr<ProgramElement>>* outElements,
-                            std::shared_ptr<SymbolTable>* outSymbolTable);
+    // When  SKSL_STANDALONE, fPath is used. (fData, fSize) will be (nullptr, 0)
+    // When !SKSL_STANDALONE, fData and fSize are used. fPath will be nullptr.
+    struct ModuleData {
+        const char*    fPath;
+
+        const uint8_t* fData;
+        size_t         fSize;
+    };
+
+    static ModuleData MakeModulePath(const char* path) {
+        return ModuleData{path, /*fData=*/nullptr, /*fSize=*/0};
+    }
+    static ModuleData MakeModuleData(const uint8_t* data, size_t size) {
+        return ModuleData{/*fPath=*/nullptr, data, size};
+    }
+
+    LoadedModule loadModule(Program::Kind kind, ModuleData data, std::shared_ptr<SymbolTable> base);
+    ParsedModule parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base);
 
 private:
     void loadFPIntrinsics();
@@ -232,26 +256,14 @@ private:
 
     std::shared_ptr<SymbolTable> fRootSymbolTable;
 
-    std::shared_ptr<SymbolTable> fGpuSymbolTable;
-    std::unique_ptr<IRIntrinsicMap> fGPUIntrinsics;
-
-    std::shared_ptr<SymbolTable> fInterpreterSymbolTable;
-    std::unique_ptr<IRIntrinsicMap> fInterpreterIntrinsics;
-
-    std::shared_ptr<SymbolTable> fVertexSymbolTable;
-    std::unique_ptr<IRIntrinsicMap> fVertexIntrinsics;
-
-    std::shared_ptr<SymbolTable> fFragmentSymbolTable;
-    std::unique_ptr<IRIntrinsicMap> fFragmentIntrinsics;
-
-    std::shared_ptr<SymbolTable> fGeometrySymbolTable;
-    std::unique_ptr<IRIntrinsicMap> fGeometryIntrinsics;
-
-    std::shared_ptr<SymbolTable> fPipelineSymbolTable;
-    std::unique_ptr<IRIntrinsicMap> fPipelineIntrinsics;
-
-    std::shared_ptr<SymbolTable> fFPSymbolTable;
-    std::unique_ptr<IRIntrinsicMap> fFPIntrinsics;
+    ParsedModule fRootModule;
+    ParsedModule fGPUModule;
+    ParsedModule fInterpreterModule;
+    ParsedModule fVertexModule;
+    ParsedModule fFragmentModule;
+    ParsedModule fGeometryModule;
+    ParsedModule fPipelineModule;
+    ParsedModule fFPModule;
 
     // holds ModifiersPools belonging to the core includes for lifetime purposes
     std::vector<std::unique_ptr<ModifiersPool>> fModifiers;
