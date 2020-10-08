@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45c58c92_44e38cda",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2688,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T15:47:27Z",
+      "side": 1,
+      "message": "The bots insist on\n    default: SkUNREACHABLE;",
+      "range": {
+        "startLine": 2688,
+        "startChar": 0,
+        "endLine": 2688,
+        "endChar": 4
+      },
+      "revId": "d5f5573e519c56494b4546bbe26c5a0876de770c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
