@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7dc0adaa_0be5ac5d",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T14:33:49Z",
+      "side": 1,
+      "message": "This can almost be:\nusing iterator \u003d std::vector\u003c...\u003e::iterator;\n\n... except that the previous iterator\u0027s value type is ProgramElement\u0026, not unique_ptr\u003c...\u003e, so we need the double-dereference.",
+      "revId": "32d91bb8359c6ecd0f90a9a53aae9569388b7cbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
