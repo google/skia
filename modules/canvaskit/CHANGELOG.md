@@ -6,9 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2020-10-08
+
 ### Breaking
  - "Sk" has been removed from all names. e.g. `new CanvasKit.SkPaint()` becomes
-   `new CanvasKit.Paint()`
+   `new CanvasKit.Paint()`. See `./types/index.d.ts` for all the new names.
 
 ### Removed
  - `Surface.captureFrameAsSkPicture`; it was deprecated previously.
