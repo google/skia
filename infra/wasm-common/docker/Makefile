@@ -1,4 +1,4 @@
-EMSDK_VERSION=2.0.0_v1
+EMSDK_VERSION=2.0.6_v1
 
 # Can check CHROME_VERSION with
 # docker run karma-chrome-tests /usr/bin/google-chrome-stable --version
