@@ -267,7 +267,6 @@ echo "Compiling bitcode"
   --args="cc=\"${EMCC}\" \
   cxx=\"${EMCXX}\" \
   ar=\"${EMAR}\" \
-  extra_cflags_cc=[\"-frtti\"] \
   extra_cflags=[\"-s\", \"WARN_UNALIGNED=1\", \"-s\", \"MAIN_MODULE=1\",
     \"-DSKNX_NO_SIMD\", \"-DSK_DISABLE_AAA\",
     \"-DSK_FORCE_8_BYTE_ALIGNMENT\",
@@ -347,6 +346,8 @@ EMCC_DEBUG=1 ${EMCXX} \
     -Ithird_party/externals/icu/source/common/ \
     -DSK_DISABLE_AAA \
     -DSK_FORCE_8_BYTE_ALIGNMENT \
+    -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
+    -fno-rtti \
     $WASM_GPU \
     $WASM_PATHOPS \
     $WASM_RT_SHADER \
