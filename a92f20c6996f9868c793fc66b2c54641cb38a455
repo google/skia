@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "842a6e58_c59c18c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10796
+      },
+      "writtenOn": "2020-10-08T19:55:33Z",
+      "side": 1,
+      "message": "Gah! The dtor behavior of GrResourceCache depends on the context still pointing at it due to a big cyclical dependency which ruins my cool unique_ptr. I\u0027ll try to document it and minimize the impact on this CL. I\u0027ll ping you Rob when it\u0027s green.",
+      "revId": "a92f20c6996f9868c793fc66b2c54641cb38a455",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
