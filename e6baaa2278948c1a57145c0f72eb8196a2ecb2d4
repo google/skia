@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32e4e41a_7a1354ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-08T17:40:08Z",
+      "side": 1,
+      "message": "Short term fix for the clipped divs, should be suitable to merge into beta.",
+      "revId": "e6baaa2278948c1a57145c0f72eb8196a2ecb2d4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
