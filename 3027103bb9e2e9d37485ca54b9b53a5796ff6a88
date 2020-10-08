@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f86324ee_f8e53cfa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-08T14:33:16Z",
+      "side": 1,
+      "message": "Oops, I led you astray there. No space between \"skia:\" and the bug number. Sorry! This should be\n\nBug: skia:10799",
+      "parentUuid": "2254795d_e9c24065",
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e3b64dce_ea28d191",
         "filename": "src/codec/SkParseEncodedOrigin.cpp",
         "patchSetId": 1
@@ -100,6 +118,30 @@
       "writtenOn": "2020-10-07T16:27:03Z",
       "side": 1,
       "message": "If I\u0027m reading this correctly, this will use the *last* subifd, if there\u0027s more than one? Does that match the spec?\n\n(It looks like Chromium uses the first one. See https://source.chromium.org/chromium/chromium/src/+/master:third_party/blink/renderer/platform/image-decoders/jpeg/jpeg_image_decoder.cc;l\u003d381;drc\u003dce29422a5a0922393f61efe899ec80e9894e09ed)",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 13
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "966ab7ae_353f7ccc",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-08T14:33:16Z",
+      "side": 1,
+      "message": "I was mistaken. Looking back at Chromium, they don\u0027t break out of the loop when they find the first one, so they may overwrite it.",
+      "parentUuid": "b371e127_07cbda3f",
       "range": {
         "startLine": 48,
         "startChar": 0,

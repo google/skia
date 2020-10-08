@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d5ba27a_6fadb15f",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-08T14:33:16Z",
+      "side": 1,
+      "message": "It looks like these constants (and perhaps some of the below code) were borrowed from a file in Chromium, which I don\u0027t think is allowed in this case, based on the license. I am not a lawyer, but I\u0027d recommend going back to your earlier code and modifying it to address my comments.",
+      "range": {
+        "startLine": 15,
+        "startChar": 5,
+        "endLine": 15,
+        "endChar": 13
+      },
+      "revId": "bfae1cd8006bbfdfdb113966037dcc19aa1c4043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
