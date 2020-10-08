@@ -158,6 +158,8 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
     CAP(canUseAnyFunctionInShader);
     CAP(floatIs32Bits);
     CAP(integerSupport);
+    CAP(builtinFMASupport);
+    CAP(builtinDeterminantSupport);
 #undef CAP
 }
 
