@@ -22,6 +22,30 @@
       },
       "revId": "55126667efbb124836db4b509ffe73f3027375c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4096d2c_202642da",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T14:15:37Z",
+      "side": 1,
+      "message": "You are OK with just allowing copy construction? I\u0027m happy to switch it over, sure. Easy change.\n\nI actually started implementing this as copy/assignment originally, but switched to the clone() approach to avoid concerns that people would start copying hashmaps by mistake and impact perf. :)",
+      "parentUuid": "b601de7d_f6dc2505",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 58
+      },
+      "revId": "55126667efbb124836db4b509ffe73f3027375c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
