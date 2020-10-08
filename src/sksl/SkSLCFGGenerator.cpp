@@ -45,7 +45,10 @@ BlockId CFG::newIsolatedBlock() {
 
 void CFG::addExit(BlockId from, BlockId to) {
     if (from == 0 || fBlocks[from].fIsReachable) {
-        fBlocks[from].fExits.insert(to);
+        BasicBlock::ExitArray& exits = fBlocks[from].fExits;
+        if (std::find(exits.begin(), exits.end(), to) == exits.end()) {
+            exits.push_back(to);
+        }
         fBlocks[to].fIsReachable = true;
     }
 }
