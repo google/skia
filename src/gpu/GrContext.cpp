@@ -25,6 +25,7 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
+#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/GrTracing.h"
@@ -50,7 +51,59 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::move(proxy)) { }
+GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::move(proxy)) {
+    fResourceCache = nullptr;
+    fResourceProvider = nullptr;
+}
+
+GrContext::~GrContext() {
+    ASSERT_SINGLE_OWNER
+
+    this->destroyDrawingManager();
+    fMappedBufferManager.reset();
+    delete fResourceProvider;
+    delete fResourceCache;
+}
+
+bool GrContext::init() {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(this->proxyProvider());
+
+    if (!INHERITED::init()) {
+        return false;
+    }
+
+    SkASSERT(this->getTextBlobCache());
+    SkASSERT(this->threadSafeCache());
+
+    if (fGpu) {
+        fStrikeCache = std::make_unique<GrStrikeCache>();
+        fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
+        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner());
+        fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->contextID());
+    }
+
+    if (fResourceCache) {
+        fResourceCache->setProxyProvider(this->proxyProvider());
+        fResourceCache->setThreadSafeCache(this->threadSafeCache());
+    }
+
+    fDidTestPMConversions = false;
+
+    // DDL TODO: we need to think through how the task group & persistent cache
+    // get passed on to/shared between all the DDLRecorders created with this context.
+    if (this->options().fExecutor) {
+        fTaskGroup = std::make_unique<SkTaskGroup>(*this->options().fExecutor);
+    }
+
+    fPersistentCache = this->options().fPersistentCache;
+    fShaderErrorHandler = this->options().fShaderErrorHandler;
+    if (!fShaderErrorHandler) {
+        fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
+    }
+
+    return true;
+}
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return INHERITED::threadSafeProxy();
