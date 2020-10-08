@@ -267,7 +267,7 @@ Float32Array TextBoxesToFloat32Array(std::vector<para::TextBox> boxes) {
     return Float32Array(typed_memory_view(boxes.size() * 5, fPtr));
 }
 
-Float32Array GetRectsForRange(para::ParagraphImpl& self,
+Float32Array GetRectsForRange(para::Paragraph& self,
                               unsigned start,
                               unsigned end,
                               para::RectHeightStyle heightStyle,
@@ -276,33 +276,28 @@ Float32Array GetRectsForRange(para::ParagraphImpl& self,
     return TextBoxesToFloat32Array(boxes);
 }
 
-Float32Array GetRectsForPlaceholders(para::ParagraphImpl& self) {
+Float32Array GetRectsForPlaceholders(para::Paragraph& self) {
     std::vector<para::TextBox> boxes = self.getRectsForPlaceholders();
     return TextBoxesToFloat32Array(boxes);
 }
 
 EMSCRIPTEN_BINDINGS(Paragraph) {
 
-    class_<para::Paragraph>("Paragraph");
-
-    // This "base<>" tells Emscripten that ParagraphImpl is a Paragraph and can get substituted
-    // in properly in drawParagraph. However, Emscripten will not let us bind pure virtual methods
-    // so we have to "expose" the ParagraphImpl in those cases.
-    class_<para::ParagraphImpl, base<para::Paragraph>>("ParagraphImpl")
+    class_<para::Paragraph>("Paragraph")
         .function("didExceedMaxLines", &para::Paragraph::didExceedMaxLines)
         .function("getAlphabeticBaseline", &para::Paragraph::getAlphabeticBaseline)
-        .function("getGlyphPositionAtCoordinate", &para::ParagraphImpl::getGlyphPositionAtCoordinate)
+        .function("getGlyphPositionAtCoordinate", &para::Paragraph::getGlyphPositionAtCoordinate)
         .function("getHeight", &para::Paragraph::getHeight)
         .function("getIdeographicBaseline", &para::Paragraph::getIdeographicBaseline)
-        .function("getLineMetrics", &para::ParagraphImpl::getLineMetrics)
+        .function("getLineMetrics", &para::Paragraph::getLineMetrics)
         .function("getLongestLine", &para::Paragraph::getLongestLine)
         .function("getMaxIntrinsicWidth", &para::Paragraph::getMaxIntrinsicWidth)
         .function("getMaxWidth", &para::Paragraph::getMaxWidth)
         .function("getMinIntrinsicWidth", &para::Paragraph::getMinIntrinsicWidth)
         .function("_getRectsForPlaceholders", &GetRectsForPlaceholders)
         .function("_getRectsForRange", &GetRectsForRange)
-        .function("getWordBoundary", &para::ParagraphImpl::getWordBoundary)
-        .function("layout", &para::ParagraphImpl::layout);
+        .function("getWordBoundary", &para::Paragraph::getWordBoundary)
+        .function("layout", &para::Paragraph::layout);
 
     class_<para::ParagraphBuilderImpl>("ParagraphBuilder")
             .class_function(
