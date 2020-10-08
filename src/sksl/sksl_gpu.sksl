@@ -575,3 +575,15 @@ half4 unpremul(half4 color)         { return half4(color.rgb / max(color.a, 0.00
 float4 unpremul_float(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
 
 float2 proj(float3 p) { return p.xy / p.z; }
+
+// Implement cross() as a determinant to communicate our intent more clearly to the compiler.
+// NOTE: Due to precision issues, it might be the case that cross(a, a) != 0.
+float cross(float2 a, float2 b) {
+    return sk_Caps.builtinDeterminantSupport ? determinant(float2x2(a, b))
+                                             : a.x*b.y - a.y*b.x;
+}
+
+half cross(half2 a, half2 b) {
+    return sk_Caps.builtinDeterminantSupport ? determinant(half2x2(a, b))
+                                             : a.x*b.y - a.y*b.x;
+}

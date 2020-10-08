@@ -300,7 +300,7 @@ void GLSLCodeGenerator::writeDeterminantHack(const Expression& mat) {
         }
     }
     else if (type == *fContext.fFloat4x4_Type || type == *fContext.fHalf4x4_Type) {
-        name = "_determinant3";
+        name = "_determinant4";
         if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
             fWrittenIntrinsics.insert(name);
             fExtraFunctions.writeText((
@@ -536,12 +536,13 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                 if (!fFoundDerivatives &&
                     fProgram.fSettings.fCaps->shaderDerivativeExtensionString()) {
                     SkASSERT(fProgram.fSettings.fCaps->shaderDerivativeSupport());
-                    this->writeExtension(fProgram.fSettings.fCaps->shaderDerivativeExtensionString());
+                    this->writeExtension(
+                            fProgram.fSettings.fCaps->shaderDerivativeExtensionString());
                     fFoundDerivatives = true;
                 }
                 break;
             case FunctionClass::kDeterminant:
-                if (fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
+                if (!fProgram.fSettings.fCaps->builtinDeterminantSupport()) {
                     SkASSERT(arguments.size() == 1);
                     this->writeDeterminantHack(*arguments[0]);
                     return;
