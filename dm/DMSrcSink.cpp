@@ -1468,9 +1468,7 @@ Result GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkStri
     return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);
 }
 
-sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context,
-                                           SkISize size,
-                                           GrBackendTexture* backendTexture) const {
+sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context, SkISize size) const {
     sk_sp<SkSurface> surface;
 
     SkImageInfo info = SkImageInfo::Make(size, fColorType, fAlphaType, fColorSpace);
@@ -1483,21 +1481,25 @@ sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context,
                                                   &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
-            CreateBackendTexture(context, backendTexture, info.width(), info.height(),
-                                 info.colorType(), SkColors::kTransparent, GrMipmapped::kNo,
-                                 GrRenderable::kYes, GrProtected::kNo);
-            surface = SkSurface::MakeFromBackendTexture(context, *backendTexture,
-                                                        kTopLeft_GrSurfaceOrigin, fSampleCount,
-                                                        fColorType, info.refColorSpace(), &props);
+            surface = sk_gpu_test::MakeBackendTextureSurface(context,
+                                                             info.dimensions(),
+                                                             kTopLeft_GrSurfaceOrigin,
+                                                             fSampleCount,
+                                                             info.colorType(),
+                                                             info.refColorSpace(),
+                                                             GrMipmapped::kNo,
+                                                             GrProtected::kNo,
+                                                             &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
-            surface = MakeBackendRenderTargetSurface(context,
-                                                     info.dimensions(),
-                                                     fSampleCount,
-                                                     kBottomLeft_GrSurfaceOrigin,
-                                                     info.colorType(),
-                                                     info.refColorSpace(),
-                                                     &props);
+            surface = sk_gpu_test::MakeBackendRenderTargetSurface(context,
+                                                                  info.dimensions(),
+                                                                  kBottomLeft_GrSurfaceOrigin,
+                                                                  fSampleCount,
+                                                                  info.colorType(),
+                                                                  info.refColorSpace(),
+                                                                  GrProtected::kNo,
+                                                                  &props);
             break;
     }
 
@@ -1536,8 +1538,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         return Result::Skip("Src too large to create a texture.\n");
     }
 
-    GrBackendTexture backendTexture;
-    sk_sp<SkSurface> surface = this->createDstSurface(direct, src.size(), &backendTexture);
+    sk_sp<SkSurface> surface = this->createDstSurface(direct, src.size());
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -1563,12 +1564,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory.releaseResourcesAndAbandonContexts();
     }
-    if (!direct->abandoned()) {
-        surface.reset();
-        if (backendTexture.isValid()) {
-            direct->deleteBackendTexture(backendTexture);
-        }
-    }
+
     if (grOptions.fPersistentCache) {
         direct->storeVkPipelineCacheData();
     }
@@ -1743,8 +1739,7 @@ Result GPUOOPRSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* lo
 
     SkASSERT(context->priv().getGpu());
 
-    GrBackendTexture backendTexture;
-    sk_sp<SkSurface> surface = this->createDstSurface(context, src.size(), &backendTexture);
+    sk_sp<SkSurface> surface = this->createDstSurface(context, src.size());
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -1762,11 +1757,6 @@ Result GPUOOPRSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* lo
 
     if (!this->readBack(surface.get(), dst)) {
         return Result::Fatal("Could not readback from surface.");
-    }
-
-    surface.reset();
-    if (backendTexture.isValid()) {
-        context->deleteBackendTexture(backendTexture);
     }
 
     return Result::Ok();
@@ -1918,8 +1908,7 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log
     // Make sure 'mainCtx' is current
     mainTestCtx->makeCurrent();
 
-    GrBackendTexture backendTexture;
-    sk_sp<SkSurface> surface = this->createDstSurface(mainCtx, src.size(), &backendTexture);
+    sk_sp<SkSurface> surface = this->createDstSurface(mainCtx, src.size());
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -1947,11 +1936,6 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log
 
     if (!this->readBack(surface.get(), dst)) {
         return Result::Fatal("Could not readback from surface.");
-    }
-
-    surface.reset();
-    if (backendTexture.isValid()) {
-        mainCtx->deleteBackendTexture(backendTexture);
     }
 
     return Result::Ok();
