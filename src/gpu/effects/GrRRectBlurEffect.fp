@@ -48,7 +48,7 @@ uniform half blurRadius;
     #include "src/gpu/GrRecordingContextPriv.h"
     #include "src/gpu/GrRenderTargetContext.h"
     #include "src/gpu/GrStyle.h"
-    #include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+    #include "src/gpu/GrThreadSafeCache.h"
     #include "src/gpu/effects/GrTextureEffect.h"
 
     static constexpr auto kBlurredRRectMaskOrigin = kTopLeft_GrSurfaceOrigin;
@@ -76,7 +76,7 @@ uniform half blurRadius;
     static bool fillin_view_on_gpu(
                             GrDirectContext* dContext,
                             const GrSurfaceProxyView& lazyView,
-                            sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline> trampoline,
+                            sk_sp<GrThreadSafeCache::Trampoline> trampoline,
                             const SkRRect& rrectToDraw,
                             const SkISize& dimensions,
                             float xformedSigma) {
@@ -254,7 +254,7 @@ uniform half blurRadius;
         GrUniqueKey key;
         make_blurred_rrect_key(&key, rrectToDraw, xformedSigma);
 
-        auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+        auto threadSafeCache = rContext->priv().threadSafeCache();
 
         // It seems like we could omit this matrix and modify the shader code to not normalize
         // the coords used to sample the texture effect. However, the "proxyDims" value in the
@@ -269,14 +269,14 @@ uniform half blurRadius;
         if (GrDirectContext* dContext = rContext->asDirectContext()) {
             // The gpu thread gets priority over the recording threads. If the gpu thread is first,
             // it crams a lazy proxy into the cache and then fills it in later.
-            auto[lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
+            auto[lazyView, trampoline] = GrThreadSafeCache::CreateLazyView(
                                     dContext, GrColorType::kAlpha_8, dimensions,
                                     kBlurredRRectMaskOrigin, SkBackingFit::kExact);
             if (!lazyView) {
                 return nullptr;
             }
 
-            view = threadSafeViewCache->findOrAdd(key, lazyView);
+            view = threadSafeCache->findOrAdd(key, lazyView);
             if (view != lazyView) {
                 SkASSERT(view.asTextureProxy());
                 SkASSERT(view.origin() == kBlurredRRectMaskOrigin);
@@ -287,11 +287,11 @@ uniform half blurRadius;
                                     rrectToDraw, dimensions, xformedSigma)) {
                 // In this case something has gone disastrously wrong so set up to drop the draw
                 // that needed this resource and reduce future pollution of the cache.
-                threadSafeViewCache->remove(key);
+                threadSafeCache->remove(key);
                 return nullptr;
             }
         } else {
-            view = threadSafeViewCache->find(key);
+            view = threadSafeCache->find(key);
             if (view) {
                 SkASSERT(view.asTextureProxy());
                 SkASSERT(view.origin() == kBlurredRRectMaskOrigin);
@@ -303,7 +303,7 @@ uniform half blurRadius;
                 return nullptr;
             }
 
-            view = threadSafeViewCache->add(key, view);
+            view = threadSafeCache->add(key, view);
         }
 
         SkASSERT(view.asTextureProxy());

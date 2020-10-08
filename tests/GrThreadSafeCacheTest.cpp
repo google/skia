@@ -13,7 +13,7 @@
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrStyle.h"
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeCache.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 
@@ -102,7 +102,7 @@ public:
 
     Stats* stats() { return &fStats; }
 
-    int numCacheEntries() const { return this->threadSafeViewCache()->numEntries(); }
+    int numCacheEntries() const { return this->threadSafeCache()->numEntries(); }
 
     GrDirectContext* dContext() { return fDContext; }
 
@@ -128,13 +128,8 @@ public:
         return nullptr;
     }
 
-    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
-        return fDContext->priv().threadSafeViewCache();
-    }
-
-    const GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() const {
-        return fDContext->priv().threadSafeViewCache();
-    }
+    GrThreadSafeCache* threadSafeCache() { return fDContext->priv().threadSafeCache(); }
+    const GrThreadSafeCache* threadSafeCache() const { return fDContext->priv().threadSafeCache(); }
 
     // Add a draw on 'canvas' that will introduce a ref on the 'wh' view
     void accessCachedView(SkCanvas* canvas,
@@ -144,7 +139,7 @@ public:
                           bool failFillingIn = false) {
         GrRecordingContext* rContext = canvas->recordingContext();
 
-        auto view = AccessCachedView(rContext, this->threadSafeViewCache(),
+        auto view = AccessCachedView(rContext, this->threadSafeCache(),
                                      wh, failLookup, failFillingIn, id, &fStats);
         SkASSERT(view);
 
@@ -178,9 +173,9 @@ public:
         GrUniqueKey key;
         create_key(&key, wh, kNoID);
 
-        auto threadSafeViewCache = this->threadSafeViewCache();
+        auto threadSafeCache = this->threadSafeCache();
 
-        auto [view, data] = threadSafeViewCache->findWithData(key);
+        auto [view, data] = threadSafeCache->findWithData(key);
         if (!view.proxy()) {
             return false;
         }
@@ -289,14 +284,14 @@ public:
 
 private:
     static GrSurfaceProxyView AccessCachedView(GrRecordingContext*,
-                                               GrThreadSafeUniquelyKeyedProxyViewCache*,
+                                               GrThreadSafeCache*,
                                                int wh,
                                                bool failLookup, bool failFillingIn, int id,
                                                Stats*);
     static GrSurfaceProxyView CreateViewOnCpu(GrRecordingContext*, int wh, Stats*);
     static bool FillInViewOnGpu(GrDirectContext*, int wh, Stats*,
                                 const GrSurfaceProxyView& lazyView,
-                                sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline>);
+                                sk_sp<GrThreadSafeCache::Trampoline>);
 
     Stats fStats;
     GrDirectContext* fDContext = nullptr;
@@ -325,10 +320,9 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
     return {std::move(proxy), kImageOrigin, swizzle};
 }
 
-bool TestHelper::FillInViewOnGpu(
-                    GrDirectContext* dContext, int wh, Stats* stats,
-                    const GrSurfaceProxyView& lazyView,
-                    sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline> trampoline) {
+bool TestHelper::FillInViewOnGpu(GrDirectContext* dContext, int wh, Stats* stats,
+                                 const GrSurfaceProxyView& lazyView,
+                                 sk_sp<GrThreadSafeCache::Trampoline> trampoline) {
 
     std::unique_ptr<GrRenderTargetContext> rtc = new_RTC(dContext, wh);
 
@@ -351,7 +345,7 @@ bool TestHelper::FillInViewOnGpu(
 
 GrSurfaceProxyView TestHelper::AccessCachedView(
                                     GrRecordingContext* rContext,
-                                    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache,
+                                    GrThreadSafeCache* threadSafeCache,
                                     int wh,
                                     bool failLookup, bool failFillingIn, int id,
                                     Stats* stats) {
@@ -361,11 +355,11 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
     if (GrDirectContext* dContext = rContext->asDirectContext()) {
         // The gpu thread gets priority over the recording threads. If the gpu thread is first,
         // it crams a lazy proxy into the cache and then fills it in later.
-        auto [lazyView, trampoline] = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
+        auto [lazyView, trampoline] = GrThreadSafeCache::CreateLazyView(
             dContext, GrColorType::kRGBA_8888, {wh, wh}, kImageOrigin, SkBackingFit::kExact);
         ++stats->fNumLazyCreations;
 
-        auto [view, data] = threadSafeViewCache->findOrAddWithData(key, lazyView);
+        auto [view, data] = threadSafeCache->findOrAddWithData(key, lazyView);
         if (view != lazyView) {
             ++stats->fCacheHits;
             return view;
@@ -387,7 +381,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
         if (!FillInViewOnGpu(dContext, wh, stats, lazyView, std::move(trampoline))) {
             // In this case something has gone disastrously wrong so set up to drop the draw
             // that needed this resource and reduce future pollution of the cache.
-            threadSafeViewCache->remove(key);
+            threadSafeCache->remove(key);
             return {};
         }
 
@@ -396,7 +390,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
         GrSurfaceProxyView view;
 
         // We can "fail the lookup" to simulate a threaded race condition
-        if (view = threadSafeViewCache->find(key); !failLookup && view) {
+        if (view = threadSafeCache->find(key); !failLookup && view) {
             ++stats->fCacheHits;
             return view;
         }
@@ -406,7 +400,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
         view = CreateViewOnCpu(rContext, wh, stats);
         SkASSERT(view);
 
-        auto [newView, data] = threadSafeViewCache->addWithData(key, view);
+        auto [newView, data] = threadSafeCache->addWithData(key, view);
         if (view == newView && id != kNoID) {
             // Make sure, in this case, that the customData stuck
             SkASSERT(data);
@@ -418,7 +412,7 @@ GrSurfaceProxyView TestHelper::AccessCachedView(
 }
 
 // Case 1: ensure two DDL recorders share the view
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache1, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
@@ -439,7 +433,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache1, reporter, ctxInfo) {
 }
 
 // Case 2: ensure that, if the direct context version wins, it is reused by the DDL recorders
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache2, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH, 1);
@@ -465,7 +459,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache2, reporter, ctxInfo) {
 }
 
 // Case 3: ensure that, if the cpu-version wins, it is reused by the direct context
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache3, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
@@ -486,7 +480,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache3, reporter, ctxInfo) {
 }
 
 // Case 4: ensure that, if two DDL recorders get in a race, they still end up sharing a single view
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH, 1);
@@ -509,7 +503,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4, reporter, ctxInfo) {
 
 // Case 4.5: check that, if a live rendering and a DDL recording get into a race, the live
 // rendering takes precedence.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_5, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_5, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH, 1);
@@ -537,7 +531,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_5, reporter, ctxInfo) 
 
 // Case 4.75: check that, if a live rendering fails to generate the content needed to instantiate
 //            its lazy proxy, life goes on
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache4_75, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
     TestHelper helper(dContext);
@@ -565,17 +559,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache4_75, reporter, ctxInfo)
 }
 
 // Case 5: ensure that expanding the map works (esp. wrt custom data)
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache5, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
-    auto threadSafeViewCache = helper.threadSafeViewCache();
+    auto threadSafeCache = helper.threadSafeCache();
 
     int size = 16;
     helper.accessCachedView(helper.ddlCanvas1(), size, /*id*/ size);
 
-    size_t initialSize = threadSafeViewCache->approxBytesUsedForHash();
+    size_t initialSize = threadSafeCache->approxBytesUsedForHash();
 
-    while (initialSize == threadSafeViewCache->approxBytesUsedForHash()) {
+    while (initialSize == threadSafeCache->approxBytesUsedForHash()) {
         size *= 2;
         helper.accessCachedView(helper.ddlCanvas1(), size, /*id*/ size);
     }
@@ -584,7 +578,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, helper.checkView(helper.ddlCanvas1(),
                                                    /*wh*/ i,
                                                    /*hits*/ 0,
-                                                   /*misses*/ threadSafeViewCache->numEntries(),
+                                                   /*misses*/ threadSafeCache->numEntries(),
                                                    /*refs*/ 1,
                                                    /*id*/ i));
     }
@@ -592,7 +586,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache5, reporter, ctxInfo) {
 
 // Case 6: Check on dropping refs. In particular, that the cache has its own ref to keep
 // the backing resource alive and locked.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache6, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
@@ -624,7 +618,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache6, reporter, ctxInfo) {
 
 // Case 7: Check that invoking dropAllRefs and dropUniqueRefs directly works as expected; i.e.,
 // dropAllRefs removes everything while dropUniqueRefs is more measured.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache7, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.ddlCanvas1(), kImageWH);
@@ -639,17 +633,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
-    helper.threadSafeViewCache()->dropUniqueRefs(nullptr);
+    helper.threadSafeCache()->dropUniqueRefs(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 2);
 
     ddl1 = nullptr;
 
-    helper.threadSafeViewCache()->dropUniqueRefs(nullptr);
+    helper.threadSafeCache()->dropUniqueRefs(nullptr);
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 1);
     REPORTER_ASSERT(reporter, helper.checkView(nullptr, 2*kImageWH,
                                                /*hits*/ 0, /*misses*/ 2, /*refs*/ 1, kNoID));
 
-    helper.threadSafeViewCache()->dropAllRefs();
+    helper.threadSafeCache()->dropAllRefs();
     REPORTER_ASSERT(reporter, helper.numCacheEntries() == 0);
 
     ddl2 = nullptr;
@@ -658,7 +652,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache7, reporter, ctxInfo) {
 // Case 8: This checks that GrContext::abandonContext works as expected wrt the thread
 //         safe cache. This simulates the case where we have one DDL that has finished
 //         recording but one still recording when the abandonContext fires.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache8, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache8, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
@@ -692,7 +686,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache8, reporter, ctxInfo) {
 // Case 9: This checks that GrContext::releaseResourcesAndAbandonContext works as expected wrt
 //         the thread safe cache. This simulates the case where we have one DDL that has finished
 //         recording but one still recording when the releaseResourcesAndAbandonContext fires.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache9, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache9, reporter, ctxInfo) {
     TestHelper helper(ctxInfo.directContext());
 
     helper.accessCachedView(helper.liveCanvas(), kImageWH);
@@ -726,7 +720,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache9, reporter, ctxInfo) {
 // Case 10: This checks that the GrContext::purgeUnlockedResources(size_t) variant works as
 //          expected wrt the thread safe cache. It, in particular, tests out the MRU behavior
 //          of the shared cache.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache10, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
     if (GrBackendApi::kOpenGL != dContext->backend()) {
@@ -791,7 +785,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache10, reporter, ctxInfo) {
 // Case 11: This checks that scratch-only variant of GrContext::purgeUnlockedResources works as
 //          expected wrt the thread safe cache. In particular, that when 'scratchResourcesOnly'
 //          is true, the call has no effect on the cache.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache11, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache11, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
     TestHelper helper(dContext);
@@ -826,7 +820,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache11, reporter, ctxInfo) {
 // Case 12: Test out purges caused by resetting the cache budget to 0. Note that, due to
 //          the how the cache operates (i.e., not directly driven by ref/unrefs) there
 //          needs to be an explicit kick to purge the cache.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache12, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache12, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
     TestHelper helper(dContext);
@@ -865,7 +859,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache12, reporter, ctxInfo) {
 }
 
 // Case 13: Test out the 'msNotUsed' parameter to GrContext::performDeferredCleanup.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeViewCache13, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache13, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
     TestHelper helper(dContext);
