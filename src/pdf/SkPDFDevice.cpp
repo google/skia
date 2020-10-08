@@ -1602,21 +1602,16 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         SkRect imageBounds = SkRect::Make(imageSubset.image()->bounds());
         SkPath perspectiveOutline = SkPath::Rect(imageBounds).makeTransform(transform);
 
-        // TODO(edisonn): perf - use current clip too.
         // Retrieve the bounds of the new shape.
         SkRect bounds = perspectiveOutline.getBounds();
+        if (!bounds.intersect(SkRect::Make(this->devClipBounds()))) {
+            return;
+        }
 
-        // Transform the bitmap in the new space, taking into
-        // account the initial transform.
-        SkMatrix total = transform;
-        total.postConcat(fInitialTransform);
-
-        SkPath physicalPerspectiveOutline = SkPath::Rect(imageBounds).makeTransform(total);
-
-        SkRect physicalPerspectiveBounds =
-                physicalPerspectiveOutline.getBounds();
-        SkScalar scaleX = physicalPerspectiveBounds.width() / bounds.width();
-        SkScalar scaleY = physicalPerspectiveBounds.height() / bounds.height();
+        // Transform the bitmap in the new space to the final space, to account for DPI
+        SkRect physicalBounds = fInitialTransform.mapRect(bounds);
+        SkScalar scaleX = physicalBounds.width() / bounds.width();
+        SkScalar scaleY = physicalBounds.height() / bounds.height();
 
         // TODO(edisonn): A better approach would be to use a bitmap shader
         // (in clamp mode) and draw a rect over the entire bounding box. Then
@@ -1625,7 +1620,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         // the image.  Avoiding alpha will reduce the pdf size and generation
         // CPU time some.
 
-        SkISize wh = rect_to_size(physicalPerspectiveBounds).toCeil();
+        SkISize wh = rect_to_size(physicalBounds).toCeil();
 
         auto surface = SkSurface::MakeRaster(SkImageInfo::MakeN32Premul(wh));
         if (!surface) {
