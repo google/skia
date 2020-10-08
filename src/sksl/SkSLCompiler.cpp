@@ -435,7 +435,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
         case Expression::Kind::kVariableReference: {
             const Variable& var = *lvalue->as<VariableReference>().fVariable;
             if (var.storage() == Variable::kLocal_Storage) {
-                (*definitions)[&var] = expr;
+                definitions->set(&var, expr);
             }
             break;
         }
@@ -482,8 +482,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
 }
 
 // add local variables defined by this node to the set
-void Compiler::addDefinitions(const BasicBlock::Node& node,
-                              DefinitionMap* definitions) {
+void Compiler::addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions) {
     if (node.isExpression()) {
         Expression* expr = node.expression()->get();
         switch (expr->kind()) {
@@ -552,7 +551,7 @@ void Compiler::addDefinitions(const BasicBlock::Node& node,
         if (stmt->is<VarDeclaration>()) {
             VarDeclaration& vd = stmt->as<VarDeclaration>();
             if (vd.fValue) {
-                (*definitions)[vd.fVar] = &vd.fValue;
+                definitions->set(vd.fVar, &vd.fValue);
             }
         }
     }
@@ -562,7 +561,7 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, SkBitSet* processedSet) {
     BasicBlock& block = cfg->fBlocks[blockId];
 
     // compute definitions after this block
-    DefinitionMap after = block.fBefore;
+    DefinitionMap after = block.fBefore.clone();
     for (const BasicBlock::Node& n : block.fNodes) {
         this->addDefinitions(n, &after);
     }
@@ -573,28 +572,28 @@ void Compiler::scanCFG(CFG* cfg, BlockId blockId, SkBitSet* processedSet) {
             continue;
         }
         BasicBlock& exit = cfg->fBlocks[exitId];
-        for (const auto& pair : after) {
-            std::unique_ptr<Expression>* e1 = pair.second;
-            auto found = exit.fBefore.find(pair.first);
-            if (found == exit.fBefore.end()) {
+        after.foreach([&](const Variable* var, std::unique_ptr<Expression>** e1Ptr) {
+            std::unique_ptr<Expression>* e1 = *e1Ptr;
+            std::unique_ptr<Expression>** found = exit.fBefore.find(var);
+            if (!found) {
                 // exit has no definition for it, just copy it and reprocess exit block
                 processedSet->reset(exitId);
-                exit.fBefore[pair.first] = e1;
+                exit.fBefore[var] = e1;
             } else {
                 // exit has a (possibly different) value already defined
-                std::unique_ptr<Expression>* e2 = exit.fBefore[pair.first];
+                std::unique_ptr<Expression>* e2 = exit.fBefore[var];
                 if (e1 != e2) {
                     // definition has changed, merge and reprocess the exit block
                     processedSet->reset(exitId);
                     if (e1 && e2) {
-                        exit.fBefore[pair.first] =
-                                      (std::unique_ptr<Expression>*) &fContext->fDefined_Expression;
+                        exit.fBefore[var] =
+                                (std::unique_ptr<Expression>*)&fContext->fDefined_Expression;
                     } else {
-                        exit.fBefore[pair.first] = nullptr;
+                        exit.fBefore[var] = nullptr;
                     }
                 }
             }
-        }
+        });
     }
 }
 
@@ -1507,7 +1506,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
                 continue;
             }
             first = false;
-            DefinitionMap definitions = b.fBefore;
+            DefinitionMap definitions = b.fBefore.clone();
 
             for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan; ++iter) {
                 if (iter->isExpression()) {
@@ -1533,7 +1532,7 @@ bool Compiler::scanCFG(FunctionDefinition& f) {
 
     // verify static ifs & switches, clean up dead variable decls
     for (BasicBlock& b : cfg.fBlocks) {
-        DefinitionMap definitions = b.fBefore;
+        DefinitionMap definitions = b.fBefore.clone();
 
         for (auto iter = b.fNodes.begin(); iter != b.fNodes.end() && !needsRescan;) {
             if (iter->isStatement()) {
