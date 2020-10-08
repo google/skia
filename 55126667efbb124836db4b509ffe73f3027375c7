@@ -94,6 +94,30 @@
       },
       "revId": "55126667efbb124836db4b509ffe73f3027375c7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66a38c74_7598ff18",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T14:30:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6591437f_f62a94e9",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 58
+      },
+      "revId": "55126667efbb124836db4b509ffe73f3027375c7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
