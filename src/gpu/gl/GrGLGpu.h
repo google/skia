@@ -146,7 +146,8 @@ public:
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize,
                                                                GrColorType,
-                                                               int sampleCnt) override;
+                                                               int sampleCnt,
+                                                               GrProtected) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     const GrGLContext* glContextForTesting() const override { return &this->glContext(); }
