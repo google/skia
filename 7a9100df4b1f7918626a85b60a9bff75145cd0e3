@@ -121,6 +121,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "48f80d2b_801e19f1",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T21:00:22Z",
+      "side": 1,
+      "message": "Latest PS has some of these changes. It\u0027s still one function, but just to share the signature and preamble/return. Curious what you think now - I don\u0027t want to link in the iostreams stuff when we\u0027re not in standalone mode, so having it fully dispatched based on the non-null fields in ModuleData seems like a bad idea. (Otherwise, I would totally do that).",
+      "parentUuid": "467f8201_e542146e",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 6
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2afa0132_e5800bae",
         "filename": "src/sksl/SkSLCompiler.h",
         "patchSetId": 3
