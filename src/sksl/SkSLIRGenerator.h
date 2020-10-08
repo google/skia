@@ -121,12 +121,16 @@ public:
     Program::Kind fKind;
 
 private:
+    // Identical to Compiler::ParsedModule
+    using ParsedModule = std::pair<std::shared_ptr<SymbolTable>,
+                                   std::unique_ptr<IRIntrinsicMap>>;
+
     /**
      * Prepare to compile a program. Resets state, pushes a new symbol table, and installs the
      * settings.
      */
     void start(const Program::Settings* settings,
-               std::shared_ptr<SymbolTable> baseSymbolTable,
+               const ParsedModule& base,
                bool isBuiltinCode = false);
 
     /**
