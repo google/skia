@@ -38,7 +38,7 @@ public:
     /**
      * Returns the type for purposes of read and write operations.
      */
-    virtual const Type& type() const {
+    const Type& type() const override {
         return fType;
     }
 

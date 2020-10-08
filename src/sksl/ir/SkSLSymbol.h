@@ -49,6 +49,10 @@ public:
 
     ~Symbol() override {}
 
+    virtual const Type& type() const {
+        return *this->symbolData().fType;
+    }
+
     Kind kind() const {
         return (Kind) fKind;
     }

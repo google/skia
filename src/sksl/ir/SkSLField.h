@@ -31,6 +31,10 @@ public:
                                   owner,
                                   fieldIndex}) {}
 
+    const Type& type() const override {
+        return *this->fieldData().fType;
+    }
+
     StringFragment name() const override {
         return this->fieldData().fName;
     }
