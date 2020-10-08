@@ -143,6 +143,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f82c075_4c07b5c4",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T21:15:00Z",
+      "side": 1,
+      "message": "I think the way you\u0027ve structured ModuleData works better now, and I also think helper functions would make it easier for readers to understand what\u0027s going on at call sites.",
+      "parentUuid": "48f80d2b_801e19f1",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 6
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2afa0132_e5800bae",
