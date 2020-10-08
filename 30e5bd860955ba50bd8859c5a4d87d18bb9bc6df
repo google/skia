@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b19db41c_dd462d00",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T21:12:46Z",
+      "side": 1,
+      "message": ".\n    MakeModulePath(\"sksl_\" #name \".sksl\")",
+      "range": {
+        "startLine": 53,
+        "startChar": 26,
+        "endLine": 53,
+        "endChar": 63
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f5469d1_c6ec0298",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T21:12:46Z",
+      "side": 1,
+      "message": ".\n    MakeModuleData(SKSL_INCLUDE_sksl_##name, SKSL_INCLUDE_sksl_##name##_LENGTH)",
+      "range": {
+        "startLine": 66,
+        "startChar": 26,
+        "endLine": 66,
+        "endChar": 99
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb897be9_5410bd7d",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T21:12:46Z",
+      "side": 1,
+      "message": "optiona/up to you?\n\n    /*fIntrinsics\u003d*/nullptr",
+      "range": {
+        "startLine": 212,
+        "startChar": 37,
+        "endLine": 212,
+        "endChar": 44
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eb30713_1919e57b",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T21:12:46Z",
+      "side": 1,
+      "message": "fIntrinsics",
+      "range": {
+        "startLine": 270,
+        "startChar": 44,
+        "endLine": 270,
+        "endChar": 54
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17d46972_448bb98f",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T21:12:46Z",
+      "side": 1,
+      "message": "Let\u0027s add some static helper methods so that it\u0027s easier to read these at construction sites.\n\n    static ModuleData MakeModulePath(const char* path) { return ModuleData{path, /*fData\u003d*/nullptr, /*fSize\u003d*/0}; }\n    static ModuleData MakeModuleData(const uint8* data, size_t size) { return ModuleData{/*fPath\u003d*/nullptr, data, size}; }",
+      "range": {
+        "startLine": 191,
+        "startChar": 4,
+        "endLine": 191,
+        "endChar": 23
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90f005ed_f217206d",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T21:12:46Z",
+      "side": 1,
+      "message": ".\n    MakeModulePath(argv[1])",
+      "range": {
+        "startLine": 325,
+        "startChar": 62,
+        "endLine": 325,
+        "endChar": 85
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
