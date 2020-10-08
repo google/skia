@@ -166,8 +166,8 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
     public:
         bool visit(const FunctionDeclaration& funcDecl) {
             fFuncDecl = &funcDecl;
-            return funcDecl.fDefinition ? this->visitProgramElement(*funcDecl.fDefinition)
-                                        : false;
+            return funcDecl.definition() ? this->visitProgramElement(*funcDecl.definition())
+                                         : false;
         }
 
         bool visitExpression(const Expression& expr) override {
@@ -587,11 +587,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     SkASSERT(fSettings);
     SkASSERT(fContext);
     SkASSERT(call);
-    SkASSERT(this->isSafeToInline(call->function().fDefinition));
+    SkASSERT(this->isSafeToInline(call->function().definition()));
 
     std::vector<std::unique_ptr<Expression>>& arguments = call->arguments();
     const int offset = call->fOffset;
-    const FunctionDefinition& function = *call->function().fDefinition;
+    const FunctionDefinition& function = *call->function().definition();
     const bool hasEarlyReturn = has_early_return(function);
 
     InlinedCall inlinedCall;
@@ -632,7 +632,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // Add our new variable to the symbol table.
         const Variable* variableSymbol = symbolTableForCall->add(std::make_unique<Variable>(
                                                  /*offset=*/-1, fModifiers->handle(Modifiers()),
-                                                 nameFrag, type, caller->fBuiltin,
+                                                 nameFrag, type, caller->isBuiltin(),
                                                  Variable::kLocal_Storage, initialValue->get()));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
@@ -656,10 +656,10 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     // Create a variable to hold the result in the extra statements (excepting void).
     std::unique_ptr<Expression> resultExpr;
-    if (function.fDeclaration.fReturnType != *fContext->fVoid_Type) {
+    if (function.fDeclaration.returnType() != *fContext->fVoid_Type) {
         std::unique_ptr<Expression> noInitialValue;
         resultExpr = makeInlineVar(String(function.fDeclaration.name()),
-                                   &function.fDeclaration.fReturnType,
+                                   &function.fDeclaration.returnType(),
                                    Modifiers{}, &noInitialValue);
    }
 
@@ -668,7 +668,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     VariableRewriteMap varMap;
     std::vector<int> argsToCopyBack;
     for (int i = 0; i < (int) arguments.size(); ++i) {
-        const Variable* param = function.fDeclaration.fParameters[i];
+        const Variable* param = function.fDeclaration.parameters()[i];
         bool isOutParam = param->modifiers().fFlags & Modifiers::kOut_Flag;
 
         // If this argument can be inlined trivially (e.g. a swizzle, or a constant array index)...
@@ -695,7 +695,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,
                                                                 resultExpr.get(), hasEarlyReturn,
-                                                                *stmt, caller->fBuiltin));
+                                                                *stmt, caller->isBuiltin()));
     }
     if (hasEarlyReturn) {
         // Since we output to backends that don't have a goto statement (which would normally be
@@ -714,7 +714,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     // Copy back the values of `out` parameters into their real destinations.
     for (int i : argsToCopyBack) {
-        const Variable* p = function.fDeclaration.fParameters[i];
+        const Variable* p = function.fDeclaration.parameters()[i];
         SkASSERT(varMap.find(p) != varMap.end());
         inlinedBody.children().push_back(
                 std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
@@ -1071,7 +1071,7 @@ bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, Inlinabili
     auto [iter, wasInserted] = cache->insert({&funcDecl, false});
     if (wasInserted) {
         // Recursion is forbidden here to avoid an infinite death spiral of inlining.
-        iter->second = this->isSafeToInline(funcDecl.fDefinition) &&
+        iter->second = this->isSafeToInline(funcDecl.definition()) &&
                        !contains_recursive_call(funcDecl);
     }
 
@@ -1088,7 +1088,7 @@ bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCac
 
     auto [iter, wasInserted] = cache->insert({&funcDecl, false});
     if (wasInserted) {
-        iter->second = this->isLargeFunction(funcDecl.fDefinition);
+        iter->second = this->isLargeFunction(funcDecl.definition());
     }
 
     return iter->second;
@@ -1135,8 +1135,8 @@ bool Inliner::analyze(Program& program) {
         // If the function is large, not marked `inline`, and is called more than once, it's a bad
         // idea to inline it.
         if (candidate.fIsLargeFunction &&
-            !(funcDecl->fModifiers.fFlags & Modifiers::kInline_Flag) &&
-            funcDecl->fCallCount.load() > 1) {
+            !(funcDecl->modifiers().fFlags & Modifiers::kInline_Flag) &&
+            funcDecl->callCount() > 1) {
             continue;
         }
 
