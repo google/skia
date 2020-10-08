@@ -23,7 +23,7 @@ class GrRecordingContextPriv;
 class GrSurfaceContext;
 class GrSurfaceProxy;
 class GrTextBlobCache;
-class GrThreadSafeUniquelyKeyedProxyViewCache;
+class GrThreadSafeUniquelyKeyedCache;
 class SkArenaAlloc;
 class SkJSONWriter;
 
@@ -174,8 +174,8 @@ protected:
     GrTextBlobCache* getTextBlobCache();
     const GrTextBlobCache* getTextBlobCache() const;
 
-    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache();
-    const GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() const;
+    GrThreadSafeUniquelyKeyedCache* threadSafeCache();
+    const GrThreadSafeUniquelyKeyedCache* threadSafeCache() const;
 
     /**
      * Registers an object for flush-related callbacks. (See GrOnFlushCallbackObject.)
