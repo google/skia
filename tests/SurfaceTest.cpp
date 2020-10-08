@@ -159,8 +159,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         }
 
         for (int sampleCnt : {1, 2}) {
-            auto surf = MakeBackendRenderTargetSurface(context, {16, 16}, sampleCnt,
-                                                       kTopLeft_GrSurfaceOrigin, colorType);
+            auto surf = sk_gpu_test::MakeBackendRenderTargetSurface(context,
+                                                                    {16, 16},
+                                                                    kTopLeft_GrSurfaceOrigin,
+                                                                    sampleCnt,
+                                                                    colorType);
             bool can = context->colorTypeSupportedAsSurface(colorType) &&
                        context->maxSurfaceSampleCountForColorType(colorType) >= sampleCnt;
             if (!surf && can && colorType == kBGRA_8888_SkColorType && sampleCnt > 1 &&
@@ -740,9 +743,14 @@ static sk_sp<SkSurface> create_gpu_surface_backend_render_target(GrDirectContext
     const int kWidth = 10;
     const int kHeight = 10;
 
-    auto surf = MakeBackendRenderTargetSurface(dContext, {kWidth, kHeight}, sampleCnt,
-                                               kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType,
-                                               nullptr, nullptr);
+    auto surf = sk_gpu_test::MakeBackendRenderTargetSurface(dContext,
+                                                            {kWidth, kHeight},
+                                                            kTopLeft_GrSurfaceOrigin,
+                                                            sampleCnt,
+                                                            kRGBA_8888_SkColorType,
+                                                            nullptr,
+                                                            GrProtected::kNo,
+                                                            nullptr);
     if (!surf) {
         return nullptr;
     }

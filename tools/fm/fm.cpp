@@ -311,8 +311,6 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
     SkSurfaceProps props(flags, kRGB_H_SkPixelGeometry);
 
     sk_sp<SkSurface> surface;
-    GrBackendTexture backendTexture;
-    GrBackendRenderTarget backendRT;
 
     switch (surfaceType) {
         case SurfaceType::kDefault:
@@ -324,29 +322,26 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
             break;
 
         case SurfaceType::kBackendTexture:
-            backendTexture = context->createBackendTexture(info.width(),
-                                                           info.height(),
-                                                           info.colorType(),
-                                                           GrMipmapped::kNo,
-                                                           GrRenderable::kYes,
-                                                           GrProtected::kNo);
-            surface = SkSurface::MakeFromBackendTexture(context,
-                                                        backendTexture,
-                                                        kTopLeft_GrSurfaceOrigin,
-                                                        FLAGS_samples,
-                                                        info.colorType(),
-                                                        info.refColorSpace(),
-                                                        &props);
+            surface = sk_gpu_test::MakeBackendTextureSurface(context,
+                                                             info.dimensions(),
+                                                             kTopLeft_GrSurfaceOrigin,
+                                                             FLAGS_samples,
+                                                             info.colorType(),
+                                                             info.refColorSpace(),
+                                                             GrMipmapped::kNo,
+                                                             GrProtected::kNo,
+                                                             &props);
             break;
 
         case SurfaceType::kBackendRenderTarget:
-            surface = MakeBackendRenderTargetSurface(context,
-                                                     info.dimensions(),
-                                                     FLAGS_samples,
-                                                     kBottomLeft_GrSurfaceOrigin,
-                                                     info.colorType(),
-                                                     info.refColorSpace(),
-                                                     &props);
+            surface = sk_gpu_test::MakeBackendRenderTargetSurface(context,
+                                                                  info.dimensions(),
+                                                                  kBottomLeft_GrSurfaceOrigin,
+                                                                  FLAGS_samples,
+                                                                  info.colorType(),
+                                                                  info.refColorSpace(),
+                                                                  GrProtected::kNo,
+                                                                  &props);
             break;
     }
 
@@ -368,16 +363,6 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
         factory->abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory->releaseResourcesAndAbandonContexts();
-    }
-
-    if (!context->abandoned()) {
-        surface.reset();
-        if (backendTexture.isValid()) {
-            context->deleteBackendTexture(backendTexture);
-        }
-        if (backendRT.isValid()) {
-            context->priv().getGpu()->deleteTestingOnlyBackendRenderTarget(backendRT);
-        }
     }
 
     return image;

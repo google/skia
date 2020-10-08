@@ -179,7 +179,8 @@ private:
 
     GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                GrColorType,
-                                                               int sampleCnt) override;
+                                                               int sampleCnt,
+                                                               GrProtected) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     void testingOnly_flushGpuAndSync() override {}

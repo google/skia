@@ -12,41 +12,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
-
-namespace {
-class ManagedBackendTexture : public SkNVRefCnt<ManagedBackendTexture> {
-public:
-    ~ManagedBackendTexture() {
-        if (fDContext && fTexture.isValid()) {
-            fDContext->submit(true);
-            fDContext->deleteBackendTexture(fTexture);
-        }
-    }
-
-    static void Release(void* context) { static_cast<ManagedBackendTexture*>(context)->unref(); }
-
-    template <typename... Args>
-    static sk_sp<ManagedBackendTexture> Make(GrDirectContext* dContext, Args&&... args) {
-        sk_sp<ManagedBackendTexture> mbet(new ManagedBackendTexture);
-        mbet->fDContext = dContext;
-        mbet->fTexture = dContext->createBackendTexture(std::forward<Args>(args)..., Release,
-                                                        mbet->refAndPassAsContext());
-        return mbet;
-    }
-
-    const GrBackendTexture& texture() { return fTexture; }
-
-    void* refAndPassAsContext() {
-        this->ref();
-        return static_cast<void*>(this);
-    }
-
-private:
-    ManagedBackendTexture() = default;
-    GrDirectContext* fDContext = nullptr;
-    GrBackendTexture fTexture;
-};
-}  // namespace
+#include "tools/gpu/ManagedBackendTexture.h"
 
 namespace sk_gpu_test {
 sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
@@ -64,14 +30,14 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
         }
         src = &temp;
     }
-    auto mbet = ManagedBackendTexture::Make(dContext, src, 1, renderable, GrProtected::kNo);
+    auto mbet = ManagedBackendTexture::MakeWithData(dContext, src, 1, renderable, GrProtected::kNo);
     return SkImage::MakeFromTexture(dContext,
                                     mbet->texture(),
                                     origin,
                                     src->colorType(),
                                     src->alphaType(),
                                     src->refColorSpace(),
-                                    ManagedBackendTexture::Release,
-                                    mbet->refAndPassAsContext());
+                                    ManagedBackendTexture::ReleaseProc,
+                                    mbet->releaseContext());
 }
 }  // namespace sk_gpu_test

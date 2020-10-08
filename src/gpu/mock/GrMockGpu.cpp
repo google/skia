@@ -341,7 +341,8 @@ bool GrMockGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrMockGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                       GrColorType colorType,
-                                                                      int sampleCnt) {
+                                                                      int sampleCnt,
+                                                                      GrProtected) {
     GrMockRenderTargetInfo info(colorType, NextExternalRenderTargetID());
     static constexpr int kStencilBits = 8;
     return GrBackendRenderTarget(dimensions.width(), dimensions.height(), sampleCnt, kStencilBits,

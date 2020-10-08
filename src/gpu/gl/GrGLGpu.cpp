@@ -3704,11 +3704,16 @@ bool GrGLGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                     GrColorType colorType,
-                                                                    int sampleCnt) {
+                                                                    int sampleCnt,
+                                                                    GrProtected isProtected) {
     if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
         dimensions.height() > this->caps()->maxRenderTargetSize()) {
         return {};
     }
+    if (isProtected == GrProtected::kYes) {
+        return {};
+    }
+
     this->handleDirtyContext();
     auto format = this->glCaps().getFormatFromColorType(colorType);
     sampleCnt = this->glCaps().getRenderTargetSampleCount(sampleCnt, format);

@@ -146,9 +146,10 @@ public:
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
-    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize,
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                GrColorType,
-                                                               int sampleCnt) override;
+                                                               int sampleCnt,
+                                                               GrProtected) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     const GrGLContext* glContextForTesting() const override { return &this->glContext(); }

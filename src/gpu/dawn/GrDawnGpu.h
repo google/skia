@@ -53,9 +53,10 @@ public:
 #if GR_TEST_UTILS
     bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
 
-    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize,
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                GrColorType,
-                                                               int sampleCnt) override;
+                                                               int sampleCnt,
+                                                               GrProtected) override;
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     void testingOnly_flushGpuAndSync() override;

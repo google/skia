@@ -1101,9 +1101,13 @@ bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                      GrColorType ct,
-                                                                     int sampleCnt) {
+                                                                     int sampleCnt,
+                                                                     GrProtected isProtected) {
     if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
         dimensions.height() > this->caps()->maxRenderTargetSize()) {
+        return {};
+    }
+    if (isProtected == GrProtected::kYes) {
         return {};
     }
 

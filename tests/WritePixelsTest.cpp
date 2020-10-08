@@ -461,8 +461,11 @@ static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
     }
     for (auto& origin : { kTopLeft_GrSurfaceOrigin, kBottomLeft_GrSurfaceOrigin }) {
         SkColorType colorType = kN32_SkColorType;
-        auto surface = MakeBackendRenderTargetSurface(dContext, {DEV_W, DEV_H}, sampleCnt, origin,
-                                                      colorType);
+        auto surface = sk_gpu_test::MakeBackendRenderTargetSurface(dContext,
+                                                                   {DEV_W, DEV_H},
+                                                                   origin,
+                                                                   sampleCnt,
+                                                                   colorType);
         if (surface) {
             auto ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
             test_write_pixels(reporter, surface.get(), ii);

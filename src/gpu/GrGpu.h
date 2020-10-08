@@ -673,9 +673,11 @@ public:
      * buffer for resolving. If the color is non-null the backing store should be cleared to the
      * passed in color.
      */
-    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(SkISize,
-                                                                       GrColorType,
-                                                                       int sampleCount = 1) = 0;
+    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(
+            SkISize dimensions,
+            GrColorType,
+            int sampleCount = 1,
+            GrProtected = GrProtected::kNo) = 0;
 
     /**
      * Deletes a GrBackendRenderTarget allocated with the above. Synchronization to make this safe

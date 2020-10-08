@@ -1259,7 +1259,8 @@ bool GrD3DGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                      GrColorType colorType,
-                                                                     int sampleCnt) {
+                                                                     int sampleCnt,
+                                                                     GrProtected isProtected) {
     this->handleDirtyContext();
 
     if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
@@ -1272,7 +1273,7 @@ GrBackendRenderTarget GrD3DGpu::createTestingOnlyBackendRenderTarget(SkISize dim
     GrD3DTextureResourceInfo info;
     if (!this->createTextureResourceForBackendSurface(dxgiFormat, dimensions, GrTexturable::kNo,
                                                       GrRenderable::kYes, GrMipmapped::kNo,
-                                                      sampleCnt, &info, GrProtected::kNo)) {
+                                                      sampleCnt, &info, isProtected)) {
         return {};
     }
 

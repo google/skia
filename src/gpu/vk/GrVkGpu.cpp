@@ -2025,7 +2025,8 @@ bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
 
 GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(SkISize dimensions,
                                                                     GrColorType ct,
-                                                                    int sampleCnt) {
+                                                                    int sampleCnt,
+                                                                    GrProtected isProtected) {
     this->handleDirtyContext();
 
     if (dimensions.width()  > this->caps()->maxRenderTargetSize() ||
@@ -2038,7 +2039,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(SkISize dime
     GrVkImageInfo info;
     if (!this->createVkImageForBackendSurface(vkFormat, dimensions, sampleCnt, GrTexturable::kNo,
                                               GrRenderable::kYes, GrMipmapped::kNo, &info,
-                                              GrProtected::kNo)) {
+                                              isProtected)) {
         return {};
     }
     return GrBackendRenderTarget(dimensions.width(), dimensions.height(), 0, info);
