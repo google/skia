@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5e755ba_5d2a86d9",
+        "filename": "include/private/SkTHash.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-08T14:43:18Z",
+      "side": 1,
+      "message": "I really meant to make this one use normal copy and assignment.  That\u0027ll let us use \u003d default for Map and Set, and then I\u0027ll follow up on fixing up SkTArray, making everything \u003d default, etc, once this lands.",
+      "revId": "57706b3883b45f8fa9481194aee0deeb55f218bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
