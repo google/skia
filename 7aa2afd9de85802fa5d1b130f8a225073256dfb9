@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2eb52ca_68aec11f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-08T20:31:40Z",
+      "side": 1,
+      "message": "This seems to fix the memory allocation issue seen on the Mac bots after the https://skia-review.googlesource.com/c/skia/+/323980",
+      "revId": "7aa2afd9de85802fa5d1b130f8a225073256dfb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
