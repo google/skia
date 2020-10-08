@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bf33c6b_097b81cc",
+        "filename": "modules/skparagraph/src/TextLine.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1135,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-08T15:37:56Z",
+      "side": 1,
+      "message": "I think findGraphemeStart is now named findPreviousGraphemeBoundary? (findGraphemeStart searched backwards the way findPreviousGraphemeBoundary does now.) Is this an intentional change?",
+      "range": {
+        "startLine": 1135,
+        "startChar": 28,
+        "endLine": 1135,
+        "endChar": 52
+      },
+      "revId": "171d5eceae1dcb5e0b00648342d3764144b88d69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
