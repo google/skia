@@ -34,6 +34,24 @@
       "parentUuid": "7dc0adaa_0be5ac5d",
       "revId": "32d91bb8359c6ecd0f90a9a53aae9569388b7cbc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "804f129d_826691c1",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T15:37:13Z",
+      "side": 1,
+      "message": "We could, but we\u0027d have to change all of the code that iterates over ProgramElements (to add an extra deref on the iterator).",
+      "parentUuid": "4ee45fdf_fb11b4f9",
+      "revId": "32d91bb8359c6ecd0f90a9a53aae9569388b7cbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
