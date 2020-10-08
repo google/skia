@@ -151,10 +151,10 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
     const SkSL::Context& ctx(compiler->context());
 
     // Go through program elements, pulling out information that we need
-    for (const auto& elem : *program) {
+    for (const auto& elem : program->elements()) {
         // Variables (uniform, varying, etc.)
-        if (elem.is<SkSL::GlobalVarDeclaration>()) {
-            const auto& varDecl = elem.as<SkSL::GlobalVarDeclaration>().fDecl;
+        if (elem->is<SkSL::GlobalVarDeclaration>()) {
+            const auto& varDecl = elem->as<SkSL::GlobalVarDeclaration>().fDecl;
 
             const SkSL::Variable& var = *varDecl->fVar;
             const SkSL::Type& varType = var.type();
@@ -211,8 +211,8 @@ SkRuntimeEffect::EffectResult SkRuntimeEffect::Make(SkString sksl) {
             }
         }
         // Functions
-        else if (elem.is<SkSL::FunctionDefinition>()) {
-            const auto& func = elem.as<SkSL::FunctionDefinition>();
+        else if (elem->is<SkSL::FunctionDefinition>()) {
+            const auto& func = elem->as<SkSL::FunctionDefinition>();
             const SkSL::FunctionDeclaration& decl = func.fDeclaration;
             if (decl.name() == "main") {
                 hasMain = true;

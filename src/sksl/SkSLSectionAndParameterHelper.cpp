@@ -27,17 +27,17 @@ namespace SkSL {
 
 SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, ErrorReporter& errors)
     : fProgram(*program) {
-    for (const auto& p : fProgram) {
-        switch (p.kind()) {
+    for (const auto& p : fProgram.elements()) {
+        switch (p->kind()) {
             case ProgramElement::Kind::kGlobalVar: {
-                const VarDeclaration& decl = *p.as<GlobalVarDeclaration>().fDecl;
+                const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
                 if (IsParameter(*decl.fVar)) {
                     fParameters.push_back(decl.fVar);
                 }
                 break;
             }
             case ProgramElement::Kind::kSection: {
-                const Section& s = (const Section&) p;
+                const Section& s = p->as<Section>();
                 if (IsSupportedSection(s.fName.c_str())) {
                     if (SectionRequiresArgument(s.fName.c_str()) && !s.fArgument.size()) {
                         errors.error(s.fOffset,
