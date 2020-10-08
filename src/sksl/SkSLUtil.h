@@ -174,6 +174,11 @@ public:
         return fBuiltinFMASupport;
     }
 
+    bool fBuiltinDeterminantSupport = false;
+    bool builtinDeterminantSupport() const {
+        return fBuiltinDeterminantSupport;
+    }
+
     bool fCanUseDoLoops = false;
     bool canUseDoLoops() const {
         // we define this to false in standalone so we don't use do loops while inlining in FP files
