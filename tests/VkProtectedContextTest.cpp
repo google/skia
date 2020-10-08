@@ -19,23 +19,52 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkExtensions.h"
 #include "tests/Test.h"
+#include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/vk/VkTestHelper.h"
 
 static sk_sp<SkSurface> create_protected_sksurface(GrDirectContext* dContext,
-                                                   skiatest::Reporter* reporter) {
+                                                   skiatest::Reporter* reporter,
+                                                   bool textureable = true) {
     const int kW = 8;
     const int kH = 8;
-    GrBackendTexture backendTex = dContext->createBackendTexture(
-        kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kYes, GrProtected::kYes);
-    REPORTER_ASSERT(reporter, backendTex.isValid());
-    REPORTER_ASSERT(reporter, backendTex.isProtected());
-
     SkSurfaceProps surfaceProps = SkSurfaceProps(0, kRGB_H_SkPixelGeometry);
-    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(
-        dContext, backendTex, kTopLeft_GrSurfaceOrigin, 1,
-        kRGBA_8888_SkColorType, nullptr, &surfaceProps);
-    REPORTER_ASSERT(reporter, surface);
+    sk_sp<SkSurface> surface;
+    if (textureable) {
+        surface = sk_gpu_test::MakeBackendTextureSurface(dContext,
+                                                         {kW, kH},
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         1,
+                                                         kRGBA_8888_SkColorType,
+                                                         /* color space */ nullptr,
+                                                         GrMipmapped::kNo,
+                                                         GrProtected::kYes,
+                                                         &surfaceProps);
+    } else {
+        surface = sk_gpu_test::MakeBackendRenderTargetSurface(dContext,
+                                                              {kW, kH},
+                                                              kTopLeft_GrSurfaceOrigin,
+                                                              1,
+                                                              kRGBA_8888_SkColorType,
+                                                              /* color space */ nullptr,
+                                                              GrProtected::kYes,
+                                                              &surfaceProps);
+    }
+    if (!surface) {
+        ERRORF(reporter, "Could not create protected surface.");
+        return nullptr;
+    }
+    if (textureable) {
+        GrBackendTexture backendTex =
+                surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess);
+        REPORTER_ASSERT(reporter, backendTex.isValid());
+        REPORTER_ASSERT(reporter, backendTex.isProtected());
+    } else {
+        GrBackendRenderTarget backendRT =
+                surface->getBackendRenderTarget(SkSurface::kFlushRead_BackendHandleAccess);
+        REPORTER_ASSERT(reporter, backendRT.isValid());
+        REPORTER_ASSERT(reporter, backendRT.isProtected());
+    }
     return surface;
 }
 
@@ -59,23 +88,8 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedSkSurface, reporter, options) {
 
     auto dContext = protectedTestHelper->directContext();
     REPORTER_ASSERT(reporter, dContext != nullptr);
-
-    const int kW = 8;
-    const int kH = 8;
-    GrBackendTexture backendTex = dContext->createBackendTexture(kW, kH, kRGBA_8888_SkColorType,
-                                                                 GrMipmapped::kNo,
-                                                                 GrRenderable::kYes,
-                                                                 GrProtected::kYes);
-    REPORTER_ASSERT(reporter, backendTex.isValid());
-    REPORTER_ASSERT(reporter, backendTex.isProtected());
-
-    SkSurfaceProps surfaceProps = SkSurfaceProps(0, kRGB_H_SkPixelGeometry);
-    sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTextureAsRenderTarget(
-        dContext, backendTex, kTopLeft_GrSurfaceOrigin, 1,
-        kRGBA_8888_SkColorType, nullptr, &surfaceProps);
-    REPORTER_ASSERT(reporter, surface);
-
-    dContext->deleteBackendTexture(backendTex);
+    create_protected_sksurface(dContext, reporter, /*textureable*/ true);
+    create_protected_sksurface(dContext, reporter, /*textureable*/ false);
 }
 
 DEF_GPUTEST(VkProtectedContext_CreateNonprotectedTextureInProtectedContext, reporter, options) {
@@ -120,9 +134,6 @@ DEF_GPUTEST(VkProtectedContext_ReadFromProtectedSurface, reporter, options) {
     auto surface = create_protected_sksurface(protectedTestHelper->directContext(), reporter);
     REPORTER_ASSERT(reporter, surface);
     REPORTER_ASSERT(reporter, !surface->readPixels(SkImageInfo(), nullptr, 8, 0, 0));
-
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 namespace {
@@ -164,9 +175,6 @@ DEF_GPUTEST(VkProtectedContext_AsyncReadFromProtectedSurface, reporter, options)
         dContext->checkAsyncWorkCompletion();
     }
     REPORTER_ASSERT(reporter, !cbContext.fResult);
-
-    dContext->deleteBackendTexture(
-            surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangle, reporter, options) {
@@ -183,11 +191,6 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangle, reporter, options) {
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
     canvas->drawRect(SkRect::MakeWH(4, 4), paint);
-
-    surface->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangleWithAntiAlias, reporter, options) {
@@ -205,11 +208,6 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithAntiAlias, reporter, options) {
     paint.setColor(SK_ColorBLACK);
     paint.setAntiAlias(true);
     canvas->drawRect(SkRect::MakeWH(4, 4), paint);
-
-    surface->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangleWithBlendMode, reporter, options) {
@@ -227,11 +225,6 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithBlendMode, reporter, options) {
     paint.setColor(SK_ColorBLACK);
     paint.setBlendMode(SkBlendMode::kColorDodge);
     canvas->drawRect(SkRect::MakeWH(4, 4), paint);
-
-    surface->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawRectangleWithFilter, reporter, options) {
@@ -251,11 +244,6 @@ DEF_GPUTEST(VkProtectedContext_DrawRectangleWithFilter, reporter, options) {
     paint.setMaskFilter(SkMaskFilter::MakeBlur(
           SkBlurStyle::kOuter_SkBlurStyle, 1.1f));
     canvas->drawRect(SkRect::MakeWH(4, 4), paint);
-
-    surface->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 DEF_GPUTEST(VkProtectedContext_DrawThinPath, reporter, options) {
@@ -275,11 +263,6 @@ DEF_GPUTEST(VkProtectedContext_DrawThinPath, reporter, options) {
     paint.setAntiAlias(true);
     paint.setStrokeWidth(.4f);
     canvas->drawPath(SkPath().moveTo(4, 4).lineTo(6, 6), paint);
-
-    surface->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 DEF_GPUTEST(VkProtectedContext_SaveLayer, reporter, options) {
@@ -298,11 +281,6 @@ DEF_GPUTEST(VkProtectedContext_SaveLayer, reporter, options) {
     paint.setColor(SK_ColorBLACK);
     canvas->drawRect(SkRect::MakeWH(4, 4), paint);
     canvas->restore();
-
-    surface->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 
@@ -326,15 +304,6 @@ DEF_GPUTEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface, reporter, o
     REPORTER_ASSERT(reporter, canvas);
 
     canvas->drawImage(image, 0, 0);
-
-    surface1->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface1->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
-    surface2->flush();
-    protectedTestHelper->directContext()->submit(true);
-    protectedTestHelper->directContext()->deleteBackendTexture(
-        surface2->getBackendTexture(SkSurface::kFlushRead_BackendHandleAccess));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
