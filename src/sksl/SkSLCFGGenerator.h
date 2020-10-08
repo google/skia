@@ -127,7 +127,8 @@ struct BasicBlock {
 
     std::vector<Node> fNodes;
     bool fIsReachable = false;
-    std::set<BlockId> fExits;
+    using ExitArray = SkSTArray<4, BlockId>;
+    ExitArray fExits;
     // variable definitions upon entering this basic block (null expression = undefined)
     DefinitionMap fBefore;
 };
