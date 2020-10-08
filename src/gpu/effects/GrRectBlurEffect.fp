@@ -17,7 +17,7 @@
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
 #include "src/gpu/GrShaderCaps.h"
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 }
 
@@ -54,7 +54,7 @@ layout(key) in bool isFast;
 @class {
 static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* rContext,
                                                            float sixSigma) {
-    auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+    auto threadSafeCache = rContext->priv().threadSafeCache();
 
     int width = SkCreateIntegralTable(sixSigma, nullptr);
 
@@ -66,7 +66,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* r
 
     SkMatrix m = SkMatrix::Scale(width/sixSigma, 1.f);
 
-    GrSurfaceProxyView view = threadSafeViewCache->find(key);
+    GrSurfaceProxyView view = threadSafeCache->find(key);
 
     if (view) {
         SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
@@ -85,7 +85,7 @@ static std::unique_ptr<GrFragmentProcessor> MakeIntegralFP(GrRecordingContext* r
         return {};
     }
 
-    view = threadSafeViewCache->add(key, view);
+    view = threadSafeCache->add(key, view);
 
     SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
     return GrTextureEffect::Make(

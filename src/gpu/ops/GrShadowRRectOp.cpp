@@ -16,7 +16,7 @@
 #include "src/gpu/GrProgramInfo.h"
 #include "src/gpu/GrProxyProvider.h"
 #include "src/gpu/GrRecordingContextPriv.h"
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/effects/GrShadowGeoProc.h"
 #include "src/gpu/ops/GrSimpleMeshDrawOpHelper.h"
 
@@ -669,9 +669,9 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* rContext) {
     GrUniqueKey::Builder builder(&key, kDomain, 0, "Shadow Gaussian Falloff");
     builder.finish();
 
-    auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+    auto threadSafeCache = rContext->priv().threadSafeCache();
 
-    GrSurfaceProxyView view = threadSafeViewCache->find(key);
+    GrSurfaceProxyView view = threadSafeCache->find(key);
     if (view) {
         SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
         return view;
@@ -697,7 +697,7 @@ static GrSurfaceProxyView create_falloff_texture(GrRecordingContext* rContext) {
         return {};
     }
 
-    view = threadSafeViewCache->add(key, view);
+    view = threadSafeCache->add(key, view);
     SkASSERT(view.origin() == kTopLeft_GrSurfaceOrigin);
     return view;
 }

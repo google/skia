@@ -26,7 +26,7 @@ class SkString;
 class SkTraceMemoryDump;
 class GrSingleOwner;
 class GrTexture;
-class GrThreadSafeUniquelyKeyedProxyViewCache;
+class GrThreadSafeCache;
 
 struct GrTextureFreedMessage {
     GrTexture* fTexture;
@@ -239,8 +239,8 @@ public:
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
     void setProxyProvider(GrProxyProvider* proxyProvider) { fProxyProvider = proxyProvider; }
-    void setThreadSafeViewCache(GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache) {
-        fThreadSafeViewCache = threadSafeViewCache;
+    void setThreadSafeCache(GrThreadSafeCache* threadSafeCache) {
+        fThreadSafeCache = threadSafeCache;
     }
 
 private:
@@ -327,7 +327,7 @@ private:
     typedef SkTDArray<GrGpuResource*> ResourceArray;
 
     GrProxyProvider*                    fProxyProvider = nullptr;
-    GrThreadSafeUniquelyKeyedProxyViewCache* fThreadSafeViewCache = nullptr;
+    GrThreadSafeCache*                  fThreadSafeCache = nullptr;
 
     // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
     // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the

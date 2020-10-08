@@ -20,7 +20,7 @@
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrStyle.h"
 #include "src/gpu/GrTextureProxy.h"
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/effects/GrTextureEffect.h"
 #include "src/gpu/geometry/GrStyledShape.h"
 
@@ -126,13 +126,13 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
     SkASSERT(filter);
     SkASSERT(!shape.style().applies());
 
-    auto threadSafeViewCache = rContext->priv().threadSafeViewCache();
+    auto threadSafeCache = rContext->priv().threadSafeCache();
 
     GrSurfaceProxyView filteredMaskView;
     sk_sp<SkData> data;
 
     if (key->isValid()) {
-        std::tie(filteredMaskView, data) = threadSafeViewCache->findWithData(*key);
+        std::tie(filteredMaskView, data) = threadSafeCache->findWithData(*key);
     }
 
     if (filteredMaskView) {
@@ -196,8 +196,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
 
         if (key->isValid()) {
             key->setCustomData(create_data(*drawRect, unclippedDevShapeBounds));
-            std::tie(filteredMaskView, data) = threadSafeViewCache->addWithData(*key,
-                                                                                filteredMaskView);
+            std::tie(filteredMaskView, data) = threadSafeCache->addWithData(*key, filteredMaskView);
             // If we got a different view back from 'addWithData' it could have a different drawRect
             *drawRect = extract_draw_rect_from_data(data.get(), unclippedDevShapeBounds);
         }
@@ -400,15 +399,15 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
         return {};
     }
 
-    auto threadSafeViewCache = dContext->priv().threadSafeViewCache();
+    auto threadSafeCache = dContext->priv().threadSafeCache();
 
     GrSurfaceProxyView lazyView;
-    sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline> trampoline;
+    sk_sp<GrThreadSafeCache::Trampoline> trampoline;
 
     if (key->isValid()) {
         // In this case, we want GPU-filtered masks to have priority over SW-generated ones so
         // we pre-emptively add a lazy-view to the cache and fill it in later.
-        std::tie(lazyView, trampoline) = GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(
+        std::tie(lazyView, trampoline) = GrThreadSafeCache::CreateLazyView(
                 dContext, GrColorType::kAlpha_8, maskRect->size(),
                 kMaskOrigin, SkBackingFit::kApprox);
         if (!lazyView) {
@@ -416,7 +415,7 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
         }
 
         key->setCustomData(create_data(*maskRect, unclippedDevShapeBounds));
-        auto [cachedView, data] = threadSafeViewCache->findOrAddWithData(*key, lazyView);
+        auto [cachedView, data] = threadSafeCache->findOrAddWithData(*key, lazyView);
         if (cachedView != lazyView) {
             // In this case, the gpu-thread lost out to a recording thread - use its result.
             SkASSERT(data);
@@ -440,7 +439,7 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
             // succeeded but, if it does, remove the lazy-view from the cache and fallback to
             // a SW-created mask. Note that any recording threads that glommed onto the
             // lazy-view will have to, later, drop those draws.
-            threadSafeViewCache->remove(*key);
+            threadSafeCache->remove(*key);
         }
         return {};
     }
@@ -456,7 +455,7 @@ static GrSurfaceProxyView hw_create_filtered_mask(GrDirectContext* dContext,
             // Remove the lazy-view from the cache and fallback to a SW-created mask. Note that
             // any recording threads that glommed onto the lazy-view will have to, later, drop
             // those draws.
-            threadSafeViewCache->remove(*key);
+            threadSafeCache->remove(*key);
         }
         return {};
     }
