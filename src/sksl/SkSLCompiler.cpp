@@ -120,8 +120,7 @@ Compiler::Compiler(Flags flags)
     fRootSymbolTable = std::make_shared<SymbolTable>(this);
     fIRGenerator =
             std::make_unique<IRGenerator>(fContext.get(), &fInliner, fRootSymbolTable, *this);
-    #define ADD_TYPE(t) fRootSymbolTable->addWithoutOwnership(fContext->f ## t ## _Type->name(), \
-                                                              fContext->f ## t ## _Type.get())
+    #define ADD_TYPE(t) fRootSymbolTable->addWithoutOwnership(fContext->f ## t ## _Type.get())
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Float2);
@@ -249,8 +248,7 @@ Compiler::Compiler(Flags flags)
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
     StringFragment skCapsName("sk_Caps");
-    fRootSymbolTable->add(skCapsName,
-                          std::make_unique<Variable>(/*offset=*/-1,
+    fRootSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
                                                      fIRGenerator->fModifiers->handle(Modifiers()),
                                                      skCapsName, fContext->fSkCaps_Type.get(),
                                                      /*builtin=*/false, Variable::kGlobal_Storage));
@@ -1628,7 +1626,7 @@ std::unique_ptr<Program> Compiler::convertProgram(
         // Add any external values to the symbol table. IRGenerator::start() has pushed a table, so
         // we're only making these visible to the current Program.
         for (const auto& ev : *externalValues) {
-            fIRGenerator->fSymbolTable->addWithoutOwnership(ev->name(), ev.get());
+            fIRGenerator->fSymbolTable->addWithoutOwnership(ev.get());
         }
     }
     std::unique_ptr<String> textPtr(new String(std::move(text)));
