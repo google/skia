@@ -13,3 +13,12 @@ component("viewer_wasm") {
   ]
   deps = [ "../..:samples" ]
 }
+
+component("gm_wasm") {
+  testonly = true
+  include_dirs = [ "../.." ]
+  deps = [
+    "../..:hash_and_encode",
+    "../..:tool_utils",
+  ]
+}

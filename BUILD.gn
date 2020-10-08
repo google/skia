@@ -1971,6 +1971,17 @@ if (skia_enable_tools) {
       "modules/skshaper",
     ]
   }
+  test_lib("hash_and_encode") {
+    sources = [
+      "tools/HashAndEncode.cpp",
+      "tools/HashAndEncode.h",
+    ]
+    deps = [
+      ":flags",
+      ":skia",
+      "//third_party/libpng",
+    ]
+  }
   if (target_cpu != "wasm") {
     test_app("convert-to-nia") {
       sources = [ "tools/convert-to-nia.cpp" ]
@@ -1981,17 +1992,6 @@ if (skia_enable_tools) {
       deps = [
         ":skcms",
         ":skia",
-      ]
-    }
-    test_lib("hash_and_encode") {
-      sources = [
-        "tools/HashAndEncode.cpp",
-        "tools/HashAndEncode.h",
-      ]
-      deps = [
-        ":flags",
-        ":skia",
-        "//third_party/libpng",
       ]
     }
     test_app("fm") {

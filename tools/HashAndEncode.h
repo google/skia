@@ -9,7 +9,7 @@
 
 // HashAndEncode transforms any SkBitmap into a standard format, currently
 // 16-bit unpremul RGBA in the Rec. 2020 color space.  This lets us compare
-// images from different backends or configurations, using writeForHash() for
+// images from different backends or configurations, using feedHash() for
 // direct content-based hashing, or encodePNG() for visual comparison.
 class HashAndEncode {
 public:

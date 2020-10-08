@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<title>GMs and unit tests against WASM/WebGL</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+  #debug_canvas {
+      /* Same checkboard pattern as is on debugger.skia.org, just a little darker. */
+      background-position: 0 0, 10px 10px;
+      background-size: 20px 20px;
+      background-image: linear-gradient(45deg, #CCC 25%, transparent 25%, transparent 75%, #CCC 75%, #CCC 100%),
+                        linear-gradient(45deg, #CCC 25%, white 25%, white 75%, #CCC 75%, #CCC 100%);
+  }
+</style>
+
+<canvas id=debug_canvas height=1000 width=1000></canvas>
+
+<canvas id=gm_canvas></canvas>
+
+<script type="text/javascript" src="/out/wasm_gm_tests.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+  const loadTests = InitWasmGMTests({
+    locateFile: (file) => '/out/'+file,
+  });
+
+  Promise.all([loadTests]).then(([GM]) => {
+    RunGMs(GM);
+  });
+
+  function RunGMs(GM) {
+    const canvas = document.getElementById('gm_canvas');
+    const ctx = GM.GetWebGLContext(canvas, 2);
+    const grcontext = GM.MakeGrContext(ctx);
+    requestAnimationFrame(drawQueuedPNGs);
+
+    const names = GM.ListGMs();
+    names.sort();
+    for (const name of names) {
+      const pngAndHash = GM.RunGM(grcontext, name);
+      if (!pngAndHash) {
+        continue;
+      }
+      drawDebugPNG(pngAndHash.png);
+      // We need to know the digest of the image as well as which gm produced it.
+      // As such, we include both parts in the name.
+      outputPNG(pngAndHash.png, pngAndHash.hash + '_' + name + '.png');
+    }
+
+    grcontext.delete();
+  }
+
+  const msPerGM = 500;
+  let timeSinceLastPNGSwapped = 0;
+  const queuedDebugPNGs = [];
+
+  // This decodes the given PNG and queues it up to be drawn. Because decoding the image
+  // (createImageBitmap) is asynchronous, we queue this in a list and have a drawing loop that
+  // occasionally pulls the next image off the queue to be displayed to the human. That way we
+  // have a minimum amount of time an image is seen so the human can casually inspect the outputs
+  // as they are generated.
+  function drawDebugPNG(pngBytes) {
+    const blob = new Blob([pngBytes], {type: 'image/png'});
+    createImageBitmap(blob).then((bitmap) => {
+      queuedDebugPNGs.push(bitmap);
+    });
+  }
+
+  function drawQueuedPNGs() {
+    requestAnimationFrame(drawQueuedPNGs);
+    if (!queuedDebugPNGs.length) {
+      return; // no new image to show
+    }
+    if ((Date.now() - timeSinceLastPNGSwapped) < msPerGM) {
+      return; // not been displayed long enough.
+    }
+    // Draw the first image in the queue.
+    const bitmap = queuedDebugPNGs.shift();
+
+    const debugCanvas = document.getElementById('debug_canvas');
+    debugCanvas.width = bitmap.width;
+    debugCanvas.height = bitmap.height;
+
+    const ctx = debugCanvas.getContext('2d');
+    ctx.clearRect(0, 0, 1000, 1000);
+    ctx.drawImage(bitmap, 0, 0);
+    timeSinceLastPNGSwapped = Date.now();
+  }
+
+  // This triggers a download of the created PNG using the provided filename. For a production
+  // testing environment, it will probably be good to swap this out with a webserver because it
+  // might not be easy to determine where the download folder for a given browser is.
+  function outputPNG(pngBytes, fileName) {
+    // https://stackoverflow.com/a/32094834
+    const blob = new Blob([pngBytes], {type: 'image/png'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    document.body.appendChild(a);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    // clean up after because FF might not download it synchronously
+    setTimeout(function() {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 50);
+  }
+
+</script>
