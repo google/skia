@@ -19,10 +19,10 @@ namespace SkSL {
 
 class Context;
 class ErrorReporter;
-struct Expression;
+class Expression;
 class IRGenerator;
-struct ProgramElement;
-struct Statement;
+class ProgramElement;
+class Statement;
 class SymbolTable;
 class Type;
 

@@ -16,7 +16,8 @@ namespace SkSL {
 /**
  * A 'discard' statement.
  */
-struct DiscardStatement : public Statement {
+class DiscardStatement : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kDiscard;
 
     DiscardStatement(int offset)
@@ -30,6 +31,7 @@ struct DiscardStatement : public Statement {
         return String("discard;");
     }
 
+private:
     using INHERITED = Statement;
 };
 
