@@ -58,8 +58,8 @@ public:
     GrStrikeCache* getGrStrikeCache() { return fContext->fStrikeCache.get(); }
     GrTextBlobCache* getTextBlobCache() { return fContext->getTextBlobCache(); }
 
-    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
-        return fContext->threadSafeViewCache();
+    GrThreadSafeUniquelyKeyedCache* threadSafeCache() {
+        return fContext->threadSafeCache();
     }
 
     /**

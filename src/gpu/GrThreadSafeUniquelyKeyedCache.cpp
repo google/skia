@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/GrThreadSafeUniquelyKeyedProxyViewCache.h"
+#include "src/gpu/GrThreadSafeUniquelyKeyedCache.h"
 
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
@@ -13,29 +13,29 @@
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrResourceCache.h"
 
-GrThreadSafeUniquelyKeyedProxyViewCache::GrThreadSafeUniquelyKeyedProxyViewCache()
+GrThreadSafeUniquelyKeyedCache::GrThreadSafeUniquelyKeyedCache()
     : fFreeEntryList(nullptr) {
 }
 
-GrThreadSafeUniquelyKeyedProxyViewCache::~GrThreadSafeUniquelyKeyedProxyViewCache() {
+GrThreadSafeUniquelyKeyedCache::~GrThreadSafeUniquelyKeyedCache() {
     this->dropAllRefs();
 }
 
 #if GR_TEST_UTILS
-int GrThreadSafeUniquelyKeyedProxyViewCache::numEntries() const {
+int GrThreadSafeUniquelyKeyedCache::numEntries() const {
     SkAutoSpinlock lock{fSpinLock};
 
     return fUniquelyKeyedProxyViewMap.count();
 }
 
-size_t GrThreadSafeUniquelyKeyedProxyViewCache::approxBytesUsedForHash() const {
+size_t GrThreadSafeUniquelyKeyedCache::approxBytesUsedForHash() const {
     SkAutoSpinlock lock{fSpinLock};
 
     return fUniquelyKeyedProxyViewMap.approxBytesUsed();
 }
 #endif
 
-void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
+void GrThreadSafeUniquelyKeyedCache::dropAllRefs() {
     SkAutoSpinlock lock{fSpinLock};
 
     fUniquelyKeyedProxyViewMap.reset();
@@ -48,7 +48,7 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropAllRefs() {
 
 // TODO: If iterating becomes too expensive switch to using something like GrIORef for the
 // GrSurfaceProxy
-void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefs(GrResourceCache* resourceCache) {
+void GrThreadSafeUniquelyKeyedCache::dropUniqueRefs(GrResourceCache* resourceCache) {
     SkAutoSpinlock lock{fSpinLock};
 
     // Iterate from LRU to MRU
@@ -71,8 +71,8 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefs(GrResourceCache* re
     }
 }
 
-void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefsOlderThan(
-        GrStdSteadyClock::time_point purgeTime) {
+void GrThreadSafeUniquelyKeyedCache::dropUniqueRefsOlderThan(
+            GrStdSteadyClock::time_point purgeTime) {
     SkAutoSpinlock lock{fSpinLock};
 
     // Iterate from LRU to MRU
@@ -96,7 +96,7 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::dropUniqueRefsOlderThan(
     }
 }
 
-std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyViewCache::internalFind(
+std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedCache::internalFind(
                                                        const GrUniqueKey& key) {
     Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
     if (tmp) {
@@ -111,7 +111,7 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyView
     return {};
 }
 
-GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::find(const GrUniqueKey& key) {
+GrSurfaceProxyView GrThreadSafeUniquelyKeyedCache::find(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     GrSurfaceProxyView view;
@@ -119,16 +119,16 @@ GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::find(const GrUniqueK
     return view;
 }
 
-std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyViewCache::findWithData(
+std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedCache::findWithData(
                                                                         const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     return this->internalFind(key);
 }
 
-GrThreadSafeUniquelyKeyedProxyViewCache::Entry*
-GrThreadSafeUniquelyKeyedProxyViewCache::getEntry(const GrUniqueKey& key,
-                                                  const GrSurfaceProxyView& view) {
+GrThreadSafeUniquelyKeyedCache::Entry*
+GrThreadSafeUniquelyKeyedCache::getEntry(const GrUniqueKey& key,
+                                         const GrSurfaceProxyView& view) {
     Entry* entry;
 
     if (fFreeEntryList) {
@@ -149,7 +149,7 @@ GrThreadSafeUniquelyKeyedProxyViewCache::getEntry(const GrUniqueKey& key,
     return entry;
 }
 
-void GrThreadSafeUniquelyKeyedProxyViewCache::recycleEntry(Entry* dead) {
+void GrThreadSafeUniquelyKeyedCache::recycleEntry(Entry* dead) {
     SkASSERT(!dead->fPrev && !dead->fNext && !dead->fList);
 
     dead->fKey.reset();
@@ -159,7 +159,7 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::recycleEntry(Entry* dead) {
     fFreeEntryList = dead;
 }
 
-std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyViewCache::internalAdd(
+std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedCache::internalAdd(
                                                                 const GrUniqueKey& key,
                                                                 const GrSurfaceProxyView& view) {
     Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
@@ -172,8 +172,8 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyView
     return { tmp->fView, tmp->fKey.refCustomData() };
 }
 
-GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::add(const GrUniqueKey& key,
-                                                                const GrSurfaceProxyView& view) {
+GrSurfaceProxyView GrThreadSafeUniquelyKeyedCache::add(const GrUniqueKey& key,
+                                                       const GrSurfaceProxyView& view) {
     SkAutoSpinlock lock{fSpinLock};
 
     GrSurfaceProxyView newView;
@@ -181,7 +181,7 @@ GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::add(const GrUniqueKe
     return newView;
 }
 
-std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyViewCache::addWithData(
+std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedCache::addWithData(
                                                                 const GrUniqueKey& key,
                                                                 const GrSurfaceProxyView& view) {
     SkAutoSpinlock lock{fSpinLock};
@@ -189,8 +189,8 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyView
     return this->internalAdd(key, view);
 }
 
-GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::findOrAdd(const GrUniqueKey& key,
-                                                                      const GrSurfaceProxyView& v) {
+GrSurfaceProxyView GrThreadSafeUniquelyKeyedCache::findOrAdd(const GrUniqueKey& key,
+                                                             const GrSurfaceProxyView& v) {
     SkAutoSpinlock lock{fSpinLock};
 
     GrSurfaceProxyView view;
@@ -203,7 +203,7 @@ GrSurfaceProxyView GrThreadSafeUniquelyKeyedProxyViewCache::findOrAdd(const GrUn
     return view;
 }
 
-std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyViewCache::findOrAddWithData(
+std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedCache::findOrAddWithData(
                                                                       const GrUniqueKey& key,
                                                                       const GrSurfaceProxyView& v) {
     SkAutoSpinlock lock{fSpinLock};
@@ -216,7 +216,7 @@ std::tuple<GrSurfaceProxyView, sk_sp<SkData>> GrThreadSafeUniquelyKeyedProxyView
     return this->internalAdd(key, v);
 }
 
-void GrThreadSafeUniquelyKeyedProxyViewCache::remove(const GrUniqueKey& key) {
+void GrThreadSafeUniquelyKeyedCache::remove(const GrUniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
 
     Entry* tmp = fUniquelyKeyedProxyViewMap.find(key);
@@ -227,12 +227,12 @@ void GrThreadSafeUniquelyKeyedProxyViewCache::remove(const GrUniqueKey& key) {
     }
 }
 
-std::tuple<GrSurfaceProxyView, sk_sp<GrThreadSafeUniquelyKeyedProxyViewCache::Trampoline>>
-GrThreadSafeUniquelyKeyedProxyViewCache::CreateLazyView(GrDirectContext* dContext,
-                                                        GrColorType origCT,
-                                                        SkISize dimensions,
-                                                        GrSurfaceOrigin origin,
-                                                        SkBackingFit fit) {
+std::tuple<GrSurfaceProxyView, sk_sp<GrThreadSafeUniquelyKeyedCache::Trampoline>>
+GrThreadSafeUniquelyKeyedCache::CreateLazyView(GrDirectContext* dContext,
+                                               GrColorType origCT,
+                                               SkISize dimensions,
+                                               GrSurfaceOrigin origin,
+                                               SkBackingFit fit) {
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
     constexpr int kSampleCnt = 1;

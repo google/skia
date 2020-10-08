@@ -39,11 +39,11 @@ public:
     GrTextBlobCache* getTextBlobCache() { return fProxy->fTextBlobCache.get(); }
     const GrTextBlobCache* getTextBlobCache() const { return fProxy->fTextBlobCache.get(); }
 
-    GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() {
-        return fProxy->fThreadSafeViewCache.get();
+    GrThreadSafeUniquelyKeyedCache* threadSafeCache() {
+        return fProxy->fThreadSafeCache.get();
     }
-    const GrThreadSafeUniquelyKeyedProxyViewCache* threadSafeViewCache() const {
-        return fProxy->fThreadSafeViewCache.get();
+    const GrThreadSafeUniquelyKeyedCache* threadSafeCache() const {
+        return fProxy->fThreadSafeCache.get();
     }
 
     void abandonContext() { fProxy->abandonContext(); }
