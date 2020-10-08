@@ -197,6 +197,14 @@ static inline uint16_t get_endian_short(const uint8_t* data, bool littleEndian) 
     return (data[0] << 8) | (data[1]);
 }
 
+static inline uint32_t get_endian_int(const uint8_t* data, bool littleEndian) {
+    if (littleEndian) {
+        return (data[3] << 24) | (data[2] << 16) | (data[1] << 8) | (data[0]);
+    }
+
+    return (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | (data[3]);
+}
+
 static inline SkPMColor premultiply_argb_as_rgba(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     if (a != 255) {
         r = SkMulDiv255Round(r, a);
