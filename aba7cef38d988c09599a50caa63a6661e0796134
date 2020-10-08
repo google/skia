@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "39a59578_f3a42c00",
+        "filename": "src/gpu/dawn/GrDawnProgramBuilder.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-08T17:47:24Z",
+      "side": 1,
+      "message": "Yes, it\u0027s a shorthand. Done.",
+      "parentUuid": "ac6995cc_271b3536",
+      "range": {
+        "startLine": 466,
+        "startChar": 87,
+        "endLine": 466,
+        "endChar": 92
+      },
+      "revId": "aba7cef38d988c09599a50caa63a6661e0796134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "125e0c22_7cf7e201",
@@ -47,6 +71,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2f578b9_f3f6a362",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-08T17:47:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "125e0c22_7cf7e201",
+      "range": {
+        "startLine": 242,
+        "startChar": 5,
+        "endLine": 242,
+        "endChar": 110
+      },
+      "revId": "aba7cef38d988c09599a50caa63a6661e0796134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "66aab0c1_e4c8984f",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-10-08T15:28:41Z",
       "side": 1,
       "message": "nit: 100 chars",
+      "range": {
+        "startLine": 244,
+        "startChar": 6,
+        "endLine": 244,
+        "endChar": 111
+      },
+      "revId": "aba7cef38d988c09599a50caa63a6661e0796134",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "866bfe54_de538ab6",
+        "filename": "tests/GrMipMappedTest.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-08T17:47:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66aab0c1_e4c8984f",
       "range": {
         "startLine": 244,
         "startChar": 6,
