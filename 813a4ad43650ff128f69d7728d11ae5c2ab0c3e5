@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee3980c5_706e7b41",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T12:56:32Z",
+      "side": 1,
+      "message": "If my math is right, moving fBuiltin to after fCallCount will shrink the struct by 8 bytes (and this might be the largest Data at the moment?)",
+      "revId": "813a4ad43650ff128f69d7728d11ae5c2ab0c3e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
