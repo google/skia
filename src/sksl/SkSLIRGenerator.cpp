@@ -165,10 +165,11 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
 }
 
 void IRGenerator::start(const Program::Settings* settings,
-                        std::shared_ptr<SymbolTable> baseSymbolTable,
+                        const ParsedModule& base,
                         bool isBuiltinCode) {
     fSettings = settings;
-    fSymbolTable = std::move(baseSymbolTable);
+    fSymbolTable = base.fSymbols;
+    fIntrinsics = base.fIntrinsics.get();
     fIsBuiltinCode = isBuiltinCode;
     fCapsMap.clear();
     if (settings->fCaps) {

@@ -330,9 +330,8 @@ int main(int argc, const char** argv) {
             printf("error writing '%s'\n", argv[2]);
             exit(4);
         }
-        std::shared_ptr<SkSL::SymbolTable> symbols;
-        std::vector<std::unique_ptr<SkSL::ProgramElement>> elements;
-        compiler.processIncludeFile(kind, argv[1], nullptr, &elements, &symbols);
+        auto [symbols, elements] =
+                compiler.loadModule(kind, SkSL::Compiler::MakeModulePath(argv[1]), nullptr);
         SkSL::Dehydrator dehydrator;
         dehydrator.write(*symbols);
         dehydrator.write(elements);

@@ -34,6 +34,7 @@
 namespace SkSL {
 
 class FunctionCall;
+struct ParsedModule;
 struct Swizzle;
 
 /**
@@ -126,7 +127,7 @@ private:
      * settings.
      */
     void start(const Program::Settings* settings,
-               std::shared_ptr<SymbolTable> baseSymbolTable,
+               const ParsedModule& base,
                bool isBuiltinCode = false);
 
     /**
