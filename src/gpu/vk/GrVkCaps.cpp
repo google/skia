@@ -409,6 +409,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fAvoidUpdateBuffers = true;
     }
 
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        // Adreno devices don't support push constants well
+        fMaxPushConstantsSize = 0;
+    }
+
     if (kARM_VkVendor == properties.vendorID) {
         // ARM seems to do better with more fine triangles as opposed to using the sample mask.
         // (At least in our current round rect op.)
@@ -592,6 +597,8 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
 
     // TODO: check if RT's larger than 4k incur a performance cost on ARM.
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
+
+    fMaxPushConstantsSize = std::min(properties.limits.maxPushConstantsSize, (uint32_t)INT_MAX);
 
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.
