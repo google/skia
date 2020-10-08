@@ -70,6 +70,24 @@
       "parentUuid": "804f129d_826691c1",
       "revId": "32d91bb8359c6ecd0f90a9a53aae9569388b7cbc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac1a406b_0ebb01ec",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-08T15:48:36Z",
+      "side": 1,
+      "message": "+1 to removing code and adding pointer derefs. Followup CL is fine if you want to land this as-is.",
+      "parentUuid": "cf32219a_804df428",
+      "revId": "32d91bb8359c6ecd0f90a9a53aae9569388b7cbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
