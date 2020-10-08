@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4363b37e_f5dd60eb",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-08T18:46:40Z",
+      "side": 1,
+      "message": "How about here with these overrides? We don\u0027t seem to do checks in initGrCaps.",
+      "range": {
+        "startLine": 391,
+        "startChar": 4,
+        "endLine": 391,
+        "endChar": 51
+      },
+      "revId": "c03733293da41362822d73847b82d4c6704cecef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cb827c2f_e258c0f1",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 1
@@ -31,6 +54,30 @@
       "writtenOn": "2020-10-08T18:41:37Z",
       "side": 1,
       "message": "this is in the workaround section. I think you want to move this qcom check down to where you\u0027re setting the value for real",
+      "range": {
+        "startLine": 527,
+        "startChar": 5,
+        "endLine": 528,
+        "endChar": 34
+      },
+      "revId": "c03733293da41362822d73847b82d4c6704cecef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae792821_96df9ee0",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-08T18:46:40Z",
+      "side": 1,
+      "message": "See above.",
+      "parentUuid": "cb827c2f_e258c0f1",
       "range": {
         "startLine": 527,
         "startChar": 5,
