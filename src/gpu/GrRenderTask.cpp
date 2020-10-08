@@ -7,8 +7,8 @@
 
 #include "src/gpu/GrRenderTask.h"
 
+#include "src/gpu/GrAttachment.h"
 #include "src/gpu/GrRenderTarget.h"
-#include "src/gpu/GrStencilAttachment.h"
 #include "src/gpu/GrTextureProxyPriv.h"
 #include "src/gpu/GrTextureResolveRenderTask.h"
 
