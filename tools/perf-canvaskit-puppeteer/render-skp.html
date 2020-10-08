@@ -50,7 +50,7 @@
       Promise.all([loadKit, loadSKP]).then((values) => {
         const [CanvasKit, skpBytes] = values;
         const loadStart = performance.now();
-        const skp = CanvasKit.MakeSkPicture(skpBytes);
+        const skp = CanvasKit.MakePicture(skpBytes);
         const loadTime = performance.now() - loadStart;
         window._perfData = {
           skp_load_ms: loadTime,
