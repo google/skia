@@ -1,0 +1,82 @@
+{
+  "comments": [
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005418135",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/323889?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "202b2ce5_b239d873",
+        "filename": "site/user/modules/canvaskit.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-10-08T13:13:11Z",
+      "side": 1,
+      "message": "Please remove the trailing whitespace.",
+      "range": {
+        "startLine": 847,
+        "startChar": 30,
+        "endLine": 847,
+        "endChar": 31
+      },
+      "revId": "966cee981147a386781dee68858238c5a1d6b88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005418135",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/323889?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "ab294817_70b50b3b",
+        "filename": "site/user/modules/canvaskit.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 848,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-10-08T13:13:11Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 848,
+        "startChar": 48,
+        "endLine": 848,
+        "endChar": 54
+      },
+      "revId": "966cee981147a386781dee68858238c5a1d6b88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005418135",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/323889?revision\u003d5",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "c2db3f76_6d926615",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-10-08T13:13:11Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 333,
+        "startChar": 48,
+        "endLine": 333,
+        "endChar": 54
+      },
+      "revId": "966cee981147a386781dee68858238c5a1d6b88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
