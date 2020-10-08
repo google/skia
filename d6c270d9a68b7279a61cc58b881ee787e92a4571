@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fffc61d4_eb735414",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-08T18:02:10Z",
+      "side": 1,
+      "message": "I was initially a little leery of this, as merging binary data seems inherently dangerous... but I guess the housekeeper bot will catch anything that goes wrong, so I guess it sgtm.",
+      "revId": "d6c270d9a68b7279a61cc58b881ee787e92a4571",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
