@@ -520,10 +520,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
         fMaxVertexAttributes = std::min(fMaxVertexAttributes, 32);
     }
 
-    // Adreno devices fail when trying to read the dest using an input attachment and texture
-    // barriers.
     if (kQualcomm_VkVendor == properties.vendorID) {
+        // Adreno devices fail when trying to read the dest using an input attachment and texture
+        // barriers.
         fTextureBarrierSupport = false;
+        // Adreno devices don't support push constants well
+        fMaxPushConstantsSize = 0;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -592,6 +594,8 @@ void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
 
     // TODO: check if RT's larger than 4k incur a performance cost on ARM.
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
+
+    fMaxPushConstantsSize = std::min(properties.limits.maxPushConstantsSize, (uint32_t)INT_MAX);
 
     // Assuming since we will always map in the end to upload the data we might as well just map
     // from the get go. There is no hard data to suggest this is faster or slower.
