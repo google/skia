@@ -16,7 +16,8 @@ namespace SkSL {
 /**
  * A function invocation.
  */
-struct FunctionCall : public Expression {
+class FunctionCall : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kFunctionCall;
 
     FunctionCall(int offset, const Type* type, const FunctionDeclaration* function,
@@ -76,6 +77,7 @@ struct FunctionCall : public Expression {
         return result;
     }
 
+private:
     using INHERITED = Expression;
 };
 
