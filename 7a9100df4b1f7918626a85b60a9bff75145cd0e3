@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "87101e87_5b05ed74",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T20:04:14Z",
+      "side": 1,
+      "message": "Yeah, but that still has the same problem - I can\u0027t (extern) declare each of those without somehow listing them all at the top of the file like this.",
+      "parentUuid": "3d3f9b28_ddce7e85",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 0
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5645335a_b8b79090",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 3
@@ -73,6 +97,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "467f8201_e542146e",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T20:04:14Z",
+      "side": 1,
+      "message": "I can split the function more completely, but the whole idea was to stop needing ifdefs at every call site. I guess I could make the ModuleData struct be the union of the two kinds of data:\n\nstruct ModuleData {\n  const char* fPath;\n  const uint8_t* fData;\n  size_t fDataLen;\n};\n\nThen have the macro initialize either fPath, or fData+fDataLen, leaving the other things null/0. Is that what you had in mind?",
+      "parentUuid": "5645335a_b8b79090",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 6
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2afa0132_e5800bae",
         "filename": "src/sksl/SkSLCompiler.h",
         "patchSetId": 3
@@ -84,6 +132,30 @@
       "writtenOn": "2020-10-08T19:53:49Z",
       "side": 1,
       "message": "Unless there\u0027s a really strong rationale for it, we should avoid using pair\u003c\u003e where we could create a struct with named elements. i.e. there doesn\u0027t seem to be any reason not to have:\n\n  struct LoadedModule { \n    std::shared_ptr\u003cSymbolTable\u003e fSymbolTable;\n    std::vector\u003cstd::unique_ptr\u003cProgramElement\u003e\u003e fProgramElements; \n  }\n\nhttps://google.github.io/styleguide/cppguide.html#Structs_vs._Tuples\n\nNote that capture syntax (`auto [symbols, elements] \u003d `) should still work even on a struct, if you want to keep that, but it should be less necessary overall.",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 193,
+        "endChar": 68
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "390f2de7_7b24f174",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-08T20:04:14Z",
+      "side": 1,
+      "message": "Yeah, I\u0027ll do this. I think I didn\u0027t know what to name them when I started, but once I found good names, it makes sense to go back and use better types.",
+      "parentUuid": "2afa0132_e5800bae",
       "range": {
         "startLine": 188,
         "startChar": 0,
