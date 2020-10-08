@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- We now compile CanvasKit with emsdk 2.0.2 when testing and deploying to npm.
+- CanvasKit is compiled with -fno-rtti, making the WASM bundle smaller.
+
 ### Breaking
  - "Sk" has been removed from all names. e.g. `new CanvasKit.SkPaint()` becomes
    `new CanvasKit.Paint()`
