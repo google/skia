@@ -52,6 +52,24 @@
       "parentUuid": "4ee45fdf_fb11b4f9",
       "revId": "32d91bb8359c6ecd0f90a9a53aae9569388b7cbc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf32219a_804df428",
+        "filename": "src/sksl/ir/SkSLProgram.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-08T15:41:35Z",
+      "side": 1,
+      "message": "Of course. I\u0027m just not convinced this code provides much value anymore in the absence of inherited weirdness; \"you don\u0027t have go dereference pointers\" doesn\u0027t seem like a big win to me. Up to you, if you want to go ahead and land it like this I don\u0027t have an objection.",
+      "parentUuid": "804f129d_826691c1",
+      "revId": "32d91bb8359c6ecd0f90a9a53aae9569388b7cbc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
