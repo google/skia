@@ -164,7 +164,6 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
 
 void IRGenerator::start(const Program::Settings* settings,
                         std::shared_ptr<SymbolTable> baseSymbolTable,
-                        std::vector<std::unique_ptr<ProgramElement>>* inherited,
                         bool isBuiltinCode) {
     fSettings = settings;
     fSymbolTable = std::move(baseSymbolTable);
@@ -182,24 +181,11 @@ void IRGenerator::start(const Program::Settings* settings,
     fSkPerVertex = nullptr;
     fRTAdjust = nullptr;
     fRTAdjustInterfaceBlock = nullptr;
-    if (inherited) {
-        for (const auto& e : *inherited) {
-            if (e->kind() == ProgramElement::Kind::kInterfaceBlock) {
-                InterfaceBlock& intf = e->as<InterfaceBlock>();
-                if (intf.fVariable->name() == Compiler::PERVERTEX_NAME) {
-                    SkASSERT(!fSkPerVertex);
-                    fSkPerVertex = intf.fVariable;
-                }
-            }
-        }
-    }
     if (fIntrinsics) {
         fIntrinsics->resetAlreadyIncluded();
-        if (!fSkPerVertex) {
-            if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
-                SkASSERT(perVertexDecl->is<InterfaceBlock>());
-                fSkPerVertex = perVertexDecl->as<InterfaceBlock>().fVariable;
-            }
+        if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
+            SkASSERT(perVertexDecl->is<InterfaceBlock>());
+            fSkPerVertex = perVertexDecl->as<InterfaceBlock>().fVariable;
         }
     }
 }

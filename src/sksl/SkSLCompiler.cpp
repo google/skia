@@ -423,7 +423,7 @@ void Compiler::processIncludeFile(Program::Kind kind, const char* path,
 #endif
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
-    fIRGenerator->start(&settings, base ? base : fRootSymbolTable, nullptr, true);
+    fIRGenerator->start(&settings, base ? base : fRootSymbolTable, true);
     fIRGenerator->convertProgram(kind, source->c_str(), source->length(), outElements);
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
@@ -1592,42 +1592,35 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fErrorText = "";
     fErrorCount = 0;
     fInliner.reset(&fIRGenerator->fContext, fIRGenerator->fModifiers.get(), &settings);
-    std::vector<std::unique_ptr<ProgramElement>>* inherited;
     std::vector<std::unique_ptr<ProgramElement>> elements;
     switch (kind) {
         case Program::kVertex_Kind:
-            inherited = nullptr;
             fIRGenerator->fIntrinsics = fVertexIntrinsics.get();
-            fIRGenerator->start(&settings, fVertexSymbolTable, /*inherited=*/nullptr);
+            fIRGenerator->start(&settings, fVertexSymbolTable);
             break;
         case Program::kFragment_Kind:
-            inherited = nullptr;
             fIRGenerator->fIntrinsics = fFragmentIntrinsics.get();
-            fIRGenerator->start(&settings, fFragmentSymbolTable, /*inherited=*/nullptr);
+            fIRGenerator->start(&settings, fFragmentSymbolTable);
             break;
         case Program::kGeometry_Kind:
             this->loadGeometryIntrinsics();
-            inherited = nullptr;
             fIRGenerator->fIntrinsics = fGeometryIntrinsics.get();
-            fIRGenerator->start(&settings, fGeometrySymbolTable, /*inherited=*/nullptr);
+            fIRGenerator->start(&settings, fGeometrySymbolTable);
             break;
         case Program::kFragmentProcessor_Kind:
             this->loadFPIntrinsics();
-            inherited = nullptr;
             fIRGenerator->fIntrinsics = fFPIntrinsics.get();
-            fIRGenerator->start(&settings, fFPSymbolTable, /*inherited=*/nullptr);
+            fIRGenerator->start(&settings, fFPSymbolTable);
             break;
         case Program::kPipelineStage_Kind:
             this->loadPipelineIntrinsics();
-            inherited = nullptr;
             fIRGenerator->fIntrinsics = fPipelineIntrinsics.get();
-            fIRGenerator->start(&settings, fPipelineSymbolTable, /*inherited=*/nullptr);
+            fIRGenerator->start(&settings, fPipelineSymbolTable);
             break;
         case Program::kGeneric_Kind:
             this->loadInterpreterIntrinsics();
-            inherited = nullptr;
             fIRGenerator->fIntrinsics = fInterpreterIntrinsics.get();
-            fIRGenerator->start(&settings, fInterpreterSymbolTable, /*inherited=*/nullptr);
+            fIRGenerator->start(&settings, fInterpreterSymbolTable);
             break;
     }
     if (externalValues) {
@@ -1644,7 +1637,6 @@ std::unique_ptr<Program> Compiler::convertProgram(
                                             std::move(textPtr),
                                             settings,
                                             fContext,
-                                            inherited,
                                             std::move(elements),
                                             fIRGenerator->releaseModifiers(),
                                             fIRGenerator->fSymbolTable,
