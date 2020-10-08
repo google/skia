@@ -16,7 +16,8 @@ namespace SkSL {
 /**
  * Abstract supertype of all statements.
  */
-struct Statement : public IRNode {
+class Statement : public IRNode {
+public:
     enum Kind {
         kBlock = (int) Symbol::Kind::kLast + 1,
         kBreak,
@@ -88,6 +89,7 @@ struct Statement : public IRNode {
 
     virtual std::unique_ptr<Statement> clone() const = 0;
 
+private:
     using INHERITED = IRNode;
 };
 

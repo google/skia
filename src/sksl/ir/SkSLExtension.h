@@ -15,7 +15,8 @@ namespace SkSL {
 /**
  * An extension declaration.
  */
-struct Extension : public ProgramElement {
+class Extension : public ProgramElement {
+public:
     static constexpr Kind kProgramElementKind = Kind::kExtension;
 
     Extension(int offset, String name)
@@ -33,6 +34,7 @@ struct Extension : public ProgramElement {
         return "#extension " + this->name() + " : enable";
     }
 
+private:
     using INHERITED = ProgramElement;
 };
 

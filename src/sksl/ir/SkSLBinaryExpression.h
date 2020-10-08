@@ -46,7 +46,8 @@ static inline bool check_ref(const Expression& expr) {
 /**
  * A binary operation.
  */
-struct BinaryExpression : public Expression {
+class BinaryExpression : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kBinary;
 
     BinaryExpression(int offset, std::unique_ptr<Expression> left, Token::Kind op,

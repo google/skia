@@ -16,7 +16,8 @@ namespace SkSL {
 /**
  * A 'break' statement.
  */
-struct BreakStatement : public Statement {
+class BreakStatement : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kBreak;
 
     BreakStatement(int offset)
@@ -30,6 +31,7 @@ struct BreakStatement : public Statement {
         return String("break;");
     }
 
+private:
     using INHERITED = Statement;
 };
 

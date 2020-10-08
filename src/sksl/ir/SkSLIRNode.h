@@ -18,10 +18,10 @@
 
 namespace SkSL {
 
-struct Expression;
+class Expression;
 class ExternalValue;
 struct FunctionDeclaration;
-struct Statement;
+class Statement;
 class Symbol;
 class SymbolTable;
 class Type;
