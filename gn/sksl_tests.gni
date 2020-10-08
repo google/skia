@@ -302,6 +302,7 @@ sksl_settings_tests = [
   "$_tests/sksl/inliner/InlinerWrapsEarlyReturnsWithDoWhileBlock.sksl",
   "$_tests/sksl/shared/Derivatives.sksl",
   "$_tests/sksl/shared/DerivativesFlipY.sksl",
+  "$_tests/sksl/shared/CrossIntrinsic.sksl",
   "$_tests/sksl/workarounds/AbsInt.sksl",
   "$_tests/sksl/workarounds/FractNegative.sksl",
   "$_tests/sksl/workarounds/FragCoords.sksl",
