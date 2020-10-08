@@ -48,6 +48,10 @@ public:
         SkASSERT(!this->variableData().fReadCount && !this->variableData().fWriteCount);
     }
 
+    const Type& type() const override {
+        return *this->variableData().fType;
+    }
+
     const Modifiers& modifiers() const {
         return *this->variableData().fModifiersHandle;
     }
@@ -129,7 +133,7 @@ private:
 
     using INHERITED = Symbol;
 
-    friend struct VariableReference;
+    friend class VariableReference;
 };
 
 } // namespace SkSL

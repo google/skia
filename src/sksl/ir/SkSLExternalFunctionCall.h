@@ -26,6 +26,10 @@ struct ExternalFunctionCall : public Expression {
         fExpressionChildren = std::move(arguments);
     }
 
+    const Type& type() const override {
+        return *this->externalValueData().fType;
+    }
+
     std::vector<std::unique_ptr<Expression>>& arguments() {
         return fExpressionChildren;
     }
