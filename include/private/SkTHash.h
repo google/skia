@@ -39,6 +39,17 @@ public:
         return *this;
     }
 
+    SkTHashTable(const SkTHashTable& that) {
+        this->copyFrom(that);
+    }
+
+    SkTHashTable& operator=(const SkTHashTable& that) {
+        if (this != &that) {
+            this->copyFrom(that);
+        }
+        return *this;
+    }
+
     // Clear the table.
     void reset() { *this = SkTHashTable(); }
 
@@ -135,6 +146,16 @@ public:
     }
 
 private:
+    // Copy from another hash table into this one.
+    void copyFrom(const SkTHashTable& that) {
+        fCount = that.fCount;
+        fCapacity = that.fCapacity;
+        fSlots = SkAutoTArray<Slot>(fCapacity);
+        for (int i = 0; i < fCapacity; i++) {
+            fSlots[i] = that.fSlots[i];
+        }
+    }
+
     T* uncheckedSet(T&& val) {
         const K& key = Traits::GetKey(val);
         uint32_t hash = Hash(key);
@@ -223,26 +244,21 @@ private:
     }
 
     struct Slot {
-        Slot() : val{}, hash(0) {}
+        Slot() = default;
+        Slot(const Slot& o) = default;
+        Slot(Slot&& o) = default;
+        Slot& operator=(const Slot& o) = default;
+        Slot& operator=(Slot&& o) = default;
         Slot(T&& v, uint32_t h) : val(std::move(v)), hash(h) {}
-        Slot(Slot&& o) { *this = std::move(o); }
-        Slot& operator=(Slot&& o) {
-            val  = std::move(o.val);
-            hash = o.hash;
-            return *this;
-        }
 
         bool empty() const { return this->hash == 0; }
 
-        T        val;
-        uint32_t hash;
+        T        val{};
+        uint32_t hash = 0;
     };
 
     int fCount, fCapacity;
     SkAutoTArray<Slot> fSlots;
-
-    SkTHashTable(const SkTHashTable&) = delete;
-    SkTHashTable& operator=(const SkTHashTable&) = delete;
 };
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.
@@ -253,6 +269,8 @@ public:
     SkTHashMap() {}
     SkTHashMap(SkTHashMap&&) = default;
     SkTHashMap& operator=(SkTHashMap&&) = default;
+    SkTHashMap(const SkTHashMap& that) = default;
+    SkTHashMap& operator=(const SkTHashMap& that) = default;
 
     // Clear the map.
     void reset() { fTable.reset(); }
@@ -315,9 +333,6 @@ private:
     };
 
     SkTHashTable<Pair, K> fTable;
-
-    SkTHashMap(const SkTHashMap&) = delete;
-    SkTHashMap& operator=(const SkTHashMap&) = delete;
 };
 
 // A set of T.  T is treated as an ordinary copyable C++ type.
@@ -327,6 +342,8 @@ public:
     SkTHashSet() {}
     SkTHashSet(SkTHashSet&&) = default;
     SkTHashSet& operator=(SkTHashSet&&) = default;
+    SkTHashSet(const SkTHashSet& that) = default;
+    SkTHashSet& operator=(const SkTHashSet& that) = default;
 
     // Clear the set.
     void reset() { fTable.reset(); }
@@ -368,9 +385,6 @@ private:
         static auto Hash(const T& item) { return HashT()(item); }
     };
     SkTHashTable<T, T, Traits> fTable;
-
-    SkTHashSet(const SkTHashSet&) = delete;
-    SkTHashSet& operator=(const SkTHashSet&) = delete;
 };
 
 #endif//SkTHash_DEFINED
