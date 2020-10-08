@@ -24,7 +24,7 @@ class GrD3DConstantRingBuffer;
 class GrD3DPipelineState;
 class GrD3DRenderTarget;
 class GrD3DRootSignature;
-class GrD3DStencilAttachment;
+class GrD3DAttachment;
 class GrD3DTexture;
 class GrD3DTextureResource;
 
@@ -174,7 +174,8 @@ public:
 
     void clearRenderTargetView(const GrD3DRenderTarget* renderTarget, const SkPMColor4f& color,
                                const D3D12_RECT* rect);
-    void clearDepthStencilView(const GrD3DStencilAttachment*, uint8_t stencilClearValue,
+    void clearDepthStencilView(const GrD3DAttachment*,
+                               uint8_t stencilClearValue,
                                const D3D12_RECT* rect);
     void setRenderTarget(const GrD3DRenderTarget* renderTarget);
     void resolveSubresourceRegion(const GrD3DTextureResource* dstTexture,

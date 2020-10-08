@@ -25,7 +25,7 @@ GrGLRenderTarget::GrGLRenderTarget(GrGLGpu* gpu,
                                    GrGLFormat format,
                                    int sampleCount,
                                    const IDs& ids,
-                                   GrGLStencilAttachment* stencil)
+                                   GrGLAttachment* stencil)
         : GrSurface(gpu, dimensions, GrProtected::kNo)
         , INHERITED(gpu, dimensions, sampleCount, GrProtected::kNo, stencil) {
     this->setFlags(gpu->glCaps(), ids);
@@ -81,9 +81,9 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
                                                       int sampleCount,
                                                       const IDs& idDesc,
                                                       int stencilBits) {
-    GrGLStencilAttachment* sb = nullptr;
+    GrGLAttachment* sb = nullptr;
     if (stencilBits) {
-        GrGLStencilAttachment::IDDesc sbDesc;
+        GrGLAttachment::IDDesc sbDesc;
         // We pick a "fake" actual format that matches the number of stencil bits. When wrapping
         // an FBO with some number of stencil bits all we care about in the future is that we have
         // a format with the same number of stencil bits. We don't even directly use the format or
@@ -92,7 +92,8 @@ sk_sp<GrGLRenderTarget> GrGLRenderTarget::MakeWrapped(GrGLGpu* gpu,
         GrGLFormat sFmt = stencil_bits_to_format(stencilBits);
 
         // Ownership of sb is passed to the GrRenderTarget so doesn't need to be deleted
-        sb = new GrGLStencilAttachment(gpu, sbDesc, dimensions, sampleCount, sFmt);
+        sb = new GrGLAttachment(gpu, sbDesc, dimensions, GrAttachment::UsageFlags::kStencil,
+                                sampleCount, sFmt);
     }
     return sk_sp<GrGLRenderTarget>(
             new GrGLRenderTarget(gpu, dimensions, format, sampleCount, idDesc, sb));
@@ -103,7 +104,7 @@ GrBackendRenderTarget GrGLRenderTarget::getBackendRenderTarget() const {
     fbi.fFBOID = fRTFBOID;
     fbi.fFormat = GrGLFormatToEnum(this->format());
     int numStencilBits = 0;
-    if (GrStencilAttachment* stencil = this->getStencilAttachment()) {
+    if (GrAttachment* stencil = this->getStencilAttachment()) {
         numStencilBits = GrBackendFormatStencilBits(stencil->backendFormat());
     }
 
@@ -125,7 +126,7 @@ size_t GrGLRenderTarget::onGpuMemorySize() const {
 bool GrGLRenderTarget::completeStencilAttachment() {
     GrGLGpu* gpu = this->getGLGpu();
     const GrGLInterface* interface = gpu->glInterface();
-    GrStencilAttachment* stencil = this->getStencilAttachment();
+    GrAttachment* stencil = this->getStencilAttachment();
     if (nullptr == stencil) {
         GR_GL_CALL(interface, FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                       GR_GL_STENCIL_ATTACHMENT,
@@ -144,7 +145,7 @@ bool GrGLRenderTarget::completeStencilAttachment() {
 #endif
         return true;
     } else {
-        const GrGLStencilAttachment* glStencil = static_cast<const GrGLStencilAttachment*>(stencil);
+        const GrGLAttachment* glStencil = static_cast<const GrGLAttachment*>(stencil);
         GrGLuint rb = glStencil->renderbufferID();
 
         gpu->invalidateBoundRenderTarget();
