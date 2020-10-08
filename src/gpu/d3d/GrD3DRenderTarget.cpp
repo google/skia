@@ -184,7 +184,7 @@ GrD3DGpu* GrD3DRenderTarget::getD3DGpu() const {
 
 DXGI_FORMAT GrD3DRenderTarget::stencilDxgiFormat() const {
     if (auto stencil = this->getStencilAttachment()) {
-        auto d3dStencil = static_cast<GrD3DStencilAttachment*>(stencil);
+        auto d3dStencil = static_cast<GrD3DAttachment*>(stencil);
         return d3dStencil->dxgiFormat();
     }
     return DXGI_FORMAT_UNKNOWN;
@@ -195,7 +195,7 @@ void GrD3DRenderTarget::genKey(GrProcessorKeyBuilder* b) const {
     b->add32(this->numSamples());
     b->add32(this->stencilDxgiFormat());
 #ifdef SK_DEBUG
-    if (const GrStencilAttachment* stencil = this->getStencilAttachment()) {
+    if (const GrAttachment* stencil = this->getStencilAttachment()) {
         SkASSERT(stencil->numSamples() == this->numSamples());
     }
 #endif

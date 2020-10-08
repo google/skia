@@ -20,7 +20,7 @@
 class GrVkFramebuffer;
 class GrVkGpu;
 class GrVkImageView;
-class GrVkStencilAttachment;
+class GrVkAttachment;
 
 struct GrVkImageInfo;
 
