@@ -32,6 +32,32 @@
       "url": "https://android-build.googleplex.com/builds/treetop/skia-review/323889?revision\u003d7",
       "fixSuggestions": [],
       "key": {
+        "uuid": "6b2738da_e15d86ac",
+        "filename": "site/user/modules/canvaskit.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 848,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-10-08T13:15:57Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 848,
+        "startChar": 48,
+        "endLine": 848,
+        "endChar": 54
+      },
+      "revId": "b405e8fced3ccdaf140f8b6b42e1ad1284edd330",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005418156",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/323889?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
         "uuid": "16f707f2_6ad5994a",
         "filename": "site/user/modules/quickstart.md",
         "patchSetId": 7
@@ -41,6 +67,32 @@
         "id": 13964
       },
       "writtenOn": "2020-10-08T13:15:53Z",
+      "side": 1,
+      "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
+      "range": {
+        "startLine": 333,
+        "startChar": 48,
+        "endLine": 333,
+        "endChar": 54
+      },
+      "revId": "b405e8fced3ccdaf140f8b6b42e1ad1284edd330",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "robotId": "ayeaye",
+      "robotRunId": "AR00000000000005418156",
+      "url": "https://android-build.googleplex.com/builds/treetop/skia-review/323889?revision\u003d7",
+      "fixSuggestions": [],
+      "key": {
+        "uuid": "159c7b12_1301043d",
+        "filename": "site/user/modules/quickstart.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 13964
+      },
+      "writtenOn": "2020-10-08T13:15:57Z",
       "side": 1,
       "message": "Prefer to use inclusive terms like \u0027primary/secondary\u0027 or \u0027manager/worker\u0027; see https://source.android.com/setup/contribute/respectful-code for more details. In the case of a false positive add BYPASS_INCLUSIVE_LANGUAGE_REASON\u003dmy_reason_here to your commit message to disable this check.",
       "range": {
