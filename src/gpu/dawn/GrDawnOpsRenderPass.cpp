@@ -54,6 +54,9 @@ GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, GrS
 
 wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorOp,
                                                              wgpu::LoadOp stencilOp) {
+    if (GrTexture* tex = fRenderTarget->asTexture()) {
+        tex->markMipmapsDirty();
+    }
     auto stencilAttachment =
             static_cast<GrDawnStencilAttachment*>(fRenderTarget->getStencilAttachment());
     const float *c = fColorInfo.fClearColor.vec();
