@@ -43,6 +43,11 @@ IRNode::IRNode(int offset, int kind, const FloatLiteralData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const ForStatementData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const FunctionCallData& data)
 : fOffset(offset)
 , fKind(kind)
@@ -58,12 +63,12 @@ IRNode::IRNode(int offset, int kind, const IfStatementData& data)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
+IRNode::IRNode(int offset, int kind, const InlineMarkerData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
 
-IRNode::IRNode(int offset, int kind, const ForStatementData& data)
+IRNode::IRNode(int offset, int kind, const IntLiteralData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
@@ -94,6 +99,11 @@ IRNode::IRNode(int offset, int kind, const Type* data)
 , fData(data) {}
 
 IRNode::IRNode(int offset, int kind, const TypeTokenData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
+IRNode::IRNode(int offset, int kind, const UnresolvedFunctionData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}
