@@ -13,43 +13,65 @@
 
 namespace SkSL {
 
+enum class FieldAccessOwnerKind : int8_t {
+    kDefault,
+    // this field access is to a field of an anonymous interface block (and thus, the field name
+    // is actually in global scope, so only the field name needs to be written in GLSL)
+    kAnonymousInterfaceBlock
+};
+
 /**
  * An expression which extracts a field from a struct, as in 'foo.bar'.
  */
-struct FieldAccess : public Expression {
-    enum OwnerKind {
-        kDefault_OwnerKind,
-        // this field access is to a field of an anonymous interface block (and thus, the field name
-        // is actually in global scope, so only the field name needs to be written in GLSL)
-        kAnonymousInterfaceBlock_OwnerKind
-    };
+class FieldAccess : public Expression {
+public:
+    using OwnerKind = FieldAccessOwnerKind;
 
     static constexpr Kind kExpressionKind = Kind::kFieldAccess;
 
     FieldAccess(std::unique_ptr<Expression> base, int fieldIndex,
-                OwnerKind ownerKind = kDefault_OwnerKind)
-    : INHERITED(base->fOffset, kExpressionKind, base->type().fields()[fieldIndex].fType)
-    , fBase(std::move(base))
-    , fFieldIndex(fieldIndex)
-    , fOwnerKind(ownerKind) {}
+                OwnerKind ownerKind = OwnerKind::kDefault)
+    : INHERITED(base->fOffset, FieldAccessData{base->type().fields()[fieldIndex].fType,
+                                               fieldIndex, ownerKind}) {
+        fExpressionChildren.push_back(std::move(base));
+    }
+
+    const Type& type() const override {
+        return *this->fieldAccessData().fType;
+    }
+
+    std::unique_ptr<Expression>& base() {
+        return fExpressionChildren[0];
+    }
+
+    const std::unique_ptr<Expression>& base() const {
+        return fExpressionChildren[0];
+    }
+
+    int fieldIndex() const {
+        return this->fieldAccessData().fFieldIndex;
+    }
+
+    OwnerKind ownerKind() const {
+        return this->fieldAccessData().fOwnerKind;
+    }
 
     bool hasProperty(Property property) const override {
-        return fBase->hasProperty(property);
+        return this->base()->hasProperty(property);
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FieldAccess(fBase->clone(), fFieldIndex,
-                                                           fOwnerKind));
+        return std::unique_ptr<Expression>(new FieldAccess(this->base()->clone(),
+                                                           this->fieldIndex(),
+                                                           this->ownerKind()));
     }
 
     String description() const override {
-        return fBase->description() + "." + fBase->type().fields()[fFieldIndex].fName;
+        return this->base()->description() + "." +
+               this->base()->type().fields()[this->fieldIndex()].fName;
     }
 
-    std::unique_ptr<Expression> fBase;
-    const int fFieldIndex;
-    const OwnerKind fOwnerKind;
-
+private:
     using INHERITED = Expression;
 };
 

@@ -386,16 +386,16 @@ void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 }
 
 void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
-    if (access.fBase->type().name() == "fragmentProcessor") {
+    if (access.base()->type().name() == "fragmentProcessor") {
         // Special field access on fragment processors are converted into function calls on
         // GrFragmentProcessor's getters.
-        if (!access.fBase->is<VariableReference>()) {
-            fErrors.error(access.fBase->fOffset, "fragmentProcessor must be a reference\n");
+        if (!access.base()->is<VariableReference>()) {
+            fErrors.error(access.base()->fOffset, "fragmentProcessor must be a reference\n");
             return;
         }
 
-        const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
-        const Variable& var = *access.fBase->as<VariableReference>().variable();
+        const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fieldIndex()];
+        const Variable& var = *access.base()->as<VariableReference>().variable();
         String cppAccess = String::printf("_outer.childProcessor(%d)->%s()",
                                           this->getChildFPIndex(var),
                                           String(field.fName).c_str());

@@ -248,7 +248,8 @@ std::unique_ptr<Expression> clone_with_ref_kind(const Expression& expr,
 bool is_trivial_argument(const Expression& argument) {
     return argument.is<VariableReference>() ||
            (argument.is<Swizzle>() && is_trivial_argument(*argument.as<Swizzle>().fBase)) ||
-           (argument.is<FieldAccess>() && is_trivial_argument(*argument.as<FieldAccess>().fBase)) ||
+           (argument.is<FieldAccess>() &&
+            is_trivial_argument(*argument.as<FieldAccess>().base())) ||
            (argument.is<Constructor>() &&
             argument.as<Constructor>().arguments().size() == 1 &&
             is_trivial_argument(*argument.as<Constructor>().arguments().front())) ||
@@ -378,7 +379,7 @@ std::unique_ptr<Expression> Inliner::inlineExpression(int offset,
             return expression.clone();
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = expression.as<FieldAccess>();
-            return std::make_unique<FieldAccess>(expr(f.fBase), f.fFieldIndex, f.fOwnerKind);
+            return std::make_unique<FieldAccess>(expr(f.base()), f.fieldIndex(), f.ownerKind());
         }
         case Expression::Kind::kFunctionCall: {
             const FunctionCall& funcCall = expression.as<FunctionCall>();

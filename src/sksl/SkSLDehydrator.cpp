@@ -296,9 +296,9 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kFieldAccess: {
                 const FieldAccess& f = e->as<FieldAccess>();
                 this->writeCommand(Rehydrator::kFieldAccess_Command);
-                this->write(f.fBase.get());
-                this->writeU8(f.fFieldIndex);
-                this->writeU8(f.fOwnerKind);
+                this->write(f.base().get());
+                this->writeU8(f.fieldIndex());
+                this->writeU8((int8_t) f.ownerKind());
                 break;
             }
             case Expression::Kind::kFloatLiteral: {
