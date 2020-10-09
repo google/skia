@@ -34,30 +34,6 @@ void TestCopyFromSurface(skiatest::Reporter*, GrDirectContext*, GrSurfaceProxy* 
 // Fills data with a red-green gradient
 void FillPixelData(int width, int height, GrColor* data);
 
-// Create a solid colored backend texture and syncs the CPU to wait for upload to finish
-bool CreateBackendTexture(GrDirectContext*,
-                          GrBackendTexture* backendTex,
-                          int width, int height,
-                          SkColorType colorType,
-                          const SkColor4f& color,
-                          GrMipmapped,
-                          GrRenderable,
-                          GrProtected = GrProtected::kNo);
-
-bool CreateBackendTexture(GrDirectContext*,
-                          GrBackendTexture* backendTex,
-                          const SkImageInfo& ii,
-                          const SkColor4f& color,
-                          GrMipmapped,
-                          GrRenderable,
-                          GrProtected = GrProtected::kNo);
-
-bool CreateBackendTexture(GrDirectContext*,
-                          GrBackendTexture* backendTex,
-                          const SkBitmap& bm);
-
-void DeleteBackendTexture(GrDirectContext*, const GrBackendTexture& backendTex);
-
 // Checks srcBuffer and dstBuffer contain the same colors
 bool DoesFullBufferContainCorrectColor(const GrColor* srcBuffer,
                                        const GrColor* dstBuffer,
