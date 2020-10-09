@@ -1609,7 +1609,6 @@ bool Compiler::optimize(Program& program) {
             break;
         }
     }
-    program.finish();
     return fErrorCount == 0;
 }
 
@@ -1619,7 +1618,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     fSource = program.fSource.get();
-    SPIRVCodeGenerator cg(fContext.get(), fIRGenerator->fModifiers.get(), &program, this, &buffer);
+    SPIRVCodeGenerator cg(fContext.get(), &program, this, &buffer);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
@@ -1637,7 +1636,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     }
 #else
     fSource = program.fSource.get();
-    SPIRVCodeGenerator cg(fContext.get(), fIRGenerator->fModifiers.get(), &program, this, &out);
+    SPIRVCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
 #endif

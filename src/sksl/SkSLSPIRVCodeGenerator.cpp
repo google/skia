@@ -1879,7 +1879,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                 Modifiers modifiers(layout, Modifiers::kUniform_Flag);
                 const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
                         std::make_unique<Variable>(/*offset=*/-1,
-                                                   fModifiers.handle(modifiers),
+                                                   fProgram.fModifiers->handle(modifiers),
                                                    name,
                                                    &intfStruct,
                                                    /*builtin=*/false,

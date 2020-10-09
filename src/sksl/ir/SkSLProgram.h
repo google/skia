@@ -177,10 +177,6 @@ struct Program {
 
     const std::vector<std::unique_ptr<ProgramElement>>& elements() const { return fElements; }
 
-    void finish() {
-        fModifiers->finish();
-    }
-
     Kind fKind;
     std::unique_ptr<String> fSource;
     Settings fSettings;
@@ -195,6 +191,7 @@ private:
     std::unique_ptr<ModifiersPool> fModifiers;
 
     friend class Compiler;
+    friend class SPIRVCodeGenerator;  // fModifiers
 };
 
 }  // namespace SkSL
