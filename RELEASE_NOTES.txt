@@ -9,6 +9,11 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * Add new SkImageFilters::Blend factory function, in place of the now deprecated
+    SkImageFilters::Xfermode factory function. Behavior is identical, but name better matches
+    conventions in SkShader and SkColorFilter.
+    https://review.skia.org/324623
+
   * SkImageFilters::Foo() factory functions now accept SkIRect, SkRect, and optional SkIRect* or
     SkRect*, instead of previously just the optional SkIRect*. Internally, the crop rects are stored
     as floats to allow for fractional crops to be defined in the local coordinate system (before

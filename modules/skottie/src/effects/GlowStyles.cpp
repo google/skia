@@ -113,7 +113,7 @@ private:
 
         if (fType == Type::kInnerGlow) {
             // Inner glows draw on top of, and are masked with, the source.
-            f = SkImageFilters::Xfermode(SkBlendMode::kDstIn, std::move(f));
+            f = SkImageFilters::Blend(SkBlendMode::kDstIn, std::move(f));
 
             std::swap(source, f);
         }

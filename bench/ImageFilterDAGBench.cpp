@@ -149,7 +149,7 @@ protected:
         auto offset1 = SkImageFilters::Offset(100.0f, 100.0f, blur);
         auto offset2 = SkImageFilters::Offset(-100.0f, -100.0f, blur);
         auto xfermode =
-                SkImageFilters::Xfermode(SkBlendMode::kSrcIn, offset1, offset2, nullptr);
+                SkImageFilters::Blend(SkBlendMode::kSrcIn, offset1, offset2, nullptr);
 
         SkPaint paint;
         paint.setImageFilter(xfermode);

@@ -98,9 +98,9 @@ static sk_sp<SkImageFilter> arithmetic_factory(sk_sp<SkImage> auxImage, const Sk
                                       nullptr, cropRect);
 }
 
-static sk_sp<SkImageFilter> xfermode_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
+static sk_sp<SkImageFilter> blend_factory(sk_sp<SkImage> auxImage, const SkIRect* cropRect) {
     sk_sp<SkImageFilter> background = SkImageFilters::Image(std::move(auxImage));
-    return SkImageFilters::Xfermode(
+    return SkImageFilters::Blend(
             SkBlendMode::kModulate, std::move(background), nullptr, cropRect);
 }
 
@@ -233,7 +233,7 @@ protected:
             erode_factory,
             displacement_factory,
             arithmetic_factory,
-            xfermode_factory,
+            blend_factory,
             convolution_factory,
             matrix_factory,
             alpha_threshold_factory,
@@ -249,7 +249,7 @@ protected:
             "Erode",
             "Displacement",
             "Arithmetic",
-            "Xfer Mode",
+            "Xfer Mode", // "blend"
             "Convolution",
             "Matrix Xform",
             "Alpha Threshold",
