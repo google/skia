@@ -174,11 +174,6 @@ public:
         return fBuiltinFMASupport;
     }
 
-    bool fBuiltinDeterminantSupport = false;
-    bool builtinDeterminantSupport() const {
-        return fBuiltinDeterminantSupport;
-    }
-
     bool fCanUseDoLoops = false;
     bool canUseDoLoops() const {
         // we define this to false in standalone so we don't use do loops while inlining in FP files
@@ -291,7 +286,6 @@ public:
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
         result->fShaderDerivativeSupport = true;
-        result->fBuiltinDeterminantSupport = true;
         result->fCanUseDoLoops = true;
         return result;
     }

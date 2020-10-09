@@ -88,8 +88,6 @@ public:
     // SkSL only.
     bool builtinFMASupport() const { return fBuiltinFMASupport; }
 
-    bool builtinDeterminantSupport() const { return fBuiltinDeterminantSupport; }
-
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -283,7 +281,6 @@ private:
 
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport : 1;
-    bool fBuiltinDeterminantSupport : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseAnyFunctionInShader                   : 1;
