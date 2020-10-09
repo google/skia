@@ -287,6 +287,8 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fMaxPreferredRenderTargetSize = fMaxRenderTargetSize;
     fMaxTextureSize = fMaxRenderTargetSize;
 
+    fMaxPushConstantsSize = 4*1024;
+
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fSampleCounts.push_back(1);
     if (@available(iOS 9.0, *)) {
