@@ -16,6 +16,52 @@
       "message": "I decided to add this as a task driver instead of coercing recipes again. WDYT?",
       "revId": "377227f495efa1c24c2ad9fdc763e32ccb4354bf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "073adffa_b317d3e4",
+        "filename": "infra/bots/task_drivers/compile_wasm_gm_tests/compile_wasm_gm_tests.go",
+        "patchSetId": 4
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-10-09T16:26:52Z",
+      "side": 1,
+      "message": "Nit: docker.New() will take care of all of this for you.",
+      "range": {
+        "startLine": 85,
+        "startChar": 0,
+        "endLine": 98,
+        "endChar": 2
+      },
+      "revId": "377227f495efa1c24c2ad9fdc763e32ccb4354bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e63b9cff_30a129f6",
+        "filename": "infra/canvaskit/build_gmtests.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2020-10-09T16:26:52Z",
+      "side": 1,
+      "message": "Nit: should we use -R here?",
+      "range": {
+        "startLine": 25,
+        "startChar": 5,
+        "endLine": 25,
+        "endChar": 6
+      },
+      "revId": "377227f495efa1c24c2ad9fdc763e32ccb4354bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
