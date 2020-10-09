@@ -1575,7 +1575,7 @@ SpvStorageClass_ get_storage_class(const Expression& expr) {
             return result;
         }
         case Expression::Kind::kFieldAccess:
-            return get_storage_class(*expr.as<FieldAccess>().fBase);
+            return get_storage_class(*expr.as<FieldAccess>().base());
         case Expression::Kind::kIndex:
             return get_storage_class(*expr.as<IndexExpression>().base());
         default:
@@ -1594,8 +1594,8 @@ std::vector<SpvId> SPIRVCodeGenerator::getAccessChain(const Expression& expr, Ou
         }
         case Expression::Kind::kFieldAccess: {
             FieldAccess& fieldExpr = (FieldAccess&) expr;
-            chain = this->getAccessChain(*fieldExpr.fBase, out);
-            IntLiteral index(fContext, -1, fieldExpr.fFieldIndex);
+            chain = this->getAccessChain(*fieldExpr.base(), out);
+            IntLiteral index(fContext, -1, fieldExpr.fieldIndex());
             chain.push_back(this->writeIntLiteral(index));
             break;
         }

@@ -252,7 +252,7 @@ public:
                 break;
             }
             case Expression::Kind::kFieldAccess:
-                this->visitExpression(*expr.as<FieldAccess>().fBase);
+                this->visitExpression(*expr.as<FieldAccess>().base());
                 break;
 
             case Expression::Kind::kSwizzle: {
@@ -385,7 +385,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
             return false;
         }
         case Expression::Kind::kFieldAccess:
-            return this->visitExpression(*e.template as<FieldAccess>().fBase);
+            return this->visitExpression(*e.template as<FieldAccess>().base());
 
         case Expression::Kind::kFunctionCall: {
             auto& c = e.template as<FunctionCall>();

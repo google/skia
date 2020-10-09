@@ -135,7 +135,7 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
         case Expression::Kind::kSwizzle:
             return this->tryRemoveLValueBefore(iter, lvalue->as<Swizzle>().fBase.get());
         case Expression::Kind::kFieldAccess:
-            return this->tryRemoveLValueBefore(iter, lvalue->as<FieldAccess>().fBase.get());
+            return this->tryRemoveLValueBefore(iter, lvalue->as<FieldAccess>().base().get());
         case Expression::Kind::kIndex: {
             IndexExpression& indexExpr = lvalue->as<IndexExpression>();
             if (!this->tryRemoveLValueBefore(iter, indexExpr.base().get())) {
@@ -186,7 +186,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kFieldAccess: {
             FieldAccess& f = expr->as<FieldAccess>();
-            if (!this->tryRemoveExpressionBefore(iter, f.fBase.get())) {
+            if (!this->tryRemoveExpressionBefore(iter, f.base().get())) {
                 return false;
             }
             *iter = fNodes.erase(*iter);
@@ -378,7 +378,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             break;
         }
         case Expression::Kind::kFieldAccess: {
-            this->addExpression(cfg, &e->get()->as<FieldAccess>().fBase, constantPropagate);
+            this->addExpression(cfg, &e->get()->as<FieldAccess>().base(), constantPropagate);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         }
@@ -442,7 +442,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
 void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
     switch ((*e)->kind()) {
         case Expression::Kind::kFieldAccess:
-            this->addLValue(cfg, &e->get()->as<FieldAccess>().fBase);
+            this->addLValue(cfg, &e->get()->as<FieldAccess>().base());
             break;
         case Expression::Kind::kIndex: {
             IndexExpression& indexExpr = e->get()->as<IndexExpression>();

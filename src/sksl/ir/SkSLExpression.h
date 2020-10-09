@@ -67,6 +67,9 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    Expression(int offset, const FieldAccessData& data)
+        : INHERITED(offset, (int) Kind::kFieldAccess, data) {}
+
     Expression(int offset, const FloatLiteralData& data)
         : INHERITED(offset, (int) Kind::kFloatLiteral, data) {}
 

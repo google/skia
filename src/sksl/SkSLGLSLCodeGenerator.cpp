@@ -838,22 +838,22 @@ void GLSLCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 }
 
 bool is_sk_position(const FieldAccess& f) {
-    return "sk_Position" == f.fBase->type().fields()[f.fFieldIndex].fName;
+    return "sk_Position" == f.base()->type().fields()[f.fieldIndex()].fName;
 }
 
 void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
-    if (f.fOwnerKind == FieldAccess::kDefault_OwnerKind) {
-        this->writeExpression(*f.fBase, kPostfix_Precedence);
+    if (f.ownerKind() == FieldAccess::OwnerKind::kDefault) {
+        this->writeExpression(*f.base(), kPostfix_Precedence);
         this->write(".");
     }
-    const Type& baseType = f.fBase->type();
-    StringFragment name = baseType.fields()[f.fFieldIndex].fName;
+    const Type& baseType = f.base()->type();
+    StringFragment name = baseType.fields()[f.fieldIndex()].fName;
     if (name == "sk_Position") {
         this->write("gl_Position");
     } else if (name == "sk_PointSize") {
         this->write("gl_PointSize");
     } else {
-        this->write(baseType.fields()[f.fFieldIndex].fName);
+        this->write(baseType.fields()[f.fieldIndex()].fName);
     }
 }
 

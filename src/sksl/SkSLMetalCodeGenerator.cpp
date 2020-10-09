@@ -726,9 +726,9 @@ void MetalCodeGenerator::writeIndexExpression(const IndexExpression& expr) {
 }
 
 void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
-    const Type::Field* field = &f.fBase->type().fields()[f.fFieldIndex];
-    if (FieldAccess::kDefault_OwnerKind == f.fOwnerKind) {
-        this->writeExpression(*f.fBase, kPostfix_Precedence);
+    const Type::Field* field = &f.base()->type().fields()[f.fieldIndex()];
+    if (FieldAccess::OwnerKind::kDefault == f.ownerKind()) {
+        this->writeExpression(*f.base(), kPostfix_Precedence);
         this->write(".");
     }
     switch (field->fModifiers.fLayout.fBuiltin) {
@@ -739,7 +739,7 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
             if (field->fName == "sk_PointSize") {
                 this->write("_out->sk_PointSize");
             } else {
-                if (FieldAccess::kAnonymousInterfaceBlock_OwnerKind == f.fOwnerKind) {
+                if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
                     this->write("_globals->");
                     this->write(fInterfaceBlockNameMap[fInterfaceBlockMap[field]]);
                     this->write("->");
@@ -1692,10 +1692,10 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         }
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = e->as<FieldAccess>();
-            if (FieldAccess::kAnonymousInterfaceBlock_OwnerKind == f.fOwnerKind) {
+            if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
                 return kGlobals_Requirement;
             }
-            return this->requirements(f.fBase.get());
+            return this->requirements(f.base().get());
         }
         case Expression::Kind::kSwizzle:
             return this->requirements(e->as<Swizzle>().fBase.get());

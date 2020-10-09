@@ -24,7 +24,7 @@ static inline bool check_ref(const Expression& expr) {
         case Expression::Kind::kExternalValue:
             return true;
         case Expression::Kind::kFieldAccess:
-            return check_ref(*expr.as<FieldAccess>().fBase);
+            return check_ref(*expr.as<FieldAccess>().base());
         case Expression::Kind::kIndex:
             return check_ref(*expr.as<IndexExpression>().base());
         case Expression::Kind::kSwizzle:

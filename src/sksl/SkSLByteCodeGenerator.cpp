@@ -512,10 +512,10 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
     switch (expr.kind()) {
         case Expression::Kind::kFieldAccess: {
             const FieldAccess& f = expr.as<FieldAccess>();
-            Location baseLoc = this->getLocation(*f.fBase);
+            Location baseLoc = this->getLocation(*f.base());
             int offset = 0;
-            for (int i = 0; i < f.fFieldIndex; ++i) {
-                offset += SlotCount(*f.fBase->type().fields()[i].fType);
+            for (int i = 0; i < f.fieldIndex(); ++i) {
+                offset += SlotCount(*f.base()->type().fields()[i].fType);
             }
             if (baseLoc.isOnStack()) {
                 if (offset != 0) {

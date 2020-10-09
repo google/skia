@@ -836,9 +836,9 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     #define WREF(var) std::unique_ptr<Expression>(\
                                  new VariableReference(-1, var, VariableReference::RefKind::kWrite))
     #define FIELD(var, idx) std::unique_ptr<Expression>(\
-                    new FieldAccess(REF(var), idx, FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
+                   new FieldAccess(REF(var), idx, FieldAccess::OwnerKind::kAnonymousInterfaceBlock))
     #define POS std::unique_ptr<Expression>(new FieldAccess(WREF(fSkPerVertex), 0, \
-                                                FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
+                                                  FieldAccess::OwnerKind::kAnonymousInterfaceBlock))
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
                     REF(fRTAdjust))
@@ -1439,7 +1439,7 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
                                                             VariableReference::RefKind::kRead);
             return std::make_unique<FieldAccess>(std::move(base),
                                                  field->fieldIndex(),
-                                                 FieldAccess::kAnonymousInterfaceBlock_OwnerKind);
+                                                 FieldAccess::OwnerKind::kAnonymousInterfaceBlock);
         }
         case Symbol::Kind::kType: {
             const Type* t = &result->as<Type>();
