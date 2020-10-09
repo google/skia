@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cec585df_07abd98f",
+        "filename": "tests/sksl/errors/golden/ModifiersInStruct.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-09T20:49:24Z",
+      "side": 1,
+      "message": "Nit: It\u0027s not a huge deal, but I\u0027d love to see those extraneous trailing spaces stripped.",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 100
+      },
+      "revId": "59307d6aeb327ce5fe6aa8379582a4afec682fd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
