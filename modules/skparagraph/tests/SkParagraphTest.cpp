@@ -4826,6 +4826,8 @@ DEF_TEST(SkParagraph_EmptyParagraphWithLineBreak, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
     if (!fontCollection->fontsFound()) return;
     fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    fontCollection->enableFontFallback();
+
     TestCanvas canvas("SkParagraph_EmptyParagraphWithLineBreak.png");
 
     ParagraphStyle paragraph_style;
@@ -4833,12 +4835,17 @@ DEF_TEST(SkParagraph_EmptyParagraphWithLineBreak, reporter) {
     text_style.setFontSize(16);
     text_style.setFontFamilies({SkString("Roboto")});
     ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-    builder.addText("\n", 1);
+    builder.addText("abc\n\ndef");
 
     auto paragraph = builder.Build();
     paragraph->layout(TestCanvasWidth);
     paragraph->paint(canvas.get(), 0, 0);
-    auto result = paragraph->getRectsForPlaceholders();
+
+    // Select a position at the second (empty) line
+    auto pos = paragraph->getGlyphPositionAtCoordinate(0, 21);
+    REPORTER_ASSERT(reporter, pos.affinity == Affinity::kDownstream && pos.position == 4);
+    auto rect = paragraph->getRectsForRange(4, 5, RectHeightStyle::kTight, RectWidthStyle::kTight);
+    REPORTER_ASSERT(reporter, rect.size() == 1 && rect[0].rect.width() == 0);
 }
 
 DEF_TEST(SkParagraph_NullInMiddleOfText, reporter) {
