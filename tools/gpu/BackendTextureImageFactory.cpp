@@ -40,4 +40,39 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                     ManagedBackendTexture::ReleaseProc,
                                     mbet->releaseContext());
 }
+
+sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
+                                       SkISize dimensions,
+                                       SkColorType colorType,
+                                       SkAlphaType alphaType,
+                                       sk_sp<SkColorSpace> colorSpace,
+                                       SkColor4f color,
+                                       GrMipmapped mipmapped,
+                                       GrRenderable renderable,
+                                       GrSurfaceOrigin origin) {
+    if (alphaType == kOpaque_SkAlphaType) {
+        color = color.makeOpaque();
+    } else if (alphaType == kPremul_SkAlphaType) {
+        auto pmColor = color.premul();
+        color = {pmColor.fR, pmColor.fG, pmColor.fB, pmColor.fA};
+    }
+    auto mbet = ManagedBackendTexture::MakeWithData(dContext,
+                                                    dimensions.width(),
+                                                    dimensions.height(),
+                                                    colorType,
+                                                    color,
+                                                    mipmapped,
+                                                    renderable,
+                                                    GrProtected::kNo);
+
+    return SkImage::MakeFromTexture(dContext,
+                                    mbet->texture(),
+                                    origin,
+                                    colorType,
+                                    alphaType,
+                                    std::move(colorSpace),
+                                    ManagedBackendTexture::ReleaseProc,
+                                    mbet->releaseContext());
+}
+
 }  // namespace sk_gpu_test
