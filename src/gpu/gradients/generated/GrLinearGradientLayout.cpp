@@ -26,9 +26,9 @@ public:
         (void)_outer;
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x) + 9.9999997473787516e-06;
-%s = half4(t, 1.0, 0.0, 0.0);
+return half4(t, 1.0, 0.0, 0.0);
 )SkSL",
-                args.fSampleCoord, args.fOutputColor);
+                args.fSampleCoord);
     }
 
 private:
@@ -45,7 +45,7 @@ bool GrLinearGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     (void)that;
     return true;
 }
-bool GrLinearGradientLayout::usesExplicitReturn() const { return false; }
+bool GrLinearGradientLayout::usesExplicitReturn() const { return true; }
 GrLinearGradientLayout::GrLinearGradientLayout(const GrLinearGradientLayout& src)
         : INHERITED(kGrLinearGradientLayout_ClassID, src.optimizationFlags()) {
     this->cloneAndRegisterAllChildProcessors(src);

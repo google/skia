@@ -35,10 +35,9 @@ public:
                                                   "end");
         fragBuilder->codeAppendf(
                 R"SkSL(half t = half(%s.x);
-%s = mix(%s, %s, t);
+return mix(%s, %s, t);
 )SkSL",
-                args.fSampleCoord, args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(startVar),
+                args.fSampleCoord, args.fUniformHandler->getUniformCStr(startVar),
                 args.fUniformHandler->getUniformCStr(endVar));
     }
 
@@ -77,7 +76,7 @@ bool GrSingleIntervalGradientColorizer::onIsEqual(const GrFragmentProcessor& oth
     if (end != that.end) return false;
     return true;
 }
-bool GrSingleIntervalGradientColorizer::usesExplicitReturn() const { return false; }
+bool GrSingleIntervalGradientColorizer::usesExplicitReturn() const { return true; }
 GrSingleIntervalGradientColorizer::GrSingleIntervalGradientColorizer(
         const GrSingleIntervalGradientColorizer& src)
         : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, src.optimizationFlags())
