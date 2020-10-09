@@ -212,7 +212,7 @@ bool GrProgramDesc::Build(GrProgramDesc* desc,
         origin = pipeline.dstProxyView().origin();
         originIfDstTexture = &origin;
     }
-    xp.getGLSLProcessorKey(*caps.shaderCaps(), &b, originIfDstTexture);
+    xp.getGLSLProcessorKey(*caps.shaderCaps(), &b, originIfDstTexture, pipeline.dstSampleType());
     if (!gen_xp_meta_key(xp, &b)) {
         desc->key().reset();
         return false;
