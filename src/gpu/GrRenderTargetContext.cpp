@@ -256,25 +256,6 @@ std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTex
                                        origin, surfaceProps);
 }
 
-std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendTextureAsRenderTarget(
-        GrRecordingContext* context,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        const GrBackendTexture& tex,
-        int sampleCnt,
-        GrSurfaceOrigin origin,
-        const SkSurfaceProps* surfaceProps) {
-    SkASSERT(sampleCnt > 0);
-    sk_sp<GrSurfaceProxy> proxy(
-            context->priv().proxyProvider()->wrapBackendTextureAsRenderTarget(tex, sampleCnt));
-    if (!proxy) {
-        return nullptr;
-    }
-
-    return GrRenderTargetContext::Make(context, colorType, std::move(colorSpace), std::move(proxy),
-                                       origin, surfaceProps);
-}
-
 std::unique_ptr<GrRenderTargetContext> GrRenderTargetContext::MakeFromBackendRenderTarget(
         GrRecordingContext* context,
         GrColorType colorType,

@@ -526,14 +526,6 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
     return false;
 }
 
-sk_sp<GrRenderTarget> GrResourceProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTexture& tex, int sampleCnt) {
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-    return fGpu->wrapBackendTextureAsRenderTarget(tex, sampleCnt);
-}
-
 std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(
         bool isOwned) {
     return this->isAbandoned() ? nullptr : fGpu->makeSemaphore(isOwned);
