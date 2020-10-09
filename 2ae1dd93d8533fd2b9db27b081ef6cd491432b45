@@ -34,6 +34,24 @@
       "parentUuid": "4a4dd9e6_a732c311",
       "revId": "2ae1dd93d8533fd2b9db27b081ef6cd491432b45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bac4f00c_52cef8c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T13:51:09Z",
+      "side": 1,
+      "message": "I\u0027ve created a reland at http://review.skia.org/324620 and have added the Mac 10.15 metal bots to it. We\u0027ll see how that goes.",
+      "parentUuid": "d5a639bd_331a7c9e",
+      "revId": "2ae1dd93d8533fd2b9db27b081ef6cd491432b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
