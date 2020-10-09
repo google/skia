@@ -72,12 +72,54 @@ GrDirectContext::~GrDirectContext() {
     }
 }
 
+void GrDirectContext::resetGLTextureBindings() {
+    if (this->abandoned() || this->backend() != GrBackendApi::kOpenGL) {
+        return;
+    }
+    fGpu->resetTextureBindings();
+}
+
+void GrDirectContext::resetContext(uint32_t state) {
+    ASSERT_SINGLE_OWNER
+    fGpu->markContextDirty(state);
+}
+
 void GrDirectContext::abandonContext() {
+    if (INHERITED::abandoned()) {
+        return;
+    }
+
     INHERITED::abandonContext();
+
+    fStrikeCache->freeAll();
+
+    fMappedBufferManager->abandon();
+
+    fResourceProvider->abandon();
+
+    // abandon first to so destructors
+    // don't try to free the resources in the API.
+    fResourceCache->abandonAll();
+
+    fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
+
+    fMappedBufferManager.reset();
     if (fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr->reset();
     }
     fAtlasManager->freeAll();
+}
+
+bool GrDirectContext::abandoned() {
+    if (INHERITED::abandoned()) {
+        return true;
+    }
+
+    if (fGpu && fGpu->isDeviceLost()) {
+        this->abandonContext();
+        return true;
+    }
+    return false;
 }
 
 void GrDirectContext::releaseResourcesAndAbandonContext() {
