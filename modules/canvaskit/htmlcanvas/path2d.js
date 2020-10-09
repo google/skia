@@ -145,7 +145,7 @@ function rect(skpath, x, y, width, height) {
 function Path2D(path) {
   this._path = null;
   if (typeof path === 'string') {
-      this._path = CanvasKit.MakePathFromSVGString(path);
+      this._path = CanvasKit.Path.MakeFromSVGString(path);
   } else if (path && path._getPath) {
       this._path = path._getPath().copy();
   } else {
