@@ -11,15 +11,11 @@
 
 #if defined(SK_VULKAN)
 
-#include "include/gpu/vk/GrVkVulkan.h"
-
-#include "tests/Test.h"
-#include "tests/TestUtils.h"
-
 #include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/GrVkVulkan.h"
 #include "src/gpu/GrRenderTargetContext.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
@@ -30,41 +26,50 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
 #include "src/image/SkSurface_Gpu.h"
+#include "tests/Test.h"
+#include "tools/gpu/ManagedBackendTexture.h"
 
 DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
-    GrBackendTexture backendTex;
-    CreateBackendTexture(dContext, &backendTex, 1, 1, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipmapped::kNo,
-                         GrRenderable::kNo, GrProtected::kNo);
-    REPORTER_ASSERT(reporter, backendTex.isValid());
+    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
+            dContext, 1, 1, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+    if (!mbet) {
+        ERRORF(reporter, "Could not create backend texture.");
+        return;
+    }
 
     GrVkImageInfo info;
-    REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, mbet->texture().getVkImageInfo(&info));
     VkImageLayout initLayout = info.fImageLayout;
 
     // Verify that setting that layout via a copy of a backendTexture is reflected in all the
     // backendTextures.
-    GrBackendTexture backendTexCopy = backendTex;
-    REPORTER_ASSERT(reporter, backendTexCopy.getVkImageInfo(&info));
+    GrBackendTexture backendTex1 = mbet->texture();
+    GrBackendTexture backendTex2 = backendTex1;
+    REPORTER_ASSERT(reporter, backendTex2.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, initLayout == info.fImageLayout);
 
-    backendTexCopy.setVkImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    backendTex2.setVkImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-    REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, backendTex1.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == info.fImageLayout);
 
-    REPORTER_ASSERT(reporter, backendTexCopy.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, backendTex2.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == info.fImageLayout);
 
     // Setting back the layout since we didn't actually change it
-    backendTex.setVkImageLayout(initLayout);
+    backendTex1.setVkImageLayout(initLayout);
 
-    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(dContext, backendTex,
-                                                           kTopLeft_GrSurfaceOrigin,
-                                                           kRGBA_8888_SkColorType,
-                                                           kPremul_SkAlphaType, nullptr);
+    sk_sp<SkImage> wrappedImage = SkImage::MakeFromTexture(
+            dContext,
+            backendTex1,
+            kTopLeft_GrSurfaceOrigin,
+            kRGBA_8888_SkColorType,
+            kPremul_SkAlphaType,
+            /*color space*/ nullptr,
+            sk_gpu_test::ManagedBackendTexture::ReleaseProc,
+            mbet->releaseContext());
     REPORTER_ASSERT(reporter, wrappedImage.get());
 
     const GrSurfaceProxyView* view = as_IB(wrappedImage)->view(dContext);
@@ -78,7 +83,7 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, initLayout == vkTexture->currentLayout());
     vkTexture->updateImageLayout(VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
-    REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, backendTex1.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == info.fImageLayout);
 
     GrBackendTexture backendTexImage = wrappedImage->getBackendTexture(false);
@@ -91,10 +96,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
 
     vkTexture->updateImageLayout(initLayout);
 
-    REPORTER_ASSERT(reporter, backendTex.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, backendTex1.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, initLayout == info.fImageLayout);
 
-    REPORTER_ASSERT(reporter, backendTexCopy.getVkImageInfo(&info));
+    REPORTER_ASSERT(reporter, backendTex2.getVkImageInfo(&info));
     REPORTER_ASSERT(reporter, initLayout == info.fImageLayout);
 
     REPORTER_ASSERT(reporter, backendTexImage.getVkImageInfo(&info));
@@ -103,25 +108,23 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
     // Check that we can do things like assigning the backend texture to invalid one, assign an
     // invalid one, assin a backend texture to inself etc. Success here is that we don't hit any of
     // our ref counting asserts.
-    REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(backendTex, backendTexCopy));
+    REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(backendTex1, backendTex2));
 
     GrBackendTexture invalidTexture;
     REPORTER_ASSERT(reporter, !invalidTexture.isValid());
-    REPORTER_ASSERT(reporter, !GrBackendTexture::TestingOnly_Equals(invalidTexture, backendTexCopy));
+    REPORTER_ASSERT(reporter, !GrBackendTexture::TestingOnly_Equals(invalidTexture, backendTex2));
 
-    backendTexCopy = invalidTexture;
-    REPORTER_ASSERT(reporter, !backendTexCopy.isValid());
-    REPORTER_ASSERT(reporter, !GrBackendTexture::TestingOnly_Equals(invalidTexture, backendTexCopy));
+    backendTex2 = invalidTexture;
+    REPORTER_ASSERT(reporter, !backendTex2.isValid());
+    REPORTER_ASSERT(reporter, !GrBackendTexture::TestingOnly_Equals(invalidTexture, backendTex2));
 
-    invalidTexture = backendTex;
+    invalidTexture = backendTex1;
     REPORTER_ASSERT(reporter, invalidTexture.isValid());
-    REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, backendTex));
+    REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, backendTex1));
 
     invalidTexture = static_cast<decltype(invalidTexture)&>(invalidTexture);
     REPORTER_ASSERT(reporter, invalidTexture.isValid());
     REPORTER_ASSERT(reporter, GrBackendTexture::TestingOnly_Equals(invalidTexture, invalidTexture));
-
-    dContext->deleteBackendTexture(backendTex);
 }
 
 // This test is disabled because it executes illegal vulkan calls which cause the validations layers
