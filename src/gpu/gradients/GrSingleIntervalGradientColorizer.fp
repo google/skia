@@ -12,10 +12,10 @@
 layout(ctype=SkPMColor4f, tracked) in uniform half4 start;
 layout(ctype=SkPMColor4f, tracked) in uniform half4 end;
 
-void main(float2 coord) {
+half4 main(float2 coord) {
     half t = half(coord.x);
 
     // Clamping and/or wrapping was already handled by the parent shader so the output color is a
     // simple lerp.
-    sk_OutColor = mix(start, end, t);
+    return mix(start, end, t);
 }
