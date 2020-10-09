@@ -47,10 +47,14 @@ class SkSurfaceProps;
 class SkTaskGroup;
 class SkTraceMemoryDump;
 
+/**
+ * This deprecated class is being merged into GrDirectContext and removed.
+ * Do not add new subclasses, new API, or attempt to instantiate one.
+ * If new API requires direct GPU access, add it to GrDirectContext.
+ * Otherwise, add it to GrRecordingContext.
+ */
 class SK_API GrContext : public GrRecordingContext {
 public:
-    ~GrContext() override;
-
     // TODO: Remove this from public after migrating Chrome.
     sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
 
@@ -680,8 +684,6 @@ public:
 protected:
     GrContext(sk_sp<GrContextThreadSafeProxy>);
 
-    bool init() override;
-
     virtual GrAtlasManager* onGetAtlasManager() = 0;
     virtual GrSmallPathAtlasMgr* onGetSmallPathAtlasMgr() = 0;
 
@@ -695,8 +697,8 @@ private:
     std::unique_ptr<SkTaskGroup>            fTaskGroup;
     std::unique_ptr<GrStrikeCache>          fStrikeCache;
     sk_sp<GrGpu>                            fGpu;
-    GrResourceCache*                        fResourceCache;
-    GrResourceProvider*                     fResourceProvider;
+    std::unique_ptr<GrResourceCache>        fResourceCache;
+    std::unique_ptr<GrResourceProvider>     fResourceProvider;
 
     bool                                    fDidTestPMConversions;
     // true if the PM/UPM conversion succeeded; false otherwise
