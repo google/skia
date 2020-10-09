@@ -22,6 +22,30 @@
       },
       "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2abda76_81826247",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-09T16:03:50Z",
+      "side": 1,
+      "message": "err, between line 31 and lines 34 or 44...",
+      "parentUuid": "7d11be34_ef8d34d7",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 65
+      },
+      "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
