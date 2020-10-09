@@ -25,11 +25,11 @@ layout(key) in bool isNativelyFocal;
 // each FP
 layout(tracked) in uniform half2 focalParams;
 
-void main(float2 p) {
+half4 main(float2 p) {
     float t = -1;
     half v = 1; // validation flag, set to negative to discard fragment later
 
-    @switch(type) {
+    @switch (type) {
         case Type::kStrip: {
             half r0_2 = focalParams.y;
             t = r0_2 - p.y * p.y;
@@ -42,7 +42,7 @@ void main(float2 p) {
         break;
         case Type::kRadial: {
             half r0 = focalParams.x;
-            @if(isRadiusIncreasing) {
+            @if (isRadiusIncreasing) {
                 t = length(p) - r0;
             } else {
                 t = -length(p) - r0;
@@ -68,7 +68,7 @@ void main(float2 p) {
                 // is really critical, maybe we should just compute the area where temp and x_t are
                 // always valid and drop all these ifs.
                 if (temp >= 0) {
-                    @if(isSwapped || !isRadiusIncreasing) {
+                    @if (isSwapped || !isRadiusIncreasing) {
                         x_t = -sqrt(temp) - p.x * invR1;
                     } else {
                         x_t = sqrt(temp) - p.x * invR1;
@@ -99,14 +99,14 @@ void main(float2 p) {
                 }
             }
 
-            @if(isSwapped) {
+            @if (isSwapped) {
                 t = 1 - t;
             }
         }
         break;
     }
 
-    sk_OutColor = half4(half(t), v, 0, 0);
+    return half4(half(t), v, 0, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
