@@ -1557,6 +1557,7 @@ bool Compiler::optimize(Program& program) {
     fIRGenerator->fKind = program.fKind;
     fIRGenerator->fSettings = &program.fSettings;
 
+    InlineCandidateList inlineCandidateList;
     while (fErrorCount == 0) {
         bool madeChanges = false;
 
@@ -1568,7 +1569,7 @@ bool Compiler::optimize(Program& program) {
         }
 
         // Perform inline-candidate analysis and inline any functions deemed suitable.
-        madeChanges |= fInliner.analyze(program);
+        madeChanges |= fInliner.analyze(program, &inlineCandidateList);
 
         // Remove dead functions. We wait until after analysis so that we still report errors,
         // even in unused code.
@@ -1583,7 +1584,10 @@ bool Compiler::optimize(Program& program) {
                                        const auto& fn = element->as<FunctionDefinition>();
                                        bool dead = fn.fDeclaration.callCount() == 0 &&
                                                    fn.fDeclaration.name() != "main";
-                                       madeChanges |= dead;
+                                       if (dead) {
+                                           madeChanges = true;
+                                           fInliner.eliminate(fn, &inlineCandidateList);
+                                       }
                                        return dead;
                                    }),
                     program.fElements.end());

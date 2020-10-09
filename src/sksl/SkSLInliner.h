@@ -28,6 +28,27 @@ class Statement;
 class SymbolTable;
 class Variable;
 
+namespace internal {
+
+// A candidate function for inlining, containing everything that `inlineCall` needs.
+// Outside code should treat this structure as opaque.
+struct InlineCandidate {
+    SymbolTable* fSymbols = nullptr;              // the SymbolTable of the candidate
+    std::unique_ptr<Statement>* fParentStmt;      // the parent Statement of the enclosing stmt
+    std::unique_ptr<Statement>* fEnclosingStmt;   // the Statement containing the candidate
+    std::unique_ptr<Expression>* fCandidateExpr;  // the candidate FunctionCall to be inlined
+    FunctionDefinition* fEnclosingFunction;       // the Function containing the candidate
+    bool fIsLargeFunction = false;                // does candidate exceed the inline threshold?
+    int fRescanDepth = 0;                         // only set if the candidate needs to be rescanned
+};
+
+}  // namespace internal
+
+struct InlineCandidateList {
+    std::vector<internal::InlineCandidate> fCandidates;
+    bool fIsInitialized = false;
+};
+
 /**
  * Converts a FunctionCall in the IR to a set of statements to be injected ahead of the function
  * call, and a replacement expression. Can also detect cases where inlining isn't cleanly possible
@@ -61,14 +82,20 @@ public:
     bool isLargeFunction(const FunctionDefinition* functionDef);
 
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
-    bool analyze(Program& program);
+    bool analyze(Program& program, InlineCandidateList* candidateList);
+
+    /** Updates the inline candidate list after a function has been eliminated. */
+    void eliminate(const FunctionDefinition& funcDef, InlineCandidateList* candidateList);
 
 private:
     using VariableRewriteMap = std::unordered_map<const Variable*, std::unique_ptr<Expression>>;
+    using InlineCandidate = SkSL::internal::InlineCandidate;
 
     String uniqueNameForInlineVar(const String& baseName, SymbolTable* symbolTable);
 
     void buildCandidateList(Program& program, InlineCandidateList* candidateList);
+    void updateCandidateList(InlineCandidateList* candidateList);
+    void finalizeCandidateList(InlineCandidateList* candidateList);
 
     std::unique_ptr<Expression> inlineExpression(int offset,
                                                  VariableRewriteMap* varMap,
