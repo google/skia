@@ -386,18 +386,6 @@ static std::unique_ptr<GrRenderTargetContext> two_pass_gaussian(GrRecordingConte
 
 namespace SkGpuBlurUtils {
 
-std::unique_ptr<GrRenderTargetContext> LegacyGaussianBlur(GrRecordingContext* context,
-                                                          GrSurfaceProxyView srcView,
-                                                          GrColorType srcColorType,
-                                                          SkAlphaType srcAlphaType,
-                                                          sk_sp<SkColorSpace> colorSpace,
-                                                          const SkIRect& dstBounds,
-                                                          const SkIRect& srcBounds,
-                                                          float sigmaX,
-                                                          float sigmaY,
-                                                          SkTileMode mode,
-                                                          SkBackingFit fit);
-
 std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                                     GrSurfaceProxyView srcView,
                                                     GrColorType srcColorType,
@@ -409,10 +397,6 @@ std::unique_ptr<GrRenderTargetContext> GaussianBlur(GrRecordingContext* context,
                                                     float sigmaY,
                                                     SkTileMode mode,
                                                     SkBackingFit fit) {
-#ifdef SK_USE_LEGACY_GPU_BLUR
-    return LegacyGaussianBlur(context, srcView, srcColorType, srcAlphaType, std::move(colorSpace),
-                              dstBounds, srcBounds, sigmaX, sigmaY, mode, fit);
-#endif
     SkASSERT(context);
     TRACE_EVENT2("skia.gpu", "GaussianBlur", "sigmaX", sigmaX, "sigmaY", sigmaY);
 
