@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f787a528_890a76f6",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b19db41c_dd462d00",
+      "range": {
+        "startLine": 53,
+        "startChar": 26,
+        "endLine": 53,
+        "endChar": 63
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f5469d1_c6ec0298",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-08T21:12:46Z",
       "side": 1,
       "message": ".\n    MakeModuleData(SKSL_INCLUDE_sksl_##name, SKSL_INCLUDE_sksl_##name##_LENGTH)",
+      "range": {
+        "startLine": 66,
+        "startChar": 26,
+        "endLine": 66,
+        "endChar": 99
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17e6b8a2_55b25172",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f5469d1_c6ec0298",
       "range": {
         "startLine": 66,
         "startChar": 26,
@@ -70,6 +118,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a88861c_45e98132",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb897be9_5410bd7d",
+      "range": {
+        "startLine": 212,
+        "startChar": 37,
+        "endLine": 212,
+        "endChar": 44
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2eb30713_1919e57b",
@@ -83,6 +155,30 @@
       "writtenOn": "2020-10-08T21:12:46Z",
       "side": 1,
       "message": "fIntrinsics",
+      "range": {
+        "startLine": 270,
+        "startChar": 44,
+        "endLine": 270,
+        "endChar": 54
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52e84f1f_4da87494",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eb30713_1919e57b",
       "range": {
         "startLine": 270,
         "startChar": 44,
@@ -116,6 +212,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9218fe7_41350db1",
+        "filename": "src/sksl/SkSLCompiler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17d46972_448bb98f",
+      "range": {
+        "startLine": 191,
+        "startChar": 4,
+        "endLine": 191,
+        "endChar": 23
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90f005ed_f217206d",
@@ -129,6 +249,30 @@
       "writtenOn": "2020-10-08T21:12:46Z",
       "side": 1,
       "message": ".\n    MakeModulePath(argv[1])",
+      "range": {
+        "startLine": 325,
+        "startChar": 62,
+        "endLine": 325,
+        "endChar": 85
+      },
+      "revId": "30e5bd860955ba50bd8859c5a4d87d18bb9bc6df",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f7460a0_24994801",
+        "filename": "src/sksl/SkSLMain.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90f005ed_f217206d",
       "range": {
         "startLine": 325,
         "startChar": 62,

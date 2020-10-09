@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0db57ae7_a509ba30",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Addressed feedback, but also made a minor tweak so that ParsedModule::fIntrinsics is shared_ptr instead of unique_ptr. When a module doesn\u0027t include any new elements (enums, defined functions, interface blocks), it can avoid creating an empty intrinsic map, and just point to the parent\u0027s.",
+      "revId": "f5e3635b36d8198cfa9454ed56d0a1eca2f702a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

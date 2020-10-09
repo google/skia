@@ -167,6 +167,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79aa2091_9813d7f5",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:49:49Z",
+      "side": 1,
+      "message": "Got it - yeah - your other comments helped explain what you were looking for.",
+      "parentUuid": "7f82c075_4c07b5c4",
+      "range": {
+        "startLine": 255,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 6
+      },
+      "revId": "7a9100df4b1f7918626a85b60a9bff75145cd0e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2afa0132_e5800bae",
