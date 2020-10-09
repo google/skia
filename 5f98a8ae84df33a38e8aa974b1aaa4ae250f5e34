@@ -142,6 +142,30 @@
       },
       "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "083d3f10_7515840d",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T16:09:52Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll give that a go. The goal is just getting the performance back, and a few extra bytes per symbol is no big deal.",
+      "parentUuid": "110cbdd3_dcd00660",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 65
+      },
+      "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
