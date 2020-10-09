@@ -9,6 +9,12 @@ Milestone 88
 
   * <insert new release notes here>
 
+  * SkImageFilters::Foo() factory functions now accept SkIRect, SkRect, and optional SkIRect* or
+    SkRect*, instead of previously just the optional SkIRect*. Internally, the crop rects are stored
+    as floats to allow for fractional crops to be defined in the local coordinate system (before
+    transformation by the canvas matrix).
+    https://review.skia.org/324622
+
   * Add new SkImageFilters::Shader factory and deprecate SkImageFilters::Paint factory. All
     supported/valid Paint() filters can be represented more cleanly as a Shader image filter.
     https://review.skia.org/323680
