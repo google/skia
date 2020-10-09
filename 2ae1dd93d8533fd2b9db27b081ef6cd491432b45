@@ -16,6 +16,24 @@
       "message": "I\u0027m confused... I looked at the Skia status page and don\u0027t see any Metal breakage at this CL. The breakage I see was happening in PDF with a different test. What breakage did you see?\n\nhttp://screen/3QGU8xCzxf5qZsY",
       "revId": "2ae1dd93d8533fd2b9db27b081ef6cd491432b45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5a639bd_331a7c9e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2020-10-09T13:00:27Z",
+      "side": 1,
+      "message": "It\u0027s very strange -- last night the Metal 10.15 bot failed in the SkCross test but it\u0027s not there any more. Feel free to reland.",
+      "parentUuid": "4a4dd9e6_a732c311",
+      "revId": "2ae1dd93d8533fd2b9db27b081ef6cd491432b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
