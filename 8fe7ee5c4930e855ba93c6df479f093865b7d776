@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98d502f1_9be80190",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-09T20:49:14Z",
+      "side": 1,
+      "message": "chrome doesn\u0027t use SkPDFDevice, so it\u0027s not necessary to cherry-pick the follow up bounds clipping function that I landed for the mac bots.",
+      "revId": "8fe7ee5c4930e855ba93c6df479f093865b7d776",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
