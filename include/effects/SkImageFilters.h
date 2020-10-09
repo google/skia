@@ -82,6 +82,17 @@ public:
                                            const CropRect& cropRect = {});
 
     /**
+     *  This filter takes an SkBlendMode and uses it to composite the two filters together.
+     *  @param mode       The blend mode that defines the compositing operation
+     *  @param background The Dst pixels used in blending, if null the source bitmap is used.
+     *  @param foreground The Src pixels used in blending, if null the source bitmap is used.
+     *  @cropRect         Optional rectangle to crop input and output.
+     */
+    static sk_sp<SkImageFilter> Blend(SkBlendMode mode, sk_sp<SkImageFilter> background,
+                                      sk_sp<SkImageFilter> foreground = nullptr,
+                                      const CropRect& cropRect = {});
+
+    /**
      *  Create a filter that blurs its input by the separate X and Y sigmas. The provided tile mode
      *  is used when the blur kernel goes outside the input image.
      *  @param sigmaX   The Gaussian sigma value for blurring along the X axis.
@@ -316,13 +327,18 @@ public:
 
     /**
      *  This filter takes an SkBlendMode and uses it to composite the two filters together.
+     *  @param mode       The blend mode that defines the compositing operation
      *  @param background The Dst pixels used in blending, if null the source bitmap is used.
      *  @param foreground The Src pixels used in blending, if null the source bitmap is used.
      *  @cropRect         Optional rectangle to crop input and output.
+     *
+     *  DEPRECATED: Prefer the more idiomatic Blend function
      */
-    static sk_sp<SkImageFilter> Xfermode(SkBlendMode, sk_sp<SkImageFilter> background,
+    static sk_sp<SkImageFilter> Xfermode(SkBlendMode mode, sk_sp<SkImageFilter> background,
                                          sk_sp<SkImageFilter> foreground = nullptr,
-                                         const CropRect& cropRect = {});
+                                         const CropRect& cropRect = {}) {
+        return Blend(mode, std::move(background), std::move(foreground), cropRect);
+    }
 
     // Morphology filter effects
 

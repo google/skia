@@ -257,7 +257,7 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
     // If edge detector sees the mask filter, it'll have alpha and then blend with the original
     // image; otherwise the mask filter will apply late (incorrectly) and none of the original
     // image will be visible.
-    sk_sp<SkImageFilter> edgeBlend = SkImageFilters::Xfermode(SkBlendMode::kSrcOver,
+    sk_sp<SkImageFilter> edgeBlend = SkImageFilters::Blend(SkBlendMode::kSrcOver,
             SkImageFilters::Image(image), edgeDetector);
 
     SkPaint testMaskPaint;
@@ -266,8 +266,8 @@ DEF_SIMPLE_GM(imagefilters_effect_order, canvas, 512, 512) {
 
     SkPaint expectedMaskPaint;
     expectedMaskPaint.setImageFilter(SkImageFilters::Compose(edgeBlend,
-            SkImageFilters::Xfermode(SkBlendMode::kSrcIn,
-                                     SkImageFilters::Shader(alphaMaskShader))));
+            SkImageFilters::Blend(SkBlendMode::kSrcIn,
+                                  SkImageFilters::Shader(alphaMaskShader))));
 
     canvas->save();
     canvas->translate(0, image->height());

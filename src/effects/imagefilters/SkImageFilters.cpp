@@ -86,6 +86,13 @@ sk_sp<SkImageFilter> SkImageFilters::Arithmetic(
                                          std::move(foreground), &r);
 }
 
+sk_sp<SkImageFilter> SkImageFilters::Blend(
+        SkBlendMode mode, sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
+        const CropRect& cropRect) {
+    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
+    return SkXfermodeImageFilter::Make(mode, std::move(background), std::move(foreground), &r);
+}
+
 sk_sp<SkImageFilter> SkImageFilters::Blur(
         SkScalar sigmaX, SkScalar sigmaY, SkTileMode tileMode, sk_sp<SkImageFilter> input,
         const CropRect& cropRect) {
@@ -193,13 +200,6 @@ sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, const CropRe
 sk_sp<SkImageFilter> SkImageFilters::Tile(
         const SkRect& src, const SkRect& dst, sk_sp<SkImageFilter> input) {
     return SkTileImageFilter::Make(src, dst, std::move(input));
-}
-
-sk_sp<SkImageFilter> SkImageFilters::Xfermode(
-        SkBlendMode mode, sk_sp<SkImageFilter> background, sk_sp<SkImageFilter> foreground,
-        const CropRect& cropRect) {
-    SkImageFilter::CropRect r = to_legacy_crop_rect(cropRect);
-    return SkXfermodeImageFilter::Make(mode, std::move(background), std::move(foreground), &r);
 }
 
 // Morphology filter effects
