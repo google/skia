@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74002f62_11c62148",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-09T19:21:37Z",
+      "side": 1,
+      "message": "This change has been updated to use the new GrAttachment class.",
+      "revId": "b0ff4a6c3bda3bf87bb55cfd3a6254f1836a3ac5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "febf36fb_339c85ba",
+        "filename": "src/gpu/GrAttachment.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-09T19:21:37Z",
+      "side": 1,
+      "message": "this is basically identical to the above code for unique. Whats the best way to share this code? We could make GrResourceKey::Builder public, but not sure if we want to expose that or not.",
+      "range": {
+        "startLine": 51,
+        "startChar": 3,
+        "endLine": 64,
+        "endChar": 57
+      },
+      "revId": "b0ff4a6c3bda3bf87bb55cfd3a6254f1836a3ac5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
