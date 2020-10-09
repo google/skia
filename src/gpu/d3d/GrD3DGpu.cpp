@@ -918,44 +918,6 @@ sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendRenderTarget(const GrBackendRenderT
     return std::move(tgt);
 }
 
-sk_sp<GrRenderTarget> GrD3DGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                   int sampleCnt) {
-
-    GrD3DTextureResourceInfo textureInfo;
-    if (!tex.getD3DTextureResourceInfo(&textureInfo)) {
-        return nullptr;
-    }
-    if (!check_resource_info(textureInfo)) {
-        return nullptr;
-    }
-
-    // If sampleCnt is > 1 we will create an intermediate MSAA VkImage and then resolve into
-    // the wrapped VkImage. We don't yet support rendering directly to client-provided MSAA texture.
-    if (textureInfo.fSampleCount != 1) {
-        return nullptr;
-    }
-
-    if (!check_rt_resource_info(this->d3dCaps(), textureInfo, sampleCnt)) {
-        return nullptr;
-    }
-
-    // TODO: support protected context
-    if (tex.isProtected()) {
-        return nullptr;
-    }
-
-    sampleCnt = this->d3dCaps().getRenderTargetSampleCount(sampleCnt, textureInfo.fFormat);
-    if (!sampleCnt) {
-        return nullptr;
-    }
-
-    sk_sp<GrD3DResourceState> state = tex.getGrD3DResourceState();
-    SkASSERT(state);
-
-    return GrD3DRenderTarget::MakeWrappedRenderTarget(this, tex.dimensions(), sampleCnt,
-                                                      textureInfo, std::move(state));
-}
-
 sk_sp<GrGpuBuffer> GrD3DGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void* data) {
     sk_sp<GrD3DBuffer> buffer = GrD3DBuffer::Make(this, sizeInBytes, type, accessPattern);

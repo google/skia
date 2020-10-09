@@ -250,20 +250,6 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendRenderTarget(const GrBackendRender
                                                         isProtected, info));
 }
 
-sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                    int sampleCnt) {
-    GrMockTextureInfo texInfo;
-    SkAssertResult(tex.getMockTextureInfo(&texInfo));
-    SkASSERT(texInfo.compressionType() == SkImage::CompressionType::kNone);
-
-    // The client gave us the texture ID but we supply the render target ID.
-    GrMockRenderTargetInfo rtInfo(texInfo.colorType(), NextInternalRenderTargetID());
-
-    auto isProtected = GrProtected(tex.isProtected());
-    return sk_sp<GrRenderTarget>(new GrMockRenderTarget(
-            this, GrMockRenderTarget::kWrapped, tex.dimensions(), sampleCnt, isProtected, rtInfo));
-}
-
 sk_sp<GrGpuBuffer> GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrGpuBufferType type,
                                              GrAccessPattern accessPattern, const void*) {
     return sk_sp<GrGpuBuffer>(new GrMockBuffer(this, sizeInBytes, type, accessPattern));

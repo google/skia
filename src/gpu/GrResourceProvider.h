@@ -263,17 +263,6 @@ public:
      */
     bool attachStencilAttachment(GrRenderTarget* rt, int numStencilSamples);
 
-     /**
-      * Wraps an existing texture with a GrRenderTarget object. This is useful when the provided
-      * texture has a format that cannot be textured from by Skia, but we want to raster to it.
-      *
-      * The texture is wrapped as borrowed. The texture object will not be freed once the
-      * render target is destroyed.
-      *
-      * @return GrRenderTarget object or NULL on failure.
-      */
-    sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&, int sampleCnt);
-
     /**
      * Assigns a unique key to a resource. If the key is associated with another resource that
      * association is removed and replaced by this resource.
