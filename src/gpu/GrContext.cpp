@@ -25,7 +25,6 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrSemaphore.h"
-#include "src/gpu/GrShaderUtils.h"
 #include "src/gpu/GrSoftwarePathRenderer.h"
 #include "src/gpu/GrThreadSafeCache.h"
 #include "src/gpu/GrTracing.h"
@@ -51,87 +50,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::move(proxy)) {
-    fResourceCache = nullptr;
-    fResourceProvider = nullptr;
-}
+GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::move(proxy)) { }
 
-GrContext::~GrContext() {
-    ASSERT_SINGLE_OWNER
-
-    this->destroyDrawingManager();
-    fMappedBufferManager.reset();
-    delete fResourceProvider;
-    delete fResourceCache;
-}
-
-bool GrContext::init() {
-    ASSERT_SINGLE_OWNER
-    SkASSERT(this->proxyProvider());
-
-    if (!INHERITED::init()) {
-        return false;
-    }
-
-    SkASSERT(this->getTextBlobCache());
-    SkASSERT(this->threadSafeCache());
-
-    if (fGpu) {
-        fStrikeCache = std::make_unique<GrStrikeCache>();
-        fResourceCache = new GrResourceCache(this->caps(), this->singleOwner(), this->contextID());
-        fResourceProvider = new GrResourceProvider(fGpu.get(), fResourceCache, this->singleOwner());
-        fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->contextID());
-    }
-
-    if (fResourceCache) {
-        fResourceCache->setProxyProvider(this->proxyProvider());
-        fResourceCache->setThreadSafeCache(this->threadSafeCache());
-    }
-
-    fDidTestPMConversions = false;
-
-    // DDL TODO: we need to think through how the task group & persistent cache
-    // get passed on to/shared between all the DDLRecorders created with this context.
-    if (this->options().fExecutor) {
-        fTaskGroup = std::make_unique<SkTaskGroup>(*this->options().fExecutor);
-    }
-
-    fPersistentCache = this->options().fPersistentCache;
-    fShaderErrorHandler = this->options().fShaderErrorHandler;
-    if (!fShaderErrorHandler) {
-        fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
-    }
-
-    return true;
-}
+GrContext::~GrContext() = default;
 
 sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
     return INHERITED::threadSafeProxy();
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-void GrContext::abandonContext() {
-    if (INHERITED::abandoned()) {
-        return;
-    }
-
-    INHERITED::abandonContext();
-
-    fStrikeCache->freeAll();
-
-    fMappedBufferManager->abandon();
-
-    fResourceProvider->abandon();
-
-    // abandon first to so destructors
-    // don't try to free the resources in the API.
-    fResourceCache->abandonAll();
-
-    fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
-
-    fMappedBufferManager.reset();
-}
 
 void GrContext::releaseResourcesAndAbandonContext() {
     if (INHERITED::abandoned()) {
@@ -150,31 +77,7 @@ void GrContext::releaseResourcesAndAbandonContext() {
     fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
 }
 
-bool GrContext::abandoned() {
-    if (INHERITED::abandoned()) {
-        return true;
-    }
-
-    if (fGpu && fGpu->isDeviceLost()) {
-        this->abandonContext();
-        return true;
-    }
-    return false;
-}
-
 bool GrContext::oomed() { return fGpu ? fGpu->checkAndResetOOMed() : false; }
-
-void GrContext::resetGLTextureBindings() {
-    if (this->abandoned() || this->backend() != GrBackendApi::kOpenGL) {
-        return;
-    }
-    fGpu->resetTextureBindings();
-}
-
-void GrContext::resetContext(uint32_t state) {
-    ASSERT_SINGLE_OWNER
-    fGpu->markContextDirty(state);
-}
 
 void GrContext::freeGpuResources() {
     ASSERT_SINGLE_OWNER
