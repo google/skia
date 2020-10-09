@@ -173,54 +173,16 @@ SkString GrGLSLProgramBuilder::emitFragProc(const GrFragmentProcessor& fp,
                                            this->uniformHandler(),
                                            this->shaderCaps(),
                                            fp,
-                                           output.c_str(),
-                                           input.c_str(),
+                                           "_output",
+                                           "_input",
                                            "_coords",
                                            coords,
                                            /*forceInline=*/true);
+    auto name = fFS.writeProcessorFunction(&glslFP, args);
+    fFS.codeAppendf("%s = %s(%s);", output.c_str(), name.c_str(), input.c_str());
 
-    if (fp.usesExplicitReturn()) {
-        // FPs that explicitly return their output color must be in a helper function, but we inline
-        // it if at all possible.
-        args.fInputColor = "_input";
-        args.fOutputColor = "_output";
-        auto name = fFS.writeProcessorFunction(&glslFP, args);
-        fFS.codeAppendf("%s = %s(%s);", output.c_str(), name.c_str(), input.c_str());
-    } else {
-        // Enclose custom code in a block to avoid namespace conflicts
-        fFS.codeAppendf("{ // Stage %d, %s\n", fStageIndex, fp.name());
-
-        if (fp.referencesSampleCoords()) {
-            // The fp's generated code expects a _coords variable, but we're at the root so _coords
-            // is just the local coordinates produced by the primitive processor.
-            SkASSERT(fp.usesVaryingCoordsDirectly());
-
-            const GrShaderVar& varying = coordVars[0];
-            switch(varying.getType()) {
-                case kFloat2_GrSLType:
-                    fFS.codeAppendf("float2 %s = %s.xy;\n",
-                                    args.fSampleCoord, varying.getName().c_str());
-                    break;
-                case kFloat3_GrSLType:
-                    fFS.codeAppendf("float2 %s = %s.xy / %s.z;\n",
-                                    args.fSampleCoord,
-                                    varying.getName().c_str(),
-                                    varying.getName().c_str());
-                    break;
-                default:
-                    SkDEBUGFAILF("Unexpected type for varying: %d named %s\n",
-                                (int) varying.getType(), varying.getName().c_str());
-                    break;
-            }
-        }
-
-        glslFP.emitCode(args);
-
-        fFS.codeAppend("}");
-    }
-
-    // We have to check that effects and the code they emit are consistent, ie if an effect
-    // asks for dst color, then the emit code needs to follow suit
+    // We have to check that effects and the code they emit are consistent, ie if an effect asks
+    // for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(fp);)
 
     return output;
