@@ -265,10 +265,10 @@ public:
                 break;
 
             case Expression::Kind::kExternalValue: {
-                const ExternalValue* var = expr.as<ExternalValueReference>().fValue;
-                if (!var->canWrite()) {
+                const ExternalValue& var = expr.as<ExternalValueReference>().value();
+                if (!var.canWrite()) {
                     fErrors->error(expr.fOffset,
-                                   "cannot modify immutable external value '" + var->name() + "'");
+                                   "cannot modify immutable external value '" + var.name() + "'");
                 }
                 break;
             }
@@ -398,10 +398,10 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
             return this->visitExpression(*i.base()) || this->visitExpression(*i.index());
         }
         case Expression::Kind::kPostfix:
-            return this->visitExpression(*e.template as<PostfixExpression>().fOperand);
+            return this->visitExpression(*e.template as<PostfixExpression>().operand());
 
         case Expression::Kind::kPrefix:
-            return this->visitExpression(*e.template as<PrefixExpression>().fOperand);
+            return this->visitExpression(*e.template as<PrefixExpression>().operand());
 
         case Expression::Kind::kSwizzle:
             return this->visitExpression(*e.template as<Swizzle>().fBase);

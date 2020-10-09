@@ -2176,12 +2176,12 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                                             functionValue->as<TypeReference>().fValue,
                                             std::move(arguments));
         case Expression::Kind::kExternalValue: {
-            const ExternalValue* v = functionValue->as<ExternalValueReference>().fValue;
-            if (!v->canCall()) {
+            const ExternalValue& v = functionValue->as<ExternalValueReference>().value();
+            if (!v.canCall()) {
                 fErrors.error(offset, "this external value is not a function");
                 return nullptr;
             }
-            int count = v->callParameterCount();
+            int count = v.callParameterCount();
             if (count != (int) arguments.size()) {
                 fErrors.error(offset, "external function expected " + to_string(count) +
                                       " arguments, but found " + to_string((int) arguments.size()));
@@ -2190,15 +2190,14 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
             static constexpr int PARAMETER_MAX = 16;
             SkASSERT(count < PARAMETER_MAX);
             const Type* types[PARAMETER_MAX];
-            v->getCallParameterTypes(types);
+            v.getCallParameterTypes(types);
             for (int i = 0; i < count; ++i) {
                 arguments[i] = this->coerce(std::move(arguments[i]), *types[i]);
                 if (!arguments[i]) {
                     return nullptr;
                 }
             }
-            return std::make_unique<ExternalFunctionCall>(offset, &v->callReturnType(), v,
-                                                          std::move(arguments));
+            return std::make_unique<ExternalFunctionCall>(offset, &v, std::move(arguments));
         }
         case Expression::Kind::kFunctionReference: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
@@ -2489,7 +2488,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
 std::unique_ptr<Expression> IRGenerator::convertField(std::unique_ptr<Expression> base,
                                                       StringFragment field) {
     if (base->kind() == Expression::Kind::kExternalValue) {
-        const ExternalValue& ev = *base->as<ExternalValueReference>().fValue;
+        const ExternalValue& ev = base->as<ExternalValueReference>().value();
         ExternalValue* result = ev.getChild(String(field).c_str());
         if (!result) {
             fErrors.error(base->fOffset, "external value does not have a child named '" + field +

@@ -235,14 +235,14 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kPrefix:
             if (!this->tryRemoveExpressionBefore(iter,
-                                                 expr->as<PrefixExpression>().fOperand.get())) {
+                                                 expr->as<PrefixExpression>().operand().get())) {
                 return false;
             }
             *iter = fNodes.erase(*iter);
             return true;
         case Expression::Kind::kPostfix:
             if (!this->tryRemoveExpressionBefore(iter,
-                                                 expr->as<PrefixExpression>().fOperand.get())) {
+                                                 expr->as<PrefixExpression>().operand().get())) {
                 return false;
             }
             *iter = fNodes.erase(*iter);
@@ -392,14 +392,14 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
         }
         case Expression::Kind::kPrefix: {
             PrefixExpression& p = e->get()->as<PrefixExpression>();
-            this->addExpression(cfg, &p.fOperand, constantPropagate &&
-                                                  p.fOperator != Token::Kind::TK_PLUSPLUS &&
-                                                  p.fOperator != Token::Kind::TK_MINUSMINUS);
+            this->addExpression(cfg, &p.operand(), constantPropagate &&
+                                                  p.getOperator() != Token::Kind::TK_PLUSPLUS &&
+                                                  p.getOperator() != Token::Kind::TK_MINUSMINUS);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         }
         case Expression::Kind::kPostfix:
-            this->addExpression(cfg, &e->get()->as<PostfixExpression>().fOperand, false);
+            this->addExpression(cfg, &e->get()->as<PostfixExpression>().operand(), false);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         case Expression::Kind::kSwizzle:

@@ -430,10 +430,10 @@ void Compiler::addDefinitions(const BasicBlock::Node& node, DefinitionMap* defin
             }
             case Expression::Kind::kPrefix: {
                 const PrefixExpression* p = &expr->as<PrefixExpression>();
-                if (p->fOperator == Token::Kind::TK_MINUSMINUS ||
-                    p->fOperator == Token::Kind::TK_PLUSPLUS) {
+                if (p->getOperator() == Token::Kind::TK_MINUSMINUS ||
+                    p->getOperator() == Token::Kind::TK_PLUSPLUS) {
                     this->addDefinition(
-                                  p->fOperand.get(),
+                                  p->operand().get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                   definitions);
                 }
@@ -441,10 +441,10 @@ void Compiler::addDefinitions(const BasicBlock::Node& node, DefinitionMap* defin
             }
             case Expression::Kind::kPostfix: {
                 const PostfixExpression* p = &expr->as<PostfixExpression>();
-                if (p->fOperator == Token::Kind::TK_MINUSMINUS ||
-                    p->fOperator == Token::Kind::TK_PLUSPLUS) {
+                if (p->getOperator() == Token::Kind::TK_MINUSMINUS ||
+                    p->getOperator() == Token::Kind::TK_PLUSPLUS) {
                     this->addDefinition(
-                                  p->fOperand.get(),
+                                  p->operand().get(),
                                   (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                   definitions);
                 }
