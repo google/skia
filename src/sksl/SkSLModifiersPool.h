@@ -59,10 +59,6 @@ public:
         return Handle(this, index);
     }
 
-    void finish() {
-        fModifiersMap.clear();
-    }
-
 private:
     std::vector<Modifiers> fModifiers;
     std::unordered_map<Modifiers, int> fModifiersMap;
