@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69ac402b_38c0484d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-09T20:53:00Z",
+      "side": 1,
+      "message": "This has repercussions for the canvaskit API going forward, but is backwards compatible.",
+      "revId": "31992faa11a0fac2513ab8c5e917ddcfed85b189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
