@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c17ab87_7d1f7f29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-09T22:54:58Z",
+      "side": 1,
+      "message": "There\u0027s something about this change that just doesn\u0027t feel right to me.\n\nFirst off for the normal case (non msaa) we are switching this to prefer making a TextureRenderTarget versus a pure render target. This has implications on things like how we handle various dst reads and what not. Maybe I\u0027m wrong but I would imagine that most people don\u0027t make their swapchains textureable so this would no longer be testing the common use case (though I may be wrong here). I think I would prefer for viewer to prefer no using the SAMPLED bit since viewer does have the option to draw offscreen which will test rendering to a TextureRenderTarget.\n\nSecond I am confused why we can\u0027t support MSAA without texture support. The swapchain will never be multisampled, But that doesn\u0027t mean we can\u0027t resolve into the swapchain image (making our own msaa image internally). I actually think this is a very common usage pattern if someone tries to use vulkan with MSAA. If we can\u0027t support this then I think we\u0027ve lost an important use case with the removal of TextureAsRenderTarget.",
+      "revId": "e4e0aad93781ffe89da2473c2d00b0dfd43bbac1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
