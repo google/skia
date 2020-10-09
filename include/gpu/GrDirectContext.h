@@ -69,7 +69,53 @@ public:
 
     ~GrDirectContext() override;
 
+    /**
+     * The context normally assumes that no outsider is setting state
+     * within the underlying 3D API's context/device/whatever. This call informs
+     * the context that the state was modified and it should resend. Shouldn't
+     * be called frequently for good performance.
+     * The flag bits, state, is dependent on which backend is used by the
+     * context, either GL or D3D (possible in future).
+     */
+    void resetContext(uint32_t state = kAll_GrBackendState);
+
+    /**
+     * If the backend is GrBackendApi::kOpenGL, then all texture unit/target combinations for which
+     * the context has modified the bound texture will have texture id 0 bound. This does not
+     * flush the context. Calling resetContext() does not change the set that will be bound
+     * to texture id 0 on the next call to resetGLTextureBindings(). After this is called
+     * all unit/target combinations are considered to have unmodified bindings until the context
+     * subsequently modifies them (meaning if this is called twice in a row with no intervening
+     * context usage then the second call is a no-op.)
+     */
+    void resetGLTextureBindings();
+
+    /**
+     * Abandons all GPU resources and assumes the underlying backend 3D API context is no longer
+     * usable. Call this if you have lost the associated GPU context, and thus internal texture,
+     * buffer, etc. references/IDs are now invalid. Calling this ensures that the destructors of the
+     * GrContext and any of its created resource objects will not make backend 3D API calls. Content
+     * rendered but not previously flushed may be lost. After this function is called all subsequent
+     * calls on the GrContext will fail or be no-ops.
+     *
+     * The typical use case for this function is that the underlying 3D context was lost and further
+     * API calls may crash.
+     *
+     * For Vulkan, even if the device becomes lost, the VkQueue, VkDevice, or VkInstance used to
+     * create the context must be kept alive even after abandoning the context. Those objects must
+     * live for the lifetime of the context object itself. The reason for this is so that
+     * we can continue to delete any outstanding GrBackendTextures/RenderTargets which must be
+     * cleaned up even in a device lost state.
+     */
     void abandonContext() override;
+
+    /**
+     * Returns true if the context was abandoned or if the if the backend specific context has
+     * gotten into an unrecoverarble, lost state (e.g. in Vulkan backend if we've gotten a
+     * VK_ERROR_DEVICE_LOST). If the backend context is lost, this call will also abandon the
+     * GrContext.
+     */
+    bool abandoned() override;
 
     void releaseResourcesAndAbandonContext() override;
 
