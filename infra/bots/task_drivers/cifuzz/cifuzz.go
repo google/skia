@@ -110,8 +110,6 @@ const (
 	cifuzzDockerImage       = "gcr.io/oss-fuzz-base/cifuzz-base:latest"
 	buildFuzzersDockerImage = "local_build_fuzzers"
 	runFuzzersDockerImage   = "local_run_fuzzers"
-
-	pinnedSwiftshaderRevision = "45510ad8a77862c1ce2e33f0efed41544f5f048b"
 )
 
 func setupCIFuzzRepoAndDocker(ctx context.Context, workdir, gitAbsPath string) error {
