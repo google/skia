@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "207a1f32_ecb62ce4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-09T20:01:26Z",
+      "side": 1,
+      "message": "I assume we will eventually implement this in the other backends?",
+      "revId": "77eaa803dc38820666c39000990d7a3b62baf430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bf5100d_263a28af",
+        "filename": "src/gpu/GrAttachment.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-09T20:01:26Z",
+      "side": 1,
+      "message": "switch on usage?",
+      "revId": "77eaa803dc38820666c39000990d7a3b62baf430",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
