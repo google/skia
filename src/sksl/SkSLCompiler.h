@@ -206,18 +206,18 @@ public:
     ParsedModule parseModule(Program::Kind kind, ModuleData data, const ParsedModule& base);
 
 private:
-    void loadFPIntrinsics();
-    void loadGeometryIntrinsics();
-    void loadInterpreterIntrinsics();
-    void loadPipelineIntrinsics();
+    const ParsedModule& loadFPModule();
+    const ParsedModule& loadGeometryModule();
+    const ParsedModule& loadInterpreterModule();
+    const ParsedModule& loadPipelineModule();
+
+    const ParsedModule& moduleForProgramKind(Program::Kind kind);
 
     void addDefinition(const Expression* lvalue, std::unique_ptr<Expression>* expr,
                        DefinitionMap* definitions);
-
     void addDefinitions(const BasicBlock::Node& node, DefinitionMap* definitions);
 
     void scanCFG(CFG* cfg, BlockId block, SkBitSet* processedSet);
-
     void computeDataFlow(CFG* cfg);
 
     /**
@@ -276,6 +276,8 @@ private:
     std::shared_ptr<Context> fContext;
     int fErrorCount;
     String fErrorText;
+
+    friend class AutoSource;
 };
 
 #if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU

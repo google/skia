@@ -70,14 +70,26 @@
 
 namespace SkSL {
 
+class AutoSource {
+public:
+    AutoSource(Compiler* compiler, const String* source)
+            : fCompiler(compiler), fOldSource(fCompiler->fSource) {
+        fCompiler->fSource = source;
+    }
+
+    ~AutoSource() { fCompiler->fSource = fOldSource; }
+
+    Compiler* fCompiler;
+    const String* fOldSource;
+};
+
 Compiler::Compiler(Flags flags)
 : fFlags(flags)
 , fContext(std::make_shared<Context>())
 , fErrorCount(0) {
     fRootSymbolTable = std::make_shared<SymbolTable>(this);
-    fIRGenerator =
-            std::make_unique<IRGenerator>(fContext.get(), &fInliner, fRootSymbolTable, *this);
-    #define ADD_TYPE(t) fRootSymbolTable->addWithoutOwnership(fContext->f ## t ## _Type.get())
+    fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), &fInliner, *this);
+#define ADD_TYPE(t) fRootSymbolTable->addWithoutOwnership(fContext->f##t##_Type.get())
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Float2);
@@ -219,31 +231,47 @@ Compiler::Compiler(Flags flags)
 
 Compiler::~Compiler() {}
 
-void Compiler::loadGeometryIntrinsics() {
+const ParsedModule& Compiler::loadGeometryModule() {
     if (!fGeometryModule.fSymbols) {
         fGeometryModule = this->parseModule(Program::kGeometry_Kind, MODULE_DATA(geom), fGPUModule);
     }
+    return fGeometryModule;
 }
 
-void Compiler::loadFPIntrinsics() {
+const ParsedModule& Compiler::loadFPModule() {
     if (!fFPModule.fSymbols) {
         fFPModule =
                 this->parseModule(Program::kFragmentProcessor_Kind, MODULE_DATA(fp), fGPUModule);
     }
+    return fFPModule;
 }
 
-void Compiler::loadPipelineIntrinsics() {
+const ParsedModule& Compiler::loadPipelineModule() {
     if (!fPipelineModule.fSymbols) {
         fPipelineModule =
                 this->parseModule(Program::kPipelineStage_Kind, MODULE_DATA(pipeline), fGPUModule);
     }
+    return fPipelineModule;
 }
 
-void Compiler::loadInterpreterIntrinsics() {
+const ParsedModule& Compiler::loadInterpreterModule() {
     if (!fInterpreterModule.fSymbols) {
         fInterpreterModule =
                 this->parseModule(Program::kGeneric_Kind, MODULE_DATA(interp), fRootModule);
     }
+    return fInterpreterModule;
+}
+
+const ParsedModule& Compiler::moduleForProgramKind(Program::Kind kind) {
+    switch (kind) {
+        case Program::kVertex_Kind:            return fVertexModule;                 break;
+        case Program::kFragment_Kind:          return fFragmentModule;               break;
+        case Program::kGeometry_Kind:          return this->loadGeometryModule();    break;
+        case Program::kFragmentProcessor_Kind: return this->loadFPModule();          break;
+        case Program::kPipelineStage_Kind:     return this->loadPipelineModule();    break;
+        case Program::kGeneric_Kind:           return this->loadInterpreterModule(); break;
+    }
+    SkUNREACHABLE;
 }
 
 LoadedModule Compiler::loadModule(Program::Kind kind,
@@ -268,8 +296,10 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
     Program::Settings settings;
     SkASSERT(fIRGenerator->fCanInline);
     fIRGenerator->fCanInline = false;
-    fIRGenerator->start(&settings, {base, /*fIntrinsics=*/nullptr}, /*builtin=*/true);
-    fIRGenerator->convertProgram(kind, source->c_str(), source->length(), &module.fElements);
+    ParsedModule baseModule = {base, /*fIntrinsics=*/nullptr};
+    fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/true,
+                                 source->c_str(), source->length(), /*externalValues=*/nullptr,
+                                 &module.fElements);
     fIRGenerator->fCanInline = true;
     if (this->fErrorCount) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
@@ -1497,41 +1527,16 @@ std::unique_ptr<Program> Compiler::convertProgram(
     fErrorText = "";
     fErrorCount = 0;
     fInliner.reset(fContext.get(), fIRGenerator->fModifiers.get(), &settings);
-    std::vector<std::unique_ptr<ProgramElement>> elements;
-    switch (kind) {
-        case Program::kVertex_Kind:
-            fIRGenerator->start(&settings, fVertexModule);
-            break;
-        case Program::kFragment_Kind:
-            fIRGenerator->start(&settings, fFragmentModule);
-            break;
-        case Program::kGeometry_Kind:
-            this->loadGeometryIntrinsics();
-            fIRGenerator->start(&settings, fGeometryModule);
-            break;
-        case Program::kFragmentProcessor_Kind:
-            this->loadFPIntrinsics();
-            fIRGenerator->start(&settings, fFPModule);
-            break;
-        case Program::kPipelineStage_Kind:
-            this->loadPipelineIntrinsics();
-            fIRGenerator->start(&settings, fPipelineModule);
-            break;
-        case Program::kGeneric_Kind:
-            this->loadInterpreterIntrinsics();
-            fIRGenerator->start(&settings, fInterpreterModule);
-            break;
-    }
-    if (externalValues) {
-        // Add any external values to the symbol table. IRGenerator::start() has pushed a table, so
-        // we're only making these visible to the current Program.
-        for (const auto& ev : *externalValues) {
-            fIRGenerator->fSymbolTable->addWithoutOwnership(ev.get());
-        }
-    }
+
+    // Needs to happen before 
+    const ParsedModule& baseModule = this->moduleForProgramKind(kind);
+
     std::unique_ptr<String> textPtr(new String(std::move(text)));
     fSource = textPtr.get();
-    fIRGenerator->convertProgram(kind, textPtr->c_str(), textPtr->size(), &elements);
+
+    std::vector<std::unique_ptr<ProgramElement>> elements;
+    fIRGenerator->convertProgram(kind, &settings, baseModule, /*isBuiltinCode=*/false,
+                                 textPtr->c_str(), textPtr->size(), externalValues, &elements);
     auto result = std::make_unique<Program>(kind,
                                             std::move(textPtr),
                                             settings,

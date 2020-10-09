@@ -95,12 +95,19 @@ private:
  */
 class IRGenerator {
 public:
-    IRGenerator(const Context* context, Inliner* inliner, std::shared_ptr<SymbolTable> root,
-                ErrorReporter& errorReporter);
+    IRGenerator(const Context* context, Inliner* inliner, ErrorReporter& errorReporter);
 
+    /**
+     * If externalValues is supplied, those values are registered in the symbol table of the
+     * Program, but ownership is *not* transferred. It is up to the caller to keep them alive.
+     */
     void convertProgram(Program::Kind kind,
+                        const Program::Settings* settings,
+                        const ParsedModule& base,
+                        bool isBuiltinCode,
                         const char* text,
                         size_t length,
+                        const std::vector<std::unique_ptr<ExternalValue>>* externalValues,
                         std::vector<std::unique_ptr<ProgramElement>>* result);
 
     /**
@@ -116,20 +123,11 @@ public:
     const Type* typeForSetting(int offset, String name) const;
     std::unique_ptr<Expression> valueForSetting(int offset, String name) const;
 
-    Program::Inputs fInputs;
-    const Program::Settings* fSettings;
+    const Program::Settings* settings() const { return fSettings; }
+
     const Context& fContext;
-    Program::Kind fKind;
 
 private:
-    /**
-     * Prepare to compile a program. Resets state, pushes a new symbol table, and installs the
-     * settings.
-     */
-    void start(const Program::Settings* settings,
-               const ParsedModule& base,
-               bool isBuiltinCode = false);
-
     /**
      * Performs cleanup after compilation is complete.
      */
@@ -217,25 +215,28 @@ private:
     void copyIntrinsicIfNeeded(const FunctionDeclaration& function);
     void cloneBuiltinVariables();
 
+    Program::Inputs fInputs;
+    const Program::Settings* fSettings = nullptr;
+    Program::Kind fKind;
+
     Inliner* fInliner = nullptr;
     std::unique_ptr<ASTFile> fFile;
-    const FunctionDeclaration* fCurrentFunction;
+    const FunctionDeclaration* fCurrentFunction = nullptr;
     std::unordered_map<String, Program::Settings::Value> fCapsMap;
-    std::shared_ptr<SymbolTable> fSymbolTable;
+    std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     // additional statements that need to be inserted before the one that convertStatement is
     // currently working on
     std::vector<std::unique_ptr<Statement>> fExtraStatements;
     // Symbols which have definitions in the include files.
     IRIntrinsicMap* fIntrinsics = nullptr;
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
-    int fLoopLevel;
-    int fSwitchLevel;
+    int fLoopLevel = 0;
+    int fSwitchLevel = 0;
     ErrorReporter& fErrors;
     int fInvocations;
-    std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
-    const Variable* fSkPerVertex = nullptr;
-    const Variable* fRTAdjust;
-    const Variable* fRTAdjustInterfaceBlock;
+    std::vector<std::unique_ptr<ProgramElement>>* fProgramElements = nullptr;
+    const Variable* fRTAdjust = nullptr;
+    const Variable* fRTAdjustInterfaceBlock = nullptr;
     int fRTAdjustFieldIndex;
     bool fCanInline = true;
     // true if we are currently processing one of the built-in SkSL include files
