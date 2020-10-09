@@ -17,7 +17,7 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
+#include "tools/gpu/ManagedBackendTexture.h"
 
 struct ProxyParams {
     int             fSize;
@@ -36,27 +36,24 @@ static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const
                                       GrMipmapped::kNo, p.fFit, p.fBudgeted, GrProtected::kNo);
 }
 
-static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext,
-                                          const ProxyParams& p,
-                                          GrBackendTexture* backendTex) {
+static sk_sp<GrSurfaceProxy> make_backend(GrDirectContext* dContext, const ProxyParams& p) {
     GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
 
     SkColorType skColorType = GrColorTypeToSkColorType(p.fColorType);
     SkASSERT(SkColorType::kUnknown_SkColorType != skColorType);
 
-    CreateBackendTexture(dContext, backendTex, p.fSize, p.fSize, skColorType,
-                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo);
+    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
+            dContext, p.fSize, p.fSize, skColorType, GrMipmapped::kNo, GrRenderable::kNo);
 
-    if (!backendTex->isValid()) {
+    if (!mbet) {
         return nullptr;
     }
 
-    return proxyProvider->wrapBackendTexture(*backendTex, kBorrow_GrWrapOwnership,
-                                             GrWrapCacheable::kNo, kRead_GrIOType);
-}
-
-static void cleanup_backend(GrDirectContext* dContext, const GrBackendTexture& backendTex) {
-    dContext->deleteBackendTexture(backendTex);
+    return proxyProvider->wrapBackendTexture(mbet->texture(),
+                                             kBorrow_GrWrapOwnership,
+                                             GrWrapCacheable::kNo,
+                                             kRead_GrIOType,
+                                             mbet->refCountedCallback());
 }
 
 // Basic test that two proxies with overlapping intervals and compatible descriptors are
@@ -216,14 +213,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         TestCase t[1] = {
                 {{64, kNotRT, kRGBA, kE, 1, kNotB}, {64, kNotRT, kRGBA, kE, 1, kNotB}, kDontShare}};
 
-        GrBackendTexture backEndTex;
-        sk_sp<GrSurfaceProxy> p1 = make_backend(direct, t[0].fP1, &backEndTex);
+        sk_sp<GrSurfaceProxy> p1 = make_backend(direct, t[0].fP1);
         sk_sp<GrSurfaceProxy> p2 = make_deferred(proxyProvider, caps, t[0].fP2);
 
         non_overlap_test(reporter, resourceProvider, std::move(p1), std::move(p2),
                          t[0].fExpectation);
-
-        cleanup_backend(direct, backEndTex);
     }
 }
 
@@ -346,18 +340,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
 
     // Wrapped proxy that will be ignored by the resourceAllocator. We use this to try and get the
     // resource allocator fCurOpsTaskIndex to fall behind what it really should be.
-    GrBackendTexture backEndTex;
-    sk_sp<GrSurfaceProxy> proxyWrapped = make_backend(context, params, &backEndTex);
+    sk_sp<GrSurfaceProxy> proxyWrapped = make_backend(context, params);
     if (!proxyWrapped) {
         return;
     }
 
     // Same as above, but we actually need to have at least two intervals that don't go through the
     // resource allocator to expose the index bug.
-    GrBackendTexture backEndTex2;
-    sk_sp<GrSurfaceProxy> proxyWrapped2 = make_backend(context, params, &backEndTex2);
+    sk_sp<GrSurfaceProxy> proxyWrapped2 = make_backend(context, params);
     if (!proxyWrapped2) {
-        cleanup_backend(context, backEndTex);
         return;
     }
 
@@ -397,9 +388,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorCurOpsTaskIndexTest,
     alloc.assign(&startIndex, &stopIndex, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
     REPORTER_ASSERT(reporter, 3 == startIndex && 4 == stopIndex);
-
-    cleanup_backend(context, backEndTex);
-    cleanup_backend(context, backEndTex2);
 
     context->setResourceCacheLimit(origMaxBytes);
 }
