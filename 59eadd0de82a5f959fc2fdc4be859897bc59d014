@@ -16,6 +16,24 @@
       "message": "Same question here - do we *need* a version decl string? I don\u0027t actually know - I\u0027m guessing we just don\u0027t use them during standalone (other than to echo it to the top of the generated shader?).",
       "revId": "59eadd0de82a5f959fc2fdc4be859897bc59d014",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f35e9551_b706d862",
+        "filename": "src/sksl/SkSLUtil.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T13:43:32Z",
+      "side": 1,
+      "message": "Doesn\u0027t seem to matter afaics.",
+      "parentUuid": "32cd02f2_c4e96d76",
+      "revId": "59eadd0de82a5f959fc2fdc4be859897bc59d014",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
