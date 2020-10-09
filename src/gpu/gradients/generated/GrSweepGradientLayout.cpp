@@ -33,18 +33,13 @@ public:
         scaleVar = args.fUniformHandler->addUniform(&_outer, kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "scale");
         fragBuilder->codeAppendf(
-                R"SkSL(half angle;
-if (sk_Caps.atan2ImplementedAsAtanYOverX) {
-    angle = half(2.0 * atan(-%s.y, length(%s) - %s.x));
-} else {
-    angle = half(atan(-%s.y, -%s.x));
-}
+                R"SkSL(half angle = sk_Caps.atan2ImplementedAsAtanYOverX ? half(2.0 * atan(-%s.y, length(%s) - %s.x)) : half(atan(-%s.y, -%s.x));
 half t = ((angle * 0.15915493667125702 + 0.5) + %s) * %s;
-%s = half4(t, 1.0, 0.0, 0.0);
+return half4(t, 1.0, 0.0, 0.0);
 )SkSL",
                 args.fSampleCoord, args.fSampleCoord, args.fSampleCoord, args.fSampleCoord,
                 args.fSampleCoord, args.fUniformHandler->getUniformCStr(biasVar),
-                args.fUniformHandler->getUniformCStr(scaleVar), args.fOutputColor);
+                args.fUniformHandler->getUniformCStr(scaleVar));
     }
 
 private:
@@ -81,7 +76,7 @@ bool GrSweepGradientLayout::onIsEqual(const GrFragmentProcessor& other) const {
     if (scale != that.scale) return false;
     return true;
 }
-bool GrSweepGradientLayout::usesExplicitReturn() const { return false; }
+bool GrSweepGradientLayout::usesExplicitReturn() const { return true; }
 GrSweepGradientLayout::GrSweepGradientLayout(const GrSweepGradientLayout& src)
         : INHERITED(kGrSweepGradientLayout_ClassID, src.optimizationFlags())
         , bias(src.bias)
