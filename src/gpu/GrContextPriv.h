@@ -101,10 +101,10 @@ public:
 
     SkTaskGroup* getTaskGroup() { return fContext->fTaskGroup.get(); }
 
-    GrResourceProvider* resourceProvider() { return fContext->fResourceProvider; }
-    const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider; }
+    GrResourceProvider* resourceProvider() { return fContext->fResourceProvider.get(); }
+    const GrResourceProvider* resourceProvider() const { return fContext->fResourceProvider.get(); }
 
-    GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
+    GrResourceCache* getResourceCache() { return fContext->fResourceCache.get(); }
 
     GrGpu* getGpu() { return fContext->fGpu.get(); }
     const GrGpu* getGpu() const { return fContext->fGpu.get(); }
