@@ -442,7 +442,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"NoGPUThreads", "ProcDump", "DDL1", "DDL3", "OOPRDDL", "T8888",
 				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
 				"GpuTess", "NonNVPR", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
-				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile"}
+				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -1015,84 +1015,88 @@ func (b *taskBuilder) maybeAddIosDevImage() {
 // compile generates a compile task. Returns the name of the compile task.
 func (b *jobBuilder) compile() string {
 	name := b.deriveCompileTaskName()
-	b.addTask(name, func(b *taskBuilder) {
-		recipe := "compile"
-		isolate := "compile.isolate"
-		if b.extraConfig("NoDEPS", "CMake", "CommandBuffer", "Flutter", "SKQP") {
-			recipe = "sync_and_compile"
-			isolate = "swarm_recipe.isolate"
-			b.recipeProps(EXTRA_PROPS)
-			b.usesGit()
-			if !b.extraConfig("NoDEPS") {
-				b.cache(CACHES_WORKDIR...)
+	if b.extraConfig("WasmGMTests") {
+		b.compileWasmGMTests(name)
+	} else {
+		b.addTask(name, func(b *taskBuilder) {
+			recipe := "compile"
+			isolate := "compile.isolate"
+			if b.extraConfig("NoDEPS", "CMake", "CommandBuffer", "Flutter", "SKQP") {
+				recipe = "sync_and_compile"
+				isolate = "swarm_recipe.isolate"
+				b.recipeProps(EXTRA_PROPS)
+				b.usesGit()
+				if !b.extraConfig("NoDEPS") {
+					b.cache(CACHES_WORKDIR...)
+				}
+			} else {
+				b.idempotent()
 			}
-		} else {
-			b.idempotent()
-		}
-		b.kitchenTask(recipe, OUTPUT_BUILD)
-		b.isolate(isolate)
-		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		b.swarmDimensions()
-		if b.extraConfig("Docker", "LottieWeb", "SKQP", "CMake") || b.compiler("EMCC") {
-			b.usesDocker()
-			b.cache(CACHES_DOCKER...)
-		}
+			b.kitchenTask(recipe, OUTPUT_BUILD)
+			b.isolate(isolate)
+			b.serviceAccount(b.cfg.ServiceAccountCompile)
+			b.swarmDimensions()
+			if b.extraConfig("Docker", "LottieWeb", "SKQP", "CMake") || b.compiler("EMCC") {
+				b.usesDocker()
+				b.cache(CACHES_DOCKER...)
+			}
 
-		// Android bots require a toolchain.
-		if b.extraConfig("Android") {
-			if b.matchOs("Mac") {
-				b.asset("android_ndk_darwin")
-			} else if b.matchOs("Win") {
-				pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
-				pkg.Path = "n"
-				b.cipd(pkg)
-			} else if !b.extraConfig("SKQP") {
-				b.asset("android_ndk_linux")
-			}
-		} else if b.extraConfig("Chromebook") {
-			b.asset("clang_linux")
-			if b.arch("x86_64") {
-				b.asset("chromebook_x86_64_gles")
-			} else if b.arch("arm") {
-				b.asset("armhf_sysroot")
-				b.asset("chromebook_arm_gles")
-			}
-		} else if b.isLinux() {
-			if b.compiler("Clang") {
+			// Android bots require a toolchain.
+			if b.extraConfig("Android") {
+				if b.matchOs("Mac") {
+					b.asset("android_ndk_darwin")
+				} else if b.matchOs("Win") {
+					pkg := b.MustGetCipdPackageFromAsset("android_ndk_windows")
+					pkg.Path = "n"
+					b.cipd(pkg)
+				} else if !b.extraConfig("SKQP") {
+					b.asset("android_ndk_linux")
+				}
+			} else if b.extraConfig("Chromebook") {
 				b.asset("clang_linux")
+				if b.arch("x86_64") {
+					b.asset("chromebook_x86_64_gles")
+				} else if b.arch("arm") {
+					b.asset("armhf_sysroot")
+					b.asset("chromebook_arm_gles")
+				}
+			} else if b.isLinux() {
+				if b.compiler("Clang") {
+					b.asset("clang_linux")
+				}
+				if b.extraConfig("SwiftShader") {
+					b.asset("cmake_linux")
+				}
+				if b.extraConfig("OpenCL") {
+					b.asset("opencl_headers", "opencl_ocl_icd_linux")
+				}
+				b.asset("ccache_linux")
+				b.usesCCache()
+			} else if b.matchOs("Win") {
+				b.asset("win_toolchain")
+				if b.compiler("Clang") {
+					b.asset("clang_win")
+				}
+				if b.extraConfig("OpenCL") {
+					b.asset("opencl_headers")
+				}
+			} else if b.matchOs("Mac") {
+				b.cipd(CIPD_PKGS_XCODE...)
+				b.Spec.Caches = append(b.Spec.Caches, &specs.Cache{
+					Name: "xcode",
+					Path: "cache/Xcode.app",
+				})
+				b.asset("ccache_mac")
+				b.usesCCache()
+				if b.extraConfig("CommandBuffer") {
+					b.timeout(2 * time.Hour)
+				}
+				if b.extraConfig("iOS") {
+					b.asset("provisioning_profile_ios")
+				}
 			}
-			if b.extraConfig("SwiftShader") {
-				b.asset("cmake_linux")
-			}
-			if b.extraConfig("OpenCL") {
-				b.asset("opencl_headers", "opencl_ocl_icd_linux")
-			}
-			b.asset("ccache_linux")
-			b.usesCCache()
-		} else if b.matchOs("Win") {
-			b.asset("win_toolchain")
-			if b.compiler("Clang") {
-				b.asset("clang_win")
-			}
-			if b.extraConfig("OpenCL") {
-				b.asset("opencl_headers")
-			}
-		} else if b.matchOs("Mac") {
-			b.cipd(CIPD_PKGS_XCODE...)
-			b.Spec.Caches = append(b.Spec.Caches, &specs.Cache{
-				Name: "xcode",
-				Path: "cache/Xcode.app",
-			})
-			b.asset("ccache_mac")
-			b.usesCCache()
-			if b.extraConfig("CommandBuffer") {
-				b.timeout(2 * time.Hour)
-			}
-			if b.extraConfig("iOS") {
-				b.asset("provisioning_profile_ios")
-			}
-		}
-	})
+		})
+	}
 
 	// All compile tasks are runnable as their own Job. Assert that the Job
 	// is listed in jobs.
@@ -1712,5 +1716,36 @@ func (b *jobBuilder) presubmit() {
 			Path:    "recipe_bundle",
 			Version: "git_revision:a8bcedad6768e206c4d2bd1718caa849f29cd42d",
 		})
+	})
+}
+
+// compileWasmGMTests uses a task driver to compile the GMs and unit tests for Web Assembly (WASM)
+// using WebGL if necessary.
+func (b *jobBuilder) compileWasmGMTests(compileName string) {
+	b.addTask(compileName, func(b *taskBuilder) {
+		b.attempts(1)
+		b.usesDocker()
+		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+		b.cipd(CIPD_PKG_LUCI_AUTH)
+		b.dep(b.buildTaskDrivers())
+		b.output("wasm_out")
+		b.timeout(20 * time.Minute)
+		b.isolate("compile.isolate")
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
+		b.cache(CACHES_DOCKER...)
+		// For now, we only have one compile mode - a GPU release mode. This should be sufficient to
+		// run CPU, WebGL1, and WebGL2 tests. Debug mode is not needed for the waterfall because
+		// when using puppeteer, stacktraces from exceptions are hard to get access to, so we do not
+		// even bother.
+		b.cmd(
+			"./compile_wasm_gm_tests",
+			"--project_id", "skia-swarming-bots",
+			"--task_id", specs.PLACEHOLDER_TASK_ID,
+			"--task_name", compileName,
+			"--out_path", "./wasm_out",
+			"--skia_path", "./skia",
+			"--work_path", "./cache/docker/wasm_gm",
+			"--alsologtostderr",
+		)
 	})
 }

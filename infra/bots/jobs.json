@@ -75,6 +75,7 @@
   "Build-Debian10-EMCC-wasm-Release-CanvasKit",
   "Build-Debian10-EMCC-wasm-Release-CanvasKit_CPU",
   "Build-Debian10-EMCC-wasm-Release-PathKit",
+  "Build-Debian10-EMCC-wasm-Release-WasmGMTests",
   "Build-Mac10.15.5-Clang-arm64-Debug-iOS",
   "Build-Mac10.15.5-Clang-arm64-Debug-iOS_Metal",
   "Build-Mac10.15.5-Clang-arm64-Release-iOS",
