@@ -651,20 +651,17 @@ void draw_tiled_bitmap(GrRecordingContext* context,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDevice,
-                              const SkPaint& paint) {
+void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const SkPaint& paint) {
     SkASSERT(!paint.getMaskFilter() && !paint.getImageFilter());
     SkASSERT(special->isTextureBacked());
 
     SkRect src = SkRect::Make(special->subset());
-    SkRect dst = SkRect::MakeWH(special->width(), special->height());
+    SkRect dst = SkRect::MakeXYWH(left, top, special->width(), special->height());
     SkMatrix srcToDst = SkMatrix::MakeRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);
 
-    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp,
-                           paint.getFilterQuality() >= kLow_SkFilterQuality ?
-                                GrSamplerState::Filter::kLinear : GrSamplerState::Filter::kNearest);
-    GrAA aa = paint.isAntiAlias() ? GrAA::kYes : GrAA::kNo;
-    GrQuadAAFlags aaFlags = paint.isAntiAlias() ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
+    // TODO (michaelludwig): Once drawSpecial uses arbitrary transforms between two SkGpuDevices,
+    // always using kNearest may not be the right choice anymore.
+    GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, GrSamplerState::Filter::kNearest);
 
     GrColorInfo colorInfo(SkColorTypeToGrColorType(special->colorType()),
                           special->alphaType(), sk_ref_sp(special->getColorSpace()));
@@ -673,10 +670,11 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, const SkMatrix& localToDe
     GrTextureAdjuster texture(fContext.get(), std::move(view), colorInfo, special->uniqueID());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
-    SkOverrideDeviceMatrixProvider matrixProvider(this->asMatrixProvider(), localToDevice);
+    SkOverrideDeviceMatrixProvider identity(this->asMatrixProvider(), SkMatrix::I());
     draw_texture_producer(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                          matrixProvider, paint, &texture, src, dst, nullptr, srcToDst, aa,
-                          aaFlags, SkCanvas::kStrict_SrcRectConstraint, sampler, false);
+                          identity, paint, &texture, src, dst, nullptr, srcToDst, GrAA::kNo,
+                          GrQuadAAFlags::kNone, SkCanvas::kStrict_SrcRectConstraint,
+                          sampler, false);
 }
 
 void SkGpuDevice::drawImageQuad(const SkImage* image, const SkRect* srcRect, const SkRect* dstRect,
