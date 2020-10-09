@@ -26,6 +26,7 @@ class GrAttachment : public GrSurface {
 public:
     enum class UsageFlags : uint8_t {
         kStencil = 0x1,
+        kMSAA    = 0x2,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags);
 
@@ -47,6 +48,16 @@ public:
                                                  UsageFlags requiredUsage,
                                                  int sampleCnt,
                                                  GrUniqueKey* key);
+
+    // TODO: Once attachments start having multiple usages, we'll need to figure out how to search
+    // the cache for an attachment that simply contains the requested usage instead of equaling it.
+    static void ComputeScratchKey(const GrCaps& caps,
+                                  const GrBackendFormat& format,
+                                  SkISize dimensions,
+                                  UsageFlags requiredUsage,
+                                  int sampleCnt,
+                                  GrProtected,
+                                  GrScratchKey* key);
 
 protected:
     GrAttachment(GrGpu* gpu, SkISize dimensions, UsageFlags supportedUsages, int sampleCnt,

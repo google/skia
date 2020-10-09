@@ -111,6 +111,11 @@ public:
                                                              SkISize dimensions,
                                                              int numStencilSamples) override;
 
+    sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
+                                           const GrBackendFormat& format,
+                                           int numSamples,
+                                           GrProtected isProtected) override;
+
     GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*,
                                       GrAttachment*,
                                       GrSurfaceOrigin,
