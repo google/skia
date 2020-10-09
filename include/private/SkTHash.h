@@ -84,17 +84,7 @@ public:
 
     // If there is an entry in the table with this key, return a pointer to it.  If not, null.
     T* find(const K& key) const {
-        return findWithKnownHash(key, Traits::Hash(key) & 0xffffffff);
-    }
-
-    // Like `find`, but avoids repeated hashing when probing for the same key repeatedly.
-    T* findWithKnownHash(const K& key, uint32_t hash) const {
-        if (hash == 0) {
-            // We reserve hash 0 to mark empty.
-            hash = 1;
-        }
-
-        SkASSERT(Hash(key) == hash);
+        uint32_t hash = Hash(key);
         int index = hash & (fCapacity-1);
         for (int n = 0; n < fCapacity; n++) {
             Slot& s = fSlots[index];
@@ -288,12 +278,7 @@ public:
     // If there is key/value entry in the table with this key, return a pointer to the value.
     // If not, return null.
     V* find(const K& key) const {
-        return this->findWithKnownHash(key, HashK()(key));
-    }
-
-    // Like `find`, but avoids repeated hashing when probing for the same key repeatedly.
-    V* findWithKnownHash(const K& key, uint32_t hash) const {
-        if (Pair* p = fTable.findWithKnownHash(key, hash)) {
+        if (Pair* p = fTable.find(key)) {
             return &p->val;
         }
         return nullptr;
@@ -360,11 +345,6 @@ public:
     // If an item equal to this is in the set, return a pointer to it, otherwise null.
     // This pointer remains valid until the next call to add().
     const T* find(const T& item) const { return fTable.find(item); }
-
-    // Like `find`, but avoids repeated hashing when probing for the same key repeatedly.
-    const T* findWithKnownHash(const T& item, uint32_t hash) const {
-        return fTable.findWithKnownHash(item, hash);
-    }
 
     // Remove the item in the set equal to this.
     void remove(const T& item) {

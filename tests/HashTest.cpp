@@ -227,35 +227,6 @@ DEF_TEST(HashFindOrNull, r) {
     REPORTER_ASSERT(r, &seven == table.findOrNull(7));
 }
 
-DEF_TEST(HashFindWithKnownHash, r) {
-    struct Entry {
-        int key = 0;
-        int val = 0;
-    };
-
-    struct HashTraits {
-        static int GetKey(const Entry* e) { return e->key; }
-        static uint32_t Hash(int key) { return ~key; }
-    };
-
-    SkTHashTable<Entry*, int, HashTraits> table;
-
-    REPORTER_ASSERT(r, nullptr == table.findWithKnownHash(7, ~7));
-
-    // Zero is an important test case; SkTHashTable internally reserves it as the tombstone value,
-    // but we don't expect outside hash functions to honor this.
-    Entry zero = { 0, 123 };
-    table.set(&zero);
-
-    // Nonzero hash values should be honored exactly as-is.
-    Entry seven = { 7, 24 };
-    table.set(&seven);
-
-    REPORTER_ASSERT(r, &zero == *table.findWithKnownHash(0, ~0));
-    REPORTER_ASSERT(r, &seven == *table.findWithKnownHash(7, ~7));
-    REPORTER_ASSERT(r, nullptr == table.findWithKnownHash(42, ~42));
-}
-
 DEF_TEST(HashTableGrowsAndShrinks, r) {
     SkTHashSet<int> s;
     auto check_count_cap = [&](int count, int cap) {
