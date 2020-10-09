@@ -94,6 +94,30 @@
       },
       "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f8e4292_f04d8b8a",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T16:06:39Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m sure that would work too if you don\u0027t think finding a key with a known hash is going to be commonly useful enough to be in the main HashMap class.",
+      "parentUuid": "109ddd80_a0f0ba8c",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 65
+      },
+      "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
