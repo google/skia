@@ -119,14 +119,9 @@ public:
     bool fOldCanInline;
 };
 
-IRGenerator::IRGenerator(const Context* context, Inliner* inliner,
-                         std::shared_ptr<SymbolTable> symbolTable, ErrorReporter& errorReporter)
+IRGenerator::IRGenerator(const Context* context, Inliner* inliner, ErrorReporter& errorReporter)
         : fContext(*context)
         , fInliner(inliner)
-        , fCurrentFunction(nullptr)
-        , fSymbolTable(symbolTable)
-        , fLoopLevel(0)
-        , fSwitchLevel(0)
         , fErrors(errorReporter)
         , fModifiers(new ModifiersPool()) {
     SkASSERT(fInliner);
@@ -142,8 +137,7 @@ void IRGenerator::popSymbolTable() {
 
 static void fill_caps(const SkSL::ShaderCapsClass& caps,
                       std::unordered_map<String, Program::Settings::Value>* capsMap) {
-#define CAP(name) \
-    capsMap->insert(std::make_pair(String(#name), Program::Settings::Value(caps.name())))
+#define CAP(name) capsMap->insert({String(#name), Program::Settings::Value(caps.name())})
     CAP(fbFetchSupport);
     CAP(fbFetchNeedsCustomOutput);
     CAP(flatInterpolationSupport);
@@ -164,35 +158,6 @@ static void fill_caps(const SkSL::ShaderCapsClass& caps,
 #undef CAP
 }
 
-void IRGenerator::start(const Program::Settings* settings,
-                        const ParsedModule& base,
-                        bool isBuiltinCode) {
-    fSettings = settings;
-    fSymbolTable = base.fSymbols;
-    fIntrinsics = base.fIntrinsics.get();
-    fIsBuiltinCode = isBuiltinCode;
-    fCapsMap.clear();
-    if (settings->fCaps) {
-        fill_caps(*settings->fCaps, &fCapsMap);
-    } else {
-        fCapsMap.insert(std::make_pair(String("integerSupport"),
-                                       Program::Settings::Value(true)));
-    }
-    this->pushSymbolTable();
-    fInvocations = -1;
-    fInputs.reset();
-    fSkPerVertex = nullptr;
-    fRTAdjust = nullptr;
-    fRTAdjustInterfaceBlock = nullptr;
-    if (fIntrinsics) {
-        fIntrinsics->resetAlreadyIncluded();
-        if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
-            SkASSERT(perVertexDecl->is<InterfaceBlock>());
-            fSkPerVertex = perVertexDecl->as<InterfaceBlock>().fVariable;
-        }
-    }
-}
-
 std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragment name) {
     if (fKind != Program::kFragment_Kind &&
         fKind != Program::kVertex_Kind &&
@@ -202,13 +167,6 @@ std::unique_ptr<Extension> IRGenerator::convertExtension(int offset, StringFragm
     }
 
     return std::make_unique<Extension>(offset, name);
-}
-
-void IRGenerator::finish() {
-    this->popSymbolTable();
-    fSettings = nullptr;
-    // releaseModifiers should have been called before now
-    SkASSERT(fModifiers->empty());
 }
 
 std::unique_ptr<ModifiersPool> IRGenerator::releaseModifiers() {
@@ -827,17 +785,23 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
 }
 
 std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
+    const Variable* skPerVertex = nullptr;
+    if (const ProgramElement* perVertexDecl = fIntrinsics->find(Compiler::PERVERTEX_NAME)) {
+        SkASSERT(perVertexDecl->is<InterfaceBlock>());
+        skPerVertex = perVertexDecl->as<InterfaceBlock>().fVariable;
+    }
+
     // sk_Position = float4(sk_Position.xy * rtAdjust.xz + sk_Position.ww * rtAdjust.yw,
     //                      0,
     //                      sk_Position.w);
-    SkASSERT(fSkPerVertex && fRTAdjust);
+    SkASSERT(skPerVertex && fRTAdjust);
     #define REF(var) std::unique_ptr<Expression>(\
                                   new VariableReference(-1, var, VariableReference::RefKind::kRead))
     #define WREF(var) std::unique_ptr<Expression>(\
                                  new VariableReference(-1, var, VariableReference::RefKind::kWrite))
     #define FIELD(var, idx) std::unique_ptr<Expression>(\
                    new FieldAccess(REF(var), idx, FieldAccess::OwnerKind::kAnonymousInterfaceBlock))
-    #define POS std::unique_ptr<Expression>(new FieldAccess(WREF(fSkPerVertex), 0, \
+    #define POS std::unique_ptr<Expression>(new FieldAccess(WREF(skPerVertex), 0, \
                                                   FieldAccess::OwnerKind::kAnonymousInterfaceBlock))
     #define ADJUST (fRTAdjustInterfaceBlock ? \
                     FIELD(fRTAdjustInterfaceBlock, fRTAdjustFieldIndex) : \
@@ -2959,16 +2923,51 @@ void IRGenerator::cloneBuiltinVariables() {
                              std::make_move_iterator(remapper.fNewElements.end()));
 }
 
-void IRGenerator::convertProgram(Program::Kind kind,
-                                 const char* text,
-                                 size_t length,
-                                 std::vector<std::unique_ptr<ProgramElement>>* out) {
+IRGenerator::IRBundle IRGenerator::convertProgram(
+        Program::Kind kind,
+        const Program::Settings* settings,
+        const ParsedModule& base,
+        bool isBuiltinCode,
+        const char* text,
+        size_t length,
+        const std::vector<std::unique_ptr<ExternalValue>>* externalValues) {
     fKind = kind;
-    fProgramElements = out;
+    fSettings = settings;
+    fSymbolTable = base.fSymbols;
+    fIntrinsics = base.fIntrinsics.get();
+    if (fIntrinsics) {
+        fIntrinsics->resetAlreadyIncluded();
+    }
+    fIsBuiltinCode = isBuiltinCode;
+
+    std::vector<std::unique_ptr<ProgramElement>> elements;
+    fProgramElements = &elements;
+
+    fInputs.reset();
+    fInvocations = -1;
+    fRTAdjust = nullptr;
+    fRTAdjustInterfaceBlock = nullptr;
+
+    fCapsMap.clear();
+    if (settings->fCaps) {
+        fill_caps(*settings->fCaps, &fCapsMap);
+    } else {
+        fCapsMap.insert({String("integerSupport"), Program::Settings::Value(true)});
+    }
+
+    this->pushSymbolTable();
+
+    if (externalValues) {
+        // Add any external values to the new symbol table, so they're only visible to this Program
+        for (const auto& ev : *externalValues) {
+            fSymbolTable->addWithoutOwnership(ev.get());
+        }
+    }
+
     Parser parser(text, length, *fSymbolTable, fErrors);
     fFile = parser.file();
     if (fErrors.errorCount()) {
-        return;
+        return {};
     }
     SkASSERT(fFile);
     for (const auto& decl : fFile->root()) {
@@ -3049,7 +3048,13 @@ void IRGenerator::convertProgram(Program::Kind kind,
     for (const auto& pe : *fProgramElements) {
         FindIllegalExpressions{this}.visitProgramElement(*pe);
     }
-}
 
+    IRBundle result = {std::move(elements), this->releaseModifiers(), fSymbolTable, fInputs};
+
+    this->popSymbolTable();
+    fSettings = nullptr;
+
+    return result;
+}
 
 }  // namespace SkSL
