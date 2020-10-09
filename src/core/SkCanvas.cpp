@@ -914,7 +914,7 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
         if (special) {
             // The image is drawn at 1-1 scale with integer translation, so no filtering is needed.
             SkPaint p;
-            dst->drawSpecial(special.get(), SkMatrix::I(), p);
+            dst->drawSpecial(special.get(), 0, 0, p);
         }
         return;
     }
@@ -1038,11 +1038,20 @@ void SkCanvas::DrawDeviceWithFilter(SkBaseDevice* src, const SkImageFilter* filt
 
         // Manually setting the device's CTM requires accounting for the device's origin.
         // TODO (michaelludwig) - This could be simpler if the dst device had its origin configured
-        // before filtering the backdrop device and we use skif::Mapping instead.
+        // before filtering the backdrop device, and if SkAutoDeviceTransformRestore had a way to accept
+        // a global CTM instead of a device CTM.
         SkMatrix dstCTM = toRoot;
         dstCTM.postTranslate(-dstOrigin.x(), -dstOrigin.y());
-        dstCTM.preTranslate(offset.fX, offset.fY);
-        dst->drawSpecial(special.get(), dstCTM,  p);
+        SkAutoDeviceTransformRestore adr(dst, dstCTM);
+
+        // And because devices don't have a special-image draw function that supports arbitrary
+        // matrices, we are abusing the asImage() functionality here...
+        SkRect specialSrc = SkRect::Make(special->subset());
+        auto looseImage = special->asImage();
+        dst->drawImageRect(
+                looseImage.get(), &specialSrc,
+                SkRect::MakeXYWH(offset.x(), offset.y(), special->width(), special->height()),
+                p, kStrict_SrcRectConstraint);
     }
 }
 
@@ -1267,9 +1276,9 @@ void SkCanvas::internalRestore() {
     if (backImage) {
         SkPaint paint;
         paint.setBlendMode(SkBlendMode::kDstOver);
-        this->getTopDevice()->drawSpecial(backImage->fImage.get(),
-                                          SkMatrix::Translate(backImage->fLoc.x(),
-                                                              backImage->fLoc.y()), paint);
+        const int x = backImage->fLoc.x();
+        const int y = backImage->fLoc.y();
+        this->getTopDevice()->drawSpecial(backImage->fImage.get(), x, y, paint);
     }
 
     /*  Time to draw the layer's offscreen. We can't call the public drawSprite,
@@ -1404,16 +1413,28 @@ void SkCanvas::internalDrawDevice(SkBaseDevice* srcDev, const SkPaint* paint) {
         check_drawdevice_colorspaces(dstDev->imageInfo().colorSpace(),
                                      srcDev->imageInfo().colorSpace());
 
-        SkTCopyOnFirstWrite<SkPaint> noFilterPaint(draw.paint());
-        SkImageFilter* filter = draw.paint().getImageFilter();
+        SkTCopyOnFirstWrite<SkPaint> noFilterPaint(*paint);
+        SkImageFilter* filter = paint->getImageFilter();
         if (filter) {
+            // Check if the image filter was just a color filter (this is the same optimization
+            // we apply in AutoLayerForImageFilter but handles explicitly saved layers).
+            sk_sp<SkColorFilter> cf = image_to_color_filter(*paint);
+            if (cf) {
+                noFilterPaint.writable()->setColorFilter(std::move(cf));
+                filter = nullptr;
+            }
+
             noFilterPaint.writable()->setImageFilter(nullptr);
         }
 
+        SkASSERT(!noFilterPaint->getImageFilter());
         if (!filter) {
             // Can draw the src device's buffer w/o any extra image filter evaluation
             // (although this draw may include color filter processing extracted from the IF DAG).
-            dstDev->drawDevice(srcDev, *noFilterPaint);
+            // TODO (michaelludwig) - Once drawSpecial can take a matrix, drawDevice should take
+            // no extra arguments and internally just use the relative transform from src to dst.
+            SkIPoint pos = srcDev->getOrigin() - dstDev->getOrigin();
+            dstDev->drawDevice(srcDev, pos.x(), pos.y(), *noFilterPaint);
         } else {
             // Use the whole device buffer, presumably it was sized appropriately to match the
             // desired output size of the destination when the layer was first saved.

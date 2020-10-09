@@ -781,11 +781,23 @@ sk_sp<SkSpecialImage> SkGpuDevice::snapSpecial(const SkIRect& subset, bool force
                                                &this->surfaceProps());
 }
 
-void SkGpuDevice::drawDevice(SkBaseDevice* device, const SkPaint& paint) {
+void SkGpuDevice::drawDevice(SkBaseDevice* device,
+                             int left, int top, const SkPaint& paint) {
+    SkASSERT(!paint.getImageFilter());
+    SkASSERT(!paint.getMaskFilter());
+
     ASSERT_SINGLE_OWNER
     // clear of the source device must occur before CHECK_SHOULD_DRAW
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDevice", fContext.get());
-    this->INHERITED::drawDevice(device, paint);
+
+    // drawDevice is defined to be in device coords.
+    SkGpuDevice* dev = static_cast<SkGpuDevice*>(device);
+    sk_sp<SkSpecialImage> srcImg(dev->snapSpecial(SkIRect::MakeWH(dev->width(), dev->height())));
+    if (!srcImg) {
+        return;
+    }
+
+    this->drawSpecial(srcImg.get(), left, top, paint);
 }
 
 void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
