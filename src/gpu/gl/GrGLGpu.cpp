@@ -801,27 +801,6 @@ sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
                                          backendRT.stencilBits());
 }
 
-sk_sp<GrRenderTarget> GrGLGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                  int sampleCnt) {
-    GrGLTexture::Desc desc;
-    // We do not check whether texture rectangle is supported by Skia - if the caller provided us
-    // with a texture rectangle,we assume the necessary support exists.
-    if (!check_backend_texture(tex, this->glCaps(), &desc, true)) {
-        return nullptr;
-    }
-
-    if (!this->glCaps().isFormatRenderable(desc.fFormat, sampleCnt)) {
-        return nullptr;
-    }
-
-    const int sampleCount = this->glCaps().getRenderTargetSampleCount(sampleCnt, desc.fFormat);
-    GrGLRenderTarget::IDs rtIDs;
-    if (!this->createRenderTargetObjects(desc, sampleCount, &rtIDs)) {
-        return nullptr;
-    }
-    return GrGLRenderTarget::MakeWrapped(this, desc.fSize, desc.fFormat, sampleCount, rtIDs, 0);
-}
-
 static bool check_write_and_transfer_input(GrGLTexture* glTex) {
     if (!glTex) {
         return false;

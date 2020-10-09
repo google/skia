@@ -1393,43 +1393,6 @@ sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendRenderTarget(const GrBackendRenderTa
     return std::move(tgt);
 }
 
-sk_sp<GrRenderTarget> GrVkGpu::onWrapBackendTextureAsRenderTarget(const GrBackendTexture& tex,
-                                                                  int sampleCnt) {
-    GrVkImageInfo imageInfo;
-    if (!tex.getVkImageInfo(&imageInfo)) {
-        return nullptr;
-    }
-    if (!check_image_info(this->vkCaps(), imageInfo, false, this->queueIndex())) {
-        return nullptr;
-    }
-    // See comment below about intermediate MSAA buffer.
-    if (imageInfo.fSampleCount != 1) {
-        return nullptr;
-    }
-
-    // If sampleCnt is > 1 we will create an intermediate MSAA VkImage and then resolve into
-    // the wrapped VkImage.
-    bool resolveOnly = sampleCnt > 1;
-    if (!check_rt_image_info(this->vkCaps(), imageInfo, resolveOnly)) {
-        return nullptr;
-    }
-
-    if (tex.isProtected() && (fProtectedContext == GrProtected::kNo)) {
-        return nullptr;
-    }
-
-    sampleCnt = this->vkCaps().getRenderTargetSampleCount(sampleCnt, imageInfo.fFormat);
-    if (!sampleCnt) {
-        return nullptr;
-    }
-
-    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState = tex.getMutableState();
-    SkASSERT(mutableState);
-
-    return GrVkRenderTarget::MakeWrappedRenderTarget(this, tex.dimensions(), sampleCnt, imageInfo,
-                                                     std::move(mutableState));
-}
-
 sk_sp<GrRenderTarget> GrVkGpu::onWrapVulkanSecondaryCBAsRenderTarget(
         const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
     int maxSize = this->caps()->maxTextureSize();

@@ -337,28 +337,6 @@ sk_sp<GrRenderTarget> GrGpu::wrapBackendRenderTarget(const GrBackendRenderTarget
     return rt;
 }
 
-sk_sp<GrRenderTarget> GrGpu::wrapBackendTextureAsRenderTarget(const GrBackendTexture& backendTex,
-                                                              int sampleCnt) {
-    this->handleDirtyContext();
-
-    const GrCaps* caps = this->caps();
-
-    int maxSize = caps->maxTextureSize();
-    if (backendTex.width() > maxSize || backendTex.height() > maxSize) {
-        return nullptr;
-    }
-
-    if (!caps->isFormatRenderable(backendTex.getBackendFormat(), sampleCnt)) {
-        return nullptr;
-    }
-
-    auto rt = this->onWrapBackendTextureAsRenderTarget(backendTex, sampleCnt);
-    if (rt && sampleCnt > 1 && !this->caps()->msaaResolvesAutomatically()) {
-        rt->setRequiresManualMSAAResolve();
-    }
-    return rt;
-}
-
 sk_sp<GrRenderTarget> GrGpu::wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo& imageInfo,
                                                                  const GrVkDrawableInfo& vkInfo) {
     return this->onWrapVulkanSecondaryCBAsRenderTarget(imageInfo, vkInfo);

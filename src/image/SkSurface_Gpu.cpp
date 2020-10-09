@@ -641,42 +641,6 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrRecordingContext* cont
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
-#if GR_TEST_UTILS
-sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrRecordingContext* context,
-                                                                 const GrBackendTexture& tex,
-                                                                 GrSurfaceOrigin origin,
-                                                                 int sampleCnt,
-                                                                 SkColorType colorType,
-                                                                 sk_sp<SkColorSpace> colorSpace,
-                                                                 const SkSurfaceProps* props) {
-    if (!context) {
-        return nullptr;
-    }
-
-    sampleCnt = std::max(1, sampleCnt);
-    GrColorType grColorType = SkColorTypeAndFormatToGrColorType(context->priv().caps(), colorType,
-                                                                tex.getBackendFormat());
-    if (grColorType == GrColorType::kUnknown) {
-        return nullptr;
-    }
-    if (!validate_backend_texture(context->priv().caps(), tex, sampleCnt, grColorType, false)) {
-        return nullptr;
-    }
-
-    auto rtc = GrRenderTargetContext::MakeFromBackendTextureAsRenderTarget(
-            context, grColorType, std::move(colorSpace), tex, sampleCnt, origin, props);
-    if (!rtc) {
-        return nullptr;
-    }
-
-    auto device = SkGpuDevice::Make(context, std::move(rtc), SkGpuDevice::kUninit_InitContents);
-    if (!device) {
-        return nullptr;
-    }
-    return sk_make_sp<SkSurface_Gpu>(std::move(device));
-}
-#endif
-
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrDirectContext* dContext,
                                                     AHardwareBuffer* hardwareBuffer,

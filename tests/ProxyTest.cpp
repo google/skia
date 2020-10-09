@@ -263,27 +263,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             }
 #endif
 
-            // Tests wrapBackendRenderTarget with a GrBackendTexture
-            {
-                GrBackendTexture backendTex;
-                CreateBackendTexture(direct, &backendTex, kWidthHeight, kWidthHeight, colorType,
-                                     SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
-                                     GrProtected::kNo);
-                sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTextureAsRenderTarget(
-                        backendTex, supportedNumSamples);
-                if (!sProxy) {
-                    direct->deleteBackendTexture(backendTex);
-                    continue;  // This can fail on Mesa
-                }
-
-                check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
-                check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
-                                   supportedNumSamples, SkBackingFit::kExact,
-                                   caps.maxWindowRectangles());
-
-                direct->deleteBackendTexture(backendTex);
-            }
-
             // Tests wrapBackendTexture that is only renderable
             {
                 GrBackendTexture backendTex;

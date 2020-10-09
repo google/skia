@@ -137,11 +137,6 @@ public:
     sk_sp<GrSurfaceProxy> wrapBackendRenderTarget(const GrBackendRenderTarget&,
                                                   sk_sp<GrRefCntedCallback> releaseHelper);
 
-    /*
-     * Create a render target proxy that wraps a backend texture
-     */
-    sk_sp<GrSurfaceProxy> wrapBackendTextureAsRenderTarget(const GrBackendTexture&, int sampleCnt);
-
     sk_sp<GrRenderTargetProxy> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                    const GrVkDrawableInfo&);
 

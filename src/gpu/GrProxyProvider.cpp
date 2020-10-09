@@ -630,33 +630,6 @@ sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendRenderTarget(
     return sk_sp<GrRenderTargetProxy>(new GrRenderTargetProxy(std::move(rt), UseAllocator::kNo));
 }
 
-sk_sp<GrSurfaceProxy> GrProxyProvider::wrapBackendTextureAsRenderTarget(
-        const GrBackendTexture& backendTex, int sampleCnt) {
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    // This is only supported on a direct GrContext.
-    auto direct = fImageContext->asDirectContext();
-    if (!direct) {
-        return nullptr;
-    }
-
-    GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
-
-    sk_sp<GrRenderTarget> rt =
-            resourceProvider->wrapBackendTextureAsRenderTarget(backendTex, sampleCnt);
-    if (!rt) {
-        return nullptr;
-    }
-    SkASSERT(!rt->asTexture());  // A GrRenderTarget that's not textureable
-    SkASSERT(!rt->getUniqueKey().isValid());
-    // This proxy should be unbudgeted because we're just wrapping an external resource
-    SkASSERT(GrBudgetedType::kBudgeted != rt->resourcePriv().budgetedType());
-
-    return sk_sp<GrSurfaceProxy>(new GrRenderTargetProxy(std::move(rt), UseAllocator::kNo));
-}
-
 sk_sp<GrRenderTargetProxy> GrProxyProvider::wrapVulkanSecondaryCBAsRenderTarget(
         const SkImageInfo& imageInfo, const GrVkDrawableInfo& vkInfo) {
     if (this->isAbandoned()) {

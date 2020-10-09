@@ -782,31 +782,6 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendRenderTarget(const GrBackendRenderT
                                                       backendRT.sampleCnt(), mtlTexture);
 }
 
-sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
-        const GrBackendTexture& backendTex, int sampleCnt) {
-    id<MTLTexture> mtlTexture = get_texture_from_backend(backendTex);
-    if (!mtlTexture) {
-        return nullptr;
-    }
-
-    MTLPixelFormat format = mtlTexture.pixelFormat;
-    if (!this->mtlCaps().isFormatRenderable(format, sampleCnt)) {
-        return nullptr;
-    }
-
-    if (@available(macOS 10.11, iOS 9.0, *)) {
-        SkASSERT(MTLTextureUsageRenderTarget & mtlTexture.usage);
-    }
-
-    sampleCnt = this->mtlCaps().getRenderTargetSampleCount(sampleCnt, format);
-    if (!sampleCnt) {
-        return nullptr;
-    }
-
-    return GrMtlRenderTarget::MakeWrappedRenderTarget(this, backendTex.dimensions(), sampleCnt,
-                                                      mtlTexture);
-}
-
 bool GrMtlGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     GrMtlTexture* grMtlTexture = static_cast<GrMtlTexture*>(texture);
     id<MTLTexture> mtlTexture = grMtlTexture->mtlTexture();
