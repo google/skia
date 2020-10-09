@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e27f7a9_636b6dcc",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "This is unused. I think you meant to check it in the else if condition on line 43? (And perhaps it\u0027s worth a test?)",
+      "range": {
+        "startLine": 12,
+        "startChar": 57,
+        "endLine": 12,
+        "endChar": 64
+      },
+      "revId": "2397475517a8b9203c95dfbaba935d97d0a1c681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2daf5cb5_0ce24b25",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "As I stated in my earlier follow-up comment, it looks like Chromium keeps going after finding a subifd. My guess would be that the EXIF expects only one orientation tag to be used. In that case, this is the right behavior (though I might drop the temporary variable and write this as\n\n    if (parse_encoded_origin(...)) {\n        return true;\n    }\n\n). This also matches the existing behavior, so it\u0027s likely fine. But it\u0027d be nice to determine for certain whether we should respect the first or the last.",
+      "range": {
+        "startLine": 48,
+        "startChar": 16,
+        "endLine": 49,
+        "endChar": 32
+      },
+      "revId": "2397475517a8b9203c95dfbaba935d97d0a1c681",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

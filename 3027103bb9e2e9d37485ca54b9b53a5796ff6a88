@@ -36,6 +36,24 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20457dcf_238d7f23",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f86324ee_f8e53cfa",
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3b64dce_ea28d191",
@@ -49,6 +67,30 @@
       "writtenOn": "2020-10-07T16:27:03Z",
       "side": 1,
       "message": "It looks like this is only intended to be used in this file? Please mark it static, and rename to something like\n\n  static bool parse_encoded_origin",
+      "range": {
+        "startLine": 11,
+        "startChar": 5,
+        "endLine": 11,
+        "endChar": 25
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd35097b_d7bd27fd",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3b64dce_ea28d191",
       "range": {
         "startLine": 11,
         "startChar": 5,
@@ -82,6 +124,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d382eeba_5ba1556e",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f772f8f_a6016e8d",
+      "range": {
+        "startLine": 25,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 23
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d040c4e6_34fe24d9",
@@ -95,6 +161,30 @@
       "writtenOn": "2020-10-07T16:27:03Z",
       "side": 1,
       "message": "nit: since we always want count to be 1, maybe this is clearer as:\n\n  if (1 \u003d\u003d count) {\n    if (kOriginTag \u003d\u003d tag \u0026\u0026 kOriginType \u003d\u003d type) {\n      ...\n    } else if (kSubIFDOffsetTag \u003d\u003d tag \u0026\u0026 kSubIFDOffsetType \u003d\u003d type) {\n      ...\n    }\n  }\n\n? I don\u0027t have a strong preference, though.",
+      "range": {
+        "startLine": 40,
+        "startChar": 56,
+        "endLine": 40,
+        "endChar": 66
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07f8ef12_d165dbaa",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d040c4e6_34fe24d9",
       "range": {
         "startLine": 40,
         "startChar": 56,
@@ -175,6 +265,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "131136a9_c2ff2919",
+        "filename": "src/codec/SkParseEncodedOrigin.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9205abb_25721fac",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 51
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d5dc7020_14fd4bc9",
@@ -216,6 +330,54 @@
         "startChar": 82,
         "endLine": 31,
         "endChar": 117
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c13ada26_b4afdeca",
+        "filename": "tests/ExifTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e885c95c_7cb81725",
+      "range": {
+        "startLine": 31,
+        "startChar": 82,
+        "endLine": 31,
+        "endChar": 117
+      },
+      "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3659cf70_8b792129",
+        "filename": "tests/ExifTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2020-10-09T17:42:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5dc7020_14fd4bc9",
+      "range": {
+        "startLine": 31,
+        "startChar": 120,
+        "endLine": 31,
+        "endChar": 121
       },
       "revId": "3027103bb9e2e9d37485ca54b9b53a5796ff6a88",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
