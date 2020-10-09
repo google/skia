@@ -249,17 +249,6 @@ public:
                                                 RenderTargetReleaseProc releaseProc = nullptr,
                                                 ReleaseContext releaseContext = nullptr);
 
-#if GR_TEST_UTILS
-    // TODO: Remove this.
-    static sk_sp<SkSurface> MakeFromBackendTextureAsRenderTarget(GrRecordingContext* context,
-                                                            const GrBackendTexture& backendTexture,
-                                                            GrSurfaceOrigin origin,
-                                                            int sampleCnt,
-                                                            SkColorType colorType,
-                                                            sk_sp<SkColorSpace> colorSpace,
-                                                            const SkSurfaceProps* surfaceProps);
-#endif
-
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
     /** Private.
         Creates SkSurface from Android hardware buffer.

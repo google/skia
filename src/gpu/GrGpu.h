@@ -175,11 +175,6 @@ public:
     sk_sp<GrRenderTarget> wrapBackendRenderTarget(const GrBackendRenderTarget&);
 
     /**
-     * Implements GrResourceProvider::wrapBackendTextureAsRenderTarget
-     */
-    sk_sp<GrRenderTarget> wrapBackendTextureAsRenderTarget(const GrBackendTexture&, int sampleCnt);
-
-    /**
      * Implements GrResourceProvider::wrapVulkanSecondaryCBAsRenderTarget
      */
     sk_sp<GrRenderTarget> wrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
@@ -806,8 +801,6 @@ private:
                                                             GrWrapOwnership,
                                                             GrWrapCacheable) = 0;
     virtual sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) = 0;
-    virtual sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                                     int sampleCnt) = 0;
     virtual sk_sp<GrRenderTarget> onWrapVulkanSecondaryCBAsRenderTarget(const SkImageInfo&,
                                                                         const GrVkDrawableInfo&);
 
