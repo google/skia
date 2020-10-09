@@ -133,6 +133,8 @@ sdk and verified/fixed any build issues that have arisen.
   7. In `$SKIA_ROOT/infra/bots/recipe_modules/build/`, update `canvaskit.py`
      and `pathkit.py` to have `DOCKER_IMAGE` point to the desired tagged Docker
      containers from steps 2 and 5 (which should be the same).
+  8. In `$SKIA_ROOT/infra/bots/task_drivers/compile_wasm_gm_tests.go`, update dockerImage
+     to refer to the desired Docker containers from steps 2 and 5.
   9. In `$SKIA_ROOT/infra/bots/`, run `make train` to re-train the recipes.
   10. Optional: Run something like `git grep 1\\.38\\.` in `$SKIA_ROOT` to see if
      there are any other references that need updating.
