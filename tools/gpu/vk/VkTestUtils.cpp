@@ -118,7 +118,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
             return VK_FALSE;
         }
         // See https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues/2171
-        if (strstr(pMessage, "VUID-vkCmdDraw-None-02686")) {
+        if (strstr(pMessage, "VUID-vkCmdDraw-None-02686") ||
+            strstr(pMessage, "VUID-vkCmdDrawIndexed-None-02686")) {
             return VK_FALSE;
         }
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
