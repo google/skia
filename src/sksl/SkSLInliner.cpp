@@ -503,7 +503,8 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                 auto assignment =
                         std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                                 offset,
-                                clone_with_ref_kind(*resultExpr, VariableReference::kWrite_RefKind),
+                                clone_with_ref_kind(*resultExpr,
+                                                    VariableReference::RefKind::kWrite),
                                 Token::Kind::TK_EQ,
                                 expr(r.expression()),
                                 &resultExpr->type()));
@@ -633,7 +634,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         const Variable* variableSymbol = symbolTableForCall->add(std::make_unique<Variable>(
                                                  /*offset=*/-1, fModifiers->handle(Modifiers()),
                                                  nameFrag, type, caller->isBuiltin(),
-                                                 Variable::kLocal_Storage, initialValue->get()));
+                                                 Variable::Storage::kLocal, initialValue->get()));
 
         // Prepare the variable declaration (taking extra care with `out` params to not clobber any
         // initial value).
@@ -719,7 +720,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         inlinedBody.children().push_back(
                 std::make_unique<ExpressionStatement>(std::make_unique<BinaryExpression>(
                         offset,
-                        clone_with_ref_kind(*arguments[i], VariableReference::kWrite_RefKind),
+                        clone_with_ref_kind(*arguments[i], VariableReference::RefKind::kWrite),
                         Token::Kind::TK_EQ,
                         std::move(varMap[p]),
                         &arguments[i]->type())));
@@ -727,7 +728,8 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 
     if (resultExpr != nullptr) {
         // Return our result variable as our replacement expression.
-        SkASSERT(resultExpr->as<VariableReference>().refKind() == VariableReference::kRead_RefKind);
+        SkASSERT(resultExpr->as<VariableReference>().refKind() ==
+                 VariableReference::RefKind::kRead);
         inlinedCall.fReplacementExpr = std::move(resultExpr);
     } else {
         // It's a void function, so it doesn't actually result in anything, but we have to return

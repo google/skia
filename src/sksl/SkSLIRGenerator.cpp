@@ -296,7 +296,7 @@ std::unique_ptr<Block> IRGenerator::convertBlock(const ASTNode& block) {
 
 std::unique_ptr<Statement> IRGenerator::convertVarDeclarationStatement(const ASTNode& s) {
     SkASSERT(s.fKind == ASTNode::Kind::kVarDeclarations);
-    auto decls = this->convertVarDeclarations(s, Variable::kLocal_Storage);
+    auto decls = this->convertVarDeclarations(s, Variable::Storage::kLocal);
     if (decls.empty()) {
         return nullptr;
     }
@@ -320,7 +320,7 @@ std::vector<std::unique_ptr<Statement>> IRGenerator::convertVarDeclarations(
         return {};
     }
     if (baseType->nonnullable() == *fContext.fFragmentProcessor_Type &&
-        storage != Variable::kGlobal_Storage) {
+        storage != Variable::Storage::kGlobal) {
         fErrors.error(decls.fOffset,
                       "variables of type '" + baseType->displayName() + "' must be global");
     }
@@ -397,7 +397,7 @@ std::vector<std::unique_ptr<Statement>> IRGenerator::convertVarDeclarations(
         }
     }
     int permitted = Modifiers::kConst_Flag;
-    if (storage == Variable::kGlobal_Storage) {
+    if (storage == Variable::Storage::kGlobal) {
         permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag |
                      Modifiers::kFlat_Flag | Modifiers::kVarying_Flag |
                      Modifiers::kNoPerspective_Flag | Modifiers::kPLS_Flag |
@@ -468,9 +468,9 @@ std::vector<std::unique_ptr<Statement>> IRGenerator::convertVarDeclarations(
             var->setInitialValue(value.get());
         }
         Symbol* symbol = (*fSymbolTable)[var->name()];
-        if (symbol && storage == Variable::kGlobal_Storage && var->name() == "sk_FragColor") {
+        if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
             // Already defined, ignore.
-        } else if (symbol && storage == Variable::kGlobal_Storage &&
+        } else if (symbol && storage == Variable::Storage::kGlobal &&
                    symbol->kind() == Symbol::Kind::kVariable &&
                    symbol->as<Variable>().modifiers().fLayout.fBuiltin >= 0) {
             // Already defined, just update the modifiers.
@@ -789,9 +789,9 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                     fContext.fBool_Type.get()));
     std::unique_ptr<Expression> next(new PostfixExpression(
                 std::unique_ptr<Expression>(
-                                      new VariableReference(-1,
-                                                            loopIdx,
-                                                            VariableReference::kReadWrite_RefKind)),
+                                     new VariableReference(-1,
+                                                           loopIdx,
+                                                           VariableReference::RefKind::kReadWrite)),
                 Token::Kind::TK_PLUSPLUS));
     ASTNode endPrimitiveID(&fFile->fNodes, -1, ASTNode::Kind::kIdentifier, "EndPrimitive");
     std::unique_ptr<Expression> endPrimitive = this->convertExpression(endPrimitiveID);
@@ -809,7 +809,7 @@ std::unique_ptr<Block> IRGenerator::applyInvocationIDWorkaround(std::unique_ptr<
                                                      std::vector<std::unique_ptr<Expression>>()))));
     std::unique_ptr<Expression> assignment(new BinaryExpression(-1,
                     std::unique_ptr<Expression>(new VariableReference(-1, loopIdx,
-                                                                VariableReference::kWrite_RefKind)),
+                                                               VariableReference::RefKind::kWrite)),
                     Token::Kind::TK_EQ,
                     std::make_unique<IntLiteral>(fContext, -1, 0),
                     fContext.fInt_Type.get()));
@@ -832,9 +832,9 @@ std::unique_ptr<Statement> IRGenerator::getNormalizeSkPositionCode() {
     //                      sk_Position.w);
     SkASSERT(fSkPerVertex && fRTAdjust);
     #define REF(var) std::unique_ptr<Expression>(\
-                                  new VariableReference(-1, var, VariableReference::kRead_RefKind))
+                                  new VariableReference(-1, var, VariableReference::RefKind::kRead))
     #define WREF(var) std::unique_ptr<Expression>(\
-                                 new VariableReference(-1, var, VariableReference::kWrite_RefKind))
+                                 new VariableReference(-1, var, VariableReference::RefKind::kWrite))
     #define FIELD(var, idx) std::unique_ptr<Expression>(\
                     new FieldAccess(REF(var), idx, FieldAccess::kAnonymousInterfaceBlock_OwnerKind))
     #define POS std::unique_ptr<Expression>(new FieldAccess(WREF(fSkPerVertex), 0, \
@@ -964,7 +964,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         Variable* var = fSymbolTable->takeOwnershipOfSymbol(
                 std::make_unique<Variable>(param.fOffset, fModifiers->handle(pd.fModifiers),
                                            name, type, fIsBuiltinCode,
-                                           Variable::kParameter_Storage));
+                                           Variable::Storage::kParameter));
         parameters.push_back(var);
     }
 
@@ -1137,7 +1137,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     auto iter = intf.begin();
     for (size_t i = 0; i < id.fDeclarationCount; ++i) {
         std::vector<std::unique_ptr<Statement>> decls =
-                this->convertVarDeclarations(*(iter++), Variable::kInterfaceBlock_Storage);
+                this->convertVarDeclarations(*(iter++), Variable::Storage::kInterfaceBlock);
         if (decls.empty()) {
             return nullptr;
         }
@@ -1205,7 +1205,7 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                                        id.fInstanceName.fLength ? id.fInstanceName : id.fTypeName,
                                        type,
                                        fIsBuiltinCode,
-                                       Variable::kGlobal_Storage));
+                                       Variable::Storage::kGlobal));
     if (foundRTAdjust) {
         fRTAdjustInterfaceBlock = var;
     }
@@ -1274,7 +1274,7 @@ void IRGenerator::convertEnum(const ASTNode& e) {
         ++currentValue;
         fSymbolTable->add(std::make_unique<Variable>(e.fOffset, fModifiers->handle(modifiers),
                                                      child.getString(), type, fIsBuiltinCode,
-                                                     Variable::kGlobal_Storage, value.get()));
+                                                     Variable::Storage::kGlobal, value.get()));
         fSymbolTable->takeOwnershipOfIRNode(std::move(value));
     }
     // Now we orphanize the Enum's symbol table, so that future lookups in it are strict
@@ -1431,12 +1431,12 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
             // default to kRead_RefKind; this will be corrected later if the variable is written to
             return std::make_unique<VariableReference>(identifier.fOffset,
                                                        var,
-                                                       VariableReference::kRead_RefKind);
+                                                       VariableReference::RefKind::kRead);
         }
         case Symbol::Kind::kField: {
             const Field* field = &result->as<Field>();
             auto base = std::make_unique<VariableReference>(identifier.fOffset, &field->owner(),
-                                                            VariableReference::kRead_RefKind);
+                                                            VariableReference::RefKind::kRead);
             return std::make_unique<FieldAccess>(std::move(base),
                                                  field->fieldIndex(),
                                                  FieldAccess::kAnonymousInterfaceBlock_OwnerKind);
@@ -1967,8 +1967,8 @@ std::unique_ptr<Expression> IRGenerator::convertBinaryExpression(const ASTNode& 
     }
     if (Compiler::IsAssignment(op)) {
         if (!this->setRefKind(*left, op != Token::Kind::TK_EQ
-                                                             ? VariableReference::kReadWrite_RefKind
-                                                             : VariableReference::kWrite_RefKind)) {
+                                                            ? VariableReference::RefKind::kReadWrite
+                                                            : VariableReference::RefKind::kWrite)) {
             return nullptr;
         }
     }
@@ -2122,8 +2122,8 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         const Modifiers& paramModifiers = function.parameters()[i]->modifiers();
         if (paramModifiers.fFlags & Modifiers::kOut_Flag) {
             if (!this->setRefKind(*arguments[i], paramModifiers.fFlags & Modifiers::kIn_Flag
-                                                         ? VariableReference::kReadWrite_RefKind
-                                                         : VariableReference::kPointer_RefKind)) {
+                                                          ? VariableReference::RefKind::kReadWrite
+                                                          : VariableReference::RefKind::kPointer)) {
                 return nullptr;
             }
         }
@@ -2407,7 +2407,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
                               "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
-            if (!this->setRefKind(*base, VariableReference::kReadWrite_RefKind)) {
+            if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
                 return nullptr;
             }
             break;
@@ -2418,7 +2418,7 @@ std::unique_ptr<Expression> IRGenerator::convertPrefixExpression(const ASTNode& 
                               "' cannot operate on '" + baseType.displayName() + "'");
                 return nullptr;
             }
-            if (!this->setRefKind(*base, VariableReference::kReadWrite_RefKind)) {
+            if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
                 return nullptr;
             }
             break;
@@ -2832,7 +2832,7 @@ std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode&
                       "' cannot operate on '" + baseType.displayName() + "'");
         return nullptr;
     }
-    if (!this->setRefKind(*base, VariableReference::kReadWrite_RefKind)) {
+    if (!this->setRefKind(*base, VariableReference::RefKind::kReadWrite)) {
         return nullptr;
     }
     return std::make_unique<PostfixExpression>(std::move(base), expression.getToken().fKind);
@@ -2975,7 +2975,7 @@ void IRGenerator::convertProgram(Program::Kind kind,
         switch (decl.fKind) {
             case ASTNode::Kind::kVarDeclarations: {
                 std::vector<std::unique_ptr<Statement>> decls =
-                        this->convertVarDeclarations(decl, Variable::kGlobal_Storage);
+                        this->convertVarDeclarations(decl, Variable::Storage::kGlobal);
                 for (auto& varDecl : decls) {
                     fProgramElements->push_back(std::make_unique<GlobalVarDeclaration>(
                             decl.fOffset, std::move(varDecl)));

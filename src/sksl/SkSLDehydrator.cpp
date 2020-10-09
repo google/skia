@@ -220,7 +220,7 @@ void Dehydrator::write(const Symbol& s) {
             this->write(v.modifiers());
             this->write(v.name());
             this->write(v.type());
-            this->writeU8(v.storage());
+            this->writeU8((int8_t) v.storage());
             break;
         }
         case Symbol::Kind::kField: {
@@ -379,7 +379,7 @@ void Dehydrator::write(const Expression* e) {
                 const VariableReference& v = e->as<VariableReference>();
                 this->writeCommand(Rehydrator::kVariableReference_Command);
                 this->writeId(v.variable());
-                this->writeU8(v.refKind());
+                this->writeU8((int8_t) v.refKind());
                 break;
             }
             case Expression::Kind::kFunctionReference:

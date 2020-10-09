@@ -29,6 +29,8 @@ class SymbolTable;
 class Type;
 class Variable;
 class VariableReference;
+enum class VariableRefKind : int8_t;
+enum class VariableStorage : int8_t;
 
 /**
  * Represents a node in the intermediate representation (IR) tree. The IR is a fully-resolved
@@ -165,13 +167,13 @@ protected:
         // Tracks how many sites write to the variable. If this is zero, the variable is dead and
         // may be eliminated.
         mutable int16_t fWriteCount;
-        /*Variable::Storage*/int8_t fStorage;
+        VariableStorage fStorage;
         bool fBuiltin;
     };
 
     struct VariableReferenceData {
         const Variable* fVariable;
-        /*VariableReference::RefKind*/int8_t fRefKind;
+        VariableRefKind fRefKind;
     };
 
     struct NodeData {

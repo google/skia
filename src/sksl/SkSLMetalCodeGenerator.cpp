@@ -702,7 +702,7 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         default:
             const Variable& var = *ref.variable();
-            if (var.storage() == Variable::kGlobal_Storage) {
+            if (var.storage() == Variable::Storage::kGlobal) {
                 if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
                     this->write("_in.");
                 } else if (var.modifiers().fFlags & Modifiers::kOut_Flag) {
@@ -839,7 +839,7 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write("(");
     }
     if (Compiler::IsAssignment(op) && left.is<VariableReference>() &&
-        left.as<VariableReference>().variable()->storage() == Variable::kParameter_Storage &&
+        left.as<VariableReference>().variable()->storage() == Variable::Storage::kParameter &&
         left.as<VariableReference>().variable()->modifiers().fFlags & Modifiers::kOut_Flag) {
         // writing to an out parameter. Since we have to turn those into pointers, we have to
         // dereference it here.
@@ -1723,7 +1723,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             Requirements result = kNo_Requirements;
             if (modifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                 result = kGlobals_Requirement | kFragCoord_Requirement;
-            } else if (Variable::kGlobal_Storage == v.variable()->storage()) {
+            } else if (Variable::Storage::kGlobal == v.variable()->storage()) {
                 if (modifiers.fFlags & Modifiers::kIn_Flag) {
                     result = kInputs_Requirement;
                 } else if (modifiers.fFlags & Modifiers::kOut_Flag) {

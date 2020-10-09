@@ -35,8 +35,8 @@ static inline bool check_ref(const Expression& expr) {
         }
         case Expression::Kind::kVariableReference: {
             const VariableReference& ref = expr.as<VariableReference>();
-            return ref.refKind() == VariableReference::kWrite_RefKind ||
-                   ref.refKind() == VariableReference::kReadWrite_RefKind;
+            return ref.refKind() == VariableReference::RefKind::kWrite ||
+                   ref.refKind() == VariableReference::RefKind::kReadWrite;
         }
         default:
             return false;

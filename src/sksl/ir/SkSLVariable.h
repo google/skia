@@ -18,6 +18,13 @@ namespace SkSL {
 
 class Expression;
 
+enum class VariableStorage : int8_t {
+    kGlobal,
+    kInterfaceBlock,
+    kLocal,
+    kParameter
+};
+
 /**
  * Represents a variable, whether local, global, or a function parameter. This represents the
  * variable itself (the storage location), which is shared between all VariableReferences which
@@ -25,20 +32,15 @@ class Expression;
  */
 class Variable : public Symbol {
 public:
-    static constexpr Kind kSymbolKind = Kind::kVariable;
+    using Storage = VariableStorage;
 
-    enum Storage {
-        kGlobal_Storage,
-        kInterfaceBlock_Storage,
-        kLocal_Storage,
-        kParameter_Storage
-    };
+    static constexpr Kind kSymbolKind = Kind::kVariable;
 
     Variable(int offset, ModifiersPool::Handle modifiers, StringFragment name, const Type* type,
              bool builtin, Storage storage, const Expression* initialValue = nullptr)
     : INHERITED(offset, VariableData{name, type, initialValue, modifiers, /*readCount=*/0,
                                      /*writeCount=*/(int16_t) (initialValue ? 1 : 0),
-                                     (int8_t) storage, builtin}) {}
+                                     storage, builtin}) {}
 
     ~Variable() override {
         // can't destroy a variable while there are remaining references to it
@@ -102,7 +104,7 @@ public:
     bool dead() const {
         const VariableData& data = this->variableData();
         const Modifiers& modifiers = this->modifiers();
-        if ((data.fStorage != kLocal_Storage && this->variableData().fReadCount) ||
+        if ((data.fStorage != Storage::kLocal && this->variableData().fReadCount) ||
             (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag |
                                  Modifiers::kUniform_Flag | Modifiers::kVarying_Flag))) {
             return false;
@@ -114,19 +116,19 @@ public:
 
 private:
     void referenceCreated(VariableReference::RefKind refKind) const {
-        if (refKind != VariableReference::kRead_RefKind) {
+        if (refKind != VariableReference::RefKind::kRead) {
             ++this->variableData().fWriteCount;
         }
-        if (refKind != VariableReference::kWrite_RefKind) {
+        if (refKind != VariableReference::RefKind::kWrite) {
             ++this->variableData().fReadCount;
         }
     }
 
     void referenceDestroyed(VariableReference::RefKind refKind) const {
-        if (refKind != VariableReference::kRead_RefKind) {
+        if (refKind != VariableReference::RefKind::kRead) {
             --this->variableData().fWriteCount;
         }
-        if (refKind != VariableReference::kWrite_RefKind) {
+        if (refKind != VariableReference::RefKind::kWrite) {
             --this->variableData().fReadCount;
         }
     }

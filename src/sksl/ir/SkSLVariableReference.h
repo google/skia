@@ -15,6 +15,15 @@ namespace SkSL {
 class IRGenerator;
 class Variable;
 
+enum class VariableRefKind : int8_t {
+    kRead,
+    kWrite,
+    kReadWrite,
+    // taking the address of a variable - we consider this a read & write but don't complain if
+    // the variable was not previously assigned
+    kPointer
+};
+
 /**
  * A reference to a variable, through which it can be read or written. In the statement:
  *
@@ -24,18 +33,11 @@ class Variable;
  */
 class VariableReference : public Expression {
 public:
+    using RefKind = VariableRefKind;
+
     static constexpr Kind kExpressionKind = Kind::kVariableReference;
 
-    enum RefKind {
-        kRead_RefKind,
-        kWrite_RefKind,
-        kReadWrite_RefKind,
-        // taking the address of a variable - we consider this a read & write but don't complain if
-        // the variable was not previously assigned
-        kPointer_RefKind
-    };
-
-    VariableReference(int offset, const Variable* variable, RefKind refKind = kRead_RefKind);
+    VariableReference(int offset, const Variable* variable, RefKind refKind = RefKind::kRead);
 
     ~VariableReference() override;
 
