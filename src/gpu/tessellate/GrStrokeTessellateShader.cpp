@@ -81,7 +81,7 @@ private:
         if (tan1 == float2(0)) {
             // [p0, p3, p3, p3] is a reserved pattern that means this patch is a join only.
             P[1] = P[2] = P[3] = P[0];  // Colocate all the curve's points.
-            // This will disable the (colocated) curve sections by making their tangents equal.
+            // This will disable the (co-located) curve sections by making their tangents equal.
             tan1 = tan0;
         }
         if (tan0 == float2(0)) {
@@ -91,107 +91,110 @@ private:
             tan0 = prevJoinTangent;
         }
 
-        // Find the cubic's power basis coefficient matrix "C":
+        // Start by finding the cubic's power basis coefficients. These define the bezier curve as:
         //
-        //                                      |Cx  Cy|
-        //     Cubic(T) = x,y = |T^3 T^2 T 1| * |.   . |
-        //                                      |.   . |
-        //                                      |.   . |
+        //                                    |T^3|
+        //     Cubic(T) = x,y = |A  3B  3C| * |T^2| + P0
+        //                      |.   .   .|   |T  |
         //
-        float2x4 C = float4x4(-1,  3, -3,  1,
-                               3, -6,  3,  0,
-                              -3,  3,  0,  0,
-                               1,  0,  0,  0) * transpose(P);
+        // And the tangent direction (scaled by a uniform 1/3) will be:
+        //
+        //                                                 |T^2|
+        //     Tangent_Direction(T) = dx,dy = |A  2B  C| * |T  |
+        //                                    |.   .  .|   |1  |
+        //
+        float2 C = P[1] - P[0];
+        float2 D = P[2] - P[1];
+        float2 E = P[3] - P[0];
+        float2 B = D - C;
+        float2 A = fma(float2(-3), D, E);
 
-        // Find the curve's inflection function. There are inflections at I==0.
+        // Now find the cubic's inflection function. There are inflections where F' x F'' == 0.
+        // We formulate this as a quadratic equation:  F' x F'' == aT^2 + bT + c == 0.
         // See: https://www.microsoft.com/en-us/research/wp-content/uploads/2005/01/p1000-loop.pdf
-        //
-        //     Inflections are found where:  dot(|T^2 T 1|, I) == 0
-        //
-        float3 I = float3(-3*determinant(float2x2(C)),
-                          -3*determinant(float2x2(C[0].xz, C[1].xz)),
-                            -determinant(float2x2(C[0].yz, C[1].yz)));
-
-        // Formulate a quadratic that finds the infection points.
-        float a=I.x, b=I.y, c=I.z;
+        // NOTE: We only need the roots, so a uniform scale factor does not affect the solution.
+        float a = cross(A, B);
+        float b = cross(A, C);
+        float c = cross(B, C);
         float discr = b*b - 4*a*c;
 
-        float2 midtangent = float2(0);
-        if (discr <= 0) {
-            // The curve does not inflect. Still chop, but at midtangent instead. This guarantees
-            // the curve does not rotate more that 180 degrees.
+        float2x2 innerTangents = float2x2(0);
+        if (float3(a,b,c) == float3(0)) {
+            // The curve is a flat line. Search for turnaround cusp points instead. (These are the
+            // points where the tangent is perpendicular to tan0.)
             //
-            // Start by finding u=tan0, v=-tan1. The midtangent is orthogonal to their bisector.
-            float2 u=normalize(tan0), v=-normalize(tan1);
-
-            if (dot(u,v) < 0) {
-                // u,v are >90 degrees apart. Find the bisector of their normals instead. (After 90
-                // degrees, the normals start cancelling each other out.)
-                u = float2(-u.y, +u.x);
-                v = float2(+v.y, -v.x);
-            }
-
-            float2 bisector = u + v;
-
-            // The midtangent is orthogonal to the bisector. Its T value can be found as:
+            //     dot(tan0, Tangent_Direction(T)) == 0
             //
-            //   dot(midtangent, bisector) == 0:  |3*T^2  2*T  1| * float2x3(C) * bisector == 0
+            //                         |T^2|
+            //     tan0 * |A  2B  C| * |T  | == 0
+            //            |.   .  .|   |1  |
             //
-            //                                                    |3    |
-            // The quadratic formula coefficients are therefore:  |  2  | * float2x3(C) * bisector.
-            //                                                    |    1|
-            float3 coeffs = float2x3(C) * bisector;
-            if (coeffs == float3(0)) {
-                // The control points are exactly collinear and rotate either 0 or 360 degrees:
-                // tangent is perpendicular to the bisector at every parametric point for which a
-                // tangent is defined. Search instead for any locations where the flat curve does a
-                // 180 degree turn.
-                coeffs = float2x3(C) * tan0;
-            }
-            a=3*coeffs.x, b=2*coeffs.y, c=coeffs.z;
-
-            // Every curve has a midtangent. If discr is less than zero it's due to FP error. Don't
-            // let it fall below zero.
+            float3 coeffs = tan0 * float3x2(A,B,C);
+            a = coeffs.x;
+            b = coeffs.y*2;
+            c = coeffs.z;
             discr = max(b*b - 4*a*c, 0);
-
-            midtangent = float2(-bisector.y, bisector.x);
+            innerTangents = float2x2(-tan0, -tan0);
+        } else if (discr <= 0) {
+            // The curve does not inflect. This means it might rotate more than 180 degrees instead.
+            // Craft a quadratic whose roots are the points were rotation == 180 deg and 0. (These
+            // are the points where the tangent is parallel to tan0.)
+            //
+            //      Tangent_Direction(T) x tan0 == 0
+            //      (AT^2 x tan0) + (2BT x tan0) + (C x tan0) == 0
+            //      (A x C)T^2 + (2B x C)T + (C x C) == 0  [[because tan0 == P1 - P0 == C]]
+            //      bT^2 + 2c + 0 == 0  [[because A x C == b, B x C == c]]
+            //
+            // NOTE: When P0 == P1 then C != tan0, C == 0 and these roots will be undefined. But
+            // that's ok because when P0 == P1 the curve cannot rotate more than 180 degrees anyway.
+            a = b;
+            b = c*2;
+            c = 0;
+            discr = b*b;
+            innerTangents[0] = -C;
         }
 
-        // We now have a quadratic formulated to chop the curve at the T values that meet our
-        // tessellation requirements: no inflections, no rotations >180 degrees. Solve for T.
+        // Solve our quadratic equation for the chop points.
         float x = sqrt(discr);
         if (b < 0) {
             x = -x;
         }
         float q = -.5 * (b + x);
-        float2 roots = float2((a != 0) ? q/a : 0,
+        float2 chopT = float2((a != 0) ? q/a : 0,
                               (q != 0) ? c/q : 0);
-        roots = (roots[0] <= roots[1]) ? roots : roots.ts;  // Sort.
 
-        // Decide on two chop points for the curve that are inside 0..1. Start with the roots we
-        // just found, then subdivide uniformly in parametric space if needed.
-        float2 chopT = roots;
-        if (chopT[0] <= kParametricEpsilon) {
-            chopT = (chopT[1] <= kParametricEpsilon) ? float2(2/3.0) : chopT.tt;
-        }  // chopT's are now both > 0.
-        if (chopT[1] >= 1 - kParametricEpsilon) {
-            chopT = (chopT[0] >= 1 - kParametricEpsilon) ? float2(1/3.0) : chopT.ss;
-        }  // Now, 0 < chopT's < 1.
-        if (chopT[0] == chopT[1]) {
-            // The chop points are colocated. Split the larger section in half.
-            if (chopT[0] > .5) {
-                chopT[0] *= .5;
-            } else {
-                chopT[1] = fma(chopT[1], .5, .5);
-            }
+        // Reposition any chop points that fall outside ~0..1 and clear their innerTangent.
+        int numOutside = 0;
+        if (chopT[0] <= kParametricEpsilon || chopT[0] >= 1 - kParametricEpsilon) {
+            innerTangents[0] = float2(0);
+            ++numOutside;
         }
+        if (chopT[1] <= kParametricEpsilon || chopT[1] >= 1 - kParametricEpsilon) {
+            // Swap places with chopT[0]. This ensures chopT[0] is outside when numOutside > 0.
+            chopT = chopT.ts;
+            innerTangents = float2x2(0,0, innerTangents[0]);
+            ++numOutside;
+        }
+        if (numOutside == 2) {
+            chopT[1] = 2/3.0;
+        }
+        if (numOutside >= 1) {
+            chopT[0] = (chopT[1] <= .5) ? chopT[1] * .5 : fma(chopT[1], .5, .5);
+        }
+
+        // Sort the chop points.
+        if (chopT[0] > chopT[1]) {
+            chopT = chopT.ts;
+            innerTangents = float2x2(innerTangents[1], innerTangents[0]);
+        }
+
+        // If the curve is a straight line or point, don't chop it into sections after all.
         if (P[0] == P[1] && P[2] == P[3]) {
-            // The curve is either a flat line or a point. Don't chop it into sections after all.
             chopT = float2(0);
-            midtangent = float2(0);
+            innerTangents = float2x2(tan0, tan0);
         }
 
-        // Chop the curve at T0.
+        // Chop the curve at chopT[0].
         float2 ab = mix(P[0], P[1], chopT[0]);
         float2 bc = mix(P[1], P[2], chopT[0]);
         float2 cd = mix(P[2], P[3], chopT[0]);
@@ -199,7 +202,7 @@ private:
         float2 bcd = mix(bc, cd, chopT[0]);
         float2 abcd = mix(abc, bcd, chopT[0]);
 
-        // Chop the curve at T1.
+        // Chop the curve at chopT[1].
         float2 xy = mix(P[0], P[1], chopT[1]);
         float2 yz = mix(P[1], P[2], chopT[1]);
         float2 zw = mix(P[2], P[3], chopT[1]);
@@ -207,30 +210,12 @@ private:
         float2 yzw = mix(yz, zw, chopT[1]);
         float2 xyzw = mix(xyz, yzw, chopT[1]);
 
-        // Find tangents at the chop points.
-        float2 innerTan0 = (chopT[0] != 0) ? bcd - abc : tan0;
-        float2 innerTan1 = (chopT[1] != 0) ? yzw - xyz : tan0;
-
-        if (midtangent != float2(0)) {
-            // The curve did not inflect so we chopped at midtangent. The parametric definition of
-            // tangent can be undefined at points that divide rotation in half, so use midtangent
-            // instead at these locations.
-            //
-            // Start by finding which direction the curve turns. Since it does not inflect, it will
-            // always turn in the same direction, which is also equal to the sign of the inflection
-            // function as it approaches infinity.
-            float inflectSignAtInf = (I[0] != 0) ? I[0] : I[2];
-            float2x2 derivative2AtChops = transpose(float2x2(3*chopT, 1,1) * float2x2(C));
-            if (chopT[0] == roots[0] || chopT[0] == roots[1]) {
-                // Point midtangent in the same direction that the curve is turning at chopT[0].
-                float midtangentTurn = determinant(float2x2(midtangent, derivative2AtChops[0]));
-                innerTan0 = (midtangentTurn * inflectSignAtInf >= 0) ? +midtangent : -midtangent;
-            }
-            if (chopT[1] == roots[0] || chopT[1] == roots[1]) {
-                // Point midtangent in the same direction that the curve is turning at chopT[1].
-                float midtangentTurn = determinant(float2x2(midtangent, derivative2AtChops[1]));
-                innerTan1 = (midtangentTurn * inflectSignAtInf >= 0) ? +midtangent : -midtangent;
-            }
+        // Find tangents at the chop points if an inner tangent wasn't specified.
+        if (innerTangents[0] == float2(0)) {
+            innerTangents[0] = bcd - abc;
+        }
+        if (innerTangents[1] == float2(0)) {
+            innerTangents[1] = yzw - xyz;
         }
 
         // Package arguments for the tessellation control stage.
@@ -240,8 +225,8 @@ private:
                          mix(xyz, xyzw, (chopT[1] != 0) ? chopT[0] / chopT[1] : 0));
         vsPts67 = float4(xyzw, yzw);
         vsPts89 = float4(zw, P[3]);
-        vsTans01 = float4(tan0, innerTan0);
-        vsTans23 = float4(innerTan1, tan1);
+        vsTans01 = float4(tan0, innerTangents[0]);
+        vsTans23 = float4(innerTangents[1], tan1);
         vsPrevJoinTangent = (prevJoinTangent == float2(0)) ? tan0 : prevJoinTangent;
         )");
 
@@ -333,6 +318,10 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         return atan(v.y, v.x) + bias;
     }
 
+    float cross(vec2 a, vec2 b) {
+        return determinant(mat2(a,b));
+    }
+
     void main() {
         // Unpack the input arguments from the vertex shader.
         mat4x2 P;
@@ -378,9 +367,15 @@ SkString GrStrokeTessellateShader::getTessControlShaderGLSL(
         vec2 tan1norm = normalize(tangents[1]);
         float cosTheta = dot(tan1norm, tan0norm);
         float rotation = acos(clamp(cosTheta, -1, +1));
-        // Adjust sign of rotation to match the direction the curve turns. Since at this point the
-        // curve cannot rotate >180 degrees, `cross(tan0, tan1)' is all we need to know.
-        if (determinant(tangents) < 0) {
+
+        // Adjust sign of rotation to match the direction the curve turns.
+        // NOTE: Since the curve is not allowed to inflect, we can just check F'(.5) x F''(.5).
+        // NOTE: F'(.5) x F''(.5) has the same sign as (P2 - P0) x (P3 - P1)
+        float turn = cross(P[2] - P[0], P[3] - P[1]);
+        if (turn == 0) {  // This will be the case for joins and cusps where points are co-located.
+            turn = determinant(tangents);
+        }
+        if (turn < 0) {
             rotation = -rotation;
         }
 
