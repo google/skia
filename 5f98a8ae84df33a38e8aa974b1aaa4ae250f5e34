@@ -46,6 +46,30 @@
       },
       "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5570d9e_d0708954",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T16:03:57Z",
+      "side": 1,
+      "message": "L34 can recurse 5-6x times in typical symbol lookup (the symbol isn\u0027t here, check my parent!). The hash happens on each recurse. L44 can recurse as well but it\u0027s not the hot path.\n\nStringFragment hashing is not cached. (You could add a field to StringFragment which caches the hash of the string saved inside of it, but that adds a space penalty per symbol.)",
+      "parentUuid": "7d11be34_ef8d34d7",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 65
+      },
+      "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
