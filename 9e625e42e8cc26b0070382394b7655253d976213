@@ -16,6 +16,24 @@
       "message": "I notice that only two of these (this one and SampleMaskSupport) don\u0027t set fVersionDeclString. Do we need to do that here?",
       "revId": "9e625e42e8cc26b0070382394b7655253d976213",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9c8a1f3_ce754b1b",
+        "filename": "src/sksl/SkSLUtil.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T13:42:58Z",
+      "side": 1,
+      "message": "This is how it\u0027s used:\n\n    void GLSLCodeGenerator::writeHeader() {\n        this-\u003ewrite(fProgram.fSettings.fCaps-\u003eversionDeclString());\n        this-\u003ewriteLine();\n    }\n\nFor caps that are only used to generate golden outputs and will never actually be compiled, I\u0027m pretty sure it\u0027s meaningless.",
+      "parentUuid": "734a936e_e57dcfa7",
+      "revId": "9e625e42e8cc26b0070382394b7655253d976213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
