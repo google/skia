@@ -116,7 +116,8 @@ public:
      */
     void getGLSLProcessorKey(const GrShaderCaps&,
                              GrProcessorKeyBuilder*,
-                             const GrSurfaceOrigin* originIfDstTexture) const;
+                             const GrSurfaceOrigin* originIfDstTexture,
+                             GrDstSampleType dstSampleType) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
