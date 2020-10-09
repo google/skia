@@ -46,6 +46,30 @@
       },
       "revId": "59307d6aeb327ce5fe6aa8379582a4afec682fd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27787d31_d28dd1a2",
+        "filename": "tests/sksl/errors/golden/ModifiersInStruct.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-09T20:53:49Z",
+      "side": 1,
+      "message": "Yeah, we\u0027re expecting that space in both GLSL output and descriptions. It was convenient to have it output either an empty string or a string ending in a space, and then that way we just write \u003cmodifiers\u003e\u003cother stuff\u003e and it would work out right regardless.",
+      "parentUuid": "a20b4438_459303f4",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 100
+      },
+      "revId": "59307d6aeb327ce5fe6aa8379582a4afec682fd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
