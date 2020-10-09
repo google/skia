@@ -110,6 +110,30 @@
       },
       "revId": "acbe11c17dd097be319cb70f11b0dfac33806f91",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfba6463_8a33edba",
+        "filename": "platform_tools/android/apps/skottie/skottielib/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-10-09T15:47:28Z",
+      "side": 1,
+      "message": "It might just require a redesign of how these methods are called, I can address it later as I plan on cleaning up this file soon.",
+      "parentUuid": "08ccb256_7a845985",
+      "range": {
+        "startLine": 369,
+        "startChar": 11,
+        "endLine": 369,
+        "endChar": 40
+      },
+      "revId": "acbe11c17dd097be319cb70f11b0dfac33806f91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
