@@ -25,7 +25,7 @@ layout(key) in bool isNativelyFocal;
 // each FP
 layout(tracked) in uniform half2 focalParams;
 
-void main(float2 p) {
+half4 main(float2 p) {
     float t = -1;
     half v = 1; // validation flag, set to negative to discard fragment later
 
@@ -106,7 +106,7 @@ void main(float2 p) {
         break;
     }
 
-    sk_OutColor = half4(half(t), v, 0, 0);
+    return half4(half(t), v, 0, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
