@@ -894,8 +894,8 @@ void MetalCodeGenerator::writePrefixExpression(const PrefixExpression& p,
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->write(Compiler::OperatorName(p.fOperator));
-    this->writeExpression(*p.fOperand, kPrefix_Precedence);
+    this->write(Compiler::OperatorName(p.getOperator()));
+    this->writeExpression(*p.operand(), kPrefix_Precedence);
     if (kPrefix_Precedence >= parentPrecedence) {
         this->write(")");
     }
@@ -906,8 +906,8 @@ void MetalCodeGenerator::writePostfixExpression(const PostfixExpression& p,
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write("(");
     }
-    this->writeExpression(*p.fOperand, kPostfix_Precedence);
-    this->write(Compiler::OperatorName(p.fOperator));
+    this->writeExpression(*p.operand(), kPostfix_Precedence);
+    this->write(Compiler::OperatorName(p.getOperator()));
     if (kPostfix_Precedence >= parentPrecedence) {
         this->write(")");
     }
@@ -1709,9 +1709,9 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             return this->requirements(idx.base().get()) | this->requirements(idx.index().get());
         }
         case Expression::Kind::kPrefix:
-            return this->requirements(e->as<PrefixExpression>().fOperand.get());
+            return this->requirements(e->as<PrefixExpression>().operand().get());
         case Expression::Kind::kPostfix:
-            return this->requirements(e->as<PostfixExpression>().fOperand.get());
+            return this->requirements(e->as<PostfixExpression>().operand().get());
         case Expression::Kind::kTernary: {
             const TernaryExpression& t = e->as<TernaryExpression>();
             return this->requirements(t.test().get()) | this->requirements(t.ifTrue().get()) |

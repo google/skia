@@ -118,12 +118,12 @@ resultType Constructor::getVecComponent(int index) const {
                     // We found a prefix operator that contains the proper argument. Descend
                     // into it. We only support for constant propagation of the unary minus, so
                     // we shouldn't see any other tokens here.
-                    SkASSERT(prefix.fOperator == Token::Kind::TK_MINUS);
+                    SkASSERT(prefix.getOperator() == Token::Kind::TK_MINUS);
 
                     // We expect the - prefix to always be attached to a constructor.
-                    SkASSERT(prefix.fOperand->kind() == Kind::kConstructor);
+                    SkASSERT(prefix.operand()->kind() == Kind::kConstructor);
                     const Constructor& constructor =
-                            static_cast<const Constructor&>(*prefix.fOperand);
+                            static_cast<const Constructor&>(*prefix.operand());
 
                     // Descend into this constructor, honoring the type.
                     if (constructor.type().componentType().isFloat()) {

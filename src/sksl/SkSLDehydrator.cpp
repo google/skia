@@ -339,15 +339,15 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kPostfix: {
                 const PostfixExpression& p = e->as<PostfixExpression>();
                 this->writeCommand(Rehydrator::kPostfix_Command);
-                this->writeU8((int) p.fOperator);
-                this->write(p.fOperand.get());
+                this->writeU8((int) p.getOperator());
+                this->write(p.operand().get());
                 break;
             }
             case Expression::Kind::kPrefix: {
                 const PrefixExpression& p = e->as<PrefixExpression>();
                 this->writeCommand(Rehydrator::kPrefix_Command);
-                this->writeU8((int) p.fOperator);
-                this->write(p.fOperand.get());
+                this->writeU8((int) p.getOperator());
+                this->write(p.operand().get());
                 break;
             }
             case Expression::Kind::kSetting: {
