@@ -22,6 +22,30 @@
       },
       "revId": "59307d6aeb327ce5fe6aa8379582a4afec682fd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a20b4438_459303f4",
+        "filename": "tests/sksl/errors/golden/ModifiersInStruct.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T20:51:19Z",
+      "side": 1,
+      "message": "If I change the implementation of `description()` to strip off the last space, could it break anything? Is anyone relying on that?",
+      "parentUuid": "cec585df_07abd98f",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 100
+      },
+      "revId": "59307d6aeb327ce5fe6aa8379582a4afec682fd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
