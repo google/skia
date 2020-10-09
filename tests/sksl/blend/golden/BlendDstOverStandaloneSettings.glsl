@@ -7,7 +7,6 @@ void main() {
     {
         _0_blend_dst_over = (1.0 - dst.w) * src + dst;
     }
-
     sk_FragColor = _0_blend_dst_over;
 
 }

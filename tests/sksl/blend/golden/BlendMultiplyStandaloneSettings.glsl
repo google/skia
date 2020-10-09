@@ -7,7 +7,6 @@ void main() {
     {
         _0_blend_multiply = vec4(((1.0 - src.w) * dst.xyz + (1.0 - dst.w) * src.xyz) + src.xyz * dst.xyz, src.w + (1.0 - src.w) * dst.w);
     }
-
     sk_FragColor = _0_blend_multiply;
 
 }
