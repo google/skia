@@ -39,6 +39,30 @@
       },
       "revId": "b0ff4a6c3bda3bf87bb55cfd3a6254f1836a3ac5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07cd1902_6e16fcc6",
+        "filename": "src/gpu/GrAttachment.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-09T19:34:55Z",
+      "side": 1,
+      "message": "I\u0027ve made the builder public and shared the code.",
+      "parentUuid": "febf36fb_339c85ba",
+      "range": {
+        "startLine": 51,
+        "startChar": 3,
+        "endLine": 64,
+        "endChar": 57
+      },
+      "revId": "b0ff4a6c3bda3bf87bb55cfd3a6254f1836a3ac5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
