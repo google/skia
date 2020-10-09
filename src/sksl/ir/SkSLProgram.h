@@ -195,6 +195,7 @@ private:
     std::unique_ptr<ModifiersPool> fModifiers;
 
     friend class Compiler;
+    friend class SPIRVCodeGenerator;  // fModifiers
 };
 
 }  // namespace SkSL
