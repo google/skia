@@ -1565,7 +1565,7 @@ SpvStorageClass_ get_storage_class(const Expression& expr) {
     switch (expr.kind()) {
         case Expression::Kind::kVariableReference: {
             const Variable& var = *expr.as<VariableReference>().variable();
-            if (var.storage() != Variable::kGlobal_Storage) {
+            if (var.storage() != Variable::Storage::kGlobal) {
                 return SpvStorageClassFunction;
             }
             SpvStorageClass_ result = get_storage_class(var.modifiers());
@@ -1883,7 +1883,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
                                                    name,
                                                    &intfStruct,
                                                    /*builtin=*/false,
-                                                   Variable::kGlobal_Storage));
+                                                   Variable::Storage::kGlobal));
                 InterfaceBlock intf(-1, intfVar, name, String(""),
                                     std::vector<std::unique_ptr<Expression>>(), st);
 
@@ -3232,7 +3232,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     for (auto entry : fVariableMap) {
         const Variable* var = entry.first;
-        if (var->storage() == Variable::kGlobal_Storage &&
+        if (var->storage() == Variable::Storage::kGlobal &&
             ((var->modifiers().fFlags & Modifiers::kIn_Flag) ||
              (var->modifiers().fFlags & Modifiers::kOut_Flag)) && !is_dead(*var)) {
             interfaceVars.insert(entry.second);

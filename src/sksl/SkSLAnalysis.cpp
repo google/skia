@@ -193,9 +193,10 @@ public:
     bool visitExpression(const Expression& e) override {
         if (e.is<VariableReference>()) {
             const VariableReference& ref = e.as<VariableReference>();
-            if (ref.variable() == fVar && (ref.refKind() == VariableReference::kWrite_RefKind ||
-                                           ref.refKind() == VariableReference::kReadWrite_RefKind ||
-                                           ref.refKind() == VariableReference::kPointer_RefKind)) {
+            if (ref.variable() == fVar &&
+                (ref.refKind() == VariableReference::RefKind::kWrite ||
+                 ref.refKind() == VariableReference::RefKind::kReadWrite ||
+                 ref.refKind() == VariableReference::RefKind::kPointer)) {
                 return true;
             }
         }

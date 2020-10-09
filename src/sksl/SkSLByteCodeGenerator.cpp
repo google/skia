@@ -218,7 +218,7 @@ std::unique_ptr<ByteCodeFunction> ByteCodeGenerator::writeFunction(const Functio
 static int expression_as_builtin(const Expression& e) {
     if (e.is<VariableReference>()) {
         const Variable& var(*e.as<VariableReference>().variable());
-        if (var.storage() == Variable::kGlobal_Storage) {
+        if (var.storage() == Variable::Storage::kGlobal) {
             return var.modifiers().fLayout.fBuiltin;
         }
     }
@@ -424,7 +424,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
     // given that we seldom have more than a couple of variables, linear search is probably the most
     // efficient way to handle lookups
     switch (var.storage()) {
-        case Variable::kLocal_Storage: {
+        case Variable::Storage::kLocal: {
             for (int i = fLocals.size() - 1; i >= 0; --i) {
                 if (fLocals[i] == &var) {
                     SkASSERT(fParameterCount + i <= 255);
@@ -439,7 +439,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             SkASSERT(result <= 255);
             return { result, Storage::kLocal };
         }
-        case Variable::kParameter_Storage: {
+        case Variable::Storage::kParameter: {
             int offset = 0;
             for (const auto& p : fFunction->fDeclaration.parameters()) {
                 if (p == &var) {
@@ -451,7 +451,7 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Variable& var) 
             SkASSERT(false);
             return Location::MakeInvalid();
         }
-        case Variable::kGlobal_Storage: {
+        case Variable::Storage::kGlobal: {
             if (var.type() == *fContext.fFragmentProcessor_Type) {
                 int offset = 0;
                 for (const auto& e : fProgram.elements()) {

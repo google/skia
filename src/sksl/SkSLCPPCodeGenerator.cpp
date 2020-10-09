@@ -138,7 +138,7 @@ static bool is_private(const Variable& var) {
     const Modifiers& modifiers = var.modifiers();
     return !(modifiers.fFlags & Modifiers::kUniform_Flag) &&
            !(modifiers.fFlags & Modifiers::kIn_Flag) &&
-           var.storage() == Variable::kGlobal_Storage &&
+           var.storage() == Variable::Storage::kGlobal &&
            modifiers.fLayout.fBuiltin == -1;
 }
 
