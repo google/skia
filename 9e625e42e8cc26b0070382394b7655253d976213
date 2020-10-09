@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "734a936e_e57dcfa7",
+        "filename": "src/sksl/SkSLUtil.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-09T13:16:24Z",
+      "side": 1,
+      "message": "I notice that only two of these (this one and SampleMaskSupport) don\u0027t set fVersionDeclString. Do we need to do that here?",
+      "revId": "9e625e42e8cc26b0070382394b7655253d976213",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
