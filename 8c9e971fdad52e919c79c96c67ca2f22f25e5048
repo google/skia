@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af24c323_0873cb26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-09T20:53:59Z",
+      "side": 1,
+      "message": "CCing Kevin, in case SkImageFilters::Xfermode is one of the filters exposed in CanvasKit. If so, we should update to add a Blend function there as well.",
+      "revId": "8c9e971fdad52e919c79c96c67ca2f22f25e5048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c73d59a3_55ab2b43",
+        "filename": "gm/imagemakewithfilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-09T20:53:59Z",
+      "side": 1,
+      "message": "This label is drawn into the GM and I didn\u0027t want to cause relatively pointless churn.",
+      "range": {
+        "startLine": 252,
+        "startChar": 12,
+        "endLine": 252,
+        "endChar": 35
+      },
+      "revId": "8c9e971fdad52e919c79c96c67ca2f22f25e5048",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
