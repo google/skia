@@ -242,11 +242,11 @@ void Dehydrator::write(const SymbolTable& symbols) {
     for (const std::unique_ptr<const Symbol>& s : symbols.fOwnedSymbols) {
         this->write(*s);
     }
-    this->writeU16(symbols.fSymbols.size());
+    this->writeU16(symbols.fSymbols.count());
     std::map<StringFragment, const Symbol*> ordered;
-    for (std::pair<StringFragment, const Symbol*> p : symbols.fSymbols) {
-        ordered.insert(p);
-    }
+    symbols.foreach([&](StringFragment name, const Symbol* symbol) {
+        ordered.insert({name, symbol});
+    });
     for (std::pair<StringFragment, const Symbol*> p : ordered) {
         bool found = false;
         for (size_t i = 0; i < symbols.fOwnedSymbols.size(); ++i) {
