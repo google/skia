@@ -386,7 +386,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kInlineMarker_Command: {
             const FunctionDeclaration* funcDecl = this->symbolRef<FunctionDeclaration>(
                                                           Symbol::Kind::kFunctionDeclaration);
-            return std::make_unique<InlineMarker>(*funcDecl);
+            return std::make_unique<InlineMarker>(funcDecl);
         }
         case Rehydrator::kReturn_Command: {
             std::unique_ptr<Expression> expr = this->expression();
