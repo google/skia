@@ -9,9 +9,13 @@
 #include "include/gpu/GrDirectContext.h"
 
 #include "include/gpu/GrContextThreadSafeProxy.h"
+#include "src/core/SkTaskGroup.h"
+#include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/GrGpu.h"
+#include "src/gpu/GrResourceProvider.h"
+#include "src/gpu/GrShaderUtils.h"
 
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
@@ -45,15 +49,26 @@ static const bool kDefaultReduceOpsTaskSplitting = false;
 static const bool kDefaultReduceOpsTaskSplitting = false;
 #endif
 
+#define ASSERT_SINGLE_OWNER GR_ASSERT_SINGLE_OWNER(this->singleOwner())
+
 GrDirectContext::GrDirectContext(GrBackendApi backend, const GrContextOptions& options)
         : INHERITED(GrContextThreadSafeProxyPriv::Make(backend, options)) {
 }
 
 GrDirectContext::~GrDirectContext() {
+    ASSERT_SINGLE_OWNER
     // this if-test protects against the case where the context is being destroyed
     // before having been fully created
-    if (this->priv().getGpu()) {
+    if (fGpu) {
         this->flushAndSubmit();
+    }
+
+    this->destroyDrawingManager();
+    fMappedBufferManager.reset();
+
+    // Ideally we could just let the ptr drop, but resource cache queries this ptr in releaseAll.
+    if (fResourceCache) {
+        fResourceCache->releaseAll();
     }
 }
 
@@ -84,14 +99,40 @@ void GrDirectContext::freeGpuResources() {
 }
 
 bool GrDirectContext::init() {
-    const GrGpu* gpu = this->priv().getGpu();
-    if (!gpu) {
+    ASSERT_SINGLE_OWNER
+    if (!fGpu) {
         return false;
     }
 
-    fThreadSafeProxy->priv().init(gpu->refCaps());
+    fThreadSafeProxy->priv().init(fGpu->refCaps());
     if (!INHERITED::init()) {
         return false;
+    }
+
+    SkASSERT(this->getTextBlobCache());
+    SkASSERT(this->threadSafeCache());
+
+    fStrikeCache = std::make_unique<GrStrikeCache>();
+    fResourceCache = std::make_unique<GrResourceCache>(this->caps(), this->singleOwner(),
+                                                       this->contextID());
+    fResourceCache->setProxyProvider(this->proxyProvider());
+    fResourceCache->setThreadSafeCache(this->threadSafeCache());
+    fResourceProvider = std::make_unique<GrResourceProvider>(fGpu.get(), fResourceCache.get(),
+                                                             this->singleOwner());
+    fMappedBufferManager = std::make_unique<GrClientMappedBufferManager>(this->contextID());
+
+    fDidTestPMConversions = false;
+
+    // DDL TODO: we need to think through how the task group & persistent cache
+    // get passed on to/shared between all the DDLRecorders created with this context.
+    if (this->options().fExecutor) {
+        fTaskGroup = std::make_unique<SkTaskGroup>(*this->options().fExecutor);
+    }
+
+    fPersistentCache = this->options().fPersistentCache;
+    fShaderErrorHandler = this->options().fShaderErrorHandler;
+    if (!fShaderErrorHandler) {
+        fShaderErrorHandler = GrShaderUtils::DefaultShaderErrorHandler();
     }
 
     bool reduceOpsTaskSplitting = kDefaultReduceOpsTaskSplitting;
