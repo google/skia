@@ -17,7 +17,7 @@ layout(ctype=SkPMColor4f, tracked) in uniform float4 bias23;
 
 layout(tracked) in uniform half threshold;
 
-void main(float2 coord) {
+half4 main(float2 coord) {
     half t = half(coord.x);
 
     float4 scale, bias;
@@ -29,7 +29,7 @@ void main(float2 coord) {
         bias = bias23;
     }
 
-    sk_OutColor = half4(t * scale + bias);
+    return half4(t * scale + bias);
 }
 
 //////////////////////////////////////////////////////////////////////////////
