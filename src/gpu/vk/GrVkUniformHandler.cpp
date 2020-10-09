@@ -237,6 +237,7 @@ GrGLSLUniformHandler::UniformHandle GrVkUniformHandler::internalAddUniformArray(
     }
     fProgramBuilder->nameVariable(&resolvedName, prefix, name, mangleName);
 
+    //*** make changes here too?
     uint32_t offset = get_ubo_aligned_offset(&fCurrentUBOOffset, type, arrayCount);
     SkString layoutQualifier;
     layoutQualifier.appendf("offset=%d", offset);
@@ -354,8 +355,16 @@ void GrVkUniformHandler::appendUniformDecls(GrShaderFlags visibility, SkString* 
         }
     }
 
+    //*** need to determine total size of uniforms to see if can use push constants?
     if (!uniformsString.isEmpty()) {
-        out->appendf("layout (set=%d, binding=%d) uniform uniformBuffer\n{\n",
+        if (fCurrentUBOOffset <= 128) {
+            out->appendf("layout (push_constant) ",
+                         kUniformBufferDescSet, kUniformBinding);
+        } else {
+            out->appendf("layout (set=%d, binding=%d) ",
+                         kUniformBufferDescSet, kUniformBinding);
+        }
+        out->appendf("uniform uniformBuffer\n{\n",
                      kUniformBufferDescSet, kUniformBinding);
         out->appendf("%s\n};\n", uniformsString.c_str());
     }

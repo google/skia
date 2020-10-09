@@ -49,6 +49,7 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateInputManager(GrVkGpu* 
 VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
     VkShaderStageFlags flags = 0;
 
+    //*** push constants are visible to all stages
     if (visibility & kVertex_GrShaderFlag) {
         flags |= VK_SHADER_STAGE_VERTEX_BIT;
     }
@@ -114,6 +115,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
 
         *descCountPerSet = visibilities.count();
     } else if (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
+        //*** need something similar for push constants
         static constexpr int kUniformDescPerSet = 1;
         SkASSERT(kUniformDescPerSet == visibilities.count());
         // Create Uniform Buffer Descriptor
