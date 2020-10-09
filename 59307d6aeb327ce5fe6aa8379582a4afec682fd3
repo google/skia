@@ -70,6 +70,30 @@
       },
       "revId": "59307d6aeb327ce5fe6aa8379582a4afec682fd3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66ff34bc_ab5ec14f",
+        "filename": "tests/sksl/errors/golden/ModifiersInStruct.glsl",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-09T21:42:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27787d31_d28dd1a2",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 100
+      },
+      "revId": "59307d6aeb327ce5fe6aa8379582a4afec682fd3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
