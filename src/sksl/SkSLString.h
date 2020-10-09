@@ -35,9 +35,10 @@ struct StringFragment {
     : fChars(chars)
     , fLength(length) {}
 
-    char operator[](size_t idx) const {
-        return fChars[idx];
-    }
+    const char* data() const { return fChars; }
+    size_t size() const { return fLength; }
+    size_t length() const { return fLength; }
+    char operator[](size_t idx) const { return fChars[idx]; }
 
     bool operator==(const char* s) const;
     bool operator!=(const char* s) const;

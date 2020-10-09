@@ -8,11 +8,12 @@
 #ifndef SKSL_SYMBOLTABLE
 #define SKSL_SYMBOLTABLE
 
-#include <unordered_map>
-#include <memory>
-#include <vector>
+#include "include/private/SkTHash.h"
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/ir/SkSLSymbol.h"
+
+#include <memory>
+#include <vector>
 
 namespace SkSL {
 
@@ -58,25 +59,45 @@ public:
         return ptr;
     }
 
+    // Call fn for every symbol in the table.  You may not mutate anything.
+    template <typename Fn>
+    void foreach(Fn&& fn) const {
+        fSymbols.foreach(
+                [&fn](const SymbolKey& key, const Symbol* symbol) { fn(key.fName, symbol); });
+    }
+
+    size_t count() {
+        return fSymbols.count();
+    }
+
     const String* takeOwnershipOfString(std::unique_ptr<String> n);
-
-    std::unordered_map<StringFragment, Symbol*>::iterator begin();
-
-    std::unordered_map<StringFragment, Symbol*>::iterator end();
 
     std::shared_ptr<SymbolTable> fParent;
 
     std::vector<std::unique_ptr<const Symbol>> fOwnedSymbols;
 
 private:
+    struct SymbolKey {
+        StringFragment fName;
+        uint32_t       fHash;
+
+        bool operator==(const SymbolKey& that) const { return fName == that.fName; }
+        bool operator!=(const SymbolKey& that) const { return fName != that.fName; }
+        struct Hash {
+            uint32_t operator()(const SymbolKey& key) const { return key.fHash; }
+        };
+    };
+
+    static SymbolKey MakeSymbolKey(StringFragment name) {
+        return SymbolKey{name, SkOpts::hash_fn(name.data(), name.size(), 0)};
+    }
+
+    Symbol* lookup(const SymbolKey& key);
     static std::vector<const FunctionDeclaration*> GetFunctions(const Symbol& s);
 
     std::vector<std::unique_ptr<IRNode>> fOwnedNodes;
-
     std::vector<std::unique_ptr<String>> fOwnedStrings;
-
-    std::unordered_map<StringFragment, Symbol*> fSymbols;
-
+    SkTHashMap<SymbolKey, Symbol*, SymbolKey::Hash> fSymbols;
     ErrorReporter& fErrorReporter;
 
     friend class Dehydrator;

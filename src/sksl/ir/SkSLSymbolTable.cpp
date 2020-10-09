@@ -24,18 +24,24 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
 }
 
 Symbol* SymbolTable::operator[](StringFragment name) {
-    auto entry = fSymbols.find(name);
-    if (entry == fSymbols.end()) {
+    return this->lookup(MakeSymbolKey(name));
+}
+
+Symbol* SymbolTable::lookup(const SymbolKey& key) {
+    Symbol** symbolPPtr = fSymbols.find(key);
+    if (!symbolPPtr) {
         if (fParent) {
-            return (*fParent)[name];
+            return fParent->lookup(key);
         }
         return nullptr;
     }
+
+    Symbol* symbol = *symbolPPtr;
     if (fParent) {
-        auto functions = GetFunctions(*entry->second);
+        auto functions = GetFunctions(*symbol);
         if (functions.size() > 0) {
             bool modified = false;
-            const Symbol* previous = (*fParent)[name];
+            const Symbol* previous = fParent->lookup(key);
             if (previous) {
                 auto previousFunctions = GetFunctions(*previous);
                 for (const FunctionDeclaration* prev : previousFunctions) {
@@ -59,7 +65,6 @@ Symbol* SymbolTable::operator[](StringFragment name) {
             }
         }
     }
-    Symbol* symbol = entry->second;
     while (symbol && symbol->is<SymbolAlias>()) {
         symbol = symbol->as<SymbolAlias>().origSymbol();
     }
@@ -79,7 +84,7 @@ void SymbolTable::addAlias(StringFragment name, Symbol* symbol) {
 void SymbolTable::addWithoutOwnership(Symbol* symbol) {
     const StringFragment& name = symbol->name();
 
-    Symbol*& refInSymbolTable = fSymbols[name];
+    Symbol*& refInSymbolTable = fSymbols[MakeSymbolKey(name)];
     if (refInSymbolTable == nullptr) {
         refInSymbolTable = symbol;
         return;
@@ -104,14 +109,6 @@ void SymbolTable::addWithoutOwnership(Symbol* symbol) {
         refInSymbolTable = this->takeOwnershipOfSymbol(
                 std::make_unique<UnresolvedFunction>(std::move(functions)));
     }
-}
-
-std::unordered_map<StringFragment, Symbol*>::iterator SymbolTable::begin() {
-    return fSymbols.begin();
-}
-
-std::unordered_map<StringFragment, Symbol*>::iterator SymbolTable::end() {
-    return fSymbols.end();
 }
 
 }  // namespace SkSL
