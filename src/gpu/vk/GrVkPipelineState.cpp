@@ -177,7 +177,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
 
             VkDescriptorImageInfo imageInfo;
             memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));
-            imageInfo.sampler = sampler->sampler();
+            imageInfo.sampler = fImmutableSamplers[i] ? VK_NULL_HANDLE : sampler->sampler();
             imageInfo.imageView = textureView->imageView();
             imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
