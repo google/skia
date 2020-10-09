@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2451bba_2282dfd0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-09T14:51:52Z",
+      "side": 1,
+      "message": "I have this CL in Chrome to handle the layout test suppression: https://chromium-review.googlesource.com/c/chromium/src/+/2462558",
+      "revId": "265aaad17ed97de68d0042b98ad8ea6eeb34b7cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
