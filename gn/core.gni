@@ -243,7 +243,6 @@ skia_core_sources = [
   "$_src/core/SkLRUCache.h",
   "$_src/core/SkLatticeIter.cpp",
   "$_src/core/SkLatticeIter.h",
-  "$_src/core/SkLegacyGpuBlurUtils.cpp",
   "$_src/core/SkLineClipper.cpp",
   "$_src/core/SkLocalMatrixImageFilter.cpp",
   "$_src/core/SkLocalMatrixImageFilter.h",
