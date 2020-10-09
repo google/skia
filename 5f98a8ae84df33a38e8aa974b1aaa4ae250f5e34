@@ -118,6 +118,30 @@
       },
       "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "110cbdd3_dcd00660",
+        "filename": "src/sksl/ir/SkSLSymbolTable.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-09T16:08:31Z",
+      "side": 1,
+      "message": "The use case of having a known hash but it not being stored durably somewhere is pretty slim.   I think this is the first time I\u0027ve seen it show up in Skia.  If we can store it, I\u0027d like to start there.",
+      "parentUuid": "2f8e4292_f04d8b8a",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 65
+      },
+      "revId": "5f98a8ae84df33a38e8aa974b1aaa4ae250f5e34",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
