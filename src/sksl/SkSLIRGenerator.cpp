@@ -976,7 +976,7 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         std::vector<const FunctionDeclaration*> functions;
         switch (entry->kind()) {
             case Symbol::Kind::kUnresolvedFunction:
-                functions = entry->as<UnresolvedFunction>().fFunctions;
+                functions = entry->as<UnresolvedFunction>().functions();
                 break;
             case Symbol::Kind::kFunctionDeclaration:
                 functions.push_back(&entry->as<FunctionDeclaration>());
@@ -1347,7 +1347,8 @@ std::unique_ptr<Expression> IRGenerator::convertIdentifier(const ASTNode& identi
         }
         case Symbol::Kind::kUnresolvedFunction: {
             const UnresolvedFunction* f = &result->as<UnresolvedFunction>();
-            return std::make_unique<FunctionReference>(fContext, identifier.fOffset, f->fFunctions);
+            return std::make_unique<FunctionReference>(fContext, identifier.fOffset,
+                                                       f->functions());
         }
         case Symbol::Kind::kVariable: {
             const Variable* var = &result->as<Variable>();

@@ -178,7 +178,8 @@ static bool contains_recursive_call(const FunctionDeclaration& funcDecl) {
         }
 
         bool visitStatement(const Statement& stmt) override {
-            if (stmt.is<InlineMarker>() && stmt.as<InlineMarker>().fFuncDecl->matches(*fFuncDecl)) {
+            if (stmt.is<InlineMarker>() &&
+                stmt.as<InlineMarker>().function().matches(*fFuncDecl)) {
                 return true;
             }
             return INHERITED::visitStatement(stmt);
@@ -609,7 +610,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
                                    arguments.size() + // Function arguments (copy out-params back)
                                    1);                // Inlined code (Block or do-while loop)
 
-    inlinedBody.children().push_back(std::make_unique<InlineMarker>(call->function()));
+    inlinedBody.children().push_back(std::make_unique<InlineMarker>(&call->function()));
 
     auto makeInlineVar =
             [&](const String& baseName, const Type* type, Modifiers modifiers,

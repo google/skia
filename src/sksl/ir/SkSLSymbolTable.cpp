@@ -17,7 +17,7 @@ std::vector<const FunctionDeclaration*> SymbolTable::GetFunctions(const Symbol& 
         case Symbol::Kind::kFunctionDeclaration:
             return { &s.as<FunctionDeclaration>() };
         case Symbol::Kind::kUnresolvedFunction:
-            return s.as<UnresolvedFunction>().fFunctions;
+            return s.as<UnresolvedFunction>().functions();
         default:
             return std::vector<const FunctionDeclaration*>();
     }
@@ -103,7 +103,7 @@ void SymbolTable::addWithoutOwnership(Symbol* symbol) {
         refInSymbolTable = this->takeOwnershipOfSymbol(
                 std::make_unique<UnresolvedFunction>(std::move(functions)));
     } else if (refInSymbolTable->is<UnresolvedFunction>()) {
-        functions = refInSymbolTable->as<UnresolvedFunction>().fFunctions;
+        functions = refInSymbolTable->as<UnresolvedFunction>().functions();
         functions.push_back(&symbol->as<FunctionDeclaration>());
 
         refInSymbolTable = this->takeOwnershipOfSymbol(

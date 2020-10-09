@@ -170,8 +170,8 @@ void Dehydrator::write(const Symbol& s) {
             const UnresolvedFunction& f = s.as<UnresolvedFunction>();
             this->writeCommand(Rehydrator::kUnresolvedFunction_Command);
             this->writeId(&f);
-            this->writeU8(f.fFunctions.size());
-            for (const FunctionDeclaration* funcDecl : f.fFunctions) {
+            this->writeU8(f.functions().size());
+            for (const FunctionDeclaration* funcDecl : f.functions()) {
                 this->write(*funcDecl);
             }
             break;
@@ -451,7 +451,7 @@ void Dehydrator::write(const Statement* s) {
             case Statement::Kind::kInlineMarker: {
                 const InlineMarker& i = s->as<InlineMarker>();
                 this->writeCommand(Rehydrator::kInlineMarker_Command);
-                this->writeId(i.fFuncDecl);
+                this->writeId(&i.function());
                 break;
             }
             case Statement::Kind::kNop:

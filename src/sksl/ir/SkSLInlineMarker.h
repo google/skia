@@ -18,25 +18,30 @@ namespace SkSL {
  * A no-op statement that indicates that a function was inlined here. This is necessary to detect
  * and prevent runaway infinite recursion. This node doesn't directly generate code.
  */
-struct InlineMarker : public Statement {
+class InlineMarker : public Statement {
+public:
     static constexpr Kind kStatementKind = Kind::kInlineMarker;
 
-    InlineMarker(const FunctionDeclaration& funcDecl)
-            : INHERITED(-1, kStatementKind), fFuncDecl(&funcDecl) {}
+    InlineMarker(const FunctionDeclaration* function)
+            : INHERITED(-1, InlineMarkerData{function}) {}
+
+    const FunctionDeclaration& function() const {
+        return *this->inlineMarkerData().fFunction;
+    }
 
     bool isEmpty() const override {
         return true;
     }
 
     String description() const override {
-        return String("/* inlined: ") + fFuncDecl->name() + String(" */");
+        return String("/* inlined: ") + this->function().name() + String(" */");
     }
 
     std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<InlineMarker>(*fFuncDecl);
+        return std::make_unique<InlineMarker>(&this->function());
     }
 
-    const FunctionDeclaration* fFuncDecl;
+private:
     using INHERITED = Statement;
 };
 
