@@ -1,0 +1,9 @@
+/*#pragma settings MustGuardDivisionEvenAfterExplicitZeroCheck*/
+
+in half4 src, dst;
+
+void main() {
+    sk_FragColor = blend_color_dodge(src, dst);
+    sk_FragColor = blend_color_burn(src, dst);
+    sk_FragColor = blend_soft_light(src, dst);
+}
