@@ -125,6 +125,10 @@ static void detect_shader_settings(const SkSL::String& text, SkSL::Program::Sett
                     static auto s_incompleteShortIntCaps = Factory::IncompleteShortIntPrecision();
                     settings->fCaps = s_incompleteShortIntCaps.get();
                 }
+                if (settingsText.consumeSuffix(" MustGuardDivisionEvenAfterExplicitZeroCheck")) {
+                    static auto s_div0Caps = Factory::MustGuardDivisionEvenAfterExplicitZeroCheck();
+                    settings->fCaps = s_div0Caps.get();
+                }
                 if (settingsText.consumeSuffix(" MustForceNegatedAtanParamToFloat")) {
                     static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
                     settings->fCaps = s_negativeAtanCaps.get();

@@ -390,6 +390,12 @@ public:
         return result;
     }
 
+    static ShaderCapsPointer MustGuardDivisionEvenAfterExplicitZeroCheck() {
+        ShaderCapsPointer result = MakeShaderCaps();
+        result->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
+        return result;
+    }
+
     static ShaderCapsPointer NoGSInvocationsSupport() {
         ShaderCapsPointer result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";
