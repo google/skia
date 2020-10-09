@@ -298,22 +298,6 @@ export interface CanvasKit {
     MakeImageFromCanvasImageSource(src: CanvasImageSource): Image;
 
     /**
-     * Creates a new path by combining the given paths according to op. If this fails, null will
-     * be returned instead.
-     * @param one
-     * @param two
-     * @param op
-     */
-    MakePathFromOp(one: Path, two: Path, op: PathOp): Path | null;
-
-    /**
-     * Creates a new path from the provided SVG string. If this fails, null will be
-     * returned instead.
-     * @param str
-     */
-    MakePathFromSVGString(str: string): Path | null;
-
-    /**
      * Returns an SkPicture which has been serialized previously to the given bytes.
      * @param bytes
      */
@@ -2860,10 +2844,27 @@ export interface MaskFilterFactory {
  */
 export interface PathConstructorAndFactory extends DefaultConstructor<Path> {
     /**
-     * Creates a new path from the given list of path commands.
+     * Creates a new path from the given list of path commands. If this fails, null will be
+     * returned instead.
      * @param cmds
      */
-    MakeFromCmds(cmds: PathCommand[]): Path;
+    MakeFromCmds(cmds: PathCommand[]): Path | null;
+
+    /**
+     * Creates a new path by combining the given paths according to op. If this fails, null will
+     * be returned instead.
+     * @param one
+     * @param two
+     * @param op
+     */
+    MakeFromOp(one: Path, two: Path, op: PathOp): Path | null;
+
+    /**
+     * Creates a new path from the provided SVG string. If this fails, null will be
+     * returned instead.
+     * @param str
+     */
+    MakeFromSVGString(str: string): Path | null;
 
     /**
      * Creates a new path using the provided verbs and associated points and weights. The process

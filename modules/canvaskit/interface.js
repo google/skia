@@ -579,9 +579,6 @@ CanvasKit.onRuntimeInitialized = function() {
     return path;
   };
 
-  // Deprecated
-  CanvasKit.MakePathFromCmds = CanvasKit.Path.MakeFromCmds;
-
   // The weights array is optional (only used for conics).
   CanvasKit.Path.MakeFromVerbsPointsWeights = function(verbs, pts, weights) {
     var verbsPtr = copy1dArray(verbs, 'HEAPU8');

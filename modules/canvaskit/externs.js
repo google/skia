@@ -48,9 +48,6 @@ var CanvasKit = {
   MakeImageFromEncoded: function() {},
   MakeImageFromCanvasImageSource: function() {},
   MakeOnScreenGLSurface: function() {},
-  MakePathFromCmds: function() {},
-  MakePathFromOp: function() {},
-  MakePathFromSVGString: function() {},
   MakeRenderTarget: function() {},
   MakePicture: function() {},
   MakeSWCanvasSurface: function() {},
@@ -86,13 +83,11 @@ var CanvasKit = {
   _MakeManagedAnimation: function() {},
   _MakeParticles: function() {},
   _MakePicture: function() {},
-  _MakeVertices: function() {},
   _MakeTwoPointConicalGradientShader: function() {},
   _decodeAnimatedImage: function() {},
   _decodeImage: function() {},
   _drawShapedText: function() {},
   _getRasterDirectSurface: function() {},
-  _getRasterN32PremulSurface: function() {},
 
   // The testing object is meant to expose internal functions
   // for more fine-grained testing, e.g. parseColor
@@ -496,6 +491,8 @@ var CanvasKit = {
   Path: {
     // public API (from C++ and JS bindings)
     MakeFromCmds: function() {},
+    MakeFromSVGString: function() {},
+    MakeFromOp: function() {},
     MakeFromVerbsPointsWeights: function() {},
     contains: function() {},
     /** @return {CanvasKit.Path} */
@@ -539,7 +536,6 @@ var CanvasKit = {
       rArcTo: function() {},
       rConicTo: function() {},
       rCubicTo: function() {},
-      rect: function() {},
       rLineTo: function() {},
       rMoveTo: function() {},
       rQuadTo: function() {},
@@ -640,7 +636,6 @@ var CanvasKit = {
 
     // private API
     _flush: function() {},
-    _getRasterN32PremulSurface: function() {},
     _makeImageSnapshot: function() {},
     delete: function() {},
   },

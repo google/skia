@@ -770,16 +770,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
         SkImageInfo imageInfo = toSkImageInfo(ii);
         return SkSurface::MakeRasterDirect(imageInfo, pixels, rowBytes, nullptr);
     }), allow_raw_pointers());
-    function("_getRasterN32PremulSurface", optional_override([](int width, int height)->sk_sp<SkSurface> {
-        return SkSurface::MakeRasterN32Premul(width, height, nullptr);
-    }), allow_raw_pointers());
 
     function("getDataBytes", &getSkDataBytes, allow_raw_pointers());
-    // TODO(kjlubick) deprecate these path constructors and move them to class functions.
-#ifdef SK_INCLUDE_PATHOPS
-    function("MakePathFromOp", &MakePathFromOp);
-#endif
-    function("MakePathFromSVGString", &MakePathFromSVGString);
 
     // These won't be called directly, there are corresponding JS helpers to deal with arrays.
     function("_MakeImage", optional_override([](SimpleImageInfo ii,
@@ -1200,10 +1192,6 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .smart_ptr<sk_sp<SkData>>("sk_sp<Data>>")
         .function("size", &SkData::size);
 
-    // TODO(kjlubick) I think this can be deleted since AnimatedImage is no longer around.
-    class_<SkDrawable>("Drawable")
-        .smart_ptr<sk_sp<SkDrawable>>("sk_sp<Drawable>>");
-
 #ifndef SK_NO_FONTS
     class_<SkFont>("Font")
         .constructor<>()
@@ -1439,8 +1427,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
     // TODO(kjlubick, reed) Make SkPath immutable and only creatable via a factory/builder.
     class_<SkPath>("Path")
         .constructor<>()
-        // TODO(kjlubick) remove this constructor in favor of the .copy() method.
-        .constructor<const SkPath&>()
+#ifdef SK_INCLUDE_PATHOPS
+        .class_function("MakeFromOp", &MakePathFromOp)
+#endif
+        .class_function("MakeFromSVGString", &MakePathFromSVGString)
         .class_function("_MakeFromCmds", &MakePathFromCmds)
         .class_function("_MakeFromVerbsPointsWeights", &MakePathFromVerbsPointsWeights)
         .function("_addArc", optional_override([](SkPath& self,

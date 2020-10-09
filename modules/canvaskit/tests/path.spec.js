@@ -64,7 +64,8 @@ describe('Path Behavior', () => {
     it('can create a path from an SVG string', () => {
         //.This is a parallelogram from
         // https://upload.wikimedia.org/wikipedia/commons/e/e7/Simple_parallelogram.svg
-        const path = CanvasKit.MakePathFromSVGString('M 205,5 L 795,5 L 595,295 L 5,295 L 205,5 z');
+        const path = CanvasKit.Path.MakeFromSVGString(
+          'M 205,5 L 795,5 L 595,295 L 5,295 L 205,5 z');
 
         const cmds = path.toCmds();
         expect(cmds).toBeTruthy();
@@ -78,6 +79,27 @@ describe('Path Behavior', () => {
                               [CanvasKit.LINE_VERB, 205, 5],
                               [CanvasKit.CLOSE_VERB]]);
         path.delete();
+    });
+
+    it('can create a path by combining two other paths', () => {
+        // Get the intersection of two overlapping squares and verify that it is the smaller square.
+        const pathOne = new CanvasKit.Path();
+        pathOne.addRect([10, 10, 20, 20]);
+
+        const pathTwo = new CanvasKit.Path();
+        pathTwo.addRect([15, 15, 30, 30]);
+
+        const path = CanvasKit.Path.MakeFromOp(pathOne, pathTwo, CanvasKit.PathOp.Intersect);
+        const cmds = path.toCmds();
+        expect(cmds).toBeTruthy();
+        expect(cmds).toEqual([[CanvasKit.MOVE_VERB, 15, 15],
+            [CanvasKit.LINE_VERB, 20, 15],
+            [CanvasKit.LINE_VERB, 20, 20],
+            [CanvasKit.LINE_VERB, 15, 20],
+            [CanvasKit.CLOSE_VERB]]);
+        path.delete();
+        pathOne.delete();
+        pathTwo.delete();
     });
 
     it('can create an SVG string from a path', () => {
