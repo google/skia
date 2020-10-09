@@ -43,9 +43,12 @@ public:
     // passed in.
     // TODO: Once attachments start having multiple usages, we'll need to figure out how to search
     // the cache for an attachment that simply contains the requested usage instead of equaling it.
-    static void ComputeSharedAttachmentUniqueKey(SkISize dimensions,
+    static void ComputeSharedAttachmentUniqueKey(const GrCaps& caps,
+                                                 const GrBackendFormat& format,
+                                                 SkISize dimensions,
                                                  UsageFlags requiredUsage,
                                                  int sampleCnt,
+                                                 GrProtected isProtected,
                                                  GrUniqueKey* key);
 
 protected:
