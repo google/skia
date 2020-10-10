@@ -13,37 +13,36 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _outputStruct;
     thread Outputs* _out = &_outputStruct;
-    float4 _0_blend_color;
+    float4 _7_blend_color;
     {
-        float _1_alpha = _in.dst.w * _in.src.w;
-        float3 _2_sda = _in.src.xyz * _in.dst.w;
-        float3 _3_dsa = _in.dst.xyz * _in.src.w;
-        float3 _6_blend_set_color_luminance;
+        float _8_alpha = _in.dst.w * _in.src.w;
+        float3 _9_sda = _in.src.xyz * _in.dst.w;
+        float3 _10_dsa = _in.dst.xyz * _in.src.w;
+        float3 _11_blend_set_color_luminance;
         {
-            float _11_blend_color_luminance;
+            float _16_blend_color_luminance;
             {
-                _11_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _3_dsa);
+                _16_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _10_dsa);
             }
-            float _7_lum = _11_blend_color_luminance;
+            float _12_lum = _16_blend_color_luminance;
 
-            float _12_blend_color_luminance;
+            float _17_blend_color_luminance;
             {
-                _12_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _2_sda);
+                _17_blend_color_luminance = dot(float3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), _9_sda);
             }
-            float3 _8_result = (_7_lum - _12_blend_color_luminance) + _2_sda;
+            float3 _13_result = (_12_lum - _17_blend_color_luminance) + _9_sda;
 
-            float _9_minComp = min(min(_8_result.x, _8_result.y), _8_result.z);
-            float _10_maxComp = max(max(_8_result.x, _8_result.y), _8_result.z);
-            if (_9_minComp < 0.0 && _7_lum != _9_minComp) {
-                _8_result = _7_lum + ((_8_result - _7_lum) * _7_lum) / (_7_lum - _9_minComp);
+            float _14_minComp = min(min(_13_result.x, _13_result.y), _13_result.z);
+            float _15_maxComp = max(max(_13_result.x, _13_result.y), _13_result.z);
+            if (_14_minComp < 0.0 && _12_lum != _14_minComp) {
+                _13_result = _12_lum + ((_13_result - _12_lum) * _12_lum) / (_12_lum - _14_minComp);
             }
-            _6_blend_set_color_luminance = _10_maxComp > _1_alpha && _10_maxComp != _7_lum ? _7_lum + ((_8_result - _7_lum) * (_1_alpha - _7_lum)) / (_10_maxComp - _7_lum) : _8_result;
+            _11_blend_set_color_luminance = _15_maxComp > _8_alpha && _15_maxComp != _12_lum ? _12_lum + ((_13_result - _12_lum) * (_8_alpha - _12_lum)) / (_15_maxComp - _12_lum) : _13_result;
         }
-        _0_blend_color = float4((((_6_blend_set_color_luminance + _in.dst.xyz) - _3_dsa) + _in.src.xyz) - _2_sda, (_in.src.w + _in.dst.w) - _1_alpha);
+        _7_blend_color = float4((((_11_blend_set_color_luminance + _in.dst.xyz) - _10_dsa) + _in.src.xyz) - _9_sda, (_in.src.w + _in.dst.w) - _8_alpha);
 
     }
-
-    _out->sk_FragColor = _0_blend_color;
+    _out->sk_FragColor = _7_blend_color;
 
     return *_out;
 }
