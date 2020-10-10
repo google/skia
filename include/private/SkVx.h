@@ -324,8 +324,6 @@ SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<
                              (~cond & bit_pun<Vec<1, M<T>>>(e)) );
 }
 
-SIT Vec<1,T> pow(const Vec<1,T>& x, const Vec<1,T>& y) { return std::pow(x.val, y.val); }
-
 // All default N != 1 implementations just recurse on lo and hi halves.
 
 // Clang can reason about naive_if_then_else() and optimize through it better
@@ -403,10 +401,6 @@ SINT bool all(const Vec<N,T>& x) {
         && all(x.hi);
 }
 
-SINT Vec<N,T> pow(const Vec<N,T>& x, const Vec<N,T>& y) {
-    return join(pow(x.lo, y.lo), pow(x.hi, y.hi));
-}
-
 // Scalar/vector operations just splat the scalar to a vector...
 SINTU Vec<N,T>    operator+ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) +  y; }
 SINTU Vec<N,T>    operator- (U x, const Vec<N,T>& y) { return Vec<N,T>(x) -  y; }
@@ -421,7 +415,6 @@ SINTU Vec<N,M<T>> operator<=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) <= y; 
 SINTU Vec<N,M<T>> operator>=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) >= y; }
 SINTU Vec<N,M<T>> operator< (U x, const Vec<N,T>& y) { return Vec<N,T>(x) <  y; }
 SINTU Vec<N,M<T>> operator> (U x, const Vec<N,T>& y) { return Vec<N,T>(x) >  y; }
-SINTU Vec<N,T>           pow(U x, const Vec<N,T>& y) { return pow(Vec<N,T>(x), y); }
 
 // ... and same deal for vector/scalar operations.
 SINTU Vec<N,T>    operator+ (const Vec<N,T>& x, U y) { return x +  Vec<N,T>(y); }
@@ -437,7 +430,6 @@ SINTU Vec<N,M<T>> operator<=(const Vec<N,T>& x, U y) { return x <= Vec<N,T>(y); 
 SINTU Vec<N,M<T>> operator>=(const Vec<N,T>& x, U y) { return x >= Vec<N,T>(y); }
 SINTU Vec<N,M<T>> operator< (const Vec<N,T>& x, U y) { return x <  Vec<N,T>(y); }
 SINTU Vec<N,M<T>> operator> (const Vec<N,T>& x, U y) { return x >  Vec<N,T>(y); }
-SINTU Vec<N,T>           pow(const Vec<N,T>& x, U y) { return pow(x, Vec<N,T>(y)); }
 
 // The various op= operators, for vectors...
 SINT Vec<N,T>& operator+=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x + y); }
@@ -505,15 +497,6 @@ SI Vec<sizeof...(Ix),T> shuffle(const Vec<N,T>& x) {
 #endif
 }
 
-// fma() delivers a fused mul-add, even if that's really expensive.
-SI Vec<1,float> fma(const Vec<1,float>& x, const Vec<1,float>& y, const Vec<1,float>& z) {
-    return std::fma(x.val, y.val, z.val);
-}
-SIN Vec<N,float> fma(const Vec<N,float>& x, const Vec<N,float>& y, const Vec<N,float>& z) {
-    return join(fma(x.lo, y.lo, z.lo),
-                fma(x.hi, y.hi, z.hi));
-}
-
 template <int N, typename T, typename Fn, std::size_t... I>
 #if defined(__clang__)
 // CFI, specifically -fsanitize=cfi-icall, seems to give a false positive here,
@@ -523,25 +506,75 @@ template <int N, typename T, typename Fn, std::size_t... I>
 // So, stifle CFI in this function.
 __attribute__((no_sanitize("cfi")))
 #endif
-SI auto map(const skvx::Vec<N,T>& x, Fn&& fn,
+SI auto map(Fn&& fn, const skvx::Vec<N,T>& x,
             std::index_sequence<I...> ix = {}) -> skvx::Vec<N, decltype(fn(x[0]))> {
     if /*constexpr*/ (sizeof...(I) == 0) {
-        // When called as map(x, fn), bootstrap the index_sequence we want: 0,1,...,N-1.
-        return map(x, fn, std::make_index_sequence<N>{});
+        // When called as map(fn, x), bootstrap the index_sequence we want: 0,1,...,N-1.
+        return map(fn, x, std::make_index_sequence<N>{});
     }
     return { fn(x[I])... };
 }
+template <int N, typename T, typename Fn, std::size_t... I>
+#if defined(__clang__)
+__attribute__((no_sanitize("cfi")))
+#endif
+SI auto map(Fn&& fn, const skvx::Vec<N,T>& x, const skvx::Vec<N,T>& y,
+            std::index_sequence<I...> ix = {}) -> skvx::Vec<N, decltype(fn(x[0], y[0]))> {
+    if /*constexpr*/ (sizeof...(I) == 0) {
+        return map(fn, x,y, std::make_index_sequence<N>{});
+    }
+    return { fn(x[I], y[I])... };
+}
+template <int N, typename T, typename Fn, std::size_t... I>
+#if defined(__clang__)
+__attribute__((no_sanitize("cfi")))
+#endif
+SI auto map(Fn&& fn, const skvx::Vec<N,T>& x, const skvx::Vec<N,T>& y, const skvx::Vec<N,T>& z,
+            std::index_sequence<I...> ix = {}) -> skvx::Vec<N, decltype(fn(x[0], y[0], z[0]))> {
+    if /*constexpr*/ (sizeof...(I) == 0) {
+        return map(fn, x,y,z, std::make_index_sequence<N>{});
+    }
+    return { fn(x[I], y[I], z[I])... };
+}
 
-SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map(x,  atanf); }
-SIN Vec<N,float>  ceil(const Vec<N,float>& x) { return map(x,  ceilf); }
-SIN Vec<N,float> floor(const Vec<N,float>& x) { return map(x, floorf); }
-SIN Vec<N,float> trunc(const Vec<N,float>& x) { return map(x, truncf); }
-SIN Vec<N,float> round(const Vec<N,float>& x) { return map(x, roundf); }
-SIN Vec<N,float>  sqrt(const Vec<N,float>& x) { return map(x,  sqrtf); }
-SIN Vec<N,float>   abs(const Vec<N,float>& x) { return map(x,  fabsf); }
-SIN Vec<N,float>   sin(const Vec<N,float>& x) { return map(x,   sinf); }
-SIN Vec<N,float>   cos(const Vec<N,float>& x) { return map(x,   cosf); }
-SIN Vec<N,float>   tan(const Vec<N,float>& x) { return map(x,   tanf); }
+SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map( atanf, x); }
+SIN Vec<N,float>  ceil(const Vec<N,float>& x) { return map( ceilf, x); }
+SIN Vec<N,float> floor(const Vec<N,float>& x) { return map(floorf, x); }
+SIN Vec<N,float> trunc(const Vec<N,float>& x) { return map(truncf, x); }
+SIN Vec<N,float> round(const Vec<N,float>& x) { return map(roundf, x); }
+SIN Vec<N,float>  sqrt(const Vec<N,float>& x) { return map( sqrtf, x); }
+SIN Vec<N,float>   abs(const Vec<N,float>& x) { return map( fabsf, x); }
+SIN Vec<N,float>   sin(const Vec<N,float>& x) { return map(  sinf, x); }
+SIN Vec<N,float>   cos(const Vec<N,float>& x) { return map(  cosf, x); }
+SIN Vec<N,float>   tan(const Vec<N,float>& x) { return map(  tanf, x); }
+
+SIN Vec<N,float> pow(const Vec<N,float>& x, const Vec<N,float>& y) {
+    return map(powf, x,y);
+}
+
+// skvx::fma() always returns a fused mul-add, even if it's not fast.
+SIN Vec<N,float> fma(const Vec<N,float>& x, const Vec<N,float>& y, const Vec<N,float>& z) {
+    auto fn = [](float x, float y, float z) { return fmaf(x,y,z); };
+    return map(fn, x,y,z);
+}
+
+// skvx::fast_mad() returns an FMA or unfused mul-add, whichever is faster.
+#if defined(__clang__)
+    #pragma STDC FP_CONTRACT ON
+    // GCC does not obey any pragma to control FP contraction, but it's on by
+    // default, and contracts much more aggressivly than Clang does.
+    //
+    // MSVC's docs claim FP contraction is enabled by default with `#pragma
+    // fp_contract off` to disable, but I've never seen it actually work.
+#endif
+SIN Vec<N,float> fast_mad(const Vec<N,float>& x, const Vec<N,float>& y, const Vec<N,float>& z) {
+    auto fn = [](float x, float y, float z) { return x*y+z; };
+    return map(fn, x,y,z);
+}
+#if defined(__clang__)
+    #pragma STDC FP_CONTRACT DEFAULT
+#endif
+
 
 SI Vec<1,int> lrint(const Vec<1,float>& x) {
     return (int)lrintf(x.val);
@@ -701,27 +734,6 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
         }
         SI Vec<2,float>   rcp(const Vec<2,float>& x) {
             return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x)));
-        }
-    #endif
-
-    #if defined(__AVX2__)
-        SI Vec<4,float> fma(const Vec<4,float>& x, const Vec<4,float>& y, const Vec<4,float>& z) {
-            return bit_pun<Vec<4,float>>(_mm_fmadd_ps(bit_pun<__m128>(x),
-                                                      bit_pun<__m128>(y),
-                                                      bit_pun<__m128>(z)));
-        }
-
-        SI Vec<8,float> fma(const Vec<8,float>& x, const Vec<8,float>& y, const Vec<8,float>& z) {
-            return bit_pun<Vec<8,float>>(_mm256_fmadd_ps(bit_pun<__m256>(x),
-                                                         bit_pun<__m256>(y),
-                                                         bit_pun<__m256>(z)));
-        }
-    #elif defined(__aarch64__)
-        SI Vec<4,float> fma(const Vec<4,float>& x, const Vec<4,float>& y, const Vec<4,float>& z) {
-            // These instructions tend to work like z += xy, so the order here is z,x,y.
-            return bit_pun<Vec<4,float>>(vfmaq_f32(bit_pun<float32x4_t>(z),
-                                                   bit_pun<float32x4_t>(x),
-                                                   bit_pun<float32x4_t>(y)));
         }
     #endif
 
