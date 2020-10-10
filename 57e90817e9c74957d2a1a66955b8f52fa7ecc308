@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d9efcbb_8d4b2c17",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-10T16:19:46Z",
+      "side": 1,
+      "message": "Some do (trunc,sqrt,abs, and sometimes ceil/floor/round) and some will never (sin,cos,tan,pow).  But this map() is the best pattern I\u0027ve found that allows the compiler to recognize the opportunity to vectorize where possible.",
+      "parentUuid": "4c64bfa9_eadc89d8",
+      "range": {
+        "startLine": 540,
+        "startChar": 0,
+        "endLine": 549,
+        "endChar": 72
+      },
+      "revId": "57e90817e9c74957d2a1a66955b8f52fa7ecc308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a59baf0_278ae77e",
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "902ec9b1_a862a73a",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-10T16:19:46Z",
+      "side": 1,
+      "message": "Oops, yes we can.  I had started with std::fma where you can\u0027t, but fixed it twice, once by switching to a lambda and again by using fmaf().  😊\n\nBUT, if we do that, for reasons I don\u0027t understand, the codegen goes down the toilet.  So I\u0027ll add a note.",
+      "parentUuid": "9a59baf0_278ae77e",
+      "range": {
+        "startLine": 558,
+        "startChar": 15,
+        "endLine": 558,
+        "endChar": 17
+      },
+      "revId": "57e90817e9c74957d2a1a66955b8f52fa7ecc308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2823caa6_04772135",
         "filename": "include/private/SkVx.h",
         "patchSetId": 3
@@ -60,6 +108,30 @@
       "writtenOn": "2020-10-10T16:04:04Z",
       "side": 1,
       "message": "Did you choose \"mad\" to make it clear that the implementation doesn\u0027t have to be fused? Do you have a preference re: \"fast_mad\" vs \"fast_madd\"?\n\nAlso, I\u0027m curious why you map it instead of just calling \"x*y+z\". Did you find that the compiler did a better job when calling map()?",
+      "range": {
+        "startLine": 571,
+        "startChar": 17,
+        "endLine": 571,
+        "endChar": 25
+      },
+      "revId": "57e90817e9c74957d2a1a66955b8f52fa7ecc308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d57c506_a2afed97",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-10T16:19:46Z",
+      "side": 1,
+      "message": "Oops, yes, this can be just x*y+z.  I was following my pattern from the last one too closely.\n\nChanged the name to mul_add().",
+      "parentUuid": "2823caa6_04772135",
       "range": {
         "startLine": 571,
         "startChar": 17,
