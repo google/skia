@@ -16,12 +16,14 @@
 #include "src/c/sk_types_priv.h"
 
 bool sk_matrix_try_invert(sk_matrix_t *matrix, sk_matrix_t *result) {
+    SkMatrix m = AsMatrix(matrix);
+    if (!result)
+        return m.invert(nullptr);
+
     SkMatrix inverse;
-    if(AsMatrix(matrix).invert(&inverse)){
-        *result = ToMatrix(&inverse);
-        return true;
-    }
-    return false;
+    bool invertible = m.invert(&inverse);
+    *result = ToMatrix(&inverse);
+    return invertible;
 }
 
 void sk_matrix_concat(sk_matrix_t *matrix, sk_matrix_t *first, sk_matrix_t *second) {
