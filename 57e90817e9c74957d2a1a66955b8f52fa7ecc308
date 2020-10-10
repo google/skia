@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c64bfa9_eadc89d8",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-10T16:04:04Z",
+      "side": 1,
+      "message": "Interesting. I didn\u0027t know clang could compile these down to vector instructions",
+      "range": {
+        "startLine": 540,
+        "startChar": 0,
+        "endLine": 549,
+        "endChar": 72
+      },
+      "revId": "57e90817e9c74957d2a1a66955b8f52fa7ecc308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a59baf0_278ae77e",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-10T16:04:04Z",
+      "side": 1,
+      "message": "Curious why we couldn\u0027t just send fmaf to map?\n\n  map(fmaf, x,y,z)",
+      "range": {
+        "startLine": 558,
+        "startChar": 15,
+        "endLine": 558,
+        "endChar": 17
+      },
+      "revId": "57e90817e9c74957d2a1a66955b8f52fa7ecc308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2823caa6_04772135",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-10T16:04:04Z",
+      "side": 1,
+      "message": "Did you choose \"mad\" to make it clear that the implementation doesn\u0027t have to be fused? Do you have a preference re: \"fast_mad\" vs \"fast_madd\"?\n\nAlso, I\u0027m curious why you map it instead of just calling \"x*y+z\". Did you find that the compiler did a better job when calling map()?",
+      "range": {
+        "startLine": 571,
+        "startChar": 17,
+        "endLine": 571,
+        "endChar": 25
+      },
+      "revId": "57e90817e9c74957d2a1a66955b8f52fa7ecc308",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
