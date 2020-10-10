@@ -33,6 +33,24 @@
       "message": "Yeah, skvx::fma() is always fused, even if it\u0027s not fast, just like std::fma.\n\nWhen building for ARMv8 or in code compiled for AVX2, FMAs are available and fast.  I think we can detect that with defined(__aarch64__) || defined(__FMA__) to write something like,\n\ntemplate \u003ctypename F\u003e\nF fast_mad(F x, F y, F z) {\n#if defined(__aarch64__) || defined(__FMA__)\n    return fma(x,y,z);\n#else\n    return x*y+z;\n#endif\n}\n\nIt\u0027s also possible to let the compiler autodetect expressions of the form ±xy±z and fuse them itself \n(again when building for ARMv8 or AVX2+), but that unexpected extra precision tends to break Skia.  I think there\u0027s an edition of ARMv7 that had FMAs also, maybe VFPv4?\n\nIt\u0027s worth mentioning that there are no specializations written today for Vec\u003c2,float\u003e.  I would love to rewrite skvx::fma() a little more generically like we have min() and max() so that the compiler can work out how to do the fusion at any N, rather than having to call into those specifically-sized platform intrinsics, but I haven\u0027t figured out how to do it reliably yet.",
       "revId": "e37e906e9bdda98c042168e8cafb4a96a91d29d6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa3a9193_7139c979",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-10T13:41:27Z",
+      "side": 1,
+      "message": "Looking again, I think a promising approach is,\n\n    #pragma STDC FP_CONTRACT ON\n    template \u003ctypename F\u003e\n    F fast_mad(F x, F y, F z) {\n        return x*y+z;\n    }\n    #pragma STDC FP_CONTRACT DEFAULT\n\nWe can noodle on that next week.",
+      "parentUuid": "ed7d9669_75f05954",
+      "revId": "e37e906e9bdda98c042168e8cafb4a96a91d29d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
