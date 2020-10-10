@@ -16,6 +16,24 @@
       "message": "There\u0027s something about this change that just doesn\u0027t feel right to me.\n\nFirst off for the normal case (non msaa) we are switching this to prefer making a TextureRenderTarget versus a pure render target. This has implications on things like how we handle various dst reads and what not. Maybe I\u0027m wrong but I would imagine that most people don\u0027t make their swapchains textureable so this would no longer be testing the common use case (though I may be wrong here). I think I would prefer for viewer to prefer no using the SAMPLED bit since viewer does have the option to draw offscreen which will test rendering to a TextureRenderTarget.\n\nSecond I am confused why we can\u0027t support MSAA without texture support. The swapchain will never be multisampled, But that doesn\u0027t mean we can\u0027t resolve into the swapchain image (making our own msaa image internally). I actually think this is a very common usage pattern if someone tries to use vulkan with MSAA. If we can\u0027t support this then I think we\u0027ve lost an important use case with the removal of TextureAsRenderTarget.",
       "revId": "e4e0aad93781ffe89da2473c2d00b0dfd43bbac1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be351a11_67112c63",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-10T13:28:49Z",
+      "side": 1,
+      "message": "Texture-as-RT is not used by anyone. It\u0027s been removed from the API for several releases with no complaints or even questions from users. So maybe it\u0027s important in theory but not in practice.\n\nThe motivation for removing the API is to remove a use case of mixed buffers in GrRenderTarget to move use closer to untangling that mess. \n\nWe do support importing non-textureable MSAA buffers. If a user really needs this they can always create a MSAA BERT, import that through MakeFromBackendRenderTarget and do the resolve themselves.\n\nOf course we should be able to resolve into a non-textureable swap chain image and there\u0027s no theoretical reason we can\u0027t support it. But let\u0027s do it with a better designed API that doesn\u0027t jam multiple allocations in a GrRenderTarget. And given that no one is using this I don\u0027t want to keep it around just for viewer or make it public again so that we gain dependencies on it.\n\nIf we\u0027re relying on viewer to test non-textureable RTs then I propose adding the SAMPLED usage only when MSAA (until we have a better API). But if that\u0027s something we need to test then really we ought to have a bot running vkbert config rather than relying on devs using viewer to test it. I\u0027m happy to take an AI to get that working (currently crashes for at least two different reasons: one a trivial ref-cnt\u0027ing issue in test code and another because we try sample from a non-texture proxy in at least one GM).",
+      "parentUuid": "2c17ab87_7d1f7f29",
+      "revId": "e4e0aad93781ffe89da2473c2d00b0dfd43bbac1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
