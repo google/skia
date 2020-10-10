@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60c9ab33_54d13317",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-10T20:54:23Z",
+      "side": 1,
+      "message": "I guess my only thought with this method is that it introduces an operation that might return different results on different platforms, from the same inputs. (Is this the first one? Or can sqrt, etc., have different LSB results on different platforms?)\n\nAnyway, I\u0027m wondering if that \"fast_\" prefix helped make it clear that this method is meant to be faster than \"a*x+b\", at the cost of cross-platform LSB consistency. It also might help code readability in the places where we will use it.\n\nI don\u0027t have a strong opinion though, so lgtm either way.",
+      "range": {
+        "startLine": 572,
+        "startChar": 17,
+        "endLine": 572,
+        "endChar": 24
+      },
+      "revId": "9ae1911b35cea6fb0ecfbb2971164757db83dd7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
