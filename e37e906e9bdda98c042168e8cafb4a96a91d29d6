@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "135d95b6_909f50b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-10T02:32:54Z",
+      "side": 1,
+      "message": "Oops, I assumed fma was always fast.\n\nI think answer is probably no 😊 but is it possible to get an fma only when it\u0027s supported in hardware?",
+      "revId": "e37e906e9bdda98c042168e8cafb4a96a91d29d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
