@@ -17,7 +17,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     {
         _0_blend_exclusion = float4((_in.dst.xyz + _in.src.xyz) - (2.0 * _in.dst.xyz) * _in.src.xyz, _in.src.w + (1.0 - _in.src.w) * _in.dst.w);
     }
-
     _out->sk_FragColor = _0_blend_exclusion;
 
     return *_out;

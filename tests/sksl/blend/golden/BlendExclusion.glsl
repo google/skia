@@ -7,7 +7,6 @@ void main() {
     {
         _0_blend_exclusion = vec4((dst.xyz + src.xyz) - (2.0 * dst.xyz) * src.xyz, src.w + (1.0 - src.w) * dst.w);
     }
-
     sk_FragColor = _0_blend_exclusion;
 
 }
