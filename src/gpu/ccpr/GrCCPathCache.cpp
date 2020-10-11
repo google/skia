@@ -191,6 +191,18 @@ GrCCPathCache::OnFlushEntryRef GrCCPathCache::find(
                 entry->fHitCount = 0;
                 entry->fHitRect = SkIRect::MakeEmpty();
                 entry->releaseCachedAtlas(this);
+            } else if (entry->fTimestamp == quickPerFlushTimestamp() &&
+                       entry->fCachedAtlas &&
+                       entry->fCachedAtlas->coverageType() ==
+                           GrCCAtlas::CoverageType::kA8_Multisample) {
+                // This means the entry was already used in current flush by some previous draw ops.
+                // If entry's coverage type is kA8_Multisample, we cannot release or evict it from
+                // cache.  Because:
+                // 1. it would invalidate the entry used in previous draw ops, causing cached paths
+                //    to be re-rendered
+                // 2. GrCCPerFlushResources does not allocate stencil buffer resource for cached
+                //    paths when coverage type is kA8_Multisample.
+                return OnFlushEntryRef();
             } else {
                 this->evict(*fScratchKey);
                 entry = nullptr;
