@@ -50,6 +50,24 @@
       "message": "Are you going to make a dark version too? :-)",
       "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d686318_9d8e3462",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-12T14:49:50Z",
+      "side": 1,
+      "message": "This one looks pretty good already on dark I think... though swapping to a dark mode icon requires mucking about with the css on the page as well, afaict. Will need to be done in a follow up CL.",
+      "parentUuid": "8d357b42_36e3bb86",
+      "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
