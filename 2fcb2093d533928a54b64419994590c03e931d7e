@@ -46,6 +46,30 @@
       },
       "revId": "2fcb2093d533928a54b64419994590c03e931d7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2377e8b5_c10c04cc",
+        "filename": "src/sksl/ir/SkSLUnresolvedFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-12T14:06:53Z",
+      "side": 1,
+      "message": "Its name was previously passed into the INHERITED constructor (\"funcs[0]-\u003ename()\"). I already hit +2 on this, so if you don\u0027t mind I\u0027ll just sneak that assert into my next CL.",
+      "parentUuid": "466b79af_527ad389",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 5
+      },
+      "revId": "2fcb2093d533928a54b64419994590c03e931d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }

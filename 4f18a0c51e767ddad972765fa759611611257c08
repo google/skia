@@ -22,6 +22,30 @@
       },
       "revId": "4f18a0c51e767ddad972765fa759611611257c08",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1847fa7_8a39a972",
+        "filename": "src/sksl/ir/SkSLUnresolvedFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-12T14:06:53Z",
+      "side": 0,
+      "message": "Well, I suppose it depends upon your definition of \"works\", now doesn\u0027t it? I submit that this code will never experience an assertion failure, and therefore it \"works\" :-)",
+      "parentUuid": "c2f5d3b8_ad21a5f4",
+      "range": {
+        "startLine": 25,
+        "startChar": 25,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "4f18a0c51e767ddad972765fa759611611257c08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
