@@ -54,30 +54,7 @@ GrContext::GrContext(sk_sp<GrContextThreadSafeProxy> proxy) : INHERITED(std::mov
 
 GrContext::~GrContext() = default;
 
-sk_sp<GrContextThreadSafeProxy> GrContext::threadSafeProxy() {
-    return INHERITED::threadSafeProxy();
-}
-
 //////////////////////////////////////////////////////////////////////////////
-
-void GrContext::releaseResourcesAndAbandonContext() {
-    if (INHERITED::abandoned()) {
-        return;
-    }
-
-    INHERITED::abandonContext();
-
-    fMappedBufferManager.reset();
-
-    fResourceProvider->abandon();
-
-    // Release all resources in the backend 3D API.
-    fResourceCache->releaseAll();
-
-    fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
-}
-
-bool GrContext::oomed() { return fGpu ? fGpu->checkAndResetOOMed() : false; }
 
 void GrContext::freeGpuResources() {
     ASSERT_SINGLE_OWNER

@@ -72,6 +72,10 @@ GrDirectContext::~GrDirectContext() {
     }
 }
 
+sk_sp<GrContextThreadSafeProxy> GrDirectContext::threadSafeProxy() {
+    return INHERITED::threadSafeProxy();
+}
+
 void GrDirectContext::resetGLTextureBindings() {
     if (this->abandoned() || this->backend() != GrBackendApi::kOpenGL) {
         return;
@@ -122,8 +126,23 @@ bool GrDirectContext::abandoned() {
     return false;
 }
 
+bool GrDirectContext::oomed() { return fGpu ? fGpu->checkAndResetOOMed() : false; }
+
 void GrDirectContext::releaseResourcesAndAbandonContext() {
-    INHERITED::releaseResourcesAndAbandonContext();
+    if (INHERITED::abandoned()) {
+        return;
+    }
+
+    INHERITED::abandonContext();
+
+    fMappedBufferManager.reset();
+
+    fResourceProvider->abandon();
+
+    // Release all resources in the backend 3D API.
+    fResourceCache->releaseAll();
+
+    fGpu->disconnect(GrGpu::DisconnectType::kCleanup);
     if (fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr->reset();
     }
