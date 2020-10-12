@@ -68,6 +68,24 @@
       "parentUuid": "8d357b42_36e3bb86",
       "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a84f02fd_6792d34a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-12T14:54:30Z",
+      "side": 1,
+      "message": "Can I commission you to update status.skia.org too?  Instead of those old stuffy icons that reflect the tree status with red, green, or yellow, how about we show red, green, and yellow all the time!?  We can subtly move around where the blue is to indicate the tree status.",
+      "parentUuid": "1d686318_9d8e3462",
+      "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
