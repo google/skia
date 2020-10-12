@@ -39,10 +39,11 @@ std::unique_ptr<SkShaper> SkShaper::Make(sk_sp<SkFontMgr> fontmgr) {
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
 #ifdef SK_UNICODE_AVAILABLE
-    auto unicode = SkUnicode::Make();
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
     if (!unicode) {
         return nullptr;
     }
+    // We only need unicode for the duration of this call
     std::unique_ptr<SkShaper::BiDiRunIterator> bidi =
         SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
                                                utf8,
@@ -62,6 +63,7 @@ SkShaper::MakeScriptRunIterator(const char* utf8, size_t utf8Bytes, SkFourByteTa
     if (!unicode) {
         return nullptr;
     }
+    // We only need unicode for the duration of this call
     std::unique_ptr<SkShaper::ScriptRunIterator> script =
         SkShaper::MakeSkUnicodeHbScriptRunIterator(unicode.get(), utf8, utf8Bytes);
     if (script) {

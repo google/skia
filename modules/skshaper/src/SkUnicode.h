@@ -7,9 +7,11 @@
 #ifndef SkUnicode_DEFINED
 #define SkUnicode_DEFINED
 
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkSpan.h"
 #include "src/utils/SkUTF.h"
+#include <memory>
 #include <vector>
 
 #if !defined(SKUNICODE_IMPLEMENTATION)
@@ -138,6 +140,8 @@ class SKUNICODE_API SkUnicode {
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
 
+        static std::unique_ptr<SkUnicode> MakeIcuUnicode();
+        static std::unique_ptr<SkUnicode> MakePrimitiveUnicode();
         static std::unique_ptr<SkUnicode> Make();
 };
 
