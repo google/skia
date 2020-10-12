@@ -22,6 +22,30 @@
       },
       "revId": "4cbc8626457edf69dc6e16e4f50901ddd2331ad7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "155732ca_eb352645",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-12T18:58:40Z",
+      "side": 1,
+      "message": "Sure thing.  But think that line through... why would you call map(fn)?",
+      "parentUuid": "9fe06d4b_1cca7947",
+      "range": {
+        "startLine": 519,
+        "startChar": 18,
+        "endLine": 519,
+        "endChar": 39
+      },
+      "revId": "4cbc8626457edf69dc6e16e4f50901ddd2331ad7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
