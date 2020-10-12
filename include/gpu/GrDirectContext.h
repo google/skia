@@ -117,7 +117,39 @@ public:
      */
     bool abandoned() override;
 
-    void releaseResourcesAndAbandonContext() override;
+    // TODO: Remove this from public after migrating Chrome.
+    sk_sp<GrContextThreadSafeProxy> threadSafeProxy();
+
+    /**
+     * Checks if the underlying 3D API reported an out-of-memory error. If this returns true it is
+     * reset and will return false until another out-of-memory error is reported by the 3D API. If
+     * the context is abandoned then this will report false.
+     *
+     * Currently this is implemented for:
+     *
+     * OpenGL [ES] - Note that client calls to glGetError() may swallow GL_OUT_OF_MEMORY errors and
+     * therefore hide the error from Skia. Also, it is not advised to use this in combination with
+     * enabling GrContextOptions::fSkipGLErrorChecks. That option may prevent the context from ever
+     * checking the GL context for OOM.
+     *
+     * Vulkan - Reports true if VK_ERROR_OUT_OF_HOST_MEMORY or VK_ERROR_OUT_OF_DEVICE_MEMORY has
+     * occurred.
+     */
+    bool oomed();
+
+    /**
+     * This is similar to abandonContext() however the underlying 3D context is not yet lost and
+     * the context will cleanup all allocated resources before returning. After returning it will
+     * assume that the underlying context may no longer be valid.
+     *
+     * The typical use case for this function is that the client is going to destroy the 3D context
+     * but can't guarantee that context will be destroyed first (perhaps because it may be ref'ed
+     * elsewhere by either the client or Skia objects).
+     *
+     * For Vulkan, even if the device becomes lost, the VkQueue, VkDevice, or VkInstance used to
+     * create the context must be alive before calling releaseResourcesAndAbandonContext.
+     */
+    void releaseResourcesAndAbandonContext();
 
     void freeGpuResources() override;
 
