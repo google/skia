@@ -221,7 +221,7 @@ private:
                                                             renderPassXferBarriers);
     }
 
-    void onPrePrepareDraws(GrRecordingContext* context,
+    void onPrePrepareDraws(GrRecordingContext* rContext,
                            const GrSurfaceProxyView* writeView,
                            GrAppliedClip* clip,
                            const GrXferProcessor::DstProxyView& dstProxyView,
@@ -230,15 +230,9 @@ private:
 
         SkASSERT(!fPrePreparedVertices);
 
-        SkArenaAlloc* arena = context->priv().recordTimeAllocator();
+        INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView, renderPassXferBarriers);
 
-        // This is equivalent to a GrOpFlushState::detachAppliedClip
-        GrAppliedClip appliedClip = clip ? std::move(*clip) : GrAppliedClip::Disabled();
-
-        this->createProgramInfo(context->priv().caps(), arena, writeView,
-                                std::move(appliedClip), dstProxyView, renderPassXferBarriers);
-
-        context->priv().recordProgramInfo(fProgramInfo);
+        SkArenaAlloc* arena = rContext->priv().recordTimeAllocator();
 
         const VertexSpec vertexSpec = this->vertexSpec();
 

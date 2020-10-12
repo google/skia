@@ -74,9 +74,9 @@ bool cache_match(GrGpuBuffer* vertexBuffer, SkScalar tol, int* actualCount) {
 class StaticVertexAllocator : public GrEagerVertexAllocator {
 public:
     StaticVertexAllocator(GrResourceProvider* resourceProvider, bool canMapVB)
-      : fResourceProvider(resourceProvider)
-      , fCanMapVB(canMapVB)
-      , fVertices(nullptr) {
+          : fResourceProvider(resourceProvider)
+          , fCanMapVB(canMapVB)
+          , fVertices(nullptr) {
     }
 #ifdef SK_DEBUG
     ~StaticVertexAllocator() override {
@@ -118,6 +118,44 @@ private:
     GrResourceProvider* fResourceProvider;
     bool fCanMapVB;
     void* fVertices;
+    size_t fLockStride = 0;
+};
+
+class CpuVertexAllocator : public GrEagerVertexAllocator {
+public:
+    CpuVertexAllocator() = default;
+
+#ifdef SK_DEBUG
+    ~CpuVertexAllocator() override {
+        SkASSERT(!fLockStride && !fVertices);
+    }
+#endif
+
+    void* lock(size_t stride, int eagerCount) override {
+        SkASSERT(!fLockStride && !fVertices);
+        SkASSERT(stride && eagerCount);
+
+        fVertices = sk_malloc_throw(eagerCount * stride);
+        fLockStride = stride;
+
+        return fVertices;
+    }
+    void unlock(int actualCount) override {
+        SkASSERT(fLockStride && fVertices);
+
+        fVertices = sk_realloc_throw(fVertices, actualCount * fLockStride);
+        fLockStride = 0;
+    }
+    void* detachVertices() {
+        SkASSERT(!fLockStride && fVertices);
+
+        void* tmp = fVertices;
+        fVertices = nullptr;
+        return tmp;
+    }
+
+private:
+    void* fVertices = nullptr;
     size_t fLockStride = 0;
 };
 
@@ -235,26 +273,36 @@ private:
         return path;
     }
 
-    void draw(Target* target) {
-        SkASSERT(!fAntiAlias);
-        GrResourceProvider* rp = target->resourceProvider();
-        bool inverseFill = fShape.inverseFilled();
-        // construct a cache key from the path's genID and the view matrix
+    static void CreateKey(GrUniqueKey* key,
+                          const GrStyledShape& shape,
+                          const SkIRect& devClipBounds) {
         static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
-        GrUniqueKey key;
-        static constexpr int kClipBoundsCnt = sizeof(fDevClipBounds) / sizeof(uint32_t);
-        int shapeKeyDataCnt = fShape.unstyledKeySize();
+
+        bool inverseFill = shape.inverseFilled();
+
+        static constexpr int kClipBoundsCnt = sizeof(devClipBounds) / sizeof(uint32_t);
+        int shapeKeyDataCnt = shape.unstyledKeySize();
         SkASSERT(shapeKeyDataCnt >= 0);
-        GrUniqueKey::Builder builder(&key, kDomain, shapeKeyDataCnt + kClipBoundsCnt, "Path");
-        fShape.writeUnstyledKey(&builder[0]);
+        GrUniqueKey::Builder builder(key, kDomain, shapeKeyDataCnt + kClipBoundsCnt, "Path");
+        shape.writeUnstyledKey(&builder[0]);
         // For inverse fills, the tessellation is dependent on clip bounds.
         if (inverseFill) {
-            memcpy(&builder[shapeKeyDataCnt], &fDevClipBounds, sizeof(fDevClipBounds));
+            memcpy(&builder[shapeKeyDataCnt], &devClipBounds, sizeof(devClipBounds));
         } else {
-            memset(&builder[shapeKeyDataCnt], 0, sizeof(fDevClipBounds));
+            memset(&builder[shapeKeyDataCnt], 0, sizeof(devClipBounds));
         }
+
         builder.finish();
-        sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key));
+    }
+
+    void createNonAAMesh(Target* target) {
+        SkASSERT(!fAntiAlias);
+        GrResourceProvider* rp = target->resourceProvider();
+
+        GrUniqueKey key2;
+        CreateKey(&key2, fShape, fDevClipBounds);
+
+        sk_sp<GrGpuBuffer> cachedVertexBuffer(rp->findByUniqueKey<GrGpuBuffer>(key2));
         int actualCount;
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
@@ -273,7 +321,8 @@ private:
         int numCountedCurves;
         bool canMapVB = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
         StaticVertexAllocator allocator(rp, canMapVB);
-        int vertexCount = GrTriangulator::PathToTriangles(getPath(), tol, clipBounds, &allocator,
+        int vertexCount = GrTriangulator::PathToTriangles(this->getPath(), tol, clipBounds,
+                                                          &allocator,
                                                           GrTriangulator::Mode::kNormal,
                                                           &numCountedCurves);
         if (vertexCount == 0) {
@@ -284,16 +333,16 @@ private:
         info.fTolerance = (numCountedCurves == 0) ? 0 : tol;
         info.fCount = vertexCount;
         fShape.addGenIDChangeListener(
-                sk_make_sp<UniqueKeyInvalidator>(key, target->contextUniqueID()));
-        key.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
-        rp->assignUniqueKeyToResource(key, vb.get());
+                sk_make_sp<UniqueKeyInvalidator>(key2, target->contextUniqueID()));
+        key2.setCustomData(SkData::MakeWithCopy(&info, sizeof(info)));
+        rp->assignUniqueKeyToResource(key2, vb.get());
 
         this->createMesh(target, std::move(vb), 0, vertexCount);
     }
 
-    void drawAA(Target* target) {
+    void createAAMesh(Target* target) {
         SkASSERT(fAntiAlias);
-        SkPath path = getPath();
+        SkPath path = this->getPath();
         if (path.isEmpty()) {
             return;
         }
@@ -366,11 +415,25 @@ private:
                                                              renderPassXferBarriers);
     }
 
+    void onPrePrepareDraws(GrRecordingContext* rContext,
+                           const GrSurfaceProxyView* writeView,
+                           GrAppliedClip* clip,
+                           const GrXferProcessor::DstProxyView& dstProxyView,
+                           GrXferBarrierFlags renderPassXferBarriers) override {
+        TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+        INHERITED::onPrePrepareDraws(rContext, writeView, clip, dstProxyView, renderPassXferBarriers);
+
+        SkArenaAlloc* arena = rContext->priv().recordTimeAllocator();
+
+        CpuVertexAllocator allocator;
+    }
+
     void onPrepareDraws(Target* target) override {
         if (fAntiAlias) {
-            this->drawAA(target);
+            this->createAAMesh(target);
         } else {
-            this->draw(target);
+            this->createNonAAMesh(target);
         }
     }
 
