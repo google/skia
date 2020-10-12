@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "07d38018_1e678940",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T21:41:46Z",
+      "side": 1,
+      "message": "96 bytes! That\u0027s pretty spicy! Is it our biggest one?\n\nWe should really decide what our ideal node size is, and come up for a gameplan for handling nodes which exceed it. e.g. we could have separate \"normal\" and \"jumbo\" IRNode types or something that pool separately.",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 21
+      },
+      "revId": "be2e0aec251dd5d073fe4bcd2beb41f2f1c5625b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
