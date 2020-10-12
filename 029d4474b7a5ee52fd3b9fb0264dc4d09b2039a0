@@ -86,6 +86,24 @@
       "parentUuid": "1d686318_9d8e3462",
       "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2c8056d_ed2ddb07",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2020-10-12T15:20:50Z",
+      "side": 1,
+      "message": "So I think I recently fixed the caution icon to actually upload ( https://skia-review.googlesource.com/c/buildbot/+/323782 ) so we should wait until we can verify that.\n\nI think the proper way to express the status may have to do with the location of the red triangle, which is obviously formed when yellow and blue overlap. However, chat went with the icon just changing color to indicate status (four dimensional icons can spread the colors out along the temporal dimension). The colors chosen would, of course, need to change to match the new theme, but this should be done in conjunction with changing the status page itself to use the color scheme of the new theme in order to avoid visual inconsistency.",
+      "parentUuid": "a84f02fd_6792d34a",
+      "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
