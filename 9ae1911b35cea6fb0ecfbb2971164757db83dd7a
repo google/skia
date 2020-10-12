@@ -39,6 +39,24 @@
       "message": "Think we could map fmaf if \"FP_FAST_FMAF\" is defined? https://en.cppreference.com/w/c/numeric/math/fma",
       "revId": "9ae1911b35cea6fb0ecfbb2971164757db83dd7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34242995_1591e305",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-12T13:37:55Z",
+      "side": 1,
+      "message": "Yeah, I like that.  Keep an eye on the code generation though... playing around on godbolt.org FP_FAST_FMAF doesn\u0027t seem to be defined when built by Clang at -march\u003dhaswell though it should, and is on my Mac with the same flags.\n\nNow fast_mul_add().",
+      "parentUuid": "6efb21db_cf9353a8",
+      "revId": "9ae1911b35cea6fb0ecfbb2971164757db83dd7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
