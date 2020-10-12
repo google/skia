@@ -702,8 +702,11 @@ void GrGpu::Stats::dump(SkString* out) {
     out->appendf("Transfers to Texture: %d\n", fTransfersToTexture);
     out->appendf("Transfers from Surface: %d\n", fTransfersFromSurface);
     out->appendf("Stencil Buffer Creates: %d\n", fStencilAttachmentCreates);
+    out->appendf("MSAA Attachment Creates: %d\n", fMSAAAttachmentCreates);
     out->appendf("Number of draws: %d\n", fNumDraws);
     out->appendf("Number of Scratch Textures reused %d\n", fNumScratchTexturesReused);
+    out->appendf("Number of Scratch MSAA Attachments reused %d\n",
+                 fNumScratchMSAAAttachmentsReused);
 
     SkASSERT(fNumInlineCompilationFailures == 0);
     out->appendf("Number of Inline compile failures %d\n", fNumInlineCompilationFailures);

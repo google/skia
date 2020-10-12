@@ -36,6 +36,43 @@ public:
         return this->internalSize();
     }
 
+    /** Used to initialize a key. */
+    class Builder {
+    public:
+        ~Builder() { this->finish(); }
+
+        void finish() {
+            if (nullptr == fKey) {
+                return;
+            }
+            uint32_t* hash = &fKey->fKey[kHash_MetaDataIdx];
+            *hash = GrResourceKeyHash(hash + 1, fKey->internalSize() - sizeof(uint32_t));
+            fKey->validate();
+            fKey = nullptr;
+        }
+
+        uint32_t& operator[](int dataIdx) {
+            SkASSERT(fKey);
+            SkDEBUGCODE(size_t dataCount = fKey->internalSize() / sizeof(uint32_t) - kMetaDataCnt;)
+                    SkASSERT(SkToU32(dataIdx) < dataCount);
+            return fKey->fKey[(int)kMetaDataCnt + dataIdx];
+        }
+
+    protected:
+        Builder(GrResourceKey* key, uint32_t domain, int data32Count) : fKey(key) {
+            size_t count = SkToSizeT(data32Count);
+            SkASSERT(domain != kInvalidDomain);
+            key->fKey.reset(kMetaDataCnt + count);
+            size_t size = (count + kMetaDataCnt) * sizeof(uint32_t);
+            SkASSERT(SkToU16(size) == size);
+            SkASSERT(SkToU16(domain) == domain);
+            key->fKey[kDomainAndSize_MetaDataIdx] = domain | (size << 16);
+        }
+
+    private:
+        GrResourceKey* fKey;
+    };
+
 protected:
     static const uint32_t kInvalidDomain = 0;
 
@@ -99,42 +136,6 @@ protected:
         }
     }
 #endif
-
-    /** Used to initialize a key. */
-    class Builder {
-    public:
-        Builder(GrResourceKey* key, uint32_t domain, int data32Count) : fKey(key) {
-            size_t count = SkToSizeT(data32Count);
-            SkASSERT(domain != kInvalidDomain);
-            key->fKey.reset(kMetaDataCnt + count);
-            size_t size = (count + kMetaDataCnt) * sizeof(uint32_t);
-            SkASSERT(SkToU16(size) == size);
-            SkASSERT(SkToU16(domain) == domain);
-            key->fKey[kDomainAndSize_MetaDataIdx] = domain | (size << 16);
-        }
-
-        ~Builder() { this->finish(); }
-
-        void finish() {
-            if (nullptr == fKey) {
-                return;
-            }
-            uint32_t* hash = &fKey->fKey[kHash_MetaDataIdx];
-            *hash = GrResourceKeyHash(hash + 1, fKey->internalSize() - sizeof(uint32_t));
-            fKey->validate();
-            fKey = nullptr;
-        }
-
-        uint32_t& operator[](int dataIdx) {
-            SkASSERT(fKey);
-            SkDEBUGCODE(size_t dataCount = fKey->internalSize() / sizeof(uint32_t) - kMetaDataCnt;)
-            SkASSERT(SkToU32(dataIdx) < dataCount);
-            return fKey->fKey[(int)kMetaDataCnt + dataIdx];
-        }
-
-    private:
-        GrResourceKey* fKey;
-    };
 
 private:
     enum MetaDataIdx {
