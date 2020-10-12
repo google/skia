@@ -981,3 +981,24 @@ SKOTTIE_IOS_LIB_SDK_FRAMEWORKS = [
     "Foundation",
     "UIKit",
 ]
+
+################################################################################
+## svg_lib
+################################################################################
+
+def svg_lib_hdrs():
+    return native.glob(["experimental/svg/model/*.h"])
+
+def svg_lib_srcs():
+    return native.glob(["experimental/svg/model/*.cpp"])
+
+################################################################################
+## svg_tool
+################################################################################
+
+SVG_TOOL_SRCS = [
+    "experimental/svg/utils/SvgTool.cpp",
+    # TODO(benjaminwagner): Add "flags" target.
+    "tools/flags/CommandLineFlags.cpp",
+    "tools/flags/CommandLineFlags.h",
+]
