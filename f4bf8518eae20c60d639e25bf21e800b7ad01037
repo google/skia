@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38624352_d53222d5",
+        "filename": "src/gpu/GrDataUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2020-10-12T19:34:23Z",
+      "side": 1,
+      "message": "wdyt about just \"GrNumBlocks\" or \"GrNumBlocksForAttachment\" ?",
+      "range": {
+        "startLine": 155,
+        "startChar": 7,
+        "endLine": 155,
+        "endChar": 28
+      },
+      "revId": "f4bf8518eae20c60d639e25bf21e800b7ad01037",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
