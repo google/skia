@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2d41162d_e6392f6a",
+        "filename": "src/gpu/GrAttachment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-12T19:39:01Z",
+      "side": 1,
+      "message": "No it is the format of the attachment itself. When we need a new attachment we usually have some format we want for that attachment (stencil has a preferred format, msaa attachments usually have to match the resolve format etc.). So the format for the attachment needs to be part of the key when we look it up in the cache.\n\nThe old code here was the old stencil key builder. Since we always preferred a specific format we never added it to the key. I actually think this a bug in the old code since technically in the GL spec I think it allows different stencil formats to be compatible for different FBO color formats. Which is why when we try to bind a stencil we see if we can make a valid FBO for each stencil format till on works.",
+      "parentUuid": "01319934_319b544e",
+      "revId": "229302a23076f648b950d2f8123ffc21cefbf02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "50f7f5b2_9bcce0e0",
         "filename": "src/gpu/GrAttachment.h",
         "patchSetId": 1
@@ -65,6 +83,30 @@
       "writtenOn": "2020-10-12T19:22:58Z",
       "side": 1,
       "message": "This is the first I\u0027ve seen GrProtected. What does it mean?",
+      "range": {
+        "startLine": 51,
+        "startChar": 49,
+        "endLine": 51,
+        "endChar": 72
+      },
+      "revId": "229302a23076f648b950d2f8123ffc21cefbf02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db9142c3_55c61aeb",
+        "filename": "src/gpu/GrAttachment.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2020-10-12T19:39:01Z",
+      "side": 1,
+      "message": "Protected GPU memory. It is used for drm type stuff. Basically we can\u0027t read protected gpu memory and writes to non protected memory cannot depend on any protected memory.",
+      "parentUuid": "50f7f5b2_9bcce0e0",
       "range": {
         "startLine": 51,
         "startChar": 49,
