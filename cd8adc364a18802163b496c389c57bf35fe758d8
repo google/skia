@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdc5d3d2_5368221d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-12T17:51:15Z",
+      "side": 1,
+      "message": "See PS1-\u003ePS2 diff for the fix.",
+      "revId": "cd8adc364a18802163b496c389c57bf35fe758d8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
