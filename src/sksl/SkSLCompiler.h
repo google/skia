@@ -254,9 +254,9 @@ private:
 
     Position position(int offset);
 
-    std::shared_ptr<SymbolTable> fRootSymbolTable;
-
     ParsedModule fRootModule;
+    ParsedModule fPrivateModule;
+
     ParsedModule fGPUModule;
     ParsedModule fInterpreterModule;
     ParsedModule fVertexModule;
