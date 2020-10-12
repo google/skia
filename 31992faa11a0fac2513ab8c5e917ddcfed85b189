@@ -16,6 +16,29 @@
       "message": "This has repercussions for the canvaskit API going forward, but is backwards compatible.",
       "revId": "31992faa11a0fac2513ab8c5e917ddcfed85b189",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b23a913e_5a4892d0",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-12T19:37:26Z",
+      "side": 1,
+      "message": "Kind of unfortunate to have two different crop rect types, but the naming suggests we might be looking at unifying at some point?",
+      "range": {
+        "startLine": 45,
+        "startChar": 31,
+        "endLine": 45,
+        "endChar": 50
+      },
+      "revId": "31992faa11a0fac2513ab8c5e917ddcfed85b189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
