@@ -1,0 +1,32 @@
+/*#pragma settings NoInline*/
+
+uniform half4 color;
+
+half singleuse() {
+    return 1.25;
+}
+
+half add(half a, half b) {
+    half c = a + b;
+    return c;
+}
+
+half mul(half a, half b) {
+    return a * b;
+}
+
+half fma(half a, half b, half c) {
+    return add(mul(a, b), c);
+}
+
+void main() {
+    // Functions used multiple times:
+    sk_FragColor = fma(color.x, color.y, color.z).xxxx;
+    // Functions used only once:
+    sk_FragColor *= singleuse();
+    // Intrinsic functions:
+    sk_FragColor *= blend_src_in(color.xxyy, color.zzww);
+    sk_FragColor *= blend_dst_in(color.xxyy, color.zzww);
+    sk_FragColor *= blend_hue(color, color.wwww);
+    sk_FragColor *= blend_hue(color, color.wzyx);
+}
