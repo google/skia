@@ -57,57 +57,6 @@ class SK_API GrContext : public GrRecordingContext {
 public:
     ~GrContext() override;
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Resource Cache
-
-    /** DEPRECATED
-     *  Return the current GPU resource cache limits.
-     *
-     *  @param maxResources If non-null, will be set to -1.
-     *  @param maxResourceBytes If non-null, returns maximum number of bytes of
-     *                          video memory that can be held in the cache.
-     */
-    void getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const;
-
-    /**
-     *  Return the current GPU resource cache limit in bytes.
-     */
-    size_t getResourceCacheLimit() const;
-
-    /**
-     *  Gets the current GPU resource cache usage.
-     *
-     *  @param resourceCount If non-null, returns the number of resources that are held in the
-     *                       cache.
-     *  @param maxResourceBytes If non-null, returns the total number of bytes of video memory held
-     *                          in the cache.
-     */
-    void getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const;
-
-    /**
-     *  Gets the number of bytes in the cache consumed by purgeable (e.g. unlocked) resources.
-     */
-    size_t getResourceCachePurgeableBytes() const;
-
-    /** DEPRECATED
-     *  Specify the GPU resource cache limits. If the current cache exceeds the maxResourceBytes
-     *  limit, it will be purged (LRU) to keep the cache within the limit.
-     *
-     *  @param maxResources Unused.
-     *  @param maxResourceBytes The maximum number of bytes of video memory
-     *                          that can be held in the cache.
-     */
-    void setResourceCacheLimits(int maxResources, size_t maxResourceBytes);
-
-    /**
-     *  Specify the GPU resource cache limit. If the cache currently exceeds this limit,
-     *  it will be purged (LRU) to keep the cache within the limit.
-     *
-     *  @param maxResourceBytes The maximum number of bytes of video memory
-     *                          that can be held in the cache.
-     */
-    void setResourceCacheLimit(size_t maxResourceBytes);
-
     /**
      * Frees GPU created by the context. Can be called to reduce GPU memory
      * pressure.

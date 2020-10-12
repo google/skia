@@ -122,22 +122,6 @@ void GrContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchRe
     fResourceCache->purgeUnlockedResources(bytesToPurge, preferScratchResources);
 }
 
-void GrContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
-    ASSERT_SINGLE_OWNER
-
-    if (resourceCount) {
-        *resourceCount = fResourceCache->getBudgetedResourceCount();
-    }
-    if (resourceBytes) {
-        *resourceBytes = fResourceCache->getBudgetedResourceBytes();
-    }
-}
-
-size_t GrContext::getResourceCachePurgeableBytes() const {
-    ASSERT_SINGLE_OWNER
-    return fResourceCache->getPurgeableBytes();
-}
-
 size_t GrContext::ComputeImageSize(sk_sp<SkImage> image, GrMipmapped mipMapped, bool useNextPow2) {
     if (!image->isTextureBacked()) {
         return 0;
@@ -229,33 +213,6 @@ void GrContext::storeVkPipelineCacheData() {
 
 bool GrContext::supportsDistanceFieldText() const {
     return this->caps()->shaderCaps()->supportsDistanceFieldText();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void GrContext::getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const {
-    ASSERT_SINGLE_OWNER
-    if (maxResources) {
-        *maxResources = -1;
-    }
-    if (maxResourceBytes) {
-        *maxResourceBytes = this->getResourceCacheLimit();
-    }
-}
-
-size_t GrContext::getResourceCacheLimit() const {
-    ASSERT_SINGLE_OWNER
-    return fResourceCache->getMaxResourceBytes();
-}
-
-void GrContext::setResourceCacheLimits(int unused, size_t maxResourceBytes) {
-    ASSERT_SINGLE_OWNER
-    this->setResourceCacheLimit(maxResourceBytes);
-}
-
-void GrContext::setResourceCacheLimit(size_t maxResourceBytes) {
-    ASSERT_SINGLE_OWNER
-    fResourceCache->setLimit(maxResourceBytes);
 }
 
 //////////////////////////////////////////////////////////////////////////////
