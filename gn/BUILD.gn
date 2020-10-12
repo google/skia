@@ -280,7 +280,7 @@ config("default") {
     cflags += [
       "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
-      "-fsanitize-blacklist=$_suppressions",
+      "-fsanitize-blocklist=$_suppressions",
     ]
 
     if (is_win) {
