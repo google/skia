@@ -29,8 +29,8 @@ class SkVertices;
 // using GrClipStack. When false, SkGpuDevice continues to extend SkClipStackDevice and uses
 // SkClipStack and GrClipStackClip to manage the clip stack.
 #if !defined(SK_DISABLE_NEW_GR_CLIP_STACK)
-    // For staging purposes, disable this for Android Framework and Google3
-    #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) || defined(SK_BUILD_FOR_GOOGLE3)
+    // For staging purposes, disable this for Android Framework
+    #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
         #define SK_DISABLE_NEW_GR_CLIP_STACK
     #endif
 #endif
