@@ -18,20 +18,28 @@ namespace SkSL {
  * An identifier referring to a function name. This is an intermediate value: FunctionReferences are
  * always eventually replaced by FunctionCalls in valid programs.
  */
-struct FunctionReference : public Expression {
+class FunctionReference : public Expression {
+public:
     static constexpr Kind kExpressionKind = Kind::kFunctionReference;
 
     FunctionReference(const Context& context, int offset,
-                      std::vector<const FunctionDeclaration*> function)
-    : INHERITED(offset, kExpressionKind, context.fInvalid_Type.get())
-    , fFunctions(function) {}
+                      std::vector<const FunctionDeclaration*> functions)
+    : INHERITED(offset, FunctionReferenceData{context.fInvalid_Type.get(), std::move(functions)}) {}
+
+    const Type& type() const override {
+        return *this->functionReferenceData().fType;
+    }
+
+    const std::vector<const FunctionDeclaration*>& functions() const {
+        return this->functionReferenceData().fFunctions;
+    }
 
     bool hasProperty(Property property) const override {
         return false;
     }
 
     std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FunctionReference(fOffset, fFunctions,
+        return std::unique_ptr<Expression>(new FunctionReference(fOffset, this->functions(),
                                                                  &this->type()));
     }
 
@@ -39,15 +47,13 @@ struct FunctionReference : public Expression {
         return String("<function>");
     }
 
-    const std::vector<const FunctionDeclaration*> fFunctions;
+private:
+    FunctionReference(int offset, std::vector<const FunctionDeclaration*> functions,
+                      const Type* type)
+    : INHERITED(offset, FunctionReferenceData{type, std::move(functions)}) {}
 
     using INHERITED = Expression;
-
-private:
-    FunctionReference(int offset, std::vector<const FunctionDeclaration*> function,
-                      const Type* type)
-    : INHERITED(offset, kExpressionKind, type)
-    , fFunctions(function) {}};
+};
 
 }  // namespace SkSL
 
