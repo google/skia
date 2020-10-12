@@ -84,12 +84,19 @@ public:
 };
 
 Compiler::Compiler(Flags flags)
-: fFlags(flags)
-, fContext(std::make_shared<Context>())
-, fErrorCount(0) {
-    fRootSymbolTable = std::make_shared<SymbolTable>(this);
+        : fFlags(flags)
+        , fContext(std::make_shared<Context>())
+        , fErrorCount(0) {
+
+    fRootModule = {std::make_shared<SymbolTable>(this), /*fIntrinsics=*/nullptr};
+    fPrivateModule = {std::make_shared<SymbolTable>(fRootModule.fSymbols),
+                      /*fIntrinsics=*/nullptr};
+
     fIRGenerator = std::make_unique<IRGenerator>(fContext.get(), *this);
-#define ADD_TYPE(t) fRootSymbolTable->addWithoutOwnership(fContext->f##t##_Type.get())
+
+#define ADD_TYPE(t)      fRootModule.fSymbols->addWithoutOwnership(fContext->f##t##_Type.get())
+#define ADD_PRIV_TYPE(t) fPrivateModule.fSymbols->addWithoutOwnership(fContext->f##t##_Type.get())
+
     ADD_TYPE(Void);
     ADD_TYPE(Float);
     ADD_TYPE(Float2);
@@ -165,68 +172,64 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(UByteVec);
     ADD_TYPE(BVec);
 
-    ADD_TYPE(Sampler1D);
-    ADD_TYPE(Sampler2D);
-    ADD_TYPE(Sampler3D);
-    ADD_TYPE(SamplerExternalOES);
-    ADD_TYPE(SamplerCube);
-    ADD_TYPE(Sampler2DRect);
-    ADD_TYPE(Sampler1DArray);
-    ADD_TYPE(Sampler2DArray);
-    ADD_TYPE(SamplerCubeArray);
-    ADD_TYPE(SamplerBuffer);
-    ADD_TYPE(Sampler2DMS);
-    ADD_TYPE(Sampler2DMSArray);
-
-    ADD_TYPE(ISampler2D);
-
-    ADD_TYPE(Image2D);
-    ADD_TYPE(IImage2D);
-
-    ADD_TYPE(SubpassInput);
-    ADD_TYPE(SubpassInputMS);
-
-    ADD_TYPE(GSampler1D);
-    ADD_TYPE(GSampler2D);
-    ADD_TYPE(GSampler3D);
-    ADD_TYPE(GSamplerCube);
-    ADD_TYPE(GSampler2DRect);
-    ADD_TYPE(GSampler1DArray);
-    ADD_TYPE(GSampler2DArray);
-    ADD_TYPE(GSamplerCubeArray);
-    ADD_TYPE(GSamplerBuffer);
-    ADD_TYPE(GSampler2DMS);
-    ADD_TYPE(GSampler2DMSArray);
-
-    ADD_TYPE(Sampler1DShadow);
-    ADD_TYPE(Sampler2DShadow);
-    ADD_TYPE(SamplerCubeShadow);
-    ADD_TYPE(Sampler2DRectShadow);
-    ADD_TYPE(Sampler1DArrayShadow);
-    ADD_TYPE(Sampler2DArrayShadow);
-    ADD_TYPE(SamplerCubeArrayShadow);
-    ADD_TYPE(GSampler2DArrayShadow);
-    ADD_TYPE(GSamplerCubeArrayShadow);
     ADD_TYPE(FragmentProcessor);
-    ADD_TYPE(Sampler);
-    ADD_TYPE(Texture2D);
 
-    StringFragment fpAliasName("shader");
-    fRootSymbolTable->addAlias(fpAliasName, fContext->fFragmentProcessor_Type.get());
+    ADD_PRIV_TYPE(Sampler1D);
+    ADD_PRIV_TYPE(Sampler2D);
+    ADD_PRIV_TYPE(Sampler3D);
+    ADD_PRIV_TYPE(SamplerExternalOES);
+    ADD_PRIV_TYPE(SamplerCube);
+    ADD_PRIV_TYPE(Sampler2DRect);
+    ADD_PRIV_TYPE(Sampler1DArray);
+    ADD_PRIV_TYPE(Sampler2DArray);
+    ADD_PRIV_TYPE(SamplerCubeArray);
+    ADD_PRIV_TYPE(SamplerBuffer);
+    ADD_PRIV_TYPE(Sampler2DMS);
+    ADD_PRIV_TYPE(Sampler2DMSArray);
+
+    ADD_PRIV_TYPE(ISampler2D);
+
+    ADD_PRIV_TYPE(Image2D);
+    ADD_PRIV_TYPE(IImage2D);
+
+    ADD_PRIV_TYPE(SubpassInput);
+    ADD_PRIV_TYPE(SubpassInputMS);
+
+    ADD_PRIV_TYPE(GSampler1D);
+    ADD_PRIV_TYPE(GSampler2D);
+    ADD_PRIV_TYPE(GSampler3D);
+    ADD_PRIV_TYPE(GSamplerCube);
+    ADD_PRIV_TYPE(GSampler2DRect);
+    ADD_PRIV_TYPE(GSampler1DArray);
+    ADD_PRIV_TYPE(GSampler2DArray);
+    ADD_PRIV_TYPE(GSamplerCubeArray);
+    ADD_PRIV_TYPE(GSamplerBuffer);
+    ADD_PRIV_TYPE(GSampler2DMS);
+    ADD_PRIV_TYPE(GSampler2DMSArray);
+
+    ADD_PRIV_TYPE(Sampler1DShadow);
+    ADD_PRIV_TYPE(Sampler2DShadow);
+    ADD_PRIV_TYPE(SamplerCubeShadow);
+    ADD_PRIV_TYPE(Sampler2DRectShadow);
+    ADD_PRIV_TYPE(Sampler1DArrayShadow);
+    ADD_PRIV_TYPE(Sampler2DArrayShadow);
+    ADD_PRIV_TYPE(SamplerCubeArrayShadow);
+    ADD_PRIV_TYPE(GSampler2DArrayShadow);
+    ADD_PRIV_TYPE(GSamplerCubeArrayShadow);
+    ADD_PRIV_TYPE(Sampler);
+    ADD_PRIV_TYPE(Texture2D);
 
     // sk_Caps is "builtin", but all references to it are resolved to Settings, so we don't need to
     // treat it as builtin (ie, no need to clone it into the Program).
-    StringFragment skCapsName("sk_Caps");
-    fRootSymbolTable->add(std::make_unique<Variable>(/*offset=*/-1,
-                                                     fIRGenerator->fModifiers->handle(Modifiers()),
-                                                     skCapsName,
-                                                     fContext->fSkCaps_Type.get(),
-                                                     /*builtin=*/false,
-                                                     Variable::Storage::kGlobal));
+    fPrivateModule.fSymbols->add(
+            std::make_unique<Variable>(/*offset=*/-1,
+                                       fIRGenerator->fModifiers->handle(Modifiers()),
+                                       "sk_Caps",
+                                       fContext->fSkCaps_Type.get(),
+                                       /*builtin=*/false,
+                                       Variable::Storage::kGlobal));
 
-    fRootModule = {fRootSymbolTable, /*fIntrinsics=*/nullptr};
-
-    fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fRootModule);
+    fGPUModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(gpu), fPrivateModule);
     fVertexModule = this->parseModule(Program::kVertex_Kind, MODULE_DATA(vert), fGPUModule);
     fFragmentModule = this->parseModule(Program::kFragment_Kind, MODULE_DATA(frag), fGPUModule);
 }
@@ -251,7 +254,34 @@ const ParsedModule& Compiler::loadFPModule() {
 const ParsedModule& Compiler::loadPipelineModule() {
     if (!fPipelineModule.fSymbols) {
         fPipelineModule =
-                this->parseModule(Program::kPipelineStage_Kind, MODULE_DATA(pipeline), fGPUModule);
+                this->parseModule(Program::kPipelineStage_Kind, MODULE_DATA(pipeline), fRootModule);
+
+        // Add some aliases to the pipeline module so that it's friendlier, and more like GLSL
+        fPipelineModule.fSymbols->addAlias("shader", fContext->fFragmentProcessor_Type.get());
+
+        fPipelineModule.fSymbols->addAlias("vec2", fContext->fFloat2_Type.get());
+        fPipelineModule.fSymbols->addAlias("vec3", fContext->fFloat3_Type.get());
+        fPipelineModule.fSymbols->addAlias("vec4", fContext->fFloat4_Type.get());
+
+        fPipelineModule.fSymbols->addAlias("bvec2", fContext->fBool2_Type.get());
+        fPipelineModule.fSymbols->addAlias("bvec3", fContext->fBool3_Type.get());
+        fPipelineModule.fSymbols->addAlias("bvec4", fContext->fBool4_Type.get());
+
+        fPipelineModule.fSymbols->addAlias("mat2", fContext->fFloat2x2_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat3", fContext->fFloat3x3_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat4", fContext->fFloat4x4_Type.get());
+
+        fPipelineModule.fSymbols->addAlias("mat2x2", fContext->fFloat2x2_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat2x3", fContext->fFloat2x3_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat2x4", fContext->fFloat2x4_Type.get());
+
+        fPipelineModule.fSymbols->addAlias("mat3x2", fContext->fFloat3x2_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat3x3", fContext->fFloat3x3_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat3x4", fContext->fFloat3x4_Type.get());
+
+        fPipelineModule.fSymbols->addAlias("mat4x2", fContext->fFloat4x2_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat4x3", fContext->fFloat4x3_Type.get());
+        fPipelineModule.fSymbols->addAlias("mat4x4", fContext->fFloat4x4_Type.get());
     }
     return fPipelineModule;
 }
@@ -280,7 +310,9 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
                                   ModuleData data,
                                   std::shared_ptr<SymbolTable> base) {
     if (!base) {
-        base = fRootSymbolTable;
+        // TODO: Make the entire structure of a model (including base) defined in data, so that
+        // skslc can do dehydration with the correct base specified.
+        base = fPrivateModule.fSymbols;
     }
 
 #if defined(SKSL_STANDALONE)
@@ -292,7 +324,7 @@ LoadedModule Compiler::loadModule(Program::Kind kind,
         printf("error reading %s\n", data.fPath);
         abort();
     }
-    const String* source = fRootSymbolTable->takeOwnershipOfString(std::move(text));
+    const String* source = fRootModule.fSymbols->takeOwnershipOfString(std::move(text));
     AutoSource as(this, source);
     Program::Settings settings;
     SkASSERT(fIRGenerator->fCanInline);
