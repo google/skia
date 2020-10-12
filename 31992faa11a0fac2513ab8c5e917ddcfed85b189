@@ -39,6 +39,30 @@
       },
       "revId": "31992faa11a0fac2513ab8c5e917ddcfed85b189",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e221db02_2e667614",
+        "filename": "src/effects/imagefilters/SkImageFilters.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-12T19:44:12Z",
+      "side": 1,
+      "message": "Yeah, I want SkImageFilter::CropRect (no \"s\") to go away entirely. Its concept of edge flags aren\u0027t used anywhere any more so essentially a wrapper around an optional SkRect. Unfortunately, every image filter has to take a CropRect and use it in the correct way.\n\nI want to have an SkCropImageFilter that handles all of this logic. Users can manually wrap filters or compose filters with a crop (to control input and output cropping separately). The crop filter will also control tile modes at the crop edges (moving tile mode out of blur/matrix convolution). At this point, these factory functions in SkImageFilters would still exist, but would simply automatically wrap the main filter with whatever crop filter was requested.",
+      "parentUuid": "b23a913e_5a4892d0",
+      "range": {
+        "startLine": 45,
+        "startChar": 31,
+        "endLine": 45,
+        "endChar": 50
+      },
+      "revId": "31992faa11a0fac2513ab8c5e917ddcfed85b189",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
