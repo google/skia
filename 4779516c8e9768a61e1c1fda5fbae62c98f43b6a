@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55d4fd51_0d0eb818",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2020-10-12T19:51:34Z",
+      "side": 1,
+      "message": "It\u0027s been all quiet on the clip front in Chrome, so turning GrClipStack on for the other platforms.",
+      "revId": "4779516c8e9768a61e1c1fda5fbae62c98f43b6a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
