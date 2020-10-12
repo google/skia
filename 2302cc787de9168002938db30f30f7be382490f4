@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1800ac02_d2e0e039",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5642
+      },
+      "writtenOn": "2020-10-12T14:31:45Z",
+      "side": 1,
+      "message": "+1 on my @google account to allow running the G3 bot.",
+      "revId": "2302cc787de9168002938db30f30f7be382490f4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
