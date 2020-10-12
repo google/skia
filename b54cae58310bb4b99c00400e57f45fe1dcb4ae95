@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f550f54_6c5b7a0e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2172,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T14:58:56Z",
+      "side": 1,
+      "message": "Not a bug in this CL, but it looks like if we have exactly one function that could match, we don\u0027t check its coercion cost anywhere? That is, we can only reach \"no match for xxx(...)\" when two candidates exist. How does this work?",
+      "range": {
+        "startLine": 2172,
+        "startChar": 12,
+        "endLine": 2172,
+        "endChar": 39
+      },
+      "revId": "b54cae58310bb4b99c00400e57f45fe1dcb4ae95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd26cc3e_17730d3c",
+        "filename": "src/sksl/ir/SkSLUnresolvedFunction.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T14:58:56Z",
+      "side": 1,
+      "message": ".\n    !this-\u003efunctions().empty()",
+      "range": {
+        "startLine": 25,
+        "startChar": 17,
+        "endLine": 25,
+        "endChar": 45
+      },
+      "revId": "b54cae58310bb4b99c00400e57f45fe1dcb4ae95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
