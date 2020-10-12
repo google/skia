@@ -66,6 +66,10 @@ public:
                                                              SkISize dimensions,
                                                              int numStencilSamples) override;
 
+    GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
+        return GrBackendFormat::MakeDawn(wgpu::TextureFormat::Depth24PlusStencil8);
+    }
+
     GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*,
                                       GrAttachment*,
                                       GrSurfaceOrigin,
