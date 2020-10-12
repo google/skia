@@ -42,8 +42,6 @@ protected:
                           const SkString& dumpName) const override;
 
 private:
-    size_t onGpuMemorySize() const override;
-
     GrGLFormat fFormat;
 
     // may be zero for external SBs associated with external RTs

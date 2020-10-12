@@ -100,14 +100,6 @@ GrVkAttachment::~GrVkAttachment() {
     SkASSERT(!fView);
 }
 
-size_t GrVkAttachment::onGpuMemorySize() const {
-    uint64_t size = this->width();
-    size *= this->height();
-    size *= GrVkCaps::GetStencilFormatTotalBitCount(this->imageFormat());
-    size *= this->numSamples();
-    return static_cast<size_t>(size / 8);
-}
-
 void GrVkAttachment::onRelease() {
     this->releaseImage();
     fView.reset();

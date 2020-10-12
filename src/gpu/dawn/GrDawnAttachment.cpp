@@ -47,14 +47,6 @@ sk_sp<GrDawnAttachment> GrDawnAttachment::MakeStencil(GrDawnGpu* gpu,
 
 GrDawnAttachment::~GrDawnAttachment() {}
 
-size_t GrDawnAttachment::onGpuMemorySize() const {
-    uint64_t size = this->width();
-    size *= this->height();
-    size *= 32;
-    size *= std::max(1, this->numSamples());
-    return static_cast<size_t>(size / 8);
-}
-
 void GrDawnAttachment::onRelease() { GrAttachment::onRelease(); }
 
 void GrDawnAttachment::onAbandon() { GrAttachment::onAbandon(); }

@@ -37,8 +37,6 @@ protected:
     void onAbandon() override;
 
 private:
-    size_t onGpuMemorySize() const override;
-
     GrMtlAttachment(GrMtlGpu* gpu,
                     SkISize dimensions,
                     UsageFlags supportedUsages,

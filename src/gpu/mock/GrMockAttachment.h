@@ -26,11 +26,6 @@ public:
     }
 
 private:
-    size_t onGpuMemorySize() const override {
-        int bpp = GrBackendFormatBytesPerBlock(this->backendFormat());
-        return std::max(1, (int)(bpp)) * this->width() * this->height();
-    }
-
     using INHERITED = GrAttachment;
 };
 

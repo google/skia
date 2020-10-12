@@ -40,8 +40,6 @@ protected:
     void onAbandon() override;
 
 private:
-    size_t onGpuMemorySize() const override;
-
     static sk_sp<GrVkAttachment> Make(GrVkGpu* gpu,
                                       SkISize dimensions,
                                       UsageFlags attachmentUsages,

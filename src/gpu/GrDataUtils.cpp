@@ -152,6 +152,22 @@ static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
     }
 }
 
+size_t GrNumBlocks(SkImage::CompressionType type, SkISize baseDimensions) {
+    switch (type) {
+        case SkImage::CompressionType::kNone:
+            return baseDimensions.width() * baseDimensions.height();
+        case SkImage::CompressionType::kETC2_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGB8_UNORM:
+        case SkImage::CompressionType::kBC1_RGBA8_UNORM: {
+            int numBlocksWidth = num_4x4_blocks(baseDimensions.width());
+            int numBlocksHeight = num_4x4_blocks(baseDimensions.height());
+
+            return numBlocksWidth * numBlocksHeight;
+        }
+    }
+    SkUNREACHABLE;
+}
+
 size_t GrCompressedRowBytes(SkImage::CompressionType type, int width) {
     switch (type) {
         case SkImage::CompressionType::kNone:

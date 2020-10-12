@@ -10,14 +10,6 @@
 #include "include/core/SkTraceMemoryDump.h"
 #include "src/gpu/gl/GrGLGpu.h"
 
-size_t GrGLAttachment::onGpuMemorySize() const {
-    uint64_t size = this->width();
-    size *= this->height();
-    size *= GrGLFormatBytesPerBlock(fFormat);
-    size *= this->numSamples();
-    return static_cast<size_t>(size);
-}
-
 void GrGLAttachment::onRelease() {
     if (0 != fRenderbufferID) {
         GrGLGpu* gpuGL = (GrGLGpu*)this->getGpu();

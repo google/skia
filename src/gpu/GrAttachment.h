@@ -70,6 +70,8 @@ protected:
             , fSampleCnt(sampleCnt) {}
 
 private:
+    size_t onGpuMemorySize() const final;
+
     const char* getResourceType() const override {
         // TODO: Once attachments can have multiple usages this needs to be updated
         switch (fSupportedUsages) {

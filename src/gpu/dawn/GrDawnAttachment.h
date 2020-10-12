@@ -29,8 +29,6 @@ protected:
     void onAbandon() override;
 
 private:
-    size_t onGpuMemorySize() const override;
-
     GrDawnAttachment(GrDawnGpu* gpu,
                      SkISize dimensions,
                      UsageFlags supportedUsages,
