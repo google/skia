@@ -386,7 +386,7 @@ void Compiler::addDefinition(const Expression* lvalue, std::unique_ptr<Expressio
             // (we write to foo.x, and then pass foo to a function which happens to only read foo.x,
             // but since we pass foo as a whole it is flagged as an error) unless we perform a much
             // more complicated whole-program analysis. This is probably good enough.
-            this->addDefinition(lvalue->as<Swizzle>().fBase.get(),
+            this->addDefinition(lvalue->as<Swizzle>().base().get(),
                                 (std::unique_ptr<Expression>*) &fContext->fDefined_Expression,
                                 definitions);
             break;
@@ -562,7 +562,7 @@ static bool is_dead(const Expression& lvalue) {
         case Expression::Kind::kVariableReference:
             return lvalue.as<VariableReference>().variable()->dead();
         case Expression::Kind::kSwizzle:
-            return is_dead(*lvalue.as<Swizzle>().fBase);
+            return is_dead(*lvalue.as<Swizzle>().base());
         case Expression::Kind::kFieldAccess:
             return is_dead(*lvalue.as<FieldAccess>().base());
         case Expression::Kind::kIndex: {
@@ -816,7 +816,7 @@ static void clear_write(Expression& expr) {
             clear_write(*expr.as<FieldAccess>().base());
             break;
         case Expression::Kind::kSwizzle:
-            clear_write(*expr.as<Swizzle>().fBase);
+            clear_write(*expr.as<Swizzle>().base());
             break;
         case Expression::Kind::kIndex:
             clear_write(*expr.as<IndexExpression>().base());
@@ -1051,17 +1051,17 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
         case Expression::Kind::kSwizzle: {
             Swizzle& s = expr->as<Swizzle>();
             // detect identity swizzles like foo.rgba
-            if ((int) s.fComponents.size() == s.fBase->type().columns()) {
+            if ((int) s.components().size() == s.base()->type().columns()) {
                 bool identity = true;
-                for (int i = 0; i < (int) s.fComponents.size(); ++i) {
-                    if (s.fComponents[i] != i) {
+                for (int i = 0; i < (int) s.components().size(); ++i) {
+                    if (s.components()[i] != i) {
                         identity = false;
                         break;
                     }
                 }
                 if (identity) {
                     *outUpdated = true;
-                    if (!try_replace_expression(&b, iter, &s.fBase)) {
+                    if (!try_replace_expression(&b, iter, &s.base())) {
                         *outNeedsRescan = true;
                         return;
                     }
@@ -1070,14 +1070,14 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
                 }
             }
             // detect swizzles of swizzles, e.g. replace foo.argb.r000 with foo.a000
-            if (s.fBase->kind() == Expression::Kind::kSwizzle) {
-                Swizzle& base = s.fBase->as<Swizzle>();
+            if (s.base()->kind() == Expression::Kind::kSwizzle) {
+                Swizzle& base = s.base()->as<Swizzle>();
                 std::vector<int> final;
-                for (int c : s.fComponents) {
-                    final.push_back(base.fComponents[c]);
+                for (int c : s.components()) {
+                    final.push_back(base.components()[c]);
                 }
                 *outUpdated = true;
-                std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.fBase->clone(),
+                std::unique_ptr<Expression> replacement(new Swizzle(*fContext, base.base()->clone(),
                                                                     std::move(final)));
                 if (!try_replace_expression(&b, iter, &replacement)) {
                     *outNeedsRescan = true;

@@ -750,9 +750,9 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
 }
 
 void MetalCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
-    this->writeExpression(*swizzle.fBase, kPostfix_Precedence);
+    this->writeExpression(*swizzle.base(), kPostfix_Precedence);
     this->write(".");
-    for (int c : swizzle.fComponents) {
+    for (int c : swizzle.components()) {
         SkASSERT(c >= 0 && c <= 3);
         this->write(&("x\0y\0z\0w\0"[c * 2]));
     }
@@ -1698,7 +1698,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
             return this->requirements(f.base().get());
         }
         case Expression::Kind::kSwizzle:
-            return this->requirements(e->as<Swizzle>().fBase.get());
+            return this->requirements(e->as<Swizzle>().base().get());
         case Expression::Kind::kBinary: {
             const BinaryExpression& bin = e->as<BinaryExpression>();
             return this->requirements(&bin.left()) |
