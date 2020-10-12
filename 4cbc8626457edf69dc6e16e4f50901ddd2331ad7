@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fe06d4b_1cca7947",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-12T18:51:48Z",
+      "side": 1,
+      "message": "Can you add a comment to say there is at least one arg to give the shape of the Vec.",
+      "range": {
+        "startLine": 519,
+        "startChar": 18,
+        "endLine": 519,
+        "endChar": 39
+      },
+      "revId": "4cbc8626457edf69dc6e16e4f50901ddd2331ad7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
