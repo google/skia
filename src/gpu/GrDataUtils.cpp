@@ -152,7 +152,7 @@ static void create_BC1_block(SkColor col0, SkColor col1, BC1Block* block) {
     }
 }
 
-size_t GrNumBlocks(SkImage::CompressionType type, SkISize baseDimensions) {
+size_t GrCompressedNumBlocks(SkImage::CompressionType type, SkISize baseDimensions) {
     switch (type) {
         case SkImage::CompressionType::kNone:
             return baseDimensions.width() * baseDimensions.height();

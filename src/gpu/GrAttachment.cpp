@@ -16,7 +16,7 @@ size_t GrAttachment::onGpuMemorySize() const {
     GrBackendFormat format = this->backendFormat();
     SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
 
-    uint64_t size = GrNumBlocks(compression, this->dimensions());
+    uint64_t size = GrCompressedNumBlocks(compression, this->dimensions());
     size *= GrBackendFormatBytesPerBlock(this->backendFormat());
     size *= this->numSamples();
     return size;
