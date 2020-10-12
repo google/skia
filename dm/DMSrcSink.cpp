@@ -1482,22 +1482,18 @@ sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context, SkISize siz
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
             surface = sk_gpu_test::MakeBackendTextureSurface(context,
-                                                             info.dimensions(),
+                                                             info,
                                                              kTopLeft_GrSurfaceOrigin,
                                                              fSampleCount,
-                                                             info.colorType(),
-                                                             info.refColorSpace(),
                                                              GrMipmapped::kNo,
                                                              GrProtected::kNo,
                                                              &props);
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
             surface = sk_gpu_test::MakeBackendRenderTargetSurface(context,
-                                                                  info.dimensions(),
+                                                                  info,
                                                                   kBottomLeft_GrSurfaceOrigin,
                                                                   fSampleCount,
-                                                                  info.colorType(),
-                                                                  info.refColorSpace(),
                                                                   GrProtected::kNo,
                                                                   &props);
             break;
