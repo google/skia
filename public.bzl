@@ -981,3 +981,13 @@ SKOTTIE_IOS_LIB_SDK_FRAMEWORKS = [
     "Foundation",
     "UIKit",
 ]
+
+################################################################################
+## svg_lib
+################################################################################
+
+def svg_lib_hdrs():
+    return native.glob(["experimental/svg/model/*.h"])
+
+def svg_lib_srcs():
+    return native.glob(["experimental/svg/model/*.cpp"])
