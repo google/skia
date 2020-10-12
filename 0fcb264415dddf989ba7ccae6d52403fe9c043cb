@@ -48,6 +48,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d3b7fb8_62a73311",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T21:15:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8a0ebeb_61937a6c",
+      "range": {
+        "startLine": 107,
+        "startChar": 17,
+        "endLine": 107,
+        "endChar": 40
+      },
+      "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5ca83858_ff8fb545",
@@ -79,6 +103,24 @@
       "side": 1,
       "message": "Yeah, they\u0027re impossible; I\u0027ll remove them. This felt \"tricky\" to me since the type is changing from `int` to `uint32_t : 31` and I was looking for places where truncation might happen. It\u0027ll never trigger as long as we require a 32-bit int. Before there was no type change (`int` to `int`) so there was no trickiness.",
       "parentUuid": "5ca83858_ff8fb545",
+      "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f004716_6001134a",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T21:15:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3b5f357_f2ed4341",
       "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
