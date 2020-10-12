@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "466b79af_527ad389",
+        "filename": "src/sksl/ir/SkSLUnresolvedFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T13:53:22Z",
+      "side": 1,
+      "message": "This will fail if `UnresolvedFunction` is constructed with an empty `funcs` vector. Should we assert in the constructor that `funcs` is non-empty?\n\n(The old code didn\u0027t override name() at all so I\u0027m not actually sure where its name came from)",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 5
+      },
+      "revId": "2fcb2093d533928a54b64419994590c03e931d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}

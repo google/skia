@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2f5d3b8_ad21a5f4",
+        "filename": "src/sksl/ir/SkSLUnresolvedFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T13:53:22Z",
+      "side": 0,
+      "message": "Hmm, the new code works, but this code never did. funcs was moved-from at this point.",
+      "range": {
+        "startLine": 25,
+        "startChar": 25,
+        "endLine": 25,
+        "endChar": 30
+      },
+      "revId": "4f18a0c51e767ddad972765fa759611611257c08",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
