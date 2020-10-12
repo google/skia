@@ -648,7 +648,7 @@ void CPPCodeGenerator::writeSetting(const Setting& s) {
 bool CPPCodeGenerator::writeSection(const char* name, const char* prefix) {
     const Section* s = fSectionAndParameterHelper.getSection(name);
     if (s) {
-        this->writef("%s%s", prefix, s->fText.c_str());
+        this->writef("%s%s", prefix, s->text().c_str());
         return true;
     }
     return false;
@@ -994,7 +994,7 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
 void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     const char* fullName = fFullName.c_str();
     const Section* section = fSectionAndParameterHelper.getSection(kSetDataSection);
-    const char* pdman = section ? section->fArgument.c_str() : "pdman";
+    const char* pdman = section ? section->argument().c_str() : "pdman";
     this->writef("    void onSetData(const GrGLSLProgramDataManager& %s, "
                                     "const GrFragmentProcessor& _proc) override {\n",
                  pdman);
@@ -1231,7 +1231,7 @@ void CPPCodeGenerator::writeTest() {
                 "std::unique_ptr<GrFragmentProcessor> %s::TestCreate(GrProcessorTestData* %s) {\n",
                 fFullName.c_str(),
                 fFullName.c_str(),
-                test->fArgument.c_str());
+                test->argument().c_str());
         this->writeSection(kTestCodeSection);
         this->write("}\n"
                     "#endif\n");

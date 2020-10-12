@@ -38,26 +38,28 @@ SectionAndParameterHelper::SectionAndParameterHelper(const Program* program, Err
             }
             case ProgramElement::Kind::kSection: {
                 const Section& s = p->as<Section>();
-                if (IsSupportedSection(s.fName.c_str())) {
-                    if (SectionRequiresArgument(s.fName.c_str()) && !s.fArgument.size()) {
+                const String& name = s.name();
+                const String& arg = s.argument();
+                if (IsSupportedSection(name.c_str())) {
+                    if (SectionRequiresArgument(name.c_str()) && !arg.size()) {
                         errors.error(s.fOffset,
-                                     ("section '@" + s.fName +
+                                     ("section '@" + name +
                                       "' requires one parameter").c_str());
                     }
-                    if (!SectionAcceptsArgument(s.fName.c_str()) && s.fArgument.size()) {
+                    if (!SectionAcceptsArgument(name.c_str()) && arg.size()) {
                         errors.error(s.fOffset,
-                                     ("section '@" + s.fName + "' has no parameters").c_str());
+                                     ("section '@" + name + "' has no parameters").c_str());
                     }
                 } else {
                     errors.error(s.fOffset,
-                                 ("unsupported section '@" + s.fName + "'").c_str());
+                                 ("unsupported section '@" + name + "'").c_str());
                 }
-                if (!SectionPermitsDuplicates(s.fName.c_str()) &&
-                        fSections.find(s.fName) != fSections.end()) {
+                if (!SectionPermitsDuplicates(name.c_str()) &&
+                        fSections.find(name) != fSections.end()) {
                     errors.error(s.fOffset,
-                                 ("duplicate section '@" + s.fName + "'").c_str());
+                                 ("duplicate section '@" + name + "'").c_str());
                 }
-                fSections[s.fName].push_back(&s);
+                fSections[name].push_back(&s);
                 break;
             }
             default:

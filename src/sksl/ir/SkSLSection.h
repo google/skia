@@ -19,27 +19,33 @@ struct Section : public ProgramElement {
     static constexpr Kind kProgramElementKind = Kind::kSection;
 
     Section(int offset, String name, String arg, String text)
-    : INHERITED(offset, kProgramElementKind)
-    , fName(std::move(name))
-    , fArgument(std::move(arg))
-    , fText(std::move(text)) {}
+    : INHERITED(offset, SectionData{std::move(name), std::move(arg), std::move(text)}) {}
+
+    const String& name() const {
+        return this->sectionData().fName;
+    }
+
+    const String& argument() const {
+        return this->sectionData().fArgument;
+    }
+
+    const String& text() const {
+        return this->sectionData().fText;
+    }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new Section(fOffset, fName, fArgument, fText));
+        return std::unique_ptr<ProgramElement>(new Section(fOffset, this->name(), this->argument(),
+                                                           this->text()));
     }
 
     String description() const override {
-        String result = "@" + fName;
-        if (fArgument.size()) {
-            result += "(" + fArgument + ")";
+        String result = "@" + this->name();
+        if (this->argument().size()) {
+            result += "(" + this->argument() + ")";
         }
-        result += " { " + fText + " }";
+        result += " { " + this->text() + " }";
         return result;
     }
-
-    const String fName;
-    const String fArgument;
-    const String fText;
 
     using INHERITED = ProgramElement;
 };
