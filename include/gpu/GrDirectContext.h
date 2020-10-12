@@ -370,9 +370,7 @@ public:
      *
      * The caller should check that the returned format is valid.
      */
-    GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
-        return INHERITED::defaultBackendFormat(ct, renderable);
-    }
+    using GrRecordingContext::defaultBackendFormat;
 
     /**
      * The explicitly allocated backend texture API allows clients to use Skia to create backend
@@ -485,6 +483,69 @@ public:
          return this->createBackendTexture(&srcData, 1, renderable, isProtected, finishedProc,
                                            finishedContext);
      }
+
+    /**
+     * If possible, updates a backend texture to be filled to a particular color. The client should
+     * check the return value to see if the update was successful. The client can pass in a
+     * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
+     * deleted. The client is required to call `submit` to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to update the GrBackendTexture.
+     * For the Vulkan backend after a successful update the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    bool updateBackendTexture(const GrBackendTexture&,
+                              const SkColor4f& color,
+                              GrGpuFinishedProc finishedProc,
+                              GrGpuFinishedContext finishedContext);
+
+    /**
+     * If possible, updates a backend texture to be filled to a particular color. The data in
+     * GrBackendTexture and passed in color is interpreted with respect to the passed in
+     * SkColorType. The client should check the return value to see if the update was successful.
+     * The client can pass in a finishedProc to be notified when the data has been uploaded by the
+     * gpu and the texture can be deleted. The client is required to call `submit` to send
+     * the upload work to the gpu. The finishedProc will always get called even if we failed to
+     * update the GrBackendTexture.
+     * For the Vulkan backend after a successful update the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    bool updateBackendTexture(const GrBackendTexture&,
+                              SkColorType skColorType,
+                              const SkColor4f& color,
+                              GrGpuFinishedProc finishedProc,
+                              GrGpuFinishedContext finishedContext);
+
+    /**
+     * If possible, updates a backend texture filled with the provided pixmap data. The client
+     * should check the return value to see if the update was successful. The client can pass in a
+     * finishedProc to be notified when the data has been uploaded by the gpu and the texture can be
+     * deleted. The client is required to call `submit` to send the upload work to the gpu.
+     * The finishedProc will always get called even if we failed to create the GrBackendTexture.
+     * The backend texture must be compatible with the provided pixmap(s). Compatible, in this case,
+     * means that the backend format is compatible with the base pixmap's colortype. The src data
+     * can be deleted when this call returns.
+     * If the backend texture is mip mapped, the data for all the mipmap levels must be provided.
+     * In the mipmapped case all the colortypes of the provided pixmaps must be the same.
+     * Additionally, all the miplevels must be sized correctly (please see
+     * SkMipmap::ComputeLevelSize and ComputeLevelCount).
+     * Note: the pixmap's alphatypes and colorspaces are ignored.
+     * For the Vulkan backend after a successful update the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    bool updateBackendTexture(const GrBackendTexture&,
+                              const SkPixmap srcData[],
+                              int numLevels,
+                              GrGpuFinishedProc finishedProc,
+                              GrGpuFinishedContext finishedContext);
+
+    /**
+     * Retrieve the GrBackendFormat for a given SkImage::CompressionType. This is
+     * guaranteed to match the backend format used by the following
+     * createCompressedBackendTexture methods that take a CompressionType.
+     * The caller should check that the returned format is valid.
+     */
+    using GrRecordingContext::compressedBackendFormat;
+
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
 
