@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72242d23_533f0e91",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-12T02:06:58Z",
+      "side": 1,
+      "message": "This should allow us to remove hard-coded source paths from g3 build files (and then we can relocate\nout of experimental/).",
+      "revId": "474f295d793741951801804d5ad54387956a9900",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
