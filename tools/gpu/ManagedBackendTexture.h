@@ -11,6 +11,9 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrDirectContext.h"
 
+class GrRefCntedCallback;
+struct SkImageInfo;
+
 namespace sk_gpu_test {
 
 class ManagedBackendTexture : public SkNVRefCnt<ManagedBackendTexture> {
@@ -34,6 +37,19 @@ public:
     template <typename... Args>
     static sk_sp<ManagedBackendTexture> MakeWithoutData(GrDirectContext*, Args&&...);
 
+
+    static sk_sp<ManagedBackendTexture> MakeFromInfo(GrDirectContext* dContext,
+                                                     const SkImageInfo&,
+                                                     GrMipmapped = GrMipmapped::kNo,
+                                                     GrRenderable = GrRenderable::kNo,
+                                                     GrProtected = GrProtected::kNo);
+
+    static sk_sp<ManagedBackendTexture> MakeFromBitmap(GrDirectContext*,
+                                                       const SkBitmap&,
+                                                       GrMipmapped,
+                                                       GrRenderable,
+                                                       GrProtected = GrProtected::kNo);
+
     /** GrGpuFinishedProc or image/surface release proc. */
     static void ReleaseProc(void* context);
 
@@ -41,9 +57,18 @@ public:
 
     /**
      * The context to use with ReleaseProc. This adds a ref so it *must* be balanced by a call to
-     * ReleaseProc.
+     * ReleaseProc. If a wrappedProc is provided then it will be called by ReleaseProc.
      */
-    void* releaseContext();
+    void* releaseContext(GrGpuFinishedProc wrappedProc = nullptr,
+                         GrGpuFinishedContext wrappedContext = nullptr) const;
+
+    sk_sp<GrRefCntedCallback> refCountedCallback() const;
+
+    /**
+     * Call if the underlying GrBackendTexture was adopted by a GrContext. This clears this out the
+     * MBET without deleting the texture.
+     */
+    void wasAdopted();
 
     const GrBackendTexture& texture() { return fTexture; }
 
@@ -52,7 +77,7 @@ private:
     ManagedBackendTexture(const ManagedBackendTexture&) = delete;
     ManagedBackendTexture(ManagedBackendTexture&&) = delete;
 
-    GrDirectContext* fDContext = nullptr;
+    sk_sp<GrDirectContext> fDContext;
     GrBackendTexture fTexture;
 };
 
@@ -60,7 +85,7 @@ template <typename... Args>
 inline sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeWithData(GrDirectContext* dContext,
                                                                         Args&&... args) {
     sk_sp<ManagedBackendTexture> mbet(new ManagedBackendTexture);
-    mbet->fDContext = dContext;
+    mbet->fDContext = sk_ref_sp(dContext);
     mbet->fTexture = dContext->createBackendTexture(std::forward<Args>(args)...,
                                                     ReleaseProc,
                                                     mbet->releaseContext());
@@ -72,7 +97,7 @@ inline sk_sp<ManagedBackendTexture> ManagedBackendTexture::MakeWithoutData(
         GrDirectContext* dContext,
         Args&&... args) {
     sk_sp<ManagedBackendTexture> mbet(new ManagedBackendTexture);
-    mbet->fDContext = dContext;
+    mbet->fDContext = sk_ref_sp(dContext);
     mbet->fTexture = dContext->createBackendTexture(std::forward<Args>(args)...);
     return mbet;
 }

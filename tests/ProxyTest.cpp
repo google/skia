@@ -7,8 +7,6 @@
 
 // This is a GPU-backend specific test.
 
-#include "tests/Test.h"
-
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
@@ -22,6 +20,8 @@
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
 #include "src/gpu/SkGr.h"
+#include "tests/Test.h"
+#include "tools/gpu/ManagedBackendTexture.h"
 #ifdef SK_GL
 #include "src/gpu/gl/GrGLDefines.h"
 #include "src/gpu/gl/GrGLUtil.h"
@@ -265,47 +265,57 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
 
             // Tests wrapBackendTexture that is only renderable
             {
-                GrBackendTexture backendTex;
-                CreateBackendTexture(direct, &backendTex, kWidthHeight, kWidthHeight, colorType,
-                                     SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
-                                     GrProtected::kNo);
-
+                auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(direct,
+                                                                                kWidthHeight,
+                                                                                kWidthHeight,
+                                                                                colorType,
+                                                                                GrMipmapped::kNo,
+                                                                                GrRenderable::kYes);
+                if (!mbet) {
+                    ERRORF(reporter,
+                           "Could not create renderable backend texture of color type %d",
+                           colorType);
+                    continue;
+                }
                 sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapRenderableBackendTexture(
-                        backendTex, supportedNumSamples, kBorrow_GrWrapOwnership,
+                        mbet->texture(), supportedNumSamples, kBorrow_GrWrapOwnership,
                         GrWrapCacheable::kNo, nullptr);
                 if (!sProxy) {
-                    direct->deleteBackendTexture(backendTex);
-                    continue;  // This can fail on Mesa
+                    ERRORF(reporter, "wrapRenderableBackendTexture failed");
+                    continue;
                 }
 
                 check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                 check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
                                    supportedNumSamples, SkBackingFit::kExact,
                                    caps.maxWindowRectangles());
-
-                direct->deleteBackendTexture(backendTex);
             }
 
-            // Tests wrapBackendTexture that is only textureable
             {
-                // Internal offscreen texture
-                GrBackendTexture backendTex;
-                CreateBackendTexture(direct, &backendTex, kWidthHeight, kWidthHeight, colorType,
-                                     SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
-                                     GrProtected::kNo);
-
+                // Tests wrapBackendTexture that is only textureable
+                auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(direct,
+                                                                                kWidthHeight,
+                                                                                kWidthHeight,
+                                                                                colorType,
+                                                                                GrMipmapped::kNo,
+                                                                                GrRenderable::kNo);
+                if (!mbet) {
+                    ERRORF(reporter,
+                           "Could not create non-renderable backend texture of color type %d",
+                           colorType);
+                    continue;
+                }
                 sk_sp<GrSurfaceProxy> sProxy = proxyProvider->wrapBackendTexture(
-                        backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType);
+                        mbet->texture(), kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                        kRead_GrIOType, mbet->refCountedCallback());
                 if (!sProxy) {
-                    direct->deleteBackendTexture(backendTex);
+                    ERRORF(reporter, "wrapBackendTexture failed");
                     continue;
                 }
 
                 check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
                 check_texture(reporter, resourceProvider, sProxy->asTextureProxy(),
                               SkBackingFit::kExact);
-
-                direct->deleteBackendTexture(backendTex);
             }
         }
     }
