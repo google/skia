@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7af86388_3c93632e",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 883,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T18:47:58Z",
+      "side": 1,
+      "message": "Would you consider adding a test to verify that we show a reasonable error when the arguments to main() are wrong?",
+      "range": {
+        "startLine": 883,
+        "startChar": 19,
+        "endLine": 883,
+        "endChar": 59
+      },
+      "revId": "bfe3273c1ef5ef1e645184902b74cc97b066b958",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
