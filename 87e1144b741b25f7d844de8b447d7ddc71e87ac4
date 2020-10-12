@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56ea5652_c6599bfc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2020-10-12T14:29:36Z",
+      "side": 1,
+      "message": "Also dropping the svg_tool defines for now as that CL was reverted.",
+      "revId": "87e1144b741b25f7d844de8b447d7ddc71e87ac4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
