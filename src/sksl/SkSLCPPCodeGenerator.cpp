@@ -287,9 +287,10 @@ void CPPCodeGenerator::writeIntLiteral(const IntLiteral& i) {
 
 void CPPCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
     if (fCPPMode) {
-        SkASSERT(swizzle.fComponents.size() == 1); // no support for multiple swizzle components yet
-        this->writeExpression(*swizzle.fBase, kPostfix_Precedence);
-        switch (swizzle.fComponents[0]) {
+        // no support for multiple swizzle components yet
+        SkASSERT(swizzle.components().size() == 1);
+        this->writeExpression(*swizzle.base(), kPostfix_Precedence);
+        switch (swizzle.components()[0]) {
             case 0: this->write(".left()");   break;
             case 1: this->write(".top()");    break;
             case 2: this->write(".right()");  break;

@@ -157,6 +157,11 @@ protected:
         const Type* fType;
     };
 
+    struct SwizzleData {
+        const Type* fType;
+        std::vector<int> fComponents;
+    };
+
     struct SymbolData {
         StringFragment fName;
         const Type* fType;
@@ -221,6 +226,7 @@ protected:
             kIntLiteral,
             kSetting,
             kString,
+            kSwizzle,
             kSymbol,
             kSymbolAlias,
             kType,
@@ -249,6 +255,7 @@ protected:
             IntLiteralData fIntLiteral;
             SettingData fSetting;
             String fString;
+            SwizzleData fSwizzle;
             SymbolData fSymbol;
             SymbolAliasData fSymbolAlias;
             const Type* fType;
@@ -341,6 +348,11 @@ protected:
         NodeData(const String& data)
             : fKind(Kind::kString) {
             *(new(&fContents) String) = data;
+        }
+
+        NodeData(const SwizzleData& data)
+            : fKind(Kind::kSwizzle) {
+            *(new(&fContents) SwizzleData) = data;
         }
 
         NodeData(const SymbolData& data)
@@ -440,6 +452,9 @@ protected:
                 case Kind::kString:
                     *(new(&fContents) String) = other.fContents.fString;
                     break;
+                case Kind::kSwizzle:
+                    *(new(&fContents) SwizzleData) = other.fContents.fSwizzle;
+                    break;
                 case Kind::kSymbol:
                     *(new(&fContents) SymbolData) = other.fContents.fSymbol;
                     break;
@@ -523,6 +538,9 @@ protected:
                 case Kind::kString:
                     fContents.fString.~String();
                     break;
+                case Kind::kSwizzle:
+                    fContents.fSwizzle.~SwizzleData();
+                    break;
                 case Kind::kSymbol:
                     fContents.fSymbol.~SymbolData();
                     break;
@@ -582,6 +600,8 @@ protected:
     IRNode(int offset, int kind, const SettingData& data);
 
     IRNode(int offset, int kind, const String& data);
+
+    IRNode(int offset, int kind, const SwizzleData& data);
 
     IRNode(int offset, int kind, const SymbolData& data);
 
@@ -726,6 +746,16 @@ protected:
     const String& stringData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kString);
         return fData.fContents.fString;
+    }
+
+    SwizzleData& swizzleData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kSwizzle);
+        return fData.fContents.fSwizzle;
+    }
+
+    const SwizzleData& swizzleData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kSwizzle);
+        return fData.fContents.fSwizzle;
     }
 
     SymbolData& symbolData() {

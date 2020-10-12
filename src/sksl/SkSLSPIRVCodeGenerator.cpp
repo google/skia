@@ -1759,15 +1759,15 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
         }
         case Expression::Kind::kSwizzle: {
             Swizzle& swizzle = (Swizzle&) expr;
-            size_t count = swizzle.fComponents.size();
-            SpvId base = this->getLValue(*swizzle.fBase, out)->getPointer();
+            size_t count = swizzle.components().size();
+            SpvId base = this->getLValue(*swizzle.base(), out)->getPointer();
             SkASSERT(base);
             if (count == 1) {
-                IntLiteral index(fContext, -1, swizzle.fComponents[0]);
+                IntLiteral index(fContext, -1, swizzle.components()[0]);
                 SpvId member = this->nextId();
                 this->writeInstruction(SpvOpAccessChain,
                                        this->getPointerType(type,
-                                                            get_storage_class(*swizzle.fBase)),
+                                                            get_storage_class(*swizzle.base())),
                                        member,
                                        base,
                                        this->writeIntLiteral(index),
@@ -1781,8 +1781,8 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
                 return std::unique_ptr<SPIRVCodeGenerator::LValue>(new SwizzleLValue(
                                                                              *this,
                                                                              base,
-                                                                             swizzle.fComponents,
-                                                                             swizzle.fBase->type(),
+                                                                             swizzle.components(),
+                                                                             swizzle.base()->type(),
                                                                              type,
                                                                              precision));
             }
@@ -1977,19 +1977,19 @@ SpvId SPIRVCodeGenerator::writeFieldAccess(const FieldAccess& f, OutputStream& o
 }
 
 SpvId SPIRVCodeGenerator::writeSwizzle(const Swizzle& swizzle, OutputStream& out) {
-    SpvId base = this->writeExpression(*swizzle.fBase, out);
+    SpvId base = this->writeExpression(*swizzle.base(), out);
     SpvId result = this->nextId();
-    size_t count = swizzle.fComponents.size();
+    size_t count = swizzle.components().size();
     if (count == 1) {
         this->writeInstruction(SpvOpCompositeExtract, this->getType(swizzle.type()), result, base,
-                               swizzle.fComponents[0], out);
+                               swizzle.components()[0], out);
     } else {
         this->writeOpCode(SpvOpVectorShuffle, 5 + (int32_t) count, out);
         this->writeWord(this->getType(swizzle.type()), out);
         this->writeWord(result, out);
         this->writeWord(base, out);
         this->writeWord(base, out);
-        for (int component : swizzle.fComponents) {
+        for (int component : swizzle.components()) {
             this->writeWord(component, out);
         }
     }

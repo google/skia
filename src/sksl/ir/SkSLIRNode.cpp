@@ -93,6 +93,11 @@ IRNode::IRNode(int offset, int kind, const String& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const SwizzleData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const SymbolData& data)
 : fOffset(offset)
 , fKind(kind)
