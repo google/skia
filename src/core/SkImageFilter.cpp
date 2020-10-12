@@ -64,6 +64,16 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     skif::Mapping mapping(SkMatrix::I(), ctm);
     if (kReverse_MapDirection == direction) {
         skif::LayerSpace<SkIRect> targetOutput(src);
+        if (as_IFB(this)->cropRectIsSet()) {
+           skif::LayerSpace<SkIRect> outputCrop = mapping.paramToLayer(
+                    skif::ParameterSpace<SkRect>(as_IFB(this)->getCropRect().rect())).roundOut();
+            // Just intersect directly; unlike the forward-mapping case, since we start with the
+            // external target output, there's no need to embiggen due to affecting trans. black
+            if (!targetOutput.intersect(outputCrop)) {
+                // Nothing would be output by the filter, so return empty rect
+                return SkIRect::MakeEmpty();
+            }
+        }
         skif::LayerSpace<SkIRect> content(inputRect ? *inputRect : src);
         return SkIRect(as_IFB(this)->onGetInputLayerBounds(mapping, targetOutput, content));
     } else {
@@ -251,6 +261,18 @@ skif::LayerSpace<SkIRect> SkImageFilter_Base::getInputBounds(
         const skif::ParameterSpace<SkRect>* knownContentBounds) const {
     // Map both the device-space desired coverage area and the known content bounds to layer space
     skif::LayerSpace<SkIRect> desiredBounds = mapping.deviceToLayer(desiredOutput);
+
+    // TODO (michaelludwig) - To be removed once cropping is its own filter, since then an output
+    // crop would automatically adjust the required input of its child filter in this same way.
+    if (this->cropRectIsSet()) {
+        skif::LayerSpace<SkIRect> outputCrop =
+                mapping.paramToLayer(skif::ParameterSpace<SkRect>(fCropRect.rect())).roundOut();
+        if (!desiredBounds.intersect(outputCrop)) {
+            // Nothing would be output by the filter, so return empty rect
+            return skif::LayerSpace<SkIRect>(SkIRect::MakeEmpty());
+        }
+    }
+
     // If we have no known content bounds use the desired coverage area, because that is the most
     // conservative possibility.
     skif::LayerSpace<SkIRect> contentBounds =
