@@ -63,6 +63,11 @@ IRNode::IRNode(int offset, int kind, const FunctionDeclarationData& data)
 , fKind(kind)
 , fData(data) {}
 
+IRNode::IRNode(int offset, int kind, const FunctionReferenceData& data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
 IRNode::IRNode(int offset, int kind, const IfStatementData& data)
 : fOffset(offset)
 , fKind(kind)
@@ -99,6 +104,11 @@ IRNode::IRNode(int offset, int kind, const SymbolAliasData& data)
 , fData(data) {}
 
 IRNode::IRNode(int offset, int kind, const Type* data)
+: fOffset(offset)
+, fKind(kind)
+, fData(data) {}
+
+IRNode::IRNode(int offset, int kind, const TypeReferenceData& data)
 : fOffset(offset)
 , fKind(kind)
 , fData(data) {}

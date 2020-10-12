@@ -76,6 +76,9 @@ public:
     Expression(int offset, const FunctionCallData& data)
         : INHERITED(offset, (int) Kind::kFunctionCall, data) {}
 
+    Expression(int offset, const FunctionReferenceData& data)
+        : INHERITED(offset, (int) Kind::kFunctionReference, data) {}
+
     Expression(int offset, const IntLiteralData& data)
         : INHERITED(offset, (int) Kind::kIntLiteral, data) {
     }
@@ -87,6 +90,10 @@ public:
     Expression(int offset, Kind kind, const Type* type)
         : INHERITED(offset, (int) kind, type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
+    }
+
+    Expression(int offset, const TypeReferenceData& data)
+        : INHERITED(offset, (int) Kind::kTypeReference, data) {
     }
 
     Expression(int offset, Kind kind, const TypeTokenData& data)
