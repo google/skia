@@ -237,6 +237,7 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
     fShape.asPath(&path);
 
     SkASSERT(!fCacheEntry);
+    SkASSERT(!fCachedAtlasProxy);
 
     if (pathCache) {
         fCacheEntry = pathCache->find(
@@ -245,8 +246,10 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
 
     if (fCacheEntry) {
         if (const GrCCCachedAtlas* cachedAtlas = fCacheEntry->cachedAtlas()) {
-            SkASSERT(cachedAtlas->getOnFlushProxy());
-            if (CoverageType::kA8_LiteralCoverage == cachedAtlas->coverageType()) {
+            fCachedAtlasProxy = sk_ref_sp(cachedAtlas->getOnFlushProxy());
+            SkASSERT(fCachedAtlasProxy);
+            fCachedAtlasCoverageType = cachedAtlas->coverageType();
+            if (CoverageType::kA8_LiteralCoverage == fCachedAtlasCoverageType) {
                 ++specs->fNumCachedPaths;
             } else {
                 // Suggest that this path be copied to a literal coverage atlas, to save memory.
@@ -257,7 +260,6 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
                 ++specs->fNumCopiedPaths[idx];
                 specs->fCopyPathStats[idx].statPath(path);
                 specs->fCopyAtlasSpecs.accountForSpace(fCacheEntry->width(), fCacheEntry->height());
-                fDoCopyToA8Coverage = true;
             }
             return;
         }
@@ -281,7 +283,7 @@ void GrCCDrawPathsOp::SingleDraw::accountForOwnPath(
 
 bool GrCCDrawPathsOp::SingleDraw::shouldCachePathMask(int maxRenderTargetSize) const {
     SkASSERT(fCacheEntry);
-    SkASSERT(!fCacheEntry->cachedAtlas());
+    SkASSERT(!fCachedAtlasProxy);
     if (fCacheEntry->hitCount() <= 1) {
         return false;  // Don't cache a path mask until at least its second hit.
     }
@@ -333,6 +335,8 @@ void GrCCDrawPathsOp::setupResources(
 void GrCCDrawPathsOp::SingleDraw::setupResources(
         GrCCPathCache* pathCache, GrOnFlushResourceProvider* onFlushRP,
         GrCCPerFlushResources* resources, DoCopiesToA8Coverage doCopies, GrCCDrawPathsOp* op) {
+    using CoverageType = GrCCAtlas::CoverageType;
+
     SkPath path;
     fShape.asPath(&path);
 
@@ -342,25 +346,27 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
 
     if (fCacheEntry) {
         // Does the path already exist in a cached atlas texture?
-        if (fCacheEntry->cachedAtlas()) {
-            SkASSERT(fCacheEntry->cachedAtlas()->getOnFlushProxy());
-            if (DoCopiesToA8Coverage::kYes == doCopies && fDoCopyToA8Coverage) {
+        if (fCachedAtlasProxy) {
+            if (DoCopiesToA8Coverage::kYes == doCopies &&
+                fCachedAtlasCoverageType != CoverageType::kA8_LiteralCoverage &&
+                fCacheEntry->cachedAtlas()) {  // cachedAtlas will be null if the entry was evicted.
+                // This will be a no-op if we already upgraded the path earlier (e.g., if the same
+                // path was drawn multiple times during this flush).
                 resources->upgradeEntryToLiteralCoverageAtlas(
                         pathCache, onFlushRP, fCacheEntry.get(), fillRule);
-                SkASSERT(fCacheEntry->cachedAtlas());
-                SkASSERT(GrCCAtlas::CoverageType::kA8_LiteralCoverage
+                fCachedAtlasProxy = sk_ref_sp(fCacheEntry->cachedAtlas()->getOnFlushProxy());
+                SkASSERT(fCachedAtlasProxy);
+                SkASSERT(CoverageType::kA8_LiteralCoverage
                                  == fCacheEntry->cachedAtlas()->coverageType());
-                SkASSERT(fCacheEntry->cachedAtlas()->getOnFlushProxy());
+                fCachedAtlasCoverageType = CoverageType::kA8_LiteralCoverage;
             }
 #if 0
             // Simple color manipulation to visualize cached paths.
-            fColor = (GrCCAtlas::CoverageType::kA8_LiteralCoverage
-                              == fCacheEntry->cachedAtlas()->coverageType())
-                    ? SkPMColor4f{0,0,.25,.25} : SkPMColor4f{0,.25,0,.25};
+            fColor = (CoverageType::kA8_LiteralCoverage == fCachedAtlasCoverageType) ?
+                    SkPMColor4f{0,0,.25,.25} : SkPMColor4f{0,.25,0,.25};
 #endif
-            auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(
-                    fCacheEntry->cachedAtlas()->coverageType());
-            op->recordInstance(coverageMode, fCacheEntry->cachedAtlas()->getOnFlushProxy(),
+            auto coverageMode = GrCCAtlas::CoverageTypeToPathCoverageMode(fCachedAtlasCoverageType);
+            op->recordInstance(coverageMode, fCachedAtlasProxy.get(),
                                resources->nextPathInstanceIdx());
             resources->appendDrawPathInstance().set(*fCacheEntry, fCachedMaskShift, fColor,
                                                     fillRule);
@@ -393,7 +399,7 @@ void GrCCDrawPathsOp::SingleDraw::setupResources(
 
         if (fDoCachePathMask) {
             SkASSERT(fCacheEntry);
-            SkASSERT(!fCacheEntry->cachedAtlas());
+            SkASSERT(!fCachedAtlasProxy);
             SkASSERT(fShapeConservativeIBounds == fMaskDevIBounds);
             fCacheEntry->setCoverageCountAtlas(
                     onFlushRP, atlas, devToAtlasOffset, octoBounds, devIBounds, fCachedMaskShift);

@@ -909,3 +909,34 @@ class CCPR_busyPath : public CCPRRenderingTest {
     }
 };
 DEF_CCPR_RENDERING_TEST(CCPR_busyPath)
+
+// https://bugs.chromium.org/p/chromium/issues/detail?id=1102117
+class CCPR_evictCacheEntryForPendingDrawOp : public CCPRRenderingTest {
+  void onRun(skiatest::Reporter* reporter, const CCPRPathDrawer& ccpr) const override {
+    static constexpr SkRect kRect = SkRect::MakeWH(50, 50);
+    ccpr.clear();
+
+    // make sure path is cached.
+    for (int i = 0; i < 2; i++) {
+      SkPath path;
+      path.addRect(kRect);
+
+      ccpr.drawPath(path);
+      ccpr.flush();
+    }
+
+    // in this flush first draw the cached path
+    SkPath path;
+    path.addRect(kRect);
+    ccpr.drawPath(path);
+
+    auto m = SkMatrix::Translate(0.1, 0.1);
+
+    // now draw the cached path in an incompatible matrix. Previous draw's cached atlas should not
+    // be invalidated. otherwise, this flush would render two paths. For kA8_Multisample coverage
+    // type, this would cause crash since allocated resources only allows rendering of one path.
+    ccpr.drawPath(path, m);
+    ccpr.flush();
+  }
+};
+DEF_CCPR_RENDERING_TEST(CCPR_evictCacheEntryForPendingDrawOp)
