@@ -327,8 +327,14 @@ public:
         }
         if (fOwnMemory && that.fOwnMemory) {
             swap(fItemArray, that.fItemArray);
-            swap(fCount, that.fCount);
-            swap(fAllocCount, that.fAllocCount);
+            // Bitfields don't work with std::swap so we have to swap them manually.
+            int temp = fCount;
+            fCount = that.fCount;
+            that.fCount = temp;
+
+            temp = fAllocCount;
+            fAllocCount = that.fAllocCount;
+            that.fAllocCount = temp;
         } else {
             // This could be more optimal...
             SkTArray copy(std::move(that));
@@ -561,7 +567,6 @@ private:
             return;
         }
 
-
         // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
         int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
         // Align the new allocation count to kMinHeapAllocCount.
@@ -572,13 +577,15 @@ private:
             return;
         }
 
-        fAllocCount = Sk64_pin_to_s32(newAllocCount);
+        // We sacrifice one bit of fAllocCount to squeeze in fReserved alongside it, so we need to
+        // account for that when doing our overflow check.
+        constexpr int kMaxAllocCount = INT_MAX >> 1;
+        fAllocCount = (newAllocCount > kMaxAllocCount) ? kMaxAllocCount : newAllocCount;
         SkASSERT(fAllocCount >= newCount);
         T* newItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
-
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
@@ -586,17 +593,15 @@ private:
     }
 
     T* fItemArray;
-    int fCount;
-    int fAllocCount;
-    bool fOwnMemory : 1;
-    bool fReserved : 1;
+    int fOwnMemory : 1;
+    int fCount : 31;
+    int fReserved : 1;
+    int fAllocCount : 31;
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
     a.swap(b);
 }
-
-template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHeapAllocCount;
 
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
