@@ -40,36 +40,4 @@ sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
                                     ManagedBackendTexture::ReleaseProc,
                                     mbet->releaseContext());
 }
-
-sk_sp<SkImage> MakeBackendTextureImage(GrDirectContext* dContext,
-                                       const SkImageInfo& info,
-                                       SkColor4f color,
-                                       GrMipmapped mipmapped,
-                                       GrRenderable renderable,
-                                       GrSurfaceOrigin origin) {
-    if (info.alphaType() == kOpaque_SkAlphaType) {
-        color = color.makeOpaque();
-    } else if (info.alphaType() == kPremul_SkAlphaType) {
-        auto pmColor = color.premul();
-        color = {pmColor.fR, pmColor.fG, pmColor.fB, pmColor.fA};
-    }
-    auto mbet = ManagedBackendTexture::MakeWithData(dContext,
-                                                    info.width(),
-                                                    info.height(),
-                                                    info.colorType(),
-                                                    color,
-                                                    mipmapped,
-                                                    renderable,
-                                                    GrProtected::kNo);
-
-    return SkImage::MakeFromTexture(dContext,
-                                    mbet->texture(),
-                                    origin,
-                                    info.colorType(),
-                                    info.alphaType(),
-                                    info.refColorSpace(),
-                                    ManagedBackendTexture::ReleaseProc,
-                                    mbet->releaseContext());
-}
-
 }  // namespace sk_gpu_test

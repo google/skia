@@ -7,11 +7,7 @@
 
 #include "include/core/SkTypes.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/core/SkMessageBus.h"
-#include "src/core/SkMipmap.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrGpuResourceCacheAccess.h"
@@ -22,10 +18,15 @@
 #include "src/gpu/GrResourceCache.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
+#include "tools/gpu/GrContextFactory.h"
+
+#include "include/core/SkCanvas.h"
+#include "include/core/SkSurface.h"
+#include "src/core/SkMessageBus.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/SkGr.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
-#include "tools/gpu/ManagedBackendTexture.h"
+#include "tests/TestUtils.h"
 
 #include <thread>
 
@@ -190,44 +191,51 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceCacheWrappedResources, reporter, ctxI
         return;
     }
 
+    GrBackendTexture backendTextures[2];
     static const int kW = 100;
     static const int kH = 100;
 
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            context, kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
-    GrBackendTexture unmbet = context->createBackendTexture(
-            kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
-    if (!mbet || !unmbet.isValid()) {
-        ERRORF(reporter, "Could not create backend texture.");
+    CreateBackendTexture(context, &backendTextures[0], kW, kH, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
+                         GrProtected::kNo);
+    CreateBackendTexture(context, &backendTextures[1], kW, kH, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
+                         GrProtected::kNo);
+    REPORTER_ASSERT(reporter, backendTextures[0].isValid());
+    REPORTER_ASSERT(reporter, backendTextures[1].isValid());
+    if (!backendTextures[0].isValid() || !backendTextures[1].isValid()) {
         return;
     }
 
     context->resetContext();
 
     sk_sp<GrTexture> borrowed(resourceProvider->wrapBackendTexture(
-            mbet->texture(), kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType));
+            backendTextures[0], kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType));
 
     sk_sp<GrTexture> adopted(resourceProvider->wrapBackendTexture(
-            unmbet, kAdopt_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType));
+            backendTextures[1], kAdopt_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType));
 
     REPORTER_ASSERT(reporter, borrowed != nullptr && adopted != nullptr);
     if (!borrowed || !adopted) {
         return;
     }
 
-    borrowed.reset();
-    adopted.reset();
+    borrowed.reset(nullptr);
+    adopted.reset(nullptr);
 
-    context->flushAndSubmit(/*sync*/ true);
+    context->flushAndSubmit();
 
-    bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(mbet->texture());
-    bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(unmbet);
+    bool borrowedIsAlive = gpu->isTestingOnlyBackendTexture(backendTextures[0]);
+    bool adoptedIsAlive = gpu->isTestingOnlyBackendTexture(backendTextures[1]);
 
     REPORTER_ASSERT(reporter, borrowedIsAlive);
     REPORTER_ASSERT(reporter, !adoptedIsAlive);
 
+    if (borrowedIsAlive) {
+        context->deleteBackendTexture(backendTextures[0]);
+    }
     if (adoptedIsAlive) {
-        context->deleteBackendTexture(unmbet);
+        context->deleteBackendTexture(backendTextures[1]);
     }
 
     context->resetContext();
