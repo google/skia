@@ -26,6 +26,7 @@ class GrAttachment : public GrSurface {
 public:
     enum class UsageFlags : uint8_t {
         kStencil = 0x1,
+        kMSAA    = 0x2,
     };
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(UsageFlags);
 
@@ -51,6 +52,16 @@ public:
                                                  GrProtected isProtected,
                                                  GrUniqueKey* key);
 
+    // TODO: Once attachments start having multiple usages, we'll need to figure out how to search
+    // the cache for an attachment that simply contains the requested usage instead of equaling it.
+    static void ComputeScratchKey(const GrCaps& caps,
+                                  const GrBackendFormat& format,
+                                  SkISize dimensions,
+                                  UsageFlags requiredUsage,
+                                  int sampleCnt,
+                                  GrProtected,
+                                  GrScratchKey* key);
+
 protected:
     GrAttachment(GrGpu* gpu, SkISize dimensions, UsageFlags supportedUsages, int sampleCnt,
                  GrProtected isProtected)
@@ -59,7 +70,17 @@ protected:
             , fSampleCnt(sampleCnt) {}
 
 private:
-    const char* getResourceType() const override { return "Stencil"; }
+    const char* getResourceType() const override {
+        // TODO: Once attachments can have multiple usages this needs to be updated
+        switch (fSupportedUsages) {
+            case (UsageFlags::kMSAA):
+                return "MSAA";
+            case (UsageFlags::kStencil):
+                return "Stencil";
+            default:
+                SkUNREACHABLE;
+        }
+    }
 
     UsageFlags fSupportedUsages;
     int fSampleCnt;

@@ -243,6 +243,13 @@ private:
         return GrBackendFormat::MakeMtl(this->mtlCaps().preferredStencilFormat());
     }
 
+    sk_sp<GrAttachment> makeMSAAAttachment(SkISize dimensions,
+                                           const GrBackendFormat& format,
+                                           int numSamples,
+                                           GrProtected isProtected) override {
+        return nullptr;
+    }
+
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
                                            SkISize dimensions,
                                            int sampleCnt,
