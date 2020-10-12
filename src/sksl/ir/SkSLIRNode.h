@@ -152,6 +152,12 @@ protected:
         const FunctionDeclaration* fFunction;
     };
 
+    struct SectionData {
+        String fName;
+        String fArgument;
+        String fText;
+    };
+
     struct SettingData {
         String fName;
         const Type* fType;
@@ -219,6 +225,7 @@ protected:
             kIfStatement,
             kInlineMarker,
             kIntLiteral,
+            kSection,
             kSetting,
             kString,
             kSymbol,
@@ -247,6 +254,7 @@ protected:
             IfStatementData fIfStatement;
             InlineMarkerData fInlineMarker;
             IntLiteralData fIntLiteral;
+            SectionData fSection;
             SettingData fSetting;
             String fString;
             SymbolData fSymbol;
@@ -331,6 +339,11 @@ protected:
         NodeData(IntLiteralData data)
             : fKind(Kind::kIntLiteral) {
             *(new(&fContents) IntLiteralData) = data;
+        }
+
+        NodeData(const SectionData& data)
+            : fKind(Kind::kSection) {
+            *(new(&fContents) SectionData) = data;
         }
 
         NodeData(const SettingData& data)
@@ -434,6 +447,9 @@ protected:
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
+                case Kind::kSection:
+                    *(new(&fContents) SectionData) = other.fContents.fSection;
+                    break;
                 case Kind::kSetting:
                     *(new(&fContents) SettingData) = other.fContents.fSetting;
                     break;
@@ -517,6 +533,9 @@ protected:
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
+                case Kind::kSection:
+                    fContents.fSection.~SectionData();
+                    break;
                 case Kind::kSetting:
                     fContents.fSetting.~SettingData();
                     break;
@@ -578,6 +597,8 @@ protected:
     IRNode(int offset, int kind, const InlineMarkerData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
+
+    IRNode(int offset, int kind, const SectionData& data);
 
     IRNode(int offset, int kind, const SettingData& data);
 
@@ -716,6 +737,11 @@ protected:
     const IntLiteralData& intLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kIntLiteral);
         return fData.fContents.fIntLiteral;
+    }
+
+    const SectionData& sectionData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kSection);
+        return fData.fContents.fSection;
     }
 
     const SettingData& settingData() const {

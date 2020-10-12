@@ -45,6 +45,9 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
+    ProgramElement(int offset, const SectionData& sectionData)
+    : INHERITED(offset, (int) Kind::kSection, sectionData) {}
+
     Kind kind() const {
         return (Kind) fKind;
     }
