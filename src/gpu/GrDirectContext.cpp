@@ -84,11 +84,7 @@ void GrDirectContext::resetContext(uint32_t state) {
     fGpu->markContextDirty(state);
 }
 
-void GrDirectContext::abandonContext() {
-    if (INHERITED::abandoned()) {
-        return;
-    }
-
+void GrDirectContext::internalAbandon(bool cleanup) {
     INHERITED::abandonContext();
 
     fStrikeCache->freeAll();
@@ -97,17 +93,25 @@ void GrDirectContext::abandonContext() {
 
     fResourceProvider->abandon();
 
-    // abandon first to so destructors
+    // abandon first so destructors
     // don't try to free the resources in the API.
     fResourceCache->abandonAll();
 
-    fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
+    fGpu->disconnect(cleanup ? GrGpu::DisconnectType::kCleanup : GrGpu::DisconnectType::kAbandon);
 
     fMappedBufferManager.reset();
     if (fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr->reset();
     }
     fAtlasManager->freeAll();
+}
+
+void GrDirectContext::abandonContext() {
+    if (INHERITED::abandoned()) {
+        return;
+    }
+
+    this->internalAbandon(/* cleanup */ false);
 }
 
 bool GrDirectContext::abandoned() {
@@ -122,12 +126,14 @@ bool GrDirectContext::abandoned() {
     return false;
 }
 
+sk_sp<GrContextThreadSafeProxy> GrDirectContext::threadSafeProxy() {
+    return INHERITED::threadSafeProxy();
+}
+
+bool GrDirectContext::oomed() { return fGpu ? fGpu->checkAndResetOOMed() : false; }
+
 void GrDirectContext::releaseResourcesAndAbandonContext() {
-    INHERITED::releaseResourcesAndAbandonContext();
-    if (fSmallPathAtlasMgr) {
-        fSmallPathAtlasMgr->reset();
-    }
-    fAtlasManager->freeAll();
+    this->internalAbandon(/* cleanup */ true);
 }
 
 void GrDirectContext::freeGpuResources() {
