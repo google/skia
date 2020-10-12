@@ -111,7 +111,7 @@ public:
      * that each argument can actually be coerced to the final parameter type, respecting the
      * narrowing-conversions flag. This is handled in callCost(), or in convertCall() (via coerce).
      */
-    bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
+    bool determineFinalTypes(const SkTArray<std::unique_ptr<Expression>>& arguments,
                              std::vector<const Type*>* outParameterTypes,
                              const Type** outReturnType) const {
         const std::vector<Variable*>& parameters = this->parameters();
