@@ -46,6 +46,30 @@
       },
       "revId": "4cbc8626457edf69dc6e16e4f50901ddd2331ad7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a7a2c23_c7a7c272",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2020-10-12T20:03:44Z",
+      "side": 1,
+      "message": "Yep. I did. It\u0027s just a little tricky. I would have found it helpful when I read it through the first time.",
+      "parentUuid": "155732ca_eb352645",
+      "range": {
+        "startLine": 519,
+        "startChar": 18,
+        "endLine": 519,
+        "endChar": 39
+      },
+      "revId": "4cbc8626457edf69dc6e16e4f50901ddd2331ad7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
