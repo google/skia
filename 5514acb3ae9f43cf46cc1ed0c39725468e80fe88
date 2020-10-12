@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8da63098_8fd97ab2",
+        "filename": "tests/GrSurfaceTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-12T14:49:31Z",
+      "side": 1,
+      "message": "It didn\u0027t seem to matter to what\u0027s actually tested and it seems like kNo should be the default if we\u0027re just wrapping as a texture. Though, I didn\u0027t change the mip map one below (now done).",
+      "parentUuid": "f4e2c85d_ef291cb8",
+      "range": {
+        "startLine": 363,
+        "startChar": 52,
+        "endLine": 363,
+        "endChar": 54
+      },
+      "revId": "5514acb3ae9f43cf46cc1ed0c39725468e80fe88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6f24d2d_3ab8548b",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-12T14:32:54Z",
       "side": 1,
       "message": "this also changed, but maybe the old way was the bug? We asked for the format with renderable but created the texture non renderable?",
+      "range": {
+        "startLine": 106,
+        "startChar": 25,
+        "endLine": 106,
+        "endChar": 30
+      },
+      "revId": "5514acb3ae9f43cf46cc1ed0c39725468e80fe88",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bda49749_2f8c2e78",
+        "filename": "tests/TextureProxyTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2020-10-12T14:49:31Z",
+      "side": 1,
+      "message": "The old way doesn\u0027t seem right, for sure. Looking at the test it doesn\u0027t seem to matter whether it\u0027s renderable or not. So I guess default to not renderable. Done.",
+      "parentUuid": "a6f24d2d_3ab8548b",
       "range": {
         "startLine": 106,
         "startChar": 25,
