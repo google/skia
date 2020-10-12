@@ -479,7 +479,7 @@ void GrGLGpu::disconnect(DisconnectType type) {
     if (this->glCaps().shaderCaps()->pathRenderingSupport()) {
         this->glPathRendering()->disconnect(type);
     }
-    fFinishCallbacks.callAll(DisconnectType::kCleanup == type);
+    fFinishCallbacks.callAll(/* doDelete */ DisconnectType::kCleanup == type);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
