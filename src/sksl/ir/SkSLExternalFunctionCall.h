@@ -8,6 +8,7 @@
 #ifndef SKSL_EXTERNALFUNCTIONCALL
 #define SKSL_EXTERNALFUNCTIONCALL
 
+#include "include/private/SkTArray.h"
 #include "src/sksl/SkSLExternalValue.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -22,7 +23,7 @@ public:
     static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
 
     ExternalFunctionCall(int offset, const ExternalValue* function,
-                         std::vector<std::unique_ptr<Expression>> arguments)
+                         ExpressionArray arguments)
     : INHERITED(offset, kExpressionKind, ExternalValueData{&function->callReturnType(), function}) {
         fExpressionChildren = std::move(arguments);
     }
@@ -31,11 +32,11 @@ public:
         return *this->externalValueData().fType;
     }
 
-    std::vector<std::unique_ptr<Expression>>& arguments() {
+    ExpressionArray& arguments() {
         return fExpressionChildren;
     }
 
-    const std::vector<std::unique_ptr<Expression>>& arguments() const {
+    const ExpressionArray& arguments() const {
         return fExpressionChildren;
     }
 
@@ -56,13 +57,13 @@ public:
     }
 
     std::unique_ptr<Expression> clone() const override {
-        std::vector<std::unique_ptr<Expression>> cloned;
+        ExpressionArray cloned;
+        cloned.reserve(this->arguments().size());
         for (const auto& arg : this->arguments()) {
             cloned.push_back(arg->clone());
         }
-        return std::unique_ptr<Expression>(new ExternalFunctionCall(fOffset,
-                                                                    &this->function(),
-                                                                    std::move(cloned)));
+        return std::make_unique<ExternalFunctionCall>(fOffset, &this->function(),
+                                                      std::move(cloned));
     }
 
     String description() const override {
