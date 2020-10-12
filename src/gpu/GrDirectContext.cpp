@@ -13,10 +13,12 @@
 #include "src/gpu/GrClientMappedBufferManager.h"
 #include "src/gpu/GrContextPriv.h"
 #include "src/gpu/GrContextThreadSafeProxyPriv.h"
+#include "src/gpu/GrDrawingManager.h"
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderUtils.h"
 
+#include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/effects/GrSkSLFP.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/mock/GrMockGpu.h"
@@ -150,13 +152,25 @@ void GrDirectContext::releaseResourcesAndAbandonContext() {
 }
 
 void GrDirectContext::freeGpuResources() {
+    ASSERT_SINGLE_OWNER
+
+    if (this->abandoned()) {
+        return;
+    }
+
     this->flushAndSubmit();
     if (fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr->reset();
     }
     fAtlasManager->freeAll();
 
-    INHERITED::freeGpuResources();
+    // TODO: the glyph cache doesn't hold any GpuResources so this call should not be needed here.
+    // Some slack in the GrTextBlob's implementation requires it though. That could be fixed.
+    fStrikeCache->freeAll();
+
+    this->drawingManager()->freeGpuResources();
+
+    fResourceCache->purgeAllUnlocked();
 }
 
 bool GrDirectContext::init() {
@@ -265,6 +279,57 @@ void GrDirectContext::setResourceCacheLimit(size_t maxResourceBytes) {
     ASSERT_SINGLE_OWNER
     fResourceCache->setLimit(maxResourceBytes);
 }
+
+void GrDirectContext::purgeUnlockedResources(bool scratchResourcesOnly) {
+    ASSERT_SINGLE_OWNER
+
+    if (this->abandoned()) {
+        return;
+    }
+
+    fResourceCache->purgeUnlockedResources(scratchResourcesOnly);
+    fResourceCache->purgeAsNeeded();
+
+    // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
+    // place to purge stale blobs
+    this->getTextBlobCache()->purgeStaleBlobs();
+}
+
+void GrDirectContext::performDeferredCleanup(std::chrono::milliseconds msNotUsed) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    ASSERT_SINGLE_OWNER
+
+    if (this->abandoned()) {
+        return;
+    }
+
+    this->checkAsyncWorkCompletion();
+    fMappedBufferManager->process();
+    auto purgeTime = GrStdSteadyClock::now() - msNotUsed;
+
+    fResourceCache->purgeAsNeeded();
+    fResourceCache->purgeResourcesNotUsedSince(purgeTime);
+
+    if (auto ccpr = this->drawingManager()->getCoverageCountingPathRenderer()) {
+        ccpr->purgeCacheEntriesOlderThan(this->proxyProvider(), purgeTime);
+    }
+
+    // The textBlob Cache doesn't actually hold any GPU resource but this is a convenient
+    // place to purge stale blobs
+    this->getTextBlobCache()->purgeStaleBlobs();
+}
+
+void GrDirectContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScratchResources) {
+    ASSERT_SINGLE_OWNER
+
+    if (this->abandoned()) {
+        return;
+    }
+
+    fResourceCache->purgeUnlockedResources(bytesToPurge, preferScratchResources);
+}
+
 
 GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
     if (!fSmallPathAtlasMgr) {
