@@ -2138,7 +2138,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
     switch (functionValue->kind()) {
         case Expression::Kind::kTypeReference:
             return this->convertConstructor(offset,
-                                            functionValue->as<TypeReference>().fValue,
+                                            functionValue->as<TypeReference>().value(),
                                             std::move(arguments));
         case Expression::Kind::kExternalValue: {
             const ExternalValue& v = functionValue->as<ExternalValueReference>().value();
@@ -2166,10 +2166,11 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         }
         case Expression::Kind::kFunctionReference: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
+            const std::vector<const FunctionDeclaration*>& functions = ref.functions();
             CoercionCost bestCost = CoercionCost::Impossible();
             const FunctionDeclaration* best = nullptr;
-            if (ref.fFunctions.size() > 1) {
-                for (const auto& f : ref.fFunctions) {
+            if (functions.size() > 1) {
+                for (const auto& f : functions) {
                     CoercionCost cost = this->callCost(*f, arguments);
                     if (cost < bestCost) {
                         bestCost = cost;
@@ -2179,7 +2180,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                 if (best) {
                     return this->call(offset, *best, std::move(arguments));
                 }
-                String msg = "no match for " + ref.fFunctions[0]->name() + "(";
+                String msg = "no match for " + functions[0]->name() + "(";
                 String separator;
                 for (size_t i = 0; i < arguments.size(); i++) {
                     msg += separator;
@@ -2190,7 +2191,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
                 fErrors.error(offset, msg);
                 return nullptr;
             }
-            return this->call(offset, *ref.fFunctions[0], std::move(arguments));
+            return this->call(offset, *functions[0], std::move(arguments));
         }
         default:
             fErrors.error(offset, "not a function");
@@ -2417,7 +2418,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndex(std::unique_ptr<Expression
                                                       const ASTNode& index) {
     if (base->kind() == Expression::Kind::kTypeReference) {
         if (index.fKind == ASTNode::Kind::kInt) {
-            const Type& oldType = base->as<TypeReference>().fValue;
+            const Type& oldType = base->as<TypeReference>().value();
             SKSL_INT size = index.getInt();
             const Type* newType = fSymbolTable->takeOwnershipOfSymbol(
                     std::make_unique<Type>(oldType.name() + "[" + to_string(size) + "]",
@@ -2719,7 +2720,7 @@ std::unique_ptr<Expression> IRGenerator::convertIndexExpression(const ASTNode& i
     if (iter != index.end()) {
         return this->convertIndex(std::move(base), *(iter++));
     } else if (base->kind() == Expression::Kind::kTypeReference) {
-        const Type& oldType = base->as<TypeReference>().fValue;
+        const Type& oldType = base->as<TypeReference>().value();
         const Type* newType = fSymbolTable->takeOwnershipOfSymbol(std::make_unique<Type>(
                 oldType.name() + "[]", Type::TypeKind::kArray, oldType, Type::kUnsizedArray));
         return std::make_unique<TypeReference>(fContext, base->fOffset, newType);
@@ -2782,7 +2783,7 @@ std::unique_ptr<Expression> IRGenerator::convertScopeExpression(const ASTNode& s
         return nullptr;
     }
     StringFragment member = scopeNode.getString();
-    return this->convertTypeField(base->fOffset, base->as<TypeReference>().fValue, member);
+    return this->convertTypeField(base->fOffset, base->as<TypeReference>().value(), member);
 }
 
 std::unique_ptr<Expression> IRGenerator::convertPostfixExpression(const ASTNode& expression) {

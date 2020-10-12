@@ -22,6 +22,7 @@ public:
     UnresolvedFunction(std::vector<const FunctionDeclaration*> funcs)
     : INHERITED(-1, UnresolvedFunctionData{std::move(funcs)}) {
 #ifdef SK_DEBUG
+        SkASSERT(!this->functions().empty());
         for (auto func : this->functions()) {
             SkASSERT(func->name() == name());
         }

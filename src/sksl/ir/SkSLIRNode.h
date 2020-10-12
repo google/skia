@@ -134,6 +134,11 @@ protected:
         }
     };
 
+    struct FunctionReferenceData {
+        const Type* fType;
+        std::vector<const FunctionDeclaration*> fFunctions;
+     };
+
     struct IfStatementData {
         bool fIsStatic;
     };
@@ -161,6 +166,11 @@ protected:
         StringFragment fName;
         Symbol* fOrigSymbol;
     };
+
+    struct TypeReferenceData {
+        const Type* fType;
+        const Type* fValue;
+     };
 
     struct TypeTokenData {
         const Type* fType;
@@ -205,6 +215,7 @@ protected:
             kForStatement,
             kFunctionCall,
             kFunctionDeclaration,
+            kFunctionReference,
             kIfStatement,
             kInlineMarker,
             kIntLiteral,
@@ -213,6 +224,7 @@ protected:
             kSymbol,
             kSymbolAlias,
             kType,
+            kTypeReference,
             kTypeToken,
             kUnresolvedFunction,
             kVariable,
@@ -231,6 +243,7 @@ protected:
             ForStatementData fForStatement;
             FunctionCallData fFunctionCall;
             FunctionDeclarationData fFunctionDeclaration;
+            FunctionReferenceData fFunctionReference;
             IfStatementData fIfStatement;
             InlineMarkerData fInlineMarker;
             IntLiteralData fIntLiteral;
@@ -239,6 +252,7 @@ protected:
             SymbolData fSymbol;
             SymbolAliasData fSymbolAlias;
             const Type* fType;
+            TypeReferenceData fTypeReference;
             TypeTokenData fTypeToken;
             UnresolvedFunctionData fUnresolvedFunction;
             VariableData fVariable;
@@ -299,6 +313,11 @@ protected:
             *(new(&fContents) FunctionDeclarationData) = data;
         }
 
+        NodeData(const FunctionReferenceData& data)
+            : fKind(Kind::kFunctionReference) {
+            *(new(&fContents) FunctionReferenceData) = data;
+        }
+
         NodeData(IfStatementData data)
             : fKind(Kind::kIfStatement) {
             *(new(&fContents) IfStatementData) = data;
@@ -337,6 +356,11 @@ protected:
         NodeData(const Type* data)
             : fKind(Kind::kType) {
             *(new(&fContents) const Type*) = data;
+        }
+
+        NodeData(const TypeReferenceData& data)
+            : fKind(Kind::kTypeReference) {
+            *(new(&fContents) TypeReferenceData) = data;
         }
 
         NodeData(const TypeTokenData& data)
@@ -398,6 +422,9 @@ protected:
                     *(new(&fContents) FunctionDeclarationData) =
                                                                other.fContents.fFunctionDeclaration;
                     break;
+                case Kind::kFunctionReference:
+                    *(new(&fContents) FunctionReferenceData) = other.fContents.fFunctionReference;
+                    break;
                 case Kind::kIfStatement:
                     *(new(&fContents) IfStatementData) = other.fContents.fIfStatement;
                     break;
@@ -421,6 +448,9 @@ protected:
                     break;
                 case Kind::kType:
                     *(new(&fContents) const Type*) = other.fContents.fType;
+                    break;
+                case Kind::kTypeReference:
+                    *(new(&fContents) TypeReferenceData) = other.fContents.fTypeReference;
                     break;
                 case Kind::kTypeToken:
                     *(new(&fContents) TypeTokenData) = other.fContents.fTypeToken;
@@ -475,6 +505,9 @@ protected:
                 case Kind::kFunctionDeclaration:
                     fContents.fFunctionDeclaration.~FunctionDeclarationData();
                     break;
+                case Kind::kFunctionReference:
+                    fContents.fFunctionReference.~FunctionReferenceData();
+                    break;
                 case Kind::kIfStatement:
                     fContents.fIfStatement.~IfStatementData();
                     break;
@@ -497,6 +530,9 @@ protected:
                     fContents.fSymbolAlias.~SymbolAliasData();
                     break;
                 case Kind::kType:
+                    break;
+                case Kind::kTypeReference:
+                    fContents.fTypeReference.~TypeReferenceData();
                     break;
                 case Kind::kTypeToken:
                     fContents.fTypeToken.~TypeTokenData();
@@ -535,6 +571,8 @@ protected:
 
     IRNode(int offset, int kind, const FunctionDeclarationData& data);
 
+    IRNode(int offset, int kind, const FunctionReferenceData& data);
+
     IRNode(int offset, int kind, const IfStatementData& data);
 
     IRNode(int offset, int kind, const InlineMarkerData& data);
@@ -550,6 +588,8 @@ protected:
     IRNode(int offset, int kind, const SymbolAliasData& data);
 
     IRNode(int offset, int kind, const Type* data = nullptr);
+
+    IRNode(int offset, int kind, const TypeReferenceData& data);
 
     IRNode(int offset, int kind, const TypeTokenData& data);
 
@@ -658,6 +698,11 @@ protected:
         return fData.fContents.fFunctionDeclaration;
     }
 
+    const FunctionReferenceData& functionReferenceData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kFunctionReference);
+        return fData.fContents.fFunctionReference;
+    }
+
     const IfStatementData& ifStatementData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kIfStatement);
         return fData.fContents.fIfStatement;
@@ -701,6 +746,11 @@ protected:
     const Type* typeData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kType);
         return fData.fContents.fType;
+    }
+
+    const TypeReferenceData& typeReferenceData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kTypeReference);
+        return fData.fContents.fTypeReference;
     }
 
     const TypeTokenData& typeTokenData() const {
