@@ -15,6 +15,7 @@
 #include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <memory>
 #include <new>
@@ -103,7 +104,7 @@ public:
         }
         fCount = 0;
         this->checkRealloc(that.count());
-        fCount = that.count();
+        fCount = uint32_t(that.count());
         that.move(fItemArray);
         that.fCount = 0;
         return *this;
@@ -131,6 +132,8 @@ public:
      */
     void reset(int n) {
         SkASSERT(n >= 0);
+        SkASSERT(n <= kMaxCount);
+
         for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
@@ -148,6 +151,9 @@ public:
      * Resets to a copy of a C array and resets any reserve count.
      */
     void reset(const T* array, int count) {
+        SkASSERT(count >= 0);
+        SkASSERT(count <= kMaxCount);
+
         for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
@@ -310,6 +316,7 @@ public:
      */
     void resize_back(int newCount) {
         SkASSERT(newCount >= 0);
+        SkASSERT(newCount <= kMaxCount);
 
         if (newCount > fCount) {
             this->push_back_n(newCount - fCount);
@@ -327,8 +334,14 @@ public:
         }
         if (fOwnMemory && that.fOwnMemory) {
             swap(fItemArray, that.fItemArray);
-            swap(fCount, that.fCount);
-            swap(fAllocCount, that.fAllocCount);
+            // Bitfields don't work with std::swap so we have to swap them manually.
+            uint32_t temp = fCount;
+            fCount = that.fCount;
+            that.fCount = temp;
+
+            temp = fAllocCount;
+            fAllocCount = that.fAllocCount;
+            that.fAllocCount = temp;
         } else {
             // This could be more optimal...
             SkTArray copy(std::move(that));
@@ -469,15 +482,17 @@ protected:
 private:
     void init(int count = 0, int reserveCount = 0) {
         SkASSERT(count >= 0);
+        SkASSERT(count <= kMaxCount);
         SkASSERT(reserveCount >= 0);
-        fCount = count;
+        SkASSERT(reserveCount <= kMaxCount);
+        fCount = uint32_t(count);
         if (!count && !reserveCount) {
             fAllocCount = 0;
             fItemArray = nullptr;
             fOwnMemory = true;
             fReserved = false;
         } else {
-            fAllocCount = std::max(count, std::max(kMinHeapAllocCount, reserveCount));
+            fAllocCount = uint32_t(std::max(count, std::max(kMinHeapAllocCount, reserveCount)));
             fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
             fOwnMemory = true;
             fReserved = reserveCount > 0;
@@ -486,7 +501,9 @@ private:
 
     void initWithPreallocatedStorage(int count, void* preallocStorage, int preallocCount) {
         SkASSERT(count >= 0);
+        SkASSERT(count <= kMaxCount);
         SkASSERT(preallocCount > 0);
+        SkASSERT(preallocCount <= kMaxCount);
         SkASSERT(preallocStorage);
         fCount = count;
         fItemArray = nullptr;
@@ -533,8 +550,6 @@ private:
         }
     }
 
-    static constexpr int kMinHeapAllocCount = 8;
-
     // Helper function that makes space for n objects, adjusts the count, but does not initialize
     // the new objects.
     void* push_back_raw(int n) {
@@ -561,7 +576,6 @@ private:
             return;
         }
 
-
         // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
         int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
         // Align the new allocation count to kMinHeapAllocCount.
@@ -572,31 +586,33 @@ private:
             return;
         }
 
-        fAllocCount = Sk64_pin_to_s32(newAllocCount);
+        fAllocCount = (newAllocCount > kMaxCount) ? kMaxCount : newAllocCount;
         SkASSERT(fAllocCount >= newCount);
         T* newItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
-
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
         fReserved = false;
     }
 
+    // We sacrifice one bit of fCount and fAllocCount to squeeze in fReserved alongside it, so we
+    // need to account for that when doing bounds checks.
+    static constexpr int kMaxCount = UINT32_MAX >> 1;
+    static constexpr int kMinHeapAllocCount = 8;
+
     T* fItemArray;
-    int fCount;
-    int fAllocCount;
-    bool fOwnMemory : 1;
-    bool fReserved : 1;
+    uint32_t fOwnMemory : 1;
+    uint32_t fCount : 31;
+    uint32_t fReserved : 1;
+    uint32_t fAllocCount : 31;
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
     a.swap(b);
 }
-
-template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHeapAllocCount;
 
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
