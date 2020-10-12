@@ -406,14 +406,9 @@ std::vector<std::unique_ptr<Statement>> IRGenerator::convertVarDeclarations(
             }
             var->setInitialValue(value.get());
         }
-        Symbol* symbol = (*fSymbolTable)[var->name()];
+        const Symbol* symbol = (*fSymbolTable)[var->name()];
         if (symbol && storage == Variable::Storage::kGlobal && var->name() == "sk_FragColor") {
             // Already defined, ignore.
-        } else if (symbol && storage == Variable::Storage::kGlobal &&
-                   symbol->kind() == Symbol::Kind::kVariable &&
-                   symbol->as<Variable>().modifiers().fLayout.fBuiltin >= 0) {
-            // Already defined, just update the modifiers.
-            symbol->as<Variable>().setModifiersHandle(var->modifiersHandle());
         } else {
             varDecls.push_back(std::make_unique<VarDeclaration>(
                     var.get(), baseType, std::move(sizes), std::move(value)));
@@ -885,17 +880,27 @@ void IRGenerator::convertFunction(const ASTNode& f) {
                           "parameters of type '" + type->displayName() + "' not allowed");
             return;
         }
-        StringFragment name = pd.fName;
+
+        Modifiers m = pd.fModifiers;
+        if (funcData.fName == "main" && (fKind == Program::kPipelineStage_Kind ||
+                                         fKind == Program::kFragmentProcessor_Kind)) {
+            if (i == 0) {
+                // We verify that the type is correct later, for now, if there is a parameter to
+                // a .fp or runtime-effect main(), it's supposed to be the coords:
+                m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
+            }
+        }
+
         Variable* var = fSymbolTable->takeOwnershipOfSymbol(
-                std::make_unique<Variable>(param.fOffset, fModifiers->handle(pd.fModifiers),
-                                           name, type, fIsBuiltinCode,
-                                           Variable::Storage::kParameter));
+                std::make_unique<Variable>(param.fOffset, fModifiers->handle(m), pd.fName, type,
+                                           fIsBuiltinCode, Variable::Storage::kParameter));
         parameters.push_back(var);
     }
 
     auto paramIsCoords = [&](int idx) {
         return parameters[idx]->type() == *fContext.fFloat2_Type &&
-               parameters[idx]->modifiers().fFlags == 0;
+               parameters[idx]->modifiers().fFlags == 0 &&
+               parameters[idx]->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     };
 
     if (funcData.fName == "main") {
@@ -1008,15 +1013,6 @@ void IRGenerator::convertFunction(const ASTNode& f) {
         fCurrentFunction = decl;
         std::shared_ptr<SymbolTable> old = fSymbolTable;
         AutoSymbolTable table(this);
-        if (funcData.fName == "main" && (fKind == Program::kPipelineStage_Kind ||
-                                         fKind == Program::kFragmentProcessor_Kind)) {
-            if (parameters.size() == 1) {
-                SkASSERT(paramIsCoords(0));
-                Modifiers m = parameters[0]->modifiers();
-                m.fLayout.fBuiltin = SK_MAIN_COORDS_BUILTIN;
-                parameters[0]->setModifiersHandle(fModifiers->handle(m));
-            }
-        }
         const std::vector<Variable*>& declParameters = decl->parameters();
         for (size_t i = 0; i < parameters.size(); i++) {
             fSymbolTable->addWithoutOwnership(declParameters[i]);
