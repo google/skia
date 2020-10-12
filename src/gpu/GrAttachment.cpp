@@ -8,7 +8,19 @@
 #include "src/gpu/GrAttachment.h"
 
 #include "include/private/GrResourceKey.h"
+#include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrCaps.h"
+#include "src/gpu/GrDataUtils.h"
+
+size_t GrAttachment::onGpuMemorySize() const {
+    GrBackendFormat format = this->backendFormat();
+    SkImage::CompressionType compression = GrBackendFormatToCompressionType(format);
+
+    uint64_t size = GrNumBlocks(compression, this->dimensions());
+    size *= GrBackendFormatBytesPerBlock(this->backendFormat());
+    size *= this->numSamples();
+    return size;
+}
 
 static void build_key(GrResourceKey::Builder* builder,
                       const GrCaps& caps,

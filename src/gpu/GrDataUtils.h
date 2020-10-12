@@ -15,6 +15,8 @@
 
 class GrImageInfo;
 
+size_t GrNumBlocks(SkImage::CompressionType, SkISize baseDimensions);
+
 // Returns a value that can be used to set rowBytes for a transfer function.
 size_t GrCompressedRowBytes(SkImage::CompressionType, int w);
 
