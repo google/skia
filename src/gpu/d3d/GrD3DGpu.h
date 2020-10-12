@@ -85,6 +85,10 @@ public:
                                                              SkISize dimensions,
                                                              int numStencilSamples) override;
 
+    GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
+        return GrBackendFormat::MakeDxgi(this->d3dCaps().preferredStencilFormat());
+    }
+
     GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*,
                                       GrAttachment*,
                                       GrSurfaceOrigin,

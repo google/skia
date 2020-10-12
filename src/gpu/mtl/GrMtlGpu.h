@@ -239,6 +239,10 @@ private:
     sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(
             const GrRenderTarget*, SkISize dimensions, int numStencilSamples) override;
 
+    GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
+        return GrBackendFormat::MakeMtl(this->mtlCaps().preferredStencilFormat());
+    }
+
     bool createMtlTextureForBackendSurface(MTLPixelFormat,
                                            SkISize dimensions,
                                            int sampleCnt,

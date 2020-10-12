@@ -111,6 +111,10 @@ public:
                                                              SkISize dimensions,
                                                              int numStencilSamples) override;
 
+    GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
+        return GrBackendFormat::MakeVk(this->vkCaps().preferredStencilFormat());
+    }
+
     GrOpsRenderPass* getOpsRenderPass(GrRenderTarget*,
                                       GrAttachment*,
                                       GrSurfaceOrigin,

@@ -505,8 +505,15 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
             height = SkNextPow2(height);
         }
 #endif
+        GrBackendFormat stencilFormat =
+                this->gpu()->getPreferredStencilFormat(rt->backendFormat());
+        if (!stencilFormat.isValid()) {
+            return false;
+        }
+        GrProtected isProtected = rt->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         GrAttachment::ComputeSharedAttachmentUniqueKey(
-                rt->dimensions(), GrAttachment::UsageFlags::kStencil, numStencilSamples, &sbKey);
+                *this->caps(), stencilFormat, rt->dimensions(), GrAttachment::UsageFlags::kStencil,
+                numStencilSamples, isProtected, &sbKey);
         auto stencil = this->findByUniqueKey<GrAttachment>(sbKey);
         if (!stencil) {
             // Need to try and create a new stencil

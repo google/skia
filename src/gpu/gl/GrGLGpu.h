@@ -260,6 +260,16 @@ private:
     // compatible stencil format, or negative if there is no compatible stencil format.
     int getCompatibleStencilIndex(GrGLFormat format);
 
+    GrBackendFormat getPreferredStencilFormat(const GrBackendFormat& format) override {
+
+        int idx = this->getCompatibleStencilIndex(format.asGLFormat());
+        if (idx < 0) {
+            return {};
+        }
+        return GrBackendFormat::MakeGL(GrGLFormatToEnum(this->glCaps().stencilFormats()[idx]),
+                                       GR_GL_TEXTURE_NONE);
+    }
+
     void onFBOChanged();
 
     // Returns whether the texture is successfully created. On success, a non-zero texture ID is

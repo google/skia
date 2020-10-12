@@ -144,6 +144,12 @@ private:
     sk_sp<GrAttachment> makeStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                              SkISize dimensions,
                                                              int numStencilSamples) override;
+
+    GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) override {
+        return GrBackendFormat::MakeMock(GrColorType::kUnknown, SkImage::CompressionType::kNone,
+                                         true);
+    }
+
     GrBackendTexture onCreateBackendTexture(SkISize dimensions,
                                             const GrBackendFormat&,
                                             GrRenderable,

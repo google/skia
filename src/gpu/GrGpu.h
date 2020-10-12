@@ -707,6 +707,8 @@ public:
                                                                      SkISize dimensions,
                                                                      int numStencilSamples) = 0;
 
+    virtual GrBackendFormat getPreferredStencilFormat(const GrBackendFormat&) = 0;
+
     void handleDirtyContext() {
         if (fResetBits) {
             this->resetContext();
