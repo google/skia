@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fada14b_3b0e8156",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T20:58:55Z",
+      "side": 1,
+      "message": "Can you add a line referencing the chrome bug you fixed?\n\n  Bug: chromium:1102117",
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea55925a_d0525200",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T20:58:55Z",
+      "side": 1,
+      "message": "Thanks Jiulong for the fix and test! Turns out you also fixed a chrome bug 😊\n\nHowever, it was a bug for us to delete the atlas for a pending draw op in the first place. Can you update the fix to look more like this WIP CL, and verify it fixes the issues on your end? https://skia-review.googlesource.com/c/skia/+/325882",
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97f69cfc_a057ad4e",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T20:58:55Z",
+      "side": 1,
+      "message": "It turns out we weren\u0027t actually supposed to regen the path mask when the entry gets evicted. Can we remove this block and incorporate a fix like https://skia-review.googlesource.com/c/skia/+/325882 ?",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 205,
+        "endChar": 41
+      },
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ba5b695_8c0f8029",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T20:58:55Z",
+      "side": 1,
+      "message": "The bug wasn\u0027t actually limited to just multisample. Can we name this test something like \"CCPR_evictCacheEntryForPendingDrawOp\"",
+      "range": {
+        "startLine": 915,
+        "startChar": 6,
+        "endLine": 915,
+        "endChar": 30
+      },
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
