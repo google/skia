@@ -258,7 +258,7 @@ public:
             case Expression::Kind::kSwizzle: {
                 const Swizzle& swizzle = expr.as<Swizzle>();
                 this->checkSwizzleWrite(swizzle);
-                this->visitExpression(*swizzle.fBase);
+                this->visitExpression(*swizzle.base());
                 break;
             }
             case Expression::Kind::kIndex:
@@ -282,7 +282,7 @@ public:
 private:
     void checkSwizzleWrite(const Swizzle& swizzle) {
         int bits = 0;
-        for (int idx : swizzle.fComponents) {
+        for (int idx : swizzle.components()) {
             SkASSERT(idx <= 3);
             int bit = 1 << idx;
             if (bits & bit) {
@@ -405,7 +405,7 @@ bool TProgramVisitor<PROG, EXPR, STMT, ELEM>::visitExpression(EXPR e) {
             return this->visitExpression(*e.template as<PrefixExpression>().operand());
 
         case Expression::Kind::kSwizzle:
-            return this->visitExpression(*e.template as<Swizzle>().fBase);
+            return this->visitExpression(*e.template as<Swizzle>().base());
 
         case Expression::Kind::kTernary: {
             auto& t = e.template as<TernaryExpression>();

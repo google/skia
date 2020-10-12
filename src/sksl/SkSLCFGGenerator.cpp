@@ -133,7 +133,7 @@ bool BasicBlock::tryRemoveLValueBefore(std::vector<BasicBlock::Node>::iterator* 
         case Expression::Kind::kVariableReference:
             return true;
         case Expression::Kind::kSwizzle:
-            return this->tryRemoveLValueBefore(iter, lvalue->as<Swizzle>().fBase.get());
+            return this->tryRemoveLValueBefore(iter, lvalue->as<Swizzle>().base().get());
         case Expression::Kind::kFieldAccess:
             return this->tryRemoveLValueBefore(iter, lvalue->as<FieldAccess>().base().get());
         case Expression::Kind::kIndex: {
@@ -194,7 +194,7 @@ bool BasicBlock::tryRemoveExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kSwizzle: {
             Swizzle& s = expr->as<Swizzle>();
-            if (s.fBase && !this->tryRemoveExpressionBefore(iter, s.fBase.get())) {
+            if (s.base() && !this->tryRemoveExpressionBefore(iter, s.base().get())) {
                 return false;
             }
             *iter = fNodes.erase(*iter);
@@ -302,7 +302,7 @@ bool BasicBlock::tryInsertExpression(std::vector<BasicBlock::Node>::iterator* it
         }
         case Expression::Kind::kSwizzle: {
             Swizzle& s = expr->get()->as<Swizzle>();
-            if (!this->tryInsertExpression(iter, &s.fBase)) {
+            if (!this->tryInsertExpression(iter, &s.base())) {
                 return false;
             }
             ++(*iter);
@@ -403,7 +403,7 @@ void CFGGenerator::addExpression(CFG& cfg, std::unique_ptr<Expression>* e, bool 
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         case Expression::Kind::kSwizzle:
-            this->addExpression(cfg, &e->get()->as<Swizzle>().fBase, constantPropagate);
+            this->addExpression(cfg, &e->get()->as<Swizzle>().base(), constantPropagate);
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeExpression(e, constantPropagate));
             break;
         case Expression::Kind::kBoolLiteral:   // fall through
@@ -451,7 +451,7 @@ void CFGGenerator::addLValue(CFG& cfg, std::unique_ptr<Expression>* e) {
             break;
         }
         case Expression::Kind::kSwizzle:
-            this->addLValue(cfg, &e->get()->as<Swizzle>().fBase);
+            this->addLValue(cfg, &e->get()->as<Swizzle>().base());
             break;
         case Expression::Kind::kExternalValue: // fall through
         case Expression::Kind::kVariableReference:
