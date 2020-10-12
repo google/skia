@@ -104,6 +104,24 @@
       "parentUuid": "a84f02fd_6792d34a",
       "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0954f0e2_04283968",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-12T15:23:53Z",
+      "side": 1,
+      "message": "Good thoughts.  But keep in mind that this is becoming urgent.  With all the other icons changing, the last thing we\u0027d want is status\u0027 icon to stand out.",
+      "parentUuid": "b2c8056d_ed2ddb07",
+      "revId": "029d4474b7a5ee52fd3b9fb0264dc4d09b2039a0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
