@@ -16,6 +16,63 @@
       "message": "ping. PTAL",
       "revId": "229302a23076f648b950d2f8123ffc21cefbf02b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d868a314_cd433e0e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T19:22:58Z",
+      "side": 1,
+      "message": "Just adding a couple questions. I apparently don\u0027t understand these surface apis very well.",
+      "revId": "229302a23076f648b950d2f8123ffc21cefbf02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01319934_319b544e",
+        "filename": "src/gpu/GrAttachment.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T19:22:58Z",
+      "side": 1,
+      "message": "Is this the format of the render target we are attached to? Why does this need to be part of the attachment key?",
+      "revId": "229302a23076f648b950d2f8123ffc21cefbf02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50f7f5b2_9bcce0e0",
+        "filename": "src/gpu/GrAttachment.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T19:22:58Z",
+      "side": 1,
+      "message": "This is the first I\u0027ve seen GrProtected. What does it mean?",
+      "range": {
+        "startLine": 51,
+        "startChar": 49,
+        "endLine": 51,
+        "endChar": 72
+      },
+      "revId": "229302a23076f648b950d2f8123ffc21cefbf02b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
