@@ -469,7 +469,7 @@ public:
     }
 };
 
-std::unique_ptr<SkUnicode> SkUnicode::Make() {
+std::unique_ptr<SkUnicode> SkUnicode::MakeIcuUnicode() {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
         SkDEBUGF("SkLoadICU() failed!\n");
@@ -477,4 +477,13 @@ std::unique_ptr<SkUnicode> SkUnicode::Make() {
     }
     #endif
     return std::make_unique<SkUnicode_icu>();
+}
+
+std::unique_ptr<SkUnicode> SkUnicode::Make() {
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::MakeIcuUnicode();
+    if (unicode) {
+        // That is the only one implemented currently
+        return unicode;
+    }
+    return nullptr;
 }
