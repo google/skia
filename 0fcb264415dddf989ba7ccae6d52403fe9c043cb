@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b8a0ebeb_61937a6c",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T21:11:50Z",
+      "side": 1,
+      "message": "Didn\u0027t realize we had a preference. Done.",
+      "parentUuid": "d6337cda_1997b7da",
+      "range": {
+        "startLine": 107,
+        "startChar": 17,
+        "endLine": 107,
+        "endChar": 40
+      },
+      "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5ca83858_ff8fb545",
         "filename": "include/private/SkTArray.h",
         "patchSetId": 10
@@ -37,6 +61,24 @@
       "writtenOn": "2020-10-12T21:02:31Z",
       "side": 1,
       "message": "Out of curiosity what prompted you to add these count \u003c\u003d kMaxCount checks?  They\u0027re tautological, no?",
+      "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3b5f357_f2ed4341",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T21:11:50Z",
+      "side": 1,
+      "message": "Yeah, they\u0027re impossible; I\u0027ll remove them. This felt \"tricky\" to me since the type is changing from `int` to `uint32_t : 31` and I was looking for places where truncation might happen. It\u0027ll never trigger as long as we require a 32-bit int. Before there was no type change (`int` to `int`) so there was no trickiness.",
+      "parentUuid": "5ca83858_ff8fb545",
       "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
