@@ -15,7 +15,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrTexture.h"
 #include "src/image/SkImage_Gpu.h"
-#include "tests/TestUtils.h"
+#include "tools/gpu/ManagedBackendTexture.h"
 
 using namespace sk_gpu_test;
 
@@ -270,23 +270,37 @@ DEF_GPUTEST(PromiseImageTextureShutdown, reporter, ctxInfo) {
                 continue;
             }
 
-            GrBackendTexture backendTex;
-            CreateBackendTexture(ctx, &backendTex, kWidth, kHeight, kAlpha_8_SkColorType,
-                                 SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo,
-                                 GrProtected::kNo);
-            REPORTER_ASSERT(reporter, backendTex.isValid());
+            auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(ctx,
+                                                                            kWidth,
+                                                                            kHeight,
+                                                                            kAlpha_8_SkColorType,
+                                                                            GrMipmapped::kNo,
+                                                                            GrRenderable::kNo);
+            if (!mbet) {
+                ERRORF(reporter, "Could not create texture alpha texture.");
+                continue;
+            }
 
             SkImageInfo info = SkImageInfo::Make(kWidth, kHeight, kRGBA_8888_SkColorType,
                                                  kPremul_SkAlphaType);
             sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info);
             SkCanvas* canvas = surface->getCanvas();
 
-            PromiseTextureChecker promiseChecker(backendTex, reporter, false);
+            PromiseTextureChecker promiseChecker(mbet->texture(), reporter, false);
             sk_sp<SkImage> image(SkImage_Gpu::MakePromiseTexture(
-                    ctx, backendTex.getBackendFormat(), kWidth, kHeight, GrMipmapped::kNo,
-                    kTopLeft_GrSurfaceOrigin, kAlpha_8_SkColorType, kPremul_SkAlphaType, nullptr,
-                    PromiseTextureChecker::Fulfill, PromiseTextureChecker::Release,
-                    PromiseTextureChecker::Done, &promiseChecker,
+                    ctx,
+                    mbet->texture().getBackendFormat(),
+                    kWidth,
+                    kHeight,
+                    GrMipmapped::kNo,
+                    kTopLeft_GrSurfaceOrigin,
+                    kAlpha_8_SkColorType,
+                    kPremul_SkAlphaType,
+                    /*color space*/ nullptr,
+                    PromiseTextureChecker::Fulfill,
+                    PromiseTextureChecker::Release,
+                    PromiseTextureChecker::Done,
+                    &promiseChecker,
                     SkDeferredDisplayListRecorder::PromiseImageApiVersion::kNew));
             REPORTER_ASSERT(reporter, image);
 
@@ -377,15 +391,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageNullFulfill, reporter, ctxInfo) {
 
     auto dContext = ctxInfo.directContext();
 
-    // Do all this just to get a valid backend format for the image.
-    GrBackendTexture backendTex;
-    CreateBackendTexture(dContext, &backendTex, kWidth, kHeight, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes,
-                         GrProtected::kNo);
-    REPORTER_ASSERT(reporter, backendTex.isValid());
-    GrBackendFormat backendFormat = backendTex.getBackendFormat();
-    REPORTER_ASSERT(reporter, backendFormat.isValid());
-    dContext->deleteBackendTexture(backendTex);
+    GrBackendFormat backendFormat =
+            dContext->defaultBackendFormat(kRGBA_8888_SkColorType, GrRenderable::kYes);
+    if (!backendFormat.isValid()) {
+        ERRORF(reporter, "No valid default kRGBA_8888 texture format.");
+        return;
+    }
 
     struct Counts {
         int fFulfillCount = 0;
