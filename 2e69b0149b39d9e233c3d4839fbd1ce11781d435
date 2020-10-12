@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e94870a7_577956bf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 11059
+      },
+      "writtenOn": "2020-10-12T15:35:09Z",
+      "side": 1,
+      "message": "\u003e \"rougly\" is a possible misspelling of \"roughly\".\n\nDone",
+      "parentUuid": "16efff87_d33e5961",
+      "range": {
+        "startLine": 11,
+        "startChar": 47,
+        "endLine": 11,
+        "endChar": 53
+      },
+      "revId": "2e69b0149b39d9e233c3d4839fbd1ce11781d435",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
