@@ -11,7 +11,6 @@ void main() {
         }
         _0_switchy = _1_result;
     }
-
     sk_FragColor = _0_switchy;
 
 }
