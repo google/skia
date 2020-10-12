@@ -119,65 +119,61 @@ static void test_swap(skiatest::Reporter* reporter) {
     test_swap(reporter, arraysMoi, sizes);
 }
 
-template <typename T, bool MEM_MOVE> int SkTArray<T, MEM_MOVE>::allocCntForTest() const {
-    return fAllocCount;
-}
-
 void test_unnecessary_alloc(skiatest::Reporter* reporter) {
     {
         SkTArray<int> a;
-        REPORTER_ASSERT(reporter, a.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, a.capacity() == 0);
     }
     {
         SkSTArray<10, int> a;
-        REPORTER_ASSERT(reporter, a.allocCntForTest() == 10);
+        REPORTER_ASSERT(reporter, a.capacity() == 10);
     }
     {
         SkTArray<int> a(1);
-        REPORTER_ASSERT(reporter, a.allocCntForTest() >= 1);
+        REPORTER_ASSERT(reporter, a.capacity() >= 1);
     }
     {
         SkTArray<int> a, b;
         b = a;
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
     {
         SkSTArray<10, int> a;
         SkTArray<int> b;
         b = a;
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
     {
         SkTArray<int> a;
         SkTArray<int> b(a);  // NOLINT(performance-unnecessary-copy-initialization)
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
     {
         SkSTArray<10, int> a;
         SkTArray<int> b(a);  // NOLINT(performance-unnecessary-copy-initialization)
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
     {
         SkTArray<int> a;
         SkTArray<int> b(std::move(a));
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
     {
         SkSTArray<10, int> a;
         SkTArray<int> b(std::move(a));
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
     {
         SkTArray<int> a;
         SkTArray<int> b;
         b = std::move(a);
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
     {
         SkSTArray<10, int> a;
         SkTArray<int> b;
         b = std::move(a);
-        REPORTER_ASSERT(reporter, b.allocCntForTest() == 0);
+        REPORTER_ASSERT(reporter, b.capacity() == 0);
     }
 }
 
@@ -197,11 +193,11 @@ static void test_self_assignment(skiatest::Reporter* reporter) {
 template <typename Array> static void test_array_reserve(skiatest::Reporter* reporter,
                                                          Array* array, int reserveCount) {
     SkRandom random;
-    REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+    REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
     array->push_back();
-    REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+    REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
     array->pop_back();
-    REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+    REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
     while (array->count() < reserveCount) {
         // Two steps forward, one step back
         if (random.nextULessThan(3) < 2) {
@@ -209,7 +205,7 @@ template <typename Array> static void test_array_reserve(skiatest::Reporter* rep
         } else if (array->count() > 0) {
             array->pop_back();
         }
-        REPORTER_ASSERT(reporter, array->allocCntForTest() >= reserveCount);
+        REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);
     }
 }
 
