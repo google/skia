@@ -225,6 +225,47 @@ bool GrDirectContext::init() {
     return true;
 }
 
+void GrDirectContext::getResourceCacheUsage(int* resourceCount, size_t* resourceBytes) const {
+    ASSERT_SINGLE_OWNER
+
+    if (resourceCount) {
+        *resourceCount = fResourceCache->getBudgetedResourceCount();
+    }
+    if (resourceBytes) {
+        *resourceBytes = fResourceCache->getBudgetedResourceBytes();
+    }
+}
+
+size_t GrDirectContext::getResourceCachePurgeableBytes() const {
+    ASSERT_SINGLE_OWNER
+    return fResourceCache->getPurgeableBytes();
+}
+
+void GrDirectContext::getResourceCacheLimits(int* maxResources, size_t* maxResourceBytes) const {
+    ASSERT_SINGLE_OWNER
+    if (maxResources) {
+        *maxResources = -1;
+    }
+    if (maxResourceBytes) {
+        *maxResourceBytes = this->getResourceCacheLimit();
+    }
+}
+
+size_t GrDirectContext::getResourceCacheLimit() const {
+    ASSERT_SINGLE_OWNER
+    return fResourceCache->getMaxResourceBytes();
+}
+
+void GrDirectContext::setResourceCacheLimits(int unused, size_t maxResourceBytes) {
+    ASSERT_SINGLE_OWNER
+    this->setResourceCacheLimit(maxResourceBytes);
+}
+
+void GrDirectContext::setResourceCacheLimit(size_t maxResourceBytes) {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->setLimit(maxResourceBytes);
+}
+
 GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
     if (!fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr = std::make_unique<GrSmallPathAtlasMgr>();
