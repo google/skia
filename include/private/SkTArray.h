@@ -418,7 +418,9 @@ public:
         return !(*this == right);
     }
 
-    inline int allocCntForTest() const;
+    int capacity() const {
+        return fAllocCount;
+    }
 
 protected:
     /**
