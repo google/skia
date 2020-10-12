@@ -3,6 +3,46 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d6337cda_1997b7da",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-12T21:02:31Z",
+      "side": 1,
+      "message": "Why\u0027d you write all these casts this way?  Usually we cast like (uint32_t)that.count() or if you like, static_cast\u003cuint32_t\u003e(that.count()).",
+      "range": {
+        "startLine": 107,
+        "startChar": 17,
+        "endLine": 107,
+        "endChar": 40
+      },
+      "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ca83858_ff8fb545",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-12T21:02:31Z",
+      "side": 1,
+      "message": "Out of curiosity what prompted you to add these count \u003c\u003d kMaxCount checks?  They\u0027re tautological, no?",
+      "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8672799c_bae8b388",
         "filename": "include/private/SkTArray.h",
         "patchSetId": 10
