@@ -804,9 +804,8 @@ void ShaperHarfBuzz::shape(const char* utf8, size_t utf8Bytes,
         return;
     }
 
-    std::unique_ptr<ScriptRunIterator> script(MakeSkUnicodeHbScriptRunIterator(fUnicode.get(),
-                                                                                       utf8,
-                                                                                       utf8Bytes));
+    std::unique_ptr<ScriptRunIterator> script(
+        MakeSkUnicodeHbScriptRunIterator(fUnicode.get(), utf8, utf8Bytes));
     if (!script) {
         return;
     }
@@ -1401,10 +1400,12 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 
 std::unique_ptr<SkShaper::BiDiRunIterator>
 SkShaper::MakeIcuBiDiRunIterator(const char* utf8, size_t utf8Bytes, uint8_t bidiLevel) {
-    auto unicode = SkUnicode::Make();
+    std::unique_ptr<SkUnicode> unicode = SkUnicode::Make();
     if (!unicode) {
         return nullptr;
     }
+
+    // We only need unicode for the duration of this call
     return SkShaper::MakeSkUnicodeBidiRunIterator(unicode.get(),
                                                   utf8,
                                                   utf8Bytes,
@@ -1445,6 +1446,7 @@ SkShaper::MakeHbIcuScriptRunIterator(const char* utf8, size_t utf8Bytes) {
     if (!unicode) {
         return nullptr;
     }
+    // We only need unicode for the duration of this call
     return SkShaper::MakeSkUnicodeHbScriptRunIterator(unicode.get(), utf8, utf8Bytes);
 }
 
