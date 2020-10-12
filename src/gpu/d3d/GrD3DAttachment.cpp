@@ -62,14 +62,6 @@ sk_sp<GrD3DAttachment> GrD3DAttachment::MakeStencil(GrD3DGpu* gpu,
                                                       std::move(state), view));
 }
 
-size_t GrD3DAttachment::onGpuMemorySize() const {
-    uint64_t size = this->width();
-    size *= this->height();
-    size *= GrD3DCaps::GetStencilFormatTotalBitCount(this->dxgiFormat());
-    size *= this->numSamples();
-    return static_cast<size_t>(size / 8);
-}
-
 void GrD3DAttachment::onRelease() {
     GrD3DGpu* gpu = this->getD3DGpu();
     this->releaseResource(gpu);

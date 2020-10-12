@@ -50,14 +50,6 @@ GrMtlAttachment::~GrMtlAttachment() {
     SkASSERT(!fView);
 }
 
-size_t GrMtlAttachment::onGpuMemorySize() const {
-    uint64_t size = this->width();
-    size *= this->height();
-    size *= GrMtlFormatBytesPerBlock(this->mtlFormat());
-    size *= this->numSamples();
-    return static_cast<size_t>(size);
-}
-
 void GrMtlAttachment::onRelease() {
     fView = nullptr;
     GrAttachment::onRelease();
