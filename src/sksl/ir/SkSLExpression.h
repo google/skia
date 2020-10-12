@@ -59,32 +59,36 @@ public:
     };
 
     Expression(int offset, const BoolLiteralData& data)
-        : INHERITED(offset, (int) Kind::kBoolLiteral, data) {
+        : INHERITED(offset, (int) Kind::kBoolLiteral, std::move(data)) {
     }
 
     Expression(int offset, Kind kind, const ExternalValueData& data)
-        : INHERITED(offset, (int) kind, data) {
+        : INHERITED(offset, (int) kind, std::move(data)) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
     Expression(int offset, const FieldAccessData& data)
-        : INHERITED(offset, (int) Kind::kFieldAccess, data) {}
+        : INHERITED(offset, (int) Kind::kFieldAccess, std::move(data)) {}
 
     Expression(int offset, const FloatLiteralData& data)
-        : INHERITED(offset, (int) Kind::kFloatLiteral, data) {}
+        : INHERITED(offset, (int) Kind::kFloatLiteral, std::move(data)) {}
 
     Expression(int offset, const FunctionCallData& data)
-        : INHERITED(offset, (int) Kind::kFunctionCall, data) {}
+        : INHERITED(offset, (int) Kind::kFunctionCall, std::move(data)) {}
 
     Expression(int offset, const FunctionReferenceData& data)
-        : INHERITED(offset, (int) Kind::kFunctionReference, data) {}
+        : INHERITED(offset, (int) Kind::kFunctionReference, std::move(data)) {}
 
     Expression(int offset, const IntLiteralData& data)
-        : INHERITED(offset, (int) Kind::kIntLiteral, data) {
+        : INHERITED(offset, (int) Kind::kIntLiteral, std::move(data)) {
     }
 
     Expression(int offset, const SettingData& data)
-        : INHERITED(offset, (int) Kind::kSetting, data) {
+        : INHERITED(offset, (int) Kind::kSetting, std::move(data)) {
+    }
+
+    Expression(int offset, const SwizzleData& data)
+        : INHERITED(offset, (int) Kind::kSwizzle, std::move(data)) {
     }
 
     Expression(int offset, Kind kind, const Type* type)
@@ -93,11 +97,11 @@ public:
     }
 
     Expression(int offset, const TypeReferenceData& data)
-        : INHERITED(offset, (int) Kind::kTypeReference, data) {
+        : INHERITED(offset, (int) Kind::kTypeReference, std::move(data)) {
     }
 
     Expression(int offset, Kind kind, const TypeTokenData& data)
-        : INHERITED(offset, (int) kind, data) {
+        : INHERITED(offset, (int) kind, std::move(data)) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 

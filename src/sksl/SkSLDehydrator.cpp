@@ -360,9 +360,9 @@ void Dehydrator::write(const Expression* e) {
             case Expression::Kind::kSwizzle: {
                 const Swizzle& s = e->as<Swizzle>();
                 this->writeCommand(Rehydrator::kSwizzle_Command);
-                this->write(s.fBase.get());
-                this->writeU8(s.fComponents.size());
-                for (int c : s.fComponents) {
+                this->write(s.base().get());
+                this->writeU8(s.components().size());
+                for (int c : s.components()) {
                     this->writeU8(c);
                 }
                 break;
