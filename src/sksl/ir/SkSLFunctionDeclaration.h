@@ -8,6 +8,7 @@
 #ifndef SKSL_FUNCTIONDECLARATION
 #define SKSL_FUNCTIONDECLARATION
 
+#include "include/private/SkTArray.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
@@ -111,7 +112,7 @@ public:
      * that each argument can actually be coerced to the final parameter type, respecting the
      * narrowing-conversions flag. This is handled in callCost(), or in convertCall() (via coerce).
      */
-    bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
+    bool determineFinalTypes(const ExpressionArray& arguments,
                              std::vector<const Type*>* outParameterTypes,
                              const Type** outReturnType) const {
         const std::vector<Variable*>& parameters = this->parameters();
