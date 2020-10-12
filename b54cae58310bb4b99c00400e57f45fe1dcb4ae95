@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8be5ca81_e4e66067",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 2172,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-12T15:01:40Z",
+      "side": 1,
+      "message": "There\u0027s a second pass inside the call() we do below, that then tries to match all the argument types to parameter types. That can also fail (and produces a similar \u0027no match\u0027 error).",
+      "parentUuid": "8f550f54_6c5b7a0e",
+      "range": {
+        "startLine": 2172,
+        "startChar": 12,
+        "endLine": 2172,
+        "endChar": 39
+      },
+      "revId": "b54cae58310bb4b99c00400e57f45fe1dcb4ae95",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bd26cc3e_17730d3c",
         "filename": "src/sksl/ir/SkSLUnresolvedFunction.h",
         "patchSetId": 1
