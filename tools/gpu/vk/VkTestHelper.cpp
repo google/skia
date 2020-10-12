@@ -86,12 +86,6 @@ bool VkTestHelper::init() {
 }
 
 void VkTestHelper::cleanup() {
-    // Make sure any work, release procs, etc left on the context are finished with before we start
-    // tearing everything down.
-    if (fDirectContext) {
-        fDirectContext->flushAndSubmit(true);
-    }
-
     fDirectContext.reset();
 
     fBackendContext.fMemoryAllocator.reset();

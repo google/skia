@@ -44,7 +44,6 @@
 #include "tests/TestUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/GrContextFactory.h"
-#include "tools/gpu/ManagedBackendTexture.h"
 
 #include <initializer_list>
 #include <memory>
@@ -788,14 +787,10 @@ enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
 
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(dContext,
-                                                                    kSize,
-                                                                    kSize,
-                                                                    kRGBA_8888_SkColorType,
-                                                                    GrMipmapped::kNo,
-                                                                    GrRenderable::kNo,
-                                                                    GrProtected::kNo);
-    if (!mbet) {
+    GrBackendTexture backendTex;
+    CreateBackendTexture(dContext, &backendTex, kSize, kSize, kRGBA_8888_SkColorType,
+            SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+    if (!backendTex.isValid()) {
         return;
     }
 
@@ -803,6 +798,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
     sk_sp<SkSurface> s = params.make(dContext);
     if (!s) {
+        dContext->deleteBackendTexture(backendTex);
         return;
     }
 
@@ -816,21 +812,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo) {
 
     auto rContext = canvas->recordingContext();
     if (!rContext) {
+        s = nullptr;
+        dContext->deleteBackendTexture(backendTex);
         return;
     }
 
     // Wrapped Backend Textures are not supported in DDL
     TextureReleaseChecker releaseChecker;
-    sk_sp<SkImage> image = SkImage::MakeFromTexture(
-            rContext,
-            mbet->texture(),
-            kTopLeft_GrSurfaceOrigin,
-            kRGBA_8888_SkColorType,
-            kPremul_SkAlphaType,
-            nullptr,
-            sk_gpu_test::ManagedBackendTexture::ReleaseProc,
-            mbet->releaseContext(TextureReleaseChecker::Release, &releaseChecker));
+    sk_sp<SkImage> image =
+            SkImage::MakeFromTexture(rContext, backendTex, kTopLeft_GrSurfaceOrigin,
+                                     kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr,
+                                     TextureReleaseChecker::Release, &releaseChecker);
     REPORTER_ASSERT(reporter, !image);
+
+    dContext->deleteBackendTexture(backendTex);
 }
 
 static sk_sp<SkPromiseImageTexture> dummy_fulfill_proc(void*) {
@@ -994,14 +989,16 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
     SkSurfaceCharacterization characterization;
     SkAssertResult(s->characterize(&characterization));
 
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeFromInfo(context, ii);
-    if (!mbet) {
-        ERRORF(reporter, "Could not make texture.");
+    GrBackendTexture backendTexture;
+
+    if (!CreateBackendTexture(context, &backendTexture, ii, SkColors::kCyan, GrMipmapped::kNo,
+                              GrRenderable::kNo)) {
+        REPORTER_ASSERT(reporter, false);
         return;
     }
 
     FulfillInfo fulfillInfo;
-    fulfillInfo.fTex = SkPromiseImageTexture::Make(mbet->texture());
+    fulfillInfo.fTex = SkPromiseImageTexture::Make(backendTexture);
 
     sk_sp<SkDeferredDisplayList> ddl;
 
@@ -1053,6 +1050,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo) {
 
     REPORTER_ASSERT(reporter, fulfillInfo.fTex->unique());
     fulfillInfo.fTex.reset();
+
+    DeleteBackendTexture(context, backendTexture);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

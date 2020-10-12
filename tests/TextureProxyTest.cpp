@@ -9,7 +9,6 @@
 
 #include "tests/Test.h"
 
-#include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/GrContextPriv.h"
@@ -19,8 +18,9 @@
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrTexture.h"
 #include "src/gpu/GrTextureProxy.h"
+
+#include "include/core/SkImage.h"
 #include "src/gpu/SkGr.h"
-#include "tools/gpu/ManagedBackendTexture.h"
 
 #ifdef SK_DAWN
 #include "src/gpu/dawn/GrDawnGpu.h"
@@ -96,25 +96,28 @@ static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter, GrRe
     return proxy;
 }
 
-static sk_sp<GrTextureProxy> create_wrapped_backend(GrDirectContext* dContext) {
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            dContext,
-            kSize.width(),
-            kSize.height(),
-            GrColorTypeToSkColorType(kColorType),
-            GrMipmapped::kNo,
-            GrRenderable::kNo,
-            GrProtected::kNo);
-    if (!mbet) {
+static sk_sp<GrTextureProxy> create_wrapped_backend(GrDirectContext* dContext,
+                                                    SkBackingFit fit,
+                                                    sk_sp<GrTexture>* backingSurface) {
+    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
+    GrResourceProvider* resourceProvider = dContext->priv().resourceProvider();
+
+    GrBackendFormat format =
+            proxyProvider->caps()->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
+
+    *backingSurface =
+            resourceProvider->createTexture(kSize, format, GrRenderable::kNo, 1, GrMipmapped::kNo,
+                                            SkBudgeted::kNo, GrProtected::kNo);
+    if (!(*backingSurface)) {
         return nullptr;
     }
-    GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
-    return proxyProvider->wrapBackendTexture(mbet->texture(),
-                                             kBorrow_GrWrapOwnership,
-                                             GrWrapCacheable::kYes,
-                                             kRead_GrIOType,
-                                             mbet->refCountedCallback());
+
+    GrBackendTexture backendTex = (*backingSurface)->getBackendTexture();
+
+    return proxyProvider->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
+                                             GrWrapCacheable::kYes, kRead_GrIOType);
 }
+
 
 // This tests the basic capabilities of the uniquely keyed texture proxies. Does assigning
 // and looking them up work, etc.
@@ -335,10 +338,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest, reporter, ctxInfo) {
         }
 
         REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
+        sk_sp<GrTexture> backingTex;
+        sk_sp<GrTextureProxy> proxy = create_wrapped_backend(direct, fit, &backingTex);
+        basic_test(direct, reporter, std::move(proxy));
+
+        backingTex = nullptr;
         cache->purgeAllUnlocked();
     }
-
-    basic_test(direct, reporter, create_wrapped_backend(direct));
 
     invalidation_test(direct, reporter);
     invalidation_and_instantiation_test(direct, reporter);
