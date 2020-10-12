@@ -17,14 +17,15 @@
 // We've also fixed a few of the caveats that used to make SkNx awkward to work
 // with across translation units.  skvx::Vec<N,T> always has N*sizeof(T) size
 // and alignment and is safe to use across translation units freely.
-// Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.
+// (Ideally we'd only align to T, but that tanks ARMv7 NEON codegen.)
 
 // Please try to keep this file independent of Skia headers.
 #include <algorithm>         // std::min, std::max
-#include <cmath>             // std::ceil, std::floor, std::trunc, std::round, std::sqrt, etc.
+#include <cmath>             // ceilf, floorf, truncf, roundf, sqrtf, etc.
 #include <cstdint>           // intXX_t
 #include <cstring>           // memcpy()
 #include <initializer_list>  // std::initializer_list
+#include <utility>           // std::index_sequence
 
 #if defined(__SSE__) || defined(__AVX__) || defined(__AVX2__)
     #include <immintrin.h>
@@ -116,6 +117,8 @@ struct Vec<1,T> {
     }
 };
 
+// Ideally we'd only use bit_pun(), but until this file is always built as C++17 with constexpr if,
+// we'll sometimes find need to use unchecked_bit_pun().  Please do check the call sites yourself!
 template <typename D, typename S>
 SI D unchecked_bit_pun(const S& s) {
     D d;
@@ -143,15 +146,16 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
     return v;
 }
 
-// We have two default strategies for implementing most operations:
+// We have three strategies for implementing Vec operations:
 //    1) lean on Clang/GCC vector extensions when available;
-//    2) recurse to scalar portable implementations when not.
-// At the end we can drop in platform-specific implementations that override either default.
+//    2) use map() to apply a scalar function lane-wise;
+//    3) recurse on lo/hi to scalar portable implementations.
+// We can slot in platform-specific implementations as overloads for particular Vec<N,T>,
+// or often integrate them directly into the recursion of style 3), allowing fine control.
 
 #if !defined(SKNX_NO_SIMD) && (defined(__clang__) || defined(__GNUC__))
 
     // VExt<N,T> types have the same size as Vec<N,T> and support most operations directly.
-    // N.B. VExt<N,T> alignment is N*alignof(T), stricter than Vec<N,T>'s alignof(T).
     #if defined(__clang__)
         template <int N, typename T>
         using VExt = T __attribute__((ext_vector_type(N)));
@@ -225,7 +229,7 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
 #else
 
     // Either SKNX_NO_SIMD is defined, or Clang/GCC vector extensions are not available.
-    // We'll implement things portably, in a way that should be easily autovectorizable.
+    // We'll implement things portably with N==1 scalar implementations and recursion onto them.
 
     // N == 1 scalar implementations.
     SIT Vec<1,T> operator+(const Vec<1,T>& x, const Vec<1,T>& y) { return x.val + y.val; }
@@ -263,7 +267,7 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
         return x.val >  y.val ? ~0 : 0;
     }
 
-    // All default N != 1 implementations just recurse on lo and hi halves.
+    // Recurse on lo/hi down to N==1 scalar implementations.
     SINT Vec<N,T> operator+(const Vec<N,T>& x, const Vec<N,T>& y) {
         return join(x.lo + y.lo, x.hi + y.hi);
     }
@@ -314,16 +318,55 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
     }
 #endif
 
+// Scalar/vector operations splat the scalar to a vector.
+SINTU Vec<N,T>    operator+ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) +  y; }
+SINTU Vec<N,T>    operator- (U x, const Vec<N,T>& y) { return Vec<N,T>(x) -  y; }
+SINTU Vec<N,T>    operator* (U x, const Vec<N,T>& y) { return Vec<N,T>(x) *  y; }
+SINTU Vec<N,T>    operator/ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) /  y; }
+SINTU Vec<N,T>    operator^ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) ^  y; }
+SINTU Vec<N,T>    operator& (U x, const Vec<N,T>& y) { return Vec<N,T>(x) &  y; }
+SINTU Vec<N,T>    operator| (U x, const Vec<N,T>& y) { return Vec<N,T>(x) |  y; }
+SINTU Vec<N,M<T>> operator==(U x, const Vec<N,T>& y) { return Vec<N,T>(x) == y; }
+SINTU Vec<N,M<T>> operator!=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) != y; }
+SINTU Vec<N,M<T>> operator<=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) <= y; }
+SINTU Vec<N,M<T>> operator>=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) >= y; }
+SINTU Vec<N,M<T>> operator< (U x, const Vec<N,T>& y) { return Vec<N,T>(x) <  y; }
+SINTU Vec<N,M<T>> operator> (U x, const Vec<N,T>& y) { return Vec<N,T>(x) >  y; }
+
+SINTU Vec<N,T>    operator+ (const Vec<N,T>& x, U y) { return x +  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator- (const Vec<N,T>& x, U y) { return x -  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator* (const Vec<N,T>& x, U y) { return x *  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator/ (const Vec<N,T>& x, U y) { return x /  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator^ (const Vec<N,T>& x, U y) { return x ^  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator& (const Vec<N,T>& x, U y) { return x &  Vec<N,T>(y); }
+SINTU Vec<N,T>    operator| (const Vec<N,T>& x, U y) { return x |  Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator==(const Vec<N,T>& x, U y) { return x == Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator!=(const Vec<N,T>& x, U y) { return x != Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator<=(const Vec<N,T>& x, U y) { return x <= Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator>=(const Vec<N,T>& x, U y) { return x >= Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator< (const Vec<N,T>& x, U y) { return x <  Vec<N,T>(y); }
+SINTU Vec<N,M<T>> operator> (const Vec<N,T>& x, U y) { return x >  Vec<N,T>(y); }
+
+SINT Vec<N,T>& operator+=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x + y); }
+SINT Vec<N,T>& operator-=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x - y); }
+SINT Vec<N,T>& operator*=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x * y); }
+SINT Vec<N,T>& operator/=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x / y); }
+SINT Vec<N,T>& operator^=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x ^ y); }
+SINT Vec<N,T>& operator&=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x & y); }
+SINT Vec<N,T>& operator|=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x | y); }
+
+SINTU Vec<N,T>& operator+=(Vec<N,T>& x, U y) { return (x = x + Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator-=(Vec<N,T>& x, U y) { return (x = x - Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator*=(Vec<N,T>& x, U y) { return (x = x * Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator/=(Vec<N,T>& x, U y) { return (x = x / Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator^=(Vec<N,T>& x, U y) { return (x = x ^ Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator&=(Vec<N,T>& x, U y) { return (x = x & Vec<N,T>(y)); }
+SINTU Vec<N,T>& operator|=(Vec<N,T>& x, U y) { return (x = x | Vec<N,T>(y)); }
+
+SINT Vec<N,T>& operator<<=(Vec<N,T>& x, int bits) { return (x = x << bits); }
+SINT Vec<N,T>& operator>>=(Vec<N,T>& x, int bits) { return (x = x >> bits); }
+
 // Some operations we want are not expressible with Clang/GCC vector extensions.
-
-// N == 1 scalar implementations.
-SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<1,T>& e) {
-    // In practice this scalar implementation is unlikely to be used.  See if_then_else() below.
-    return bit_pun<Vec<1,T>>(( cond & bit_pun<Vec<1, M<T>>>(t)) |
-                             (~cond & bit_pun<Vec<1, M<T>>>(e)) );
-}
-
-// All default N != 1 implementations just recurse on lo and hi halves.
 
 // Clang can reason about naive_if_then_else() and optimize through it better
 // than if_then_else(), so it's sometimes useful to call it directly when we
@@ -333,6 +376,11 @@ SINT Vec<N,T> naive_if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, con
                              (~cond & bit_pun<Vec<N, M<T>>>(e)) );
 }
 
+SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<1,T>& e) {
+    // In practice this scalar implementation is unlikely to be used.  See next if_then_else().
+    return bit_pun<Vec<1,T>>(( cond & bit_pun<Vec<1, M<T>>>(t)) |
+                             (~cond & bit_pun<Vec<1, M<T>>>(e)) );
+}
 SINT Vec<N,T> if_then_else(const Vec<N,M<T>>& cond, const Vec<N,T>& t, const Vec<N,T>& e) {
     // Specializations inline here so they can generalize what types the apply to.
     // (This header is used in C++14 contexts, so we have to kind of fake constexpr if.)
@@ -400,60 +448,8 @@ SINT bool all(const Vec<N,T>& x) {
         && all(x.hi);
 }
 
-
-// Scalar/vector operations just splat the scalar to a vector...
-SINTU Vec<N,T>    operator+ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) +  y; }
-SINTU Vec<N,T>    operator- (U x, const Vec<N,T>& y) { return Vec<N,T>(x) -  y; }
-SINTU Vec<N,T>    operator* (U x, const Vec<N,T>& y) { return Vec<N,T>(x) *  y; }
-SINTU Vec<N,T>    operator/ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) /  y; }
-SINTU Vec<N,T>    operator^ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) ^  y; }
-SINTU Vec<N,T>    operator& (U x, const Vec<N,T>& y) { return Vec<N,T>(x) &  y; }
-SINTU Vec<N,T>    operator| (U x, const Vec<N,T>& y) { return Vec<N,T>(x) |  y; }
-SINTU Vec<N,M<T>> operator==(U x, const Vec<N,T>& y) { return Vec<N,T>(x) == y; }
-SINTU Vec<N,M<T>> operator!=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) != y; }
-SINTU Vec<N,M<T>> operator<=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) <= y; }
-SINTU Vec<N,M<T>> operator>=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) >= y; }
-SINTU Vec<N,M<T>> operator< (U x, const Vec<N,T>& y) { return Vec<N,T>(x) <  y; }
-SINTU Vec<N,M<T>> operator> (U x, const Vec<N,T>& y) { return Vec<N,T>(x) >  y; }
-// ... and same deal for vector/scalar operations.
-SINTU Vec<N,T>    operator+ (const Vec<N,T>& x, U y) { return x +  Vec<N,T>(y); }
-SINTU Vec<N,T>    operator- (const Vec<N,T>& x, U y) { return x -  Vec<N,T>(y); }
-SINTU Vec<N,T>    operator* (const Vec<N,T>& x, U y) { return x *  Vec<N,T>(y); }
-SINTU Vec<N,T>    operator/ (const Vec<N,T>& x, U y) { return x /  Vec<N,T>(y); }
-SINTU Vec<N,T>    operator^ (const Vec<N,T>& x, U y) { return x ^  Vec<N,T>(y); }
-SINTU Vec<N,T>    operator& (const Vec<N,T>& x, U y) { return x &  Vec<N,T>(y); }
-SINTU Vec<N,T>    operator| (const Vec<N,T>& x, U y) { return x |  Vec<N,T>(y); }
-SINTU Vec<N,M<T>> operator==(const Vec<N,T>& x, U y) { return x == Vec<N,T>(y); }
-SINTU Vec<N,M<T>> operator!=(const Vec<N,T>& x, U y) { return x != Vec<N,T>(y); }
-SINTU Vec<N,M<T>> operator<=(const Vec<N,T>& x, U y) { return x <= Vec<N,T>(y); }
-SINTU Vec<N,M<T>> operator>=(const Vec<N,T>& x, U y) { return x >= Vec<N,T>(y); }
-SINTU Vec<N,M<T>> operator< (const Vec<N,T>& x, U y) { return x <  Vec<N,T>(y); }
-SINTU Vec<N,M<T>> operator> (const Vec<N,T>& x, U y) { return x >  Vec<N,T>(y); }
-
-
-// The various op= operators, for vectors...
-SINT Vec<N,T>& operator+=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x + y); }
-SINT Vec<N,T>& operator-=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x - y); }
-SINT Vec<N,T>& operator*=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x * y); }
-SINT Vec<N,T>& operator/=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x / y); }
-SINT Vec<N,T>& operator^=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x ^ y); }
-SINT Vec<N,T>& operator&=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x & y); }
-SINT Vec<N,T>& operator|=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x | y); }
-
-// ... for scalars...
-SINTU Vec<N,T>& operator+=(Vec<N,T>& x, U y) { return (x = x + Vec<N,T>(y)); }
-SINTU Vec<N,T>& operator-=(Vec<N,T>& x, U y) { return (x = x - Vec<N,T>(y)); }
-SINTU Vec<N,T>& operator*=(Vec<N,T>& x, U y) { return (x = x * Vec<N,T>(y)); }
-SINTU Vec<N,T>& operator/=(Vec<N,T>& x, U y) { return (x = x / Vec<N,T>(y)); }
-SINTU Vec<N,T>& operator^=(Vec<N,T>& x, U y) { return (x = x ^ Vec<N,T>(y)); }
-SINTU Vec<N,T>& operator&=(Vec<N,T>& x, U y) { return (x = x & Vec<N,T>(y)); }
-SINTU Vec<N,T>& operator|=(Vec<N,T>& x, U y) { return (x = x | Vec<N,T>(y)); }
-
-// ... and for shifts.
-SINT Vec<N,T>& operator<<=(Vec<N,T>& x, int bits) { return (x = x << bits); }
-SINT Vec<N,T>& operator>>=(Vec<N,T>& x, int bits) { return (x = x >> bits); }
-
 // cast() Vec<N,S> to Vec<N,D>, as if applying a C-cast to each lane.
+// TODO: implement with map()?
 template <typename D, typename S>
 SI Vec<1,D> cast(const Vec<1,S>& src) { return (D)src.val; }
 
@@ -491,6 +487,7 @@ SINTU Vec<N,T> max(U x, const Vec<N,T>& y) { return max(Vec<N,T>(x), y); }
 template <int... Ix, int N, typename T>
 SI Vec<sizeof...(Ix),T> shuffle(const Vec<N,T>& x) {
 #if !defined(SKNX_NO_SIMD) && defined(__clang__)
+    // TODO: can we just always use { x[Ix]... }?
     return to_vec<sizeof...(Ix),T>(__builtin_shufflevector(to_vext(x), to_vext(x), Ix...));
 #else
     return { x[Ix]... };
@@ -520,6 +517,8 @@ auto map(Fn&& fn, const Vec<N,T>& first, const Rest&... rest) {
     // Derive an {0...N-1} index_sequence from the size of the first arg: N lanes in, N lanes out.
     return map(std::make_index_sequence<N>{}, fn, first,rest...);
 }
+
+// TODO: remove functions that are unlikely to ever vectorize (atan, sin, cos, tan, pow)?
 
 SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map( atanf, x); }
 SIN Vec<N,float>  ceil(const Vec<N,float>& x) { return map( ceilf, x); }
@@ -559,12 +558,13 @@ SIN Vec<N,int> lrint(const Vec<N,float>& x) {
                 lrint(x.hi));
 }
 
+// TODO: new-style platform specializations for rcp() / rsqrt()?
 SIN Vec<N,float>   rcp(const Vec<N,float>& x) { return 1/x; }
 SIN Vec<N,float> rsqrt(const Vec<N,float>& x) { return rcp(sqrt(x)); }
 SIN Vec<N,float> fract(const Vec<N,float>& x) { return x - floor(x); }
 
-// The default cases for to_half/from_half are borrowed from skcms,
-// and assume inputs are finite and treat/flush denorm half floats as/to zero.
+// The default logic for to_half/from_half is borrowed from skcms,
+// and assumes inputs are finite and treat/flush denorm half floats as/to zero.
 // Key constants to watch for:
 //    - a float is 32-bit, 1-8-23 sign-exponent-mantissa, with 127 exponent bias;
 //    - a half  is 16-bit, 1-5-10 sign-exponent-mantissa, with  15 exponent bias.
