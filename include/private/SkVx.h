@@ -314,8 +314,7 @@ SINT Vec<2*N,T> join(const Vec<N,T>& lo, const Vec<N,T>& hi) {
     }
 #endif
 
-// Some operations we want are not expressible with Clang/GCC vector
-// extensions, so we implement them using the recursive approach.
+// Some operations we want are not expressible with Clang/GCC vector extensions.
 
 // N == 1 scalar implementations.
 SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<1,T>& e) {
@@ -323,8 +322,6 @@ SIT Vec<1,T> if_then_else(const Vec<1,M<T>>& cond, const Vec<1,T>& t, const Vec<
     return bit_pun<Vec<1,T>>(( cond & bit_pun<Vec<1, M<T>>>(t)) |
                              (~cond & bit_pun<Vec<1, M<T>>>(e)) );
 }
-
-SIT Vec<1,T> pow(const Vec<1,T>& x, const Vec<1,T>& y) { return std::pow(x.val, y.val); }
 
 // All default N != 1 implementations just recurse on lo and hi halves.
 
@@ -403,9 +400,6 @@ SINT bool all(const Vec<N,T>& x) {
         && all(x.hi);
 }
 
-SINT Vec<N,T> pow(const Vec<N,T>& x, const Vec<N,T>& y) {
-    return join(pow(x.lo, y.lo), pow(x.hi, y.hi));
-}
 
 // Scalar/vector operations just splat the scalar to a vector...
 SINTU Vec<N,T>    operator+ (U x, const Vec<N,T>& y) { return Vec<N,T>(x) +  y; }
@@ -421,8 +415,6 @@ SINTU Vec<N,M<T>> operator<=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) <= y; 
 SINTU Vec<N,M<T>> operator>=(U x, const Vec<N,T>& y) { return Vec<N,T>(x) >= y; }
 SINTU Vec<N,M<T>> operator< (U x, const Vec<N,T>& y) { return Vec<N,T>(x) <  y; }
 SINTU Vec<N,M<T>> operator> (U x, const Vec<N,T>& y) { return Vec<N,T>(x) >  y; }
-SINTU Vec<N,T>           pow(U x, const Vec<N,T>& y) { return pow(Vec<N,T>(x), y); }
-
 // ... and same deal for vector/scalar operations.
 SINTU Vec<N,T>    operator+ (const Vec<N,T>& x, U y) { return x +  Vec<N,T>(y); }
 SINTU Vec<N,T>    operator- (const Vec<N,T>& x, U y) { return x -  Vec<N,T>(y); }
@@ -437,7 +429,7 @@ SINTU Vec<N,M<T>> operator<=(const Vec<N,T>& x, U y) { return x <= Vec<N,T>(y); 
 SINTU Vec<N,M<T>> operator>=(const Vec<N,T>& x, U y) { return x >= Vec<N,T>(y); }
 SINTU Vec<N,M<T>> operator< (const Vec<N,T>& x, U y) { return x <  Vec<N,T>(y); }
 SINTU Vec<N,M<T>> operator> (const Vec<N,T>& x, U y) { return x >  Vec<N,T>(y); }
-SINTU Vec<N,T>           pow(const Vec<N,T>& x, U y) { return pow(x, Vec<N,T>(y)); }
+
 
 // The various op= operators, for vectors...
 SINT Vec<N,T>& operator+=(Vec<N,T>& x, const Vec<N,T>& y) { return (x = x + y); }
@@ -505,16 +497,10 @@ SI Vec<sizeof...(Ix),T> shuffle(const Vec<N,T>& x) {
 #endif
 }
 
-// fma() delivers a fused mul-add, even if that's really expensive.
-SI Vec<1,float> fma(const Vec<1,float>& x, const Vec<1,float>& y, const Vec<1,float>& z) {
-    return std::fma(x.val, y.val, z.val);
-}
-SIN Vec<N,float> fma(const Vec<N,float>& x, const Vec<N,float>& y, const Vec<N,float>& z) {
-    return join(fma(x.lo, y.lo, z.lo),
-                fma(x.hi, y.hi, z.hi));
-}
+// Call map(fn, x) for a vector with fn() applied to each lane of x, { fn(x[0]), fn(x[1]), ... },
+// or map(fn, x,y) for a vector of fn(x[i], y[i]), etc.
 
-template <int N, typename T, typename Fn, std::size_t... I>
+template <typename Fn, typename... Args, size_t... I>
 #if defined(__clang__)
 // CFI, specifically -fsanitize=cfi-icall, seems to give a false positive here,
 // with errors like "control flow integrity check for type 'float (float)
@@ -523,25 +509,37 @@ template <int N, typename T, typename Fn, std::size_t... I>
 // So, stifle CFI in this function.
 __attribute__((no_sanitize("cfi")))
 #endif
-SI auto map(const skvx::Vec<N,T>& x, Fn&& fn,
-            std::index_sequence<I...> ix = {}) -> skvx::Vec<N, decltype(fn(x[0]))> {
-    if /*constexpr*/ (sizeof...(I) == 0) {
-        // When called as map(x, fn), bootstrap the index_sequence we want: 0,1,...,N-1.
-        return map(x, fn, std::make_index_sequence<N>{});
-    }
-    return { fn(x[I])... };
+SI auto map(std::index_sequence<I...>,
+            Fn&& fn, const Args&... args) -> skvx::Vec<sizeof...(I), decltype(fn(args[0]...))> {
+    auto lane = [&](size_t i) { return fn(args[i]...); };
+    return { lane(I)... };
 }
 
-SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map(x,  atanf); }
-SIN Vec<N,float>  ceil(const Vec<N,float>& x) { return map(x,  ceilf); }
-SIN Vec<N,float> floor(const Vec<N,float>& x) { return map(x, floorf); }
-SIN Vec<N,float> trunc(const Vec<N,float>& x) { return map(x, truncf); }
-SIN Vec<N,float> round(const Vec<N,float>& x) { return map(x, roundf); }
-SIN Vec<N,float>  sqrt(const Vec<N,float>& x) { return map(x,  sqrtf); }
-SIN Vec<N,float>   abs(const Vec<N,float>& x) { return map(x,  fabsf); }
-SIN Vec<N,float>   sin(const Vec<N,float>& x) { return map(x,   sinf); }
-SIN Vec<N,float>   cos(const Vec<N,float>& x) { return map(x,   cosf); }
-SIN Vec<N,float>   tan(const Vec<N,float>& x) { return map(x,   tanf); }
+template <typename Fn, int N, typename T, typename... Rest>
+auto map(Fn&& fn, const Vec<N,T>& first, const Rest&... rest) {
+    // Derive an {0...N-1} index_sequence from the size of the first arg: N lanes in, N lanes out.
+    return map(std::make_index_sequence<N>{}, fn, first,rest...);
+}
+
+SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map( atanf, x); }
+SIN Vec<N,float>  ceil(const Vec<N,float>& x) { return map( ceilf, x); }
+SIN Vec<N,float> floor(const Vec<N,float>& x) { return map(floorf, x); }
+SIN Vec<N,float> trunc(const Vec<N,float>& x) { return map(truncf, x); }
+SIN Vec<N,float> round(const Vec<N,float>& x) { return map(roundf, x); }
+SIN Vec<N,float>  sqrt(const Vec<N,float>& x) { return map( sqrtf, x); }
+SIN Vec<N,float>   abs(const Vec<N,float>& x) { return map( fabsf, x); }
+SIN Vec<N,float>   sin(const Vec<N,float>& x) { return map(  sinf, x); }
+SIN Vec<N,float>   cos(const Vec<N,float>& x) { return map(  cosf, x); }
+SIN Vec<N,float>   tan(const Vec<N,float>& x) { return map(  tanf, x); }
+SIN Vec<N,float>   pow(const Vec<N,float>& x,
+                       const Vec<N,float>& y) { return map(powf, x,y); }
+SIN Vec<N,float>   fma(const Vec<N,float>& x,
+                       const Vec<N,float>& y,
+                       const Vec<N,float>& z) {
+    // I don't understand why Clang's codegen is terrible if we write map(fmaf, x,y,z) directly.
+    auto fn = [](float x, float y, float z) { return fmaf(x,y,z); };
+    return map(fn, x,y,z);
+}
 
 SI Vec<1,int> lrint(const Vec<1,float>& x) {
     return (int)lrintf(x.val);
@@ -701,27 +699,6 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
         }
         SI Vec<2,float>   rcp(const Vec<2,float>& x) {
             return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x)));
-        }
-    #endif
-
-    #if defined(__AVX2__)
-        SI Vec<4,float> fma(const Vec<4,float>& x, const Vec<4,float>& y, const Vec<4,float>& z) {
-            return bit_pun<Vec<4,float>>(_mm_fmadd_ps(bit_pun<__m128>(x),
-                                                      bit_pun<__m128>(y),
-                                                      bit_pun<__m128>(z)));
-        }
-
-        SI Vec<8,float> fma(const Vec<8,float>& x, const Vec<8,float>& y, const Vec<8,float>& z) {
-            return bit_pun<Vec<8,float>>(_mm256_fmadd_ps(bit_pun<__m256>(x),
-                                                         bit_pun<__m256>(y),
-                                                         bit_pun<__m256>(z)));
-        }
-    #elif defined(__aarch64__)
-        SI Vec<4,float> fma(const Vec<4,float>& x, const Vec<4,float>& y, const Vec<4,float>& z) {
-            // These instructions tend to work like z += xy, so the order here is z,x,y.
-            return bit_pun<Vec<4,float>>(vfmaq_f32(bit_pun<float32x4_t>(z),
-                                                   bit_pun<float32x4_t>(x),
-                                                   bit_pun<float32x4_t>(y)));
         }
     #endif
 
