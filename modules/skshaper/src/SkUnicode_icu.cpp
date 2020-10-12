@@ -469,7 +469,7 @@ public:
     }
 };
 
-std::unique_ptr<SkUnicode> SkUnicode::Make() {
+std::unique_ptr<SkUnicode> SkUnicode::MakeIcuUnicode() {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
         SkDEBUGF("SkLoadICU() failed!\n");
