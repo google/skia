@@ -274,6 +274,105 @@ public:
      */
     using GrRecordingContext::maxSurfaceSampleCountForColorType;
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Misc.
+
+    /**
+     * Inserts a list of GPU semaphores that the current GPU-backed API must wait on before
+     * executing any more commands on the GPU. If this call returns false, then the GPU back-end
+     * will not wait on any passed in semaphores, and the client will still own the semaphores,
+     * regardless of the value of deleteSemaphoresAfterWait.
+     *
+     * If deleteSemaphoresAfterWait is false then Skia will not delete the semaphores. In this case
+     * it is the client's responsibility to not destroy or attempt to reuse the semaphores until it
+     * knows that Skia has finished waiting on them. This can be done by using finishedProcs on
+     * flush calls.
+     */
+    bool wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
+              bool deleteSemaphoresAfterWait = true);
+
+    /**
+     * Call to ensure all drawing to the context has been flushed and submitted to the underlying 3D
+     * API. This is equivalent to calling GrContext::flush with a default GrFlushInfo followed by
+     * GrContext::submit(syncCpu).
+     */
+    void flushAndSubmit(bool syncCpu = false) {
+        this->flush(GrFlushInfo());
+        this->submit(syncCpu);
+    }
+
+    /**
+     * Call to ensure all drawing to the context has been flushed to underlying 3D API specific
+     * objects. A call to `submit` is always required to ensure work is actually sent to
+     * the gpu. Some specific API details:
+     *     GL: Commands are actually sent to the driver, but glFlush is never called. Thus some
+     *         sync objects from the flush will not be valid until a submission occurs.
+     *
+     *     Vulkan/Metal/D3D/Dawn: Commands are recorded to the backend APIs corresponding command
+     *         buffer or encoder objects. However, these objects are not sent to the gpu until a
+     *         submission occurs.
+     *
+     * If the return is GrSemaphoresSubmitted::kYes, only initialized GrBackendSemaphores will be
+     * submitted to the gpu during the next submit call (it is possible Skia failed to create a
+     * subset of the semaphores). The client should not wait on these semaphores until after submit
+     * has been called, and must keep them alive until then. If this call returns
+     * GrSemaphoresSubmitted::kNo, the GPU backend will not submit any semaphores to be signaled on
+     * the GPU. Thus the client should not have the GPU wait on any of the semaphores passed in with
+     * the GrFlushInfo. Regardless of whether semaphores were submitted to the GPU or not, the
+     * client is still responsible for deleting any initialized semaphores.
+     * Regardleess of semaphore submission the context will still be flushed. It should be
+     * emphasized that a return value of GrSemaphoresSubmitted::kNo does not mean the flush did not
+     * happen. It simply means there were no semaphores submitted to the GPU. A caller should only
+     * take this as a failure if they passed in semaphores to be submitted.
+     */
+    GrSemaphoresSubmitted flush(const GrFlushInfo& info);
+
+    void flush() { this->flush({}); }
+
+    /**
+     * Submit outstanding work to the gpu from all previously un-submitted flushes. The return
+     * value of the submit will indicate whether or not the submission to the GPU was successful.
+     *
+     * If the call returns true, all previously passed in semaphores in flush calls will have been
+     * submitted to the GPU and they can safely be waited on. The caller should wait on those
+     * semaphores or perform some other global synchronization before deleting the semaphores.
+     *
+     * If it returns false, then those same semaphores will not have been submitted and we will not
+     * try to submit them again. The caller is free to delete the semaphores at any time.
+     *
+     * If the syncCpu flag is true this function will return once the gpu has finished with all
+     * submitted work.
+     */
+    bool submit(bool syncCpu = false);
+
+    /**
+     * Checks whether any asynchronous work is complete and if so calls related callbacks.
+     */
+    void checkAsyncWorkCompletion();
+
+    /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
+    // Chrome is using this!
+    void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
+
+    bool supportsDistanceFieldText() const;
+
+    void storeVkPipelineCacheData();
+
+    // Returns the gpu memory size of the the texture that backs the passed in SkImage. Returns 0 if
+    // the SkImage is not texture backed. For external format textures this will also return 0 as we
+    // cannot determine the correct size.
+    static size_t ComputeImageSize(sk_sp<SkImage> image, GrMipmapped, bool useNextPow2 = false);
+
+    /**
+     * Retrieve the default GrBackendFormat for a given SkColorType and renderability.
+     * It is guaranteed that this backend format will be the one used by the following
+     * SkColorType and SkSurfaceCharacterization-based createBackendTexture methods.
+     *
+     * The caller should check that the returned format is valid.
+     */
+    GrBackendFormat defaultBackendFormat(SkColorType ct, GrRenderable renderable) const {
+        return INHERITED::defaultBackendFormat(ct, renderable);
+    }
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
 
