@@ -1901,6 +1901,7 @@ if (skia_enable_tools) {
     ]
   }
 
+  # TODO(fmalita): componentize & relocate
   test_lib("experimental_svg_model") {
     if (skia_use_expat) {
       sources = [
@@ -1932,6 +1933,16 @@ if (skia_enable_tools) {
       deps = [
         ":skia",
         ":xml",
+      ]
+    }
+  }
+
+  if (skia_use_expat && !skia_use_wuffs) {
+    test_app("svg_tool") {
+      sources = [ "experimental/svg/utils/SvgTool.cpp" ]
+      deps = [
+        ":experimental_svg_model",
+        ":flags",
       ]
     }
   }
