@@ -436,11 +436,6 @@ std::unique_ptr<ModifiersDeclaration> IRGenerator::convertModifiersDeclaration(c
         fInvocations = modifiers.fLayout.fInvocations;
         if (fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport()) {
             modifiers.fLayout.fInvocations = -1;
-            Variable& invocationId = (*fSymbolTable)["sk_InvocationID"]->as<Variable>();
-            Modifiers modifiers = invocationId.modifiers();
-            modifiers.fFlags = 0;
-            modifiers.fLayout.fBuiltin = -1;
-            invocationId.setModifiersHandle(fModifiers->handle(modifiers));
             if (modifiers.fLayout.description() == "") {
                 return nullptr;
             }
@@ -2890,6 +2885,25 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
     }
 
     this->pushSymbolTable();
+
+    if (kind == Program::kGeometry_Kind && !fIsBuiltinCode) {
+        // We declare sk_InvocationID programmatically. The details depend on a workaround:
+        bool workaround = fSettings->fCaps && !fSettings->fCaps->gsInvocationsSupport();
+        Modifiers m;
+        if (!workaround) {
+            m.fFlags = Modifiers::kIn_Flag;
+            m.fLayout.fBuiltin = SK_INVOCATIONID_BUILTIN;
+        }
+        auto var = std::make_unique<Variable>(-1, fModifiers->handle(m), "sk_InvocationID",
+                                              fContext.fInt_Type.get(), false,
+                                              Variable::Storage::kGlobal);
+        std::vector<std::unique_ptr<Expression>> sizes;
+        auto decl = std::make_unique<VarDeclaration>(var.get(), fContext.fInt_Type.get(),
+                                                     std::move(sizes), /*value=*/nullptr);
+        fSymbolTable->add(std::move(var));
+        fProgramElements->push_back(
+                std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl)));
+    }
 
     if (externalValues) {
         // Add any external values to the new symbol table, so they're only visible to this Program
