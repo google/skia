@@ -533,6 +533,54 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt, int numSten
     return false;
 }
 
+sk_sp<GrAttachment> GrResourceProvider::makeMSAAAttachment(SkISize dimensions,
+                                                           const GrBackendFormat& format,
+                                                           int sampleCnt,
+                                                           GrProtected isProtected) {
+    ASSERT_SINGLE_OWNER
+
+    SkASSERT(sampleCnt > 1);
+
+    if (this->isAbandoned()) {
+        return nullptr;
+    }
+
+    if (!fCaps->validateSurfaceParams(dimensions, format, GrRenderable::kYes, sampleCnt,
+                                      GrMipMapped::kNo)) {
+        return nullptr;
+    }
+
+    auto scratch = this->refScratchMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+    if (scratch) {
+        return scratch;
+    }
+
+    return fGpu->makeMSAAAttachment(dimensions, format, sampleCnt, isProtected);
+}
+
+sk_sp<GrAttachment> GrResourceProvider::refScratchMSAAAttachment(SkISize dimensions,
+                                                                 const GrBackendFormat& format,
+                                                                 int sampleCnt,
+                                                                 GrProtected isProtected) {
+    ASSERT_SINGLE_OWNER
+    SkASSERT(!this->isAbandoned());
+    SkASSERT(!this->caps()->isFormatCompressed(format));
+    SkASSERT(fCaps->validateSurfaceParams(dimensions, format, GrRenderable::kYes, sampleCnt,
+                                          GrMipmapped::kNo));
+
+    GrScratchKey key;
+    GrAttachment::ComputeScratchKey(*this->caps(), format, dimensions,
+                                    GrAttachment::UsageFlags::kMSAA, sampleCnt, isProtected, &key);
+    GrGpuResource* resource = fCache->findAndRefScratchResource(key);
+    if (resource) {
+        fGpu->stats()->incNumScratchMSAAAttachmentsReused();
+        GrAttachment* attachment = static_cast<GrAttachment*>(resource);
+        return sk_sp<GrAttachment>(attachment);
+    }
+
+    return nullptr;
+}
+
 std::unique_ptr<GrSemaphore> SK_WARN_UNUSED_RESULT GrResourceProvider::makeSemaphore(
         bool isOwned) {
     return this->isAbandoned() ? nullptr : fGpu->makeSemaphore(isOwned);

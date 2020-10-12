@@ -22,12 +22,18 @@ public:
                                              int sampleCnt,
                                              VkFormat format);
 
+    static sk_sp<GrVkAttachment> MakeMSAA(GrVkGpu* gpu,
+                                          SkISize dimensions,
+                                          int numSamples,
+                                          VkFormat format,
+                                          GrProtected isProtected);
+
     ~GrVkAttachment() override;
 
     GrBackendFormat backendFormat() const override { return this->getBackendFormat(); }
 
     const GrManagedResource* imageResource() const { return this->resource(); }
-    const GrVkImageView* stencilView() const { return fStencilView.get(); }
+    const GrVkImageView* view() const { return fView.get(); }
 
 protected:
     void onRelease() override;
@@ -36,18 +42,24 @@ protected:
 private:
     size_t onGpuMemorySize() const override;
 
+    static sk_sp<GrVkAttachment> Make(GrVkGpu* gpu,
+                                      SkISize dimensions,
+                                      UsageFlags attachmentUsages,
+                                      int sampleCnt,
+                                      VkFormat format,
+                                      VkImageUsageFlags vkUsageFlags,
+                                      GrProtected isProtected);
+
     GrVkAttachment(GrVkGpu* gpu,
                    SkISize dimensions,
                    UsageFlags supportedUsages,
-                   VkFormat format,
-                   const GrVkImage::ImageDesc&,
                    const GrVkImageInfo&,
                    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
-                   sk_sp<const GrVkImageView> stencilView);
+                   sk_sp<const GrVkImageView> view);
 
     GrVkGpu* getVkGpu() const;
 
-    sk_sp<const GrVkImageView> fStencilView;
+    sk_sp<const GrVkImageView> fView;
 };
 
 #endif

@@ -568,7 +568,7 @@ const GrVkImageView* GrVkRenderTarget::stencilAttachmentView() const {
     const GrAttachment* stencil = this->getStencilAttachment();
     if (stencil) {
         const GrVkAttachment* vkStencil = static_cast<const GrVkAttachment*>(stencil);
-        return vkStencil->stencilView();
+        return vkStencil->view();
     }
 
     return nullptr;

@@ -1518,6 +1518,19 @@ sk_sp<GrAttachment> GrVkGpu::makeStencilAttachmentForRenderTarget(const GrRender
     return GrVkAttachment::MakeStencil(this, dimensions, numStencilSamples, sFmt);
 }
 
+sk_sp<GrAttachment> GrVkGpu::makeMSAAAttachment(SkISize dimensions,
+                                                const GrBackendFormat& format,
+                                                int numSamples,
+                                                GrProtected isProtected) {
+    VkFormat pixelFormat;
+    SkAssertResult(format.asVkFormat(&pixelFormat));
+    SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
+    SkASSERT(this->vkCaps().isFormatRenderable(pixelFormat, numSamples));
+
+    fStats.incMSAAAttachmentCreates();
+    return GrVkAttachment::MakeMSAA(this, dimensions, numSamples, pixelFormat, isProtected);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 bool copy_src_data(char* mapPtr, VkFormat vkFormat, const SkTArray<size_t>& individualMipOffsets,
