@@ -299,12 +299,21 @@ protected:
 
     virtual void drawDrawable(SkDrawable*, const SkMatrix*, SkCanvas*);
 
-    /** The SkDevice passed will be an SkDevice which was returned by a call to
-        onCreateDevice on this device with kNeverTile_TileExpectation.
+    /**
+     * The SkDevice passed will be an SkDevice which was returned by a call to
+     * onCreateDevice on this device with kNeverTile_TileExpectation.
+     *
+     * The default implementation calls snapSpecial() and drawSpecial() with the relative transform
+     * from the input device to this device. The provided SkPaint cannot have a mask filter or
+     * image filter, and any shader is ignored.
      */
-    virtual void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) = 0;
+    virtual void drawDevice(SkBaseDevice*, const SkPaint&);
 
-    virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&);
+    /**
+     * Draw the special image's subset to this device, subject to the given matrix transform instead
+     * of the device's current local to device matrix.
+     */
+    virtual void drawSpecial(SkSpecialImage*, const SkMatrix& localToDevice, const SkPaint&);
 
     /**
      * Evaluate 'filter' and draw the final output into this device using 'paint'. The 'mapping'
@@ -516,7 +525,7 @@ protected:
     void drawOval(const SkRect&, const SkPaint&) override {}
     void drawRRect(const SkRRect&, const SkPaint&) override {}
     void drawPath(const SkPath&, const SkPaint&, bool) override {}
-    void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
+    void drawDevice(SkBaseDevice*, const SkPaint&) override {}
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
 
