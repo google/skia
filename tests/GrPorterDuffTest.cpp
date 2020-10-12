@@ -17,8 +17,8 @@
 #include "src/gpu/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/gl/GrGLCaps.h"
 #include "src/gpu/ops/GrMeshDrawOp.h"
+#include "tests/TestUtils.h"
 #include "tools/gpu/GrContextFactory.h"
-#include "tools/gpu/ManagedBackendTexture.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -999,15 +999,16 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
         SK_ABORT("Mock context failed to honor request for no ARB_blend_func_extended.");
     }
 
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            ctx, 100, 100, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
+    GrBackendTexture backendTex;
+    CreateBackendTexture(ctx, &backendTex, 100, 100, kRGBA_8888_SkColorType,
+                         SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo);
+
     GrXferProcessor::DstProxyView fakeDstProxyView;
     {
         sk_sp<GrTextureProxy> proxy = proxyProvider->wrapBackendTexture(
-                mbet->texture(), kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType,
-                mbet->refCountedCallback());
-        GrSwizzle swizzle =
-                caps.getReadSwizzle(mbet->texture().getBackendFormat(), GrColorType::kRGBA_8888);
+                backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRead_GrIOType);
+        GrSwizzle swizzle = caps.getReadSwizzle(backendTex.getBackendFormat(),
+                                                GrColorType::kRGBA_8888);
         fakeDstProxyView.setProxyView({std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle});
     }
 
@@ -1033,4 +1034,5 @@ DEF_GPUTEST(PorterDuffNoDualSourceBlending, reporter, options) {
             }
         }
     }
+    ctx->deleteBackendTexture(backendTex);
 }
