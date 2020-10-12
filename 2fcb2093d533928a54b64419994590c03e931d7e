@@ -22,6 +22,30 @@
       },
       "revId": "2fcb2093d533928a54b64419994590c03e931d7e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d13b9b5_eebc8a53",
+        "filename": "src/sksl/ir/SkSLUnresolvedFunction.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-12T13:57:49Z",
+      "side": 1,
+      "message": "It used to pass it to the base-class (Symbol) constructor, so it ended up in SymbolData (and used the Symbol override that returned that)",
+      "parentUuid": "466b79af_527ad389",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 5
+      },
+      "revId": "2fcb2093d533928a54b64419994590c03e931d7e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
