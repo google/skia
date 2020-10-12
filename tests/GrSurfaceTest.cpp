@@ -22,6 +22,8 @@
 #include "src/gpu/GrTexture.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
+#include "tools/gpu/BackendTextureImageFactory.h"
+#include "tools/gpu/ManagedBackendTexture.h"
 
 // Tests that GrSurface::asTexture(), GrSurface::asRenderTarget(), and static upcasting of texture
 // and render targets to GrSurface all work as expected.
@@ -357,11 +359,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
-        auto backendTex = dContext->createBackendTexture(&srcPixmap, 1,
-                                                         GrRenderable::kYes, GrProtected::kNo);
-
-        auto proxy = proxyProvider->wrapBackendTexture(
-                backendTex, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, ioType);
+        auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithData(
+                dContext, srcPixmap, GrRenderable::kNo, GrProtected::kNo);
+        auto proxy = proxyProvider->wrapBackendTexture(mbet->texture(), kBorrow_GrWrapOwnership,
+                                                       GrWrapCacheable::kNo, ioType,
+                                                       mbet->refCountedCallback());
         GrSwizzle swizzle = dContext->priv().caps()->getReadSwizzle(proxy->backendFormat(),
                                                                     GrColorType::kRGBA_8888);
         GrSurfaceProxyView view(proxy, kTopLeft_GrSurfaceOrigin, swizzle);
@@ -415,51 +417,45 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture, reporter, context_info) {
 
         // Mip regen should not work with a read only texture.
         if (dContext->priv().caps()->mipmapSupport()) {
-            DeleteBackendTexture(dContext, backendTex);
-            backendTex = dContext->createBackendTexture(
-                    kSize, kSize, kRGBA_8888_SkColorType,
-                    SkColors::kTransparent, GrMipmapped::kYes, GrRenderable::kYes,
-                    GrProtected::kNo);
-            proxy = proxyProvider->wrapBackendTexture(backendTex, kBorrow_GrWrapOwnership,
-                                                      GrWrapCacheable::kNo, ioType);
+            mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(dContext,
+                                                                       kSize,
+                                                                       kSize,
+                                                                       kRGBA_8888_SkColorType,
+                                                                       GrMipmapped::kYes,
+                                                                       GrRenderable::kNo,
+                                                                       GrProtected::kNo);
+            proxy = proxyProvider->wrapBackendTexture(mbet->texture(), kBorrow_GrWrapOwnership,
+                                                      GrWrapCacheable::kNo, ioType,
+                                                      mbet->refCountedCallback());
             dContext->flushAndSubmit();
             proxy->peekTexture()->markMipmapsDirty();  // avoids assert in GrGpu.
             auto regenResult =
                     dContext->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));
         }
-        DeleteBackendTexture(dContext, backendTex);
     }
 }
 
 static const int kSurfSize = 10;
 
 static sk_sp<GrTexture> make_wrapped_texture(GrDirectContext* dContext, GrRenderable renderable) {
-    GrBackendTexture backendTexture;
-    CreateBackendTexture(dContext, &backendTexture, kSurfSize, kSurfSize, kRGBA_8888_SkColorType,
-                         SkColors::kTransparent, GrMipmapped::kNo, renderable, GrProtected::kNo);
-    SkASSERT(backendTexture.isValid());
-    sk_sp<GrTexture> texture;
-    if (GrRenderable::kYes == renderable) {
-        texture = dContext->priv().resourceProvider()->wrapRenderableBackendTexture(
-                backendTexture, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
+    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
+            dContext, kSurfSize, kSurfSize, kRGBA_8888_SkColorType, GrMipmapped::kNo, renderable);
+    SkASSERT(mbet);
+    sk_sp<GrTextureProxy> proxy;
+    if (renderable == GrRenderable::kYes) {
+        proxy = dContext->priv().proxyProvider()->wrapRenderableBackendTexture(
+                mbet->texture(), 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
+                mbet->refCountedCallback());
     } else {
-        texture = dContext->priv().resourceProvider()->wrapBackendTexture(
-                backendTexture, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType);
+        proxy = dContext->priv().proxyProvider()->wrapBackendTexture(
+                mbet->texture(), kBorrow_GrWrapOwnership, GrWrapCacheable::kNo, kRW_GrIOType,
+                mbet->refCountedCallback());
     }
-    // Add a release proc that deletes the GrBackendTexture.
-    struct ReleaseContext {
-        GrDirectContext* fDContext;
-        GrBackendTexture fBackendTexture;
-    };
-    auto release = [](void* rc) {
-        auto releaseContext = static_cast<ReleaseContext*>(rc);
-        auto dContext = releaseContext->fDContext;
-        dContext->deleteBackendTexture(releaseContext->fBackendTexture);
-        delete releaseContext;
-    };
-    texture->setRelease(release, new ReleaseContext{dContext, backendTexture});
-    return texture;
+    if (!proxy) {
+        return nullptr;
+    }
+    return sk_ref_sp(proxy->peekTexture());
 }
 
 static sk_sp<GrTexture> make_normal_texture(GrDirectContext* dContext, GrRenderable renderable) {
@@ -777,22 +773,11 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TextureIdleProcFlushTest, reporter, contextInfo) {
             // is a wrapped-texture backed image.
             surf->getCanvas()->clear(SK_ColorWHITE);
             auto img1 = surf->makeImageSnapshot();
-
-            GrBackendTexture backendTexture;
-
-            if (!CreateBackendTexture(dContext, &backendTexture, info, SkColors::kBlack,
-                                      GrMipmapped::kNo, GrRenderable::kNo)) {
-                REPORTER_ASSERT(reporter, false);
-                continue;
-            }
-
-            auto img2 = SkImage::MakeFromTexture(dContext, backendTexture, kTopLeft_GrSurfaceOrigin,
-                                                 info.colorType(), info.alphaType(), nullptr);
+            auto img2 = sk_gpu_test::MakeBackendTextureImage(dContext, info, SkColors::kBlack);
+            REPORTER_ASSERT(reporter, img1 && img2);
             surf->getCanvas()->drawImage(std::move(img1), 0, 0);
             surf->getCanvas()->drawImage(std::move(img2), 1, 1);
             idleTexture.reset();
-
-            DeleteBackendTexture(dContext, backendTexture);
         }
     }
 }
