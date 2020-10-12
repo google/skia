@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "6ef1fd6b_8b496463",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-12T23:16:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fada14b_3b0e8156",
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ea55925a_d0525200",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -31,6 +49,24 @@
       "writtenOn": "2020-10-12T20:58:55Z",
       "side": 1,
       "message": "Thanks Jiulong for the fix and test! Turns out you also fixed a chrome bug 😊\n\nHowever, it was a bug for us to delete the atlas for a pending draw op in the first place. Can you update the fix to look more like this WIP CL, and verify it fixes the issues on your end? https://skia-review.googlesource.com/c/skia/+/325882",
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13b9bfca_0c2fddc0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-12T23:16:19Z",
+      "side": 1,
+      "message": "Hi Chris,\n\nThanks for the review!  I tested the above CL and while it passes the\nunit test, it causes some other issue in GrCCPerFlushResources.cpp.\n\nWill dig into it and update once I fixed it.",
+      "parentUuid": "ea55925a_d0525200",
       "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
@@ -58,6 +94,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb372b46_142adf98",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-12T23:16:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97f69cfc_a057ad4e",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 205,
+        "endChar": 41
+      },
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6ba5b695_8c0f8029",
@@ -71,6 +131,30 @@
       "writtenOn": "2020-10-12T20:58:55Z",
       "side": 1,
       "message": "The bug wasn\u0027t actually limited to just multisample. Can we name this test something like \"CCPR_evictCacheEntryForPendingDrawOp\"",
+      "range": {
+        "startLine": 915,
+        "startChar": 6,
+        "endLine": 915,
+        "endChar": 30
+      },
+      "revId": "53d7f471c737341830b02d405e16aeb5960a1b56",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbf808f4_0254566c",
+        "filename": "tests/GrCCPRTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-12T23:16:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ba5b695_8c0f8029",
       "range": {
         "startLine": 915,
         "startChar": 6,
