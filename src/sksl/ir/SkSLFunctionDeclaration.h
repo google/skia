@@ -8,6 +8,7 @@
 #ifndef SKSL_FUNCTIONDECLARATION
 #define SKSL_FUNCTIONDECLARATION
 
+#include "include/private/SkTArray.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLModifiers.h"
 #include "src/sksl/ir/SkSLSymbol.h"
@@ -111,16 +112,18 @@ public:
      * that each argument can actually be coerced to the final parameter type, respecting the
      * narrowing-conversions flag. This is handled in callCost(), or in convertCall() (via coerce).
      */
+    using ParamTypes = SkSTArray<8, const Type*>;
     bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
-                             std::vector<const Type*>* outParameterTypes,
-                             const Type** outReturnType) const {
+                             ParamTypes* outParameterTypes, const Type** outReturnType) const {
         const std::vector<Variable*>& parameters = this->parameters();
         SkASSERT(arguments.size() == parameters.size());
+
+        outParameterTypes->reserve(arguments.size());
         int genericIndex = -1;
         for (size_t i = 0; i < arguments.size(); i++) {
             const Type& parameterType = parameters[i]->type();
             if (parameterType.typeKind() == Type::TypeKind::kGeneric) {
-                std::vector<const Type*> types = parameterType.coercibleTypes();
+                const std::vector<const Type*>& types = parameterType.coercibleTypes();
                 if (genericIndex == -1) {
                     for (size_t j = 0; j < types.size(); j++) {
                         if (arguments[i]->type().canCoerceTo(*types[j], /*allowNarrowing=*/true)) {
