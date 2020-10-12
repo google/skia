@@ -63,7 +63,7 @@ public:
     }
 
     Expression(int offset, Kind kind, const ExternalValueData& data)
-        : INHERITED(offset, (int) kind, data) {
+        : INHERITED(offset, (int) kind, std::move(data)) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
@@ -87,6 +87,10 @@ public:
         : INHERITED(offset, (int) Kind::kSetting, data) {
     }
 
+    Expression(int offset, const SwizzleData& data)
+        : INHERITED(offset, (int) Kind::kSwizzle, data) {
+    }
+
     Expression(int offset, Kind kind, const Type* type)
         : INHERITED(offset, (int) kind, type) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
@@ -97,7 +101,7 @@ public:
     }
 
     Expression(int offset, Kind kind, const TypeTokenData& data)
-        : INHERITED(offset, (int) kind, data) {
+        : INHERITED(offset, (int) kind, std::move(data)) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 

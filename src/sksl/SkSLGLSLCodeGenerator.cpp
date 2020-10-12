@@ -858,9 +858,9 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
 }
 
 void GLSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
-    this->writeExpression(*swizzle.fBase, kPostfix_Precedence);
+    this->writeExpression(*swizzle.base(), kPostfix_Precedence);
     this->write(".");
-    for (int c : swizzle.fComponents) {
+    for (int c : swizzle.components()) {
         SkASSERT(c >= 0 && c <= 3);
         this->write(&("x\0y\0z\0w\0"[c * 2]));
     }

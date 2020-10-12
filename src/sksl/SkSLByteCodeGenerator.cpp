@@ -230,11 +230,11 @@ static int expression_as_builtin(const Expression& e) {
 // with an offset. Note that all single-component swizzles (of suitable base types) are simple.
 static bool swizzle_is_simple(const Swizzle& s) {
     // Builtin variables use dedicated instructions that don't allow subset loads
-    if (expression_as_builtin(*s.fBase) >= 0) {
+    if (expression_as_builtin(*s.base()) >= 0) {
         return false;
     }
 
-    switch (s.fBase->kind()) {
+    switch (s.base()->kind()) {
         case Expression::Kind::kFieldAccess:
         case Expression::Kind::kIndex:
         case Expression::Kind::kVariableReference:
@@ -243,8 +243,8 @@ static bool swizzle_is_simple(const Swizzle& s) {
             return false;
     }
 
-    for (size_t i = 1; i < s.fComponents.size(); ++i) {
-        if (s.fComponents[i] != s.fComponents[i - 1] + 1) {
+    for (size_t i = 1; i < s.components().size(); ++i) {
+        if (s.components()[i] != s.components()[i - 1] + 1) {
             return false;
         }
     }
@@ -589,8 +589,8 @@ ByteCodeGenerator::Location ByteCodeGenerator::getLocation(const Expression& exp
         case Expression::Kind::kSwizzle: {
             const Swizzle& s = expr.as<Swizzle>();
             SkASSERT(swizzle_is_simple(s));
-            Location baseLoc = this->getLocation(*s.fBase);
-            int offset = s.fComponents[0];
+            Location baseLoc = this->getLocation(*s.base());
+            int offset = s.components()[0];
             if (baseLoc.isOnStack()) {
                 if (offset != 0) {
                     this->write(ByteCodeInstruction::kPushImmediate);
@@ -1419,11 +1419,11 @@ void ByteCodeGenerator::writeSwizzle(const Swizzle& s) {
         return;
     }
 
-    this->writeExpression(*s.fBase);
-    this->write(ByteCodeInstruction::kSwizzle, s.fComponents.size() - s.fBase->type().columns());
-    this->write8(s.fBase->type().columns());
-    this->write8(s.fComponents.size());
-    for (int c : s.fComponents) {
+    this->writeExpression(*s.base());
+    this->write(ByteCodeInstruction::kSwizzle, s.components().size() - s.base()->type().columns());
+    this->write8(s.base()->type().columns());
+    this->write8(s.components().size());
+    for (int c : s.components()) {
         this->write8(c);
     }
 }
@@ -1540,7 +1540,7 @@ public:
     }
 
     void store(bool discard) override {
-        int count = fSwizzle.fComponents.size();
+        int count = fSwizzle.components().size();
         if (!discard) {
             fGenerator.write(ByteCodeInstruction::kDup, count);
         }
@@ -1560,8 +1560,8 @@ public:
             const Expression* expr = &fSwizzle;
             int component = i;
             do {
-                component = expr->as<Swizzle>().fComponents[component];
-                expr = expr->as<Swizzle>().fBase.get();
+                component = expr->as<Swizzle>().components()[component];
+                expr = expr->as<Swizzle>().base().get();
             } while (expr->is<Swizzle>());
 
             ByteCodeGenerator::Location location = fGenerator.getLocation(*expr);
