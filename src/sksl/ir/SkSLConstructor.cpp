@@ -9,9 +9,8 @@
 
 namespace SkSL {
 
-std::unique_ptr<Expression> Constructor::constantPropagate(
-                                                        const IRGenerator& irGenerator,
-                                                        const DefinitionMap& definitions) {
+std::unique_ptr<Expression> Constructor::constantPropagate(const IRGenerator& irGenerator,
+                                                           const DefinitionMap& definitions) {
     if (this->arguments().size() == 1 && this->arguments()[0]->is<IntLiteral>()) {
         const Context& context = irGenerator.fContext;
         const Type& type = this->type();
@@ -148,9 +147,9 @@ resultType Constructor::getVecComponent(int index) const {
     SkDEBUGFAILF("failed to find vector component %d in %s\n", index, description().c_str());
     return -1;
 }
+
 template int Constructor::getVecComponent(int) const;
 template float Constructor::getVecComponent(int) const;
-
 
 SKSL_FLOAT Constructor::getMatComponent(int col, int row) const {
     SkDEBUGCODE(const Type& myType = this->type();)

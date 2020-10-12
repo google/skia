@@ -153,26 +153,28 @@ private:
     const Type* convertType(const ASTNode& type, bool allowVoid = false);
     std::unique_ptr<Expression> call(int offset,
                                      const FunctionDeclaration& function,
-                                     std::vector<std::unique_ptr<Expression>> arguments);
+                                     SkTArray<std::unique_ptr<Expression>> arguments);
     CoercionCost callCost(const FunctionDeclaration& function,
-                          const std::vector<std::unique_ptr<Expression>>& arguments);
-    std::unique_ptr<Expression> call(int offset, std::unique_ptr<Expression> function,
-                                     std::vector<std::unique_ptr<Expression>> arguments);
+                          const SkTArray<std::unique_ptr<Expression>>& arguments);
+    std::unique_ptr<Expression> call(int offset,
+                                     std::unique_ptr<Expression> function,
+                                     SkTArray<std::unique_ptr<Expression>> arguments);
     CoercionCost coercionCost(const Expression& expr, const Type& type);
     std::unique_ptr<Expression> coerce(std::unique_ptr<Expression> expr, const Type& type);
     std::unique_ptr<Block> convertBlock(const ASTNode& block);
     std::unique_ptr<Statement> convertBreak(const ASTNode& b);
     std::unique_ptr<Expression> convertNumberConstructor(
-                                                   int offset,
-                                                   const Type& type,
-                                                   std::vector<std::unique_ptr<Expression>> params);
+                                                int offset,
+                                                const Type& type,
+                                                SkTArray<std::unique_ptr<Expression>> params);
     std::unique_ptr<Expression> convertCompoundConstructor(
-                                                   int offset,
-                                                   const Type& type,
-                                                   std::vector<std::unique_ptr<Expression>> params);
-    std::unique_ptr<Expression> convertConstructor(int offset,
-                                                   const Type& type,
-                                                   std::vector<std::unique_ptr<Expression>> params);
+                                                int offset,
+                                                const Type& type,
+                                                SkTArray<std::unique_ptr<Expression>> params);
+    std::unique_ptr<Expression> convertConstructor(
+                                                int offset,
+                                                const Type& type,
+                                                SkTArray<std::unique_ptr<Expression>> params);
     std::unique_ptr<Statement> convertContinue(const ASTNode& c);
     std::unique_ptr<Statement> convertDiscard(const ASTNode& d);
     std::unique_ptr<Statement> convertDo(const ASTNode& d);
