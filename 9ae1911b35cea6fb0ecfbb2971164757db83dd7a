@@ -75,6 +75,24 @@
       "parentUuid": "34242995_1591e305",
       "revId": "9ae1911b35cea6fb0ecfbb2971164757db83dd7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7800b462_8658bff6",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-12T16:05:13Z",
+      "side": 1,
+      "message": "That\u0027s a neat tool!\n\n\u003e FP_FAST_FMAF doesn\u0027t seem to be defined when built by Clang at -march\u003dhaswell though it should\n\nThen is there any reason to not keep \"#pragma STDC FP_CONTRACT ON\" also?",
+      "parentUuid": "926bb46a_ae28158a",
+      "revId": "9ae1911b35cea6fb0ecfbb2971164757db83dd7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
