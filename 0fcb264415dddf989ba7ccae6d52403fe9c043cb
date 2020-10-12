@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8672799c_bae8b388",
+        "filename": "include/private/SkTArray.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-12T20:57:54Z",
+      "side": 1,
+      "message": "*could*\n\nuint32_t or size_t ac \u003d std::max(...);\nSkASSERT(ac \u003c\u003d kMaCount);\nfAllocCount \u003d ac;\n\nTo acknowledge that you\u0027re throwing away 1 bit from the uint32_t when you assign to fAllocCount",
+      "range": {
+        "startLine": 495,
+        "startChar": 26,
+        "endLine": 495,
+        "endChar": 34
+      },
+      "revId": "0fcb264415dddf989ba7ccae6d52403fe9c043cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
