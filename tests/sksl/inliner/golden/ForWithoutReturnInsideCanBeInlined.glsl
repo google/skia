@@ -10,7 +10,6 @@ void main() {
         }
         _0_loopy = _1_result;
     }
-
     sk_FragColor = _0_loopy;
 
 }
