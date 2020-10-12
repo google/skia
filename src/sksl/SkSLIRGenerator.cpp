@@ -2014,7 +2014,7 @@ std::unique_ptr<Expression> IRGenerator::call(int offset,
         fErrors.error(offset, msg);
         return nullptr;
     }
-    std::vector<const Type*> types;
+    FunctionDeclaration::ParamTypes types;
     const Type* returnType;
     if (!function.determineFinalTypes(arguments, &types, &returnType)) {
         String msg = "no match for " + function.name() + "(";
@@ -2056,7 +2056,7 @@ CoercionCost IRGenerator::callCost(const FunctionDeclaration& function,
     if (function.parameters().size() != arguments.size()) {
         return CoercionCost::Impossible();
     }
-    std::vector<const Type*> types;
+    FunctionDeclaration::ParamTypes types;
     const Type* ignored;
     if (!function.determineFinalTypes(arguments, &types, &ignored)) {
         return CoercionCost::Impossible();
