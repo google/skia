@@ -327,8 +327,11 @@ public:
         }
         if (fOwnMemory && that.fOwnMemory) {
             swap(fItemArray, that.fItemArray);
-            swap(fCount, that.fCount);
             swap(fAllocCount, that.fAllocCount);
+            // fCount is a bitfield, so we have to swap it manually.
+            int temp = fCount;
+            fCount = that.fCount;
+            that.fCount = temp;
         } else {
             // This could be more optimal...
             SkTArray copy(std::move(that));
@@ -561,7 +564,6 @@ private:
             return;
         }
 
-
         // Whether we're growing or shrinking, we leave at least 50% extra space for future growth.
         int64_t newAllocCount = newCount + ((newCount + 1) >> 1);
         // Align the new allocation count to kMinHeapAllocCount.
@@ -578,7 +580,6 @@ private:
         this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
-
         }
         fItemArray = newItemArray;
         fOwnMemory = true;
@@ -586,17 +587,15 @@ private:
     }
 
     T* fItemArray;
-    int fCount;
+    int fOwnMemory : 1;
+    int fReserved : 1;
+    int fCount : 30;
     int fAllocCount;
-    bool fOwnMemory : 1;
-    bool fReserved : 1;
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
     a.swap(b);
 }
-
-template<typename T, bool MEM_MOVE> constexpr int SkTArray<T, MEM_MOVE>::kMinHeapAllocCount;
 
 /**
  * Subclass of SkTArray that contains a preallocated memory block for the array.
