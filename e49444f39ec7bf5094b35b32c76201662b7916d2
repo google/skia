@@ -16,6 +16,24 @@
       "message": "Might as well try using uint32_t to avoid the lost capability?",
       "revId": "e49444f39ec7bf5094b35b32c76201662b7916d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "986e3f0a_881d6933",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2020-10-12T20:26:15Z",
+      "side": 1,
+      "message": "+1 -- would find it clear(er) if they were all marked unsigned",
+      "parentUuid": "a5ec5869_dc34ec4d",
+      "revId": "e49444f39ec7bf5094b35b32c76201662b7916d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
