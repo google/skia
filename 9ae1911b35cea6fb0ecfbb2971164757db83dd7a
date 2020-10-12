@@ -57,6 +57,24 @@
       "parentUuid": "6efb21db_cf9353a8",
       "revId": "9ae1911b35cea6fb0ecfbb2971164757db83dd7a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "926bb46a_ae28158a",
+        "filename": "include/private/SkVx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-12T13:40:21Z",
+      "side": 1,
+      "message": "(https://godbolt.org/z/M1xaPY)",
+      "parentUuid": "34242995_1591e305",
+      "revId": "9ae1911b35cea6fb0ecfbb2971164757db83dd7a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
