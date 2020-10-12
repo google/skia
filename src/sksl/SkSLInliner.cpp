@@ -1069,30 +1069,25 @@ public:
 };
 
 bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache) {
-    const FunctionDeclaration& funcDecl =
-                                         (*candidate.fCandidateExpr)->as<FunctionCall>().function();
+    const FunctionDeclaration& fnDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().function();
 
-    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
+    auto [iter, wasInserted] = cache->insert({&fnDecl, false});
     if (wasInserted) {
         // Recursion is forbidden here to avoid an infinite death spiral of inlining.
-        iter->second = this->isSafeToInline(funcDecl.definition()) &&
-                       !contains_recursive_call(funcDecl);
+        iter->second = this->isSafeToInline(fnDecl.definition()) &&
+                       !contains_recursive_call(fnDecl);
     }
 
     return iter->second;
 }
 
-bool Inliner::isLargeFunction(const FunctionDefinition* functionDef) {
-    return Analysis::NodeCountExceeds(*functionDef, fSettings->fInlineThreshold);
-}
-
 bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache) {
-    const FunctionDeclaration& funcDecl =
-                                         (*candidate.fCandidateExpr)->as<FunctionCall>().function();
+    const FunctionDeclaration& fnDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().function();
 
-    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
+    auto [iter, wasInserted] = cache->insert({&fnDecl, false});
     if (wasInserted) {
-        iter->second = this->isLargeFunction(funcDecl.definition());
+        iter->second = Analysis::NodeCountExceeds(*fnDecl.definition(),
+                                                  fSettings->fInlineThreshold);
     }
 
     return iter->second;
@@ -1126,6 +1121,11 @@ void Inliner::buildCandidateList(Program& program, InlineCandidateList* candidat
 }
 
 bool Inliner::analyze(Program& program) {
+    // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
+    if (fSettings->fInlineThreshold <= 0) {
+        return false;
+    }
+
     InlineCandidateList candidateList;
     this->buildCandidateList(program, &candidateList);
 
