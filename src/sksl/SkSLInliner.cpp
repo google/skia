@@ -443,14 +443,16 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         return nullptr;
     };
     auto blockStmts = [&](const Block& block) {
-        std::vector<std::unique_ptr<Statement>> result;
+        StatementArray result;
+        result.reserve(block.children().size());
         for (const std::unique_ptr<Statement>& child : block.children()) {
             result.push_back(stmt(child));
         }
         return result;
     };
-    auto stmts = [&](const std::vector<std::unique_ptr<Statement>>& ss) {
-        std::vector<std::unique_ptr<Statement>> result;
+    auto stmts = [&](const StatementArray& ss) {
+        StatementArray result;
+        result.reserve(ss.size());
         for (const auto& s : ss) {
             result.push_back(stmt(s));
         }
@@ -510,9 +512,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
                                 expr(r.expression()),
                                 &resultExpr->type()));
                 if (haveEarlyReturns) {
-                    std::vector<std::unique_ptr<Statement>> block;
+                    StatementArray block;
+                    block.reserve(2);
                     block.push_back(std::move(assignment));
-                    block.emplace_back(new BreakStatement(offset));
+                    block.push_back(std::make_unique<BreakStatement>(offset));
                     return std::make_unique<Block>(offset, std::move(block), /*symbols=*/nullptr,
                                                    /*isScope=*/true);
                 } else {
@@ -529,9 +532,10 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kSwitch: {
             const SwitchStatement& ss = statement.as<SwitchStatement>();
             std::vector<std::unique_ptr<SwitchCase>> cases;
+            cases.reserve(ss.fCases.size());
             for (const auto& sc : ss.fCases) {
-                cases.emplace_back(new SwitchCase(offset, expr(sc->fValue),
-                                                  stmts(sc->fStatements)));
+                cases.push_back(std::make_unique<SwitchCase>(offset, expr(sc->fValue),
+                                                             stmts(sc->fStatements)));
             }
             return std::make_unique<SwitchStatement>(offset, ss.fIsStatic, expr(ss.fValue),
                                                      std::move(cases), ss.fSymbols);
@@ -539,6 +543,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             std::vector<std::unique_ptr<Expression>> sizes;
+            sizes.reserve(decl.fSizes.size());
             for (const auto& size : decl.fSizes) {
                 sizes.push_back(expr(size));
             }
@@ -597,8 +602,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     const bool hasEarlyReturn = has_early_return(function);
 
     InlinedCall inlinedCall;
-    inlinedCall.fInlinedBody = std::make_unique<Block>(offset,
-                                                       std::vector<std::unique_ptr<Statement>>{},
+    inlinedCall.fInlinedBody = std::make_unique<Block>(offset, StatementArray{},
                                                        /*symbols=*/nullptr,
                                                        /*isScope=*/false);
 
@@ -692,7 +696,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
     }
 
     const Block& body = function.fBody->as<Block>();
-    auto inlineBlock = std::make_unique<Block>(offset, std::vector<std::unique_ptr<Statement>>{});
+    auto inlineBlock = std::make_unique<Block>(offset, StatementArray{});
     inlineBlock->children().reserve(body.children().size());
     for (const std::unique_ptr<Statement>& stmt : body.children()) {
         inlineBlock->children().push_back(this->inlineStatement(offset, &varMap, symbolTableForCall,

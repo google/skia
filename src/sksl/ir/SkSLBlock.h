@@ -20,16 +20,16 @@ class Block : public Statement {
 public:
     static constexpr Kind kStatementKind = Kind::kBlock;
 
-    Block(int offset, std::vector<std::unique_ptr<Statement>> statements,
+    Block(int offset, StatementArray statements,
           const std::shared_ptr<SymbolTable> symbols = nullptr, bool isScope = true)
     : INHERITED(offset, kStatementKind, BlockData{std::move(symbols), isScope},
                 std::move(statements)) {}
 
-    const std::vector<std::unique_ptr<Statement>>& children() const {
+    const StatementArray& children() const {
         return fStatementChildren;
     }
 
-    std::vector<std::unique_ptr<Statement>>& children() {
+    StatementArray& children() {
         return fStatementChildren;
     }
 
@@ -55,13 +55,14 @@ public:
     }
 
     std::unique_ptr<Statement> clone() const override {
-        std::vector<std::unique_ptr<Statement>> cloned;
+        StatementArray cloned;
+        cloned.reserve(this->children().size());
         for (const std::unique_ptr<Statement>& stmt : this->children()) {
             cloned.push_back(stmt->clone());
         }
         const BlockData& data = this->blockData();
-        return std::unique_ptr<Statement>(new Block(fOffset, std::move(cloned), data.fSymbolTable,
-                                                    data.fIsScope));
+        return std::make_unique<Block>(fOffset, std::move(cloned), data.fSymbolTable,
+                                       data.fIsScope);
     }
 
     String description() const override {

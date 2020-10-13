@@ -143,8 +143,7 @@ private:
     void popSymbolTable();
 
     void checkModifiers(int offset, const Modifiers& modifiers, int permitted);
-    std::vector<std::unique_ptr<Statement>> convertVarDeclarations(const ASTNode& decl,
-                                                                   Variable::Storage storage);
+    StatementArray convertVarDeclarations(const ASTNode& decl, Variable::Storage storage);
     void convertFunction(const ASTNode& f);
     std::unique_ptr<Statement> convertSingleStatement(const ASTNode& statement);
     std::unique_ptr<Statement> convertStatement(const ASTNode& statement);
@@ -226,7 +225,7 @@ private:
     std::shared_ptr<SymbolTable> fSymbolTable = nullptr;
     // additional statements that need to be inserted before the one that convertStatement is
     // currently working on
-    std::vector<std::unique_ptr<Statement>> fExtraStatements;
+    StatementArray fExtraStatements;
     // Symbols which have definitions in the include files.
     IRIntrinsicMap* fIntrinsics = nullptr;
     std::unordered_set<const FunctionDeclaration*> fReferencedIntrinsics;
