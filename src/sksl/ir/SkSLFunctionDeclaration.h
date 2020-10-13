@@ -113,7 +113,7 @@ public:
      * narrowing-conversions flag. This is handled in callCost(), or in convertCall() (via coerce).
      */
     using ParamTypes = SkSTArray<8, const Type*>;
-    bool determineFinalTypes(const std::vector<std::unique_ptr<Expression>>& arguments,
+    bool determineFinalTypes(const ExpressionArray& arguments,
                              ParamTypes* outParameterTypes, const Type** outReturnType) const {
         const std::vector<Variable*>& parameters = this->parameters();
         SkASSERT(arguments.size() == parameters.size());
