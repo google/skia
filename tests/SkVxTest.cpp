@@ -29,24 +29,6 @@ using long2 = skvx::Vec<2,int64_t>;
 using long4 = skvx::Vec<4,int64_t>;
 using long8 = skvx::Vec<8,int64_t>;
 
-// These are unused, and just here so I can look at the disassembly.
-float2 Sqrt(float2 x) { return sqrt(x); }
-float4 Sqrt(float4 x) { return sqrt(x); }
-float8 Sqrt(float8 x) { return sqrt(x); }
-
-float4 RSqrt(float4 x) { return rsqrt(x); }
-float4   Rcp(float4 x) { return   rcp(x); }
-float4  Ceil(float4 x) { return  ceil(x); }
-float4 Floor(float4 x) { return floor(x); }
-float4 Trunc(float4 x) { return trunc(x); }
-float4 Round(float4 x) { return round(x); }
-float4   Abs(float4 x) { return   abs(x); }
-
-float4 Min(float4 x, float4 y) { return min(x,y); }
-float4 Max(float4 x, float4 y) { return max(x,y); }
-
-float4 IfThenElse(int4 c, float4 t, float4 e) { return if_then_else(c,t,e); }
-
 DEF_TEST(SkVx, r) {
     static_assert(sizeof(float2) ==  8, "");
     static_assert(sizeof(float4) == 16, "");
@@ -106,12 +88,7 @@ DEF_TEST(SkVx, r) {
 
     // TODO(mtklein): these tests could be made less loose.
     REPORTER_ASSERT(r, all( sqrt(float4{2,3,4,5}) < float4{2,2,3,3}));
-    REPORTER_ASSERT(r, all(  rcp(float4{2,3,4,5}) < float4{1.0f,0.5f,0.5f,0.3f}));
-    REPORTER_ASSERT(r, all(rsqrt(float4{2,3,4,5}) < float4{1.0f,1.0f,1.0f,0.5f}));
-
     REPORTER_ASSERT(r, all( sqrt(float2{2,3}) < float2{2,2}));
-    REPORTER_ASSERT(r, all(  rcp(float2{2,3}) < float2{1.0f,0.5f}));
-    REPORTER_ASSERT(r, all(rsqrt(float2{2,3}) < float2{1.0f,1.0f}));
 
     REPORTER_ASSERT(r, all(skvx::cast<int>(float4{-1.5f,0.5f,1.0f,1.5f}) == int4{-1,0,1,1}));
 
