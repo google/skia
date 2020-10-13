@@ -338,14 +338,14 @@ std::unique_ptr<Statement> Rehydrator::statement() {
         case Rehydrator::kBlock_Command: {
             AutoRehydratorSymbolTable symbols(this);
             int count = this->readU8();
-            std::vector<std::unique_ptr<Statement>> statements;
+            StatementArray statements;
             statements.reserve(count);
             for (int i = 0; i < count; ++i) {
                 statements.push_back(this->statement());
             }
             bool isScope = this->readU8();
-            return std::unique_ptr<Statement>(new Block(-1, std::move(statements), fSymbolTable,
-                                                        isScope));
+            return std::make_unique<Block>(/*offset=*/-1, std::move(statements), fSymbolTable,
+                                           isScope);
         }
         case Rehydrator::kBreak_Command:
             return std::unique_ptr<Statement>(new BreakStatement(-1));
@@ -406,16 +406,16 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             for (int i = 0; i < caseCount; ++i) {
                 std::unique_ptr<Expression> value = this->expression();
                 int statementCount = this->readU8();
-                std::vector<std::unique_ptr<Statement>> statements;
+                StatementArray statements;
                 statements.reserve(statementCount);
                 for (int j = 0; j < statementCount; ++j) {
                     statements.push_back(this->statement());
                 }
-                cases.emplace_back(new SwitchCase(-1, std::move(value), std::move(statements)));
+                cases.push_back(std::make_unique<SwitchCase>(/*offset=*/-1, std::move(value),
+                                                             std::move(statements)));
             }
-            return std::unique_ptr<Statement>(new SwitchStatement(-1, isStatic, std::move(expr),
-                                                                  std::move(cases),
-                                                                  fSymbolTable));
+            return std::make_unique<SwitchStatement>(-1, isStatic, std::move(expr),
+                                                     std::move(cases), fSymbolTable);
         }
         case Rehydrator::kVarDeclaration_Command: {
             Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);

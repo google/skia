@@ -44,7 +44,7 @@ public:
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
 
-    Statement(int offset, Kind kind, BlockData data, std::vector<std::unique_ptr<Statement>> stmts)
+    Statement(int offset, Kind kind, BlockData data, StatementArray stmts)
     : INHERITED(offset, (int) kind, data, std::move(stmts)) {
         SkASSERT(kind >= Kind::kFirst && kind <= Kind::kLast);
     }
