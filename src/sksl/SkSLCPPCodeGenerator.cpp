@@ -429,7 +429,7 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
 
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
     if (function.isBuiltin() && function.name() == "sample" &&
         arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
         // Validity checks that are detected by function definition in sksl_fp.inc
