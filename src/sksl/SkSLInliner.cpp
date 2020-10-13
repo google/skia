@@ -747,6 +747,11 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
 bool Inliner::isSafeToInline(const FunctionDefinition* functionDef) {
     SkASSERT(fSettings);
 
+    // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
+    if (fSettings->fInlineThreshold <= 0) {
+        return false;
+    }
+
     if (functionDef == nullptr) {
         // Can't inline something if we don't actually have its definition.
         return false;
@@ -1069,25 +1074,30 @@ public:
 };
 
 bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate, InlinabilityCache* cache) {
-    const FunctionDeclaration& fnDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().function();
+    const FunctionDeclaration& funcDecl =
+                                         (*candidate.fCandidateExpr)->as<FunctionCall>().function();
 
-    auto [iter, wasInserted] = cache->insert({&fnDecl, false});
+    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
     if (wasInserted) {
         // Recursion is forbidden here to avoid an infinite death spiral of inlining.
-        iter->second = this->isSafeToInline(fnDecl.definition()) &&
-                       !contains_recursive_call(fnDecl);
+        iter->second = this->isSafeToInline(funcDecl.definition()) &&
+                       !contains_recursive_call(funcDecl);
     }
 
     return iter->second;
 }
 
-bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache) {
-    const FunctionDeclaration& fnDecl = (*candidate.fCandidateExpr)->as<FunctionCall>().function();
+bool Inliner::isLargeFunction(const FunctionDefinition* functionDef) {
+    return Analysis::NodeCountExceeds(*functionDef, fSettings->fInlineThreshold);
+}
 
-    auto [iter, wasInserted] = cache->insert({&fnDecl, false});
+bool Inliner::isLargeFunction(const InlineCandidate& candidate, LargeFunctionCache* cache) {
+    const FunctionDeclaration& funcDecl =
+                                         (*candidate.fCandidateExpr)->as<FunctionCall>().function();
+
+    auto [iter, wasInserted] = cache->insert({&funcDecl, false});
     if (wasInserted) {
-        iter->second = Analysis::NodeCountExceeds(*fnDecl.definition(),
-                                                  fSettings->fInlineThreshold);
+        iter->second = this->isLargeFunction(funcDecl.definition());
     }
 
     return iter->second;
