@@ -34,6 +34,24 @@
       "parentUuid": "011b9618_86f89c70",
       "revId": "6b038ba01f741d99f7f5f28ad5b2dafe4f032775",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d8461b8_e94ae5de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-13T15:35:02Z",
+      "side": 1,
+      "message": "Yeah, we may not worry about performance cost in debug builds.  That\u0027s only going to cause us to go insane.",
+      "parentUuid": "d756bc0b_d0b07444",
+      "revId": "6b038ba01f741d99f7f5f28ad5b2dafe4f032775",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
