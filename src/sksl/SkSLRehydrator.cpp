@@ -307,18 +307,17 @@ std::unique_ptr<ProgramElement> Rehydrator::element() {
         }
         case Rehydrator::kInterfaceBlock_Command: {
             const Symbol* var = this->symbol();
-            SkASSERT(var && var->kind() == Symbol::Kind::kVariable);
+            SkASSERT(var && var->is<Variable>());
             StringFragment typeName = this->readString();
             StringFragment instanceName = this->readString();
             uint8_t sizeCount = this->readU8();
-            std::vector<std::unique_ptr<Expression>> sizes;
+            ExpressionArray sizes;
             sizes.reserve(sizeCount);
             for (int i = 0; i < sizeCount; ++i) {
                 sizes.push_back(this->expression());
             }
-            return std::unique_ptr<ProgramElement>(new InterfaceBlock(-1, (Variable*) var, typeName,
-                                                                      instanceName,
-                                                                      std::move(sizes), nullptr));
+            return std::make_unique<InterfaceBlock>(/*offset=*/-1, &var->as<Variable>(), typeName,
+                                                    instanceName, std::move(sizes), nullptr);
         }
         case Rehydrator::kVarDeclarations_Command: {
             std::unique_ptr<Statement> decl = this->statement();
@@ -421,7 +420,7 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             Variable* var = this->symbolRef<Variable>(Symbol::Kind::kVariable);
             const Type* baseType = this->type();
             uint8_t sizeCount = this->readU8();
-            std::vector<std::unique_ptr<Expression>> sizes;
+            ExpressionArray sizes;
             sizes.reserve(sizeCount);
             for (int i = 0; i < sizeCount; ++i) {
                 sizes.push_back(this->expression());
@@ -430,8 +429,8 @@ std::unique_ptr<Statement> Rehydrator::statement() {
             if (value) {
                 var->setInitialValue(value.get());
             }
-            return std::unique_ptr<Statement>(
-                    new VarDeclaration(var, baseType, std::move(sizes), std::move(value)));
+            return std::make_unique<VarDeclaration>(var, baseType, std::move(sizes),
+                                                    std::move(value));
         }
         case Rehydrator::kVoid_Command:
             return nullptr;

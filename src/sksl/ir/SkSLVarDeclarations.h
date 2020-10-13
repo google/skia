@@ -25,7 +25,7 @@ struct VarDeclaration : public Statement {
 
     VarDeclaration(const Variable* var,
                    const Type* baseType,
-                   std::vector<std::unique_ptr<Expression>> sizes,
+                   ExpressionArray sizes,
                    std::unique_ptr<Expression> value)
             : INHERITED(var->fOffset, kStatementKind)
             , fVar(var)
@@ -34,7 +34,8 @@ struct VarDeclaration : public Statement {
             , fValue(std::move(value)) {}
 
     std::unique_ptr<Statement> clone() const override {
-        std::vector<std::unique_ptr<Expression>> sizesClone;
+        ExpressionArray sizesClone;
+        sizesClone.reserve(fSizes.size());
         for (const auto& s : fSizes) {
             if (s) {
                 sizesClone.push_back(s->clone());
@@ -65,7 +66,7 @@ struct VarDeclaration : public Statement {
 
     const Variable* fVar;
     const Type& fBaseType;
-    std::vector<std::unique_ptr<Expression>> fSizes;
+    ExpressionArray fSizes;
     std::unique_ptr<Expression> fValue;
 
     using INHERITED = Statement;

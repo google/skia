@@ -377,7 +377,8 @@ StatementArray IRGenerator::convertVarDeclarations(const ASTNode& decls,
         }
         const ASTNode::VarData& varData = varDecl.getVarData();
         const Type* type = baseType;
-        std::vector<std::unique_ptr<Expression>> sizes;
+        ExpressionArray sizes;
+        sizes.reserve(varData.fSizeCount);
         auto iter = varDecl.begin();
         for (size_t i = 0; i < varData.fSizeCount; ++i, ++iter) {
             const ASTNode& rawSize = *iter;
@@ -1118,7 +1119,8 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
     this->popSymbolTable();
     const Type* type =
             old->takeOwnershipOfSymbol(std::make_unique<Type>(intf.fOffset, id.fTypeName, fields));
-    std::vector<std::unique_ptr<Expression>> sizes;
+    ExpressionArray sizes;
+    sizes.reserve(id.fSizeCount);
     for (size_t i = 0; i < id.fSizeCount; ++i) {
         const ASTNode& size = *(iter++);
         if (size) {
@@ -2950,10 +2952,9 @@ IRGenerator::IRBundle IRGenerator::convertProgram(
         auto var = std::make_unique<Variable>(-1, fModifiers->handle(m), "sk_InvocationID",
                                               fContext.fInt_Type.get(), false,
                                               Variable::Storage::kGlobal);
-        auto decl = std::make_unique<VarDeclaration>(
-                var.get(), fContext.fInt_Type.get(),
-                /*sizes=*/std::vector<std::unique_ptr<Expression>>{},
-                /*value=*/nullptr);
+        auto decl = std::make_unique<VarDeclaration>(var.get(), fContext.fInt_Type.get(),
+                                                     /*sizes=*/ExpressionArray{},
+                                                     /*value=*/nullptr);
         fSymbolTable->add(std::move(var));
         fProgramElements->push_back(
                 std::make_unique<GlobalVarDeclaration>(/*offset=*/-1, std::move(decl)));

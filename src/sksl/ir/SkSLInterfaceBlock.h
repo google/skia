@@ -28,8 +28,7 @@ struct InterfaceBlock : public ProgramElement {
     static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
 
     InterfaceBlock(int offset, const Variable* var, String typeName, String instanceName,
-                   std::vector<std::unique_ptr<Expression>> sizes,
-                   std::shared_ptr<SymbolTable> typeOwner)
+                   ExpressionArray sizes, std::shared_ptr<SymbolTable> typeOwner)
     : INHERITED(offset, kProgramElementKind)
     , fVariable(var)
     , fTypeName(std::move(typeName))
@@ -38,15 +37,13 @@ struct InterfaceBlock : public ProgramElement {
     , fTypeOwner(typeOwner) {}
 
     std::unique_ptr<ProgramElement> clone() const override {
-        std::vector<std::unique_ptr<Expression>> sizesClone;
+        ExpressionArray sizesClone;
         sizesClone.reserve(fSizes.size());
         for (const auto& s : fSizes) {
             sizesClone.push_back(s ? s->clone() : nullptr);
         }
-        return std::unique_ptr<ProgramElement>(new InterfaceBlock(fOffset, fVariable, fTypeName,
-                                                                  fInstanceName,
-                                                                  std::move(sizesClone),
-                                                                  fTypeOwner));
+        return std::make_unique<InterfaceBlock>(fOffset, fVariable, fTypeName, fInstanceName,
+                                                std::move(sizesClone), fTypeOwner);
     }
 
     String description() const override {
@@ -75,7 +72,7 @@ struct InterfaceBlock : public ProgramElement {
     const Variable* fVariable;
     const String fTypeName;
     const String fInstanceName;
-    std::vector<std::unique_ptr<Expression>> fSizes;
+    ExpressionArray fSizes;
     const std::shared_ptr<SymbolTable> fTypeOwner;
 
     using INHERITED = ProgramElement;
