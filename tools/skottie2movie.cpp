@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 
     SkVideoEncoder encoder;
 
-    GrContext* context = nullptr;
+    GrDirectContext* context = nullptr;
     sk_sp<SkSurface> surf;
     sk_sp<SkData> data;
 
