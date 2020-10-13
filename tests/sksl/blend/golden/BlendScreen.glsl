@@ -10,6 +10,7 @@ void main() {
     {
         _0_blend_screen = src + (1.0 - src) * dst;
     }
+
     sk_FragColor = _0_blend_screen;
 
 }
