@@ -10,8 +10,29 @@
 
 #include "include/private/GrContext.h"
 
-class GrAtlasManager;
-class GrSmallPathAtlasMgr;
+#include "include/gpu/GrBackendSurface.h"
+
+// We shouldn't need this but currently Android is relying on this being include transitively.
+#include "include/core/SkUnPreMultiply.h"
+
+class GrBackendSemaphore;
+class GrContextThreadSafeProxy;
+struct GrD3DBackendContext;
+class GrFragmentProcessor;
+struct GrGLInterface;
+struct GrMockOptions;
+class GrPath;
+class GrRenderTargetContext;
+class GrSurfaceProxy;
+class GrSwizzle;
+class GrTextureProxy;
+struct GrVkBackendContext;
+
+class SkImage;
+class SkString;
+class SkSurfaceCharacterization;
+class SkSurfaceProps;
+class SkTraceMemoryDump;
 
 class SK_API GrDirectContext : public GrContext {
 public:
@@ -631,6 +652,61 @@ public:
                                         size_t dataSize,
                                         GrGpuFinishedProc finishedProc,
                                         GrGpuFinishedContext finishedContext);
+
+    /**
+     * Updates the state of the GrBackendTexture/RenderTarget to have the passed in
+     * GrBackendSurfaceMutableState. All objects that wrap the backend surface (i.e. SkSurfaces and
+     * SkImages) will also be aware of this state change. This call does not submit the state change
+     * to the gpu, but requires the client to call `submit` to send it to the GPU. The work
+     * for this call is ordered linearly with all other calls that require GrContext::submit to be
+     * called (e.g updateBackendTexture and flush). If finishedProc is not null then it will be
+     * called with finishedContext after the state transition is known to have occurred on the GPU.
+     *
+     * See GrBackendSurfaceMutableState to see what state can be set via this call.
+     *
+     * If the backend API is Vulkan, the caller can set the GrBackendSurfaceMutableState's
+     * VkImageLayout to VK_IMAGE_LAYOUT_UNDEFINED or queueFamilyIndex to VK_QUEUE_FAMILY_IGNORED to
+     * tell Skia to not change those respective states.
+     *
+     * If previousState is not null and this returns true, then Skia will have filled in
+     * previousState to have the values of the state before this call.
+     */
+    bool setBackendTextureState(const GrBackendTexture&,
+                                const GrBackendSurfaceMutableState&,
+                                GrBackendSurfaceMutableState* previousState = nullptr,
+                                GrGpuFinishedProc finishedProc = nullptr,
+                                GrGpuFinishedContext finishedContext = nullptr);
+    bool setBackendRenderTargetState(const GrBackendRenderTarget&,
+                                     const GrBackendSurfaceMutableState&,
+                                     GrBackendSurfaceMutableState* previousState = nullptr,
+                                     GrGpuFinishedProc finishedProc = nullptr,
+                                     GrGpuFinishedContext finishedContext = nullptr);
+
+    void deleteBackendTexture(GrBackendTexture);
+
+    // This interface allows clients to pre-compile shaders and populate the runtime program cache.
+    // The key and data blobs should be the ones passed to the PersistentCache, in SkSL format.
+    //
+    // Steps to use this API:
+    //
+    // 1) Create a GrContext as normal, but set fPersistentCache on GrContextOptions to something
+    //    that will save the cached shader blobs. Set fShaderCacheStrategy to kSkSL. This will
+    //    ensure that the blobs are SkSL, and are suitable for pre-compilation.
+    // 2) Run your application, and save all of the key/data pairs that are fed to the cache.
+    //
+    // 3) Switch over to shipping your application. Include the key/data pairs from above.
+    // 4) At startup (or any convenient time), call precompileShader for each key/data pair.
+    //    This will compile the SkSL to create a GL program, and populate the runtime cache.
+    //
+    // This is only guaranteed to work if the context/device used in step #2 are created in the
+    // same way as the one used in step #4, and the same GrContextOptions are specified.
+    // Using cached shader blobs on a different device or driver are undefined.
+    bool precompileShader(const SkData& key, const SkData& data);
+
+#ifdef SK_ENABLE_DUMP_GPU
+    /** Returns a string with detailed information about the context & GPU, in JSON format. */
+    SkString dump() const;
+#endif
 
 protected:
     GrDirectContext(GrBackendApi backend, const GrContextOptions& options);
