@@ -82,6 +82,9 @@ public:
     void upgradeEntryToLiteralCoverageAtlas(GrCCPathCache*, GrOnFlushResourceProvider*,
                                             GrCCPathCacheEntry*, GrFillRule);
 
+    // An expected copy-to-literal was canceled due to cache entry eviction within a flush cycle.
+    SkDEBUGCODE(void cancelEvictedDoCopies() { fEndCopyInstance--; })
+
     // These two methods render a path into a temporary coverage count atlas. See
     // GrCCPathProcessor::Instance for a description of the outputs.
     //
