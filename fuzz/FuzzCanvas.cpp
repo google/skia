@@ -52,7 +52,7 @@
 #ifdef SK_GL
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLFunctions.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/gl/GrGLGpu.h"
 #include "src/gpu/gl/GrGLUtil.h"
 #include "tools/gpu/GrContextFactory.h"

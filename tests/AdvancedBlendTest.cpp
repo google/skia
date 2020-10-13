@@ -11,7 +11,7 @@
 #include "include/private/SkColorData.h"
 #include "src/gpu/GrBlend.h"
 #include "src/gpu/GrCaps.h"
-#include "src/gpu/GrContextPriv.h"
+#include "src/gpu/GrDirectContextPriv.h"
 #include "src/gpu/GrPaint.h"
 #include "src/gpu/GrProcessorAnalysis.h"
 #include "src/gpu/GrProcessorSet.h"
