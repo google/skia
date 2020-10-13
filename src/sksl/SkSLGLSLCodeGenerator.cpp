@@ -1515,7 +1515,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeFunction(e.as<FunctionDefinition>());
             break;
         case ProgramElement::Kind::kModifiers: {
-            const Modifiers& modifiers = e.as<ModifiersDeclaration>().fModifiers;
+            const Modifiers& modifiers = e.as<ModifiersDeclaration>().modifiers();
             if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
                 if (fProgram.fSettings.fCaps->gsInvocationsExtensionString()) {
                     this->writeExtension(fProgram.fSettings.fCaps->gsInvocationsExtensionString());

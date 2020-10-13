@@ -152,6 +152,10 @@ protected:
         const FunctionDeclaration* fFunction;
     };
 
+    struct ModifiersDeclarationData {
+        ModifiersPool::Handle fModifiersHandle;
+    };
+
     struct SectionData {
         String fName;
         String fArgument;
@@ -230,6 +234,7 @@ protected:
             kIfStatement,
             kInlineMarker,
             kIntLiteral,
+            kModifiersDeclaration,
             kSection,
             kSetting,
             kString,
@@ -260,6 +265,7 @@ protected:
             IfStatementData fIfStatement;
             InlineMarkerData fInlineMarker;
             IntLiteralData fIntLiteral;
+            ModifiersDeclarationData fModifiersDeclaration;
             SectionData fSection;
             SettingData fSetting;
             String fString;
@@ -346,6 +352,11 @@ protected:
         NodeData(IntLiteralData data)
             : fKind(Kind::kIntLiteral) {
             *(new(&fContents) IntLiteralData) = data;
+        }
+
+        NodeData(ModifiersDeclarationData data)
+            : fKind(Kind::kModifiersDeclaration) {
+            *(new(&fContents) ModifiersDeclarationData) = data;
         }
 
         NodeData(const SectionData& data)
@@ -459,6 +470,10 @@ protected:
                 case Kind::kIntLiteral:
                     *(new(&fContents) IntLiteralData) = other.fContents.fIntLiteral;
                     break;
+                case Kind::kModifiersDeclaration:
+                    *(new(&fContents) ModifiersDeclarationData) =
+                                                              other.fContents.fModifiersDeclaration;
+                    break;
                 case Kind::kSection:
                     *(new(&fContents) SectionData) = other.fContents.fSection;
                     break;
@@ -548,6 +563,9 @@ protected:
                 case Kind::kIntLiteral:
                     fContents.fIntLiteral.~IntLiteralData();
                     break;
+                case Kind::kModifiersDeclaration:
+                    fContents.fModifiersDeclaration.~ModifiersDeclarationData();
+                    break;
                 case Kind::kSection:
                     fContents.fSection.~SectionData();
                     break;
@@ -615,6 +633,8 @@ protected:
     IRNode(int offset, int kind, const InlineMarkerData& data);
 
     IRNode(int offset, int kind, const IntLiteralData& data);
+
+    IRNode(int offset, int kind, const ModifiersDeclarationData& data);
 
     IRNode(int offset, int kind, const SectionData& data);
 
@@ -757,6 +777,11 @@ protected:
     const IntLiteralData& intLiteralData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kIntLiteral);
         return fData.fContents.fIntLiteral;
+    }
+
+    const ModifiersDeclarationData& modifiersDeclarationData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kModifiersDeclaration);
+        return fData.fContents.fModifiersDeclaration;
     }
 
     const SectionData& sectionData() const {
