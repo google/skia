@@ -2780,32 +2780,32 @@ bool is_dead(const Variable& var) {
 #define BUILTIN_IGNORE 9999
 void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration& varDecl,
                                         OutputStream& out) {
-    const Variable* var = varDecl.fVar;
+    const Variable& var = varDecl.var();
     // These haven't been implemented in our SPIR-V generator yet and we only currently use them
     // in the OpenGL backend.
-    SkASSERT(!(var->modifiers().fFlags & (Modifiers::kReadOnly_Flag |
+    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kReadOnly_Flag |
                                           Modifiers::kWriteOnly_Flag |
                                           Modifiers::kCoherent_Flag |
                                           Modifiers::kVolatile_Flag |
                                           Modifiers::kRestrict_Flag)));
-    if (var->modifiers().fLayout.fBuiltin == BUILTIN_IGNORE) {
+    if (var.modifiers().fLayout.fBuiltin == BUILTIN_IGNORE) {
         return;
     }
-    if (var->modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
+    if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
         kind != Program::kFragment_Kind) {
         SkASSERT(!fProgram.fSettings.fFragColorIsInOut);
         return;
     }
-    if (is_dead(*var)) {
+    if (is_dead(var)) {
         return;
     }
-    const Type& type = var->type();
+    const Type& type = var.type();
     SpvStorageClass_ storageClass;
-    if (var->modifiers().fFlags & Modifiers::kIn_Flag) {
+    if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
         storageClass = SpvStorageClassInput;
-    } else if (var->modifiers().fFlags & Modifiers::kOut_Flag) {
+    } else if (var.modifiers().fFlags & Modifiers::kOut_Flag) {
         storageClass = SpvStorageClassOutput;
-    } else if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
+    } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
         if (type.typeKind() == Type::TypeKind::kSampler ||
             type.typeKind() == Type::TypeKind::kSeparateSampler ||
             type.typeKind() == Type::TypeKind::kTexture) {
@@ -2817,9 +2817,9 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
         storageClass = SpvStorageClassPrivate;
     }
     SpvId id = this->nextId();
-    fVariableMap[var] = id;
+    fVariableMap[&var] = id;
     SpvId typeId;
-    if (var->modifiers().fLayout.fBuiltin == SK_IN_BUILTIN) {
+    if (var.modifiers().fLayout.fBuiltin == SK_IN_BUILTIN) {
         typeId = this->getPointerType(
                 Type("sk_in", Type::TypeKind::kArray, type.componentType(), fSkInCount),
                 storageClass);
@@ -2827,41 +2827,41 @@ void SPIRVCodeGenerator::writeGlobalVar(Program::Kind kind, const VarDeclaration
         typeId = this->getPointerType(type, storageClass);
     }
     this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
-    this->writeInstruction(SpvOpName, id, var->name(), fNameBuffer);
+    this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
     this->writePrecisionModifier(type, id);
-    if (varDecl.fValue) {
+    if (varDecl.value()) {
         SkASSERT(!fCurrentBlock);
         fCurrentBlock = -1;
-        SpvId value = this->writeExpression(*varDecl.fValue, fGlobalInitializersBuffer);
+        SpvId value = this->writeExpression(*varDecl.value(), fGlobalInitializersBuffer);
         this->writeInstruction(SpvOpStore, id, value, fGlobalInitializersBuffer);
         fCurrentBlock = 0;
     }
-    this->writeLayout(var->modifiers().fLayout, id);
-    if (var->modifiers().fFlags & Modifiers::kFlat_Flag) {
+    this->writeLayout(var.modifiers().fLayout, id);
+    if (var.modifiers().fFlags & Modifiers::kFlat_Flag) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationFlat, fDecorationBuffer);
     }
-    if (var->modifiers().fFlags & Modifiers::kNoPerspective_Flag) {
+    if (var.modifiers().fFlags & Modifiers::kNoPerspective_Flag) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationNoPerspective,
                                 fDecorationBuffer);
     }
 }
 
 void SPIRVCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, OutputStream& out) {
-    const Variable* var = varDecl.fVar;
+    const Variable& var = varDecl.var();
     // These haven't been implemented in our SPIR-V generator yet and we only currently use them
     // in the OpenGL backend.
-    SkASSERT(!(var->modifiers().fFlags & (Modifiers::kReadOnly_Flag |
-                                          Modifiers::kWriteOnly_Flag |
-                                          Modifiers::kCoherent_Flag |
-                                          Modifiers::kVolatile_Flag |
-                                          Modifiers::kRestrict_Flag)));
+    SkASSERT(!(var.modifiers().fFlags & (Modifiers::kReadOnly_Flag |
+                                         Modifiers::kWriteOnly_Flag |
+                                         Modifiers::kCoherent_Flag |
+                                         Modifiers::kVolatile_Flag |
+                                         Modifiers::kRestrict_Flag)));
     SpvId id = this->nextId();
-    fVariableMap[var] = id;
-    SpvId type = this->getPointerType(var->type(), SpvStorageClassFunction);
+    fVariableMap[&var] = id;
+    SpvId type = this->getPointerType(var.type(), SpvStorageClassFunction);
     this->writeInstruction(SpvOpVariable, type, id, SpvStorageClassFunction, fVariableBuffer);
-    this->writeInstruction(SpvOpName, id, var->name(), fNameBuffer);
-    if (varDecl.fValue) {
-        SpvId value = this->writeExpression(*varDecl.fValue, out);
+    this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
+    if (varDecl.value()) {
+        SpvId value = this->writeExpression(*varDecl.value(), out);
         this->writeInstruction(SpvOpStore, id, value, out);
     }
 }
@@ -3214,7 +3214,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     }
     for (const auto& e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            this->writeGlobalVar(program.fKind, *e->as<GlobalVarDeclaration>().fDecl, body);
+            this->writeGlobalVar(program.fKind,
+                                 e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>(),
+                                 body);
         }
     }
     for (const auto& e : program.elements()) {

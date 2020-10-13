@@ -202,6 +202,11 @@ protected:
         std::vector<const FunctionDeclaration*> fFunctions;
     };
 
+    struct VarDeclarationData {
+        const Type* fBaseType;
+        const Variable* fVar;
+    };
+
     struct VariableData {
         StringFragment fName;
         const Type* fType;
@@ -249,6 +254,7 @@ protected:
             kTypeReference,
             kTypeToken,
             kUnresolvedFunction,
+            kVarDeclaration,
             kVariable,
             kVariableReference,
         } fKind = Kind::kType;
@@ -280,6 +286,7 @@ protected:
             TypeReferenceData fTypeReference;
             TypeTokenData fTypeToken;
             UnresolvedFunctionData fUnresolvedFunction;
+            VarDeclarationData fVarDeclaration;
             VariableData fVariable;
             VariableReferenceData fVariableReference;
 
@@ -413,6 +420,11 @@ protected:
             *(new(&fContents) UnresolvedFunctionData) = data;
         }
 
+        NodeData(const VarDeclarationData& data)
+            : fKind(Kind::kVarDeclaration) {
+            *(new(&fContents) VarDeclarationData) = data;
+        }
+
         NodeData(const VariableData& data)
             : fKind(Kind::kVariable) {
             *(new(&fContents) VariableData) = data;
@@ -508,6 +520,9 @@ protected:
                 case Kind::kUnresolvedFunction:
                     *(new(&fContents) UnresolvedFunctionData) = other.fContents.fUnresolvedFunction;
                     break;
+                case Kind::kVarDeclaration:
+                    *(new(&fContents) VarDeclarationData) = other.fContents.fVarDeclaration;
+                    break;
                 case Kind::kVariable:
                     *(new(&fContents) VariableData) = other.fContents.fVariable;
                     break;
@@ -599,6 +614,9 @@ protected:
                 case Kind::kUnresolvedFunction:
                     fContents.fUnresolvedFunction.~UnresolvedFunctionData();
                     break;
+                case Kind::kVarDeclaration:
+                    fContents.fVarDeclaration.~VarDeclarationData();
+                    break;
                 case Kind::kVariable:
                     fContents.fVariable.~VariableData();
                     break;
@@ -658,6 +676,8 @@ protected:
     IRNode(int offset, int kind, const TypeTokenData& data);
 
     IRNode(int offset, int kind, const UnresolvedFunctionData& data);
+
+    IRNode(int offset, int kind, const VarDeclarationData& data);
 
     IRNode(int offset, int kind, const VariableData& data);
 
@@ -845,6 +865,16 @@ protected:
     const UnresolvedFunctionData& unresolvedFunctionData() const {
         SkASSERT(fData.fKind == NodeData::Kind::kUnresolvedFunction);
         return fData.fContents.fUnresolvedFunction;
+    }
+
+    VarDeclarationData& varDeclarationData() {
+        SkASSERT(fData.fKind == NodeData::Kind::kVarDeclaration);
+        return fData.fContents.fVarDeclaration;
+    }
+
+    const VarDeclarationData& varDeclarationData() const {
+        SkASSERT(fData.fKind == NodeData::Kind::kVarDeclaration);
+        return fData.fContents.fVarDeclaration;
     }
 
     VariableData& variableData() {

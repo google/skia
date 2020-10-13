@@ -543,29 +543,29 @@ std::unique_ptr<Statement> Inliner::inlineStatement(int offset,
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             ExpressionArray sizes;
-            sizes.reserve(decl.fSizes.size());
-            for (const auto& size : decl.fSizes) {
-                sizes.push_back(expr(size));
+            sizes.reserve(decl.sizeCount());
+            for (int i = 0; i < decl.sizeCount(); ++i) {
+                sizes.push_back(expr(decl.size(i)));
             }
-            std::unique_ptr<Expression> initialValue = expr(decl.fValue);
-            const Variable* old = decl.fVar;
+            std::unique_ptr<Expression> initialValue = expr(decl.value());
+            const Variable& old = decl.var();
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
             auto name = std::make_unique<String>(
-                    this->uniqueNameForInlineVar(String(old->name()), symbolTableForStatement));
+                    this->uniqueNameForInlineVar(String(old.name()), symbolTableForStatement));
             const String* namePtr = symbolTableForStatement->takeOwnershipOfString(std::move(name));
-            const Type* baseTypePtr = copy_if_needed(&decl.fBaseType, *symbolTableForStatement);
-            const Type* typePtr = copy_if_needed(&old->type(), *symbolTableForStatement);
+            const Type* baseTypePtr = copy_if_needed(&decl.baseType(), *symbolTableForStatement);
+            const Type* typePtr = copy_if_needed(&old.type(), *symbolTableForStatement);
             const Variable* clone = symbolTableForStatement->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(offset,
-                                               old->modifiersHandle(),
+                                               old.modifiersHandle(),
                                                namePtr->c_str(),
                                                typePtr,
                                                isBuiltinCode,
-                                               old->storage(),
+                                               old.storage(),
                                                initialValue.get()));
-            (*varMap)[old] = std::make_unique<VariableReference>(offset, clone);
+            (*varMap)[&old] = std::make_unique<VariableReference>(offset, clone);
             return std::make_unique<VarDeclaration>(clone, baseTypePtr, std::move(sizes),
                                                     std::move(initialValue));
         }
@@ -941,7 +941,7 @@ public:
             case Statement::Kind::kVarDeclaration: {
                 VarDeclaration& varDeclStmt = (*stmt)->as<VarDeclaration>();
                 // Don't need to scan the declaration's sizes; those are always IntLiterals.
-                this->visitExpression(&varDeclStmt.fValue);
+                this->visitExpression(&varDeclStmt.value());
                 break;
             }
             case Statement::Kind::kWhile: {

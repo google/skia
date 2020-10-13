@@ -415,10 +415,11 @@ int CPPCodeGenerator::getChildFPIndex(const Variable& var) const {
     int index = 0;
     for (const auto& p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-            if (decl.fVar == &var) {
+            const VarDeclaration& decl =
+                                  p->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
+            if (&decl.var() == &var) {
                 return index;
-            } else if (decl.fVar->type().nonnullable() == *fContext.fFragmentProcessor_Type) {
+            } else if (decl.var().type().nonnullable() == *fContext.fFragmentProcessor_Type) {
                 ++index;
             }
         }
@@ -660,7 +661,7 @@ void CPPCodeGenerator::writeProgramElement(const ProgramElement& p) {
             return;
         case ProgramElement::Kind::kGlobalVar: {
             const GlobalVarDeclaration& decl = p.as<GlobalVarDeclaration>();
-            const Variable& var = *decl.fDecl->fVar;
+            const Variable& var = decl.declaration()->as<VarDeclaration>().var();
             if (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kUniform_Flag) ||
                 -1 != var.modifiers().fLayout.fBuiltin) {
                 return;
@@ -706,27 +707,27 @@ void CPPCodeGenerator::writeInputVars() {
 void CPPCodeGenerator::writePrivateVars() {
     for (const auto& p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-            if (is_private(*decl.fVar)) {
-                if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
-                    fErrors.error(decl.fOffset,
+            const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+            const Variable& var = global.declaration()->as<VarDeclaration>().var();
+            if (is_private(var)) {
+                if (var.type() == *fContext.fFragmentProcessor_Type) {
+                    fErrors.error(global.fOffset,
                                   "fragmentProcessor variables must be declared 'in'");
                     return;
                 }
                 this->writef("%s %s = %s;\n",
-                             HCodeGenerator::FieldType(fContext, decl.fVar->type(),
-                                                       decl.fVar->modifiers().fLayout)
-                                     .c_str(),
-                             String(decl.fVar->name()).c_str(),
-                             default_value(*decl.fVar).c_str());
-            } else if (decl.fVar->modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
+                             HCodeGenerator::FieldType(fContext, var.type(),
+                                                       var.modifiers().fLayout).c_str(),
+                             String(var.name()).c_str(),
+                             default_value(var).c_str());
+            } else if (var.modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                 // An auto-tracked uniform in variable, so add a field to hold onto the prior
                 // state. Note that tracked variables must be uniform in's and that is validated
                 // before writePrivateVars() is called.
-                const UniformCTypeMapper* mapper = UniformCTypeMapper::Get(fContext, *decl.fVar);
+                const UniformCTypeMapper* mapper = UniformCTypeMapper::Get(fContext, var);
                 SkASSERT(mapper && mapper->supportsTracking());
 
-                String name = HCodeGenerator::FieldName(String(decl.fVar->name()).c_str());
+                String name = HCodeGenerator::FieldName(String(var.name()).c_str());
                 // The member statement is different if the mapper reports a default value
                 if (mapper->defaultValue().size() > 0) {
                     this->writef("%s %sPrev = %s;\n",
@@ -744,11 +745,12 @@ void CPPCodeGenerator::writePrivateVars() {
 void CPPCodeGenerator::writePrivateVarValues() {
     for (const auto& p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-            if (is_private(*decl.fVar) && decl.fValue) {
-                this->writef("%s = ", String(decl.fVar->name()).c_str());
+            const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+            if (is_private(decl.var()) && decl.value()) {
+                this->writef("%s = ", String(decl.var().name()).c_str());
                 fCPPMode = true;
-                this->writeExpression(*decl.fValue, kAssignment_Precedence);
+                this->writeExpression(*decl.value(), kAssignment_Precedence);
                 fCPPMode = false;
                 this->write(";\n");
             }
@@ -958,11 +960,12 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
                  fFullName.c_str(), fFullName.c_str());
     for (const auto& p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-            String nameString(decl.fVar->name());
+            const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+            String nameString(decl.var().name());
             const char* name = nameString.c_str();
-            if (SectionAndParameterHelper::IsParameter(*decl.fVar) &&
-                is_accessible(*decl.fVar)) {
+            if (SectionAndParameterHelper::IsParameter(decl.var()) &&
+                is_accessible(decl.var())) {
                 this->writef("        auto %s = _outer.%s;\n"
                              "        (void) %s;\n",
                              name, name, name);
@@ -1071,8 +1074,9 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
         int samplerIndex = 0;
         for (const auto& p : fProgram.elements()) {
             if (p->is<GlobalVarDeclaration>()) {
-                const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-                const Variable& variable = *decl.fVar;
+                const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+                const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+                const Variable& variable = decl.var();
                 String nameString(variable.name());
                 const char* name = nameString.c_str();
                 if (variable.type().typeKind() == Type::TypeKind::kSampler) {
@@ -1244,8 +1248,9 @@ void CPPCodeGenerator::writeGetKey() {
                  fFullName.c_str());
     for (const auto& p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-            const Variable& var = *decl.fVar;
+            const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+            const Variable& var = decl.var();
             const Type& varType = var.type();
             String nameString(var.name());
             const char* name = nameString.c_str();
@@ -1260,9 +1265,9 @@ void CPPCodeGenerator::writeGetKey() {
                                         HCodeGenerator::FieldType(fContext, varType,
                                                                   var.modifiers().fLayout).c_str(),
                                         String(var.name()).c_str());
-                        if (decl.fValue) {
+                        if (decl.value()) {
                             fCPPMode = true;
-                            this->writeExpression(*decl.fValue, kAssignment_Precedence);
+                            this->writeExpression(*decl.value(), kAssignment_Precedence);
                             fCPPMode = false;
                         } else {
                             this->writef("%s", default_value(var).c_str());
@@ -1318,25 +1323,26 @@ bool CPPCodeGenerator::generateCode() {
     std::vector<const Variable*> uniforms;
     for (const auto& p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
-            const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-            if ((decl.fVar->modifiers().fFlags & Modifiers::kUniform_Flag) &&
-                        decl.fVar->type().typeKind() != Type::TypeKind::kSampler) {
-                uniforms.push_back(decl.fVar);
+            const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+            if ((decl.var().modifiers().fFlags & Modifiers::kUniform_Flag) &&
+                        decl.var().type().typeKind() != Type::TypeKind::kSampler) {
+                uniforms.push_back(&decl.var());
             }
 
-            if (is_uniform_in(*decl.fVar)) {
+            if (is_uniform_in(decl.var())) {
                 // Validate the "uniform in" declarations to make sure they are fully supported,
                 // instead of generating surprising C++
                 const UniformCTypeMapper* mapper =
-                        UniformCTypeMapper::Get(fContext, *decl.fVar);
+                        UniformCTypeMapper::Get(fContext, decl.var());
                 if (mapper == nullptr) {
-                    fErrors.error(decl.fOffset, String(decl.fVar->name())
+                    fErrors.error(decl.fOffset, String(decl.var().name())
                             + "'s type is not supported for use as a 'uniform in'");
                     return false;
                 }
-                if (decl.fVar->modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
+                if (decl.var().modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                     if (!mapper->supportsTracking()) {
-                        fErrors.error(decl.fOffset, String(decl.fVar->name())
+                        fErrors.error(decl.fOffset, String(decl.var().name())
                                 + "'s type does not support state tracking");
                         return false;
                     }
@@ -1344,7 +1350,7 @@ bool CPPCodeGenerator::generateCode() {
 
             } else {
                 // If it's not a uniform_in, it's an error to be tracked
-                if (decl.fVar->modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
+                if (decl.var().modifiers().fLayout.fFlags & Layout::kTracked_Flag) {
                     fErrors.error(decl.fOffset, "Non-'in uniforms' cannot be tracked");
                     return false;
                 }

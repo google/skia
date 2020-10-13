@@ -1246,23 +1246,23 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool global) {
-    this->writeModifiers(var.fVar->modifiers(), global);
-    this->writeTypePrecision(var.fBaseType);
-    this->writeType(var.fBaseType);
+    this->writeModifiers(var.var().modifiers(), global);
+    this->writeTypePrecision(var.baseType());
+    this->writeType(var.baseType());
     this->write(" ");
-    this->write(var.fVar->name());
-    for (const auto& size : var.fSizes) {
+    this->write(var.var().name());
+    for (int i = 0; i < var.sizeCount(); ++i) {
         this->write("[");
-        if (size) {
-            this->writeExpression(*size, kTopLevel_Precedence);
+        if (var.size(i)) {
+            this->writeExpression(*var.size(i), kTopLevel_Precedence);
         }
         this->write("]");
     }
-    if (var.fValue) {
+    if (var.value()) {
         this->write(" = ");
-        this->writeVarInitializer(*var.fVar, *var.fValue);
+        this->writeVarInitializer(var.var(), *var.value());
     }
-    if (!fFoundExternalSamplerDecl && var.fVar->type() == *fContext.fSamplerExternalOES_Type) {
+    if (!fFoundExternalSamplerDecl && var.var().type() == *fContext.fSamplerExternalOES_Type) {
         if (fProgram.fSettings.fCaps->externalTextureExtensionString()) {
             this->writeExtension(fProgram.fSettings.fCaps->externalTextureExtensionString());
         }
@@ -1271,7 +1271,7 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
         }
         fFoundExternalSamplerDecl = true;
     }
-    if (!fFoundRectSamplerDecl && var.fVar->type() == *fContext.fSampler2DRect_Type) {
+    if (!fFoundRectSamplerDecl && var.var().type() == *fContext.fSampler2DRect_Type) {
         fFoundRectSamplerDecl = true;
     }
     this->write(";");
@@ -1487,15 +1487,16 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeExtension(e.as<Extension>().name());
             break;
         case ProgramElement::Kind::kGlobalVar: {
-            const VarDeclaration& decl = *e.as<GlobalVarDeclaration>().fDecl;
-            int builtin = decl.fVar->modifiers().fLayout.fBuiltin;
+            const VarDeclaration& decl =
+                                   e.as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
+            int builtin = decl.var().modifiers().fLayout.fBuiltin;
             if (builtin == -1) {
                 // normal var
                 this->writeVarDeclaration(decl, true);
                 this->writeLine();
             } else if (builtin == SK_FRAGCOLOR_BUILTIN &&
                        fProgram.fSettings.fCaps->mustDeclareFragmentShaderOutput() &&
-                       decl.fVar->writeCount()) {
+                       decl.var().writeCount()) {
                 if (fProgram.fSettings.fFragColorIsInOut) {
                     this->write("inout ");
                 } else {

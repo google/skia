@@ -46,10 +46,11 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         bool found = false;
         for (const auto& p : fProgram.elements()) {
             if (p->is<GlobalVarDeclaration>()) {
-                const VarDeclaration& decl = *p->as<GlobalVarDeclaration>().fDecl;
-                if (decl.fVar == arguments[0]->as<VariableReference>().variable()) {
+                const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
+                const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+                if (&decl.var() == arguments[0]->as<VariableReference>().variable()) {
                     found = true;
-                } else if (decl.fVar->type() == *fContext.fFragmentProcessor_Type) {
+                } else if (decl.var().type() == *fContext.fFragmentProcessor_Type) {
                     ++index;
                 }
             }
@@ -125,7 +126,8 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
                         break;
                     }
                     if (e->is<GlobalVarDeclaration>()) {
-                        const Variable& var = *e->as<GlobalVarDeclaration>().fDecl->fVar;
+                        const GlobalVarDeclaration& global = e->as<GlobalVarDeclaration>();
+                        const Variable& var = global.declaration()->as<VarDeclaration>().var();
                         if (&var == ref.variable()) {
                             found = true;
                             break;
@@ -213,7 +215,8 @@ void PipelineStageCodeGenerator::writeProgramElement(const ProgramElement& p) {
         return;
     }
     if (p.is<GlobalVarDeclaration>()) {
-        const Variable& var = *p.as<GlobalVarDeclaration>().fDecl->fVar;
+        const GlobalVarDeclaration& global = p.as<GlobalVarDeclaration>();
+        const Variable& var = global.declaration()->as<VarDeclaration>().var();
         if (var.modifiers().fFlags &
                     (Modifiers::kIn_Flag | Modifiers::kUniform_Flag | Modifiers::kVarying_Flag) ||
             var.modifiers().fLayout.fBuiltin == -1) {

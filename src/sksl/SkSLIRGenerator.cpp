@@ -1099,19 +1099,19 @@ std::unique_ptr<InterfaceBlock> IRGenerator::convertInterfaceBlock(const ASTNode
                             "only the last entry in an interface block may be a runtime-sized "
                             "array");
             }
-            if (vd.fVar == fRTAdjust) {
+            if (&vd.var() == fRTAdjust) {
                 foundRTAdjust = true;
-                SkASSERT(vd.fVar->type() == *fContext.fFloat4_Type);
+                SkASSERT(vd.var().type() == *fContext.fFloat4_Type);
                 fRTAdjustFieldIndex = fields.size();
             }
-            fields.push_back(Type::Field(vd.fVar->modifiers(), vd.fVar->name(),
-                                        &vd.fVar->type()));
-            if (vd.fValue) {
+            fields.push_back(Type::Field(vd.var().modifiers(), vd.var().name(),
+                                        &vd.var().type()));
+            if (vd.value()) {
                 fErrors.error(decl->fOffset,
                             "initializers are not permitted on interface block fields");
             }
-            if (vd.fVar->type().typeKind() == Type::TypeKind::kArray &&
-                vd.fVar->type().columns() == Type::kUnsizedArray) {
+            if (vd.var().type().typeKind() == Type::TypeKind::kArray &&
+                vd.var().type().columns() == Type::kUnsizedArray) {
                 haveRuntimeArray = true;
             }
         }
@@ -2829,8 +2829,10 @@ void IRGenerator::cloneBuiltinVariables() {
                 const Expression* initialValue = nullptr;
 
                 if (clonedDecl->is<GlobalVarDeclaration>()) {
-                    sharedVar = clonedDecl->as<GlobalVarDeclaration>().fDecl->fVar;
-                    initialValue = clonedDecl->as<GlobalVarDeclaration>().fDecl->fValue.get();
+                    GlobalVarDeclaration& global = clonedDecl->as<GlobalVarDeclaration>();
+                    VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+                    sharedVar = &decl.var();
+                    initialValue = decl.value().get();
                 } else {
                     SkASSERT(clonedDecl->is<InterfaceBlock>());
                     sharedVar = clonedDecl->as<InterfaceBlock>().fVariable;
@@ -2847,7 +2849,8 @@ void IRGenerator::cloneBuiltinVariables() {
 
                 // Go back and update the declaring element to point at the cloned Variable.
                 if (clonedDecl->is<GlobalVarDeclaration>()) {
-                    clonedDecl->as<GlobalVarDeclaration>().fDecl->fVar = clonedVar;
+                    GlobalVarDeclaration& global = clonedDecl->as<GlobalVarDeclaration>();
+                    global.declaration()->as<VarDeclaration>().setVar(clonedVar);
                 } else {
                     clonedDecl->as<InterfaceBlock>().fVariable = clonedVar;
                 }

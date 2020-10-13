@@ -513,8 +513,8 @@ void CFGGenerator::addStatement(CFG& cfg, std::unique_ptr<Statement>* s) {
         }
         case Statement::Kind::kVarDeclaration: {
             VarDeclaration& vd = (*s)->as<VarDeclaration>();
-            if (vd.fValue) {
-                this->addExpression(cfg, &vd.fValue, /*constantPropagate=*/true);
+            if (vd.value()) {
+                this->addExpression(cfg, &vd.value(), /*constantPropagate=*/true);
             }
             cfg.currentBlock().fNodes.push_back(BasicBlock::MakeStatement(s));
             break;
