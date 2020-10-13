@@ -11,6 +11,7 @@
 #include "src/gpu/GrBackendUtils.h"
 #include "src/gpu/GrCaps.h"
 #include "src/gpu/GrDataUtils.h"
+#include "src/gpu/GrGpu.h"
 
 size_t GrAttachment::onGpuMemorySize() const {
     GrBackendFormat format = this->backendFormat();
@@ -71,4 +72,12 @@ void GrAttachment::ComputeScratchKey(const GrCaps& caps,
 
     GrScratchKey::Builder builder(key, kType, 5);
     build_key(&builder, caps, format, dimensions, requiredUsage, sampleCnt, isProtected);
+}
+
+void GrAttachment::computeScratchKey(GrScratchKey* key) const {
+    if (fSupportedUsages & UsageFlags::kMSAA) {
+        auto isProtected = this->isProtected() ? GrProtected::kYes : GrProtected::kNo;
+        ComputeScratchKey(*this->getGpu()->caps(), this->backendFormat(), this->dimensions(),
+                          fSupportedUsages, this->numSamples(), isProtected, key);
+    }
 }
