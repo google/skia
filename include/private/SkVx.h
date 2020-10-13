@@ -558,9 +558,6 @@ SIN Vec<N,int> lrint(const Vec<N,float>& x) {
                 lrint(x.hi));
 }
 
-// TODO: new-style platform specializations for rcp() / rsqrt()?
-SIN Vec<N,float>   rcp(const Vec<N,float>& x) { return 1/x; }
-SIN Vec<N,float> rsqrt(const Vec<N,float>& x) { return rcp(sqrt(x)); }
 SIN Vec<N,float> fract(const Vec<N,float>& x) { return x - floor(x); }
 
 // The default logic for to_half/from_half is borrowed from skcms,
@@ -672,37 +669,6 @@ SIN Vec<N,uint8_t> approx_scale(const Vec<N,uint8_t>& x, const Vec<N,uint8_t>& y
              * cast<uint16_t>(y);
     }
 #endif
-
-#if !defined(SKNX_NO_SIMD)
-
-    // Platform-specific specializations and overloads can now drop in here.
-
-    #if defined(__AVX__)
-        SI Vec<8,float> rsqrt(const Vec<8,float>& x) {
-            return bit_pun<Vec<8,float>>(_mm256_rsqrt_ps(bit_pun<__m256>(x)));
-        }
-        SI Vec<8,float> rcp(const Vec<8,float>& x) {
-            return bit_pun<Vec<8,float>>(_mm256_rcp_ps(bit_pun<__m256>(x)));
-        }
-    #endif
-
-    #if defined(__SSE__)
-        SI Vec<4,float> rsqrt(const Vec<4,float>& x) {
-            return bit_pun<Vec<4,float>>(_mm_rsqrt_ps(bit_pun<__m128>(x)));
-        }
-        SI Vec<4,float> rcp(const Vec<4,float>& x) {
-            return bit_pun<Vec<4,float>>(_mm_rcp_ps(bit_pun<__m128>(x)));
-        }
-
-        SI Vec<2,float> rsqrt(const Vec<2,float>& x) {
-            return shuffle<0,1>(rsqrt(shuffle<0,1,0,1>(x)));
-        }
-        SI Vec<2,float>   rcp(const Vec<2,float>& x) {
-            return shuffle<0,1>(  rcp(shuffle<0,1,0,1>(x)));
-        }
-    #endif
-
-#endif // !defined(SKNX_NO_SIMD)
 
 }  // namespace skvx
 
