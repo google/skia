@@ -49,6 +49,7 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateInputManager(GrVkGpu* 
 VkShaderStageFlags visibility_to_vk_stage_flags(uint32_t visibility) {
     VkShaderStageFlags flags = 0;
 
+    //*** push constants are visible to all stages
     if (visibility & kVertex_GrShaderFlag) {
         flags |= VK_SHADER_STAGE_VERTEX_BIT;
     }

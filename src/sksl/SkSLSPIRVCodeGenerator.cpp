@@ -475,7 +475,10 @@ SpvId SPIRVCodeGenerator::getType(const Type& type) {
 
 SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layout) {
     const Type& type = this->getActualType(rawType);
-    String key = type.name() + to_string((int) layout.fStd);
+    String key = type.name();
+    if (type.typeKind() == Type::TypeKind::kStruct || type.typeKind() == Type::TypeKind::kArray) {
+        key += to_string((int)layout.fStd);
+    }
     auto entry = fTypeMap.find(key);
     if (entry == fTypeMap.end()) {
         SpvId result = this->nextId();

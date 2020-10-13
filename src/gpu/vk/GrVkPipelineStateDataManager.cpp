@@ -7,6 +7,7 @@
 
 #include "src/gpu/vk/GrVkPipelineStateDataManager.h"
 
+#include "src/gpu/vk/GrVkCommandBuffer.h"
 #include "src/gpu/vk/GrVkGpu.h"
 #include "src/gpu/vk/GrVkUniformBuffer.h"
 
@@ -40,4 +41,13 @@ bool GrVkPipelineStateDataManager::uploadUniformBuffers(GrVkGpu* gpu,
     }
 
     return updatedBuffer;
+}
+
+void GrVkPipelineStateDataManager::uploadPushConstants(const GrVkGpu* gpu,
+                                                       VkPipelineLayout layout,
+                                                       GrVkCommandBuffer* commandBuffer) {
+    commandBuffer->pushConstants(gpu, layout,
+                                    //*** where to get these?
+                                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                                    0, fUniformSize, fUniformData.get());
 }
