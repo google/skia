@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96b58739_ae0ad496",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-13T13:31:44Z",
+      "side": 1,
+      "message": "Note: Ganesh does re-declare sk_FragColor in some cases, and taking out the logic to ignore that re-declaration breaks some Vulkan + Dawn cases (and probably others). Leaving that in for now (it looks like untangling that will be a bigger task). The key result here (getting rid of setModifiersHandle) still stands.",
+      "revId": "aefdcd541252865c352fdd352d36281fec046c7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
