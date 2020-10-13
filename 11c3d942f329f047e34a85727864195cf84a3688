@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "014ac86c_8a26cc60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11964
+      },
+      "writtenOn": "2020-10-13T19:45:48Z",
+      "side": 1,
+      "message": "Forgot to upload this patchset based on your comment on the last CL",
+      "revId": "11c3d942f329f047e34a85727864195cf84a3688",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
