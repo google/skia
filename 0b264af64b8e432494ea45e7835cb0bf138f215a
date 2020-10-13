@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a05717f_b1b618ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-13T22:11:57Z",
+      "side": 1,
+      "message": "Resubmit of https://skia-review.googlesource.com/c/skia/+/325236 to fix committer...",
+      "revId": "0b264af64b8e432494ea45e7835cb0bf138f215a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
