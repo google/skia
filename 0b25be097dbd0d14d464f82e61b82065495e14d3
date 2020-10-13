@@ -16,6 +16,23 @@
       "message": "Any reason we can\u0027t merge this now? I\u0027d like to rebase https://skia-review.googlesource.com/c/skia/+/324737 once it lands and use fast_mul_add()",
       "revId": "0b25be097dbd0d14d464f82e61b82065495e14d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc229eb4_b192642b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2020-10-13T14:49:14Z",
+      "side": 1,
+      "message": "Oh, right.  I landed everything but fast_mul_add() separately.  I\u0027ll drop this and you can merge any fast-mul-add you like outside SkVx.h.  I\u0027ve soured to it for not being reliable.",
+      "revId": "0b25be097dbd0d14d464f82e61b82065495e14d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
