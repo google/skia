@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "338384b4_cc6fadd1",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2020-10-13T15:34:14Z",
+      "side": 1,
+      "message": "Note that this also fixes a bug - at this point, we were checking the description of the shadowed \"modifiers\" to decide if the outer scope one should be dropped.\n\nThe logic here is basically - if we\u0027re doing the workaround, strip the invocations part of the modifers decl that we\u0027re converting. If doing so results in an empty decl, don\u0027t create an IR node.",
+      "revId": "19eab9ff7ca35c7b30c4d4b9120c89d101c4d74e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
