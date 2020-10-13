@@ -14,6 +14,7 @@
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 
 #include <string.h>
 #include <memory>
@@ -85,12 +86,12 @@ public:
         if (this == &that) {
             return *this;
         }
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             fItemArray[i].~T();
         }
         fCount = 0;
         this->checkRealloc(that.count());
-        fCount = that.count();
+        fCount = that.fCount;
         this->copy(that.fItemArray);
         return *this;
     }
@@ -98,19 +99,19 @@ public:
         if (this == &that) {
             return *this;
         }
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             fItemArray[i].~T();
         }
         fCount = 0;
         this->checkRealloc(that.count());
-        fCount = that.count();
+        fCount = that.fCount;
         that.move(fItemArray);
         that.fCount = 0;
         return *this;
     }
 
     ~SkTArray() {
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             fItemArray[i].~T();
         }
         if (fOwnMemory) {
@@ -131,14 +132,14 @@ public:
      */
     void reset(int n) {
         SkASSERT(n >= 0);
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             fItemArray[i].~T();
         }
         // Set fCount to 0 before calling checkRealloc so that no elements are moved.
         fCount = 0;
         this->checkRealloc(n);
         fCount = n;
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             new (fItemArray + i) T;
         }
         fReserved = false;
@@ -148,7 +149,7 @@ public:
      * Resets to a copy of a C array and resets any reserve count.
      */
     void reset(const T* array, int count) {
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             fItemArray[i].~T();
         }
         fCount = 0;
@@ -311,9 +312,9 @@ public:
     void resize_back(int newCount) {
         SkASSERT(newCount >= 0);
 
-        if (newCount > fCount) {
+        if (newCount > this->count()) {
             this->push_back_n(newCount - fCount);
-        } else if (newCount < fCount) {
+        } else if (newCount < this->count()) {
             this->pop_back_n(fCount - newCount);
         }
     }
@@ -327,8 +328,14 @@ public:
         }
         if (fOwnMemory && that.fOwnMemory) {
             swap(fItemArray, that.fItemArray);
-            swap(fCount, that.fCount);
-            swap(fAllocCount, that.fAllocCount);
+
+            auto count = fCount;
+            fCount = that.fCount;
+            that.fCount = count;
+
+            auto allocCount = fAllocCount;
+            fAllocCount = that.fAllocCount;
+            that.fAllocCount = allocCount;
         } else {
             // This could be more optimal...
             SkTArray copy(std::move(that));
@@ -358,13 +365,13 @@ public:
      * Get the i^th element.
      */
     T& operator[] (int i) {
-        SkASSERT(i < fCount);
+        SkASSERT(i < this->count());
         SkASSERT(i >= 0);
         return fItemArray[i];
     }
 
     const T& operator[] (int i) const {
-        SkASSERT(i < fCount);
+        SkASSERT(i < this->count());
         SkASSERT(i >= 0);
         return fItemArray[i];
     }
@@ -391,13 +398,13 @@ public:
      */
     T& fromBack(int i) {
         SkASSERT(i >= 0);
-        SkASSERT(i < fCount);
+        SkASSERT(i < this->count());
         return fItemArray[fCount - i - 1];
     }
 
     const T& fromBack(int i) const {
         SkASSERT(i >= 0);
-        SkASSERT(i < fCount);
+        SkASSERT(i < this->count());
         return fItemArray[fCount - i - 1];
     }
 
@@ -468,16 +475,14 @@ protected:
 
 private:
     void init(int count = 0, int reserveCount = 0) {
-        SkASSERT(count >= 0);
-        SkASSERT(reserveCount >= 0);
-        fCount = count;
+        fCount = SkToU32(count);
         if (!count && !reserveCount) {
             fAllocCount = 0;
             fItemArray = nullptr;
             fOwnMemory = true;
             fReserved = false;
         } else {
-            fAllocCount = std::max(count, std::max(kMinHeapAllocCount, reserveCount));
+            fAllocCount = SkToU32(std::max(count, std::max(kMinHeapAllocCount, reserveCount)));
             fItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
             fOwnMemory = true;
             fReserved = reserveCount > 0;
@@ -510,7 +515,7 @@ private:
         // MEM_MOVE == true implies that the type is trivially movable, and not necessarily
         // trivially copyable (think sk_sp<>).  So short of adding another template arg, we
         // must be conservative and use copy construction.
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             new (fItemArray + i) T(src[i]);
         }
     }
@@ -527,7 +532,7 @@ private:
         fItemArray[src].~T();
     }
     template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(void* dst) {
-        for (int i = 0; i < fCount; ++i) {
+        for (int i = 0; i < this->count(); ++i) {
             new (static_cast<char*>(dst) + sizeof(T) * (size_t)i) T(std::move(fItemArray[i]));
             fItemArray[i].~T();
         }
@@ -572,7 +577,7 @@ private:
             return;
         }
 
-        fAllocCount = Sk64_pin_to_s32(newAllocCount);
+        fAllocCount = SkToU32(Sk64_pin_to_s32(newAllocCount));
         SkASSERT(fAllocCount >= newCount);
         T* newItemArray = (T*)sk_malloc_throw((size_t)fAllocCount, sizeof(T));
         this->move(newItemArray);
@@ -586,10 +591,10 @@ private:
     }
 
     T* fItemArray;
-    int fCount;
-    int fAllocCount;
-    bool fOwnMemory : 1;
-    bool fReserved : 1;
+    uint32_t fOwnMemory  :  1;
+    uint32_t fCount      : 31;
+    uint32_t fReserved   :  1;
+    uint32_t fAllocCount : 31;
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
