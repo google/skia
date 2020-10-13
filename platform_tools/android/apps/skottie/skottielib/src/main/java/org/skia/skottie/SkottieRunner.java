@@ -97,9 +97,16 @@ class SkottieRunner {
      */
     public void updateAnimationSurface(Animatable animation, SurfaceTexture surfaceTexture,
                                        int width, int height) {
-        // TODO: when testing, make sure thread management handles crashes
-        ((SkottieAnimationImpl) animation).setSurfaceTexture(surfaceTexture);
-        ((SkottieAnimationImpl) animation).updateSurface(width, height);
+        try {
+            runOnGLThread(() -> {
+                ((SkottieAnimationImpl) animation).setSurfaceTexture(surfaceTexture);
+                ((SkottieAnimationImpl) animation).updateSurface(width, height);
+            });
+        }
+        catch (Throwable t) {
+            Log.e(LOG_TAG, "update failed", t);
+            throw new RuntimeException(t);
+        }
     }
 
     private SkottieRunner()
