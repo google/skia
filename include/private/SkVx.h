@@ -498,17 +498,19 @@ SI Vec<sizeof...(Ix),T> shuffle(const Vec<N,T>& x) {
 // or map(fn, x,y) for a vector of fn(x[i], y[i]), etc.
 
 template <typename Fn, typename... Args, size_t... I>
-#if defined(__clang__)
-// CFI, specifically -fsanitize=cfi-icall, seems to give a false positive here,
-// with errors like "control flow integrity check for type 'float (float)
-// noexcept' failed during indirect function call... note: sqrtf.cfi_jt defined
-// here".  But we can be quite sure fn is the right type: it's all inferred!
-// So, stifle CFI in this function.
-__attribute__((no_sanitize("cfi")))
-#endif
 SI auto map(std::index_sequence<I...>,
             Fn&& fn, const Args&... args) -> skvx::Vec<sizeof...(I), decltype(fn(args[0]...))> {
-    auto lane = [&](size_t i) { return fn(args[i]...); };
+    auto lane = [&](size_t i)
+#if defined(__clang__)
+    // CFI, specifically -fsanitize=cfi-icall, seems to give a false positive here,
+    // with errors like "control flow integrity check for type 'float (float)
+    // noexcept' failed during indirect function call... note: sqrtf.cfi_jt defined
+    // here".  But we can be quite sure fn is the right type: it's all inferred!
+    // So, stifle CFI in this function.
+    __attribute__((no_sanitize("cfi")))
+#endif
+    { return fn(args[i]...); };
+
     return { lane(I)... };
 }
 
