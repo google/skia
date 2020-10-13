@@ -22,6 +22,30 @@
       },
       "revId": "be2e0aec251dd5d073fe4bcd2beb41f2f1c5625b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9229964_be02c523",
+        "filename": "src/sksl/ir/SkSLIRNode.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2020-10-13T13:35:50Z",
+      "side": 1,
+      "message": "The biggest currently is FunctionDeclaration, weighing in at 80 bytes. I definitely agree with the overall concern about node size, but figured we could revisit once we have the conversion complete and have a good handle on where memory consumption stands.",
+      "parentUuid": "07d38018_1e678940",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 158,
+        "endChar": 21
+      },
+      "revId": "be2e0aec251dd5d073fe4bcd2beb41f2f1c5625b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     }
   ]
 }
