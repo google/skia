@@ -520,20 +520,12 @@ auto map(Fn&& fn, const Vec<N,T>& first, const Rest&... rest) {
     return map(std::make_index_sequence<N>{}, fn, first,rest...);
 }
 
-// TODO: remove functions that are unlikely to ever vectorize (atan, sin, cos, tan, pow)?
-
-SIN Vec<N,float>  atan(const Vec<N,float>& x) { return map( atanf, x); }
 SIN Vec<N,float>  ceil(const Vec<N,float>& x) { return map( ceilf, x); }
 SIN Vec<N,float> floor(const Vec<N,float>& x) { return map(floorf, x); }
 SIN Vec<N,float> trunc(const Vec<N,float>& x) { return map(truncf, x); }
 SIN Vec<N,float> round(const Vec<N,float>& x) { return map(roundf, x); }
 SIN Vec<N,float>  sqrt(const Vec<N,float>& x) { return map( sqrtf, x); }
 SIN Vec<N,float>   abs(const Vec<N,float>& x) { return map( fabsf, x); }
-SIN Vec<N,float>   sin(const Vec<N,float>& x) { return map(  sinf, x); }
-SIN Vec<N,float>   cos(const Vec<N,float>& x) { return map(  cosf, x); }
-SIN Vec<N,float>   tan(const Vec<N,float>& x) { return map(  tanf, x); }
-SIN Vec<N,float>   pow(const Vec<N,float>& x,
-                       const Vec<N,float>& y) { return map(powf, x,y); }
 SIN Vec<N,float>   fma(const Vec<N,float>& x,
                        const Vec<N,float>& y,
                        const Vec<N,float>& z) {

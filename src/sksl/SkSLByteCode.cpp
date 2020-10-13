@@ -479,7 +479,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
             VECTOR_UNARY_FN(kConvertStoF, skvx::cast<float>, fSigned)
             VECTOR_UNARY_FN(kConvertUtoF, skvx::cast<float>, fUnsigned)
 
-            VECTOR_UNARY_FN(kCos, skvx::cos, fFloat)
+            VECTOR_UNARY_FN(kCos, [](auto x) { return skvx::map(cosf, x); }, fFloat)
 
             VECTOR_BINARY_MASKED_OP(kDivideS, fSigned, /)
             VECTOR_BINARY_MASKED_OP(kDivideU, fUnsigned, /)
@@ -650,7 +650,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp -= READ8();
                 continue;
 
-            VECTOR_BINARY_FN(kPow, fFloat, skvx::pow)
+            VECTOR_BINARY_FN(kPow, fFloat, [](auto x, auto y) { return skvx::map(powf, x,y); })
 
             case ByteCodeInstruction::kPushImmediate:
                 PUSH(U32(READ32()));
@@ -743,7 +743,7 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 sp[0] = sp[0].fUnsigned >> READ8();
                 continue;
 
-            VECTOR_UNARY_FN(kSin, skvx::sin, fFloat)
+            VECTOR_UNARY_FN(kSin, [](auto x) { return skvx::map(sinf, x); }, fFloat)
             VECTOR_UNARY_FN(kSqrt, skvx::sqrt, fFloat)
 
             case ByteCodeInstruction::kStore: {
@@ -807,8 +807,8 @@ static bool InnerRun(const ByteCode* byteCode, const ByteCodeFunction* f, VValue
                 }
             } continue;
 
-            VECTOR_UNARY_FN(kATan, skvx::atan, fFloat)
-            VECTOR_UNARY_FN(kTan, skvx::tan, fFloat)
+            VECTOR_UNARY_FN(kATan, [](auto x) { return skvx::map(atanf, x); }, fFloat)
+            VECTOR_UNARY_FN(kTan, [](auto x) { return skvx::map(tanf, x); }, fFloat)
 
             case ByteCodeInstruction::kWriteExternal: {
                 int count = READ8(),
