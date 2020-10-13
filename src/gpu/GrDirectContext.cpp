@@ -677,6 +677,146 @@ bool GrDirectContext::updateBackendTexture(const GrBackendTexture& backendTextur
     return fGpu->updateBackendTexture(backendTexture, std::move(finishedCallback), &data);
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+static GrBackendTexture create_and_update_compressed_backend_texture(
+        GrDirectContext* dContext,
+        SkISize dimensions,
+        const GrBackendFormat& backendFormat,
+        GrMipmapped mipMapped,
+        GrProtected isProtected,
+        sk_sp<GrRefCntedCallback> finishedCallback,
+        const GrGpu::BackendTextureData* data) {
+    GrGpu* gpu = dContext->priv().getGpu();
+
+    GrBackendTexture beTex = gpu->createCompressedBackendTexture(dimensions, backendFormat,
+                                                                 mipMapped, isProtected);
+    if (!beTex.isValid()) {
+        return {};
+    }
+
+    if (!dContext->priv().getGpu()->updateCompressedBackendTexture(
+                beTex, std::move(finishedCallback), data)) {
+        dContext->deleteBackendTexture(beTex);
+        return {};
+    }
+    return beTex;
+}
+
+GrBackendTexture GrDirectContext::createCompressedBackendTexture(int width, int height,
+                                                             const GrBackendFormat& backendFormat,
+                                                             const SkColor4f& color,
+                                                             GrMipmapped mipMapped,
+                                                             GrProtected isProtected,
+                                                             GrGpuFinishedProc finishedProc,
+                                                             GrGpuFinishedContext finishedContext) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    sk_sp<GrRefCntedCallback> finishedCallback;
+    if (finishedProc) {
+        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (this->abandoned()) {
+        return {};
+    }
+
+    GrGpu::BackendTextureData data(color);
+    return create_and_update_compressed_backend_texture(this, {width, height},
+                                                        backendFormat, mipMapped, isProtected,
+                                                        std::move(finishedCallback), &data);
+}
+
+GrBackendTexture GrDirectContext::createCompressedBackendTexture(int width, int height,
+                                                             SkImage::CompressionType compression,
+                                                             const SkColor4f& color,
+                                                             GrMipmapped mipMapped,
+                                                             GrProtected isProtected,
+                                                             GrGpuFinishedProc finishedProc,
+                                                             GrGpuFinishedContext finishedContext) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    GrBackendFormat format = this->compressedBackendFormat(compression);
+    return this->createCompressedBackendTexture(width, height, format, color,
+                                                mipMapped, isProtected, finishedProc,
+                                                finishedContext);
+}
+
+GrBackendTexture GrDirectContext::createCompressedBackendTexture(int width, int height,
+                                                             const GrBackendFormat& backendFormat,
+                                                             const void* compressedData,
+                                                             size_t dataSize,
+                                                             GrMipmapped mipMapped,
+                                                             GrProtected isProtected,
+                                                             GrGpuFinishedProc finishedProc,
+                                                             GrGpuFinishedContext finishedContext) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    sk_sp<GrRefCntedCallback> finishedCallback;
+    if (finishedProc) {
+        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (this->abandoned()) {
+        return {};
+    }
+
+    GrGpu::BackendTextureData data(compressedData, dataSize);
+    return create_and_update_compressed_backend_texture(this, {width, height},
+                                                        backendFormat, mipMapped, isProtected,
+                                                        std::move(finishedCallback), &data);
+}
+
+GrBackendTexture GrDirectContext::createCompressedBackendTexture(int width, int height,
+                                                             SkImage::CompressionType compression,
+                                                             const void* data, size_t dataSize,
+                                                             GrMipmapped mipMapped,
+                                                             GrProtected isProtected,
+                                                             GrGpuFinishedProc finishedProc,
+                                                             GrGpuFinishedContext finishedContext) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    GrBackendFormat format = this->compressedBackendFormat(compression);
+    return this->createCompressedBackendTexture(width, height, format, data, dataSize, mipMapped,
+                                                isProtected, finishedProc, finishedContext);
+}
+
+bool GrDirectContext::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                                     const SkColor4f& color,
+                                                     GrGpuFinishedProc finishedProc,
+                                                     GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> finishedCallback;
+    if (finishedProc) {
+        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (this->abandoned()) {
+        return false;
+    }
+
+    GrGpu::BackendTextureData data(color);
+    return fGpu->updateCompressedBackendTexture(backendTexture, std::move(finishedCallback), &data);
+}
+
+bool GrDirectContext::updateCompressedBackendTexture(const GrBackendTexture& backendTexture,
+                                                     const void* compressedData,
+                                                     size_t dataSize,
+                                                     GrGpuFinishedProc finishedProc,
+                                                     GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> finishedCallback;
+    if (finishedProc) {
+        finishedCallback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (this->abandoned()) {
+        return false;
+    }
+
+    if (!compressedData) {
+        return false;
+    }
+
+    GrGpu::BackendTextureData data(compressedData, dataSize);
+
+    return fGpu->updateCompressedBackendTexture(backendTexture, std::move(finishedCallback), &data);
+}
+
 #ifdef SK_GL
 
 /*************************************************************************************************/
