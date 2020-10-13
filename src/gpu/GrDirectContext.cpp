@@ -8,6 +8,7 @@
 
 #include "include/gpu/GrDirectContext.h"
 
+#include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/GrClientMappedBufferManager.h"
@@ -17,6 +18,7 @@
 #include "src/gpu/GrGpu.h"
 #include "src/gpu/GrResourceProvider.h"
 #include "src/gpu/GrShaderUtils.h"
+#include "src/image/SkImage_GpuBase.h"
 
 #include "src/gpu/ccpr/GrCoverageCountingPathRenderer.h"
 #include "src/gpu/effects/GrSkSLFP.h"
@@ -330,6 +332,25 @@ void GrDirectContext::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
     fResourceCache->purgeUnlockedResources(bytesToPurge, preferScratchResources);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+bool GrDirectContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[],
+                           bool deleteSemaphoresAfterWait) {
+    if (!fGpu || fGpu->caps()->semaphoreSupport()) {
+        return false;
+    }
+    GrWrapOwnership ownership =
+            deleteSemaphoresAfterWait ? kAdopt_GrWrapOwnership : kBorrow_GrWrapOwnership;
+    for (int i = 0; i < numSemaphores; ++i) {
+        std::unique_ptr<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
+                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait, ownership);
+        // If we failed to wrap the semaphore it means the client didn't give us a valid semaphore
+        // to begin with. Therefore, it is fine to not wait on it.
+        if (sema) {
+            fGpu->waitSemaphore(sema.get());
+        }
+    }
+    return true;
+}
 
 GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
     if (!fSmallPathAtlasMgr) {
@@ -343,6 +364,89 @@ GrSmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
     }
 
     return fSmallPathAtlasMgr.get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
+    ASSERT_SINGLE_OWNER
+    if (this->abandoned()) {
+        if (info.fFinishedProc) {
+            info.fFinishedProc(info.fFinishedContext);
+        }
+        if (info.fSubmittedProc) {
+            info.fSubmittedProc(info.fSubmittedContext, false);
+        }
+        return GrSemaphoresSubmitted::kNo;
+    }
+
+    bool flushed = this->drawingManager()->flush(
+            nullptr, 0, SkSurface::BackendSurfaceAccess::kNoAccess, info, nullptr);
+
+    if (!flushed || (!this->priv().caps()->semaphoreSupport() && info.fNumSemaphores)) {
+        return GrSemaphoresSubmitted::kNo;
+    }
+    return GrSemaphoresSubmitted::kYes;
+}
+
+bool GrDirectContext::submit(bool syncCpu) {
+    ASSERT_SINGLE_OWNER
+    if (this->abandoned()) {
+        return false;
+    }
+
+    if (!fGpu) {
+        return false;
+    }
+
+    return fGpu->submitToGpu(syncCpu);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrDirectContext::checkAsyncWorkCompletion() {
+    if (fGpu) {
+        fGpu->checkFinishProcs();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrDirectContext::storeVkPipelineCacheData() {
+    if (fGpu) {
+        fGpu->storeVkPipelineCacheData();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool GrDirectContext::supportsDistanceFieldText() const {
+    return this->caps()->shaderCaps()->supportsDistanceFieldText();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void GrDirectContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    ASSERT_SINGLE_OWNER
+    fResourceCache->dumpMemoryStatistics(traceMemoryDump);
+    traceMemoryDump->dumpNumericValue("skia/gr_text_blob_cache", "size", "bytes",
+                                      this->getTextBlobCache()->usedBytes());
+}
+
+size_t GrDirectContext::ComputeImageSize(sk_sp<SkImage> image, GrMipmapped mipMapped,
+                                         bool useNextPow2) {
+    if (!image->isTextureBacked()) {
+        return 0;
+    }
+    SkImage_GpuBase* gpuImage = static_cast<SkImage_GpuBase*>(as_IB(image.get()));
+    GrTextureProxy* proxy = gpuImage->peekProxy();
+    if (!proxy) {
+        return 0;
+    }
+
+    int colorSamplesPerPixel = 1;
+    return GrSurface::ComputeSize(proxy->backendFormat(), image->dimensions(),
+                                  colorSamplesPerPixel, mipMapped, useNextPow2);
 }
 
 #ifdef SK_GL

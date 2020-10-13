@@ -173,7 +173,7 @@ void GrContextPriv::testingOnly_purgeAllUnlockedResources() {
 }
 
 void GrContextPriv::testingOnly_flushAndRemoveOnFlushCallbackObject(GrOnFlushCallbackObject* cb) {
-    fContext->flushAndSubmit();
+    fContext->asDirectContext()->flushAndSubmit();
     fContext->drawingManager()->testingOnly_removeOnFlushCallbackObject(cb);
 }
 #endif
