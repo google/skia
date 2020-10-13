@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "badf9cf1_e46f373e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8323
+      },
+      "writtenOn": "2020-10-13T02:31:16Z",
+      "side": 1,
+      "message": "Fixed fEndCopyInstance assertion.\n\nVerified in both unit test and our Android app that issue has been fixed.",
+      "revId": "8f6ed2d52cabc1181e834de4318dfd7af6ea99e8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    }
+  ]
+}
