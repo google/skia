@@ -39,6 +39,7 @@
 #ifdef SK_DAWN
 #include "src/gpu/dawn/GrDawnGpu.h"
 #endif
+#include <memory>
 
 #if GR_TEST_UTILS
 #   include "include/utils/SkRandom.h"
@@ -816,6 +817,94 @@ bool GrDirectContext::updateCompressedBackendTexture(const GrBackendTexture& bac
 
     return fGpu->updateCompressedBackendTexture(backendTexture, std::move(finishedCallback), &data);
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool GrDirectContext::setBackendTextureState(const GrBackendTexture& backendTexture,
+                                             const GrBackendSurfaceMutableState& state,
+                                             GrBackendSurfaceMutableState* previousState,
+                                             GrGpuFinishedProc finishedProc,
+                                             GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> callback;
+    if (finishedProc) {
+        callback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (this->abandoned()) {
+        return false;
+    }
+
+    return fGpu->setBackendTextureState(backendTexture, state, previousState, std::move(callback));
+}
+
+
+bool GrDirectContext::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
+                                                  const GrBackendSurfaceMutableState& state,
+                                                  GrBackendSurfaceMutableState* previousState,
+                                                  GrGpuFinishedProc finishedProc,
+                                                  GrGpuFinishedContext finishedContext) {
+    sk_sp<GrRefCntedCallback> callback;
+    if (finishedProc) {
+        callback.reset(new GrRefCntedCallback(finishedProc, finishedContext));
+    }
+
+    if (this->abandoned()) {
+        return false;
+    }
+
+    return fGpu->setBackendRenderTargetState(backendRenderTarget, state, previousState,
+                                             std::move(callback));
+}
+
+void GrDirectContext::deleteBackendTexture(GrBackendTexture backendTex) {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    // For the Vulkan backend we still must destroy the backend texture when the context is
+    // abandoned.
+    if ((this->abandoned() && this->backend() != GrBackendApi::kVulkan) || !backendTex.isValid()) {
+        return;
+    }
+
+    fGpu->deleteBackendTexture(backendTex);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool GrDirectContext::precompileShader(const SkData& key, const SkData& data) {
+    return fGpu->precompileShader(key, data);
+}
+
+#ifdef SK_ENABLE_DUMP_GPU
+#include "include/core/SkString.h"
+#include "src/utils/SkJSONWriter.h"
+SkString GrDirectContext::dump() const {
+    SkDynamicMemoryWStream stream;
+    SkJSONWriter writer(&stream, SkJSONWriter::Mode::kPretty);
+    writer.beginObject();
+
+    writer.appendString("backend", GrBackendApiToStr(this->backend()));
+
+    writer.appendName("caps");
+    this->caps()->dumpJSON(&writer);
+
+    writer.appendName("gpu");
+    this->fGpu->dumpJSON(&writer);
+
+    writer.appendName("context");
+    this->dumpJSON(&writer);
+
+    // Flush JSON to the memory stream
+    writer.endObject();
+    writer.flush();
+
+    // Null terminate the JSON data in the memory stream
+    stream.write8(0);
+
+    // Allocate a string big enough to hold all the data, then copy out of the stream
+    SkString result(stream.bytesWritten());
+    stream.copyToAndReset(result.writable_str());
+    return result;
+}
+#endif
 
 #ifdef SK_GL
 
