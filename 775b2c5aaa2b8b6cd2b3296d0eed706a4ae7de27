@@ -24,6 +24,30 @@
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bfb36d9_ba2b3ca7",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-13T01:38:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dabbd414_154554c3",
+      "range": {
+        "startLine": 40,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 73
+      },
+      "revId": "775b2c5aaa2b8b6cd2b3296d0eed706a4ae7de27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b021d02_6ca6e07c",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-12T13:55:29Z",
       "side": 1,
       "message": "technically, this is discr_over_2 as well, right?",
+      "range": {
+        "startLine": 126,
+        "startChar": 14,
+        "endLine": 126,
+        "endChar": 20
+      },
+      "revId": "775b2c5aaa2b8b6cd2b3296d0eed706a4ae7de27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73bba10b_c8c2d296",
+        "filename": "src/gpu/tessellate/GrStrokeTessellateShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2020-10-13T01:38:46Z",
+      "side": 1,
+      "message": "Done. Yes, thank you, this helps readability.",
+      "parentUuid": "7b021d02_6ca6e07c",
       "range": {
         "startLine": 126,
         "startChar": 14,
