@@ -215,8 +215,7 @@ private:
      * returns (vec2(float), vec2). It is an error to use mismatched vector sizes, e.g. (float,
      * vec2, vec3).
      */
-    std::vector<SpvId> vectorize(const std::vector<std::unique_ptr<Expression>>& args,
-                                 OutputStream& out);
+    std::vector<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 

@@ -693,7 +693,7 @@ SpvId SPIRVCodeGenerator::writeExpression(const Expression& expr, OutputStream& 
 
 SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream& out) {
     const FunctionDeclaration& function = c.function();
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
     auto intrinsic = fIntrinsicMap.find(function.name());
     SkASSERT(intrinsic != fIntrinsicMap.end());
     int32_t intrinsicId;
@@ -763,9 +763,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
     }
 }
 
-std::vector<SpvId> SPIRVCodeGenerator::vectorize(
-                                               const std::vector<std::unique_ptr<Expression>>& args,
-                                               OutputStream& out) {
+std::vector<SpvId> SPIRVCodeGenerator::vectorize(const ExpressionArray& args, OutputStream& out) {
     int vectorSize = 0;
     for (const auto& a : args) {
         if (a->type().typeKind() == Type::TypeKind::kVector) {
@@ -778,6 +776,7 @@ std::vector<SpvId> SPIRVCodeGenerator::vectorize(
         }
     }
     std::vector<SpvId> result;
+    result.reserve(args.size());
     for (const auto& arg : args) {
         const Type& argType = arg->type();
         SpvId raw = this->writeExpression(*arg, out);
@@ -823,7 +822,7 @@ void SPIRVCodeGenerator::writeGLSLExtendedInstruction(const Type& type, SpvId id
 
 SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind,
                                                 OutputStream& out) {
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
     SpvId result = this->nextId();
     const Type& callType = c.type();
     switch (kind) {
@@ -856,9 +855,10 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kSubpassLoad_SpecialIntrinsic: {
             SpvId img = this->writeExpression(*arguments[0], out);
-            std::vector<std::unique_ptr<Expression>> args;
-            args.emplace_back(new IntLiteral(fContext, -1, 0));
-            args.emplace_back(new IntLiteral(fContext, -1, 0));
+            ExpressionArray args;
+            args.reserve(2);
+            args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
+            args.push_back(std::make_unique<IntLiteral>(fContext, /*offset=*/-1, /*value=*/0));
             Constructor ctor(-1, fContext.fInt2_Type.get(), std::move(args));
             SpvId coords = this->writeConstantVector(ctor);
             if (arguments.size() == 1) {
@@ -1004,10 +1004,13 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kSaturate_SpecialIntrinsic: {
             SkASSERT(arguments.size() == 1);
-            std::vector<std::unique_ptr<Expression>> finalArgs;
+            ExpressionArray finalArgs;
+            finalArgs.reserve(3);
             finalArgs.push_back(arguments[0]->clone());
-            finalArgs.emplace_back(new FloatLiteral(fContext, -1, 0));
-            finalArgs.emplace_back(new FloatLiteral(fContext, -1, 1));
+            finalArgs.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1,
+                                                               /*value=*/0));
+            finalArgs.push_back(std::make_unique<FloatLiteral>(fContext, /*offset=*/-1,
+                                                               /*value=*/1));
             std::vector<SpvId> spvArgs = this->vectorize(finalArgs, out);
             this->writeGLSLExtendedInstruction(callType, result, GLSLstd450FClamp, GLSLstd450SClamp,
                                                GLSLstd450UClamp, spvArgs, out);
@@ -1019,7 +1022,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
 
 SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream& out) {
     const FunctionDeclaration& function = c.function();
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
     const auto& entry = fFunctionMap.find(&function);
     if (entry == fFunctionMap.end()) {
         return this->writeIntrinsicCall(c, out);

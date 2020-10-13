@@ -213,7 +213,7 @@ void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
 
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
     const auto& entry = fIntrinsicMap.find(function.name());
     if (entry != fIntrinsicMap.end()) {
         this->writeIntrinsicCall(c);
@@ -357,7 +357,7 @@ void MetalCodeGenerator::writeInverseHack(const Expression& mat) {
 }
 
 void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
     switch (kind) {
         case kTexture_SpecialIntrinsic: {
             this->writeExpression(*arguments[0], kSequence_Precedence);
@@ -438,8 +438,8 @@ void MetalCodeGenerator::assembleMatrixFromMatrix(const Type& sourceMatrix, int 
 
 // Assembles a matrix of type floatRxC by concatenating an arbitrary mix of values, named `x0`,
 // `x1`, etc. An error is written if the expression list don't contain exactly R*C scalars.
-void MetalCodeGenerator::assembleMatrixFromExpressions(
-        const std::vector<std::unique_ptr<Expression>>& args, int rows, int columns) {
+void MetalCodeGenerator::assembleMatrixFromExpressions(const ExpressionArray& args,
+                                                       int rows, int columns) {
     size_t argIndex = 0;
     int argPosition = 0;
 
@@ -505,7 +505,7 @@ String MetalCodeGenerator::getMatrixConstructHelper(const Constructor& c) {
     const Type& matrix = c.type();
     int columns = matrix.columns();
     int rows = matrix.rows();
-    const std::vector<std::unique_ptr<Expression>>& args = c.arguments();
+    const ExpressionArray& args = c.arguments();
 
     // Create the helper-method name and use it as our lookup key.
     String name;

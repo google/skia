@@ -34,7 +34,7 @@ String PipelineStageCodeGenerator::getTypeName(const Type& type) {
 
 void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& function = c.function();
-    const std::vector<std::unique_ptr<Expression>>& arguments = c.arguments();
+    const ExpressionArray& arguments = c.arguments();
     if (function.isBuiltin() && function.name() == "sample" &&
         arguments[0]->type().typeKind() != Type::TypeKind::kSampler) {
         SkASSERT(arguments.size() <= 2);
